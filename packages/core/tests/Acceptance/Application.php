@@ -122,10 +122,12 @@ use Prospecter\Core\Connectors\Application\ConsultMyConnections\ConsultMyConnect
 use Prospecter\Core\Connectors\Application\ConsultMyConnections\ConsultMyConnectionsHandler;
 use Prospecter\Core\Connectors\Application\ConsultMyConnections\KeptConnections;
 use Prospecter\Core\Connectors\Application\Disconnect\DisconnectHandler;
+use Prospecter\Core\Connectors\Application\ImportMail\ImportMailHandler;
 use Prospecter\Core\Connectors\Application\NoteMailboxNotification\NoteMailboxNotificationHandler;
 use Prospecter\Core\Connectors\Application\PublishVideoCallLinkCreated\PublishVideoCallLinkCreatedHandler;
 use Prospecter\Core\Connectors\Application\PushExchange\PushExchangeHandler;
 use Prospecter\Core\Connectors\Application\PushUpcomingExchanges\PushUpcomingExchangesHandler;
+use Prospecter\Core\Connectors\Application\ReadMailboxHistory\ReadMailboxHistoryHandler;
 use Prospecter\Core\Connectors\Application\RemoveClient\RemoveClientHandler;
 use Prospecter\Core\Connectors\Application\RemoveMailboxNotifications\RemoveMailboxNotificationsHandler;
 use Prospecter\Core\Connectors\Application\RenewMailWatch\RenewMailWatch;
@@ -285,6 +287,7 @@ use Prospecter\Core\Prospecting\Application\MoveExchange\MoveExchangeHandler;
 use Prospecter\Core\Prospecting\Application\NameOrganizationsOfContacts\NameOrganizationsOfContactsHandler;
 use Prospecter\Core\Prospecting\Application\NoteCampaignExchange\NoteCampaignExchangeHandler;
 use Prospecter\Core\Prospecting\Application\NoteExchange\NoteExchangeHandler;
+use Prospecter\Core\Prospecting\Application\NoteImportedEmail\NoteImportedEmailHandler;
 use Prospecter\Core\Prospecting\Application\NoteOrganizationExchange\NoteOrganizationExchangeHandler;
 use Prospecter\Core\Prospecting\Application\NoteOrganizationToDo\NoteOrganizationToDoHandler;
 use Prospecter\Core\Prospecting\Application\NoteToDo\NoteToDoHandler;
@@ -454,6 +457,7 @@ use Tests\Core\Double\KnownEstablishmentsDirectory;
 use Tests\Core\Double\KnownPlacesGeoLocation;
 use Tests\Core\Double\NoRecordingsInFlight;
 use Tests\Core\Double\PersonalDataAndProspectingAddressees;
+use Tests\Core\Double\PersonalDataAndProspectingCorrespondents;
 use Tests\Core\Double\PersonalDataContactNames;
 use Tests\Core\Double\PersonalDataContactsReach;
 use Tests\Core\Double\PersonalDataFactsFromPersonalData;
@@ -1535,6 +1539,7 @@ final class Application
             new SuspectDuplicateInReturnHandler($this->organizations, $this->events),
             new LiftSuspicionInReturnHandler($this->organizations, $this->events),
             new DismissSuspicionInReturnHandler($this->organizations, $this->events),
+            new NoteImportedEmailHandler($this->exchanges, $this->organizations, $this->prospectors, $this->contactOrganizations, $this->events),
             new ForgetContactsLeftWithoutOrganizationHandler($this->persons, $this->readers, $this->events),
             new ForgetContactLeftUnattachedHandler($this->persons, $this->readers, $this->events),
             new EraseExchangesOfContactLeftUnattachedHandler($this->exchanges, $this->events),
@@ -1558,6 +1563,8 @@ final class Application
             new RecordContactFactsHandler($this->factRecorder),
             new PushExchangeHandler($this->calendarPusher),
             new PushUpcomingExchangesHandler($this->heldExchanges, $this->calendarPusher),
+            new ReadMailboxHistoryHandler($this->connections, $this->clients, $this->mailboxes, $this->connectingMembers, $this->events),
+            new ImportMailHandler($this->connections, $this->clients, $this->mailboxes, new PersonalDataAndProspectingCorrespondents($this->whichContactsHaveTheseEmailsService, $this->whichOrganizationsHaveTheseEmailsService), $this->events),
             new UnnameForgottenContactHandler($this->heldExchanges, $this->calendarEntries, $this->calendarPusher),
             new ForgetTagsOfUnprospectedOrganizationHandler($this->taggings),
             new ForgetTagsOfForgottenContactHandler($this->taggings),

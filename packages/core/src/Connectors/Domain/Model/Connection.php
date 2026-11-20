@@ -9,6 +9,7 @@ use Prospecter\Core\Connectors\Domain\Event\Connected;
 use Prospecter\Core\Connectors\Domain\Event\ConnectionLost;
 use Prospecter\Core\Connectors\Domain\Event\Disconnected;
 use Prospecter\Core\Connectors\Domain\Event\MailboxChanged;
+use Prospecter\Core\Connectors\Domain\Event\MailboxMessageAdded;
 use Prospecter\Core\Connectors\Domain\Event\MailImportLost;
 use Prospecter\Core\Connectors\Domain\Event\MailImportStarted;
 use Prospecter\Core\Connectors\Domain\Event\MailImportStopped;
@@ -17,6 +18,7 @@ use Prospecter\Core\Connectors\Domain\Event\VideoCallLinkCreated;
 use Prospecter\Core\Connectors\Domain\Exception\AccessRevoked;
 use Prospecter\Core\Connectors\Domain\Exception\CalendarGone;
 use Prospecter\Core\Connectors\Domain\Exception\CalendarRefusedThePush;
+use Prospecter\Core\Connectors\Domain\Exception\HistoryExpired;
 use Prospecter\Core\Connectors\Domain\Exception\IncompleteGrant;
 use Prospecter\Core\Connectors\Domain\Port\ProviderAccess;
 use Prospecter\Core\Connectors\Domain\Port\ProviderCalendar;
@@ -36,6 +38,10 @@ final class Connection implements ReleasesEvents
 {
     use RecordsEvents;
 
+    /** the most messages a reading lists, so that their events fit in a write (ADR 0154) */
+    private const int MOST_MESSAGES_BY_HISTORY = 500;
+    private const int MOST_MESSAGES_BY_DATE = 1000;
+
     private ConnectionState $state = ConnectionState::Connected;
     private ?string $calendar = null;
     private MailImport $mailImport = MailImport::Off;
@@ -43,6 +49,7 @@ final class Connection implements ReleasesEvents
     private ?\DateTimeImmutable $watchExpiresAt = null;
     private ?string $notifiedHistoryId = null;
     private ?\DateTimeImmutable $lastNotifiedAt = null;
+    private ?\DateTimeImmutable $historyReadAt = null;
     private \DateTimeImmutable $modifiedAt;
 
     private function __construct(
@@ -249,7 +256,7 @@ final class Connection implements ReleasesEvents
         $this->mailImport = MailImport::Active;
         $this->historyId = $watch->historyId;
         $this->watchExpiresAt = $watch->expiresAt;
-        $this->modifiedAt = $at;
+        $this->historyReadAt = $this->modifiedAt = $at;
         $this->recordThat(new MailImportStarted($this->accountId, $this->member, $at));
     }
 
@@ -297,6 +304,73 @@ final class Connection implements ReleasesEvents
         return null === $known || strlen($notified) > strlen($known) || (strlen($notified) === strlen($known) && strcmp($notified, $known) > 0) ? $notified : $known;
     }
 
+    /**
+     * The messages added to the mailbox since the point of its history read last, each to import; a reading stopped
+     * before the end leaves the moment of the last complete one, so that the history expiring meanwhile is resumed from
+     * before the first message left unread (ADR 0154). A member no longer managing the personal data imports nothing:
+     * their import is stopped.
+     */
+    public function readMailboxHistory(Member $reader, ClientCredentials $client, ProviderMailbox $mailbox, \DateTimeImmutable $at): void
+    {
+        if (MailImport::Active !== $this->mailImport) {
+            return;
+        }
+
+        if (!$reader->managesPersonalData) {
+            $this->stopMailImport($client, $mailbox, $at);
+
+            return;
+        }
+
+        try {
+            $changes = $this->changesOf($client, $mailbox);
+        } catch (AccessRevoked) {
+            $this->loseTheMailImport($at);
+
+            return;
+        }
+
+        foreach ($changes->messageIds as $messageId) {
+            $this->recordThat(new MailboxMessageAdded($this->accountId, $this->member, $messageId, $at));
+        }
+
+        $this->historyId = $changes->historyId;
+        $this->historyReadAt = $changes->complete ? $at : $this->historyReadAt;
+        $this->modifiedAt = $at;
+    }
+
+    /**
+     * The history the provider no longer keeps from where it was read is resumed by the date it was read completely.
+     *
+     * @throws AccessRevoked
+     */
+    private function changesOf(ClientCredentials $client, ProviderMailbox $mailbox): MailboxChanges
+    {
+        try {
+            return $mailbox->messagesAddedSince($client, $this->refreshToken, (string) $this->historyId, self::MOST_MESSAGES_BY_HISTORY);
+        } catch (HistoryExpired) {
+            return $mailbox->messagesReceivedAfter($client, $this->refreshToken, $this->historyReadAt ?? $this->connectedAt, self::MOST_MESSAGES_BY_DATE);
+        }
+    }
+
+    /**
+     * A message of the mailbox imported, none once the import is no longer active.
+     *
+     * @throws AccessRevoked
+     */
+    public function mailOf(string $messageId, ClientCredentials $client, ProviderMailbox $mailbox): ?ReceivedMail
+    {
+        return MailImport::Active === $this->mailImport ? $mailbox->message($client, $this->refreshToken, $messageId) : null;
+    }
+
+    /**
+     * The mailbox imported: that of the account connected.
+     */
+    public function mailbox(): Email
+    {
+        return $this->externalAccount;
+    }
+
     private function loseTheMailImport(\DateTimeImmutable $at): void
     {
         $this->mailImport = MailImport::ToReconnect;
@@ -325,7 +399,7 @@ final class Connection implements ReleasesEvents
     {
         $this->mailImport = MailImport::Off;
         $this->historyId = $this->notifiedHistoryId = null;
-        $this->watchExpiresAt = $this->lastNotifiedAt = null;
+        $this->watchExpiresAt = $this->lastNotifiedAt = $this->historyReadAt = null;
         $this->modifiedAt = $at;
         $this->recordThat(new MailImportStopped($this->accountId, $this->member, $at));
     }

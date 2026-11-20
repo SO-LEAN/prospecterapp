@@ -75,6 +75,7 @@ final readonly class DynamoConnectionRepository implements ConnectionRepository
             'watchExpiresAt' => Documents::momentOfOrNone($document['watchExpiresAt'] ?? null),
             'notifiedHistoryId' => $document['notifiedHistoryId'] ?? null,
             'lastNotifiedAt' => Documents::momentOfOrNone($document['lastNotifiedAt'] ?? null),
+            'historyReadAt' => Documents::momentOfOrNone($document['historyReadAt'] ?? null),
             'connectedAt' => Documents::momentOf($document['connectedAt']),
             'modifiedAt' => Documents::momentOf($document['modifiedAt']),
         ]);
@@ -121,6 +122,7 @@ final readonly class DynamoConnectionRepository implements ConnectionRepository
                 'watchExpiresAt' => Documents::momentOrNone($state['watchExpiresAt']),
                 'notifiedHistoryId' => $state['notifiedHistoryId'],
                 'lastNotifiedAt' => Documents::momentOrNone($state['lastNotifiedAt']),
+                'historyReadAt' => Documents::momentOrNone($state['historyReadAt']),
                 'connectedAt' => Documents::moment($state['connectedAt']),
                 'modifiedAt' => Documents::moment($state['modifiedAt']),
             ],

@@ -71,6 +71,7 @@ final class Exchange implements ReleasesEvents
     private ?Correction $madeConform = null;
     private ?Cancellation $cancellation = null;
     private ?CampaignId $campaign = null;
+    private ?ImportedEmail $importedFrom = null;
     /** @var list<Attachment> */
     private array $attachments = [];
 
@@ -116,6 +117,36 @@ final class Exchange implements ReleasesEvents
         $recipient->ensureToHandle();
         $exchange = self::noted($accountId, $by, $id, $recipient->contact, $organizationsOfTheContact, new ExchangeFacts($recipient->channel, Direction::Outbound, $occurredAt, $text), ExchangeStatus::outcome($missed), $at);
         $exchange->campaign = $recipient->campaign;
+
+        return $exchange;
+    }
+
+    /**
+     * An e-mail of the mailbox of a member exchanged with a contact, noted by the import of their mailbox as by them
+     * (ADR 0154): kept, like any, for the organizations of the contact.
+     *
+     * @param list<OrganizationId> $organizationsOfTheContact
+     *
+     * @throws ExchangeInTheFuture
+     */
+    public static function importedWithAContact(AccountId $accountId, MemberId $by, ExchangeId $id, PersonId $contact, array $organizationsOfTheContact, ExchangeFacts $facts, ImportedEmail $email, \DateTimeImmutable $at): self
+    {
+        $exchange = self::noted($accountId, $by, $id, $contact, $organizationsOfTheContact, $facts, ExchangeStatus::Done, $at);
+        $exchange->importedFrom = $email;
+
+        return $exchange;
+    }
+
+    /**
+     * An e-mail of the mailbox of a member exchanged with the address of an organization itself, noted by the import
+     * of their mailbox as by them (ADR 0154): kept for the organization alone.
+     *
+     * @throws ExchangeInTheFuture
+     */
+    public static function importedWithTheOrganization(Organization $organization, MemberId $by, ExchangeId $id, ExchangeFacts $facts, ImportedEmail $email, \DateTimeImmutable $at): self
+    {
+        $exchange = self::notedWithTheOrganization($organization, $by, $id, $facts, ExchangeStatus::Done, $at);
+        $exchange->importedFrom = $email;
 
         return $exchange;
     }

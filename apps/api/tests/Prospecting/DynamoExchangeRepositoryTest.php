@@ -11,6 +11,7 @@ use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
+use Prospecter\Core\Prospecting\Domain\Model\ImportedEmail;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
@@ -118,6 +119,21 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
         $read = $exchanges->get($exchange->id());
         $this->assertEquals(new Correction($this->prospector->id, new \DateTimeImmutable(self::NOW)), Hydrator::stateOf($read)['madeConform']);
         $this->assertFalse($read->isToMakeConform());
+    }
+
+    public function testAnImportedExchangeIsReadWithWhereItComesFromAndStaysImportedOnceErased(): void
+    {
+        $exchanges = $this->exchanges();
+        $imported = Exchange::importedWithAContact($this->prospector->accountId, $this->prospector->id, new ExchangeId(self::newIdentity()), $this->contact, [$this->acme], new ExchangeFacts(Channel::Email, Direction::Inbound, new \DateTimeImmutable('2026-10-10 09:00 UTC'), "Votre devis\n\nBonjour"), new ImportedEmail('google', 'f00d'), new \DateTimeImmutable(self::NOW));
+        $imported->releaseEvents();
+        $exchanges->save($imported);
+
+        $this->assertEquals($imported, $exchanges->get($imported->id()));
+
+        $exchanges->remove($imported);
+
+        $this->assertTrue($exchanges->wasImported($imported->id()));
+        $this->assertFalse($exchanges->wasImported(new ExchangeId(self::newIdentity())));
     }
 
     public function testAnExchangeNeverNotedIsUnknown(): void

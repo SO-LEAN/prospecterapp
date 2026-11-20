@@ -16,6 +16,7 @@ use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
+use Prospecter\Core\Prospecting\Domain\Model\ImportedEmail;
 use Prospecter\Core\Prospecting\Domain\Model\VideoCallLink;
 use Prospecter\Core\Prospecting\Domain\Policy\ExchangeChronology;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
@@ -28,7 +29,8 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
  * An exchange as a plain document of its DynamoDB item, and back (ADR 0048): its facts and its attachments as
  * they are, its recorded events never; an item written before an exchange was planned reads as done, and one
  * written done with the fact `missed` of a call that did not go through, before missed was a status, as missed; one
- * written before an exchange was noted in a campaign, in none (ADR 0145).
+ * written before an exchange was noted in a campaign, in none (ADR 0145); one written before the e-mails were imported,
+ * imported from nowhere (ADR 0154).
  */
 final class ExchangeDocument
 {
@@ -47,6 +49,7 @@ final class ExchangeDocument
             'contact' => $state['contact']?->value,
             'keptFor' => array_map(static fn (OrganizationId $organization): string => (string) $organization, $state['keptFor']),
             'campaignId' => $state['campaign']?->value,
+            'importedFrom' => null === $state['importedFrom'] ? null : ['provider' => $state['importedFrom']->provider, 'identity' => $state['importedFrom']->identity],
             'facts' => [
                 'channel' => $facts->channel->value,
                 'direction' => $facts->direction->value,
@@ -82,6 +85,7 @@ final class ExchangeDocument
             'contact' => null === $document['contact'] ? null : new PersonId($document['contact']),
             'keptFor' => array_map(static fn (string $organization): OrganizationId => new OrganizationId($organization), $document['keptFor']),
             'campaign' => null === ($document['campaignId'] ?? null) ? null : new CampaignId($document['campaignId']),
+            'importedFrom' => null === ($document['importedFrom'] ?? null) ? null : new ImportedEmail($document['importedFrom']['provider'], $document['importedFrom']['identity']),
             'facts' => new ExchangeFacts(Channel::from($facts['channel']), Direction::from($facts['direction']), Documents::momentOf($facts['occurredAt']), $facts['text'], self::duration($facts['durationInMinutes'] ?? null), $facts['place'] ?? null, self::link($facts['link'] ?? null), self::linkRequestedOf($document)),
             'status' => self::statusOf($document),
             'lastCorrection' => self::correction($document['lastCorrection'] ?? null),

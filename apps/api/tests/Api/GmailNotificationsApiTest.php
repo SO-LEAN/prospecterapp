@@ -54,6 +54,22 @@ class GmailNotificationsApiTest extends ApiTestCase
         $this->assertSame('2026-10-15T09:00:00+00:00', $this->requestJson('GET', '/api/me/connections')['connections'][0]['lastGmailNotificationAt']);
     }
 
+    public function testAnEMailOfAContactNotifiedIsImportedAsAnExchangeReceivedWithoutItsQuote(): void
+    {
+        $this->login();
+        $acme = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];
+        $ada = $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'], 'contactDetails' => ['email' => 'ada@acme.test'], 'organizationIds' => [$acme]])['id'];
+        $this->aMemberImportingTheMailOf(self::MAILBOX);
+        $this->google()->receives('m1', 'Ada Lovelace <Ada@ACME.test>', 'Votre devis', "Bonjour Michel, c'est validé.\n\nLe mer. 14 oct. 2026 à 18:02, Michel <michel@exemple.fr> a écrit :\n> Voici le devis.\n");
+
+        $this->notify($this->tokenOf(), self::MAILBOX, 1010);
+
+        $this->assertResponseStatusCodeSame(204);
+        $this->login();
+        $timeline = $this->requestJson('GET', '/api/contacts/'.$ada.'/exchanges');
+        $this->assertSame([['email', 'inbound', "Votre devis\n\nBonjour Michel, c'est validé."]], array_map(static fn (array $exchange): array => [$exchange['channel'], $exchange['direction'], $exchange['text']], $timeline['items']));
+    }
+
     public function testANotificationOfAMailboxNobodyImportsIsAnsweredAndIgnored(): void
     {
         $this->aMemberImportingTheMailOf(self::MAILBOX);

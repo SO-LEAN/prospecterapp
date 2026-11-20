@@ -11,7 +11,8 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
  * without the id of a client and every code but the one a test makes it grant, grants every refresh until a test
  * makes it refuse them or the token was revoked, and its revocation keeps the tokens it revoked; its calendars keep the
  * events put into them (ADR 0127), an event Google does not know answered 404 to a `PUT`, created by a `POST` with its
- * id; out of reach, failing or limiting the requests once a test says so. Not reset between the requests of a client that does not reboot, so that a
+ * id; its mailbox keeps the messages a test makes it receive, its history 1000 and one point per message (ADR 0154);
+ * out of reach, failing or limiting the requests once a test says so. Not reset between the requests of a client that does not reboot, so that a
  * test arranges it before its gestures.
  */
 final class GoogleDouble
@@ -19,6 +20,8 @@ final class GoogleDouble
     private const string CALENDAR_OF_PROSPECTER = 'https://www.googleapis.com/auth/calendar.app.created';
     private const string GMAIL = 'https://www.googleapis.com/auth/gmail.readonly';
     private const string WATCHED_UNTIL = '2026-10-22 09:00 UTC';
+    /** the messages arrive just before the moment of the tests */
+    private const string RECEIVED_AT = '2026-10-15 08:30 UTC';
 
     /** @var array{code: string, email: string, scope: string, refreshToken: string}|null */
     private ?array $grant = null;
@@ -37,6 +40,8 @@ final class GoogleDouble
     private array $watches = [];
     private int $stops = 0;
     private bool $failsTheNextWatch = false;
+    /** @var list<array{id: string, from: string, subject: string, text: string}> the messages the mailbox received, the oldest first */
+    private array $messages = [];
     /** @var list<array{kid: string, n: string, e: string}> the keys Google publishes, its tokens signed by one of them */
     private array $keys = [];
 
@@ -174,6 +179,14 @@ final class GoogleDouble
         $this->failsTheNextWatch = true;
     }
 
+    /**
+     * A message arrives in the mailbox watched, its history one point further than 1000 (ADR 0154).
+     */
+    public function receives(string $id, string $from, string $subject, string $text): void
+    {
+        $this->messages[] = ['id' => $id, 'from' => $from, 'subject' => $subject, 'text' => $text];
+    }
+
     public function stops(): int
     {
         return $this->stops;
@@ -186,6 +199,11 @@ final class GoogleDouble
      */
     private function gmail(string $path, array $options): ResponseInterface
     {
+        $read = $this->read((string) parse_url($path, \PHP_URL_PATH), (string) parse_url($path, \PHP_URL_QUERY));
+        if (null !== $read) {
+            return $read;
+        }
+
         if ('/users/me/stop' === $path) {
             ++$this->stops;
 
@@ -201,6 +219,39 @@ final class GoogleDouble
         $this->watches[] = (string) (json_decode((string) ($options['body'] ?? ''), true)['topicName'] ?? '');
 
         return new JsonMockResponse(['historyId' => '1000', 'expiration' => (string) (new \DateTimeImmutable(self::WATCHED_UNTIL)->getTimestamp() * 1000)]);
+    }
+
+    /**
+     * The history of the mailbox, its profile, the list of its messages and each of them, as Gmail answers them.
+     */
+    private function read(string $path, string $query): ?ResponseInterface
+    {
+        parse_str($query, $parameters);
+        $historyId = (string) (1000 + count($this->messages));
+
+        return match (true) {
+            '/users/me/history' === $path => new JsonMockResponse(['history' => array_values(array_filter(array_map(static fn (int $position, array $message): array => ['id' => (string) (1001 + $position), 'messagesAdded' => [['message' => ['id' => $message['id']]]]], array_keys($this->messages), $this->messages), static fn (array $record): bool => (int) $record['id'] > (int) ($parameters['startHistoryId'] ?? 0))), 'historyId' => $historyId]),
+            '/users/me/profile' === $path => new JsonMockResponse(['historyId' => $historyId]),
+            '/users/me/messages' === $path => new JsonMockResponse(['messages' => array_map(static fn (array $message): array => ['id' => $message['id']], array_reverse($this->messages))]),
+            str_starts_with($path, '/users/me/messages/') => $this->message(substr($path, strlen('/users/me/messages/'))),
+            default => null,
+        };
+    }
+
+    private function message(string $id): ResponseInterface
+    {
+        $message = array_find($this->messages, static fn (array $message): bool => $message['id'] === $id);
+
+        return null === $message ? new MockResponse('', ['http_code' => 404]) : new JsonMockResponse([
+            'id' => $id,
+            'labelIds' => ['INBOX', 'UNREAD'],
+            'internalDate' => (string) (new \DateTimeImmutable(self::RECEIVED_AT)->getTimestamp() * 1000),
+            'payload' => [
+                'mimeType' => 'text/plain',
+                'headers' => [['name' => 'From', 'value' => $message['from']], ['name' => 'Subject', 'value' => $message['subject']], ['name' => 'Message-ID', 'value' => sprintf('<%s@mail.test>', $id)]],
+                'body' => ['data' => rtrim(strtr(base64_encode($message['text']), '+/', '-_'), '=')],
+            ],
+        ]);
     }
 
     /**
