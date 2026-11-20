@@ -146,7 +146,7 @@ class GoogleMailboxTest extends TestCase
         $this->mailbox(new MockResponse('', ['http_code' => 404]))->messagesAddedSince(self::client(), new RefreshToken('a-token'), '1000', 500);
     }
 
-    public function testTheMessagesReceivedAfterAMomentAreTheNewestTheOldestFirstFromWhereTheHistoryStoodBefore(): void
+    public function testTheMessagesReceivedOrSentAfterAMomentAreTheNewestTheOldestFirstFromWhereTheHistoryStoodBefore(): void
     {
         $mailbox = $this->mailbox(
             new JsonMockResponse(['emailAddress' => 'michel@exemple.fr', 'historyId' => '2000']),
@@ -159,8 +159,8 @@ class GoogleMailboxTest extends TestCase
         $this->assertEquals(new MailboxChanges(['m2', 'm3', 'm4'], '2000', true), $changes);
         $this->assertSame([
             ['GET', self::GMAIL_URL.'/users/me/profile', null],
-            ['GET', self::GMAIL_URL.'/users/me/messages?q=after:1794993120%20-in:sent%20-in:draft%20-in:spam%20-in:trash&maxResults=500', null],
-            ['GET', self::GMAIL_URL.'/users/me/messages?q=after:1794993120%20-in:sent%20-in:draft%20-in:spam%20-in:trash&maxResults=500&pageToken=p2', null],
+            ['GET', self::GMAIL_URL.'/users/me/messages?q=after:1794993120%20-in:draft%20-in:spam%20-in:trash&maxResults=500', null],
+            ['GET', self::GMAIL_URL.'/users/me/messages?q=after:1794993120%20-in:draft%20-in:spam%20-in:trash&maxResults=500&pageToken=p2', null],
         ], $this->calls);
     }
 
