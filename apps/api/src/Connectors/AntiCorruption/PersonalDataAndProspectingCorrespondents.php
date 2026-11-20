@@ -19,7 +19,8 @@ use Psr\Log\LoggerInterface;
 /**
  * Anticorruption layer (ADR 0045, 0089): Connectors learns who of the account an address
  * designates, a contact from PersonalData, an organization from Prospecting, each asked about a set of one (ADR 0154);
- * an address nobody has is logged by the account only, the address never told.
+ * an address no contact has, then no organization, is logged by the account only, the address never told: a sender
+ * set aside is the two lines, no contact then no organization, the first alone being a sender found an organization.
  */
 #[WithMonologChannel('mailbox')]
 final readonly class PersonalDataAndProspectingCorrespondents implements Correspondents

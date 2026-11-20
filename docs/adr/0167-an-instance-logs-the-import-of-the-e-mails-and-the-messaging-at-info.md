@@ -11,11 +11,12 @@ On an instance, the handler of Monolog is `fingers_crossed` at `error`: a line a
 
 ## Decision
 
-Two channels are written at info on an instance, on stderr in JSON, out of `fingers_crossed`: `mailbox`, the import of the e-mails (each reading of a history, its points and how many messages it listed; each message read, its id at the provider and its labels, or why it is set aside; a sender nobody of the account has; the renewals of the watches), and `messaging`, the relay and the worker (each event published, each event not applied). Every other channel stays as it was. These lines carry no personal data: never an address, a subject, a text or a name, only identities, counts, labels and points of a history.
+Two channels are written at info on an instance, on stderr in JSON, by a handler of their own beside `fingers_crossed`, which keeps them too, so that an error of theirs still writes the lines the other channels kept before it: `mailbox`, the import of the e-mails (each reading of a history, its points and how many messages it listed; each message read, its id at the provider and its labels, or why it is set aside; a sender nobody of the account has; the renewals of the watches), and `messaging`, the relay and the worker (each event published, each event not applied). Every other channel stays as it was. These lines carry no personal data: never an address, a subject, a text or a name, only identities, counts, labels and points of a history.
 
 ## Consequences
 
-- An e-mail not imported is followed on an instance from the reading of the history to its sender set aside, and a gesture from its command to its last reaction, by its correlation in the logs of the relay and the worker.
+- An e-mail not imported is followed on an instance: the line of a reading of the history lists the ids of the messages it listed; the reaction importing one message writes, one after the other in the log stream of its invocation, the line of the message read (its id, its labels) and, when its sender is nobody of the account, the lines of no contact then of no organization (by the account: the adapters asking PersonalData and Prospecting know no message). A gesture is followed from its command to its last reaction by its correlation in the logs of the relay and the worker.
+- Before an error, the lines of these channels are written twice: once at info, once with the others kept before the error.
 - CloudWatch receives a line per event published and per message read: a cost on the relay, the worker and the API, against nothing before an error.
 - A service of these channels logs no personal data at info: a new line is written as such, by identity.
 
