@@ -11,9 +11,9 @@ use Prospecter\Core\Connectors\Domain\Exception\AccessRevoked;
 use Prospecter\Core\Connectors\Domain\Exception\HistoryExpired;
 use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
 use Prospecter\Core\Connectors\Domain\Model\MailboxChanges;
+use Prospecter\Core\Connectors\Domain\Model\MailboxMail;
 use Prospecter\Core\Connectors\Domain\Model\MailboxWatch;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
-use Prospecter\Core\Connectors\Domain\Model\ReceivedMail;
 use Prospecter\Core\Connectors\Domain\Model\RefreshToken;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Symfony\Component\HttpClient\MockHttpClient;
@@ -186,7 +186,7 @@ class GoogleMailboxTest extends TestCase
 
         $mail = $mailbox->message(self::client(), new RefreshToken('a-token'), 'm1');
 
-        $this->assertEquals(new ReceivedMail('m1', null, new Email('ada@acme.fr'), ['INBOX'], new \DateTimeImmutable('2026-11-18 09:12:00 UTC'), 'Votre devis', 'Bonjour'), $mail);
+        $this->assertEquals(new MailboxMail('m1', null, new Email('ada@acme.fr'), ['INBOX'], new \DateTimeImmutable('2026-11-18 09:12:00 UTC'), 'Votre devis', 'Bonjour'), $mail);
         $this->assertSame([['GET', self::GMAIL_URL.'/users/me/messages/m1?format=full', null]], $this->calls);
     }
 

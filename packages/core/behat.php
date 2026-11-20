@@ -26,6 +26,7 @@ use Tests\Core\Acceptance\Context\GeographicTagsContext;
 use Tests\Core\Acceptance\Context\GoogleClientContext;
 use Tests\Core\Acceptance\Context\IdentificationContext;
 use Tests\Core\Acceptance\Context\LinkContext;
+use Tests\Core\Acceptance\Context\MailboxMailContext;
 use Tests\Core\Acceptance\Context\MailImportContext;
 use Tests\Core\Acceptance\Context\MemberContext;
 use Tests\Core\Acceptance\Context\MyDayContext;
@@ -35,7 +36,6 @@ use Tests\Core\Acceptance\Context\PersonalDataFactsContext;
 use Tests\Core\Acceptance\Context\PlannedExchangeContext;
 use Tests\Core\Acceptance\Context\ProspectingFactsContext;
 use Tests\Core\Acceptance\Context\PublishedLanguageContext;
-use Tests\Core\Acceptance\Context\ReceivedMailContext;
 use Tests\Core\Acceptance\Context\ReminderContext;
 use Tests\Core\Acceptance\Context\ReportingContext;
 use Tests\Core\Acceptance\Context\ScenarioContext;
@@ -49,4 +49,4 @@ return new Config()
     ->withProfile(new Profile('default')
         ->withSuite(new Suite('business_rules')
             ->withPaths('%paths.base%/features')
-            ->withContexts(ScenarioContext::class, OrganizationContext::class, LinkContext::class, EstablishmentContext::class, AccountContext::class, MemberContext::class, PersonalDataContext::class, PublishedLanguageContext::class, CallerContext::class, ExchangeContext::class, ExchangeDetailContext::class, FingerprintContext::class, PlannedExchangeContext::class, ToDoContext::class, AttachmentContext::class, AllOrNothingContext::class, ProspectingFactsContext::class, PersonalDataFactsContext::class, ReportingContext::class, ReminderContext::class, CalendarContext::class, MyDayContext::class, WhatIsToProcessContext::class, ContactToAttachContext::class, ConnectorContext::class, GoogleClientContext::class, MailImportContext::class, ReceivedMailContext::class, CalendarPushContext::class, CalendarSyncContext::class, VideoCallLinkContext::class, TagContext::class, ContactTagsContext::class, CampaignContext::class, GeographicTagsContext::class, BookingContext::class, BookSlotContext::class, IdentificationContext::class)));
+            ->withContexts(ScenarioContext::class, OrganizationContext::class, LinkContext::class, EstablishmentContext::class, AccountContext::class, MemberContext::class, PersonalDataContext::class, PublishedLanguageContext::class, CallerContext::class, ExchangeContext::class, ExchangeDetailContext::class, FingerprintContext::class, PlannedExchangeContext::class, ToDoContext::class, AttachmentContext::class, AllOrNothingContext::class, ProspectingFactsContext::class, PersonalDataFactsContext::class, ReportingContext::class, ReminderContext::class, CalendarContext::class, MyDayContext::class, WhatIsToProcessContext::class, ContactToAttachContext::class, ConnectorContext::class, GoogleClientContext::class, MailImportContext::class, MailboxMailContext::class, CalendarPushContext::class, CalendarSyncContext::class, VideoCallLinkContext::class, TagContext::class, ContactTagsContext::class, CampaignContext::class, GeographicTagsContext::class, BookingContext::class, BookSlotContext::class, IdentificationContext::class)));

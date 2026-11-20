@@ -7,8 +7,8 @@ use Prospecter\Core\Connectors\Domain\Exception\AccessRevoked;
 use Prospecter\Core\Connectors\Domain\Exception\HistoryExpired;
 use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
 use Prospecter\Core\Connectors\Domain\Model\MailboxChanges;
+use Prospecter\Core\Connectors\Domain\Model\MailboxMail;
 use Prospecter\Core\Connectors\Domain\Model\MailboxWatch;
-use Prospecter\Core\Connectors\Domain\Model\ReceivedMail;
 use Prospecter\Core\Connectors\Domain\Model\RefreshToken;
 use Prospecter\Core\Connectors\Domain\Port\ProviderMailbox;
 use Psr\Log\LoggerInterface;
@@ -203,7 +203,7 @@ final readonly class GoogleMailbox implements ProviderMailbox
     /**
      * @see https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.messages/get
      */
-    public function message(ClientCredentials $client, RefreshToken $refreshToken, string $messageId): ?ReceivedMail
+    public function message(ClientCredentials $client, RefreshToken $refreshToken, string $messageId): ?MailboxMail
     {
         $response = $this->read($client, $refreshToken, '/users/me/messages/'.rawurlencode($messageId), ['format' => 'full']);
         if (self::NOT_FOUND === $response->getStatusCode()) {
@@ -221,7 +221,7 @@ final readonly class GoogleMailbox implements ProviderMailbox
     /**
      * By its id and its labels only: nothing it says is told.
      */
-    private function logRead(string $messageId, ?ReceivedMail $mail): void
+    private function logRead(string $messageId, ?MailboxMail $mail): void
     {
         if (null === $mail) {
             $this->logger->info('A message of a mailbox set aside: no address of its sender', ['message' => $messageId]);

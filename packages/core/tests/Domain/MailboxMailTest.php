@@ -6,10 +6,10 @@ namespace Tests\Core\Domain;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\Connectors\Domain\Model\ReceivedMail;
+use Prospecter\Core\Connectors\Domain\Model\MailboxMail;
 use Prospecter\Core\SharedKernel\Domain\Email;
 
-class ReceivedMailTest extends TestCase
+class MailboxMailTest extends TestCase
 {
     private const string AT = '2026-11-18 09:12 UTC';
 
@@ -106,8 +106,8 @@ class ReceivedMailTest extends TestCase
     /**
      * @param list<string> $labels
      */
-    private static function mail(array $labels = ['INBOX'], string $subject = 'Votre devis', string $text = 'Bonjour', ?string $messageId = '<CAF1@mail.acme.fr>'): ReceivedMail
+    private static function mail(array $labels = ['INBOX'], string $subject = 'Votre devis', string $text = 'Bonjour', ?string $messageId = '<CAF1@mail.acme.fr>'): MailboxMail
     {
-        return new ReceivedMail('18f3a', $messageId, new Email('ada@acme.fr'), $labels, new \DateTimeImmutable(self::AT), $subject, $text);
+        return new MailboxMail('18f3a', $messageId, new Email('ada@acme.fr'), $labels, new \DateTimeImmutable(self::AT), $subject, $text);
     }
 }

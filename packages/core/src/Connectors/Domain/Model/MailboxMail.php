@@ -10,7 +10,7 @@ use Prospecter\Core\SharedKernel\Domain\MessageId;
 /**
  * A message of the mailbox of a member as the provider gives it, its text without the quoted history (ADR 0154).
  */
-final readonly class ReceivedMail
+final readonly class MailboxMail
 {
     private const array NOT_RECEIVED = ['SENT', 'SPAM', 'TRASH', 'DRAFT'];
     private const int LONGEST_SUBJECT = 250;
@@ -29,7 +29,7 @@ final readonly class ReceivedMail
         public ?string $messageId,
         public Email $sender,
         public array $labels,
-        public \DateTimeImmutable $receivedAt,
+        public \DateTimeImmutable $exchangedAt,
         string $subject,
         string $text,
     ) {

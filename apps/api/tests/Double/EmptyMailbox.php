@@ -4,8 +4,8 @@ namespace Tests\App\Double;
 
 use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
 use Prospecter\Core\Connectors\Domain\Model\MailboxChanges;
+use Prospecter\Core\Connectors\Domain\Model\MailboxMail;
 use Prospecter\Core\Connectors\Domain\Model\MailboxWatch;
-use Prospecter\Core\Connectors\Domain\Model\ReceivedMail;
 use Prospecter\Core\Connectors\Domain\Model\RefreshToken;
 use Prospecter\Core\Connectors\Domain\Port\ProviderMailbox;
 
@@ -40,7 +40,7 @@ final readonly class EmptyMailbox implements ProviderMailbox
         return new MailboxChanges([], $this->historyId, true);
     }
 
-    public function message(ClientCredentials $client, RefreshToken $refreshToken, string $messageId): ?ReceivedMail
+    public function message(ClientCredentials $client, RefreshToken $refreshToken, string $messageId): ?MailboxMail
     {
         return null;
     }
