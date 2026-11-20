@@ -399,6 +399,19 @@ class BookingApiTest extends ApiTestCase
         $this->assertTrue($this->requestJson('GET', '/api/exchanges/'.$exchange['exchange']['id'])['bookedByLink']);
     }
 
+    public function testTheLinkOfAMemberWithoutThePersonalDataRightShowsNothing(): void
+    {
+        $this->login('assistant-user');
+        $this->connectGoogle();
+        $this->requestJson('PATCH', '/api/me/booking-page/channels', ['channels' => ['call']]);
+        $this->requestJson('PATCH', '/api/me/booking-page/windows', ['timeZone' => 'Europe/Paris', 'windows' => [['weekday' => 'friday', 'from' => '09:00', 'to' => '09:30']]]);
+        $code = (string) $this->requestJson('POST', '/api/me/booking-page/opening')['code'];
+
+        $this->signOut();
+
+        $this->assertSame(self::NOTHING_SHOWN, $this->requestJson('GET', '/api/booking-pages/'.$code));
+    }
+
     public function testASlotJustTakenIsRefused(): void
     {
         $code = $this->anOpenPageOnFridayMorning();

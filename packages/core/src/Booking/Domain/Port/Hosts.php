@@ -25,4 +25,9 @@ interface Hosts
      * @throws UnknownMember
      */
     public function identityOf(MemberId $host): HostIdentity;
+
+    /**
+     * Whether the host may hold the contacts their bookers become (ADR 0146, 0164).
+     */
+    public function mayHoldBookers(MemberId $host): bool;
 }

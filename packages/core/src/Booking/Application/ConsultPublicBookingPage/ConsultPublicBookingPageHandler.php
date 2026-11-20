@@ -52,11 +52,14 @@ final readonly class ConsultPublicBookingPageHandler implements QueryHandler
     }
 
     /**
-     * The calendar of the host invites the booker: without it connected, the page is suspended, offering nothing.
+     * The calendar of the host invites the booker: without it connected, the page is suspended, offering nothing; nor
+     * does the page of a host who may not hold the contacts their bookers become (ADR 0146, 0164).
      */
     private function isBookable(BookingSchedule $schedule): bool
     {
-        return $schedule->open && $this->calendars->isConnectedFor(new MemberId($schedule->host));
+        $host = new MemberId($schedule->host);
+
+        return $schedule->open && $this->calendars->isConnectedFor($host) && $this->hosts->mayHoldBookers($host);
     }
 
     private function hostOf(BookingSchedule $schedule): PublicHost
