@@ -59,6 +59,7 @@ class GmailNotificationsApiTest extends ApiTestCase
         $this->login();
         $acme = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];
         $ada = $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'], 'contactDetails' => ['email' => 'ada@acme.test'], 'organizationIds' => [$acme]])['id'];
+        $this->assertResponseStatusCodeSame(201, 'The contact was expected to be collected');
         $this->aMemberImportingTheMailOf(self::MAILBOX);
         $this->google()->receives('m1', 'Ada Lovelace <Ada@ACME.test>', 'Votre devis', "Bonjour Michel, c'est validé.\n\nLe mer. 14 oct. 2026 à 18:02, Michel <michel@exemple.fr> a écrit :\n> Voici le devis.\n");
 
@@ -67,6 +68,7 @@ class GmailNotificationsApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(204);
         $this->login();
         $timeline = $this->requestJson('GET', '/api/contacts/'.$ada.'/exchanges');
+        $this->assertResponseIsSuccessful();
         $this->assertSame([['email', 'inbound', "Votre devis\n\nBonjour Michel, c'est validé."]], array_map(static fn (array $exchange): array => [$exchange['channel'], $exchange['direction'], $exchange['text']], $timeline['items']));
     }
 
