@@ -15,8 +15,8 @@ use Prospecter\Core\Connectors\Application\Connect\Connect;
 use Prospecter\Core\Connectors\Application\NoteMailboxNotification\NoteMailboxNotification;
 use Prospecter\Core\Connectors\Contract\Event\EmailExchanged;
 use Prospecter\Core\Connectors\Domain\Event\ConnectionEvent;
+use Prospecter\Core\Connectors\Domain\Model\MailboxMail;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
-use Prospecter\Core\Connectors\Domain\Model\ReceivedMail;
 use Prospecter\Core\Connectors\Domain\Model\Scope;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
@@ -33,7 +33,7 @@ use Tests\Core\Double\StateOf;
 /**
  * The e-mails a member receives in their mailbox, imported as exchanges (ADR 0154).
  */
-final class ReceivedMailContext implements Context
+final class MailboxMailContext implements Context
 {
     use SharesTheScenario;
 
@@ -44,9 +44,9 @@ final class ReceivedMailContext implements Context
     private const string INBOX = 'INBOX';
 
     private int $messages = 0;
-    /** @var array<string, ReceivedMail> the message received last, by mailbox */
+    /** @var array<string, MailboxMail> the message received last, by mailbox */
     private array $lastReceived = [];
-    private ?ReceivedMail $oldestReceived = null;
+    private ?MailboxMail $oldestReceived = null;
 
     #[When('je reçois le :moment un e-mail de :from ayant pour objet :subject et pour texte :text')]
     public function iReceiveAnEMail(string $moment, string $from, string $subject, string $text): void
@@ -66,7 +66,7 @@ final class ReceivedMailContext implements Context
     public function iReceiveAnEMailOfMessageId(string $sender, string $messageId): void
     {
         $id = sprintf('message-%d', ++$this->messages);
-        $this->receive([self::MY_MAILBOX], new ReceivedMail($id, $messageId, new Email($sender), [self::INBOX], $this->aMinuteLater(), self::SUBJECT, self::TEXT));
+        $this->receive([self::MY_MAILBOX], new MailboxMail($id, $messageId, new Email($sender), [self::INBOX], $this->aMinuteLater(), self::SUBJECT, self::TEXT));
     }
 
     #[When('je reçois un e-mail de :sender avec :copied en copie')]
@@ -257,7 +257,7 @@ final class ReceivedMailContext implements Context
     /**
      * @param list<string> $mailboxes
      */
-    private function receive(array $mailboxes, ReceivedMail $mail): void
+    private function receive(array $mailboxes, MailboxMail $mail): void
     {
         foreach ($mailboxes as $mailbox) {
             $this->application->mailboxes->receive($mailbox, $mail);
@@ -272,7 +272,7 @@ final class ReceivedMailContext implements Context
         $this->application->dispatch(new NoteMailboxNotification($account, self::GOOGLE, $mailbox, $this->application->mailboxes->historyOf($mailbox), $this->application->now()));
     }
 
-    private function mailFrom(string $sender): ReceivedMail
+    private function mailFrom(string $sender): MailboxMail
     {
         return $this->mail(new Email($sender), [self::INBOX]);
     }
@@ -280,11 +280,11 @@ final class ReceivedMailContext implements Context
     /**
      * @param list<string> $labels
      */
-    private function mail(Email $sender, array $labels, ?\DateTimeImmutable $receivedAt = null, string $subject = self::SUBJECT, string $text = self::TEXT): ReceivedMail
+    private function mail(Email $sender, array $labels, ?\DateTimeImmutable $exchangedAt = null, string $subject = self::SUBJECT, string $text = self::TEXT): MailboxMail
     {
         $id = sprintf('message-%d', ++$this->messages);
 
-        return new ReceivedMail($id, sprintf('<%s@mail.test>', $id), $sender, $labels, $receivedAt ?? $this->aMinuteLater(), $subject, $text);
+        return new MailboxMail($id, sprintf('<%s@mail.test>', $id), $sender, $labels, $exchangedAt ?? $this->aMinuteLater(), $subject, $text);
     }
 
     /**

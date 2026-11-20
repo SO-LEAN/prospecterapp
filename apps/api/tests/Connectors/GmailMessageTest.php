@@ -5,7 +5,7 @@ namespace Tests\App\Connectors;
 use App\Connectors\Google\GmailMessage;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\Connectors\Domain\Model\ReceivedMail;
+use Prospecter\Core\Connectors\Domain\Model\MailboxMail;
 use Prospecter\Core\SharedKernel\Domain\Email;
 
 /**
@@ -48,7 +48,7 @@ class GmailMessageTest extends TestCase
     {
         $mail = GmailMessage::read(self::message(['mimeType' => 'text/plain', 'body' => ['data' => self::encoded('Bonjour')]]));
 
-        $this->assertEquals(new ReceivedMail('18f3a', '<CAF1@mail.acme.fr>', new Email('ada@acme.fr'), ['INBOX', 'UNREAD'], new \DateTimeImmutable('2026-11-18 09:12:00 UTC'), 'Votre devis', 'Bonjour'), $mail);
+        $this->assertEquals(new MailboxMail('18f3a', '<CAF1@mail.acme.fr>', new Email('ada@acme.fr'), ['INBOX', 'UNREAD'], new \DateTimeImmutable('2026-11-18 09:12:00 UTC'), 'Votre devis', 'Bonjour'), $mail);
     }
 
     public function testTheTextIsTheFirstPartInPlainTextNotAttached(): void

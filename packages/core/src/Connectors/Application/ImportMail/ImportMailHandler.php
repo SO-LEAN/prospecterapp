@@ -8,8 +8,8 @@ use Prospecter\Core\Connectors\Contract\Event\EmailExchanged;
 use Prospecter\Core\Connectors\Domain\Event\MailboxMessageAdded;
 use Prospecter\Core\Connectors\Domain\Model\Connection;
 use Prospecter\Core\Connectors\Domain\Model\Correspondent;
+use Prospecter\Core\Connectors\Domain\Model\MailboxMail;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
-use Prospecter\Core\Connectors\Domain\Model\ReceivedMail;
 use Prospecter\Core\Connectors\Domain\Port\Correspondents;
 use Prospecter\Core\Connectors\Domain\Port\ProviderMailbox;
 use Prospecter\Core\Connectors\Domain\Repository\ConnectionRepository;
@@ -48,7 +48,7 @@ final readonly class ImportMailHandler implements EventHandler
         $this->events->publish($this->exchanged($added, $connection, $mail, $correspondent));
     }
 
-    private function exchanged(MailboxMessageAdded $added, Connection $connection, ReceivedMail $mail, Correspondent $correspondent): EmailExchanged
+    private function exchanged(MailboxMessageAdded $added, Connection $connection, MailboxMail $mail, Correspondent $correspondent): EmailExchanged
     {
         return new EmailExchanged(
             $added->accountId->value,
@@ -60,7 +60,7 @@ final readonly class ImportMailHandler implements EventHandler
             $correspondent->organization?->value,
             $mail->subject,
             $mail->text,
-            $mail->receivedAt,
+            $mail->exchangedAt,
             $added->occurredAt,
         );
     }

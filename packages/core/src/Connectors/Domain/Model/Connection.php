@@ -357,7 +357,7 @@ final class Connection implements ReleasesEvents
      * A message of the mailbox imported, none once the import is no longer active, nor once the provider refuses the
      * access: the next reading of the history makes the import to reconnect.
      */
-    public function mailOf(string $messageId, ClientCredentials $client, ProviderMailbox $mailbox): ?ReceivedMail
+    public function mailOf(string $messageId, ClientCredentials $client, ProviderMailbox $mailbox): ?MailboxMail
     {
         if (MailImport::Active !== $this->mailImport) {
             return null;

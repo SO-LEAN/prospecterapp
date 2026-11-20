@@ -3,7 +3,7 @@
 namespace App\Connectors\Google;
 
 use EmailReplyParser\EmailReplyParser;
-use Prospecter\Core\Connectors\Domain\Model\ReceivedMail;
+use Prospecter\Core\Connectors\Domain\Model\MailboxMail;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Soundasleep\Html2Text;
 
@@ -25,7 +25,7 @@ final readonly class GmailMessage
      *
      * @param array<string, mixed> $message
      */
-    public static function read(array $message): ?ReceivedMail
+    public static function read(array $message): ?MailboxMail
     {
         $headers = self::headersOf($message['payload'] ?? []);
         $sender = self::addressIn($headers['from'] ?? '');
@@ -33,7 +33,7 @@ final readonly class GmailMessage
             return null;
         }
 
-        return new ReceivedMail(
+        return new MailboxMail(
             (string) $message['id'],
             $headers['message-id'] ?? null,
             new Email($sender),

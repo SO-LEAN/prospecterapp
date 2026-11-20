@@ -8,8 +8,8 @@ use Prospecter\Core\Connectors\Domain\Exception\AccessRevoked;
 use Prospecter\Core\Connectors\Domain\Exception\HistoryExpired;
 use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
 use Prospecter\Core\Connectors\Domain\Model\MailboxChanges;
+use Prospecter\Core\Connectors\Domain\Model\MailboxMail;
 use Prospecter\Core\Connectors\Domain\Model\MailboxWatch;
-use Prospecter\Core\Connectors\Domain\Model\ReceivedMail;
 use Prospecter\Core\Connectors\Domain\Model\RefreshToken;
 use Prospecter\Core\Connectors\Domain\Port\ProviderMailbox;
 
@@ -28,7 +28,7 @@ final class InMemoryProviderMailbox implements ProviderMailbox
     private array $histories = [];
     /** @var array<string, int> the point of its history each mailbox no longer keeps the history before */
     private array $forgottenBefore = [];
-    /** @var array<string, list<array{history: int, mail: ReceivedMail}>> the messages of each mailbox, the oldest first */
+    /** @var array<string, list<array{history: int, mail: MailboxMail}>> the messages of each mailbox, the oldest first */
     private array $messages = [];
     /** @var array<string, array{topic: string, expiresAt: \DateTimeImmutable, times: int}> the watches, by mailbox */
     private array $watches = [];
@@ -50,7 +50,7 @@ final class InMemoryProviderMailbox implements ProviderMailbox
     /**
      * A message arrives in the mailbox, its history one point further.
      */
-    public function receive(string $mailbox, ReceivedMail $mail): void
+    public function receive(string $mailbox, MailboxMail $mail): void
     {
         $this->messages[$mailbox][] = ['history' => $this->moveOn($mailbox), 'mail' => $mail];
     }
@@ -58,7 +58,7 @@ final class InMemoryProviderMailbox implements ProviderMailbox
     /**
      * The history of the mailbox tells again of a message it has, as when a label is added to it.
      */
-    public function addAgain(string $mailbox, ReceivedMail $mail): void
+    public function addAgain(string $mailbox, MailboxMail $mail): void
     {
         $this->receive($mailbox, $mail);
     }
@@ -109,7 +109,7 @@ final class InMemoryProviderMailbox implements ProviderMailbox
     public function messagesReceivedAfter(ClientCredentials $client, RefreshToken $refreshToken, \DateTimeImmutable $moment, int $atMost): MailboxChanges
     {
         $mailbox = $this->mailboxOf($client, $refreshToken);
-        $received = array_filter($this->messages[$mailbox] ?? [], static fn (array $message): bool => $message['mail']->receivedAt > $moment && $message['mail']->isReceived());
+        $received = array_filter($this->messages[$mailbox] ?? [], static fn (array $message): bool => $message['mail']->exchangedAt > $moment && $message['mail']->isReceived());
 
         return new MailboxChanges(array_map(static fn (array $message): string => $message['mail']->providerId, array_slice($received, -$atMost)), $this->historyOf($mailbox), true);
     }
@@ -122,7 +122,7 @@ final class InMemoryProviderMailbox implements ProviderMailbox
         $this->messagesRefused[$mailbox] = true;
     }
 
-    public function message(ClientCredentials $client, RefreshToken $refreshToken, string $messageId): ?ReceivedMail
+    public function message(ClientCredentials $client, RefreshToken $refreshToken, string $messageId): ?MailboxMail
     {
         $mailbox = $this->mailboxOf($client, $refreshToken);
         if (isset($this->messagesRefused[$mailbox])) {

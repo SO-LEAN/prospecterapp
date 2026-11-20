@@ -8,8 +8,8 @@ use Prospecter\Core\Connectors\Domain\Exception\AccessRevoked;
 use Prospecter\Core\Connectors\Domain\Exception\HistoryExpired;
 use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
 use Prospecter\Core\Connectors\Domain\Model\MailboxChanges;
+use Prospecter\Core\Connectors\Domain\Model\MailboxMail;
 use Prospecter\Core\Connectors\Domain\Model\MailboxWatch;
-use Prospecter\Core\Connectors\Domain\Model\ReceivedMail;
 use Prospecter\Core\Connectors\Domain\Model\RefreshToken;
 
 /**
@@ -52,5 +52,5 @@ interface ProviderMailbox
      *
      * @throws AccessRevoked
      */
-    public function message(ClientCredentials $client, RefreshToken $refreshToken, string $messageId): ?ReceivedMail;
+    public function message(ClientCredentials $client, RefreshToken $refreshToken, string $messageId): ?MailboxMail;
 }
