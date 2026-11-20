@@ -7,11 +7,22 @@ import { pauseBeforeReadingAgain } from './awaited-push'
 
 export type Timeline = components['schemas']['TimelineResource']
 export type Exchange = components['schemas']['ExchangeResource']
-export type ExchangeInput = components['schemas']['ExchangeInput']
+/** Where an AI read a message (ADR 0166): the screen notes by hand, without it. */
+type ReferenceOfAnAi = 'messageId' | 'linkedInConversation'
+export type ExchangeInput = Omit<components['schemas']['ExchangeInput'], ReferenceOfAnAi>
+export const NOTED_BY_HAND: Pick<components['schemas']['ExchangeInput'], ReferenceOfAnAi> = {
+  messageId: null,
+  linkedInConversation: null,
+}
 export type PlannedExchangeInput = components['schemas']['PlannedExchangeInput']
 export type OrganizationPlannedExchangeInput = components['schemas']['OrganizationPlannedExchangeInput']
 export type PlannedExchanges = components['schemas']['PlannedExchangesResource']
-export type OrganizationExchangeInput = components['schemas']['OrganizationExchangeInput']
+export type OrganizationExchangeInput = Omit<
+  components['schemas']['OrganizationExchangeInput'],
+  'exchange'
+> & {
+  exchange: ExchangeInput
+}
 export type Attachment = components['schemas']['AttachmentResource']
 export type OrganizationTimeline = components['schemas']['OrganizationTimelineResource']
 export type OrganizationExchange = components['schemas']['OrganizationExchangeResource']
