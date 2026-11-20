@@ -159,6 +159,7 @@ services:
     Prospecter\Core\Accounts\Application\Port\AccountListRetriever: '@App\Accounts\Persistence\DynamoAccountListRetriever'
     Prospecter\Core\PersonalData\Domain\Repository\PersonRepository: '@App\PersonalData\Persistence\DynamoPersonRepository'
     Prospecter\Core\PersonalData\Application\Port\PersonCardRetriever: '@App\PersonalData\Persistence\DynamoPersonCardRetriever'
+    Prospecter\Core\PersonalData\Application\Port\DesignatedContactRetriever: '@App\PersonalData\Persistence\DynamoDesignatedContactRetriever'
     Prospecter\Core\PersonalData\Application\Port\MemberPresentationRetriever: '@App\PersonalData\Persistence\DynamoMemberPresentationRetriever'
     Prospecter\Core\PersonalData\Application\Port\ContactPageRetriever: '@App\PersonalData\Persistence\DynamoContactPageRetriever'
     Prospecter\Core\PersonalData\Application\Port\ContactFactsRetriever: '@App\PersonalData\Persistence\DynamoContactFactsRetriever'
