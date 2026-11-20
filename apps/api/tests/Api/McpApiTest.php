@@ -17,8 +17,6 @@ class McpApiTest extends ApiTestCase
 {
     use CallsTheMcpServer;
 
-    private const string REVISION_OF_THE_HANDSHAKE = '2025-11-25';
-
     private const string METADATA = 'https://api.test.prospecter.io/.well-known/oauth-protected-resource/mcp';
 
     public function testWithoutATokenTheAiIsSentToTheMetadataOfTheProtectedResource(): void
@@ -101,23 +99,5 @@ class McpApiTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(401);
         $this->assertResponseHeaderSame('WWW-Authenticate', sprintf('Bearer error="invalid_token", resource_metadata="%s"', self::METADATA));
-    }
-
-    /**
-     * A request of the revision of the handshake, its version in its header once initialized.
-     *
-     * @param array<string, mixed> $params
-     *
-     * @return array<string, mixed> its result
-     */
-    private function callWithHandshake(string $method, array $params): array
-    {
-        $this->client->request('POST', '/mcp', server: [
-            'HTTP_ACCEPT' => 'application/json, text/event-stream',
-            'CONTENT_TYPE' => 'application/json',
-            'HTTP_MCP_PROTOCOL_VERSION' => self::REVISION_OF_THE_HANDSHAKE,
-        ], content: json_encode(['jsonrpc' => '2.0', 'id' => 1, 'method' => $method, 'params' => $params], JSON_THROW_ON_ERROR));
-
-        return $this->resultOfTheCall();
     }
 }
