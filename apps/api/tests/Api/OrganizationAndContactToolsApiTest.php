@@ -255,6 +255,20 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         $this->assertSame($this->requestJson('GET', '/api/organizations/'.$babbage), $changed);
     }
 
+    public function testTheImageDownloadedIsRemovedOnceTheLogoKept(): void
+    {
+        $babbage = $this->babbage();
+        $this->keepTheKernel();
+        $logo = (string) file_get_contents(__DIR__.'/../Fixtures/logo.png');
+        self::getContainer()->get(ImagesOnTheWeb::class)->publish(self::LOGO_ON_THE_WEB, $logo);
+        $this->login();
+        $before = self::temporaryFilesHolding($logo);
+
+        $this->callWithoutHandshake('changer-logo-organisation', ['id' => $babbage, 'url' => self::LOGO_ON_THE_WEB]);
+
+        $this->assertSame($before, self::temporaryFilesHolding($logo));
+    }
+
     public function testAnImageOnAPrivateNetworkIsNeverDownloaded(): void
     {
         $babbage = $this->babbage();
@@ -299,6 +313,14 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         $this->login();
 
         return $this->requestJson('GET', '/api/organizations?q=Babbage')['items'][0]['id'];
+    }
+
+    /**
+     * @return list<string> the files of the temporary directory holding this content
+     */
+    private static function temporaryFilesHolding(string $content): array
+    {
+        return array_values(array_filter(glob(sys_get_temp_dir().'/*') ?: [], static fn (string $file): bool => is_file($file) && filesize($file) === strlen($content) && file_get_contents($file) === $content));
     }
 
     /**
