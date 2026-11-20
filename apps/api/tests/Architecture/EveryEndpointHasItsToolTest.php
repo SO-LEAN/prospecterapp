@@ -31,6 +31,14 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
     ];
 
     /**
+     * Writes that are no DELETE but that nothing takes back, their tools destructive as those of a DELETE: a
+     * cancelled exchange is never planned again.
+     */
+    private const array NEVER_TAKEN_BACK = [
+        'api_exchanges_cancel',
+    ];
+
+    /**
      * The writes, which the tickets after the reads cover, the last of them removing this list.
      */
     private const array TO_COVER = [
@@ -56,7 +64,6 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
         'api_contacts_tag',
         'api_contacts_take_off_tag',
         'api_exchanges_attach_file',
-        'api_exchanges_cancel',
         'api_exchanges_correct',
         'api_exchanges_correct_text',
         'api_exchanges_correct_venue',
@@ -107,9 +114,9 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
     {
         $routes = self::getContainer()->get(RouterInterface::class)->getRouteCollection();
         $writes = array_filter($this->adaptedByATool(), static fn (string $tool, string $route): bool => ['GET'] !== $routes->get($route)?->getMethods(), ARRAY_FILTER_USE_BOTH);
-        $removesOrErases = static fn (string $route): bool => ['DELETE'] === $routes->get($route)?->getMethods();
+        $removesOrErases = static fn (string $route): bool => ['DELETE'] === $routes->get($route)?->getMethods() || in_array($route, self::NEVER_TAKEN_BACK, true);
 
-        $this->assertSame([], array_keys(array_filter($writes, static fn (string $tool, string $route): bool => [false, $removesOrErases($route)] !== [self::toolOf($tool)->annotations?->readOnlyHint, self::toolOf($tool)->annotations?->destructiveHint], ARRAY_FILTER_USE_BOTH)), 'Tools of a write not saying readOnlyHint false, or destructiveHint true for a DELETE and false otherwise');
+        $this->assertSame([], array_keys(array_filter($writes, static fn (string $tool, string $route): bool => [false, $removesOrErases($route)] !== [self::toolOf($tool)->annotations?->readOnlyHint, self::toolOf($tool)->annotations?->destructiveHint], ARRAY_FILTER_USE_BOTH)), 'Tools of a write not saying readOnlyHint false, or destructiveHint true for a DELETE or a write never taken back and false otherwise');
     }
 
     public function testEveryToolOfAWriteSaysWhetherItReachesOutsideProspecter(): void
@@ -138,7 +145,7 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
     {
         $routes = self::getContainer()->get(RouterInterface::class)->getRouteCollection();
 
-        $this->assertSame([], array_values(array_filter([...array_keys($this->adaptedByATool()), ...self::NEVER, ...self::TO_COVER], static fn (string $route): bool => null === $routes->get($route))), 'Routes named by #[Adapts], NEVER or TO_COVER that no longer exist');
+        $this->assertSame([], array_values(array_filter([...array_keys($this->adaptedByATool()), ...self::NEVER, ...self::NEVER_TAKEN_BACK, ...self::TO_COVER], static fn (string $route): bool => null === $routes->get($route))), 'Routes named by #[Adapts], NEVER, NEVER_TAKEN_BACK or TO_COVER that no longer exist');
     }
 
     /**
