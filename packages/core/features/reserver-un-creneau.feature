@@ -17,6 +17,28 @@ Fonctionnalité: Réserver un créneau
       | mardi | 09:00 | 09:30 |
     Et ma prise de rendez-vous est active
 
+  Scénario: Une réservation devient un échange planifié de son prospecteur, avec un contact à rattacher
+    Quand on réserve une visio par mon lien public le 24/11/2026 à 9h00 :
+      | prénom    | Ada                  |
+      | nom       | Lovelace             |
+      | téléphone | 06 12 34 56 78       |
+      | e-mail    | ada@acme.fr          |
+      | objet     | Mission data en mars |
+    Alors j'ai une visio planifiée le 24/11/2026 de 9h00 à 9h15 avec "Ada Lovelace", au texte "Mission data en mars"
+    Et "Ada Lovelace" est un contact à rattacher, au 06 12 34 56 78 et à ada@acme.fr
+
+  Scénario: Un contact connu par son e-mail est reconnu
+    Soit le contact "Ada Lovelace" de "ACME" a l'adresse e-mail "ada@acme.fr"
+    Quand on réserve un appel par mon lien public le 24/11/2026 à 9h00 avec l'e-mail "ADA@acme.fr"
+    Alors j'ai un appel planifié avec "Ada Lovelace" de "ACME"
+    Et aucun contact n'est créé
+
+  Scénario: Un contact connu par son téléphone est reconnu
+    Soit le contact "Ada Lovelace" de "ACME" a le téléphone "+33612345678"
+    Quand on réserve un appel par mon lien public le 24/11/2026 à 9h00 avec le téléphone "06 12 34 56 78" et l'e-mail "ada.perso@gmail.com"
+    Alors j'ai un appel planifié avec "Ada Lovelace" de "ACME"
+    Et aucun contact n'est créé
+
   Scénario: Tous les champs sont requis, sauf l'objet
     Quand on réserve un appel par mon lien public le 24/11/2026 à 9h00 sans téléphone
     Alors c'est refusé : "A booker gives their first name, last name, phone and e-mail"

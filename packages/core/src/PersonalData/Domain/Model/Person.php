@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\PersonalData\Domain\Model;
 
+use Prospecter\Core\PersonalData\Domain\Event\BookerIdentified;
 use Prospecter\Core\PersonalData\Domain\Event\CivilityChanged;
 use Prospecter\Core\PersonalData\Domain\Event\ContactCollected;
 use Prospecter\Core\PersonalData\Domain\Event\ContactForgotten;
@@ -21,6 +22,7 @@ use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotAllowed;
 use Prospecter\Core\SharedKernel\Domain\Exception\PersonalDataManagersOnly;
 use Prospecter\Core\SharedKernel\Domain\File;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
@@ -111,6 +113,14 @@ final class Person implements ReleasesEvents
         if (!$by->readsPersonalData) {
             throw PersonalDataManagersOnly::because('Only a member allowed to manage personal data may collect a contact');
         }
+    }
+
+    /**
+     * This contact booked an appointment with the host by their public link: the host meets them (ADR 0164).
+     */
+    public function identifyAsBookerOf(string $appointmentId, MemberId $host, \DateTimeImmutable $at): void
+    {
+        $this->recordThat(new BookerIdentified($this->accountId, $host, $this->id, $appointmentId, $at));
     }
 
     public function id(): PersonId

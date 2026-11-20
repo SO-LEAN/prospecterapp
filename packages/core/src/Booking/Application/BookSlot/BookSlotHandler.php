@@ -17,6 +17,7 @@ use Prospecter\Core\Booking\Domain\Service\BusyPeriods;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
+use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 final readonly class BookSlotHandler implements CommandHandler
 {
@@ -36,6 +37,7 @@ final readonly class BookSlotHandler implements CommandHandler
         $page = $this->bookablePageAt(new BookingCode($command->code));
         $appointment = $page->book(
             new AppointmentId($command->appointmentId),
+            new PersonId($command->bookerId),
             $command->slot,
             Channel::from($command->channel),
             Booker::named($command->firstName, $command->lastName, $command->phone, $command->email),

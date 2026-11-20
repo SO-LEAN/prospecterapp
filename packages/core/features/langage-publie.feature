@@ -314,3 +314,16 @@ Fonctionnalité: Le langage publié des contextes
     Alors Prospecting ne répond aucun fait
     Quand un autre contexte demande à PersonalData 10 faits des contacts d'un compte inconnu
     Alors PersonalData ne répond aucun fait
+
+  Scénario: Booking dit ce qu'on a réservé et qui l'a réservé, et tait un rendez-vous inconnu
+    Soit le client Google "client-solean" de secret "secret-solean" sert "SOLEAN IT"
+    Et je suis connecté en tant que prospecteur de "SOLEAN IT"
+    Et mon compte Google est connecté
+    Et nous sommes le 23/11/2026 à 10h00
+    Et je règle mes plages :
+      | jour  | de    | à     |
+      | mardi | 09:00 | 09:30 |
+    Et ma prise de rendez-vous est active
+    Et quelqu'un vient de réserver par mon lien public le 24/11/2026 à 9h00
+    Quand un autre contexte demande à Booking ce rendez-vous et un rendez-vous inconnu
+    Alors Booking répond un appel avec moi le 24/11/2026 à 9h00 pour 15 minutes, réservé par "Ada Lovelace" au +33612345678 et à quelqu.un@exemple.fr

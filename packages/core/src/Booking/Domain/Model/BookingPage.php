@@ -23,6 +23,7 @@ use Prospecter\Core\Booking\Domain\Policy\FreeSlots;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 
@@ -138,7 +139,7 @@ final class BookingPage implements ReleasesEvents
      *
      * @throws ChannelNotOffered|AlreadyBooked|SlotNotFree
      */
-    public function book(AppointmentId $id, \DateTimeImmutable $slot, Channel $channel, Booker $booker, ?string $subject, array $busyPeriods, array $appointments, \DateTimeImmutable $at): Appointment
+    public function book(AppointmentId $id, PersonId $bookerId, \DateTimeImmutable $slot, Channel $channel, Booker $booker, ?string $subject, array $busyPeriods, array $appointments, \DateTimeImmutable $at): Appointment
     {
         if (!in_array($channel, $this->channels->channels, true)) {
             throw ChannelNotOffered::refused();
@@ -151,7 +152,7 @@ final class BookingPage implements ReleasesEvents
             throw SlotNotFree::refused();
         }
 
-        return Appointment::booked($id, $this->accountId, $this->host, $slot, $channel, $booker, $subject, $at);
+        return Appointment::booked($id, $this->accountId, $this->host, $bookerId, $this->onTheClockOfTheHost($slot), $channel, $booker, $subject, $at);
     }
 
     private function onTheClockOfTheHost(\DateTimeImmutable $moment): \DateTimeImmutable
