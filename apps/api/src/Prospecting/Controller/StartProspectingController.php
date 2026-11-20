@@ -8,11 +8,9 @@ use App\Prospecting\Resource\OrganizationResource;
 use App\Security\User;
 use App\Shared\CommandBus;
 use App\Shared\Identities;
-use App\Shared\Input\AddressInput;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Prospecting\Application\StartProspecting\StartProspecting;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -44,26 +42,7 @@ final class StartProspectingController extends AbstractController
     public function __invoke(#[MapRequestPayload] StartProspectingInput $input, #[CurrentUser] User $user): JsonResponse
     {
         $id = $this->identities->next();
-        $address = $input->address ?? new AddressInput();
-        $this->commandBus->dispatch(new StartProspecting(
-            prospectorId: $user->memberId(),
-            id: $id,
-            corporateName: $input->legalIdentity->corporateName,
-            form: $input->legalIdentity->form,
-            type: $input->legalIdentity->type,
-            email: $input->contactDetails->email,
-            phoneNumber: $input->contactDetails->phoneNumber,
-            language: $input->contactDetails->language,
-            street: $address->street,
-            postalCode: $address->postalCode,
-            city: $address->city,
-            country: $address->country,
-            observations: $input->observations,
-            holdingId: $input->holdingId,
-            executedAt: $this->clock->now(),
-            links: $input->contactDetails->links,
-            website: $input->contactDetails->website,
-        ));
+        $this->commandBus->dispatch($input->commandOf($user->memberId(), $id, $this->clock->now()));
 
         return $this->json($this->organizationReader->read($id), Response::HTTP_CREATED, ['Location' => $this->generateUrl('api_organizations_show', ['id' => $id])]);
     }
