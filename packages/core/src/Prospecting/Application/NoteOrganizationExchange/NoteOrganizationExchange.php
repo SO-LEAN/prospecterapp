@@ -22,6 +22,9 @@ final readonly class NoteOrganizationExchange
         public ?string $text,
         public bool $missed,
         public \DateTimeImmutable $executedAt,
+        public ?string $messageId = null,
+        public ?string $linkedInConversation = null,
+        public bool $noteOnce = false,
     ) {
     }
 }

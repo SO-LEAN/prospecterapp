@@ -162,13 +162,16 @@ final class Exchange implements ReleasesEvents
 
     /**
      * With the organization itself (its switchboard, its generic email): kept for it alone, in the timeline
-     * of no contact.
+     * of no contact; fingerprinted by where it was read, if given (ADR 0166).
      *
      * @throws ExchangeInTheFuture|ChannelNotMissed
      */
-    public static function notedWithTheOrganization(Organization $organization, MemberId $by, ExchangeId $id, ExchangeFacts $facts, ExchangeStatus $outcome, \DateTimeImmutable $at): self
+    public static function notedWithTheOrganization(Organization $organization, MemberId $by, ExchangeId $id, ExchangeFacts $facts, ExchangeStatus $outcome, \DateTimeImmutable $at, ?MessageReference $reference = null): self
     {
-        return self::noted($organization->accountId(), $by, $id, null, [$organization->id()], $facts, $outcome, $at);
+        $exchange = self::noted($organization->accountId(), $by, $id, null, [$organization->id()], $facts, $outcome, $at);
+        $exchange->fingerprint = ($reference ?? MessageReference::none())->fingerprintOf($facts, $organization->id());
+
+        return $exchange;
     }
 
     /**

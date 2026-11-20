@@ -1262,7 +1262,7 @@ final class Application
             new DismissPossibleDuplicateHandler($this->organizations, $this->events),
             new NoteExchangeHandler($this->exchanges, $this->prospectors, $this->contactOrganizations, new NotedOnce($this->exchanges), $this->events),
             new NoteCampaignExchangeHandler($this->exchanges, $this->prospectors, $this->campaignRecipients, $this->contactOrganizations, $this->events),
-            new NoteOrganizationExchangeHandler($this->exchanges, $this->organizations, $this->contactOrganizations, $this->events),
+            new NoteOrganizationExchangeHandler($this->exchanges, $this->organizations, $this->contactOrganizations, new NotedOnce($this->exchanges), $this->events),
             new PlanExchangeHandler($this->exchanges, $this->prospectors, $this->contactOrganizations, $this->events),
             new PlanOrganizationExchangeHandler($this->exchanges, $this->organizations, $this->contactOrganizations, $this->events),
             new CorrectExchangeHandler($this->exchanges, $this->events),
