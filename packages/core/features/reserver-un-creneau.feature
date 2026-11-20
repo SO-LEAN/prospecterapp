@@ -35,6 +35,11 @@ Fonctionnalité: Réserver un créneau
     Alors il montre la visio du 24/11/2026 à 9h00, réservée par mon lien public
     Et il montre l'appel du 24/11/2026 à 9h15, que j'ai planifié
 
+  Scénario: Le détail de l'échange d'une réservation dit qu'on l'a réservé par le lien public
+    Quand on réserve une visio par mon lien public le 24/11/2026 à 9h00
+    Et je consulte l'échange de cette réservation
+    Alors son détail dit qu'on l'a réservé par mon lien public
+
   Scénario: Un contact connu par son e-mail est reconnu
     Soit le contact "Ada Lovelace" de "ACME" a l'adresse e-mail "ada@acme.fr"
     Quand on réserve un appel par mon lien public le 24/11/2026 à 9h00 avec l'e-mail "ADA@acme.fr"

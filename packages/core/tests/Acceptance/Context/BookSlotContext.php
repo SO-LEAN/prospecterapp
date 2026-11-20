@@ -15,6 +15,8 @@ use Prospecter\Core\Booking\Contract\Service\ConsultAppointments\AppointmentResp
 use Prospecter\Core\Booking\Contract\Service\ConsultAppointments\ConsultAppointments;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
+use Prospecter\Core\Prospecting\Application\ConsultExchange\ConsultExchange;
+use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
@@ -34,6 +36,7 @@ final class BookSlotContext implements Context
     private const string SLOT = '(?<day>\d{2}\/\d{2}\/\d{4}) (?:à|de) (?<time>\d{1,2}h\d{2})';
 
     private ?string $appointment = null;
+    private ?ExchangeDetail $detail = null;
     /** @var list<AppointmentResponse> */
     private array $answered = [];
 
@@ -148,6 +151,18 @@ final class BookSlotContext implements Context
             [[$this->appointment, $this->application->signedIn(), $this->slot($day, $time)->format(\DATE_ATOM), $minutes, self::CHANNELS[$channel], $firstName, $lastName, $phone, $email, null]],
             array_map(static fn (AppointmentResponse $answer): array => [$answer->appointmentId, $answer->hostId, $answer->startsAt->format(\DATE_ATOM), $answer->durationInMinutes, $answer->channel, $answer->firstName, $answer->lastName, $answer->phone, $answer->email, $answer->subject], $this->answered),
         );
+    }
+
+    #[When('je consulte l\'échange de cette réservation')]
+    public function iConsultTheExchangeOfThisBooking(): void
+    {
+        $this->detail = $this->application->consultExchange(new ConsultExchange($this->application->signedIn(), $this->appointment ?? '', $this->application->now()));
+    }
+
+    #[Then('son détail dit qu\'on l\'a réservé par mon lien public')]
+    public function itsDetailSaysItWasBookedByMyPublicLink(): void
+    {
+        Expect::same(true, $this->detail?->bookedByLink);
     }
 
     private function book(string $channel, string $day, string $time, string $phone = '06 12 34 56 78', string $email = 'ada@acme.fr', string $firstName = 'Ada', string $lastName = 'Lovelace', ?string $subject = null): void
