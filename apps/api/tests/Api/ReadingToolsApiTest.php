@@ -181,6 +181,15 @@ class ReadingToolsApiTest extends ApiTestCase
         );
     }
 
+    public function testTheAiReadsTheDayOfItsMember(): void
+    {
+        $this->assertTheToolAnswersAsItsEndpoint(
+            'lire-ma-journee',
+            ['from' => '2026-10-15T00:00:00+02:00', 'to' => '2026-10-16T00:00:00+02:00'],
+            '/api/me/day?from=2026-10-15T00:00:00%2B02:00&to=2026-10-16T00:00:00%2B02:00',
+        );
+    }
+
     /**
      * Ada Lovelace, the contact of the demonstration, at Babbage & Co.
      */
