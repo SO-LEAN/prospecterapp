@@ -16,10 +16,10 @@ use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Model\ReceivedMail;
 use Prospecter\Core\Connectors\Domain\Model\RefreshToken;
 use Prospecter\Core\SharedKernel\Domain\Email;
-use Psr\Log\NullLogger;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\JsonMockResponse;
 use Symfony\Component\HttpClient\Response\MockResponse;
+use Tests\App\Double\InMemoryLogger;
 
 /**
  * The mailbox of a member at Gmail, watched through the topic of their account (ADR 0154): each call with an access
@@ -32,6 +32,12 @@ class GoogleMailboxTest extends TestCase
 
     /** @var list<array{string, string, array<string, mixed>|null}> the calls to Gmail, with their body */
     private array $calls = [];
+    private InMemoryLogger $logger;
+
+    protected function setUp(): void
+    {
+        $this->logger = new InMemoryLogger();
+    }
 
     public function testTheMailboxIsWatchedWithoutItsSpamItsTrashNorItsDrafts(): void
     {
@@ -140,6 +146,18 @@ class GoogleMailboxTest extends TestCase
         ], $this->calls);
     }
 
+    public function testTheMessagesLeftOutOfAReadingByTheDateAreLogged(): void
+    {
+        $mailbox = $this->mailbox(
+            new JsonMockResponse(['historyId' => '2000']),
+            new JsonMockResponse(['messages' => [['id' => 'm3'], ['id' => 'm2'], ['id' => 'm1']]]),
+        );
+
+        $mailbox->messagesReceivedAfter(self::client(), new RefreshToken('a-token'), new \DateTimeImmutable('2026-11-18 09:12:00 UTC'), 1);
+
+        $this->assertSame([['level' => 'warning', 'message' => 'The history of a mailbox expired: its oldest messages since its last reading are not imported', 'context' => ['leftOut' => 2]]], $this->logger->records);
+    }
+
     public function testAMessageIsReadWhole(): void
     {
         $mailbox = $this->mailbox(new JsonMockResponse(['id' => 'm1', 'labelIds' => ['INBOX'], 'internalDate' => '1794993120000', 'payload' => [
@@ -176,7 +194,7 @@ class GoogleMailboxTest extends TestCase
         });
         $endpoints = self::endpoints();
 
-        return new GoogleMailbox($google, $endpoints, new GoogleTokens($google, $endpoints), new NullLogger());
+        return new GoogleMailbox($google, $endpoints, new GoogleTokens($google, $endpoints), $this->logger);
     }
 
     public static function endpoints(): GoogleEndpoints
