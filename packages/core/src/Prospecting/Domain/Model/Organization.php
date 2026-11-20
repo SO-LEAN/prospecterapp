@@ -200,11 +200,18 @@ final class Organization implements ReleasesEvents
      */
     public function dismissSuspicionOf(OrganizationId $duplicate, MemberId $by, \DateTimeImmutable $at): void
     {
+        $this->ensurePossible(OrganizationIntent::DismissPossibleDuplicate);
+
         if (!$this->isSuspectedDuplicateOf($duplicate)) {
-            throw NotASuspectedDuplicate::because('The organization is not suspected of being a duplicate of this one', 'duplicateId');
+            throw $this->notASuspectedDuplicate();
         }
 
         $this->knowItIsNoDuplicateOf($duplicate, $by, $at);
+    }
+
+    private function notASuspectedDuplicate(): NotASuspectedDuplicate
+    {
+        return NotASuspectedDuplicate::because('The organization is not suspected of being a duplicate of this one', 'duplicateId');
     }
 
     /**
@@ -460,6 +467,7 @@ final class Organization implements ReleasesEvents
             OrganizationIntent::RemoveLogo => NoLogoToRemove::because('There is no logo to remove', 'logo'),
             OrganizationIntent::DetachFromHolding => NoHoldingToDetachFrom::because('There is no holding to detach from', 'holdingId'),
             OrganizationIntent::RemoveContact => NoContactToRemove::because('There is no contact to remove', 'personId'),
+            OrganizationIntent::DismissPossibleDuplicate => $this->notASuspectedDuplicate(),
             default => NotPossibleInItsState::because(sprintf('%s is not possible now', $intent->name)),
         };
     }
