@@ -121,6 +121,15 @@ class GoogleMailboxTest extends TestCase
         $this->assertEquals(new MailboxChanges(['m1'], '1001', false), $changes);
     }
 
+    public function testAReadingToItsEndKeepsTheLastRecordListedNotThePointTheMailboxReachedSince(): void
+    {
+        $mailbox = $this->mailbox(new JsonMockResponse(['history' => [['id' => '1001', 'messagesAdded' => [['message' => ['id' => 'm1']]]]], 'historyId' => '1005']));
+
+        $changes = $mailbox->messagesAddedSince(self::client(), new RefreshToken('a-token'), '1000', 500);
+
+        $this->assertEquals(new MailboxChanges(['m1'], '1001', true), $changes);
+    }
+
     public function testAHistoryGmailNoLongerKeepsIsExpired(): void
     {
         $this->expectException(HistoryExpired::class);
