@@ -104,7 +104,7 @@ final readonly class GoogleMailbox implements ProviderMailbox
             foreach ($page['history'] ?? [] as $record) {
                 $added = array_map(static fn (array $added): string => (string) $added['message']['id'], $record['messagesAdded'] ?? []);
                 if ([] !== $listed && count($listed) + count($added) > $atMost) {
-                    return new MailboxChanges($listed, $reached, false);
+                    return $this->logged(new MailboxChanges($listed, $reached, false), $historyId);
                 }
 
                 $listed = [...$listed, ...$added];
@@ -113,7 +113,17 @@ final readonly class GoogleMailbox implements ProviderMailbox
             $pageToken = $page['nextPageToken'] ?? null;
         } while (null !== $pageToken);
 
-        return new MailboxChanges($listed, $reached, true);
+        return $this->logged(new MailboxChanges($listed, $reached, true), $historyId);
+    }
+
+    /**
+     * What a reading listed, said by its points and its count only: no message of the mailbox is told.
+     */
+    private function logged(MailboxChanges $changes, string $from): MailboxChanges
+    {
+        $this->logger->info('The history of a mailbox read', ['from' => $from, 'to' => $changes->historyId, 'messages' => count($changes->messageIds), 'complete' => $changes->complete]);
+
+        return $changes;
     }
 
     /**
@@ -194,8 +204,30 @@ final readonly class GoogleMailbox implements ProviderMailbox
     public function message(ClientCredentials $client, RefreshToken $refreshToken, string $messageId): ?ReceivedMail
     {
         $response = $this->read($client, $refreshToken, '/users/me/messages/'.rawurlencode($messageId), ['format' => 'full']);
+        if (self::NOT_FOUND === $response->getStatusCode()) {
+            $this->logger->info('A message of a mailbox gone before its reading', ['message' => $messageId]);
 
-        return self::NOT_FOUND === $response->getStatusCode() ? null : GmailMessage::read($this->answerOf($client, $response));
+            return null;
+        }
+
+        $mail = GmailMessage::read($this->answerOf($client, $response));
+        $this->logRead($messageId, $mail);
+
+        return $mail;
+    }
+
+    /**
+     * By its id and its labels only: nothing it says is told.
+     */
+    private function logRead(string $messageId, ?ReceivedMail $mail): void
+    {
+        if (null === $mail) {
+            $this->logger->info('A message of a mailbox set aside: no address of its sender', ['message' => $messageId]);
+
+            return;
+        }
+
+        $this->logger->info('A message of a mailbox read', ['message' => $messageId, 'labels' => $mail->labels]);
     }
 
     public function stop(ClientCredentials $client, RefreshToken $refreshToken): void

@@ -130,6 +130,15 @@ class GoogleMailboxTest extends TestCase
         $this->assertEquals(new MailboxChanges(['m1'], '1001', true), $changes);
     }
 
+    public function testAReadingOfTheHistoryIsLoggedWithItsPointsAndHowManyMessagesItListed(): void
+    {
+        $mailbox = $this->mailbox(new JsonMockResponse(['history' => [['id' => '1001', 'messagesAdded' => [['message' => ['id' => 'm1']], ['message' => ['id' => 'm2']]]]], 'historyId' => '1005']));
+
+        $mailbox->messagesAddedSince(self::client(), new RefreshToken('a-token'), '1000', 500);
+
+        $this->assertSame([['level' => 'info', 'message' => 'The history of a mailbox read', 'context' => ['from' => '1000', 'to' => '1001', 'messages' => 2, 'complete' => true]]], $this->logger->records);
+    }
+
     public function testAHistoryGmailNoLongerKeepsIsExpired(): void
     {
         $this->expectException(HistoryExpired::class);
@@ -181,9 +190,42 @@ class GoogleMailboxTest extends TestCase
         $this->assertSame([['GET', self::GMAIL_URL.'/users/me/messages/m1?format=full', null]], $this->calls);
     }
 
+    public function testAMessageReadIsLoggedWithItsIdAndItsLabelsOnly(): void
+    {
+        $mailbox = $this->mailbox(new JsonMockResponse(['id' => 'm1', 'labelIds' => ['INBOX', 'UNREAD'], 'internalDate' => '1794993120000', 'payload' => [
+            'mimeType' => 'text/plain',
+            'headers' => [['name' => 'From', 'value' => 'ada@acme.fr'], ['name' => 'Subject', 'value' => 'Votre devis']],
+            'body' => ['data' => 'Qm9uam91cg'],
+        ]]));
+
+        $mailbox->message(self::client(), new RefreshToken('a-token'), 'm1');
+
+        $this->assertSame([['level' => 'info', 'message' => 'A message of a mailbox read', 'context' => ['message' => 'm1', 'labels' => ['INBOX', 'UNREAD']]]], $this->logger->records);
+    }
+
+    public function testAMessageWithoutTheAddressOfItsSenderIsLoggedSetAside(): void
+    {
+        $mailbox = $this->mailbox(new JsonMockResponse(['id' => 'm1', 'labelIds' => ['INBOX'], 'internalDate' => '1794993120000', 'payload' => [
+            'mimeType' => 'text/plain',
+            'headers' => [['name' => 'Subject', 'value' => 'Votre devis']],
+            'body' => ['data' => 'Qm9uam91cg'],
+        ]]));
+
+        $mailbox->message(self::client(), new RefreshToken('a-token'), 'm1');
+
+        $this->assertSame([['level' => 'info', 'message' => 'A message of a mailbox set aside: no address of its sender', 'context' => ['message' => 'm1']]], $this->logger->records);
+    }
+
     public function testAMessageDeletedMeanwhileIsNone(): void
     {
         $this->assertNull($this->mailbox(new MockResponse('', ['http_code' => 404]))->message(self::client(), new RefreshToken('a-token'), 'm1'));
+    }
+
+    public function testAMessageDeletedMeanwhileIsLoggedAsGone(): void
+    {
+        $this->mailbox(new MockResponse('', ['http_code' => 404]))->message(self::client(), new RefreshToken('a-token'), 'm1');
+
+        $this->assertSame([['level' => 'info', 'message' => 'A message of a mailbox gone before its reading', 'context' => ['message' => 'm1']]], $this->logger->records);
     }
 
     /**
