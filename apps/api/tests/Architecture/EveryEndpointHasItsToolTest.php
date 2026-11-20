@@ -82,7 +82,6 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
         'api_me_remove_gmail_notifications',
         'api_me_remove_google_client',
         'api_me_revise_organization_identity',
-        'api_organizations_add_contact',
         'api_organizations_change_logo',
         'api_organizations_note_to_do',
         'api_organizations_plan_exchange',
