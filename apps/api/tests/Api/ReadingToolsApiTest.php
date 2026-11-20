@@ -239,6 +239,21 @@ class ReadingToolsApiTest extends ApiTestCase
         $this->assertTheToolAnswersAsItsEndpoint('lire-client-google', [], '/api/me/organization/clients/google');
     }
 
+    public function testTheAiReadsWhatItsMemberStillHasToDo(): void
+    {
+        $this->aToDoAboutAda();
+
+        $this->assertTheToolAnswersAsItsEndpoint('lire-mes-a-faire', [], '/api/me/to-dos');
+    }
+
+    /**
+     * A to-do about Ada Lovelace, due tomorrow.
+     */
+    private function aToDoAboutAda(): string
+    {
+        return $this->requestJson('POST', '/api/contacts/'.$this->ada().'/to-dos', ['text' => 'Rappeler Ada', 'dueOn' => '2026-10-16'])['id'];
+    }
+
     /**
      * The kernel kept between the requests, for a double to answer each: the tokens the readers sign in with later
      * are checked on the clock of the tokens frozen when it booted, set a minute later so that none is issued after it.
