@@ -24,7 +24,7 @@ final readonly class ShowSuggestedTagsTool
     /**
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'lire-tags-proposes', description: 'Les tags proposés au compte, pour chercher ses contacts : les prédéfinis par famille, les siens, et à part les automatiques.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'lire-tags-proposes', description: 'The tags proposed to the account, to search its contacts by: the predefined ones by family, its own, and apart the automatic ones.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');

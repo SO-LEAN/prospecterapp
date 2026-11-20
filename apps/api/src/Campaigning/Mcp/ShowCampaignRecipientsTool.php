@@ -31,7 +31,7 @@ final readonly class ShowCampaignRecipientsTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'lire-destinataires-campagne', description: 'Les destinataires d\'une campagne figée ou lancée, chacun avec son statut (à traiter, traité, écarté, effacé) ; avec le droit de gérer les données personnelles.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'lire-destinataires-campagne', description: 'The recipients of a frozen or started campaign, each with its status (pending, processed, dismissed, erased), with the right to manage the personal data.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $id): array
     {
         $member = $this->access->member();

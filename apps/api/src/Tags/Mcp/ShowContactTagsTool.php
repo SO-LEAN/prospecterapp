@@ -24,7 +24,7 @@ final readonly class ShowContactTagsTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'lire-tags-contact', description: 'Les tags d\'un contact : les siens, ceux qu\'il hérite de ses organisations, et les automatiques.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'lire-tags-contact', description: 'The tags of a contact: their own, those they inherit from their organizations, and the automatic ones.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $id): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');

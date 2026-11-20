@@ -31,7 +31,7 @@ final readonly class ShowCampaignTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'lire-campagne', description: 'Une campagne : son nom, son canal, ses tags ciblés, son message, son statut, sa progression, et le lien vers ses destinataires ; avec le droit de gérer les données personnelles.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'lire-campagne', description: 'A campaign: its name, its channel, its targeted tags, its message, its status, its progress, and the link to its recipients, with the right to manage the personal data.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $id): array
     {
         $member = $this->access->member();

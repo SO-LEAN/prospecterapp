@@ -31,7 +31,7 @@ final readonly class ShowUpcomingExchangesTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'lire-echanges-a-venir-contact', description: 'Les échanges planifiés avec un contact, les plus proches d\'abord, par tranches.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'lire-echanges-a-venir-contact', description: 'The exchanges planned with a contact, the soonest first, by slices.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $id, ?string $after = null): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');

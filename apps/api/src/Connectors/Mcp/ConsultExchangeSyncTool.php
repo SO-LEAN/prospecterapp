@@ -30,7 +30,7 @@ final readonly class ConsultExchangeSyncTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'lire-synchronisation-google', description: 'Où en est l\'envoi d\'un échange dans l\'agenda Google de son titulaire : en attente, synchronisé ou en échec, et pourquoi.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'lire-synchronisation-google', description: 'Where the push of an exchange into the Google Calendar of its holder stands: pending, synced or failed, and why.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $id): array
     {
         $member = $this->access->member();
