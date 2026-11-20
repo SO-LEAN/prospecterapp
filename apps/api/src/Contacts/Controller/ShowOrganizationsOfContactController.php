@@ -30,6 +30,6 @@ final class ShowOrganizationsOfContactController extends AbstractController
     #[OA\Response(response: 403, description: 'The signed-in user is not a prospector', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $id, #[CurrentUser] User $user): JsonResponse
     {
-        return $this->json(new OrganizationsOfContactResource($this->organizationsOfContacts->read($user->memberId(), [$id])[$id] ?? []));
+        return $this->json($this->organizationsOfContacts->ofOne($user->memberId(), $id));
     }
 }
