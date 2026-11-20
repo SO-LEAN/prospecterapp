@@ -82,6 +82,16 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         $this->assertSame([['firstName' => 'Charles', 'lastName' => 'Babbage'], 'Founder'], [$collected['name'], $collected['jobTitle']]);
     }
 
+    public function testTheAiRelocatesAnOrganization(): void
+    {
+        $babbage = $this->babbage();
+        $address = ['street' => '1 place Kléber', 'postalCode' => '67000', 'city' => 'Strasbourg', 'country' => 'FR'];
+
+        $relocated = $this->assertTheToolActsAsItsEndpoint('demenager-organisation', ['id' => $babbage, ...$address], 'PATCH', '/api/organizations/'.$babbage.'/address', $address, self::PROSPECTORS);
+
+        $this->assertSame($address, $relocated['address']);
+    }
+
     /**
      * Ada Lovelace, the contact of the demonstration, at Babbage & Co.
      */
