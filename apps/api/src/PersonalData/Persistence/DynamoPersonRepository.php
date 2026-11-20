@@ -189,18 +189,34 @@ final readonly class DynamoPersonRepository implements PersonRepository
      */
     public function writeTheKeysAgain(): int
     {
-        $items = array_values(array_filter($this->personalDataTable->scan(PersonalDataKeys::PERSON.'#'), static fn (array $item): bool => PersonalDataKeys::PERSON === $item['SK']));
+        $stored = array_values(array_filter($this->personalDataTable->scan(PersonalDataKeys::PERSON.'#'), static fn (array $item): bool => PersonalDataKeys::PERSON === $item['SK']));
+        $items = array_map(static fn (array $item): array => ['person' => PersonDocument::recognizedAgain($item['person'])] + $item, $stored);
         $persons = array_map(static fn (array $item): Person => PersonDocument::person($item['person']), $items);
+        $reservations = $this->referenceReservationsOf($persons);
         $this->personalDataTable->batch(
             [
                 ...array_map(fn (Person $person, array $item): array => $this->itemOf($person, $item['person'], Revision::of($item)), $persons, $items),
                 ...array_filter(array_map($this->firstNameItemOf(...), $persons)),
-                ...$this->referenceReservationsOf($persons),
+                ...$reservations,
             ],
-            array_map(static fn (array $former): array => [$former['PK'], $former['SK']], [...$this->personalDataTable->scan('TOKEN'), ...$this->personalDataTable->scan(self::FORMER_LINKEDIN.'#')]),
+            array_map(static fn (array $former): array => [$former['PK'], $former['SK']], [...$this->personalDataTable->scan('TOKEN'), ...$this->personalDataTable->scan(self::FORMER_LINKEDIN.'#'), ...$this->referencesNoLongerHeld($reservations)]),
         );
 
         return count($items);
+    }
+
+    /**
+     * The reservations of links no contact holds any more, once recognized again under another reference.
+     *
+     * @param list<array<string, string>> $reservations
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function referencesNoLongerHeld(array $reservations): array
+    {
+        $held = array_column($reservations, 'PK');
+
+        return array_values(array_filter($this->personalDataTable->scan(self::REFERENCE.'#'), static fn (array $reservation): bool => !in_array($reservation['PK'], $held, true)));
     }
 
     /**

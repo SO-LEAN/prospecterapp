@@ -180,7 +180,8 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
      */
     public function writeTheKeysAgain(): int
     {
-        $items = $this->prospectingTable->scan(OrganizationKeys::ORGANIZATION.'#');
+        $items = array_map(static fn (array $item): array => ['organization' => OrganizationDocument::recognizedAgain($item['organization'])] + $item, $this->prospectingTable->scan(OrganizationKeys::ORGANIZATION.'#'));
+        $reservations = array_merge(...array_map(self::reservationsOf(...), array_column($items, 'organization')));
         $withAnEmail = array_values(array_filter($items, static fn (array $item): bool => null !== $item['organization']['contactDetails']['email']));
         $organizations = array_map(static fn (array $item): Organization => OrganizationDocument::organization($item['organization']), $items);
         $resembling = array_values(array_filter($organizations, static fn (Organization $organization): bool => null !== $organization->resemblanceKey()));
@@ -189,12 +190,26 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
                 ...array_map(fn (Organization $organization, array $item): array => $this->itemOf($organization, $item['organization'], Revision::of($item)), $organizations, $items),
                 ...array_map(static fn (array $item): array => self::emailDomainLink($item['organization']['accountId'], $item['organization']['contactDetails']['email'], $item['organization']['id']), $withAnEmail),
                 ...array_map(static fn (Organization $organization): array => self::resemblanceLink($organization->accountId()->value, (string) $organization->resemblanceKey(), $organization->id()->value), $resembling),
-                ...array_merge(...array_map(self::reservationsOf(...), array_column($items, 'organization'))),
+                ...$reservations,
             ],
-            array_map(static fn (array $former): array => [$former['PK'], $former['SK']], [...$this->prospectingTable->scan('TOKEN'), ...$this->prospectingTable->scan(self::FORMER_LINKEDIN_PAGE.'#')]),
+            array_map(static fn (array $former): array => [$former['PK'], $former['SK']], [...$this->prospectingTable->scan('TOKEN'), ...$this->prospectingTable->scan(self::FORMER_LINKEDIN_PAGE.'#'), ...$this->referencesNoLongerHeld($reservations)]),
         );
 
         return count($items);
+    }
+
+    /**
+     * The reservations of links no organization holds any more, once recognized again under another reference.
+     *
+     * @param list<array<string, string>> $reservations
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function referencesNoLongerHeld(array $reservations): array
+    {
+        $held = array_column($reservations, 'PK');
+
+        return array_values(array_filter($this->prospectingTable->scan(self::REFERENCE.'#'), static fn (array $reservation): bool => !in_array($reservation['PK'], $held, true)));
     }
 
     /**

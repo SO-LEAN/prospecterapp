@@ -195,6 +195,24 @@ class DynamoPersonReferencesTest extends ApiTestCase
         $this->assertNull($this->personalDataTable()->item($formerReservation, 'LINKEDIN'));
     }
 
+    public function testTheKeysWrittenAgainRecognizeAgainALinkStoredUnderTheHostOfASourceKnownSince(): void
+    {
+        $account = new AccountId(self::newIdentity());
+        $ada = $this->contactWithTheProfiles($account, self::ADA);
+        $this->persons()->save($ada);
+        $this->forgetTheReservationsOf($account, self::ADA);
+        $item = $this->personalDataTable()->item(PersonalDataKeys::person($ada->id()->value), PersonalDataKeys::PERSON);
+        $item['person']['references'] = [['source' => 'linkedin.com', 'identifier' => 'linkedin.com/in/ada-lovelace', 'address' => self::ADA]];
+        $formerReservation = sprintf('REFERENCE#%s#linkedin.com#linkedin.com/in/ada-lovelace', $account->value);
+        $this->personalDataTable()->batch([$item, ['PK' => $formerReservation, 'SK' => 'REFERENCE', 'ownerId' => $ada->id()->value]]);
+        $this->assertSame(['linkedin.com#linkedin.com/in/ada-lovelace'], array_map(static fn (ExternalReference $reference): string => $reference->key(), $this->persons()->get($ada->id())->references()->all()), 'read as stored');
+
+        self::getContainer()->get(DynamoPersonRepository::class)->writeTheKeysAgain();
+
+        $this->assertEquals($ada->id(), $this->persons()->contactHoldingReference($account, self::reference(self::ADA), except: new PersonId(self::newIdentity()))?->id());
+        $this->assertNull($this->personalDataTable()->item($formerReservation, 'REFERENCE'));
+    }
+
     public function testTheKeysWrittenAgainReserveNoProfileOfAMember(): void
     {
         $account = new AccountId(self::newIdentity());
