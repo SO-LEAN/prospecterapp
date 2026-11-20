@@ -6,25 +6,26 @@ use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
 /**
- * The images an AI gives by their address on the web (ADR 0168), as the tests see them, and the names of their host,
- * resolved without the network: on a public address, an address of a private network for a host a test names so.
+ * The files an AI gives by their address on the web, images or attachments (ADR 0168), as the tests see them, and the
+ * names of their host, resolved without the network: on a public address, an address of a private network for a host a
+ * test names so.
  */
-final class ImagesOnTheWeb
+final class TheWeb
 {
     public const string HOST = 'https://www.babbage.test';
     public const string ON_A_PRIVATE_NETWORK = 'https://intranet.example';
 
     private const array ADDRESSES = ['www.babbage.test' => '93.184.216.34', 'intranet.example' => '10.0.0.8'];
 
-    /** @var array<string, string> the content of each image, by its address */
-    private array $images = [];
+    /** @var array<string, string> the content of each file, by its address */
+    private array $files = [];
 
     /** @var array<string, string> the address each address redirects to */
     private array $redirects = [];
 
     public function publish(string $url, string $content): void
     {
-        $this->images[$url] = $content;
+        $this->files[$url] = $content;
     }
 
     public function redirect(string $url, string $to): void
@@ -34,14 +35,14 @@ final class ImagesOnTheWeb
 
     public function serves(string $url): bool
     {
-        return isset($this->images[$url]) || isset($this->redirects[$url]);
+        return isset($this->files[$url]) || isset($this->redirects[$url]);
     }
 
     public function answer(string $url): ResponseInterface
     {
         return isset($this->redirects[$url])
             ? new MockResponse('', ['http_code' => 302, 'redirect_url' => $this->redirects[$url], 'response_headers' => ['Location' => $this->redirects[$url]]])
-            : new MockResponse($this->images[$url]);
+            : new MockResponse($this->files[$url]);
     }
 
     /**

@@ -5,10 +5,10 @@ namespace App\Shared\Mcp;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * The address on the web of an image an AI gives, a logo or a picture, in place of the file the screen sends
+ * The address on the web of a file an AI gives, an image or an attachment, in place of the file the screen sends
  * (ADR 0168).
  */
-final readonly class ImageAddressInput
+final readonly class WebAddressInput
 {
     public function __construct(
         #[Assert\NotBlank]

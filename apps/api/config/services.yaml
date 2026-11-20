@@ -365,12 +365,12 @@ services:
         arguments: ['@http_client']
     App\SignIn\OAuth\ClientMetadataDocuments:
         arguments: { $http: '@app.client_metadata_http' }
-    # the images the AIs give by their address on the web (ADR 0168), never read on a private network
-    app.images_on_the_web_http:
+    # the files the AIs give by their address on the web, images or attachments (ADR 0168), never read on a private network
+    app.files_on_the_web_http:
         class: Symfony\Component\HttpClient\NoPrivateNetworkHttpClient
         arguments: ['@http_client']
-    App\Shared\Mcp\ImagesOnTheWeb:
-        arguments: { $http: '@app.images_on_the_web_http' }
+    App\Shared\Mcp\FilesOnTheWeb:
+        arguments: { $http: '@app.files_on_the_web_http' }
     # and the token endpoint of Cognito, asked for real, in the tests too (they run on MiniStack)
     app.cognito_oauth_http:
         class: Symfony\Contracts\HttpClient\HttpClientInterface
@@ -387,7 +387,7 @@ when@test:
     services:
         # no network in tests: the services outside the API answer by this double (config/packages/framework.yaml)
         Tests\App\Double\OutsideServices:
-            arguments: ['%env(APP_GEOCODER_URL)%', '%env(APP_DIRECTORY_URL)%', '@Tests\App\Double\GoogleDouble', '@Tests\App\Double\ClientsOfTheAIs', '@Tests\App\Double\ImagesOnTheWeb']
+            arguments: ['%env(APP_GEOCODER_URL)%', '%env(APP_DIRECTORY_URL)%', '@Tests\App\Double\GoogleDouble', '@Tests\App\Double\ClientsOfTheAIs', '@Tests\App\Double\TheWeb']
             public: true
         # the metadata documents of the AIs, their hosts resolved by the double, the private networks still refused
         Tests\App\Double\ClientsOfTheAIs: ~
@@ -395,13 +395,13 @@ when@test:
             class: Symfony\Component\HttpClient\DnsResolvingHttpClient
             decorates: app.client_metadata_http
             arguments: ['@.inner', '@Tests\App\Double\ClientsOfTheAIs']
-        # the images the AIs give by their address, their hosts resolved by the double, the private networks still refused
-        Tests\App\Double\ImagesOnTheWeb:
+        # the files the AIs give by their address, their hosts resolved by the double, the private networks still refused
+        Tests\App\Double\TheWeb:
             public: true
-        app.images_on_the_web_http.resolved_by_the_double:
+        app.files_on_the_web_http.resolved_by_the_double:
             class: Symfony\Component\HttpClient\DnsResolvingHttpClient
-            decorates: app.images_on_the_web_http
-            arguments: ['@.inner', '@Tests\App\Double\ImagesOnTheWeb']
+            decorates: app.files_on_the_web_http
+            arguments: ['@.inner', '@Tests\App\Double\TheWeb']
         # Google, its tokens and its revocations, by its double behind OutsideServices
         Tests\App\Double\GoogleDouble:
             arguments: ['%env(GOOGLE_TOKEN_URL)%', '%env(GOOGLE_REVOKE_URL)%', '%env(GOOGLE_CALENDAR_URL)%', '%env(GOOGLE_GMAIL_URL)%', '%env(GOOGLE_CERTS_URL)%']
