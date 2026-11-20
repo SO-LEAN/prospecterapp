@@ -39,10 +39,10 @@ final class Appointment implements ReleasesEvents
      * By the booking page of the host, which checks the slot may be booked; the slot on the clock of the host. The
      * booker takes the identity given should nobody of the account be them.
      */
-    public static function booked(AppointmentId $id, AccountId $accountId, MemberId $host, PersonId $bookerId, \DateTimeImmutable $slot, Channel $channel, Booker $booker, ?string $subject, \DateTimeImmutable $at): self
+    public static function booked(AccountId $accountId, MemberId $host, AppointmentRequest $request, \DateTimeImmutable $at): self
     {
-        $appointment = new self($id, $accountId, $host, $bookerId, $slot, $channel, $booker, $subject, $at);
-        $appointment->recordThat(new SlotBooked($accountId, $host, $id, $bookerId, $at));
+        $appointment = new self($request->id, $accountId, $host, $request->bookerId, $request->slot, $request->channel, $request->booker, $request->subject, $at);
+        $appointment->recordThat(new SlotBooked($accountId, $host, $request->id, $request->bookerId, $at));
 
         return $appointment;
     }

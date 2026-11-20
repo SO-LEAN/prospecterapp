@@ -23,7 +23,6 @@ use Prospecter\Core\Booking\Domain\Policy\FreeSlots;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 
@@ -134,25 +133,22 @@ final class BookingPage implements ReleasesEvents
      * A booker books one of the free slots its link offers, by a channel it offers, when they have no other
      * appointment to come with the host.
      *
-     * @param list<BusyPeriod>  $busyPeriods  when the host is already taken
-     * @param list<Appointment> $appointments those of the host to come
-     *
      * @throws ChannelNotOffered|AlreadyBooked|SlotNotFree
      */
-    public function book(AppointmentId $id, PersonId $bookerId, \DateTimeImmutable $slot, Channel $channel, Booker $booker, ?string $subject, array $busyPeriods, array $appointments, \DateTimeImmutable $at): Appointment
+    public function book(AppointmentRequest $request, HostAgenda $agenda, \DateTimeImmutable $at): Appointment
     {
-        if (!in_array($channel, $this->channels->channels, true)) {
+        if (!in_array($request->channel, $this->channels->channels, true)) {
             throw ChannelNotOffered::refused();
         }
-        $bookersAppointment = array_find($appointments, static fn (Appointment $appointment): bool => $appointment->isBookedBy($booker->email));
+        $bookersAppointment = $agenda->appointmentOf($request->booker->email);
         if (null !== $bookersAppointment) {
             throw AlreadyBooked::at($this->onTheClockOfTheHost($bookersAppointment->slot()));
         }
-        if (!$this->offers($slot, $busyPeriods, $at)) {
+        if (!$this->offers($request->slot, $agenda->busyPeriods, $at)) {
             throw SlotNotFree::refused();
         }
 
-        return Appointment::booked($id, $this->accountId, $this->host, $bookerId, $this->onTheClockOfTheHost($slot), $channel, $booker, $subject, $at);
+        return Appointment::booked($this->accountId, $this->host, $request->onTheClockOf($this->onTheClockOfTheHost($request->slot)->getTimezone()), $at);
     }
 
     private function onTheClockOfTheHost(\DateTimeImmutable $moment): \DateTimeImmutable
