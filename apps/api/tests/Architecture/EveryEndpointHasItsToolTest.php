@@ -109,6 +109,22 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
         $this->assertSame([], array_values(array_filter($readings, static fn (string $tool): bool => true !== self::toolOf($tool)->annotations?->readOnlyHint)), 'Tools of a reading without the annotation readOnlyHint');
     }
 
+    public function testEveryToolOfAWriteSaysWhetherItsAiAsksItsMemberFirst(): void
+    {
+        $routes = self::getContainer()->get(RouterInterface::class)->getRouteCollection();
+        $writes = array_filter($this->adaptedByATool(), static fn (string $tool, string $route): bool => ['GET'] !== $routes->get($route)?->getMethods(), ARRAY_FILTER_USE_BOTH);
+        $removesOrErases = static fn (string $route): bool => ['DELETE'] === $routes->get($route)?->getMethods();
+
+        $this->assertSame([], array_keys(array_filter($writes, static fn (string $tool, string $route): bool => [false, $removesOrErases($route)] !== [self::toolOf($tool)->annotations?->readOnlyHint, self::toolOf($tool)->annotations?->destructiveHint], ARRAY_FILTER_USE_BOTH)), 'Tools of a write not saying readOnlyHint false, or destructiveHint true for a DELETE and false otherwise');
+    }
+
+    public function testNoEndpointToCoverHasItsToolAlready(): void
+    {
+        self::bootKernel();
+
+        $this->assertSame([], array_values(array_intersect(self::TO_COVER, array_keys($this->adaptedByATool()))), 'Endpoints in TO_COVER that a tool adapts');
+    }
+
     public function testEveryEndpointNamedApartExists(): void
     {
         $routes = self::getContainer()->get(RouterInterface::class)->getRouteCollection();
