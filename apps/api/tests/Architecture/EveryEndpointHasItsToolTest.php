@@ -85,7 +85,6 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
         'api_organizations_change_logo',
         'api_organizations_note_to_do',
         'api_organizations_plan_exchange',
-        'api_organizations_start_prospecting',
         'api_organizations_stop_prospecting',
         'api_organizations_tag',
         'api_organizations_take_off_tag',

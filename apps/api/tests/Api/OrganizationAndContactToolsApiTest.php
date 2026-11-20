@@ -186,6 +186,23 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         $this->assertTheToolAsksForAConfirmation('retirer-contact-organisation');
     }
 
+    public function testTheAiStartsProspectingAnOrganization(): void
+    {
+        $holding = $this->aHolding();
+        $acme = ['corporateName' => 'ACME', 'form' => 'SAS', 'type' => 'Prospect', 'phoneNumber' => '01 23 45 67 89', 'language' => 'FR', 'street' => '1 rue de Rivoli', 'postalCode' => '75001', 'city' => 'Paris', 'country' => 'FR', 'observations' => 'Vu au salon', 'holdingId' => $holding];
+        $payload = [
+            'legalIdentity' => ['corporateName' => 'ACME', 'form' => 'SAS', 'type' => 'Prospect'],
+            'contactDetails' => ['phoneNumber' => '01 23 45 67 89', 'language' => 'FR'],
+            'address' => ['street' => '1 rue de Rivoli', 'postalCode' => '75001', 'city' => 'Paris', 'country' => 'FR'],
+            'observations' => 'Vu au salon',
+            'holdingId' => $holding,
+        ];
+
+        $started = $this->assertTheToolActsAsItsEndpoint('prospecter-organisation', $acme, 'POST', '/api/organizations', $payload, self::PROSPECTORS);
+
+        $this->assertSame(['ACME SAS', 'Paris', 'Vu au salon', $holding], [$started['name'], $started['address']['city'], $started['observations'], $started['holdingId']]);
+    }
+
     /**
      * Ada Lovelace, the contact of the demonstration, at Babbage & Co.
      */
