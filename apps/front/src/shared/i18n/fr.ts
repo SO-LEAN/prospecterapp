@@ -195,6 +195,7 @@ export const fr = {
     preview: { open: 'Voir la fiche' },
     possibleDuplicates: {
       title: 'Doublon possible',
+      of: 'Doublon possible de',
       explanation: 'Elle ressemble, par son nom et sa ville, à :',
       dismiss: 'Ce n’est pas un doublon',
       dismissOf: 'Ce n’est pas un doublon {{name, de}}',
