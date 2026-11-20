@@ -234,6 +234,11 @@ class ReadingToolsApiTest extends ApiTestCase
         $this->assertTheToolAnswersAsItsEndpoint('lire-mes-connexions', [], '/api/me/connections');
     }
 
+    public function testTheAiOfAnAdministratorReadsTheClientOfGoogleOfItsAccount(): void
+    {
+        $this->assertTheToolAnswersAsItsEndpoint('lire-client-google', [], '/api/me/organization/clients/google');
+    }
+
     /**
      * The kernel kept between the requests, for a double to answer each: the tokens the readers sign in with later
      * are checked on the clock of the tokens frozen when it booted, set a minute later so that none is issued after it.
