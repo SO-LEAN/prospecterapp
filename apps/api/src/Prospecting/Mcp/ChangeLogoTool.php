@@ -3,9 +3,9 @@
 namespace App\Prospecting\Mcp;
 
 use App\Shared\Mcp\Adapts;
-use App\Shared\Mcp\ImageAddressInput;
 use App\Shared\Mcp\ImagesOnTheWeb;
 use App\Shared\Mcp\ToolInputs;
+use App\Shared\Mcp\WebAddressInput;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
 use Prospecter\Core\Prospecting\Application\ChangeLogo\ChangeLogo;
@@ -35,7 +35,7 @@ final readonly class ChangeLogoTool
         $this->writes->writable($id);
 
         return $this->images->whileDownloaded(
-            $this->inputs->valid(new ImageAddressInput($url)),
+            $this->inputs->valid(new WebAddressInput($url)),
             fn (File $logo): array => $this->writes->write(
                 $id,
                 null,
