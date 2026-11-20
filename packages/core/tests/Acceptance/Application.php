@@ -287,6 +287,10 @@ use Prospecter\Core\Prospecting\Application\EraseToDo\EraseToDoHandler;
 use Prospecter\Core\Prospecting\Application\EraseToDoLeftWithoutOrganization\EraseToDoLeftWithoutOrganizationHandler;
 use Prospecter\Core\Prospecting\Application\EraseToDosOfForgottenContact\EraseToDosOfForgottenContactHandler;
 use Prospecter\Core\Prospecting\Application\ForgetFingerprintsOfForgottenContact\ForgetFingerprintsOfForgottenContactHandler;
+use Prospecter\Core\Prospecting\Application\IdentifyOrganizations\Identification;
+use Prospecter\Core\Prospecting\Application\IdentifyOrganizations\IdentifyOrganizations;
+use Prospecter\Core\Prospecting\Application\IdentifyOrganizations\IdentifyOrganizationsHandler;
+use Prospecter\Core\Prospecting\Application\IdentifyOrganizations\KeptIdentifications;
 use Prospecter\Core\Prospecting\Application\KeepCreatedVideoCallLink\KeepCreatedVideoCallLinkHandler;
 use Prospecter\Core\Prospecting\Application\KeepExchangesOfAttachedContact\KeepExchangesOfAttachedContactHandler;
 use Prospecter\Core\Prospecting\Application\KeepExchangesOfForgottenContact\KeepExchangesOfForgottenContactHandler;
@@ -440,6 +444,7 @@ use Tests\Core\Double\InMemoryContactsToAttachRetriever;
 use Tests\Core\Double\InMemoryContactTagsRetriever;
 use Tests\Core\Double\InMemoryContactToAttachRepository;
 use Tests\Core\Double\InMemoryDatabase;
+use Tests\Core\Double\InMemoryDesignatedOrganizationRetriever;
 use Tests\Core\Double\InMemoryExchangeDetailRetriever;
 use Tests\Core\Double\InMemoryExchangeFactsRetriever;
 use Tests\Core\Double\InMemoryExchangeRepository;
@@ -522,6 +527,7 @@ final class Application
     private readonly InMemoryMyRemindersRetriever $myRemindersRetriever;
     private readonly InMemoryMemberRetriever $memberRetriever;
     private readonly InMemoryPersonCardRetriever $personCardRetriever;
+    private readonly InMemoryDesignatedOrganizationRetriever $designatedOrganizationRetriever;
     private readonly InMemoryContactPageRetriever $contactPageRetriever;
     private readonly ConsultMembersHandler $consultMembersService;
     private readonly WhichAreContactsHandler $whichAreContactsService;
@@ -651,6 +657,7 @@ final class Application
         $this->memberRetriever = new InMemoryMemberRetriever($database);
         $this->persons = new InMemoryPersonRepository($database);
         $this->personCardRetriever = new InMemoryPersonCardRetriever($database);
+        $this->designatedOrganizationRetriever = new InMemoryDesignatedOrganizationRetriever($database);
         $this->contactPageRetriever = new InMemoryContactPageRetriever($database);
         $this->consultMembersService = new ConsultMembersHandler($this->memberRetriever);
         $this->whichAreContactsService = new WhichAreContactsHandler($this->persons);
@@ -1038,6 +1045,16 @@ final class Application
         $kept = new KeptCallingOrganizations();
 
         return $this->ask(new RecognizeCallingOrganizationHandler($this->organizationSheetRetriever, $this->prospectors), $query, $kept) ? $kept->organizations : null;
+    }
+
+    /**
+     * @return list<Identification>|null
+     */
+    public function identifyOrganizations(IdentifyOrganizations $query): ?array
+    {
+        $kept = new KeptIdentifications();
+
+        return $this->ask(new IdentifyOrganizationsHandler($this->designatedOrganizationRetriever, $this->foundOrganizationRetriever, $this->prospectors), $query, $kept) ? $kept->identifications : null;
     }
 
     public function consultToDo(ConsultToDo $query): ?ToDoInList
