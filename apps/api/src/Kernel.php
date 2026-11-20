@@ -3,6 +3,7 @@
 namespace App;
 
 use App\Shared\DependencyInjection\RefusalTranslatingHandlersPass;
+use App\Shared\DependencyInjection\RefusingToolsPass;
 use App\Shared\DependencyInjection\SubscriptionsPass;
 use Bref\SymfonyBridge\BrefKernel;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
@@ -30,6 +31,7 @@ class Kernel extends BrefKernel
         // the reactions are taken off the event bus before the translators are put on it
         $container->addCompilerPass(new SubscriptionsPass(), priority: 20);
         $container->addCompilerPass(new RefusalTranslatingHandlersPass(), priority: 10);
+        $container->addCompilerPass(new RefusingToolsPass(), priority: -10);
     }
 
     /**

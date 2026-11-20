@@ -2,11 +2,8 @@
 
 namespace App\Security;
 
-use App\Shared\Resource\ProblemResource;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Http\Authorization\AccessDeniedHandlerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
@@ -17,27 +14,14 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
  */
 final readonly class ApiAccessDeniedHandler implements AccessDeniedHandlerInterface
 {
-    /** Named as the refusal of the domain would be, for the SPA to word it (ADR 0073). */
-    public const string ROLE_NOT_ALLOWED = 'roleNotAllowed';
-
-    public function __construct(private NormalizerInterface $normalizer)
+    public function __construct(private AccessProblems $problems, private NormalizerInterface $normalizer)
     {
     }
 
     public function handle(Request $request, AccessDeniedException $accessDeniedException): JsonResponse
     {
-        $unknown = $this->unknownReasonOf($accessDeniedException);
-        $problem = null === $unknown
-            ? new ProblemResource('Forbidden', Response::HTTP_FORBIDDEN, 'Your role does not allow this action.', reason: self::ROLE_NOT_ALLOWED)
-            : new ProblemResource('Not Found', Response::HTTP_NOT_FOUND, 'Unknown resource.', reason: $unknown);
+        $problem = $this->problems->of($accessDeniedException);
 
         return new JsonResponse($this->normalizer->normalize($problem), $problem->status, ['Content-Type' => 'application/problem+json']);
-    }
-
-    private function unknownReasonOf(AccessDeniedException $denial): ?string
-    {
-        $vote = array_find($denial->getAccessDecision()->votes ?? [], static fn (Vote $vote): bool => isset($vote->extraData[AccountResourceVoter::UNKNOWN]));
-
-        return $vote?->extraData[AccountResourceVoter::UNKNOWN];
     }
 }

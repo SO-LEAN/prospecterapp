@@ -10,4 +10,4 @@ mcp:
                 allowed_hosts: ['%app_api_host%']
             session:
                 store: none
-            registry: { tools: ['App\Me\Mcp\'] }
+            registry: { tools: ['App\Me\Mcp\', 'App\Prospecting\Mcp\'] }

@@ -9,14 +9,17 @@ use App\Shared\Persistence\Tables;
 use App\SignIn\Credentials;
 use App\SignIn\UserPool;
 use Aws\CognitoIdentityProvider\CognitoIdentityProviderClient;
+use Prospecter\Core\Accounts\Domain\Model\Account;
 use Prospecter\Core\Accounts\Domain\Model\Member;
 use Prospecter\Core\Accounts\Domain\Model\Role;
+use Prospecter\Core\Accounts\Domain\Repository\AccountRepository;
 use Prospecter\Core\Accounts\Domain\Repository\MemberRepository;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
@@ -75,6 +78,24 @@ abstract class ApiTestCase extends WebTestCase
         self::getContainer()->get(MemberRepository::class)->save($member);
         $this->members[$reference] = $member->id()->value;
         self::getContainer()->get(Credentials::class)->register($member->id()->value, $member->id()->value.'@solean-it.io', DemoCredentials::PASSWORD);
+
+        return $reference;
+    }
+
+    /**
+     * A prospector managing the personal data of an account other than that of the fixtures, under this reference:
+     * who reaches nothing of SOLEAN IT.
+     */
+    protected function aMemberOfAnotherAccount(string $reference): string
+    {
+        $account = Account::open(new AccountId(self::newIdentity()), new LegalIdentity('Another account', 'SAS'), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        self::getContainer()->get(AccountRepository::class)->save($account);
+        $profile = Person::collect(new PersonId(self::newIdentity()), $account->id(), Purpose::Membership, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        self::getContainer()->get(PersonRepository::class)->save($profile);
+        $member = Member::register(new MemberId(self::newIdentity()), $account->id(), $profile->id(), Role::User, Role::Prospector, Role::PersonalData);
+        self::getContainer()->get(MemberRepository::class)->save($member);
+        $this->members[$reference] = $member->id()->value;
+        self::getContainer()->get(Credentials::class)->register($member->id()->value, $member->id()->value.'@another.test', DemoCredentials::PASSWORD);
 
         return $reference;
     }
