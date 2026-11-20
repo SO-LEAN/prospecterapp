@@ -51,6 +51,27 @@ class GmailMessageTest extends TestCase
         $this->assertEquals(new MailboxMail('18f3a', '<CAF1@mail.acme.fr>', new Email('ada@acme.fr'), [], ['INBOX', 'UNREAD'], new \DateTimeImmutable('2026-11-18 09:12:00 UTC'), 'Votre devis', 'Bonjour'), $mail);
     }
 
+    public function testAMessageSentIsReadWithEachOfItsRecipientsInTo(): void
+    {
+        $mail = GmailMessage::read(self::message([], [['name' => 'To', 'value' => 'Ada Lovelace <Ada@ACME.fr>, alan@acme.fr']]));
+
+        $this->assertEquals([new Email('ada@acme.fr'), new Email('alan@acme.fr')], $mail?->recipients);
+    }
+
+    public function testARecipientNamedWithACommaIsOneRecipient(): void
+    {
+        $mail = GmailMessage::read(self::message([], [['name' => 'To', 'value' => '"Lovelace, Ada" <ada@acme.fr>, alan@acme.fr']]));
+
+        $this->assertEquals([new Email('ada@acme.fr'), new Email('alan@acme.fr')], $mail?->recipients);
+    }
+
+    public function testTheRecipientsInCopyAreNoRecipients(): void
+    {
+        $mail = GmailMessage::read(self::message([], [['name' => 'To', 'value' => 'inconnu@exemple.fr'], ['name' => 'Cc', 'value' => 'ada@acme.fr'], ['name' => 'Bcc', 'value' => 'alan@acme.fr']]));
+
+        $this->assertEquals([new Email('inconnu@exemple.fr')], $mail?->recipients);
+    }
+
     public function testTheTextIsTheFirstPartInPlainTextNotAttached(): void
     {
         $mail = GmailMessage::read(self::message(['mimeType' => 'multipart/mixed', 'parts' => [
