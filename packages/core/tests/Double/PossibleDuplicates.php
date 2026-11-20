@@ -9,8 +9,8 @@ use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
- * The organizations an organization is suspected of being a duplicate of, as the adapters read them: those still
- * prospected, by their name.
+ * The organizations an organization is suspected of being a duplicate of, by their name, as it keeps them: one no
+ * longer prospected named by its identity, so that a suspicion the core forgot to lift shows.
  */
 final class PossibleDuplicates
 {
@@ -19,8 +19,6 @@ final class PossibleDuplicates
      */
     public static function of(Organization $organization, InMemoryDatabase $database): array
     {
-        $duplicates = array_filter(array_map(static fn (OrganizationId $id): ?Organization => $database->organization((string) $id), StateOf::the($organization)['possibleDuplicates']));
-
-        return array_values(array_map(static fn (Organization $duplicate): PossibleDuplicate => new PossibleDuplicate($duplicate->id()->value, $duplicate->fullName()), $duplicates));
+        return array_map(static fn (OrganizationId $id): PossibleDuplicate => new PossibleDuplicate($id->value, $database->organization((string) $id)?->fullName() ?? $id->value), StateOf::the($organization)['possibleDuplicates']);
     }
 }

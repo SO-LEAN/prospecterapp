@@ -176,7 +176,7 @@ final class Organization implements ReleasesEvents
             return;
         }
 
-        $this->possibleDuplicates = array_values(array_filter($this->possibleDuplicates, static fn (OrganizationId $suspected): bool => !$suspected->equals($duplicate)));
+        $this->possibleDuplicates = $this->withoutSuspicionOf($duplicate);
         $this->recordThat(new DuplicateSuspicionLifted($this->accountId, $by, $this->id, $duplicate, $at));
     }
 
@@ -217,9 +217,17 @@ final class Organization implements ReleasesEvents
         }
 
         $this->notDuplicates[] = $duplicate;
-        $this->possibleDuplicates = array_values(array_filter($this->possibleDuplicates, static fn (OrganizationId $suspected): bool => !$suspected->equals($duplicate)));
+        $this->possibleDuplicates = $this->withoutSuspicionOf($duplicate);
         $this->modifiedAt = $at;
         $this->recordThat(new DuplicateSuspicionDismissed($this->accountId, $by, $this->id, $duplicate, $at));
+    }
+
+    /**
+     * @return list<OrganizationId>
+     */
+    private function withoutSuspicionOf(OrganizationId $duplicate): array
+    {
+        return array_values(array_filter($this->possibleDuplicates, static fn (OrganizationId $suspected): bool => !$suspected->equals($duplicate)));
     }
 
     private function isNotADuplicateOf(OrganizationId $organization): bool
@@ -384,6 +392,11 @@ final class Organization implements ReleasesEvents
     {
         $this->ensurePossible(OrganizationIntent::StopProspecting);
         $this->recordThat(new ProspectingStopped($this->accountId, $by, $this->id, $at));
+
+        foreach ($this->possibleDuplicates as $suspected) {
+            $this->liftSuspicionOf($suspected, $by, $at);
+        }
+
         $this->leaveAlone($orphans->among($this->contacts, $this->accountId, $this->id), $by, $at);
     }
 
