@@ -263,6 +263,20 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
         $this->assertCount(1, $this->google()->events());
     }
 
+    /**
+     * Its endpoint is open to every member, on their own connections, a prospector or not, of any account.
+     */
+    public function testTheAiOfEveryMemberPushesAgainTheExchangesOfItsMember(): void
+    {
+        foreach (self::WRITERS as $writer) {
+            $this->login($writer);
+            $result = $this->callWithoutHandshake('relancer-synchronisations-google-echouees');
+
+            $this->assertNotTrue($result['isError'] ?? false, sprintf('refused to %s', $writer));
+            $this->assertSame($this->requestJson('GET', '/api/me/connections'), $this->answerOf($result), sprintf('done by %s', $writer));
+        }
+    }
+
     public function testTheAiNotesAToDoForAContact(): void
     {
         $ada = $this->ada();
