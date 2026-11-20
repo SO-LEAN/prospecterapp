@@ -190,6 +190,11 @@ class ReadingToolsApiTest extends ApiTestCase
         );
     }
 
+    public function testTheAiReadsWhatItsMemberHasToProcess(): void
+    {
+        $this->assertTheToolAnswersAsItsEndpoint('lire-echanges-a-traiter', ['timeZone' => 'Europe/Paris'], '/api/me/exchanges-to-process?timeZone=Europe/Paris');
+    }
+
     /**
      * Ada Lovelace, the contact of the demonstration, at Babbage & Co.
      */
