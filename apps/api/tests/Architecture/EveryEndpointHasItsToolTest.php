@@ -117,6 +117,13 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
         $this->assertSame([], array_keys(array_filter($writes, static fn (string $tool, string $route): bool => [false, $removesOrErases($route)] !== [self::toolOf($tool)->annotations?->readOnlyHint, self::toolOf($tool)->annotations?->destructiveHint], ARRAY_FILTER_USE_BOTH)), 'Tools of a write not saying readOnlyHint false, or destructiveHint true for a DELETE and false otherwise');
     }
 
+    public function testNoToolAdaptsAnEndpointKeptOnTheScreen(): void
+    {
+        self::bootKernel();
+
+        $this->assertSame([], array_values(array_intersect(self::NEVER, array_keys($this->adaptedByATool()))), 'Endpoints kept on the screen that a tool adapts');
+    }
+
     public function testNoEndpointToCoverHasItsToolAlready(): void
     {
         self::bootKernel();
