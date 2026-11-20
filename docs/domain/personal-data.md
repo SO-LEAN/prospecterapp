@@ -27,6 +27,7 @@ The personal data of natural persons, and who reads them. Code: `packages/core/s
 ## What it publishes
 
 - The service `WhichAreContactsService` (which persons are contacts of an account), asked by Prospecting (ADR 0089).
+- The service `WhichContactsHaveTheseEmailsService` (which contacts of an account have addresses, whatever their case, by the reservations of their emails; a forgotten contact absent), asked by Connectors to recognize who an e-mail was exchanged with, the address never leaving the question (ADR 0154).
 - The service `NameContactsService` (the names and the job titles of persons as a member reads them, in clear or masked, and the civility of a contact, in clear like their name; a forgotten person, or one the member does not reach, absent), asked by Connectors to name the contact of an exchange it pushes (ADR 0127), and by Campaigns to render the message of a campaign for a contact (ADR 0144).
 - The service `PresentMembersService` (the name and the picture of members, in clear, checking no caller; a person prospected, forgotten or unknown absent), asked by Booking to say who the host of a public page is (ADR 0153).
 - The integration events `ContactCollected` and `ContactForgotten` (ADR 0046).
