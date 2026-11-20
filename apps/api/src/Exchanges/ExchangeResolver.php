@@ -34,9 +34,18 @@ final readonly class ExchangeResolver implements ValueResolverInterface
             return [];
         }
 
-        $kept = new KeptExchange();
-        ($this->consultExchange)(new ConsultExchange($reader->memberId(), $request->attributes->getString('id'), $this->clock->now()), $kept);
+        return [$this->read($reader, $request->attributes->getString('id'))];
+    }
 
-        return [$kept->exchange];
+    /**
+     * The exchange of this id as its reader reads it, for the voter, whatever its account; an unknown one refused by
+     * the core.
+     */
+    public function read(User $reader, string $id): ExchangeDetail
+    {
+        $kept = new KeptExchange();
+        ($this->consultExchange)(new ConsultExchange($reader->memberId(), $id, $this->clock->now()), $kept);
+
+        return $kept->exchange;
     }
 }
