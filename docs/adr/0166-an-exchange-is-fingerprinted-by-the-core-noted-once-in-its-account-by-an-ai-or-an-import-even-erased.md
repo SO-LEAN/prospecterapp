@@ -21,7 +21,7 @@ An AI synchronizing a mailbox or a LinkedIn messaging through the MCP server rea
 ## Consequences
 
 - An AI synchronizes as often as it likes, nothing doubled: the core decides alone what is the same message, the same for every AI and for the import.
-- A member noting by hand the same call twice notes it twice; an AI noting it afterwards is answered the first.
+- A member noting by hand the same call twice notes it twice, but for two notings at once (below); an AI noting it afterwards is answered the first.
 - An exchange erased by mistake by a member is not noted again by an AI; the member notes it by hand.
 - Two notings of the same exchange at once: the second one is answered « already noted » without the exchange by a tool; by hand, it is refused (409 `exchangeNotedMeanwhile`), the one race the screen is refused by.
 - A message corrected after it was noted keeps the fingerprint of what was read first.

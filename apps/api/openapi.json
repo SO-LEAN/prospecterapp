@@ -1264,6 +1264,16 @@
                             }
                         }
                     },
+                    "409": {
+                        "description": "The same exchange noted at the same moment by another request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
                     "422": {
                         "description": "Invalid exchange: unknown channel or direction, a missed exchange that is no call, meeting or video call, a moment in the future, a Message-ID or a conversation of another channel",
                         "content": {
@@ -2677,7 +2687,7 @@
                         }
                     },
                     "409": {
-                        "description": "The person is no contact of the organization",
+                        "description": "The person is no contact of the organization, or the same exchange noted at the same moment by another request",
                         "content": {
                             "application/json": {
                                 "schema": {
