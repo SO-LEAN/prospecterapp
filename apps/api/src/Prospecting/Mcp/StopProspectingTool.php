@@ -31,7 +31,7 @@ final readonly class StopProspectingTool
     /**
      * @param string $id the id of the organization
      */
-    #[McpTool(name: 'arreter-prospection', description: 'Stop prospecting an organization: its subsidiaries lose their holding, its contacts that no other organization names are erased (which needs the right to manage the personal data). Answers nothing.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false))]
+    #[McpTool(name: 'arreter-prospection', description: 'Stop prospecting an organization: its subsidiaries lose their holding, its contacts that no other organization names are erased (which needs the right to manage the personal data). Answers nothing.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id): void
     {
         $organization = $this->organizations->read($id);

@@ -25,7 +25,7 @@ final readonly class AttachToHoldingTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'rattacher-a-holding', description: 'Attach an organization to its holding, an organization the account prospects. Answers the organization.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true))]
+    #[McpTool(name: 'rattacher-a-holding', description: 'Attach an organization to its holding, an organization the account prospects. Answers the organization.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
     public function __invoke(string $id, string $holdingId): array
     {
         return $this->writes->write(

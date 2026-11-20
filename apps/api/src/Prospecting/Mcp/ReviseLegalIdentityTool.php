@@ -28,7 +28,7 @@ final readonly class ReviseLegalIdentityTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'reviser-identite-organisation', description: 'Revise the legal identity of an organization (corporate name, form, type, SIRET), nothing else changes; what is left out is removed. Answers the organization.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true))]
+    #[McpTool(name: 'reviser-identite-organisation', description: 'Revise the legal identity of an organization (corporate name, form, type, SIRET), nothing else changes; what is left out is removed. Answers the organization.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
     public function __invoke(string $id, ?string $corporateName = null, ?string $form = null, ?string $type = null, ?string $siret = null): array
     {
         return $this->writes->write(

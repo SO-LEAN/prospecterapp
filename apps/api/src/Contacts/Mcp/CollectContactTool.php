@@ -46,7 +46,7 @@ final readonly class CollectContactTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'collecter-contact', description: 'Collect a person the account prospects, as a contact of the organizations they work for (at least one); needs the right to manage the personal data. Answers the new contact.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false))]
+    #[McpTool(name: 'collecter-contact', description: 'Collect a person the account prospects, as a contact of the organizations they work for (at least one); needs the right to manage the personal data. Answers the new contact.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
     public function __invoke(
         array $organizationIds,
         ?string $firstName = null,

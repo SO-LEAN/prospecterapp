@@ -29,7 +29,7 @@ final readonly class ChangeContactDetailsTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'changer-coordonnees-organisation', description: 'Change the e-mail, phone number, language, links and website of an organization, nothing else changes; what is left out is removed. Answers the organization.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true))]
+    #[McpTool(name: 'changer-coordonnees-organisation', description: 'Change the e-mail, phone number, language, links and website of an organization, nothing else changes; what is left out is removed. Answers the organization.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
     public function __invoke(string $id, ?string $email = null, ?string $phoneNumber = null, ?string $language = null, array $links = [], ?string $website = null): array
     {
         return $this->writes->write(
