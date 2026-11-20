@@ -53,6 +53,16 @@ abstract class ApiTestCase extends WebTestCase
         self::getContainer()->get(DemoCredentials::class)->register();
     }
 
+    /**
+     * The kernel kept between the requests, for a double to answer each: the tokens the readers sign in with later
+     * are checked on the clock of the tokens frozen when it booted, set a minute later so that none is issued after it.
+     */
+    protected function keepTheKernel(): void
+    {
+        $this->client->disableReboot();
+        self::getContainer()->get('app.token_clock')->modify('+1 minute');
+    }
+
     protected function login(string $reference = 'prospector-user'): void
     {
         $this->client->setServerParameter('HTTP_AUTHORIZATION', 'Bearer '.$this->tokensOf($this->members[$reference])['AccessToken']);
