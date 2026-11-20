@@ -37,6 +37,7 @@ final readonly class GmailMessage
             (string) $message['id'],
             $headers['message-id'] ?? null,
             new Email($sender),
+            [],
             array_values($message['labelIds'] ?? []),
             new \DateTimeImmutable('@'.intdiv((int) $message['internalDate'], self::MILLISECONDS)),
             $headers['subject'] ?? '',

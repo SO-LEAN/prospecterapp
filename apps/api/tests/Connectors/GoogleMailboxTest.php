@@ -154,7 +154,7 @@ class GoogleMailboxTest extends TestCase
             new JsonMockResponse(['messages' => [['id' => 'm2'], ['id' => 'm1']]]),
         );
 
-        $changes = $mailbox->messagesReceivedAfter(self::client(), new RefreshToken('a-token'), new \DateTimeImmutable('2026-11-18 09:12:00 UTC'), 3);
+        $changes = $mailbox->messagesExchangedAfter(self::client(), new RefreshToken('a-token'), new \DateTimeImmutable('2026-11-18 09:12:00 UTC'), 3);
 
         $this->assertEquals(new MailboxChanges(['m2', 'm3', 'm4'], '2000', true), $changes);
         $this->assertSame([
@@ -171,7 +171,7 @@ class GoogleMailboxTest extends TestCase
             new JsonMockResponse(['messages' => [['id' => 'm3'], ['id' => 'm2'], ['id' => 'm1']]]),
         );
 
-        $mailbox->messagesReceivedAfter(self::client(), new RefreshToken('a-token'), new \DateTimeImmutable('2026-11-18 09:12:00 UTC'), 1);
+        $mailbox->messagesExchangedAfter(self::client(), new RefreshToken('a-token'), new \DateTimeImmutable('2026-11-18 09:12:00 UTC'), 1);
 
         $this->assertSame([['level' => 'warning', 'message' => 'The history of a mailbox expired: its oldest messages since its last reading are not imported', 'context' => ['leftOut' => 2]]], $this->logger->records);
     }
@@ -186,7 +186,7 @@ class GoogleMailboxTest extends TestCase
 
         $mail = $mailbox->message(self::client(), new RefreshToken('a-token'), 'm1');
 
-        $this->assertEquals(new MailboxMail('m1', null, new Email('ada@acme.fr'), ['INBOX'], new \DateTimeImmutable('2026-11-18 09:12:00 UTC'), 'Votre devis', 'Bonjour'), $mail);
+        $this->assertEquals(new MailboxMail('m1', null, new Email('ada@acme.fr'), [], ['INBOX'], new \DateTimeImmutable('2026-11-18 09:12:00 UTC'), 'Votre devis', 'Bonjour'), $mail);
         $this->assertSame([['GET', self::GMAIL_URL.'/users/me/messages/m1?format=full', null]], $this->calls);
     }
 

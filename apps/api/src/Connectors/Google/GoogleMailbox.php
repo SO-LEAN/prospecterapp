@@ -164,7 +164,7 @@ final readonly class GoogleMailbox implements ProviderMailbox
      *
      * @see https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.messages/list
      */
-    public function messagesReceivedAfter(ClientCredentials $client, RefreshToken $refreshToken, \DateTimeImmutable $moment, int $atMost): MailboxChanges
+    public function messagesExchangedAfter(ClientCredentials $client, RefreshToken $refreshToken, \DateTimeImmutable $moment, int $atMost): MailboxChanges
     {
         $historyId = (string) $this->answerOf($client, $this->read($client, $refreshToken, '/users/me/profile'))['historyId'];
         $query = ['q' => sprintf('after:%d %s', $moment->getTimestamp(), self::NOT_RECEIVED), 'maxResults' => self::PAGE];

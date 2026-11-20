@@ -349,7 +349,7 @@ final class Connection implements ReleasesEvents
         try {
             return $mailbox->messagesAddedSince($client, $this->refreshToken, (string) $this->historyId, self::MOST_MESSAGES_BY_HISTORY);
         } catch (HistoryExpired) {
-            return $mailbox->messagesReceivedAfter($client, $this->refreshToken, $this->historyReadAt ?? $this->connectedAt, self::MOST_MESSAGES_BY_DATE);
+            return $mailbox->messagesExchangedAfter($client, $this->refreshToken, $this->historyReadAt ?? $this->connectedAt, self::MOST_MESSAGES_BY_DATE);
         }
     }
 

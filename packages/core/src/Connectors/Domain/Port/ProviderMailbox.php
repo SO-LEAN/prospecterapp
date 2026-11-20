@@ -40,12 +40,12 @@ interface ProviderMailbox
     public function messagesAddedSince(ClientCredentials $client, RefreshToken $refreshToken, string $historyId, int $atMost): MailboxChanges;
 
     /**
-     * The messages received after this moment, but the spam, the trash and the drafts, the newest at most so many, the
-     * older ones left out; the point reached is where the history stood before they were listed.
+     * The messages received or sent after this moment, but the spam, the trash and the drafts, the newest at most so
+     * many, the older ones left out; the point reached is where the history stood before they were listed.
      *
      * @throws AccessRevoked
      */
-    public function messagesReceivedAfter(ClientCredentials $client, RefreshToken $refreshToken, \DateTimeImmutable $moment, int $atMost): MailboxChanges;
+    public function messagesExchangedAfter(ClientCredentials $client, RefreshToken $refreshToken, \DateTimeImmutable $moment, int $atMost): MailboxChanges;
 
     /**
      * A message of the mailbox, none once it was deleted.
