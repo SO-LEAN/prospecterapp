@@ -6,6 +6,7 @@ namespace Tests\Core\Double;
 
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
+use Prospecter\Core\PersonalData\Domain\Model\PersonResemblanceKey;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
@@ -38,6 +39,13 @@ final readonly class InMemoryPersonRepository implements PersonRepository
     public function remove(Person $person): void
     {
         $this->database->forgetPerson((string) $person->id());
+    }
+
+    public function resembling(AccountId $accountId, PersonResemblanceKey $key, PersonId $except): array
+    {
+        $resembling = array_filter($this->database->persons(), static fn (Person $person): bool => !$person->id()->equals($except) && $person->accountId()->equals($accountId) && $person->resemblanceKey()?->value === $key->value);
+
+        return array_values(array_map(static fn (Person $person): PersonId => $person->id(), $resembling));
     }
 
     public function isEmailUsed(AccountId $accountId, Purpose $purpose, Email $email, PersonId $except): bool

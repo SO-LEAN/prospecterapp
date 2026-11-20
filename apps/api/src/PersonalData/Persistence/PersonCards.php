@@ -58,6 +58,7 @@ final class PersonCards
             phoneNumber: $masked ? Masking::phoneNumber($contact->phoneNumber) : $contact->phoneNumber?->international(),
             language: $contact->language,
             links: $masked ? array_map(ExternalLink::masked(...), Masking::references($references)) : ExternalLink::allOf($references),
+            possibleDuplicates: [],
             picture: $masked ? null : FileResponse::orNone(Documents::fileOf($document['picture'])),
             possibleIntents: array_map(static fn (PersonIntent $intent): string => $intent->name, $possibleIntents),
             createdAt: Documents::momentOf($document['createdAt']),

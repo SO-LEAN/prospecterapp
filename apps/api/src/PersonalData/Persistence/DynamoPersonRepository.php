@@ -9,6 +9,7 @@ use App\Shared\Persistence\Write;
 use Prospecter\Core\PersonalData\Domain\Exception\ReferenceTakenMeanwhile;
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
+use Prospecter\Core\PersonalData\Domain\Model\PersonResemblanceKey;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
@@ -27,7 +28,9 @@ use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
  * - `PERSON#<id>` / `FIRST_NAME`: the key of the first name of a person who has one, in the index `NAME` beside
  *   the key of their last name (ADR 0149), written and removed with the person;
  * - `REFERENCE#<account>#<source>#<identifier>` / `REFERENCE`: each link a contact holds, theirs or a former one,
- *   the safety net of ReferenceUniqueness (ADR 0159).
+ *   the safety net of ReferenceUniqueness (ADR 0159);
+ * - `RESEMBLANCE#<account>#<key>` / `PERSON#<id>`: the contacts of an account sharing a resemblance key, written and
+ *   deleted with the contact (ADR 0170).
  * The person carries its search keys and its phone number among the persons of the same account and purpose
  * (`SearchIndexes`), and its `revision`, incremented at each save: the revision of its facts (ADR 0099), which
  * the aggregate does not know.
@@ -37,6 +40,7 @@ final readonly class DynamoPersonRepository implements PersonRepository
     private const string EMAIL = 'EMAIL';
     private const string REFERENCE = 'REFERENCE';
     private const string FORMER_LINKEDIN = 'LINKEDIN';
+    private const string RESEMBLANCE_KEY = 'resemblanceKey';
 
     public function __construct(private Table $personalDataTable)
     {
@@ -66,7 +70,16 @@ final readonly class DynamoPersonRepository implements PersonRepository
             ...(null === $person->searchKeys()->firstName ? [] : [$this->deletingTheFirstName($person)]),
             ...(null === $email ? [] : [$this->personalDataTable->deleting(self::emailKey($person->accountId(), $person->purpose(), $email), self::EMAIL)]),
             ...$this->releasing($person, $person->referencesHeld()),
+            ...$this->resemblanceLinkChanged($person, null, $person->resemblanceKey()?->value),
         ]);
+    }
+
+    public function resembling(AccountId $accountId, PersonResemblanceKey $key, PersonId $except): array
+    {
+        $links = $this->personalDataTable->query(PersonalDataKeys::ofResemblance($accountId->value, $key->value));
+        $resembling = array_map(static fn (array $link): PersonId => new PersonId($link['personId']), $links);
+
+        return array_values(array_filter($resembling, static fn (PersonId $id): bool => !$id->equals($except)));
     }
 
     public function isEmailUsed(AccountId $accountId, Purpose $purpose, Email $email, PersonId $except): bool
@@ -134,7 +147,7 @@ final readonly class DynamoPersonRepository implements PersonRepository
             $writes[] = $this->personalDataTable->deleting(self::emailKey($person->accountId(), $person->purpose(), $storedEmail), self::EMAIL);
         }
 
-        $this->personalDataTable->transact([...$writes, ...$this->referenceWrites($person, null === $stored ? null : PersonDocument::person($stored['person']))]);
+        $this->personalDataTable->transact([...$writes, ...$this->referenceWrites($person, null === $stored ? null : PersonDocument::person($stored['person'])), ...$this->resemblanceLinkChanged($person, $person->resemblanceKey()?->value, $stored[self::RESEMBLANCE_KEY] ?? null)]);
     }
 
     /**
@@ -183,7 +196,7 @@ final readonly class DynamoPersonRepository implements PersonRepository
 
     /**
      * Writes again the item of every person, its search keys and its key in its list with it, the item of their first
-     * name beside it, the reservation of each reference a contact holds, and forgets the items of the search before
+     * name beside it, the reservation of each reference a contact holds, the link of their resemblance key (ADR 0170), and forgets the items of the search before
      * ADR 0071 and the reservations of the LinkedIn profiles before the references: what a table written before ADR
      * 0071, before ADR 0149, or before the references were unique, needs once.
      */
@@ -198,6 +211,7 @@ final readonly class DynamoPersonRepository implements PersonRepository
                 ...array_map(fn (Person $person, array $item): array => $this->itemOf($person, $item['person'], Revision::of($item)), $persons, $items),
                 ...array_filter(array_map($this->firstNameItemOf(...), $persons)),
                 ...$reservations,
+                ...array_map(static fn (Person $contact): array => self::resemblanceLink($contact->accountId()->value, (string) $contact->resemblanceKey(), $contact->id()->value), array_values(array_filter($persons, static fn (Person $person): bool => null !== $person->resemblanceKey()))),
             ],
             array_map(static fn (array $former): array => [$former['PK'], $former['SK']], [...$this->personalDataTable->scan('TOKEN'), ...$this->personalDataTable->scan(self::FORMER_LINKEDIN.'#'), ...$this->referencesNoLongerHeld($reservations)]),
         );
@@ -256,6 +270,7 @@ final readonly class DynamoPersonRepository implements PersonRepository
             'GSI1PK' => PersonalDataKeys::listOf(new AccountId($document['accountId']), Purpose::from($document['purpose'])),
             'GSI1SK' => $document['id'],
             'email' => $document['contactDetails']['email'],
+            self::RESEMBLANCE_KEY => $person->resemblanceKey()?->value,
             Revision::ATTRIBUTE => $revision,
             'person' => $document,
         ];
@@ -276,6 +291,31 @@ final readonly class DynamoPersonRepository implements PersonRepository
         }
 
         return null === $stored?->searchKeys()->firstName ? [] : [$this->deletingTheFirstName($person)];
+    }
+
+    /**
+     * The link of its resemblance key written when the key changes, the former one deleted.
+     *
+     * @return list<Write>
+     */
+    private function resemblanceLinkChanged(Person $person, ?string $key, ?string $storedKey): array
+    {
+        if ($key === $storedKey) {
+            return [];
+        }
+
+        return [
+            ...(null === $key ? [] : [$this->personalDataTable->putting(self::resemblanceLink($person->accountId()->value, $key, $person->id()->value))]),
+            ...(null === $storedKey ? [] : [$this->personalDataTable->deleting(PersonalDataKeys::ofResemblance($person->accountId()->value, $storedKey), PersonalDataKeys::person($person->id()->value))]),
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function resemblanceLink(string $accountId, string $key, string $personId): array
+    {
+        return ['PK' => PersonalDataKeys::ofResemblance($accountId, $key), 'SK' => PersonalDataKeys::person($personId), 'personId' => $personId];
     }
 
     private function deletingTheFirstName(Person $person): Write

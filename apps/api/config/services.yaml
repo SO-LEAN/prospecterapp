@@ -77,6 +77,7 @@ services:
     Prospecter\Core\Prospecting\Domain\Service\NotedOnce: ~
     Prospecter\Core\PersonalData\Domain\Service\EmailUniqueness: ~
     Prospecter\Core\PersonalData\Domain\Service\ReferenceUniqueness: ~
+    Prospecter\Core\PersonalData\Domain\Service\DuplicateSuspicion: ~
     Prospecter\Core\Reporting\Application\FactRecorder: ~
     Prospecter\Core\Reporting\Application\RebuildFigures\SourceFacts: ~
     Prospecter\Core\Connectors\Application\CalendarPusher: ~
@@ -143,6 +144,7 @@ services:
     Prospecter\Core\PersonalData\Contract\Service\NameContacts\NameContactsService: '@Prospecter\Core\PersonalData\Application\NameContacts\NameContactsHandler'
     Prospecter\Core\PersonalData\Contract\Service\PresentMembers\PresentMembersService: '@Prospecter\Core\PersonalData\Application\PresentMembers\PresentMembersHandler'
     Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\NameOrganizationsOfContactsService: '@Prospecter\Core\Prospecting\Application\NameOrganizationsOfContacts\NameOrganizationsOfContactsHandler'
+    Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsNameTheseContacts\WhichOrganizationsNameTheseContactsService: '@Prospecter\Core\Prospecting\Application\WhichOrganizationsNameTheseContacts\WhichOrganizationsNameTheseContactsHandler'
     Prospecter\Core\Campaigns\Contract\Service\WhichRecipientsArePending\WhichRecipientsArePendingService: '@Prospecter\Core\Campaigns\Application\WhichRecipientsArePending\WhichRecipientsArePendingHandler'
     Prospecter\Core\Campaigns\Contract\Service\NameCampaigns\NameCampaignsService: '@Prospecter\Core\Campaigns\Application\NameCampaigns\NameCampaignsHandler'
     Prospecter\Core\Connectors\Contract\Service\WhichHaveAConnectedCalendar\WhichHaveAConnectedCalendarService: '@Prospecter\Core\Connectors\Application\WhichHaveAConnectedCalendar\WhichHaveAConnectedCalendarHandler'
@@ -232,6 +234,7 @@ services:
     Prospecter\Core\Prospecting\Domain\Port\CampaignRecipients: '@App\Prospecting\AntiCorruption\CampaignsCampaignRecipients'
     Prospecter\Core\Prospecting\Domain\Port\CampaignNames: '@App\Prospecting\AntiCorruption\CampaignsCampaignNames'
     Prospecter\Core\PersonalData\Domain\Port\ProspectedOrganizations: '@App\PersonalData\AntiCorruption\ProspectingOrganizations'
+    Prospecter\Core\PersonalData\Domain\Port\OrganizationsOfContacts: '@App\PersonalData\AntiCorruption\ProspectingOrganizationsOfContacts'
     Prospecter\Core\PersonalData\Domain\Port\Bookers: '@App\PersonalData\AntiCorruption\BookingBookers'
     Prospecter\Core\Prospecting\Domain\Port\BookedAppointments: '@App\Prospecting\AntiCorruption\BookingBookedAppointments'
     Prospecter\Core\Booking\Domain\Repository\BookingPageRepository: '@App\Booking\Persistence\DynamoBookingPageRepository'

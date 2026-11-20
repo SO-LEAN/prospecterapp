@@ -38,4 +38,14 @@ final class PersonReading
     {
         return Purpose::Prospecting === $purpose ? Reading::Clear : self::by($reader, $person);
     }
+
+    /**
+     * Who a contact is suspected of being a duplicate of is read by a member with the right to manage personal data
+     * only, who alone says, once checked, that they are none.
+     */
+    #[\NoDiscard]
+    public static function showsPossibleDuplicatesTo(Reader $reader): bool
+    {
+        return $reader->readsPersonalData;
+    }
 }

@@ -12,6 +12,7 @@ use Prospecter\Core\PersonalData\Domain\Model\Reader;
 use Prospecter\Core\PersonalData\Domain\Port\ProspectedOrganizations;
 use Prospecter\Core\PersonalData\Domain\Port\Readers;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
+use Prospecter\Core\PersonalData\Domain\Service\DuplicateSuspicion;
 use Prospecter\Core\PersonalData\Domain\Service\EmailUniqueness;
 use Prospecter\Core\PersonalData\Domain\Service\ReferenceUniqueness;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
@@ -41,6 +42,7 @@ final readonly class CollectContactHandler implements CommandHandler
         private Events $events,
         private EmailUniqueness $emails,
         private ReferenceUniqueness $references,
+        private DuplicateSuspicion $duplicateSuspicion,
     ) {
     }
 
@@ -62,6 +64,7 @@ final readonly class CollectContactHandler implements CommandHandler
         );
         $this->emails->ensureAvailableFor($contact);
         $this->references->ensureAvailableFor($contact);
+        $contact->reconsiderDuplicates($this->duplicateSuspicion->resemblingTo($contact, $organizations), by: $collector->id, at: $command->executedAt);
         $this->persons->save($contact);
         $this->publishWhatHappenedTo($contact);
     }
