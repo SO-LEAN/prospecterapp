@@ -130,13 +130,13 @@ class GoogleMailboxTest extends TestCase
         $this->assertEquals(new MailboxChanges(['m1'], '1001', true), $changes);
     }
 
-    public function testAReadingOfTheHistoryIsLoggedWithItsPointsAndHowManyMessagesItListed(): void
+    public function testAReadingOfTheHistoryIsLoggedWithItsPointsAndTheIdsOfTheMessagesItListed(): void
     {
         $mailbox = $this->mailbox(new JsonMockResponse(['history' => [['id' => '1001', 'messagesAdded' => [['message' => ['id' => 'm1']], ['message' => ['id' => 'm2']]]]], 'historyId' => '1005']));
 
         $mailbox->messagesAddedSince(self::client(), new RefreshToken('a-token'), '1000', 500);
 
-        $this->assertSame([['level' => 'info', 'message' => 'The history of a mailbox read', 'context' => ['from' => '1000', 'to' => '1001', 'messages' => 2, 'complete' => true]]], $this->logger->records);
+        $this->assertSame([['level' => 'info', 'message' => 'The history of a mailbox read', 'context' => ['from' => '1000', 'to' => '1001', 'messages' => ['m1', 'm2'], 'complete' => true]]], $this->logger->records);
     }
 
     public function testAHistoryGmailNoLongerKeepsIsExpired(): void
