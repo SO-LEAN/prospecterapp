@@ -48,7 +48,7 @@ export function ExternalLinks({ links, masked }: { links: ExternalLink[]; masked
   if (masked) return links.map((link) => link.address).join(' ')
 
   return (
-    <ul className="grid gap-1">
+    <ul className="grid min-w-0 grid-cols-1 gap-1">
       {links.map((link) => (
         <li key={`${link.source}#${link.identifier}`}>
           <a
