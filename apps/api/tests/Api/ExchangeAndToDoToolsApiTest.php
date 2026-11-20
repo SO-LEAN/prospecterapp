@@ -70,6 +70,15 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
         $this->assertSame([], $this->requestJson('GET', '/api/me/exchanges-to-process')['items']);
     }
 
+    public function testTheAiMarksMissedACallToProcess(): void
+    {
+        $call = $this->aCallWithAdaPlannedYesterday();
+
+        $missed = $this->assertTheToolActsAsItsEndpoint('marquer-echange-manque', ['id' => $call], 'POST', '/api/exchanges/'.$call.'/missed', null, self::HOLDER);
+
+        $this->assertSame('missed', $missed['status']);
+    }
+
     public function testTheAiNotesAToDoForAContact(): void
     {
         $ada = $this->ada();

@@ -62,7 +62,6 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
         'api_exchanges_correct_venue',
         'api_exchanges_erase',
         'api_exchanges_google_sync_retry',
-        'api_exchanges_mark_missed',
         'api_exchanges_move',
         'api_exchanges_remove_attachment',
         'api_me_change_contact_details',
