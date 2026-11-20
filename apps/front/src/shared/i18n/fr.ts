@@ -276,7 +276,7 @@ export const fr = {
     subtitle: 'Les personnes que vous prospectez, les plus récentes d’abord.',
     searchPlaceholder: 'Rechercher par nom ou e-mail…',
     possibleDuplicates: {
-      explanation: 'Ce contact ressemble, par son nom, à un autre de son organisation :',
+      explanation: 'Ce contact ressemble, par son nom, à un autre de son organisation :',
     },
     empty: {
       title: 'Aucun contact',
