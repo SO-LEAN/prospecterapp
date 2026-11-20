@@ -117,6 +117,14 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
         $this->assertSame([], array_keys(array_filter($writes, static fn (string $tool, string $route): bool => [false, $removesOrErases($route)] !== [self::toolOf($tool)->annotations?->readOnlyHint, self::toolOf($tool)->annotations?->destructiveHint], ARRAY_FILTER_USE_BOTH)), 'Tools of a write not saying readOnlyHint false, or destructiveHint true for a DELETE and false otherwise');
     }
 
+    public function testEveryToolOfAWriteSaysWhetherItReachesOutsideProspecter(): void
+    {
+        $routes = self::getContainer()->get(RouterInterface::class)->getRouteCollection();
+        $writes = array_filter($this->adaptedByATool(), static fn (string $tool, string $route): bool => ['GET'] !== $routes->get($route)?->getMethods(), ARRAY_FILTER_USE_BOTH);
+
+        $this->assertSame([], array_keys(array_filter($writes, static fn (string $tool): bool => null === self::toolOf($tool)->annotations?->openWorldHint)), 'Tools of a write not saying openWorldHint');
+    }
+
     public function testNoToolAdaptsAnEndpointKeptOnTheScreen(): void
     {
         self::bootKernel();
