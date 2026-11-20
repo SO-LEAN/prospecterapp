@@ -37,8 +37,8 @@ use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
  */
 final readonly class DynamoPersonRepository implements PersonRepository
 {
-    private const string EMAIL = 'EMAIL';
-    private const string REFERENCE = 'REFERENCE';
+    private const string EMAIL = PersonalDataKeys::EMAIL;
+    private const string REFERENCE = PersonalDataKeys::REFERENCE;
     private const string FORMER_LINKEDIN = 'LINKEDIN';
     private const string RESEMBLANCE_KEY = 'resemblanceKey';
 
@@ -363,7 +363,7 @@ final readonly class DynamoPersonRepository implements PersonRepository
 
     private static function emailKey(AccountId $accountId, Purpose $purpose, string $email): string
     {
-        return sprintf('%s#%s#%s#%s', self::EMAIL, $accountId->value, $purpose->value, $email);
+        return PersonalDataKeys::email($accountId, $purpose, $email);
     }
 
     private static function isAContact(Person $person): bool
@@ -373,6 +373,6 @@ final readonly class DynamoPersonRepository implements PersonRepository
 
     private static function referenceKey(AccountId $accountId, ExternalReference $reference): string
     {
-        return sprintf('%s#%s#%s', self::REFERENCE, $accountId->value, $reference->key());
+        return PersonalDataKeys::reference($accountId, $reference);
     }
 }
