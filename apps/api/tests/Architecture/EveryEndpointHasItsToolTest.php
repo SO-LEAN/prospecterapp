@@ -97,7 +97,6 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
         'api_organizations_stop_prospecting',
         'api_organizations_tag',
         'api_organizations_take_off_tag',
-        'api_organizations_write_observations',
         'api_to_dos_erase',
         'api_to_dos_revise',
         'api_to_dos_tick_off',

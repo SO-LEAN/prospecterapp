@@ -92,6 +92,15 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         $this->assertSame($address, $relocated['address']);
     }
 
+    public function testTheAiWritesTheObservationsOnAnOrganization(): void
+    {
+        $babbage = $this->babbage();
+
+        $written = $this->assertTheToolActsAsItsEndpoint('ecrire-observations-organisation', ['id' => $babbage, 'observations' => 'Rappeler en janvier'], 'PATCH', '/api/organizations/'.$babbage.'/observations', ['observations' => 'Rappeler en janvier'], self::PROSPECTORS);
+
+        $this->assertSame('Rappeler en janvier', $written['observations']);
+    }
+
     /**
      * Ada Lovelace, the contact of the demonstration, at Babbage & Co.
      */
