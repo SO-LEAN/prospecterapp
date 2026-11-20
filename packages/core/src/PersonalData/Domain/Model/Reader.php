@@ -43,6 +43,15 @@ final readonly class Reader
     }
 
     /**
+     * Identifying a person by their links, their emails or their phone numbers reads them: a reader of masked data
+     * could guess what they cannot read, and identifies a person by their name only.
+     */
+    public function identifiesByPersonalData(): bool
+    {
+        return $this->readsPersonalData;
+    }
+
+    /**
      * Recognizing a person by their phone number reads it: a reader of masked data may not.
      *
      * @throws PersonalDataManagersOnly
