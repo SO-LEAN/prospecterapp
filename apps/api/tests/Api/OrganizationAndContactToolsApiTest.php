@@ -121,6 +121,16 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         $this->assertSame(['hello@babbage.test', 'https://www.babbage.test'], [$changed['contactDetails']['email'], $changed['contactDetails']['website']]);
     }
 
+    public function testTheAiAttachesAnOrganizationToItsHolding(): void
+    {
+        $babbage = $this->babbage();
+        $holding = $this->aHolding();
+
+        $attached = $this->assertTheToolActsAsItsEndpoint('rattacher-a-holding', ['id' => $babbage, 'holdingId' => $holding], 'PATCH', '/api/organizations/'.$babbage.'/holding', ['holdingId' => $holding], self::PROSPECTORS);
+
+        $this->assertSame($holding, $attached['holdingId']);
+    }
+
     /**
      * Ada Lovelace, the contact of the demonstration, at Babbage & Co.
      */
@@ -139,6 +149,16 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         $this->login();
 
         return $this->requestJson('GET', '/api/organizations?q=Babbage')['items'][0]['id'];
+    }
+
+    /**
+     * Analytical Group, an organization the account prospects, to hold others.
+     */
+    private function aHolding(): string
+    {
+        $this->login();
+
+        return $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'Analytical Group']])['id'];
     }
 
     /**
