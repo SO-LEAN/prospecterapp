@@ -43,11 +43,11 @@ use Prospecter\Core\SharedKernel\Domain\Siret;
  */
 final readonly class DynamoOrganizationRepository implements OrganizationRepository
 {
-    private const string EMAIL = 'EMAIL';
-    private const string SIRET = 'SIRET';
-    private const string REFERENCE = 'REFERENCE';
+    private const string EMAIL = OrganizationKeys::EMAIL;
+    private const string SIRET = OrganizationKeys::SIRET;
+    private const string REFERENCE = OrganizationKeys::REFERENCE;
     private const string FORMER_LINKEDIN_PAGE = 'LINKEDIN_PAGE';
-    private const string WEBSITE = 'WEBSITE';
+    private const string WEBSITE = OrganizationKeys::WEBSITE;
     private const string RESEMBLANCE_KEY = 'resemblanceKey';
 
     public function __construct(private Table $prospectingTable)
@@ -348,7 +348,7 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
 
     private static function reservationKey(string $kind, string $accountId, string $value): string
     {
-        return sprintf('%s#%s#%s', $kind, $accountId, $value);
+        return OrganizationKeys::reservation($kind, $accountId, $value);
     }
 
     /**
@@ -429,6 +429,6 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
 
     private static function emailKey(AccountId $accountId, string $email): string
     {
-        return sprintf('%s#%s#%s', self::EMAIL, $accountId->value, $email);
+        return OrganizationKeys::reservation(self::EMAIL, $accountId->value, $email);
     }
 }
