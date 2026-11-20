@@ -144,6 +144,15 @@ describe('ExchangeDetailSheet', () => {
     expect(screen.getByText(/^Modifié le 16 oct\. 2026, .* par assistant@solean-it\.io$/)).toBeInTheDocument()
   })
 
+  it('says an exchange its contact booked was booked by the public link, nobody of the account planning it', async () => {
+    await renderTheDetail(
+      anExchange({ status: 'planned', channel: 'videoCall', durationInMinutes: 15, bookedByLink: true }),
+    )
+
+    expect(screen.getByText(/^Réservé le 15 oct\. 2026, .* par le lien public$/)).toBeInTheDocument()
+    expect(screen.queryByText(/^Planifié le/)).not.toBeInTheDocument()
+  })
+
   it('says who planned an exchange still to come', async () => {
     await renderTheDetail(anExchange({ status: 'planned', channel: 'videoCall', durationInMinutes: 30 }))
 

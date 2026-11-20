@@ -228,10 +228,12 @@ function Exchange({
       {exchange.status === 'planned' && <GoogleSync exchangeId={exchange.id} />}
       <div className="space-y-1 text-muted-foreground text-xs">
         <p>
-          {t(exchange.status === 'planned' ? 'exchanges.detail.planned' : 'exchanges.detail.noted', {
-            moment: formatMoment(exchange.noted.at),
-            author: memberName(exchange.noted.by),
-          })}
+          {exchange.bookedByLink
+            ? t('exchanges.detail.booked', { moment: formatMoment(exchange.noted.at) })
+            : t(exchange.status === 'planned' ? 'exchanges.detail.planned' : 'exchanges.detail.noted', {
+                moment: formatMoment(exchange.noted.at),
+                author: memberName(exchange.noted.by),
+              })}
         </p>
         {exchange.corrected && (
           <p>
