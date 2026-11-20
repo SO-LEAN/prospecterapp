@@ -35,6 +35,7 @@ const anExchange = (exchange: Partial<Exchange>): Exchange => ({
   organizationIds: [],
   attachmentCount: 0,
   contactToAttach: false,
+  bookedByLink: false,
   _links: { self: { href: `/api/exchanges/${exchange.id ?? EXCHANGE}`, method: 'GET' } },
   ...exchange,
 })

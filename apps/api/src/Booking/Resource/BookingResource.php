@@ -1,0 +1,21 @@
+<?php
+
+namespace App\Booking\Resource;
+
+use OpenApi\Attributes as OA;
+
+/**
+ * What was booked, as the booker gave it, for the page to confirm it.
+ */
+final readonly class BookingResource
+{
+    public function __construct(
+        #[OA\Property(example: '2026-11-24T09:00:00+01:00')]
+        public string $slot,
+        #[OA\Property(enum: ['call', 'videoCall'])]
+        public string $channel,
+        #[OA\Property(description: 'Where the invitation goes', example: 'ada@acme.fr')]
+        public string $email,
+    ) {
+    }
+}

@@ -27,6 +27,14 @@ resource "aws_apigatewayv2_route" "public_booking_page" {
   target    = "integrations/${aws_apigatewayv2_integration.api.id}"
 }
 
+# A slot booked by a public link, without signing in (ADR 0164): a route of its own, its rate capped lower than the
+# reading of the page
+resource "aws_apigatewayv2_route" "public_booking" {
+  api_id    = aws_apigatewayv2_api.api.id
+  route_key = "POST /api/booking-pages/{code}/appointments"
+  target    = "integrations/${aws_apigatewayv2_integration.api.id}"
+}
+
 # The facade signing the AIs in and the MCP server, public too (ADR 0156, 0157): a route each, its rate capped by the
 # stage whatever the address
 locals {
@@ -57,6 +65,12 @@ resource "aws_apigatewayv2_stage" "default" {
     route_key              = aws_apigatewayv2_route.public_booking_page.route_key
     throttling_rate_limit  = var.public_booking_rate_limit
     throttling_burst_limit = var.public_booking_burst_limit
+  }
+
+  route_settings {
+    route_key              = aws_apigatewayv2_route.public_booking.route_key
+    throttling_rate_limit  = var.public_booking_book_rate_limit
+    throttling_burst_limit = var.public_booking_book_burst_limit
   }
 
   dynamic "route_settings" {

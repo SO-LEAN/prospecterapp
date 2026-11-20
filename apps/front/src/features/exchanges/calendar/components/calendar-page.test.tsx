@@ -42,6 +42,7 @@ const anExchange = (
       organizationIds: [],
       attachmentCount: 0,
       contactToAttach: false,
+      bookedByLink: false,
       _links: { self: { href: `/api/exchanges/${id}`, method: 'GET' } },
       ...exchange,
     },

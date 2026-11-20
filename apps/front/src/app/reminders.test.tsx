@@ -63,6 +63,7 @@ const theVideoCall: DayExchange = {
     organizationIds: [],
     attachmentCount: 0,
     contactToAttach: false,
+    bookedByLink: false,
     _links: { self: { href: `/api/exchanges/${VIDEO_CALL}`, method: 'GET' } },
   },
   interlocutor: { kind: 'person', id: ADA, name: 'Ada Lovelace', presence: 'present' },
