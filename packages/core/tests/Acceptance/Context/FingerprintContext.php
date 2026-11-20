@@ -10,6 +10,7 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use Prospecter\Core\Prospecting\Application\EraseExchange\EraseExchange;
 use Prospecter\Core\Prospecting\Application\NoteExchange\NoteExchange;
+use Prospecter\Core\Prospecting\Application\NoteOrganizationExchange\NoteOrganizationExchange;
 use Prospecter\Core\Prospecting\Domain\Exception\ExchangeAlreadyNoted;
 use Prospecter\Core\Prospecting\Domain\Exception\ExchangeErasedBefore;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
@@ -58,6 +59,18 @@ final class FingerprintContext implements Context
         $this->aiNotes($contact, Channel::Sms, $direction, $day, $time, null, null, null);
     }
 
+    #[Given('/^l\'IA a noté le message Malt (?<direction>reçu|envoyé) (?:de|à) "(?<organization>[^"]+)" elle-même le (?<day>\S+) à (?<time>\S+) : "(?<text>[^"]*)"$/')]
+    public function theAINotedAMessageWithTheOrganization(string $direction, string $organization, string $day, string $time, string $text): void
+    {
+        $this->firstNoted = $this->aiNotesWithTheOrganization($organization, Channel::Malt, $direction, $day, $time, $text);
+    }
+
+    #[When('/^l\'IA note le message Malt (?<direction>reçu|envoyé) (?:de|à) "(?<organization>[^"]+)" elle-même le (?<day>\S+) à (?<time>\S+) : "(?<text>[^"]*)"$/')]
+    public function theAINotesAMessageWithTheOrganization(string $direction, string $organization, string $day, string $time, string $text): void
+    {
+        $this->aiNotesWithTheOrganization($organization, Channel::Malt, $direction, $day, $time, $text);
+    }
+
     #[Then('c\'est déjà noté, avec l\'échange existant')]
     public function itIsAlreadyNoted(): void
     {
@@ -97,6 +110,26 @@ final class FingerprintContext implements Context
         $person = $this->scenario->personIdOf($contact);
         $with = array_filter($this->application->database->exchanges(), static fn (Exchange $exchange): bool => StateOf::the($exchange)['contact']?->value === $person);
         Expect::same($count, count($with));
+    }
+
+    private function aiNotesWithTheOrganization(string $organization, Channel $channel, string $direction, string $day, string $time, ?string $text): string
+    {
+        $id = $this->application->newIdentity();
+        $this->application->dispatch(new NoteOrganizationExchange(
+            prospectorId: $this->application->signedIn(),
+            id: $id,
+            organizationId: $this->scenario->idOf($organization),
+            personId: null,
+            channel: $channel->value,
+            direction: Vocabulary::direction($direction),
+            occurredAt: Vocabulary::frenchMoment(sprintf('%s à %s', $day, $time)),
+            text: $text,
+            missed: false,
+            executedAt: $this->application->now(),
+            noteOnce: true,
+        ));
+
+        return $id;
     }
 
     private function aiNotes(string $contact, Channel $channel, string $direction, string $day, string $time, ?string $text, ?string $messageId, ?string $linkedInConversation): string

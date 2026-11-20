@@ -47,3 +47,8 @@ Fonctionnalité: L'empreinte d'un échange
     Quand je note un SMS reçu de "Ada Lovelace" le 18/11/2026 à 9h12
     Alors ce n'est pas refusé
     Et "Ada Lovelace" a 2 échanges
+
+  Scénario: Un message d'une organisation elle-même n'est noté qu'une fois
+    Soit l'IA a noté le message Malt reçu de "ACME" elle-même le 18/11/2026 à 9h12 : "Bonjour"
+    Quand l'IA note le message Malt reçu de "ACME" elle-même le 18/11/2026 à 9h12 : "bonjour !"
+    Alors c'est déjà noté, avec l'échange existant
