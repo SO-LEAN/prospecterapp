@@ -261,6 +261,14 @@ class ReadingToolsApiTest extends ApiTestCase
         $this->assertTheToolAnswersAsItsEndpoint('lire-a-faire-contact', ['id' => $ada], '/api/contacts/'.$ada.'/to-dos');
     }
 
+    public function testTheAiReadsTheToDosOfAnOrganization(): void
+    {
+        $this->aToDoAboutAda();
+        $babbage = $this->babbage();
+
+        $this->assertTheToolAnswersAsItsEndpoint('lire-a-faire-organisation', ['id' => $babbage], '/api/organizations/'.$babbage.'/to-dos');
+    }
+
     /**
      * A to-do about Ada Lovelace, due tomorrow.
      */
