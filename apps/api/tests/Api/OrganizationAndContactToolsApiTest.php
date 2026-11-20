@@ -60,6 +60,17 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         $this->assertSame('ms', $changed['civility']);
     }
 
+    public function testTheAiChangesTheContactDetailsOfAContactAndTheirProfileOnLinkedIn(): void
+    {
+        $ada = $this->ada();
+        $details = ['email' => 'ada@lovelace.test', 'phoneNumber' => '03 88 00 00 43', 'language' => 'GB', 'links' => ['linkedin.com/in/ada-lovelace']];
+
+        $changed = $this->assertTheToolActsAsItsEndpoint('changer-coordonnees-contact', ['id' => $ada, ...$details], 'PATCH', '/api/contacts/'.$ada.'/contact-details', $details, self::PERSONAL_DATA_MANAGERS, '/api/contacts/'.$ada);
+
+        $this->assertSame('ada@lovelace.test', $changed['contactDetails']['email']);
+        $this->assertSame(['linkedin', 'ada-lovelace'], [$changed['contactDetails']['links'][0]['source'], $changed['contactDetails']['links'][0]['identifier']]);
+    }
+
     /**
      * Ada Lovelace, the contact of the demonstration, at Babbage & Co.
      */
