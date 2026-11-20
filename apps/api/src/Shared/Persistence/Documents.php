@@ -149,13 +149,37 @@ final class Documents
     }
 
     /**
-     * The links recognized again by their addresses: a source known since is recognized.
+     * The links as they were recognized when they were noted.
+     *
+     * @param list<array{source: string, identifier: string, address: string}> $documents
+     */
+    public static function referencesOf(array $documents): ExternalReferences
+    {
+        return ExternalReferences::of(array_map(static fn (array $reference): ExternalReference => ExternalReference::restored($reference['source'], $reference['identifier'], $reference['address']), $documents));
+    }
+
+    /**
+     * The links of a document written before the links were, recognized by their addresses (a LinkedIn profile, a
+     * LinkedIn page).
      *
      * @param list<string> $addresses
      */
-    public static function referencesOf(array $addresses, Designated $designated): ExternalReferences
+    public static function referencesBeforeTheLinks(array $addresses, Designated $designated): ExternalReferences
     {
         return ExternalReferences::designating($addresses, $designated);
+    }
+
+    /**
+     * The links recognized again by their addresses, a source known since taking over the links of its host, each
+     * today's rules refuse kept as it was noted.
+     *
+     * @param list<array{source: string, identifier: string, address: string}> $documents
+     *
+     * @return list<array{source: string, identifier: string, address: string}>
+     */
+    public static function referencesRecognizedAgain(array $documents, Designated $designated): array
+    {
+        return self::references(ExternalReferences::of(array_map(static fn (ExternalReference $reference): ExternalReference => $reference->recognizedAgain($designated), self::referencesOf($documents)->all())));
     }
 
     /**

@@ -78,12 +78,25 @@ final class OrganizationDocument
     }
 
     /**
-     * Its links, recognized again by their addresses; its LinkedIn page for a document written before the links were.
+     * Its links as they were noted; its LinkedIn page for a document written before the links were.
      *
      * @param array<string, mixed> $document
      */
     public static function referencesOf(array $document): ExternalReferences
     {
-        return Documents::referencesOf(isset($document['references']) ? array_column($document['references'], 'address') : array_filter([$document['linkedInPage'] ?? null]), Designated::Organization);
+        return isset($document['references']) ? Documents::referencesOf($document['references']) : Documents::referencesBeforeTheLinks(array_filter([$document['linkedInPage'] ?? null]), Designated::Organization);
+    }
+
+    /**
+     * The document with its links recognized again by their addresses: what `app:keys:rebuild` writes once a source
+     * is known.
+     *
+     * @param array<string, mixed> $document
+     *
+     * @return array<string, mixed>
+     */
+    public static function recognizedAgain(array $document): array
+    {
+        return ['references' => Documents::referencesRecognizedAgain(Documents::references(self::referencesOf($document)), Designated::Organization)] + $document;
     }
 }

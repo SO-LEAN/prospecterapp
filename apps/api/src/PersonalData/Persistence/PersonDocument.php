@@ -76,14 +76,14 @@ final class PersonDocument
     }
 
     /**
-     * Their links, recognized again by their addresses; their LinkedIn profile for a person saved before the links were
+     * Their links as they were noted; their LinkedIn profile for a person saved before the links were
      * (ADR 0139), none before the profiles were noted.
      *
      * @param array<string, mixed> $document
      */
     public static function referencesOf(array $document): ExternalReferences
     {
-        return Documents::referencesOf(isset($document['references']) ? array_column($document['references'], 'address') : array_filter([$document['linkedInProfile'] ?? null]), Designated::Person);
+        return isset($document['references']) ? Documents::referencesOf($document['references']) : Documents::referencesBeforeTheLinks(array_filter([$document['linkedInProfile'] ?? null]), Designated::Person);
     }
 
     /**
@@ -109,12 +109,28 @@ final class PersonDocument
     }
 
     /**
+     * The document with their links and their former ones recognized again by their addresses: what
+     * `app:keys:rebuild` writes once a source is known.
+     *
+     * @param array<string, mixed> $document
+     *
+     * @return array<string, mixed>
+     */
+    public static function recognizedAgain(array $document): array
+    {
+        return [
+            'references' => Documents::referencesRecognizedAgain(Documents::references(self::referencesOf($document)), Designated::Person),
+            'formerReferences' => Documents::referencesRecognizedAgain(Documents::references(self::formerReferencesOf($document)), Designated::Person),
+        ] + $document;
+    }
+
+    /**
      * Their former links, their former LinkedIn profiles for a person saved before the links were (ADR 0159).
      *
      * @param array<string, mixed> $document
      */
     private static function formerReferencesOf(array $document): ExternalReferences
     {
-        return Documents::referencesOf(isset($document['formerReferences']) ? array_column($document['formerReferences'], 'address') : $document['formerLinkedInProfiles'] ?? [], Designated::Person);
+        return isset($document['formerReferences']) ? Documents::referencesOf($document['formerReferences']) : Documents::referencesBeforeTheLinks($document['formerLinkedInProfiles'] ?? [], Designated::Person);
     }
 }

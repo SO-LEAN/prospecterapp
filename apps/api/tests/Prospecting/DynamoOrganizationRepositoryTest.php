@@ -38,6 +38,7 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
     private const string ANOTHER_SIRET = '55210055400021';
     private const string A_PAGE = 'https://www.linkedin.com/company/acme-corp';
     private const string A_SITE = 'https://www.acme.fr';
+    private const array STORED_UNDER_ITS_HOST = ['source' => 'linkedin.com', 'identifier' => 'linkedin.com/company/acme-corp', 'address' => self::A_PAGE];
 
     public function testTheReservationRefusesAnEmailTakenMeanwhile(): void
     {
@@ -309,6 +310,42 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
         $this->assertEquals($acme, $organizations->get($acme->id()));
     }
 
+    public function testALinkIsReadAsItWasStoredThoughItsAddressIsRecognizedOtherwiseToday(): void
+    {
+        $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
+        $acme = $this->organizationOnTheWeb($prospector, self::A_PAGE, null);
+        self::getContainer()->get(OrganizationRepository::class)->save($acme);
+        $this->storedWithTheLink($acme, self::STORED_UNDER_ITS_HOST);
+
+        $this->assertSame([['linkedin.com', 'linkedin.com/company/acme-corp']], self::sourcesAndIdentifiersOf(self::getContainer()->get(OrganizationRepository::class)->get($acme->id())));
+    }
+
+    public function testTheKeysWrittenAgainRecognizeAgainALinkStoredUnderTheHostOfASourceKnownSince(): void
+    {
+        $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
+        $acme = $this->organizationOnTheWeb($prospector, self::A_PAGE, null);
+        self::getContainer()->get(OrganizationRepository::class)->save($acme);
+        $this->storedWithTheLink($acme, self::STORED_UNDER_ITS_HOST);
+
+        self::getContainer()->get(DynamoOrganizationRepository::class)->writeTheKeysAgain();
+
+        $this->assertSame([['linkedin-company', 'acme-corp']], self::sourcesAndIdentifiersOf(self::getContainer()->get(OrganizationRepository::class)->get($acme->id())));
+        $this->assertEquals($acme->id(), self::getContainer()->get(OrganizationRepository::class)->withReference($prospector->accountId, self::reference(self::A_PAGE), except: new OrganizationId(self::newIdentity()))?->id());
+        $this->assertNull($this->prospectingTable()->item(sprintf('REFERENCE#%s#linkedin.com#linkedin.com/company/acme-corp', $prospector->accountId->value), 'REFERENCE'));
+    }
+
+    public function testTheKeysWrittenAgainKeepAsItWasStoredALinkRefusedToday(): void
+    {
+        $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
+        $acme = $this->organizationOnTheWeb($prospector, self::A_PAGE, null);
+        self::getContainer()->get(OrganizationRepository::class)->save($acme);
+        $this->storedWithTheLink($acme, ['source' => 'linkedin.com', 'identifier' => 'linkedin.com/in/ada', 'address' => 'https://www.linkedin.com/in/ada']);
+
+        self::getContainer()->get(DynamoOrganizationRepository::class)->writeTheKeysAgain();
+
+        $this->assertSame([['linkedin.com', 'linkedin.com/in/ada']], self::sourcesAndIdentifiersOf(self::getContainer()->get(OrganizationRepository::class)->get($acme->id())));
+    }
+
     public function testTheKeysWrittenAgainReserveTheDomainOfTheWebsiteOfAnOrganization(): void
     {
         $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
@@ -428,6 +465,28 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
         $organization->changeContactDetails(new ContactDetails(), ExternalReferences::designating(array_filter([$page]), Designated::Organization), Website::orNone($site), by: $prospector->id, at: new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
 
         return $organization;
+    }
+
+    /**
+     * Its document and its reservation as if its link had been noted before its source was known, or under another
+     * rule than today's.
+     *
+     * @param array{source: string, identifier: string, address: string} $link
+     */
+    private function storedWithTheLink(Organization $organization, array $link): void
+    {
+        $item = $this->prospectingTable()->item(OrganizationKeys::organization($organization->id()->value), OrganizationKeys::ORGANIZATION);
+        $item['organization']['references'] = [$link];
+        $reservation = sprintf('REFERENCE#%s#%s#%s', $organization->accountId()->value, $link['source'], $link['identifier']);
+        $this->prospectingTable()->batch([$item, ['PK' => $reservation, 'SK' => 'REFERENCE', 'ownerId' => $organization->id()->value]], [[sprintf('REFERENCE#%s#linkedin-company#acme-corp', $organization->accountId()->value), 'REFERENCE']]);
+    }
+
+    /**
+     * @return list<array{string, string}>
+     */
+    private static function sourcesAndIdentifiersOf(Organization $organization): array
+    {
+        return array_map(static fn (ExternalReference $reference): array => [$reference->source, $reference->identifier], $organization->references()->all());
     }
 
     private static function reference(string $address): ExternalReference
