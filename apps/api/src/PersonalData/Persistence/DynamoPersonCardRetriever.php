@@ -6,9 +6,11 @@ use App\Shared\Persistence\SearchIndexes;
 use App\Shared\Persistence\Table;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\PersonalData\Application\Port\PersonCardRetriever;
+use Prospecter\Core\PersonalData\Application\PossibleDuplicate;
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\PersonalData\Domain\Model\Reader;
+use Prospecter\Core\PersonalData\Domain\Policy\PersonReading;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
@@ -30,7 +32,26 @@ final readonly class DynamoPersonCardRetriever implements PersonCardRetriever
             throw UnknownPerson::identifiedBy($id);
         }
 
-        return PersonCards::of($document, $reader);
+        return PersonCards::of($document, $reader, PersonReading::showsPossibleDuplicatesTo($reader) ? $this->possibleDuplicatesOf($document) : []);
+    }
+
+    /**
+     * The contacts the person is suspected of being a duplicate of, read in one batch: one forgotten meanwhile absent.
+     *
+     * @param array<string, mixed> $document
+     *
+     * @return list<PossibleDuplicate>
+     */
+    private function possibleDuplicatesOf(array $document): array
+    {
+        $ids = $document['possibleDuplicates'] ?? [];
+        $named = [];
+
+        foreach ($this->personalDataTable->items(array_map(static fn (string $id): array => [PersonalDataKeys::person($id), PersonalDataKeys::PERSON], $ids)) as $item) {
+            $named[$item['person']['id']] = new PossibleDuplicate($item['person']['id'], $item['person']['name']['firstName'] ?? null, $item['person']['name']['lastName'] ?? null);
+        }
+
+        return array_values(array_filter(array_map(static fn (string $id): ?PossibleDuplicate => $named[$id] ?? null, $ids)));
     }
 
     /**

@@ -4,6 +4,7 @@ namespace App\PersonalData\Persistence;
 
 use App\Shared\Persistence\Documents;
 use Prospecter\Core\PersonalData\Application\PersonCard;
+use Prospecter\Core\PersonalData\Application\PossibleDuplicate;
 use Prospecter\Core\PersonalData\Domain\Model\PersonIntent;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\PersonalData\Domain\Model\Reader;
@@ -32,11 +33,12 @@ final class PersonCards
     }
 
     /**
-     * For a person the reader reaches.
+     * For a person the reader reaches; their possible duplicates read apart, a list of persons showing none.
      *
-     * @param array<string, mixed> $document
+     * @param array<string, mixed>    $document
+     * @param list<PossibleDuplicate> $possibleDuplicates
      */
-    public static function of(array $document, Reader $reader): PersonCard
+    public static function of(array $document, Reader $reader, array $possibleDuplicates = []): PersonCard
     {
         $id = new PersonId($document['id']);
         $purpose = Purpose::from($document['purpose']);
@@ -58,7 +60,7 @@ final class PersonCards
             phoneNumber: $masked ? Masking::phoneNumber($contact->phoneNumber) : $contact->phoneNumber?->international(),
             language: $contact->language,
             links: $masked ? array_map(ExternalLink::masked(...), Masking::references($references)) : ExternalLink::allOf($references),
-            possibleDuplicates: [],
+            possibleDuplicates: $possibleDuplicates,
             picture: $masked ? null : FileResponse::orNone(Documents::fileOf($document['picture'])),
             possibleIntents: array_map(static fn (PersonIntent $intent): string => $intent->name, $possibleIntents),
             createdAt: Documents::momentOf($document['createdAt']),

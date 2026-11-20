@@ -19,6 +19,8 @@ class ContactApiTest extends ApiTestCase
         'contactDetails' => ['email' => 'ada@analytical-engine.test', 'phoneNumber' => '03 88 00 00 42', 'language' => 'FR', 'links' => ['linkedin.com/in/countess-of-lovelace?utm_source=share']],
     ];
 
+    private const array ADA_AGAIN = ['name' => ['firstName' => 'ada', 'lastName' => 'LOVELACE'], 'civility' => 'x'];
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -258,6 +260,62 @@ class ContactApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(404);
         $this->requestJson('GET', '/api/contacts/'.$shared);
         $this->assertResponseIsSuccessful();
+    }
+
+    public function testAContactResemblingAnotherOfTheirOrganizationNamesTheirPossibleDuplicate(): void
+    {
+        $organization = $this->anOrganization('ACME');
+        $ada = $this->collect(self::ADA, $organization)['id'];
+
+        $duplicate = $this->collect(self::ADA_AGAIN, $organization);
+
+        $this->assertSame([[
+            'id' => $ada,
+            'name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'],
+            '_links' => [
+                'self' => ['href' => '/api/contacts/'.$ada, 'method' => 'GET'],
+                'dismiss' => ['href' => '/api/contacts/'.$duplicate['id'].'/possible-duplicates/'.$ada, 'method' => 'DELETE'],
+            ],
+        ]], $duplicate['possibleDuplicates']);
+    }
+
+    public function testAMemberWithTheRightSaysAPossibleDuplicateIsNone(): void
+    {
+        $organization = $this->anOrganization('ACME');
+        $ada = $this->collect(self::ADA, $organization)['id'];
+        $duplicate = $this->collect(self::ADA_AGAIN, $organization)['id'];
+
+        $dismissed = $this->requestJson('DELETE', '/api/contacts/'.$duplicate.'/possible-duplicates/'.$ada);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSame([], $dismissed['possibleDuplicates']);
+        $this->assertSame([], $this->requestJson('GET', '/api/contacts/'.$ada)['possibleDuplicates']);
+    }
+
+    public function testWithoutTheRightAProspectorSeesNoPossibleDuplicateNorSaysOneIsNone(): void
+    {
+        $organization = $this->anOrganization('ACME');
+        $ada = $this->collect(self::ADA, $organization)['id'];
+        $duplicate = $this->collect(self::ADA_AGAIN, $organization)['id'];
+        $this->login($this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector));
+
+        $this->assertSame([], $this->requestJson('GET', '/api/contacts/'.$duplicate)['possibleDuplicates']);
+        $problem = $this->requestJson('DELETE', '/api/contacts/'.$duplicate.'/possible-duplicates/'.$ada);
+
+        $this->assertResponseStatusCodeSame(403);
+        $this->assertSame('personalDataManagersOnly', $problem['reason']);
+    }
+
+    public function testAPossibleDuplicateDismissedMeanwhileIsAConflict(): void
+    {
+        $organization = $this->anOrganization('ACME');
+        $ada = $this->collect(self::ADA, $organization)['id'];
+        $grace = $this->collect(['name' => ['firstName' => 'Grace', 'lastName' => 'Hopper'], 'civility' => 'x'], $organization)['id'];
+
+        $problem = $this->requestJson('DELETE', '/api/contacts/'.$grace.'/possible-duplicates/'.$ada);
+
+        $this->assertResponseStatusCodeSame(409);
+        $this->assertSame('notASuspectedDuplicateContact', $problem['reason']);
     }
 
     /**

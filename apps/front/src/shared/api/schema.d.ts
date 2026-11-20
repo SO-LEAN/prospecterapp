@@ -524,6 +524,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/contacts/{id}/possible-duplicates/{duplicateId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Say, once checked, that the contact is no duplicate of the one they resemble; neither is flagged for the other any more */
+        delete: operations["delete_api_contacts_dismiss_possible_duplicate"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/organizations/{id}/exchanges": {
         parameters: {
             query?: never;
@@ -2676,6 +2693,15 @@ export interface components {
             tags?: components["schemas"]["LinkResource"];
             proposedOrganization?: components["schemas"]["LinkResource"];
         };
+        PossibleDuplicateOfContactLinksResource: {
+            self: components["schemas"]["LinkResource"];
+            dismiss?: components["schemas"]["LinkResource"];
+        };
+        PossibleDuplicateOfContactResource: {
+            id: string;
+            name: components["schemas"]["PersonNameResource"];
+            _links: components["schemas"]["PossibleDuplicateOfContactLinksResource"];
+        };
         ToAttachResource: {
             /**
              * Format: date-time
@@ -2701,6 +2727,7 @@ export interface components {
             /** @description The data are masked, but the name of a contact: the reader has no right to read personal data in clear */
             masked: boolean;
             _links: components["schemas"]["ContactLinksResource"];
+            possibleDuplicates: components["schemas"]["PossibleDuplicateOfContactResource"][];
             toAttach?: components["schemas"]["ToAttachResource"];
         };
         OrganizationOfContactResource: {
@@ -5509,6 +5536,63 @@ export interface operations {
             };
             /** @description Invalid contact, no organization, or email already used by another contact */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    delete_api_contacts_dismiss_possible_duplicate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                duplicateId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The contact */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContactResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown contact, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description The contact is not suspected of being a duplicate of this one (notASuspectedDuplicateContact) */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

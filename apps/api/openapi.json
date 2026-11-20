@@ -2552,6 +2552,80 @@
                 }
             }
         },
+        "/api/contacts/{id}/possible-duplicates/{duplicateId}": {
+            "delete": {
+                "tags": [
+                    "Contacts"
+                ],
+                "summary": "Say, once checked, that the contact is no duplicate of the one they resemble; neither is flagged for the other any more",
+                "operationId": "delete_api_contacts_dismiss_possible_duplicate",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    },
+                    {
+                        "name": "duplicateId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The contact",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ContactResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector, or no right to manage personal data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown contact, or one of another account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "The contact is not suspected of being a duplicate of this one (notASuspectedDuplicateContact)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/organizations/{id}/exchanges": {
             "get": {
                 "tags": [
@@ -10000,6 +10074,39 @@
                 },
                 "type": "object"
             },
+            "PossibleDuplicateOfContactLinksResource": {
+                "required": [
+                    "self"
+                ],
+                "properties": {
+                    "self": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "dismiss": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    }
+                },
+                "type": "object"
+            },
+            "PossibleDuplicateOfContactResource": {
+                "required": [
+                    "id",
+                    "name",
+                    "_links"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "$ref": "#/components/schemas/PersonNameResource"
+                    },
+                    "_links": {
+                        "$ref": "#/components/schemas/PossibleDuplicateOfContactLinksResource"
+                    }
+                },
+                "type": "object"
+            },
             "ToAttachResource": {
                 "required": [
                     "lastMeetingAt",
@@ -10026,7 +10133,8 @@
                     "civility",
                     "contactDetails",
                     "masked",
-                    "_links"
+                    "_links",
+                    "possibleDuplicates"
                 ],
                 "properties": {
                     "id": {
@@ -10057,6 +10165,12 @@
                     },
                     "_links": {
                         "$ref": "#/components/schemas/ContactLinksResource"
+                    },
+                    "possibleDuplicates": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PossibleDuplicateOfContactResource"
+                        }
                     },
                     "toAttach": {
                         "$ref": "#/components/schemas/ToAttachResource"
