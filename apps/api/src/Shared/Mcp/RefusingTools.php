@@ -4,6 +4,8 @@ namespace App\Shared\Mcp;
 
 use App\Security\AccessProblems;
 use App\Shared\RefusalProblems;
+use App\Shared\ServiceUnavailable;
+use App\Shared\UnavailabilityProblems;
 use Mcp\Server\Capability\Registry\ElementReference;
 use Mcp\Server\Capability\Registry\ReferenceHandlerInterface;
 use Mcp\Server\Exception\ToolCallException;
@@ -15,7 +17,8 @@ use Symfony\Component\Validator\Exception\ValidationFailedException;
 
 /**
  * Runs the tools of the MCP server, a refusal answered as the error of the tool, its text the problem the endpoint
- * the tool adapts would answer, or the violations of its arguments (ADR 0163): the AI reads why, as the SPA does. Any other exception stays a failure.
+ * the tool adapts would answer (a refusal, an access denied, a service out of reach), or the violations of its arguments
+ * (ADR 0163): the AI reads why, as the SPA does. Any other exception stays a failure.
  */
 final readonly class RefusingTools implements ReferenceHandlerInterface
 {
@@ -23,6 +26,7 @@ final readonly class RefusingTools implements ReferenceHandlerInterface
         private ReferenceHandlerInterface $tools,
         private AccessProblems $accessProblems,
         private RefusalProblems $refusalProblems,
+        private UnavailabilityProblems $unavailabilityProblems,
         private NormalizerInterface $normalizer,
     ) {
     }
@@ -48,6 +52,7 @@ final readonly class RefusingTools implements ReferenceHandlerInterface
         return match (true) {
             $failure instanceof AccessDeniedException => $this->normalizer->normalize($this->accessProblems->of($failure)),
             $failure instanceof UseCaseRefused => $this->normalizer->normalize($this->refusalProblems->of($failure)),
+            $failure instanceof ServiceUnavailable => $this->normalizer->normalize($this->unavailabilityProblems->of($failure)),
             $failure instanceof ValidationFailedException => $this->normalizer->normalize($failure->getViolations(), context: ['status' => Response::HTTP_UNPROCESSABLE_ENTITY]),
             default => null,
         };

@@ -5,6 +5,7 @@ namespace App\Shared\DependencyInjection;
 use App\Security\AccessProblems;
 use App\Shared\Mcp\RefusingTools;
 use App\Shared\RefusalProblems;
+use App\Shared\UnavailabilityProblems;
 use Mcp\Server\Capability\Registry\ReferenceHandler;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -27,6 +28,7 @@ final class RefusingToolsPass implements CompilerPassInterface
             new Definition(ReferenceHandler::class, [$this->toolsOf($builder)]),
             new Reference(AccessProblems::class),
             new Reference(RefusalProblems::class),
+            new Reference(UnavailabilityProblems::class),
             new Reference('serializer'),
         ])]);
     }
