@@ -15,9 +15,9 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
  */
 final readonly class BookerIdentified extends DomainEvent
 {
-    public function __construct(AccountId $accountId, MemberId $host, public PersonId $person, public string $appointmentId, \DateTimeImmutable $occurredAt)
+    public function __construct(AccountId $accountId, MemberId $by, public PersonId $person, public string $appointmentId, \DateTimeImmutable $occurredAt)
     {
-        parent::__construct($accountId, $host, $occurredAt);
+        parent::__construct($accountId, $by, $occurredAt);
     }
 
     public function subject(): PersonId

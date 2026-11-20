@@ -86,6 +86,7 @@ services:
     Prospecter\Core\Campaigns\Application\CampaignTargets: ~
     Prospecter\Core\Prospecting\Application\CampaignsOfTimeline: ~
     Prospecter\Core\Booking\Application\BookingPages: ~
+    Prospecter\Core\Booking\Domain\Service\BusyPeriods: ~
 
     # DynamoDB (ADR 0048): MiniStack locally (DYNAMODB_ENDPOINT), AWS in production (DYNAMODB_ENDPOINT empty);
     # one table per bounded context, injected by name in its repositories only (Table $prospectingTable)
@@ -143,6 +144,7 @@ services:
     Prospecter\Core\Campaigns\Contract\Service\WhichRecipientsArePending\WhichRecipientsArePendingService: '@Prospecter\Core\Campaigns\Application\WhichRecipientsArePending\WhichRecipientsArePendingHandler'
     Prospecter\Core\Campaigns\Contract\Service\NameCampaigns\NameCampaignsService: '@Prospecter\Core\Campaigns\Application\NameCampaigns\NameCampaignsHandler'
     Prospecter\Core\Connectors\Contract\Service\WhichHaveAConnectedCalendar\WhichHaveAConnectedCalendarService: '@Prospecter\Core\Connectors\Application\WhichHaveAConnectedCalendar\WhichHaveAConnectedCalendarHandler'
+    Prospecter\Core\Booking\Contract\Service\ConsultAppointments\ConsultAppointmentsService: '@Prospecter\Core\Booking\Application\ConsultAppointments\ConsultAppointmentsHandler'
 
     # Ports of the core, implemented by the application
     Prospecter\Core\Accounts\Domain\Repository\AccountRepository: '@App\Accounts\Persistence\DynamoAccountRepository'
@@ -228,7 +230,13 @@ services:
     Prospecter\Core\Prospecting\Domain\Port\CampaignRecipients: '@App\Prospecting\AntiCorruption\CampaignsCampaignRecipients'
     Prospecter\Core\Prospecting\Domain\Port\CampaignNames: '@App\Prospecting\AntiCorruption\CampaignsCampaignNames'
     Prospecter\Core\PersonalData\Domain\Port\ProspectedOrganizations: '@App\PersonalData\AntiCorruption\ProspectingOrganizations'
+    Prospecter\Core\PersonalData\Domain\Port\Bookers: '@App\PersonalData\AntiCorruption\BookingBookers'
+    Prospecter\Core\Prospecting\Domain\Port\BookedAppointments: '@App\Prospecting\AntiCorruption\BookingBookedAppointments'
     Prospecter\Core\Booking\Domain\Repository\BookingPageRepository: '@App\Booking\Persistence\DynamoBookingPageRepository'
+    Prospecter\Core\Booking\Domain\Repository\AppointmentRepository: '@App\Booking\Persistence\DynamoAppointmentRepository'
+    # the moment an appointment is forgotten at counted from now, the real one (ADR 0164)
+    App\Booking\Persistence\DynamoAppointmentRepository:
+        arguments: { $clock: '@app.commit_clock' }
     Prospecter\Core\Booking\Application\Port\MyBookingPageRetriever: '@App\Booking\Persistence\DynamoMyBookingPageRetriever'
     Prospecter\Core\Booking\Application\Port\PublicBookingPageRetriever: '@App\Booking\Persistence\DynamoPublicBookingPageRetriever'
     Prospecter\Core\Booking\Domain\Port\Hosts: '@App\Booking\AntiCorruption\AccountsAndPersonalDataHosts'

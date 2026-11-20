@@ -62,6 +62,20 @@
     "handler": "Prospecter\\Core\\Prospecting\\Application\\KeepExchangesOfForgottenContact\\KeepExchangesOfForgottenContactHandler",
     "inbox": true
   },
+  "personal-data-identify-booker": {
+    "context": "personal-data",
+    "sources": ["prospecter.booking"],
+    "events": ["SlotBooked.v1"],
+    "handler": "Prospecter\\Core\\PersonalData\\Application\\IdentifyBooker\\IdentifyBookerHandler",
+    "inbox": true
+  },
+  "prospecting-plan-booked-appointment": {
+    "context": "prospecting",
+    "sources": ["prospecter.personal-data"],
+    "events": ["BookerIdentified.v1"],
+    "handler": "Prospecter\\Core\\Prospecting\\Application\\PlanBookedAppointment\\PlanBookedAppointmentHandler",
+    "inbox": true
+  },
   "prospecting-keep-created-video-call-link": {
     "context": "prospecting",
     "sources": ["prospecter.connectors"],

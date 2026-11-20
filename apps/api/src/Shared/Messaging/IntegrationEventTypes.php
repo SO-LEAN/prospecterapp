@@ -3,6 +3,7 @@
 namespace App\Shared\Messaging;
 
 use Prospecter\Core\Accounts\Contract\Event as Accounts;
+use Prospecter\Core\Booking\Contract\Event as Booking;
 use Prospecter\Core\Connectors\Contract\Event as Connectors;
 use Prospecter\Core\PersonalData\Contract\Event as PersonalData;
 use Prospecter\Core\Prospecting\Contract\Event as Prospecting;
@@ -17,11 +18,15 @@ final readonly class IntegrationEventTypes extends EventTypes
             'AccountOpened.v1' => Accounts\AccountOpened::class,
             'MemberRegistered.v1' => Accounts\MemberRegistered::class,
         ],
+        'prospecter.booking' => [
+            'SlotBooked.v1' => Booking\SlotBooked::class,
+        ],
         'prospecter.connectors' => [
             'VideoCallLinkCreated.v1' => Connectors\VideoCallLinkCreated::class,
             'EmailExchanged.v1' => Connectors\EmailExchanged::class,
         ],
         'prospecter.personal-data' => [
+            'BookerIdentified.v1' => PersonalData\BookerIdentified::class,
             'ContactCollected.v1' => PersonalData\ContactCollected::class,
             'ContactForgotten.v1' => PersonalData\ContactForgotten::class,
             'ContactFactsChanged.v2' => PersonalData\ContactFactsChanged::class,

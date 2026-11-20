@@ -15,9 +15,9 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
  */
 final readonly class SlotBooked extends DomainEvent
 {
-    public function __construct(AccountId $accountId, MemberId $host, public AppointmentId $appointmentId, public PersonId $bookerId, \DateTimeImmutable $occurredAt)
+    public function __construct(AccountId $accountId, MemberId $by, public AppointmentId $appointmentId, public PersonId $bookerId, \DateTimeImmutable $occurredAt)
     {
-        parent::__construct($accountId, $host, $occurredAt);
+        parent::__construct($accountId, $by, $occurredAt);
     }
 
     public function subject(): AppointmentId

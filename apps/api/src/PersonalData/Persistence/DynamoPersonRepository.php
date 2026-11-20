@@ -16,6 +16,7 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
+use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 /**
  * The persons in the table of PersonalData (ADR 0048):
@@ -87,6 +88,21 @@ final readonly class DynamoPersonRepository implements PersonRepository
         }
 
         return $contacts;
+    }
+
+    public function contactWithEmail(AccountId $accountId, Email $email): ?Person
+    {
+        $holder = $this->personalDataTable->item(self::emailKey($accountId, Purpose::Prospecting, $email->value), self::EMAIL)['ownerId'] ?? null;
+
+        return null === $holder ? null : $this->get(new PersonId($holder));
+    }
+
+    public function contactWithPhoneNumber(AccountId $accountId, PhoneNumber $phoneNumber): ?Person
+    {
+        $key = SearchIndexes::withPhoneNumber($this->personalDataTable, PersonalDataKeys::scopeOf($accountId, Purpose::Prospecting), $phoneNumber)[0] ?? null;
+        $document = null === $key ? null : $this->personalDataTable->item($key, PersonalDataKeys::PERSON)['person'] ?? null;
+
+        return null === $document ? null : PersonDocument::person($document);
     }
 
     public function contactHoldingLinkedInProfile(AccountId $accountId, LinkedInProfile $profile, PersonId $except): ?Person

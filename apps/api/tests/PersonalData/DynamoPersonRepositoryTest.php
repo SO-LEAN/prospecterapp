@@ -16,6 +16,7 @@ use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
+use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 use Tests\App\Base\ApiTestCase;
 
 /**
@@ -119,6 +120,29 @@ class DynamoPersonRepositoryTest extends ApiTestCase
         $persons->remove($ada);
 
         $this->assertSame([], $this->personalDataTable()->query('PERSON#'.$ada->id()->value));
+    }
+
+    public function testAContactIsFoundByTheEmailOfItsAccountOnly(): void
+    {
+        $persons = self::getContainer()->get(PersonRepository::class);
+        $account = new AccountId(self::newIdentity());
+        $persons->save($ada = $this->personWithTheEmail($account, 'ada@solean-it.io'));
+
+        $found = [$persons->contactWithEmail($account, new Email('ada@solean-it.io'))?->id()->value, $persons->contactWithEmail(new AccountId(self::newIdentity()), new Email('ada@solean-it.io')), $persons->contactWithEmail($account, new Email('grace@solean-it.io'))];
+
+        $this->assertSame([$ada->id()->value, null, null], $found);
+    }
+
+    public function testAContactIsFoundByThePhoneNumberOfItsAccountOnly(): void
+    {
+        $persons = self::getContainer()->get(PersonRepository::class);
+        $account = new AccountId(self::newIdentity());
+        $ada = Person::collect(new PersonId(self::newIdentity()), $account, Purpose::Prospecting, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS), contactDetails: new ContactDetails(phoneNumber: PhoneNumber::of('06 12 34 56 78')));
+        $persons->save($ada);
+
+        $found = [$persons->contactWithPhoneNumber($account, PhoneNumber::of('+33612345678'))?->id()->value, $persons->contactWithPhoneNumber(new AccountId(self::newIdentity()), PhoneNumber::of('+33612345678')), $persons->contactWithPhoneNumber($account, PhoneNumber::of('+33698765432'))];
+
+        $this->assertSame([$ada->id()->value, null, null], $found);
     }
 
     private function personalDataTable(): Table
