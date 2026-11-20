@@ -48,10 +48,16 @@ class DynamoAppointmentRepositoryTest extends ApiTestCase
         $this->appointments()->save($sooner = $this->appointmentOf($host, self::SLOT));
         $this->appointments()->save($this->appointmentOf(new MemberId(self::newIdentity()), self::SLOT));
 
-        $toCome = array_map(static fn (Appointment $appointment): string => $appointment->id()->value, $this->appointments()->toComeOf($host, new \DateTimeImmutable('2026-10-16T09:14:00+02:00')));
-        $once = array_map(static fn (Appointment $appointment): string => $appointment->id()->value, $this->appointments()->toComeOf($host, new \DateTimeImmutable('2026-10-16T09:15:00+02:00')));
+        $this->assertSame([$sooner->id()->value, $later->id()->value], $this->idsOf($this->appointments()->toComeOf($host, new \DateTimeImmutable('2026-10-16T09:14:00+02:00'))));
+    }
 
-        $this->assertSame([[$sooner->id()->value, $later->id()->value], [$later->id()->value]], [$toCome, $once]);
+    public function testAnAppointmentEndedIsNoLongerToCome(): void
+    {
+        $host = new MemberId(self::newIdentity());
+        $this->appointments()->save($later = $this->appointmentOf($host, self::LATER));
+        $this->appointments()->save($this->appointmentOf($host, self::SLOT));
+
+        $this->assertSame([$later->id()->value], $this->idsOf($this->appointments()->toComeOf($host, new \DateTimeImmutable('2026-10-16T09:15:00+02:00'))));
     }
 
     public function testASlotTakenMeanwhileRefusesTheSecondAppointment(): void
@@ -77,6 +83,16 @@ class DynamoAppointmentRepositoryTest extends ApiTestCase
             $subject,
             new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS),
         );
+    }
+
+    /**
+     * @param list<Appointment> $appointments
+     *
+     * @return list<string>
+     */
+    private function idsOf(array $appointments): array
+    {
+        return array_map(static fn (Appointment $appointment): string => $appointment->id()->value, $appointments);
     }
 
     private function appointments(): AppointmentRepository
