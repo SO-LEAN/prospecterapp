@@ -180,6 +180,14 @@ class DynamoPersonRepositoryTest extends ApiTestCase
         $this->assertEquals([$ada->id()], $this->persons()->resembling($account, $this->contactNamed($account, 'ada', 'LOVELACE')->resemblanceKey(), except: new PersonId(self::newIdentity())));
     }
 
+    public function testTheProfileOfAMemberNamedLikeAContactResemblesNoContact(): void
+    {
+        $account = new AccountId(self::newIdentity());
+        $this->persons()->save(Person::collect(new PersonId(self::newIdentity()), $account, Purpose::Membership, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS), new PersonName('Ada', 'Lovelace')));
+
+        $this->assertSame([], $this->persons()->resembling($account, $this->contactNamed($account, 'Ada', 'Lovelace')->resemblanceKey(), except: new PersonId(self::newIdentity())));
+    }
+
     public function testAForgottenContactResemblesNoOtherOne(): void
     {
         $account = new AccountId(self::newIdentity());
