@@ -3,8 +3,11 @@
 namespace App\Connectors\Google;
 
 use Prospecter\Core\Connectors\Domain\Exception\AccessRevoked;
+use Prospecter\Core\Connectors\Domain\Exception\HistoryExpired;
 use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
+use Prospecter\Core\Connectors\Domain\Model\MailboxChanges;
 use Prospecter\Core\Connectors\Domain\Model\MailboxWatch;
+use Prospecter\Core\Connectors\Domain\Model\ReceivedMail;
 use Prospecter\Core\Connectors\Domain\Model\RefreshToken;
 use Prospecter\Core\Connectors\Domain\Port\ProviderMailbox;
 use Psr\Log\LoggerInterface;
@@ -23,6 +26,10 @@ final readonly class GoogleMailbox implements ProviderMailbox
     private const array LEFT_OUT = ['SPAM', 'TRASH', 'DRAFT'];
     private const int MILLISECONDS = 1000;
     private const array NOT_GRANTED = [401, 403];
+    private const int NOT_FOUND = 404;
+    /** what is no e-mail received, in the words of the search of Gmail */
+    private const string NOT_RECEIVED = '-in:sent -in:draft -in:spam -in:trash';
+    private const int PAGE = 500;
     private const int NOT_DONE = 300;
     private const float TIMEOUT = 10;
 
@@ -78,6 +85,116 @@ final readonly class GoogleMailbox implements ProviderMailbox
             'timeout' => self::TIMEOUT,
             ...(null === $body ? [] : ['json' => $body]),
         ]);
+    }
+
+    /**
+     * The history read page after page; a reading stopping at the most it may list keeps the point of the last record
+     * it listed whole, the records after it read again next time.
+     *
+     * @see https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.history/list
+     */
+    public function messagesAddedSince(ClientCredentials $client, RefreshToken $refreshToken, string $historyId, int $atMost): MailboxChanges
+    {
+        $listed = [];
+        $reached = $historyId;
+        $pageToken = null;
+        do {
+            $page = $this->historyPage($client, $refreshToken, $historyId, $atMost, $pageToken);
+            foreach ($page['history'] ?? [] as $record) {
+                $added = array_map(static fn (array $added): string => (string) $added['message']['id'], $record['messagesAdded'] ?? []);
+                if ([] !== $listed && count($listed) + count($added) > $atMost) {
+                    return new MailboxChanges($listed, $reached, false);
+                }
+
+                $listed = [...$listed, ...$added];
+                $reached = (string) $record['id'];
+            }
+            $pageToken = $page['nextPageToken'] ?? null;
+        } while (null !== $pageToken);
+
+        return new MailboxChanges($listed, (string) ($page['historyId'] ?? $reached), true);
+    }
+
+    /**
+     * @return array<string, mixed>
+     *
+     * @throws AccessRevoked|HistoryExpired
+     */
+    private function historyPage(ClientCredentials $client, RefreshToken $refreshToken, string $historyId, int $atMost, ?string $pageToken): array
+    {
+        $response = $this->read($client, $refreshToken, '/users/me/history', ['startHistoryId' => $historyId, 'historyTypes' => 'messageAdded', 'maxResults' => $atMost, ...(null === $pageToken ? [] : ['pageToken' => $pageToken])]);
+        if (self::NOT_FOUND === $response->getStatusCode()) {
+            throw HistoryExpired::from($historyId);
+        }
+
+        $this->ensureGranted($response, $client);
+
+        return $response->toArray();
+    }
+
+    /**
+     * @param array<string, int|string> $query
+     */
+    private function read(ClientCredentials $client, RefreshToken $refreshToken, string $path, array $query = []): ResponseInterface
+    {
+        return $this->httpClient->request('GET', $this->endpoints->gmailUrl.$path, [
+            'headers' => ['Authorization' => 'Bearer '.$this->tokens->accessTokenFor($client, $refreshToken)],
+            'timeout' => self::TIMEOUT,
+            'query' => $query,
+        ]);
+    }
+
+    /**
+     * Where the history stands is read first, so that a message arriving while they are listed is read again from the
+     * history next time rather than lost. Gmail lists the newest first: the older ones beyond the most are left out,
+     * and said.
+     *
+     * @see https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.messages/list
+     */
+    public function messagesReceivedAfter(ClientCredentials $client, RefreshToken $refreshToken, \DateTimeImmutable $moment, int $atMost): MailboxChanges
+    {
+        $historyId = (string) $this->answerOf($client, $this->read($client, $refreshToken, '/users/me/profile'))['historyId'];
+        $query = ['q' => sprintf('after:%d %s', $moment->getTimestamp(), self::NOT_RECEIVED), 'maxResults' => self::PAGE];
+        $newestFirst = [];
+        $pageToken = null;
+        do {
+            $page = $this->answerOf($client, $this->read($client, $refreshToken, '/users/me/messages', [...$query, ...(null === $pageToken ? [] : ['pageToken' => $pageToken])]));
+            $newestFirst = [...$newestFirst, ...array_map(static fn (array $message): string => (string) $message['id'], $page['messages'] ?? [])];
+            $pageToken = $page['nextPageToken'] ?? null;
+        } while (null !== $pageToken);
+
+        $this->warnOfTheLeftOut(count($newestFirst) - $atMost);
+
+        return new MailboxChanges(array_reverse(array_slice($newestFirst, 0, $atMost)), $historyId, true);
+    }
+
+    private function warnOfTheLeftOut(int $leftOut): void
+    {
+        if ($leftOut > 0) {
+            $this->logger->warning('The history of a mailbox expired: its oldest messages since its last reading are not imported', ['leftOut' => $leftOut]);
+        }
+    }
+
+    /**
+     * @return array<string, mixed>
+     *
+     * @throws AccessRevoked
+     */
+    private function answerOf(ClientCredentials $client, ResponseInterface $response): array
+    {
+        $this->ensureGranted($response, $client);
+
+        return $response->toArray();
+    }
+
+    /**
+     * @see https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.messages/get
+     */
+    public function message(ClientCredentials $client, RefreshToken $refreshToken, string $messageId): ?ReceivedMail
+    {
+        $response = $this->read($client, $refreshToken, '/users/me/messages/'.rawurlencode($messageId), ['format' => 'full']);
+
+        return self::NOT_FOUND === $response->getStatusCode() ? null : GmailMessage::read($this->answerOf($client, $response));
     }
 
     public function stop(ClientCredentials $client, RefreshToken $refreshToken): void

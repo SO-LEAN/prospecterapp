@@ -9,7 +9,6 @@ use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
 use Prospecter\Core\Connectors\Domain\Model\Connection;
 use Prospecter\Core\Connectors\Domain\Model\Grant;
 use Prospecter\Core\Connectors\Domain\Model\MailboxNotifications;
-use Prospecter\Core\Connectors\Domain\Model\MailboxWatch;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Model\RefreshToken;
 use Prospecter\Core\Connectors\Domain\Model\Scope;
@@ -19,6 +18,7 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Double\EmptyMailbox;
 
 /**
  * The imports of the e-mails active in every account, listed under `GSI1` for their daily renewal (ADR 0154).
@@ -68,15 +68,6 @@ class DynamoMailImportsRetrieverTest extends ApiTestCase
 
     private static function aMailbox(): ProviderMailbox
     {
-        return new readonly class implements ProviderMailbox {
-            public function watch(ClientCredentials $client, RefreshToken $refreshToken, string $topic): MailboxWatch
-            {
-                return new MailboxWatch('1000', new \DateTimeImmutable('2026-10-22 09:00 UTC'));
-            }
-
-            public function stop(ClientCredentials $client, RefreshToken $refreshToken): void
-            {
-            }
-        };
+        return new EmptyMailbox();
     }
 }

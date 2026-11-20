@@ -9,7 +9,6 @@ use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
 use Prospecter\Core\Connectors\Domain\Model\Connection;
 use Prospecter\Core\Connectors\Domain\Model\Grant;
 use Prospecter\Core\Connectors\Domain\Model\MailboxNotifications;
-use Prospecter\Core\Connectors\Domain\Model\MailboxWatch;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Model\ProviderClient;
 use Prospecter\Core\Connectors\Domain\Model\RefreshToken;
@@ -22,6 +21,7 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Double\EmptyMailbox;
 use Tests\App\Double\GoogleDouble;
 
 /**
@@ -99,15 +99,6 @@ class RenewGmailWatchesTest extends ApiTestCase
 
     private static function aMailbox(): ProviderMailbox
     {
-        return new readonly class implements ProviderMailbox {
-            public function watch(ClientCredentials $client, RefreshToken $refreshToken, string $topic): MailboxWatch
-            {
-                return new MailboxWatch('1000', new \DateTimeImmutable('2026-10-22 09:00 UTC'));
-            }
-
-            public function stop(ClientCredentials $client, RefreshToken $refreshToken): void
-            {
-            }
-        };
+        return new EmptyMailbox();
     }
 }

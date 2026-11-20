@@ -1,0 +1,121 @@
+<?php
+
+namespace Tests\App\Connectors;
+
+use App\Connectors\Google\GmailMessage;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\TestCase;
+use Prospecter\Core\Connectors\Domain\Model\ReceivedMail;
+use Prospecter\Core\SharedKernel\Domain\Email;
+
+/**
+ * A message as Gmail answers it (`messages.get`, `format=full`), read as an e-mail of the mailbox: its sender, its
+ * labels, its moment, its subject and its text without the quoted history (ADR 0154).
+ */
+class GmailMessageTest extends TestCase
+{
+    public function testThePlainTextOfAReplyLeavesTheQuotedHistoryOut(): void
+    {
+        $text = "Bonjour Michel, c'est validé.\n\nLe mar. 17 nov. 2026 à 18:02, Michel <michel@exemple.fr> a écrit :\n> Voici le devis.\n";
+
+        $mail = GmailMessage::read(self::message(['mimeType' => 'text/plain', 'body' => ['data' => self::encoded($text)]]));
+
+        $this->assertSame("Bonjour Michel, c'est validé.", $mail?->text);
+    }
+
+    /**
+     * A learning test of the parser of the replies, on the quotes of the French clients the spike tried (ADR 0154).
+     */
+    #[DataProvider('repliesInFrench')]
+    public function testTheQuotesOfTheFrenchClientsAndASignatureAreLeftOut(string $reply): void
+    {
+        $mail = GmailMessage::read(self::message(['mimeType' => 'text/plain', 'body' => ['data' => self::encoded($reply)]]));
+
+        $this->assertSame("Bonjour Michel, c'est validé.", $mail?->text);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function repliesInFrench(): iterable
+    {
+        yield 'Gmail, on two lines' => ["Bonjour Michel, c'est validé.\n\nLe mar. 17 nov. 2026 à 18:02, Michel Maier <\nmichel@exemple.fr> a écrit :\n> Voici le devis.\n"];
+        yield 'Outlook' => ["Bonjour Michel, c'est validé.\n\nDe : Michel <michel@exemple.fr>\nEnvoyé : mardi 17 novembre 2026 18:02\nÀ : Ada <ada@acme.fr>\nObjet : Votre devis\n\nVoici le devis.\n"];
+        yield 'a signature' => ["Bonjour Michel, c'est validé.\n\n-- \nAda Lovelace\nACME\n"];
+    }
+
+    public function testAMessageIsReadWithItsSenderItsLabelsItsMomentItsSubjectAndItsMessageId(): void
+    {
+        $mail = GmailMessage::read(self::message(['mimeType' => 'text/plain', 'body' => ['data' => self::encoded('Bonjour')]]));
+
+        $this->assertEquals(new ReceivedMail('18f3a', '<CAF1@mail.acme.fr>', new Email('ada@acme.fr'), ['INBOX', 'UNREAD'], new \DateTimeImmutable('2026-11-18 09:12:00 UTC'), 'Votre devis', 'Bonjour'), $mail);
+    }
+
+    public function testTheTextIsTheFirstPartInPlainTextNotAttached(): void
+    {
+        $mail = GmailMessage::read(self::message(['mimeType' => 'multipart/mixed', 'parts' => [
+            ['mimeType' => 'text/plain', 'filename' => 'notes.txt', 'body' => ['attachmentId' => 'a1']],
+            ['mimeType' => 'multipart/alternative', 'parts' => [
+                ['mimeType' => 'text/plain', 'filename' => '', 'body' => ['data' => self::encoded('Le texte')]],
+                ['mimeType' => 'text/html', 'filename' => '', 'body' => ['data' => self::encoded('<p>Le HTML</p>')]],
+            ]],
+        ]]));
+
+        $this->assertSame('Le texte', $mail?->text);
+    }
+
+    public function testAMessageInHtmlOnlyIsReadAsTextWithoutItsQuote(): void
+    {
+        $html = '<div dir="ltr">Bonjour Michel,<br>c\'est validé.</div><br><div class="gmail_quote"><div class="gmail_attr">Le mar. 17 nov. 2026 à 18:02, Michel &lt;michel@exemple.fr&gt; a écrit&nbsp;:<br></div><blockquote class="gmail_quote">Voici le devis.</blockquote></div>';
+
+        $mail = GmailMessage::read(self::message(['mimeType' => 'text/html', 'body' => ['data' => self::encoded($html)]]));
+
+        $this->assertSame("Bonjour Michel,\nc'est validé.", $mail?->text);
+    }
+
+    public function testATextIsReadFromTheCharsetOfItsPart(): void
+    {
+        $latin = mb_convert_encoding('Validé, à mardi.', 'ISO-8859-1', 'UTF-8');
+
+        $mail = GmailMessage::read(self::message(['mimeType' => 'text/plain', 'body' => ['data' => self::encoded($latin)]], [['name' => 'Content-Type', 'value' => 'text/plain; charset="iso-8859-1"']]));
+
+        $this->assertSame('Validé, à mardi.', $mail?->text);
+    }
+
+    public function testAMessageWithoutTheAddressOfItsSenderIsNoneToImport(): void
+    {
+        $message = self::message(['mimeType' => 'text/plain', 'body' => ['data' => self::encoded('Bonjour')]]);
+        $message['payload']['headers'][0]['value'] = 'undisclosed-recipients:;';
+
+        $this->assertNull(GmailMessage::read($message));
+    }
+
+    /**
+     * @param array<string, mixed>                     $payload
+     * @param list<array{name: string, value: string}> $headers
+     *
+     * @return array<string, mixed>
+     */
+    private static function message(array $payload, array $headers = []): array
+    {
+        return [
+            'id' => '18f3a',
+            'labelIds' => ['INBOX', 'UNREAD'],
+            'internalDate' => '1794993120000',
+            'payload' => [
+                'headers' => [
+                    ['name' => 'From', 'value' => 'Ada Lovelace <Ada@ACME.fr>'],
+                    ['name' => 'Subject', 'value' => 'Votre devis'],
+                    ['name' => 'Message-ID', 'value' => '<CAF1@mail.acme.fr>'],
+                    ...$headers,
+                ],
+                ...$payload,
+            ],
+        ];
+    }
+
+    private static function encoded(string $text): string
+    {
+        return rtrim(strtr(base64_encode($text), '+/', '-_'), '=');
+    }
+}

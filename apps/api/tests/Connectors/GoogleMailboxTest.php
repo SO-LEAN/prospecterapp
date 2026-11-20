@@ -8,10 +8,14 @@ use App\Connectors\Google\GoogleTokens;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Connectors\Domain\Exception\AccessRevoked;
+use Prospecter\Core\Connectors\Domain\Exception\HistoryExpired;
 use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
+use Prospecter\Core\Connectors\Domain\Model\MailboxChanges;
 use Prospecter\Core\Connectors\Domain\Model\MailboxWatch;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
+use Prospecter\Core\Connectors\Domain\Model\ReceivedMail;
 use Prospecter\Core\Connectors\Domain\Model\RefreshToken;
+use Prospecter\Core\SharedKernel\Domain\Email;
 use Psr\Log\NullLogger;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\JsonMockResponse;
@@ -81,6 +85,78 @@ class GoogleMailboxTest extends TestCase
         yield 'refused' => [new MockResponse('', ['http_code' => 401])];
         yield 'failing' => [new MockResponse('', ['http_code' => 503])];
         yield 'out of reach' => [new MockResponse('', ['error' => 'Gmail does not answer'])];
+    }
+
+    public function testTheMessagesAddedSinceAPointOfTheHistoryAreListedTheOldestFirstPageAfterPage(): void
+    {
+        $mailbox = $this->mailbox(
+            new JsonMockResponse(['history' => [['id' => '1001', 'messagesAdded' => [['message' => ['id' => 'm1']]]], ['id' => '1002', 'messages' => [['id' => 'm0']]]], 'historyId' => '1003', 'nextPageToken' => 'p2']),
+            new JsonMockResponse(['history' => [['id' => '1003', 'messagesAdded' => [['message' => ['id' => 'm2']], ['message' => ['id' => 'm3']]]]], 'historyId' => '1003']),
+        );
+
+        $changes = $mailbox->messagesAddedSince(self::client(), new RefreshToken('a-token'), '1000', 500);
+
+        $this->assertEquals(new MailboxChanges(['m1', 'm2', 'm3'], '1003', true), $changes);
+        $this->assertSame([
+            ['GET', self::GMAIL_URL.'/users/me/history?startHistoryId=1000&historyTypes=messageAdded&maxResults=500', null],
+            ['GET', self::GMAIL_URL.'/users/me/history?startHistoryId=1000&historyTypes=messageAdded&maxResults=500&pageToken=p2', null],
+        ], $this->calls);
+    }
+
+    public function testAReadingStopsAtTheMostItMayListAtTheLastRecordListedWhole(): void
+    {
+        $mailbox = $this->mailbox(new JsonMockResponse(['history' => [
+            ['id' => '1001', 'messagesAdded' => [['message' => ['id' => 'm1']]]],
+            ['id' => '1002', 'messagesAdded' => [['message' => ['id' => 'm2']], ['message' => ['id' => 'm3']]]],
+        ], 'historyId' => '1002']));
+
+        $changes = $mailbox->messagesAddedSince(self::client(), new RefreshToken('a-token'), '1000', 2);
+
+        $this->assertEquals(new MailboxChanges(['m1'], '1001', false), $changes);
+    }
+
+    public function testAHistoryGmailNoLongerKeepsIsExpired(): void
+    {
+        $this->expectException(HistoryExpired::class);
+
+        $this->mailbox(new MockResponse('', ['http_code' => 404]))->messagesAddedSince(self::client(), new RefreshToken('a-token'), '1000', 500);
+    }
+
+    public function testTheMessagesReceivedAfterAMomentAreTheNewestTheOldestFirstFromWhereTheHistoryStoodBefore(): void
+    {
+        $mailbox = $this->mailbox(
+            new JsonMockResponse(['emailAddress' => 'michel@exemple.fr', 'historyId' => '2000']),
+            new JsonMockResponse(['messages' => [['id' => 'm4'], ['id' => 'm3']], 'nextPageToken' => 'p2']),
+            new JsonMockResponse(['messages' => [['id' => 'm2'], ['id' => 'm1']]]),
+        );
+
+        $changes = $mailbox->messagesReceivedAfter(self::client(), new RefreshToken('a-token'), new \DateTimeImmutable('2026-11-18 09:12:00 UTC'), 3);
+
+        $this->assertEquals(new MailboxChanges(['m2', 'm3', 'm4'], '2000', true), $changes);
+        $this->assertSame([
+            ['GET', self::GMAIL_URL.'/users/me/profile', null],
+            ['GET', self::GMAIL_URL.'/users/me/messages?q=after:1794993120%20-in:sent%20-in:draft%20-in:spam%20-in:trash&maxResults=500', null],
+            ['GET', self::GMAIL_URL.'/users/me/messages?q=after:1794993120%20-in:sent%20-in:draft%20-in:spam%20-in:trash&maxResults=500&pageToken=p2', null],
+        ], $this->calls);
+    }
+
+    public function testAMessageIsReadWhole(): void
+    {
+        $mailbox = $this->mailbox(new JsonMockResponse(['id' => 'm1', 'labelIds' => ['INBOX'], 'internalDate' => '1794993120000', 'payload' => [
+            'mimeType' => 'text/plain',
+            'headers' => [['name' => 'From', 'value' => 'ada@acme.fr'], ['name' => 'Subject', 'value' => 'Votre devis']],
+            'body' => ['data' => 'Qm9uam91cg'],
+        ]]));
+
+        $mail = $mailbox->message(self::client(), new RefreshToken('a-token'), 'm1');
+
+        $this->assertEquals(new ReceivedMail('m1', null, new Email('ada@acme.fr'), ['INBOX'], new \DateTimeImmutable('2026-11-18 09:12:00 UTC'), 'Votre devis', 'Bonjour'), $mail);
+        $this->assertSame([['GET', self::GMAIL_URL.'/users/me/messages/m1?format=full', null]], $this->calls);
+    }
+
+    public function testAMessageDeletedMeanwhileIsNone(): void
+    {
+        $this->assertNull($this->mailbox(new MockResponse('', ['http_code' => 404]))->message(self::client(), new RefreshToken('a-token'), 'm1'));
     }
 
     /**
