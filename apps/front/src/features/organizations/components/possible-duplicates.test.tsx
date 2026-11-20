@@ -81,7 +81,9 @@ describe('PossibleDuplicates', () => {
       aDuplicate([acme({ dismiss: { href: DISMISS, method: 'DELETE' } })]),
     )
 
-    await user.click(screen.getByRole('button', { name: 'Ce n’est pas un doublon d’Acme SAS' }))
+    const dismiss = screen.getByRole('button', { name: 'Ce n’est pas un doublon d’Acme SAS' })
+    expect(dismiss).toHaveTextContent('Ce n’est pas un doublon')
+    await user.click(dismiss)
 
     const request = theApi.mock.calls[0]?.[0] as Request
     expect([request.method, new URL(request.url).pathname]).toEqual(['DELETE', DISMISS])
