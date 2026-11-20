@@ -142,6 +142,17 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         $this->assertTheToolAsksForAConfirmation('detacher-de-holding');
     }
 
+    public function testTheAiRemovesTheLogoOfAnOrganizationOnceItsMemberConfirmed(): void
+    {
+        $babbage = $this->babbage();
+        $this->uploadImage('/api/organizations/'.$babbage.'/logo');
+
+        $removed = $this->assertTheToolActsAsItsEndpoint('retirer-logo-organisation', ['id' => $babbage], 'DELETE', '/api/organizations/'.$babbage.'/logo', null, self::PROSPECTORS);
+
+        $this->assertNull($removed['logo']);
+        $this->assertTheToolAsksForAConfirmation('retirer-logo-organisation');
+    }
+
     /**
      * Ada Lovelace, the contact of the demonstration, at Babbage & Co.
      */
