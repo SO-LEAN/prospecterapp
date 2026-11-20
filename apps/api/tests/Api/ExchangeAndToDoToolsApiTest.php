@@ -26,6 +26,16 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
         $this->aMemberOfAnotherAccount('stranger');
     }
 
+    public function testTheAiPlansAVideoCallWithAContact(): void
+    {
+        $ada = $this->ada();
+        $tomorrow = ['channel' => 'videoCall', 'occurredAt' => '2026-10-16T10:00:00+02:00', 'durationInMinutes' => 30, 'text' => 'Démonstration'];
+
+        $upcoming = $this->assertTheToolActsAsItsEndpoint('planifier-echange', ['id' => $ada, ...$tomorrow], 'POST', '/api/contacts/'.$ada.'/upcoming-exchanges', $tomorrow, self::PROSPECTORS);
+
+        $this->assertSame([['videoCall', '2026-10-16T08:00:00+00:00', 'planned']], array_map(static fn (array $exchange): array => [$exchange['channel'], $exchange['occurredAt'], $exchange['status']], array_slice($upcoming['items'], 0, 1)));
+    }
+
     public function testTheAiNotesAToDoForAContact(): void
     {
         $ada = $this->ada();
