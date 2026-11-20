@@ -14,7 +14,7 @@ Every endpoint of a member has its tool (0163), the logo of an organization amon
 - A tool taking an image takes the address of the image on the web (`url`, http or https), which the API downloads, then gives the core the same command as the endpoint (`changer-logo-organisation`, `ChangeLogo`).
 - The download never reaches a private network (`NoPrivateNetworkHttpClient`, as the documents of the clients of the AIs, 0157), lasts 5 seconds at most, follows no redirect, stops beyond 2 MB; the image is then checked as the screen's is (`Shared\Images`: 2 MB, JPEG, PNG or WebP). An address out of reach is a violation of `url`, an image refused the violations of the screen, both 422.
 - The tool says `openWorldHint`: it reaches outside Prospecter.
-- The file downloaded is removed once the request answered (`ImagesOnTheWeb::reset()`).
+- The member is checked before the image is downloaded; the file downloaded is removed once the command used it, within the call (`ImagesOnTheWeb::whileDownloaded()`): the API runs under PHP-FPM, a kernel per request, its services never reset.
 
 ## Consequences
 

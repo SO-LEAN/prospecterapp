@@ -39,7 +39,7 @@ final class ChangeMyPictureController extends AbstractController
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'The signed-in user is not a user', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 422, description: 'Invalid image', content: new Model(type: ProblemResource::class))]
-    public function __invoke(#[MapUploadedFile([new Assert\Image(maxSize: Images::LARGEST, mimeTypes: Images::TYPES)])] UploadedFile $file, #[CurrentUser] User $user): JsonResponse
+    public function __invoke(#[MapUploadedFile([new Assert\Image(maxSize: Images::LARGEST_BYTES, mimeTypes: Images::TYPES)])] UploadedFile $file, #[CurrentUser] User $user): JsonResponse
     {
         $this->commandBus->dispatch(new ChangePersonPicture($user->memberId(), $user->personId(), new UploadedFileInfo($file), $this->clock->now()));
 

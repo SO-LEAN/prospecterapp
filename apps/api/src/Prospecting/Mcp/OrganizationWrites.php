@@ -46,7 +46,10 @@ final readonly class OrganizationWrites
         return $this->results->of($this->organizationReader->read($organization->id));
     }
 
-    private function writable(string $id, string ...$attributes): OrganizationSheet
+    /**
+     * The organization of the route, the member refused unless they may write it as its endpoint allows.
+     */
+    public function writable(string $id, string ...$attributes): OrganizationSheet
     {
         $organization = $this->organizations->read($id);
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');

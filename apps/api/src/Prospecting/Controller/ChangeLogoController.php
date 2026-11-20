@@ -44,7 +44,7 @@ final class ChangeLogoController extends AbstractController
     #[OA\Response(response: 403, description: 'The signed-in user is not a prospector', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'Unknown organization, or one that is neither mine nor prospected by mine', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 422, description: 'Invalid image', content: new Model(type: ProblemResource::class))]
-    public function __invoke(OrganizationSheet $organization, #[MapUploadedFile([new Assert\Image(maxSize: Images::LARGEST, mimeTypes: Images::TYPES)])] UploadedFile $file, #[CurrentUser] User $user): JsonResponse
+    public function __invoke(OrganizationSheet $organization, #[MapUploadedFile([new Assert\Image(maxSize: Images::LARGEST_BYTES, mimeTypes: Images::TYPES)])] UploadedFile $file, #[CurrentUser] User $user): JsonResponse
     {
         $this->commandBus->dispatch(new ChangeLogo($user->memberId(), $organization->id, new UploadedFileInfo($file), $this->clock->now()));
 

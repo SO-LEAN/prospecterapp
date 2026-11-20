@@ -9,12 +9,13 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 final class Images
 {
-    public const string LARGEST = '2M';
+    /** 2 MB, as the constraint counts them */
+    public const int LARGEST_BYTES = 2_000_000;
 
     public const array TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
     public static function constraint(): Assert\Image
     {
-        return new Assert\Image(maxSize: self::LARGEST, mimeTypes: self::TYPES);
+        return new Assert\Image(maxSize: self::LARGEST_BYTES, mimeTypes: self::TYPES);
     }
 }
