@@ -119,11 +119,11 @@ final readonly class GoogleMailbox implements ProviderMailbox
     }
 
     /**
-     * What a reading listed, said by its points and its count only: no message of the mailbox is told.
+     * What a reading listed, said by its points and the ids of its messages at Gmail only: nothing they say is told.
      */
     private function logged(MailboxChanges $changes, string $from): MailboxChanges
     {
-        $this->logger->info('The history of a mailbox read', ['from' => $from, 'to' => $changes->historyId, 'messages' => count($changes->messageIds), 'complete' => $changes->complete]);
+        $this->logger->info('The history of a mailbox read', ['from' => $from, 'to' => $changes->historyId, 'messages' => $changes->messageIds, 'complete' => $changes->complete]);
 
         return $changes;
     }
