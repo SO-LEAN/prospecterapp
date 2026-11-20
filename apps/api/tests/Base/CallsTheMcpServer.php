@@ -52,4 +52,18 @@ trait CallsTheMcpServer
 
         return $this->responseData()['result'] ?? throw new \LogicException((string) $this->client->getResponse()->getContent());
     }
+
+    /**
+     * What the tool answered: its result, or the problem of its refusal.
+     *
+     * @param array<string, mixed> $result
+     *
+     * @return array<string, mixed>
+     */
+    protected function answerOf(array $result): array
+    {
+        return true === ($result['isError'] ?? false)
+            ? json_decode($result['content'][0]['text'], true, flags: JSON_THROW_ON_ERROR)
+            : $result['structuredContent'];
+    }
 }
