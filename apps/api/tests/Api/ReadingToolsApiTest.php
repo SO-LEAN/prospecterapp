@@ -195,6 +195,15 @@ class ReadingToolsApiTest extends ApiTestCase
         $this->assertTheToolAnswersAsItsEndpoint('lire-echanges-a-traiter', ['timeZone' => 'Europe/Paris'], '/api/me/exchanges-to-process?timeZone=Europe/Paris');
     }
 
+    public function testTheAiReadsTheExchangesASlotOverlaps(): void
+    {
+        $this->assertTheToolAnswersAsItsEndpoint(
+            'lire-echanges-qui-chevauchent',
+            ['startsAt' => '2026-10-13T10:00:00+02:00', 'durationInMinutes' => 60],
+            '/api/me/planned-exchanges?startsAt=2026-10-13T10:00:00%2B02:00&durationInMinutes=60',
+        );
+    }
+
     /**
      * Ada Lovelace, the contact of the demonstration, at Babbage & Co.
      */
