@@ -36,7 +36,7 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
     {
         $ada = $this->ada();
 
-        $changed = $this->assertTheToolActsAsItsEndpoint('changer-fonction-contact', ['id' => $ada, 'jobTitle' => 'CTO'], 'PATCH', '/api/contacts/'.$ada.'/job-title', ['jobTitle' => 'CTO'], self::PERSONAL_DATA_MANAGERS, '/api/contacts/'.$ada);
+        $changed = $this->assertTheToolActsAsItsEndpoint('changer-fonction-contact', ['id' => $ada, 'jobTitle' => 'CTO'], 'PATCH', '/api/contacts/'.$ada.'/job-title', ['jobTitle' => 'CTO'], self::PERSONAL_DATA_MANAGERS);
 
         $this->assertSame('CTO', $changed['jobTitle']);
     }
@@ -46,7 +46,7 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         $ada = $this->ada();
         $name = ['firstName' => 'Augusta Ada', 'lastName' => 'King'];
 
-        $renamed = $this->assertTheToolActsAsItsEndpoint('renommer-contact', ['id' => $ada, ...$name], 'PATCH', '/api/contacts/'.$ada.'/name', $name, self::PERSONAL_DATA_MANAGERS, '/api/contacts/'.$ada);
+        $renamed = $this->assertTheToolActsAsItsEndpoint('renommer-contact', ['id' => $ada, ...$name], 'PATCH', '/api/contacts/'.$ada.'/name', $name, self::PERSONAL_DATA_MANAGERS);
 
         $this->assertSame($name, $renamed['name']);
     }
@@ -55,7 +55,7 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
     {
         $ada = $this->ada();
 
-        $changed = $this->assertTheToolActsAsItsEndpoint('changer-civilite-contact', ['id' => $ada, 'civility' => 'ms'], 'PATCH', '/api/contacts/'.$ada.'/civility', ['civility' => 'ms'], self::PERSONAL_DATA_MANAGERS, '/api/contacts/'.$ada);
+        $changed = $this->assertTheToolActsAsItsEndpoint('changer-civilite-contact', ['id' => $ada, 'civility' => 'ms'], 'PATCH', '/api/contacts/'.$ada.'/civility', ['civility' => 'ms'], self::PERSONAL_DATA_MANAGERS);
 
         $this->assertSame('ms', $changed['civility']);
     }
@@ -65,10 +65,21 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         $ada = $this->ada();
         $details = ['email' => 'ada@lovelace.test', 'phoneNumber' => '03 88 00 00 43', 'language' => 'GB', 'links' => ['linkedin.com/in/ada-lovelace']];
 
-        $changed = $this->assertTheToolActsAsItsEndpoint('changer-coordonnees-contact', ['id' => $ada, ...$details], 'PATCH', '/api/contacts/'.$ada.'/contact-details', $details, self::PERSONAL_DATA_MANAGERS, '/api/contacts/'.$ada);
+        $changed = $this->assertTheToolActsAsItsEndpoint('changer-coordonnees-contact', ['id' => $ada, ...$details], 'PATCH', '/api/contacts/'.$ada.'/contact-details', $details, self::PERSONAL_DATA_MANAGERS);
 
         $this->assertSame('ada@lovelace.test', $changed['contactDetails']['email']);
         $this->assertSame(['linkedin', 'ada-lovelace'], [$changed['contactDetails']['links'][0]['source'], $changed['contactDetails']['links'][0]['identifier']]);
+    }
+
+    public function testTheAiCollectsAContactOfAnOrganization(): void
+    {
+        $babbage = $this->babbage();
+        $charles = ['firstName' => 'Charles', 'lastName' => 'Babbage', 'civility' => 'mr', 'jobTitle' => 'Founder', 'phoneNumber' => '03 88 00 00 44', 'links' => ['linkedin.com/in/charles-babbage'], 'organizationIds' => [$babbage]];
+        $payload = ['name' => ['firstName' => 'Charles', 'lastName' => 'Babbage'], 'civility' => 'mr', 'jobTitle' => 'Founder', 'contactDetails' => ['phoneNumber' => '03 88 00 00 44', 'links' => ['linkedin.com/in/charles-babbage']], 'organizationIds' => [$babbage]];
+
+        $collected = $this->assertTheToolActsAsItsEndpoint('collecter-contact', $charles, 'POST', '/api/contacts', $payload, self::PERSONAL_DATA_MANAGERS);
+
+        $this->assertSame([['firstName' => 'Charles', 'lastName' => 'Babbage'], 'Founder'], [$collected['name'], $collected['jobTitle']]);
     }
 
     /**
@@ -93,7 +104,7 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
 
     /**
      * Each writer calls the tool: refused, the endpoint refuses them the same; done, by a writer the endpoint allows,
-     * it answers the resource the screen then reads.
+     * it answers the resource the screen then reads, by its link `self`.
      *
      * @param array<string, mixed>      $arguments
      * @param array<string, mixed>|null $payload
@@ -101,7 +112,7 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
      *
      * @return array<string, mixed> what the tool answered the first writer it allowed
      */
-    private function assertTheToolActsAsItsEndpoint(string $tool, array $arguments, string $method, string $endpoint, ?array $payload, array $allowed, string $then): array
+    private function assertTheToolActsAsItsEndpoint(string $tool, array $arguments, string $method, string $endpoint, ?array $payload, array $allowed): array
     {
         $done = [];
         foreach (self::WRITERS as $writer) {
@@ -115,7 +126,7 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
             }
 
             $this->assertContains($writer, $allowed, sprintf('%s done by %s, whom its endpoint refuses', $tool, $writer));
-            $this->assertSame($this->requestJson('GET', $then), $answer, sprintf('%s done by %s', $tool, $writer));
+            $this->assertSame($this->requestJson('GET', $answer['_links']['self']['href']), $answer, sprintf('%s done by %s', $tool, $writer));
             $done[] = $answer;
         }
 

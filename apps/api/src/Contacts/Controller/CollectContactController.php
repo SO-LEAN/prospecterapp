@@ -11,7 +11,6 @@ use App\Shared\Identities;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\PersonalData\Application\CollectContact\CollectContact;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -43,20 +42,7 @@ final class CollectContactController extends AbstractController
     public function __invoke(#[MapRequestPayload] CollectContactInput $input, #[CurrentUser] User $user): JsonResponse
     {
         $id = $this->identities->next();
-        $this->commandBus->dispatch(new CollectContact(
-            readerId: $user->memberId(),
-            id: $id,
-            firstName: $input->name->firstName,
-            lastName: $input->name->lastName,
-            civility: $input->civility,
-            jobTitle: $input->jobTitle,
-            email: $input->contactDetails->email,
-            phoneNumber: $input->contactDetails->phoneNumber,
-            language: $input->contactDetails->language,
-            links: $input->contactDetails->links,
-            organizationIds: $input->organizationIds,
-            executedAt: $this->clock->now(),
-        ));
+        $this->commandBus->dispatch($input->commandOf($user->memberId(), $id, $this->clock->now()));
 
         return $this->json($this->contactReader->read($user->memberId(), $id), Response::HTTP_CREATED, ['Location' => $this->generateUrl('api_contacts_show', ['id' => $id])]);
     }
