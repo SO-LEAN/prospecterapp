@@ -30,6 +30,11 @@ interface ExchangeRepository
     public function fingerprinted(AccountId $accountId, ExchangeFingerprint $fingerprint): ?Fingerprinted;
 
     /**
+     * The fingerprints of the exchanges of the account with the contact, erased or not, forgotten with them.
+     */
+    public function forgetFingerprintsOf(AccountId $accountId, PersonId $contact): void;
+
+    /**
      * The exchanges kept for this organization.
      *
      * @return list<Exchange>

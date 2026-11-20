@@ -574,11 +574,13 @@ final class Exchange implements ReleasesEvents
 
     /**
      * Its contact erased by PersonalData: the exchange stays in the timelines of its organizations, its text
-     * and its files to make conform (ADR 0079); still to come, it is cancelled, whoever holds it.
+     * and its files to make conform (ADR 0079), its fingerprint forgotten (ADR 0166); still to come, it is cancelled,
+     * whoever holds it.
      */
     public function forgetItsContact(MemberId $by, \DateTimeImmutable $at): void
     {
         $this->contactForgotten = true;
+        $this->fingerprint = null;
         $this->modifiedAt = $at;
         $this->recordThat(new ExchangeContactForgotten($this->accountId, $by, $this->id, $at));
 

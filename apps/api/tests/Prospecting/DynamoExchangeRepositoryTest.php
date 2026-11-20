@@ -173,6 +173,22 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
         $this->assertEquals(new Fingerprinted($exchange->id(), new Erasure($this->prospector->id, new \DateTimeImmutable(self::NOW))), $exchanges->fingerprinted($this->prospector->accountId, self::fingerprintOf($exchange)));
     }
 
+    public function testTheFingerprintsOfTheExchangesWithAContactAreForgottenWithThem(): void
+    {
+        $exchanges = $this->exchanges();
+        $kept = $this->noted('2026-10-10 09:00 UTC');
+        $erased = $this->noted('2026-10-11 09:00 UTC');
+        $exchanges->save($kept);
+        $exchanges->save($erased);
+        $erased->erase(by: $this->prospector->id, at: new \DateTimeImmutable(self::NOW));
+        $exchanges->remove($erased);
+
+        $exchanges->forgetFingerprintsOf($this->prospector->accountId, $this->contact);
+
+        $this->assertNull($exchanges->fingerprinted($this->prospector->accountId, self::fingerprintOf($kept)));
+        $this->assertNull($exchanges->fingerprinted($this->prospector->accountId, self::fingerprintOf($erased)));
+    }
+
     public function testAnExchangeIsReadWithItsFingerprint(): void
     {
         $exchanges = $this->exchanges();
@@ -193,11 +209,24 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
         $this->assertEquals($imported->fingerprint(), $exchanges->get($imported->id())->fingerprint());
     }
 
+    public function testAnExchangeImportedBeforeTheFingerprintsWithAContactForgottenSinceHasNone(): void
+    {
+        $exchanges = $this->exchanges();
+        $imported = $this->imported();
+        $exchanges->save($imported);
+        $imported->forgetItsContact(by: $this->prospector->id, at: new \DateTimeImmutable(self::NOW));
+        $exchanges->save($imported);
+        $this->writtenBeforeTheFingerprints($imported);
+
+        $this->assertNull($exchanges->get($imported->id())->fingerprint());
+    }
+
     public function testTheRebuildOfTheKeysRegistersTheFingerprintOfAnExchangeImportedBeforeThem(): void
     {
         $imported = $this->imported();
         $this->exchanges()->save($imported);
         $this->writtenBeforeTheFingerprints($imported);
+        $this->prospectingTable()->batch([], [[ExchangeKeys::fingerprint($imported->accountId()->value, self::fingerprintOf($imported)->value), ExchangeKeys::FINGERPRINT]]);
 
         self::getContainer()->get(DynamoExchangeRepository::class)->writeTheKeysAgain();
 
@@ -228,8 +257,7 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
     {
         $item = $this->prospectingTable()->item(ExchangeKeys::exchange($exchange->id()->value), ExchangeKeys::EXCHANGE);
         unset($item['exchange']['fingerprint']);
-        $fingerprint = ExchangeKeys::fingerprint($exchange->accountId()->value, self::fingerprintOf($exchange)->value);
-        $this->prospectingTable()->batch([$item], [[$fingerprint, ExchangeKeys::FINGERPRINT]]);
+        $this->prospectingTable()->batch([$item]);
     }
 
     private function prospectingTable(): Table
