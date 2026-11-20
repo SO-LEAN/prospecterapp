@@ -23,16 +23,19 @@ class ImportedExchangeIdTest extends TestCase
         $this->assertTrue(self::of(self::ACCOUNT, self::EMAIL, new PersonId(self::ADA))->equals(self::of(self::ACCOUNT, self::EMAIL, new PersonId(self::ADA))));
     }
 
-    public function testTheExchangesOfAnotherEMailOfAnotherCorrespondentOrOfAnotherAccountAreOthers(): void
+    public function testTheExchangeOfAnotherEMailIsAnother(): void
     {
-        $exchange = self::of(self::ACCOUNT, self::EMAIL, new PersonId(self::ADA));
-        $others = [
-            self::of(self::ACCOUNT, 'beef', new PersonId(self::ADA)),
-            self::of(self::ACCOUNT, self::EMAIL, new OrganizationId(self::GLOBEX)),
-            self::of(self::OTHER_ACCOUNT, self::EMAIL, new PersonId(self::ADA)),
-        ];
+        $this->assertFalse(self::of(self::ACCOUNT, self::EMAIL, new PersonId(self::ADA))->equals(self::of(self::ACCOUNT, 'beef', new PersonId(self::ADA))));
+    }
 
-        $this->assertSame([false, false, false], array_map($exchange->equals(...), $others));
+    public function testTheExchangeOfAnEMailWithAnotherCorrespondentIsAnother(): void
+    {
+        $this->assertFalse(self::of(self::ACCOUNT, self::EMAIL, new PersonId(self::ADA))->equals(self::of(self::ACCOUNT, self::EMAIL, new OrganizationId(self::GLOBEX))));
+    }
+
+    public function testTheExchangeOfAnEMailInAnotherAccountIsAnother(): void
+    {
+        $this->assertFalse(self::of(self::ACCOUNT, self::EMAIL, new PersonId(self::ADA))->equals(self::of(self::OTHER_ACCOUNT, self::EMAIL, new PersonId(self::ADA))));
     }
 
     private static function of(string $account, string $email, PersonId|OrganizationId $correspondent): ExchangeId
