@@ -74,6 +74,13 @@ class ReadingToolsApiTest extends ApiTestCase
         $this->assertTheToolAnswersAsItsEndpoint('chercher-etablissements', ['id' => $babbage], '/api/organizations/'.$babbage.'/establishments');
     }
 
+    public function testAServiceOutOfReachIsToTryAgainLaterAsByItsEndpoint(): void
+    {
+        $babbage = $this->babbage();
+
+        $this->assertTheToolAnswersAsItsEndpoint('chercher-etablissements', ['id' => $babbage], '/api/organizations/'.$babbage.'/establishments');
+    }
+
     public function testTheAiFollowsTheTimelineOfAContact(): void
     {
         $ada = $this->ada();
