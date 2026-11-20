@@ -269,6 +269,7 @@ use Prospecter\Core\Prospecting\Application\KeepExchangesOfForgottenContact\Keep
 use Prospecter\Core\Prospecting\Application\KeepToDosOfAttachedContact\KeepToDosOfAttachedContactHandler;
 use Prospecter\Core\Prospecting\Application\KeptTimeline;
 use Prospecter\Core\Prospecting\Application\KeptToDoList;
+use Prospecter\Core\Prospecting\Application\LiftSuspicionInReturn\LiftSuspicionInReturnHandler;
 use Prospecter\Core\Prospecting\Application\ListExchangeFacts\ListExchangeFactsHandler;
 use Prospecter\Core\Prospecting\Application\ListOrganizationFacts\ListOrganizationFactsHandler;
 use Prospecter\Core\Prospecting\Application\LocateAgain\LocateAgain;
@@ -320,6 +321,7 @@ use Prospecter\Core\Prospecting\Application\StartProspecting\StartProspectingHan
 use Prospecter\Core\Prospecting\Application\StopKeepingExchanges\StopKeepingExchangesHandler;
 use Prospecter\Core\Prospecting\Application\StopKeepingToDos\StopKeepingToDosHandler;
 use Prospecter\Core\Prospecting\Application\StopProspecting\StopProspectingHandler;
+use Prospecter\Core\Prospecting\Application\SuspectDuplicateInReturn\SuspectDuplicateInReturnHandler;
 use Prospecter\Core\Prospecting\Application\TickOffToDo\TickOffToDoHandler;
 use Prospecter\Core\Prospecting\Application\Timeline;
 use Prospecter\Core\Prospecting\Application\ToDoInList;
@@ -341,6 +343,7 @@ use Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\Org
 use Prospecter\Core\Prospecting\Contract\Service\WhichAreProspected\KeptProspected;
 use Prospecter\Core\Prospecting\Contract\Service\WhichAreProspected\WhichAreProspected;
 use Prospecter\Core\Prospecting\Domain\Service\ContactOrganizations;
+use Prospecter\Core\Prospecting\Domain\Service\DuplicateSuspicion;
 use Prospecter\Core\Prospecting\Domain\Service\EmailUniqueness as ProspectingEmailUniqueness;
 use Prospecter\Core\Prospecting\Domain\Service\LinkedInPageUniqueness;
 use Prospecter\Core\Prospecting\Domain\Service\OrphanContacts;
@@ -519,6 +522,7 @@ final class Application
     private readonly SiretUniqueness $organizationSirets;
     private readonly LinkedInPageUniqueness $organizationLinkedInPages;
     private readonly WebsiteUniqueness $organizationWebsites;
+    private readonly DuplicateSuspicion $duplicateSuspicion;
     private readonly OrphanContacts $orphans;
     private readonly ContactOrganizations $contactOrganizations;
     public readonly InMemoryProjectionVersions $projectionVersions;
@@ -631,6 +635,7 @@ final class Application
         $this->organizationSirets = new SiretUniqueness($this->organizations);
         $this->organizationLinkedInPages = new LinkedInPageUniqueness($this->organizations);
         $this->organizationWebsites = new WebsiteUniqueness($this->organizations);
+        $this->duplicateSuspicion = new DuplicateSuspicion($this->organizations);
         $this->orphans = new OrphanContacts($this->organizations);
         $this->contactOrganizations = new ContactOrganizations($this->organizations, $this->contactsToAttach);
         $this->projectionVersions = new InMemoryProjectionVersions($database);
@@ -1191,10 +1196,10 @@ final class Application
     {
         return [
             new EraseContactLeftUnattachedHandler($this->contactsToAttach, $this->events),
-            new StartProspectingHandler($this->organizations, $this->prospectors, $this->events, $this->geoLocalizer, $this->organizationEmails, $this->organizationLinkedInPages, $this->organizationWebsites),
-            new ReviseLegalIdentityHandler($this->organizations, $this->events, $this->organizationSirets),
+            new StartProspectingHandler($this->organizations, $this->prospectors, $this->events, $this->geoLocalizer, $this->organizationEmails, $this->organizationLinkedInPages, $this->organizationWebsites, $this->duplicateSuspicion),
+            new ReviseLegalIdentityHandler($this->organizations, $this->events, $this->organizationSirets, $this->duplicateSuspicion),
             new ChangeContactDetailsHandler($this->organizations, $this->events, $this->organizationEmails, $this->organizationLinkedInPages, $this->organizationWebsites),
-            new RelocateHandler($this->organizations, $this->events, $this->geoLocalizer),
+            new RelocateHandler($this->organizations, $this->events, $this->geoLocalizer, $this->duplicateSuspicion),
             new LocateAgainHandler($this->organizations, $this->events, $this->geoLocalizer),
             new WriteObservationsHandler($this->organizations, $this->events),
             new AttachToHoldingHandler($this->organizations, $this->events),
@@ -1492,6 +1497,8 @@ final class Application
             new DetachForgottenContactHandler($this->organizations, $this->events, $this->orphans),
             new KeepExchangesOfForgottenContactHandler($this->exchanges, $this->events),
             new KeepCreatedVideoCallLinkHandler($this->exchanges, $this->events),
+            new SuspectDuplicateInReturnHandler($this->organizations, $this->events),
+            new LiftSuspicionInReturnHandler($this->organizations, $this->events),
             new ForgetContactsLeftWithoutOrganizationHandler($this->persons, $this->readers, $this->events),
             new ForgetContactLeftUnattachedHandler($this->persons, $this->readers, $this->events),
             new EraseExchangesOfContactLeftUnattachedHandler($this->exchanges, $this->events),

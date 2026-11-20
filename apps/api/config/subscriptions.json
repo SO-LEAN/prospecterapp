@@ -69,6 +69,20 @@
     "handler": "Prospecter\\Core\\Prospecting\\Application\\KeepCreatedVideoCallLink\\KeepCreatedVideoCallLinkHandler",
     "inbox": true
   },
+  "prospecting-suspect-duplicate-in-return": {
+    "context": "prospecting",
+    "sources": ["prospecter.prospecting.internal"],
+    "events": ["DuplicateSuspected.v1"],
+    "handler": "Prospecter\\Core\\Prospecting\\Application\\SuspectDuplicateInReturn\\SuspectDuplicateInReturnHandler",
+    "inbox": true
+  },
+  "prospecting-lift-suspicion-in-return": {
+    "context": "prospecting",
+    "sources": ["prospecter.prospecting.internal"],
+    "events": ["DuplicateSuspicionLifted.v1"],
+    "handler": "Prospecter\\Core\\Prospecting\\Application\\LiftSuspicionInReturn\\LiftSuspicionInReturnHandler",
+    "inbox": true
+  },
   "prospecting-stop-keeping-to-dos": {
     "context": "prospecting",
     "sources": ["prospecter.prospecting.internal"],

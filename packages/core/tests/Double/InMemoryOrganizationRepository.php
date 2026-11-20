@@ -7,6 +7,7 @@ namespace Tests\Core\Double;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
 use Prospecter\Core\Prospecting\Domain\Model\LinkedInPage;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
+use Prospecter\Core\Prospecting\Domain\Model\ResemblanceKey;
 use Prospecter\Core\Prospecting\Domain\Model\Website;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
@@ -51,6 +52,13 @@ final readonly class InMemoryOrganizationRepository implements OrganizationRepos
     public function withWebsiteOfDomain(AccountId $accountId, Website $website, OrganizationId $except): ?Organization
     {
         return array_find($this->prospectedBy($accountId), fn (Organization $organization): bool => !$organization->id()->equals($except) && $organization->website()?->domain() === $website->domain());
+    }
+
+    public function resembling(AccountId $accountId, ResemblanceKey $key, OrganizationId $except): array
+    {
+        $resembling = array_filter($this->prospectedBy($accountId), static fn (Organization $organization): bool => !$organization->id()->equals($except) && $organization->resemblanceKey()?->value === $key->value);
+
+        return array_values(array_map(static fn (Organization $organization): OrganizationId => $organization->id(), $resembling));
     }
 
     public function save(Organization $organization): void

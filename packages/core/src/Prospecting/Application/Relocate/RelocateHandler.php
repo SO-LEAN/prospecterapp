@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\Relocate;
 
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
+use Prospecter\Core\Prospecting\Domain\Service\DuplicateSuspicion;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\GeoLocalizer;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
@@ -21,6 +22,7 @@ final readonly class RelocateHandler implements CommandHandler
         private OrganizationRepository $organizations,
         private Events $events,
         private GeoLocalizer $geoLocalizer,
+        private DuplicateSuspicion $duplicateSuspicion,
     ) {
     }
 
@@ -30,6 +32,7 @@ final readonly class RelocateHandler implements CommandHandler
         $organization = $this->organizations->get(new OrganizationId($command->id));
         $address = new Address($command->street, $command->postalCode, $command->city, $command->country);
         $organization->relocateTo($address, $this->geoLocalizer->locate($address), by: $author, at: $command->executedAt);
+        $organization->reconsiderDuplicates($this->duplicateSuspicion->resemblingTo($organization), by: $author, at: $command->executedAt);
         $this->organizations->save($organization);
         $this->publishWhatHappenedTo($organization);
     }

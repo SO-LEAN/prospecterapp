@@ -38,4 +38,12 @@ final class OrganizationKeys
     {
         return sprintf('EMAIL_DOMAIN#%s#%s', $accountId, $domain);
     }
+
+    /**
+     * The links to the organizations of an account resembling each other, by their name and their city.
+     */
+    public static function ofResemblance(string $accountId, string $key): string
+    {
+        return sprintf('RESEMBLANCE#%s#%s', $accountId, $key);
+    }
 }

@@ -30,7 +30,7 @@ final readonly class DynamoOrganizationSheetRetriever implements OrganizationShe
     {
         $item = $this->prospectingTable->item(OrganizationKeys::organization($id->value), OrganizationKeys::ORGANIZATION) ?? throw UnknownOrganization::identifiedBy($id);
 
-        return self::sheetOf($item['organization']);
+        return $this->sheetOf($item['organization']);
     }
 
     public function withPhoneNumber(AccountId $accountId, PhoneNumber $phoneNumber): array
@@ -39,7 +39,7 @@ final readonly class DynamoOrganizationSheetRetriever implements OrganizationShe
         $sheets = [];
 
         foreach ($this->prospectingTable->items(array_map(static fn (string $key): array => [$key, OrganizationKeys::ORGANIZATION], $keys)) as $item) {
-            $sheets[$item['PK']] = self::sheetOf($item['organization']);
+            $sheets[$item['PK']] = $this->sheetOf($item['organization']);
         }
 
         return array_values(array_filter(array_map(static fn (string $key): ?OrganizationSheet => $sheets[$key] ?? null, $keys)));
@@ -48,7 +48,7 @@ final readonly class DynamoOrganizationSheetRetriever implements OrganizationShe
     /**
      * @param array<string, mixed> $document
      */
-    private static function sheetOf(array $document): OrganizationSheet
+    private function sheetOf(array $document): OrganizationSheet
     {
         $identity = Documents::legalIdentityOf($document['legalIdentity']);
         $contact = Documents::contactDetailsOf($document['contactDetails']);
@@ -83,6 +83,7 @@ final readonly class DynamoOrganizationSheetRetriever implements OrganizationShe
             createdAt: Documents::momentOf($document['createdAt']),
             modifiedAt: Documents::momentOf($document['modifiedAt']),
             possibleIntents: array_map(static fn (OrganizationIntent $intent): string => $intent->name, OrganizationPossibilities::given(hasLogo: null !== $document['logo'], hasHolding: null !== $document['holdingId'], hasContacts: [] !== $document['contacts'])),
+            possibleDuplicates: PossibleDuplicates::of($this->prospectingTable, [$document])[$document['id']],
         );
     }
 }

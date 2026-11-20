@@ -13,6 +13,7 @@ use Prospecter\Core\Prospecting\Domain\Model\Website;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 use Prospecter\Core\Prospecting\Domain\Service\OrphanContacts;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Address;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
@@ -288,6 +289,66 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
         $this->assertEquals([$acme->id()], array_map(static fn (Organization $organization): OrganizationId => $organization->id(), $found));
     }
 
+    public function testTheOrganizationsResemblingAnotherAreFoundByTheirKey(): void
+    {
+        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
+        $acme = $this->organizationIn($prospector, 'Acme SAS', 'Lyon');
+        $organizations->save($acme);
+
+        $this->assertEquals([$acme->id()], $organizations->resembling($prospector->accountId, $this->organizationIn($prospector, 'ACME', 'Lyon')->resemblanceKey(), except: new OrganizationId(self::newIdentity())));
+    }
+
+    public function testAnOrganizationNoLongerProspectedResemblesNoOtherOne(): void
+    {
+        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
+        $acme = $this->organizationIn($prospector, 'Acme SAS', 'Lyon');
+        $organizations->save($acme);
+
+        $organizations->remove($acme);
+
+        $this->assertSame([], $organizations->resembling($prospector->accountId, $acme->resemblanceKey(), except: new OrganizationId(self::newIdentity())));
+    }
+
+    public function testAnOrganizationMovedNoLongerResemblesThoseOfItsFormerCity(): void
+    {
+        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
+        $acme = $this->organizationIn($prospector, 'Acme SAS', 'Lyon');
+        $organizations->save($acme);
+        $formerKey = $acme->resemblanceKey();
+
+        $acme->relocateTo(new Address(city: 'Marseille'), null, by: $prospector->id, at: new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        $organizations->save($acme);
+
+        $this->assertSame([], $organizations->resembling($prospector->accountId, $formerKey, except: new OrganizationId(self::newIdentity())));
+    }
+
+    public function testAnOrganizationResemblingAnotherIsReadBackWithItsPossibleDuplicates(): void
+    {
+        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
+        $acme = $this->organizationIn($prospector, 'Acme SAS', 'Lyon');
+        $acme->suspectDuplicateOf(new OrganizationId(self::newIdentity()), by: $prospector->id, at: new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        $acme->releaseEvents();
+        $organizations->save($acme);
+
+        $this->assertEquals($acme, $organizations->get($acme->id()));
+    }
+
+    public function testTheKeysWrittenAgainLinkAnOrganizationToThoseResemblingIt(): void
+    {
+        $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
+        $acme = $this->organizationIn($prospector, 'Acme SAS', 'Lyon');
+        self::getContainer()->get(OrganizationRepository::class)->save($acme);
+        $this->prospectingTable()->batch([], [[sprintf('RESEMBLANCE#%s#%s', $prospector->accountId->value, $acme->resemblanceKey()), 'ORGANIZATION#'.$acme->id()]]);
+
+        self::getContainer()->get(DynamoOrganizationRepository::class)->writeTheKeysAgain();
+
+        $this->assertEquals([$acme->id()], self::getContainer()->get(OrganizationRepository::class)->resembling($prospector->accountId, $acme->resemblanceKey(), except: new OrganizationId(self::newIdentity())));
+    }
+
     private function prospectingTable(): Table
     {
         $table = self::getContainer()->get('app.table.prospecting');
@@ -300,6 +361,14 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
     {
         $organization = Organization::prospectedBy($prospector, new OrganizationId(self::newIdentity()), new LegalIdentity('ACME'), new ContactDetails(), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         $organization->changeContactDetails(new ContactDetails(), LinkedInPage::orNone($page), Website::orNone($site), by: $prospector->id, at: new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+
+        return $organization;
+    }
+
+    private function organizationIn(Prospector $prospector, string $corporateName, string $city): Organization
+    {
+        $organization = Organization::prospectedBy($prospector, new OrganizationId(self::newIdentity()), new LegalIdentity($corporateName), new ContactDetails(), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        $organization->relocateTo(new Address(city: $city), null, by: $prospector->id, at: new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
 
         return $organization;
     }

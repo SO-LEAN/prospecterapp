@@ -10,6 +10,7 @@ use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
 use Prospecter\Core\Prospecting\Domain\Exception\WebsiteAlreadyUsed;
 use Prospecter\Core\Prospecting\Domain\Model\LinkedInPage;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
+use Prospecter\Core\Prospecting\Domain\Model\ResemblanceKey;
 use Prospecter\Core\Prospecting\Domain\Model\Website;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
@@ -53,6 +54,13 @@ interface OrganizationRepository
      * The other organization of the prospecting base of the account whose website has the domain of this one, if any.
      */
     public function withWebsiteOfDomain(AccountId $accountId, Website $website, OrganizationId $except): ?Organization;
+
+    /**
+     * The other organizations of the prospecting base of the account having this resemblance key.
+     *
+     * @return list<OrganizationId>
+     */
+    public function resembling(AccountId $accountId, ResemblanceKey $key, OrganizationId $except): array;
 
     /**
      * @throws EmailAlreadyUsed        when another organization took the email meanwhile (EmailUniqueness checked it before)

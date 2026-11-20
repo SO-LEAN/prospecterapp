@@ -28,10 +28,10 @@ final readonly class InMemoryFoundOrganizationRetriever implements FoundOrganiza
         $prospected = array_values(array_filter($this->database->organizations(), static fn (Organization $organization): bool => $organization->isProspectedBy($accountId)));
         $slice = NewestFirst::slice($prospected, static fn (Organization $organization): string => (string) $organization->id(), static fn (Organization $organization): SearchKeys => $organization->searchKeys(), $search, $after, $max);
 
-        return FoundOrganizationPage::of(new Slice(array_map(self::found(...), $slice->content), $slice->next));
+        return FoundOrganizationPage::of(new Slice(array_map($this->found(...), $slice->content), $slice->next));
     }
 
-    private static function found(Organization $organization): FoundOrganization
+    private function found(Organization $organization): FoundOrganization
     {
         $state = StateOf::the($organization);
         $address = $state['address'];
@@ -46,6 +46,7 @@ final readonly class InMemoryFoundOrganizationRetriever implements FoundOrganiza
             logo: FileResponse::orNone($state['logo']),
             longitude: $geoPoint?->longitude,
             latitude: $geoPoint?->latitude,
+            possibleDuplicates: PossibleDuplicates::of($organization, $this->database),
         );
     }
 }

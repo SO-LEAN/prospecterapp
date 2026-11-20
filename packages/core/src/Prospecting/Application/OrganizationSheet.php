@@ -12,8 +12,9 @@ use Prospecter\Core\SharedKernel\Application\FileResponse;
 final readonly class OrganizationSheet
 {
     /**
-     * @param list<string> $contactIds      the persons prospected in it, to read in PersonalData
-     * @param list<string> $possibleIntents names of the intentions its state offers now: Relocate, RemoveLogo...
+     * @param list<string>            $contactIds         the persons prospected in it, to read in PersonalData
+     * @param list<string>            $possibleIntents    names of the intentions its state offers now: Relocate, RemoveLogo...
+     * @param list<PossibleDuplicate> $possibleDuplicates the organizations of the account it may be a duplicate of
      */
     public function __construct(
         public string $id,
@@ -43,6 +44,7 @@ final readonly class OrganizationSheet
         public \DateTimeImmutable $createdAt,
         public \DateTimeImmutable $modifiedAt,
         public array $possibleIntents,
+        public array $possibleDuplicates = [],
     ) {
     }
 }

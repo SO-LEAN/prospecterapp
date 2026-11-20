@@ -15,7 +15,8 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 /**
  * An organization as a plain document of its DynamoDB item, and back (ADR 0048): its value objects as they
  * are, its recorded events never; the code of its municipality is absent from the documents written before it was
- * kept (ADR 0142), its LinkedIn page and its website from those written before they were.
+ * kept (ADR 0142), its LinkedIn page and its website from those written before they were, the organizations it
+ * may be a duplicate of from those written before it was suspected of any.
  */
 final class OrganizationDocument
 {
@@ -41,6 +42,7 @@ final class OrganizationDocument
             'observations' => $state['observations'],
             'logo' => Documents::file($state['logo']),
             'contacts' => array_map(static fn (PersonId $contact): string => (string) $contact, $state['contacts']),
+            'possibleDuplicates' => array_map(static fn (OrganizationId $duplicate): string => (string) $duplicate, $state['possibleDuplicates']),
             'createdAt' => Documents::moment($state['createdAt']),
             'modifiedAt' => Documents::moment($state['modifiedAt']),
         ];
@@ -66,6 +68,7 @@ final class OrganizationDocument
             'observations' => $document['observations'],
             'logo' => Documents::fileOf($document['logo']),
             'contacts' => array_map(static fn (string $contact): PersonId => new PersonId($contact), $document['contacts']),
+            'possibleDuplicates' => array_map(static fn (string $duplicate): OrganizationId => new OrganizationId($duplicate), $document['possibleDuplicates'] ?? []),
             'createdAt' => Documents::momentOf($document['createdAt']),
             'modifiedAt' => Documents::momentOf($document['modifiedAt']),
         ]);

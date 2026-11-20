@@ -29,17 +29,17 @@ final readonly class InMemoryOrganizationSheetRetriever implements OrganizationS
     {
         $organization = $this->database->organization((string) $id) ?? throw UnknownOrganization::identifiedBy($id);
 
-        return self::sheetOf($organization);
+        return $this->sheetOf($organization);
     }
 
     public function withPhoneNumber(AccountId $accountId, PhoneNumber $phoneNumber): array
     {
         $calling = array_filter($this->database->organizations(), static fn (Organization $organization): bool => $organization->isProspectedBy($accountId) && $organization->contactDetails()->phoneNumber?->value === $phoneNumber->value);
 
-        return array_values(array_map(self::sheetOf(...), $calling));
+        return array_values(array_map($this->sheetOf(...), $calling));
     }
 
-    private static function sheetOf(Organization $organization): OrganizationSheet
+    private function sheetOf(Organization $organization): OrganizationSheet
     {
         $state = StateOf::the($organization);
         $identity = $state['legalIdentity'];
@@ -75,6 +75,7 @@ final readonly class InMemoryOrganizationSheetRetriever implements OrganizationS
             createdAt: $state['createdAt'],
             modifiedAt: $state['modifiedAt'],
             possibleIntents: array_map(static fn (OrganizationIntent $intent): string => $intent->name, OrganizationPossibilities::given(hasLogo: null !== $state['logo'], hasHolding: null !== $state['holdingId'], hasContacts: [] !== $state['contacts'])),
+            possibleDuplicates: PossibleDuplicates::of($organization, $this->database),
         );
     }
 }

@@ -6,6 +6,7 @@ use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\SearchIndexes;
 use App\Shared\Persistence\Table;
 use Prospecter\Core\Prospecting\Application\Port\FoundOrganizationRetriever;
+use Prospecter\Core\Prospecting\Application\PossibleDuplicate;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\FoundOrganization;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\FoundOrganizationPage;
 use Prospecter\Core\SharedKernel\Application\FileResponse;
@@ -28,7 +29,9 @@ final readonly class DynamoFoundOrganizationRetriever implements FoundOrganizati
         $items = null === $search
             ? $this->prospectingTable->query(OrganizationKeys::ofAccount($accountId->value), Table::BY_GSI1, $after, $max + 1)
             : $this->inTheOrderOf(SearchIndexes::found($this->prospectingTable, $accountId->value, $search, null === $after ? null : OrganizationKeys::organization($after), $max + 1));
-        $found = array_map(static fn (array $item): FoundOrganization => self::found($item['organization']), $items);
+        $documents = array_column($items, 'organization');
+        $possibleDuplicates = PossibleDuplicates::of($this->prospectingTable, $documents);
+        $found = array_map(static fn (array $document): FoundOrganization => self::found($document, $possibleDuplicates[$document['id']]), $documents);
 
         return FoundOrganizationPage::of(Documents::slice($found, $max, static fn (FoundOrganization $organization): string => $organization->id));
     }
@@ -50,9 +53,10 @@ final readonly class DynamoFoundOrganizationRetriever implements FoundOrganizati
     }
 
     /**
-     * @param array<string, mixed> $document
+     * @param array<string, mixed>    $document
+     * @param list<PossibleDuplicate> $possibleDuplicates
      */
-    private static function found(array $document): FoundOrganization
+    private static function found(array $document, array $possibleDuplicates): FoundOrganization
     {
         $address = Documents::addressOf($document['address']);
         $geoPoint = Documents::geoPointOf($document['geoPoint']);
@@ -66,6 +70,7 @@ final readonly class DynamoFoundOrganizationRetriever implements FoundOrganizati
             logo: FileResponse::orNone(Documents::fileOf($document['logo'])),
             longitude: $geoPoint?->longitude,
             latitude: $geoPoint?->latitude,
+            possibleDuplicates: $possibleDuplicates,
         );
     }
 }

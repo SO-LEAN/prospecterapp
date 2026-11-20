@@ -10,6 +10,8 @@ use Prospecter\Core\Prospecting\Domain\Event\ContactDetailsChanged;
 use Prospecter\Core\Prospecting\Domain\Event\ContactRemoved;
 use Prospecter\Core\Prospecting\Domain\Event\ContactsLeftWithoutOrganization;
 use Prospecter\Core\Prospecting\Domain\Event\DetachedFromHolding;
+use Prospecter\Core\Prospecting\Domain\Event\DuplicateSuspected;
+use Prospecter\Core\Prospecting\Domain\Event\DuplicateSuspicionLifted;
 use Prospecter\Core\Prospecting\Domain\Event\LegalIdentityRevised;
 use Prospecter\Core\Prospecting\Domain\Event\LocatedAgain;
 use Prospecter\Core\Prospecting\Domain\Event\LogoChanged;
@@ -60,6 +62,8 @@ final class Organization implements ReleasesEvents
     private ?Website $website = null;
     /** @var list<PersonId> */
     private array $contacts = [];
+    /** @var list<OrganizationId> */
+    private array $possibleDuplicates = [];
     private \DateTimeImmutable $modifiedAt;
 
     private function __construct(
@@ -130,6 +134,64 @@ final class Organization implements ReleasesEvents
     public function searchKeys(): SearchKeys
     {
         return new SearchKeys($this->legalIdentity->corporateName, $this->contactDetails->email);
+    }
+
+    /**
+     * What it shares with an organization resembling it, none without a name nor a city.
+     */
+    public function resemblanceKey(): ?ResemblanceKey
+    {
+        return ResemblanceKey::of($this->legalIdentity->corporateName, $this->address?->city);
+    }
+
+    /**
+     * Suspected of being a duplicate of each organization resembling it, and no longer of the others. No member
+     * modified it: it keeps the moment it was last modified.
+     *
+     * @param list<OrganizationId> $resembling
+     */
+    public function reconsiderDuplicates(array $resembling, MemberId $by, \DateTimeImmutable $at): void
+    {
+        foreach ($this->possibleDuplicates as $suspected) {
+            if (!array_any($resembling, $suspected->equals(...))) {
+                $this->liftSuspicionOf($suspected, $by, $at);
+            }
+        }
+
+        foreach ($resembling as $duplicate) {
+            $this->suspectDuplicateOf($duplicate, $by, $at);
+        }
+    }
+
+    /**
+     * No longer suspected of being a duplicate of this organization; never suspected, nothing changes.
+     */
+    public function liftSuspicionOf(OrganizationId $duplicate, MemberId $by, \DateTimeImmutable $at): void
+    {
+        if (!$this->isSuspectedDuplicateOf($duplicate)) {
+            return;
+        }
+
+        $this->possibleDuplicates = array_values(array_filter($this->possibleDuplicates, static fn (OrganizationId $suspected): bool => !$suspected->equals($duplicate)));
+        $this->recordThat(new DuplicateSuspicionLifted($this->accountId, $by, $this->id, $duplicate, $at));
+    }
+
+    /**
+     * Suspected of being a duplicate of this organization, once.
+     */
+    public function suspectDuplicateOf(OrganizationId $duplicate, MemberId $by, \DateTimeImmutable $at): void
+    {
+        if ($this->isSuspectedDuplicateOf($duplicate)) {
+            return;
+        }
+
+        $this->possibleDuplicates[] = $duplicate;
+        $this->recordThat(new DuplicateSuspected($this->accountId, $by, $this->id, $duplicate, $at));
+    }
+
+    private function isSuspectedDuplicateOf(OrganizationId $duplicate): bool
+    {
+        return array_any($this->possibleDuplicates, static fn (OrganizationId $suspected): bool => $suspected->equals($duplicate));
     }
 
     public function isProspectedBy(AccountId $accountId): bool
