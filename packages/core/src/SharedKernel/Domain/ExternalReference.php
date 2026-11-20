@@ -52,6 +52,14 @@ final readonly class ExternalReference
     }
 
     /**
+     * What recognizes the reference, whatever its address: its source and its identifier.
+     */
+    public function key(): string
+    {
+        return sprintf('%s#%s', $this->source, $this->identifier);
+    }
+
+    /**
      * @throws ReferenceOfAnotherKind
      */
     private static function ofAKnownSource(KnownSource $source, string $identifier, string $address, Designated $designated): self
