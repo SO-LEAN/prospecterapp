@@ -234,6 +234,22 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
         $this->assertTheToolAsksForAConfirmation('retirer-piece-jointe');
     }
 
+    public function testTheAiPushesAgainIntoTheCalendarAtGoogleEveryExchangeOfItsMemberItRefused(): void
+    {
+        $this->keepTheKernel();
+        $this->login();
+        $this->connectGoogle();
+        $this->google()->refusesTheEvents();
+        $this->aCallWithAdaPlannedNextTuesday();
+        $this->google()->acceptsTheEvents();
+
+        $connections = $this->answerOf($this->callWithoutHandshake('relancer-synchronisations-google-echouees'));
+
+        $this->assertSame(['synced' => 1, 'failed' => 0], array_intersect_key($connections['connections'][0], ['synced' => true, 'failed' => true]));
+        $this->assertSame($this->requestJson('GET', '/api/me/connections'), $connections);
+        $this->assertCount(1, $this->google()->events());
+    }
+
     public function testTheAiNotesAToDoForAContact(): void
     {
         $ada = $this->ada();

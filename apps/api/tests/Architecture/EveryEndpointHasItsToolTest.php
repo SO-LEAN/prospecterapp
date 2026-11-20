@@ -74,7 +74,6 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
         'api_me_configure_google_client',
         'api_me_connections_check',
         'api_me_connections_google_disconnect',
-        'api_me_connections_google_retry_failed',
         'api_me_connections_google_stop_gmail_import',
         'api_me_relocate_organization',
         'api_me_remove_gmail_notifications',
