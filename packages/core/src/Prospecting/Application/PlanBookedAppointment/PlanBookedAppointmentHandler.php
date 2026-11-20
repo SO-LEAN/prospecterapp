@@ -18,7 +18,6 @@ use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
@@ -29,6 +28,11 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 final readonly class PlanBookedAppointmentHandler implements EventHandler
 {
     use PublishesEvents;
+
+    /**
+     * The host keeps what they plan with a contact to attach (ADR 0146).
+     */
+    private const array NO_KEEPER_OF_A_CONTACT_TO_ATTACH = [];
 
     public function __construct(
         private ExchangeRepository $exchanges,
@@ -49,23 +53,20 @@ final readonly class PlanBookedAppointmentHandler implements EventHandler
 
         $host = $this->prospectors->prospectorFrom(new MemberId($event->hostId));
         $contact = new PersonId($event->personId);
-        $keepers = $this->contactOrganizations->isAContactOfTheAccount($contact, $host->accountId)
-            ? $this->contactOrganizations->keepersOf($contact, $host)
-            : $this->meetToAttach($host, $contact, $appointment->startsAt, $event->occurredAt);
+        $known = $this->contactOrganizations->isAContactOfTheAccount($contact, $host->accountId);
+        if (!$known) {
+            $this->meetToAttach($host, $contact, $appointment->startsAt, $event->occurredAt);
+        }
+        $keepers = $known ? $this->contactOrganizations->keepersOf($contact, $host) : self::NO_KEEPER_OF_A_CONTACT_TO_ATTACH;
         $exchange = Exchange::bookedByAContact($host->accountId, $host->id, new ExchangeId($event->appointmentId), $contact, $keepers, $appointment->facts(), $event->occurredAt);
         $this->exchanges->save($exchange);
         $this->publishWhatHappenedTo($exchange);
     }
 
-    /**
-     * @return list<OrganizationId> none: the host keeps what they plan with a contact to attach
-     */
-    private function meetToAttach(Prospector $host, PersonId $contact, \DateTimeImmutable $meeting, \DateTimeImmutable $at): array
+    private function meetToAttach(Prospector $host, PersonId $contact, \DateTimeImmutable $meeting, \DateTimeImmutable $at): void
     {
         $toAttach = ContactToAttach::metBy($host, $contact, $meeting, $at);
         $this->contactsToAttach->save($toAttach);
         $this->publishWhatHappenedTo($toAttach);
-
-        return [];
     }
 }
