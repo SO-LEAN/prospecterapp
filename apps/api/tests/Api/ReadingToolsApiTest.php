@@ -418,18 +418,4 @@ class ReadingToolsApiTest extends ApiTestCase
             $this->assertSame($answer, $this->answerOf($this->callWithoutHandshake($tool, $arguments)), sprintf('%s read by %s', $tool, $reader));
         }
     }
-
-    /**
-     * What the tool answered: its result, or the problem of its refusal.
-     *
-     * @param array<string, mixed> $result
-     *
-     * @return array<string, mixed>
-     */
-    private function answerOf(array $result): array
-    {
-        return true === ($result['isError'] ?? false)
-            ? json_decode($result['content'][0]['text'], true, flags: JSON_THROW_ON_ERROR)
-            : $result['structuredContent'];
-    }
 }
