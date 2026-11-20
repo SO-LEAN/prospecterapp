@@ -3,6 +3,7 @@
 - Date: 2026-11-20
 - Type: architecture
 - Status: Accepted
+- Supersedes: for the files an AI joins, their sending by the browser only of [0077](0077-the-attachments-are-private-files-reached-by-signed-urls.md)
 - Implemented by: `apps/api/src/Exchanges/Mcp/AttachFileTool.php`, `apps/api/src/Shared/Mcp/FilesOnTheWeb.php`, `apps/api/src/Shared/UploadsSentByTheApi.php`, `PRIVATE_UPLOADS_ENDPOINT` in `apps/api/.env` and `apps/api/infra/lambda.tf`
 
 ## Context
@@ -28,7 +29,7 @@ Every endpoint of a member has its tool (0163), joining a file to an exchange am
 ## Alternatives considered
 
 - A route of the storage receiving the content of an upload from the API, weighed by the maintainer: the storage changed, and its Lambda bounding a file to some 4 MB, under the 10 MB of the screen.
-- No tool joining a file, the gesture kept on the screen: against the decision of the ticket, which opens the attachments to the AIs.
+- No tool joining a file, the gesture kept on the screen, weighed by the maintainer: the ticket opens the attachments to the AIs.
 
 ## Revisit when
 
