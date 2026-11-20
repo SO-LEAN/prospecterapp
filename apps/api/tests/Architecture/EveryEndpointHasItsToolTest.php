@@ -90,7 +90,6 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
         'api_organizations_dismiss_possible_duplicate',
         'api_organizations_note_to_do',
         'api_organizations_plan_exchange',
-        'api_organizations_relocate',
         'api_organizations_remove_contact',
         'api_organizations_remove_logo',
         'api_organizations_revise_legal_identity',
