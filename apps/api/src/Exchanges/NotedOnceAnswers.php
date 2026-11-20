@@ -5,6 +5,7 @@ namespace App\Exchanges;
 use App\Exchanges\Resource\NotingResource;
 use Prospecter\Core\Prospecting\Domain\Exception\ExchangeAlreadyNoted;
 use Prospecter\Core\Prospecting\Domain\Exception\ExchangeErasedBefore;
+use Prospecter\Core\Prospecting\Domain\Exception\ExchangeNotedMeanwhile;
 use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
 
 /**
@@ -36,6 +37,7 @@ final readonly class NotedOnceAnswers
         return match (true) {
             $refusal->getPrevious() instanceof ExchangeAlreadyNoted => NotingResource::alreadyNoted($this->exchangeReader->read($member, $refusal->context['exchange'])),
             $refusal->getPrevious() instanceof ExchangeErasedBefore => NotingResource::erasedBefore($this->exchangeReader->memberNamed($member, $refusal->context['erasedBy']), $refusal->context['erasedAt']),
+            $refusal->getPrevious() instanceof ExchangeNotedMeanwhile => NotingResource::alreadyNoted(null),
             default => throw $refusal,
         };
     }
