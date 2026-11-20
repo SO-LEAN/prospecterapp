@@ -25,6 +25,12 @@ Fonctionnalité: Importer un e-mail reçu d'un contact ou d'une organisation con
     Et j'en suis l'auteur
     Et l'échange importé est gardé pour "ACME"
 
+  Scénario: Un échange importé compte dans les chiffres comme un échange noté
+    Soit les chiffres ont été recalculés
+    Quand je reçois un e-mail de "ada@acme.fr"
+    Alors mes chiffres sont :
+      | échanges | 1 |
+
   Scénario: Un e-mail de l'adresse d'une organisation devient un échange avec l'organisation elle-même
     Quand je reçois un e-mail de "contact@globex.fr"
     Alors la timeline de "Globex" est, du plus récent au plus ancien :
