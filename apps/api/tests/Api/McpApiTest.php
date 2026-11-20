@@ -56,6 +56,16 @@ class McpApiTest extends ApiTestCase
         $this->assertTrue($result['structuredContent']['readsPersonalData']);
     }
 
+    public function testKnowingWhomItServesChangesNothing(): void
+    {
+        $this->login();
+
+        $tools = $this->callWithHandshake('tools/list', [])['tools'];
+
+        $whoAmI = array_find($tools, static fn (array $tool): bool => 'qui-suis-je' === $tool['name']);
+        $this->assertTrue($whoAmI['annotations']['readOnlyHint'] ?? null);
+    }
+
     public function testAClientOfTheHandshakeIsAnsweredTheSameWithoutSession(): void
     {
         $this->login();
