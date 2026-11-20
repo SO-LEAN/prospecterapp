@@ -12,6 +12,7 @@ use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
+use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 final readonly class InMemoryPersonRepository implements PersonRepository
 {
@@ -55,6 +56,16 @@ final readonly class InMemoryPersonRepository implements PersonRepository
         }
 
         return $contacts;
+    }
+
+    public function contactWithEmail(AccountId $accountId, Email $email): ?Person
+    {
+        return array_find($this->database->persons(), static fn (Person $person): bool => $person->isAContactOf($accountId) && $person->contactDetails()->email?->value === $email->value);
+    }
+
+    public function contactWithPhoneNumber(AccountId $accountId, PhoneNumber $phoneNumber): ?Person
+    {
+        return array_find($this->database->persons(), static fn (Person $person): bool => $person->isAContactOf($accountId) && $person->contactDetails()->phoneNumber?->value === $phoneNumber->value);
     }
 
     public function contactHoldingLinkedInProfile(AccountId $accountId, LinkedInProfile $profile, PersonId $except): ?Person

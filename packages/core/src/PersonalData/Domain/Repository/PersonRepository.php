@@ -13,6 +13,7 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
+use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 interface PersonRepository
 {
@@ -50,6 +51,16 @@ interface PersonRepository
      * The other contact of the account holding this profile, as their own or as a former one, if any.
      */
     public function contactHoldingLinkedInProfile(AccountId $accountId, LinkedInProfile $profile, PersonId $except): ?Person;
+
+    /**
+     * The contact of the account having this e-mail, if any.
+     */
+    public function contactWithEmail(AccountId $accountId, Email $email): ?Person;
+
+    /**
+     * A contact of the account having this phone number, if any.
+     */
+    public function contactWithPhoneNumber(AccountId $accountId, PhoneNumber $phoneNumber): ?Person;
 
     /**
      * @throws EmailAlreadyUsed              when another person took the email meanwhile (EmailUniqueness checked it before)

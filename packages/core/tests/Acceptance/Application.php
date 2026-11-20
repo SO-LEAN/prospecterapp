@@ -33,6 +33,7 @@ use Prospecter\Core\Booking\Application\BookingPages;
 use Prospecter\Core\Booking\Application\BookSlot\BookSlotHandler;
 use Prospecter\Core\Booking\Application\ChangeBookingLink\ChangeBookingLinkHandler;
 use Prospecter\Core\Booking\Application\CloseBooking\CloseBookingHandler;
+use Prospecter\Core\Booking\Application\ConsultAppointments\ConsultAppointmentsHandler;
 use Prospecter\Core\Booking\Application\ConsultMyBookingPage\ConsultMyBookingPage;
 use Prospecter\Core\Booking\Application\ConsultMyBookingPage\ConsultMyBookingPageHandler;
 use Prospecter\Core\Booking\Application\ConsultMyBookingPage\KeptMyBookingPage;
@@ -43,8 +44,12 @@ use Prospecter\Core\Booking\Application\MyBookingPage;
 use Prospecter\Core\Booking\Application\OfferChannels\OfferChannelsHandler;
 use Prospecter\Core\Booking\Application\OpenBooking\OpenBookingHandler;
 use Prospecter\Core\Booking\Application\PublicBookingPage;
+use Prospecter\Core\Booking\Application\PublishSlotBooked\PublishSlotBookedHandler;
 use Prospecter\Core\Booking\Application\RemoveInactivePeriod\RemoveInactivePeriodHandler;
 use Prospecter\Core\Booking\Application\SetWeeklyWindows\SetWeeklyWindowsHandler;
+use Prospecter\Core\Booking\Contract\Service\ConsultAppointments\AppointmentResponse;
+use Prospecter\Core\Booking\Contract\Service\ConsultAppointments\ConsultAppointments;
+use Prospecter\Core\Booking\Contract\Service\ConsultAppointments\KeptAppointments;
 use Prospecter\Core\Booking\Domain\Service\BusyPeriods;
 use Prospecter\Core\Campaigns\Application\AddRecipient\AddRecipientHandler;
 use Prospecter\Core\Campaigns\Application\AddRecipientsByTags\AddRecipientsByTagsHandler;
@@ -158,10 +163,12 @@ use Prospecter\Core\PersonalData\Application\ConsultPersons\KeptPersons;
 use Prospecter\Core\PersonalData\Application\ForgetContact\ForgetContactHandler;
 use Prospecter\Core\PersonalData\Application\ForgetContactLeftUnattached\ForgetContactLeftUnattachedHandler;
 use Prospecter\Core\PersonalData\Application\ForgetContactsLeftWithoutOrganization\ForgetContactsLeftWithoutOrganizationHandler;
+use Prospecter\Core\PersonalData\Application\IdentifyBooker\IdentifyBookerHandler;
 use Prospecter\Core\PersonalData\Application\ListContactFacts\ListContactFactsHandler;
 use Prospecter\Core\PersonalData\Application\NameContacts\NameContactsHandler;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\PersonalData\Application\PresentMembers\PresentMembersHandler;
+use Prospecter\Core\PersonalData\Application\PublishBookerIdentified\PublishBookerIdentifiedHandler;
 use Prospecter\Core\PersonalData\Application\PublishContactCollected\PublishContactCollectedHandler;
 use Prospecter\Core\PersonalData\Application\PublishContactFacts\PublishContactFactsHandler;
 use Prospecter\Core\PersonalData\Application\PublishContactForgotten\PublishContactForgottenHandler;
@@ -294,6 +301,7 @@ use Prospecter\Core\Prospecting\Application\NoteOrganizationExchange\NoteOrganiz
 use Prospecter\Core\Prospecting\Application\NoteOrganizationToDo\NoteOrganizationToDoHandler;
 use Prospecter\Core\Prospecting\Application\NoteToDo\NoteToDoHandler;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
+use Prospecter\Core\Prospecting\Application\PlanBookedAppointment\PlanBookedAppointmentHandler;
 use Prospecter\Core\Prospecting\Application\PlanExchange\PlanExchangeHandler;
 use Prospecter\Core\Prospecting\Application\PlanOrganizationExchange\PlanOrganizationExchangeHandler;
 use Prospecter\Core\Prospecting\Application\ProposeMeetingPlace\KeptMeetingPlace;
@@ -395,6 +403,8 @@ use Tests\Core\Double\AccountsReaders;
 use Tests\Core\Double\AccountsSourceAccounts;
 use Tests\Core\Double\AccountsTaggedAccounts;
 use Tests\Core\Double\AccountsTaggers;
+use Tests\Core\Double\BookingBookedAppointments;
+use Tests\Core\Double\BookingBookers;
 use Tests\Core\Double\CampaignsCampaignNames;
 use Tests\Core\Double\CampaignsCampaignRecipients;
 use Tests\Core\Double\ConnectorsConnectedCalendars;
@@ -590,6 +600,7 @@ final class Application
     private readonly InMemoryPublicBookingPageRetriever $publicBookingPageRetriever;
     private readonly ProspectingHostAgendas $hostAgendas;
     private readonly BusyPeriods $busyPeriods;
+    private readonly ConsultAppointmentsHandler $consultAppointmentsService;
     private readonly AccountsAndPersonalDataHosts $hosts;
     private ?string $lastBookingCode = null;
     /** @var array<class-string, CommandHandler> */
@@ -712,6 +723,7 @@ final class Application
         $this->publicBookingPageRetriever = new InMemoryPublicBookingPageRetriever($database);
         $this->hostAgendas = new ProspectingHostAgendas($this->consultPlannedExchangesService);
         $this->busyPeriods = new BusyPeriods($this->hostAgendas, $this->appointments);
+        $this->consultAppointmentsService = new ConsultAppointmentsHandler($this->appointments);
 
         foreach ($this->translators() as $translator) {
             $this->events->translateWith($translator, calledThrough: new RefusalTranslatingEventHandler(new TransactionalEventHandler($translator, $this->unitOfWork)));
@@ -1429,6 +1441,17 @@ final class Application
         return $kept->memberIds;
     }
 
+    /**
+     * @return list<AppointmentResponse>
+     */
+    public function consultAppointments(ConsultAppointments $query): array
+    {
+        $kept = new KeptAppointments();
+        ($this->consultAppointmentsService)($query, $kept);
+
+        return $kept->appointments;
+    }
+
     public function consultMyBookingPage(ConsultMyBookingPage $query): ?MyBookingPage
     {
         $kept = new KeptMyBookingPage();
@@ -1528,6 +1551,8 @@ final class Application
             new PublishContactsLeftWithoutOrganizationHandler($this->events),
             new PublishContactLeftUnattachedHandler($this->events),
             new PublishVideoCallLinkCreatedHandler($this->events),
+            new PublishSlotBookedHandler($this->events),
+            new PublishBookerIdentifiedHandler($this->events),
         ];
     }
 
@@ -1555,6 +1580,8 @@ final class Application
             new KeepExchangesOfAttachedContactHandler($this->exchanges, $this->events),
             new KeepToDosOfAttachedContactHandler($this->toDos, $this->events),
             new PushBackErasureOfContactToAttachHandler($this->exchanges, $this->contactsToAttach, $this->events),
+            new IdentifyBookerHandler($this->persons, new BookingBookers($this->consultAppointmentsService), $this->readers, $this->events),
+            new PlanBookedAppointmentHandler($this->exchanges, $this->contactsToAttach, $this->contactOrganizations, new BookingBookedAppointments($this->consultAppointmentsService), $this->prospectors, $this->events),
             new RegisterTheFounderHandler($this->members),
             new CollectTheFounderProfileHandler($this->persons),
             new CollectTheMemberProfileHandler($this->persons),

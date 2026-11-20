@@ -8,13 +8,14 @@ use Prospecter\Core\Booking\Domain\Model\AppointmentId;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Event\DomainEvent;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * A booker booked a slot of the host, by their public link: no member acted, the appointment is the host's.
  */
 final readonly class SlotBooked extends DomainEvent
 {
-    public function __construct(AccountId $accountId, MemberId $host, public AppointmentId $appointmentId, \DateTimeImmutable $occurredAt)
+    public function __construct(AccountId $accountId, MemberId $host, public AppointmentId $appointmentId, public PersonId $bookerId, \DateTimeImmutable $occurredAt)
     {
         parent::__construct($accountId, $host, $occurredAt);
     }

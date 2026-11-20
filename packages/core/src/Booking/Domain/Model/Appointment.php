@@ -8,6 +8,7 @@ use Prospecter\Core\Booking\Domain\Event\SlotBooked;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 
@@ -25,6 +26,7 @@ final class Appointment implements ReleasesEvents
         private readonly AppointmentId $id,
         private readonly AccountId $accountId,
         private readonly MemberId $host,
+        private readonly PersonId $bookerId,
         private readonly \DateTimeImmutable $slot,
         private readonly Channel $channel,
         private readonly Booker $booker,
@@ -34,12 +36,13 @@ final class Appointment implements ReleasesEvents
     }
 
     /**
-     * By the booking page of the host, which checks the slot may be booked.
+     * By the booking page of the host, which checks the slot may be booked; the slot on the clock of the host. The
+     * booker takes the identity given should nobody of the account be them.
      */
-    public static function booked(AppointmentId $id, AccountId $accountId, MemberId $host, \DateTimeImmutable $slot, Channel $channel, Booker $booker, ?string $subject, \DateTimeImmutable $at): self
+    public static function booked(AppointmentId $id, AccountId $accountId, MemberId $host, PersonId $bookerId, \DateTimeImmutable $slot, Channel $channel, Booker $booker, ?string $subject, \DateTimeImmutable $at): self
     {
-        $appointment = new self($id, $accountId, $host, $slot, $channel, $booker, $subject, $at);
-        $appointment->recordThat(new SlotBooked($accountId, $host, $id, $at));
+        $appointment = new self($id, $accountId, $host, $bookerId, $slot, $channel, $booker, $subject, $at);
+        $appointment->recordThat(new SlotBooked($accountId, $host, $id, $bookerId, $at));
 
         return $appointment;
     }
@@ -57,6 +60,11 @@ final class Appointment implements ReleasesEvents
     public function host(): MemberId
     {
         return $this->host;
+    }
+
+    public function bookerId(): PersonId
+    {
+        return $this->bookerId;
     }
 
     public function slot(): \DateTimeImmutable
