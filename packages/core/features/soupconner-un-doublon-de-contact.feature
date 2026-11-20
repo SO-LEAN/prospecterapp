@@ -37,6 +37,14 @@ Fonctionnalité: Soupçonner un doublon de contact
       | nom    | Lovelace |
     Alors le contact "Grace Hopper" est signalé comme doublon possible de "Ada Lovelace"
 
+  Scénario: Un contact à rattacher renommé comme un autre n'est pas soupçonné
+    Soit nous sommes le 18/11/2026 à 10h00
+    Et "Grace Hopper" (grace@acme.fr) a pris une visio avec moi le 20/11/2026 à 14h00
+    Quand je change le nom de "Grace Hopper" :
+      | prénom | Ada      |
+      | nom    | Lovelace |
+    Alors le contact "Grace Hopper" n'est pas signalé
+
   Scénario: Un contact renommé qui ne ressemble plus n'est plus signalé
     Soit le contact "ada LOVELACE" de "Acme SAS"
     Et le contact "ada LOVELACE" a été signalé comme doublon possible de "Ada Lovelace"
