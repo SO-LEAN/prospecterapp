@@ -71,6 +71,7 @@ const aVideoCall = (
     organizationIds: [],
     attachmentCount: 0,
     contactToAttach: false,
+    bookedByLink: false,
     _links: { self, move },
     ...exchange,
   },

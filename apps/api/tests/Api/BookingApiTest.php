@@ -26,6 +26,7 @@ class BookingApiTest extends ApiTestCase
      */
     private const int LENGTH_OF_AN_OVERSIZED_CODE = 3000;
     private const int LONGEST_CODE = 64;
+    private const string FRIDAY_MORNING = '2026-10-16T09:00:00+02:00';
     private const array NOTHING_SHOWN = ['open' => false, 'host' => null, 'channels' => [], 'timeZone' => null, 'days' => []];
 
     protected function setUp(): void
@@ -378,6 +379,92 @@ class BookingApiTest extends ApiTestCase
         $this->assertSame('max-age=30, public', $this->client->getResponse()->headers->get('Cache-Control'));
     }
 
+    public function testAnyoneBooksAFreeSlotWithoutSigningInAndItsHostHasItPlannedWithAContactToAttach(): void
+    {
+        $code = $this->anOpenPageOnFridayMorning();
+        $me = $this->client->getServerParameter('HTTP_AUTHORIZATION');
+
+        $this->signOut();
+        $booked = $this->requestJson('POST', '/api/booking-pages/'.$code.'/appointments', $this->booking(['subject' => 'Mission data en mars']));
+        $this->assertResponseStatusCodeSame(201);
+        $this->assertSame(['slot' => self::FRIDAY_MORNING, 'channel' => 'videoCall', 'email' => 'ada@acme.fr'], $booked);
+        $this->assertSame(['2026-10-16T09:15:00+02:00'], $this->requestJson('GET', '/api/booking-pages/'.$code)['days'][0]['slots']);
+
+        $this->signInWith($me);
+        $exchange = $this->requestJson('GET', '/api/me/calendar?from=2026-10-16T00:00:00%2B02:00&to=2026-10-17T00:00:00%2B02:00')['items'][0];
+        $this->assertSame(
+            ['videoCall', '2026-10-16T07:00:00+00:00', 15, 'Mission data en mars', true, true, 'Ada Lovelace'],
+            [$exchange['exchange']['channel'], $exchange['exchange']['occurredAt'], $exchange['exchange']['durationInMinutes'], $exchange['exchange']['text'], $exchange['exchange']['contactToAttach'], $exchange['exchange']['bookedByLink'], $exchange['interlocutor']['name']],
+        );
+    }
+
+    public function testASlotJustTakenIsRefused(): void
+    {
+        $code = $this->anOpenPageOnFridayMorning();
+        $this->signOut();
+        $this->requestJson('POST', '/api/booking-pages/'.$code.'/appointments', $this->booking(['email' => 'grace@acme.fr']));
+
+        $problem = $this->requestJson('POST', '/api/booking-pages/'.$code.'/appointments', $this->booking());
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSame('slotNotFree', $problem['reason']);
+    }
+
+    public function testASecondAppointmentToComeOfAnEmailIsRefusedSayingWhenTheFirstIs(): void
+    {
+        $code = $this->anOpenPageOnFridayMorning();
+        $this->signOut();
+        $this->requestJson('POST', '/api/booking-pages/'.$code.'/appointments', $this->booking());
+
+        $problem = $this->requestJson('POST', '/api/booking-pages/'.$code.'/appointments', $this->booking(['slot' => '2026-10-16T09:15:00+02:00', 'email' => 'ADA@acme.fr']));
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSame(['alreadyBooked', ['appointment' => self::FRIDAY_MORNING]], [$problem['reason'], $problem['violations'][0]['context']]);
+    }
+
+    public function testABookerLeavingOutTheirPhoneIsRefused(): void
+    {
+        $code = $this->anOpenPageOnFridayMorning();
+        $this->signOut();
+
+        $problem = $this->requestJson('POST', '/api/booking-pages/'.$code.'/appointments', $this->booking(['phone' => '']));
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSame('incompleteBooker', $problem['reason']);
+    }
+
+    #[DataProvider('robots')]
+    public function testAFormARobotFilledBooksNothingWithoutSayingSo(array $robot): void
+    {
+        $code = $this->anOpenPageOnFridayMorning();
+        $this->signOut();
+
+        $this->requestJson('POST', '/api/booking-pages/'.$code.'/appointments', $this->booking($robot));
+
+        $this->assertResponseStatusCodeSame(201);
+        $this->assertSame(['2026-10-16T09:00:00+02:00', '2026-10-16T09:15:00+02:00'], $this->requestJson('GET', '/api/booking-pages/'.$code)['days'][0]['slots']);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, string>}>
+     */
+    public static function robots(): iterable
+    {
+        yield 'the trap filled' => [['website' => 'https://spam.example']];
+        yield 'filled at once' => [['formShownAt' => '2026-10-15T08:59:59+00:00']];
+    }
+
+    public function testABookingCountsAmongTheRequestsOfItsLink(): void
+    {
+        foreach (range(1, self::OPENINGS_OF_A_LINK_A_MINUTE) as $opening) {
+            $this->requestJson('GET', '/api/booking-pages/'.self::A_CODE);
+        }
+
+        $this->requestJson('POST', '/api/booking-pages/'.self::A_CODE.'/appointments', $this->booking());
+
+        $this->assertResponseStatusCodeSame(429);
+    }
+
     public function testMyPageIsNotReadWithoutSigningIn(): void
     {
         $this->requestJson('GET', '/api/me/booking-page');
@@ -392,6 +479,33 @@ class BookingApiTest extends ApiTestCase
         $this->requestJson('PATCH', '/api/me/booking-page/channels', ['channels' => ['call', 'videoCall']]);
 
         return (string) $this->requestJson('POST', '/api/me/booking-page/opening')['code'];
+    }
+
+    private function anOpenPageOnFridayMorning(): string
+    {
+        $code = $this->anOpenPage();
+        $this->requestJson('PATCH', '/api/me/booking-page/windows', ['timeZone' => 'Europe/Paris', 'windows' => [['weekday' => 'friday', 'from' => '09:00', 'to' => '09:30']]]);
+
+        return $code;
+    }
+
+    /**
+     * @param array<string, string> $changed
+     *
+     * @return array<string, string>
+     */
+    private function booking(array $changed = []): array
+    {
+        return [
+            'slot' => self::FRIDAY_MORNING,
+            'channel' => 'videoCall',
+            'firstName' => 'Ada',
+            'lastName' => 'Lovelace',
+            'phone' => '06 12 34 56 78',
+            'email' => 'ada@acme.fr',
+            'formShownAt' => '2026-10-15T08:58:00+00:00',
+            ...$changed,
+        ];
     }
 
     private function signOut(): void

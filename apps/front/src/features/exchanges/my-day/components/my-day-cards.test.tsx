@@ -71,6 +71,7 @@ function planned(
       organizationIds: [ACME],
       attachmentCount: 0,
       contactToAttach: false,
+      bookedByLink: false,
       _links: linksOf(id, occurredAt <= NOW),
       ...exchange,
     },

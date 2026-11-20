@@ -53,6 +53,8 @@ final readonly class ExchangeResource
         public ?CampaignOfExchangeResource $campaign,
         #[OA\Property(description: 'Its contact waits for its holder to attach them to an organization: kept for none until then (ADR 0146)')]
         public bool $contactToAttach,
+        #[OA\Property(description: 'Its contact booked it by the public link of its holder (ADR 0164)')]
+        public bool $bookedByLink,
         #[SerializedName('_links')]
         #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]
         public ExchangeLinksResource $links,

@@ -1563,6 +1563,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/booking-pages/{code}/appointments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Book a free slot of the page a public link leads to, without signing in: it becomes an exchange its host planned with the booker, a contact of the account or one to attach; a form a robot filled books nothing, without saying so */
+        post: operations["post_api_public_booking_book"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/me/booking-page/link": {
         parameters: {
             query?: never;
@@ -2208,6 +2225,57 @@ export interface components {
              */
             lastDay: string | null;
         };
+        BookingInput: {
+            /**
+             * @description The start of a free slot, as the page offers it
+             * @default null
+             * @example 2026-11-24T09:00:00+01:00
+             */
+            slot: string | null;
+            /**
+             * @default null
+             * @enum {string|null}
+             */
+            channel: "call" | "videoCall" | null;
+            /**
+             * @default
+             * @example Ada
+             */
+            firstName: string;
+            /**
+             * @default
+             * @example Lovelace
+             */
+            lastName: string;
+            /**
+             * @description As typed, French without its country code
+             * @default
+             * @example 06 12 34 56 78
+             */
+            phone: string;
+            /**
+             * @default
+             * @example ada@acme.fr
+             */
+            email: string;
+            /**
+             * @description What the booker wants to talk about, may be left out
+             * @default null
+             * @example Mission data en mars
+             */
+            subject: string | null;
+            /**
+             * @description Left empty by a person: the field is hidden
+             * @default null
+             */
+            website: string | null;
+            /**
+             * @description When the page showed the form
+             * @default null
+             * @example 2026-11-23T10:05:00+01:00
+             */
+            formShownAt: string | null;
+        };
         MyClockQuery: {
             /**
              * @description The time zone of the reader, by its name in the database of the time zones; UTC otherwise
@@ -2499,6 +2567,8 @@ export interface components {
             campaign?: components["schemas"]["CampaignOfExchangeResource"] | null;
             /** @description Its contact waits for its holder to attach them to an organization: kept for none until then (ADR 0146) */
             contactToAttach: boolean;
+            /** @description Its contact booked it by the public link of its holder (ADR 0164) */
+            bookedByLink: boolean;
             _links: components["schemas"]["ExchangeLinksResource"];
         };
         TimelineLinksResource: {
@@ -3250,6 +3320,17 @@ export interface components {
             /** @description Open, but offering nothing while my calendar is not connected: the members are told so */
             suspended: boolean;
             _links: components["schemas"]["BookingPageLinksResource"];
+        };
+        BookingResource: {
+            /** @example 2026-11-24T09:00:00+01:00 */
+            slot: string;
+            /** @enum {string} */
+            channel: "call" | "videoCall";
+            /**
+             * @description Where the invitation goes
+             * @example ada@acme.fr
+             */
+            email: string;
         };
         PublicHostResource: {
             firstName?: string | null;
@@ -9507,6 +9588,50 @@ export interface operations {
             };
             /** @description A period ending before it starts, a day not written YYYY-MM-DD */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    post_api_public_booking_book: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BookingInput"];
+            };
+        };
+        responses: {
+            /** @description What was booked */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookingResource"];
+                };
+            };
+            /** @description A link offering nothing (`bookingUnavailable`), a channel not offered (`channelNotOffered`), a slot taken meanwhile or never offered (`slotNotFree`), another appointment to come with this e-mail (`alreadyBooked`, its moment in the `appointment` of the context of its violation), a booker leaving out anything but the subject (`incompleteBooker`), a phone or an e-mail invalid */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description This link was used too often in the last minute: `tooManyRequests`, try again after `Retry-After` seconds */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };

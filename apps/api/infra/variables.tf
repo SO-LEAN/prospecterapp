@@ -70,6 +70,18 @@ variable "public_booking_burst_limit" {
   default     = 20
 }
 
+variable "public_booking_book_rate_limit" {
+  description = "How many bookings a second the HTTP API lets through by the public booking links, whatever their link and their address (ADR 0164): a cap of the route, the limit by link being the api's, that by address the edge's"
+  type        = number
+  default     = 2
+}
+
+variable "public_booking_book_burst_limit" {
+  description = "How many bookings at once the HTTP API lets through by the public booking links beyond their rate (ADR 0164)"
+  type        = number
+  default     = 5
+}
+
 variable "cognito_domain_prefix" {
   description = "The prefix of the domain of the sign-in page of the user pool (<prefix>.auth.<region>.amazoncognito.com, ADR 0157), unique in the region among every account of AWS: empty, the name of the api, prospecter-<instance>-api"
   type        = string

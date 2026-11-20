@@ -150,6 +150,7 @@ final readonly class DynamoTimelineRetriever implements TimelineRetriever
             attachmentCount: count($attachments),
             campaignId: $document['campaignId'] ?? null,
             withAContactToAttach: Exchange::isWithAContactToAttach(null !== $document['contact'], [] !== $document['keptFor']),
+            bookedByLink: $document['bookedByLink'] ?? false,
         );
     }
 

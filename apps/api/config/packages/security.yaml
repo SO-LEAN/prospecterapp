@@ -18,9 +18,9 @@ security:
         user_pool:
             pattern: ^/api/user-pool$
             security: false
-        # the page a public link of a booking leads to, read by whomever holds the link (ADR 0151)
+        # the page a public link of a booking leads to, read and booked by whomever holds the link (ADR 0151, 0164)
         booking_page:
-            pattern: ^/api/booking-pages/[^/]+$
+            pattern: ^/api/booking-pages/[^/]+(/appointments)?$
             security: false
         # the notifications of Gmail Pub/Sub pushes to an account, with a token Google signed for the account of service
         # of its subscription (ADR 0154)
