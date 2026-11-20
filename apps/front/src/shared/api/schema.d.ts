@@ -4453,6 +4453,15 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
+            /** @description The same exchange noted at the same moment by another request */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
             /** @description Invalid exchange: unknown channel or direction, a missed exchange that is no call, meeting or video call, a moment in the future, a Message-ID or a conversation of another channel */
             422: {
                 headers: {
@@ -5609,7 +5618,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description The person is no contact of the organization */
+            /** @description The person is no contact of the organization, or the same exchange noted at the same moment by another request */
             409: {
                 headers: {
                     [name: string]: unknown;
