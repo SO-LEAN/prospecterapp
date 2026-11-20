@@ -153,6 +153,18 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         $this->assertTheToolAsksForAConfirmation('retirer-logo-organisation');
     }
 
+    public function testTheAiSaysAPossibleDuplicateIsNoneOnceItsMemberConfirmed(): void
+    {
+        $this->login();
+        $acme = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME SAS'], 'address' => ['city' => 'Paris']])['id'];
+        $duplicate = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME s.a.s'], 'address' => ['city' => 'Paris']])['id'];
+
+        $dismissed = $this->assertTheToolActsAsItsEndpoint('ecarter-doublon-possible', ['id' => $duplicate, 'duplicateId' => $acme], 'DELETE', '/api/organizations/'.$duplicate.'/possible-duplicates/'.$acme, null, self::PROSPECTORS);
+
+        $this->assertSame([], $dismissed['possibleDuplicates']);
+        $this->assertTheToolAsksForAConfirmation('ecarter-doublon-possible');
+    }
+
     /**
      * Ada Lovelace, the contact of the demonstration, at Babbage & Co.
      */
