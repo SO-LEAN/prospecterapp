@@ -138,7 +138,7 @@ Every event, domain or integration, travels as an EventBridge event:
 | `prospecting-detach-forgotten-contact` | `ContactForgotten` | yes | the contact detached from its organizations |
 | `prospecting-keep-exchanges-of-forgotten-contact` | `ContactForgotten` | yes | its exchanges kept, to make conform |
 | `personal-data-identify-booker` | `SlotBooked` (Booking) | yes | the booker identified: a contact by their e-mail or their phone, or a contact to attach collected for the host (ADR 0164) |
-| `prospecting-plan-booked-appointment` | `BookerIdentified` (PersonalData) | yes | the exchange of the host with the booker planned, the booker met to be attached when nobody holds them (ADR 0164) |
+| `prospecting-plan-booked-appointment` | `BookerIdentified` (PersonalData) | yes | the exchange of the host with the booker planned, the booker met to be attached when nobody holds them, or handed over to the host when another member does (ADR 0164) |
 | `prospecting-keep-created-video-call-link` | `VideoCallLinkCreated` (Connectors) | yes | the link Google created kept on the video call still asking one, which is pushed again (ADR 0137) |
 | `prospecting-stop-keeping-exchanges` | `ProspectingStopped` (.internal) | yes | an `ExchangeLeftWithoutOrganization` per exchange |
 | `prospecting-erase-exchange` | `ExchangeLeftWithoutOrganization` (.internal) | yes | the exchange erased |
