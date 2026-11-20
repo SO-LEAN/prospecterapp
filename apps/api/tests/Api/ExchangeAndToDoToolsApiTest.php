@@ -136,6 +136,16 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
         $this->assertSame(['call', 'Appel sans suite'], [$corrected['channel'], $corrected['text']]);
     }
 
+    public function testTheAiCorrectsWhereAMeetingIsHeld(): void
+    {
+        $ada = $this->ada();
+        $meeting = $this->requestJson('POST', '/api/contacts/'.$ada.'/upcoming-exchanges', ['channel' => 'meeting', 'occurredAt' => '2026-10-20T14:00:00+00:00', 'place' => 'Café de Flore'])['items'][0]['id'];
+
+        $corrected = $this->assertTheToolActsAsItsEndpoint('corriger-lieu-echange', ['id' => $meeting, 'place' => 'Les Deux Magots'], 'PATCH', '/api/exchanges/'.$meeting.'/venue', ['place' => 'Les Deux Magots'], self::PROSPECTORS);
+
+        $this->assertSame('Les Deux Magots', $corrected['place']);
+    }
+
     public function testTheAiNotesAToDoForAContact(): void
     {
         $ada = $this->ada();
