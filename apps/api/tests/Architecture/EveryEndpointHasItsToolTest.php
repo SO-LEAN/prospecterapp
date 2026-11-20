@@ -84,7 +84,6 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
         'api_organizations_take_off_tag',
         'api_to_dos_erase',
         'api_to_dos_revise',
-        'api_to_dos_tick_off',
         'api_to_dos_untick',
         'api_uploads_prepare',
     ];
