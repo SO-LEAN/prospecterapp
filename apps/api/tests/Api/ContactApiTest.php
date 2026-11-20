@@ -292,21 +292,42 @@ class ContactApiTest extends ApiTestCase
         $this->assertSame([], $this->requestJson('GET', '/api/contacts/'.$ada)['possibleDuplicates']);
     }
 
-    public function testWithoutTheRightAProspectorSeesNoPossibleDuplicateNorSaysOneIsNone(): void
+    public function testWithoutTheRightAProspectorSeesNoPossibleDuplicate(): void
+    {
+        $organization = $this->anOrganization('ACME');
+        $this->collect(self::ADA, $organization);
+        $duplicate = $this->collect(self::ADA_AGAIN, $organization)['id'];
+        $this->login($this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector));
+
+        $this->assertSame([], $this->requestJson('GET', '/api/contacts/'.$duplicate)['possibleDuplicates']);
+    }
+
+    public function testWithoutTheRightAProspectorDoesNotSayAContactIsNoDuplicate(): void
     {
         $organization = $this->anOrganization('ACME');
         $ada = $this->collect(self::ADA, $organization)['id'];
         $duplicate = $this->collect(self::ADA_AGAIN, $organization)['id'];
         $this->login($this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector));
 
-        $this->assertSame([], $this->requestJson('GET', '/api/contacts/'.$duplicate)['possibleDuplicates']);
         $problem = $this->requestJson('DELETE', '/api/contacts/'.$duplicate.'/possible-duplicates/'.$ada);
 
         $this->assertResponseStatusCodeSame(403);
         $this->assertSame('personalDataManagersOnly', $problem['reason']);
     }
 
-    public function testAPossibleDuplicateDismissedMeanwhileIsAConflict(): void
+    public function testAContactOfAnotherAccountIsNotFoundToSayItIsNoDuplicate(): void
+    {
+        $organization = $this->anOrganization('ACME');
+        $ada = $this->collect(self::ADA, $organization)['id'];
+        $duplicate = $this->collect(self::ADA_AGAIN, $organization)['id'];
+        $this->login($this->aMemberOfAnotherAccount('stranger'));
+
+        $this->requestJson('DELETE', '/api/contacts/'.$duplicate.'/possible-duplicates/'.$ada);
+
+        $this->assertResponseStatusCodeSame(404);
+    }
+
+    public function testSayingAContactNeverSuspectedIsNoDuplicateIsAConflict(): void
     {
         $organization = $this->anOrganization('ACME');
         $ada = $this->collect(self::ADA, $organization)['id'];
