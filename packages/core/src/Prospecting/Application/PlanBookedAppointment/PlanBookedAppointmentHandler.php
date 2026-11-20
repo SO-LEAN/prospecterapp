@@ -53,14 +53,24 @@ final readonly class PlanBookedAppointmentHandler implements EventHandler
 
         $host = $this->prospectors->prospectorFrom(new MemberId($event->hostId));
         $contact = new PersonId($event->personId);
+        $toAttach = $this->contactsToAttach->find($contact);
         $known = $this->contactOrganizations->isAContactOfTheAccount($contact, $host->accountId);
         if (!$known) {
             $this->meetToAttach($host, $contact, $appointment->startsAt, $event->occurredAt);
+        } elseif (null !== $toAttach && !$toAttach->isHeldBy($host->id)) {
+            $this->handOver($toAttach, $host, $appointment->startsAt, $event->occurredAt);
         }
-        $keepers = $known ? $this->contactOrganizations->keepersOf($contact, $host) : self::NO_KEEPER_OF_A_CONTACT_TO_ATTACH;
+        $keepers = $known && null === $toAttach ? $this->contactOrganizations->keepersOf($contact, $host) : self::NO_KEEPER_OF_A_CONTACT_TO_ATTACH;
         $exchange = Exchange::bookedByAContact($host->accountId, $host->id, new ExchangeId($event->appointmentId), $contact, $keepers, $appointment->facts(), $event->occurredAt);
         $this->exchanges->save($exchange);
         $this->publishWhatHappenedTo($exchange);
+    }
+
+    private function handOver(ContactToAttach $toAttach, Prospector $host, \DateTimeImmutable $meeting, \DateTimeImmutable $at): void
+    {
+        $toAttach->handOverTo($host, $meeting, $at);
+        $this->contactsToAttach->save($toAttach);
+        $this->publishWhatHappenedTo($toAttach);
     }
 
     private function meetToAttach(Prospector $host, PersonId $contact, \DateTimeImmutable $meeting, \DateTimeImmutable $at): void
