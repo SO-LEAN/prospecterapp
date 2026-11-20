@@ -282,6 +282,34 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         $this->assertNull($this->requestJson('GET', '/api/organizations/'.$babbage)['logo']);
     }
 
+    public function testAnImageOfMoreThanTwoMegabytesIsNotDownloadedFurther(): void
+    {
+        $babbage = $this->babbage();
+        $this->keepTheKernel();
+        self::getContainer()->get(ImagesOnTheWeb::class)->publish(self::LOGO_ON_THE_WEB, str_repeat('a', 2_000_001));
+        $this->login();
+
+        $refusal = $this->answerOf($this->callWithoutHandshake('changer-logo-organisation', ['id' => $babbage, 'url' => self::LOGO_ON_THE_WEB]));
+
+        $this->assertSame([422, 'url'], [$refusal['status'], $refusal['violations'][0]['propertyPath']]);
+        $this->assertNull($this->requestJson('GET', '/api/organizations/'.$babbage)['logo']);
+    }
+
+    public function testAnImageIsNeverLookedForWhereItsAddressRedirects(): void
+    {
+        $babbage = $this->babbage();
+        $this->keepTheKernel();
+        $images = self::getContainer()->get(ImagesOnTheWeb::class);
+        $images->redirect(self::LOGO_ON_THE_WEB, ImagesOnTheWeb::HOST.'/moved.png');
+        $images->publish(ImagesOnTheWeb::HOST.'/moved.png', (string) file_get_contents(__DIR__.'/../Fixtures/logo.png'));
+        $this->login();
+
+        $refusal = $this->answerOf($this->callWithoutHandshake('changer-logo-organisation', ['id' => $babbage, 'url' => self::LOGO_ON_THE_WEB]));
+
+        $this->assertSame([422, 'url'], [$refusal['status'], $refusal['violations'][0]['propertyPath']]);
+        $this->assertNull($this->requestJson('GET', '/api/organizations/'.$babbage)['logo']);
+    }
+
     public function testWhatIsNoImageIsRefusedAsFromTheScreen(): void
     {
         $babbage = $this->babbage();

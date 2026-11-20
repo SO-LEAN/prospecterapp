@@ -19,19 +19,29 @@ final class ImagesOnTheWeb
     /** @var array<string, string> the content of each image, by its address */
     private array $images = [];
 
+    /** @var array<string, string> the address each address redirects to */
+    private array $redirects = [];
+
     public function publish(string $url, string $content): void
     {
         $this->images[$url] = $content;
     }
 
+    public function redirect(string $url, string $to): void
+    {
+        $this->redirects[$url] = $to;
+    }
+
     public function serves(string $url): bool
     {
-        return isset($this->images[$url]);
+        return isset($this->images[$url]) || isset($this->redirects[$url]);
     }
 
     public function answer(string $url): ResponseInterface
     {
-        return new MockResponse($this->images[$url]);
+        return isset($this->redirects[$url])
+            ? new MockResponse('', ['http_code' => 302, 'redirect_url' => $this->redirects[$url], 'response_headers' => ['Location' => $this->redirects[$url]]])
+            : new MockResponse($this->images[$url]);
     }
 
     /**
