@@ -84,7 +84,6 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
         'api_me_revise_organization_identity',
         'api_organizations_add_contact',
         'api_organizations_attach_to_holding',
-        'api_organizations_change_contact_details',
         'api_organizations_change_logo',
         'api_organizations_detach_from_holding',
         'api_organizations_dismiss_possible_duplicate',
