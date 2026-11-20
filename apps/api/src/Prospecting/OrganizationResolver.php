@@ -29,9 +29,17 @@ final readonly class OrganizationResolver implements ValueResolverInterface
             return [];
         }
 
-        $kept = new KeptOrganization();
-        ($this->consultOrganization)(new ConsultOrganization($request->attributes->getString('id')), $kept);
+        return [$this->read($request->attributes->getString('id'))];
+    }
 
-        return [$kept->organization];
+    /**
+     * The organization of this id, for the voter, whatever its account; an unknown one refused by the core.
+     */
+    public function read(string $id): OrganizationSheet
+    {
+        $kept = new KeptOrganization();
+        ($this->consultOrganization)(new ConsultOrganization($id), $kept);
+
+        return $kept->organization;
     }
 }
