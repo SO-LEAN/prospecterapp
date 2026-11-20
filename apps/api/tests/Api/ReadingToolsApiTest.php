@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Tests\App\Base\ApiTestCase;
 use Tests\App\Base\CallsTheMcpServer;
+use Tests\App\Double\InMemoryPrivateStorage;
 use Tests\App\Double\OutsideServices;
 
 /**
@@ -67,7 +68,7 @@ class ReadingToolsApiTest extends ApiTestCase
     public function testTheAiSearchesTheEstablishmentsOfAnOrganizationInTheDirectory(): void
     {
         $babbage = $this->babbage();
-        $this->client->disableReboot();
+        $this->keepTheKernel();
         self::getContainer()->get(OutsideServices::class)->directoryLists(self::BABBAGE_COMPANY);
 
         $this->assertTheToolAnswersAsItsEndpoint('chercher-etablissements', ['id' => $babbage], '/api/organizations/'.$babbage.'/establishments');
@@ -209,6 +210,26 @@ class ReadingToolsApiTest extends ApiTestCase
         $exchange = $this->anExchangeWithAda();
 
         $this->assertTheToolAnswersAsItsEndpoint('lire-echange', ['id' => $exchange], '/api/exchanges/'.$exchange);
+    }
+
+    public function testTheAiReadsAFileJoinedToAnExchangeByALinkSignedForAMoment(): void
+    {
+        $exchange = $this->anExchangeWithAda();
+        $upload = $this->requestJson('POST', '/api/uploads')['upload'];
+        self::getContainer()->get(InMemoryPrivateStorage::class)->send($upload, 2048, 'application/pdf');
+        $attachment = $this->requestJson('POST', '/api/exchanges/'.$exchange.'/attachments', ['upload' => $upload, 'name' => 'devis.pdf'])['attachments'][0]['id'];
+
+        $this->assertTheToolAnswersAsItsEndpoint('telecharger-piece-jointe', ['id' => $exchange, 'attachmentId' => $attachment], '/api/exchanges/'.$exchange.'/attachments/'.$attachment);
+    }
+
+    /**
+     * The kernel kept between the requests, for a double to answer each: the tokens the readers sign in with later
+     * are checked on the clock of the tokens frozen when it booted, set a minute later so that none is issued after it.
+     */
+    private function keepTheKernel(): void
+    {
+        $this->client->disableReboot();
+        self::getContainer()->get('app.token_clock')->modify('+1 minute');
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace App\Exchanges\Controller;
 
+use App\Exchanges\AttachmentDownloads;
 use App\Exchanges\ExchangeVoter;
 use App\Exchanges\Resource\AttachmentDownloadResource;
 use App\Security\User;
@@ -9,9 +10,6 @@ use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
-use Prospecter\Core\Prospecting\Application\DownloadAttachment\DownloadAttachment;
-use Prospecter\Core\Prospecting\Application\DownloadAttachment\KeptDownload;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -23,7 +21,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_PROSPECTOR')]
 final class DownloadAttachmentController extends AbstractController
 {
-    public function __construct(private readonly QueryHandler $downloadAttachment)
+    public function __construct(private readonly AttachmentDownloads $downloads)
     {
     }
 
@@ -37,9 +35,6 @@ final class DownloadAttachmentController extends AbstractController
     #[OA\Response(response: 404, description: 'Unknown exchange or attachment, or one of another account', content: new Model(type: ProblemResource::class))]
     public function __invoke(ExchangeDetail $exchange, string $attachmentId, #[CurrentUser] User $user): JsonResponse
     {
-        $kept = new KeptDownload();
-        ($this->downloadAttachment)(new DownloadAttachment($user->memberId(), $exchange->id, $attachmentId), $kept);
-
-        return $this->json(new AttachmentDownloadResource($kept->download->name, $kept->download->url));
+        return $this->json($this->downloads->of($user->memberId(), $exchange->id, $attachmentId));
     }
 }
