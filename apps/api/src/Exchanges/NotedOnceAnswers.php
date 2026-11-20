@@ -3,9 +3,6 @@
 namespace App\Exchanges;
 
 use App\Exchanges\Resource\NotingResource;
-use Prospecter\Core\Prospecting\Domain\Exception\ExchangeAlreadyNoted;
-use Prospecter\Core\Prospecting\Domain\Exception\ExchangeErasedBefore;
-use Prospecter\Core\Prospecting\Domain\Exception\ExchangeNotedMeanwhile;
 use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
 
 /**
@@ -14,6 +11,10 @@ use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
  */
 final readonly class NotedOnceAnswers
 {
+    private const string ALREADY_NOTED = 'exchangeAlreadyNoted';
+    private const string ERASED_BEFORE = 'exchangeErasedBefore';
+    private const string NOTED_MEANWHILE = 'exchangeNotedMeanwhile';
+
     public function __construct(private ExchangeReader $exchangeReader)
     {
     }
@@ -34,10 +35,10 @@ final readonly class NotedOnceAnswers
 
     private function notNotedAgain(string $member, UseCaseRefused $refusal): NotingResource
     {
-        return match (true) {
-            $refusal->getPrevious() instanceof ExchangeAlreadyNoted => NotingResource::alreadyNoted($this->exchangeReader->read($member, $refusal->context['exchange'])),
-            $refusal->getPrevious() instanceof ExchangeErasedBefore => NotingResource::erasedBefore($this->exchangeReader->memberNamed($member, $refusal->context['erasedBy']), $refusal->context['erasedAt']),
-            $refusal->getPrevious() instanceof ExchangeNotedMeanwhile => NotingResource::alreadyNoted(null),
+        return match ($refusal->reason) {
+            self::ALREADY_NOTED => NotingResource::alreadyNoted($this->exchangeReader->read($member, $refusal->context['exchange'])),
+            self::ERASED_BEFORE => NotingResource::erasedBefore($this->exchangeReader->memberNamed($member, $refusal->context['erasedBy']), $refusal->context['erasedAt']),
+            self::NOTED_MEANWHILE => NotingResource::alreadyNoted(null),
             default => throw $refusal,
         };
     }
