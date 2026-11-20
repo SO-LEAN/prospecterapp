@@ -214,6 +214,19 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
         $this->assertSame(['Envoyer le CV et la proposition', '2026-10-19', null], [$revised['text'], $revised['dueOn'], $revised['dueAt']]);
     }
 
+    public function testTheAiErasesAToDoOnceItsMemberConfirmed(): void
+    {
+        $toDo = $this->aToDoForAdaNotedByTheAi();
+        $this->assertTheToolIsRefusedAsItsEndpoint('effacer-a-faire', ['id' => $toDo], 'DELETE', '/api/to-dos/'.$toDo, null, ['assistant-user', 'member-user', 'stranger']);
+        $this->login();
+
+        $this->assertNotTrue($this->callWithoutHandshake('effacer-a-faire', ['id' => $toDo])['isError'] ?? false);
+
+        $this->requestJson('GET', '/api/to-dos/'.$toDo);
+        $this->assertResponseStatusCodeSame(404);
+        $this->assertTheToolAsksForAConfirmation('effacer-a-faire');
+    }
+
     /**
      * « Envoyer le CV » to Ada Lovelace on Friday, noted by the AI of the prospector.
      */
