@@ -19,6 +19,7 @@ use Prospecter\Core\Prospecting\Application\ConsultExchange\ConsultExchange;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 use Tests\Core\Acceptance\Expect;
@@ -130,6 +131,27 @@ final class BookSlotContext implements Context
             [$name, PhoneNumber::of(trim($phone))->value, $email, true],
             [$this->nameOf($contact), $details->phoneNumber?->value, (string) $details->email, null !== $this->application->contactsToAttach->find($contact)],
         );
+    }
+
+    #[Then('je détiens :name à rattacher, avec la visio réservée')]
+    public function iHoldThemToAttachWithTheBookedVideoCall(string $name): void
+    {
+        $person = new PersonId($this->scenario->personIdOf($name));
+
+        Expect::same(
+            [true, $person->value],
+            [true === $this->application->contactsToAttach->find($person)?->isHeldBy(new MemberId($this->application->signedIn())), StateOf::the($this->bookedExchange())['contact']?->value],
+        );
+    }
+
+    #[Then('/^la visio du (?<day>\d{2}\/\d{2}\/\d{4}) avec "(?<contact>[^"]+)" reste à "(?<member>[^"]+)"$/u')]
+    public function theVideoCallStaysWith(string $day, string $contact, string $member): void
+    {
+        $person = new PersonId($this->scenario->personIdOf($contact));
+        $accountId = $this->application->prospectors->prospectorFrom(new MemberId($this->application->signedIn()))->accountId;
+        $thatDay = array_values(array_filter($this->application->exchanges->withContact($person, $accountId), fn (Exchange $exchange): bool => str_starts_with($this->onMyClock(StateOf::the($exchange)['facts']->occurredAt), Vocabulary::frenchMoment(sprintf('%s à 0h00', $day))->format('Y-m-d'))));
+
+        Expect::same([$this->scenario->memberIdOf($member)->value], array_map(static fn (Exchange $exchange): string => StateOf::the($exchange)['createdBy']->value, $thatDay));
     }
 
     #[Then('aucun contact n\'est créé')]

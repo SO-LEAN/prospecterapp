@@ -52,6 +52,22 @@ Fonctionnalité: Réserver un créneau
     Alors j'ai un appel planifié avec "Ada Lovelace" de "ACME"
     Et aucun contact n'est créé
 
+  Scénario: Un contact à rattacher d'un autre prospecteur passe au prospecteur qu'il réserve
+    Soit je suis connecté en tant qu'un autre prospecteur de "SOLEAN IT"
+    Et "Ada Lovelace" (ada@acme.fr) a pris une visio avec moi le 23/11/2026 à 15h00
+    Et je suis connecté en tant que "moi"
+    Quand on réserve une visio par mon lien public le 24/11/2026 à 9h00 avec l'e-mail "ada@acme.fr"
+    Alors je détiens "Ada Lovelace" à rattacher, avec la visio réservée
+    Et "Ada Lovelace" est un contact à rattacher, effacée le 24/12/2026 sans rattachement
+    Et la visio du 23/11/2026 avec "Ada Lovelace" reste à "un autre prospecteur"
+
+  Scénario: Un contact d'un autre compte n'est pas reconnu
+    Soit l'organisation "Concurrent" qui utilise Prospecter
+    Et l'organisation "Initech" appartient à "Concurrent"
+    Et le contact "Ada Lovelace" de "Initech" a l'adresse e-mail "ada@acme.fr"
+    Quand on réserve un appel par mon lien public le 24/11/2026 à 9h00 avec l'e-mail "ada@acme.fr"
+    Alors "Ada Lovelace" est un contact à rattacher, au 06 12 34 56 78 et à ada@acme.fr
+
   Scénario: Tous les champs sont requis, sauf l'objet
     Quand on réserve un appel par mon lien public le 24/11/2026 à 9h00 sans téléphone
     Alors c'est refusé : "A booker gives their first name, last name, phone and e-mail"
