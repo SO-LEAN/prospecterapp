@@ -12,7 +12,8 @@ use Prospecter\Core\SharedKernel\Domain\MessageId;
  */
 final readonly class MailboxMail
 {
-    private const array NOT_RECEIVED = ['SENT', 'SPAM', 'TRASH', 'DRAFT'];
+    private const string SENT = 'SENT';
+    private const array LEFT_OUT = ['SPAM', 'TRASH', 'DRAFT'];
     private const int LONGEST_SUBJECT = 250;
     private const int LONGEST_TEXT = 10000;
     private const string ELLIPSIS = '…';
@@ -62,6 +63,24 @@ final readonly class MailboxMail
      */
     public function isReceived(): bool
     {
-        return [] === array_intersect($this->labels, self::NOT_RECEIVED);
+        return !$this->isFiledIn(self::SENT) && !$this->isLeftOut();
+    }
+
+    /**
+     * Sent by the member, and kept neither in their spam nor in their trash.
+     */
+    public function isSent(): bool
+    {
+        return $this->isFiledIn(self::SENT) && !$this->isLeftOut();
+    }
+
+    private function isFiledIn(string $label): bool
+    {
+        return in_array($label, $this->labels, true);
+    }
+
+    private function isLeftOut(): bool
+    {
+        return [] !== array_intersect($this->labels, self::LEFT_OUT);
     }
 }

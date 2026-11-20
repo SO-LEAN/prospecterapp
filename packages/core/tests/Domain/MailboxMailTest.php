@@ -53,6 +53,31 @@ class MailboxMailTest extends TestCase
         yield 'archived' => [[]];
     }
 
+    public function testAMessageTheMemberSentIsAMailSent(): void
+    {
+        $this->assertTrue(self::mail(labels: ['SENT'])->isSent());
+    }
+
+    /**
+     * @param list<string> $labels
+     */
+    #[DataProvider('notSent')]
+    public function testAMessageReceivedOrLeftOutIsNoMailSent(array $labels): void
+    {
+        $this->assertFalse(self::mail(labels: $labels)->isSent());
+    }
+
+    /**
+     * @return iterable<string, array{list<string>}>
+     */
+    public static function notSent(): iterable
+    {
+        yield 'the inbox' => [['INBOX']];
+        yield 'a draft' => [['DRAFT']];
+        yield 'sent then trashed' => [['SENT', 'TRASH']];
+        yield 'sent then reported as spam' => [['SENT', 'SPAM']];
+    }
+
     public function testASubjectTooLongIsCutAndEndedByAnEllipsis(): void
     {
         $subject = self::mail(subject: str_repeat('é', 300))->subject;
