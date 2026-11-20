@@ -11,12 +11,6 @@ use Prospecter\Core\SharedKernel\Domain\SearchKey;
  */
 final readonly class ResemblanceKey implements \Stringable
 {
-    /**
-     * The legal forms of the French companies: a word of the name that is one, its points aside, does not count,
-     * wherever it stands.
-     */
-    private const array LEGAL_FORMS = ['sa', 'sas', 'sasu', 'sarl', 'sarlu', 'eurl', 'snc', 'sci', 'scop', 'sca', 'scs', 'scp', 'scm', 'selarl', 'selas', 'selasu', 'selafa', 'gie', 'ei', 'eirl', 'sem', 'spl'];
-
     private function __construct(public string $value)
     {
     }
@@ -27,17 +21,10 @@ final readonly class ResemblanceKey implements \Stringable
     #[\NoDiscard]
     public static function of(?string $corporateName, ?string $city): ?self
     {
-        $name = self::nameWithoutItsLegalForm((string) $corporateName);
+        $name = CorporateNameKey::of($corporateName);
         $place = SearchKey::of($city);
 
-        return '' === $name || null === $place ? null : new self(sprintf('%s#%s', $name, $place));
-    }
-
-    private static function nameWithoutItsLegalForm(string $corporateName): string
-    {
-        $words = array_map(static fn (string $word): string => (string) SearchKey::of($word), preg_split('/\s+/u', $corporateName) ?: []);
-
-        return implode('', array_diff($words, self::LEGAL_FORMS));
+        return null === $name || null === $place ? null : new self(sprintf('%s#%s', $name, $place));
     }
 
     public function __toString(): string
