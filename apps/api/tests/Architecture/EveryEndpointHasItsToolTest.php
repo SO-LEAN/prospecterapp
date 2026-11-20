@@ -119,6 +119,29 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
         $this->assertSame([], array_values(array_map($this->named(...), $withoutTool)), 'Endpoints without a tool of the MCP server, nor in NEVER or TO_COVER');
     }
 
+    public function testEveryToolOfAReadingSaysItChangesNothing(): void
+    {
+        $routes = self::getContainer()->get(RouterInterface::class)->getRouteCollection();
+        $readings = array_filter($this->adaptedByATool(), static fn (string $tool, string $route): bool => ['GET'] === $routes->get($route)?->getMethods(), ARRAY_FILTER_USE_BOTH);
+
+        $this->assertSame([], array_values(array_filter($readings, static fn (string $tool): bool => true !== self::toolOf($tool)->annotations?->readOnlyHint)), 'Tools of a reading without the annotation readOnlyHint');
+    }
+
+    public function testEveryEndpointNamedApartExists(): void
+    {
+        $routes = self::getContainer()->get(RouterInterface::class)->getRouteCollection();
+
+        $this->assertSame([], array_values(array_filter([...array_keys($this->adaptedByATool()), ...self::NEVER, ...self::TO_COVER], static fn (string $route): bool => null === $routes->get($route))), 'Routes named by #[Adapts], NEVER or TO_COVER that no longer exist');
+    }
+
+    /**
+     * @param class-string $tool
+     */
+    private static function toolOf(string $tool): McpTool
+    {
+        return new \ReflectionMethod($tool, '__invoke')->getAttributes(McpTool::class)[0]->newInstance();
+    }
+
     /**
      * @return array<string, Route> by name
      */
