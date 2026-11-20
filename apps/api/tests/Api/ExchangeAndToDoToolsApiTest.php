@@ -4,6 +4,15 @@ namespace Tests\App\Api;
 
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Model\Role;
+use Prospecter\Core\Prospecting\Domain\Model\Channel;
+use Prospecter\Core\Prospecting\Domain\Model\Duration;
+use Prospecter\Core\Prospecting\Domain\Model\Exchange;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
+use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\OrganizationId;
+use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\App\Base\ActsAsItsEndpoint;
 use Tests\App\Base\ApiTestCase;
 
@@ -15,6 +24,9 @@ use Tests\App\Base\ApiTestCase;
 class ExchangeAndToDoToolsApiTest extends ApiTestCase
 {
     use ActsAsItsEndpoint;
+
+    /** The exchanges planned are handled by their holder only, the prospector here. */
+    private const array HOLDER = ['prospector-user'];
 
     private const array FRIDAY = ['text' => 'Envoyer le CV', 'dueOn' => '2026-10-16', 'dueAt' => '10:00'];
 
@@ -47,6 +59,17 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
         $this->assertSame(['meeting', '1 place Kléber, Strasbourg'], [$upcoming['items'][0]['exchange']['channel'], $upcoming['items'][0]['exchange']['place']]);
     }
 
+    public function testTheAiMarksDoneACallToProcessWithItsReport(): void
+    {
+        $call = $this->aCallWithAdaPlannedYesterday();
+        $report = ['text' => 'Intéressée, rappeler en janvier'];
+
+        $done = $this->assertTheToolActsAsItsEndpoint('marquer-echange-fait', ['id' => $call, ...$report], 'POST', '/api/exchanges/'.$call.'/done', $report, self::HOLDER);
+
+        $this->assertSame(['done', 'Intéressée, rappeler en janvier'], [$done['status'], $done['text']]);
+        $this->assertSame([], $this->requestJson('GET', '/api/me/exchanges-to-process')['items']);
+    }
+
     public function testTheAiNotesAToDoForAContact(): void
     {
         $ada = $this->ada();
@@ -64,6 +87,25 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
         $this->login();
 
         return $this->requestJson('GET', '/api/contacts?q=Lovelace')['items'][0]['id'];
+    }
+
+    /**
+     * A call the prospector planned with Ada Lovelace yesterday, to process.
+     */
+    private function aCallWithAdaPlannedYesterday(): string
+    {
+        $call = Exchange::plannedWithAContact(
+            $this->accountOfTheFixtures(),
+            new MemberId($this->memberIdOf('prospector-user')),
+            new ExchangeId(self::newIdentity()),
+            new PersonId($this->ada()),
+            [new OrganizationId($this->babbage())],
+            ExchangeFacts::planned(Channel::Call, new \DateTimeImmutable('2026-10-14 09:00 UTC'), Duration::inMinutes(null), null),
+            new \DateTimeImmutable('2026-10-13 09:00 UTC'),
+        );
+        self::getContainer()->get(ExchangeRepository::class)->save($call);
+
+        return $call->id()->value;
     }
 
     /**
