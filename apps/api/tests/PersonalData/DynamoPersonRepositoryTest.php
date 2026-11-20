@@ -122,27 +122,60 @@ class DynamoPersonRepositoryTest extends ApiTestCase
         $this->assertSame([], $this->personalDataTable()->query('PERSON#'.$ada->id()->value));
     }
 
-    public function testAContactIsFoundByTheEmailOfItsAccountOnly(): void
+    public function testAContactIsFoundByTheEmail(): void
     {
-        $persons = self::getContainer()->get(PersonRepository::class);
         $account = new AccountId(self::newIdentity());
-        $persons->save($ada = $this->personWithTheEmail($account, 'ada@solean-it.io'));
+        $this->persons()->save($ada = $this->personWithTheEmail($account, 'ada@solean-it.io'));
 
-        $found = [$persons->contactWithEmail($account, new Email('ada@solean-it.io'))?->id()->value, $persons->contactWithEmail(new AccountId(self::newIdentity()), new Email('ada@solean-it.io')), $persons->contactWithEmail($account, new Email('grace@solean-it.io'))];
-
-        $this->assertSame([$ada->id()->value, null, null], $found);
+        $this->assertSame($ada->id()->value, $this->persons()->contactWithEmail($account, new Email('ada@solean-it.io'))?->id()->value);
     }
 
-    public function testAContactIsFoundByThePhoneNumberOfItsAccountOnly(): void
+    public function testNoContactOfAnotherAccountIsFoundByTheEmail(): void
     {
-        $persons = self::getContainer()->get(PersonRepository::class);
+        $this->persons()->save($this->personWithTheEmail(new AccountId(self::newIdentity()), 'ada@solean-it.io'));
+
+        $this->assertNull($this->persons()->contactWithEmail(new AccountId(self::newIdentity()), new Email('ada@solean-it.io')));
+    }
+
+    public function testNoContactIsFoundByAnotherEmail(): void
+    {
         $account = new AccountId(self::newIdentity());
-        $ada = Person::collect(new PersonId(self::newIdentity()), $account, Purpose::Prospecting, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS), contactDetails: new ContactDetails(phoneNumber: PhoneNumber::of('06 12 34 56 78')));
-        $persons->save($ada);
+        $this->persons()->save($this->personWithTheEmail($account, 'ada@solean-it.io'));
 
-        $found = [$persons->contactWithPhoneNumber($account, PhoneNumber::of('+33612345678'))?->id()->value, $persons->contactWithPhoneNumber(new AccountId(self::newIdentity()), PhoneNumber::of('+33612345678')), $persons->contactWithPhoneNumber($account, PhoneNumber::of('+33698765432'))];
+        $this->assertNull($this->persons()->contactWithEmail($account, new Email('grace@solean-it.io')));
+    }
 
-        $this->assertSame([$ada->id()->value, null, null], $found);
+    public function testAContactIsFoundByThePhoneNumber(): void
+    {
+        $account = new AccountId(self::newIdentity());
+        $this->persons()->save($ada = $this->personWithThePhoneNumber($account, '06 12 34 56 78'));
+
+        $this->assertSame($ada->id()->value, $this->persons()->contactWithPhoneNumber($account, PhoneNumber::of('+33612345678'))?->id()->value);
+    }
+
+    public function testNoContactOfAnotherAccountIsFoundByThePhoneNumber(): void
+    {
+        $this->persons()->save($this->personWithThePhoneNumber(new AccountId(self::newIdentity()), '06 12 34 56 78'));
+
+        $this->assertNull($this->persons()->contactWithPhoneNumber(new AccountId(self::newIdentity()), PhoneNumber::of('+33612345678')));
+    }
+
+    public function testNoContactIsFoundByAnotherPhoneNumber(): void
+    {
+        $account = new AccountId(self::newIdentity());
+        $this->persons()->save($this->personWithThePhoneNumber($account, '06 12 34 56 78'));
+
+        $this->assertNull($this->persons()->contactWithPhoneNumber($account, PhoneNumber::of('+33698765432')));
+    }
+
+    private function persons(): PersonRepository
+    {
+        return self::getContainer()->get(PersonRepository::class);
+    }
+
+    private function personWithThePhoneNumber(AccountId $account, string $phoneNumber): Person
+    {
+        return Person::collect(new PersonId(self::newIdentity()), $account, Purpose::Prospecting, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS), contactDetails: new ContactDetails(phoneNumber: PhoneNumber::of($phoneNumber)));
     }
 
     private function personalDataTable(): Table
