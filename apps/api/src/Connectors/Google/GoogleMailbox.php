@@ -29,8 +29,8 @@ final readonly class GoogleMailbox implements ProviderMailbox
     private const int MILLISECONDS = 1000;
     private const array NOT_GRANTED = [401, 403];
     private const int NOT_FOUND = 404;
-    /** what is no e-mail received, in the words of the search of Gmail */
-    private const string NOT_RECEIVED = '-in:sent -in:draft -in:spam -in:trash';
+    /** what is no e-mail received nor sent, in the words of the search of Gmail */
+    private const string NOT_EXCHANGED = '-in:draft -in:spam -in:trash';
     private const int PAGE = 500;
     private const int NOT_DONE = 300;
     private const float TIMEOUT = 10;
@@ -167,7 +167,7 @@ final readonly class GoogleMailbox implements ProviderMailbox
     public function messagesExchangedAfter(ClientCredentials $client, RefreshToken $refreshToken, \DateTimeImmutable $moment, int $atMost): MailboxChanges
     {
         $historyId = (string) $this->answerOf($client, $this->read($client, $refreshToken, '/users/me/profile'))['historyId'];
-        $query = ['q' => sprintf('after:%d %s', $moment->getTimestamp(), self::NOT_RECEIVED), 'maxResults' => self::PAGE];
+        $query = ['q' => sprintf('after:%d %s', $moment->getTimestamp(), self::NOT_EXCHANGED), 'maxResults' => self::PAGE];
         $newestFirst = [];
         $pageToken = null;
         do {
