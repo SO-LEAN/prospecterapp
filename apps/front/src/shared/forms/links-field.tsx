@@ -12,34 +12,16 @@ import {
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { Button } from '@/shared/ui/button'
-import { SourceMark, shortAddress } from '@/shared/ui/external-links'
+import { shortAddress } from '@/shared/ui/external-links'
 import { Input } from '@/shared/ui/input'
 import { FormField } from './form-field'
 
 /** The addresses of the links of a sheet, recognized and checked by the API. */
 export const linksSchema = z.array(z.string())
 
-const KNOWN_HOSTS: [RegExp, string][] = [
-  [/^(?:[a-z]{2,3}\.)?linkedin\.com$/, 'linkedin'],
-  [/^malt\.fr$/, 'malt'],
-  [/^welcometothejungle\.com$/, 'welcometothejungle'],
-]
-
-/** The source an address seems to be of, by its host, for its mark before the API recognizes it. */
-function presumedSourceOf(address: string): string {
-  const host =
-    address
-      .replace(/^https?:\/\//i, '')
-      .replace(/^www\./i, '')
-      .split(/[/?#]/)[0]
-      ?.toLowerCase() ?? ''
-
-  return KNOWN_HOSTS.find(([pattern]) => pattern.test(host))?.[1] ?? host
-}
-
 /**
  * The links of a person or an organization: a field to paste an address, added on Enter or by its button, and a line
- * per link with the mark of its source and a button taking it off.
+ * per link with a button taking it off: the API recognizes their sources, shown once saved.
  */
 export function LinksField<Values extends FieldValues>({
   form,
@@ -56,7 +38,7 @@ export function LinksField<Values extends FieldValues>({
   const add = () => {
     const address = pasted.trim()
     if (address === '') return
-    field.onChange([...links, address])
+    if (!links.includes(address)) field.onChange([...links, address])
     setPasted('')
   }
 
@@ -73,7 +55,6 @@ export function LinksField<Values extends FieldValues>({
         <ul className="grid gap-1">
           {links.map((address) => (
             <li key={address} className="flex items-center gap-1.5 text-sm">
-              <SourceMark source={presumedSourceOf(address)} />
               <span className="min-w-0 truncate">{shortAddress(address)}</span>
               <Button
                 type="button"
