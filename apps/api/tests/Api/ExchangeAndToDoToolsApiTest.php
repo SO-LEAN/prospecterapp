@@ -185,6 +185,25 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
         $this->assertContains($noted['id'], array_column($this->requestJson('GET', '/api/organizations/'.$babbage.'/to-dos')['toDos'], 'id'));
     }
 
+    public function testTheAiTicksOffTheToDoItNoted(): void
+    {
+        $toDo = $this->aToDoForAdaNotedByTheAi();
+
+        $ticked = $this->assertTheToolActsAsItsEndpoint('cocher-a-faire', ['id' => $toDo], 'POST', '/api/to-dos/'.$toDo.'/done', null, self::PERSONAL_DATA_MANAGERS);
+
+        $this->assertSame('2026-10-15T09:00:00+00:00', $ticked['doneAt']);
+    }
+
+    /**
+     * « Envoyer le CV » to Ada Lovelace on Friday, noted by the AI of the prospector.
+     */
+    private function aToDoForAdaNotedByTheAi(): string
+    {
+        $ada = $this->ada();
+
+        return $this->answerOf($this->callWithoutHandshake('noter-a-faire', ['id' => $ada, ...self::FRIDAY]))['id'];
+    }
+
     /**
      * Ada Lovelace, the contact of the demonstration, at Babbage & Co.
      */
