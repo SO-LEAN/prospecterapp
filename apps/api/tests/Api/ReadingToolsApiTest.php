@@ -311,6 +311,14 @@ class ReadingToolsApiTest extends ApiTestCase
         $this->assertTheToolAnswersAsItsEndpoint('lire-destinataires-campagne', ['id' => $campaign], '/api/campaigns/'.$campaign.'/recipients');
     }
 
+    public function testTheAiReadsTheMessageOfACampaignForARecipient(): void
+    {
+        $campaign = $this->aCampaignToAda();
+        $ada = $this->ada();
+
+        $this->assertTheToolAnswersAsItsEndpoint('lire-message-campagne', ['id' => $campaign, 'contactId' => $ada], '/api/campaigns/'.$campaign.'/messages/'.$ada);
+    }
+
     /**
      * A campaign by e-mail to the clients, frozen: Ada Lovelace, tagged a client, its recipient.
      */
