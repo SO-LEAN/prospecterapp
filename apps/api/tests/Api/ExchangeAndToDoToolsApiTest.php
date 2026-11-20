@@ -36,6 +36,17 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
         $this->assertSame([['videoCall', '2026-10-16T08:00:00+00:00', 'planned']], array_map(static fn (array $exchange): array => [$exchange['channel'], $exchange['occurredAt'], $exchange['status']], array_slice($upcoming['items'], 0, 1)));
     }
 
+    public function testTheAiPlansAMeetingWithAContactOfAnOrganization(): void
+    {
+        $babbage = $this->babbage();
+        $ada = $this->ada();
+        $meeting = ['channel' => 'meeting', 'occurredAt' => '2026-10-16T10:00:00+02:00', 'place' => '1 place Kléber, Strasbourg'];
+
+        $upcoming = $this->assertTheToolActsAsItsEndpoint('planifier-echange-organisation', ['id' => $babbage, 'personId' => $ada, ...$meeting], 'POST', '/api/organizations/'.$babbage.'/upcoming-exchanges', ['exchange' => $meeting, 'personId' => $ada], self::PROSPECTORS);
+
+        $this->assertSame(['meeting', '1 place Kléber, Strasbourg'], [$upcoming['items'][0]['exchange']['channel'], $upcoming['items'][0]['exchange']['place']]);
+    }
+
     public function testTheAiNotesAToDoForAContact(): void
     {
         $ada = $this->ada();
@@ -53,5 +64,15 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
         $this->login();
 
         return $this->requestJson('GET', '/api/contacts?q=Lovelace')['items'][0]['id'];
+    }
+
+    /**
+     * Babbage & Co, the organization of the demonstration.
+     */
+    private function babbage(): string
+    {
+        $this->login();
+
+        return $this->requestJson('GET', '/api/organizations?q=Babbage')['items'][0]['id'];
     }
 }
