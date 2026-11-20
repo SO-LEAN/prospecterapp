@@ -36,6 +36,11 @@ Fonctionnalité: L'empreinte d'un échange
     Alors c'est supprimé par moi le 18/11/2026 à 10h00, non renoté
     Et "Ada Lovelace" a 0 échanges
 
+  Scénario: Une référence d'un autre canal est refusée
+    Quand l'IA note le SMS reçu de "Ada Lovelace" le 18/11/2026 à 9h12 de Message-ID "<abc@acme.fr>"
+    Alors c'est refusé : "Only a message of the channel email has a messageId"
+    Et "Ada Lovelace" a 0 échanges
+
   Scénario: Un échange noté à la main n'est pas renoté par l'IA
     Soit j'ai noté un SMS reçu de "Ada Lovelace" le 18/11/2026 à 9h12
     Quand l'IA note le SMS reçu de "Ada Lovelace" le 18/11/2026 à 9h12
