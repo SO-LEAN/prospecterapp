@@ -222,6 +222,13 @@ class ReadingToolsApiTest extends ApiTestCase
         $this->assertTheToolAnswersAsItsEndpoint('telecharger-piece-jointe', ['id' => $exchange, 'attachmentId' => $attachment], '/api/exchanges/'.$exchange.'/attachments/'.$attachment);
     }
 
+    public function testTheAiReadsWhereThePushOfAnExchangeIntoTheCalendarStands(): void
+    {
+        $exchange = $this->anExchangeWithAda();
+
+        $this->assertTheToolAnswersAsItsEndpoint('lire-synchronisation-google', ['id' => $exchange], '/api/exchanges/'.$exchange.'/google-sync');
+    }
+
     /**
      * The kernel kept between the requests, for a double to answer each: the tokens the readers sign in with later
      * are checked on the clock of the tokens frozen when it booted, set a minute later so that none is issued after it.
