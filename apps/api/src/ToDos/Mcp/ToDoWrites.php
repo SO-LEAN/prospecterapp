@@ -34,7 +34,7 @@ final readonly class ToDoWrites
     /**
      * @template TInput of object
      *
-     * @param TInput|null                                                            $input   the input of the endpoint, none for an endpoint without
+     * @param TInput|null                                                           $input   the input of the endpoint, none for an endpoint without
      * @param \Closure(TInput|null, ToDoInList, string, \DateTimeImmutable): object $command the command of the endpoint, from its input, for the to-do, by the member, at this moment
      *
      * @return array<string, mixed>
@@ -51,7 +51,7 @@ final readonly class ToDoWrites
      *
      * @template TInput of object
      *
-     * @param TInput|null                                                            $input
+     * @param TInput|null                                                           $input
      * @param \Closure(TInput|null, ToDoInList, string, \DateTimeImmutable): object $command
      */
     public function dispatched(string $id, ?object $input, \Closure $command): ToDoInList

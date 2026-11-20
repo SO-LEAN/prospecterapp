@@ -21,7 +21,7 @@ final readonly class ToolInputs
      *
      * @template TInput of object
      *
-     * @param class-string<TInput>       $input
+     * @param class-string<TInput>                             $input
      * @param array<string, scalar|array<string, scalar>|null> $arguments those of an input within it grouped as its property
      *
      * @return TInput
