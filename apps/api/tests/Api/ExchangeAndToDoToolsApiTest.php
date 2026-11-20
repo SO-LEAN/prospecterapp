@@ -194,6 +194,16 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
         $this->assertSame('2026-10-15T09:00:00+00:00', $ticked['doneAt']);
     }
 
+    public function testTheAiUnticksAToDoTickedOffByMistake(): void
+    {
+        $toDo = $this->aToDoForAdaNotedByTheAi();
+        $this->callWithoutHandshake('cocher-a-faire', ['id' => $toDo]);
+
+        $unticked = $this->assertTheToolActsAsItsEndpoint('decocher-a-faire', ['id' => $toDo], 'DELETE', '/api/to-dos/'.$toDo.'/done', null, self::PERSONAL_DATA_MANAGERS);
+
+        $this->assertNull($unticked['doneAt']);
+    }
+
     /**
      * « Envoyer le CV » to Ada Lovelace on Friday, noted by the AI of the prospector.
      */
