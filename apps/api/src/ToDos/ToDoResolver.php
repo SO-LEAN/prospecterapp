@@ -28,9 +28,17 @@ final readonly class ToDoResolver implements ValueResolverInterface
             return [];
         }
 
-        $kept = new KeptToDo();
-        ($this->consultToDo)(new ConsultToDo($request->attributes->getString('id')), $kept);
+        return [$this->read($request->attributes->getString('id'))];
+    }
 
-        return [$kept->toDo];
+    /**
+     * The to-do of this id, for the voter, whatever its account; an unknown one refused by the core.
+     */
+    public function read(string $id): ToDoInList
+    {
+        $kept = new KeptToDo();
+        ($this->consultToDo)(new ConsultToDo($id), $kept);
+
+        return $kept->toDo;
     }
 }
