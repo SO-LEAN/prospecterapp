@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Tests\App\Base\ApiTestCase;
 use Tests\App\Base\CallsTheMcpServer;
+use Tests\App\Double\OutsideServices;
 
 /**
  * An AI reads Prospecter as its member reads the screens (ADR 0163): each tool of reading answers what its endpoint
@@ -16,6 +17,12 @@ use Tests\App\Base\CallsTheMcpServer;
 class ReadingToolsApiTest extends ApiTestCase
 {
     use CallsTheMcpServer;
+
+    private const array BABBAGE_COMPANY = [
+        'siren' => '552100554',
+        'nom_complet' => 'BABBAGE & CO',
+        'matching_etablissements' => [['siret' => '55210055400021', 'adresse' => '2 RUE DES CLEFS 68000 COLMAR', 'commune' => '68066', 'activite_principale' => '62.02A', 'etat_administratif' => 'A']],
+    ];
 
     private const array READERS = ['prospector-user', 'assistant-user', 'admin-user', 'member-user', 'stranger'];
 
@@ -55,6 +62,15 @@ class ReadingToolsApiTest extends ApiTestCase
         $refusal = $this->answerOf($this->callWithoutHandshake('rechercher-organisations', ['q' => $tooLong]));
 
         $this->assertSame($violations, $refusal['violations']);
+    }
+
+    public function testTheAiSearchesTheEstablishmentsOfAnOrganizationInTheDirectory(): void
+    {
+        $babbage = $this->babbage();
+        $this->client->disableReboot();
+        self::getContainer()->get(OutsideServices::class)->directoryLists(self::BABBAGE_COMPANY);
+
+        $this->assertTheToolAnswersAsItsEndpoint('chercher-etablissements', ['id' => $babbage], '/api/organizations/'.$babbage.'/establishments');
     }
 
     /**
