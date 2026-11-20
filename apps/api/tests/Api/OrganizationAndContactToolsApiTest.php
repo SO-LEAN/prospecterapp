@@ -111,6 +111,16 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         $this->assertSame($identity, $revised['legalIdentity']);
     }
 
+    public function testTheAiChangesTheContactDetailsOfAnOrganization(): void
+    {
+        $babbage = $this->babbage();
+        $details = ['email' => 'hello@babbage.test', 'phoneNumber' => '03 88 00 00 45', 'language' => 'FR', 'links' => ['https://www.welcometothejungle.com/fr/companies/babbage'], 'website' => 'www.babbage.test'];
+
+        $changed = $this->assertTheToolActsAsItsEndpoint('changer-coordonnees-organisation', ['id' => $babbage, ...$details], 'PATCH', '/api/organizations/'.$babbage.'/contact-details', $details, self::PROSPECTORS);
+
+        $this->assertSame(['hello@babbage.test', 'https://www.babbage.test'], [$changed['contactDetails']['email'], $changed['contactDetails']['website']]);
+    }
+
     /**
      * Ada Lovelace, the contact of the demonstration, at Babbage & Co.
      */
