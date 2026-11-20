@@ -47,6 +47,20 @@ describe('OrganizationCard', () => {
     expect(screen.getByRole('link', { name: /Lovelace SA/ })).not.toHaveTextContent(UNLOCATED)
   })
 
+  it('flags a possible duplicate, with a link to the organization it resembles', async () => {
+    const acme = '0190a1c0-0000-7000-8000-000000000003'
+    await renderTheCards(
+      aSummary({
+        possibleDuplicates: [
+          { id: acme, name: 'Acme SAS', _links: { self: { href: `/api/organizations/${acme}`, method: 'GET' } } },
+        ],
+      }),
+    )
+
+    expect(screen.getByText('Doublon possible de')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Acme SAS' })).toHaveAttribute('href', `/organizations/${acme}`)
+  })
+
   it('marks nothing without an address', async () => {
     await renderTheCards(aSummary({ location: null }))
 
