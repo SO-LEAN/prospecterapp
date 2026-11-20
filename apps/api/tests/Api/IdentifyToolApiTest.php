@@ -44,6 +44,16 @@ class IdentifyToolApiTest extends ApiTestCase
         $this->assertSame([['new', []], ['toConfirm', ['Ada Lovelace']]], self::described($identified['persons']));
     }
 
+    public function testAnAdministratorIdentifiesAsAProspectorWithTheRight(): void
+    {
+        $this->aMemberOfTheFixtures('admin-user', Role::User, Role::Admin);
+        $this->login('admin-user');
+
+        $identified = $this->answerOf($this->callWithoutHandshake('identifier', ['persons' => [['emails' => ['ada@babbage.test']]]]));
+
+        $this->assertSame([['known', ['Ada Lovelace']]], self::described($identified['persons']));
+    }
+
     public function testAMemberWhoIsNoProspectorIsRefused(): void
     {
         $this->aMemberOfTheFixtures('member-user', Role::User);

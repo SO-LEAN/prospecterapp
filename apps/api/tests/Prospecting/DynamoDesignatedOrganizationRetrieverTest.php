@@ -2,8 +2,6 @@
 
 namespace Tests\App\Prospecting;
 
-use App\Prospecting\Persistence\DynamoDesignatedOrganizationRetriever;
-use App\Shared\Persistence\Table;
 use Prospecter\Core\Prospecting\Application\IdentifyOrganizations\Candidate;
 use Prospecter\Core\Prospecting\Application\Port\DesignatedOrganizationRetriever;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
@@ -83,15 +81,9 @@ class DynamoDesignatedOrganizationRetrieverTest extends ApiTestCase
         $this->assertEquals([new Candidate($globex->id()->value, 'contact@globex.test'), new Candidate($acme->id()->value, 'ACME SAS')], $named);
     }
 
-    /**
-     * Built on the table of Prospecting: no use case asks it yet in the container.
-     */
     private function retriever(): DesignatedOrganizationRetriever
     {
-        $table = self::getContainer()->get('app.table.prospecting');
-        $this->assertInstanceOf(Table::class, $table);
-
-        return new DynamoDesignatedOrganizationRetriever($table);
+        return self::getContainer()->get(DesignatedOrganizationRetriever::class);
     }
 
     private static function aProspector(): Prospector
