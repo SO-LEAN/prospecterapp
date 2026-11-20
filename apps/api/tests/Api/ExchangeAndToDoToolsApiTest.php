@@ -104,6 +104,19 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
         $this->assertTheToolAsksForAConfirmation('annuler-echange');
     }
 
+    public function testTheAiErasesAnExchangeOnceItsMemberConfirmed(): void
+    {
+        $call = $this->aCallWithAdaPlannedYesterday();
+        $this->assertTheToolIsRefusedAsItsEndpoint('effacer-echange', ['id' => $call], 'DELETE', '/api/exchanges/'.$call, null, ['assistant-user', 'member-user', 'stranger']);
+        $this->login();
+
+        $this->assertNotTrue($this->callWithoutHandshake('effacer-echange', ['id' => $call])['isError'] ?? false);
+
+        $this->requestJson('GET', '/api/exchanges/'.$call);
+        $this->assertResponseStatusCodeSame(404);
+        $this->assertTheToolAsksForAConfirmation('effacer-echange');
+    }
+
     public function testTheAiNotesAToDoForAContact(): void
     {
         $ada = $this->ada();
