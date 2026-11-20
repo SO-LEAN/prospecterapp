@@ -51,6 +51,15 @@ class OutboxRelayTest extends KernelTestCase
         yield 'one event' => [[1], [1]];
     }
 
+    public function testThePutsStayUnder256KilobytesTheLeastABusTakes(): void
+    {
+        $texts = array_map(fn (): TransportedEvent => $this->event(str_repeat('é', 10000)), range(1, 5));
+
+        $this->relay->handle($this->batchWith($texts), Context::fake());
+
+        $this->assertSame([4, 1], array_map(count(...), $this->bus->puts));
+    }
+
     public function testAnEventIsPublishedAsItTravels(): void
     {
         $event = $this->event();
@@ -79,7 +88,7 @@ class OutboxRelayTest extends KernelTestCase
      */
     private function batchOf(int ...$eventsByItem): array
     {
-        return $this->batchWith(...array_map(fn (int $count): array => array_map($this->event(...), range(1, $count)), $eventsByItem));
+        return $this->batchWith(...array_map(fn (int $count): array => array_map(fn (): TransportedEvent => $this->event(), range(1, $count)), $eventsByItem));
     }
 
     /**
@@ -103,8 +112,11 @@ class OutboxRelayTest extends KernelTestCase
         return ['Records' => $records];
     }
 
-    private function event(): TransportedEvent
+    /**
+     * An event, with a text when said, some 60 KB for 10,000 characters out of ASCII in its JSON (ADR 0154).
+     */
+    private function event(?string $text = null): TransportedEvent
     {
-        return new TransportedEvent('prospecter.prospecting.internal', 'ProspectingStopped.v1', Uuid::v7()->toRfc4122(), '2026-11-10T09:00:00.000000Z', Uuid::v7()->toRfc4122(), null, 0, ['organizationId' => Uuid::v7()->toRfc4122()]);
+        return new TransportedEvent('prospecter.prospecting.internal', 'ProspectingStopped.v1', Uuid::v7()->toRfc4122(), '2026-11-10T09:00:00.000000Z', Uuid::v7()->toRfc4122(), null, 0, ['organizationId' => Uuid::v7()->toRfc4122(), ...(null === $text ? [] : ['text' => $text])]);
     }
 }
