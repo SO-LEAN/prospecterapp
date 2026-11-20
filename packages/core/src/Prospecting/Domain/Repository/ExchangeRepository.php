@@ -6,7 +6,9 @@ namespace Prospecter\Core\Prospecting\Domain\Repository;
 
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownExchange;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeFingerprint;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
+use Prospecter\Core\Prospecting\Domain\Model\Fingerprinted;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
@@ -26,6 +28,11 @@ interface ExchangeRepository
      * Whether the exchange of an imported e-mail was ever saved, erased since or not (ADR 0154).
      */
     public function wasImported(ExchangeId $id): bool;
+
+    /**
+     * The exchange the account noted under this fingerprint, erased since or not (ADR 0166).
+     */
+    public function fingerprinted(AccountId $accountId, ExchangeFingerprint $fingerprint): ?Fingerprinted;
 
     /**
      * The exchanges kept for this organization.

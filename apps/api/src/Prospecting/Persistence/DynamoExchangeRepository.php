@@ -2,15 +2,22 @@
 
 namespace App\Prospecting\Persistence;
 
+use App\Shared\Persistence\Documents;
+use App\Shared\Persistence\Hydrator;
 use App\Shared\Persistence\Revision;
 use App\Shared\Persistence\Table;
 use App\Shared\Persistence\Write;
+use Prospecter\Core\Prospecting\Domain\Exception\ExchangeNotedMeanwhile;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownExchange;
+use Prospecter\Core\Prospecting\Domain\Model\Erasure;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeFingerprint;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
+use Prospecter\Core\Prospecting\Domain\Model\Fingerprinted;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
@@ -55,7 +62,30 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
             ...$this->linkInTheAgendaOfItsHolder($document, $stored['exchange'] ?? null),
             $this->prospectingTable->putting(self::linkInTheCalendarOfItsHolder($document)),
             ...$this->markOfTheImport($document, $stored),
+            ...$this->registrationOfItsFingerprint($exchange, $stored),
         ]);
+    }
+
+    /**
+     * A new exchange registers its fingerprint in its account, under the condition that no other exchange did
+     * meanwhile: the safety net of NotedOnce (ADR 0166). The registration outlives the exchange.
+     *
+     * @param array<string, mixed>|null $stored
+     *
+     * @return list<Write>
+     */
+    private function registrationOfItsFingerprint(Exchange $exchange, ?array $stored): array
+    {
+        $fingerprint = $exchange->fingerprint();
+        if (null === $fingerprint || null !== $stored) {
+            return [];
+        }
+
+        return [$this->prospectingTable->putting(
+            ['PK' => ExchangeKeys::fingerprint($exchange->accountId()->value, $fingerprint->value), 'SK' => ExchangeKeys::FINGERPRINT, 'exchangeId' => $exchange->id()->value],
+            'attribute_not_exists(PK)',
+            refusal: ExchangeNotedMeanwhile::byAnother(...),
+        )];
     }
 
     /**
@@ -86,12 +116,46 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
             ...$this->linksToItsOrganizations(['keptFor' => []] + $document, false, $stored['exchange']['keptFor'] ?? []),
             ...$this->linkInTheAgendaOfItsHolder(['status' => ExchangeStatus::Done->value] + $document, $stored['exchange'] ?? null),
             $this->prospectingTable->deleting(ExchangeKeys::calendar($document['createdBy']), ExchangeKeys::exchange($document['id'])),
+            ...$this->erasureOfItsFingerprint($exchange),
         ]);
+    }
+
+    /**
+     * The fingerprint of an erased exchange keeps who erased it, so that it is not noted again (ADR 0166); written
+     * whole, in case the exchange was noted before it registered it, and never over that of another exchange.
+     *
+     * @return list<Write>
+     */
+    private function erasureOfItsFingerprint(Exchange $exchange): array
+    {
+        $fingerprint = $exchange->fingerprint();
+        $erasure = Hydrator::stateOf($exchange)['erasure'];
+        if (null === $fingerprint || !$erasure instanceof Erasure) {
+            return [];
+        }
+
+        return [$this->prospectingTable->putting(
+            ['PK' => ExchangeKeys::fingerprint($exchange->accountId()->value, $fingerprint->value), 'SK' => ExchangeKeys::FINGERPRINT, 'exchangeId' => $exchange->id()->value, 'erasedBy' => $erasure->by->value, 'erasedAt' => Documents::moment($erasure->at)],
+            'attribute_not_exists(PK) OR exchangeId = :exchange',
+            [':exchange' => $exchange->id()->value],
+        )];
     }
 
     public function wasImported(ExchangeId $id): bool
     {
         return null !== $this->prospectingTable->item(ExchangeKeys::importedEmail($id->value), ExchangeKeys::IMPORTED_EMAIL);
+    }
+
+    public function fingerprinted(AccountId $accountId, ExchangeFingerprint $fingerprint): ?Fingerprinted
+    {
+        $item = $this->prospectingTable->item(ExchangeKeys::fingerprint($accountId->value, $fingerprint->value), ExchangeKeys::FINGERPRINT);
+
+        if (null === $item) {
+            return null;
+        }
+        $erasure = isset($item['erasedBy']) ? new Erasure(new MemberId($item['erasedBy']), Documents::momentOf($item['erasedAt'])) : null;
+
+        return new Fingerprinted(new ExchangeId($item['exchangeId']), $erasure);
     }
 
     public function keptFor(OrganizationId $organization): array

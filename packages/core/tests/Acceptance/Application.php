@@ -367,6 +367,7 @@ use Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsHaveTheseEmai
 use Prospecter\Core\Prospecting\Domain\Service\ContactOrganizations;
 use Prospecter\Core\Prospecting\Domain\Service\DuplicateSuspicion;
 use Prospecter\Core\Prospecting\Domain\Service\EmailUniqueness as ProspectingEmailUniqueness;
+use Prospecter\Core\Prospecting\Domain\Service\NotedOnce;
 use Prospecter\Core\Prospecting\Domain\Service\OrphanContacts;
 use Prospecter\Core\Prospecting\Domain\Service\ReferenceUniqueness as OrganizationReferenceUniqueness;
 use Prospecter\Core\Prospecting\Domain\Service\SiretUniqueness;
@@ -1259,7 +1260,7 @@ final class Application
             new RemoveContactHandler($this->organizations, $this->events, $this->orphans),
             new StopProspectingHandler($this->organizations, $this->events, $this->orphans),
             new DismissPossibleDuplicateHandler($this->organizations, $this->events),
-            new NoteExchangeHandler($this->exchanges, $this->prospectors, $this->contactOrganizations, $this->events),
+            new NoteExchangeHandler($this->exchanges, $this->prospectors, $this->contactOrganizations, new NotedOnce($this->exchanges), $this->events),
             new NoteCampaignExchangeHandler($this->exchanges, $this->prospectors, $this->campaignRecipients, $this->contactOrganizations, $this->events),
             new NoteOrganizationExchangeHandler($this->exchanges, $this->organizations, $this->contactOrganizations, $this->events),
             new PlanExchangeHandler($this->exchanges, $this->prospectors, $this->contactOrganizations, $this->events),

@@ -72,6 +72,8 @@ final class Exchange implements ReleasesEvents
     private ?Cancellation $cancellation = null;
     private ?CampaignId $campaign = null;
     private ?ImportedEmail $importedFrom = null;
+    private ?ExchangeFingerprint $fingerprint = null;
+    private ?Erasure $erasure = null;
     private bool $bookedByLink = false;
     /** @var list<Attachment> */
     private array $attachments = [];
@@ -93,15 +95,19 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * Done, or missed when the contact did not answer or come.
+     * Done, or missed when the contact did not answer or come; fingerprinted by where it was read, if given
+     * (ADR 0166).
      *
      * @param list<OrganizationId> $organizationsOfTheContact
      *
      * @throws ExchangeInTheFuture|ChannelNotMissed
      */
-    public static function notedWithAContact(AccountId $accountId, MemberId $by, ExchangeId $id, PersonId $contact, array $organizationsOfTheContact, ExchangeFacts $facts, ExchangeStatus $outcome, \DateTimeImmutable $at): self
+    public static function notedWithAContact(AccountId $accountId, MemberId $by, ExchangeId $id, PersonId $contact, array $organizationsOfTheContact, ExchangeFacts $facts, ExchangeStatus $outcome, \DateTimeImmutable $at, ?MessageReference $reference = null): self
     {
-        return self::noted($accountId, $by, $id, $contact, $organizationsOfTheContact, $facts, $outcome, $at);
+        $exchange = self::noted($accountId, $by, $id, $contact, $organizationsOfTheContact, $facts, $outcome, $at);
+        $exchange->fingerprint = ($reference ?? MessageReference::none())->fingerprintOf($facts, $contact);
+
+        return $exchange;
     }
 
     /**
@@ -273,6 +279,23 @@ final class Exchange implements ReleasesEvents
     public function id(): ExchangeId
     {
         return $this->id;
+    }
+
+    /**
+     * What tells it from any other exchange of its account, when it was noted (ADR 0166).
+     */
+    public function fingerprint(): ?ExchangeFingerprint
+    {
+        return $this->fingerprint;
+    }
+
+    /**
+     * Noted by hand as an exchange already noted, it is told from it by nothing: the fingerprint stays the one of the
+     * exchange noted first (ADR 0166).
+     */
+    public function leaveItsFingerprint(): void
+    {
+        $this->fingerprint = null;
     }
 
     public function accountId(): AccountId
@@ -499,6 +522,7 @@ final class Exchange implements ReleasesEvents
     private function erasing(MemberId $by, \DateTimeImmutable $at, bool $withItsOrganization): void
     {
         $this->ensurePossible(ExchangeIntent::EraseExchange, $by, $at);
+        $this->erasure = new Erasure($by, $at);
         $files = array_map(static fn (Attachment $attachment): string => $attachment->file, $this->attachments);
         $this->recordThat(new ExchangeErased($this->accountId, $by, $this->id, $files, $at, $this->contact, $this->campaign, $withItsOrganization));
     }

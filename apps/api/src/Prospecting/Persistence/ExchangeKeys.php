@@ -22,6 +22,16 @@ final class ExchangeKeys
         return self::IMPORTED_EMAIL.'#'.$exchange;
     }
 
+    public const string FINGERPRINT = 'FINGERPRINT';
+
+    /**
+     * The exchange an account noted under a fingerprint, kept once it is erased (ADR 0166).
+     */
+    public static function fingerprint(string $accountId, string $fingerprint): string
+    {
+        return sprintf('%s#%s#%s', self::FINGERPRINT, $accountId, $fingerprint);
+    }
+
     public static function exchange(string $id): string
     {
         return self::EXCHANGE.'#'.$id;

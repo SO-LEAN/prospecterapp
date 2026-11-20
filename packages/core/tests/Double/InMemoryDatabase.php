@@ -17,11 +17,15 @@ use Prospecter\Core\Connectors\Domain\Model\Connection;
 use Prospecter\Core\Connectors\Domain\Model\PendingAuthorization;
 use Prospecter\Core\Connectors\Domain\Model\ProviderClient;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
+use Prospecter\Core\Prospecting\Domain\Exception\ExchangeNotedMeanwhile;
 use Prospecter\Core\Prospecting\Domain\Model\ContactToAttach;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeFingerprint;
+use Prospecter\Core\Prospecting\Domain\Model\Fingerprinted;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\ToDo;
 use Prospecter\Core\Reporting\Domain\Model\Fact;
+use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 
 /**
@@ -43,6 +47,8 @@ final class InMemoryDatabase
     private array $exchanges = [];
     /** @var array<string, true> the exchanges of the e-mails imported, kept once erased, by their identity */
     private array $importedEmails = [];
+    /** @var array<string, Fingerprinted> the exchanges noted under each fingerprint, kept once erased, by account and fingerprint */
+    private array $fingerprints = [];
     /** @var array<string, ToDo> */
     private array $toDos = [];
     /** @var array<string, ContactToAttach> by their person */
@@ -95,6 +101,7 @@ final class InMemoryDatabase
         $this->organizations = $snapshot->organizations;
         $this->exchanges = $snapshot->exchanges;
         $this->importedEmails = $snapshot->importedEmails;
+        $this->fingerprints = $snapshot->fingerprints;
         $this->toDos = $snapshot->toDos;
         $this->contactsToAttach = $snapshot->contactsToAttach;
         $this->facts = $snapshot->facts;
@@ -372,6 +379,7 @@ final class InMemoryDatabase
 
     public function storeExchange(Exchange $exchange): void
     {
+        $this->registerFingerprintOf($exchange);
         $this->exchanges[(string) $exchange->id()] = self::withoutItsEvents($exchange);
         if (null !== StateOf::the($exchange)['importedFrom']) {
             $this->importedEmails[(string) $exchange->id()] = true;
@@ -387,6 +395,46 @@ final class InMemoryDatabase
     public function exchange(string $id): ?Exchange
     {
         return isset($this->exchanges[$id]) ? clone $this->exchanges[$id] : null;
+    }
+
+    public function fingerprinted(AccountId $accountId, ExchangeFingerprint $fingerprint): ?Fingerprinted
+    {
+        return $this->fingerprints[self::fingerprintKey($accountId, $fingerprint)] ?? null;
+    }
+
+    /**
+     * Under the condition the adapter writes it: a fingerprint registered for another exchange is taken.
+     *
+     * @throws ExchangeNotedMeanwhile
+     */
+    private function registerFingerprintOf(Exchange $exchange): void
+    {
+        $fingerprint = $exchange->fingerprint();
+        if (null === $fingerprint) {
+            return;
+        }
+        $key = self::fingerprintKey($exchange->accountId(), $fingerprint);
+        $registered = $this->fingerprints[$key] ?? null;
+        if (null !== $registered && !$registered->exchange->equals($exchange->id())) {
+            throw ExchangeNotedMeanwhile::byAnother();
+        }
+        $this->fingerprints[$key] = $registered ?? new Fingerprinted($exchange->id());
+    }
+
+    /**
+     * Its fingerprint outlives it, with who erased it.
+     */
+    public function eraseFingerprintOf(Exchange $exchange): void
+    {
+        $fingerprint = $exchange->fingerprint();
+        if (null !== $fingerprint) {
+            $this->fingerprints[self::fingerprintKey($exchange->accountId(), $fingerprint)] = new Fingerprinted($exchange->id(), StateOf::the($exchange)['erasure']);
+        }
+    }
+
+    private static function fingerprintKey(AccountId $accountId, ExchangeFingerprint $fingerprint): string
+    {
+        return $accountId->value.'#'.$fingerprint->value;
     }
 
     public function wasImported(string $id): bool
