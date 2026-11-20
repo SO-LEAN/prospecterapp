@@ -117,6 +117,16 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
         $this->assertTheToolAsksForAConfirmation('effacer-echange');
     }
 
+    public function testTheAiCorrectsTheFactsOfAnExchange(): void
+    {
+        $call = $this->aCallWithAdaNotedYesterday();
+        $facts = ['channel' => 'videoCall', 'direction' => 'inbound', 'occurredAt' => '2026-10-14T10:00:00+00:00', 'text' => 'Visio, à son initiative'];
+
+        $corrected = $this->assertTheToolActsAsItsEndpoint('corriger-echange', ['id' => $call, ...$facts], 'PATCH', '/api/exchanges/'.$call.'/facts', $facts, self::PERSONAL_DATA_MANAGERS);
+
+        $this->assertSame(['videoCall', 'inbound', 'Visio, à son initiative'], [$corrected['channel'], $corrected['direction'], $corrected['text']]);
+    }
+
     public function testTheAiNotesAToDoForAContact(): void
     {
         $ada = $this->ada();
@@ -144,6 +154,17 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
         $ada = $this->ada();
 
         return $this->requestJson('POST', '/api/contacts/'.$ada.'/upcoming-exchanges', ['channel' => 'call', 'occurredAt' => '2026-10-20T14:00:00+00:00'])['items'][0]['id'];
+    }
+
+    /**
+     * A call the prospector had with Ada Lovelace yesterday, noted.
+     */
+    private function aCallWithAdaNotedYesterday(): string
+    {
+        $ada = $this->ada();
+        $this->requestJson('POST', '/api/contacts/'.$ada.'/exchanges', ['channel' => 'call', 'direction' => 'outbound', 'occurredAt' => '2026-10-14T09:00:00+00:00', 'text' => 'Premier appel']);
+
+        return basename((string) $this->client->getResponse()->headers->get('Location'));
     }
 
     /**
