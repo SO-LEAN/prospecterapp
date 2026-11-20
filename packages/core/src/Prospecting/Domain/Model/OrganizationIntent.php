@@ -20,4 +20,6 @@ enum OrganizationIntent
     case RemoveContact;
     /** Remove it from the prospecting base, erasing its contacts no other organization names. */
     case StopProspecting;
+    /** Say, once checked, that it is no duplicate of an organization it resembles. */
+    case DismissPossibleDuplicate;
 }

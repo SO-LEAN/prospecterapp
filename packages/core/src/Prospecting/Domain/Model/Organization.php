@@ -11,6 +11,7 @@ use Prospecter\Core\Prospecting\Domain\Event\ContactRemoved;
 use Prospecter\Core\Prospecting\Domain\Event\ContactsLeftWithoutOrganization;
 use Prospecter\Core\Prospecting\Domain\Event\DetachedFromHolding;
 use Prospecter\Core\Prospecting\Domain\Event\DuplicateSuspected;
+use Prospecter\Core\Prospecting\Domain\Event\DuplicateSuspicionDismissed;
 use Prospecter\Core\Prospecting\Domain\Event\DuplicateSuspicionLifted;
 use Prospecter\Core\Prospecting\Domain\Event\LegalIdentityRevised;
 use Prospecter\Core\Prospecting\Domain\Event\LocatedAgain;
@@ -25,6 +26,7 @@ use Prospecter\Core\Prospecting\Domain\Exception\NoContactToRemove;
 use Prospecter\Core\Prospecting\Domain\Exception\NoHoldingToDetachFrom;
 use Prospecter\Core\Prospecting\Domain\Exception\NoLogoToRemove;
 use Prospecter\Core\Prospecting\Domain\Exception\NotAContact;
+use Prospecter\Core\Prospecting\Domain\Exception\NotASuspectedDuplicate;
 use Prospecter\Core\Prospecting\Domain\Exception\OrganizationWithoutNameNorEmail;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
 use Prospecter\Core\Prospecting\Domain\Policy\OrganizationPossibilities;
@@ -64,6 +66,8 @@ final class Organization implements ReleasesEvents
     private array $contacts = [];
     /** @var list<OrganizationId> */
     private array $possibleDuplicates = [];
+    /** @var list<OrganizationId> */
+    private array $notDuplicates = [];
     private \DateTimeImmutable $modifiedAt;
 
     private function __construct(
@@ -177,16 +181,50 @@ final class Organization implements ReleasesEvents
     }
 
     /**
-     * Suspected of being a duplicate of this organization, once.
+     * Suspected of being a duplicate of this organization, once, unless a member checked it is not.
      */
     public function suspectDuplicateOf(OrganizationId $duplicate, MemberId $by, \DateTimeImmutable $at): void
     {
-        if ($this->isSuspectedDuplicateOf($duplicate)) {
+        if ($this->isSuspectedDuplicateOf($duplicate) || $this->isNotADuplicateOf($duplicate)) {
             return;
         }
 
         $this->possibleDuplicates[] = $duplicate;
         $this->recordThat(new DuplicateSuspected($this->accountId, $by, $this->id, $duplicate, $at));
+    }
+
+    /**
+     * Checked by a member, it is no duplicate of the organization it is suspected of being.
+     *
+     * @throws NotASuspectedDuplicate
+     */
+    public function dismissSuspicionOf(OrganizationId $duplicate, MemberId $by, \DateTimeImmutable $at): void
+    {
+        if (!$this->isSuspectedDuplicateOf($duplicate)) {
+            throw NotASuspectedDuplicate::because('The organization is not suspected of being a duplicate of this one', 'duplicateId');
+        }
+
+        $this->knowItIsNoDuplicateOf($duplicate, $by, $at);
+    }
+
+    /**
+     * Checked by a member, it is no duplicate of this organization, suspected or not; known already, nothing changes.
+     */
+    public function knowItIsNoDuplicateOf(OrganizationId $duplicate, MemberId $by, \DateTimeImmutable $at): void
+    {
+        if ($this->isNotADuplicateOf($duplicate)) {
+            return;
+        }
+
+        $this->notDuplicates[] = $duplicate;
+        $this->possibleDuplicates = array_values(array_filter($this->possibleDuplicates, static fn (OrganizationId $suspected): bool => !$suspected->equals($duplicate)));
+        $this->modifiedAt = $at;
+        $this->recordThat(new DuplicateSuspicionDismissed($this->accountId, $by, $this->id, $duplicate, $at));
+    }
+
+    private function isNotADuplicateOf(OrganizationId $organization): bool
+    {
+        return array_any($this->notDuplicates, static fn (OrganizationId $checked): bool => $checked->equals($organization));
     }
 
     private function isSuspectedDuplicateOf(OrganizationId $duplicate): bool
@@ -381,7 +419,7 @@ final class Organization implements ReleasesEvents
 
     private function allowsInItsState(OrganizationIntent $intent): bool
     {
-        return in_array($intent, OrganizationPossibilities::given(hasLogo: null !== $this->logo, hasHolding: null !== $this->holdingId, hasContacts: [] !== $this->contacts), true);
+        return in_array($intent, OrganizationPossibilities::given(hasLogo: null !== $this->logo, hasHolding: null !== $this->holdingId, hasContacts: [] !== $this->contacts, hasPossibleDuplicates: [] !== $this->possibleDuplicates), true);
     }
 
     /**

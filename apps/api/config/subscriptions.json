@@ -83,6 +83,13 @@
     "handler": "Prospecter\\Core\\Prospecting\\Application\\LiftSuspicionInReturn\\LiftSuspicionInReturnHandler",
     "inbox": true
   },
+  "prospecting-dismiss-suspicion-in-return": {
+    "context": "prospecting",
+    "sources": ["prospecter.prospecting.internal"],
+    "events": ["DuplicateSuspicionDismissed.v1"],
+    "handler": "Prospecter\\Core\\Prospecting\\Application\\DismissSuspicionInReturn\\DismissSuspicionInReturnHandler",
+    "inbox": true
+  },
   "prospecting-stop-keeping-to-dos": {
     "context": "prospecting",
     "sources": ["prospecter.prospecting.internal"],

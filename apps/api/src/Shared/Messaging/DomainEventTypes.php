@@ -105,6 +105,7 @@ final readonly class DomainEventTypes extends EventTypes
             'LocatedAgain.v1' => Prospecting\LocatedAgain::class,
             'DuplicateSuspected.v1' => Prospecting\DuplicateSuspected::class,
             'DuplicateSuspicionLifted.v1' => Prospecting\DuplicateSuspicionLifted::class,
+            'DuplicateSuspicionDismissed.v1' => Prospecting\DuplicateSuspicionDismissed::class,
             'ToDoErased.v1' => Prospecting\ToDoErased::class,
             'ToDoKeptFor.v1' => Prospecting\ToDoKeptFor::class,
             'ToDoLeftWithoutOrganization.v1' => Prospecting\ToDoLeftWithoutOrganization::class,

@@ -16,12 +16,13 @@ final class OrganizationPossibilities
      * @return list<OrganizationIntent>
      */
     #[\NoDiscard]
-    public static function given(bool $hasLogo, bool $hasHolding, bool $hasContacts): array
+    public static function given(bool $hasLogo, bool $hasHolding, bool $hasContacts, bool $hasPossibleDuplicates): array
     {
         return array_values(array_filter(OrganizationIntent::cases(), static fn (OrganizationIntent $intent): bool => match ($intent) {
             OrganizationIntent::RemoveLogo => $hasLogo,
             OrganizationIntent::DetachFromHolding => $hasHolding,
             OrganizationIntent::RemoveContact => $hasContacts,
+            OrganizationIntent::DismissPossibleDuplicate => $hasPossibleDuplicates,
             default => true,
         }));
     }

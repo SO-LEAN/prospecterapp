@@ -251,6 +251,8 @@ use Prospecter\Core\Prospecting\Application\DetachFromHolding\DetachFromHoldingH
 use Prospecter\Core\Prospecting\Application\DiscardAttachmentsOfErasedExchange\DiscardAttachmentsOfErasedExchangeHandler;
 use Prospecter\Core\Prospecting\Application\DiscardRemovedAttachment\DiscardRemovedAttachmentHandler;
 use Prospecter\Core\Prospecting\Application\DiscardRemovedLogo\DiscardRemovedLogoHandler;
+use Prospecter\Core\Prospecting\Application\DismissPossibleDuplicate\DismissPossibleDuplicateHandler;
+use Prospecter\Core\Prospecting\Application\DismissSuspicionInReturn\DismissSuspicionInReturnHandler;
 use Prospecter\Core\Prospecting\Application\DownloadAttachment\AttachmentDownloadResponse;
 use Prospecter\Core\Prospecting\Application\DownloadAttachment\DownloadAttachment;
 use Prospecter\Core\Prospecting\Application\DownloadAttachment\DownloadAttachmentHandler;
@@ -1222,6 +1224,7 @@ final class Application
             new AddContactHandler($this->organizations, $this->knownContacts, $this->events),
             new RemoveContactHandler($this->organizations, $this->events, $this->orphans),
             new StopProspectingHandler($this->organizations, $this->events, $this->orphans),
+            new DismissPossibleDuplicateHandler($this->organizations, $this->events),
             new NoteExchangeHandler($this->exchanges, $this->prospectors, $this->contactOrganizations, $this->events),
             new NoteCampaignExchangeHandler($this->exchanges, $this->prospectors, $this->campaignRecipients, $this->contactOrganizations, $this->events),
             new NoteOrganizationExchangeHandler($this->exchanges, $this->organizations, $this->contactOrganizations, $this->events),
@@ -1499,6 +1502,7 @@ final class Application
             new KeepCreatedVideoCallLinkHandler($this->exchanges, $this->events),
             new SuspectDuplicateInReturnHandler($this->organizations, $this->events),
             new LiftSuspicionInReturnHandler($this->organizations, $this->events),
+            new DismissSuspicionInReturnHandler($this->organizations, $this->events),
             new ForgetContactsLeftWithoutOrganizationHandler($this->persons, $this->readers, $this->events),
             new ForgetContactLeftUnattachedHandler($this->persons, $this->readers, $this->events),
             new EraseExchangesOfContactLeftUnattachedHandler($this->exchanges, $this->events),

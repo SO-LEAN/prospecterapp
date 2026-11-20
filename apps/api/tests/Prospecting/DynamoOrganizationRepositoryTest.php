@@ -349,6 +349,18 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
         $this->assertEquals([$acme->id()], self::getContainer()->get(OrganizationRepository::class)->resembling($prospector->accountId, $acme->resemblanceKey(), except: new OrganizationId(self::newIdentity())));
     }
 
+    public function testAnOrganizationIsReadBackWithTheOrganizationsItIsNotADuplicateOf(): void
+    {
+        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
+        $acme = $this->organizationIn($prospector, 'Acme SAS', 'Lyon');
+        $acme->knowItIsNoDuplicateOf(new OrganizationId(self::newIdentity()), by: $prospector->id, at: new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        $acme->releaseEvents();
+        $organizations->save($acme);
+
+        $this->assertEquals($acme, $organizations->get($acme->id()));
+    }
+
     private function prospectingTable(): Table
     {
         $table = self::getContainer()->get('app.table.prospecting');

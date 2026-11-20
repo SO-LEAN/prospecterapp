@@ -46,6 +46,7 @@ final readonly class InMemoryOrganizationSheetRetriever implements OrganizationS
         $contact = $organization->contactDetails();
         $address = $state['address'];
         $geoPoint = $state['geoPoint'];
+        $possibleDuplicates = PossibleDuplicates::of($organization, $this->database);
 
         return new OrganizationSheet(
             id: $organization->id()->value,
@@ -74,8 +75,8 @@ final readonly class InMemoryOrganizationSheetRetriever implements OrganizationS
             contactIds: array_map(static fn (PersonId $contact): string => $contact->value, $state['contacts']),
             createdAt: $state['createdAt'],
             modifiedAt: $state['modifiedAt'],
-            possibleIntents: array_map(static fn (OrganizationIntent $intent): string => $intent->name, OrganizationPossibilities::given(hasLogo: null !== $state['logo'], hasHolding: null !== $state['holdingId'], hasContacts: [] !== $state['contacts'])),
-            possibleDuplicates: PossibleDuplicates::of($organization, $this->database),
+            possibleIntents: array_map(static fn (OrganizationIntent $intent): string => $intent->name, OrganizationPossibilities::given(hasLogo: null !== $state['logo'], hasHolding: null !== $state['holdingId'], hasContacts: [] !== $state['contacts'], hasPossibleDuplicates: [] !== $possibleDuplicates)),
+            possibleDuplicates: $possibleDuplicates,
         );
     }
 }

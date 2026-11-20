@@ -38,7 +38,8 @@ class OrganizationIntentsTest extends TestCase
     private const string HOLDING = '0190a1c0-0000-7000-8000-000000000004';
     private const string CONTACT = '0190a1c0-0000-7000-8000-000000000005';
     private const string NEW_CONTACT = '0190a1c0-0000-7000-8000-000000000006';
-    private const string FULL = 'with logo, holding and a contact';
+    private const string DUPLICATE = '0190a1c0-0000-7000-8000-000000000007';
+    private const string FULL = 'with logo, holding, a contact and a possible duplicate';
     private const string AUTHOR = '0190a1c0-0000-7000-8000-0000000000aa';
 
     #[DataProvider('situations')]
@@ -47,7 +48,7 @@ class OrganizationIntentsTest extends TestCase
         $organization = $this->prospect($state);
         $organization->releaseEvents();
         $full = self::FULL === $state;
-        $offered = in_array($intent, OrganizationPossibilities::given(hasLogo: $full, hasHolding: $full, hasContacts: $full), true);
+        $offered = in_array($intent, OrganizationPossibilities::given(hasLogo: $full, hasHolding: $full, hasContacts: $full, hasPossibleDuplicates: $full), true);
 
         $accepted = $this->isAccepted($intent, $organization, new MemberId(self::AUTHOR));
 
@@ -92,6 +93,7 @@ class OrganizationIntentsTest extends TestCase
             OrganizationIntent::AddContact => $organization->addContact(new PersonId(self::NEW_CONTACT), $by, new \DateTimeImmutable(self::AT)),
             OrganizationIntent::RemoveContact => $organization->removeContact(new PersonId(self::CONTACT), $by, new \DateTimeImmutable(self::AT), $this->orphans()),
             OrganizationIntent::StopProspecting => $organization->stopBeingProspected($by, new \DateTimeImmutable(self::AT), $this->orphans()),
+            OrganizationIntent::DismissPossibleDuplicate => $organization->dismissSuspicionOf(new OrganizationId(self::DUPLICATE), $by, new \DateTimeImmutable(self::AT)),
         };
     }
 
@@ -103,6 +105,7 @@ class OrganizationIntentsTest extends TestCase
             $prospect->changeLogo($this->logo(), $this->prospector()->id, new \DateTimeImmutable(self::AT));
             $prospect->attachToHolding($this->holding(), $this->prospector()->id, new \DateTimeImmutable(self::AT));
             $prospect->addContact(new PersonId(self::CONTACT), $this->prospector()->id, new \DateTimeImmutable(self::AT));
+            $prospect->suspectDuplicateOf(new OrganizationId(self::DUPLICATE), $this->prospector()->id, new \DateTimeImmutable(self::AT));
         }
 
         return $prospect;
