@@ -15,6 +15,7 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\App\Base\ActsAsItsEndpoint;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Double\GoogleDouble;
 
 /**
  * An AI plans, handles and corrects the exchanges, and notes, ticks off and erases the to-dos, as its member does on
@@ -146,6 +147,24 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
         $this->assertSame('Les Deux Magots', $corrected['place']);
     }
 
+    public function testTheAiPushesAgainIntoTheCalendarAtGoogleAnExchangeItRefused(): void
+    {
+        $this->keepTheKernel();
+        $this->login();
+        $this->connectGoogle();
+        $this->google()->refusesTheEvents();
+        $call = $this->aCallWithAdaPlannedNextTuesday();
+        $this->google()->acceptsTheEvents();
+        $this->assertTheToolIsRefusedAsItsEndpoint('relancer-synchronisation-google', ['id' => $call], 'POST', '/api/exchanges/'.$call.'/google-sync/retries', null, ['assistant-user', 'admin-user', 'member-user', 'stranger']);
+        $this->login();
+
+        $sync = $this->answerOf($this->callWithoutHandshake('relancer-synchronisation-google', ['id' => $call]));
+
+        $this->assertSame('synced', $sync['sync']['state']);
+        $this->assertSame($this->requestJson('GET', '/api/exchanges/'.$call.'/google-sync'), $sync);
+        $this->assertCount(1, $this->google()->events());
+    }
+
     public function testTheAiNotesAToDoForAContact(): void
     {
         $ada = $this->ada();
@@ -203,6 +222,22 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
         self::getContainer()->get(ExchangeRepository::class)->save($call);
 
         return $call->id()->value;
+    }
+
+    /**
+     * The calendar of the member signed in at Google connected, its consent given.
+     */
+    private function connectGoogle(): void
+    {
+        parse_str((string) parse_url($this->requestJson('POST', '/api/me/connections/google/authorizations')['address'], \PHP_URL_QUERY), $query);
+        $this->google()->grants('a-code-of-google', 'michel@exemple.fr', 'a-refresh-token-'.$query['state']);
+        $this->requestJson('POST', '/api/me/connections/google', ['code' => 'a-code-of-google', 'state' => $query['state']]);
+        $this->assertResponseStatusCodeSame(201);
+    }
+
+    private function google(): GoogleDouble
+    {
+        return self::getContainer()->get(GoogleDouble::class);
     }
 
     /**
