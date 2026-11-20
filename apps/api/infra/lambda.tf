@@ -152,12 +152,12 @@ locals {
     COGNITO_PUBLIC_ENDPOINT = ""
     # the facade signing the AIs in (ADR 0157): the sign-in page and the token endpoint of the domain of the pool, and
     # the key of its seals
-    COGNITO_SIGN_IN_URL         = local.cognito_domain_url
-    COGNITO_OAUTH_URL           = local.cognito_domain_url
-    OAUTH_SEAL_KEY              = "bref-ssm:${aws_ssm_parameter.oauth_seal_key.name}"
-    STORAGE_PUBLIC_URL          = local.storage_public_url
-    STORAGE_INTERNAL_URL        = nonsensitive(lookup(local.storage_parameters, "internal-url", ""))
-    STORAGE_TOKEN               = "bref-ssm:${local.storage_ssm_path}/token"
+    COGNITO_SIGN_IN_URL  = local.cognito_domain_url
+    COGNITO_OAUTH_URL    = local.cognito_domain_url
+    OAUTH_SEAL_KEY       = "bref-ssm:${aws_ssm_parameter.oauth_seal_key.name}"
+    STORAGE_PUBLIC_URL   = local.storage_public_url
+    STORAGE_INTERNAL_URL = nonsensitive(lookup(local.storage_parameters, "internal-url", ""))
+    STORAGE_TOKEN        = "bref-ssm:${local.storage_ssm_path}/token"
     # the files the AIs join sent to S3 at the address of their form (ADR 0172)
     PRIVATE_UPLOADS_ENDPOINT    = ""
     INTEGRATION_EVENTS_DELIVERY = var.integration_events_delivery
