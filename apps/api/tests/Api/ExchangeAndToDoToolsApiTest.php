@@ -94,6 +94,16 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
         $this->assertSame($this->requestJson('GET', '/api/exchanges/'.$call), $moved);
     }
 
+    public function testTheAiCancelsAPlannedExchangeOnceItsMemberConfirmed(): void
+    {
+        $call = $this->aCallWithAdaPlannedNextTuesday();
+
+        $cancelled = $this->assertTheToolActsAsItsEndpoint('annuler-echange', ['id' => $call, 'canceller' => 'contact'], 'POST', '/api/exchanges/'.$call.'/cancellation', ['canceller' => 'contact'], self::HOLDER);
+
+        $this->assertSame(['cancelled', 'contact'], [$cancelled['status'], $cancelled['canceller']]);
+        $this->assertTheToolAsksForAConfirmation('annuler-echange');
+    }
+
     public function testTheAiNotesAToDoForAContact(): void
     {
         $ada = $this->ada();
