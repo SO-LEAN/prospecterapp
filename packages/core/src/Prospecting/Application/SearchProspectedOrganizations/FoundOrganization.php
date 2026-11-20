@@ -25,7 +25,7 @@ final readonly class FoundOrganization
         public ?FileResponse $logo,
         public ?float $longitude,
         public ?float $latitude,
-        public array $possibleDuplicates = [],
+        public array $possibleDuplicates,
     ) {
     }
 }

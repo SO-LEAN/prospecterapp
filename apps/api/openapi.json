@@ -954,6 +954,80 @@
                 }
             }
         },
+        "/api/organizations/{id}/possible-duplicates/{duplicateId}": {
+            "delete": {
+                "tags": [
+                    "Organizations"
+                ],
+                "summary": "Say, once checked, that the organization is no duplicate of the one it resembles; neither is flagged for the other any more",
+                "operationId": "delete_api_organizations_dismiss_possible_duplicate",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    },
+                    {
+                        "name": "duplicateId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The organization without this possible duplicate",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OrganizationResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown organization, or one of another account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "The organization is not suspected of being a duplicate of this one",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/campaigns/{id}/recipients/{contactId}/exchanges": {
             "post": {
                 "tags": [
@@ -9178,6 +9252,39 @@
                 },
                 "type": "object"
             },
+            "PossibleDuplicateLinksResource": {
+                "required": [
+                    "self"
+                ],
+                "properties": {
+                    "self": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "dismiss": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    }
+                },
+                "type": "object"
+            },
+            "PossibleDuplicateResource": {
+                "required": [
+                    "id",
+                    "name",
+                    "_links"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "_links": {
+                        "$ref": "#/components/schemas/PossibleDuplicateLinksResource"
+                    }
+                },
+                "type": "object"
+            },
             "OrganizationResource": {
                 "required": [
                     "id",
@@ -9187,7 +9294,8 @@
                     "contactIds",
                     "createdAt",
                     "modifiedAt",
-                    "_links"
+                    "_links",
+                    "possibleDuplicates"
                 ],
                 "properties": {
                     "id": {
@@ -9250,6 +9358,12 @@
                     },
                     "_links": {
                         "$ref": "#/components/schemas/OrganizationLinksResource"
+                    },
+                    "possibleDuplicates": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PossibleDuplicateResource"
+                        }
                     }
                 },
                 "type": "object"
@@ -9527,7 +9641,8 @@
             "OrganizationSummaryResource": {
                 "required": [
                     "id",
-                    "name"
+                    "name",
+                    "possibleDuplicates"
                 ],
                 "properties": {
                     "id": {
@@ -9563,6 +9678,12 @@
                                 "$ref": "#/components/schemas/ImageResource"
                             }
                         ]
+                    },
+                    "possibleDuplicates": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PossibleDuplicateResource"
+                        }
                     }
                 },
                 "type": "object"

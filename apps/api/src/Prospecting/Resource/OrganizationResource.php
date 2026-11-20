@@ -16,7 +16,8 @@ use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 final readonly class OrganizationResource
 {
     /**
-     * @param list<string> $contactIds the persons prospected in it, read with GET /api/organizations/{id}/contacts
+     * @param list<string>                    $contactIds         the persons prospected in it, read with GET /api/organizations/{id}/contacts
+     * @param list<PossibleDuplicateResource> $possibleDuplicates the organizations of the account it resembles
      */
     public function __construct(
         public string $id,
@@ -34,6 +35,7 @@ final readonly class OrganizationResource
         #[SerializedName('_links')]
         #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]
         public OrganizationLinksResource $links,
+        public array $possibleDuplicates,
     ) {
     }
 }

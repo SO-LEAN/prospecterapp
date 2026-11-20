@@ -212,6 +212,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/organizations/{id}/possible-duplicates/{duplicateId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Say, once checked, that the organization is no duplicate of the one it resembles; neither is flagged for the other any more */
+        delete: operations["delete_api_organizations_dismiss_possible_duplicate"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/campaigns/{id}/recipients/{contactId}/exchanges": {
         parameters: {
             query?: never;
@@ -2397,6 +2414,15 @@ export interface components {
             toDos?: components["schemas"]["LinkResource"];
             tags?: components["schemas"]["LinkResource"];
         };
+        PossibleDuplicateLinksResource: {
+            self: components["schemas"]["LinkResource"];
+            dismiss?: components["schemas"]["LinkResource"];
+        };
+        PossibleDuplicateResource: {
+            id: string;
+            name: string;
+            _links: components["schemas"]["PossibleDuplicateLinksResource"];
+        };
         OrganizationResource: {
             id: string;
             name: string;
@@ -2413,6 +2439,7 @@ export interface components {
             /** Format: date-time */
             modifiedAt: string;
             _links: components["schemas"]["OrganizationLinksResource"];
+            possibleDuplicates: components["schemas"]["PossibleDuplicateResource"][];
         };
         CampaignOfExchangeResource: {
             id: string;
@@ -2520,6 +2547,7 @@ export interface components {
             country?: string | null;
             location?: components["schemas"]["LocationResource"] | null;
             logo?: components["schemas"]["ImageResource"] | null;
+            possibleDuplicates: components["schemas"]["PossibleDuplicateResource"][];
         };
         OrganizationPageLinksResource: {
             self: components["schemas"]["LinkResource"];
@@ -4078,6 +4106,63 @@ export interface operations {
                 };
             };
             /** @description The organization has no logo (no removeLogo link) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    delete_api_organizations_dismiss_possible_duplicate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                duplicateId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The organization without this possible duplicate */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrganizationResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown organization, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description The organization is not suspected of being a duplicate of this one */
             409: {
                 headers: {
                     [name: string]: unknown;

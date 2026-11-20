@@ -26,6 +26,7 @@ const acme: Organization = {
   legalIdentity: { corporateName: 'ACME' },
   contactDetails: {},
   contactIds: [],
+  possibleDuplicates: [],
   createdAt: '2026-10-26T09:00:00+00:00',
   modifiedAt: '2026-10-26T09:00:00+00:00',
   _links: { self: { href: `/api/organizations/${ACME}`, method: 'GET' } },

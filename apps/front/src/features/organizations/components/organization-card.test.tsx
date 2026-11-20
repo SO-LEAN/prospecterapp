@@ -9,6 +9,7 @@ const UNLOCATED = 'Non géolocalisée'
 const aSummary = (organization: Partial<OrganizationSummary>): OrganizationSummary => ({
   id: '0190a1c0-0000-7000-8000-000000000001',
   name: 'Babbage & Co',
+  possibleDuplicates: [],
   ...organization,
 })
 

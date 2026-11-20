@@ -260,6 +260,74 @@ class OrganizationApiTest extends ApiTestCase
         $this->assertSame([['website'], 'invalidWebsite'], [$this->violatedFields($problem), $problem['reason']]);
     }
 
+    public function testAnOrganizationResemblingAnotherNamesItsPossibleDuplicate(): void
+    {
+        $acme = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+
+        $duplicate = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME s.a.s'], 'address' => ['city' => 'Paris']]);
+
+        $this->assertSame([[
+            'id' => $acme,
+            'name' => 'ACME SAS',
+            '_links' => [
+                'self' => ['href' => '/api/organizations/'.$acme, 'method' => 'GET'],
+                'dismiss' => ['href' => '/api/organizations/'.$duplicate['id'].'/possible-duplicates/'.$acme, 'method' => 'DELETE'],
+            ],
+        ]], $duplicate['possibleDuplicates']);
+    }
+
+    public function testTheListNamesThePossibleDuplicateOfAnOrganization(): void
+    {
+        $acme = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+        $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME s.a.s'], 'address' => ['city' => 'Paris']]);
+
+        $found = $this->requestJson('GET', '/api/organizations?q='.urlencode('ACME s.a.s'))['items'];
+
+        $this->assertSame([[
+            'id' => $acme,
+            'name' => 'ACME SAS',
+            '_links' => ['self' => ['href' => '/api/organizations/'.$acme, 'method' => 'GET']],
+        ]], $found[0]['possibleDuplicates']);
+    }
+
+    public function testAProspectorSaysAPossibleDuplicateIsNone(): void
+    {
+        $acme = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+        $duplicate = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME s.a.s'], 'address' => ['city' => 'Paris']])['id'];
+
+        $dismissed = $this->requestJson('DELETE', '/api/organizations/'.$duplicate.'/possible-duplicates/'.$acme);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSame([], $dismissed['possibleDuplicates']);
+    }
+
+    /**
+     * @param list<Role> $roles
+     */
+    #[DataProvider('everyProspector')]
+    public function testEveryProspectorSaysAPossibleDuplicateIsNoneWithOrWithoutTheRight(string $member, array $roles): void
+    {
+        $acme = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+        $duplicate = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME s.a.s'], 'address' => ['city' => 'Paris']])['id'];
+        $this->login($this->aMemberOfTheFixtures($member, ...$roles));
+        $this->assertArrayHasKey('dismiss', $this->requestJson('GET', '/api/organizations/'.$duplicate)['possibleDuplicates'][0]['_links']);
+
+        $this->requestJson('DELETE', '/api/organizations/'.$duplicate.'/possible-duplicates/'.$acme);
+
+        $this->assertResponseIsSuccessful();
+    }
+
+    public function testAPossibleDuplicateDismissedMeanwhileIsAConflict(): void
+    {
+        $acme = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+        $globex = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'Globex'], 'address' => ['city' => 'Paris']])['id'];
+
+        $problem = $this->requestJson('DELETE', '/api/organizations/'.$globex.'/possible-duplicates/'.$acme);
+
+        $this->assertResponseStatusCodeSame(409);
+        $this->assertSame('notASuspectedDuplicate', $problem['reason']);
+    }
+
     public function testAttachToAndDetachFromAHolding(): void
     {
         $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
@@ -358,6 +426,7 @@ class OrganizationApiTest extends ApiTestCase
             ['GET', '/contacts', null], ['GET', '/exchanges', null], ['GET', '/exchanges-to-make-conform', null],
             ['POST', '/exchanges', ['exchange' => ['channel' => 'call', 'direction' => 'inbound']]],
             ['GET', '/to-dos', null], ['POST', '/to-dos', ['text' => 'Appeler', 'dueOn' => '2026-10-16']],
+            ['DELETE', '/possible-duplicates/'.$mine, null],
         ];
 
         foreach ($intentions as [$method, $path, $payload]) {
