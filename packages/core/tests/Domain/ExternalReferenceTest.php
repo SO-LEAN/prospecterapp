@@ -108,4 +108,18 @@ class ExternalReferenceTest extends TestCase
         yield 'a host without a dot' => ['https://intranet/acme'];
         yield 'nothing' => ['  '];
     }
+
+    public function testAReferenceStoredIsRecognizedAgainByItsAddressUnderASourceKnownSince(): void
+    {
+        $stored = ExternalReference::restored('linkedin.com', 'linkedin.com/company/acme', 'https://www.linkedin.com/company/acme');
+
+        $this->assertSame('linkedin-company#acme', $stored->recognizedAgain(Designated::Organization)->key());
+    }
+
+    public function testAReferenceStoredThatTodayRefusesStaysAsItWas(): void
+    {
+        $stored = ExternalReference::restored('linkedin.com', 'linkedin.com/in/ada', 'https://www.linkedin.com/in/ada');
+
+        $this->assertSame($stored, $stored->recognizedAgain(Designated::Organization));
+    }
 }
