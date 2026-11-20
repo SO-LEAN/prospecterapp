@@ -52,6 +52,24 @@ trait ActsAsItsEndpoint
     }
 
     /**
+     * Each of these writers calls the tool, refused as the endpoint refuses them.
+     *
+     * @param array<string, mixed>      $arguments
+     * @param array<string, mixed>|null $payload
+     * @param list<string>              $refused
+     */
+    private function assertTheToolIsRefusedAsItsEndpoint(string $tool, array $arguments, string $method, string $endpoint, ?array $payload, array $refused): void
+    {
+        foreach ($refused as $writer) {
+            $this->login($writer);
+            $result = $this->callWithoutHandshake($tool, $arguments);
+
+            $this->assertTrue($result['isError'] ?? false, sprintf('%s done by %s', $tool, $writer));
+            $this->assertSame($this->requestJson($method, $endpoint, $payload), $this->answerOf($result), sprintf('%s refused to %s', $tool, $writer));
+        }
+    }
+
+    /**
      * The tool says it removes or erases: its AI asks its member before calling it.
      */
     private function assertTheToolAsksForAConfirmation(string $tool): void

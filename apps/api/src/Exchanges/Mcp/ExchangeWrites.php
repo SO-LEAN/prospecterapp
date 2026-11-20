@@ -40,9 +40,17 @@ final readonly class ExchangeWrites
      */
     public function write(string $id, ?object $input, \Closure $command, string ...$attributes): array
     {
-        $exchange = $this->dispatched($id, $input, $command, ...$attributes);
+        return $this->answer($this->dispatched($id, $input, $command, ...$attributes)->id);
+    }
 
-        return $this->results->of($this->exchangeReader->read($this->access->member()->memberId(), $exchange->id));
+    /**
+     * The exchange as the screen then reads it, offered to move it back to the moment it was moved from while to come.
+     *
+     * @return array<string, mixed>
+     */
+    public function answer(string $id, ?\DateTimeImmutable $movedFrom = null): array
+    {
+        return $this->results->of($this->exchangeReader->read($this->access->member()->memberId(), $id, $movedFrom));
     }
 
     /**
