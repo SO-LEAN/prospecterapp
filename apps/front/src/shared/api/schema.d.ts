@@ -2274,9 +2274,10 @@ export interface components {
              */
             website: string | null;
             /**
+             * Format: date-time
              * @description When the page showed the form
              * @default null
-             * @example 2026-11-23T10:05:00+01:00
+             * @example 2026-11-23T09:05:00.000Z
              */
             formShownAt: string | null;
         };
