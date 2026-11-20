@@ -32,6 +32,8 @@ final class InMemoryProviderMailbox implements ProviderMailbox
     private array $messages = [];
     /** @var array<string, array{topic: string, expiresAt: \DateTimeImmutable, times: int}> the watches, by mailbox */
     private array $watches = [];
+    /** @var array<string, true> the mailboxes whose messages Gmail refuses to read, the access revoked meanwhile */
+    private array $messagesRefused = [];
 
     /**
      * @param \Closure(): \DateTimeImmutable $now the moment of the scenario
@@ -112,9 +114,20 @@ final class InMemoryProviderMailbox implements ProviderMailbox
         return new MailboxChanges(array_map(static fn (array $message): string => $message['mail']->providerId, array_slice($received, -$atMost)), $this->historyOf($mailbox), true);
     }
 
+    /**
+     * The access revoked once the history was read, before its messages are.
+     */
+    public function refusesTheMessagesOf(string $mailbox): void
+    {
+        $this->messagesRefused[$mailbox] = true;
+    }
+
     public function message(ClientCredentials $client, RefreshToken $refreshToken, string $messageId): ?ReceivedMail
     {
         $mailbox = $this->mailboxOf($client, $refreshToken);
+        if (isset($this->messagesRefused[$mailbox])) {
+            throw AccessRevoked::by($client->provider);
+        }
 
         return array_find($this->messages[$mailbox] ?? [], static fn (array $message): bool => $message['mail']->providerId === $messageId)['mail'] ?? null;
     }

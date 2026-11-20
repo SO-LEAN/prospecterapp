@@ -147,6 +147,11 @@ Fonctionnalité: Importer un e-mail reçu d'un contact ou d'une organisation con
     Alors l'import de mes e-mails Gmail est "à reconnecter"
     Et aucun échange n'est importé
 
+  Scénario: Un accès retiré avant la lecture d'un e-mail n'importe rien, sans échec
+    Soit Gmail refuse la lecture des messages de "michel@exemple.fr"
+    Quand je reçois un e-mail de "ada@acme.fr"
+    Alors aucun échange n'est importé
+
   Scénario: Perdre le droit aux données personnelles coupe l'import
     Soit Prospecter n'a pas reçu la notification d'un e-mail de "ada@acme.fr"
     Et je perds le droit aux données personnelles
