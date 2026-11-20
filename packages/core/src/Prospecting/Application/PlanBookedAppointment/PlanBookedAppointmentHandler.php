@@ -52,7 +52,7 @@ final readonly class PlanBookedAppointmentHandler implements EventHandler
         $keepers = $this->contactOrganizations->isAContactOfTheAccount($contact, $host->accountId)
             ? $this->contactOrganizations->keepersOf($contact, $host)
             : $this->meetToAttach($host, $contact, $appointment->startsAt, $event->occurredAt);
-        $exchange = Exchange::plannedWithAContact($host->accountId, $host->id, new ExchangeId($event->appointmentId), $contact, $keepers, $appointment->facts(), $event->occurredAt);
+        $exchange = Exchange::bookedByAContact($host->accountId, $host->id, new ExchangeId($event->appointmentId), $contact, $keepers, $appointment->facts(), $event->occurredAt);
         $this->exchanges->save($exchange);
         $this->publishWhatHappenedTo($exchange);
     }

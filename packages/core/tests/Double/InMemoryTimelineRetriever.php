@@ -189,6 +189,7 @@ final readonly class InMemoryTimelineRetriever implements TimelineRetriever
             attachmentCount: count($exchange->attachments()),
             campaignId: $state['campaign']?->value,
             withAContactToAttach: null !== $exchange->contactToAttach(),
+            bookedByLink: $exchange->isBookedByLink(),
         );
     }
 

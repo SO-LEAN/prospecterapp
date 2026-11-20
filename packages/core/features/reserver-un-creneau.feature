@@ -27,6 +27,14 @@ Fonctionnalité: Réserver un créneau
     Alors j'ai une visio planifiée le 24/11/2026 de 9h00 à 9h15 avec "Ada Lovelace", au texte "Mission data en mars"
     Et "Ada Lovelace" est un contact à rattacher, au 06 12 34 56 78 et à ada@acme.fr
 
+  Scénario: L'échange d'une réservation dit qu'on l'a réservé par le lien public
+    Soit le contact "Grace Hopper" de "ACME"
+    Et j'ai planifié un appel avec "Grace Hopper" le 24/11/2026 à 9h15
+    Quand on réserve une visio par mon lien public le 24/11/2026 à 9h00
+    Et je consulte mon calendrier du 24/11/2026 au 24/11/2026
+    Alors il montre la visio du 24/11/2026 à 9h00, réservée par mon lien public
+    Et il montre l'appel du 24/11/2026 à 9h15, que j'ai planifié
+
   Scénario: Un contact connu par son e-mail est reconnu
     Soit le contact "Ada Lovelace" de "ACME" a l'adresse e-mail "ada@acme.fr"
     Quand on réserve un appel par mon lien public le 24/11/2026 à 9h00 avec l'e-mail "ADA@acme.fr"
