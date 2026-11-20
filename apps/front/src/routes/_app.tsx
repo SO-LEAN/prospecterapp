@@ -12,6 +12,7 @@ import { accountQuery, myAccountBeingPreparedQuery, signInQuery } from '@/featur
 import { BookingSuspendedBanner } from '@/features/booking/components/booking-suspended-banner'
 import { ReconnectBanner } from '@/features/connectors/components/reconnect-banner'
 import { ErasureReminders } from '@/features/contacts-to-attach/components/erasure-reminders'
+import { NewBookings } from '@/features/exchanges/bookings/new-bookings'
 import { ExchangeReminders } from '@/features/exchanges/reminders/components/exchange-reminders'
 import { ToDoReminders } from '@/features/exchanges/reminders/components/to-do-reminders'
 import { exchangesToProcessQuery } from '@/features/exchanges/to-process/queries'
@@ -78,6 +79,7 @@ function SignedIn() {
       <BookingSuspendedBanner />
       <Outlet />
       <MyReminders />
+      <NewBookings />
     </AppShell>
   )
 }

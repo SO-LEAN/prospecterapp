@@ -571,6 +571,7 @@ export const fr = {
   },
   exchanges: {
     title: 'Échanges',
+    bookings: { new: 'Nouvelle réservation : {{channel}} avec {{interlocutor}}, {{moment}}' },
     none: 'Aucun échange noté.',
     note: 'Noter un échange',
     noteDescription: 'Un appel, un message ou un rendez-vous avec {{name}}.',
