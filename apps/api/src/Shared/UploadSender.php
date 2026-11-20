@@ -10,5 +10,5 @@ use Symfony\Component\HttpFoundation\File\File;
  */
 interface UploadSender
 {
-    public function send(UploadResource $form, File $file): void;
+    public function upload(UploadResource $form, File $file): void;
 }

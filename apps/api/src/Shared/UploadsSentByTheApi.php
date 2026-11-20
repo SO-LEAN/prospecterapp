@@ -21,7 +21,7 @@ final readonly class UploadsSentByTheApi implements UploadSender
     {
     }
 
-    public function send(UploadResource $form, File $file): void
+    public function upload(UploadResource $form, File $file): void
     {
         $body = new FormDataPart([
             ...$form->fields,

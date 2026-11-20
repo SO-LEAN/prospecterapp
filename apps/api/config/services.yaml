@@ -333,6 +333,10 @@ services:
     # the private files of the storage, sent by the browsers themselves (ADR 0077)
     Prospecter\Core\SharedKernel\Application\Port\PrivateStorage: '@App\Shared\PrivateStorageClient'
     App\Shared\UploadForms: '@App\Shared\PrivateStorageClient'
+    # the files the AIs join, sent by the API itself with the form of an upload (ADR 0172)
+    App\Shared\UploadSender: '@App\Shared\UploadsSentByTheApi'
+    App\Shared\UploadsSentByTheApi:
+        arguments: { $endpoint: '%env(PRIVATE_UPLOADS_ENDPOINT)%' }
     # the files of Swagger UI asked at the installed version of NelmioApiDocBundle
     App\Doc\VersionedNelmioAssets:
         decorates: nelmio_api_doc.render_docs.html.asset
@@ -412,6 +416,7 @@ when@test:
             public: true
         Prospecter\Core\SharedKernel\Application\Port\PrivateStorage: '@Tests\App\Double\InMemoryPrivateStorage'
         App\Shared\UploadForms: '@Tests\App\Double\InMemoryPrivateStorage'
+        App\Shared\UploadSender: '@Tests\App\Double\InMemoryPrivateStorage'
         Tests\App\Double\InMemoryPrivateStorage:
             public: true
         # the recordings of the facts, cancelled when a test asks it to

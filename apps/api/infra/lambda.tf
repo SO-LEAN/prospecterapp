@@ -158,6 +158,8 @@ locals {
     STORAGE_PUBLIC_URL          = local.storage_public_url
     STORAGE_INTERNAL_URL        = nonsensitive(lookup(local.storage_parameters, "internal-url", ""))
     STORAGE_TOKEN               = "bref-ssm:${local.storage_ssm_path}/token"
+    # the files the AIs join sent to S3 at the address of their form (ADR 0172)
+    PRIVATE_UPLOADS_ENDPOINT    = ""
     INTEGRATION_EVENTS_DELIVERY = var.integration_events_delivery
     SSM_ENDPOINT                = ""
     ACCOUNT_SECRETS_PATH        = local.account_secrets_path

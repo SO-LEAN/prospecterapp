@@ -17,6 +17,7 @@ use Tests\App\Base\ActsAsItsEndpoint;
 use Tests\App\Base\ApiTestCase;
 use Tests\App\Double\GoogleDouble;
 use Tests\App\Double\InMemoryPrivateStorage;
+use Tests\App\Double\TheWeb;
 
 /**
  * An AI plans, handles and corrects the exchanges, and notes, ticks off and erases the to-dos, as its member does on
@@ -29,6 +30,8 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
 
     /** The exchanges planned are handled by their holder only, the prospector here. */
     private const array HOLDER = ['prospector-user'];
+
+    private const string QUOTE_ON_THE_WEB = TheWeb::HOST.'/devis.png';
 
     private const array FRIDAY = ['text' => 'Envoyer le CV', 'dueOn' => '2026-10-16', 'dueAt' => '10:00'];
 
@@ -164,6 +167,26 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
         $this->assertSame('synced', $sync['sync']['state']);
         $this->assertSame($this->requestJson('GET', '/api/exchanges/'.$call.'/google-sync'), $sync);
         $this->assertCount(1, $this->google()->events());
+    }
+
+    public function testTheAiJoinsToAnExchangeAFileByItsAddressOnTheWeb(): void
+    {
+        $call = $this->aCallWithAdaNotedYesterday();
+        $this->keepTheKernel();
+        self::getContainer()->get(TheWeb::class)->publish(self::QUOTE_ON_THE_WEB, (string) file_get_contents(__DIR__.'/../Fixtures/logo.png'));
+        $quote = ['id' => $call, 'url' => self::QUOTE_ON_THE_WEB, 'name' => 'devis.png'];
+        foreach (['assistant-user', 'member-user', 'stranger'] as $refused) {
+            $this->login($refused);
+            $refusal = $this->answerOf($this->callWithoutHandshake('joindre-piece-jointe', $quote));
+
+            $this->assertSame($this->requestJson('POST', '/api/exchanges/'.$call.'/attachments', ['upload' => self::newIdentity(), 'name' => 'devis.png']), $refusal, sprintf('refused to %s', $refused));
+        }
+        $this->login();
+
+        $joined = $this->answerOf($this->callWithoutHandshake('joindre-piece-jointe', $quote));
+
+        $this->assertSame([['devis.png', filesize(__DIR__.'/../Fixtures/logo.png'), 'image/png']], array_map(static fn (array $attachment): array => [$attachment['name'], $attachment['size'], $attachment['mediaType']], $joined['attachments']));
+        $this->assertSame($this->requestJson('GET', '/api/exchanges/'.$call), $joined);
     }
 
     public function testTheAiRemovesAFileJoinedToAnExchangeOnceItsMemberConfirmed(): void

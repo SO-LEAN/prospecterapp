@@ -4,6 +4,8 @@ namespace Tests\App\Double;
 
 use App\Shared\Resource\UploadResource;
 use App\Shared\UploadForms;
+use App\Shared\UploadSender;
+use Symfony\Component\HttpFoundation\File\File;
 use Prospecter\Core\SharedKernel\Application\Port\PrivateStorage;
 use Prospecter\Core\SharedKernel\Application\Port\Upload;
 use Prospecter\Core\SharedKernel\Domain\Exception\UnknownUpload;
@@ -13,7 +15,7 @@ use Prospecter\Core\SharedKernel\Domain\Exception\UnknownUpload;
  * API keeps it and hands out links reading it while it is kept. Its files outlive the kernel, rebooted between two
  * requests of a test, and are forgotten by each test.
  */
-final class InMemoryPrivateStorage implements PrivateStorage, UploadForms
+final class InMemoryPrivateStorage implements PrivateStorage, UploadForms, UploadSender
 {
     private const string LINKS = 'https://private.test/';
 
@@ -39,6 +41,14 @@ final class InMemoryPrivateStorage implements PrivateStorage, UploadForms
     public function send(string $upload, int $size, string $mediaType): void
     {
         self::$uploads[$upload] = new Upload($size, $mediaType);
+    }
+
+    /**
+     * What the API does with the form, for the files the AIs join.
+     */
+    public function upload(UploadResource $form, File $file): void
+    {
+        $this->send($form->upload, (int) $file->getSize(), (string) $file->getMimeType());
     }
 
     public function uploaded(string $upload): Upload
