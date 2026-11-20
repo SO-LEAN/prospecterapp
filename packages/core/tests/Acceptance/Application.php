@@ -168,6 +168,10 @@ use Prospecter\Core\PersonalData\Application\ForgetContact\ForgetContactHandler;
 use Prospecter\Core\PersonalData\Application\ForgetContactLeftUnattached\ForgetContactLeftUnattachedHandler;
 use Prospecter\Core\PersonalData\Application\ForgetContactsLeftWithoutOrganization\ForgetContactsLeftWithoutOrganizationHandler;
 use Prospecter\Core\PersonalData\Application\IdentifyBooker\IdentifyBookerHandler;
+use Prospecter\Core\PersonalData\Application\IdentifyPersons\Identification as PersonIdentification;
+use Prospecter\Core\PersonalData\Application\IdentifyPersons\IdentifyPersons;
+use Prospecter\Core\PersonalData\Application\IdentifyPersons\IdentifyPersonsHandler;
+use Prospecter\Core\PersonalData\Application\IdentifyPersons\KeptIdentifications as KeptPersonIdentifications;
 use Prospecter\Core\PersonalData\Application\LiftSuspicionInReturn\LiftSuspicionInReturnHandler as LiftContactSuspicionInReturnHandler;
 use Prospecter\Core\PersonalData\Application\ListContactFacts\ListContactFactsHandler;
 use Prospecter\Core\PersonalData\Application\NameContacts\NameContactsHandler;
@@ -444,6 +448,7 @@ use Tests\Core\Double\InMemoryContactsToAttachRetriever;
 use Tests\Core\Double\InMemoryContactTagsRetriever;
 use Tests\Core\Double\InMemoryContactToAttachRepository;
 use Tests\Core\Double\InMemoryDatabase;
+use Tests\Core\Double\InMemoryDesignatedContactRetriever;
 use Tests\Core\Double\InMemoryDesignatedOrganizationRetriever;
 use Tests\Core\Double\InMemoryExchangeDetailRetriever;
 use Tests\Core\Double\InMemoryExchangeFactsRetriever;
@@ -528,6 +533,7 @@ final class Application
     private readonly InMemoryMemberRetriever $memberRetriever;
     private readonly InMemoryPersonCardRetriever $personCardRetriever;
     private readonly InMemoryDesignatedOrganizationRetriever $designatedOrganizationRetriever;
+    private readonly InMemoryDesignatedContactRetriever $designatedContactRetriever;
     private readonly InMemoryContactPageRetriever $contactPageRetriever;
     private readonly ConsultMembersHandler $consultMembersService;
     private readonly WhichAreContactsHandler $whichAreContactsService;
@@ -658,6 +664,7 @@ final class Application
         $this->persons = new InMemoryPersonRepository($database);
         $this->personCardRetriever = new InMemoryPersonCardRetriever($database);
         $this->designatedOrganizationRetriever = new InMemoryDesignatedOrganizationRetriever($database);
+        $this->designatedContactRetriever = new InMemoryDesignatedContactRetriever($database);
         $this->contactPageRetriever = new InMemoryContactPageRetriever($database);
         $this->consultMembersService = new ConsultMembersHandler($this->memberRetriever);
         $this->whichAreContactsService = new WhichAreContactsHandler($this->persons);
@@ -1045,6 +1052,16 @@ final class Application
         $kept = new KeptCallingOrganizations();
 
         return $this->ask(new RecognizeCallingOrganizationHandler($this->organizationSheetRetriever, $this->prospectors), $query, $kept) ? $kept->organizations : null;
+    }
+
+    /**
+     * @return list<PersonIdentification>|null
+     */
+    public function identifyPersons(IdentifyPersons $query): ?array
+    {
+        $kept = new KeptPersonIdentifications();
+
+        return $this->ask(new IdentifyPersonsHandler($this->designatedContactRetriever, $this->personCardRetriever, new ProspectingOrganizationsOfContacts($this->whichOrganizationsNameTheseContactsService), $this->readers), $query, $kept) ? $kept->identifications : null;
     }
 
     /**

@@ -8,6 +8,10 @@ use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Then;
 use Behat\Step\When;
+use Prospecter\Core\PersonalData\Application\IdentifyPersons\Candidate as PersonCandidate;
+use Prospecter\Core\PersonalData\Application\IdentifyPersons\Identification as PersonIdentification;
+use Prospecter\Core\PersonalData\Application\IdentifyPersons\IdentifyPersons;
+use Prospecter\Core\PersonalData\Application\IdentifyPersons\PersonClues;
 use Prospecter\Core\Prospecting\Application\IdentifyOrganizations\Candidate;
 use Prospecter\Core\Prospecting\Application\IdentifyOrganizations\Identification;
 use Prospecter\Core\Prospecting\Application\IdentifyOrganizations\IdentifyOrganizations;
@@ -35,8 +39,17 @@ final class IdentificationContext implements Context
         $this->identified = null === $identifications ? null : array_map(self::described(...), $identifications);
     }
 
+    #[When('j\'identifie les personnes :')]
+    public function iIdentifyPersons(TableNode $table): void
+    {
+        $clues = array_map($this->personClues(...), $table->getColumnsHash());
+        $identifications = $this->application->identifyPersons(new IdentifyPersons($this->application->signedIn(), $clues));
+        $this->identified = null === $identifications ? null : array_map(self::described(...), $identifications);
+    }
+
     #[Then('les organisations sont identifiées :')]
-    public function theOrganizationsAreIdentified(TableNode $table): void
+    #[Then('les personnes sont identifiées :')]
+    public function theyAreIdentified(TableNode $table): void
     {
         Expect::same($table->getColumnsHash(), $this->identified);
     }
@@ -56,6 +69,21 @@ final class IdentificationContext implements Context
         );
     }
 
+    /**
+     * @param array<string, string> $row
+     */
+    private function personClues(array $row): PersonClues
+    {
+        return new PersonClues(
+            firstName: self::orNone($row['prénom'] ?? ''),
+            lastName: self::orNone($row['nom'] ?? ''),
+            links: self::listOf($row['liens'] ?? ''),
+            emails: self::listOf($row['e-mails'] ?? ''),
+            phoneNumbers: self::listOf($row['téléphones'] ?? ''),
+            organizationIds: array_map(fn (string $name): string => $this->scenario->organizationNamed($name)->id()->value, self::listOf($row['organisations'] ?? '')),
+        );
+    }
+
     private static function orNone(string $value): ?string
     {
         return '' === $value ? null : $value;
@@ -72,11 +100,11 @@ final class IdentificationContext implements Context
     /**
      * @return array{statut: string, candidates: string}
      */
-    private static function described(Identification $identification): array
+    private static function described(Identification|PersonIdentification $identification): array
     {
         return [
             'statut' => self::STATUSES[$identification->status],
-            'candidates' => implode(self::LIST_SEPARATOR, array_map(static fn (Candidate $candidate): string => $candidate->name, $identification->candidates)),
+            'candidates' => implode(self::LIST_SEPARATOR, array_map(static fn (Candidate|PersonCandidate $candidate): string => $candidate->name, $identification->candidates)),
         ];
     }
 }
