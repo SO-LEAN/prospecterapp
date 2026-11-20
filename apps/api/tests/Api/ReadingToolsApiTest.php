@@ -172,6 +172,15 @@ class ReadingToolsApiTest extends ApiTestCase
         $this->assertTheToolAnswersAsItsEndpoint('reconnaitre-appelant', ['phoneNumber' => '0388000042'], '/api/phone-numbers/0388000042');
     }
 
+    public function testTheAiReadsTheCalendarOfItsMember(): void
+    {
+        $this->assertTheToolAnswersAsItsEndpoint(
+            'lire-agenda',
+            ['from' => '2026-10-12T00:00:00+02:00', 'to' => '2026-10-19T00:00:00+02:00', 'timeZone' => 'Europe/Paris'],
+            '/api/me/calendar?from=2026-10-12T00:00:00%2B02:00&to=2026-10-19T00:00:00%2B02:00&timeZone=Europe/Paris',
+        );
+    }
+
     /**
      * Ada Lovelace, the contact of the demonstration, at Babbage & Co.
      */
