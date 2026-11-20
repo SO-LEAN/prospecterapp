@@ -193,6 +193,12 @@ export const fr = {
     },
     noResult: { title: 'Aucun résultat', description: 'Aucune organisation ne correspond à « {{query}} ».' },
     preview: { open: 'Voir la fiche' },
+    possibleDuplicates: {
+      title: 'Doublon possible',
+      explanation: 'Elle ressemble, par son nom et sa ville, à :',
+      dismiss: 'Ce n’est pas un doublon',
+      dismissOf: 'Ce n’est pas un doublon {{name, de}}',
+    },
     start: {
       title: 'Commencer à prospecter',
       submit: 'Commencer à prospecter',

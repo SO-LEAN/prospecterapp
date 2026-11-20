@@ -15,6 +15,7 @@ import { HoldingSection } from '@/features/organizations/components/holding-sect
 import { LegalIdentitySection } from '@/features/organizations/components/legal-identity-section'
 import { LogoSection } from '@/features/organizations/components/logo-section'
 import { ObservationsSection } from '@/features/organizations/components/observations-section'
+import { PossibleDuplicates } from '@/features/organizations/components/possible-duplicates'
 import { StopProspecting } from '@/features/organizations/components/stop-prospecting'
 import {
   fullNameOf,
@@ -89,6 +90,7 @@ function OrganizationPage() {
           )
         }
       />
+      <PossibleDuplicates organization={organization} />
       {organization._links.tags && <OrganizationTags organizationId={organization.id} />}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">

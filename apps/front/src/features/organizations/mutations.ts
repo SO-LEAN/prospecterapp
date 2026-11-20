@@ -110,6 +110,21 @@ export function useDetachFromHolding() {
   })
 }
 
+/**
+ * The other organization is no longer flagged either once the reaction to the gesture changed it.
+ */
+export function useDismissPossibleDuplicate() {
+  const queryClient = useQueryClient()
+  const store = useStoreChangedOrganization()
+
+  return api.useMutation('delete', '/api/organizations/{id}/possible-duplicates/{duplicateId}', {
+    onSuccess: (organization) => {
+      store(organization)
+      readAgainAfterTheReactions(queryClient, queryKeys.organization, queryKeys.organizationList)
+    },
+  })
+}
+
 export function useRemoveLogo() {
   return api.useMutation('delete', '/api/organizations/{id}/logo', {
     onSuccess: useStoreChangedOrganization(),
