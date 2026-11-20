@@ -28,6 +28,7 @@ final class OutsideServices implements ResetInterface
         private readonly string $directoryUrl,
         private readonly GoogleDouble $google,
         private readonly ClientsOfTheAIs $clientsOfTheAIs,
+        private readonly ImagesOnTheWeb $imagesOnTheWeb,
     ) {
     }
 
@@ -63,6 +64,7 @@ final class OutsideServices implements ResetInterface
             null !== $this->companies && str_starts_with($url, $this->directoryUrl) => new JsonMockResponse(['results' => $this->companies]),
             $this->google->serves($url) => $this->google->answer($method, $url, $options),
             $this->clientsOfTheAIs->serves($url) => $this->clientsOfTheAIs->answer($url),
+            $this->imagesOnTheWeb->serves($url) => $this->imagesOnTheWeb->answer($url),
             default => new MockResponse(),
         };
     }

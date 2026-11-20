@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Tests\App\Base\ApiTestCase;
 use Tests\App\Base\CallsTheMcpServer;
+use Tests\App\Double\ImagesOnTheWeb;
 
 /**
  * An AI manages the organizations and the contacts as its member does on the screens (ADR 0163): each tool of a write
@@ -23,6 +24,8 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
     private const array PROSPECTORS = ['prospector-user', 'assistant-user', 'admin-user'];
 
     private const array PERSONAL_DATA_MANAGERS = ['prospector-user', 'admin-user'];
+
+    private const string LOGO_ON_THE_WEB = ImagesOnTheWeb::HOST.'/logo.png';
 
     protected function setUp(): void
     {
@@ -230,6 +233,52 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
 
         $this->requestJson('GET', '/api/organizations/'.$holding);
         $this->assertResponseStatusCodeSame(404);
+    }
+
+    public function testTheAiGivesTheLogoOfAnOrganizationByItsAddressOnTheWeb(): void
+    {
+        $babbage = $this->babbage();
+        $this->keepTheKernel();
+        self::getContainer()->get(ImagesOnTheWeb::class)->publish(self::LOGO_ON_THE_WEB, (string) file_get_contents(__DIR__.'/../Fixtures/logo.png'));
+
+        foreach (['member-user', 'stranger'] as $refused) {
+            $this->login($refused);
+            $refusal = $this->answerOf($this->callWithoutHandshake('changer-logo-organisation', ['id' => $babbage, 'url' => self::LOGO_ON_THE_WEB]));
+
+            $this->assertSame($this->uploadImage('/api/organizations/'.$babbage.'/logo'), $refusal, sprintf('refused to %s', $refused));
+        }
+        $this->login();
+
+        $changed = $this->answerOf($this->callWithoutHandshake('changer-logo-organisation', ['id' => $babbage, 'url' => self::LOGO_ON_THE_WEB]));
+
+        $this->assertStringEndsWith('.png', $changed['logo']['url']);
+        $this->assertSame($this->requestJson('GET', '/api/organizations/'.$babbage), $changed);
+    }
+
+    public function testAnImageOnAPrivateNetworkIsNeverDownloaded(): void
+    {
+        $babbage = $this->babbage();
+        $this->keepTheKernel();
+        self::getContainer()->get(ImagesOnTheWeb::class)->publish(ImagesOnTheWeb::ON_A_PRIVATE_NETWORK.'/logo.png', (string) file_get_contents(__DIR__.'/../Fixtures/logo.png'));
+        $this->login();
+
+        $refusal = $this->answerOf($this->callWithoutHandshake('changer-logo-organisation', ['id' => $babbage, 'url' => ImagesOnTheWeb::ON_A_PRIVATE_NETWORK.'/logo.png']));
+
+        $this->assertSame([422, 'url'], [$refusal['status'], $refusal['violations'][0]['propertyPath']]);
+        $this->assertNull($this->requestJson('GET', '/api/organizations/'.$babbage)['logo']);
+    }
+
+    public function testWhatIsNoImageIsRefusedAsFromTheScreen(): void
+    {
+        $babbage = $this->babbage();
+        $this->keepTheKernel();
+        self::getContainer()->get(ImagesOnTheWeb::class)->publish(ImagesOnTheWeb::HOST.'/logo.png', 'no image');
+        $this->login();
+
+        $refusal = $this->answerOf($this->callWithoutHandshake('changer-logo-organisation', ['id' => $babbage, 'url' => ImagesOnTheWeb::HOST.'/logo.png']));
+
+        $this->assertSame(422, $refusal['status']);
+        $this->assertNull($this->requestJson('GET', '/api/organizations/'.$babbage)['logo']);
     }
 
     /**
