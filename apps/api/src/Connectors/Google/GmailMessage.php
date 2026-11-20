@@ -29,7 +29,7 @@ final readonly class GmailMessage
     {
         $headers = self::headersOf($message['payload'] ?? []);
         $sender = self::addressIn($headers['from'] ?? '');
-        if (false === filter_var($sender, \FILTER_VALIDATE_EMAIL)) {
+        if (!self::isAnAddress($sender)) {
             return null;
         }
 
@@ -37,7 +37,7 @@ final readonly class GmailMessage
             (string) $message['id'],
             $headers['message-id'] ?? null,
             new Email($sender),
-            [],
+            self::recipientsIn($headers['to'] ?? ''),
             array_values($message['labelIds'] ?? []),
             new \DateTimeImmutable('@'.intdiv((int) $message['internalDate'], self::MILLISECONDS)),
             $headers['subject'] ?? '',
@@ -58,6 +58,23 @@ final readonly class GmailMessage
         }
 
         return $headers;
+    }
+
+    /**
+     * Each address of the list, any that is none left out.
+     *
+     * @return list<Email>
+     */
+    private static function recipientsIn(string $to): array
+    {
+        $addresses = array_filter(array_map(self::addressIn(...), explode(',', $to)), self::isAnAddress(...));
+
+        return array_values(array_map(static fn (string $address): Email => new Email($address), $addresses));
+    }
+
+    private static function isAnAddress(string $address): bool
+    {
+        return false !== filter_var($address, \FILTER_VALIDATE_EMAIL);
     }
 
     private static function addressIn(string $from): string
