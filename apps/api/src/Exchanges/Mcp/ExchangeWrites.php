@@ -74,7 +74,7 @@ final readonly class ExchangeWrites
     /**
      * The exchange of the route, the member refused unless they may write it as its endpoint allows.
      */
-    private function writable(string $id, string ...$attributes): ExchangeDetail
+    public function writable(string $id, string ...$attributes): ExchangeDetail
     {
         $exchange = $this->exchanges->read($this->access->member(), $id);
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');

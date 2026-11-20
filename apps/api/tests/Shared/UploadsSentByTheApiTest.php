@@ -23,7 +23,7 @@ class UploadsSentByTheApiTest extends TestCase
     {
         $requests = [];
 
-        $this->uploads($requests, 'http://ministack:4566')->send($this->form(), new File(__DIR__.'/../Fixtures/logo.png'));
+        $this->uploads($requests, 'http://ministack:4566')->upload($this->form(), new File(__DIR__.'/../Fixtures/logo.png'));
 
         $this->assertSame(['POST', 'http://ministack:4566/prospecter-dev-private-files'], [$requests[0]['method'], $requests[0]['url']]);
         $this->assertStringContainsString("name=\"key\"\r\n\r\nuploads/0123456789abcdef0123456789abcdef", $requests[0]['body']);
@@ -35,7 +35,7 @@ class UploadsSentByTheApiTest extends TestCase
     {
         $requests = [];
 
-        $this->uploads($requests, '')->send($this->form(), new File(__DIR__.'/../Fixtures/logo.png'));
+        $this->uploads($requests, '')->upload($this->form(), new File(__DIR__.'/../Fixtures/logo.png'));
 
         $this->assertSame(self::FORM, $requests[0]['url']);
     }

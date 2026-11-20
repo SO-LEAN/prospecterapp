@@ -63,7 +63,6 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
         'api_contacts_dismiss_possible_duplicate',
         'api_contacts_tag',
         'api_contacts_take_off_tag',
-        'api_exchanges_attach_file',
         'api_me_change_contact_details',
         'api_me_change_name',
         'api_me_change_organization_logo',
