@@ -6,6 +6,7 @@ namespace Prospecter\Core\Prospecting\Domain\Model;
 
 use Prospecter\Core\Prospecting\Domain\Event\ContactLeftUnattached;
 use Prospecter\Core\Prospecting\Domain\Event\ContactToAttachAttached;
+use Prospecter\Core\Prospecting\Domain\Event\ContactToAttachHandedOver;
 use Prospecter\Core\Prospecting\Domain\Event\ContactToAttachMet;
 use Prospecter\Core\Prospecting\Domain\Event\ContactToAttachMetAgain;
 use Prospecter\Core\Prospecting\Domain\Policy\UnattachedErasure;
@@ -32,7 +33,7 @@ final class ContactToAttach implements ReleasesEvents
     private function __construct(
         private readonly PersonId $id,
         private readonly AccountId $accountId,
-        private readonly MemberId $holder,
+        private MemberId $holder,
         private \DateTimeImmutable $lastMeetingAt,
         private readonly \DateTimeZone $clock,
         private readonly \DateTimeImmutable $createdAt,
@@ -83,6 +84,18 @@ final class ContactToAttach implements ReleasesEvents
         $this->lastMeetingAt = $meeting;
         $this->modifiedAt = $at;
         $this->recordThat(new ContactToAttachMetAgain($this->accountId, $this->holder, $this->id, $at));
+    }
+
+    /**
+     * Booked by the public link of another member, they are theirs from then on: that member meets them; what the
+     * former holder noted with them stays theirs (ADR 0164).
+     */
+    public function handOverTo(Prospector $holder, \DateTimeImmutable $meeting, \DateTimeImmutable $at): void
+    {
+        $this->holder = $holder->id;
+        $this->lastMeetingAt = max($this->lastMeetingAt, $meeting);
+        $this->modifiedAt = $at;
+        $this->recordThat(new ContactToAttachHandedOver($this->accountId, $holder->id, $this->id, $at));
     }
 
     public function attachTo(OrganizationId $organization, MemberId $by, \DateTimeImmutable $at): void

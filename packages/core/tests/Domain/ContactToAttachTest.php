@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Prospecting\Domain\Event\ContactLeftUnattached;
 use Prospecter\Core\Prospecting\Domain\Event\ContactToAttachAttached;
+use Prospecter\Core\Prospecting\Domain\Event\ContactToAttachHandedOver;
 use Prospecter\Core\Prospecting\Domain\Event\ContactToAttachMet;
 use Prospecter\Core\Prospecting\Domain\Event\ContactToAttachMetAgain;
 use Prospecter\Core\Prospecting\Domain\Model\ContactToAttach;
@@ -28,6 +29,7 @@ final class ContactToAttachTest extends TestCase
     private const string ME = '0190a1c0-0000-7000-8000-000000000002';
     private const string ADA = '0190a1c0-0000-7000-8000-000000000003';
     private const string ACME = '0190a1c0-0000-7000-8000-000000000004';
+    private const string ANOTHER = '0190a1c0-0000-7000-8000-000000000005';
     private const string NOW = '2026-11-18 10:00 Europe/Paris';
 
     public function testMeetingThemRecordsIt(): void
@@ -109,6 +111,40 @@ final class ContactToAttachTest extends TestCase
         $toAttach = $this->metOn('2026-11-20 14:00 Europe/Paris');
 
         $this->assertSame([true, false], [$toAttach->isHeldBy(new MemberId(self::ME)), $toAttach->isHeldBy(new MemberId(self::ACME))]);
+    }
+
+    public function testHandedOverToAnotherMemberTheyAreTheirs(): void
+    {
+        $toAttach = $this->metOn('2026-11-20 14:00 Europe/Paris');
+        $toAttach->releaseEvents();
+
+        $toAttach->handOverTo(self::another(), new \DateTimeImmutable('2026-11-24 09:00 Europe/Paris'), new \DateTimeImmutable(self::NOW));
+
+        $this->assertEquals([new ContactToAttachHandedOver(new AccountId(self::ACCOUNT), new MemberId(self::ANOTHER), new PersonId(self::ADA), new \DateTimeImmutable(self::NOW))], $toAttach->releaseEvents());
+        $this->assertSame([true, false], [$toAttach->isHeldBy(new MemberId(self::ANOTHER)), $toAttach->isHeldBy(new MemberId(self::ME))]);
+    }
+
+    public function testHandedOverWithALaterMeetingTheErasureIsPushedBack(): void
+    {
+        $toAttach = $this->metOn('2026-11-20 14:00 Europe/Paris');
+
+        $toAttach->handOverTo(self::another(), new \DateTimeImmutable('2026-11-24 09:00 Europe/Paris'), new \DateTimeImmutable(self::NOW));
+
+        $this->assertFalse($toAttach->isLeftUnattachedAt(new \DateTimeImmutable('2026-12-23 23:59 Europe/Paris')));
+    }
+
+    public function testHandedOverWithAnEarlierMeetingTheErasureStays(): void
+    {
+        $toAttach = $this->metOn('2026-11-20 14:00 Europe/Paris');
+
+        $toAttach->handOverTo(self::another(), new \DateTimeImmutable('2026-11-19 09:00 Europe/Paris'), new \DateTimeImmutable(self::NOW));
+
+        $this->assertFalse($toAttach->isLeftUnattachedAt(new \DateTimeImmutable('2026-12-19 23:59 Europe/Paris')));
+    }
+
+    private static function another(): Prospector
+    {
+        return new Prospector(new MemberId(self::ANOTHER), new AccountId(self::ACCOUNT), managesPersonalData: true);
     }
 
     private function metOn(string $meeting): ContactToAttach
