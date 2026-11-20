@@ -11,4 +11,4 @@ mcp:
             session:
                 store: none
             registry:
-                tools: ['App\Contacts\Mcp\', 'App\Exchanges\Mcp\', 'App\Me\Mcp\', 'App\Prospecting\Mcp\']
+                tools: ['App\Connectors\Mcp\', 'App\Contacts\Mcp\', 'App\Exchanges\Mcp\', 'App\Me\Mcp\', 'App\Prospecting\Mcp\']
