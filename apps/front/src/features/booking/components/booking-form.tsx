@@ -60,7 +60,7 @@ export function BookingForm({ code, channel, slot, recap, onDone }: Props) {
           } else if (refusal) {
             onDone({ kind: 'slotTaken' })
           } else {
-            setUnplaced(applyViolations(error, form.setError, bookingFields))
+            setUnplaced(applyViolations(error, form.setError, bookingFields, t('booking.public.form.failed')))
           }
         },
       },

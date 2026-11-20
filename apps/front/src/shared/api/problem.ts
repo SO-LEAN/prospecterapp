@@ -35,12 +35,14 @@ export function isProblem(error: unknown): error is Problem {
 
 /**
  * Shows the API validation errors on the form fields; returns the messages
- * that do not belong to a field (business rules on the whole payload).
+ * that do not belong to a field (business rules on the whole payload), each
+ * without a wording of its reason told as `unworded` says when given.
  */
 export function applyViolations<T extends FieldValues>(
   error: unknown,
   setError: UseFormSetError<T>,
   fields: readonly Path<T>[],
+  unworded?: string,
 ): string[] {
   if (!isProblem(error)) {
     return []
@@ -55,7 +57,7 @@ export function applyViolations<T extends FieldValues>(
         types: violation.context,
       })
     } else {
-      global.push(wordingOf(violation.reason, violation.context, violation.title))
+      global.push(wordingOf(violation.reason, violation.context, unworded ?? violation.title))
     }
   }
   if (global.length === 0 && (error.violations ?? []).length === 0) {

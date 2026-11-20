@@ -552,6 +552,7 @@ export const fr = {
         privacy:
           'Vos coordonnées servent à organiser ce rendez-vous. Elles sont effacées sous 30 jours si nous ne poursuivons pas.',
         submit: 'Réserver',
+        failed: 'Votre réservation n’a pas abouti : réessayez dans un instant.',
       },
       booked: {
         title: 'C’est réservé !',

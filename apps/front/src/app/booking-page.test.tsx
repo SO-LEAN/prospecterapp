@@ -265,6 +265,38 @@ describe('the public page of a booking', () => {
     expect(theApi.mock.calls.filter(([request]) => (request as Request).method === 'GET')).toHaveLength(2)
   })
 
+  it('tells the booker in their words a refusal they cannot correct, never as the API worded it', async () => {
+    theApiBooks(422, {
+      title: 'Validation Failed',
+      status: 422,
+      detail: 'formShownAt: This value is not a valid datetime.',
+      violations: [{ propertyPath: 'formShownAt', title: 'This value is not a valid datetime.' }],
+    })
+
+    const user = await iFillTheFormFor('Visio', '09:00')
+    await user.click(screen.getByRole('button', { name: 'Réserver' }))
+
+    expect(
+      await screen.findByText('Votre réservation n’a pas abouti : réessayez dans un instant.'),
+    ).toBeInTheDocument()
+    expect(screen.queryByText('This value is not a valid datetime.')).not.toBeInTheDocument()
+  })
+
+  it('tells the booker a refusal of the whole booking in the words it has for it', async () => {
+    theApiBooks(422, {
+      title: 'Validation Failed',
+      status: 422,
+      detail: 'This channel is not offered',
+      reason: 'channelNotOffered',
+      violations: [{ propertyPath: '', title: 'This channel is not offered', reason: 'channelNotOffered' }],
+    })
+
+    const user = await iFillTheFormFor('Visio', '09:00')
+    await user.click(screen.getByRole('button', { name: 'Réserver' }))
+
+    expect(await screen.findByText('Ce canal n’est pas proposé.')).toBeInTheDocument()
+  })
+
   it('refuses to send a form without its phone', async () => {
     const sent = theApiBooks(201, {})
 
