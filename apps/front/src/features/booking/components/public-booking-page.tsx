@@ -11,7 +11,8 @@ import { Button } from '@/shared/ui/button'
 import { ErrorState } from '@/shared/ui/feedback/error-state'
 import { PageSkeleton } from '@/shared/ui/page-skeleton'
 import { publicBookingPageQuery } from '../queries'
-import { cityOf, dayLabel, slotTime } from '../slots'
+import { appointmentMoment, cityOf, dayLabel, slotTime } from '../slots'
+import { BookingForm, type BookingOutcome } from './booking-form'
 
 type PublicPage = components['schemas']['PublicBookingPageResource']
 type Host = NonNullable<PublicPage['host']>
@@ -39,6 +40,8 @@ export function PublicBookingPage({ code }: Props) {
 
   return (
     <OpenPage
+      code={code}
+      onSlotTaken={() => void page.refetch()}
       host={page.data.host}
       channels={page.data.channels}
       hostTimeZone={page.data.timeZone}
@@ -47,13 +50,48 @@ export function PublicBookingPage({ code }: Props) {
   )
 }
 
-type OpenPageProps = { host: Host; channels: PublicPage['channels']; hostTimeZone: string; days: Day[] }
+type OpenPageProps = {
+  code: string
+  onSlotTaken: () => void
+  host: Host
+  channels: PublicPage['channels']
+  hostTimeZone: string
+  days: Day[]
+}
 
-function OpenPage({ host, channels, hostTimeZone, days }: OpenPageProps) {
+/**
+ * The booker chooses a channel, then a slot, then says who they are: the form once booked gives way to what comes next,
+ * a slot taken meanwhile sends them back to the slots, read again.
+ */
+function OpenPage({ code, onSlotTaken, host, channels, hostTimeZone, days }: OpenPageProps) {
   const { t } = useTranslation()
   const [channel, setChannel] = useState(channels.length === 1 ? channels[0] : undefined)
-  const [slot, setSlot] = useState<{ day: string; moment: string }>()
+  const [slot, setSlot] = useState<string>()
+  const [outcome, setOutcome] = useState<BookingOutcome>()
   const visitorTimeZone = readerTimeZone()
+
+  const done = (ended: BookingOutcome) => {
+    setOutcome(ended)
+    if (ended.kind === 'slotTaken') {
+      setSlot(undefined)
+      onSlotTaken()
+    }
+  }
+
+  if (outcome?.kind === 'booked' && channel) {
+    return <Booked host={host} channel={channel} email={outcome.email} phone={outcome.phone} />
+  }
+  if (outcome?.kind === 'alreadyBooked') {
+    return (
+      <CardPage
+        title={t('booking.public.title')}
+        description={t('booking.public.alreadyBooked', {
+          moment: appointmentMoment(outcome.appointment, visitorTimeZone),
+          host: host.firstName ?? '',
+        })}
+      />
+    )
+  }
 
   return (
     <main className="min-h-dvh bg-background px-4 py-8 sm:px-6">
@@ -95,23 +133,51 @@ function OpenPage({ host, channels, hostTimeZone, days }: OpenPageProps) {
                 day={day}
                 timeZone={visitorTimeZone}
                 choosable={channel !== undefined}
-                chosen={slot?.moment}
-                onChoose={(moment) => setSlot({ day: day.day, moment })}
+                chosen={slot}
+                onChoose={setSlot}
               />
             ))}
           </div>
         </section>
-        {channel && slot && (
-          <p role="status" className="font-medium text-sm">
-            {t('booking.public.chosen', {
-              channel: t(`booking.channels.${channel}`),
-              day: dayLabel(slot.day),
-              time: slotTime(slot.moment, visitorTimeZone),
-            })}
+        {outcome?.kind === 'slotTaken' && !slot && (
+          <p role="alert" className="font-medium text-destructive text-sm">
+            {t('refusals.slotNotFree')}
           </p>
+        )}
+        {channel && slot && (
+          <BookingForm
+            key={`${channel}${slot}`}
+            code={code}
+            channel={channel}
+            slot={slot}
+            recap={t('booking.public.recap', {
+              channel: t(`booking.channels.${channel}`),
+              moment: appointmentMoment(slot, visitorTimeZone),
+            })}
+            onDone={done}
+          />
         )}
       </div>
     </main>
+  )
+}
+
+type BookedProps = { host: Host; channel: PublicPage['channels'][number]; email: string; phone: string }
+
+function Booked({ host, channel, email, phone }: BookedProps) {
+  const { t } = useTranslation()
+
+  return (
+    <CardPage
+      title={t('booking.public.booked.title')}
+      description={t('booking.public.booked.invitation', { email })}
+    >
+      <p className="text-sm">
+        {channel === 'call'
+          ? t('booking.public.booked.call', { host: host.firstName ?? '', phone })
+          : t('booking.public.booked.videoCall')}
+      </p>
+    </CardPage>
   )
 }
 
