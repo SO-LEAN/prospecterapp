@@ -2,23 +2,13 @@
 
 namespace App\Contacts\Controller;
 
-use App\Contacts\ContactInListResourceFactory;
-use App\Contacts\OrganizationsOfContacts;
-use App\Contacts\Resource\ContactInListResource;
-use App\Contacts\Resource\ContactListLinksResource;
+use App\Contacts\ContactSearchReader;
 use App\Contacts\Resource\ContactListResource;
-use App\Contacts\TagsOfContacts;
 use App\PersonalData\Input\ContactListQuery;
 use App\Security\User;
-use App\Shared\Links;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\PersonalData\Application\PersonCard;
-use Prospecter\Core\PersonalData\Application\SearchContacts\ContactPage;
-use Prospecter\Core\PersonalData\Application\SearchContacts\KeptContactPage;
-use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContacts;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
@@ -27,20 +17,14 @@ use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
- * The contacts of my organization, composed of three contexts: PersonalData reads a page of persons, in clear or
- * masked; Prospecting tells the organizations of each, and Campaigns the tags each carries, in one batch each.
+ * The contacts of my organization, composed by `ContactSearchReader`.
  */
 #[OA\Tag('Contacts')]
 #[IsGranted('ROLE_PROSPECTOR')]
 final class SearchContactsController extends AbstractController
 {
-    public function __construct(
-        private readonly QueryHandler $searchContacts,
-        private readonly OrganizationsOfContacts $organizationsOfContacts,
-        private readonly TagsOfContacts $tagsOfContacts,
-        private readonly ContactInListResourceFactory $contactInListResourceFactory,
-        private readonly Links $links,
-    ) {
+    public function __construct(private readonly ContactSearchReader $contacts)
+    {
     }
 
     #[Route('/api/contacts', name: 'api_contacts_search', methods: ['GET'])]
@@ -50,26 +34,6 @@ final class SearchContactsController extends AbstractController
     #[OA\Response(response: 403, description: 'Not a prospector', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[CurrentUser] User $user, #[MapQueryString] ContactListQuery $query = new ContactListQuery()): JsonResponse
     {
-        $kept = new KeptContactPage();
-        ($this->searchContacts)(new SearchContacts($user->memberId(), $query->q, $query->after), $kept);
-        $page = $kept->page;
-        $contactIds = array_map(static fn (PersonCard $contact): string => $contact->id, $page->contacts);
-        $organizations = $this->organizationsOfContacts->read($user->memberId(), $contactIds);
-        $tags = $this->tagsOfContacts->read($user->memberId(), $contactIds);
-
-        return $this->json(new ContactListResource(
-            array_map(fn (PersonCard $contact): ContactInListResource => $this->contactInListResourceFactory->create($contact, $organizations[$contact->id] ?? [], $tags[$contact->id] ?? []), $page->contacts),
-            $this->linksOf($page, $query->q),
-        ));
-    }
-
-    private function linksOf(ContactPage $page, string $query): ContactListLinksResource
-    {
-        return new ContactListLinksResource(
-            $this->links->to('api_contacts_search', array_filter(['q' => $query])),
-            in_array('SearchByText', $page->possibleIntents, true) ? $this->links->to('api_contacts_search') : null,
-            null === $page->next ? null : $this->links->to('api_contacts_search', array_filter(['q' => $query, 'after' => $page->next])),
-            $this->links->to('api_contacts_search_by_tags'),
-        );
+        return $this->json($this->contacts->search($user->memberId(), $query->q, $query->after));
     }
 }

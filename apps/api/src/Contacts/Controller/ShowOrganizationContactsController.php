@@ -2,23 +2,14 @@
 
 namespace App\Contacts\Controller;
 
-use App\Contacts\Resource\OrganizationContactLinksResource;
-use App\Contacts\Resource\OrganizationContactResource;
+use App\Contacts\OrganizationContactsReader;
 use App\Contacts\Resource\OrganizationContactsResource;
-use App\PersonalData\Resource\PersonContactDetailsResource;
-use App\PersonalData\Resource\PersonNameResource;
 use App\Prospecting\OrganizationVoter;
-use App\Security\IntentLinks;
 use App\Security\User;
-use App\Shared\Links;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersons;
-use Prospecter\Core\PersonalData\Application\ConsultPersons\KeptPersons;
-use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -27,18 +18,14 @@ use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
- * The contacts of an organization, composed of two contexts (ADR 0041): Prospecting knows which persons the
- * organization has, PersonalData reads them, in clear or masked, in one batch. An erased person is left out.
+ * The contacts of an organization, composed by `OrganizationContactsReader` (ADR 0041).
  */
 #[OA\Tag('Organizations')]
 #[IsGranted('ROLE_PROSPECTOR')]
 final class ShowOrganizationContactsController extends AbstractController
 {
-    public function __construct(
-        private readonly QueryHandler $consultPersons,
-        private readonly Links $links,
-        private readonly IntentLinks $intentLinks,
-    ) {
+    public function __construct(private readonly OrganizationContactsReader $contacts)
+    {
     }
 
     #[Route('/api/organizations/{id}/contacts', name: 'api_organizations_contacts', requirements: ['id' => Requirement::UUID], methods: ['GET'])]
@@ -50,26 +37,6 @@ final class ShowOrganizationContactsController extends AbstractController
     #[OA\Response(response: 404, description: 'Unknown organization, or one of another account', content: new Model(type: ProblemResource::class))]
     public function __invoke(OrganizationSheet $organization, #[CurrentUser] User $user): JsonResponse
     {
-        $persons = new KeptPersons();
-        ($this->consultPersons)(new ConsultPersons($user->memberId(), $organization->contactIds), $persons);
-        $contacts = array_values(array_filter(array_map(static fn (string $contactId): ?PersonCard => $persons->persons[$contactId] ?? null, $organization->contactIds)));
-
-        return $this->json(new OrganizationContactsResource(array_map(fn (PersonCard $contact): OrganizationContactResource => $this->present($contact, $organization), $contacts)));
-    }
-
-    private function present(PersonCard $contact, OrganizationSheet $organization): OrganizationContactResource
-    {
-        return new OrganizationContactResource(
-            id: $contact->id,
-            name: new PersonNameResource($contact->firstName, $contact->lastName),
-            civility: $contact->civility,
-            jobTitle: $contact->jobTitle,
-            contactDetails: PersonContactDetailsResource::of($contact),
-            masked: $contact->masked,
-            links: new OrganizationContactLinksResource(
-                $this->links->to('api_contacts_show', ['id' => $contact->id]),
-                $this->intentLinks->shows('RemoveContact', $organization->possibleIntents, User::PERSONAL_DATA) ? $this->links->to('api_organizations_remove_contact', ['id' => $organization->id, 'personId' => $contact->id]) : null,
-            ),
-        );
+        return $this->json($this->contacts->read($user->memberId(), $organization));
     }
 }
