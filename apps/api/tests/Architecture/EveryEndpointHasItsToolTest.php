@@ -54,7 +54,6 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
         'api_campaigns_stop',
         'api_contacts_change_civility',
         'api_contacts_change_contact_details',
-        'api_contacts_change_job_title',
         'api_contacts_collect',
         'api_contacts_note_to_do',
         'api_contacts_plan_exchange',
