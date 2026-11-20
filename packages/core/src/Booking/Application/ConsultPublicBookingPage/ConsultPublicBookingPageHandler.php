@@ -18,8 +18,8 @@ use Prospecter\Core\Booking\Domain\Model\WeeklyWindows;
 use Prospecter\Core\Booking\Domain\Model\Window;
 use Prospecter\Core\Booking\Domain\Policy\FreeSlots;
 use Prospecter\Core\Booking\Domain\Port\ConnectedCalendars;
-use Prospecter\Core\Booking\Domain\Port\HostAgendas;
 use Prospecter\Core\Booking\Domain\Port\Hosts;
+use Prospecter\Core\Booking\Domain\Service\BusyPeriods;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
@@ -27,17 +27,13 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 final readonly class ConsultPublicBookingPageHandler implements QueryHandler
 {
     /**
-     * An exchange planned the day before may run into the first slots: Prospecting plans none longer.
-     */
-    private const string LONGEST_PLANNED_EXCHANGE_BEFORE = '-8 hours';
-    /**
      * A page whose windows were never set has no clock yet, and no slot whatever the clock.
      */
     private const string NO_CLOCK_YET = 'UTC';
 
     public function __construct(
         private PublicBookingPageRetriever $pages,
-        private HostAgendas $hostAgendas,
+        private BusyPeriods $busyPeriods,
         private ConnectedCalendars $calendars,
         private Hosts $hosts,
     ) {
@@ -75,7 +71,7 @@ final readonly class ConsultPublicBookingPageHandler implements QueryHandler
      */
     private function freeDaysOf(BookingSchedule $schedule, \DateTimeImmutable $at): array
     {
-        $busyPeriods = $this->hostAgendas->busyPeriodsOf(new AccountId($schedule->accountId), new MemberId($schedule->host), $at->modify(self::LONGEST_PLANNED_EXCHANGE_BEFORE));
+        $busyPeriods = $this->busyPeriods->of(new AccountId($schedule->accountId), new MemberId($schedule->host), $at);
         $days = FreeSlots::given(self::availabilityOf($schedule), $busyPeriods, $at);
 
         return array_map(static fn (BookableDay $day): array => ['day' => $day->day, 'slots' => array_map(static fn (\DateTimeImmutable $slot): string => $slot->format(\DATE_ATOM), $day->slots)], $days);

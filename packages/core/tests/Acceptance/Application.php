@@ -30,6 +30,7 @@ use Prospecter\Core\Accounts\Contract\Service\ListAccounts\KeptAccounts;
 use Prospecter\Core\Accounts\Contract\Service\ListAccounts\ListAccounts;
 use Prospecter\Core\Booking\Application\AddInactivePeriod\AddInactivePeriodHandler;
 use Prospecter\Core\Booking\Application\BookingPages;
+use Prospecter\Core\Booking\Application\BookSlot\BookSlotHandler;
 use Prospecter\Core\Booking\Application\ChangeBookingLink\ChangeBookingLinkHandler;
 use Prospecter\Core\Booking\Application\CloseBooking\CloseBookingHandler;
 use Prospecter\Core\Booking\Application\ConsultMyBookingPage\ConsultMyBookingPage;
@@ -44,6 +45,7 @@ use Prospecter\Core\Booking\Application\OpenBooking\OpenBookingHandler;
 use Prospecter\Core\Booking\Application\PublicBookingPage;
 use Prospecter\Core\Booking\Application\RemoveInactivePeriod\RemoveInactivePeriodHandler;
 use Prospecter\Core\Booking\Application\SetWeeklyWindows\SetWeeklyWindowsHandler;
+use Prospecter\Core\Booking\Domain\Service\BusyPeriods;
 use Prospecter\Core\Campaigns\Application\AddRecipient\AddRecipientHandler;
 use Prospecter\Core\Campaigns\Application\AddRecipientsByTags\AddRecipientsByTagsHandler;
 use Prospecter\Core\Campaigns\Application\CampaignSheet;
@@ -400,6 +402,7 @@ use Tests\Core\Double\InMemoryAccountClientsRetriever;
 use Tests\Core\Double\InMemoryAccountListRetriever;
 use Tests\Core\Double\InMemoryAccountRepository;
 use Tests\Core\Double\InMemoryAgendaRetriever;
+use Tests\Core\Double\InMemoryAppointmentRepository;
 use Tests\Core\Double\InMemoryAuthorizationRepository;
 use Tests\Core\Double\InMemoryBookingPageRepository;
 use Tests\Core\Double\InMemoryCalendarEntryRepository;
@@ -579,12 +582,14 @@ final class Application
     private readonly TagsOfEveryContact $tagsOfEveryContact;
     private readonly CampaignTargets $campaignTargets;
     public readonly InMemoryBookingPageRepository $bookingPages;
+    public readonly InMemoryAppointmentRepository $appointments;
     private readonly BookingPages $hostedPages;
     private readonly WhichHaveAConnectedCalendarHandler $whichHaveAConnectedCalendarService;
     private readonly ConnectorsConnectedCalendars $connectedCalendars;
     private readonly InMemoryMyBookingPageRetriever $myBookingPageRetriever;
     private readonly InMemoryPublicBookingPageRetriever $publicBookingPageRetriever;
     private readonly ProspectingHostAgendas $hostAgendas;
+    private readonly BusyPeriods $busyPeriods;
     private readonly AccountsAndPersonalDataHosts $hosts;
     private ?string $lastBookingCode = null;
     /** @var array<class-string, CommandHandler> */
@@ -698,6 +703,7 @@ final class Application
         $this->campaignTargets = new CampaignTargets($this->tagsOfEveryContact);
 
         $this->bookingPages = new InMemoryBookingPageRepository($database);
+        $this->appointments = new InMemoryAppointmentRepository($database);
         $this->hosts = new AccountsAndPersonalDataHosts($this->consultMembersService, $this->presentMembersService);
         $this->hostedPages = new BookingPages($this->bookingPages, $this->hosts);
         $this->whichHaveAConnectedCalendarService = new WhichHaveAConnectedCalendarHandler($this->connections);
@@ -705,6 +711,7 @@ final class Application
         $this->myBookingPageRetriever = new InMemoryMyBookingPageRetriever($database);
         $this->publicBookingPageRetriever = new InMemoryPublicBookingPageRetriever($database);
         $this->hostAgendas = new ProspectingHostAgendas($this->consultPlannedExchangesService);
+        $this->busyPeriods = new BusyPeriods($this->hostAgendas, $this->appointments);
 
         foreach ($this->translators() as $translator) {
             $this->events->translateWith($translator, calledThrough: new RefusalTranslatingEventHandler(new TransactionalEventHandler($translator, $this->unitOfWork)));
@@ -1294,6 +1301,7 @@ final class Application
             new OpenBookingHandler($this->hostedPages, $this->bookingPages, $this->connectedCalendars, $this->events),
             new CloseBookingHandler($this->hostedPages, $this->bookingPages, $this->events),
             new ChangeBookingLinkHandler($this->hostedPages, $this->bookingPages, $this->events),
+            new BookSlotHandler($this->bookingPages, $this->appointments, $this->connectedCalendars, $this->busyPeriods, $this->events),
         ];
     }
 
@@ -1432,7 +1440,7 @@ final class Application
     {
         $kept = new KeptPublicBookingPage();
 
-        return $this->ask(new ConsultPublicBookingPageHandler($this->publicBookingPageRetriever, $this->hostAgendas, $this->connectedCalendars, $this->hosts), $query, $kept) ? $kept->page : null;
+        return $this->ask(new ConsultPublicBookingPageHandler($this->publicBookingPageRetriever, $this->busyPeriods, $this->connectedCalendars, $this->hosts), $query, $kept) ? $kept->page : null;
     }
 
     /**
