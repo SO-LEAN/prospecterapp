@@ -127,6 +127,15 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
         $this->assertSame(['videoCall', 'inbound', 'Visio, à son initiative'], [$corrected['channel'], $corrected['direction'], $corrected['text']]);
     }
 
+    public function testTheAiCorrectsTheTextOfAnExchangeOnly(): void
+    {
+        $call = $this->aCallWithAdaNotedYesterday();
+
+        $corrected = $this->assertTheToolActsAsItsEndpoint('corriger-texte-echange', ['id' => $call, 'text' => 'Appel sans suite'], 'PATCH', '/api/exchanges/'.$call.'/text', ['text' => 'Appel sans suite'], self::PROSPECTORS);
+
+        $this->assertSame(['call', 'Appel sans suite'], [$corrected['channel'], $corrected['text']]);
+    }
+
     public function testTheAiNotesAToDoForAContact(): void
     {
         $ada = $this->ada();
