@@ -153,6 +153,13 @@ class ReadingToolsApiTest extends ApiTestCase
         $this->assertTheToolAnswersAsItsEndpoint('lire-echanges-organisation', ['id' => $babbage], '/api/organizations/'.$babbage.'/exchanges');
     }
 
+    public function testTheAiReadsTheExchangesToComeWithAnOrganization(): void
+    {
+        $babbage = $this->babbage();
+
+        $this->assertTheToolAnswersAsItsEndpoint('lire-echanges-a-venir-organisation', ['id' => $babbage], '/api/organizations/'.$babbage.'/upcoming-exchanges');
+    }
+
     /**
      * Ada Lovelace, the contact of the demonstration, at Babbage & Co.
      */
