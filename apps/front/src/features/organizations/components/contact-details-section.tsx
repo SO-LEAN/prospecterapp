@@ -4,6 +4,7 @@ import { countryName } from '@/shared/lib/countries'
 import { telUrl } from '@/shared/lib/format'
 import { Detail } from '@/shared/ui/detail'
 import { EditableSection } from '@/shared/ui/editable-section'
+import { ExternalLinks } from '@/shared/ui/external-links'
 import { useChangeContactDetails } from '../mutations'
 import {
   OrganizationContactDetailsFields,
@@ -13,7 +14,7 @@ import {
   toOrganizationContactDetailsValues,
 } from '../organization-contact-details'
 import type { Organization } from '../queries'
-import { LinkedInPage, Website } from './organization-on-the-web'
+import { Website } from './organization-on-the-web'
 
 export function ContactDetailsSection({ organization }: { organization: Organization }) {
   const { t } = useTranslation()
@@ -56,8 +57,8 @@ export function ContactDetailsSection({ organization }: { organization: Organiza
         )}
       </Detail>
       <Detail label={t('fields.language')}>{countryName(contact.language)}</Detail>
-      <Detail label={t('fields.linkedInPage')}>
-        {contact.linkedInPage && <LinkedInPage page={contact.linkedInPage} />}
+      <Detail label={t('fields.links')}>
+        {contact.links.length > 0 && <ExternalLinks links={contact.links} masked={false} />}
       </Detail>
       <Detail label={t('fields.website')}>{contact.website && <Website site={contact.website} />}</Detail>
     </EditableSection>

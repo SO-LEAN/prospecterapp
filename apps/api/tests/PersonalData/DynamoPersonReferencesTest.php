@@ -3,25 +3,28 @@
 namespace Tests\App\PersonalData;
 
 use App\PersonalData\Persistence\DynamoPersonRepository;
+use App\PersonalData\Persistence\PersonalDataKeys;
 use App\PersonalData\Persistence\PersonDocument;
 use App\Shared\Persistence\Table;
-use Prospecter\Core\PersonalData\Domain\Exception\LinkedInProfileTakenMeanwhile;
-use Prospecter\Core\PersonalData\Domain\Model\LinkedInProfile;
+use Prospecter\Core\PersonalData\Domain\Exception\ReferenceTakenMeanwhile;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\PersonalData\Domain\Model\Reader;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Designated;
+use Prospecter\Core\SharedKernel\Domain\ExternalReference;
+use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\App\Base\ApiTestCase;
 
 /**
- * LinkedInProfileUniqueness asks which contact of an account holds a profile, current or former; the reservation of
- * each profile a contact holds answers it, and refuses a second holder when two requests take it at once (ADR 0039,
- * 0048).
+ * ReferenceUniqueness asks which contact of an account holds a link, current or former; the reservation of each
+ * reference a contact holds answers it, and refuses a second holder when two requests take it at once (ADR 0039,
+ * 0048, 0159).
  */
-class DynamoPersonLinkedInProfilesTest extends ApiTestCase
+class DynamoPersonReferencesTest extends ApiTestCase
 {
     private const string ADA = 'https://www.linkedin.com/in/ada-lovelace';
 
@@ -31,7 +34,7 @@ class DynamoPersonLinkedInProfilesTest extends ApiTestCase
         $ada = $this->contactWithTheProfiles($account, self::ADA);
         $this->persons()->save($ada);
 
-        $this->assertEquals($ada->id(), $this->persons()->contactHoldingLinkedInProfile($account, new LinkedInProfile(self::ADA), except: new PersonId(self::newIdentity()))?->id());
+        $this->assertEquals($ada->id(), $this->persons()->contactHoldingReference($account, self::reference(self::ADA), except: new PersonId(self::newIdentity()))?->id());
     }
 
     public function testTheFormerProfilesOfAContactAreReadBack(): void
@@ -42,13 +45,20 @@ class DynamoPersonLinkedInProfilesTest extends ApiTestCase
         $this->assertEquals($ada, $this->persons()->get($ada->id()));
     }
 
+    public function testAPersonSavedBeforeTheLinksHasTheirLinkedInProfilesAsLinks(): void
+    {
+        $ada = $this->contactWithTheProfiles(new AccountId(self::newIdentity()), self::ADA, 'https://www.linkedin.com/in/ada-l');
+
+        $this->assertEquals($ada->referencesHeld(), PersonDocument::person(self::savedBeforeTheLinks(PersonDocument::of($ada)))->referencesHeld());
+    }
+
     public function testAPersonSavedBeforeTheFormerProfilesHasNone(): void
     {
         $ada = $this->contactWithTheProfiles(new AccountId(self::newIdentity()), self::ADA);
-        $savedBefore = PersonDocument::of($ada);
+        $savedBefore = self::savedBeforeTheLinks(PersonDocument::of($ada));
         unset($savedBefore['formerLinkedInProfiles']);
 
-        $this->assertEquals([new LinkedInProfile(self::ADA)], PersonDocument::person($savedBefore)->linkedInProfilesHeld());
+        $this->assertEquals([self::reference(self::ADA)], PersonDocument::person($savedBefore)->referencesHeld());
     }
 
     public function testAFormerProfileStillFindsItsContact(): void
@@ -57,7 +67,7 @@ class DynamoPersonLinkedInProfilesTest extends ApiTestCase
         $ada = $this->contactWithTheProfiles($account, self::ADA, 'https://www.linkedin.com/in/ada-l');
         $this->persons()->save($ada);
 
-        $this->assertEquals($ada->id(), $this->persons()->contactHoldingLinkedInProfile($account, new LinkedInProfile(self::ADA), except: new PersonId(self::newIdentity()))?->id());
+        $this->assertEquals($ada->id(), $this->persons()->contactHoldingReference($account, self::reference(self::ADA), except: new PersonId(self::newIdentity()))?->id());
     }
 
     public function testAContactHoldingAProfileIsNoOtherHolderForThemself(): void
@@ -66,7 +76,7 @@ class DynamoPersonLinkedInProfilesTest extends ApiTestCase
         $ada = $this->contactWithTheProfiles($account, self::ADA);
         $this->persons()->save($ada);
 
-        $this->assertNull($this->persons()->contactHoldingLinkedInProfile($account, new LinkedInProfile(self::ADA), except: $ada->id()));
+        $this->assertNull($this->persons()->contactHoldingReference($account, self::reference(self::ADA), except: $ada->id()));
     }
 
     public function testAProfileHeldInAnotherAccountIsHeldByNobodyHere(): void
@@ -74,7 +84,7 @@ class DynamoPersonLinkedInProfilesTest extends ApiTestCase
         $ada = $this->contactWithTheProfiles(new AccountId(self::newIdentity()), self::ADA);
         $this->persons()->save($ada);
 
-        $this->assertNull($this->persons()->contactHoldingLinkedInProfile(new AccountId(self::newIdentity()), new LinkedInProfile(self::ADA), except: new PersonId(self::newIdentity())));
+        $this->assertNull($this->persons()->contactHoldingReference(new AccountId(self::newIdentity()), self::reference(self::ADA), except: new PersonId(self::newIdentity())));
     }
 
     public function testTheReservationRefusesAProfileTakenMeanwhile(): void
@@ -82,7 +92,7 @@ class DynamoPersonLinkedInProfilesTest extends ApiTestCase
         $account = new AccountId(self::newIdentity());
         $this->persons()->save($this->contactWithTheProfiles($account, self::ADA));
 
-        $this->expectException(LinkedInProfileTakenMeanwhile::class);
+        $this->expectException(ReferenceTakenMeanwhile::class);
 
         $this->persons()->save($this->contactWithTheProfiles($account, self::ADA));
     }
@@ -94,7 +104,7 @@ class DynamoPersonLinkedInProfilesTest extends ApiTestCase
 
         $this->persons()->save($this->personWithTheProfiles($account, Purpose::Membership, self::ADA));
 
-        $this->assertNull($this->persons()->contactHoldingLinkedInProfile($account, new LinkedInProfile(self::ADA), except: new PersonId(self::newIdentity())));
+        $this->assertNull($this->persons()->contactHoldingReference($account, self::reference(self::ADA), except: new PersonId(self::newIdentity())));
     }
 
     public function testAnErasedContactFreesTheirProfiles(): void
@@ -105,8 +115,8 @@ class DynamoPersonLinkedInProfilesTest extends ApiTestCase
 
         $this->persons()->remove($ada);
 
-        $this->assertNull($this->persons()->contactHoldingLinkedInProfile($account, new LinkedInProfile(self::ADA), except: new PersonId(self::newIdentity())));
-        $this->assertNull($this->persons()->contactHoldingLinkedInProfile($account, new LinkedInProfile('https://www.linkedin.com/in/ada-l'), except: new PersonId(self::newIdentity())));
+        $this->assertNull($this->persons()->contactHoldingReference($account, self::reference(self::ADA), except: new PersonId(self::newIdentity())));
+        $this->assertNull($this->persons()->contactHoldingReference($account, self::reference('https://www.linkedin.com/in/ada-l'), except: new PersonId(self::newIdentity())));
     }
 
     public function testErasingTheYoungerOfTwoDuplicatesKeepsTheReservationOfTheOldest(): void
@@ -116,7 +126,7 @@ class DynamoPersonLinkedInProfilesTest extends ApiTestCase
 
         $this->persons()->remove($younger);
 
-        $this->assertEquals($oldest->id(), $this->persons()->contactHoldingLinkedInProfile($account, new LinkedInProfile(self::ADA), except: new PersonId(self::newIdentity()))?->id());
+        $this->assertEquals($oldest->id(), $this->persons()->contactHoldingReference($account, self::reference(self::ADA), except: new PersonId(self::newIdentity()))?->id());
     }
 
     public function testAProfileNoLongerAmongTheFormerOnesIsFreed(): void
@@ -128,7 +138,7 @@ class DynamoPersonLinkedInProfilesTest extends ApiTestCase
         $this->noteTheProfiles($ada, 'https://www.linkedin.com/in/ada-2', 'https://www.linkedin.com/in/ada-3', 'https://www.linkedin.com/in/ada-4', 'https://www.linkedin.com/in/ada-5');
         $this->persons()->save($ada);
 
-        $this->assertNull($this->persons()->contactHoldingLinkedInProfile($account, new LinkedInProfile(self::ADA), except: new PersonId(self::newIdentity())));
+        $this->assertNull($this->persons()->contactHoldingReference($account, self::reference(self::ADA), except: new PersonId(self::newIdentity())));
     }
 
     public function testTheYoungerOfTwoDuplicatesDroppingTheirProfileKeepsTheReservationOfTheOldest(): void
@@ -139,7 +149,7 @@ class DynamoPersonLinkedInProfilesTest extends ApiTestCase
         $this->noteTheProfiles($younger, 'https://www.linkedin.com/in/grace-2', 'https://www.linkedin.com/in/grace-3', 'https://www.linkedin.com/in/grace-4', 'https://www.linkedin.com/in/grace-5');
         $this->persons()->save($younger);
 
-        $this->assertEquals($oldest->id(), $this->persons()->contactHoldingLinkedInProfile($account, new LinkedInProfile(self::ADA), except: new PersonId(self::newIdentity()))?->id());
+        $this->assertEquals($oldest->id(), $this->persons()->contactHoldingReference($account, self::reference(self::ADA), except: new PersonId(self::newIdentity()))?->id());
     }
 
     public function testTheKeysWrittenAgainReserveTheProfilesOfAContactSavedBefore(): void
@@ -151,8 +161,8 @@ class DynamoPersonLinkedInProfilesTest extends ApiTestCase
 
         self::getContainer()->get(DynamoPersonRepository::class)->writeTheKeysAgain();
 
-        $this->assertEquals($ada->id(), $this->persons()->contactHoldingLinkedInProfile($account, new LinkedInProfile(self::ADA), except: new PersonId(self::newIdentity()))?->id());
-        $this->assertEquals($ada->id(), $this->persons()->contactHoldingLinkedInProfile($account, new LinkedInProfile('https://www.linkedin.com/in/ada-l'), except: new PersonId(self::newIdentity()))?->id());
+        $this->assertEquals($ada->id(), $this->persons()->contactHoldingReference($account, self::reference(self::ADA), except: new PersonId(self::newIdentity()))?->id());
+        $this->assertEquals($ada->id(), $this->persons()->contactHoldingReference($account, self::reference('https://www.linkedin.com/in/ada-l'), except: new PersonId(self::newIdentity()))?->id());
     }
 
     public function testTheKeysWrittenAgainReserveAProfileTwoContactsNotedForTheOldest(): void
@@ -165,7 +175,24 @@ class DynamoPersonLinkedInProfilesTest extends ApiTestCase
 
         self::getContainer()->get(DynamoPersonRepository::class)->writeTheKeysAgain();
 
-        $this->assertEquals($oldest->id(), $this->persons()->contactHoldingLinkedInProfile($account, new LinkedInProfile(self::ADA), except: new PersonId(self::newIdentity()))?->id());
+        $this->assertEquals($oldest->id(), $this->persons()->contactHoldingReference($account, self::reference(self::ADA), except: new PersonId(self::newIdentity()))?->id());
+    }
+
+    public function testTheKeysWrittenAgainReserveTheLinkedInProfilesOfAContactSavedBeforeTheLinksAsLinks(): void
+    {
+        $account = new AccountId(self::newIdentity());
+        $ada = $this->contactWithTheProfiles($account, self::ADA, 'https://www.linkedin.com/in/ada-l');
+        $this->persons()->save($ada);
+        $this->forgetTheReservationsOf($account, self::ADA, 'https://www.linkedin.com/in/ada-l');
+        $item = $this->personalDataTable()->item(PersonalDataKeys::person($ada->id()->value), PersonalDataKeys::PERSON);
+        $item['person'] = self::savedBeforeTheLinks($item['person']);
+        $formerReservation = sprintf('LINKEDIN#%s#%s', $account->value, self::ADA);
+        $this->personalDataTable()->batch([$item, ['PK' => $formerReservation, 'SK' => 'LINKEDIN', 'ownerId' => $ada->id()->value]]);
+
+        self::getContainer()->get(DynamoPersonRepository::class)->writeTheKeysAgain();
+
+        $this->assertEquals($ada->id(), $this->persons()->contactHoldingReference($account, self::reference('https://www.linkedin.com/in/ada-l'), except: new PersonId(self::newIdentity()))?->id());
+        $this->assertNull($this->personalDataTable()->item($formerReservation, 'LINKEDIN'));
     }
 
     public function testTheKeysWrittenAgainReserveNoProfileOfAMember(): void
@@ -175,12 +202,38 @@ class DynamoPersonLinkedInProfilesTest extends ApiTestCase
 
         self::getContainer()->get(DynamoPersonRepository::class)->writeTheKeysAgain();
 
-        $this->assertNull($this->personalDataTable()->item(sprintf('LINKEDIN#%s#%s', $account->value, self::ADA), 'LINKEDIN'));
+        $this->assertNull($this->personalDataTable()->item(self::reservationKey($account, self::ADA), 'REFERENCE'));
     }
 
     private function forgetTheReservationsOf(AccountId $account, string ...$profiles): void
     {
-        $this->personalDataTable()->batch([], array_map(static fn (string $profile): array => [sprintf('LINKEDIN#%s#%s', $account->value, $profile), 'LINKEDIN'], $profiles));
+        $this->personalDataTable()->batch([], array_map(static fn (string $profile): array => [self::reservationKey($account, $profile), 'REFERENCE'], $profiles));
+    }
+
+    private static function reservationKey(AccountId $account, string $profile): string
+    {
+        return sprintf('REFERENCE#%s#%s', $account->value, self::reference($profile)->key());
+    }
+
+    private static function reference(string $address): ExternalReference
+    {
+        return ExternalReference::designating($address, Designated::Person);
+    }
+
+    /**
+     * A document as it was written before the links: the LinkedIn profile and the former ones alone.
+     *
+     * @param array<string, mixed> $document
+     *
+     * @return array<string, mixed>
+     */
+    private static function savedBeforeTheLinks(array $document): array
+    {
+        $document['linkedInProfile'] = $document['references'][0]['address'] ?? null;
+        $document['formerLinkedInProfiles'] = array_column($document['formerReferences'], 'address');
+        unset($document['references'], $document['formerReferences']);
+
+        return $document;
     }
 
     /**
@@ -194,7 +247,7 @@ class DynamoPersonLinkedInProfilesTest extends ApiTestCase
         $oldest = $this->contactWithTheProfiles($account, $profile);
         $younger = $this->contactWithTheProfiles($account, $profile);
         $this->persons()->save($younger);
-        $this->personalDataTable()->batch([['PK' => sprintf('LINKEDIN#%s#%s', $account->value, $profile), 'SK' => 'LINKEDIN', 'ownerId' => $oldest->id()->value]]);
+        $this->personalDataTable()->batch([['PK' => self::reservationKey($account, $profile), 'SK' => 'REFERENCE', 'ownerId' => $oldest->id()->value]]);
         $this->persons()->save($oldest);
 
         return [$oldest, $younger];
@@ -226,7 +279,7 @@ class DynamoPersonLinkedInProfilesTest extends ApiTestCase
         $themself = new Reader(new MemberId(self::newIdentity()), $person->accountId(), $person->id(), readsPersonalData: false);
 
         foreach ($profiles as $profile) {
-            $person->changeContactDetails($person->contactDetails(), new LinkedInProfile($profile), by: $themself, at: new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+            $person->changeContactDetails($person->contactDetails(), ExternalReferences::designating([$profile], Designated::Person), by: $themself, at: new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         }
         $person->releaseEvents();
     }

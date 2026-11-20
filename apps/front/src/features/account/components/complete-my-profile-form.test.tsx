@@ -20,7 +20,7 @@ const LOGIN_EMAIL = 'ada@babbage.test'
 
 const anEmptyProfile: Account = {
   name: { firstName: null, lastName: null },
-  contactDetails: { email: null, phoneNumber: null, language: null },
+  contactDetails: { email: null, phoneNumber: null, language: null, links: [] },
   organization: { legalIdentity: { corporateName: 'Babbage & Co' } },
   _links: { self: { href: '/api/me', method: 'GET' } },
 }
@@ -100,7 +100,7 @@ describe('CompleteMyProfileForm', () => {
       email: LOGIN_EMAIL,
       phoneNumber: null,
       language: null,
-      linkedInProfile: null,
+      links: [],
     })
     expect(sent(1)).toMatchObject({ path: '/api/me/name', method: 'PATCH' })
     await expect(sent(1).body).resolves.toEqual({ firstName: 'Ada', lastName: 'Lovelace' })

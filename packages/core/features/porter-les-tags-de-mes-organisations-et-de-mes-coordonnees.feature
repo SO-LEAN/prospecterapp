@@ -55,7 +55,7 @@ Fonctionnalité: Un contact porte les tags de ses organisations et ceux de ses c
       | e-mail     | ada@acme.test                            | #EMAIL      |
       | téléphone  | 03 88 11 22 33                           | #PHONE      |
       | téléphone  | 06 12 34 56 78                           | #PHONE #SMS |
-      | LinkedIn   | https://www.linkedin.com/in/ada-lovelace | #LINKEDIN   |
+      | liens      | https://www.linkedin.com/in/ada-lovelace | #LINKEDIN   |
 
   Scénario: Effacer l'e-mail retire #EMAIL
     Soit je change les coordonnées de "Ada Lovelace" :

@@ -6,15 +6,15 @@ use App\Shared\Persistence\Revision;
 use App\Shared\Persistence\SearchIndexes;
 use App\Shared\Persistence\Table;
 use App\Shared\Persistence\Write;
-use Prospecter\Core\PersonalData\Domain\Exception\LinkedInProfileTakenMeanwhile;
+use Prospecter\Core\PersonalData\Domain\Exception\ReferenceTakenMeanwhile;
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
-use Prospecter\Core\PersonalData\Domain\Model\LinkedInProfile;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
+use Prospecter\Core\SharedKernel\Domain\ExternalReference;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
@@ -25,7 +25,9 @@ use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
  * - `EMAIL#<account>#<purpose>#<email>` / `EMAIL`: the email a person holds among the persons an account keeps
  *   for a purpose, the safety net of EmailUniqueness (ADR 0039, 0048).
  * - `PERSON#<id>` / `FIRST_NAME`: the key of the first name of a person who has one, in the index `NAME` beside
- *   the key of their last name (ADR 0149), written and removed with the person.
+ *   the key of their last name (ADR 0149), written and removed with the person;
+ * - `REFERENCE#<account>#<source>#<identifier>` / `REFERENCE`: each link a contact holds, theirs or a former one,
+ *   the safety net of ReferenceUniqueness (ADR 0159).
  * The person carries its search keys and its phone number among the persons of the same account and purpose
  * (`SearchIndexes`), and its `revision`, incremented at each save: the revision of its facts (ADR 0099), which
  * the aggregate does not know.
@@ -33,7 +35,8 @@ use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 final readonly class DynamoPersonRepository implements PersonRepository
 {
     private const string EMAIL = 'EMAIL';
-    private const string LINKEDIN = 'LINKEDIN';
+    private const string REFERENCE = 'REFERENCE';
+    private const string FORMER_LINKEDIN = 'LINKEDIN';
 
     public function __construct(private Table $personalDataTable)
     {
@@ -62,7 +65,7 @@ final readonly class DynamoPersonRepository implements PersonRepository
             $this->personalDataTable->deleting(PersonalDataKeys::person($person->id()->value), PersonalDataKeys::PERSON),
             ...(null === $person->searchKeys()->firstName ? [] : [$this->deletingTheFirstName($person)]),
             ...(null === $email ? [] : [$this->personalDataTable->deleting(self::emailKey($person->accountId(), $person->purpose(), $email), self::EMAIL)]),
-            ...$this->releasing($person, $person->linkedInProfilesHeld()),
+            ...$this->releasing($person, $person->referencesHeld()),
         ]);
     }
 
@@ -105,9 +108,9 @@ final readonly class DynamoPersonRepository implements PersonRepository
         return null === $document ? null : PersonDocument::person($document);
     }
 
-    public function contactHoldingLinkedInProfile(AccountId $accountId, LinkedInProfile $profile, PersonId $except): ?Person
+    public function contactHoldingReference(AccountId $accountId, ExternalReference $reference, PersonId $except): ?Person
     {
-        $holder = $this->personalDataTable->item(self::linkedInKey($accountId, $profile->value), self::LINKEDIN)['ownerId'] ?? null;
+        $holder = $this->personalDataTable->item(self::referenceKey($accountId, $reference), self::REFERENCE)['ownerId'] ?? null;
 
         return null === $holder || $holder === $except->value ? null : $this->get(new PersonId($holder));
     }
@@ -131,58 +134,58 @@ final readonly class DynamoPersonRepository implements PersonRepository
             $writes[] = $this->personalDataTable->deleting(self::emailKey($person->accountId(), $person->purpose(), $storedEmail), self::EMAIL);
         }
 
-        $this->personalDataTable->transact([...$writes, ...$this->linkedInProfileWrites($person, null === $stored ? null : PersonDocument::person($stored['person']))]);
+        $this->personalDataTable->transact([...$writes, ...$this->referenceWrites($person, null === $stored ? null : PersonDocument::person($stored['person']))]);
     }
 
     /**
-     * The reservation of each profile a contact holds and did not before, under the condition that no other contact
-     * holds it: the safety net of LinkedInProfileUniqueness; and the release of those it held and no longer does. The
+     * The reservation of each reference a contact holds and did not before, under the condition that no other contact
+     * holds it: the safety net of ReferenceUniqueness; and the release of those it held and no longer does. The
      * profile of a member is reserved for nobody.
      *
      * @return list<Write>
      */
-    private function linkedInProfileWrites(Person $person, ?Person $stored): array
+    private function referenceWrites(Person $person, ?Person $stored): array
     {
         if (!self::isAContact($person)) {
             return [];
         }
-        $taken = array_filter($person->linkedInProfilesHeld(), static fn (LinkedInProfile $profile): bool => !($stored?->holdsLinkedInProfile($profile) ?? false));
-        $dropped = array_filter($stored?->linkedInProfilesHeld() ?? [], static fn (LinkedInProfile $profile): bool => !$person->holdsLinkedInProfile($profile));
+        $taken = array_filter($person->referencesHeld(), static fn (ExternalReference $reference): bool => !($stored?->holdsReference($reference) ?? false));
+        $dropped = array_filter($stored?->referencesHeld() ?? [], static fn (ExternalReference $reference): bool => !$person->holdsReference($reference));
 
-        return [...array_values(array_map(fn (LinkedInProfile $profile): Write => $this->reserving($person, $profile), $taken)), ...$this->releasing($person, array_values($dropped))];
+        return [...array_values(array_map(fn (ExternalReference $reference): Write => $this->reserving($person, $reference), $taken)), ...$this->releasing($person, array_values($dropped))];
     }
 
-    private function reserving(Person $person, LinkedInProfile $profile): Write
+    private function reserving(Person $person, ExternalReference $reference): Write
     {
         return $this->personalDataTable->putting(
-            ['PK' => self::linkedInKey($person->accountId(), $profile->value), 'SK' => self::LINKEDIN, 'ownerId' => $person->id()->value],
+            ['PK' => self::referenceKey($person->accountId(), $reference), 'SK' => self::REFERENCE, 'ownerId' => $person->id()->value],
             'attribute_not_exists(PK) OR ownerId = :owner',
             [':owner' => $person->id()->value],
-            LinkedInProfileTakenMeanwhile::byAnother(...),
+            ReferenceTakenMeanwhile::byAnother(...),
         );
     }
 
     /**
-     * The deletes of the reservations of these profiles the person holds, read in the unit before: one another
-     * contact holds, a duplicate noted before the profiles were unique, stays theirs.
+     * The deletes of the reservations of these references the person holds, read in the unit before: one another
+     * contact holds, a duplicate noted before the references were unique, stays theirs.
      *
-     * @param list<LinkedInProfile> $profiles
+     * @param list<ExternalReference> $references
      *
      * @return list<Write>
      */
-    private function releasing(Person $person, array $profiles): array
+    private function releasing(Person $person, array $references): array
     {
-        $reservations = $this->personalDataTable->items(array_map(fn (LinkedInProfile $profile): array => [self::linkedInKey($person->accountId(), $profile->value), self::LINKEDIN], $profiles));
+        $reservations = $this->personalDataTable->items(array_map(static fn (ExternalReference $reference): array => [self::referenceKey($person->accountId(), $reference), self::REFERENCE], $references));
         $own = array_filter($reservations, static fn (array $reservation): bool => $reservation['ownerId'] === $person->id()->value);
 
-        return array_values(array_map(fn (array $reservation): Write => $this->personalDataTable->deleting($reservation['PK'], self::LINKEDIN, 'ownerId = :owner', [':owner' => $person->id()->value]), $own));
+        return array_values(array_map(fn (array $reservation): Write => $this->personalDataTable->deleting($reservation['PK'], self::REFERENCE, 'ownerId = :owner', [':owner' => $person->id()->value]), $own));
     }
 
     /**
      * Writes again the item of every person, its search keys and its key in its list with it, the item of their first
-     * name beside it, the reservation of each LinkedIn profile a contact holds, and forgets the items of the search
-     * before ADR 0071: what a table written before ADR 0071, before ADR 0149, or before the profiles were unique,
-     * needs once.
+     * name beside it, the reservation of each reference a contact holds, and forgets the items of the search before
+     * ADR 0071 and the reservations of the LinkedIn profiles before the references: what a table written before ADR
+     * 0071, before ADR 0149, or before the references were unique, needs once.
      */
     public function writeTheKeysAgain(): int
     {
@@ -192,32 +195,32 @@ final readonly class DynamoPersonRepository implements PersonRepository
             [
                 ...array_map(fn (Person $person, array $item): array => $this->itemOf($person, $item['person'], Revision::of($item)), $persons, $items),
                 ...array_filter(array_map($this->firstNameItemOf(...), $persons)),
-                ...$this->linkedInReservationsOf($persons),
+                ...$this->referenceReservationsOf($persons),
             ],
-            array_map(static fn (array $former): array => [$former['PK'], $former['SK']], $this->personalDataTable->scan('TOKEN')),
+            array_map(static fn (array $former): array => [$former['PK'], $former['SK']], [...$this->personalDataTable->scan('TOKEN'), ...$this->personalDataTable->scan(self::FORMER_LINKEDIN.'#')]),
         );
 
         return count($items);
     }
 
     /**
-     * The reservation of each profile a contact holds; one two contacts noted before the profiles were unique for the
-     * oldest of them, the first of the identities in their order (UUID v7).
+     * The reservation of each reference a contact holds; one two contacts noted before the references were unique for
+     * the oldest of them, the first of the identities in their order (UUID v7).
      *
      * @param list<Person> $persons
      *
      * @return list<array<string, string>>
      */
-    private function linkedInReservationsOf(array $persons): array
+    private function referenceReservationsOf(array $persons): array
     {
         $contacts = array_filter($persons, self::isAContact(...));
         usort($contacts, static fn (Person $one, Person $other): int => strcmp($one->id()->value, $other->id()->value));
         $reservations = [];
 
         foreach ($contacts as $contact) {
-            foreach ($contact->linkedInProfilesHeld() as $profile) {
-                $key = self::linkedInKey($contact->accountId(), $profile->value);
-                $reservations[$key] ??= ['PK' => $key, 'SK' => self::LINKEDIN, 'ownerId' => $contact->id()->value];
+            foreach ($contact->referencesHeld() as $reference) {
+                $key = self::referenceKey($contact->accountId(), $reference);
+                $reservations[$key] ??= ['PK' => $key, 'SK' => self::REFERENCE, 'ownerId' => $contact->id()->value];
             }
         }
 
@@ -297,8 +300,8 @@ final readonly class DynamoPersonRepository implements PersonRepository
         return $person->isAContactOf($person->accountId());
     }
 
-    private static function linkedInKey(AccountId $accountId, string $profile): string
+    private static function referenceKey(AccountId $accountId, ExternalReference $reference): string
     {
-        return sprintf('%s#%s#%s', self::LINKEDIN, $accountId->value, $profile);
+        return sprintf('%s#%s#%s', self::REFERENCE, $accountId->value, $reference->key());
     }
 }

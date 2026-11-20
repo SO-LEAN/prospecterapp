@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\PersonalData\Application;
 
+use Prospecter\Core\SharedKernel\Application\ExternalLink;
 use Prospecter\Core\SharedKernel\Application\FileResponse;
 
 /**
@@ -13,7 +14,8 @@ use Prospecter\Core\SharedKernel\Application\FileResponse;
 final readonly class PersonCard
 {
     /**
-     * @param list<string> $possibleIntents names of what the reader may do: Rename, ChangeJobTitle, ChangeCivility, ChangeContactDetails, ChangePicture, Forget
+     * @param list<ExternalLink> $links           their links to the tools outside, one of stars when masked
+     * @param list<string>       $possibleIntents names of what the reader may do: Rename, ChangeJobTitle, ChangeCivility, ChangeContactDetails, ChangePicture, Forget
      */
     public function __construct(
         public string $id,
@@ -25,7 +27,7 @@ final readonly class PersonCard
         public ?string $email,
         public ?string $phoneNumber,
         public ?string $language,
-        public ?string $linkedInProfile,
+        public array $links,
         public ?FileResponse $picture,
         public array $possibleIntents,
         public \DateTimeImmutable $createdAt,

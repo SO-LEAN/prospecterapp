@@ -1,11 +1,19 @@
 import { describe, expect, it } from 'vitest'
 import { meansOf, openingOf } from './reach'
 
+const herMaltProfile = {
+  source: 'malt',
+  identifier: 'adalovelace',
+  address: 'https://www.malt.fr/profile/adalovelace',
+}
 const ada = {
   email: 'ada@acme.test',
   phoneNumber: '+33 6 12 34 56 78',
   language: null,
-  linkedInProfile: 'https://www.linkedin.com/in/ada-lovelace',
+  links: [
+    herMaltProfile,
+    { source: 'linkedin', identifier: 'ada-lovelace', address: 'https://www.linkedin.com/in/ada-lovelace' },
+  ],
 }
 const message = { text: 'Bonjour Ada,\nune question & une autre', subject: 'Ada, une question' }
 
@@ -16,6 +24,10 @@ describe('how a recipient is reached by the channel of the campaign', () => {
     expect(meansOf('sms', ada)).toBe('+33 6 12 34 56 78')
     expect(meansOf('linkedIn', ada)).toBe('https://www.linkedin.com/in/ada-lovelace')
     expect(meansOf('email', { ...ada, email: null })).toBeNull()
+  })
+
+  it('is no other link than their LinkedIn profile for LinkedIn', () => {
+    expect(meansOf('linkedIn', { ...ada, links: [herMaltProfile] })).toBeNull()
   })
 
   it('opens the mail with its subject and its message, the SMS with its message, the call, or the profile', () => {

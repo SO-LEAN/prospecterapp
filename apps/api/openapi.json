@@ -11,7 +11,7 @@
                 "tags": [
                     "My account"
                 ],
-                "summary": "Change my email, phone number, language and LinkedIn profile, nothing else changes",
+                "summary": "Change my email, phone number, language and links, nothing else changes",
                 "operationId": "patch_api_me_change_contact_details",
                 "requestBody": {
                     "required": true,
@@ -741,7 +741,7 @@
                 "tags": [
                     "Organizations"
                 ],
-                "summary": "Change the email, phone number, language, LinkedIn page and website, nothing else changes",
+                "summary": "Change the email, phone number, language, links and website, nothing else changes",
                 "operationId": "patch_api_organizations_change_contact_details",
                 "parameters": [
                     {
@@ -799,7 +799,7 @@
                         }
                     },
                     "422": {
-                        "description": "Invalid contact details, email, LinkedIn page or domain of the website already used, or neither corporate name nor email left",
+                        "description": "Invalid contact details, email, link or domain of the website already used, or neither corporate name nor email left",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1875,7 +1875,7 @@
                         }
                     },
                     "422": {
-                        "description": "Invalid organization, email, LinkedIn page or domain of the website already used, or neither corporate name nor email",
+                        "description": "Invalid organization, email, link or domain of the website already used, or neither corporate name nor email",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2278,7 +2278,7 @@
                 "tags": [
                     "Contacts"
                 ],
-                "summary": "Change the email, phone number, language and LinkedIn profile of a contact",
+                "summary": "Change the email, phone number, language and links of a contact",
                 "operationId": "patch_api_contacts_change_contact_details",
                 "parameters": [
                     {
@@ -2336,7 +2336,7 @@
                         }
                     },
                     "422": {
-                        "description": "Invalid contact details, or email already used by another contact",
+                        "description": "Invalid contact details, or email or link already used by another contact",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -7784,13 +7784,16 @@
                         "nullable": true,
                         "default": null
                     },
-                    "linkedInProfile": {
-                        "description": "The address of a profile on LinkedIn, with or without its scheme, its subdomain or what follows its identifier; kept in one form (https://www.linkedin.com/in/<identifier>), refused when it is no profile of a person",
-                        "type": "string",
-                        "example": "linkedin.com/in/ada-lovelace",
-                        "nullable": true,
-                        "default": null,
-                        "maxLength": 255
+                    "links": {
+                        "description": "The addresses of their pages on the tools outside (a profile on LinkedIn or Malt, any other site), five at most; each recognized by its source and an identifier, refused when it is no address of a web page, a page of a known tool designating an organization or none it recognizes, or one another contact of the account has or had",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": [
+                            "linkedin.com/in/ada-lovelace"
+                        ],
+                        "default": []
                     }
                 },
                 "type": "object"
@@ -7917,13 +7920,16 @@
                         "nullable": true,
                         "default": null
                     },
-                    "linkedInPage": {
-                        "description": "The address of the page of a company on LinkedIn, with or without its scheme, its subdomain or the page under it; kept in one form (https://www.linkedin.com/company/<identifier>), refused when it is no page of a company, or the one of another organization of the account",
-                        "type": "string",
-                        "example": "linkedin.com/company/acme-corp",
-                        "nullable": true,
-                        "default": null,
-                        "maxLength": 255
+                    "links": {
+                        "description": "The addresses of its pages on the tools outside (a company on LinkedIn or Welcome to the Jungle, any other site), five at most; each recognized by its source and an identifier, refused when it is no address of a web page, a page of a known tool designating a person or none it recognizes, or the one of another organization of the account",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": [
+                            "https://www.welcometothejungle.com/fr/companies/acme"
+                        ],
+                        "default": []
                     },
                     "website": {
                         "description": "The address of a site on the web, with or without its scheme; kept as its origin (https when typed without), refused when it is no address of a site, or when another organization of the account has a site of the same domain (its host without www)",
@@ -8893,7 +8899,35 @@
                 },
                 "type": "object"
             },
+            "ExternalLinkResource": {
+                "required": [
+                    "source",
+                    "identifier",
+                    "address"
+                ],
+                "properties": {
+                    "source": {
+                        "description": "A known tool (linkedin, linkedin-company, malt, welcometothejungle), or the host of the address without www",
+                        "type": "string",
+                        "example": "welcometothejungle"
+                    },
+                    "identifier": {
+                        "description": "What the link designates on its source, in lower case: what recognizes it",
+                        "type": "string",
+                        "example": "acme"
+                    },
+                    "address": {
+                        "description": "The address as it was pasted, https added when typed without its scheme: what opens it",
+                        "type": "string",
+                        "example": "https://www.welcometothejungle.com/fr/companies/acme"
+                    }
+                },
+                "type": "object"
+            },
             "PersonContactDetailsResource": {
+                "required": [
+                    "links"
+                ],
                 "properties": {
                     "email": {
                         "type": "string",
@@ -8909,11 +8943,12 @@
                         "type": "string",
                         "nullable": true
                     },
-                    "linkedInProfile": {
-                        "description": "In one form, its identifier in lower case; stars when masked",
-                        "type": "string",
-                        "example": "https://www.linkedin.com/in/ada-lovelace",
-                        "nullable": true
+                    "links": {
+                        "title": "one link of stars when masked, whatever their number",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ExternalLinkResource"
+                        }
                     }
                 },
                 "type": "object"
@@ -9291,6 +9326,9 @@
                 "type": "object"
             },
             "OrganizationContactDetailsResource": {
+                "required": [
+                    "links"
+                ],
                 "properties": {
                     "email": {
                         "type": "string",
@@ -9306,11 +9344,11 @@
                         "type": "string",
                         "nullable": true
                     },
-                    "linkedInPage": {
-                        "description": "In one form, its identifier in lower case",
-                        "type": "string",
-                        "example": "https://www.linkedin.com/company/acme-corp",
-                        "nullable": true
+                    "links": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ExternalLinkResource"
+                        }
                     },
                     "website": {
                         "description": "Its origin, in lower case",

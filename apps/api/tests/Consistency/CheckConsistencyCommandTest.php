@@ -13,7 +13,6 @@ use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Model\RefreshToken;
 use Prospecter\Core\Connectors\Domain\Model\Scope;
 use Prospecter\Core\Connectors\Domain\Repository\ConnectionRepository;
-use Prospecter\Core\PersonalData\Domain\Model\LinkedInProfile;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
@@ -33,7 +32,9 @@ use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\Designated;
 use Prospecter\Core\SharedKernel\Domain\Email;
+use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
@@ -316,12 +317,12 @@ class CheckConsistencyCommandTest extends ApiTestCase
     /**
      * Two contacts noted the same profile before it was unique: the members merge them or correct one by hand.
      */
-    public function testTwoContactsNotingTheSameLinkedInProfileAreShown(): void
+    public function testTwoContactsNotingTheSameLinkAreShown(): void
     {
         $ada = $this->ada();
         $grace = $this->aContactNotingTheProfilesOfAda('https://www.linkedin.com/in/ada-lovelace');
 
-        $this->assertDiscrepancy(DemoData::SOLEAN_IT, implode(', ', [$ada, $grace]), 'contacts noting the same LinkedIn profile', 'the members merge them or correct one of them');
+        $this->assertDiscrepancy(DemoData::SOLEAN_IT, implode(', ', [$ada, $grace]), 'contacts noting the same link', 'the members merge them or correct one of them');
     }
 
     public function testAContactNotingTheProfileOfAnotherAsAFormerOneIsShown(): void
@@ -329,7 +330,7 @@ class CheckConsistencyCommandTest extends ApiTestCase
         $ada = $this->ada();
         $grace = $this->aContactNotingTheProfilesOfAda('https://www.linkedin.com/in/ada-lovelace', 'https://www.linkedin.com/in/grace-hopper');
 
-        $this->assertDiscrepancy(DemoData::SOLEAN_IT, implode(', ', [$ada, $grace]), 'contacts noting the same LinkedIn profile', 'the members merge them or correct one of them');
+        $this->assertDiscrepancy(DemoData::SOLEAN_IT, implode(', ', [$ada, $grace]), 'contacts noting the same link', 'the members merge them or correct one of them');
     }
 
     public function testTheCheckWritesNothing(): void
@@ -357,9 +358,9 @@ class CheckConsistencyCommandTest extends ApiTestCase
         $grace = Person::collect(new PersonId(self::newIdentity()), new AccountId(DemoData::SOLEAN_IT), Purpose::Prospecting, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
 
         foreach ($profiles as $profile) {
-            $grace->changeContactDetails(new ContactDetails(), new LinkedInProfile($profile), by: new Reader(new MemberId(DemoData::PROSPECTOR), new AccountId(DemoData::SOLEAN_IT), $grace->id(), false), at: new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+            $grace->changeContactDetails(new ContactDetails(), ExternalReferences::designating([$profile], Designated::Person), by: new Reader(new MemberId(DemoData::PROSPECTOR), new AccountId(DemoData::SOLEAN_IT), $grace->id(), false), at: new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         }
-        $this->personalDataTable()->batch([], [[sprintf('LINKEDIN#%s#https://www.linkedin.com/in/ada-lovelace', DemoData::SOLEAN_IT), 'LINKEDIN']]);
+        $this->personalDataTable()->batch([], [[sprintf('REFERENCE#%s#linkedin#ada-lovelace', DemoData::SOLEAN_IT), 'REFERENCE']]);
         self::getContainer()->get(PersonRepository::class)->save($grace);
 
         return $grace->id()->value;

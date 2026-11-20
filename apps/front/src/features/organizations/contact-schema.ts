@@ -24,14 +24,14 @@ export const collectContactFields = [
   'contactDetails.email',
   'contactDetails.phoneNumber',
   'contactDetails.language',
-  'contactDetails.linkedInProfile',
+  'contactDetails.links',
 ] as const
 
 export const emptyCollectContact = (): CollectContactValues => ({
   name: { firstName: '', lastName: '' },
   civility: UNKNOWN_CIVILITY,
   jobTitle: '',
-  contactDetails: { email: '', phoneNumber: '', language: null, linkedInProfile: '' },
+  contactDetails: { email: '', phoneNumber: '', language: null, links: [] },
 })
 
 export const toCollectContactInput = (

@@ -63,23 +63,23 @@ Fonctionnalité: Commencer à prospecter une organisation
       | e-mail         | contact@globex.test |
     Alors ce n'est pas refusé
 
-  Scénario: L'organisation est enregistrée avec sa page LinkedIn et son site, chacun sous une seule forme
+  Scénario: L'organisation est enregistrée avec ses liens et son site
     Quand je commence à prospecter l'organisation :
-      | raison sociale | ACME                                            |
-      | page LinkedIn  | http://fr.linkedin.com/company/ACME-Corp/about/ |
-      | site web       | HTTPS://www.Acme.fr/contact                     |
-    Alors l'organisation "ACME" est enregistrée avec :
-      | page LinkedIn   | https://www.linkedin.com/company/acme-corp |
-      | site web        | https://www.acme.fr                        |
-      | domaine du site | acme.fr                                    |
+      | raison sociale | ACME                                                                                     |
+      | liens          | http://fr.linkedin.com/company/ACME-Corp/about/ https://www.annuaire-xyz.com/fiche/acme |
+      | site web       | HTTPS://www.Acme.fr/contact                                                              |
+    Alors "ACME" a la référence LinkedIn entreprise "acme-corp"
+    Et "ACME" a la référence de source "annuaire-xyz.com" et d'identifiant "annuaire-xyz.com/fiche/acme"
+    Et l'organisation "ACME" est enregistrée avec :
+      | site web        | https://www.acme.fr |
+      | domaine du site | acme.fr             |
 
-  Scénario: La page LinkedIn d'une autre organisation de ma base est refusée, en la nommant
-    Soit l'organisation "ACME Lyon" fait partie de mes organisations avec :
-      | page LinkedIn | https://www.linkedin.com/company/acme-corp |
+  Scénario: Le lien d'une autre organisation de ma base est refusé, en la nommant
+    Soit "ACME Lyon" fait partie de mes organisations avec le lien "https://www.linkedin.com/company/acme-corp"
     Quand je commence à prospecter l'organisation :
       | raison sociale | ACME                            |
-      | page LinkedIn  | linkedin.com/company/acme-corp/ |
-    Alors c'est refusé : "LinkedIn page already the one of ACME Lyon"
+      | liens          | linkedin.com/company/acme-corp/ |
+    Alors c'est refusé : "Link already the one of ACME Lyon"
     Et l'organisation "SOLEAN IT" compte 1 organisation active
 
   Scénario: Le domaine du site d'une autre organisation de ma base est refusé, en la nommant
@@ -91,11 +91,11 @@ Fonctionnalité: Commencer à prospecter une organisation
     Alors c'est refusé : "Website already the one of ACME Lyon"
     Et l'organisation "SOLEAN IT" compte 1 organisation active
 
-  Scénario: Ce qui n'est pas une page entreprise est refusé
+  Scénario: Le lien d'une personne est refusé
     Quand je commence à prospecter l'organisation :
       | raison sociale | ACME                                     |
-      | page LinkedIn  | https://www.linkedin.com/in/ada-lovelace |
-    Alors c'est refusé : ""https://www.linkedin.com/in/ada-lovelace" is not the LinkedIn page of a company"
+      | liens          | https://www.linkedin.com/in/ada-lovelace |
+    Alors c'est refusé : "A page of linkedin designates a person"
     Et l'organisation "SOLEAN IT" compte 0 organisation active
 
   Scénario: L'organisation peut faire partie d'une holding que je prospecte

@@ -22,11 +22,13 @@ use Prospecter\Core\PersonalData\Application\RenamePerson\RenamePerson;
 use Prospecter\Core\PersonalData\Application\SearchContacts\ContactPage;
 use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContacts;
 use Prospecter\Core\PersonalData\Domain\Model\Civility;
-use Prospecter\Core\PersonalData\Domain\Model\LinkedInProfile;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\Designated;
 use Prospecter\Core\SharedKernel\Domain\Email;
+use Prospecter\Core\SharedKernel\Domain\ExternalReference;
+use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 use Tests\Core\Acceptance\Expect;
@@ -55,7 +57,7 @@ final class PersonalDataContext implements Context
         $person = $this->application->persons->get($this->scenario->profileOf($member));
         $theColleague = $this->application->readers->readerFrom($member->id());
         $person->rename(Vocabulary::personName($values), by: $theColleague, at: $this->application->now());
-        $person->changeContactDetails(Vocabulary::contactDetails($values), Vocabulary::linkedInProfile($values), by: $theColleague, at: $this->application->now());
+        $person->changeContactDetails(Vocabulary::contactDetails($values), Vocabulary::personReferences($values), by: $theColleague, at: $this->application->now());
         $this->application->persons->save($person);
     }
 
@@ -94,11 +96,15 @@ final class PersonalDataContext implements Context
         $this->application->persons->save($person);
     }
 
-    #[Given(':name a le profil LinkedIn :profile')]
-    public function aPersonWithTheLinkedInProfile(string $name, string $profile): void
+    /**
+     * Noted as it is, whether another contact noted it too or not: as before the references were unique.
+     */
+    #[Given(':name a noté le lien :address')]
+    public function aPersonWithTheLink(string $name, string $address): void
     {
         $person = $this->scenario->personNamed($name);
-        $person->changeContactDetails($person->contactDetails(), new LinkedInProfile($profile), by: $this->scenario->managerOfPersonalDataOf($person->accountId()), at: $this->application->now());
+        $links = ExternalReferences::of([...$person->references()->all(), ExternalReference::designating($address, Designated::Person)]);
+        $person->changeContactDetails($person->contactDetails(), $links, by: $this->scenario->managerOfPersonalDataOf($person->accountId()), at: $this->application->now());
         $this->application->persons->save($person);
     }
 
@@ -121,7 +127,7 @@ final class PersonalDataContext implements Context
             Civility::X,
             null,
             $contactDetails,
-            null,
+            ExternalReferences::none(),
             [$prospect->id()],
             $this->application->now(),
         );
@@ -262,12 +268,12 @@ final class PersonalDataContext implements Context
         $this->iSeeThePerson($table);
     }
 
-    #[Then('son profil LinkedIn est masqué')]
-    public function theLinkedInProfileIsMasked(): void
+    #[Then('ses liens sont masqués')]
+    public function theLinksAreMasked(): void
     {
         Expect::that(null !== $this->consulted, 'The person was expected');
         Expect::that($this->consulted->masked, 'The person was expected masked');
-        Expect::same('***', $this->consulted->linkedInProfile);
+        Expect::same('***', Vocabulary::describeLinks($this->consulted->links));
     }
 
     #[Then('sa civilité n\'est pas renseignée')]
@@ -354,7 +360,7 @@ final class PersonalDataContext implements Context
     {
         $values = Vocabulary::values($table->getRowsHash());
         $id = $this->application->newIdentity();
-        $this->application->dispatch(new CollectContact($this->application->signedIn(), $id, $values['prénom'], $values['nom'], Vocabulary::civility($values['Civilité']), $values['fonction'], $values['e-mail'], $values['téléphone'], $values['langue'], $values['LinkedIn'], $organizationIds, $this->application->now()));
+        $this->application->dispatch(new CollectContact($this->application->signedIn(), $id, $values['prénom'], $values['nom'], Vocabulary::civility($values['Civilité']), $values['fonction'], $values['e-mail'], $values['téléphone'], $values['langue'], Vocabulary::links($values), $organizationIds, $this->application->now()));
 
         if (null === $this->application->refusal()) {
             $this->scenario->rememberPerson($name, new PersonId($id));
@@ -373,7 +379,7 @@ final class PersonalDataContext implements Context
             'fonction' => (string) $person->jobTitle,
             'e-mail' => (string) $person->email,
             'téléphone' => (string) $person->phoneNumber,
-            'LinkedIn' => (string) $person->linkedInProfile,
+            'liens' => Vocabulary::describeLinks($person->links),
             'photo' => null === $person->picture ? 'aucune' : basename($person->picture->url),
             'masquée' => Vocabulary::describeYesOrNo($person->masked),
             'modifiée le' => Vocabulary::describeMoment($person->modifiedAt),

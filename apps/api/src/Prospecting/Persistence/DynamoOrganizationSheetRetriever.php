@@ -10,6 +10,7 @@ use Prospecter\Core\Prospecting\Application\Port\OrganizationSheetRetriever;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationIntent;
 use Prospecter\Core\Prospecting\Domain\Policy\OrganizationPossibilities;
+use Prospecter\Core\SharedKernel\Application\ExternalLink;
 use Prospecter\Core\SharedKernel\Application\FileResponse;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
@@ -68,7 +69,7 @@ final readonly class DynamoOrganizationSheetRetriever implements OrganizationShe
             email: $contact->email?->value,
             phoneNumber: $contact->phoneNumber?->international(),
             language: $contact->language,
-            linkedInPage: $document['linkedInPage'] ?? null,
+            links: ExternalLink::allOf(OrganizationDocument::referencesOf($document)),
             website: $document['website'] ?? null,
             street: $address?->street,
             postalCode: $address?->postalCode,

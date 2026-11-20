@@ -23,7 +23,7 @@ class OrganizationApiTest extends ApiTestCase
 {
     private const array ACME = [
         'legalIdentity' => ['corporateName' => 'ACME', 'form' => 'SAS', 'type' => null],
-        'contactDetails' => ['email' => 'contact@acme.test', 'phoneNumber' => null, 'language' => null, 'linkedInPage' => null, 'website' => null],
+        'contactDetails' => ['email' => 'contact@acme.test', 'phoneNumber' => null, 'language' => null, 'links' => [], 'website' => null],
         'address' => ['street' => '1 rue de la Paix', 'postalCode' => '75002', 'city' => 'Paris', 'country' => 'FR'],
     ];
 
@@ -167,26 +167,36 @@ class OrganizationApiTest extends ApiTestCase
         $this->assertSame([['siret'], 'siretAlreadyUsed', ['organization' => 'Globex']], [$this->violatedFields($problem), $problem['reason'], $problem['violations'][0]['context']]);
     }
 
-    public function testTheLinkedInPageAndTheWebsiteAreNotedWithTheContactDetails(): void
+    public function testTheLinksAndTheWebsiteAreNotedWithTheContactDetails(): void
     {
         $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
 
-        $changed = $this->requestJson('PATCH', '/api/organizations/'.$id.'/contact-details', ['linkedInPage' => 'fr.linkedin.com/company/ACME-Corp/about/', 'website' => 'HTTPS://www.Acme.fr/contact']);
+        $changed = $this->requestJson('PATCH', '/api/organizations/'.$id.'/contact-details', ['links' => ['HTTPS://www.Welcometothejungle.com/fr/companies/ACME/jobs'], 'website' => 'HTTPS://www.Acme.fr/contact']);
 
         $this->assertResponseIsSuccessful();
-        $this->assertSame(['https://www.linkedin.com/company/acme-corp', 'https://www.acme.fr'], [$changed['contactDetails']['linkedInPage'], $changed['contactDetails']['website']]);
+        $this->assertSame([[['source' => 'welcometothejungle', 'identifier' => 'acme', 'address' => 'HTTPS://www.Welcometothejungle.com/fr/companies/ACME/jobs']], 'https://www.acme.fr'], [$changed['contactDetails']['links'], $changed['contactDetails']['website']]);
     }
 
-    public function testALinkedInPageOfAnotherOrganizationOfTheAccountIsRefusedNamingIt(): void
+    public function testALinkOfAnotherOrganizationOfTheAccountIsRefusedNamingIt(): void
     {
         $globex = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'Globex']])['id'];
-        $this->requestJson('PATCH', '/api/organizations/'.$globex.'/contact-details', ['linkedInPage' => 'linkedin.com/company/acme-corp']);
+        $this->requestJson('PATCH', '/api/organizations/'.$globex.'/contact-details', ['links' => ['linkedin.com/company/acme-corp']]);
         $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
 
-        $problem = $this->requestJson('PATCH', '/api/organizations/'.$id.'/contact-details', ['linkedInPage' => 'linkedin.com/company/acme-corp']);
+        $problem = $this->requestJson('PATCH', '/api/organizations/'.$id.'/contact-details', ['links' => ['https://www.linkedin.com/company/ACME-Corp/']]);
 
         $this->assertResponseStatusCodeSame(422);
-        $this->assertSame([['linkedInPage'], 'linkedInPageAlreadyUsed', ['organization' => 'Globex']], [$this->violatedFields($problem), $problem['reason'], $problem['violations'][0]['context']]);
+        $this->assertSame([['links'], 'referenceAlreadyUsed', ['holder' => 'Globex']], [$this->violatedFields($problem), $problem['reason'], $problem['violations'][0]['context']]);
+    }
+
+    public function testMoreThanFiveLinksAreRefusedOnTheirField(): void
+    {
+        $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+
+        $problem = $this->requestJson('PATCH', '/api/organizations/'.$id.'/contact-details', ['links' => array_map(static fn (int $site): string => sprintf('https://site%d.test/acme', $site), range(1, 6))]);
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSame(['links'], $this->violatedFields($problem));
     }
 
     public function testAWebsiteOfTheDomainOfAnotherOrganizationOfTheAccountIsRefusedNamingIt(): void
@@ -205,13 +215,13 @@ class OrganizationApiTest extends ApiTestCase
      * @param list<Role> $roles
      */
     #[DataProvider('everyProspector')]
-    public function testEveryProspectorNotesALinkedInPageAndAWebsiteWithOrWithoutTheRight(string $member, array $roles): void
+    public function testEveryProspectorNotesALinkAndAWebsiteWithOrWithoutTheRight(string $member, array $roles): void
     {
         $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
         $this->login($this->aMemberOfTheFixtures($member, ...$roles));
         $this->assertArrayHasKey('changeContactDetails', $this->requestJson('GET', '/api/organizations/'.$id)['_links']);
 
-        $this->requestJson('PATCH', '/api/organizations/'.$id.'/contact-details', ['linkedInPage' => 'linkedin.com/company/acme-corp', 'website' => 'acme.fr']);
+        $this->requestJson('PATCH', '/api/organizations/'.$id.'/contact-details', ['links' => ['linkedin.com/company/acme-corp'], 'website' => 'acme.fr']);
 
         $this->assertResponseIsSuccessful();
     }
@@ -220,34 +230,54 @@ class OrganizationApiTest extends ApiTestCase
      * @param list<Role> $roles
      */
     #[DataProvider('everyProspector')]
-    public function testEveryProspectorStartsProspectingWithALinkedInPageAndAWebsite(string $member, array $roles): void
+    public function testEveryProspectorStartsProspectingWithALinkAndAWebsite(string $member, array $roles): void
     {
         $this->login($this->aMemberOfTheFixtures($member, ...$roles));
 
-        $started = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME'], 'contactDetails' => ['linkedInPage' => 'linkedin.com/company/acme-corp', 'website' => 'acme.fr']]);
+        $started = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME'], 'contactDetails' => ['links' => ['linkedin.com/company/acme-corp'], 'website' => 'acme.fr']]);
 
         $this->assertResponseStatusCodeSame(201);
-        $this->assertSame(['https://www.linkedin.com/company/acme-corp', 'https://acme.fr'], [$started['contactDetails']['linkedInPage'], $started['contactDetails']['website']]);
+        $this->assertSame([[['source' => 'linkedin-company', 'identifier' => 'acme-corp', 'address' => 'https://linkedin.com/company/acme-corp']], 'https://acme.fr'], [$started['contactDetails']['links'], $started['contactDetails']['website']]);
     }
 
-    public function testAnOrganizationStartedWithTheLinkedInPageOfAnotherIsRefusedNamingIt(): void
+    public function testAnOrganizationStartedWithTheLinkOfAnotherIsRefusedNamingIt(): void
     {
-        $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'Globex'], 'contactDetails' => ['linkedInPage' => 'linkedin.com/company/acme-corp']]);
+        $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'Globex'], 'contactDetails' => ['links' => ['linkedin.com/company/acme-corp']]]);
 
-        $problem = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME'], 'contactDetails' => ['linkedInPage' => 'linkedin.com/company/acme-corp']]);
+        $problem = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME'], 'contactDetails' => ['links' => ['linkedin.com/company/acme-corp']]]);
 
         $this->assertResponseStatusCodeSame(422);
-        $this->assertSame([['linkedInPage'], 'linkedInPageAlreadyUsed', ['organization' => 'Globex']], [$this->violatedFields($problem), $problem['reason'], $problem['violations'][0]['context']]);
+        $this->assertSame([['links'], 'referenceAlreadyUsed', ['holder' => 'Globex']], [$this->violatedFields($problem), $problem['reason'], $problem['violations'][0]['context']]);
     }
 
-    public function testAnAddressThatIsNoPageOfACompanyIsRefusedOnItsField(): void
+    public function testAPageOfAPersonIsRefusedOnTheLinks(): void
     {
         $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
 
-        $problem = $this->requestJson('PATCH', '/api/organizations/'.$id.'/contact-details', ['linkedInPage' => 'linkedin.com/in/ada-lovelace']);
+        $problem = $this->requestJson('PATCH', '/api/organizations/'.$id.'/contact-details', ['links' => ['https://www.malt.fr/profile/adalovelace']]);
 
         $this->assertResponseStatusCodeSame(422);
-        $this->assertSame([['linkedInPage'], 'invalidLinkedInPage'], [$this->violatedFields($problem), $problem['reason']]);
+        $this->assertSame([['links'], 'referenceOfAnotherKind', ['source' => 'malt', 'designates' => 'person']], [$this->violatedFields($problem), $problem['reason'], $problem['violations'][0]['context']]);
+    }
+
+    public function testWhatIsNoAddressIsRefusedOnTheLinks(): void
+    {
+        $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+
+        $problem = $this->requestJson('PATCH', '/api/organizations/'.$id.'/contact-details', ['links' => ['ACME sur LinkedIn']]);
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSame([['links'], 'notAWebAddress'], [$this->violatedFields($problem), $problem['reason']]);
+    }
+
+    public function testAPageOfAKnownSourceItDoesNotRecognizeIsRefusedOnTheLinks(): void
+    {
+        $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+
+        $problem = $this->requestJson('PATCH', '/api/organizations/'.$id.'/contact-details', ['links' => ['https://www.linkedin.com/school/acme']]);
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSame([['links'], 'unrecognizedPage', ['host' => 'linkedin.com']], [$this->violatedFields($problem), $problem['reason'], $problem['violations'][0]['context']]);
     }
 
     public function testAnAddressThatIsNoSiteIsRefusedOnItsField(): void

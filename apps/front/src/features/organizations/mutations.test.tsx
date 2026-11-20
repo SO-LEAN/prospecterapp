@@ -24,7 +24,7 @@ const acme: Organization = {
   id: ACME,
   name: 'ACME',
   legalIdentity: { corporateName: 'ACME' },
-  contactDetails: {},
+  contactDetails: { links: [] },
   contactIds: [],
   possibleDuplicates: [],
   createdAt: '2026-10-26T09:00:00+00:00',

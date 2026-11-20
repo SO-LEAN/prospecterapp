@@ -177,7 +177,7 @@ final class CampaignContext implements Context
     #[When(':contact reçoit l\'adresse e-mail :email')]
     public function theContactGetsTheEmail(string $contact, string $email): void
     {
-        $this->application->dispatch(new ChangePersonContactDetails($this->application->signedIn(), $this->scenario->personIdOf($contact), $email, null, null, null, $this->application->now()));
+        $this->application->dispatch(new ChangePersonContactDetails($this->application->signedIn(), $this->scenario->personIdOf($contact), $email, null, null, [], $this->application->now()));
     }
 
     #[When('je change ses tags en :tags, son canal en :channel et son message')]

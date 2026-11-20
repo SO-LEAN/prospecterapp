@@ -16,7 +16,7 @@ class ContactApiTest extends ApiTestCase
         'name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'],
         'civility' => 'ms',
         'jobTitle' => 'Directrice commerciale',
-        'contactDetails' => ['email' => 'ada@analytical-engine.test', 'phoneNumber' => '03 88 00 00 42', 'language' => 'FR', 'linkedInProfile' => 'linkedin.com/in/countess-of-lovelace?utm_source=share'],
+        'contactDetails' => ['email' => 'ada@analytical-engine.test', 'phoneNumber' => '03 88 00 00 42', 'language' => 'FR', 'links' => ['linkedin.com/in/countess-of-lovelace?utm_source=share']],
     ];
 
     protected function setUp(): void
@@ -83,57 +83,57 @@ class ContactApiTest extends ApiTestCase
         $this->assertSame(['civility'], $this->violatedFields($problem), 'the field the core names');
     }
 
-    public function testTheLinkedInProfileIsNotedWithTheContactDetailsInOneForm(): void
+    public function testTheLinksAreNotedWithTheContactDetailsEachRecognizedByItsReference(): void
     {
         $organization = $this->anOrganization('ACME');
         $collected = $this->collect(self::ADA, $organization);
-        $this->assertSame('https://www.linkedin.com/in/countess-of-lovelace', $collected['contactDetails']['linkedInProfile']);
-        $this->assertSame(['https://www.linkedin.com/in/countess-of-lovelace'], array_column(array_column($this->requestJson('GET', '/api/organizations/'.$organization.'/contacts')['items'], 'contactDetails'), 'linkedInProfile'));
+        $countess = ['source' => 'linkedin', 'identifier' => 'countess-of-lovelace', 'address' => 'https://linkedin.com/in/countess-of-lovelace?utm_source=share'];
+        $this->assertSame([$countess], $collected['contactDetails']['links']);
+        $this->assertSame([[$countess]], array_column(array_column($this->requestJson('GET', '/api/organizations/'.$organization.'/contacts')['items'], 'contactDetails'), 'links'));
 
-        $changed = $this->requestJson('PATCH', '/api/contacts/'.$collected['id'].'/contact-details', ['email' => 'ada@analytical-engine.test', 'linkedInProfile' => 'https://fr.linkedin.com/in/Augusta-Ada/']);
-        $this->assertSame('https://www.linkedin.com/in/augusta-ada', $changed['contactDetails']['linkedInProfile']);
-        $this->assertSame(['https://www.linkedin.com/in/augusta-ada'], array_column(array_column($this->requestJson('GET', '/api/contacts?q=ada@analytical')['items'], 'contactDetails'), 'linkedInProfile'));
+        $changed = $this->requestJson('PATCH', '/api/contacts/'.$collected['id'].'/contact-details', ['email' => 'ada@analytical-engine.test', 'links' => ['https://fr.linkedin.com/in/Augusta-Ada/', 'https://www.malt.fr/profile/adalovelace']]);
+        $this->assertSame([['linkedin', 'augusta-ada'], ['malt', 'adalovelace']], array_map(static fn (array $link): array => [$link['source'], $link['identifier']], $changed['contactDetails']['links']));
 
-        $problem = $this->requestJson('PATCH', '/api/contacts/'.$collected['id'].'/contact-details', ['linkedInProfile' => 'https://example.test/ada']);
+        $problem = $this->requestJson('PATCH', '/api/contacts/'.$collected['id'].'/contact-details', ['links' => ['https://www.linkedin.com/company/acme']]);
         $this->assertResponseStatusCodeSame(422);
-        $this->assertSame(['linkedInProfile'], $this->violatedFields($problem), 'the field the core names');
+        $this->assertSame([['links'], 'referenceOfAnotherKind'], [$this->violatedFields($problem), $problem['reason']], 'the field the core names');
     }
 
-    public function testAProfileAnotherContactHoldsIsRefusedNamingThem(): void
+    public function testALinkAnotherContactHoldsIsRefusedNamingThem(): void
     {
         $organization = $this->anOrganization('ACME');
         $ada = $this->collect(self::ADA, $organization);
         $grace = $this->collect(['name' => ['firstName' => 'Grace', 'lastName' => 'Hopper']], $organization);
 
-        $problem = $this->requestJson('PATCH', '/api/contacts/'.$grace['id'].'/contact-details', ['linkedInProfile' => 'https://www.linkedin.com/in/countess-of-lovelace']);
+        $problem = $this->requestJson('PATCH', '/api/contacts/'.$grace['id'].'/contact-details', ['links' => ['https://www.linkedin.com/in/countess-of-lovelace']]);
 
         $this->assertResponseStatusCodeSame(422);
-        $this->assertSame('linkedInProfileAlreadyUsed', $problem['reason']);
-        $this->assertSame([['propertyPath' => 'linkedInProfile', 'reason' => 'linkedInProfileAlreadyUsed', 'context' => ['holder' => 'Ada Lovelace', 'holderId' => $ada['id']]]], array_map(static fn (array $violation): array => array_intersect_key($violation, array_flip(['propertyPath', 'reason', 'context'])), $problem['violations']));
+        $this->assertSame('referenceAlreadyUsed', $problem['reason']);
+        $this->assertSame([['propertyPath' => 'links', 'reason' => 'referenceAlreadyUsed', 'context' => ['holder' => 'Ada Lovelace', 'holderId' => $ada['id']]]], array_map(static fn (array $violation): array => array_intersect_key($violation, array_flip(['propertyPath', 'reason', 'context'])), $problem['violations']));
     }
 
-    public function testWithoutTheRightNoProfileTellsWhichContactHoldsIt(): void
+    public function testWithoutTheRightNoLinkTellsWhichContactHoldsIt(): void
     {
         $organization = $this->anOrganization('ACME');
         $this->collect(self::ADA, $organization);
         $grace = $this->collect(['name' => ['firstName' => 'Grace', 'lastName' => 'Hopper']], $organization);
         $this->login($this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector));
 
-        $problem = $this->requestJson('PATCH', '/api/contacts/'.$grace['id'].'/contact-details', ['linkedInProfile' => 'https://www.linkedin.com/in/countess-of-lovelace']);
+        $problem = $this->requestJson('PATCH', '/api/contacts/'.$grace['id'].'/contact-details', ['links' => ['https://www.linkedin.com/in/countess-of-lovelace']]);
 
         $this->assertResponseStatusCodeSame(403);
         $this->assertStringNotContainsString('Lovelace', (string) json_encode($problem));
     }
 
-    public function testAContactCollectedWithAProfileAnotherContactHoldsIsRefusedNamingThem(): void
+    public function testAContactCollectedWithALinkAnotherContactHoldsIsRefusedNamingThem(): void
     {
         $organization = $this->anOrganization('ACME');
         $ada = $this->collect(self::ADA, $organization);
 
-        $problem = $this->collect(['name' => ['firstName' => 'Grace', 'lastName' => 'Hopper'], 'contactDetails' => ['linkedInProfile' => 'https://fr.linkedin.com/in/Countess-Of-Lovelace']], $organization);
+        $problem = $this->collect(['name' => ['firstName' => 'Grace', 'lastName' => 'Hopper'], 'contactDetails' => ['links' => ['https://fr.linkedin.com/in/Countess-Of-Lovelace']]], $organization);
 
         $this->assertResponseStatusCodeSame(422);
-        $this->assertSame([['propertyPath' => 'linkedInProfile', 'reason' => 'linkedInProfileAlreadyUsed', 'context' => ['holder' => 'Ada Lovelace', 'holderId' => $ada['id']]]], array_map(static fn (array $violation): array => array_intersect_key($violation, array_flip(['propertyPath', 'reason', 'context'])), $problem['violations']));
+        $this->assertSame([['propertyPath' => 'links', 'reason' => 'referenceAlreadyUsed', 'context' => ['holder' => 'Ada Lovelace', 'holderId' => $ada['id']]]], array_map(static fn (array $violation): array => array_intersect_key($violation, array_flip(['propertyPath', 'reason', 'context'])), $problem['violations']));
     }
 
     public function testTheListShowsTheOrganizationsOfEachContact(): void
@@ -158,7 +158,7 @@ class ContactApiTest extends ApiTestCase
         $contact = $this->requestJson('GET', '/api/contacts/'.$id);
         $this->assertTrue($contact['masked']);
         $this->assertSame(['Ada', 'Lovelace', 'ms'], [$contact['name']['firstName'], $contact['name']['lastName'], $contact['civility']]);
-        $this->assertSame(['a***@***', '******42', '***', 'D***e'], [$contact['contactDetails']['email'], $contact['contactDetails']['phoneNumber'], $contact['contactDetails']['linkedInProfile'], $contact['jobTitle']]);
+        $this->assertSame(['a***@***', '******42', [['source' => '***', 'identifier' => '***', 'address' => '***']], 'D***e'], [$contact['contactDetails']['email'], $contact['contactDetails']['phoneNumber'], $contact['contactDetails']['links'], $contact['jobTitle']]);
         $this->assertSame(['self', 'exchanges', 'tags'], array_keys($contact['_links']));
         $this->assertSame(['self', 'search', 'searchByTags'], array_keys($this->requestJson('GET', '/api/contacts')['_links']));
 

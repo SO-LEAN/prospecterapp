@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { renderInARouter } from '@/test/render-in-a-router'
@@ -17,13 +17,18 @@ vi.mock('@/shared/auth/session', () => ({
 }))
 
 const ADA = '0190a1c0-0000-7000-8000-000000000001'
-const NOT_A_PROFILE = 'https://example.test/ada'
+const A_COMPANY_PAGE = 'https://www.linkedin.com/company/acme'
+const HER_PROFILE = {
+  source: 'linkedin',
+  identifier: 'ada-lovelace',
+  address: 'https://www.linkedin.com/in/ada-lovelace',
+}
 
 const ada: Contact = {
   id: ADA,
   name: { firstName: 'Ada', lastName: 'Lovelace' },
   civility: 'x',
-  contactDetails: { email: 'ada@acme.test', phoneNumber: null, language: null, linkedInProfile: null },
+  contactDetails: { email: 'ada@acme.test', phoneNumber: null, language: null, links: [HER_PROFILE] },
   masked: false,
   _links: {
     self: { href: `/api/contacts/${ADA}`, method: 'GET' },
@@ -31,15 +36,15 @@ const ada: Contact = {
   },
 }
 
-const anAddressThatIsNoProfile = {
+const aPageOfAnotherKind = {
   title: 'Validation Failed',
   status: 422,
   violations: [
     {
-      propertyPath: 'linkedInProfile',
-      title: `LinkedIn profile "${NOT_A_PROFILE}" is not valid`,
-      reason: 'invalidLinkedInProfile',
-      context: { linkedInProfile: NOT_A_PROFILE },
+      propertyPath: 'links',
+      title: 'A page of linkedin-company designates an organization',
+      reason: 'referenceOfAnotherKind',
+      context: { source: 'linkedin-company', designates: 'organization' },
     },
   ],
 }
@@ -50,71 +55,112 @@ const grace: Contact = {
   ...ada,
   id: GRACE,
   name: { firstName: 'Grace', lastName: 'Hopper' },
-  contactDetails: { email: null, phoneNumber: null, language: null, linkedInProfile: null },
+  contactDetails: { email: null, phoneNumber: null, language: null, links: [] },
   _links: {
     self: { href: `/api/contacts/${GRACE}`, method: 'GET' },
     changeContactDetails: { href: `/api/contacts/${GRACE}/contact-details`, method: 'PATCH' },
   },
 }
 
-const aProfileHeldBy = (holder: string) => ({
+const aLinkHeldBy = (holder: string) => ({
   title: 'Validation Failed',
   status: 422,
-  reason: 'linkedInProfileAlreadyUsed',
+  reason: 'referenceAlreadyUsed',
   violations: [
     {
-      propertyPath: 'linkedInProfile',
-      title: `LinkedIn profile already held by ${holder}`,
-      reason: 'linkedInProfileAlreadyUsed',
+      propertyPath: 'links',
+      title: `Link already held by ${holder}`,
+      reason: 'referenceAlreadyUsed',
       context: { holder, holderId: ADA },
     },
   ],
 })
 
+function sendingTo(sent: unknown[], answer: Response) {
+  return async (input: RequestInfo | URL) => {
+    sent.push(await (input as Request).clone().json())
+    return answer
+  }
+}
+
+async function edit(user: ReturnType<typeof userEvent.setup>) {
+  await user.click(screen.getByRole('button', { name: /^Modifier\s:\sCoordonnées$/ }))
+}
+
 afterEach(() => theApi.mockReset())
 
 describe('the contact details of a contact', () => {
-  it('note the LinkedIn profile, an address that is no profile refused on its field', async () => {
-    const user = userEvent.setup()
-    const sent: unknown[] = []
-    theApi.mockImplementation(async (input) => {
-      sent.push(await (input as Request).clone().json())
-      return Response.json(anAddressThatIsNoProfile, { status: 422 })
-    })
+  it('show each link with the mark of its source', () => {
     render(
       <QueryClientProvider client={new QueryClient()}>
         <ContactDetailsSection contact={ada} />
       </QueryClientProvider>,
     )
 
-    await user.click(screen.getByRole('button', { name: /^Modifier\s:\sCoordonnées$/ }))
-    await user.type(screen.getByLabelText(/^Profil LinkedIn/), NOT_A_PROFILE)
+    const link = screen.getByRole('link', { name: /linkedin\.com\/in\/ada-lovelace$/ })
+    expect(link).toHaveAttribute('href', HER_PROFILE.address)
+    expect(within(link).getByRole('img', { name: 'LinkedIn' })).toBeInTheDocument()
+  })
+
+  it('add a link pasted to those kept, a page of another kind refused on the links', async () => {
+    const user = userEvent.setup()
+    const sent: unknown[] = []
+    theApi.mockImplementation(sendingTo(sent, Response.json(aPageOfAnotherKind, { status: 422 })))
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <ContactDetailsSection contact={ada} />
+      </QueryClientProvider>,
+    )
+
+    await edit(user)
+    await user.type(screen.getByLabelText(/^Ajouter un lien/), `${A_COMPANY_PAGE}{Enter}`)
     await user.click(screen.getByRole('button', { name: 'Enregistrer' }))
 
     expect(
-      await screen.findByText(
-        /^L’adresse «\shttps:\/\/example\.test\/ada\s» n’est pas celle d’un profil LinkedIn\.$/,
-      ),
+      await screen.findByText('Une page entreprise LinkedIn désigne une organisation, pas une personne.'),
     ).toBeInTheDocument()
     expect(sent).toEqual([
-      { email: 'ada@acme.test', phoneNumber: null, language: null, linkedInProfile: NOT_A_PROFILE },
+      {
+        email: 'ada@acme.test',
+        phoneNumber: null,
+        language: null,
+        links: [HER_PROFILE.address, A_COMPANY_PAGE],
+      },
     ])
   })
 
-  it('refuse a profile another contact holds, naming them and linking their sheet', async () => {
+  it('take a link off', async () => {
     const user = userEvent.setup()
-    theApi.mockResolvedValue(Response.json(aProfileHeldBy('Ada Lovelace'), { status: 422 }))
+    const sent: unknown[] = []
+    theApi.mockImplementation(sendingTo(sent, Response.json(ada)))
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <ContactDetailsSection contact={ada} />
+      </QueryClientProvider>,
+    )
+
+    await edit(user)
+    await user.click(screen.getByRole('button', { name: 'Retirer linkedin.com/in/ada-lovelace' }))
+    await user.click(screen.getByRole('button', { name: 'Enregistrer' }))
+
+    expect(sent).toEqual([{ email: 'ada@acme.test', phoneNumber: null, language: null, links: [] }])
+  })
+
+  it('refuse a link another contact holds, naming them and linking their sheet', async () => {
+    const user = userEvent.setup()
+    theApi.mockResolvedValue(Response.json(aLinkHeldBy('Ada Lovelace'), { status: 422 }))
     await renderInARouter(
       <QueryClientProvider client={new QueryClient()}>
         <ContactDetailsSection contact={grace} />
       </QueryClientProvider>,
     )
 
-    await user.click(screen.getByRole('button', { name: /^Modifier\s:\sCoordonnées$/ }))
-    await user.type(screen.getByLabelText(/^Profil LinkedIn/), 'https://www.linkedin.com/in/ada-lovelace')
+    await edit(user)
+    await user.type(screen.getByLabelText(/^Ajouter un lien/), HER_PROFILE.address)
+    await user.click(screen.getByRole('button', { name: 'Ajouter' }))
     await user.click(screen.getByRole('button', { name: 'Enregistrer' }))
 
-    expect(await screen.findByText('Ce profil LinkedIn est déjà celui d’Ada Lovelace.')).toBeInTheDocument()
+    expect(await screen.findByText('Ce lien est déjà celui d’Ada Lovelace.')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Voir la fiche d’Ada Lovelace' })).toHaveAttribute(
       'href',
       `/contacts/${ADA}`,

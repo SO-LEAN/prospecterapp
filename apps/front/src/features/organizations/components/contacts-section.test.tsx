@@ -24,7 +24,7 @@ const qaContacts: Organization = {
   id: QA_CONTACTS,
   name: 'QA contacts',
   legalIdentity: { corporateName: 'QA contacts' },
-  contactDetails: {},
+  contactDetails: { links: [] },
   contactIds: [],
   possibleDuplicates: [],
   createdAt: '2026-11-16T09:00:00+00:00',

@@ -5,11 +5,14 @@ namespace App\PersonalData\Persistence;
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Hydrator;
 use Prospecter\Core\PersonalData\Domain\Model\Civility;
-use Prospecter\Core\PersonalData\Domain\Model\LinkedInProfile;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Designated;
+use Prospecter\Core\SharedKernel\Domain\ExternalReference;
+use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
+use Prospecter\Core\SharedKernel\Domain\KnownSource;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
@@ -31,8 +34,8 @@ final class PersonDocument
             'purpose' => $state['purpose']->value,
             'name' => ['firstName' => $state['name']->firstName, 'lastName' => $state['name']->lastName],
             'contactDetails' => Documents::contactDetails($state['contactDetails']),
-            'linkedInProfile' => $state['linkedInProfile']?->value,
-            'formerLinkedInProfiles' => array_map(strval(...), $state['formerLinkedInProfiles']),
+            'references' => Documents::references($state['references']),
+            'formerReferences' => Documents::references(ExternalReferences::of($state['formerReferences'])),
             'jobTitle' => $state['jobTitle'],
             'civility' => $state['civility']->value,
             'picture' => Documents::file($state['picture']),
@@ -52,8 +55,8 @@ final class PersonDocument
             'purpose' => Purpose::from($document['purpose']),
             'name' => new PersonName($document['name']['firstName'] ?? null, $document['name']['lastName'] ?? null),
             'contactDetails' => Documents::contactDetailsOf($document['contactDetails']),
-            'linkedInProfile' => self::linkedInProfileOf($document),
-            'formerLinkedInProfiles' => array_map(static fn (string $former): LinkedInProfile => new LinkedInProfile($former), $document['formerLinkedInProfiles'] ?? []),
+            'references' => self::referencesOf($document),
+            'formerReferences' => self::formerReferencesOf($document)->all(),
             'jobTitle' => $document['jobTitle'],
             'civility' => self::civilityOf($document),
             'picture' => Documents::fileOf($document['picture']),
@@ -73,12 +76,45 @@ final class PersonDocument
     }
 
     /**
-     * A person saved before the profiles were noted has none.
+     * Their links, recognized again by their addresses; their LinkedIn profile for a person saved before the links were
+     * (ADR 0139), none before the profiles were noted.
      *
      * @param array<string, mixed> $document
      */
-    public static function linkedInProfileOf(array $document): ?LinkedInProfile
+    public static function referencesOf(array $document): ExternalReferences
     {
-        return LinkedInProfile::orNone($document['linkedInProfile'] ?? null);
+        return Documents::referencesOf(isset($document['references']) ? array_column($document['references'], 'address') : array_filter([$document['linkedInProfile'] ?? null]), Designated::Person);
+    }
+
+    /**
+     * Whether they are reached on LinkedIn: a profile there among their links.
+     *
+     * @param array<string, mixed> $document
+     */
+    public static function isOnLinkedIn(array $document): bool
+    {
+        return self::referencesOf($document)->hasOneOf(KnownSource::LinkedInProfile);
+    }
+
+    /**
+     * What recognizes each link they hold, theirs and their former ones.
+     *
+     * @param array<string, mixed> $document
+     *
+     * @return list<string>
+     */
+    public static function referenceKeysHeld(array $document): array
+    {
+        return array_map(static fn (ExternalReference $reference): string => $reference->key(), self::person($document)->referencesHeld());
+    }
+
+    /**
+     * Their former links, their former LinkedIn profiles for a person saved before the links were (ADR 0159).
+     *
+     * @param array<string, mixed> $document
+     */
+    private static function formerReferencesOf(array $document): ExternalReferences
+    {
+        return Documents::referencesOf(isset($document['formerReferences']) ? array_column($document['formerReferences'], 'address') : $document['formerLinkedInProfiles'] ?? [], Designated::Person);
     }
 }

@@ -17,7 +17,7 @@ vi.mock('@/shared/auth/session', () => ({
 
 const myAccount: Account = {
   name: { firstName: null, lastName: null },
-  contactDetails: { email: null, phoneNumber: null, language: null },
+  contactDetails: { email: null, phoneNumber: null, language: null, links: [] },
   organization: { legalIdentity: { corporateName: 'Babbage & Co' } },
   _links: { self: { href: '/api/me', method: 'GET' } },
 }

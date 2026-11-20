@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\PersonalData\Domain\Repository;
 
-use Prospecter\Core\PersonalData\Domain\Exception\LinkedInProfileTakenMeanwhile;
+use Prospecter\Core\PersonalData\Domain\Exception\ReferenceTakenMeanwhile;
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
-use Prospecter\Core\PersonalData\Domain\Model\LinkedInProfile;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
+use Prospecter\Core\SharedKernel\Domain\ExternalReference;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
@@ -48,9 +48,9 @@ interface PersonRepository
     public function contactsHavingEmails(AccountId $accountId, array $emails): array;
 
     /**
-     * The other contact of the account holding this profile, as their own or as a former one, if any.
+     * The other contact of the account holding this link, as one of their own or as a former one, if any.
      */
-    public function contactHoldingLinkedInProfile(AccountId $accountId, LinkedInProfile $profile, PersonId $except): ?Person;
+    public function contactHoldingReference(AccountId $accountId, ExternalReference $reference, PersonId $except): ?Person;
 
     /**
      * The contact of the account having this e-mail, if any.
@@ -63,8 +63,8 @@ interface PersonRepository
     public function contactWithPhoneNumber(AccountId $accountId, PhoneNumber $phoneNumber): ?Person;
 
     /**
-     * @throws EmailAlreadyUsed              when another person took the email meanwhile (EmailUniqueness checked it before)
-     * @throws LinkedInProfileTakenMeanwhile when another contact took a profile meanwhile (LinkedInProfileUniqueness checked it before)
+     * @throws EmailAlreadyUsed        when another person took the email meanwhile (EmailUniqueness checked it before)
+     * @throws ReferenceTakenMeanwhile when another contact took a link meanwhile (ReferenceUniqueness checked it before)
      */
     public function save(Person $person): void;
 }

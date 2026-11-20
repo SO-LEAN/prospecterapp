@@ -7,7 +7,7 @@ namespace App\Consistency;
  * account derive from are recorded again; a reaction missed is given again to the worker from the queue of its
  * failures, or, when no failure keeps it, published again from the outbox of its commit; an item missing from its list
  * gets its keys written again; an exchange its calendar lacks is pushed again by its holder; a contact left unattached
- * past their day is erased; two contacts noting the same LinkedIn profile are merged or corrected by the members.
+ * past their day is erased; two contacts noting the same link are merged or corrected by the members.
  */
 enum Correction: string
 {

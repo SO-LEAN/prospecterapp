@@ -40,7 +40,7 @@ final class StartProspectingController extends AbstractController
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'The signed-in user is not a prospector', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'Unknown holding, or one that is not prospected by mine', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 422, description: 'Invalid organization, email, LinkedIn page or domain of the website already used, or neither corporate name nor email', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 422, description: 'Invalid organization, email, link or domain of the website already used, or neither corporate name nor email', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[MapRequestPayload] StartProspectingInput $input, #[CurrentUser] User $user): JsonResponse
     {
         $id = $this->identities->next();
@@ -61,7 +61,7 @@ final class StartProspectingController extends AbstractController
             observations: $input->observations,
             holdingId: $input->holdingId,
             executedAt: $this->clock->now(),
-            linkedInPage: $input->contactDetails->linkedInPage,
+            links: $input->contactDetails->links,
             website: $input->contactDetails->website,
         ));
 

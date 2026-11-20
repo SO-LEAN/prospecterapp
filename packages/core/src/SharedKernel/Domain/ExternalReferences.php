@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\SharedKernel\Domain;
 
+use Prospecter\Core\SharedKernel\Domain\Exception\NotAWebAddress;
+use Prospecter\Core\SharedKernel\Domain\Exception\ReferenceOfAnotherKind;
 use Prospecter\Core\SharedKernel\Domain\Exception\TooManyLinks;
+use Prospecter\Core\SharedKernel\Domain\Exception\UnrecognizedPage;
 
 /**
  * The links of a person or of an organization, each reference once, a few at most: they are optional, a sheet may have
@@ -21,8 +24,15 @@ final readonly class ExternalReferences
     {
     }
 
+    public static function none(): self
+    {
+        return new self([]);
+    }
+
     /**
      * @param list<string> $addresses
+     *
+     * @throws NotAWebAddress|ReferenceOfAnotherKind|UnrecognizedPage|TooManyLinks
      */
     public static function designating(array $addresses, Designated $designated): self
     {
@@ -49,6 +59,19 @@ final readonly class ExternalReferences
         }
 
         return new self(array_values($once));
+    }
+
+    public function holds(ExternalReference $reference): bool
+    {
+        return array_any($this->references, static fn (ExternalReference $held): bool => $held->key() === $reference->key());
+    }
+
+    /**
+     * Whether one of them is of this source: a person is reached on LinkedIn by their profile there.
+     */
+    public function hasOneOf(KnownSource $source): bool
+    {
+        return array_any($this->references, static fn (ExternalReference $reference): bool => $reference->source === $source->value);
     }
 
     /**

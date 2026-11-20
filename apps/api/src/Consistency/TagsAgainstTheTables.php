@@ -97,7 +97,7 @@ final readonly class TagsAgainstTheTables
             'hasEmail' => null !== $contactDetails->email,
             'hasPhone' => null !== $contactDetails->phoneNumber,
             'hasMobile' => true === $contactDetails->phoneNumber?->isMobile(),
-            'hasLinkedIn' => null !== PersonDocument::linkedInProfileOf($person),
+            'hasLinkedIn' => PersonDocument::isOnLinkedIn($person),
         ];
     }
 

@@ -11,7 +11,7 @@ const colmar = { street: '1 rue des Clefs', postalCode: '68000', city: 'Colmar',
 function anAccountOfMyOrganization(organization: Partial<Account['organization']>): Account {
   return {
     name: { firstName: 'Michel', lastName: null },
-    contactDetails: { email: 'michel@example.com' },
+    contactDetails: { email: 'michel@example.com', links: [] },
     organization: { legalIdentity: { corporateName: 'SO-LEAN' }, ...organization },
     _links: { self: { href: '/api/me', method: 'GET' } },
   }

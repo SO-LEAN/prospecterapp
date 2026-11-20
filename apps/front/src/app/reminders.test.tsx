@@ -34,7 +34,7 @@ const THE_REMINDER = 'Visio avec Ada Lovelace à 14h00'
 
 const me: Account = {
   name: { firstName: 'Grace', lastName: 'Hopper' },
-  contactDetails: { email: null, phoneNumber: null, language: null },
+  contactDetails: { email: null, phoneNumber: null, language: null, links: [] },
   organization: { legalIdentity: { corporateName: 'Babbage & Co' } },
   _links: { self: { href: '/api/me', method: 'GET' } },
 }
@@ -43,7 +43,7 @@ const ada: Contact = {
   id: ADA,
   name: { firstName: 'Ada', lastName: 'Lovelace' },
   civility: 'x',
-  contactDetails: { email: 'ada@acme.test', phoneNumber: null, language: null },
+  contactDetails: { email: 'ada@acme.test', phoneNumber: null, language: null, links: [] },
   masked: false,
   _links: { self: { href: `/api/contacts/${ADA}`, method: 'GET' } },
 }
@@ -92,7 +92,7 @@ const acme: Organization = {
   id: ACME,
   name: 'ACME',
   legalIdentity: { corporateName: 'ACME' },
-  contactDetails: {},
+  contactDetails: { links: [] },
   contactIds: [],
   possibleDuplicates: [],
   createdAt: '2026-10-26T09:00:00+00:00',

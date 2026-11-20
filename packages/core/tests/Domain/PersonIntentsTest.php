@@ -17,6 +17,7 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotFound;
+use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
 use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
@@ -89,7 +90,7 @@ class PersonIntentsTest extends TestCase
                 PersonIntent::Rename => $person->rename(new PersonName('Ada'), $by, new \DateTimeImmutable(self::AT)),
                 PersonIntent::ChangeJobTitle => $person->changeJobTitle('Directrice commerciale', $by, new \DateTimeImmutable(self::AT)),
                 PersonIntent::ChangeCivility => $person->changeCivility(Civility::Ms, $by, new \DateTimeImmutable(self::AT)),
-                PersonIntent::ChangeContactDetails => $person->changeContactDetails(new ContactDetails(phoneNumber: PhoneNumber::of('03 88 00 00 00')), null, $by, new \DateTimeImmutable(self::AT)),
+                PersonIntent::ChangeContactDetails => $person->changeContactDetails(new ContactDetails(phoneNumber: PhoneNumber::of('03 88 00 00 00')), ExternalReferences::none(), $by, new \DateTimeImmutable(self::AT)),
                 PersonIntent::ChangePicture => $person->changePicture(new File('https://storage.test/ada.png', 'png', 1024), $by, new \DateTimeImmutable(self::AT)),
                 PersonIntent::Forget => $person->forget($by, new \DateTimeImmutable(self::AT)),
             };

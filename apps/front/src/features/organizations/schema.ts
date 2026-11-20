@@ -38,7 +38,7 @@ export const startProspectingFields = [
   'contactDetails.email',
   'contactDetails.phoneNumber',
   'contactDetails.language',
-  'contactDetails.linkedInPage',
+  'contactDetails.links',
   'contactDetails.website',
   'address.street',
   'address.postalCode',

@@ -2,7 +2,7 @@
 Fonctionnalité: Soupçonner un doublon d'organisation
   En tant que prospecteur
   Je veux qu'une organisation qui ressemble à une autre soit signalée comme doublon possible, sans être refusée
-  Afin de ne pas prospecter deux fois la même organisation, notée sans SIRET, sans page LinkedIn ni site
+  Afin de ne pas prospecter deux fois la même organisation, notée sans SIRET, sans lien ni site
 
   Contexte:
     Soit l'organisation "SOLEAN IT" qui utilise Prospecter

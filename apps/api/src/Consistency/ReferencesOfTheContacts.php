@@ -2,12 +2,14 @@
 
 namespace App\Consistency;
 
+use App\PersonalData\Persistence\PersonDocument;
+
 /**
- * A LinkedIn profile designates one contact of an account, by their profile or a former one: two contacts noting the
- * same, noted before it was unique, are shown by their ids, never the profile, for the members to merge them or correct
- * one of them by hand.
+ * A link designates one contact of an account, by their links or their former ones: two contacts noting the same,
+ * noted before it was unique, are shown by their ids, never the link, for the members to merge them or correct one of
+ * them by hand.
  */
-final readonly class LinkedInProfilesOfTheContacts
+final readonly class ReferencesOfTheContacts
 {
     public function __construct(private ContextTables $tables)
     {
@@ -31,13 +33,13 @@ final readonly class LinkedInProfilesOfTheContacts
         $holders = [];
 
         foreach ($this->tables->contactDocumentsOf($accountId) as $contact) {
-            foreach (self::profilesHeldBy($contact) as $profile) {
-                $holders[$profile][] = $contact['id'];
+            foreach (self::referencesHeldBy($contact) as $reference) {
+                $holders[$reference][] = $contact['id'];
             }
         }
         $shared = array_filter($holders, static fn (array $contacts): bool => count($contacts) > 1);
 
-        return array_values(array_map(static fn (array $contacts): Discrepancy => new Discrepancy($accountId, implode(', ', self::sorted($contacts)), 'contacts noting the same LinkedIn profile', Correction::MergeOrCorrectByHand), $shared));
+        return array_values(array_map(static fn (array $contacts): Discrepancy => new Discrepancy($accountId, implode(', ', self::sorted($contacts)), 'contacts noting the same link', Correction::MergeOrCorrectByHand), $shared));
     }
 
     /**
@@ -55,10 +57,10 @@ final readonly class LinkedInProfilesOfTheContacts
     /**
      * @param array<string, mixed> $contact
      *
-     * @return list<string>
+     * @return list<string> what recognizes each
      */
-    private static function profilesHeldBy(array $contact): array
+    private static function referencesHeldBy(array $contact): array
     {
-        return array_values(array_filter([$contact['linkedInProfile'] ?? null, ...$contact['formerLinkedInProfiles'] ?? []]));
+        return PersonDocument::referenceKeysHeld($contact);
     }
 }

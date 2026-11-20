@@ -11,6 +11,7 @@ namespace Prospecter\Core\PersonalData\Application\CollectContact;
 final readonly class CollectContact
 {
     /**
+     * @param list<string> $links           the addresses of their links
      * @param list<string> $organizationIds
      */
     public function __construct(
@@ -23,7 +24,7 @@ final readonly class CollectContact
         public ?string $email,
         public ?string $phoneNumber,
         public ?string $language,
-        public ?string $linkedInProfile,
+        public array $links,
         public array $organizationIds,
         public \DateTimeImmutable $executedAt,
     ) {

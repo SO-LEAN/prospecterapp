@@ -51,7 +51,7 @@ export function CompleteMyProfileForm({ account, loginEmail, onCompleted }: Prop
           email,
           phoneNumber: account.contactDetails.phoneNumber ?? null,
           language: account.contactDetails.language ?? null,
-          linkedInProfile: account.contactDetails.linkedInProfile ?? null,
+          links: account.contactDetails.links.map((link) => link.address),
         },
       })
       onCompleted()

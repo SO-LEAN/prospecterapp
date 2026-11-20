@@ -3,6 +3,9 @@ import type { CampaignMessage, Channel } from './queries'
 
 type ContactDetails = components['schemas']['PersonContactDetailsResource']
 
+/** The source of the profile of a person on LinkedIn, among their links. */
+const LINKEDIN_PROFILE = 'linkedin'
+
 /** What opens the tool of the channel for a recipient: the mail, the SMS, the call, or the profile in a new tab. */
 export type Opening = { href: string; external: boolean }
 
@@ -15,7 +18,7 @@ export function meansOf(channel: Channel, contactDetails: ContactDetails): strin
     case 'sms':
       return contactDetails.phoneNumber ?? null
     case 'linkedIn':
-      return contactDetails.linkedInProfile ?? null
+      return contactDetails.links.find((link) => link.source === LINKEDIN_PROFILE)?.address ?? null
   }
 }
 
