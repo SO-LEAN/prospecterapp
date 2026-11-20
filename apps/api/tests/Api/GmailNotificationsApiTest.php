@@ -66,7 +66,8 @@ class GmailNotificationsApiTest extends ApiTestCase
         $this->notify($this->tokenOf(), self::MAILBOX, 1010);
 
         $this->assertResponseStatusCodeSame(204);
-        $this->login();
+        // signed in once: the client never rebooted checks the tokens at the moment of its first request, a token
+        // issued since in its future
         $timeline = $this->requestJson('GET', '/api/contacts/'.$ada.'/exchanges');
         $this->assertResponseIsSuccessful();
         $this->assertSame([['email', 'inbound', "Votre devis\n\nBonjour Michel, c'est validé."]], array_map(static fn (array $exchange): array => [$exchange['channel'], $exchange['direction'], $exchange['text']], $timeline['items']));
