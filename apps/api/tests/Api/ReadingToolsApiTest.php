@@ -94,6 +94,25 @@ class ReadingToolsApiTest extends ApiTestCase
         $this->assertTheToolAnswersAsItsEndpoint('proposer-lieu-de-rendez-vous', ['id' => $ada], '/api/contacts/'.$ada.'/meeting-place');
     }
 
+    public function testTheAiReadsAContact(): void
+    {
+        $ada = $this->ada();
+
+        $this->assertTheToolAnswersAsItsEndpoint('lire-contact', ['id' => $ada], '/api/contacts/'.$ada);
+    }
+
+    public function testTheAiOfTheAssistantReadsTheNameInClearAndTheRestMasked(): void
+    {
+        $ada = $this->ada();
+        $this->login('assistant-user');
+
+        $contact = $this->answerOf($this->callWithoutHandshake('lire-contact', ['id' => $ada]));
+
+        $this->assertSame(['firstName' => 'Ada', 'lastName' => 'Lovelace'], $contact['name']);
+        $this->assertNotSame('ada@babbage.test', $contact['contactDetails']['email']);
+        $this->assertNotSame('03 88 00 00 42', $contact['contactDetails']['phoneNumber']);
+    }
+
     /**
      * Ada Lovelace, the contact of the demonstration, at Babbage & Co.
      */
