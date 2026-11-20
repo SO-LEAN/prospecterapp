@@ -5,6 +5,7 @@ namespace Tests\App\Booking;
 use Prospecter\Core\Booking\Domain\Exception\SlotNotFree;
 use Prospecter\Core\Booking\Domain\Model\Appointment;
 use Prospecter\Core\Booking\Domain\Model\AppointmentId;
+use Prospecter\Core\Booking\Domain\Model\AppointmentRequest;
 use Prospecter\Core\Booking\Domain\Model\Booker;
 use Prospecter\Core\Booking\Domain\Model\Channel;
 use Prospecter\Core\Booking\Domain\Repository\AppointmentRepository;
@@ -73,14 +74,16 @@ class DynamoAppointmentRepositoryTest extends ApiTestCase
     private function appointmentOf(MemberId $host, string $slot, ?string $subject = null): Appointment
     {
         return Appointment::booked(
-            new AppointmentId(self::newIdentity()),
             new AccountId(self::newIdentity()),
             $host,
-            new PersonId(self::newIdentity()),
-            new \DateTimeImmutable($slot)->setTimezone(new \DateTimeZone('Europe/Paris')),
-            Channel::VideoCall,
-            Booker::named('Ada', 'Lovelace', '06 12 34 56 78', 'ada@acme.fr'),
-            $subject,
+            new AppointmentRequest(
+                new AppointmentId(self::newIdentity()),
+                new PersonId(self::newIdentity()),
+                new \DateTimeImmutable($slot)->setTimezone(new \DateTimeZone('Europe/Paris')),
+                Channel::VideoCall,
+                Booker::named('Ada', 'Lovelace', '06 12 34 56 78', 'ada@acme.fr'),
+                $subject,
+            ),
             new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS),
         );
     }

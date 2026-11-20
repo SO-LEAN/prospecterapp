@@ -6,10 +6,12 @@ namespace Prospecter\Core\Booking\Application\BookSlot;
 
 use Prospecter\Core\Booking\Domain\Exception\BookingUnavailable;
 use Prospecter\Core\Booking\Domain\Model\AppointmentId;
+use Prospecter\Core\Booking\Domain\Model\AppointmentRequest;
 use Prospecter\Core\Booking\Domain\Model\Booker;
 use Prospecter\Core\Booking\Domain\Model\BookingCode;
 use Prospecter\Core\Booking\Domain\Model\BookingPage;
 use Prospecter\Core\Booking\Domain\Model\Channel;
+use Prospecter\Core\Booking\Domain\Model\HostAgenda;
 use Prospecter\Core\Booking\Domain\Repository\AppointmentRepository;
 use Prospecter\Core\Booking\Domain\Repository\BookingPageRepository;
 use Prospecter\Core\Booking\Domain\Service\BusyPeriods;
@@ -35,19 +37,26 @@ final readonly class BookSlotHandler implements CommandHandler
     public function __invoke(BookSlot $command): void
     {
         $page = $this->bookablePageAt(new BookingCode($command->code));
-        $appointment = $page->book(
+        $appointment = $page->book(self::requestOf($command), $this->agendaOf($page, $command->executedAt), $command->executedAt);
+        $this->appointments->save($appointment);
+        $this->publishWhatHappenedTo($appointment);
+    }
+
+    private static function requestOf(BookSlot $command): AppointmentRequest
+    {
+        return new AppointmentRequest(
             new AppointmentId($command->appointmentId),
             new PersonId($command->bookerId),
             $command->slot,
             Channel::from($command->channel),
             Booker::named($command->firstName, $command->lastName, $command->phone, $command->email),
             $command->subject,
-            $this->busyPeriods->of($page->accountId(), $page->host(), $command->executedAt),
-            $this->appointments->toComeOf($page->host(), $command->executedAt),
-            $command->executedAt,
         );
-        $this->appointments->save($appointment);
-        $this->publishWhatHappenedTo($appointment);
+    }
+
+    private function agendaOf(BookingPage $page, \DateTimeImmutable $at): HostAgenda
+    {
+        return new HostAgenda($this->busyPeriods->of($page->accountId(), $page->host(), $at), $this->appointments->toComeOf($page->host(), $at));
     }
 
     /**
