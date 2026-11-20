@@ -2,6 +2,7 @@
 
 namespace App\Shared\Mcp;
 
+use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -11,8 +12,23 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 final readonly class ToolInputs
 {
-    public function __construct(private ValidatorInterface $validator)
+    public function __construct(private ValidatorInterface $validator, private DenormalizerInterface $denormalizer)
     {
+    }
+
+    /**
+     * The input built from the arguments as the query string of the endpoint would be, those left out by default.
+     *
+     * @template TInput of object
+     *
+     * @param class-string<TInput>       $input
+     * @param array<string, scalar|null> $arguments
+     *
+     * @return TInput
+     */
+    public function mapped(string $input, array $arguments): object
+    {
+        return $this->valid($this->denormalizer->denormalize(array_filter($arguments, static fn (mixed $argument): bool => null !== $argument), $input));
     }
 
     /**
