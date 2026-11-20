@@ -35,6 +35,14 @@ final readonly class MessageReference
         return $reference;
     }
 
+    /**
+     * Noted by hand, or by an AI that read none.
+     */
+    public static function none(): self
+    {
+        return new self(null, null);
+    }
+
     private static function messageIdIn(?string $given): ?MessageId
     {
         $messageId = new MessageId((string) $given);

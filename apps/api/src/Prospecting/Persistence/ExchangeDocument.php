@@ -14,6 +14,7 @@ use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\Duration;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeFingerprint;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\Prospecting\Domain\Model\ImportedEmail;
@@ -51,6 +52,7 @@ final class ExchangeDocument
             'campaignId' => $state['campaign']?->value,
             'importedFrom' => null === $state['importedFrom'] ? null : ['provider' => $state['importedFrom']->provider, 'identity' => $state['importedFrom']->identity],
             'bookedByLink' => $state['bookedByLink'],
+            'fingerprint' => $state['fingerprint']?->value,
             'facts' => [
                 'channel' => $facts->channel->value,
                 'direction' => $facts->direction->value,
@@ -88,6 +90,7 @@ final class ExchangeDocument
             'campaign' => null === ($document['campaignId'] ?? null) ? null : new CampaignId($document['campaignId']),
             'importedFrom' => null === ($document['importedFrom'] ?? null) ? null : new ImportedEmail($document['importedFrom']['provider'], $document['importedFrom']['identity']),
             'bookedByLink' => $document['bookedByLink'] ?? false,
+            'fingerprint' => null === ($document['fingerprint'] ?? null) ? null : Hydrator::restore(ExchangeFingerprint::class, ['value' => $document['fingerprint']]),
             'facts' => new ExchangeFacts(Channel::from($facts['channel']), Direction::from($facts['direction']), Documents::momentOf($facts['occurredAt']), $facts['text'], self::duration($facts['durationInMinutes'] ?? null), $facts['place'] ?? null, self::link($facts['link'] ?? null), self::linkRequestedOf($document)),
             'status' => self::statusOf($document),
             'lastCorrection' => self::correction($document['lastCorrection'] ?? null),

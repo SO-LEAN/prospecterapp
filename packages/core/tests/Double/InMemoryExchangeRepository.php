@@ -6,7 +6,9 @@ namespace Tests\Core\Double;
 
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownExchange;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeFingerprint;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
+use Prospecter\Core\Prospecting\Domain\Model\Fingerprinted;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
@@ -31,11 +33,17 @@ final readonly class InMemoryExchangeRepository implements ExchangeRepository
     public function remove(Exchange $exchange): void
     {
         $this->database->forgetExchange((string) $exchange->id());
+        $this->database->eraseFingerprintOf($exchange);
     }
 
     public function wasImported(ExchangeId $id): bool
     {
         return $this->database->wasImported((string) $id);
+    }
+
+    public function fingerprinted(AccountId $accountId, ExchangeFingerprint $fingerprint): ?Fingerprinted
+    {
+        return $this->database->fingerprinted($accountId, $fingerprint);
     }
 
     public function keptFor(OrganizationId $organization): array

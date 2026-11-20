@@ -74,6 +74,7 @@ services:
     Prospecter\Core\Prospecting\Domain\Service\DuplicateSuspicion: ~
     Prospecter\Core\Prospecting\Domain\Service\OrphanContacts: ~
     Prospecter\Core\Prospecting\Domain\Service\ContactOrganizations: ~
+    Prospecter\Core\Prospecting\Domain\Service\NotedOnce: ~
     Prospecter\Core\PersonalData\Domain\Service\EmailUniqueness: ~
     Prospecter\Core\PersonalData\Domain\Service\ReferenceUniqueness: ~
     Prospecter\Core\Reporting\Application\FactRecorder: ~

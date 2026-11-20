@@ -3,14 +3,18 @@
 namespace Tests\App\Prospecting;
 
 use App\Shared\Persistence\Hydrator;
+use Prospecter\Core\Prospecting\Domain\Exception\ExchangeNotedMeanwhile;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownExchange;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
 use Prospecter\Core\Prospecting\Domain\Model\Correction;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
+use Prospecter\Core\Prospecting\Domain\Model\Erasure;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeFingerprint;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
+use Prospecter\Core\Prospecting\Domain\Model\Fingerprinted;
 use Prospecter\Core\Prospecting\Domain\Model\ImportedEmail;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
@@ -136,6 +140,46 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
         $this->assertFalse($exchanges->wasImported(new ExchangeId(self::newIdentity())));
     }
 
+    public function testANotedExchangeIsFoundByItsFingerprint(): void
+    {
+        $exchanges = $this->exchanges();
+        $exchange = $this->noted('2026-10-10 09:00 UTC');
+        $exchanges->save($exchange);
+
+        $this->assertEquals(new Fingerprinted($exchange->id()), $exchanges->fingerprinted($this->prospector->accountId, self::fingerprintOf($exchange)));
+    }
+
+    public function testTheRegistrationRefusesAFingerprintNotedMeanwhile(): void
+    {
+        $this->exchanges()->save($this->noted('2026-10-10 09:00 UTC'));
+
+        $this->expectException(ExchangeNotedMeanwhile::class);
+
+        $this->exchanges()->save($this->noted('2026-10-10 09:00 UTC'));
+    }
+
+    public function testTheFingerprintOfAnErasedExchangeKeepsWhoErasedIt(): void
+    {
+        $exchanges = $this->exchanges();
+        $exchange = $this->noted('2026-10-10 09:00 UTC');
+        $exchanges->save($exchange);
+
+        $exchange->erase(by: $this->prospector->id, at: new \DateTimeImmutable(self::NOW));
+        $exchanges->remove($exchange);
+
+        $this->assertEquals(new Fingerprinted($exchange->id(), new Erasure($this->prospector->id, new \DateTimeImmutable(self::NOW))), $exchanges->fingerprinted($this->prospector->accountId, self::fingerprintOf($exchange)));
+    }
+
+    public function testAnExchangeIsReadWithItsFingerprint(): void
+    {
+        $exchanges = $this->exchanges();
+        $exchange = $this->noted('2026-10-10 09:00 UTC');
+        $exchange->releaseEvents();
+        $exchanges->save($exchange);
+
+        $this->assertEquals($exchange->fingerprint(), $exchanges->get($exchange->id())->fingerprint());
+    }
+
     public function testAnExchangeNeverNotedIsUnknown(): void
     {
         $this->expectException(UnknownExchange::class);
@@ -146,6 +190,11 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
     private function noted(string $occurredAt): Exchange
     {
         return Exchange::notedWithAContact($this->prospector->accountId, $this->prospector->id, new ExchangeId(self::newIdentity()), $this->contact, [$this->acme, $this->group], new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable($occurredAt), 'Rappeler lundi'), ExchangeStatus::Done, new \DateTimeImmutable(self::NOW));
+    }
+
+    private static function fingerprintOf(Exchange $exchange): ExchangeFingerprint
+    {
+        return $exchange->fingerprint() ?? throw new \LogicException('A noted exchange has a fingerprint');
     }
 
     private function exchanges(): ExchangeRepository
