@@ -203,6 +203,35 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         $this->assertSame(['ACME SAS', 'Paris', 'Vu au salon', $holding], [$started['name'], $started['address']['city'], $started['observations'], $started['holdingId']]);
     }
 
+    public function testTheAiStopsProspectingAnOrganizationOnceItsMemberConfirmed(): void
+    {
+        $babbage = $this->babbage();
+        foreach (['assistant-user', 'member-user', 'stranger'] as $refused) {
+            $this->login($refused);
+            $refusal = $this->callWithoutHandshake('arreter-prospection', ['id' => $babbage]);
+
+            $this->assertSame($this->requestJson('DELETE', '/api/organizations/'.$babbage), $this->answerOf($refusal), sprintf('refused to %s', $refused));
+        }
+        $this->login();
+
+        $this->assertNotTrue($this->callWithoutHandshake('arreter-prospection', ['id' => $babbage])['isError'] ?? false);
+
+        $this->requestJson('GET', '/api/organizations/'.$babbage);
+        $this->assertResponseStatusCodeSame(404);
+        $this->assertTheToolAsksForAConfirmation('arreter-prospection');
+    }
+
+    public function testTheAiOfAProspectorWithoutTheRightToManageThePersonalDataStopsProspectingAnOrganizationWithoutContacts(): void
+    {
+        $holding = $this->aHolding();
+        $this->login('assistant-user');
+
+        $this->assertNotTrue($this->callWithoutHandshake('arreter-prospection', ['id' => $holding])['isError'] ?? false);
+
+        $this->requestJson('GET', '/api/organizations/'.$holding);
+        $this->assertResponseStatusCodeSame(404);
+    }
+
     /**
      * Ada Lovelace, the contact of the demonstration, at Babbage & Co.
      */
