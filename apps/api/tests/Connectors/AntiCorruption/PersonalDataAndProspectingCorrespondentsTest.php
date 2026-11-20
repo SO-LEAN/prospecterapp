@@ -44,32 +44,21 @@ class PersonalDataAndProspectingCorrespondentsTest extends TestCase
     }
 
     /**
-     * @param array<string, string> $contacts      the contact having each address
-     * @param array<string, string> $organizations the organization having each address
+     * Nobody of the account has any address.
      */
-    private function correspondents(array $contacts = [], array $organizations = []): PersonalDataAndProspectingCorrespondents
+    private function correspondents(): PersonalDataAndProspectingCorrespondents
     {
         return new PersonalDataAndProspectingCorrespondents(
-            new readonly class($contacts) implements WhichContactsHaveTheseEmailsService {
-                /** @param array<string, string> $contacts */
-                public function __construct(private array $contacts)
-                {
-                }
-
+            new class implements WhichContactsHaveTheseEmailsService {
                 public function __invoke(WhichContactsHaveTheseEmails $query, WhichContactsHaveTheseEmailsOutput $output): void
                 {
-                    $output->present($this->contacts);
+                    $output->present([]);
                 }
             },
-            new readonly class($organizations) implements WhichOrganizationsHaveTheseEmailsService {
-                /** @param array<string, string> $organizations */
-                public function __construct(private array $organizations)
-                {
-                }
-
+            new class implements WhichOrganizationsHaveTheseEmailsService {
                 public function __invoke(WhichOrganizationsHaveTheseEmails $query, WhichOrganizationsHaveTheseEmailsOutput $output): void
                 {
-                    $output->present($this->organizations);
+                    $output->present([]);
                 }
             },
             $this->logger,
