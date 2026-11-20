@@ -8,8 +8,13 @@
 # FAIL_FAST=1 stopping at the first failure
 PHPUNIT_FAILED_FAST = $(if $(FAILED),--order-by=defects) $(if $(FAIL_FAST),--stop-on-failure)
 
+# its own limit of memory, the main process and each worker, over the 256M of the command line (php.ini): a worker of
+# the API, given its share of the files, outgrew it on a runner of the CI; the whole API analysed in one process peaks
+# at some 360M
+PHPSTAN_MEMORY_LIMIT = 1G
+
 lint-phpstan:
-	@$(PHP) vendor/bin/phpstan analyse --no-progress
+	@$(PHP) vendor/bin/phpstan analyse --no-progress --memory-limit=$(PHPSTAN_MEMORY_LIMIT)
 
 lint-style:
 	@$(PHP) vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.dist.php --dry-run --diff --show-progress=none $(if $(FILTER),--path-mode=intersection $(FILTER))
