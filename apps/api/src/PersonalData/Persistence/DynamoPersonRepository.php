@@ -196,9 +196,10 @@ final readonly class DynamoPersonRepository implements PersonRepository
 
     /**
      * Writes again the item of every person, its search keys and its key in its list with it, the item of their first
-     * name beside it, the reservation of each reference a contact holds, the link of their resemblance key (ADR 0170), and forgets the items of the search before
-     * ADR 0071 and the reservations of the LinkedIn profiles before the references: what a table written before ADR
-     * 0071, before ADR 0149, or before the references were unique, needs once.
+     * name beside it, the reservation of each reference a contact holds, the link of their resemblance key (ADR 0170),
+     * and forgets the items of the search before ADR 0071 and the reservations of the LinkedIn profiles before the
+     * references: what a table written before ADR 0071, before ADR 0149, before ADR 0170, or before the references were
+     * unique, needs once.
      */
     public function writeTheKeysAgain(): int
     {
@@ -211,7 +212,7 @@ final readonly class DynamoPersonRepository implements PersonRepository
                 ...array_map(fn (Person $person, array $item): array => $this->itemOf($person, $item['person'], Revision::of($item)), $persons, $items),
                 ...array_filter(array_map($this->firstNameItemOf(...), $persons)),
                 ...$reservations,
-                ...array_map(static fn (Person $contact): array => self::resemblanceLink($contact->accountId()->value, (string) $contact->resemblanceKey(), $contact->id()->value), array_values(array_filter($persons, static fn (Person $person): bool => null !== $person->resemblanceKey()))),
+                ...self::resemblanceLinksOf($persons),
             ],
             array_map(static fn (array $former): array => [$former['PK'], $former['SK']], [...$this->personalDataTable->scan('TOKEN'), ...$this->personalDataTable->scan(self::FORMER_LINKEDIN.'#'), ...$this->referencesNoLongerHeld($reservations)]),
         );
@@ -308,6 +309,20 @@ final readonly class DynamoPersonRepository implements PersonRepository
             ...(null === $key ? [] : [$this->personalDataTable->putting(self::resemblanceLink($person->accountId()->value, $key, $person->id()->value))]),
             ...(null === $storedKey ? [] : [$this->personalDataTable->deleting(PersonalDataKeys::ofResemblance($person->accountId()->value, $storedKey), PersonalDataKeys::person($person->id()->value))]),
         ];
+    }
+
+    /**
+     * The link of the resemblance key of each person who has one: a contact named by a first and a last name.
+     *
+     * @param list<Person> $persons
+     *
+     * @return list<array<string, string>>
+     */
+    private static function resemblanceLinksOf(array $persons): array
+    {
+        $resembling = array_values(array_filter($persons, static fn (Person $person): bool => null !== $person->resemblanceKey()));
+
+        return array_map(static fn (Person $contact): array => self::resemblanceLink($contact->accountId()->value, (string) $contact->resemblanceKey(), $contact->id()->value), $resembling);
     }
 
     /**
