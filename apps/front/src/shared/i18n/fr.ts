@@ -526,7 +526,29 @@ export const fr = {
       hoursOf: 'Heures de {{city}}',
       hoursConverted: 'Heures de {{city}}, converties depuis l’heure de {{hostCity}}',
       noSlotThatDay: 'Aucun créneau',
-      chosen: '{{channel}} le {{day}} à {{time}}',
+      recap: '{{channel}}, {{moment}}, 15 min',
+      form: {
+        title: 'Vos coordonnées',
+        firstName: 'Prénom',
+        lastName: 'Nom',
+        phone: 'Téléphone',
+        phoneHint: 'Préfixe +33 par défaut',
+        email: 'E-mail',
+        subject: 'Objet',
+        optional: 'facultatif',
+        trap: 'Ne remplissez pas ce champ',
+        privacy:
+          'Vos coordonnées servent à organiser ce rendez-vous. Elles sont effacées sous 30 jours si nous ne poursuivons pas.',
+        submit: 'Réserver',
+      },
+      booked: {
+        title: 'C’est réservé !',
+        invitation: 'Vous allez recevoir une invitation à {{email}}.',
+        call: '{{host}} vous appellera au {{phone}}.',
+        videoCall: 'Le lien de la visio est dans l’invitation.',
+      },
+      alreadyBooked:
+        'Vous avez déjà un rendez-vous le {{moment}}. Pour un autre rendez-vous, écrivez ou téléphonez à {{host}}.',
     },
   },
   account: {

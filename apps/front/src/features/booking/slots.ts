@@ -21,3 +21,17 @@ const dayFormat = new Intl.DateTimeFormat('fr-FR', {
 export function dayLabel(day: string): string {
   return dayFormat.format(new Date(`${day}T00:00:00Z`))
 }
+
+/** "2026-11-24T09:00:00+01:00" -> "mardi 24 novembre à 9h00": the moment of an appointment, on the clock given. */
+export function appointmentMoment(slot: string, timeZone: string): string {
+  const parts = new Intl.DateTimeFormat('fr-FR', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    hour: 'numeric',
+    minute: '2-digit',
+    timeZone,
+  }).formatToParts(new Date(slot))
+  const part = (type: Intl.DateTimeFormatPartTypes) => parts.find((each) => each.type === type)?.value
+  return `${part('weekday')} ${part('day')} ${part('month')} à ${Number(part('hour'))}h${part('minute')}`
+}

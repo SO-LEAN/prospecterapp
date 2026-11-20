@@ -42,6 +42,13 @@ export function useCloseBooking() {
   return api.useMutation('delete', '/api/me/booking-page/opening', { onSuccess: useKeepMyPage() })
 }
 
+/** A slot booked by its public link, its refusals told by the form of the booker. */
+export function useBookSlot() {
+  return api.useMutation('post', '/api/booking-pages/{code}/appointments', {
+    meta: { silentValidation: true },
+  })
+}
+
 export function useChangeBookingLink() {
   return api.useMutation('post', '/api/me/booking-page/link', { onSuccess: useKeepMyPage() })
 }

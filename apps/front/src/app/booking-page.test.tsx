@@ -26,15 +26,46 @@ vi.mock('@/shared/lib/time-zone', () => ({ readerTimeZone: () => theVisitor.time
 
 const CODE = 'AbCdEfGhIjKlMnOpQrStUv'
 
+const answer = (status: number, body: unknown) =>
+  Response.json(body, {
+    status,
+    headers: status >= 400 ? { 'Content-Type': 'application/problem+json' } : {},
+  })
+
 const theApiAnswers = (status: number, body: unknown) =>
   theApi.mockImplementation(async (input) => {
     const request = input as Request
     expect(new URL(request.url).pathname).toBe(`/api/booking-pages/${CODE}`)
-    return Response.json(body, {
-      status,
-      headers: status >= 400 ? { 'Content-Type': 'application/problem+json' } : {},
-    })
+    return answer(status, body)
   })
+
+/** The page, then the booking: what the booker sent kept, the API answering as told. */
+const theApiBooks = (status: number, body: unknown, page = anOpenPage()) => {
+  const sent: unknown[] = []
+  theApi.mockImplementation(async (input) => {
+    const request = input as Request
+    if (request.method === 'POST') {
+      expect(new URL(request.url).pathname).toBe(`/api/booking-pages/${CODE}/appointments`)
+      sent.push(await request.json())
+      return answer(status, body)
+    }
+    return answer(200, page)
+  })
+  return sent
+}
+
+/** A person takes some seconds to fill the form: the clock moves on meanwhile, the page sending when it showed it. */
+async function iFillTheFormFor(channel: 'Appel' | 'Visio', slot: string) {
+  const user = userEvent.setup()
+  await renderTheSpaAt(`/booking/${CODE}`)
+  await user.click(await screen.findByRole('radio', { name: channel }))
+  await user.click(screen.getByRole('button', { name: slot }))
+  await user.type(screen.getByLabelText('Prénom'), 'Ada')
+  await user.type(screen.getByLabelText('Nom'), 'Lovelace')
+  await user.type(screen.getByLabelText(/^Téléphone/), '06 12 34 56 78')
+  await user.type(screen.getByLabelText('E-mail'), 'ada@acme.fr')
+  return user
+}
 
 const anOpenPage = (channels: string[] = ['call', 'videoCall']) => ({
   open: true,
@@ -113,7 +144,7 @@ describe('the public page of a booking', () => {
     expect(screen.queryByRole('radio', { name: 'Appel' })).not.toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: '09:15' }))
     expect(screen.getByRole('button', { name: '09:15' })).toHaveAttribute('aria-pressed', 'true')
-    expect(screen.getByText('Visio le mar. 24 nov. à 09:15')).toBeInTheDocument()
+    expect(screen.getByText('Visio, mardi 24 novembre à 9h15, 15 min')).toBeInTheDocument()
   })
 
   it('waits for a channel before a slot when its host offers several', async () => {
@@ -132,5 +163,121 @@ describe('the public page of a booking', () => {
     await renderTheSpaAt(`/booking/${CODE}`)
 
     expect(await screen.findByText('Aucun créneau n’est disponible pour le moment.')).toBeInTheDocument()
+  })
+
+  it('recalls the slot chosen above the form, and why the booker gives their details', async () => {
+    theApiAnswers(200, anOpenPage(['videoCall']))
+
+    await renderTheSpaAt(`/booking/${CODE}`)
+    await userEvent.click(await screen.findByRole('button', { name: '09:00' }))
+
+    expect(screen.getByText('Visio, mardi 24 novembre à 9h00, 15 min')).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        'Vos coordonnées servent à organiser ce rendez-vous. Elles sont effacées sous 30 jours si nous ne poursuivons pas.',
+      ),
+    ).toBeInTheDocument()
+    expect(screen.getByLabelText(/^Objet/)).not.toBeRequired()
+  })
+
+  it('books the slot with what the booker said, then says the invitation and the link of the video call come', async () => {
+    const sent = theApiBooks(201, {
+      slot: '2026-11-24T09:00:00+01:00',
+      channel: 'videoCall',
+      email: 'ada@acme.fr',
+    })
+
+    const user = await iFillTheFormFor('Visio', '09:00')
+    await user.type(screen.getByLabelText(/^Objet/), 'Mission data en mars')
+    await user.click(screen.getByRole('button', { name: 'Réserver' }))
+
+    expect(await screen.findByText('C’est réservé !')).toBeInTheDocument()
+    expect(screen.getByText('Vous allez recevoir une invitation à ada@acme.fr.')).toBeInTheDocument()
+    expect(screen.getByText('Le lien de la visio est dans l’invitation.')).toBeInTheDocument()
+    expect(sent).toEqual([
+      {
+        slot: '2026-11-24T09:00:00+01:00',
+        channel: 'videoCall',
+        firstName: 'Ada',
+        lastName: 'Lovelace',
+        phone: '06 12 34 56 78',
+        email: 'ada@acme.fr',
+        subject: 'Mission data en mars',
+        website: '',
+        formShownAt: expect.any(String),
+      },
+    ])
+  })
+
+  it('says its host calls the booker of a call at the number they gave', async () => {
+    theApiBooks(201, { slot: '2026-11-24T09:15:00+01:00', channel: 'call', email: 'ada@acme.fr' })
+
+    const user = await iFillTheFormFor('Appel', '09:15')
+    await user.click(screen.getByRole('button', { name: 'Réserver' }))
+
+    expect(await screen.findByText('Camille vous appellera au 06 12 34 56 78.')).toBeInTheDocument()
+  })
+
+  it('tells a booker who has an appointment already when it is, and to write or call its host for another', async () => {
+    theApiBooks(422, {
+      title: 'Validation Failed',
+      status: 422,
+      detail: 'You already have an appointment',
+      reason: 'alreadyBooked',
+      violations: [
+        {
+          propertyPath: 'email',
+          title: 'You already have an appointment',
+          reason: 'alreadyBooked',
+          context: { appointment: '2026-11-24T09:00:00+01:00' },
+        },
+      ],
+    })
+
+    const user = await iFillTheFormFor('Appel', '09:15')
+    await user.click(screen.getByRole('button', { name: 'Réserver' }))
+
+    expect(
+      await screen.findByText(
+        'Vous avez déjà un rendez-vous le mardi 24 novembre à 9h00. Pour un autre rendez-vous, écrivez ou téléphonez à Camille.',
+      ),
+    ).toBeInTheDocument()
+  })
+
+  it('sends the booker back to the slots when theirs was just taken, read again', async () => {
+    theApiBooks(422, {
+      title: 'Validation Failed',
+      status: 422,
+      detail: 'This slot was just taken',
+      reason: 'slotNotFree',
+      violations: [
+        { propertyPath: 'slot', title: 'This slot was just taken', reason: 'slotNotFree', context: {} },
+      ],
+    })
+
+    const user = await iFillTheFormFor('Appel', '09:15')
+    await user.click(screen.getByRole('button', { name: 'Réserver' }))
+
+    expect(
+      await screen.findByText('Ce créneau vient d’être pris : choisissez-en un autre.'),
+    ).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Réserver' })).not.toBeInTheDocument()
+    expect(theApi.mock.calls.filter(([request]) => (request as Request).method === 'GET')).toHaveLength(2)
+  })
+
+  it('refuses to send a form without its phone', async () => {
+    const sent = theApiBooks(201, {})
+
+    const user = userEvent.setup()
+    await renderTheSpaAt(`/booking/${CODE}`)
+    await user.click(await screen.findByRole('radio', { name: 'Appel' }))
+    await user.click(screen.getByRole('button', { name: '09:00' }))
+    await user.type(screen.getByLabelText('Prénom'), 'Ada')
+    await user.type(screen.getByLabelText('Nom'), 'Lovelace')
+    await user.type(screen.getByLabelText('E-mail'), 'ada@acme.fr')
+    await user.click(screen.getByRole('button', { name: 'Réserver' }))
+
+    expect(await screen.findByText('Ce champ est obligatoire.')).toBeInTheDocument()
+    expect(sent).toEqual([])
   })
 })
