@@ -165,6 +165,7 @@ use Prospecter\Core\PersonalData\Application\ForgetContact\ForgetContactHandler;
 use Prospecter\Core\PersonalData\Application\ForgetContactLeftUnattached\ForgetContactLeftUnattachedHandler;
 use Prospecter\Core\PersonalData\Application\ForgetContactsLeftWithoutOrganization\ForgetContactsLeftWithoutOrganizationHandler;
 use Prospecter\Core\PersonalData\Application\IdentifyBooker\IdentifyBookerHandler;
+use Prospecter\Core\PersonalData\Application\LiftSuspicionInReturn\LiftSuspicionInReturnHandler as LiftContactSuspicionInReturnHandler;
 use Prospecter\Core\PersonalData\Application\ListContactFacts\ListContactFactsHandler;
 use Prospecter\Core\PersonalData\Application\NameContacts\NameContactsHandler;
 use Prospecter\Core\PersonalData\Application\PersonCard;
@@ -181,6 +182,7 @@ use Prospecter\Core\PersonalData\Application\SearchContacts\ContactPage;
 use Prospecter\Core\PersonalData\Application\SearchContacts\KeptContactPage;
 use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContacts;
 use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContactsHandler;
+use Prospecter\Core\PersonalData\Application\SuspectDuplicateInReturn\SuspectDuplicateInReturnHandler as SuspectContactDuplicateInReturnHandler;
 use Prospecter\Core\PersonalData\Application\WhichAreContacts\WhichAreContactsHandler;
 use Prospecter\Core\PersonalData\Application\WhichContactsHaveTheseEmails\WhichContactsHaveTheseEmailsHandler;
 use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\KeptContactFacts;
@@ -195,6 +197,7 @@ use Prospecter\Core\PersonalData\Contract\Service\WhichAreContacts\KeptContacts;
 use Prospecter\Core\PersonalData\Contract\Service\WhichAreContacts\WhichAreContacts;
 use Prospecter\Core\PersonalData\Contract\Service\WhichContactsHaveTheseEmails\KeptContactsByEmail;
 use Prospecter\Core\PersonalData\Contract\Service\WhichContactsHaveTheseEmails\WhichContactsHaveTheseEmails;
+use Prospecter\Core\PersonalData\Domain\Service\DuplicateSuspicion as ContactDuplicateSuspicion;
 use Prospecter\Core\PersonalData\Domain\Service\EmailUniqueness as PersonalDataEmailUniqueness;
 use Prospecter\Core\PersonalData\Domain\Service\ReferenceUniqueness as PersonReferenceUniqueness;
 use Prospecter\Core\Prospecting\Application\AddContact\AddContactHandler;
@@ -296,7 +299,6 @@ use Prospecter\Core\Prospecting\Application\MarkExchangeDone\MarkExchangeDoneHan
 use Prospecter\Core\Prospecting\Application\MarkExchangeMissed\MarkExchangeMissedHandler;
 use Prospecter\Core\Prospecting\Application\MoveExchange\MoveExchangeHandler;
 use Prospecter\Core\Prospecting\Application\NameOrganizationsOfContacts\NameOrganizationsOfContactsHandler;
-use Prospecter\Core\Prospecting\Application\WhichOrganizationsNameTheseContacts\WhichOrganizationsNameTheseContactsHandler;
 use Prospecter\Core\Prospecting\Application\NoteCampaignExchange\NoteCampaignExchangeHandler;
 use Prospecter\Core\Prospecting\Application\NoteExchange\NoteExchangeHandler;
 use Prospecter\Core\Prospecting\Application\NoteImportedEmail\NoteImportedEmailHandler;
@@ -350,6 +352,7 @@ use Prospecter\Core\Prospecting\Application\ToDoList;
 use Prospecter\Core\Prospecting\Application\UntickToDo\UntickToDoHandler;
 use Prospecter\Core\Prospecting\Application\WhichAreProspected\WhichAreProspectedHandler;
 use Prospecter\Core\Prospecting\Application\WhichOrganizationsHaveTheseEmails\WhichOrganizationsHaveTheseEmailsHandler;
+use Prospecter\Core\Prospecting\Application\WhichOrganizationsNameTheseContacts\WhichOrganizationsNameTheseContactsHandler;
 use Prospecter\Core\Prospecting\Application\WriteObservations\WriteObservationsHandler;
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultHeldExchanges;
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultPlannedExchanges;
@@ -361,14 +364,14 @@ use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\KeptOrgan
 use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\ListOrganizationFacts;
 use Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\KeptOrganizationsOfContacts;
 use Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\NameOrganizationsOfContacts;
-use Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsNameTheseContacts\KeptOrganizationsNamingContacts;
-use Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsNameTheseContacts\OrganizationsNamingContactResponse;
-use Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsNameTheseContacts\WhichOrganizationsNameTheseContacts;
 use Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\OrganizationsOfContactResponse;
 use Prospecter\Core\Prospecting\Contract\Service\WhichAreProspected\KeptProspected;
 use Prospecter\Core\Prospecting\Contract\Service\WhichAreProspected\WhichAreProspected;
 use Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsHaveTheseEmails\KeptOrganizationsByEmail;
 use Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsHaveTheseEmails\WhichOrganizationsHaveTheseEmails;
+use Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsNameTheseContacts\KeptOrganizationsNamingContacts;
+use Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsNameTheseContacts\OrganizationsNamingContactResponse;
+use Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsNameTheseContacts\WhichOrganizationsNameTheseContacts;
 use Prospecter\Core\Prospecting\Domain\Service\ContactOrganizations;
 use Prospecter\Core\Prospecting\Domain\Service\DuplicateSuspicion;
 use Prospecter\Core\Prospecting\Domain\Service\EmailUniqueness as ProspectingEmailUniqueness;
@@ -488,6 +491,7 @@ use Tests\Core\Double\ProspectingHeldExchanges;
 use Tests\Core\Double\ProspectingHostAgendas;
 use Tests\Core\Double\ProspectingOrganizations;
 use Tests\Core\Double\ProspectingOrganizationsAndTheirContacts;
+use Tests\Core\Double\ProspectingOrganizationsOfContacts;
 use Tests\Core\Double\ProspectingTaggableOrganizations;
 use Tests\Core\Double\SynchronousEvents;
 use Tests\Core\Double\TimeOrderedUuids;
@@ -558,6 +562,7 @@ final class Application
     private readonly OrganizationReferenceUniqueness $organizationReferences;
     private readonly WebsiteUniqueness $organizationWebsites;
     private readonly DuplicateSuspicion $duplicateSuspicion;
+    private readonly ContactDuplicateSuspicion $contactDuplicateSuspicion;
     private readonly OrphanContacts $orphans;
     private readonly ContactOrganizations $contactOrganizations;
     public readonly InMemoryProjectionVersions $projectionVersions;
@@ -677,6 +682,7 @@ final class Application
         $this->organizationReferences = new OrganizationReferenceUniqueness($this->organizations);
         $this->organizationWebsites = new WebsiteUniqueness($this->organizations);
         $this->duplicateSuspicion = new DuplicateSuspicion($this->organizations);
+        $this->contactDuplicateSuspicion = new ContactDuplicateSuspicion($this->persons, new ProspectingOrganizationsOfContacts($this->whichOrganizationsNameTheseContactsService));
         $this->orphans = new OrphanContacts($this->organizations);
         $this->contactOrganizations = new ContactOrganizations($this->organizations, $this->contactsToAttach);
         $this->projectionVersions = new InMemoryProjectionVersions($database);
@@ -1250,7 +1256,7 @@ final class Application
             new DetachFromHoldingHandler($this->organizations, $this->events),
             new ChangeLogoHandler($this->organizations, $this->events, $this->files),
             new RemoveLogoHandler($this->organizations, $this->events),
-            new RenamePersonHandler($this->persons, $this->readers, $this->events),
+            new RenamePersonHandler($this->persons, $this->readers, $this->events, $this->contactDuplicateSuspicion),
             new ChangePersonContactDetailsHandler($this->persons, $this->readers, $this->events, $this->personEmails, $this->personReferences),
             new ChangePersonPictureHandler($this->persons, $this->readers, $this->events, $this->files),
             new ReviseMyOrganizationIdentityHandler($this->accounts, $this->members, $this->events),
@@ -1259,7 +1265,7 @@ final class Application
             new OpenAccountHandler($this->accounts, $this->events),
             new RegisterAMemberHandler($this->members, $this->events),
             new ChangeMyRemindersHandler($this->members, $this->events),
-            new CollectContactHandler($this->persons, $this->readers, $this->prospectedOrganizations, $this->events, $this->personEmails, $this->personReferences),
+            new CollectContactHandler($this->persons, $this->readers, $this->prospectedOrganizations, $this->events, $this->personEmails, $this->personReferences, $this->contactDuplicateSuspicion),
             new ChangeJobTitleHandler($this->persons, $this->readers, $this->events),
             new ChangeCivilityHandler($this->persons, $this->readers, $this->events),
             new ForgetContactHandler($this->persons, $this->readers, $this->events),
@@ -1592,6 +1598,8 @@ final class Application
             new KeepCreatedVideoCallLinkHandler($this->exchanges, $this->events),
             new SuspectDuplicateInReturnHandler($this->organizations, $this->events),
             new LiftSuspicionInReturnHandler($this->organizations, $this->events),
+            new SuspectContactDuplicateInReturnHandler($this->persons, $this->events),
+            new LiftContactSuspicionInReturnHandler($this->persons, $this->events),
             new DismissSuspicionInReturnHandler($this->organizations, $this->events),
             new NoteImportedEmailHandler($this->exchanges, $this->organizations, $this->prospectors, $this->contactOrganizations, new NotedOnce($this->exchanges), $this->events),
             new ForgetContactsLeftWithoutOrganizationHandler($this->persons, $this->readers, $this->events),

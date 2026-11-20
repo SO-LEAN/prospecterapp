@@ -39,6 +39,7 @@ final class PersonDocument
             'jobTitle' => $state['jobTitle'],
             'civility' => $state['civility']->value,
             'picture' => Documents::file($state['picture']),
+            'possibleDuplicates' => array_map(static fn (PersonId $id): string => $id->value, $state['possibleDuplicates']),
             'createdAt' => Documents::moment($state['createdAt']),
             'modifiedAt' => Documents::moment($state['modifiedAt']),
         ];
@@ -60,6 +61,7 @@ final class PersonDocument
             'jobTitle' => $document['jobTitle'],
             'civility' => self::civilityOf($document),
             'picture' => Documents::fileOf($document['picture']),
+            'possibleDuplicates' => array_map(static fn (string $id): PersonId => new PersonId($id), $document['possibleDuplicates'] ?? []),
             'createdAt' => Documents::momentOf($document['createdAt']),
             'modifiedAt' => Documents::momentOf($document['modifiedAt']),
         ]);

@@ -6,9 +6,11 @@ namespace Tests\Core\Double;
 
 use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\PersonalData\Application\Port\PersonCardRetriever;
+use Prospecter\Core\PersonalData\Application\PossibleDuplicate;
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\PersonIntent;
+use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\PersonalData\Domain\Model\Reader;
 use Prospecter\Core\PersonalData\Domain\Model\Reading;
@@ -37,7 +39,7 @@ final readonly class InMemoryPersonCardRetriever implements PersonCardRetriever
             throw UnknownPerson::identifiedBy($id);
         }
 
-        return self::cardOf($person, $reader);
+        return self::cardOf($person, $reader, PersonReading::showsPossibleDuplicatesTo($reader) ? $this->possibleDuplicatesOf($person) : []);
     }
 
     /**
@@ -54,9 +56,26 @@ final readonly class InMemoryPersonCardRetriever implements PersonCardRetriever
     }
 
     /**
-     * For a person the reader reaches.
+     * The contacts they are suspected of being a duplicate of, by their names as they keep them: one forgotten named
+     * by their identity, so that a suspicion the core forgot to lift shows.
+     *
+     * @return list<PossibleDuplicate>
      */
-    public static function cardOf(Person $person, Reader $reader): PersonCard
+    private function possibleDuplicatesOf(Person $person): array
+    {
+        return array_map(function (PersonId $id): PossibleDuplicate {
+            $name = null === ($duplicate = $this->database->person($id->value)) ? new PersonName(lastName: $id->value) : $duplicate->name();
+
+            return new PossibleDuplicate($id->value, $name->firstName, $name->lastName);
+        }, StateOf::the($person)['possibleDuplicates']);
+    }
+
+    /**
+     * For a person the reader reaches; their possible duplicates read apart, the list of the contacts showing none.
+     *
+     * @param list<PossibleDuplicate> $possibleDuplicates
+     */
+    public static function cardOf(Person $person, Reader $reader, array $possibleDuplicates = []): PersonCard
     {
         $state = StateOf::the($person);
         $masked = Reading::Masked === PersonReading::by($reader, $person->id());
@@ -75,6 +94,7 @@ final readonly class InMemoryPersonCardRetriever implements PersonCardRetriever
             phoneNumber: $masked ? Masking::phoneNumber($contact->phoneNumber) : $contact->phoneNumber?->international(),
             language: $contact->language,
             links: $masked ? array_map(ExternalLink::masked(...), Masking::references($person->references())) : ExternalLink::allOf($person->references()),
+            possibleDuplicates: $possibleDuplicates,
             picture: $masked ? null : FileResponse::orNone($state['picture']),
             possibleIntents: array_map(static fn (PersonIntent $intent): string => $intent->name, PersonPossibilities::given($reader, $person->id(), $person->accountId(), $person->purpose())),
             createdAt: $state['createdAt'],

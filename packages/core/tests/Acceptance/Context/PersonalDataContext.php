@@ -18,9 +18,11 @@ use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPerson;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersons;
 use Prospecter\Core\PersonalData\Application\ForgetContact\ForgetContact;
 use Prospecter\Core\PersonalData\Application\PersonCard;
+use Prospecter\Core\PersonalData\Application\PossibleDuplicate;
 use Prospecter\Core\PersonalData\Application\RenamePerson\RenamePerson;
 use Prospecter\Core\PersonalData\Application\SearchContacts\ContactPage;
 use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContacts;
+use Prospecter\Core\PersonalData\Domain\Event\DuplicateSuspicionLifted;
 use Prospecter\Core\PersonalData\Domain\Model\Civility;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
@@ -252,6 +254,52 @@ final class PersonalDataContext implements Context
     {
         $values = Vocabulary::values($table->getRowsHash());
         $this->application->dispatch(new RenamePerson($this->application->signedIn(), $this->scenario->personIdOf($name), $values['prénom'], $values['nom'], $this->application->now()));
+    }
+
+    /**
+     * Both ways, as the reaction leaves them.
+     */
+    #[Given('le contact :name a été signalé comme doublon possible de :other')]
+    public function theContactWasSuspected(string $name, string $other): void
+    {
+        $contact = $this->scenario->personNamed($name);
+        $duplicate = $this->scenario->personNamed($other);
+        $by = $this->scenario->managerOfPersonalDataOf($contact->accountId())->id;
+        $contact->suspectDuplicateOf($duplicate->id(), by: $by, at: $this->application->now());
+        $duplicate->suspectDuplicateOf($contact->id(), by: $by, at: $this->application->now());
+        $this->application->persons->save($contact);
+        $this->application->persons->save($duplicate);
+    }
+
+    #[Then('aucune levée de soupçon de contact n\'a échoué')]
+    public function noLiftingOfASuspicionOfContactFailed(): void
+    {
+        Expect::same([], array_map(static fn (\Throwable $failure): string => $failure->getMessage(), $this->application->events->failuresOf(DuplicateSuspicionLifted::class)));
+    }
+
+    #[Then('le contact :name est signalé comme doublon possible de :other')]
+    public function theContactIsSuspected(string $name, string $other): void
+    {
+        Expect::same([$other], $this->possibleDuplicatesOf($name));
+    }
+
+    #[Then('le contact :name n\'est pas signalé')]
+    public function theContactIsNotSuspected(string $name): void
+    {
+        Expect::same([], $this->possibleDuplicatesOf($name));
+    }
+
+    /**
+     * Read on their card, by the member signed in.
+     *
+     * @return list<string>
+     */
+    private function possibleDuplicatesOf(string $name): array
+    {
+        $card = $this->application->consultPerson(new ConsultPerson($this->application->signedIn(), $this->scenario->personIdOf($name)));
+        Expect::that(null !== $card, sprintf('The card of %s was expected', $name));
+
+        return array_map(static fn (PossibleDuplicate $duplicate): string => trim(sprintf('%s %s', $duplicate->firstName, $duplicate->lastName)), $card->possibleDuplicates);
     }
 
     #[Then('je vois la fiche :')]

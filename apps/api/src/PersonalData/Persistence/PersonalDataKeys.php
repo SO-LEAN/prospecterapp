@@ -42,4 +42,12 @@ final class PersonalDataKeys
     {
         return sprintf('ACCOUNT#%s#%s', $accountId->value, $purpose->value);
     }
+
+    /**
+     * The links to the contacts of an account resembling each other, by their names.
+     */
+    public static function ofResemblance(string $accountId, string $key): string
+    {
+        return sprintf('RESEMBLANCE#%s#%s', $accountId, $key);
+    }
 }

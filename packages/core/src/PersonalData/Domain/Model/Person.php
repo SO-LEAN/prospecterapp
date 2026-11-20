@@ -8,6 +8,8 @@ use Prospecter\Core\PersonalData\Domain\Event\BookerIdentified;
 use Prospecter\Core\PersonalData\Domain\Event\CivilityChanged;
 use Prospecter\Core\PersonalData\Domain\Event\ContactCollected;
 use Prospecter\Core\PersonalData\Domain\Event\ContactForgotten;
+use Prospecter\Core\PersonalData\Domain\Event\DuplicateSuspected;
+use Prospecter\Core\PersonalData\Domain\Event\DuplicateSuspicionLifted;
 use Prospecter\Core\PersonalData\Domain\Event\JobTitleChanged;
 use Prospecter\Core\PersonalData\Domain\Event\PersonContactDetailsChanged;
 use Prospecter\Core\PersonalData\Domain\Event\PersonPictureChanged;
@@ -47,6 +49,8 @@ final class Person implements ReleasesEvents
     private ExternalReferences $references;
     /** @var list<ExternalReference> */
     private array $formerReferences = [];
+    /** @var list<PersonId> */
+    private array $possibleDuplicates = [];
     private \DateTimeImmutable $modifiedAt;
 
     private function __construct(
@@ -192,6 +196,64 @@ final class Person implements ReleasesEvents
         return new SearchKeys($this->name->lastName, $this->contactDetails->email, $this->name->firstName);
     }
 
+    /**
+     * What a contact shares with those resembling them, none for the profile of a member nor without both names.
+     */
+    public function resemblanceKey(): ?PersonResemblanceKey
+    {
+        return Purpose::Prospecting === $this->purpose ? PersonResemblanceKey::of($this->name) : null;
+    }
+
+    /**
+     * Suspected of being a duplicate of each contact resembling them, and no longer of the others. No member suspects:
+     * the moment of modification stays.
+     *
+     * @param list<PersonId> $resembling
+     */
+    public function reconsiderDuplicates(array $resembling, MemberId $by, \DateTimeImmutable $at): void
+    {
+        foreach ($this->possibleDuplicates as $suspected) {
+            if (!array_any($resembling, $suspected->equals(...))) {
+                $this->liftSuspicionOf($suspected, $by, $at);
+            }
+        }
+
+        foreach ($resembling as $duplicate) {
+            $this->suspectDuplicateOf($duplicate, $by, $at);
+        }
+    }
+
+    /**
+     * Suspected of being a duplicate of this contact, once.
+     */
+    public function suspectDuplicateOf(PersonId $duplicate, MemberId $by, \DateTimeImmutable $at): void
+    {
+        if ($this->isSuspectedDuplicateOf($duplicate)) {
+            return;
+        }
+
+        $this->possibleDuplicates[] = $duplicate;
+        $this->recordThat(new DuplicateSuspected($this->accountId, $by, $this->id, $duplicate, $at));
+    }
+
+    /**
+     * No longer suspected of being a duplicate of this contact; never suspected, nothing changes.
+     */
+    public function liftSuspicionOf(PersonId $duplicate, MemberId $by, \DateTimeImmutable $at): void
+    {
+        if (!$this->isSuspectedDuplicateOf($duplicate)) {
+            return;
+        }
+
+        $this->possibleDuplicates = array_values(array_filter($this->possibleDuplicates, static fn (PersonId $suspected): bool => !$suspected->equals($duplicate)));
+        $this->recordThat(new DuplicateSuspicionLifted($this->accountId, $by, $this->id, $duplicate, $at));
+    }
+
+    private function isSuspectedDuplicateOf(PersonId $duplicate): bool
+    {
+        return array_any($this->possibleDuplicates, $duplicate->equals(...));
+    }
+
     public function rename(PersonName $name, Reader $by, \DateTimeImmutable $at): void
     {
         $this->ensurePossible(PersonIntent::Rename, $by);
@@ -238,13 +300,18 @@ final class Person implements ReleasesEvents
 
     /**
      * Erases a prospected person: once the repository removed it, no organization may name it any more
-     * (ContactForgotten).
+     * (ContactForgotten), nor a contact suspect them of being their duplicate.
      *
      * @throws UnknownPerson|NotAllowed
      */
     public function forget(Reader $by, \DateTimeImmutable $at): void
     {
         $this->ensurePossible(PersonIntent::Forget, $by);
+
+        foreach ($this->possibleDuplicates as $suspected) {
+            $this->liftSuspicionOf($suspected, $by->id, $at);
+        }
+
         $this->recordThat(new ContactForgotten($this->accountId, $by->id, $this->id, $at));
     }
 

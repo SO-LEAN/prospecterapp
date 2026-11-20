@@ -2,10 +2,12 @@
 
 namespace Tests\App\PersonalData;
 
+use App\PersonalData\Persistence\DynamoPersonRepository;
 use App\PersonalData\Persistence\PersonDocument;
 use App\Shared\Persistence\Table;
 use Prospecter\Core\PersonalData\Domain\Model\Civility;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
+use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\PersonalData\Domain\Model\Reader;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
@@ -167,6 +169,66 @@ class DynamoPersonRepositoryTest extends ApiTestCase
         $this->persons()->save($this->personWithThePhoneNumber($account, '06 12 34 56 78'));
 
         $this->assertNull($this->persons()->contactWithPhoneNumber($account, PhoneNumber::of('+33698765432')));
+    }
+
+    public function testTheContactsResemblingAnotherAreFoundByTheirKey(): void
+    {
+        $account = new AccountId(self::newIdentity());
+        $ada = $this->contactNamed($account, 'Ada', 'Lovelace');
+        $this->persons()->save($ada);
+
+        $this->assertEquals([$ada->id()], $this->persons()->resembling($account, $this->contactNamed($account, 'ada', 'LOVELACE')->resemblanceKey(), except: new PersonId(self::newIdentity())));
+    }
+
+    public function testAForgottenContactResemblesNoOtherOne(): void
+    {
+        $account = new AccountId(self::newIdentity());
+        $ada = $this->contactNamed($account, 'Ada', 'Lovelace');
+        $this->persons()->save($ada);
+
+        $this->persons()->remove($ada);
+
+        $this->assertSame([], $this->persons()->resembling($account, $ada->resemblanceKey(), except: new PersonId(self::newIdentity())));
+    }
+
+    public function testARenamedContactNoLongerResemblesThoseOfItsFormerName(): void
+    {
+        $account = new AccountId(self::newIdentity());
+        $ada = $this->contactNamed($account, 'Ada', 'Lovelace');
+        $this->persons()->save($ada);
+        $formerKey = $ada->resemblanceKey();
+
+        $ada->rename(new PersonName('Grace', 'Hopper'), by: new Reader(new MemberId(self::newIdentity()), $account, new PersonId(self::newIdentity()), readsPersonalData: true), at: new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        $this->persons()->save($ada);
+
+        $this->assertSame([], $this->persons()->resembling($account, $formerKey, except: new PersonId(self::newIdentity())));
+    }
+
+    public function testAContactResemblingAnotherIsReadBackWithTheirPossibleDuplicates(): void
+    {
+        $ada = $this->contactNamed(new AccountId(self::newIdentity()), 'Ada', 'Lovelace');
+        $ada->suspectDuplicateOf(new PersonId(self::newIdentity()), by: new MemberId(self::newIdentity()), at: new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        $ada->releaseEvents();
+        $this->persons()->save($ada);
+
+        $this->assertEquals($ada, $this->persons()->get($ada->id()));
+    }
+
+    public function testTheKeysWrittenAgainLinkAContactToThoseResemblingThem(): void
+    {
+        $account = new AccountId(self::newIdentity());
+        $ada = $this->contactNamed($account, 'Ada', 'Lovelace');
+        $this->persons()->save($ada);
+        $this->personalDataTable()->batch([], [[sprintf('RESEMBLANCE#%s#%s', $account->value, $ada->resemblanceKey()), 'PERSON#'.$ada->id()]]);
+
+        self::getContainer()->get(DynamoPersonRepository::class)->writeTheKeysAgain();
+
+        $this->assertEquals([$ada->id()], $this->persons()->resembling($account, $ada->resemblanceKey(), except: new PersonId(self::newIdentity())));
+    }
+
+    private function contactNamed(AccountId $account, string $firstName, string $lastName): Person
+    {
+        return Person::collect(new PersonId(self::newIdentity()), $account, Purpose::Prospecting, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS), new PersonName($firstName, $lastName));
     }
 
     private function persons(): PersonRepository
