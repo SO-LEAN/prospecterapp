@@ -52,6 +52,27 @@ final readonly class ExternalReference
     }
 
     /**
+     * A reference as it was recognized when it was noted, whatever today's sources say of its address.
+     */
+    public static function restored(string $source, string $identifier, string $address): self
+    {
+        return new self($source, $identifier, $address);
+    }
+
+    /**
+     * The reference its address is today, a source known since taking over the links of its host; itself when today's
+     * rules refuse it, so that a reference noted before stays what it was.
+     */
+    public function recognizedAgain(Designated $designated): self
+    {
+        try {
+            return self::designating($this->address, $designated);
+        } catch (NotAWebAddress|ReferenceOfAnotherKind|UnrecognizedPage) {
+            return $this;
+        }
+    }
+
+    /**
      * What recognizes the reference, whatever its address: its source and its identifier.
      */
     public function key(): string
