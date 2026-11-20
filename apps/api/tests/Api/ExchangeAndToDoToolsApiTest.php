@@ -16,6 +16,7 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\App\Base\ActsAsItsEndpoint;
 use Tests\App\Base\ApiTestCase;
 use Tests\App\Double\GoogleDouble;
+use Tests\App\Double\InMemoryPrivateStorage;
 
 /**
  * An AI plans, handles and corrects the exchanges, and notes, ticks off and erases the to-dos, as its member does on
@@ -163,6 +164,20 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
         $this->assertSame('synced', $sync['sync']['state']);
         $this->assertSame($this->requestJson('GET', '/api/exchanges/'.$call.'/google-sync'), $sync);
         $this->assertCount(1, $this->google()->events());
+    }
+
+    public function testTheAiRemovesAFileJoinedToAnExchangeOnceItsMemberConfirmed(): void
+    {
+        $call = $this->aCallWithAdaNotedYesterday();
+        $upload = $this->requestJson('POST', '/api/uploads')['upload'];
+        self::getContainer()->get(InMemoryPrivateStorage::class)->send($upload, 2048, 'application/pdf');
+        $attachment = $this->requestJson('POST', '/api/exchanges/'.$call.'/attachments', ['upload' => $upload, 'name' => 'devis.pdf'])['attachments'][0]['id'];
+
+        $removed = $this->assertTheToolActsAsItsEndpoint('retirer-piece-jointe', ['id' => $call, 'attachmentId' => $attachment], 'DELETE', '/api/exchanges/'.$call.'/attachments/'.$attachment, null, self::PERSONAL_DATA_MANAGERS);
+
+        $this->assertSame([], $removed['attachments']);
+        $this->assertFalse(self::getContainer()->get(InMemoryPrivateStorage::class)->holds($upload));
+        $this->assertTheToolAsksForAConfirmation('retirer-piece-jointe');
     }
 
     public function testTheAiNotesAToDoForAContact(): void

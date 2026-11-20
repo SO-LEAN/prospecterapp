@@ -64,7 +64,6 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
         'api_contacts_tag',
         'api_contacts_take_off_tag',
         'api_exchanges_attach_file',
-        'api_exchanges_remove_attachment',
         'api_me_change_contact_details',
         'api_me_change_name',
         'api_me_change_organization_logo',
