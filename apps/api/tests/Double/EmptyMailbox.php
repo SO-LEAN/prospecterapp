@@ -35,7 +35,7 @@ final readonly class EmptyMailbox implements ProviderMailbox
         return new MailboxChanges([], $this->historyId, true);
     }
 
-    public function messagesReceivedAfter(ClientCredentials $client, RefreshToken $refreshToken, \DateTimeImmutable $moment, int $atMost): MailboxChanges
+    public function messagesExchangedAfter(ClientCredentials $client, RefreshToken $refreshToken, \DateTimeImmutable $moment, int $atMost): MailboxChanges
     {
         return new MailboxChanges([], $this->historyId, true);
     }

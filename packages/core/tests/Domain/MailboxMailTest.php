@@ -133,6 +133,6 @@ class MailboxMailTest extends TestCase
      */
     private static function mail(array $labels = ['INBOX'], string $subject = 'Votre devis', string $text = 'Bonjour', ?string $messageId = '<CAF1@mail.acme.fr>'): MailboxMail
     {
-        return new MailboxMail('18f3a', $messageId, new Email('ada@acme.fr'), $labels, new \DateTimeImmutable(self::AT), $subject, $text);
+        return new MailboxMail('18f3a', $messageId, new Email('ada@acme.fr'), [], $labels, new \DateTimeImmutable(self::AT), $subject, $text);
     }
 }

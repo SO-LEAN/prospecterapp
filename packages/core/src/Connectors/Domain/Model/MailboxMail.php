@@ -23,12 +23,14 @@ final readonly class MailboxMail
     public string $text;
 
     /**
-     * @param list<string> $labels where the provider files it
+     * @param list<Email>  $recipients its recipients in « To », none in copy
+     * @param list<string> $labels     where the provider files it
      */
     public function __construct(
         public string $providerId,
         public ?string $messageId,
         public Email $sender,
+        public array $recipients,
         public array $labels,
         public \DateTimeImmutable $exchangedAt,
         string $subject,
@@ -72,6 +74,21 @@ final readonly class MailboxMail
     public function isSent(): bool
     {
         return $this->isFiledIn(self::SENT) && !$this->isLeftOut();
+    }
+
+    /**
+     * Whom the e-mail was exchanged with: its sender when it was received, its recipients in « To » when the member
+     * sent it, nobody otherwise.
+     *
+     * @return list<Email>
+     */
+    public function correspondentAddresses(): array
+    {
+        return match (true) {
+            $this->isReceived() => [$this->sender],
+            $this->isSent() => $this->recipients,
+            default => [],
+        };
     }
 
     private function isFiledIn(string $label): bool

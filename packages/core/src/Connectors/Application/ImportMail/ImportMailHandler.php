@@ -19,12 +19,14 @@ use Prospecter\Core\SharedKernel\Application\Port\Events;
 
 /**
  * A message added to the mailbox of a member, received from a contact or from the address of an organization of their
- * account, is told to the other contexts, its subject and its text with it (ADR 0154): published by this reaction, no
- * domain event carrying the text. Anything else, a correspondent unknown included, is nothing to import.
+ * account, or sent to them in « To », is told to the other contexts, once per correspondent, its subject and its text
+ * with it (ADR 0154): published by this reaction, no domain event carrying the text. Anything else, a correspondent
+ * unknown included, is nothing to import.
  */
 final readonly class ImportMailHandler implements EventHandler
 {
     private const string RECEIVED = 'inbound';
+    private const string SENT = 'outbound';
 
     public function __construct(
         private ConnectionRepository $connections,
@@ -40,12 +42,16 @@ final readonly class ImportMailHandler implements EventHandler
         $connection = $this->connections->find($added->subject(), Provider::Google);
         $client = $this->clients->find($added->accountId, Provider::Google);
         $mail = null === $connection || null === $client ? null : $connection->mailOf($added->messageId, $client->credentials(), $this->mailbox);
-        $correspondent = null === $mail || !$mail->isReceived() ? null : Correspondent::havingTheAddress($mail->sender, $added->accountId, $this->correspondents);
-        if (null === $connection || null === $mail || null === $correspondent) {
+        if (null === $connection || null === $mail) {
             return;
         }
 
-        $this->events->publish($this->exchanged($added, $connection, $mail, $correspondent));
+        foreach ($mail->correspondentAddresses() as $address) {
+            $correspondent = Correspondent::havingTheAddress($address, $added->accountId, $this->correspondents);
+            if (null !== $correspondent) {
+                $this->events->publish($this->exchanged($added, $connection, $mail, $correspondent));
+            }
+        }
     }
 
     private function exchanged(MailboxMessageAdded $added, Connection $connection, MailboxMail $mail, Correspondent $correspondent): EmailExchanged
@@ -55,7 +61,7 @@ final readonly class ImportMailHandler implements EventHandler
             $added->by->value,
             Provider::Google->value,
             $mail->identityIn($connection->mailbox()),
-            self::RECEIVED,
+            $mail->isSent() ? self::SENT : self::RECEIVED,
             $correspondent->contact?->value,
             $correspondent->organization?->value,
             $mail->subject,

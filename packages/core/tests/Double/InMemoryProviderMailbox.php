@@ -106,12 +106,12 @@ final class InMemoryProviderMailbox implements ProviderMailbox
         return new MailboxChanges(array_map(static fn (array $message): string => $message['mail']->providerId, $listed), $complete ? $this->historyOf($mailbox) : (string) end($listed)['history'], $complete);
     }
 
-    public function messagesReceivedAfter(ClientCredentials $client, RefreshToken $refreshToken, \DateTimeImmutable $moment, int $atMost): MailboxChanges
+    public function messagesExchangedAfter(ClientCredentials $client, RefreshToken $refreshToken, \DateTimeImmutable $moment, int $atMost): MailboxChanges
     {
         $mailbox = $this->mailboxOf($client, $refreshToken);
-        $received = array_filter($this->messages[$mailbox] ?? [], static fn (array $message): bool => $message['mail']->exchangedAt > $moment && $message['mail']->isReceived());
+        $exchanged = array_filter($this->messages[$mailbox] ?? [], static fn (array $message): bool => $message['mail']->exchangedAt > $moment && ($message['mail']->isReceived() || $message['mail']->isSent()));
 
-        return new MailboxChanges(array_map(static fn (array $message): string => $message['mail']->providerId, array_slice($received, -$atMost)), $this->historyOf($mailbox), true);
+        return new MailboxChanges(array_map(static fn (array $message): string => $message['mail']->providerId, array_slice($exchanged, -$atMost)), $this->historyOf($mailbox), true);
     }
 
     /**

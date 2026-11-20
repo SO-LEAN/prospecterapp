@@ -28,10 +28,11 @@ use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\Core\Acceptance\Expect;
+use Tests\Core\Acceptance\Vocabulary;
 use Tests\Core\Double\StateOf;
 
 /**
- * The e-mails a member receives in their mailbox, imported as exchanges (ADR 0154).
+ * The e-mails a member receives in their mailbox, or sends from it, imported as exchanges (ADR 0154).
  */
 final class MailboxMailContext implements Context
 {
@@ -42,6 +43,8 @@ final class MailboxMailContext implements Context
     private const string SUBJECT = 'Un e-mail';
     private const string TEXT = 'Bonjour';
     private const string INBOX = 'INBOX';
+    private const string SENT = 'SENT';
+    private const string DRAFT = 'DRAFT';
 
     private int $messages = 0;
     /** @var array<string, MailboxMail> the message received last, by mailbox */
@@ -51,14 +54,41 @@ final class MailboxMailContext implements Context
     #[When('je reçois le :moment un e-mail de :from ayant pour objet :subject et pour texte :text')]
     public function iReceiveAnEMail(string $moment, string $from, string $subject, string $text): void
     {
-        $this->receive([self::MY_MAILBOX], $this->mail(self::senderIn($from), [self::INBOX], new \DateTimeImmutable($moment), $subject, $text));
+        $this->fileAndNotify([self::MY_MAILBOX], $this->mail(self::addressIn($from), [self::INBOX], new \DateTimeImmutable($moment), $subject, $text));
+    }
+
+    #[When('j\'envoie le :moment à :to un e-mail ayant pour objet :subject et pour texte :text')]
+    public function iSendAnEMail(string $moment, string $to, string $subject, string $text): void
+    {
+        $this->fileAndNotify([self::MY_MAILBOX], $this->sent([self::addressIn($to)], [self::SENT], new \DateTimeImmutable($moment), $subject, $text));
+    }
+
+    #[When('j\'enregistre un brouillon à :recipient')]
+    public function iSaveADraftTo(string $recipient): void
+    {
+        $this->fileAndNotify([self::MY_MAILBOX], $this->sent([new Email($recipient)], [self::DRAFT]));
+    }
+
+    #[When('j\'envoie un e-mail à :recipient avec :copied en copie')]
+    public function iSendAnEMailWithACopy(string $recipient, string $copied): void
+    {
+        $this->fileAndNotify([self::MY_MAILBOX], $this->sent([new Email($recipient)], [self::SENT]));
+    }
+
+    #[When('/^j\'envoie un e-mail à (?<recipients>"[^"]+"(?:(?:, | et )"[^"]+")*)$/')]
+    #[Given('/^j\'ai envoyé un e-mail à (?<recipients>"[^"]+"(?:(?:, | et )"[^"]+")*)$/')]
+    public function iSendAnEMailTo(string $recipients): void
+    {
+        preg_match_all('/"([^"]+)"/', $recipients, $addresses);
+
+        $this->fileAndNotify([self::MY_MAILBOX], $this->sent(array_map(static fn (string $address): Email => new Email($address), $addresses[1]), [self::SENT]));
     }
 
     #[When('je reçois un e-mail de :sender')]
     #[Given('j\'ai reçu un e-mail de :sender')]
     public function iReceiveAnEMailFrom(string $sender): void
     {
-        $this->receive([self::MY_MAILBOX], $this->mailFrom($sender));
+        $this->fileAndNotify([self::MY_MAILBOX], $this->mailFrom($sender));
     }
 
     #[When('je reçois un e-mail de :sender de Message-ID :messageId')]
@@ -66,37 +96,43 @@ final class MailboxMailContext implements Context
     public function iReceiveAnEMailOfMessageId(string $sender, string $messageId): void
     {
         $id = sprintf('message-%d', ++$this->messages);
-        $this->receive([self::MY_MAILBOX], new MailboxMail($id, $messageId, new Email($sender), [self::INBOX], $this->aMinuteLater(), self::SUBJECT, self::TEXT));
+        $this->fileAndNotify([self::MY_MAILBOX], new MailboxMail($id, $messageId, new Email($sender), [], [self::INBOX], $this->aMinuteLater(), self::SUBJECT, self::TEXT));
     }
 
     #[When('je reçois un e-mail de :sender avec :copied en copie')]
     public function iReceiveAnEMailWithACopy(string $sender, string $copied): void
     {
-        $this->receive([self::MY_MAILBOX], $this->mailFrom($sender));
+        $this->fileAndNotify([self::MY_MAILBOX], $this->mailFrom($sender));
     }
 
     #[When('je reçois un e-mail de :sender rangé dans :label')]
     public function iReceiveAnEMailFiledIn(string $sender, string $label): void
     {
-        $this->receive([self::MY_MAILBOX], $this->mail(new Email($sender), [$label]));
+        $this->fileAndNotify([self::MY_MAILBOX], $this->mail(new Email($sender), [$label]));
     }
 
     #[When('je reçois un e-mail de :sender dont l\'objet fait :subjectLength caractères et le texte :textLength')]
     public function iReceiveALongEMail(string $sender, int $subjectLength, int $textLength): void
     {
-        $this->receive([self::MY_MAILBOX], $this->mail(new Email($sender), [self::INBOX], null, str_repeat('o', $subjectLength), str_repeat('t', $textLength)));
+        $this->fileAndNotify([self::MY_MAILBOX], $this->mail(new Email($sender), [self::INBOX], null, str_repeat('o', $subjectLength), str_repeat('t', $textLength)));
     }
 
     #[When(':sender écrit à :first et à :second dans un même e-mail')]
     public function aSenderWritesToTwoMailboxes(string $sender, string $first, string $second): void
     {
-        $this->receive([$first, $second], $this->mailFrom($sender));
+        $this->fileAndNotify([$first, $second], $this->mailFrom($sender));
     }
 
     #[Given('Prospecter n\'a pas reçu la notification d\'un e-mail de :sender')]
     public function theNotificationOfAnEMailIsLost(string $sender): void
     {
         $this->application->mailboxes->receive(self::MY_MAILBOX, $this->mailFrom($sender));
+    }
+
+    #[Given('Prospecter n\'a pas reçu la notification d\'un e-mail envoyé à :recipient')]
+    public function theNotificationOfAnEMailSentIsLost(string $recipient): void
+    {
+        $this->application->mailboxes->receive(self::MY_MAILBOX, $this->sent([new Email($recipient)], [self::SENT]));
     }
 
     #[Given('Prospecter n\'a pas reçu la notification de :count e-mails de :sender')]
@@ -240,24 +276,37 @@ final class MailboxMailContext implements Context
         Expect::that(!array_any($this->imported(), static fn (Exchange $exchange): bool => StateOf::the($exchange)['importedFrom']?->identity === $oldest), 'The oldest e-mail was expected not to be imported');
     }
 
-    #[Then('/^la timeline de "(?<name>[^"]+)" montre un e-mail reçu$/')]
-    public function theTimelineShowsAnEMailReceived(string $name): void
+    #[Then('/^la timeline de "(?<name>[^"]+)" montre un e-mail (?<direction>reçu|envoyé)$/')]
+    public function theTimelineShowsAnEMail(string $name, string $direction): void
     {
-        Expect::that(array_any($this->imported(), static fn (Exchange $exchange): bool => 'email' === StateOf::the($exchange)['facts']->channel->value), sprintf('The timeline of %s was expected to show an e-mail received', $name));
+        $shown = array_any($this->imported(), fn (Exchange $exchange): bool => $this->correspondentOf($exchange) === $name && Vocabulary::direction($direction) === StateOf::the($exchange)['facts']->direction->value);
+
+        Expect::that($shown, sprintf('The timeline of %s was expected to show an e-mail %s', $name, $direction));
     }
 
-    #[Then(':account n\'a aucun autre contact que :name')]
-    public function theAccountHasNoOtherContactThan(string $account, string $name): void
+    /**
+     * Its contact, or else the organization it was exchanged with itself.
+     */
+    private function correspondentOf(Exchange $exchange): string
     {
+        $state = StateOf::the($exchange);
+
+        return null === $state['contact'] ? $this->scenario->nameOf($state['keptFor'][0]) : $this->scenario->nameOfPerson($state['contact']);
+    }
+
+    #[Then('/^"(?<account>[^"]+)" n\'a aucun autre contact que (?<names>.+)$/')]
+    public function theAccountHasNoOtherContactThan(string $account, string $names): void
+    {
+        preg_match_all('/"([^"]+)"/', $names, $expected);
         $contacts = array_filter($this->application->database->persons(), fn (Person $person): bool => $person->isAContactOf($this->scenario->accountIdOf($account)));
 
-        Expect::same([$name], array_values(array_map(fn (Person $person): string => $this->scenario->nameOfPerson($person->id()), $contacts)));
+        Expect::same($expected[1], array_values(array_map(fn (Person $person): string => $this->scenario->nameOfPerson($person->id()), $contacts)));
     }
 
     /**
      * @param list<string> $mailboxes
      */
-    private function receive(array $mailboxes, MailboxMail $mail): void
+    private function fileAndNotify(array $mailboxes, MailboxMail $mail): void
     {
         foreach ($mailboxes as $mailbox) {
             $this->application->mailboxes->receive($mailbox, $mail);
@@ -284,7 +333,18 @@ final class MailboxMailContext implements Context
     {
         $id = sprintf('message-%d', ++$this->messages);
 
-        return new MailboxMail($id, sprintf('<%s@mail.test>', $id), $sender, $labels, $exchangedAt ?? $this->aMinuteLater(), $subject, $text);
+        return new MailboxMail($id, sprintf('<%s@mail.test>', $id), $sender, [], $labels, $exchangedAt ?? $this->aMinuteLater(), $subject, $text);
+    }
+
+    /**
+     * @param list<Email>  $recipients
+     * @param list<string> $labels
+     */
+    private function sent(array $recipients, array $labels, ?\DateTimeImmutable $sentAt = null, string $subject = self::SUBJECT, string $text = self::TEXT): MailboxMail
+    {
+        $id = sprintf('message-%d', ++$this->messages);
+
+        return new MailboxMail($id, sprintf('<%s@mail.test>', $id), new Email(self::MY_MAILBOX), $recipients, $labels, $sentAt ?? $this->aMinuteLater(), $subject, $text);
     }
 
     /**
@@ -297,7 +357,7 @@ final class MailboxMailContext implements Context
         return $this->application->now();
     }
 
-    private static function senderIn(string $from): Email
+    private static function addressIn(string $from): Email
     {
         return new Email(preg_match('/<([^>]+)>/', $from, $address) ? $address[1] : $from);
     }
