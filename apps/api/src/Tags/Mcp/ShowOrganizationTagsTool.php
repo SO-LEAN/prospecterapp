@@ -1,0 +1,40 @@
+<?php
+
+namespace App\Tags\Mcp;
+
+use App\Prospecting\OrganizationResolver;
+use App\Prospecting\OrganizationVoter;
+use App\Security\ToolAccess;
+use App\Shared\Mcp\ToolResults;
+use App\Tags\TagsReader;
+use Mcp\Schema\ToolAnnotations;
+use Mcp\Server\Capability\Attribute\McpTool;
+
+/**
+ * `GET /api/organizations/{id}/tags`, for an AI (ADR 0163).
+ */
+final readonly class ShowOrganizationTagsTool
+{
+    public function __construct(
+        private ToolAccess $access,
+        private OrganizationResolver $organizations,
+        private TagsReader $tagsReader,
+        private ToolResults $results,
+    ) {
+    }
+
+    /**
+     * @param string $id the id of the organization
+     *
+     * @return array<string, mixed>
+     */
+    #[McpTool(name: 'lire-tags-organisation', description: 'Les tags d\'une organisation, ses contacts les héritant.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    public function __invoke(string $id): array
+    {
+        $organization = $this->organizations->read($id);
+        $this->access->denyUnlessGranted('ROLE_PROSPECTOR');
+        $this->access->denyUnlessGranted(OrganizationVoter::ACCESS, $organization);
+
+        return $this->results->of($this->tagsReader->read($this->access->member()->memberId(), $organization->id));
+    }
+}
