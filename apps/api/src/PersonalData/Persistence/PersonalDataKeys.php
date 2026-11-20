@@ -4,6 +4,7 @@ namespace App\PersonalData\Persistence;
 
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\ExternalReference;
 
 /**
  * The keys of the items of the persons, written by `DynamoPersonRepository` and read by the retrievers
@@ -13,6 +14,8 @@ final class PersonalDataKeys
 {
     public const string PERSON = 'PERSON';
     public const string FIRST_NAME = 'FIRST_NAME';
+    public const string EMAIL = 'EMAIL';
+    public const string REFERENCE = 'REFERENCE';
 
     public static function person(string $id): string
     {
@@ -49,5 +52,23 @@ final class PersonalDataKeys
     public static function ofResemblance(string $accountId, string $key): string
     {
         return sprintf('RESEMBLANCE#%s#%s', $accountId, $key);
+    }
+
+    /**
+     * The email a person holds among those their account keeps for a purpose: the item `EMAIL` names its holder,
+     * `ownerId`.
+     */
+    public static function email(AccountId $accountId, Purpose $purpose, string $email): string
+    {
+        return sprintf('%s#%s#%s#%s', self::EMAIL, $accountId->value, $purpose->value, $email);
+    }
+
+    /**
+     * A link a contact holds in their account, as their own or a former one: the item `REFERENCE` names its holder,
+     * `ownerId`.
+     */
+    public static function reference(AccountId $accountId, ExternalReference $reference): string
+    {
+        return sprintf('%s#%s#%s', self::REFERENCE, $accountId->value, $reference->key());
     }
 }
