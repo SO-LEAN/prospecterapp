@@ -131,6 +131,17 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         $this->assertSame($holding, $attached['holdingId']);
     }
 
+    public function testTheAiDetachesAnOrganizationFromItsHoldingOnceItsMemberConfirmed(): void
+    {
+        $babbage = $this->babbage();
+        $this->requestJson('PATCH', '/api/organizations/'.$babbage.'/holding', ['holdingId' => $this->aHolding()]);
+
+        $detached = $this->assertTheToolActsAsItsEndpoint('detacher-de-holding', ['id' => $babbage], 'DELETE', '/api/organizations/'.$babbage.'/holding', null, self::PROSPECTORS);
+
+        $this->assertNull($detached['holdingId']);
+        $this->assertTheToolAsksForAConfirmation('detacher-de-holding');
+    }
+
     /**
      * Ada Lovelace, the contact of the demonstration, at Babbage & Co.
      */
@@ -159,6 +170,17 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         $this->login();
 
         return $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'Analytical Group']])['id'];
+    }
+
+    /**
+     * The tool says it removes or erases: its AI asks its member before calling it.
+     */
+    private function assertTheToolAsksForAConfirmation(string $tool): void
+    {
+        $this->login();
+        $listed = array_find($this->callWithHandshake('tools/list', [])['tools'], static fn (array $listed): bool => $tool === $listed['name']);
+
+        $this->assertSame(['readOnlyHint' => false, 'destructiveHint' => true], array_intersect_key($listed['annotations'] ?? [], ['readOnlyHint' => true, 'destructiveHint' => true]));
     }
 
     /**
