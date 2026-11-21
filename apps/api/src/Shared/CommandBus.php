@@ -5,7 +5,6 @@ namespace App\Shared;
 use App\Shared\Persistence\ConditionFailed;
 use Prospecter\Core\SharedKernel\Application\Addition;
 use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
-use Prospecter\Core\SharedKernel\Domain\Exception\ChangedMeanwhile;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -34,7 +33,7 @@ final readonly class CommandBus
                 return;
             } catch (ConditionFailed $conflict) {
                 if (!$command instanceof Addition || $replay > self::REPLAYS_OF_AN_ADDITION) {
-                    throw UseCaseRefused::because(ChangedMeanwhile::sinceRead($conflict));
+                    throw UseCaseRefused::because($conflict->asRefusal());
                 }
 
                 $this->clock->sleep(random_int(1, self::LONGEST_WAIT_BEFORE_A_REPLAY_IN_MS) / 1000);

@@ -3,6 +3,7 @@
 namespace App\Shared\Persistence;
 
 use Aws\DynamoDb\Exception\DynamoDbException;
+use Prospecter\Core\SharedKernel\Domain\Exception\ChangedMeanwhile;
 
 /**
  * A transaction was cancelled, nothing written: the condition of some of its writes did not hold, none of them
@@ -23,5 +24,14 @@ final class ConditionFailed extends \RuntimeException
         $reasons = $cancelled->get('CancellationReasons') ?? [];
 
         return new self(array_keys(array_filter($reasons, static fn (array $reason): bool => 'ConditionalCheckFailed' === ($reason['Code'] ?? null))), $cancelled);
+    }
+
+    /**
+     * The refusal of the domain this cancellation is, for a command not run again: what it read changed meanwhile
+     * (ADR 0181).
+     */
+    public function asRefusal(): ChangedMeanwhile
+    {
+        return ChangedMeanwhile::sinceRead($this);
     }
 }
