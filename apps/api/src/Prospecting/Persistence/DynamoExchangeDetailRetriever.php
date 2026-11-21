@@ -86,7 +86,7 @@ final readonly class DynamoExchangeDetailRetriever implements ExchangeDetailRetr
             bookedByLink: $document['bookedByLink'] ?? false,
             importedFrom: $document['importedFrom']['provider'] ?? null,
             providerMessageId: $document['importedFrom']['providerMessageId'] ?? null,
-            createdByAnAI: Origin::Ai === ExchangeDocument::originOf($document),
+            createdByAnAI: Origin::Ai === Documents::originOf($document),
         );
     }
 }

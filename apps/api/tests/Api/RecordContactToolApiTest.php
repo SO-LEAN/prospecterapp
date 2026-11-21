@@ -42,6 +42,24 @@ class RecordContactToolApiTest extends ApiTestCase
         $this->assertSame(['CTO', ['https://www.linkedin.com/in/margaret-hamilton']], [$contact['jobTitle'], array_column($contact['contactDetails']['links'], 'address')]);
     }
 
+    public function testAnOrganizationTheAiStartsProspectingIsCreatedByAnAi(): void
+    {
+        $this->login();
+
+        $globex = $this->answerOf($this->callWithoutHandshake('prospecter-organisation', ['corporateName' => 'Globex']));
+
+        $this->assertTrue($globex['createdByAnAI'] ?? null);
+    }
+
+    public function testAnOrganizationTheAiRecordsWithAContactIsCreatedByAnAi(): void
+    {
+        $this->login();
+
+        $recorded = $this->answerOf($this->callWithoutHandshake('enregistrer-un-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => self::GLOBEX]));
+
+        $this->assertTrue($this->requestJson('GET', '/api/organizations/'.$recorded['organization']['id'])['createdByAnAI']);
+    }
+
     public function testAnOrganizationFoundByItsPageIsNotCreatedAgain(): void
     {
         $this->login();

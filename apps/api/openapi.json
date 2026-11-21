@@ -9673,7 +9673,8 @@
                     "createdAt",
                     "modifiedAt",
                     "_links",
-                    "possibleDuplicates"
+                    "possibleDuplicates",
+                    "createdByAnAI"
                 ],
                 "properties": {
                     "id": {
@@ -9742,6 +9743,10 @@
                         "items": {
                             "$ref": "#/components/schemas/PossibleDuplicateResource"
                         }
+                    },
+                    "createdByAnAI": {
+                        "description": "An AI created it, acting as its member through the MCP server, never named",
+                        "type": "boolean"
                     }
                 },
                 "type": "object"

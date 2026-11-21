@@ -78,7 +78,7 @@ final readonly class StartProspectingTool
             $holdingId,
         ));
         $id = $this->identities->next();
-        $this->commandBus->dispatch($input->commandOf($this->access->member()->memberId(), $id, $this->clock->now()));
+        $this->commandBus->dispatch($input->commandOfAnAI($this->access->member()->memberId(), $id, $this->clock->now()));
 
         return $this->results->of($this->organizationReader->read($id));
     }

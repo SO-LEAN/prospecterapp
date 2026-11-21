@@ -27,6 +27,7 @@ const qaContacts: Organization = {
   contactDetails: { links: [] },
   contactIds: [],
   possibleDuplicates: [],
+  createdByAnAI: false,
   createdAt: '2026-11-16T09:00:00+00:00',
   modifiedAt: '2026-11-16T09:00:00+00:00',
   _links: {

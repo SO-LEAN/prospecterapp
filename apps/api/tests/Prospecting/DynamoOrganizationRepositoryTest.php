@@ -25,6 +25,7 @@ use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
+use Prospecter\Core\SharedKernel\Domain\Origin;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\Siret;
 use Tests\App\Base\ApiTestCase;
@@ -181,6 +182,16 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
     {
         $organizations = self::getContainer()->get(OrganizationRepository::class);
         $acme = $this->organizationWithTheEmail(new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity())), 'contact@acme.test');
+        $acme->releaseEvents();
+        $organizations->save($acme);
+
+        $this->assertEquals($acme, $organizations->get($acme->id()));
+    }
+
+    public function testAnOrganizationAnAiStartedIsReadBackCreatedByAnAi(): void
+    {
+        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $acme = Organization::prospectedBy(new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity())), new OrganizationId(self::newIdentity()), new LegalIdentity('ACME'), new ContactDetails(), new \DateTimeImmutable('2026-10-18 19:00 UTC'), Origin::Ai);
         $acme->releaseEvents();
         $organizations->save($acme);
 

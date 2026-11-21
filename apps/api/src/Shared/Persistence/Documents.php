@@ -12,6 +12,7 @@ use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
 use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\GeoPoint;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
+use Prospecter\Core\SharedKernel\Domain\Origin;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 use Prospecter\Core\SharedKernel\Domain\Siret;
 use Prospecter\Core\SharedKernel\Domain\Slice;
@@ -42,6 +43,16 @@ final class Documents
     public static function momentOfOrNone(?string $moment): ?\DateTimeImmutable
     {
         return null === $moment ? null : self::momentOf($moment);
+    }
+
+    /**
+     * How an aggregate was created; written before it was kept, by hand.
+     *
+     * @param array<string, mixed> $document
+     */
+    public static function originOf(array $document): Origin
+    {
+        return Origin::tryFrom($document['origin'] ?? '') ?? Origin::Hand;
     }
 
     /**
