@@ -11,6 +11,7 @@ final class ServiceUnavailable extends \RuntimeException
     private const string SECRETS = 'secretsUnavailable';
     private const string GOOGLE = 'googleUnreachable';
     private const string DIRECTORY = 'directoryUnreachable';
+    private const string PRIVATE_FILES = 'privateFilesUnavailable';
 
     private function __construct(string $message, public readonly string $reason, \Throwable $cause)
     {
@@ -30,5 +31,10 @@ final class ServiceUnavailable extends \RuntimeException
     public static function directory(\Throwable $cause): self
     {
         return new self('The directory of the companies does not answer for now', self::DIRECTORY, $cause);
+    }
+
+    public static function privateFiles(\Throwable $cause): self
+    {
+        return new self('The private files cannot be kept for now', self::PRIVATE_FILES, $cause);
     }
 }
