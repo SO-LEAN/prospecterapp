@@ -15,6 +15,7 @@ Read the document of your subject before working on it: it says the rule in forc
 | The MCP server: the AIs reaching Prospecter as their member, their sign-in on Cognito | [architecture/mcp.md](architecture/mcp.md) |
 | The files: the storage app, the buckets, the sizes, the private files | [architecture/storage.md](architecture/storage.md) |
 | The front: stack, folders, data, forms, navigation | [architecture/front.md](architecture/front.md), design rules [architecture/design-system.md](architecture/design-system.md) |
+| The commands: make targets and console commands | [architecture/commands.md](architecture/commands.md) |
 | The local stack: Docker, MiniStack, the Lambdas, the hosts | [architecture/local-stack.md](architecture/local-stack.md) |
 | The local stack and the instances on AWS: where they differ | [architecture/local-vs-aws.md](architecture/local-vs-aws.md) |
 | The infrastructure on AWS: Terraform, instances, deployment | [architecture/infra.md](architecture/infra.md) |
