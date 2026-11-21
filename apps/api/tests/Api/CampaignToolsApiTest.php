@@ -182,13 +182,13 @@ class CampaignToolsApiTest extends ApiTestCase
     public function testASendingNotedByHandIsAnsweredAlreadyNotedToTheAi(): void
     {
         $started = $this->aStartedCampaign();
-        $byHand = $this->requestJson('POST', '/api/campaigns/'.$started.'/recipients/'.$this->ada.'/exchanges', self::SENT_TO_ADA);
+        $this->requestJson('POST', '/api/campaigns/'.$started.'/recipients/'.$this->ada.'/exchanges', self::SENT_TO_ADA);
         $this->assertResponseStatusCodeSame(201);
 
         $again = $this->callWithoutHandshake('noter-l-envoi', ['id' => $started, 'contactId' => $this->ada, ...self::SENT_TO_ADA]);
 
         $this->assertSame('alreadyNoted', $again['structuredContent']['status']);
-        $this->assertCount(1, $byHand['items']);
+        $this->assertCount(1, $this->requestJson('GET', '/api/contacts/'.$this->ada.'/exchanges')['items']);
     }
 
     public function testACampaignStoppedGivesNoNextRecipient(): void
