@@ -4,7 +4,7 @@ The personal data of natural persons, and who reads them. Code: `packages/core/s
 
 ## Language
 
-- **Person** (`Person`): the personal data of a natural person, kept for one account and one purpose: their name (`PersonName`), the civility of a contact, their job title, their contact details, their links, their picture.
+- **Person** (`Person`): the personal data of a natural person, kept for one account and one purpose: their name (`PersonName`: a first name and a last name, kept without the spaces at their ends and with one space between their words, absent when nothing but spaces), the civility of a contact, their job title, their contact details, their links, their picture.
 - **Link** (`ExternalReference` of the shared kernel): the address of a page of the person on a tool outside, LinkedIn, Malt or any other site, noted with their contact details, five at most, never required: recognized by its **source** and an **identifier**, in one form however it was pasted (`linkedin` and `malt` for a profile there, the host of the address for a tool Prospecter does not know, the address in one form its identifier), the address pasted kept to open it; a page of a known tool designating an organization (a company on LinkedIn or Welcome to the Jungle), or on its site but none of its pages, refused. A contact's or a member's own. A person keeps their last three **former links**, whatever their source, the links they had before changing or taking them off, which still recognize them; never shown, nor published, forgotten with them (ADR 0139, 0159, ADR 0165).
 - **Civility** (`Civility`): how one addresses a contact, Ms or Mr (Madame or Monsieur to the member), when their first name does not tell, or X while it is unknown: never absent, X for a contact collected without it, for a person saved before the civilities were noted, and when a member takes it back; any other value refused. Noted for a contact only: the profile of a member keeps X.
 - **Purpose** (`Purpose`): why the account keeps them: a member's own profile (`Membership`), or a person it prospects (`Prospecting`).
@@ -41,7 +41,7 @@ The personal data of natural persons, and who reads them. Code: `packages/core/s
 
 ## Features
 
-`enregistrer-un-contact`, `soupconner-un-doublon-de-contact`, `dire-qu-un-contact-n-est-pas-un-doublon`, `effacer-un-contact`, `consulter-une-personne`, `rechercher-mes-contacts`, `reconnaitre-un-appelant`, `identifier-des-personnes`, `completer-un-contact`, `changer-mon-nom`, `changer-mes-coordonnees`, `noter-les-liens-d-un-contact`, `noter-la-civilite-d-un-contact`, `changer-ma-photo`, `changer-la-fonction`, `changer-le-profil-d-un-collegue`, `publier-les-faits-de-personaldata`, and the questions of `langage-publie`.
+`enregistrer-un-contact`, `enregistrer-le-nom-d-une-personne-sans-espaces-en-trop`, `soupconner-un-doublon-de-contact`, `dire-qu-un-contact-n-est-pas-un-doublon`, `effacer-un-contact`, `consulter-une-personne`, `rechercher-mes-contacts`, `reconnaitre-un-appelant`, `identifier-des-personnes`, `completer-un-contact`, `changer-mon-nom`, `changer-mes-coordonnees`, `noter-les-liens-d-un-contact`, `noter-la-civilite-d-un-contact`, `changer-ma-photo`, `changer-la-fonction`, `changer-le-profil-d-un-collegue`, `publier-les-faits-de-personaldata`, and the questions of `langage-publie`.
 
 ## In the code
 

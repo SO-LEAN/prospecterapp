@@ -154,6 +154,45 @@ final class PersonalDataContext implements Context
     }
 
     /**
+     * The name between quotes, as a table would lose the spaces at the ends of its cells.
+     */
+    #[When('j\'enregistre le contact :name pour :organization en le nommant :firstName :lastName')]
+    public function iCollectAContactNamed(string $name, string $organization, string $firstName, string $lastName): void
+    {
+        $id = $this->application->newIdentity();
+        $this->application->dispatch(new CollectContact($this->application->signedIn(), $id, $firstName, $lastName, Vocabulary::civility(null), jobTitle: null, email: null, phoneNumber: null, language: null, links: [], organizationIds: [$this->scenario->idOf($organization)], executedAt: $this->application->now()));
+        $this->scenario->rememberPerson($name, new PersonId($id));
+    }
+
+    #[When('je renomme le contact :name en :firstName :lastName')]
+    public function iRenameTheContact(string $name, string $firstName, string $lastName): void
+    {
+        $this->application->dispatch(new RenamePerson($this->application->signedIn(), $this->scenario->personIdOf($name), $firstName, $lastName, $this->application->now()));
+    }
+
+    #[Then('le contact :name s\'appelle :firstName :lastName')]
+    public function theContactIsCalled(string $name, string $firstName, string $lastName): void
+    {
+        Expect::same([$firstName, $lastName], $this->nameOf($name));
+    }
+
+    #[Then('le contact :name n\'a pas de prénom et s\'appelle :lastName')]
+    public function theContactHasNoFirstNameAndIsCalled(string $name, string $lastName): void
+    {
+        Expect::same([null, $lastName], $this->nameOf($name));
+    }
+
+    /**
+     * @return array{?string, ?string}
+     */
+    private function nameOf(string $name): array
+    {
+        $name = $this->scenario->personNamed($name)->name();
+
+        return [$name->firstName, $name->lastName];
+    }
+
+    /**
      * As the worker may deliver it once more, or after a client attached the contact meanwhile (ADR 0177).
      */
     #[When('la collecte de :name est délivrée une fois de plus')]
