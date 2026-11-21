@@ -286,6 +286,25 @@ final class Campaign implements ReleasesEvents
         return $this->recipients->includes($contact);
     }
 
+    /**
+     * The first recipient still to handle, while it is led: someone is, or it would have ended.
+     *
+     * @throws CampaignNotRunning
+     */
+    #[\NoDiscard]
+    public function nextRecipient(): PersonId
+    {
+        $this->ensurePossible(CampaignIntent::RunCampaign);
+
+        return $this->recipients->firstPending();
+    }
+
+    #[\NoDiscard]
+    public function stillToHandle(): int
+    {
+        return $this->recipients->pendingCount();
+    }
+
     #[\NoDiscard]
     public function messageFor(Addressee $addressee): RenderedMessage
     {

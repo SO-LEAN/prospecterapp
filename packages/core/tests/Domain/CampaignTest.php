@@ -14,6 +14,7 @@ use Prospecter\Core\Campaigns\Domain\Event\CampaignRevised;
 use Prospecter\Core\Campaigns\Domain\Event\CampaignStarted;
 use Prospecter\Core\Campaigns\Domain\Event\CampaignStopped;
 use Prospecter\Core\Campaigns\Domain\Event\RecipientDismissed;
+use Prospecter\Core\Campaigns\Domain\Exception\CampaignNotRunning;
 use Prospecter\Core\Campaigns\Domain\Exception\CampaignWithoutRecipient;
 use Prospecter\Core\Campaigns\Domain\Model\Addressee;
 use Prospecter\Core\Campaigns\Domain\Model\Campaign;
@@ -108,6 +109,30 @@ final class CampaignTest extends TestCase
         $campaign->dismiss(new PersonId(self::ALAN), 'Parti', new MemberId(self::ME), $this->later());
 
         $this->assertEquals([CampaignStatus::Ended, $this->later()], [StateOf::the($campaign)['status'], StateOf::the($campaign)['endedAt']]);
+    }
+
+    public function testTheNextRecipientIsTheFirstStillToHandle(): void
+    {
+        $campaign = $this->in(CampaignStatus::Started);
+        $campaign->dismiss(new PersonId(self::ADA), null, new MemberId(self::ME), $this->now());
+
+        $this->assertEquals(new PersonId(self::ALAN), $campaign->nextRecipient());
+    }
+
+    public function testTheNextRecipientCountsAmongThoseStillToHandle(): void
+    {
+        $campaign = $this->in(CampaignStatus::Started);
+        $campaign->process(new PersonId(self::ADA), self::EXCHANGE, missed: false, at: $this->now());
+
+        $this->assertSame(1, $campaign->stillToHandle());
+    }
+
+    public function testACampaignNotLedHasNoNextRecipient(): void
+    {
+        $campaign = $this->in(CampaignStatus::Stopped);
+        $this->expectExceptionObject(CampaignNotRunning::toRun());
+
+        (void) $campaign->nextRecipient();
     }
 
     public function testProcessingARecipientHandledAlreadyChangesNothing(): void

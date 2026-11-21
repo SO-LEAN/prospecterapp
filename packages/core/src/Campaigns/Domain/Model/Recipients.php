@@ -150,6 +150,21 @@ final readonly class Recipients
         return !array_any($this->recipients, static fn (Recipient $recipient): bool => $recipient->isPending());
     }
 
+    /**
+     * In the order they were added.
+     */
+    #[\NoDiscard]
+    public function firstPending(): PersonId
+    {
+        return array_find($this->recipients, static fn (Recipient $recipient): bool => $recipient->isPending())->contact;
+    }
+
+    #[\NoDiscard]
+    public function pendingCount(): int
+    {
+        return count(array_filter($this->recipients, static fn (Recipient $recipient): bool => $recipient->isPending()));
+    }
+
     #[\NoDiscard]
     public function keepsSomeone(): bool
     {
