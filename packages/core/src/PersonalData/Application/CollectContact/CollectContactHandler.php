@@ -24,6 +24,7 @@ use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
+use Prospecter\Core\SharedKernel\Domain\Origin;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
@@ -61,6 +62,7 @@ final readonly class CollectContactHandler implements CommandHandler
             references: ExternalReferences::designating($command->links, Designated::Person),
             organizations: $organizations,
             at: $command->executedAt,
+            origin: Origin::byAnAI($command->byAnAI),
         );
         $this->emails->ensureAvailableFor($contact);
         $this->references->ensureAvailableFor($contact);

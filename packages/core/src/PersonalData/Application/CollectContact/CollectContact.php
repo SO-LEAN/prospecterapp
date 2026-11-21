@@ -8,7 +8,7 @@ use Prospecter\Core\SharedKernel\Application\Addition;
 
 /**
  * Keeps a person the account prospects, under the identity the client gives it, as a contact of these
- * organizations: at least one (ADR 0036, 0042).
+ * organizations: at least one (ADR 0036, 0042); `byAnAI` when an AI collects them, acting as the reader.
  */
 final readonly class CollectContact implements Addition
 {
@@ -29,6 +29,7 @@ final readonly class CollectContact implements Addition
         public array $links,
         public array $organizationIds,
         public \DateTimeImmutable $executedAt,
+        public bool $byAnAI = false,
     ) {
     }
 }
