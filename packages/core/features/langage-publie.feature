@@ -128,6 +128,36 @@ Fonctionnalité: Le langage publié des contextes
       | contact@globex.test |
     Alors Prospecting ne répond aucune organisation
 
+  Scénario: PersonalData dit les adresses e-mail de contacts au seul membre qui les lit en clair
+    Soit "Grace Hopper" est membre de "SOLEAN IT" avec le droit aux données personnelles
+    Et "Alan Turing" est membre de "SOLEAN IT" sans le droit aux données personnelles
+    Et le contact "Charles Babbage" de "ACME"
+    Quand un autre contexte demande à PersonalData les adresses e-mail, comme "Grace Hopper" les lit, de :
+      | Ada Lovelace    |
+      | Charles Babbage |
+      | Personne        |
+    Alors PersonalData répond les adresses e-mail :
+      | contact         | adresse       |
+      | Ada Lovelace    | ada@acme.test |
+      | Charles Babbage |               |
+    Quand un autre contexte demande à PersonalData les adresses e-mail, comme "Alan Turing" les lit, de :
+      | Ada Lovelace |
+    Alors PersonalData ne répond aucune adresse e-mail
+
+  Scénario: Prospecting dit les adresses e-mail d'organisations qu'un compte prospecte
+    Soit l'organisation "Globex" d'e-mail "contact@globex.test" appartient à "SOLEAN IT"
+    Et l'organisation "Initech" appartient à "SOLEAN IT"
+    Quand un autre contexte demande à Prospecting les adresses e-mail, pour "SOLEAN IT", de :
+      | Globex  |
+      | Initech |
+    Alors Prospecting répond les adresses e-mail :
+      | organisation | adresse             |
+      | Globex       | contact@globex.test |
+      | Initech      |                     |
+    Quand un autre contexte demande à Prospecting les adresses e-mail, pour "Concurrent", de :
+      | Globex |
+    Alors Prospecting ne répond aucune adresse e-mail
+
   Scénario: Prospecting dit lesquelles de plusieurs organisations sont prospectées par un compte
     Quand un autre contexte demande à Prospecting lesquelles sont prospectées par "SOLEAN IT" :
       | ACME     |
