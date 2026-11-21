@@ -486,6 +486,32 @@ final class PublishedLanguageContext implements Context
         Expect::same($names->getColumn(0), array_map(static fn (ContactNameResponse $name): string => trim(sprintf('%s %s', $name->firstName, $name->lastName)), $this->names));
     }
 
+    #[Then('PersonalData répond que :name est joignable à :email')]
+    public function personalDataAnswersTheEmail(string $name, string $email): void
+    {
+        Expect::same($email, $this->nameAnsweredFor($name)?->email);
+    }
+
+    #[Then('PersonalData répond que :name est joignable au :phone')]
+    public function personalDataAnswersThePhone(string $name, string $phone): void
+    {
+        Expect::same($phone, $this->nameAnsweredFor($name)?->phoneNumber);
+    }
+
+    #[Then('PersonalData ne répond ni l\'e-mail ni le téléphone de :name')]
+    public function personalDataAnswersNoContactDetails(string $name): void
+    {
+        $answered = $this->nameAnsweredFor($name);
+        Expect::same([true, null, null], [null !== $answered, $answered?->email, $answered?->phoneNumber]);
+    }
+
+    private function nameAnsweredFor(string $name): ?ContactNameResponse
+    {
+        $person = $this->scenario->personIdOf($name);
+
+        return array_find($this->names, static fn (ContactNameResponse $named): bool => $named->personId === $person);
+    }
+
     #[Then('PersonalData répond que :name est :jobTitle')]
     public function personalDataAnswersTheJobTitle(string $name, string $jobTitle): void
     {
@@ -573,7 +599,7 @@ final class PublishedLanguageContext implements Context
             'lieu' => (string) $exchange->place,
             'lien' => (string) $exchange->link,
             'contact' => null === $exchange->contactId ? '' : $this->scenario->nameOfPerson(new PersonId($exchange->contactId)),
-            'organisation' => $exchange->organizationName,
+            'organisation' => (string) $exchange->organizationName,
         ], $this->heldExchanges));
     }
 
@@ -590,6 +616,12 @@ final class PublishedLanguageContext implements Context
     public function prospectingAnswersTheExchangeRequestsItsLink(): void
     {
         Expect::same([true], array_map(static fn (HeldExchangeResponse $exchange): bool => $exchange->linkRequested, $this->heldExchanges));
+    }
+
+    #[Then('Prospecting répond que cet échange a été réservé par le lien public')]
+    public function prospectingAnswersTheExchangeWasBooked(): void
+    {
+        Expect::same([true], array_map(static fn (HeldExchangeResponse $exchange): bool => $exchange->bookedByLink, $this->heldExchanges));
     }
 
     #[Then('Prospecting ne répond aucun échange')]

@@ -66,6 +66,21 @@ Fonctionnalité: Le langage publié des contextes
       | Ada Lovelace |
     Alors PersonalData ne répond aucun nom
 
+  Scénario: PersonalData dit l'e-mail et le téléphone d'un contact à qui les lit en clair, et les tait à qui les lit masqués
+    Soit "Grace Hopper" est membre de "SOLEAN IT" avec le droit aux données personnelles
+    Et "Alan Turing" est membre de "SOLEAN IT" sans le droit aux données personnelles
+    Et le contact "Charles Babbage" de "ACME" a le téléphone "06 12 34 56 78"
+    Quand un autre contexte demande à PersonalData les noms, comme "Grace Hopper" les lit, de :
+      | Ada Lovelace    |
+      | Charles Babbage |
+    Alors PersonalData répond que "Ada Lovelace" est joignable à "ada@acme.test"
+    Et PersonalData répond que "Charles Babbage" est joignable au "+33612345678"
+    Quand un autre contexte demande à PersonalData les noms, comme "Alan Turing" les lit, de :
+      | Ada Lovelace    |
+      | Charles Babbage |
+    Alors PersonalData ne répond ni l'e-mail ni le téléphone de "Ada Lovelace"
+    Et PersonalData ne répond ni l'e-mail ni le téléphone de "Charles Babbage"
+
   Scénario: PersonalData présente des membres, leur nom et leur photo, jamais une personne prospectée
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
     Et mon profil est :
@@ -248,6 +263,22 @@ Fonctionnalité: Le langage publié des contextes
     Et j'ai planifié une visio avec "Ada Lovelace" le 17/11/2026 à 14h00, sans lien, en demandant un lien Meet
     Quand un autre contexte demande à Prospecting, de "SOLEAN IT", cet échange et un échange inconnu
     Alors Prospecting répond que cet échange demande son lien
+
+  Scénario: Prospecting dit l'échange d'un contact à rattacher, sans organisation, et qu'on l'a réservé par le lien public
+    Soit le client Google "client-solean" de secret "secret-solean" sert "SOLEAN IT"
+    Et je suis connecté en tant que prospecteur de "SOLEAN IT"
+    Et mon compte Google est connecté
+    Et nous sommes le 23/11/2026 à 10h00
+    Et je règle mes plages :
+      | jour  | de    | à     |
+      | mardi | 09:00 | 09:30 |
+    Et ma prise de rendez-vous est active
+    Et on a réservé un appel par mon lien public le 24/11/2026 à 9h00
+    Quand un autre contexte demande à Prospecting, de "SOLEAN IT", cet échange et un échange inconnu
+    Alors Prospecting répond l'échange :
+      | titulaire | statut  | canal | moment           | durée  | lieu | lien | contact      | organisation |
+      | moi       | À venir | Appel | 24/11/2026 09:00 | 15 min |      |      | Ada Lovelace |              |
+    Et Prospecting répond que cet échange a été réservé par le lien public
 
   Scénario: Prospecting nomme un échange par la première organisation qui le garde encore, et tait celui qu'aucune ne garde plus
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT"

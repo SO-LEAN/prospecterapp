@@ -13,8 +13,10 @@ use Prospecter\Core\PersonalData\Contract\Service\NameContacts\NameContactsServi
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownReader;
 use Prospecter\Core\PersonalData\Domain\Port\Readers;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Domain\Exception\InvalidPhoneNumber;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
+use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 final readonly class NameContactsHandler implements QueryHandler, NameContactsService
 {
@@ -51,7 +53,19 @@ final readonly class NameContactsHandler implements QueryHandler, NameContactsSe
             $card->civility,
             $card->jobTitle,
             $card->masked ? null : $card->email,
-            $card->masked ? null : $card->phoneNumber,
+            $card->masked ? null : self::e164Of($card->phoneNumber),
         );
+    }
+
+    /**
+     * A number kept before the numbers were checked, which nobody could dial, is none.
+     */
+    private static function e164Of(?string $phoneNumber): ?string
+    {
+        try {
+            return PhoneNumber::orNone($phoneNumber)?->value;
+        } catch (InvalidPhoneNumber) {
+            return null;
+        }
     }
 }
