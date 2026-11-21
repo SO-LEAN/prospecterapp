@@ -150,6 +150,13 @@ final class ExchangeContext implements Context
         $this->expectPlanned();
     }
 
+    #[Given('/^l\'IA a planifié depuis "(?<organization>[^"]+)" (?<exchange>'.self::ANY_PLANNED.') avec "(?<contact>[^"]+)" le (?<day>\S+) à (?<time>\S+)$/')]
+    public function theAIPlannedFromTheOrganization(string $organization, string $exchange, string $contact, string $day, string $time): void
+    {
+        $this->plan($this->application->signedIn(), $organization, $contact, Vocabulary::channelOfAnExchange($exchange), Vocabulary::frenchMoment(sprintf('%s à %s', $day, $time)), null, byAnAI: true);
+        $this->expectPlanned();
+    }
+
     #[Given('/^"(?<member>[^"]+)" a planifié (?<exchange>'.self::ANY_PLANNED.') avec "(?<contact>[^"]+)" le (?<day>\S+) à (?<time>\S+)$/')]
     public function aMemberPlannedAnExchange(string $member, string $exchange, string $contact, string $day, string $time): void
     {

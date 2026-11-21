@@ -379,11 +379,6 @@ final class Vocabulary
     /**
      * The mailbox an exchange was imported from, as the member knows it; nothing for one noted.
      */
-    public static function describeBadge(bool $createdByAnAI): string
-    {
-        return $createdByAnAI ? 'MCP' : '';
-    }
-
     public static function describeProvenance(?string $provider): string
     {
         return match ($provider) {
@@ -391,6 +386,11 @@ final class Vocabulary
             'google' => 'Gmail',
             default => $provider,
         };
+    }
+
+    public static function describeBadge(bool $createdByAnAI): string
+    {
+        return $createdByAnAI ? 'MCP' : '';
     }
 
     /**

@@ -33,6 +33,12 @@ Fonctionnalité: Reconnaître ce qu'une IA a créé
     Alors je vois l'échange :
       | badge | MCP |
 
+  Scénario: Un échange noté par une IA depuis la fiche d'une organisation avec l'un de ses contacts porte le badge
+    Soit l'IA a noté depuis "ACME" un appel reçu de "Ada Lovelace" le 18/11/2026 à 9h12
+    Quand je consulte cet échange
+    Alors je vois l'échange :
+      | badge | MCP |
+
   Scénario: Un échange planifié par une IA porte le badge
     Soit l'IA a planifié une visio avec "Ada Lovelace" le 20/11/2026 à 14h00
     Quand je consulte cet échange
@@ -41,6 +47,12 @@ Fonctionnalité: Reconnaître ce qu'une IA a créé
 
   Scénario: Un échange planifié par une IA avec l'organisation elle-même porte le badge
     Soit l'IA a planifié un appel avec "ACME" le 20/11/2026 à 14h00
+    Quand je consulte cet échange
+    Alors je vois l'échange :
+      | badge | MCP |
+
+  Scénario: Un échange planifié par une IA depuis la fiche d'une organisation avec l'un de ses contacts porte le badge
+    Soit l'IA a planifié depuis "ACME" un appel avec "Ada Lovelace" le 20/11/2026 à 14h00
     Quand je consulte cet échange
     Alors je vois l'échange :
       | badge | MCP |
