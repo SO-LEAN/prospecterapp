@@ -11,4 +11,5 @@ mcp:
             session:
                 store: none
             registry:
+                prompts: ['App\Identification\Mcp\']
                 tools: ['App\Booking\Mcp\', 'App\Campaigning\Mcp\', 'App\Connectors\Mcp\', 'App\Contacts\Mcp\', 'App\Dashboard\Mcp\', 'App\Exchanges\Mcp\', 'App\Identification\Mcp\', 'App\Me\Mcp\', 'App\Prospecting\Mcp\', 'App\Tags\Mcp\', 'App\ToDos\Mcp\']
