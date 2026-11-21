@@ -30,7 +30,7 @@ Fonctionnalité: Noter les liens d'un contact
 
   Scénario: La page d'une entreprise ne désigne pas une personne
     Quand j'ajoute à "Ada Lovelace" le lien "https://www.linkedin.com/company/acme-corp"
-    Alors c'est refusé : "A page of linkedin-company designates an organization"
+    Alors c'est refusé : "A page of linkedInCompany designates an organization"
 
   Scénario: J'enregistre un contact avec ses liens
     Quand j'enregistre le contact "Grace Hopper" pour "ACME" :

@@ -10,10 +10,10 @@ namespace Prospecter\Core\SharedKernel\Domain;
  */
 enum KnownSource: string
 {
-    case LinkedInProfile = 'linkedin';
-    case LinkedInCompany = 'linkedin-company';
+    case LinkedInProfile = 'linkedInProfile';
+    case LinkedInCompany = 'linkedInCompany';
     case Malt = 'malt';
-    case WelcomeToTheJungle = 'welcometothejungle';
+    case WelcomeToTheJungle = 'welcomeToTheJungle';
 
     private const string LINKEDIN = '(?:[a-z]{2,3}\.)?linkedin\.com';
     private const string IDENTIFIER = '(?<identifier>[^/?#\s]+)';

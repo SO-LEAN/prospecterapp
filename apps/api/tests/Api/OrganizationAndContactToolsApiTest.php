@@ -62,7 +62,7 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         $changed = $this->assertTheToolActsAsItsEndpoint('update-contact-details', ['id' => $ada, ...$details], 'PATCH', '/api/contacts/'.$ada.'/contact-details', $details, self::PERSONAL_DATA_MANAGERS);
 
         $this->assertSame('ada@lovelace.test', $changed['contactDetails']['email']);
-        $this->assertSame(['linkedin', 'ada-lovelace'], [$changed['contactDetails']['links'][0]['source'], $changed['contactDetails']['links'][0]['identifier']]);
+        $this->assertSame(['linkedInProfile', 'ada-lovelace'], [$changed['contactDetails']['links'][0]['source'], $changed['contactDetails']['links'][0]['identifier']]);
     }
 
     public function testTheAiCollectsAContactOfAnOrganization(): void

@@ -28,9 +28,9 @@ class ExternalReferenceTest extends TestCase
      */
     public static function knownSources(): iterable
     {
-        yield 'Welcome to the Jungle' => ['HTTPS://www.Welcometothejungle.com/fr/companies/ACME/jobs?page=2', Designated::Organization, 'welcometothejungle', 'acme'];
-        yield 'a LinkedIn profile' => ['fr.linkedin.com/in/Ada-Lovelace/', Designated::Person, 'linkedin', 'ada-lovelace'];
-        yield 'a LinkedIn page of a company' => ['https://www.linkedin.com/company/ACME-Corp/about/', Designated::Organization, 'linkedin-company', 'acme-corp'];
+        yield 'Welcome to the Jungle' => ['HTTPS://www.Welcometothejungle.com/fr/companies/ACME/jobs?page=2', Designated::Organization, 'welcomeToTheJungle', 'acme'];
+        yield 'a LinkedIn profile' => ['fr.linkedin.com/in/Ada-Lovelace/', Designated::Person, 'linkedInProfile', 'ada-lovelace'];
+        yield 'a LinkedIn page of a company' => ['https://www.linkedin.com/company/ACME-Corp/about/', Designated::Organization, 'linkedInCompany', 'acme-corp'];
         yield 'a Malt profile' => ['https://www.malt.fr/profile/AdaLovelace?q=1', Designated::Person, 'malt', 'adalovelace'];
         yield 'an unknown tool, its host the source, its address the identifier' => ['https://www.annuaire-xyz.com/fiche/Acme-SAS?ref=mail#top', Designated::Organization, 'annuaire-xyz.com', 'annuaire-xyz.com/fiche/acme-sas'];
     }
@@ -113,7 +113,7 @@ class ExternalReferenceTest extends TestCase
     {
         $stored = ExternalReference::restored('linkedin.com', 'linkedin.com/company/acme', 'https://www.linkedin.com/company/acme');
 
-        $this->assertSame('linkedin-company#acme', $stored->recognizedAgain(Designated::Organization)->key());
+        $this->assertSame('linkedInCompany#acme', $stored->recognizedAgain(Designated::Organization)->key());
     }
 
     public function testAReferenceStoredThatTodayRefusesStaysAsItWas(): void

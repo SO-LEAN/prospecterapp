@@ -168,7 +168,7 @@ describe('the card of a contact', () => {
     theApiAnswers(
       theContact({
         contactDetails: {
-          links: [{ source: 'linkedin', identifier: 'ada-lovelace', address: ADA_ON_LINKEDIN }],
+          links: [{ source: 'linkedInProfile', identifier: 'ada-lovelace', address: ADA_ON_LINKEDIN }],
         },
       }),
       [],

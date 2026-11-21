@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { ExternalLinks } from './external-links'
 
 const wttj = {
-  source: 'welcometothejungle',
+  source: 'welcomeToTheJungle',
   identifier: 'acme',
   address: 'https://www.welcometothejungle.com/fr/companies/acme',
 }
@@ -23,10 +23,10 @@ describe('the links of a sheet', () => {
   })
 
   it.each([
-    ['linkedin', 'LinkedIn'],
-    ['linkedin-company', 'LinkedIn'],
+    ['linkedInProfile', 'LinkedIn'],
+    ['linkedInCompany', 'LinkedIn'],
     ['malt', 'Malt'],
-    ['welcometothejungle', 'Welcome to the Jungle'],
+    ['welcomeToTheJungle', 'Welcome to the Jungle'],
   ])('show the mark of a known source, %s', (source, name) => {
     render(<ExternalLinks links={[{ ...wttj, source }]} masked={false} />)
 

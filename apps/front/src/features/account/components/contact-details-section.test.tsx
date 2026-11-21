@@ -30,7 +30,7 @@ describe('my contact details', () => {
     renderTheSection(
       myAccount({
         email: 'ada@solean-it.test',
-        links: [{ source: 'linkedin', identifier: 'ada', address: 'https://www.linkedin.com/in/ada' }],
+        links: [{ source: 'linkedInProfile', identifier: 'ada', address: 'https://www.linkedin.com/in/ada' }],
       }),
     )
 

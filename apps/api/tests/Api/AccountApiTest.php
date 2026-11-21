@@ -50,7 +50,7 @@ class AccountApiTest extends ApiTestCase
 
         $contacted = $this->requestJson('PATCH', '/api/me/contact-details', ['email' => 'ada@solean-it.io', 'phoneNumber' => null, 'language' => 'FR', 'links' => ['linkedin.com/in/ada-lovelace']]);
         $this->assertSame('ada@solean-it.io', $contacted['contactDetails']['email']);
-        $this->assertSame([['source' => 'linkedin', 'identifier' => 'ada-lovelace', 'address' => 'https://linkedin.com/in/ada-lovelace']], $contacted['contactDetails']['links']);
+        $this->assertSame([['source' => 'linkedInProfile', 'identifier' => 'ada-lovelace', 'address' => 'https://linkedin.com/in/ada-lovelace']], $contacted['contactDetails']['links']);
         $this->assertSame('Ada', $contacted['name']['firstName']);
 
         $revised = $this->requestJson('PATCH', '/api/me/organization/legal-identity', ['corporateName' => 'SO-LEAN', 'form' => 'SARL', 'type' => null]);

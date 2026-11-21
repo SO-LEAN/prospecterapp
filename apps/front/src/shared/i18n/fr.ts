@@ -314,12 +314,12 @@ export const fr = {
   civilities: { ms: 'Madame', mr: 'Monsieur', x: 'Non renseignée' },
   links: {
     web: 'Site web',
-    sources: { linkedin: 'LinkedIn', malt: 'Malt', welcometothejungle: 'Welcome to the Jungle' },
+    sources: { linkedIn: 'LinkedIn', malt: 'Malt', welcomeToTheJungle: 'Welcome to the Jungle' },
     ofAnotherKind: {
-      linkedin: 'Un profil LinkedIn désigne une personne, pas une organisation.',
-      'linkedin-company': 'Une page entreprise LinkedIn désigne une organisation, pas une personne.',
+      linkedInProfile: 'Un profil LinkedIn désigne une personne, pas une organisation.',
+      linkedInCompany: 'Une page entreprise LinkedIn désigne une organisation, pas une personne.',
       malt: 'Un profil Malt désigne une personne, pas une organisation.',
-      welcometothejungle: 'Une page Welcome to the Jungle désigne une organisation, pas une personne.',
+      welcomeToTheJungle: 'Une page Welcome to the Jungle désigne une organisation, pas une personne.',
     },
   },
   tags: {
