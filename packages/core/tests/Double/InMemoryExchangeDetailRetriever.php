@@ -72,6 +72,7 @@ final readonly class InMemoryExchangeDetailRetriever implements ExchangeDetailRe
             campaignId: $state['campaign']?->value,
             bookedByLink: $state['bookedByLink'],
             importedFrom: $state['importedFrom']?->provider,
+            providerMessageId: $state['importedFrom']?->providerMessageId,
         );
     }
 }
