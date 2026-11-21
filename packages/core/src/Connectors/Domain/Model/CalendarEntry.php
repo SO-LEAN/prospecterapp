@@ -73,6 +73,15 @@ final class CalendarEntry implements ReleasesEvents
     }
 
     /**
+     * The guest is told of a push of the exchange when its event is new to them, or when it moved; not of a link, a
+     * reminder or a name put again.
+     */
+    public function tellsItsGuestOfAPushOf(HeldExchange $exchange): bool
+    {
+        return !$this->invitesAGuest || $this->startsAt != $exchange->startsAt;
+    }
+
+    /**
      * Its event invites a guest, and is still to come: withdrawn, the provider tells them it is cancelled.
      */
     public function invitesAGuestStillToComeAt(\DateTimeImmutable $at): bool
