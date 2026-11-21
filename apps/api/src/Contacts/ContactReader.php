@@ -17,8 +17,7 @@ use Prospecter\Core\SharedKernel\Application\QueryHandler;
 /**
  * A contact as the API shows it: read in PersonalData, what may be done with its timeline in Prospecting, whether
  * they wait for the reader to attach them, and whether the e-mails exchanged with them may be caught up in Connectors,
- * then
- * presented to the presenter it builds for the call (ADR 0085). A controller calls it after a command, which
+ * then presented to the presenter it builds for the call (ADR 0085). A controller calls it after a command, which
  * returns nothing, to answer with the fresh resource.
  */
 final readonly class ContactReader
