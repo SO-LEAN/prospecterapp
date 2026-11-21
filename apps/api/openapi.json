@@ -5350,122 +5350,6 @@
                 }
             }
         },
-        "/api/contacts/{id}/gmail-catch-ups": {
-            "post": {
-                "tags": [
-                    "Connectors"
-                ],
-                "summary": "Catch up the e-mails my mailbox of Gmail exchanged with the contact over the 12 months before, the 200 newest: imported as the import of my e-mails imports them, asynchronously",
-                "operationId": "post_api_contacts_catch_up_gmail",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
-                        }
-                    }
-                ],
-                "responses": {
-                    "202": {
-                        "description": "The catch-up started: the e-mails arrive in the timeline of the contact"
-                    },
-                    "401": {
-                        "description": "Missing or invalid access token"
-                    },
-                    "403": {
-                        "description": "No right to manage personal data",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProblemResource"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "No connection to Google, or an unknown contact, or one of another account",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProblemResource"
-                                }
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "The import of my e-mails is not active, or the contact has no e-mail",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProblemResource"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/organizations/{id}/gmail-catch-ups": {
-            "post": {
-                "tags": [
-                    "Connectors"
-                ],
-                "summary": "Catch up the e-mails my mailbox of Gmail exchanged with the address of the organization itself over the 12 months before, the 200 newest: imported as the import of my e-mails imports them, asynchronously",
-                "operationId": "post_api_organizations_catch_up_gmail",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
-                        }
-                    }
-                ],
-                "responses": {
-                    "202": {
-                        "description": "The catch-up started: the e-mails arrive in the timeline of the organization"
-                    },
-                    "401": {
-                        "description": "Missing or invalid access token"
-                    },
-                    "403": {
-                        "description": "No right to manage personal data",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProblemResource"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Unknown organization, or one of another account, or no connection to Google",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProblemResource"
-                                }
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "The import of my e-mails is not active, or the organization has no e-mail",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProblemResource"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/api/me/connections/checks": {
             "post": {
                 "tags": [
@@ -6032,6 +5916,122 @@
                     }
                 },
                 "security": []
+            }
+        },
+        "/api/contacts/{id}/gmail-reimports": {
+            "post": {
+                "tags": [
+                    "Connectors"
+                ],
+                "summary": "Reimport the e-mails my mailbox of Gmail exchanged with the contact over the 12 months before, the 200 newest: imported as the import of my e-mails imports them, asynchronously",
+                "operationId": "post_api_contacts_reimport_gmail",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "The reimport started: the e-mails arrive in the timeline of the contact"
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "No right to manage personal data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No connection to Google, or an unknown contact, or one of another account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "The import of my e-mails is not active, or the contact has no e-mail",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/organizations/{id}/gmail-reimports": {
+            "post": {
+                "tags": [
+                    "Connectors"
+                ],
+                "summary": "Reimport the e-mails my mailbox of Gmail exchanged with the address of the organization itself over the 12 months before, the 200 newest: imported as the import of my e-mails imports them, asynchronously",
+                "operationId": "post_api_organizations_reimport_gmail",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "The reimport started: the e-mails arrive in the timeline of the organization"
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "No right to manage personal data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown organization, or one of another account, or no connection to Google",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "The import of my e-mails is not active, or the organization has no e-mail",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         "/api/me/connections/google/retries": {
@@ -9980,7 +9980,7 @@
                     "toRedact": {
                         "$ref": "#/components/schemas/LinkResource"
                     },
-                    "catchUpGmail": {
+                    "reimportGmail": {
                         "$ref": "#/components/schemas/LinkResource"
                     }
                 },
@@ -10232,7 +10232,7 @@
                     "proposedOrganization": {
                         "$ref": "#/components/schemas/LinkResource"
                     },
-                    "catchUpGmail": {
+                    "reimportGmail": {
                         "$ref": "#/components/schemas/LinkResource"
                     }
                 },

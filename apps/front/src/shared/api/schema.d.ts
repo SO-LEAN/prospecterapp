@@ -1128,40 +1128,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/contacts/{id}/gmail-catch-ups": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Catch up the e-mails my mailbox of Gmail exchanged with the contact over the 12 months before, the 200 newest: imported as the import of my e-mails imports them, asynchronously */
-        post: operations["post_api_contacts_catch_up_gmail"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/organizations/{id}/gmail-catch-ups": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Catch up the e-mails my mailbox of Gmail exchanged with the address of the organization itself over the 12 months before, the 200 newest: imported as the import of my e-mails imports them, asynchronously */
-        post: operations["post_api_organizations_catch_up_gmail"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/me/connections/checks": {
         parameters: {
             query?: never;
@@ -1279,6 +1245,40 @@ export interface paths {
         put?: never;
         /** A change of a mailbox Gmail notified through the topic of the account, pushed by its subscription at Pub/Sub with a token Google signed for its account of service, not with a token of a member (ADR 0154): noted and dated, nothing read from Gmail during the request */
         post: operations["post_api_gmail_notifications"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/contacts/{id}/gmail-reimports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reimport the e-mails my mailbox of Gmail exchanged with the contact over the 12 months before, the 200 newest: imported as the import of my e-mails imports them, asynchronously */
+        post: operations["post_api_contacts_reimport_gmail"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/organizations/{id}/gmail-reimports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reimport the e-mails my mailbox of Gmail exchanged with the address of the organization itself over the 12 months before, the 200 newest: imported as the import of my e-mails imports them, asynchronously */
+        post: operations["post_api_organizations_reimport_gmail"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2678,7 +2678,7 @@ export interface components {
             noteExchange?: components["schemas"]["LinkResource"];
             planExchange?: components["schemas"]["LinkResource"];
             toRedact?: components["schemas"]["LinkResource"];
-            catchUpGmail?: components["schemas"]["LinkResource"];
+            reimportGmail?: components["schemas"]["LinkResource"];
         };
         TimelineResource: {
             items: components["schemas"]["ExchangeResource"][];
@@ -2752,7 +2752,7 @@ export interface components {
             toDos?: components["schemas"]["LinkResource"];
             tags?: components["schemas"]["LinkResource"];
             proposedOrganization?: components["schemas"]["LinkResource"];
-            catchUpGmail?: components["schemas"]["LinkResource"];
+            reimportGmail?: components["schemas"]["LinkResource"];
         };
         PossibleDuplicateOfContactLinksResource: {
             self: components["schemas"]["LinkResource"];
@@ -7928,114 +7928,6 @@ export interface operations {
             };
         };
     };
-    post_api_contacts_catch_up_gmail: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description The catch-up started: the e-mails arrive in the timeline of the contact */
-            202: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description No right to manage personal data */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProblemResource"];
-                };
-            };
-            /** @description No connection to Google, or an unknown contact, or one of another account */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProblemResource"];
-                };
-            };
-            /** @description The import of my e-mails is not active, or the contact has no e-mail */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProblemResource"];
-                };
-            };
-        };
-    };
-    post_api_organizations_catch_up_gmail: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description The catch-up started: the e-mails arrive in the timeline of the organization */
-            202: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description No right to manage personal data */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProblemResource"];
-                };
-            };
-            /** @description Unknown organization, or one of another account, or no connection to Google */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProblemResource"];
-                };
-            };
-            /** @description The import of my e-mails is not active, or the organization has no e-mail */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProblemResource"];
-                };
-            };
-        };
-    };
     post_api_me_connections_check: {
         parameters: {
             query?: never;
@@ -8587,6 +8479,114 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    post_api_contacts_reimport_gmail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The reimport started: the e-mails arrive in the timeline of the contact */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description No connection to Google, or an unknown contact, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description The import of my e-mails is not active, or the contact has no e-mail */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    post_api_organizations_reimport_gmail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The reimport started: the e-mails arrive in the timeline of the organization */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown organization, or one of another account, or no connection to Google */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description The import of my e-mails is not active, or the organization has no e-mail */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
             };
         };
     };

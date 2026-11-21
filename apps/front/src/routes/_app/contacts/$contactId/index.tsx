@@ -123,7 +123,7 @@ function ContactPage() {
           <ExchangesSection
             contactId={contact.id}
             contactName={name}
-            mayCatchUpGmail={Boolean(contact._links.catchUpGmail)}
+            mayCatchUpGmail={Boolean(contact._links.reimportGmail)}
             className="lg:col-span-2"
           />
         )}

@@ -12,9 +12,9 @@ use Prospecter\Core\Connectors\Application\CatchUpMailHistory\CatchUpMailHistory
 use Symfony\Component\Clock\ClockInterface;
 
 /**
- * `POST /api/contacts/{id}/gmail-catch-ups`, for an AI (ADR 0163).
+ * `POST /api/contacts/{id}/gmail-reimports`, for an AI (ADR 0163).
  */
-#[Adapts('api_contacts_catch_up_gmail')]
+#[Adapts('api_contacts_reimport_gmail')]
 final readonly class CatchUpContactGmailTool
 {
     public function __construct(private ToolAccess $access, private CommandBus $commandBus, private ClockInterface $clock)

@@ -205,7 +205,7 @@ describe('OrganizationExchangesSection', () => {
       toRedact: 0,
       _links: {
         self: timelineLink,
-        catchUpGmail: { href: `/api/organizations/${ACME}/gmail-catch-ups`, method: 'POST' },
+        reimportGmail: { href: `/api/organizations/${ACME}/gmail-reimports`, method: 'POST' },
       },
     })
 

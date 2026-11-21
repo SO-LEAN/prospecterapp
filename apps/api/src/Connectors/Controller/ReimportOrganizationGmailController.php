@@ -20,7 +20,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('Connectors')]
 #[IsGranted('ROLE_USER')]
-final class CatchUpOrganizationGmailController extends AbstractController
+final class ReimportOrganizationGmailController extends AbstractController
 {
     public function __construct(
         private readonly CommandBus $commandBus,
@@ -28,11 +28,11 @@ final class CatchUpOrganizationGmailController extends AbstractController
     ) {
     }
 
-    #[Route('/api/organizations/{id}/gmail-catch-ups', name: 'api_organizations_catch_up_gmail', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
+    #[Route('/api/organizations/{id}/gmail-reimports', name: 'api_organizations_reimport_gmail', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
     #[IsGranted(OrganizationVoter::ACCESS, subject: 'organization')]
     #[IsGranted(User::PERSONAL_DATA)]
-    #[OA\Post(summary: 'Catch up the e-mails my mailbox of Gmail exchanged with the address of the organization itself over the 12 months before, the 200 newest: imported as the import of my e-mails imports them, asynchronously')]
-    #[OA\Response(response: 202, description: 'The catch-up started: the e-mails arrive in the timeline of the organization')]
+    #[OA\Post(summary: 'Reimport the e-mails my mailbox of Gmail exchanged with the address of the organization itself over the 12 months before, the 200 newest: imported as the import of my e-mails imports them, asynchronously')]
+    #[OA\Response(response: 202, description: 'The reimport started: the e-mails arrive in the timeline of the organization')]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'No right to manage personal data', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'Unknown organization, or one of another account, or no connection to Google', content: new Model(type: ProblemResource::class))]

@@ -27,7 +27,7 @@ final class OrganizationTimelinePresenter implements TimelineOutput
     private const array TO_REDACT_ROUTES = ['api_organizations_exchanges_to_redact', 'api_organizations_note_exchange', 'api_organizations_plan_exchange'];
 
     private const string CATCH_UP = 'CatchUpGmail';
-    private const string CATCH_UP_ROUTE = 'api_organizations_catch_up_gmail';
+    private const string CATCH_UP_ROUTE = 'api_organizations_reimport_gmail';
 
     public private(set) OrganizationTimelineResource $resource;
 
@@ -81,7 +81,7 @@ final class OrganizationTimelinePresenter implements TimelineOutput
             toRedact: $timeline->toMakeConform,
             links: $this->timelineResourceFactory->createLinks($this->routes, $subject, $timeline)
                 ->withToRedact(0 === $timeline->toMakeConform ? null : $this->links->to(self::TO_REDACT_ROUTES[0], $subject))
-                ->withCatchUpGmail($this->offersTheCatchUp() ? $this->links->to(self::CATCH_UP_ROUTE, $subject) : null),
+                ->withReimportGmail($this->offersTheCatchUp() ? $this->links->to(self::CATCH_UP_ROUTE, $subject) : null),
         );
     }
 

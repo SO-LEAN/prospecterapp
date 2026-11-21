@@ -51,7 +51,7 @@ describe('CatchUpGmail', () => {
 
     await user.click(screen.getByRole('button', { name: 'Rattraper Gmail' }))
 
-    expect(sent()).toEqual({ path: `/api/contacts/${ADA}/gmail-catch-ups`, method: 'POST' })
+    expect(sent()).toEqual({ path: `/api/contacts/${ADA}/gmail-reimports`, method: 'POST' })
     expect(toast.success).toHaveBeenCalledWith('Rattrapage lancé : les e-mails arrivent dans la timeline.')
     expect(invalidated).toHaveBeenCalledWith(
       expect.objectContaining({ queryKey: timelineQuery(ADA).queryKey }),
@@ -65,7 +65,7 @@ describe('CatchUpGmail', () => {
 
     await user.click(screen.getByRole('button', { name: 'Rattraper Gmail' }))
 
-    expect(sent()).toEqual({ path: `/api/organizations/${GLOBEX}/gmail-catch-ups`, method: 'POST' })
+    expect(sent()).toEqual({ path: `/api/organizations/${GLOBEX}/gmail-reimports`, method: 'POST' })
     expect(invalidated).toHaveBeenCalledWith(
       expect.objectContaining({ queryKey: organizationTimelineQuery(GLOBEX).queryKey }),
       expect.anything(),

@@ -286,10 +286,10 @@ export function useCatchUpGmail() {
     mutationFn: async (correspondent: CatchUpCorrespondent) => {
       const { error } =
         'contactId' in correspondent
-          ? await fetchClient.POST('/api/contacts/{id}/gmail-catch-ups', {
+          ? await fetchClient.POST('/api/contacts/{id}/gmail-reimports', {
               params: { path: { id: correspondent.contactId } },
             })
-          : await fetchClient.POST('/api/organizations/{id}/gmail-catch-ups', {
+          : await fetchClient.POST('/api/organizations/{id}/gmail-reimports', {
               params: { path: { id: correspondent.organizationId } },
             })
       if (error) {

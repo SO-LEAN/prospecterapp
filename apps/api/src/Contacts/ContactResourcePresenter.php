@@ -41,7 +41,7 @@ final class ContactResourcePresenter implements ConsultPersonOutput
     public private(set) ContactResource $resource;
 
     private const string CATCH_UP = 'CatchUpGmail';
-    private const string CATCH_UP_ROUTE = 'api_contacts_catch_up_gmail';
+    private const string CATCH_UP_ROUTE = 'api_contacts_reimport_gmail';
 
     /**
      * @param list<string> $catchUpIntents what Connectors offers of the e-mails exchanged with the contact
@@ -130,7 +130,7 @@ final class ContactResourcePresenter implements ConsultPersonOutput
      */
     private function catchUpOf(array $id): array
     {
-        return $this->intentLinks->shows(self::CATCH_UP, $this->catchUpIntents, User::PERSONAL_DATA) ? ['catchUpGmail' => $this->links->to(self::CATCH_UP_ROUTE, $id)] : [];
+        return $this->intentLinks->shows(self::CATCH_UP, $this->catchUpIntents, User::PERSONAL_DATA) ? ['reimportGmail' => $this->links->to(self::CATCH_UP_ROUTE, $id)] : [];
     }
 
     /**

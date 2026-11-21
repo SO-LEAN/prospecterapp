@@ -1049,7 +1049,7 @@ export const fr = {
     invalidTopic: 'Un topic se nomme en entier : projects/<projet>/topics/<topic>.',
     mailImportUnavailable: 'L’import des e-mails n’est pas disponible : le compte n’a pas de topic Pub/Sub.',
     mailImportNotActive: 'L’import de vos e-mails Gmail n’est pas actif : activez-le dans les connecteurs.',
-    noAddressToCatchUp: 'Sans e-mail, il n’y a rien à rattraper dans Gmail.',
+    noAddressToReimport: 'Sans e-mail, il n’y a rien à rattraper dans Gmail.',
     accessRevoked: 'Google n’accorde plus l’accès : connectez votre compte à nouveau.',
     calendarGone: 'L’agenda Prospecter n’est plus dans Google.',
     calendarRefusedThePush: 'Google a refusé l’événement de l’échange.',
