@@ -6,12 +6,15 @@ namespace Tests\Core\Domain;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Prospecter\Core\Connectors\Domain\Model\MailboxAttachment;
 use Prospecter\Core\Connectors\Domain\Model\MailboxMail;
 use Prospecter\Core\SharedKernel\Domain\Email;
 
 class MailboxMailTest extends TestCase
 {
     private const string AT = '2026-11-18 09:12 UTC';
+    private const int KILOBYTE = 1024;
+    private const int MEGABYTE = 1024 * self::KILOBYTE;
 
     /**
      * @param list<string> $labels
@@ -128,11 +131,42 @@ class MailboxMailTest extends TestCase
         $this->assertSame(hash('sha256', 'michel@exemple.fr#18f3a'), $identity);
     }
 
-    /**
-     * @param list<string> $labels
-     */
-    private static function mail(array $labels = ['INBOX'], string $subject = 'Votre devis', string $text = 'Bonjour', ?string $messageId = '<CAF1@mail.acme.fr>'): MailboxMail
+    public function testItsAttachmentsAreImported(): void
     {
-        return new MailboxMail('18f3a', $messageId, new Email('ada@acme.fr'), [], $labels, new \DateTimeImmutable(self::AT), $subject, $text);
+        $attachments = [self::attachment('devis.pdf', 300 * self::KILOBYTE), self::attachment('cv.pdf', 100 * self::KILOBYTE)];
+
+        $this->assertSame($attachments, self::mail(attachments: $attachments)->attachmentsToImport());
+    }
+
+    public function testAnAttachmentOfMoreThan10MegabytesIsLeftOut(): void
+    {
+        $heavy = self::attachment('video.mp4', 10 * self::MEGABYTE + 1);
+        $light = self::attachment('photos.zip', 10 * self::MEGABYTE);
+        $mail = self::mail(attachments: [$heavy, $light]);
+
+        $this->assertSame([[$light], [$heavy]], [$mail->attachmentsToImport(), $mail->attachmentsLeftOut()]);
+    }
+
+    public function testBeyondTenAttachmentsImportedTheOthersAreLeftOut(): void
+    {
+        $heavy = self::attachment('video.mp4', 11 * self::MEGABYTE);
+        $attachments = array_map(static fn (int $rank): MailboxAttachment => self::attachment(sprintf('piece-%d.pdf', $rank), self::KILOBYTE), range(1, 12));
+        $mail = self::mail(attachments: [$heavy, ...$attachments]);
+
+        $this->assertSame([array_slice($attachments, 0, 10), [$heavy, ...array_slice($attachments, 10)]], [$mail->attachmentsToImport(), $mail->attachmentsLeftOut()]);
+    }
+
+    private static function attachment(string $name, int $size): MailboxAttachment
+    {
+        return new MailboxAttachment('attachment-'.$name, $name, $size);
+    }
+
+    /**
+     * @param list<string>            $labels
+     * @param list<MailboxAttachment> $attachments
+     */
+    private static function mail(array $labels = ['INBOX'], string $subject = 'Votre devis', string $text = 'Bonjour', ?string $messageId = '<CAF1@mail.acme.fr>', array $attachments = []): MailboxMail
+    {
+        return new MailboxMail('18f3a', $messageId, new Email('ada@acme.fr'), [], $labels, new \DateTimeImmutable(self::AT), $subject, $text, $attachments);
     }
 }
