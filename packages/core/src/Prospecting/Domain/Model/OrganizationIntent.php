@@ -22,4 +22,6 @@ enum OrganizationIntent
     case StopProspecting;
     /** Say, once checked, that it is no duplicate of an organization it resembles. */
     case DismissPossibleDuplicate;
+    /** Fill what it lacks, never changing what is noted (ADR 0177). */
+    case Complete;
 }

@@ -36,6 +36,12 @@ final class ProspectingFactsContext implements Context
         );
     }
 
+    #[Then('aucun fait d\'organisation n\'est publié')]
+    public function noFactsOfOrganizationArePublished(): void
+    {
+        Expect::same([], $this->application->events->published(OrganizationFactsChanged::class));
+    }
+
     #[Then('la commune publiée de :name est :municipality, en :country')]
     public function theMunicipalityPublishedOf(string $name, string $municipality, string $country): void
     {

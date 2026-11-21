@@ -8,12 +8,14 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationIntent;
+use Prospecter\Core\Prospecting\Domain\Model\OrganizationSupplement;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Policy\OrganizationPossibilities;
 use Prospecter\Core\Prospecting\Domain\Service\OrphanContacts;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Address;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotFound;
 use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
@@ -95,6 +97,7 @@ class OrganizationIntentsTest extends TestCase
             OrganizationIntent::RemoveContact => $organization->removeContact(new PersonId(self::CONTACT), $by, new \DateTimeImmutable(self::AT), $this->orphans()),
             OrganizationIntent::StopProspecting => $organization->stopBeingProspected($by, new \DateTimeImmutable(self::AT), $this->orphans()),
             OrganizationIntent::DismissPossibleDuplicate => $organization->dismissSuspicionOf(new OrganizationId(self::DUPLICATE), $by, new \DateTimeImmutable(self::AT)),
+            OrganizationIntent::Complete => $organization->completeWith(new OrganizationSupplement(email: new Email('contact@acme.fr')), $by, new \DateTimeImmutable(self::AT)),
         };
     }
 

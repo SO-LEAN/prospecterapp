@@ -107,6 +107,7 @@ final readonly class DomainEventTypes extends EventTypes
             'LogoChanged.v1' => Prospecting\LogoChanged::class,
             'LogoRemoved.v1' => Prospecting\LogoRemoved::class,
             'ObservationsWritten.v1' => Prospecting\ObservationsWritten::class,
+            'OrganizationCompleted.v1' => Prospecting\OrganizationCompleted::class,
             'ProspectingStarted.v1' => Prospecting\ProspectingStarted::class,
             'ProspectingStopped.v1' => Prospecting\ProspectingStopped::class,
             'Relocated.v1' => Prospecting\Relocated::class,
