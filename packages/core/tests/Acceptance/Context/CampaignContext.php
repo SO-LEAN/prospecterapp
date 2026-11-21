@@ -1031,7 +1031,7 @@ final class CampaignContext implements Context
         return $this->next ?? throw new \LogicException(sprintf('No next recipient: %s', $this->application->refusal()?->getMessage()));
     }
 
-    private function prepare(string $name, string $channel, string $tags, string $message, ?string $subject = null, string $messageMode = 'asIs'): void
+    private function prepare(string $name, string $channel, string $tags, string $message, ?string $subject = null, ?string $messageMode = null): void
     {
         $this->current = $name;
         $this->campaignIds[$name] = $this->application->newIdentity();
