@@ -152,12 +152,13 @@ deploy_worker() {
     failures=$(aws sqs create-queue --queue-name prospecter-dev-integration-failures --attributes MessageRetentionPeriod=1209600 --query QueueUrl)
     failures=$(aws sqs get-queue-attributes --queue-url "$failures" --attribute-names QueueArn --query Attributes.QueueArn)
 
-    invocations=$(aws sqs create-queue --queue-name prospecter-dev-worker-invocations --attributes VisibilityTimeout=30 --query QueueUrl)
+    invocations=$(aws sqs create-queue --queue-name prospecter-dev-worker-invocations --query QueueUrl)
+    aws sqs set-queue-attributes --queue-url "$invocations" --attributes VisibilityTimeout=130
     invocations=$(aws sqs get-queue-attributes --queue-url "$invocations" --attribute-names QueueArn --query Attributes.QueueArn)
 
     aws lambda delete-function --function-name prospecter-dev-worker >/dev/null 2>&1 || true
     worker=$(aws lambda create-function --function-name prospecter-dev-worker --runtime provided.al2023 --handler bootstrap \
-        --role "$role" --zip-file fileb:///build/function.zip --layers "$1" --memory-size 1024 --timeout 28 \
+        --role "$role" --zip-file fileb:///build/function.zip --layers "$1" --memory-size 1024 --timeout 120 \
         --environment 'Variables={BREF_RUNTIME=function,BREF_LOCAL_HANDLER=App\Shared\Messaging\QueuedIntegrationEventConsumer,BREF_LOCAL_ROOT=/var/www/src/apps/api}' \
         --query FunctionArn)
     aws lambda put-function-concurrency --function-name prospecter-dev-worker \
