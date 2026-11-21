@@ -12,3 +12,11 @@ framework:
             event.bus:
                 default_middleware:
                     allow_no_handlers: true
+
+when@test:
+    framework:
+        messenger:
+            buses:
+                command.bus:
+                    # a command failed once a test asks it to (Tests\App\Double\FailingCommands)
+                    middleware: [App\Shared\Messaging\CorrelatedCommands, Tests\App\Double\FailingCommands]
