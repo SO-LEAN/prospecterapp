@@ -7,8 +7,8 @@ namespace Prospecter\Core\Campaigns\Domain\Model;
 /**
  * How the exchange that processed a recipient went (ADR 0145): done, or missed when the call did not go through.
  */
-enum RecipientOutcome: string
+enum RecipientOutcome
 {
-    case Done = 'done';
-    case Missed = 'missed';
+    case Done;
+    case Missed;
 }
