@@ -147,6 +147,23 @@ describe('the card of a contact', () => {
     expect(screen.getByText('Données masquées')).toBeInTheDocument()
   })
 
+  it('badges in its header a contact an AI collected, without naming the AI', async () => {
+    theApiAnswers(theContact({ createdByAnAI: true }), [])
+
+    await renderTheSpaAt(`/contacts/${ADA}`)
+
+    expect(await screen.findByTitle('Créé par une IA')).toHaveTextContent('MCP')
+  })
+
+  it('does not badge a contact collected by hand', async () => {
+    theApiAnswers(theContact({ createdByAnAI: false }), [])
+
+    await renderTheSpaAt(`/contacts/${ADA}`)
+
+    expect(await screen.findByRole('heading', { name: 'Ada Lovelace' })).toBeInTheDocument()
+    expect(screen.queryByTitle('Créé par une IA')).not.toBeInTheDocument()
+  })
+
   it('opens the links of the contact in a new tab', async () => {
     theApiAnswers(
       theContact({
