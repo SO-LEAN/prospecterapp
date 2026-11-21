@@ -1,6 +1,6 @@
 # Clean code guide
 
-The rules the code of this project follows, from Robert C. Martin (*Clean Code*, *Clean Architecture*, the Clean Coders videos), applied to PHP 8.5 and TypeScript. Decision: [ADR 0022](../adr/0022-clean-code-conventions.md).
+The rules this project's code follows, from Robert C. Martin (*Clean Code*, *Clean Architecture*, the Clean Coders videos), applied to PHP 8.5 and TypeScript. Decision: [ADR 0022](../adr/0022-clean-code-conventions.md).
 
 This guide is alive: rules get added and sharpened as the code is improved, iteration by iteration. Where the code does not follow a rule yet, the rule names it under **Known debt**: that list is the backlog of the next iterations.
 
@@ -15,7 +15,7 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 - **One word per concept.** We say `find` for "may return nothing" and `get` for "throws when missing"; we do not mix `fetch`, `retrieve` and `get`.
 - **Length follows scope.** The wider the scope, the longer and more precise the name; private helpers can be shorter than public API.
 - **Use the business's words** (prospect, holding, owner), the solution's words (presenter, gateway, adapter) for technical code.
-- **A class of the delivery carries its role** (ADR 0087): `StartProspectingController`, `OrganizationPagePresenter`, `OrganizationReader`, `ImageResourceFactory`; the command it dispatches keeps the name of the intent, never imported under an alias.
+- **A delivery class carries its role** (ADR 0087): `StartProspectingController`, `OrganizationPagePresenter`, `OrganizationReader`, `ImageResourceFactory`; the command it dispatches keeps the intent's name and is never imported under an alias.
 - **A property is named after its type** (`ImageResourceFactory $imageResourceFactory`, `CommandBus $commandBus`), **a repository after its collection** (`OrganizationRepository $organizations`: `$this->organizations->get($id)`, Evans), a query handler after its intent (`QueryHandler $consultOrganization`). A variable of several elements is in the plural, named after what they are here, not after the repository they come from: `$callingOrganizations = $this->organizations->withPhoneNumber(...)`.
 
 ## 2. Functions
@@ -25,10 +25,10 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 - **One level of abstraction per function**, and read top-down: each function is followed by those it calls (*stepdown rule*). `StartProspectingHandler::__invoke()` reads as a list of steps.
 - **Few arguments**: zero, one, two; three is suspicious; more needs an *argument object*. PHP named arguments make long lists readable at the call site, they do not make them acceptable.
 - **No flag arguments**: a `bool` parameter means the function does two things; write two functions, or pass an `enum` when it is a real variant.
-- **No output arguments**: return a value, never modify a parameter to give a result back. The output port of a query is the exception: the use case presents its answer to it, as Robert C. Martin's use cases do (ADR 0085).
+- **No output arguments**: return a value, never modify a parameter to give a result back. A query's output port is the exception: the use case presents its answer to it, as Robert C. Martin's use cases do (ADR 0085).
 - **No hidden side effects**: a function does what its name says, nothing else.
 - **Command-query separation**: a method either changes state (command, returns `void`) or answers a question (query, no change), never both. A presenter receives an answer (`present()`, `void`) and is read apart.
-- **Prefer exceptions to error codes**; extract the `try/catch` body into its own function, the function handling an error does nothing else.
+- **Prefer exceptions to error codes**; extract the `try/catch` body into its own function; a function that handles an error does nothing else.
 - **`switch`/`match` on a type only once**, at a boundary or in a factory; elsewhere, polymorphism.
 
 ## 3. Comments
@@ -55,7 +55,7 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 
 ## 6. Error handling
 
-- **Exceptions, not return codes**, with the context needed to understand them: business refusals are domain exceptions (`Domain/Exception`: `NotFound`, `BusinessRuleViolation` naming its field, `NotPossibleInItsState`, `NotAllowed`, `EmailAlreadyUsed`, with named constructors), translated into `UseCaseRefused` and its `ErrorType` by the decorators `RefusalTranslatingCommandHandler`, `RefusalTranslatingQueryHandler` and `RefusalTranslatingEventHandler` around every handler, the domain exception kept as previous (ADR 0035); infrastructure failures go through untouched. Error handling is one thing: it lives in those decorators, never in the handlers.
+- **Exceptions, not return codes**, with the context needed to understand them: business refusals are domain exceptions (`Domain/Exception`: `NotFound`, `BusinessRuleViolation` naming its field, `NotPossibleInItsState`, `NotAllowed`, `EmailAlreadyUsed`, with named constructors). The decorators `RefusalTranslatingCommandHandler`, `RefusalTranslatingQueryHandler` and `RefusalTranslatingEventHandler` wrap every handler and translate these refusals into `UseCaseRefused` and its `ErrorType`, keeping the domain exception as the previous one (ADR 0035); infrastructure failures go through untouched. Error handling is one thing: it lives in those decorators, never in the handlers.
 - **Define exceptions by the caller's needs**: one type per way the caller reacts (not found, refused, conflict), not one per failure.
 - **Do not return `null`, do not pass `null`** when it can be avoided: throw, return an empty collection, or a special case object. `?Type` only when absence is a real, expected answer.
 - **Unchecked exceptions**: PHP has no checked exceptions; document `@throws` on ports, where implementers need it.
@@ -66,14 +66,14 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 ## 7. Boundaries
 
 - **Wrap third-party code** behind our own interfaces: the core sees ports (`GeoLocation`, `Storage`), never DynamoDB, Cognito, Symfony or HTTP clients.
-- **The domain does not bend to a tool**: an aggregate keeps its value objects even when the ORM finds them awkward; the adapter adapts (the documents of the DynamoDB repositories, restored without the constructor, ADR 0028, 0048). No comment, property or method of the core mentions persistence.
+- **The domain does not bend to a tool**: an aggregate keeps its value objects even when the ORM finds them awkward; the adapter adapts (the DynamoDB repositories' documents, restored without the constructor, ADR 0028, 0048). No comment, property or method of the core mentions persistence.
 - **Learning tests** for a library we depend on in a way we are unsure of; the adapter tests play this role (`GeoplateformeGeoLocationTest`).
 - **Code that does not exist yet**: define the interface we wish we had, and adapt to the real one later.
 
 ## 8. Tests
 
 - **The three laws of TDD**: write no production code except to pass a failing test; write no more of a test than is enough to fail; write no more production code than is enough to pass.
-- **Clean tests**: as readable as production code, the domain-specific language of the tests is built on purpose (`Vocabulary`, `Expect`, the Gherkin steps).
+- **Clean tests**: as readable as production code; the tests' domain-specific language is built on purpose (`Vocabulary`, `Expect`, the Gherkin steps).
 - **One concept per test**; Arrange, Act, Assert (Given, When, Then).
 - **F.I.R.S.T.**: fast, independent, repeatable, self-validating, timely (written before the code).
 - **Test behaviour, never structure**: no getter and setter tests, no mocks verifying calls; only ports are doubled (ADR 0017, `docs/architecture/tests.md`).
@@ -83,8 +83,8 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 - **Small**, measured in responsibilities, not lines. A class described with "and", "or", "but" has more than one.
 - **Cohesive**: most methods use most fields. When a subset of fields serves a subset of methods, it is another class waiting to be extracted (`FileStore` and `GeoLocalizer` came out of the use cases).
 - **Organized for change**: adding a feature adds a class rather than editing many.
-- **Dependencies are injected, never built** (ADR 0044): a constructor only receives what the class needs, and builds nothing but the exception it throws; a service is built by the container (the composition root of the tests in the core), never by the code. `make lint` fails otherwise (`packages/phpstan-rules/DependenciesAreInjectedRule`). A test reads no real clock either (`TestsReadNoRealClockRule`, ADR 0150, `docs/architecture/tests.md`).
-- **A service is stateless** (an in-memory cache aside; the unit of work, the outbox of its commit and the causation of the events keep the state of a request, emptied at its end, ADR 0095, 0097, 0098); **an object keeping the state of one call is no service** (ADR 0085): built where it is used, it may receive the services of its builder. A presenter is one: it implements the output port of a query, keeps its view model, and its client reads it once the query answered (`$presenter->resource`); the rule allows building a class implementing `OutputPort`.
+- **Dependencies are injected, never built** (ADR 0044): a constructor only receives what the class needs, and builds nothing but the exception it throws; the container builds a service (in the core, the tests' composition root), never the code. `make lint` fails otherwise (`packages/phpstan-rules/DependenciesAreInjectedRule`). A test reads no real clock either (`TestsReadNoRealClockRule`, ADR 0150, `docs/architecture/tests.md`).
+- **A service is stateless** (apart from an in-memory cache; the unit of work, its commit's outbox and the events' causation keep a request's state, emptied when the request ends, ADR 0095, 0097, 0098); **an object that keeps one call's state is not a service** (ADR 0085): it is built where it is used and may receive its builder's services. A presenter is one: it implements the output port of a query, keeps its view model, and its client reads it once the query answered (`$presenter->resource`); the rule allows building a class implementing `OutputPort`.
 
 ## 10. SOLID
 
@@ -117,8 +117,27 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 - **Refactor continuously, under tests**: small steps, the scenarios green after each.
 - **No broken windows**: lint, analysis and tests pass before a commit (`make lint`, `make test`).
 
+## 14. Writing style
+
+The repository is public and written in English (ADR 0017). Agents write like what they read, so the text follows the same rule as the code (ADR 0188).
+
+- **Prose** (docs, docblocks, new ADRs): plain, idiomatic technical English. Write short sentences in the active voice. Prefer possessives and compound nouns to chains of `of`: "each account's figures", not "the figures of each account".
+- **Commits**: conventional format, an imperative subject (`add`, `fix`, `remove`) of 72 characters at most, the why in the body. `feat: flag exchanges logged by an AI`, not `feat: the exchange an AI notes keeps that an AI created it`.
+- **Names in code**: the words an English-speaking developer would use, in English word order.
+- **Leave it cleaner**: the boy scout rule covers text too. A branch that touches a doc, a docblock or a name moves it to this style. Rename code only when a branch touches it, never in a global pass.
+- **False friends**: the list grows with the reviews.
+
+| Avoid | Write |
+|---|---|
+| `consult` | `view`, `get` |
+| `civility` | `title`, `salutation` |
+| `make conform` | `comply`, `redact`, `erase`, by meaning (the exchanges of a forgotten contact are redacted, ADR 0079) |
+| `actual`, `actually` meaning "current" | `current`, `currently` |
+| `eventually` meaning "possibly" | `possibly`, `optionally` |
+| `X of Y of Z` | `Z's Y X`, or a compound noun |
+
 ## PHP and TypeScript specifics
 
 - PHP: native types everywhere, `readonly` classes and promoted properties, `enum` for closed sets, `match` instead of `switch`, first-class callables (`$this->allowsInItsState(...)`, `Role::from(...)`), `never` and `throw` expressions, strict types in the core, PHPStan level 5 (ADR 0004).
-- PHP 8.4 and 8.5: the pipe `|>` for a chain of steps of one argument each (`SearchKey::of()`), not where every step needs a wrapping closure (`array_map`, `array_filter`: noise until partial application); `array_find`, `array_any`, `array_all` instead of a loop searching an element; `#[\NoDiscard]` on a function whose result must be read, the functions of the policies first; `clone($object, [...])` to derive a `readonly` object; `public private(set)` for a property written by its class only (the presenters keeping an answer). No property hook on a value object: PHP refuses a hook on a `readonly` property, and a `readonly` class makes them all so.
+- PHP 8.4 and 8.5: the pipe `|>` for a chain of one-argument steps (`SearchKey::of()`), not where every step needs a wrapping closure (`array_map`, `array_filter`: noise until partial application); `array_find`, `array_any`, `array_all` instead of a loop searching an element; `#[\NoDiscard]` on a function whose result must be read, policy functions first; `clone($object, [...])` to derive a `readonly` object; `public private(set)` for a property only its class writes (presenters that keep an answer). No property hook on a value object: PHP refuses a hook on a `readonly` property, and a `readonly` class makes them all so.
 - TypeScript: strict mode, no `any`, named functions for intentions (`isClientError`, `nextSliceOf`), no manual memoization (the React Compiler does it), components small and composed.
