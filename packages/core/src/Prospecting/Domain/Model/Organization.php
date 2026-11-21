@@ -44,6 +44,7 @@ use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\Location;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
+use Prospecter\Core\SharedKernel\Domain\Origin;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
@@ -77,6 +78,7 @@ final class Organization implements ReleasesEvents
     private array $possibleDuplicates = [];
     /** @var list<OrganizationId> */
     private array $notDuplicates = [];
+    private Origin $origin = Origin::Hand;
     private \DateTimeImmutable $modifiedAt;
 
     private function __construct(
@@ -91,11 +93,15 @@ final class Organization implements ReleasesEvents
         $this->modifiedAt = $createdAt;
     }
 
-    public static function prospectedBy(Prospector $prospector, OrganizationId $id, LegalIdentity $legalIdentity, ContactDetails $contactDetails, \DateTimeImmutable $at): self
+    /**
+     * By the hand of the prospector, or by an AI acting as them.
+     */
+    public static function prospectedBy(Prospector $prospector, OrganizationId $id, LegalIdentity $legalIdentity, ContactDetails $contactDetails, \DateTimeImmutable $at, Origin $origin = Origin::Hand): self
     {
         self::ensureItCanBeNamed($legalIdentity, $contactDetails);
 
         $organization = new self($id, $prospector->accountId, $prospector->id, $legalIdentity, $contactDetails, $at);
+        $organization->origin = $origin;
         $organization->recordThat(new ProspectingStarted($prospector->accountId, $prospector->id, $id, $at));
 
         return $organization;

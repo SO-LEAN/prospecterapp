@@ -132,6 +132,17 @@ final class OrganizationContext implements Context
     #[When('je commence à prospecter l\'organisation :')]
     public function iStartProspecting(TableNode $table): void
     {
+        $this->startProspecting($table, byAnAI: false);
+    }
+
+    #[Given('l\'IA a commencé à prospecter l\'organisation :')]
+    public function theAIStartedProspecting(TableNode $table): void
+    {
+        $this->startProspecting($table, byAnAI: true);
+    }
+
+    private function startProspecting(TableNode $table, bool $byAnAI): void
+    {
         $values = Vocabulary::values($table->getRowsHash());
         $id = $this->application->newIdentity();
         $this->application->dispatch(new StartProspecting(
@@ -152,6 +163,7 @@ final class OrganizationContext implements Context
             executedAt: $this->application->now(),
             links: Vocabulary::links($values),
             website: $values['site web'],
+            byAnAI: $byAnAI,
         ));
         $this->rememberIfAccepted($values['raison sociale'], $id);
     }
@@ -327,6 +339,7 @@ final class OrganizationContext implements Context
             'ville' => (string) $organization->city,
             'position' => Vocabulary::describePosition($organization->longitude, $organization->latitude),
             'logo' => null === $organization->logo ? 'aucun' : basename($organization->logo->url),
+            'badge' => Vocabulary::describeBadge($organization->createdByAnAI),
         ]);
     }
 

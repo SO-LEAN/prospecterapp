@@ -14,6 +14,7 @@ use Prospecter\Core\SharedKernel\Application\ExternalLink;
 use Prospecter\Core\SharedKernel\Application\FileResponse;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
+use Prospecter\Core\SharedKernel\Domain\Origin;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
@@ -78,6 +79,7 @@ final readonly class InMemoryOrganizationSheetRetriever implements OrganizationS
             modifiedAt: $state['modifiedAt'],
             possibleIntents: array_map(static fn (OrganizationIntent $intent): string => $intent->name, OrganizationPossibilities::given(hasLogo: null !== $state['logo'], hasHolding: null !== $state['holdingId'], hasContacts: [] !== $state['contacts'], hasPossibleDuplicates: [] !== $possibleDuplicates)),
             possibleDuplicates: $possibleDuplicates,
+            createdByAnAI: Origin::Ai === $state['origin'],
         );
     }
 }
