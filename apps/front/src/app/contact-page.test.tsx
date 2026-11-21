@@ -106,7 +106,7 @@ describe('the card of a contact', () => {
         _links: {
           self: { href: `/api/contacts/${ADA}`, method: 'GET' },
           ...withItsExchanges,
-          catchUpGmail: { href: `/api/contacts/${ADA}/gmail-catch-ups`, method: 'POST' },
+          reimportGmail: { href: `/api/contacts/${ADA}/gmail-reimports`, method: 'POST' },
         },
       }),
       [],

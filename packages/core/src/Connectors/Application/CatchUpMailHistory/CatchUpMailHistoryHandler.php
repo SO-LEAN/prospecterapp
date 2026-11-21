@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Connectors\Application\CatchUpMailHistory;
 
-use Prospecter\Core\Connectors\Domain\Exception\NoAddressToCatchUp;
+use Prospecter\Core\Connectors\Domain\Exception\NoAddressToReimport;
 use Prospecter\Core\Connectors\Domain\Model\Member;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Port\CorrespondentAddresses;
@@ -51,7 +51,7 @@ final readonly class CatchUpMailHistoryHandler implements CommandHandler
     }
 
     /**
-     * @throws NoAddressToCatchUp
+     * @throws NoAddressToReimport
      */
     private function addressOf(CatchUpMailHistory $command, Member $me): Email
     {
@@ -59,6 +59,6 @@ final readonly class CatchUpMailHistoryHandler implements CommandHandler
             ? $this->addresses->ofContact($me->id, new PersonId((string) $command->contactId))
             : $this->addresses->ofOrganization($me->accountId, new OrganizationId($command->organizationId));
 
-        return $address ?? throw NoAddressToCatchUp::ofTheCorrespondent();
+        return $address ?? throw NoAddressToReimport::ofTheCorrespondent();
     }
 }

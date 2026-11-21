@@ -96,7 +96,7 @@ export function OrganizationExchangesSection({
   const slices = timeline.data.pages
   const mayNote = Boolean(slices[0]?._links.noteExchange)
   const mayPlan = Boolean(slices[0]?._links.planExchange)
-  const mayCatchUp = Boolean(all.data?.pages[0]?._links.catchUpGmail)
+  const mayCatchUp = Boolean(all.data?.pages[0]?._links.reimportGmail)
 
   return (
     <TimelineCard

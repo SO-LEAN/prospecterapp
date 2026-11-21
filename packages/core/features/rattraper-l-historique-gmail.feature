@@ -113,7 +113,7 @@ Fonctionnalité: Rattraper l'historique Gmail d'un contact ou d'une organisation
   Scénario: Sans e-mail, pas de rattrapage
     Soit le contact "Alan Turing" de "ACME"
     Quand je rattrape l'historique Gmail de "Alan Turing"
-    Alors c'est refusé : "No address to catch up the e-mails exchanged with"
+    Alors c'est refusé : "No address to reimport the e-mails exchanged with"
 
   Plan du scénario: Un contact ou une organisation d'un autre compte reste introuvable
     Soit l'organisation "Initech SAS" qui utilise Prospecter

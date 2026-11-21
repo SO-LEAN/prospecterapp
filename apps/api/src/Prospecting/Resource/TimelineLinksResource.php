@@ -17,18 +17,18 @@ final readonly class TimelineLinksResource
         public ?LinkResource $planExchange = null,
         #[OA\Property(nullable: false, description: 'The exchanges of an organization to redact, their contact forgotten, absent while there is none')]
         public ?LinkResource $toRedact = null,
-        #[OA\Property(nullable: false, description: 'Catch up the e-mails the mailbox of Gmail of the reader exchanged with the address of the organization itself, while its import is active and the organization has an e-mail, with the right to manage personal data')]
-        public ?LinkResource $catchUpGmail = null,
+        #[OA\Property(nullable: false, description: 'Reimport the e-mails the mailbox of Gmail of the reader exchanged with the address of the organization itself, while its import is active and the organization has an e-mail, with the right to manage personal data')]
+        public ?LinkResource $reimportGmail = null,
     ) {
     }
 
     public function withToRedact(?LinkResource $toRedact): self
     {
-        return new self($this->self, $this->next, $this->noteExchange, $this->planExchange, $toRedact, $this->catchUpGmail);
+        return new self($this->self, $this->next, $this->noteExchange, $this->planExchange, $toRedact, $this->reimportGmail);
     }
 
-    public function withCatchUpGmail(?LinkResource $catchUpGmail): self
+    public function withReimportGmail(?LinkResource $reimportGmail): self
     {
-        return new self($this->self, $this->next, $this->noteExchange, $this->planExchange, $this->toRedact, $catchUpGmail);
+        return new self($this->self, $this->next, $this->noteExchange, $this->planExchange, $this->toRedact, $reimportGmail);
     }
 }

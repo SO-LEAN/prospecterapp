@@ -27,8 +27,8 @@ final readonly class ContactLinksResource
         public ?LinkResource $tags = null,
         #[OA\Property(description: 'The organization proposed to attach the contact to, while they wait for the reader to attach them, with the right to manage personal data (ADR 0146)', nullable: false)]
         public ?LinkResource $proposedOrganization = null,
-        #[OA\Property(description: 'Catch up the e-mails the mailbox of Gmail of the reader exchanged with the contact, while its import is active and the contact has an e-mail, with the right to manage personal data', nullable: false)]
-        public ?LinkResource $catchUpGmail = null,
+        #[OA\Property(description: 'Reimport the e-mails the mailbox of Gmail of the reader exchanged with the contact, while its import is active and the contact has an e-mail, with the right to manage personal data', nullable: false)]
+        public ?LinkResource $reimportGmail = null,
     ) {
     }
 }
