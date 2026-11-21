@@ -2208,81 +2208,6 @@
                 }
             }
         },
-        "/api/contacts/{id}/civility": {
-            "patch": {
-                "tags": [
-                    "Contacts"
-                ],
-                "summary": "Note how one addresses a contact, Ms or Mr, or that it is unknown (x)",
-                "operationId": "patch_api_contacts_change_civility",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/CivilityInput"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "The contact",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ContactResource"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Missing or invalid access token"
-                    },
-                    "403": {
-                        "description": "Not a prospector, or no right to manage personal data",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProblemResource"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Unknown contact, or one of another account",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProblemResource"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Unknown civility",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProblemResource"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/api/contacts/{id}/contact-details": {
             "patch": {
                 "tags": [
@@ -2422,6 +2347,81 @@
                     },
                     "422": {
                         "description": "Invalid job title",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/contacts/{id}/title": {
+            "patch": {
+                "tags": [
+                    "Contacts"
+                ],
+                "summary": "Note how one addresses a contact, Ms or Mr, or that it is unknown (x)",
+                "operationId": "patch_api_contacts_change_title",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TitleInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The contact",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ContactResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector, or no right to manage personal data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown contact, or one of another account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unknown title",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -8395,9 +8395,20 @@
                 },
                 "type": "object"
             },
-            "CivilityInput": {
+            "JobTitleInput": {
                 "properties": {
-                    "civility": {
+                    "jobTitle": {
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 100
+                    }
+                },
+                "type": "object"
+            },
+            "TitleInput": {
+                "properties": {
+                    "title": {
                         "description": "How one addresses the contact, x when unknown",
                         "type": "string",
                         "default": "x",
@@ -8410,23 +8421,12 @@
                 },
                 "type": "object"
             },
-            "JobTitleInput": {
-                "properties": {
-                    "jobTitle": {
-                        "type": "string",
-                        "nullable": true,
-                        "default": null,
-                        "maxLength": 100
-                    }
-                },
-                "type": "object"
-            },
             "CollectContactInput": {
                 "properties": {
                     "name": {
                         "$ref": "#/components/schemas/PersonNameInput"
                     },
-                    "civility": {
+                    "title": {
                         "description": "How one addresses the contact, x when unknown, the default",
                         "type": "string",
                         "default": "x",
@@ -9513,7 +9513,7 @@
                 "required": [
                     "id",
                     "name",
-                    "civility",
+                    "title",
                     "contactDetails",
                     "masked",
                     "_links"
@@ -9525,7 +9525,7 @@
                     "name": {
                         "$ref": "#/components/schemas/PersonNameResource"
                     },
-                    "civility": {
+                    "title": {
                         "description": "How one addresses the contact, x when unknown, read in clear like their name",
                         "type": "string",
                         "enum": [
@@ -10211,7 +10211,7 @@
                     "changeJobTitle": {
                         "$ref": "#/components/schemas/LinkResource"
                     },
-                    "changeCivility": {
+                    "changeTitle": {
                         "$ref": "#/components/schemas/LinkResource"
                     },
                     "changeContactDetails": {
@@ -10294,7 +10294,7 @@
                 "required": [
                     "id",
                     "name",
-                    "civility",
+                    "title",
                     "contactDetails",
                     "masked",
                     "_links",
@@ -10308,7 +10308,7 @@
                     "name": {
                         "$ref": "#/components/schemas/PersonNameResource"
                     },
-                    "civility": {
+                    "title": {
                         "description": "How one addresses the contact, x when unknown, read in clear like their name",
                         "type": "string",
                         "enum": [
@@ -10370,7 +10370,7 @@
                 "required": [
                     "id",
                     "name",
-                    "civility",
+                    "title",
                     "contactDetails",
                     "masked",
                     "organizations",
@@ -10384,7 +10384,7 @@
                     "name": {
                         "$ref": "#/components/schemas/PersonNameResource"
                     },
-                    "civility": {
+                    "title": {
                         "description": "How one addresses the contact, x when unknown, read in clear like their name",
                         "type": "string",
                         "enum": [

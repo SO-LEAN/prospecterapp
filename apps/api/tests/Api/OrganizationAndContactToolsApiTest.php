@@ -49,9 +49,9 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
     {
         $ada = $this->ada();
 
-        $changed = $this->assertTheToolActsAsItsEndpoint('set-contact-title', ['id' => $ada, 'civility' => 'ms'], 'PATCH', '/api/contacts/'.$ada.'/civility', ['civility' => 'ms'], self::PERSONAL_DATA_MANAGERS);
+        $changed = $this->assertTheToolActsAsItsEndpoint('set-contact-title', ['id' => $ada, 'title' => 'ms'], 'PATCH', '/api/contacts/'.$ada.'/title', ['title' => 'ms'], self::PERSONAL_DATA_MANAGERS);
 
-        $this->assertSame('ms', $changed['civility']);
+        $this->assertSame('ms', $changed['title']);
     }
 
     public function testTheAiChangesTheContactDetailsOfAContactAndTheirProfileOnLinkedIn(): void
@@ -68,8 +68,8 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
     public function testTheAiCollectsAContactOfAnOrganization(): void
     {
         $babbage = $this->babbage();
-        $charles = ['firstName' => 'Charles', 'lastName' => 'Babbage', 'civility' => 'mr', 'jobTitle' => 'Founder', 'phoneNumber' => '03 88 00 00 44', 'links' => ['linkedin.com/in/charles-babbage'], 'organizationIds' => [$babbage]];
-        $payload = ['name' => ['firstName' => 'Charles', 'lastName' => 'Babbage'], 'civility' => 'mr', 'jobTitle' => 'Founder', 'contactDetails' => ['phoneNumber' => '03 88 00 00 44', 'links' => ['linkedin.com/in/charles-babbage']], 'organizationIds' => [$babbage]];
+        $charles = ['firstName' => 'Charles', 'lastName' => 'Babbage', 'title' => 'mr', 'jobTitle' => 'Founder', 'phoneNumber' => '03 88 00 00 44', 'links' => ['linkedin.com/in/charles-babbage'], 'organizationIds' => [$babbage]];
+        $payload = ['name' => ['firstName' => 'Charles', 'lastName' => 'Babbage'], 'title' => 'mr', 'jobTitle' => 'Founder', 'contactDetails' => ['phoneNumber' => '03 88 00 00 44', 'links' => ['linkedin.com/in/charles-babbage']], 'organizationIds' => [$babbage]];
 
         $collected = $this->assertTheToolActsAsItsEndpoint('create-contact', $charles, 'POST', '/api/contacts', $payload, self::PERSONAL_DATA_MANAGERS);
 

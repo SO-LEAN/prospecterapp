@@ -43,7 +43,7 @@ final readonly class OrganizationContactsReader
         return new OrganizationContactResource(
             id: $contact->id,
             name: new PersonNameResource($contact->firstName, $contact->lastName),
-            civility: $contact->civility,
+            title: $contact->civility,
             jobTitle: $contact->jobTitle,
             contactDetails: PersonContactDetailsResource::of($contact),
             masked: $contact->masked,

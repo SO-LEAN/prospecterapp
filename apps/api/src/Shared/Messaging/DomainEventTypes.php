@@ -62,7 +62,7 @@ final readonly class DomainEventTypes extends EventTypes
         ],
         'prospecter.personal-data.internal' => [
             'BookerIdentified.v1' => PersonalData\BookerIdentified::class,
-            'CivilityChanged.v1' => PersonalData\CivilityChanged::class,
+            'TitleChanged.v1' => PersonalData\TitleChanged::class,
             'ContactCollected.v1' => PersonalData\ContactCollected::class,
             'ContactCompleted.v1' => PersonalData\ContactCompleted::class,
             'ContactForgotten.v1' => PersonalData\ContactForgotten::class,

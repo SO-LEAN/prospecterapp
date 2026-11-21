@@ -98,7 +98,7 @@ const list: CampaignList = {
 const aContact = (id: string, firstName: string): TargetedContact => ({
   id,
   name: { firstName, lastName: 'de ACME' },
-  civility: 'x',
+  title: 'x',
   jobTitle: null,
   contactDetails: { email: `${firstName}@acme.test`, phoneNumber: null, language: null, links: [] },
   masked: false,

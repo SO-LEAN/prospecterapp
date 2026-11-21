@@ -105,7 +105,7 @@ class DynamoPersonRepositoryTest extends ApiTestCase
         $this->assertSame([], PersonDocument::person($savedBefore)->referencesHeld());
     }
 
-    public function testTheCivilityOfAContactIsReadBackAndAPersonSavedBeforeHasAnUnknownOne(): void
+    public function testTheTitleOfAContactIsReadBackAndAPersonSavedBeforeHasAnUnknownOne(): void
     {
         $persons = self::getContainer()->get(PersonRepository::class);
         $camille = $this->personWithTheEmail(new AccountId(self::newIdentity()), 'camille@solean-it.io');
@@ -115,7 +115,8 @@ class DynamoPersonRepositoryTest extends ApiTestCase
 
         $this->assertEquals([$camille], $persons->ofIds([$camille->id()]));
         $savedBefore = PersonDocument::of($camille);
-        unset($savedBefore['civility']);
+        $this->assertSame('mr', $savedBefore['title']);
+        unset($savedBefore['title']);
         $this->assertSame(Civility::X, PersonDocument::person($savedBefore)->civility());
     }
 

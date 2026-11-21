@@ -37,7 +37,7 @@ final readonly class CollectContactTool
      * @param list<string> $organizationIds the ids of the organizations they work for, at least one
      * @param ?string      $firstName       their first name
      * @param ?string      $lastName        their last name
-     * @param string       $civility        how one addresses them: ms, mr, or x when unknown
+     * @param string       $title           how one addresses them: ms, mr, or x when unknown
      * @param ?string      $jobTitle        what they do in their organization
      * @param ?string      $email           their e-mail
      * @param ?string      $phoneNumber     their phone number, international (+33 3 88 11 22 33) or national in France (03 88 11 22 33)
@@ -51,7 +51,7 @@ final readonly class CollectContactTool
         array $organizationIds,
         ?string $firstName = null,
         ?string $lastName = null,
-        string $civility = 'x',
+        string $title = 'x',
         ?string $jobTitle = null,
         ?string $email = null,
         ?string $phoneNumber = null,
@@ -59,7 +59,7 @@ final readonly class CollectContactTool
         array $links = [],
     ): array {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');
-        $input = $this->inputs->valid(new CollectContactInput(new PersonNameInput($firstName, $lastName), $civility, $jobTitle, new PersonContactDetailsInput($email, $phoneNumber, $language, $links), $organizationIds));
+        $input = $this->inputs->valid(new CollectContactInput(new PersonNameInput($firstName, $lastName), $title, $jobTitle, new PersonContactDetailsInput($email, $phoneNumber, $language, $links), $organizationIds));
         $memberId = $this->access->member()->memberId();
         $id = $this->identities->next();
         $this->commandBus->dispatch($input->commandOfAnAI($memberId, $id, $this->clock->now()));

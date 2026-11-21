@@ -19,7 +19,7 @@ final readonly class CollectContactInput
         #[Assert\Valid]
         public PersonNameInput $name = new PersonNameInput(),
         #[OA\Property(description: 'How one addresses the contact, x when unknown, the default', enum: ['ms', 'mr', 'x'])]
-        public string $civility = 'x',
+        public string $title = 'x',
         #[Assert\Length(max: 100)]
         public ?string $jobTitle = null,
         #[Assert\Valid]
@@ -52,7 +52,7 @@ final readonly class CollectContactInput
             id: $id,
             firstName: $this->name->firstName,
             lastName: $this->name->lastName,
-            civility: $this->civility,
+            civility: $this->title,
             jobTitle: $this->jobTitle,
             email: $this->contactDetails->email,
             phoneNumber: $this->contactDetails->phoneNumber,

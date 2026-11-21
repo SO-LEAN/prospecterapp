@@ -33,7 +33,7 @@ Fonctionnalité: Noter la civilité d'un contact
 
   Scénario: Une civilité inconnue est refusée
     Quand je change la civilité de "Camille Martin" en "Docteur"
-    Alors c'est refusé : "Civility "Docteur" is not valid"
+    Alors c'est refusé : "Title "Docteur" is not valid"
 
   Scénario: Sans le droit, je lis la civilité en clair, comme le nom
     Soit "Camille Martin" a la civilité "Madame"

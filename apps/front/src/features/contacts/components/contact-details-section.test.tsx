@@ -29,7 +29,7 @@ const ada: Contact = {
   name: { firstName: 'Ada', lastName: 'Lovelace' },
   possibleDuplicates: [],
   createdByAnAI: false,
-  civility: 'x',
+  title: 'x',
   contactDetails: { email: 'ada@acme.test', phoneNumber: null, language: null, links: [HER_PROFILE] },
   masked: false,
   _links: {

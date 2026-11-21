@@ -42,8 +42,8 @@ export function useRenameContact() {
   })
 }
 
-export function useChangeCivility() {
-  return api.useMutation('patch', '/api/contacts/{id}/civility', {
+export function useChangeTitle() {
+  return api.useMutation('patch', '/api/contacts/{id}/title', {
     ...formIntention,
     onSuccess: useStoreContact(),
   })

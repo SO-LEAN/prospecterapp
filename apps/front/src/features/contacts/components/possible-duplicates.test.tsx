@@ -25,7 +25,7 @@ const aDuplicate = (possibleDuplicates: Contact['possibleDuplicates']): Contact 
   name: { firstName: 'ada', lastName: 'LOVELACE' },
   possibleDuplicates,
   createdByAnAI: false,
-  civility: 'x',
+  title: 'x',
   contactDetails: { email: null, phoneNumber: null, language: null, links: [] },
   masked: false,
   _links: { self: { href: `/api/contacts/${DUPLICATE}`, method: 'GET' } },

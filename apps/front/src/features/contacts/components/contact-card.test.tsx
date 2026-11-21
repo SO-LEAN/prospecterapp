@@ -7,10 +7,10 @@ import { ContactCard } from './contact-card'
 
 const ADA = '0190a1c0-0000-7000-8000-000000000002'
 
-const ada = (tags: string[], civility: ContactInList['civility'] = 'x'): ContactInList => ({
+const ada = (tags: string[], civility: ContactInList['title'] = 'x'): ContactInList => ({
   id: ADA,
   name: { firstName: 'Ada', lastName: 'Lovelace' },
-  civility,
+  title: civility,
   jobTitle: null,
   contactDetails: { email: 'ada@acme.test', links: [] },
   masked: false,

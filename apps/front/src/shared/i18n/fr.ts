@@ -963,7 +963,7 @@ export const fr = {
     tooManyLinks: 'Une fiche a {{max}} liens au plus.',
     invalidWebsite: 'Ce n’est pas l’adresse d’un site web.',
     websiteAlreadyUsed: 'Ce site est du domaine de celui {{organization, de}}.',
-    invalidCivility: 'La civilité « {{civility}} » n’est ni Madame ni Monsieur.',
+    invalidTitle: 'La civilité « {{title}} » n’est ni Madame ni Monsieur.',
     emailAlreadyUsed: 'Cette adresse e-mail est déjà utilisée.',
     loginEmailTaken: 'Cette adresse e-mail de connexion est déjà utilisée.',
     roleNotAllowed: 'Votre rôle ne vous permet pas cette action.',

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import type { components } from '@/shared/api/schema'
 import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip'
 
-type Civility = components['schemas']['ContactResource']['civility']
+type Civility = components['schemas']['ContactResource']['title']
 
 const MARKS = { ms: Venus, mr: Mars } as const
 

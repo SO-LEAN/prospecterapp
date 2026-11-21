@@ -37,7 +37,7 @@ final class PersonDocument
             'references' => Documents::references($state['references']),
             'formerReferences' => Documents::references(ExternalReferences::of($state['formerReferences'])),
             'jobTitle' => $state['jobTitle'],
-            'civility' => $state['civility']->value,
+            'title' => $state['civility']->value,
             'picture' => Documents::file($state['picture']),
             'possibleDuplicates' => array_map(static fn (PersonId $id): string => $id->value, $state['possibleDuplicates']),
             'notDuplicates' => array_map(static fn (PersonId $id): string => $id->value, $state['notDuplicates']),
@@ -78,7 +78,7 @@ final class PersonDocument
      */
     public static function civilityOf(array $document): Civility
     {
-        return Civility::tryFrom($document['civility'] ?? '') ?? Civility::X;
+        return Civility::tryFrom($document['title'] ?? '') ?? Civility::X;
     }
 
     /**
