@@ -43,7 +43,7 @@ const started: Campaign = {
   channel: 'call',
   tags: ['#ESN'],
   targetedTags: ['#ESN', '#PHONE'],
-  message: 'Pitch pour {prénom}',
+  message: 'Pitch pour {firstName}',
   subject: null,
   messageMode: 'asIs',
   status: 'started',

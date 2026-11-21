@@ -16,7 +16,7 @@ final readonly class TagsInput
     public function __construct(
         #[Assert\Count(min: 1)]
         #[Assert\All([new Assert\Type('string')])]
-        #[OA\Property(description: 'Each written one way: `éditeur logiciel` is #EDITEUR_LOGICIEL', example: ['#ESN', 'éditeur logiciel'])]
+        #[OA\Property(description: 'Each written one way: `Café owners` is #CAFE_OWNERS', example: ['#ESN', 'Café owners'])]
         public array $tags = [],
     ) {
     }

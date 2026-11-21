@@ -66,10 +66,10 @@ class CampaignRecipientsApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(422);
         $this->assertSame([['tags'], 'frozenSearch'], [$this->violatedFields($problem), $problem['reason']]);
 
-        $revised = $this->requestJson('PATCH', '/api/campaigns/'.$id, [...$this->aCampaign(), 'name' => 'Relance de l’hiver', 'message' => 'Bonsoir {prénom}']);
+        $revised = $this->requestJson('PATCH', '/api/campaigns/'.$id, [...$this->aCampaign(), 'name' => 'Relance de l’hiver', 'message' => 'Bonsoir {firstName}']);
 
         $this->assertResponseStatusCodeSame(200);
-        $this->assertSame(['Relance de l’hiver', 'Bonsoir {prénom}', 'frozen'], [$revised['name'], $revised['message'], $revised['status']]);
+        $this->assertSame(['Relance de l’hiver', 'Bonsoir {firstName}', 'frozen'], [$revised['name'], $revised['message'], $revised['status']]);
     }
 
     public function testRecipientsAreAddedByTagsOrChosenEachOnce(): void
@@ -218,6 +218,6 @@ class CampaignRecipientsApiTest extends ApiTestCase
      */
     private function aCampaign(): array
     {
-        return ['name' => 'Relance ESN', 'channel' => 'email', 'tags' => [self::TAG], 'message' => 'Bonjour {prénom}', 'subject' => null];
+        return ['name' => 'Relance ESN', 'channel' => 'email', 'tags' => [self::TAG], 'message' => 'Bonjour {firstName}', 'subject' => null];
     }
 }

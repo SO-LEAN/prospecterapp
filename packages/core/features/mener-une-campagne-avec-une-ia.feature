@@ -13,7 +13,7 @@ Fonctionnalité: Mener une campagne avec une IA
     Et nous sommes le 16/11/2026 à 17h00
 
   Scénario: L'IA prend le destinataire suivant
-    Soit la campagne "Relance PHP" démarrée par e-mail avec "Ada Lovelace" puis "Grace Hopper", l'objet "Mission PHP" et le message "Bonjour {prénom}, je suis disponible en janvier pour une mission PHP."
+    Soit la campagne "Relance PHP" démarrée par e-mail avec "Ada Lovelace" puis "Grace Hopper", l'objet "Mission PHP" et le message "Bonjour {firstName}, je suis disponible en janvier pour une mission PHP."
     Quand une IA demande le destinataire suivant de "Relance PHP"
     Alors elle reçoit "Ada Lovelace", l'objet "Mission PHP" et le message "Bonjour Ada, je suis disponible en janvier pour une mission PHP."
     Et le message est à envoyer "tel quel", 2 destinataires restant à traiter

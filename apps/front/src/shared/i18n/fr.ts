@@ -798,7 +798,7 @@ export const fr = {
       messageMode: "Message pour l'IA",
       messageModeHint: 'Quand une IA mène la campagne, elle envoie elle-même chaque message.',
       messageHint:
-        'Variables : {civilité}, {prénom}, {nom}, {organisation}, {fonction}. Une variable sans valeur reste vide.',
+        'Variables : {title}, {firstName}, {lastName}, {organization}, {jobTitle}. Une variable sans valeur reste vide.',
     },
     target: {
       title: 'Contacts ciblés',

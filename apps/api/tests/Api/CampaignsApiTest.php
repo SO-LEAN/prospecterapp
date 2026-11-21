@@ -47,7 +47,7 @@ class CampaignsApiTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(201);
         $this->assertSame(
-            ['Relance ESN', 'email', 'draft', [self::TAG], [self::TAG, '#EMAIL'], 'Bonjour {prénom}', '{prénom}, une question', 'asIs', 1],
+            ['Relance ESN', 'email', 'draft', [self::TAG], [self::TAG, '#EMAIL'], 'Bonjour {firstName}', '{firstName}, une question', 'asIs', 1],
             [$campaign['name'], $campaign['channel'], $campaign['status'], $campaign['tags'], $campaign['targetedTags'], $campaign['message'], $campaign['subject'], $campaign['messageMode'] ?? null, $campaign['targeted']],
         );
         $this->assertSame(['href' => '/api/tagged-contacts?tags=CAMPAIGN_151,EMAIL', 'method' => 'GET'], $campaign['_links']['target']);
@@ -73,7 +73,7 @@ class CampaignsApiTest extends ApiTestCase
     {
         $id = $this->requestJson('POST', '/api/campaigns', $this->aCampaign())['id'];
 
-        $revised = $this->requestJson('PATCH', '/api/campaigns/'.$id, ['name' => 'Appels ESN', 'channel' => 'call', 'tags' => [self::TAG], 'message' => 'Pitch : {organisation}', 'messageMode' => 'adapted']);
+        $revised = $this->requestJson('PATCH', '/api/campaigns/'.$id, ['name' => 'Appels ESN', 'channel' => 'call', 'tags' => [self::TAG], 'message' => 'Pitch : {organization}', 'messageMode' => 'adapted']);
 
         $this->assertResponseStatusCodeSame(200);
         $this->assertSame(['Appels ESN', 'call', [self::TAG, '#PHONE'], null, 'adapted', 0], [$revised['name'], $revised['channel'], $revised['targetedTags'], $revised['subject'], $revised['messageMode'], $revised['targeted']]);
@@ -86,7 +86,7 @@ class CampaignsApiTest extends ApiTestCase
 
     public function testTheMessageIsRenderedForAContact(): void
     {
-        $id = $this->requestJson('POST', '/api/campaigns', $this->aCampaign(message: 'Bonjour {prénom} {nom}, {fonction} chez {organisation}'))['id'];
+        $id = $this->requestJson('POST', '/api/campaigns', $this->aCampaign(message: 'Bonjour {firstName} {lastName}, {jobTitle} chez {organization}'))['id'];
 
         $message = $this->requestJson('GET', '/api/campaigns/'.$id.'/messages/'.$this->ada);
 
@@ -98,7 +98,7 @@ class CampaignsApiTest extends ApiTestCase
     public function testTheMessageAddressesAContactByTheirCivility(): void
     {
         $this->requestJson('PATCH', '/api/contacts/'.$this->grace.'/title', ['title' => 'ms']);
-        $id = $this->requestJson('POST', '/api/campaigns', $this->aCampaign(message: 'Bonjour {civilité} {nom},'))['id'];
+        $id = $this->requestJson('POST', '/api/campaigns', $this->aCampaign(message: 'Bonjour {title} {lastName},'))['id'];
 
         $this->assertSame('Bonjour Madame Hopper,', $this->requestJson('GET', '/api/campaigns/'.$id.'/messages/'.$this->grace)['text']);
         $this->assertSame('Bonjour  Lovelace,', $this->requestJson('GET', '/api/campaigns/'.$id.'/messages/'.$this->ada)['text']);
@@ -212,9 +212,9 @@ class CampaignsApiTest extends ApiTestCase
     /**
      * @return array<string, mixed>
      */
-    private function aCampaign(string $message = 'Bonjour {prénom}'): array
+    private function aCampaign(string $message = 'Bonjour {firstName}'): array
     {
-        return ['name' => 'Relance ESN', 'channel' => 'email', 'tags' => [self::TAG], 'message' => $message, 'subject' => '{prénom}, une question'];
+        return ['name' => 'Relance ESN', 'channel' => 'email', 'tags' => [self::TAG], 'message' => $message, 'subject' => '{firstName}, une question'];
     }
 
     private function aCampaignOfAnotherAccount(): string

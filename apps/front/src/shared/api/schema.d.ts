@@ -2230,11 +2230,11 @@ export interface components {
         };
         TagsInput: {
             /**
-             * @description Each written one way: `éditeur logiciel` is #EDITEUR_LOGICIEL
+             * @description Each written one way: `Café owners` is #CAFE_OWNERS
              * @default []
              * @example [
              *       "#ESN",
-             *       "éditeur logiciel"
+             *       "Café owners"
              *     ]
              */
             tags: string[];
@@ -2276,7 +2276,7 @@ export interface components {
              */
             tags: string[] | null;
             /**
-             * @description The message reminded for each contact, its variables {civilité}, {prénom}, {nom}, {organisation} and {fonction}
+             * @description The message reminded for each contact, its variables {title}, {firstName}, {lastName}, {organization} and {jobTitle}
              * @default null
              */
             message: string | null;
@@ -3356,7 +3356,7 @@ export interface components {
             tags: string[];
             /** @description The tags a contact carries to be targeted: those chosen and that of the channel */
             targetedTags: string[];
-            /** @description The message, its variables {civilité}, {prénom}, {nom}, {organisation} and {fonction} not rendered */
+            /** @description The message, its variables {title}, {firstName}, {lastName}, {organization} and {jobTitle} not rendered */
             message: string;
             /** @description The subject of an e-mail */
             subject?: string | null;

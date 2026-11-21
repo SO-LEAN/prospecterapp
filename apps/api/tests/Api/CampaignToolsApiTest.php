@@ -18,7 +18,7 @@ class CampaignToolsApiTest extends ApiTestCase
 
     private const string TAG = '#PHP';
 
-    private const array RELAUNCH = ['name' => 'Relance PHP', 'channel' => 'email', 'tags' => [self::TAG], 'message' => 'Bonjour {prénom}', 'subject' => 'Une mission PHP ?'];
+    private const array RELAUNCH = ['name' => 'Relance PHP', 'channel' => 'email', 'tags' => [self::TAG], 'message' => 'Bonjour {firstName}', 'subject' => 'Une mission PHP ?'];
 
     private const array SENT_TO_ADA = ['text' => 'Bonjour Ada', 'messageId' => '<relance-ada@solean-it.test>'];
 
@@ -51,11 +51,11 @@ class CampaignToolsApiTest extends ApiTestCase
     public function testTheAiRevisesADraft(): void
     {
         $draft = $this->aDraft();
-        $revised = [...self::RELAUNCH, 'message' => 'Bonjour {prénom}, une mission PHP vous intéresse ?'];
+        $revised = [...self::RELAUNCH, 'message' => 'Bonjour {firstName}, une mission PHP vous intéresse ?'];
 
         $campaign = $this->assertTheToolActsAsItsEndpoint('update-campaign', ['id' => $draft, ...$revised], 'PATCH', '/api/campaigns/'.$draft, $revised, self::TEAM_WRITERS);
 
-        $this->assertSame('Bonjour {prénom}, une mission PHP vous intéresse ?', $campaign['message']);
+        $this->assertSame('Bonjour {firstName}, une mission PHP vous intéresse ?', $campaign['message']);
     }
 
     public function testTheAiFreezesTheRecipientsOfADraft(): void

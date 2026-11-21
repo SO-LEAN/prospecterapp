@@ -46,7 +46,7 @@ const draft: Campaign = {
   channel: 'email',
   tags: ['#ESN'],
   targetedTags: ['#ESN', '#EMAIL'],
-  message: 'Bonjour {prénom}',
+  message: 'Bonjour {firstName}',
   subject: null,
   messageMode: 'asIs',
   status: 'draft',
@@ -277,7 +277,7 @@ describe('the recipients of a campaign', () => {
     const list = await screen.findByRole('list', { name: 'Destinataires' })
     expect(within(list).getByText('Ada Lovelace')).toBeInTheDocument()
     expect(screen.getByText('Démarrée')).toBeInTheDocument()
-    expect(screen.getByText('Bonjour {prénom}')).toBeInTheDocument()
+    expect(screen.getByText('Bonjour {firstName}')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /^Retirer/ })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Ajouter' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Enregistrer' })).not.toBeInTheDocument()

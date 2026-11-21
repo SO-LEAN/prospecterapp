@@ -8855,14 +8855,14 @@
             "TagsInput": {
                 "properties": {
                     "tags": {
-                        "description": "Each written one way: `\u00e9diteur logiciel` is #EDITEUR_LOGICIEL",
+                        "description": "Each written one way: `Caf\u00e9 owners` is #CAFE_OWNERS",
                         "type": "array",
                         "items": {
                             "type": "string"
                         },
                         "example": [
                             "#ESN",
-                            "\u00e9diteur logiciel"
+                            "Caf\u00e9 owners"
                         ],
                         "default": [],
                         "minItems": 1
@@ -8937,7 +8937,7 @@
                         "default": null
                     },
                     "message": {
-                        "description": "The message reminded for each contact, its variables {civilit\u00e9}, {pr\u00e9nom}, {nom}, {organisation} and {fonction}",
+                        "description": "The message reminded for each contact, its variables {title}, {firstName}, {lastName}, {organization} and {jobTitle}",
                         "type": "string",
                         "nullable": true,
                         "default": null
@@ -12082,7 +12082,7 @@
                         }
                     },
                     "message": {
-                        "description": "The message, its variables {civilit\u00e9}, {pr\u00e9nom}, {nom}, {organisation} and {fonction} not rendered",
+                        "description": "The message, its variables {title}, {firstName}, {lastName}, {organization} and {jobTitle} not rendered",
                         "type": "string"
                     },
                     "subject": {

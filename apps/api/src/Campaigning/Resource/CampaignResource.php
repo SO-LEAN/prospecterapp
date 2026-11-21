@@ -26,7 +26,7 @@ final readonly class CampaignResource
         public array $tags,
         #[OA\Property(description: 'The tags a contact carries to be targeted: those chosen and that of the channel', type: 'array', items: new OA\Items(type: 'string'))]
         public array $targetedTags,
-        #[OA\Property(description: 'The message, its variables {civilité}, {prénom}, {nom}, {organisation} and {fonction} not rendered')]
+        #[OA\Property(description: 'The message, its variables {title}, {firstName}, {lastName}, {organization} and {jobTitle} not rendered')]
         public string $message,
         #[OA\Property(description: 'The subject of an e-mail')]
         public ?string $subject,

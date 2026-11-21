@@ -70,8 +70,8 @@ final class CampaignContext implements Context
     private const array RECIPIENT_STATUSES = ['pending' => 'à traiter', 'erased' => 'plus à traiter', 'processed' => 'traité', 'dismissed' => 'écarté'];
     private const array MESSAGE_MODES = ['asIs' => 'tel quel', 'adapted' => 'adapté'];
     private const string NOBODY_CARRIES = '#PERSONNE';
-    private const string A_MESSAGE = 'Bonjour {prénom}';
-    private const string REVISED_MESSAGE = 'Bonjour {prénom}, je reviens vers vous';
+    private const string A_MESSAGE = 'Bonjour {firstName}';
+    private const string REVISED_MESSAGE = 'Bonjour {firstName}, je reviens vers vous';
     private const string SOME_TAGS = '#ESN';
 
     /** @var array<string, string> the identities of the campaigns, by their names */

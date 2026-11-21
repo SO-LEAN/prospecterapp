@@ -24,7 +24,7 @@ final readonly class ReviseCampaignTool
      * @param string       $name    its name
      * @param string       $channel how each contact is contacted: email, call, sms or linkedIn
      * @param list<string> $tags    the tags its contacts carry, the tag of the channel counting with them in the 5 tags of the target
-     * @param string       $message the message reminded for each contact, its variables {civilité}, {prénom}, {nom}, {organisation} and {fonction}
+     * @param string       $message the message reminded for each contact, its variables {title}, {firstName}, {lastName}, {organization} and {jobTitle}
      * @param ?string      $subject the subject of an e-mail
      *
      * @return array<string, mixed>
