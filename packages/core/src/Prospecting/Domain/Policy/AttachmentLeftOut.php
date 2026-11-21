@@ -19,10 +19,15 @@ final readonly class AttachmentLeftOut
     }
 
     /**
-     * In megabytes from one of them, in kilobytes under it, rounded.
+     * In megabytes from one of them, in kilobytes under it, rounded; under a kilobyte, said so rather than rounded to
+     * nothing.
      */
     private static function sizeOf(int $bytes): string
     {
-        return $bytes < self::MEGABYTE ? sprintf('%d Ko', round($bytes / self::KILOBYTE)) : sprintf('%d Mo', round($bytes / self::MEGABYTE));
+        return match (true) {
+            $bytes < self::KILOBYTE => 'moins de 1 Ko',
+            $bytes < self::MEGABYTE => sprintf('%d Ko', round($bytes / self::KILOBYTE)),
+            default => sprintf('%d Mo', round($bytes / self::MEGABYTE)),
+        };
     }
 }
