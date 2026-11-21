@@ -2953,6 +2953,7 @@ export interface components {
             moveBack?: components["schemas"]["LinkResource"];
             cancel?: components["schemas"]["LinkResource"];
             campaign?: components["schemas"]["LinkResource"];
+            openInMailbox?: components["schemas"]["LinkResource"];
         };
         ExchangeDetailResource: {
             id: string;
@@ -3011,6 +3012,11 @@ export interface components {
             campaign?: components["schemas"]["CampaignOfExchangeResource"] | null;
             /** @description Its contact booked it by the public link of its holder, who planned nothing themselves (ADR 0164) */
             bookedByLink: boolean;
+            /**
+             * @description The provider of the mailbox it was imported from, google for Gmail; null for an exchange noted (ADR 0174)
+             * @enum {string|null}
+             */
+            importedFrom?: "google" | null;
             _links: components["schemas"]["ExchangeDetailLinksResource"];
         };
         AttachmentDownloadResource: {

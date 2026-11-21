@@ -26,7 +26,8 @@ use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
  * exchange (ADR 0112) and, just moved, moves it back while its former moment is to come (ADR 0135), the rest needs the right to
  * manage personal data. Each link names its intention, its route, and the role its controller requires beyond
  * reaching the exchange; the campaign it was noted in is linked to those who read the campaigns, while it is kept
- * (ADR 0152). Built for one call with its participants, it keeps the resource (ADR 0085).
+ * (ADR 0152), the message an imported exchange comes from opened in Gmail by those who manage the personal data
+ * (ADR 0174). Built for one call with its participants, it keeps the resource (ADR 0085).
  */
 final class ExchangeDetailPresenter implements ConsultExchangeOutput
 {
@@ -46,6 +47,8 @@ final class ExchangeDetailPresenter implements ConsultExchangeOutput
         'moveBack' => ['intent' => 'MoveExchangeBack', 'route' => 'api_exchanges_move', 'role' => null],
         'cancel' => ['intent' => 'CancelExchange', 'route' => 'api_exchanges_cancel', 'role' => null],
     ];
+
+    private const string GMAIL_MESSAGE = 'https://mail.google.com/mail/#all/%s';
 
     public private(set) ExchangeDetailResource $resource;
 
@@ -85,6 +88,7 @@ final class ExchangeDetailPresenter implements ConsultExchangeOutput
             hiddenAttachments: $exchange->hiddenAttachments,
             campaign: null === $exchange->campaignId ? null : new CampaignOfExchangeResource($exchange->campaignId, $exchange->campaignName),
             bookedByLink: $exchange->bookedByLink,
+            importedFrom: $exchange->importedFrom,
             links: $this->linksOf($exchange),
         );
     }
@@ -112,7 +116,17 @@ final class ExchangeDetailPresenter implements ConsultExchangeOutput
             $this->cardOf($this->participants->interlocutor),
             ...array_map(fn (array $link): LinkResource => $this->links->to($link['route'], $id), $granted),
             campaign: $this->campaignOf($exchange),
+            openInMailbox: $this->openInMailboxOf($exchange),
         );
+    }
+
+    /**
+     * The message an imported exchange comes from, in Gmail, once the id of its message in the mailbox is kept, to
+     * those who manage the personal data (ADR 0174).
+     */
+    private function openInMailboxOf(ExchangeDetail $exchange): ?LinkResource
+    {
+        return null === $exchange->providerMessageId || !$this->intentLinks->holds(User::PERSONAL_DATA) ? null : new LinkResource(sprintf(self::GMAIL_MESSAGE, rawurlencode($exchange->providerMessageId)), 'GET');
     }
 
     /**

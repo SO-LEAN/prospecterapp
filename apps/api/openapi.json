@@ -10918,6 +10918,9 @@
                     },
                     "campaign": {
                         "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "openInMailbox": {
+                        "$ref": "#/components/schemas/LinkResource"
                     }
                 },
                 "type": "object"
@@ -11084,6 +11087,14 @@
                     "bookedByLink": {
                         "description": "Its contact booked it by the public link of its holder, who planned nothing themselves (ADR 0164)",
                         "type": "boolean"
+                    },
+                    "importedFrom": {
+                        "description": "The provider of the mailbox it was imported from, google for Gmail; null for an exchange noted (ADR 0174)",
+                        "type": "string",
+                        "nullable": true,
+                        "enum": [
+                            "google"
+                        ]
                     },
                     "_links": {
                         "$ref": "#/components/schemas/ExchangeDetailLinksResource"

@@ -35,6 +35,8 @@ final readonly class ExchangeDetailLinksResource
         public ?LinkResource $cancel = null,
         #[OA\Property(nullable: false, description: 'The campaign it was noted in, while it is kept; with the right to manage personal data only')]
         public ?LinkResource $campaign = null,
+        #[OA\Property(nullable: false, description: 'Opens, in a new tab of the mailbox of the provider, the message an imported exchange comes from, once the id of its message in the mailbox is kept (ADR 0174)')]
+        public ?LinkResource $openInMailbox = null,
     ) {
     }
 }
