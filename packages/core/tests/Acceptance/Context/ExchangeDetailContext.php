@@ -186,6 +186,7 @@ final class ExchangeDetailContext implements Context
             'contact' => Vocabulary::describeContactPresence($exchange->contactPresence),
             'texte à rendre conforme' => Vocabulary::describeYesOrNo($exchange->textToMakeConform),
             'à rendre conforme' => Vocabulary::describeYesOrNo($exchange->toMakeConform),
+            'provenance' => Vocabulary::describeProvenance($exchange->importedFrom),
             'rendu conforme' => null === $exchange->madeConformAt || null === $exchange->madeConformBy ? '' : Vocabulary::describeDoneBy($exchange->madeConformAt, $this->scenario->nameOfMember(new MemberId($exchange->madeConformBy))),
         ];
     }
