@@ -62,7 +62,7 @@ final readonly class InMemoryTimelineRetriever implements TimelineRetriever
      */
     private function withContact(PersonId $contact, Prospector $reader): array
     {
-        return array_values(array_filter($this->database->exchanges(), static fn (Exchange $exchange): bool => true === StateOf::the($exchange)['contact']?->equals($contact) && $exchange->accountId()->equals($reader->accountId)));
+        return array_values(array_filter($this->database->exchanges(), static fn (Exchange $exchange): bool => true === StateOf::the($exchange)->value('contact')?->equals($contact) && $exchange->accountId()->equals($reader->accountId)));
     }
 
     /**
@@ -92,7 +92,7 @@ final readonly class InMemoryTimelineRetriever implements TimelineRetriever
      */
     private static function inTheTimelineOfTheContact(Prospector $reader): \Closure
     {
-        return static fn (Exchange $exchange): ExchangeInTimeline => self::inTimeline($exchange, ContactPresence::ofTheContact(null !== StateOf::the($exchange)['contact'], StateOf::the($exchange)['contactForgotten']), $reader);
+        return static fn (Exchange $exchange): ExchangeInTimeline => self::inTimeline($exchange, ContactPresence::ofTheContact(null !== StateOf::the($exchange)->value('contact'), StateOf::the($exchange)->value('contactForgotten')), $reader);
     }
 
     /**
@@ -100,7 +100,7 @@ final readonly class InMemoryTimelineRetriever implements TimelineRetriever
      */
     private function keptFor(OrganizationSheet $organization): array
     {
-        return array_values(array_filter($this->database->exchanges(), static fn (Exchange $exchange): bool => array_any(StateOf::the($exchange)['keptFor'], static fn (OrganizationId $keptFor): bool => $keptFor->value === $organization->id)));
+        return array_values(array_filter($this->database->exchanges(), static fn (Exchange $exchange): bool => array_any(StateOf::the($exchange)->value('keptFor'), static fn (OrganizationId $keptFor): bool => $keptFor->value === $organization->id)));
     }
 
     /**
@@ -118,8 +118,8 @@ final readonly class InMemoryTimelineRetriever implements TimelineRetriever
     {
         return static function (Exchange $exchange) use ($organization, $reader): ExchangeInTimeline {
             $state = StateOf::the($exchange);
-            $contact = $state['contact']?->value;
-            $presence = ContactPresence::inTheOrganization(null !== $contact, $state['contactForgotten'], in_array($contact, $organization->contactIds, true));
+            $contact = $state->value('contact')?->value;
+            $presence = ContactPresence::inTheOrganization(null !== $contact, $state->value('contactForgotten'), in_array($contact, $organization->contactIds, true));
 
             return self::inTimeline($exchange, $presence, $reader);
         };
@@ -166,19 +166,19 @@ final readonly class InMemoryTimelineRetriever implements TimelineRetriever
     public static function inTimeline(Exchange $exchange, ?ContactPresence $presence, Prospector $reader): ExchangeInTimeline
     {
         $state = StateOf::the($exchange);
-        $facts = $state['facts'];
-        $contactForgotten = $state['contactForgotten'];
-        $declaredConform = null !== $state['madeConform'];
+        $facts = $state->value('facts');
+        $contactForgotten = $state->value('contactForgotten');
+        $declaredConform = null !== $state->value('madeConform');
 
         return new ExchangeInTimeline(
             id: $exchange->id()->value,
-            personId: $state['contact']?->value,
+            personId: $state->value('contact')?->value,
             contactPresence: $presence?->value,
             channel: $facts->channel->value,
             direction: $facts->direction->value,
             occurredAt: $facts->occurredAt,
-            status: $state['status']->value,
-            canceller: $state['cancellation']?->canceller?->value,
+            status: $state->value('status')->value,
+            canceller: $state->value('cancellation')?->canceller?->value,
             durationInMinutes: $facts->duration?->minutes,
             text: $facts->text,
             place: $facts->place,
@@ -186,13 +186,13 @@ final readonly class InMemoryTimelineRetriever implements TimelineRetriever
             textFlagged: ExchangeReading::isTextFlagged(null !== $facts->text, $reader),
             textToMakeConform: ExchangeConformity::isTextToMakeConform(null !== $facts->text, $contactForgotten, $declaredConform),
             toMakeConform: ExchangeConformity::isToMakeConform($contactForgotten, $declaredConform, [] !== $exchange->attachments()),
-            organizationIds: array_map(static fn (OrganizationId $organization): string => $organization->value, $state['keptFor']),
+            organizationIds: array_map(static fn (OrganizationId $organization): string => $organization->value, $state->value('keptFor')),
             attachmentCount: count($exchange->attachments()),
-            campaignId: $state['campaign']?->value,
+            campaignId: $state->value('campaign')?->value,
             withAContactToAttach: null !== $exchange->contactToAttach(),
             bookedByLink: $exchange->isBookedByLink(),
-            importedFrom: $state['importedFrom']?->provider,
-            createdByAnAI: Origin::Ai === $state['origin'],
+            importedFrom: $state->value('importedFrom')?->provider,
+            createdByAnAI: Origin::Ai === $state->value('origin'),
         );
     }
 
@@ -200,7 +200,7 @@ final readonly class InMemoryTimelineRetriever implements TimelineRetriever
     {
         $state = StateOf::the($exchange);
 
-        return ExchangeChronology::listedAt($state['facts']->occurredAt, $state['cancellation']?->at);
+        return ExchangeChronology::listedAt($state->value('facts')->occurredAt, $state->value('cancellation')?->at);
     }
 
     /**

@@ -36,7 +36,7 @@ final readonly class InMemoryProposedOrganizationRetriever implements ProposedOr
 
     private static function proposed(Organization $organization): ProposedOrganization
     {
-        $name = StateOf::the($organization)['legalIdentity']->fullName();
+        $name = StateOf::the($organization)->value('legalIdentity')->fullName();
 
         return new ProposedOrganization($organization->id()->value, '' === $name ? (string) $organization->contactDetails()->email : $name);
     }

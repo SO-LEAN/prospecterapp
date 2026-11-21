@@ -90,17 +90,17 @@ class ExchangeTest extends TestCase
         $exchange = $this->planned();
 
         $this->assertEquals([new ExchangePlanned(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new \DateTimeImmutable(self::NOW))], $exchange->releaseEvents());
-        $this->assertSame(ExchangeStatus::Planned, StateOf::the($exchange)['status']);
+        $this->assertSame(ExchangeStatus::Planned, StateOf::the($exchange)->value('status'));
     }
 
     public function testANotedExchangeIsDone(): void
     {
-        $this->assertSame(ExchangeStatus::Done, StateOf::the($this->anExchange())['status']);
+        $this->assertSame(ExchangeStatus::Done, StateOf::the($this->anExchange())->value('status'));
     }
 
     public function testAnExchangeAMomentAheadIsPlanned(): void
     {
-        $this->assertSame(ExchangeStatus::Planned, StateOf::the($this->planned('+1 second'))['status']);
+        $this->assertSame(ExchangeStatus::Planned, StateOf::the($this->planned('+1 second'))->value('status'));
     }
 
     public function testAnExchangeForNowIsNotPlanned(): void
@@ -116,7 +116,7 @@ class ExchangeTest extends TestCase
 
         $exchange->correctText('Ordre du jour', by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
 
-        $this->assertSame(45, StateOf::the($exchange)['facts']->duration?->minutes);
+        $this->assertSame(45, StateOf::the($exchange)->value('facts')->duration?->minutes);
     }
 
     public function testAPlannedExchangeIsNotCorrected(): void
@@ -156,7 +156,7 @@ class ExchangeTest extends TestCase
     public function testOnlyACallAMeetingOrAVideoCallIsMissed(Channel $channel): void
     {
         try {
-            $status = StateOf::the($this->noted(new ExchangeFacts($channel, Direction::Inbound, new \DateTimeImmutable(self::NOW)), ExchangeStatus::Missed))['status'];
+            $status = StateOf::the($this->noted(new ExchangeFacts($channel, Direction::Inbound, new \DateTimeImmutable(self::NOW)), ExchangeStatus::Missed))->value('status');
         } catch (ChannelNotMissed) {
             $status = null;
         }
@@ -180,7 +180,7 @@ class ExchangeTest extends TestCase
 
         $exchange->correct(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable(self::NOW)), ExchangeStatus::Done, by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
 
-        $this->assertSame(ExchangeStatus::Done, StateOf::the($exchange)['status']);
+        $this->assertSame(ExchangeStatus::Done, StateOf::the($exchange)->value('status'));
     }
 
     public function testAnExchangeCorrectedIntoAMessageIsNotMissed(): void
@@ -198,7 +198,7 @@ class ExchangeTest extends TestCase
 
         $exchange->markDone($tookPlaceAt, 'Mission en mars', by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
 
-        $this->assertEquals([ExchangeStatus::Done, $tookPlaceAt, 'Mission en mars', 45], [StateOf::the($exchange)['status'], StateOf::the($exchange)['facts']->occurredAt, StateOf::the($exchange)['facts']->text, StateOf::the($exchange)['facts']->duration?->minutes]);
+        $this->assertEquals([ExchangeStatus::Done, $tookPlaceAt, 'Mission en mars', 45], [StateOf::the($exchange)->value('status'), StateOf::the($exchange)->value('facts')->occurredAt, StateOf::the($exchange)->value('facts')->text, StateOf::the($exchange)->value('facts')->duration?->minutes]);
         $this->assertEquals([new ExchangeMarkedDone(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new \DateTimeImmutable(self::NOW))], $exchange->releaseEvents());
     }
 
@@ -216,7 +216,7 @@ class ExchangeTest extends TestCase
 
         $exchange->markMissed(by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
 
-        $this->assertSame(ExchangeStatus::Missed, StateOf::the($exchange)['status']);
+        $this->assertSame(ExchangeStatus::Missed, StateOf::the($exchange)->value('status'));
         $this->assertEquals([new ExchangeMarkedMissed(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new \DateTimeImmutable(self::NOW))], $exchange->releaseEvents());
     }
 
@@ -230,20 +230,20 @@ class ExchangeTest extends TestCase
     public function testAnExchangeIsMarkedFromTheMomentItWasPlannedFor(): void
     {
         $exchange = $this->planned();
-        $itsTime = StateOf::the($exchange)['facts']->occurredAt;
+        $itsTime = StateOf::the($exchange)->value('facts')->occurredAt;
 
         $exchange->markMissed(by: $this->me()->id, at: $itsTime);
 
-        $this->assertSame(ExchangeStatus::Missed, StateOf::the($exchange)['status']);
+        $this->assertSame(ExchangeStatus::Missed, StateOf::the($exchange)->value('status'));
     }
 
     public function testForgettingItsContactAtTheMomentOfAPlannedExchangeLeavesItToItsHolder(): void
     {
         $exchange = $this->planned();
 
-        $exchange->forgetItsContact(by: $this->me()->id, at: StateOf::the($exchange)['facts']->occurredAt);
+        $exchange->forgetItsContact(by: $this->me()->id, at: StateOf::the($exchange)->value('facts')->occurredAt);
 
-        $this->assertSame(ExchangeStatus::Planned, StateOf::the($exchange)['status']);
+        $this->assertSame(ExchangeStatus::Planned, StateOf::the($exchange)->value('status'));
     }
 
     public function testMovedItKeepsItsDuration(): void
@@ -254,7 +254,7 @@ class ExchangeTest extends TestCase
 
         $exchange->moveTo($later, null, by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
 
-        $this->assertEquals([$later, 45], [StateOf::the($exchange)['facts']->occurredAt, StateOf::the($exchange)['facts']->duration?->minutes]);
+        $this->assertEquals([$later, 45], [StateOf::the($exchange)->value('facts')->occurredAt, StateOf::the($exchange)->value('facts')->duration?->minutes]);
         $this->assertEquals([new ExchangeMoved(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new \DateTimeImmutable(self::NOW))], $exchange->releaseEvents());
     }
 
@@ -265,7 +265,7 @@ class ExchangeTest extends TestCase
 
         $exchange->moveTo($later, Duration::inMinutes(90), by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
 
-        $this->assertSame(90, StateOf::the($exchange)['facts']->duration?->minutes);
+        $this->assertSame(90, StateOf::the($exchange)->value('facts')->duration?->minutes);
     }
 
     public function testAnExchangeIsNotMovedIntoThePast(): void
@@ -282,8 +282,8 @@ class ExchangeTest extends TestCase
 
         $exchange->cancel(Canceller::Contact, by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
 
-        $this->assertSame(ExchangeStatus::Cancelled, StateOf::the($exchange)['status']);
-        $this->assertEquals(new Cancellation($this->me()->id, new \DateTimeImmutable(self::NOW), Canceller::Contact), StateOf::the($exchange)['cancellation']);
+        $this->assertSame(ExchangeStatus::Cancelled, StateOf::the($exchange)->value('status'));
+        $this->assertEquals(new Cancellation($this->me()->id, new \DateTimeImmutable(self::NOW), Canceller::Contact), StateOf::the($exchange)->value('cancellation'));
         $this->assertEquals([new ExchangeCancelled(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new \DateTimeImmutable(self::NOW))], $exchange->releaseEvents());
     }
 
@@ -308,7 +308,7 @@ class ExchangeTest extends TestCase
 
         $exchange->forgetItsContact(by: $this->colleagueWithoutTheRight()->id, at: new \DateTimeImmutable(self::NOW));
 
-        $this->assertEquals(new Cancellation($this->colleagueWithoutTheRight()->id, new \DateTimeImmutable(self::NOW), null), StateOf::the($exchange)['cancellation']);
+        $this->assertEquals(new Cancellation($this->colleagueWithoutTheRight()->id, new \DateTimeImmutable(self::NOW), null), StateOf::the($exchange)->value('cancellation'));
         $this->assertEquals([
             new ExchangeContactForgotten(new AccountId(self::MINE), $this->colleagueWithoutTheRight()->id, new ExchangeId(self::EXCHANGE), new \DateTimeImmutable(self::NOW)),
             new ExchangeCancelled(new AccountId(self::MINE), $this->colleagueWithoutTheRight()->id, new ExchangeId(self::EXCHANGE), new \DateTimeImmutable(self::NOW)),
@@ -321,7 +321,7 @@ class ExchangeTest extends TestCase
 
         $exchange->forgetItsContact(by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
 
-        $this->assertSame(ExchangeStatus::Planned, StateOf::the($exchange)['status']);
+        $this->assertSame(ExchangeStatus::Planned, StateOf::the($exchange)->value('status'));
     }
 
     #[DataProvider('channelsButTheMeeting')]
@@ -413,8 +413,8 @@ class ExchangeTest extends TestCase
 
         $exchange->correctVenue('Les Deux Magots', null, by: $this->colleagueWithoutTheRight()->id, at: $later);
 
-        $this->assertEquals(ExchangeFacts::planned(Channel::Meeting, new \DateTimeImmutable(self::NOW)->modify('+1 day'), Duration::inMinutes(45), null, 'Les Deux Magots'), StateOf::the($exchange)['facts']);
-        $this->assertEquals(new Correction($this->colleagueWithoutTheRight()->id, $later), StateOf::the($exchange)['lastCorrection']);
+        $this->assertEquals(ExchangeFacts::planned(Channel::Meeting, new \DateTimeImmutable(self::NOW)->modify('+1 day'), Duration::inMinutes(45), null, 'Les Deux Magots'), StateOf::the($exchange)->value('facts'));
+        $this->assertEquals(new Correction($this->colleagueWithoutTheRight()->id, $later), StateOf::the($exchange)->value('lastCorrection'));
         $this->assertEquals([new ExchangeVenueCorrected(new AccountId(self::MINE), $this->colleagueWithoutTheRight()->id, new ExchangeId(self::EXCHANGE), $later)], $exchange->releaseEvents());
     }
 
@@ -424,7 +424,7 @@ class ExchangeTest extends TestCase
 
         $exchange->correct(new ExchangeFacts(Channel::Meeting, Direction::Outbound, new \DateTimeImmutable(self::NOW), 'Déjeuner'), ExchangeStatus::Done, by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
 
-        $this->assertSame('Café de Flore', StateOf::the($exchange)['facts']->place);
+        $this->assertSame('Café de Flore', StateOf::the($exchange)->value('facts')->place);
     }
 
     public function testACorrectionOfTheWholeDropsThePlaceOfAMeetingNoLongerOne(): void
@@ -433,7 +433,7 @@ class ExchangeTest extends TestCase
 
         $exchange->correct(new ExchangeFacts(Channel::Call, Direction::Outbound, new \DateTimeImmutable(self::NOW)), ExchangeStatus::Done, by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
 
-        $this->assertNull(StateOf::the($exchange)['facts']->place);
+        $this->assertNull(StateOf::the($exchange)->value('facts')->place);
     }
 
     public function testACorrectionOfTheWholeKeepsTheLinkWhileItStaysAVideoCall(): void
@@ -442,7 +442,7 @@ class ExchangeTest extends TestCase
 
         $exchange->correct(new ExchangeFacts(Channel::VideoCall, Direction::Inbound, new \DateTimeImmutable(self::NOW)), ExchangeStatus::Done, by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
 
-        $this->assertEquals(new VideoCallLink(self::MEET), StateOf::the($exchange)['facts']->link);
+        $this->assertEquals(new VideoCallLink(self::MEET), StateOf::the($exchange)->value('facts')->link);
     }
 
     public function testALinkGivenEndsTheRequestOfOne(): void
@@ -456,7 +456,7 @@ class ExchangeTest extends TestCase
 
         $exchange->correctText('Ordre du jour', by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
 
-        $this->assertTrue(StateOf::the($exchange)['facts']->linkRequested);
+        $this->assertTrue(StateOf::the($exchange)->value('facts')->linkRequested);
     }
 
     public function testAVideoCallAskingItsLinkReceivesItWithoutAnAuthor(): void
@@ -467,9 +467,9 @@ class ExchangeTest extends TestCase
 
         $exchange->receiveLink(new VideoCallLink(self::MEET), at: $later);
 
-        $facts = StateOf::the($exchange)['facts'];
+        $facts = StateOf::the($exchange)->value('facts');
         $this->assertEquals([new VideoCallLink(self::MEET), false], [$facts->link, $facts->linkRequested]);
-        $this->assertNull(StateOf::the($exchange)['lastCorrection']);
+        $this->assertNull(StateOf::the($exchange)->value('lastCorrection'));
         $this->assertEquals([new VideoCallLinkReceived(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), $later)], $exchange->releaseEvents());
     }
 
@@ -481,7 +481,7 @@ class ExchangeTest extends TestCase
 
         $exchange->receiveLink(new VideoCallLink(self::MEET), at: new \DateTimeImmutable(self::NOW));
 
-        $this->assertEquals(new VideoCallLink('https://teams.microsoft.com/l/meetup-join/xyz'), StateOf::the($exchange)['facts']->link);
+        $this->assertEquals(new VideoCallLink('https://teams.microsoft.com/l/meetup-join/xyz'), StateOf::the($exchange)->value('facts')->link);
         $this->assertSame([], $exchange->releaseEvents());
     }
 
@@ -493,7 +493,7 @@ class ExchangeTest extends TestCase
 
         $exchange->receiveLink(new VideoCallLink(self::MEET), at: new \DateTimeImmutable(self::NOW));
 
-        $this->assertNull(StateOf::the($exchange)['facts']->link);
+        $this->assertNull(StateOf::the($exchange)->value('facts')->link);
     }
 
     public function testABlankTextIsNoText(): void
@@ -508,7 +508,7 @@ class ExchangeTest extends TestCase
 
         $exchange->stopKeepingFor(new OrganizationId(self::ACME), by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
 
-        $this->assertEquals([new OrganizationId(self::GROUP)], StateOf::the($exchange)['keptFor']);
+        $this->assertEquals([new OrganizationId(self::GROUP)], StateOf::the($exchange)->value('keptFor'));
         $this->assertTrue($exchange->isKeptForAnOrganization());
         $this->assertEquals([new ExchangeNoLongerKeptFor(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new OrganizationId(self::ACME), new \DateTimeImmutable(self::NOW))], $exchange->releaseEvents());
     }
@@ -565,7 +565,7 @@ class ExchangeTest extends TestCase
 
         $this->assertNotContains(ExchangeIntent::MakeConform, $this->possibleIntentsOf($exchange));
         $this->assertFalse($exchange->isToMakeConform());
-        $this->assertFalse(StateOf::the($exchange)['contactForgotten']);
+        $this->assertFalse(StateOf::the($exchange)->value('contactForgotten'));
     }
 
     public function testForgettingItsContactRecordsItAndLeavesItToMakeConform(): void
@@ -575,8 +575,8 @@ class ExchangeTest extends TestCase
 
         $exchange->forgetItsContact(by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
 
-        $this->assertTrue(StateOf::the($exchange)['contactForgotten']);
-        $this->assertSame([true, true, true], [$exchange->isToMakeConform(), self::isTextToMakeConform($exchange), ExchangeConformity::areAttachmentsToMakeConform(StateOf::the($exchange)['contactForgotten'])]);
+        $this->assertTrue(StateOf::the($exchange)->value('contactForgotten'));
+        $this->assertSame([true, true, true], [$exchange->isToMakeConform(), self::isTextToMakeConform($exchange), ExchangeConformity::areAttachmentsToMakeConform(StateOf::the($exchange)->value('contactForgotten'))]);
         $this->assertEquals([new ExchangeContactForgotten(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new \DateTimeImmutable(self::NOW))], $exchange->releaseEvents());
     }
 
@@ -588,7 +588,7 @@ class ExchangeTest extends TestCase
 
         $exchange->declareConform(by: $this->colleagueWithoutTheRight()->id, at: $later);
 
-        $this->assertEquals(new Correction($this->colleagueWithoutTheRight()->id, $later), StateOf::the($exchange)['madeConform']);
+        $this->assertEquals(new Correction($this->colleagueWithoutTheRight()->id, $later), StateOf::the($exchange)->value('madeConform'));
         $this->assertEquals([new ExchangeRedacted(new AccountId(self::MINE), $this->colleagueWithoutTheRight()->id, new ExchangeId(self::EXCHANGE), $later)], $exchange->releaseEvents());
     }
 
@@ -742,10 +742,10 @@ class ExchangeTest extends TestCase
     private function possibleIntentsOf(Exchange $exchange, ?Prospector $member = null): array
     {
         $state = StateOf::the($exchange);
-        $awaitsBeingMadeConform = ExchangeConformity::awaitsBeingMadeConform($state['contactForgotten'], null !== $state['madeConform']);
-        $due = $state['facts']->occurredAt <= new \DateTimeImmutable(self::NOW);
+        $awaitsBeingMadeConform = ExchangeConformity::awaitsBeingMadeConform($state->value('contactForgotten'), null !== $state->value('madeConform'));
+        $due = $state->value('facts')->occurredAt <= new \DateTimeImmutable(self::NOW);
 
-        return ExchangePossibilities::given(new ExchangeSituation(count($exchange->attachments()), $awaitsBeingMadeConform, $state['status'], $due, $state['createdBy']->equals(($member ?? $this->me())->id), $state['facts']->channel));
+        return ExchangePossibilities::given(new ExchangeSituation(count($exchange->attachments()), $awaitsBeingMadeConform, $state->value('status'), $due, $state->value('createdBy')->equals(($member ?? $this->me())->id), $state->value('facts')->channel));
     }
 
     /**
@@ -755,7 +755,7 @@ class ExchangeTest extends TestCase
     {
         $state = StateOf::the($exchange);
 
-        return ExchangeConformity::isTextToMakeConform(null !== $state['facts']->text, $state['contactForgotten'], null !== $state['madeConform']);
+        return ExchangeConformity::isTextToMakeConform(null !== $state->value('facts')->text, $state->value('contactForgotten'), null !== $state->value('madeConform'));
     }
 
     private function carryOut(ExchangeIntent $intent, Exchange $exchange, MemberId $by): void
@@ -770,7 +770,7 @@ class ExchangeTest extends TestCase
             ExchangeIntent::EraseExchange => $exchange->erase(by: $by, at: $now),
             ExchangeIntent::AttachFile => $exchange->attach($this->anAttachment('0190a1c0-0000-7000-8000-000000000008'), by: $by, at: $now),
             ExchangeIntent::RemoveAttachment => $exchange->removeAttachment(new AttachmentId(self::ATTACHMENT), by: $by, at: $now),
-            ExchangeIntent::MarkExchangeDone => $exchange->markDone(StateOf::the($exchange)['facts']->occurredAt, 'Compte rendu', by: $by, at: $now),
+            ExchangeIntent::MarkExchangeDone => $exchange->markDone(StateOf::the($exchange)->value('facts')->occurredAt, 'Compte rendu', by: $by, at: $now),
             ExchangeIntent::MarkExchangeMissed => $exchange->markMissed(by: $by, at: $now),
             ExchangeIntent::MoveExchange, ExchangeIntent::MoveExchangeBack => $exchange->moveTo($now->modify('+2 days'), null, by: $by, at: $now),
             ExchangeIntent::CancelExchange => $exchange->cancel(null, by: $by, at: $now),
@@ -786,14 +786,14 @@ class ExchangeTest extends TestCase
 
         $exchange->correct($corrected, ExchangeStatus::Done, by: $this->me()->id, at: $later);
 
-        $this->assertEquals($corrected, StateOf::the($exchange)['facts']);
-        $this->assertEquals(new Correction($this->me()->id, $later), StateOf::the($exchange)['lastCorrection']);
+        $this->assertEquals($corrected, StateOf::the($exchange)->value('facts'));
+        $this->assertEquals(new Correction($this->me()->id, $later), StateOf::the($exchange)->value('lastCorrection'));
         $this->assertEquals([new ExchangeCorrected(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), $later)], $exchange->releaseEvents());
     }
 
     public function testANotedExchangeIsNotCorrected(): void
     {
-        $this->assertNull(StateOf::the($this->anExchange())['lastCorrection']);
+        $this->assertNull(StateOf::the($this->anExchange())->value('lastCorrection'));
     }
 
     public function testACorrectionIsNeverInTheFuture(): void
@@ -811,8 +811,8 @@ class ExchangeTest extends TestCase
 
         $exchange->correctText('La contactée est intéressée', by: $this->colleagueWithoutTheRight()->id, at: $later);
 
-        $this->assertEquals(new ExchangeFacts(Channel::LinkedIn, Direction::Inbound, new \DateTimeImmutable(self::NOW), 'La contactée est intéressée'), StateOf::the($exchange)['facts']);
-        $this->assertEquals(new Correction($this->colleagueWithoutTheRight()->id, $later), StateOf::the($exchange)['lastCorrection']);
+        $this->assertEquals(new ExchangeFacts(Channel::LinkedIn, Direction::Inbound, new \DateTimeImmutable(self::NOW), 'La contactée est intéressée'), StateOf::the($exchange)->value('facts'));
+        $this->assertEquals(new Correction($this->colleagueWithoutTheRight()->id, $later), StateOf::the($exchange)->value('lastCorrection'));
         $this->assertEquals([new ExchangeTextCorrected(new AccountId(self::MINE), $this->colleagueWithoutTheRight()->id, new ExchangeId(self::EXCHANGE), $later)], $exchange->releaseEvents());
     }
 

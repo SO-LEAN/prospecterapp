@@ -40,9 +40,9 @@ final readonly class InMemoryHeldExchangeRetriever implements HeldExchangeRetrie
         $planned = array_values(array_filter($this->database->exchanges(), static function (Exchange $exchange) use ($accountId, $holder, $from): bool {
             $state = StateOf::the($exchange);
 
-            return ExchangeStatus::Planned === $state['status'] && $exchange->accountId()->equals($accountId) && $state['createdBy']->equals($holder) && $state['facts']->occurredAt >= $from;
+            return ExchangeStatus::Planned === $state->value('status') && $exchange->accountId()->equals($accountId) && $state->value('createdBy')->equals($holder) && $state->value('facts')->occurredAt >= $from;
         }));
-        usort($planned, static fn (Exchange $a, Exchange $b): int => [StateOf::the($a)['facts']->occurredAt, (string) $a->id()] <=> [StateOf::the($b)['facts']->occurredAt, (string) $b->id()]);
+        usort($planned, static fn (Exchange $a, Exchange $b): int => [StateOf::the($a)->value('facts')->occurredAt, (string) $a->id()] <=> [StateOf::the($b)->value('facts')->occurredAt, (string) $b->id()]);
 
         return array_map(self::heldExchangeOf(...), $planned);
     }
@@ -50,21 +50,21 @@ final readonly class InMemoryHeldExchangeRetriever implements HeldExchangeRetrie
     private static function heldExchangeOf(Exchange $exchange): HeldExchange
     {
         $state = StateOf::the($exchange);
-        $facts = $state['facts'];
+        $facts = $state->value('facts');
 
         return new HeldExchange(
-            (string) $state['id'],
-            (string) $state['createdBy'],
-            $state['status']->value,
+            (string) $state->value('id'),
+            (string) $state->value('createdBy'),
+            $state->value('status')->value,
             $facts->channel->value,
             $facts->occurredAt,
             $facts->duration?->minutes,
             $facts->place,
             $facts->link?->url,
             $facts->linkRequested,
-            $state['contact']?->value,
-            array_map(strval(...), $state['keptFor']),
-            $state['bookedByLink'],
+            $state->value('contact')?->value,
+            array_map(strval(...), $state->value('keptFor')),
+            $state->value('bookedByLink'),
         );
     }
 }

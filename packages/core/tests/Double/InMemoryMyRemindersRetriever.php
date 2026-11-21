@@ -21,7 +21,7 @@ final readonly class InMemoryMyRemindersRetriever implements MyRemindersRetrieve
     public function of(MemberId $me): MyReminders
     {
         $member = $this->database->member((string) $me) ?? throw UnknownMember::identifiedBy($me);
-        $reminders = StateOf::the($member)['reminders'];
+        $reminders = StateOf::the($member)->value('reminders');
 
         return new MyReminders($reminders->enabled, $reminders->delay->value);
     }

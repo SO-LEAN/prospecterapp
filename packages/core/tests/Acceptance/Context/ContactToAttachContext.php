@@ -76,7 +76,7 @@ final class ContactToAttachContext implements Context
     #[Then('la visio avec :contact est gardée pour :organization')]
     public function theVideoCallIsKeptFor(string $contact, string $organization): void
     {
-        $kept = array_map(static fn (Exchange $exchange): array => StateOf::the($exchange)['keptFor'], $this->exchangesWith($contact));
+        $kept = array_map(static fn (Exchange $exchange): array => StateOf::the($exchange)->value('keptFor'), $this->exchangesWith($contact));
 
         Expect::same([[$this->scenario->organizationNamed($organization)->id()]], $kept);
     }

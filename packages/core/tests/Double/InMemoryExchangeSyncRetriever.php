@@ -27,6 +27,6 @@ final readonly class InMemoryExchangeSyncRetriever implements ExchangeSyncRetrie
 
         $state = StateOf::the($entry);
 
-        return new ExchangeSync($state['provider']->value, $state['state']->value, $state['since'], $state['reason']);
+        return new ExchangeSync($state->value('provider')->value, $state->value('state')->value, $state->value('since'), $state->value('reason'));
     }
 }

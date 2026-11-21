@@ -51,7 +51,7 @@ final class MemberContext implements Context
         $member = $this->scenario->memberNamed($name);
 
         Expect::same($account, $this->scenario->nameOf($member->accountId()));
-        Expect::same($roles, implode(', ', array_map(static fn (Role $role): string => $role->value, StateOf::the($member)['roles'])));
+        Expect::same($roles, implode(', ', array_map(static fn (Role $role): string => $role->value, StateOf::the($member)->value('roles'))));
     }
 
     #[Then(':name a le droit aux données personnelles')]
@@ -72,8 +72,8 @@ final class MemberContext implements Context
         $profile = $this->application->persons->get($this->scenario->profileOf($this->scenario->memberNamed($name)));
 
         Expect::describes(Vocabulary::rows($table), [
-            'prénom' => (string) StateOf::the($profile)['name']->firstName,
-            'nom' => (string) StateOf::the($profile)['name']->lastName,
+            'prénom' => (string) StateOf::the($profile)->value('name')->firstName,
+            'nom' => (string) StateOf::the($profile)->value('name')->lastName,
             'e-mail' => (string) $profile->contactDetails()->email,
         ]);
     }

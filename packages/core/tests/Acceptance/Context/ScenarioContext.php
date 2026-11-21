@@ -243,7 +243,7 @@ final class ScenarioContext implements Context
 
     public function profileOf(Member $member): PersonId
     {
-        return StateOf::the($member)['personId'];
+        return StateOf::the($member)->value('personId');
     }
 
     /**

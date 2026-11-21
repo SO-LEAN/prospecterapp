@@ -52,10 +52,10 @@ final readonly class InMemoryAgendaRetriever implements AgendaRetriever
         $planned = array_values(array_filter($this->database->exchanges(), static function (Exchange $exchange) use ($holder, $happensWhenAsked): bool {
             $state = StateOf::the($exchange);
 
-            return ExchangeStatus::Planned === $state['status'] && $state['createdBy']->equals($holder->id) && $happensWhenAsked($state['facts']->occurredAt);
+            return ExchangeStatus::Planned === $state->value('status') && $state->value('createdBy')->equals($holder->id) && $happensWhenAsked($state->value('facts')->occurredAt);
         }));
-        usort($planned, static fn (Exchange $a, Exchange $b): int => [StateOf::the($a)['facts']->occurredAt, (string) $a->id()] <=> [StateOf::the($b)['facts']->occurredAt, (string) $b->id()]);
+        usort($planned, static fn (Exchange $a, Exchange $b): int => [StateOf::the($a)->value('facts')->occurredAt, (string) $a->id()] <=> [StateOf::the($b)->value('facts')->occurredAt, (string) $b->id()]);
 
-        return array_map(static fn (Exchange $exchange): ExchangeInTimeline => InMemoryTimelineRetriever::inTimeline($exchange, ContactPresence::ofTheContact(null !== StateOf::the($exchange)['contact'], StateOf::the($exchange)['contactForgotten']), $holder), $planned);
+        return array_map(static fn (Exchange $exchange): ExchangeInTimeline => InMemoryTimelineRetriever::inTimeline($exchange, ContactPresence::ofTheContact(null !== StateOf::the($exchange)->value('contact'), StateOf::the($exchange)->value('contactForgotten')), $holder), $planned);
     }
 }

@@ -33,6 +33,6 @@ final readonly class InMemoryMemberPresentationRetriever implements MemberPresen
     {
         $state = StateOf::the($person);
 
-        return new MemberPresentation($person->id()->value, $state['name']->firstName, $state['name']->lastName, FileResponse::orNone($state['picture']), $person->purpose()->value);
+        return new MemberPresentation($person->id()->value, $state->value('name')->firstName, $state->value('name')->lastName, FileResponse::orNone($state->value('picture')), $person->purpose()->value);
     }
 }

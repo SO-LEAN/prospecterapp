@@ -30,10 +30,10 @@ final readonly class InMemoryMemberRetriever implements MemberRetriever
 
         foreach ($found as $member) {
             $state = StateOf::the($member);
-            $reminders = $state['reminders'];
+            $reminders = $state->value('reminders');
             $account = $this->database->account($member->accountId()->value);
-            $accountName = null === $account ? null : StateOf::the($account)['legalIdentity']->corporateName;
-            $members[$member->id()->value] = new MemberResponse($member->id()->value, $member->accountId()->value, $state['personId']->value, PersonalDataRight::isGrantedBy(...$state['roles']), AdministrationRight::isGrantedBy(...$state['roles']), $reminders->enabled ? $reminders->delay->value : null, $accountName);
+            $accountName = null === $account ? null : StateOf::the($account)->value('legalIdentity')->corporateName;
+            $members[$member->id()->value] = new MemberResponse($member->id()->value, $member->accountId()->value, $state->value('personId')->value, PersonalDataRight::isGrantedBy(...$state->value('roles')), AdministrationRight::isGrantedBy(...$state->value('roles')), $reminders->enabled ? $reminders->delay->value : null, $accountName);
         }
 
         return $members;

@@ -19,7 +19,7 @@ final readonly class InMemoryMailImportsRetriever implements MailImportsRetrieve
 
     public function active(): array
     {
-        $importing = array_filter($this->database->connections(), static fn (Connection $connection): bool => MailImport::Active === StateOf::the($connection)['mailImport']);
+        $importing = array_filter($this->database->connections(), static fn (Connection $connection): bool => MailImport::Active === StateOf::the($connection)->value('mailImport'));
 
         return array_values(array_map(static fn (Connection $connection): string => $connection->member()->value, $importing));
     }

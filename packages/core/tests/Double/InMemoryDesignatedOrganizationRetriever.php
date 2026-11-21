@@ -63,7 +63,7 @@ final readonly class InMemoryDesignatedOrganizationRetriever implements Designat
 
     private static function candidate(Organization $organization): Candidate
     {
-        $name = StateOf::the($organization)['legalIdentity']->fullName();
+        $name = StateOf::the($organization)->value('legalIdentity')->fullName();
 
         return new Candidate($organization->id()->value, '' === $name ? (string) $organization->contactDetails()->email : $name);
     }

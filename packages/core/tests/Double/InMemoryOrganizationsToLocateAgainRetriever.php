@@ -30,6 +30,6 @@ final readonly class InMemoryOrganizationsToLocateAgainRetriever implements Orga
     {
         $state = StateOf::the($organization);
 
-        return null !== $state['geoPoint'] && null === $state['municipalityCode'];
+        return null !== $state->value('geoPoint') && null === $state->value('municipalityCode');
     }
 }

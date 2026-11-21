@@ -62,6 +62,6 @@ final readonly class InMemoryContactTagsRetriever implements ContactTagsRetrieve
     {
         $tagging = $this->database->tagging($accountId->value, $holder);
 
-        return null === $tagging ? [] : array_map(static fn (Tag $tag): string => $tag->name, StateOf::the($tagging)['tags']);
+        return null === $tagging ? [] : array_map(static fn (Tag $tag): string => $tag->name, StateOf::the($tagging)->value('tags'));
     }
 }

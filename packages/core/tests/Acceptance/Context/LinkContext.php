@@ -32,7 +32,7 @@ final class LinkContext implements Context
     public function anOrganizationOfMineWithTheLink(string $name, string $address): void
     {
         $organization = $this->scenario->isAnOrganization($name) ? $this->scenario->organizationNamed($name) : $this->anOrganizationOfMine($name);
-        $organization->changeContactDetails($organization->contactDetails(), ExternalReferences::designating([$address], Designated::Organization), StateOf::the($organization)['website'], by: $this->scenario->managerOf($organization), at: $this->application->now());
+        $organization->changeContactDetails($organization->contactDetails(), ExternalReferences::designating([$address], Designated::Organization), StateOf::the($organization)->value('website'), by: $this->scenario->managerOf($organization), at: $this->application->now());
         $this->application->organizations->save($organization);
     }
 
@@ -89,7 +89,7 @@ final class LinkContext implements Context
         $organization = $this->scenario->organizationNamed($name);
         $contact = $organization->contactDetails();
 
-        return new ChangeContactDetails($this->application->signedIn(), $organization->id()->value, $contact->email?->value, $contact->phoneNumber?->value, $contact->language, $this->application->now(), $addresses, StateOf::the($organization)['website']?->value);
+        return new ChangeContactDetails($this->application->signedIn(), $organization->id()->value, $contact->email?->value, $contact->phoneNumber?->value, $contact->language, $this->application->now(), $addresses, StateOf::the($organization)->value('website')?->value);
     }
 
     /**

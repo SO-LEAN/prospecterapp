@@ -34,10 +34,10 @@ final readonly class InMemoryExchangeDetailRetriever implements ExchangeDetailRe
     {
         $exchange = $this->database->exchange((string) $id) ?? throw UnknownExchange::identifiedBy($id);
         $state = StateOf::the($exchange);
-        $facts = $state['facts'];
-        $correction = $state['lastCorrection'];
-        $madeConform = $state['madeConform'];
-        $contactForgotten = $state['contactForgotten'];
+        $facts = $state->value('facts');
+        $correction = $state->value('lastCorrection');
+        $madeConform = $state->value('madeConform');
+        $contactForgotten = $state->value('contactForgotten');
         $attachments = $exchange->attachments();
         $read = ExchangeReading::readsTheAttachments($reader) ? $attachments : [];
         $attachmentsToMakeConform = ExchangeConformity::areAttachmentsToMakeConform($contactForgotten);
@@ -45,36 +45,36 @@ final readonly class InMemoryExchangeDetailRetriever implements ExchangeDetailRe
         return new ExchangeDetail(
             id: $exchange->id()->value,
             accountId: $exchange->accountId()->value,
-            personId: $state['contact']?->value,
-            contactPresence: ContactPresence::ofTheContact(null !== $state['contact'], $contactForgotten)?->value,
+            personId: $state->value('contact')?->value,
+            contactPresence: ContactPresence::ofTheContact(null !== $state->value('contact'), $contactForgotten)?->value,
             channel: $facts->channel->value,
             direction: $facts->direction->value,
             occurredAt: $facts->occurredAt,
-            status: $state['status']->value,
-            canceller: $state['cancellation']?->canceller?->value,
+            status: $state->value('status')->value,
+            canceller: $state->value('cancellation')?->canceller?->value,
             durationInMinutes: $facts->duration?->minutes,
             text: $facts->text,
             place: $facts->place,
             link: $facts->link?->url,
-            linkAwaited: Exchange::awaitsALink($facts->linkRequested, $state['status']),
+            linkAwaited: Exchange::awaitsALink($facts->linkRequested, $state->value('status')),
             textFlagged: ExchangeReading::isTextFlagged(null !== $facts->text, $reader),
             textToMakeConform: ExchangeConformity::isTextToMakeConform(null !== $facts->text, $contactForgotten, null !== $madeConform),
             toMakeConform: ExchangeConformity::isToMakeConform($contactForgotten, null !== $madeConform, [] !== $attachments),
-            organizationIds: array_map(static fn (OrganizationId $organization): string => $organization->value, $state['keptFor']),
-            createdBy: $state['createdBy']->value,
-            createdAt: $state['createdAt'],
+            organizationIds: array_map(static fn (OrganizationId $organization): string => $organization->value, $state->value('keptFor')),
+            createdBy: $state->value('createdBy')->value,
+            createdAt: $state->value('createdAt'),
             correctedBy: $correction?->by->value,
             correctedAt: $correction?->at,
             madeConformBy: $madeConform?->by->value,
             madeConformAt: $madeConform?->at,
             attachments: array_map(static fn (Attachment $attachment): AttachmentDetail => new AttachmentDetail($attachment->id->value, $attachment->name, $attachment->size, $attachment->mediaType, $attachmentsToMakeConform), $read),
             hiddenAttachments: count($attachments) - count($read),
-            possibleIntents: array_map(static fn (ExchangeIntent $intent): string => $intent->name, ExchangePossibilities::given(new ExchangeSituation(count($attachments), ExchangeConformity::awaitsBeingMadeConform($contactForgotten, null !== $madeConform), $state['status'], $facts->occurredAt <= $asOf, $state['createdBy']->equals($reader->id), $facts->channel, null !== $movedFrom && Exchange::isAMomentToCome($movedFrom, $asOf)))),
-            campaignId: $state['campaign']?->value,
-            bookedByLink: $state['bookedByLink'],
-            importedFrom: $state['importedFrom']?->provider,
-            providerMessageId: $state['importedFrom']?->providerMessageId,
-            createdByAnAI: Origin::Ai === $state['origin'],
+            possibleIntents: array_map(static fn (ExchangeIntent $intent): string => $intent->name, ExchangePossibilities::given(new ExchangeSituation(count($attachments), ExchangeConformity::awaitsBeingMadeConform($contactForgotten, null !== $madeConform), $state->value('status'), $facts->occurredAt <= $asOf, $state->value('createdBy')->equals($reader->id), $facts->channel, null !== $movedFrom && Exchange::isAMomentToCome($movedFrom, $asOf)))),
+            campaignId: $state->value('campaign')?->value,
+            bookedByLink: $state->value('bookedByLink'),
+            importedFrom: $state->value('importedFrom')?->provider,
+            providerMessageId: $state->value('importedFrom')?->providerMessageId,
+            createdByAnAI: Origin::Ai === $state->value('origin'),
         );
     }
 }

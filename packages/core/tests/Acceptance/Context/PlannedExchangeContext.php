@@ -18,6 +18,7 @@ use Prospecter\Core\Prospecting\Application\MoveExchange\MoveExchange;
 use Prospecter\Core\Prospecting\Domain\Model\Canceller;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
+use Tests\Core\Double\State;
 use Tests\Core\Double\StateOf;
 
 /**
@@ -33,14 +34,14 @@ final class PlannedExchangeContext implements Context
     #[Given('/^(?:(?<done>j\'ai marqué|je marque) cette visio|je la marque) faite$/')]
     public function iMarkItDone(string $done = ''): void
     {
-        $this->markDone($this->planned()['facts']->occurredAt, null);
+        $this->markDone($this->planned()->value('facts')->occurredAt, null);
         $this->expectAcceptedWhen($done, 'j\'ai marqué');
     }
 
     #[When('je marque cette visio faite avec le texte :report')]
     public function iMarkItDoneWithItsReport(string $report): void
     {
-        $this->markDone($this->planned()['facts']->occurredAt, $report);
+        $this->markDone($this->planned()->value('facts')->occurredAt, $report);
     }
 
     #[When('/^je marque cette visio faite le (?<day>\S+) à (?<time>\S+)$/')]
@@ -73,7 +74,7 @@ final class PlannedExchangeContext implements Context
     public function iMoveIt(string $day, string $time, string $duration = ''): void
     {
         $minutes = '' === $duration ? null : Vocabulary::minutes($duration);
-        $this->movedFrom = $this->planned()['facts']->occurredAt;
+        $this->movedFrom = $this->planned()->value('facts')->occurredAt;
         $this->application->dispatch(new MoveExchange($this->application->signedIn(), $this->scenario->theExchange(), Vocabulary::frenchMoment(sprintf('%s à %s', $day, $time)), $this->application->now(), $minutes));
     }
 
@@ -90,16 +91,16 @@ final class PlannedExchangeContext implements Context
     public function itIsNoLongerUpcoming(): void
     {
         Expect::that(null === $this->application->refusal(), sprintf('Refused: %s', $this->application->refusal()?->getMessage()));
-        $contact = $this->planned()['contact'];
+        $contact = $this->planned()->value('contact');
         $upcoming = $this->application->consultUpcomingExchanges(new ConsultUpcomingExchanges($this->application->signedIn(), (string) $contact?->value, $this->application->now()));
 
         Expect::that(!array_any($upcoming->exchanges ?? [], fn (ExchangeInTimeline $exchange): bool => $exchange->id === $this->scenario->theExchange()), 'The exchange is still among the upcoming ones');
     }
 
     /**
-     * @return array<string, mixed> the state of the exchange as it is stored
+     * The state of the exchange as it is stored.
      */
-    private function planned(): array
+    private function planned(): State
     {
         return StateOf::the(Expect::present($this->application->database->exchange($this->scenario->theExchange()), 'An exchange was expected to be planned'));
     }
