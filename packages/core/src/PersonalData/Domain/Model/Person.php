@@ -7,6 +7,7 @@ namespace Prospecter\Core\PersonalData\Domain\Model;
 use Prospecter\Core\PersonalData\Domain\Event\BookerIdentified;
 use Prospecter\Core\PersonalData\Domain\Event\CivilityChanged;
 use Prospecter\Core\PersonalData\Domain\Event\ContactCollected;
+use Prospecter\Core\PersonalData\Domain\Event\ContactCompleted;
 use Prospecter\Core\PersonalData\Domain\Event\ContactForgotten;
 use Prospecter\Core\PersonalData\Domain\Event\DuplicateSuspected;
 use Prospecter\Core\PersonalData\Domain\Event\DuplicateSuspicionDismissed;
@@ -22,6 +23,7 @@ use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
 use Prospecter\Core\PersonalData\Domain\Policy\PersonPossibilities;
 use Prospecter\Core\PersonalData\Domain\Policy\PersonReading;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Completion;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotAllowed;
 use Prospecter\Core\SharedKernel\Domain\Exception\PersonalDataManagersOnly;
@@ -44,6 +46,12 @@ final class Person implements ReleasesEvents
     use RecordsEvents;
 
     private const int FORMER_REFERENCES_KEPT = 3;
+
+    private const string CIVILITY = 'civility';
+    private const string JOB_TITLE = 'jobTitle';
+    private const string EMAIL = 'email';
+    private const string PHONE_NUMBER = 'phoneNumber';
+    private const string LINKS = 'links';
 
     private ?File $picture = null;
     private ?string $jobTitle = null;
@@ -338,6 +346,74 @@ final class Person implements ReleasesEvents
         $this->recordThat(new PersonContactDetailsChanged($this->accountId, $by->id, $this->id, $at));
     }
 
+    /**
+     * Fills what the contact lacks, never changing what is noted (ADR 0177); nothing to fill, nothing happens.
+     */
+    public function completeWith(ContactSupplement $supplement, Reader $by, \DateTimeImmutable $at): void
+    {
+        $completion = $this->completionWith($supplement, $by);
+
+        if (!$completion->completesAnything()) {
+            return;
+        }
+
+        $this->civility = $completion->completes(self::CIVILITY) ? $supplement->civility : $this->civility;
+        $this->jobTitle = $completion->completes(self::JOB_TITLE) ? $supplement->jobTitle : $this->jobTitle;
+        $this->contactDetails = new ContactDetails(
+            $completion->completes(self::EMAIL) ? $supplement->email : $this->contactDetails->email,
+            $completion->completes(self::PHONE_NUMBER) ? $supplement->phoneNumber : $this->contactDetails->phoneNumber,
+            $this->contactDetails->language,
+        );
+        $this->references = ExternalReferences::of([...$this->references->all(), ...$this->linksToAdd($supplement)]);
+        $this->modifiedAt = $at;
+        $this->recordThat(new ContactCompleted($this->accountId, $by->id, $this->id, $at));
+    }
+
+    /**
+     * What the supplement would fill of the contact, and what it gives otherwise than noted.
+     */
+    public function completionWith(ContactSupplement $supplement, Reader $by): Completion
+    {
+        $this->ensurePossible(PersonIntent::Complete, $by);
+        $email = $this->contactDetails->email;
+        $phoneNumber = $this->contactDetails->phoneNumber;
+        $linksNotHeld = $this->linksNotHeld($supplement);
+        $linksToAdd = $this->linksToAdd($supplement);
+
+        return new Completion()
+            ->with(self::CIVILITY, Civility::X !== $this->civility, Civility::X !== $supplement->civility, $this->civility === $supplement->civility)
+            ->with(self::JOB_TITLE, null !== $this->jobTitle, null !== $supplement->jobTitle, $this->jobTitle === $supplement->jobTitle)
+            ->with(self::EMAIL, null !== $email, null !== $supplement->email, null !== $email && null !== $supplement->email && $email->equals($supplement->email))
+            ->with(self::PHONE_NUMBER, null !== $phoneNumber, null !== $supplement->phoneNumber, $phoneNumber?->value === $supplement->phoneNumber?->value)
+            ->withSome(self::LINKS, count($linksToAdd), count($linksNotHeld) - count($linksToAdd));
+    }
+
+    /**
+     * The links given they do not hold yet, each once, while there is room for them.
+     *
+     * @return list<ExternalReference>
+     */
+    private function linksToAdd(ContactSupplement $supplement): array
+    {
+        return array_slice($this->linksNotHeld($supplement), 0, ExternalReferences::MAX - count($this->references->all()));
+    }
+
+    /**
+     * @return list<ExternalReference>
+     */
+    private function linksNotHeld(ContactSupplement $supplement): array
+    {
+        $notHeld = [];
+
+        foreach ($supplement->links as $link) {
+            if (!$this->references->holds($link)) {
+                $notHeld[$link->key()] ??= $link;
+            }
+        }
+
+        return array_values($notHeld);
+    }
+
     public function changePicture(File $picture, Reader $by, \DateTimeImmutable $at): void
     {
         $this->ensurePossible(PersonIntent::ChangePicture, $by);
@@ -390,6 +466,7 @@ final class Person implements ReleasesEvents
                 PersonIntent::Forget => PersonalDataManagersOnly::because('Only a member allowed to manage personal data may forget a prospected person'),
                 PersonIntent::ChangeCivility => PersonalDataManagersOnly::because('Only a member allowed to manage personal data may change the civility of a contact'),
                 PersonIntent::DismissPossibleDuplicate => PersonalDataManagersOnly::because('Only a member allowed to manage personal data may say a contact is no duplicate'),
+                PersonIntent::Complete => PersonalDataManagersOnly::because('Only a member allowed to manage personal data may complete a contact'),
                 default => ThePersonOrAPersonalDataManagerOnly::because('Only the person or a member allowed to manage personal data may change them'),
             };
         }

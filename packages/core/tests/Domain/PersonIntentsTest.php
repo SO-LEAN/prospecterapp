@@ -7,6 +7,7 @@ namespace Tests\Core\Domain;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\PersonalData\Domain\Model\Civility;
+use Prospecter\Core\PersonalData\Domain\Model\ContactSupplement;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\PersonIntent;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
@@ -106,6 +107,7 @@ class PersonIntentsTest extends TestCase
                 PersonIntent::ChangePicture => $person->changePicture(new File('https://storage.test/ada.png', 'png', 1024), $by, new \DateTimeImmutable(self::AT)),
                 PersonIntent::Forget => $person->forget($by, new \DateTimeImmutable(self::AT)),
                 PersonIntent::DismissPossibleDuplicate => $person->dismissSuspicionOf($this->suspectedDuplicateOf($person), $by, new \DateTimeImmutable(self::AT)),
+                PersonIntent::Complete => $person->completeWith(new ContactSupplement(Civility::Ms, 'Directrice technique'), $by, new \DateTimeImmutable(self::AT)),
             };
         } catch (NotFound|BusinessRuleViolation) {
             return false;

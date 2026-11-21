@@ -160,6 +160,7 @@ use Prospecter\Core\PersonalData\Application\ChangePersonPicture\ChangePersonPic
 use Prospecter\Core\PersonalData\Application\CollectContact\CollectContactHandler;
 use Prospecter\Core\PersonalData\Application\CollectTheFounderProfile\CollectTheFounderProfileHandler;
 use Prospecter\Core\PersonalData\Application\CollectTheMemberProfile\CollectTheMemberProfileHandler;
+use Prospecter\Core\PersonalData\Application\CompleteContact\CompleteContactHandler;
 use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPerson;
 use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPersonHandler;
 use Prospecter\Core\PersonalData\Application\ConsultPerson\KeptPerson;
@@ -1327,6 +1328,7 @@ final class Application
             new ChangeMyRemindersHandler($this->members, $this->events),
             new CollectContactHandler($this->persons, $this->readers, $this->prospectedOrganizations, $this->events, $this->personEmails, $this->personReferences, $this->contactDuplicateSuspicion),
             new ChangeJobTitleHandler($this->persons, $this->readers, $this->events),
+            new CompleteContactHandler($this->persons, $this->readers, $this->events, $this->personEmails, $this->personReferences),
             new ChangeCivilityHandler($this->persons, $this->readers, $this->events),
             new ForgetContactHandler($this->persons, $this->readers, $this->events),
             new DismissPossibleDuplicateOfContactHandler($this->persons, $this->readers, $this->events),

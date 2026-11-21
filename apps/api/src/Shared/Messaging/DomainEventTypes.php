@@ -64,6 +64,7 @@ final readonly class DomainEventTypes extends EventTypes
             'BookerIdentified.v1' => PersonalData\BookerIdentified::class,
             'CivilityChanged.v1' => PersonalData\CivilityChanged::class,
             'ContactCollected.v1' => PersonalData\ContactCollected::class,
+            'ContactCompleted.v1' => PersonalData\ContactCompleted::class,
             'ContactForgotten.v1' => PersonalData\ContactForgotten::class,
             'DuplicateSuspected.v1' => PersonalData\DuplicateSuspected::class,
             'DuplicateSuspicionDismissed.v1' => PersonalData\DuplicateSuspicionDismissed::class,
