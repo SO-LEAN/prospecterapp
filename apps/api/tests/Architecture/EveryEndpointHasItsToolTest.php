@@ -47,13 +47,6 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
      * The writes, which the tickets after the reads cover, the last of them removing this list.
      */
     private const array TO_COVER = [
-        'api_booking_page_add_inactive_period',
-        'api_booking_page_change_link',
-        'api_booking_page_close',
-        'api_booking_page_offer_channels',
-        'api_booking_page_open',
-        'api_booking_page_remove_inactive_period',
-        'api_booking_page_set_windows',
         'api_campaigns_note_exchange',
         'api_contacts_catch_up_gmail',
         'api_contacts_dismiss_possible_duplicate',
