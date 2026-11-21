@@ -80,6 +80,7 @@ final readonly class NoteOrganizationExchangeTool
             messageId: $exchangeInput->messageId,
             linkedInConversation: $exchangeInput->linkedInConversation,
             noteOnce: true,
+            byAnAI: true,
         ))));
     }
 }

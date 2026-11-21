@@ -9802,6 +9802,7 @@
                     "attachmentCount",
                     "contactToAttach",
                     "bookedByLink",
+                    "createdByAnAI",
                     "_links"
                 ],
                 "properties": {
@@ -9919,6 +9920,10 @@
                         "enum": [
                             "google"
                         ]
+                    },
+                    "createdByAnAI": {
+                        "description": "An AI created it, acting as its member through the MCP server, never named",
+                        "type": "boolean"
                     },
                     "_links": {
                         "$ref": "#/components/schemas/ExchangeLinksResource"
@@ -11072,6 +11077,7 @@
                     "attachments",
                     "hiddenAttachments",
                     "bookedByLink",
+                    "createdByAnAI",
                     "_links"
                 ],
                 "properties": {
@@ -11225,6 +11231,10 @@
                         "enum": [
                             "google"
                         ]
+                    },
+                    "createdByAnAI": {
+                        "description": "An AI created it, acting as its member through the MCP server, never named",
+                        "type": "boolean"
                     },
                     "_links": {
                         "$ref": "#/components/schemas/ExchangeDetailLinksResource"

@@ -128,6 +128,7 @@ final readonly class TimelineResourceFactory
             contactToAttach: $exchange->withAContactToAttach,
             bookedByLink: $exchange->bookedByLink,
             importedFrom: $exchange->importedFrom,
+            createdByAnAI: $exchange->createdByAnAI,
             links: $links,
         );
     }

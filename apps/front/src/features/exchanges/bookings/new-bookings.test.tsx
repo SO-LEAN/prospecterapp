@@ -57,6 +57,7 @@ function anExchange(
       attachmentCount: 0,
       contactToAttach: true,
       bookedByLink,
+      createdByAnAI: false,
       _links: { self: { href: `/api/exchanges/${id}`, method: 'GET' } },
     },
     interlocutor: { kind: 'person', id: ADA, name: 'Ada Lovelace', presence: 'present' },

@@ -64,6 +64,26 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
         $this->assertSame(['meeting', '1 place Kléber, Strasbourg'], [$upcoming['items'][0]['exchange']['channel'], $upcoming['items'][0]['exchange']['place']]);
     }
 
+    public function testAnExchangeTheAiPlansIsCreatedByAnAi(): void
+    {
+        $ada = $this->ada();
+        $this->login();
+
+        $upcoming = $this->answerOf($this->callWithoutHandshake('planifier-echange', ['id' => $ada, 'channel' => 'call', 'occurredAt' => '2026-10-16T10:00:00+02:00']));
+
+        $this->assertTrue($upcoming['items'][0]['createdByAnAI'] ?? null);
+    }
+
+    public function testAnExchangeTheAiPlansWithAnOrganizationIsCreatedByAnAi(): void
+    {
+        $babbage = $this->babbage();
+        $this->login();
+
+        $upcoming = $this->answerOf($this->callWithoutHandshake('planifier-echange-organisation', ['id' => $babbage, 'channel' => 'call', 'occurredAt' => '2026-10-16T10:00:00+02:00']));
+
+        $this->assertTrue($upcoming['items'][0]['exchange']['createdByAnAI'] ?? null);
+    }
+
     public function testTheAiMarksDoneACallToProcessWithItsReport(): void
     {
         $call = $this->aCallWithAdaPlannedYesterday();

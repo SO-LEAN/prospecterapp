@@ -24,6 +24,7 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
+use Prospecter\Core\SharedKernel\Domain\Origin;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
@@ -32,7 +33,8 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
  * written done with the fact `missed` of a call that did not go through, before missed was a status, as missed; one
  * written before an exchange was noted in a campaign, in none (ADR 0145); one written before the e-mails were imported,
  * imported from nowhere (ADR 0154); one written before a booker booked one by a public link, booked by none (ADR 0164);
- * one written before the exchanges kept their fingerprint, with that of its e-mail when imported, none otherwise (ADR 0166).
+ * one written before the exchanges kept their fingerprint, with that of its e-mail when imported, none otherwise (ADR 0166);
+ * one written before the exchanges kept their origin, by hand.
  */
 final class ExchangeDocument
 {
@@ -53,6 +55,7 @@ final class ExchangeDocument
             'campaignId' => $state['campaign']?->value,
             'importedFrom' => null === $state['importedFrom'] ? null : ['provider' => $state['importedFrom']->provider, 'identity' => $state['importedFrom']->identity, 'providerMessageId' => $state['importedFrom']->providerMessageId],
             'bookedByLink' => $state['bookedByLink'],
+            'origin' => $state['origin']->value,
             'fingerprint' => $state['fingerprint']?->value,
             'facts' => [
                 'channel' => $facts->channel->value,
@@ -91,6 +94,7 @@ final class ExchangeDocument
             'campaign' => null === ($document['campaignId'] ?? null) ? null : new CampaignId($document['campaignId']),
             'importedFrom' => null === ($document['importedFrom'] ?? null) ? null : new ImportedEmail($document['importedFrom']['provider'], $document['importedFrom']['identity'], $document['importedFrom']['providerMessageId'] ?? null),
             'bookedByLink' => $document['bookedByLink'] ?? false,
+            'origin' => self::originOf($document),
             'fingerprint' => self::fingerprintOf($document),
             'facts' => new ExchangeFacts(Channel::from($facts['channel']), Direction::from($facts['direction']), Documents::momentOf($facts['occurredAt']), $facts['text'], self::duration($facts['durationInMinutes'] ?? null), $facts['place'] ?? null, self::link($facts['link'] ?? null), self::linkRequestedOf($document)),
             'status' => self::statusOf($document),
@@ -102,6 +106,16 @@ final class ExchangeDocument
             'createdAt' => Documents::momentOf($document['createdAt']),
             'modifiedAt' => Documents::momentOf($document['modifiedAt']),
         ]);
+    }
+
+    /**
+     * Written before the exchanges kept their origin, by hand.
+     *
+     * @param array<string, mixed> $document
+     */
+    public static function originOf(array $document): Origin
+    {
+        return Origin::tryFrom($document['origin'] ?? '') ?? Origin::Hand;
     }
 
     /**

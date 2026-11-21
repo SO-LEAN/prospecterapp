@@ -71,6 +71,7 @@ final readonly class NoteExchangeTool
             messageId: $input->messageId,
             linkedInConversation: $input->linkedInConversation,
             noteOnce: true,
+            byAnAI: true,
         ))));
     }
 }

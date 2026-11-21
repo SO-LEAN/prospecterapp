@@ -20,6 +20,7 @@ const aVideoCall = (organizationIds: string[], contactToAttach: boolean): Exchan
   attachmentCount: 0,
   contactToAttach,
   bookedByLink: false,
+  createdByAnAI: false,
   _links: { self: { href: `/api/exchanges/${ID}`, method: 'GET' } },
 })
 

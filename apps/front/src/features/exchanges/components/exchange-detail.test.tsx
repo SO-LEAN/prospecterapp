@@ -46,6 +46,7 @@ const anExchange = (exchange: Partial<ExchangeDetail>): ExchangeDetail => ({
   attachments: [],
   hiddenAttachments: 0,
   bookedByLink: false,
+  createdByAnAI: false,
   _links: {
     self,
     interlocutor: { href: `/api/contacts/${ADA}`, method: 'GET' },
@@ -426,6 +427,7 @@ describe('ExchangeDetailSheet', () => {
       anExchange({
         hiddenAttachments: 2,
         bookedByLink: false,
+        createdByAnAI: false,
         _links: { self, interlocutor: { href: `/api/contacts/${ADA}`, method: 'GET' } },
       }),
     )

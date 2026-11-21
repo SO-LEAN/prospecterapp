@@ -24,6 +24,7 @@ const anExchange = (exchange: Partial<Exchange>): Exchange => ({
   attachmentCount: 0,
   contactToAttach: false,
   bookedByLink: false,
+  createdByAnAI: false,
   _links: { self },
   ...exchange,
 })

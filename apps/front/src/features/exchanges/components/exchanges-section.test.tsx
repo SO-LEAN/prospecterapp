@@ -36,6 +36,7 @@ const anExchange = (exchange: Partial<Exchange>): Exchange => ({
   attachmentCount: 0,
   contactToAttach: false,
   bookedByLink: false,
+  createdByAnAI: false,
   _links: { self: { href: `/api/exchanges/${exchange.id ?? EXCHANGE}`, method: 'GET' } },
   ...exchange,
 })
@@ -274,6 +275,7 @@ describe('ExchangesSection', () => {
         attachments: [],
         hiddenAttachments: 0,
         bookedByLink: false,
+        createdByAnAI: false,
         _links: { self: { href: `/api/exchanges/${EXCHANGE}`, method: 'GET' }, interlocutor: timelineLink },
       },
     )

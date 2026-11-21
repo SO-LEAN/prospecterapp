@@ -89,6 +89,7 @@ final class ExchangeDetailPresenter implements ConsultExchangeOutput
             campaign: null === $exchange->campaignId ? null : new CampaignOfExchangeResource($exchange->campaignId, $exchange->campaignName),
             bookedByLink: $exchange->bookedByLink,
             importedFrom: $exchange->importedFrom,
+            createdByAnAI: $exchange->createdByAnAI,
             links: $this->linksOf($exchange),
         );
     }

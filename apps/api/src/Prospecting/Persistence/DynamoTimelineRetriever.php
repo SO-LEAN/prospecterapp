@@ -14,6 +14,7 @@ use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Model\TimelineIntent;
 use Prospecter\Core\Prospecting\Domain\Policy\ExchangeConformity;
 use Prospecter\Core\Prospecting\Domain\Policy\ExchangeReading;
+use Prospecter\Core\SharedKernel\Domain\Origin;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
@@ -152,6 +153,7 @@ final readonly class DynamoTimelineRetriever implements TimelineRetriever
             withAContactToAttach: Exchange::isWithAContactToAttach(null !== $document['contact'], [] !== $document['keptFor']),
             bookedByLink: $document['bookedByLink'] ?? false,
             importedFrom: $document['importedFrom']['provider'] ?? null,
+            createdByAnAI: Origin::Ai === ExchangeDocument::originOf($document),
         );
     }
 

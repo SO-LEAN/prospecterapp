@@ -18,6 +18,7 @@ use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Policy\ExchangeConformity;
 use Prospecter\Core\Prospecting\Domain\Policy\ExchangePossibilities;
 use Prospecter\Core\Prospecting\Domain\Policy\ExchangeReading;
+use Prospecter\Core\SharedKernel\Domain\Origin;
 
 /**
  * Reads the item `EXCHANGE#<id>` / `EXCHANGE` that `DynamoExchangeRepository` writes as the detail of the
@@ -85,6 +86,7 @@ final readonly class DynamoExchangeDetailRetriever implements ExchangeDetailRetr
             bookedByLink: $document['bookedByLink'] ?? false,
             importedFrom: $document['importedFrom']['provider'] ?? null,
             providerMessageId: $document['importedFrom']['providerMessageId'] ?? null,
+            createdByAnAI: Origin::Ai === ExchangeDocument::originOf($document),
         );
     }
 }

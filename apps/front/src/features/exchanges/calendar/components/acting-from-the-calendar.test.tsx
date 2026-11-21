@@ -72,6 +72,7 @@ const aVideoCall = (
     attachmentCount: 0,
     contactToAttach: false,
     bookedByLink: false,
+    createdByAnAI: false,
     _links: { self, move },
     ...exchange,
   },

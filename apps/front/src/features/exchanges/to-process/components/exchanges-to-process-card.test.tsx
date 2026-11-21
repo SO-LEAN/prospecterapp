@@ -65,6 +65,7 @@ function ended(channel: ExchangeToProcess['exchange']['channel'], occurredAt: Da
       attachmentCount: 0,
       contactToAttach: false,
       bookedByLink: false,
+      createdByAnAI: false,
       _links: {
         self: { href: `/api/exchanges/${id}`, method: 'GET' },
         move: { href: `/api/exchanges/${id}/moment`, method: 'PATCH' },

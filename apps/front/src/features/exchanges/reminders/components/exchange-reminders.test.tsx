@@ -67,6 +67,7 @@ function planned(
       attachmentCount: 0,
       contactToAttach: false,
       bookedByLink: false,
+      createdByAnAI: false,
       _links: { self: { href: `/api/exchanges/${id}`, method: 'GET' } },
       ...exchange,
     },

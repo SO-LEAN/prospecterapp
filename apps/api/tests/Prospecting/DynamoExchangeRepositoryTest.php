@@ -29,6 +29,7 @@ use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
+use Prospecter\Core\SharedKernel\Domain\Origin;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\App\Base\ApiTestCase;
 
@@ -143,6 +144,15 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
         $exchanges->remove($imported);
 
         $this->assertNotNull($exchanges->fingerprinted($this->prospector->accountId, self::fingerprintOf($imported))?->erasure);
+    }
+
+    public function testAnExchangeAnAiNotedIsReadCreatedByAnAi(): void
+    {
+        $exchanges = $this->exchanges();
+        $noted = Exchange::notedWithAContact($this->prospector->accountId, $this->prospector->id, new ExchangeId(self::newIdentity()), $this->contact, [$this->acme], new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable('2026-10-10 09:00 UTC')), ExchangeStatus::Done, new \DateTimeImmutable(self::NOW), origin: Origin::Ai);
+        $exchanges->save($noted);
+
+        $this->assertSame(Origin::Ai, Hydrator::stateOf($exchanges->get($noted->id()))['origin']);
     }
 
     public function testAnImportedExchangeIsReadWithTheIdOfItsMessageInTheMailboxThatImportedIt(): void

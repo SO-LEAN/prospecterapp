@@ -68,6 +68,8 @@ final readonly class ExchangeDetailResource
         public bool $bookedByLink,
         #[OA\Property(enum: ExchangeResource::PROVIDERS, description: ExchangeResource::IMPORTED_FROM_DESCRIPTION)]
         public ?string $importedFrom,
+        #[OA\Property(description: ExchangeResource::CREATED_BY_AN_AI_DESCRIPTION)]
+        public bool $createdByAnAI,
         #[SerializedName('_links')]
         #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]
         public ExchangeDetailLinksResource $links,

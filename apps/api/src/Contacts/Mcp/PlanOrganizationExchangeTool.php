@@ -71,6 +71,7 @@ final readonly class PlanOrganizationExchangeTool
             link: $exchange->link,
             linkRequested: $exchange->linkRequested,
             executedAt: $this->clock->now(),
+            byAnAI: true,
         ));
 
         return $this->results->of($this->organizationTimelineReader->readUpcoming($memberId, $organization));
