@@ -57,6 +57,8 @@ final readonly class ExchangeResource
         public bool $contactToAttach,
         #[OA\Property(description: 'Its contact booked it by the public link of its holder (ADR 0164)')]
         public bool $bookedByLink,
+        #[OA\Property(enum: self::PROVIDERS, description: self::IMPORTED_FROM_DESCRIPTION)]
+        public ?string $importedFrom,
         #[SerializedName('_links')]
         #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]
         public ExchangeLinksResource $links,

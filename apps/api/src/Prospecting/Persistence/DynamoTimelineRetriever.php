@@ -151,6 +151,7 @@ final readonly class DynamoTimelineRetriever implements TimelineRetriever
             campaignId: $document['campaignId'] ?? null,
             withAContactToAttach: Exchange::isWithAContactToAttach(null !== $document['contact'], [] !== $document['keptFor']),
             bookedByLink: $document['bookedByLink'] ?? false,
+            importedFrom: $document['importedFrom']['provider'] ?? null,
         );
     }
 

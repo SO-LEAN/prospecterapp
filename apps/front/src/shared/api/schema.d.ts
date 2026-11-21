@@ -2611,6 +2611,11 @@ export interface components {
             contactToAttach: boolean;
             /** @description Its contact booked it by the public link of its holder (ADR 0164) */
             bookedByLink: boolean;
+            /**
+             * @description The provider of the mailbox it was imported from, google for Gmail; null for an exchange noted (ADR 0174)
+             * @enum {string|null}
+             */
+            importedFrom?: "google" | null;
             _links: components["schemas"]["ExchangeLinksResource"];
         };
         TimelineLinksResource: {
