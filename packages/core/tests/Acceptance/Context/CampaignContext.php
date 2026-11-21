@@ -311,6 +311,45 @@ final class CampaignContext implements Context
         Expect::same([$this->scenario->personIdOf($contact), $pending], [$next->contactId, $next->pending]);
     }
 
+    #[Given('une IA a noté l\'e-mail envoyé à :contact pour :name, son Message-ID :messageId et le texte :text')]
+    #[When('une IA note l\'e-mail envoyé à :contact pour :name, son Message-ID :messageId et le texte :text')]
+    public function anAINotesTheEmailSent(string $contact, string $name, string $messageId, string $text): void
+    {
+        $this->current = $name;
+        $id = $this->application->newIdentity();
+        $this->application->dispatch(new NoteCampaignExchange(
+            $this->application->signedIn(),
+            $id,
+            $this->currentId(),
+            $this->scenario->personIdOf($contact),
+            $this->application->now(),
+            $text,
+            false,
+            $this->application->now(),
+            messageId: $messageId,
+            noteOnce: true,
+        ));
+        $this->noted = null === $this->application->refusal() ? $id : $this->noted;
+        $this->notedWith = $contact;
+    }
+
+    #[Then('un e-mail émis de la campagne :name est noté pour :contact, avec le texte :text')]
+    public function anEmailOfTheCampaignIsNoted(string $name, string $contact, string $text): void
+    {
+        $this->notedWith = $contact;
+        $exchange = $this->notedExchange();
+
+        Expect::same(['email', 'outbound', $this->campaignIds[$name], $text], [$exchange->channel, $exchange->direction, $exchange->campaignId, $exchange->text]);
+    }
+
+    #[Then('un seul échange est noté pour :contact')]
+    public function onlyOneExchangeIsNotedFor(string $contact): void
+    {
+        $timeline = $this->application->consultTimeline(new ConsultTimeline($this->application->signedIn(), $this->scenario->personIdOf($contact), $this->application->now()));
+
+        Expect::same(1, count($timeline->exchanges ?? []));
+    }
+
     #[When('je note pour :contact dans la campagne :name l\'échange :')]
     public function iNoteForTheRecipientTheExchange(string $contact, string $name, TableNode $table): void
     {
@@ -322,6 +361,12 @@ final class CampaignContext implements Context
     public function iNoteForTheRecipientAnExchange(string $contact, string $name): void
     {
         $this->noteForTheRecipient($contact, $name, $this->application->now(), self::A_MESSAGE, missed: false);
+    }
+
+    #[When('je note pour :contact dans la campagne :name le même e-mail')]
+    public function iNoteForTheRecipientTheSameEmail(string $contact, string $name): void
+    {
+        $this->noteForTheRecipient($contact, $name, $this->application->now(), null, missed: false);
     }
 
     #[When('je note pour :contact dans la campagne :name un appel manqué')]

@@ -159,7 +159,7 @@ class DynamoExchangeDetailRetrieverTest extends ApiTestCase
     {
         $campaign = new CampaignId(self::newIdentity());
         $recipient = new RecipientInCampaign($campaign, new PersonId(self::newIdentity()), Channel::Email, running: true, recipient: true, pending: true);
-        $exchange = Exchange::notedInACampaign($this->me->accountId, $this->me->id, new ExchangeId(self::newIdentity()), $recipient, [new OrganizationId(self::newIdentity())], new \DateTimeImmutable('2026-10-10 09:00 UTC'), null, false, new \DateTimeImmutable(self::NOW));
+        $exchange = Exchange::notedInACampaign($this->me->accountId, $this->me->id, new ExchangeId(self::newIdentity()), $recipient, [new OrganizationId(self::newIdentity())], $recipient->exchangeFacts(new \DateTimeImmutable('2026-10-10 09:00 UTC'), null), false, new \DateTimeImmutable(self::NOW));
         $this->exchanges()->save($exchange);
 
         $this->assertSame($campaign->value, $this->detailOf($exchange, $this->me)->campaignId);
