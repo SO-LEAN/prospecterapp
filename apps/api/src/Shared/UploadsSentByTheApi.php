@@ -4,8 +4,10 @@ namespace App\Shared;
 
 use App\Shared\Resource\UploadResource;
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mime\Part\DataPart;
 use Symfony\Component\Mime\Part\Multipart\FormDataPart;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -37,8 +39,16 @@ final readonly class UploadsSentByTheApi implements UploadSender
                 'body' => $body->bodyToString(),
             ])->getContent();
         } catch (ExceptionInterface $failure) {
-            throw ServiceUnavailable::privateFiles($failure);
+            throw self::isUnavailability($failure) ? ServiceUnavailable::privateFiles($failure) : $failure;
         }
+    }
+
+    /**
+     * The bucket out of reach, failing or limiting the requests: any other refusal is of the form the API sent.
+     */
+    private static function isUnavailability(ExceptionInterface $failure): bool
+    {
+        return !$failure instanceof ClientExceptionInterface || Response::HTTP_TOO_MANY_REQUESTS === $failure->getResponse()->getStatusCode();
     }
 
     private function addressOf(UploadResource $form): string

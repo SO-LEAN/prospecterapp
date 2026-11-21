@@ -10,6 +10,7 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 
 /**
  * The API sends a file to the private bucket with the form of an upload, as a browser does (ADR 0172): to the bucket
@@ -63,6 +64,27 @@ class UploadsSentByTheApiTest extends TestCase
         } catch (ServiceUnavailable $unavailable) {
             $this->assertSame('privateFilesUnavailable', $unavailable->reason);
         }
+    }
+
+    public function testTheBucketLimitingTheRequestsMakesThePrivateFilesUnavailableForNow(): void
+    {
+        $http = new MockHttpClient(new MockResponse('<Error><Code>SlowDown</Code></Error>', ['http_code' => 429]));
+
+        $this->expectException(ServiceUnavailable::class);
+
+        new UploadsSentByTheApi($http, '')->upload($this->form(), new File(__DIR__.'/../Fixtures/logo.png'));
+    }
+
+    /**
+     * The form of the API itself refused (a policy expired, a signature): trying again later would change nothing.
+     */
+    public function testTheBucketForbiddingTheFormIsAFailureOfTheApi(): void
+    {
+        $http = new MockHttpClient(new MockResponse('<Error><Code>AccessDenied</Code></Error>', ['http_code' => 403]));
+
+        $this->expectException(ClientExceptionInterface::class);
+
+        new UploadsSentByTheApi($http, '')->upload($this->form(), new File(__DIR__.'/../Fixtures/logo.png'));
     }
 
     /**
