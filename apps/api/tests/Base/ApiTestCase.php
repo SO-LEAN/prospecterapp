@@ -5,9 +5,14 @@ namespace Tests\App\Base;
 use App\Demo\DemoCredentials;
 use App\Demo\DemoData;
 use App\Shared\Identities;
+use App\Shared\Messaging\CommitOutbox;
+use App\Shared\Persistence\DynamoUnitOfWork;
+use App\Shared\Persistence\Table;
 use App\SignIn\Credentials;
 use App\SignIn\UserPool;
 use Aws\CognitoIdentityProvider\CognitoIdentityProviderClient;
+use Aws\DynamoDb\DynamoDbClient;
+use Aws\DynamoDb\Marshaler;
 use Prospecter\Core\Accounts\Domain\Model\Account;
 use Prospecter\Core\Accounts\Domain\Model\Member;
 use Prospecter\Core\Accounts\Domain\Model\Role;
@@ -139,6 +144,18 @@ abstract class ApiTestCase extends WebTestCase
     protected static function newIdentity(): string
     {
         return new Identities()->next();
+    }
+
+    /**
+     * The same table, with the unit of work of another request: what it writes is sent at once, whatever the unit
+     * of the test.
+     */
+    protected function asAnotherRequest(Table $table): Table
+    {
+        $client = self::getContainer()->get(DynamoDbClient::class);
+        $marshaler = self::getContainer()->get(Marshaler::class);
+
+        return new Table($client, $marshaler, new DynamoUnitOfWork($client, new CommitOutbox([], $marshaler, new Identities(), self::getContainer()->get('app.commit_clock'))), $table->name);
     }
 
     /**

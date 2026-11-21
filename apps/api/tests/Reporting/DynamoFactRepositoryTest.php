@@ -4,13 +4,9 @@ namespace Tests\App\Reporting;
 
 use App\Reporting\Persistence\DynamoFactRepository;
 use App\Reporting\Persistence\ReportingKeys;
-use App\Shared\Identities;
-use App\Shared\Messaging\CommitOutbox;
 use App\Shared\Persistence\ConditionFailed;
 use App\Shared\Persistence\DynamoUnitOfWork;
 use App\Shared\Persistence\Table;
-use Aws\DynamoDb\DynamoDbClient;
-use Aws\DynamoDb\Marshaler;
 use Prospecter\Core\Reporting\Application\ConsultFigures\FiguresResponse;
 use Prospecter\Core\Reporting\Application\FactRecorder;
 use Prospecter\Core\Reporting\Application\Port\FiguresRetriever;
@@ -77,7 +73,7 @@ class DynamoFactRepositoryTest extends ApiTestCase
         $unitOfWork = self::getContainer()->get(DynamoUnitOfWork::class);
         $unitOfWork->begin();
         $this->recorder()->record($this->organization(new OrganizationId(self::newIdentity()), revision: 1));
-        $this->asAnotherRequest()->record(self::VERSION, $this->organization(new OrganizationId(self::newIdentity()), revision: 1), null, new FiguresChange(activeOrganizations: 1));
+        $this->factsOfAnotherRequest()->record(self::VERSION, $this->organization(new OrganizationId(self::newIdentity()), revision: 1), null, new FiguresChange(activeOrganizations: 1));
         $unitOfWork->commit();
         $unitOfWork->discard();
 
@@ -89,7 +85,7 @@ class DynamoFactRepositoryTest extends ApiTestCase
         $organization = new OrganizationId(self::newIdentity());
         $this->recorder()->record($this->organization($organization, revision: 1));
         $read = $this->repository()->find(self::VERSION, $this->organization($organization, 0));
-        $this->asAnotherRequest()->record(self::VERSION, $this->organization($organization, revision: 2, located: true), $read, new FiguresChange(locatedOrganizations: 1));
+        $this->factsOfAnotherRequest()->record(self::VERSION, $this->organization($organization, revision: 2, located: true), $read, new FiguresChange(locatedOrganizations: 1));
 
         try {
             $this->repository()->record(self::VERSION, $this->organization($organization, revision: 3), $read, FiguresChange::none());
@@ -164,12 +160,8 @@ class DynamoFactRepositoryTest extends ApiTestCase
     /**
      * The repository with the unit of work of another request: what it writes is sent at once.
      */
-    private function asAnotherRequest(): DynamoFactRepository
+    private function factsOfAnotherRequest(): DynamoFactRepository
     {
-        $client = self::getContainer()->get(DynamoDbClient::class);
-        $marshaler = self::getContainer()->get(Marshaler::class);
-        $unitOfWork = new DynamoUnitOfWork($client, new CommitOutbox([], $marshaler, new Identities(), self::getContainer()->get('app.commit_clock')));
-
-        return new DynamoFactRepository(new Table($client, $marshaler, $unitOfWork, $this->reportingTable()->name), self::getContainer()->get('app.commit_clock'));
+        return new DynamoFactRepository($this->asAnotherRequest($this->reportingTable()), self::getContainer()->get('app.commit_clock'));
     }
 }
