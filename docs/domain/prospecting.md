@@ -51,6 +51,7 @@ The organizations an account prospects, their contacts, the exchanges with them,
 
 - The service `WhichAreProspectedService` (which organizations an account prospects), asked by PersonalData when a contact is collected (ADR 0089).
 - The service `WhichOrganizationsHaveTheseEmailsService` (which organizations of an account have addresses, whatever their case, by their email reservation), asked by Connectors to recognize who an e-mail was exchanged with (ADR 0154).
+- The service `WhichEmailsHaveTheseOrganizationsService` (the address of organizations an account prospects, none for one without; one it does not prospect absent), asked by Connectors to catch up the e-mails a mailbox exchanged with an organization itself.
 - The service `NameOrganizationsOfContactsService` (the full names of the organizations of the account naming each contact, in the order of their identities, the first first; a contact none names absent), asked by Campaigns to render `{organisation}` in the message of a campaign (ADR 0144).
 - The service `ConsultHeldExchangesService` (exchanges of an account as their holder holds them: holder, status, channel, moment, duration, place or link, whether a video call asks its link (ADR 0137), contact, and the first organization they are still kept for, with its name; an exchange erased or kept for no organization any more absent), asked by Connectors at each fact of an exchange to push it (ADR 0127).
 - The integration events `ContactsLeftWithoutOrganization` (ADR 0046) and `ContactLeftUnattached` (ADR 0146).
