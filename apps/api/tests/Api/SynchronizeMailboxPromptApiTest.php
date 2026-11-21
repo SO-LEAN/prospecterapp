@@ -21,18 +21,19 @@ class SynchronizeMailboxPromptApiTest extends ApiTestCase
 
         $prompt = $this->promptListed('sync-mailbox');
 
-        $this->assertSame('Synchroniser ma boîte e-mail', $prompt['title'] ?? null);
+        $this->assertSame(['Sync my mailbox', 'Log the e-mails you exchanged with your contacts in Prospecter, without duplicates.'], [$prompt['title'] ?? null, $prompt['description'] ?? null]);
         $this->assertSame([['since', false]], self::argumentsOf($prompt));
+        $this->assertSame(['how far back to go ("7 days", "November 1"…), asked when not given'], array_column($prompt['arguments'] ?? [], 'description'));
     }
 
     public function testOnlyTheCorrespondentsProspecterKnowsAreKeptUnlessTheMemberAsksToCreateThem(): void
     {
         $this->login();
 
-        $text = $this->promptText('sync-mailbox', ['since' => '7 jours']);
+        $text = $this->promptText('sync-mailbox', ['since' => '7 days']);
 
         $this->assertStringContainsString('`identify`', $text);
-        $this->assertStringContainsString('Ne garde que les correspondants `known`', $text);
+        $this->assertStringContainsString('Keep only the `known` correspondents', $text);
         $this->assertStringContainsString('`record-contact`', $text);
     }
 
@@ -40,7 +41,7 @@ class SynchronizeMailboxPromptApiTest extends ApiTestCase
     {
         $this->login();
 
-        $text = $this->promptText('sync-mailbox', ['since' => '7 jours']);
+        $text = $this->promptText('sync-mailbox', ['since' => '7 days']);
 
         $this->assertStringContainsString('`log-contact-exchange`', $text);
         $this->assertStringContainsString('`messageId`', $text);
@@ -50,52 +51,52 @@ class SynchronizeMailboxPromptApiTest extends ApiTestCase
     {
         $this->login();
 
-        $text = $this->promptText('sync-mailbox', ['since' => '7 jours']);
+        $text = $this->promptText('sync-mailbox', ['since' => '7 days']);
 
-        $this->assertStringContainsString('`alreadyNoted` et `erasedBefore` comptent comme déjà notés', $text);
+        $this->assertStringContainsString('`alreadyNoted` and `erasedBefore` count as already logged', $text);
     }
 
     public function testTheAiStopsAndAsksWhenProspecterRefuses(): void
     {
         $this->login();
 
-        $text = $this->promptText('sync-mailbox', ['since' => '7 jours']);
+        $text = $this->promptText('sync-mailbox', ['since' => '7 days']);
 
-        $this->assertStringContainsString('Si Prospecter refuse un appel, arrête-toi et demande-moi', $text);
+        $this->assertStringContainsString('If Prospecter refuses a call, stop and ask me', $text);
     }
 
     public function testTheAiCreatesNothingToConfirmWithoutTheAnswerOfItsMember(): void
     {
         $this->login();
 
-        $text = $this->promptText('sync-mailbox', ['since' => '7 jours']);
+        $text = $this->promptText('sync-mailbox', ['since' => '7 days']);
 
-        $this->assertStringContainsString('Ne crée jamais une personne ou une entreprise `toConfirm` sans ma réponse', $text);
+        $this->assertStringContainsString('Never create a `toConfirm` person or company without my answer', $text);
     }
 
     public function testASynchronizationPlayedAgainCountsOnlyWhatWasAlreadyNotedOrIgnored(): void
     {
         $this->login();
 
-        $text = $this->promptText('sync-mailbox', ['since' => '7 jours']);
+        $text = $this->promptText('sync-mailbox', ['since' => '7 days']);
 
-        $this->assertStringContainsString('Une synchronisation relancée ne doit compter que des déjà notés et des ignorés', $text);
+        $this->assertStringContainsString('A sync run again counts only items already logged or ignored', $text);
     }
 
     public function testTheAiNotesNoEmailWithoutItsMessageId(): void
     {
         $this->login();
 
-        $text = $this->promptText('sync-mailbox', ['since' => '7 jours']);
+        $text = $this->promptText('sync-mailbox', ['since' => '7 days']);
 
-        $this->assertStringContainsString('Ne note jamais un e-mail sans son Message-ID', $text);
+        $this->assertStringContainsString('Never log an e-mail without its Message-ID', $text);
     }
 
     public function testEveryToolThePromptNamesIsServed(): void
     {
         $this->login();
 
-        $text = $this->promptText('sync-mailbox', ['since' => '7 jours']);
+        $text = $this->promptText('sync-mailbox', ['since' => '7 days']);
 
         $this->assertSame([], array_diff(self::toolsNamedIn($text), array_column($this->everyToolListed(), 'name')));
     }
@@ -106,7 +107,7 @@ class SynchronizeMailboxPromptApiTest extends ApiTestCase
 
         $text = $this->promptText('sync-mailbox', ['since' => 'November 1']);
 
-        $this->assertStringContainsString('How far back: November 1.', $text);
+        $this->assertStringContainsString('Sync my mailbox into Prospecter. How far back: November 1.', $text);
     }
 
     public function testTheAiAsksSinceWhenWhenItIsNotGiven(): void
@@ -115,6 +116,6 @@ class SynchronizeMailboxPromptApiTest extends ApiTestCase
 
         $text = $this->promptText('sync-mailbox');
 
-        $this->assertStringContainsString('First ask me how far back to go.', $text);
+        $this->assertStringContainsString('Sync my mailbox into Prospecter. First ask me how far back to go.', $text);
     }
 }
