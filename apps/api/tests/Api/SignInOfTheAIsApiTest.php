@@ -21,6 +21,7 @@ class SignInOfTheAIsApiTest extends ApiTestCase
 {
     use CallsTheMcpServer;
 
+    private const int POLLING_INTERVAL_IN_MICROSECONDS = 10_000;
     private const string CALLBACK = 'https://api.test.prospecter.io/oauth/callback';
     private const string PROSPECTOR = 'prospector@solean-it.io';
     private const string VERIFIER_OF_THE_AI = 'the-verifier-of-the-ai-long-enough-to-be-a-verifier-of-pkce';
@@ -206,8 +207,7 @@ class SignInOfTheAIsApiTest extends ApiTestCase
     public function testSigningOutEverywhereSignsTheAiOutToo(): void
     {
         $tokens = $this->exchange($this->codeOfTheFacade());
-        // MiniStack revokes the tokens issued before the second of the sign-out, not those issued within it
-        sleep(1);
+        self::waitForTheNextSecond();
 
         self::getContainer()->get(CognitoIdentityProviderClient::class)->globalSignOut(['AccessToken' => $this->tokensOf(DemoData::PROSPECTOR)['AccessToken']]);
 
@@ -313,5 +313,17 @@ class SignInOfTheAIsApiTest extends ApiTestCase
     private static function challengeOf(string $verifier): string
     {
         return rtrim(strtr(base64_encode(hash('sha256', $verifier, true)), '+/', '-_'), '=');
+    }
+
+    /**
+     * MiniStack revokes the tokens issued before the second of a sign-out, not those issued within it.
+     */
+    private static function waitForTheNextSecond(): void
+    {
+        $second = time(); // @phpstan-ignore prospecter.realClock (MiniStack revokes the tokens on the real clock)
+
+        while (time() === $second) { // @phpstan-ignore prospecter.realClock (MiniStack revokes the tokens on the real clock)
+            usleep(self::POLLING_INTERVAL_IN_MICROSECONDS);
+        }
     }
 }
