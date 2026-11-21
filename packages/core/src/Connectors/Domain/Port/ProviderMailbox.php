@@ -11,6 +11,7 @@ use Prospecter\Core\Connectors\Domain\Model\MailboxChanges;
 use Prospecter\Core\Connectors\Domain\Model\MailboxMail;
 use Prospecter\Core\Connectors\Domain\Model\MailboxWatch;
 use Prospecter\Core\Connectors\Domain\Model\RefreshToken;
+use Prospecter\Core\SharedKernel\Domain\Email;
 
 /**
  * Port: the mailbox of a member at the provider, reached with their token through the client of their account, which
@@ -46,6 +47,16 @@ interface ProviderMailbox
      * @throws AccessRevoked
      */
     public function messagesExchangedAfter(ClientCredentials $client, RefreshToken $refreshToken, \DateTimeImmutable $moment, int $atMost): MailboxChanges;
+
+    /**
+     * The messages exchanged with this address after this moment, from it or to it, but the spam, the trash and the
+     * drafts, the newest at most so many.
+     *
+     * @return list<string> their ids at the provider
+     *
+     * @throws AccessRevoked
+     */
+    public function messagesExchangedWith(ClientCredentials $client, RefreshToken $refreshToken, Email $address, \DateTimeImmutable $moment, int $atMost): array;
 
     /**
      * A message of the mailbox, none once it was deleted.

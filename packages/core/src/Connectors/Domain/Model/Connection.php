@@ -20,6 +20,7 @@ use Prospecter\Core\Connectors\Domain\Exception\CalendarGone;
 use Prospecter\Core\Connectors\Domain\Exception\CalendarRefusedThePush;
 use Prospecter\Core\Connectors\Domain\Exception\HistoryExpired;
 use Prospecter\Core\Connectors\Domain\Exception\IncompleteGrant;
+use Prospecter\Core\Connectors\Domain\Exception\MailImportNotActive;
 use Prospecter\Core\Connectors\Domain\Port\ProviderAccess;
 use Prospecter\Core\Connectors\Domain\Port\ProviderCalendar;
 use Prospecter\Core\Connectors\Domain\Port\ProviderMailbox;
@@ -41,6 +42,8 @@ final class Connection implements ReleasesEvents
     /** the most messages a reading lists, so that their events fit in a write (ADR 0154) */
     private const int MOST_MESSAGES_BY_HISTORY = 500;
     private const int MOST_MESSAGES_BY_DATE = 1000;
+    private const int MOST_MESSAGES_CAUGHT_UP = 200;
+    private const string CATCH_UP_SINCE = '-12 months';
 
     private ConnectionState $state = ConnectionState::Connected;
     private ?string $calendar = null;
@@ -350,6 +353,32 @@ final class Connection implements ReleasesEvents
             return $mailbox->messagesAddedSince($client, $this->refreshToken, (string) $this->historyId, self::MOST_MESSAGES_BY_HISTORY);
         } catch (HistoryExpired) {
             return $mailbox->messagesExchangedAfter($client, $this->refreshToken, $this->historyReadAt ?? $this->connectedAt, self::MOST_MESSAGES_BY_DATE);
+        }
+    }
+
+    /**
+     * The messages the mailbox exchanged with an address of the 12 months before, each to import as the messages
+     * added to it are, the 200 newest first; only while the import is active, a token the provider refuses making it
+     * to reconnect.
+     *
+     * @throws MailImportNotActive
+     */
+    public function catchUpMailWith(Email $address, ClientCredentials $client, ProviderMailbox $mailbox, \DateTimeImmutable $at): void
+    {
+        if (MailImport::Active !== $this->mailImport) {
+            throw MailImportNotActive::toCatchUp();
+        }
+
+        try {
+            $messageIds = $mailbox->messagesExchangedWith($client, $this->refreshToken, $address, $at->modify(self::CATCH_UP_SINCE), self::MOST_MESSAGES_CAUGHT_UP);
+        } catch (AccessRevoked) {
+            $this->loseTheMailImport($at);
+
+            return;
+        }
+
+        foreach ($messageIds as $messageId) {
+            $this->recordThat(new MailboxMessageAdded($this->accountId, $this->member, $messageId, $at));
         }
     }
 

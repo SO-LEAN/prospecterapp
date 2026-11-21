@@ -12,6 +12,7 @@ use Prospecter\Core\Connectors\Domain\Model\MailboxMail;
 use Prospecter\Core\Connectors\Domain\Model\MailboxWatch;
 use Prospecter\Core\Connectors\Domain\Model\RefreshToken;
 use Prospecter\Core\Connectors\Domain\Port\ProviderMailbox;
+use Prospecter\Core\SharedKernel\Domain\Email;
 
 /**
  * The mailboxes Gmail keeps, as the scenarios see them (ADR 0154): the mailbox of the account a token was granted
@@ -28,7 +29,7 @@ final class InMemoryProviderMailbox implements ProviderMailbox
     private array $histories = [];
     /** @var array<string, int> the point of its history each mailbox no longer keeps the history before */
     private array $forgottenBefore = [];
-    /** @var array<string, list<array{history: int, mail: MailboxMail}>> the messages of each mailbox, the oldest first */
+    /** @var array<string, list<array{history: int, mail: MailboxMail, copied: list<Email>}>> the messages of each mailbox, the oldest first */
     private array $messages = [];
     /** @var array<string, array{topic: string, expiresAt: \DateTimeImmutable, times: int}> the watches, by mailbox */
     private array $watches = [];
@@ -48,11 +49,14 @@ final class InMemoryProviderMailbox implements ProviderMailbox
     }
 
     /**
-     * A message arrives in the mailbox, its history one point further.
+     * A message arrives in the mailbox, its history one point further, with the addresses it was copied to, which
+     * Gmail searches but the message as Prospecter reads it does not name.
+     *
+     * @param list<Email> $copied
      */
-    public function receive(string $mailbox, MailboxMail $mail): void
+    public function receive(string $mailbox, MailboxMail $mail, array $copied = []): void
     {
-        $this->messages[$mailbox][] = ['history' => $this->moveOn($mailbox), 'mail' => $mail];
+        $this->messages[$mailbox][] = ['history' => $this->moveOn($mailbox), 'mail' => $mail, 'copied' => $copied];
     }
 
     /**
@@ -112,6 +116,21 @@ final class InMemoryProviderMailbox implements ProviderMailbox
         $exchanged = array_filter($this->messages[$mailbox] ?? [], static fn (array $message): bool => $message['mail']->exchangedAt > $moment && ($message['mail']->isReceived() || $message['mail']->isSent()));
 
         return new MailboxChanges(array_map(static fn (array $message): string => $message['mail']->providerId, array_slice($exchanged, -$atMost)), $this->historyOf($mailbox), true);
+    }
+
+    /**
+     * As Gmail searches `from:` or `to:` an address, its copies with them, the spam, the trash and the drafts left out,
+     * the newest first by the moment they were exchanged.
+     */
+    public function messagesExchangedWith(ClientCredentials $client, RefreshToken $refreshToken, Email $address, \DateTimeImmutable $moment, int $atMost): array
+    {
+        $mailbox = $this->mailboxOf($client, $refreshToken);
+        $exchanged = array_filter($this->messages[$mailbox] ?? [], static fn (array $message): bool => $message['mail']->exchangedAt > $moment
+            && ($message['mail']->isReceived() || $message['mail']->isSent())
+            && array_any([$message['mail']->sender, ...$message['mail']->recipients, ...$message['copied']], static fn (Email $mentioned): bool => $mentioned->equals($address)));
+        usort($exchanged, static fn (array $newer, array $older): int => $older['mail']->exchangedAt <=> $newer['mail']->exchangedAt);
+
+        return array_map(static fn (array $message): string => $message['mail']->providerId, array_slice($exchanged, 0, $atMost));
     }
 
     /**

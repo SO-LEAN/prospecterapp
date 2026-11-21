@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace Tests\Core\Acceptance\Context;
 
 use Behat\Behat\Context\Context;
+use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 use Prospecter\Core\Accounts\Domain\Model\Member;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\Connectors\Application\AskToImportMail\AskToImportMail;
+use Prospecter\Core\Connectors\Application\CatchUpMailHistory\CatchUpMailHistory;
 use Prospecter\Core\Connectors\Application\Connect\Connect;
 use Prospecter\Core\Connectors\Application\NoteMailboxNotification\NoteMailboxNotification;
 use Prospecter\Core\Connectors\Contract\Event\EmailExchanged;
@@ -156,6 +158,48 @@ final class MailboxMailContext implements Context
         }
     }
 
+    /**
+     * The e-mails a mailbox keeps before anything notifies Prospecter of them: the import was not active, or their
+     * correspondent not known yet.
+     */
+    #[Given('ma boîte Gmail contenait avant l\'import :')]
+    #[Given('ma boîte Gmail contient :')]
+    public function myMailboxHeld(TableNode $mails): void
+    {
+        foreach ($mails->getColumnsHash() as $row) {
+            $id = sprintf('message-%d', ++$this->messages);
+            $mail = new MailboxMail($id, sprintf('<%s@mail.test>', $id), new Email($row['de']), [new Email($row['à'])], [$row['dossier']], new \DateTimeImmutable($row['moment']), $row['objet'], self::TEXT);
+            $this->application->mailboxes->receive(self::MY_MAILBOX, $mail, '' === $row['copie'] ? [] : [new Email($row['copie'])]);
+        }
+    }
+
+    #[Given('ma boîte Gmail contient :count e-mails de :sender reçus depuis le :moment')]
+    public function myMailboxHoldsEMailsFrom(int $count, string $sender, string $moment): void
+    {
+        for ($received = 0; $received < $count; ++$received) {
+            $id = sprintf('message-%d', ++$this->messages);
+            $at = new \DateTimeImmutable($moment)->modify(sprintf('+%d minutes', $received));
+            $this->application->mailboxes->receive(self::MY_MAILBOX, new MailboxMail($id, sprintf('<%s@mail.test>', $id), new Email($sender), [new Email(self::MY_MAILBOX)], [self::INBOX], $at, self::SUBJECT, self::TEXT));
+        }
+    }
+
+    #[Then('l\'e-mail :subject n\'est pas importé')]
+    public function theEMailIsNotImported(string $subject): void
+    {
+        $imported = array_any($this->imported(), static fn (Exchange $exchange): bool => str_starts_with(StateOf::the($exchange)['facts']->text, $subject."\n"));
+
+        Expect::that(!$imported, sprintf('The e-mail "%s" was expected not to be imported', $subject));
+    }
+
+    #[When('je rattrape l\'historique Gmail de :name')]
+    #[Given('j\'ai rattrapé l\'historique Gmail de :name')]
+    public function iCatchUpTheMailHistoryOf(string $name): void
+    {
+        $this->application->dispatch($this->scenario->isAnOrganization($name)
+            ? CatchUpMailHistory::ofOrganization($this->application->signedIn(), $this->scenario->idOf($name), $this->application->now())
+            : CatchUpMailHistory::ofContact($this->application->signedIn(), $this->scenario->personIdOf($name), $this->application->now()));
+    }
+
     #[Given('Gmail a oublié l\'historique de :mailbox')]
     public function gmailForgotTheHistoryOf(string $mailbox): void
     {
@@ -213,6 +257,14 @@ final class MailboxMailContext implements Context
     public function iEraseTheImportedExchange(): void
     {
         $this->application->dispatch(new EraseExchange($this->application->signedIn(), $this->theImported()->id()->value, $this->application->now()));
+    }
+
+    #[Given('je supprime l\'échange importé :subject')]
+    public function iEraseTheImportedExchangeOfSubject(string $subject): void
+    {
+        $imported = array_find($this->imported(), static fn (Exchange $exchange): bool => str_starts_with(StateOf::the($exchange)['facts']->text, $subject."\n"));
+
+        $this->application->dispatch(new EraseExchange($this->application->signedIn(), ($imported ?? throw new \LogicException(sprintf('No exchange imported of subject "%s"', $subject)))->id()->value, $this->application->now()));
     }
 
     #[Given('je perds le droit aux données personnelles')]

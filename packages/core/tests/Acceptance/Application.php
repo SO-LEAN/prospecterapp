@@ -114,6 +114,7 @@ use Prospecter\Core\Campaigns\Domain\Service\TaggableHolders;
 use Prospecter\Core\Connectors\Application\AskForAuthorization\AskForAuthorizationHandler;
 use Prospecter\Core\Connectors\Application\AskToImportMail\AskToImportMailHandler;
 use Prospecter\Core\Connectors\Application\CalendarPusher;
+use Prospecter\Core\Connectors\Application\CatchUpMailHistory\CatchUpMailHistoryHandler;
 use Prospecter\Core\Connectors\Application\CheckMyConnections\CheckMyConnectionsHandler;
 use Prospecter\Core\Connectors\Application\ConfigureClient\ConfigureClientHandler;
 use Prospecter\Core\Connectors\Application\ConfigureMailboxNotifications\ConfigureMailboxNotificationsHandler;
@@ -192,6 +193,7 @@ use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContactsHandle
 use Prospecter\Core\PersonalData\Application\SuspectDuplicateInReturn\SuspectDuplicateInReturnHandler as SuspectContactDuplicateInReturnHandler;
 use Prospecter\Core\PersonalData\Application\WhichAreContacts\WhichAreContactsHandler;
 use Prospecter\Core\PersonalData\Application\WhichContactsHaveTheseEmails\WhichContactsHaveTheseEmailsHandler;
+use Prospecter\Core\PersonalData\Application\WhichEmailsHaveTheseContacts\WhichEmailsHaveTheseContactsHandler;
 use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\KeptContactFacts;
 use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\ListContactFacts;
 use Prospecter\Core\PersonalData\Contract\Service\NameContacts\ContactNameResponse;
@@ -362,6 +364,7 @@ use Prospecter\Core\Prospecting\Application\ToDoInList;
 use Prospecter\Core\Prospecting\Application\ToDoList;
 use Prospecter\Core\Prospecting\Application\UntickToDo\UntickToDoHandler;
 use Prospecter\Core\Prospecting\Application\WhichAreProspected\WhichAreProspectedHandler;
+use Prospecter\Core\Prospecting\Application\WhichEmailsHaveTheseOrganizations\WhichEmailsHaveTheseOrganizationsHandler;
 use Prospecter\Core\Prospecting\Application\WhichOrganizationsHaveTheseEmails\WhichOrganizationsHaveTheseEmailsHandler;
 use Prospecter\Core\Prospecting\Application\WhichOrganizationsNameTheseContacts\WhichOrganizationsNameTheseContactsHandler;
 use Prospecter\Core\Prospecting\Application\WriteObservations\WriteObservationsHandler;
@@ -493,6 +496,7 @@ use Tests\Core\Double\KnownEstablishmentsDirectory;
 use Tests\Core\Double\KnownPlacesGeoLocation;
 use Tests\Core\Double\NoRecordingsInFlight;
 use Tests\Core\Double\PersonalDataAndProspectingAddressees;
+use Tests\Core\Double\PersonalDataAndProspectingCorrespondentAddresses;
 use Tests\Core\Double\PersonalDataAndProspectingCorrespondents;
 use Tests\Core\Double\PersonalDataContactNames;
 use Tests\Core\Double\PersonalDataContactsReach;
@@ -1337,6 +1341,7 @@ final class Application
             new RenewMailWatchHandler($this->connections, $this->clients, $this->mailboxes, $this->connectingMembers, $this->events),
             new NoteMailboxNotificationHandler($this->connections, $this->events),
             new StopMailImportHandler($this->connections, $this->clients, $this->mailboxes, $this->connectingMembers, $this->events),
+            new CatchUpMailHistoryHandler($this->connections, $this->clients, $this->mailboxes, $this->connectingMembers, new PersonalDataAndProspectingCorrespondentAddresses(new WhichEmailsHaveTheseContactsHandler($this->personCardRetriever, $this->readers), new WhichEmailsHaveTheseOrganizationsHandler($this->organizations)), $this->events),
             new ConnectHandler($this->authorizations, $this->connections, $this->clients, $this->providerAccess, $this->mailboxes, $this->connectingMembers, $this->events),
             new CheckMyConnectionsHandler($this->connections, $this->clients, $this->providerAccess, $this->connectingMembers, $this->events),
             new DisconnectHandler($this->connections, $this->providerAccess, $this->clients, $this->mailboxes, $this->connectingMembers, $this->events),
