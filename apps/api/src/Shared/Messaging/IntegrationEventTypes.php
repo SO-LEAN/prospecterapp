@@ -23,7 +23,7 @@ final readonly class IntegrationEventTypes extends EventTypes
         ],
         'prospecter.connectors' => [
             'VideoCallLinkCreated.v1' => Connectors\VideoCallLinkCreated::class,
-            'EmailExchanged.v2' => Connectors\EmailExchanged::class,
+            'EmailExchanged.v3' => Connectors\EmailExchanged::class,
         ],
         'prospecter.personal-data' => [
             'BookerIdentified.v1' => PersonalData\BookerIdentified::class,
@@ -42,6 +42,7 @@ final readonly class IntegrationEventTypes extends EventTypes
     protected const array FORMER_TYPES = [
         'prospecter.connectors' => [
             'EmailExchanged.v1' => Connectors\EmailExchanged::class,
+            'EmailExchanged.v2' => Connectors\EmailExchanged::class,
         ],
         'prospecter.personal-data' => [
             'ContactFactsChanged.v1' => PersonalData\ContactFactsChanged::class,

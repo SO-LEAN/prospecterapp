@@ -18,6 +18,7 @@ use Prospecter\Core\Connectors\Application\ConsultMailCatchUpIntents\ConsultMail
 use Prospecter\Core\Connectors\Application\NoteMailboxNotification\NoteMailboxNotification;
 use Prospecter\Core\Connectors\Contract\Event\EmailExchanged;
 use Prospecter\Core\Connectors\Domain\Event\ConnectionEvent;
+use Prospecter\Core\Connectors\Domain\Model\MailboxAttachment;
 use Prospecter\Core\Connectors\Domain\Model\MailboxMail;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Model\Scope;
@@ -25,6 +26,8 @@ use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ConsultExchange;
 use Prospecter\Core\Prospecting\Application\EraseExchange\EraseExchange;
+use Prospecter\Core\Prospecting\Domain\Event\AttachmentImported;
+use Prospecter\Core\Prospecting\Domain\Model\Attachment;
 use Prospecter\Core\Prospecting\Domain\Model\ContactToAttach;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
@@ -49,6 +52,8 @@ final class MailboxMailContext implements Context
     private const string INBOX = 'INBOX';
     private const string SENT = 'SENT';
     private const string DRAFT = 'DRAFT';
+    private const int KILOBYTE = 1024;
+    private const int MEGABYTE = 1024 * self::KILOBYTE;
 
     private int $messages = 0;
     /** @var array<string, MailboxMail> the message received last, by mailbox */
@@ -59,6 +64,51 @@ final class MailboxMailContext implements Context
     public function iReceiveAnEMail(string $moment, string $from, string $subject, string $text): void
     {
         $this->fileAndNotify([self::MY_MAILBOX], $this->mail(self::addressIn($from), [self::INBOX], new \DateTimeImmutable($moment), $subject, $text));
+    }
+
+    #[When('/^je reçois de "(?<sender>[^"]+)" un e-mail avec "(?<name>[^"]+)" \((?<size>\d+ [KM]o)\)(?: en pièce jointe)?$/')]
+    #[Given('/^j\'ai reçu de "(?<sender>[^"]+)" un e-mail avec "(?<name>[^"]+)" \((?<size>\d+ [KM]o)\) en pièce jointe$/')]
+    public function iReceiveAnEMailWithAnAttachment(string $sender, string $name, string $size): void
+    {
+        $this->fileAndNotify([self::MY_MAILBOX], $this->mail(new Email($sender), [self::INBOX], attachments: [self::attachment($name, self::bytesOf($size))]));
+    }
+
+    #[When('/^j\'envoie à (?<recipients>"[^"]+"(?: et "[^"]+")*) un e-mail avec "(?<name>[^"]+)" \((?<size>\d+ [KM]o)\)$/')]
+    public function iSendAnEMailWithAnAttachment(string $recipients, string $name, string $size): void
+    {
+        preg_match_all('/"([^"]+)"/', $recipients, $addresses);
+        $to = array_map(static fn (string $address): Email => new Email($address), $addresses[1]);
+
+        $this->fileAndNotify([self::MY_MAILBOX], $this->sent($to, [self::SENT], attachments: [self::attachment($name, self::bytesOf($size))]));
+    }
+
+    /**
+     * As the worker may deliver it once more (ADR 0182).
+     */
+    #[When('la pièce jointe importée est délivrée une fois de plus')]
+    public function theImportedAttachmentIsDeliveredAgain(): void
+    {
+        $this->application->publishAgain(array_last($this->application->events->published(AttachmentImported::class)));
+    }
+
+    #[Given('le stockage privé oublie les envois avant qu\'ils soient joints')]
+    public function thePrivateStorageForgetsTheUploads(): void
+    {
+        $this->application->privateStorage->forgetTheUploads();
+    }
+
+    #[Then('aucune pièce jointe importée n\'a échoué')]
+    public function noImportedAttachmentFailed(): void
+    {
+        Expect::same([], array_map(static fn (\Throwable $failure): string => $failure->getMessage(), $this->application->events->failuresOf(AttachmentImported::class)));
+    }
+
+    #[When('je reçois de :sender un e-mail avec :count pièces jointes')]
+    public function iReceiveAnEMailWithAttachments(string $sender, int $count): void
+    {
+        $attachments = array_map(static fn (int $rank): MailboxAttachment => self::attachment(sprintf('piece-%d.pdf', $rank), self::KILOBYTE), range(1, $count));
+
+        $this->fileAndNotify([self::MY_MAILBOX], $this->mail(new Email($sender), [self::INBOX], attachments: $attachments));
     }
 
     #[When('j\'envoie le :moment à :to un e-mail ayant pour objet :subject et pour texte :text')]
@@ -322,6 +372,68 @@ final class MailboxMailContext implements Context
         Expect::same($this->lastReceived[self::MY_MAILBOX]->providerId, $detail?->providerMessageId);
     }
 
+    #[Then('l\'échange importé a la pièce jointe :name')]
+    public function theImportedExchangeHasTheAttachment(string $name): void
+    {
+        $attachment = array_find(StateOf::the($this->theImported())['attachments'], static fn (Attachment $attachment): bool => $attachment->name === $name);
+
+        Expect::that(null !== $attachment, sprintf('The imported exchange was expected to have the attachment %s', $name));
+        Expect::that($this->application->privateStorage->holds((string) $attachment?->file), sprintf('The file of %s was expected to be kept', $name));
+    }
+
+    #[Then('l\'échange importé n\'a pas de pièce jointe')]
+    public function theImportedExchangeHasNoAttachment(): void
+    {
+        Expect::same([], StateOf::the($this->theImported())['attachments']);
+    }
+
+    #[Then('l\'échange avec :first et celui avec :second ont chacun leur fichier :name')]
+    public function eachExchangeHasItsOwnFile(string $first, string $second, string $name): void
+    {
+        $files = array_map(fn (string $correspondent): string => $this->fileOf($this->importedWith($correspondent), $name), [$first, $second]);
+
+        Expect::that($files[0] !== $files[1], sprintf('The exchanges with %s and %s were expected to keep a file each', $first, $second));
+        Expect::that(array_all($files, $this->application->privateStorage->holds(...)), 'The file of each exchange was expected to be kept');
+    }
+
+    private function importedWith(string $correspondent): Exchange
+    {
+        return array_find($this->imported(), fn (Exchange $exchange): bool => $this->correspondentOf($exchange) === $correspondent) ?? throw new \LogicException(sprintf('No exchange was imported with %s', $correspondent));
+    }
+
+    private function fileOf(Exchange $exchange, string $name): string
+    {
+        $attachment = array_find(StateOf::the($exchange)['attachments'], static fn (Attachment $attachment): bool => $attachment->name === $name)
+            ?? throw new \RuntimeException(sprintf('The exchange was expected to have the attachment %s', $name));
+
+        return $attachment->file;
+    }
+
+    #[Then('l\'échange importé a les :count premières')]
+    public function theImportedExchangeHasTheFirst(int $count): void
+    {
+        $names = array_map(static fn (Attachment $attachment): string => $attachment->name, StateOf::the($this->theImported())['attachments']);
+
+        Expect::same(array_map(static fn (int $rank): string => sprintf('piece-%d.pdf', $rank), range(1, $count)), $names);
+    }
+
+    #[Then('son texte signale les :count autres')]
+    public function itsTextTellsTheOthers(int $count): void
+    {
+        $text = StateOf::the($this->theImported())['facts']->text;
+        $told = array_filter(range(1, 12), static fn (int $rank): bool => str_contains($text, sprintf('Pièce jointe non importée : piece-%d.pdf', $rank)));
+
+        Expect::same(range(13 - $count, 12), array_values($told));
+    }
+
+    #[Then('/^son texte se termine par « (?<end>.+) »$/')]
+    public function itsTextEndsWith(string $end): void
+    {
+        $text = StateOf::the($this->theImported())['facts']->text;
+
+        Expect::that(str_ends_with($text, "\n".$end), sprintf('The text of the imported exchange was expected to end with "%s", got "%s"', $end, $text));
+    }
+
     #[Then('j\'en suis l\'auteur')]
     public function iAmItsAuthor(): void
     {
@@ -424,24 +536,26 @@ final class MailboxMailContext implements Context
     }
 
     /**
-     * @param list<string> $labels
+     * @param list<string>            $labels
+     * @param list<MailboxAttachment> $attachments
      */
-    private function mail(Email $sender, array $labels, ?\DateTimeImmutable $exchangedAt = null, string $subject = self::SUBJECT, string $text = self::TEXT): MailboxMail
+    private function mail(Email $sender, array $labels, ?\DateTimeImmutable $exchangedAt = null, string $subject = self::SUBJECT, string $text = self::TEXT, array $attachments = []): MailboxMail
     {
         $id = sprintf('message-%d', ++$this->messages);
 
-        return new MailboxMail($id, sprintf('<%s@mail.test>', $id), $sender, [], $labels, $exchangedAt ?? $this->aMinuteLater(), $subject, $text);
+        return new MailboxMail($id, sprintf('<%s@mail.test>', $id), $sender, [], $labels, $exchangedAt ?? $this->aMinuteLater(), $subject, $text, $attachments);
     }
 
     /**
-     * @param list<Email>  $recipients
-     * @param list<string> $labels
+     * @param list<Email>             $recipients
+     * @param list<string>            $labels
+     * @param list<MailboxAttachment> $attachments
      */
-    private function sent(array $recipients, array $labels, ?\DateTimeImmutable $sentAt = null, string $subject = self::SUBJECT, string $text = self::TEXT): MailboxMail
+    private function sent(array $recipients, array $labels, ?\DateTimeImmutable $sentAt = null, string $subject = self::SUBJECT, string $text = self::TEXT, array $attachments = []): MailboxMail
     {
         $id = sprintf('message-%d', ++$this->messages);
 
-        return new MailboxMail($id, sprintf('<%s@mail.test>', $id), new Email(self::MY_MAILBOX), $recipients, $labels, $sentAt ?? $this->aMinuteLater(), $subject, $text);
+        return new MailboxMail($id, sprintf('<%s@mail.test>', $id), new Email(self::MY_MAILBOX), $recipients, $labels, $sentAt ?? $this->aMinuteLater(), $subject, $text, $attachments);
     }
 
     /**
@@ -452,6 +566,21 @@ final class MailboxMailContext implements Context
         $this->application->itIs($this->application->now()->modify('+1 minute'));
 
         return $this->application->now();
+    }
+
+    private static function attachment(string $name, int $size): MailboxAttachment
+    {
+        return new MailboxAttachment('attachment-'.$name, $name, $size);
+    }
+
+    /**
+     * A size as the scenarios write it, « 300 Ko » or « 25 Mo ».
+     */
+    private static function bytesOf(string $size): int
+    {
+        [$count, $unit] = explode(' ', $size);
+
+        return (int) $count * ('Mo' === $unit ? self::MEGABYTE : self::KILOBYTE);
     }
 
     private static function addressIn(string $from): Email

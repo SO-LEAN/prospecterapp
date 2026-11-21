@@ -30,6 +30,7 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
+use Tests\Core\Double\InMemoryPrivateStorage;
 use Tests\Core\Double\InMemoryProviderAccess;
 use Tests\Core\Double\InMemoryProviderCalendar;
 use Tests\Core\Double\InMemoryProviderMailbox;
@@ -192,7 +193,7 @@ final class ConnectionTest extends TestCase
         $connection = Connection::establish(new MemberId(self::MEMBER), new AccountId(self::ACCOUNT), self::client(), $grant, new \DateTimeImmutable(self::AT));
         $connection->releaseEvents();
 
-        $connection->importMail(self::client(), self::notifications(), new InMemoryProviderMailbox($google, static fn (): \DateTimeImmutable => new \DateTimeImmutable(self::AT)), new \DateTimeImmutable(self::AT));
+        $connection->importMail(self::client(), self::notifications(), new InMemoryProviderMailbox($google, new InMemoryPrivateStorage(), static fn (): \DateTimeImmutable => new \DateTimeImmutable(self::AT)), new \DateTimeImmutable(self::AT));
 
         $this->assertEquals([new MailImportStarted(new AccountId(self::ACCOUNT), new MemberId(self::MEMBER), new \DateTimeImmutable(self::AT))], $connection->releaseEvents());
     }
@@ -200,7 +201,7 @@ final class ConnectionTest extends TestCase
     public function testAnImportOfTheMailStoppedRecordsItOnce(): void
     {
         $google = new InMemoryProviderAccess();
-        $mailbox = new InMemoryProviderMailbox($google, static fn (): \DateTimeImmutable => new \DateTimeImmutable(self::AT));
+        $mailbox = new InMemoryProviderMailbox($google, new InMemoryPrivateStorage(), static fn (): \DateTimeImmutable => new \DateTimeImmutable(self::AT));
         $grant = $google->exchange(self::client(), $google->grant('michel@exemple.fr', Scope::Calendar, Scope::Mailbox), 'a-verifier');
         $connection = Connection::establish(new MemberId(self::MEMBER), new AccountId(self::ACCOUNT), self::client(), $grant, new \DateTimeImmutable(self::AT));
         $connection->importMail(self::client(), self::notifications(), $mailbox, new \DateTimeImmutable(self::AT));
@@ -273,7 +274,7 @@ final class ConnectionTest extends TestCase
      */
     private function importingTheMail(InMemoryProviderAccess $google): array
     {
-        $mailbox = new InMemoryProviderMailbox($google, static fn (): \DateTimeImmutable => new \DateTimeImmutable(self::AT));
+        $mailbox = new InMemoryProviderMailbox($google, new InMemoryPrivateStorage(), static fn (): \DateTimeImmutable => new \DateTimeImmutable(self::AT));
         $grant = $google->exchange(self::client(), $google->grant('michel@exemple.fr', Scope::Calendar, Scope::Mailbox), 'a-verifier');
         $connection = Connection::establish(new MemberId(self::MEMBER), new AccountId(self::ACCOUNT), self::client(), $grant, new \DateTimeImmutable(self::AT));
         $connection->importMail(self::client(), self::notifications(), $mailbox, new \DateTimeImmutable(self::AT));

@@ -138,11 +138,18 @@ class EventCodecTest extends TestCase
         $this->assertSame('ContactFactsChanged.v2', $this->codec()->encode($contact, new Cause(self::ID, null, 0))->detailType);
     }
 
-    public function testAnEMailExchangedIsWrittenWithTheIdOfItsMessageInTheMailbox(): void
+    public function testAnEMailExchangedIsWrittenWithItsAttachments(): void
     {
-        $exchanged = new EmailExchanged(self::ID, self::ID, 'google', 'f00d', 'inbound', self::ID, null, 'Votre devis', 'Bonjour', new \DateTimeImmutable(self::MOMENT), new \DateTimeImmutable(self::MOMENT), '18c2f4a9e0b1d3c7');
+        $exchanged = new EmailExchanged(self::ID, self::ID, 'google', 'f00d', 'inbound', self::ID, null, 'Votre devis', 'Bonjour', new \DateTimeImmutable(self::MOMENT), new \DateTimeImmutable(self::MOMENT), '18c2f4a9e0b1d3c7', [['upload' => '0a', 'name' => 'devis.pdf', 'size' => 307200]], [['name' => 'video.mp4', 'size' => 26214400]]);
 
-        $this->assertSame('EmailExchanged.v2', $this->codec()->encode($exchanged, new Cause(self::ID, null, 0))->detailType);
+        $this->assertSame('EmailExchanged.v3', $this->codec()->encode($exchanged, new Cause(self::ID, null, 0))->detailType);
+    }
+
+    public function testTheAttachmentsOfAnEMailExchangedAreReadBack(): void
+    {
+        $exchanged = new EmailExchanged(self::ID, self::ID, 'google', 'f00d', 'inbound', self::ID, null, 'Votre devis', 'Bonjour', new \DateTimeImmutable(self::MOMENT_OF_THE_BUS), new \DateTimeImmutable(self::MOMENT_OF_THE_BUS), '18c2f4a9e0b1d3c7', [['upload' => '0a', 'name' => 'devis.pdf', 'size' => 307200]], [['name' => 'video.mp4', 'size' => 26214400]]);
+
+        $this->assertEquals($exchanged, $this->codec()->decode($this->codec()->encode($exchanged, new Cause(self::ID, null, 0))));
     }
 
     public function testAnEMailExchangedPublishedBeforeItToldTheIdOfItsMessageIsReadWithoutIt(): void

@@ -21,6 +21,7 @@ final class InMemoryPrivateStorage implements PrivateStorage
     /** @var array<string, string> contents by file */
     private array $kept = [];
     private int $sent = 0;
+    private bool $forgetsTheUploads = false;
 
     /**
      * What the client does with the form the storage signed for it.
@@ -28,9 +29,19 @@ final class InMemoryPrivateStorage implements PrivateStorage
     public function send(string $contents, string $mediaType): string
     {
         $upload = sprintf('%032x', ++$this->sent);
-        $this->uploads[$upload] = ['contents' => $contents, 'mediaType' => $mediaType];
+        if (!$this->forgetsTheUploads) {
+            $this->uploads[$upload] = ['contents' => $contents, 'mediaType' => $mediaType];
+        }
 
         return $upload;
+    }
+
+    /**
+     * An upload never kept goes after a day: what a delivery tried again after it finds.
+     */
+    public function forgetTheUploads(): void
+    {
+        $this->forgetsTheUploads = true;
     }
 
     public function uploaded(string $upload): Upload

@@ -8,6 +8,7 @@ use Prospecter\Core\Connectors\Contract\Event\EmailExchanged;
 use Prospecter\Core\Connectors\Domain\Event\MailboxMessageAdded;
 use Prospecter\Core\Connectors\Domain\Model\Connection;
 use Prospecter\Core\Connectors\Domain\Model\Correspondent;
+use Prospecter\Core\Connectors\Domain\Model\MailboxAttachment;
 use Prospecter\Core\Connectors\Domain\Model\MailboxMail;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Port\Correspondents;
@@ -16,6 +17,7 @@ use Prospecter\Core\Connectors\Domain\Repository\ConnectionRepository;
 use Prospecter\Core\Connectors\Domain\Repository\ProviderClientRepository;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
+use Prospecter\Core\SharedKernel\Domain\Email;
 
 /**
  * A message added to the mailbox of a member, received from a contact or from the address of an organization of their
@@ -42,19 +44,31 @@ final readonly class ImportMailHandler implements EventHandler
         $connection = $this->connections->find($added->subject(), Provider::Google);
         $client = $this->clients->find($added->accountId, Provider::Google);
         $mail = null === $connection || null === $client ? null : $connection->mailOf($added->messageId, $client->credentials(), $this->mailbox);
-        if (null === $connection || null === $mail) {
+        $correspondents = null === $mail ? [] : $this->correspondentsOf($mail, $added);
+        if (null === $connection || null === $client || null === $mail || [] === $correspondents) {
             return;
         }
 
-        foreach ($mail->correspondentAddresses() as $address) {
-            $correspondent = Correspondent::havingTheAddress($address, $added->accountId, $this->correspondents);
-            if (null !== $correspondent) {
-                $this->events->publish($this->exchanged($added, $connection, $mail, $correspondent));
-            }
+        $uploads = $connection->depositAttachmentsOf($mail, count($correspondents), $client->credentials(), $this->mailbox);
+        foreach ($correspondents as $rank => $correspondent) {
+            $this->events->publish($this->exchanged($added, $connection, $mail, $correspondent, array_column($uploads, $rank)));
         }
     }
 
-    private function exchanged(MailboxMessageAdded $added, Connection $connection, MailboxMail $mail, Correspondent $correspondent): EmailExchanged
+    /**
+     * @return list<Correspondent>
+     */
+    private function correspondentsOf(MailboxMail $mail, MailboxMessageAdded $added): array
+    {
+        $correspondents = array_map(fn (Email $address): ?Correspondent => Correspondent::havingTheAddress($address, $added->accountId, $this->correspondents), $mail->correspondentAddresses());
+
+        return array_values(array_filter($correspondents));
+    }
+
+    /**
+     * @param list<string> $uploads the uploads of its attachments for this correspondent
+     */
+    private function exchanged(MailboxMessageAdded $added, Connection $connection, MailboxMail $mail, Correspondent $correspondent, array $uploads): EmailExchanged
     {
         return new EmailExchanged(
             $added->accountId->value,
@@ -69,6 +83,8 @@ final readonly class ImportMailHandler implements EventHandler
             $mail->exchangedAt,
             $added->occurredAt,
             $mail->providerId,
+            array_map(static fn (MailboxAttachment $attachment, string $upload): array => ['upload' => $upload, 'name' => $attachment->name, 'size' => $attachment->size], $mail->attachmentsToImport(), $uploads),
+            array_map(static fn (MailboxAttachment $attachment): array => ['name' => $attachment->name, 'size' => $attachment->size], $mail->attachmentsLeftOut()),
         );
     }
 }

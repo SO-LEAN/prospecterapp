@@ -7,6 +7,7 @@ namespace Tests\Core\Double;
 use Prospecter\Core\Connectors\Domain\Exception\AccessRevoked;
 use Prospecter\Core\Connectors\Domain\Exception\HistoryExpired;
 use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
+use Prospecter\Core\Connectors\Domain\Model\MailboxAttachment;
 use Prospecter\Core\Connectors\Domain\Model\MailboxChanges;
 use Prospecter\Core\Connectors\Domain\Model\MailboxMail;
 use Prospecter\Core\Connectors\Domain\Model\MailboxWatch;
@@ -24,6 +25,7 @@ final class InMemoryProviderMailbox implements ProviderMailbox
 {
     private const string WATCH_LASTS = '+7 days';
     private const int FIRST_HISTORY = 1;
+    private const string ANY_FILE = 'application/octet-stream';
 
     /** @var array<string, int> where the history of each mailbox stands, by its address */
     private array $histories = [];
@@ -39,7 +41,7 @@ final class InMemoryProviderMailbox implements ProviderMailbox
     /**
      * @param \Closure(): \DateTimeImmutable $now the moment of the scenario
      */
-    public function __construct(private readonly InMemoryProviderAccess $access, private readonly \Closure $now)
+    public function __construct(private readonly InMemoryProviderAccess $access, private readonly InMemoryPrivateStorage $privateStorage, private readonly \Closure $now)
     {
     }
 
@@ -149,6 +151,16 @@ final class InMemoryProviderMailbox implements ProviderMailbox
         }
 
         return array_find($this->messages[$mailbox] ?? [], static fn (array $message): bool => $message['mail']->providerId === $messageId)['mail'] ?? null;
+    }
+
+    /**
+     * Sent as the API sends a file, with the form of an upload: a file of its size.
+     */
+    public function depositAttachment(ClientCredentials $client, RefreshToken $refreshToken, string $messageId, MailboxAttachment $attachment, int $copies): array
+    {
+        $this->mailboxOf($client, $refreshToken);
+
+        return array_map(fn (): string => $this->privateStorage->send(str_repeat('x', $attachment->size), self::ANY_FILE), range(1, $copies));
     }
 
     /**

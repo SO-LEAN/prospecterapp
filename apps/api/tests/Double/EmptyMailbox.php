@@ -3,6 +3,7 @@
 namespace Tests\App\Double;
 
 use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
+use Prospecter\Core\Connectors\Domain\Model\MailboxAttachment;
 use Prospecter\Core\Connectors\Domain\Model\MailboxChanges;
 use Prospecter\Core\Connectors\Domain\Model\MailboxMail;
 use Prospecter\Core\Connectors\Domain\Model\MailboxWatch;
@@ -49,5 +50,10 @@ final readonly class EmptyMailbox implements ProviderMailbox
     public function message(ClientCredentials $client, RefreshToken $refreshToken, string $messageId): ?MailboxMail
     {
         return null;
+    }
+
+    public function depositAttachment(ClientCredentials $client, RefreshToken $refreshToken, string $messageId, MailboxAttachment $attachment, int $copies): array
+    {
+        return [];
     }
 }

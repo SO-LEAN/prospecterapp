@@ -76,6 +76,7 @@ final readonly class DomainEventTypes extends EventTypes
         ],
         'prospecter.prospecting.internal' => [
             'AttachedToHolding.v1' => Prospecting\AttachedToHolding::class,
+            'AttachmentImported.v1' => Prospecting\AttachmentImported::class,
             'AttachmentRemoved.v1' => Prospecting\AttachmentRemoved::class,
             'ContactAdded.v1' => Prospecting\ContactAdded::class,
             'ContactLeftUnattached.v1' => Prospecting\ContactLeftUnattached::class,
