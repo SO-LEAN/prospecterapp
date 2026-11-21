@@ -19,7 +19,8 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
  * `EXCHANGE#<exchange>` / `ENTRY#<provider>`, the entry as a document, listed under its member in `GSI1`
  * (`ENTRIES#<member>`, by the moment its exchange starts, ADR 0133), and for an exchange with a contact its link
  * `CONTACT#<person>` / `ENTRY#<exchange>#<provider>`, the same document, to find the entries of a contact forgotten.
- * An entry written before ADR 0133 has neither state nor moment: synced since its exchange was pushed.
+ * An entry written before ADR 0133 has neither state nor moment: synced since its exchange was pushed; one written
+ * before ADR 0175 invites nobody.
  */
 final readonly class DynamoCalendarEntryRepository implements CalendarEntryRepository
 {
@@ -61,6 +62,7 @@ final readonly class DynamoCalendarEntryRepository implements CalendarEntryRepos
             'state' => SyncState::from($document['state'] ?? SyncState::Synced->value),
             'reason' => $document['reason'] ?? null,
             'since' => isset($document['since']) ? Documents::momentOf($document['since']) : $startsAt,
+            'invitesAGuest' => $document['invitesAGuest'] ?? false,
         ]);
     }
 
@@ -95,7 +97,7 @@ final readonly class DynamoCalendarEntryRepository implements CalendarEntryRepos
     }
 
     /**
-     * @return array{exchange: string, accountId: string, member: string, provider: string, contact: ?string, startsAt: string, state: string, reason: ?string, since: string}
+     * @return array{exchange: string, accountId: string, member: string, provider: string, contact: ?string, startsAt: string, state: string, reason: ?string, since: string, invitesAGuest: bool}
      */
     private static function documentOf(CalendarEntry $entry): array
     {
@@ -111,6 +113,7 @@ final readonly class DynamoCalendarEntryRepository implements CalendarEntryRepos
             'state' => $state['state']->value,
             'reason' => $state['reason'],
             'since' => Documents::moment($state['since']),
+            'invitesAGuest' => $state['invitesAGuest'],
         ];
     }
 }
