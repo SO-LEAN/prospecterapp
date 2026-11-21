@@ -711,6 +711,8 @@ export const fr = {
       noted: 'Noté le {{moment}} par {{author}}',
       planned: 'Planifié le {{moment}} par {{author}}',
       booked: 'Réservé le {{moment}} par le lien public',
+      importedFromGmail: 'Importé de Gmail le {{moment}}',
+      openInGmail: 'Ouvrir dans Gmail',
       corrected: 'Modifié le {{moment}} par {{author}}',
       madeConform: 'Rendu conforme le {{moment}} par {{author}}',
       correct: 'Corriger',

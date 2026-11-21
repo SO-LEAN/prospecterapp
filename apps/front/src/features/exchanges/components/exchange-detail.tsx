@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import type { TFunction } from 'i18next'
 import { MapPin, Pencil, Phone, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -16,6 +17,7 @@ import {
   DialogTrigger,
 } from '@/shared/ui/dialog'
 import { DirectionsLink } from '@/shared/ui/directions-link'
+import { GmailLogo } from '@/shared/ui/gmail-logo'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/shared/ui/sheet'
 import { Skeleton } from '@/shared/ui/skeleton'
 import {
@@ -227,14 +229,7 @@ function Exchange({
       <Venue exchange={exchange} />
       {exchange.status === 'planned' && <GoogleSync exchangeId={exchange.id} />}
       <div className="space-y-1 text-muted-foreground text-xs">
-        <p>
-          {exchange.bookedByLink
-            ? t('exchanges.detail.booked', { moment: formatMoment(exchange.noted.at) })
-            : t(exchange.status === 'planned' ? 'exchanges.detail.planned' : 'exchanges.detail.noted', {
-                moment: formatMoment(exchange.noted.at),
-                author: memberName(exchange.noted.by),
-              })}
-        </p>
+        <p>{originOf(exchange, t)}</p>
         {exchange.corrected && (
           <p>
             {t('exchanges.detail.corrected', {
@@ -275,10 +270,30 @@ function Exchange({
             <Pencil aria-hidden /> {t(venueCorrectionOf(exchange))}
           </Button>
         )}
+        {exchange._links.openInMailbox && (
+          <Button variant="outline" asChild>
+            <a href={exchange._links.openInMailbox.href} target="_blank" rel="noreferrer">
+              <GmailLogo className="size-4" /> {t('exchanges.detail.openInGmail')}
+            </a>
+          </Button>
+        )}
         {exchange._links.eraseExchange && <EraseExchange exchangeId={exchange.id} onErased={onErased} />}
       </div>
     </div>
   )
+}
+
+/**
+ * How it came: booked by the public link, imported from Gmail, or planned or noted by a member.
+ */
+function originOf(exchange: ExchangeDetail, t: TFunction): string {
+  const moment = formatMoment(exchange.noted.at)
+  if (exchange.bookedByLink) return t('exchanges.detail.booked', { moment })
+  if (exchange.importedFrom === 'google') return t('exchanges.detail.importedFromGmail', { moment })
+  return t(exchange.status === 'planned' ? 'exchanges.detail.planned' : 'exchanges.detail.noted', {
+    moment,
+    author: memberName(exchange.noted.by),
+  })
 }
 
 /**
