@@ -9,6 +9,6 @@ use Prospecter\Core\SharedKernel\Domain\Event\PersonEvent;
 /**
  * How one addresses the contact changed, or is no longer noted.
  */
-final readonly class CivilityChanged extends PersonEvent
+final readonly class TitleChanged extends PersonEvent
 {
 }

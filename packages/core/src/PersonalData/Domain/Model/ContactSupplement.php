@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\PersonalData\Domain\Model;
 
-use Prospecter\Core\PersonalData\Domain\Exception\InvalidCivility;
+use Prospecter\Core\PersonalData\Domain\Exception\InvalidTitle;
 use Prospecter\Core\SharedKernel\Domain\Designated;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\Exception\InvalidEmail;
@@ -36,7 +36,7 @@ final readonly class ContactSupplement
     /**
      * @param list<string> $links the addresses of their links
      *
-     * @throws InvalidCivility|InvalidEmail|InvalidPhoneNumber|NotAWebAddress|ReferenceOfAnotherKind|UnrecognizedPage
+     * @throws InvalidTitle|InvalidEmail|InvalidPhoneNumber|NotAWebAddress|ReferenceOfAnotherKind|UnrecognizedPage
      */
     public static function given(string $civility, ?string $jobTitle, ?string $email, ?string $phoneNumber, array $links): self
     {

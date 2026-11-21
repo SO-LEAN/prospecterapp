@@ -55,7 +55,7 @@ export function ContactsSection({ organization }: { organization: Organization }
                 >
                   {fullNameOf(contact) || t('organizations.contacts.unnamed')}
                 </Link>
-                <CivilityMark civility={contact.civility} />
+                <CivilityMark civility={contact.title} />
               </div>
               {contact.jobTitle && <p className="text-muted-foreground text-sm">{contact.jobTitle}</p>}
               {contact.contactDetails.email && (

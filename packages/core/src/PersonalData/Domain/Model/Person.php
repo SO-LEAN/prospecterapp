@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Prospecter\Core\PersonalData\Domain\Model;
 
 use Prospecter\Core\PersonalData\Domain\Event\BookerIdentified;
-use Prospecter\Core\PersonalData\Domain\Event\CivilityChanged;
 use Prospecter\Core\PersonalData\Domain\Event\ContactCollected;
 use Prospecter\Core\PersonalData\Domain\Event\ContactCompleted;
 use Prospecter\Core\PersonalData\Domain\Event\ContactForgotten;
@@ -16,6 +15,7 @@ use Prospecter\Core\PersonalData\Domain\Event\JobTitleChanged;
 use Prospecter\Core\PersonalData\Domain\Event\PersonContactDetailsChanged;
 use Prospecter\Core\PersonalData\Domain\Event\PersonPictureChanged;
 use Prospecter\Core\PersonalData\Domain\Event\PersonRenamed;
+use Prospecter\Core\PersonalData\Domain\Event\TitleChanged;
 use Prospecter\Core\PersonalData\Domain\Exception\ContactWithoutOrganization;
 use Prospecter\Core\PersonalData\Domain\Exception\NotASuspectedDuplicateContact;
 use Prospecter\Core\PersonalData\Domain\Exception\ThePersonOrAPersonalDataManagerOnly;
@@ -338,7 +338,7 @@ final class Person implements ReleasesEvents
         $this->ensurePossible(PersonIntent::ChangeCivility, $by);
         $this->civility = $civility;
         $this->modifiedAt = $at;
-        $this->recordThat(new CivilityChanged($this->accountId, $by->id, $this->id, $at));
+        $this->recordThat(new TitleChanged($this->accountId, $by->id, $this->id, $at));
     }
 
     public function changeContactDetails(ContactDetails $contactDetails, ExternalReferences $references, Reader $by, \DateTimeImmutable $at): void

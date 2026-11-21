@@ -43,7 +43,7 @@ use Symfony\Component\Clock\ClockInterface;
  * Prospecting and PersonalData (ADR 0177): everything read first, what exists found by its keys, then what lacks
  * created, what is empty completed, the contact attached, each use case in its own unit of work.
  *
- * @phpstan-type RecordedPerson array{firstName?: string, lastName?: string, civility?: string, jobTitle?: string, email?: string, phoneNumber?: string, links?: list<string>}
+ * @phpstan-type RecordedPerson array{firstName?: string, lastName?: string, title?: string, jobTitle?: string, email?: string, phoneNumber?: string, links?: list<string>}
  * @phpstan-type RecordedOrganization array{name?: string, siret?: string, links?: list<string>, website?: string, email?: string, phoneNumber?: string, city?: string}
  */
 final readonly class ContactRecorder
@@ -214,7 +214,7 @@ final readonly class ContactRecorder
     private function contactComparison(string $memberId, string $personId, array $person): Comparison
     {
         $compared = new KeptContactComparison();
-        ($this->compareWithContact)(new CompareWithContact($memberId, $personId, $person['civility'] ?? self::UNKNOWN_CIVILITY, $person['jobTitle'] ?? null, $person['email'] ?? null, $person['phoneNumber'] ?? null, $person['links'] ?? []), $compared);
+        ($this->compareWithContact)(new CompareWithContact($memberId, $personId, $person['title'] ?? self::UNKNOWN_CIVILITY, $person['jobTitle'] ?? null, $person['email'] ?? null, $person['phoneNumber'] ?? null, $person['links'] ?? []), $compared);
 
         return $compared->comparison;
     }
@@ -248,7 +248,7 @@ final readonly class ContactRecorder
     private function completedContact(string $memberId, string $personId, array $person, Comparison $comparison, string $organizationId): RecordedResource
     {
         if ([] !== $comparison->completed) {
-            $this->commandBus->dispatch(new CompleteContact($memberId, $personId, $person['civility'] ?? self::UNKNOWN_CIVILITY, $person['jobTitle'] ?? null, $person['email'] ?? null, $person['phoneNumber'] ?? null, $person['links'] ?? [], $this->clock->now()));
+            $this->commandBus->dispatch(new CompleteContact($memberId, $personId, $person['title'] ?? self::UNKNOWN_CIVILITY, $person['jobTitle'] ?? null, $person['email'] ?? null, $person['phoneNumber'] ?? null, $person['links'] ?? [], $this->clock->now()));
         }
 
         if (!in_array($personId, $this->organizations->read($organizationId)->contactIds, true)) {
@@ -308,7 +308,7 @@ final readonly class ContactRecorder
     {
         return $this->inputs->valid(new CollectContactInput(
             new PersonNameInput($person['firstName'] ?? null, $person['lastName'] ?? null),
-            $person['civility'] ?? self::UNKNOWN_CIVILITY,
+            $person['title'] ?? self::UNKNOWN_CIVILITY,
             $person['jobTitle'] ?? null,
             new PersonContactDetailsInput($person['email'] ?? null, $person['phoneNumber'] ?? null, null, $person['links'] ?? []),
             $organizationIds,

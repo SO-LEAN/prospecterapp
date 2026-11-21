@@ -30,7 +30,7 @@ final readonly class RecordContactTool
         'properties' => [
             'firstName' => self::TEXT,
             'lastName' => self::TEXT,
-            'civility' => ['type' => 'string', 'enum' => ['ms', 'mr', 'x'], 'description' => 'How one addresses them: ms, mr, or x when unknown.'],
+            'title' => ['type' => 'string', 'enum' => ['ms', 'mr', 'x'], 'description' => 'How one addresses them: ms, mr, or x when unknown.'],
             'jobTitle' => self::TEXT,
             'email' => self::TEXT,
             'phoneNumber' => self::TEXT + ['description' => 'Their number, international (+33 6 12 34 56 78) or national in France.'],

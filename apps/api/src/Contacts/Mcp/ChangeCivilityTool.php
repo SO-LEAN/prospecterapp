@@ -3,7 +3,7 @@
 namespace App\Contacts\Mcp;
 
 use App\Contacts\ContactReader;
-use App\PersonalData\Input\CivilityInput;
+use App\PersonalData\Input\TitleInput;
 use App\Security\ToolAccess;
 use App\Shared\CommandBus;
 use App\Shared\Mcp\Adapts;
@@ -15,9 +15,9 @@ use Prospecter\Core\PersonalData\Application\ChangeCivility\ChangeCivility;
 use Symfony\Component\Clock\ClockInterface;
 
 /**
- * `PATCH /api/contacts/{id}/civility`, for an AI (ADR 0163).
+ * `PATCH /api/contacts/{id}/title`, for an AI (ADR 0163).
  */
-#[Adapts('api_contacts_change_civility')]
+#[Adapts('api_contacts_change_title')]
 final readonly class ChangeCivilityTool
 {
     public function __construct(
@@ -31,18 +31,18 @@ final readonly class ChangeCivilityTool
     }
 
     /**
-     * @param string $id       the id of the contact
-     * @param string $civility how one addresses the contact: ms, mr, or x when unknown
+     * @param string $id    the id of the contact
+     * @param string $title how one addresses the contact: ms, mr, or x when unknown
      *
      * @return array<string, mixed>
      */
     #[McpTool(name: 'set-contact-title', description: 'Note how one addresses a contact, Ms or Mr, or that it is unknown (x); needs the right to manage the personal data. Answers the contact.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
-    public function __invoke(string $id, string $civility = 'x'): array
+    public function __invoke(string $id, string $title = 'x'): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');
-        $input = $this->inputs->valid(new CivilityInput($civility));
+        $input = $this->inputs->valid(new TitleInput($title));
         $memberId = $this->access->member()->memberId();
-        $this->commandBus->dispatch(new ChangeCivility($memberId, $id, $input->civility, $this->clock->now()));
+        $this->commandBus->dispatch(new ChangeCivility($memberId, $id, $input->title, $this->clock->now()));
 
         return $this->results->of($this->contactReader->read($memberId, $id));
     }

@@ -14,12 +14,12 @@ class ContactApiTest extends ApiTestCase
 {
     private const array ADA = [
         'name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'],
-        'civility' => 'ms',
+        'title' => 'ms',
         'jobTitle' => 'Directrice commerciale',
         'contactDetails' => ['email' => 'ada@analytical-engine.test', 'phoneNumber' => '03 88 00 00 42', 'language' => 'FR', 'links' => ['linkedin.com/in/countess-of-lovelace?utm_source=share']],
     ];
 
-    private const array ADA_AGAIN = ['name' => ['firstName' => 'ada', 'lastName' => 'LOVELACE'], 'civility' => 'x'];
+    private const array ADA_AGAIN = ['name' => ['firstName' => 'ada', 'lastName' => 'LOVELACE'], 'title' => 'x'];
 
     protected function setUp(): void
     {
@@ -36,8 +36,8 @@ class ContactApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(201);
         $this->assertResponseHeaderSame('Location', '/api/contacts/'.$collected['id']);
         $this->assertSame('Directrice commerciale', $collected['jobTitle']);
-        $this->assertSame('ms', $collected['civility']);
-        $this->assertSame(['self', 'rename', 'changeJobTitle', 'changeCivility', 'changeContactDetails', 'forget', 'exchanges', 'toDos', 'tags'], array_keys($collected['_links']));
+        $this->assertSame('ms', $collected['title']);
+        $this->assertSame(['self', 'rename', 'changeJobTitle', 'changeTitle', 'changeContactDetails', 'forget', 'exchanges', 'toDos', 'tags'], array_keys($collected['_links']));
         $this->assertSame(['href' => '/api/contacts/'.$collected['id'].'/exchanges', 'method' => 'GET'], $collected['_links']['exchanges']);
         $this->assertSame([$collected['id']], $this->requestJson('GET', '/api/organizations/'.$organization)['contactIds']);
         $this->assertSame(['ACME'], array_column($this->requestJson('GET', '/api/contacts/'.$collected['id'].'/organizations')['items'], 'name'));
@@ -72,17 +72,17 @@ class ContactApiTest extends ApiTestCase
     {
         $organization = $this->anOrganization('ACME');
         $id = $this->collect(['name' => ['firstName' => 'Camille', 'lastName' => 'Martin']], $organization)['id'];
-        $this->assertSame('x', $this->requestJson('GET', '/api/contacts/'.$id)['civility'], 'unknown until noted');
+        $this->assertSame('x', $this->requestJson('GET', '/api/contacts/'.$id)['title'], 'unknown until noted');
 
-        $this->assertSame('mr', $this->requestJson('PATCH', '/api/contacts/'.$id.'/civility', ['civility' => 'mr'])['civility']);
-        $this->assertSame(['mr'], array_column($this->requestJson('GET', '/api/contacts?q=martin')['items'], 'civility'));
-        $this->assertSame(['mr'], array_column($this->requestJson('GET', '/api/organizations/'.$organization.'/contacts')['items'], 'civility'));
+        $this->assertSame('mr', $this->requestJson('PATCH', '/api/contacts/'.$id.'/title', ['title' => 'mr'])['title']);
+        $this->assertSame(['mr'], array_column($this->requestJson('GET', '/api/contacts?q=martin')['items'], 'title'));
+        $this->assertSame(['mr'], array_column($this->requestJson('GET', '/api/organizations/'.$organization.'/contacts')['items'], 'title'));
 
-        $this->assertSame('x', $this->requestJson('PATCH', '/api/contacts/'.$id.'/civility', ['civility' => 'x'])['civility']);
+        $this->assertSame('x', $this->requestJson('PATCH', '/api/contacts/'.$id.'/title', ['title' => 'x'])['title']);
 
-        $problem = $this->requestJson('PATCH', '/api/contacts/'.$id.'/civility', ['civility' => 'docteur']);
+        $problem = $this->requestJson('PATCH', '/api/contacts/'.$id.'/title', ['title' => 'docteur']);
         $this->assertResponseStatusCodeSame(422);
-        $this->assertSame(['civility'], $this->violatedFields($problem), 'the field the core names');
+        $this->assertSame(['title'], $this->violatedFields($problem), 'the field the core names');
     }
 
     public function testTheLinksAreNotedWithTheContactDetailsEachRecognizedByItsReference(): void
@@ -159,14 +159,14 @@ class ContactApiTest extends ApiTestCase
 
         $contact = $this->requestJson('GET', '/api/contacts/'.$id);
         $this->assertTrue($contact['masked']);
-        $this->assertSame(['Ada', 'Lovelace', 'ms'], [$contact['name']['firstName'], $contact['name']['lastName'], $contact['civility']]);
+        $this->assertSame(['Ada', 'Lovelace', 'ms'], [$contact['name']['firstName'], $contact['name']['lastName'], $contact['title']]);
         $this->assertSame(['a***@***', '******42', [['source' => '***', 'identifier' => '***', 'address' => '***']], 'D***e'], [$contact['contactDetails']['email'], $contact['contactDetails']['phoneNumber'], $contact['contactDetails']['links'], $contact['jobTitle']]);
         $this->assertSame(['self', 'exchanges', 'tags'], array_keys($contact['_links']));
         $this->assertSame(['self', 'search', 'searchByTags'], array_keys($this->requestJson('GET', '/api/contacts')['_links']));
 
         $this->collect(self::ADA, $organization);
         $this->assertResponseStatusCodeSame(403);
-        $this->requestJson('PATCH', '/api/contacts/'.$id.'/civility', ['civility' => 'mr']);
+        $this->requestJson('PATCH', '/api/contacts/'.$id.'/title', ['title' => 'mr']);
         $this->assertResponseStatusCodeSame(403);
         $this->requestJson('DELETE', '/api/organizations/'.$organization);
         $this->assertResponseStatusCodeSame(403);
@@ -331,7 +331,7 @@ class ContactApiTest extends ApiTestCase
     {
         $organization = $this->anOrganization('ACME');
         $ada = $this->collect(self::ADA, $organization)['id'];
-        $grace = $this->collect(['name' => ['firstName' => 'Grace', 'lastName' => 'Hopper'], 'civility' => 'x'], $organization)['id'];
+        $grace = $this->collect(['name' => ['firstName' => 'Grace', 'lastName' => 'Hopper'], 'title' => 'x'], $organization)['id'];
 
         $problem = $this->requestJson('DELETE', '/api/contacts/'.$grace.'/possible-duplicates/'.$ada);
 

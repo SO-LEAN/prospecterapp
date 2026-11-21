@@ -25,24 +25,24 @@ import { EditableSection } from '@/shared/ui/editable-section'
 import { ExternalLinks } from '@/shared/ui/external-links'
 import { Input } from '@/shared/ui/input'
 import {
-  useChangeCivility,
   useChangeContactDetailsOfContact,
   useChangeJobTitle,
+  useChangeTitle,
   useRenameContact,
 } from '../mutations'
 import { type Contact, organizationsOfContactQuery } from '../queries'
 import { jobTitleSchema } from '../schema'
 
-const nameAndCivilitySchema = personNameSchema.extend({ civility: civilitySchema })
+const nameAndTitleSchema = personNameSchema.extend({ title: civilitySchema })
 
-const nameAndCivilityFields = [...personNameFields, 'civility'] as const
+const nameAndTitleFields = [...personNameFields, 'title'] as const
 
-/** The name of a contact and how one addresses them, beside it: the civility sent only when it changed. */
+/** The name of a contact and how one addresses them, beside it: the title sent only when it changed. */
 export function NameSection({ contact }: { contact: Contact }) {
   const { t } = useTranslation()
   const rename = useRenameContact()
-  const changeCivility = useChangeCivility()
-  const { civility } = contact
+  const changeTitle = useChangeTitle()
+  const { title } = contact
   const path = { path: { id: contact.id } }
 
   return (
@@ -51,13 +51,13 @@ export function NameSection({ contact }: { contact: Contact }) {
       editable={Boolean(contact._links.rename)}
       editor={(close) => (
         <SectionForm
-          schema={nameAndCivilitySchema}
-          defaultValues={{ ...toPersonNameValues(contact.name), civility }}
-          fields={nameAndCivilityFields}
+          schema={nameAndTitleSchema}
+          defaultValues={{ ...toPersonNameValues(contact.name), title }}
+          fields={nameAndTitleFields}
           save={async (values) => {
             await rename.mutateAsync({ params: path, body: toPersonName(values) })
-            if (contact._links.changeCivility && values.civility !== civility) {
-              await changeCivility.mutateAsync({ params: path, body: { civility: values.civility } })
+            if (contact._links.changeTitle && values.title !== title) {
+              await changeTitle.mutateAsync({ params: path, body: { title: values.title } })
             }
           }}
           onDone={close}
@@ -65,15 +65,13 @@ export function NameSection({ contact }: { contact: Contact }) {
           {(form) => (
             <>
               <PersonNameFields form={form} />
-              {contact._links.changeCivility && <CivilityField form={form} name="civility" />}
+              {contact._links.changeTitle && <CivilityField form={form} name="title" />}
             </>
           )}
         </SectionForm>
       )}
     >
-      <Detail label={t('fields.civility')}>
-        {civility !== UNKNOWN_CIVILITY && t(`civilities.${civility}`)}
-      </Detail>
+      <Detail label={t('fields.civility')}>{title !== UNKNOWN_CIVILITY && t(`civilities.${title}`)}</Detail>
       <Detail label={t('fields.firstName')}>{contact.name.firstName}</Detail>
       <Detail label={t('fields.lastName')}>{contact.name.lastName}</Detail>
     </EditableSection>

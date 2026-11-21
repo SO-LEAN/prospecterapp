@@ -56,7 +56,7 @@ export function CollectContactForm({ organizationId, onSubmit, onCancel }: Props
       <fieldset className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <legend className="mb-2 font-medium text-sm">{t('organizations.contacts.identity')}</legend>
         <PersonNameFields form={form} path={under<CollectContactValues>('name')} />
-        <CivilityField form={form} name="civility" />
+        <CivilityField form={form} name="title" />
         <FormField
           form={form}
           name="jobTitle"

@@ -25,7 +25,7 @@ describe('CollectContactForm', () => {
 
     expect(onSubmit).toHaveBeenCalledWith({
       name: { firstName: 'Ada', lastName: 'Lovelace' },
-      civility: 'x',
+      title: 'x',
       jobTitle: 'Directrice commerciale',
       contactDetails: { email: null, phoneNumber: null, language: null, links: [] },
       organizationIds: ['0190a1c0-0000-7000-8000-000000000001'],
@@ -39,7 +39,7 @@ describe('CollectContactForm', () => {
     await user.click(screen.getByRole('option', { name: 'Madame' }))
     await user.click(screen.getByRole('button', { name: 'Enregistrer le contact' }))
 
-    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ civility: 'ms' }))
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ title: 'ms' }))
   })
 
   it('sends the links as pasted, the API recognizing them', async () => {

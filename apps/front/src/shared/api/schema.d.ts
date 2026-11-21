@@ -455,23 +455,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/contacts/{id}/civility": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Note how one addresses a contact, Ms or Mr, or that it is unknown (x) */
-        patch: operations["patch_api_contacts_change_civility"];
-        trace?: never;
-    };
     "/api/contacts/{id}/contact-details": {
         parameters: {
             query?: never;
@@ -504,6 +487,23 @@ export interface paths {
         head?: never;
         /** Change what a contact does in their organization */
         patch: operations["patch_api_contacts_change_job_title"];
+        trace?: never;
+    };
+    "/api/contacts/{id}/title": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Note how one addresses a contact, Ms or Mr, or that it is unknown (x) */
+        patch: operations["patch_api_contacts_change_title"];
         trace?: never;
     };
     "/api/contacts": {
@@ -1972,17 +1972,17 @@ export interface components {
             /** @default null */
             observations: string | null;
         };
-        CivilityInput: {
+        JobTitleInput: {
+            /** @default null */
+            jobTitle: string | null;
+        };
+        TitleInput: {
             /**
              * @description How one addresses the contact, x when unknown
              * @default x
              * @enum {string}
              */
-            civility: "ms" | "mr" | "x";
-        };
-        JobTitleInput: {
-            /** @default null */
-            jobTitle: string | null;
+            title: "ms" | "mr" | "x";
         };
         CollectContactInput: {
             name?: components["schemas"]["PersonNameInput"];
@@ -1991,7 +1991,7 @@ export interface components {
              * @default x
              * @enum {string}
              */
-            civility: "ms" | "mr" | "x";
+            title: "ms" | "mr" | "x";
             /** @default null */
             jobTitle: string | null;
             contactDetails?: components["schemas"]["PersonContactDetailsInput"];
@@ -2532,7 +2532,7 @@ export interface components {
              * @description How one addresses the contact, x when unknown, read in clear like their name
              * @enum {string}
              */
-            civility: "ms" | "mr" | "x";
+            title: "ms" | "mr" | "x";
             jobTitle?: string | null;
             contactDetails: components["schemas"]["PersonContactDetailsResource"];
             masked: boolean;
@@ -2745,7 +2745,7 @@ export interface components {
             self: components["schemas"]["LinkResource"];
             rename?: components["schemas"]["LinkResource"];
             changeJobTitle?: components["schemas"]["LinkResource"];
-            changeCivility?: components["schemas"]["LinkResource"];
+            changeTitle?: components["schemas"]["LinkResource"];
             changeContactDetails?: components["schemas"]["LinkResource"];
             forget?: components["schemas"]["LinkResource"];
             exchanges?: components["schemas"]["LinkResource"];
@@ -2782,7 +2782,7 @@ export interface components {
              * @description How one addresses the contact, x when unknown, read in clear like their name
              * @enum {string}
              */
-            civility: "ms" | "mr" | "x";
+            title: "ms" | "mr" | "x";
             jobTitle?: string | null;
             contactDetails: components["schemas"]["PersonContactDetailsResource"];
             /** @description The data are masked, but the name of a contact: the reader has no right to read personal data in clear */
@@ -2805,7 +2805,7 @@ export interface components {
              * @description How one addresses the contact, x when unknown, read in clear like their name
              * @enum {string}
              */
-            civility: "ms" | "mr" | "x";
+            title: "ms" | "mr" | "x";
             jobTitle?: string | null;
             contactDetails: components["schemas"]["PersonContactDetailsResource"];
             masked: boolean;
@@ -5344,66 +5344,6 @@ export interface operations {
             };
         };
     };
-    patch_api_contacts_change_civility: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CivilityInput"];
-            };
-        };
-        responses: {
-            /** @description The contact */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ContactResource"];
-                };
-            };
-            /** @description Missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not a prospector, or no right to manage personal data */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProblemResource"];
-                };
-            };
-            /** @description Unknown contact, or one of another account */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProblemResource"];
-                };
-            };
-            /** @description Unknown civility */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProblemResource"];
-                };
-            };
-        };
-    };
     patch_api_contacts_change_contact_details: {
         parameters: {
             query?: never;
@@ -5514,6 +5454,66 @@ export interface operations {
                 };
             };
             /** @description Invalid job title */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    patch_api_contacts_change_title: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TitleInput"];
+            };
+        };
+        responses: {
+            /** @description The contact */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContactResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown contact, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown title */
             422: {
                 headers: {
                     [name: string]: unknown;

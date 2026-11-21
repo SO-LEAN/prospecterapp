@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\PersonalData\Domain\Model;
 
-use Prospecter\Core\PersonalData\Domain\Exception\InvalidCivility;
+use Prospecter\Core\PersonalData\Domain\Exception\InvalidTitle;
 
 /**
  * How one addresses a contact, when their first name does not tell: unknown until noted, read in clear like their
@@ -17,10 +17,10 @@ enum Civility: string
     case X = 'x';
 
     /**
-     * @throws InvalidCivility
+     * @throws InvalidTitle
      */
     public static function of(string $value): self
     {
-        return self::tryFrom($value) ?? throw InvalidCivility::of($value);
+        return self::tryFrom($value) ?? throw InvalidTitle::of($value);
     }
 }

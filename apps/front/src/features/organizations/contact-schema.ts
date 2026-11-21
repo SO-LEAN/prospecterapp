@@ -8,7 +8,7 @@ import type { CollectContactInput } from './queries'
 /** A new contact of the organization: a contact never comes without one (ADR 0042). */
 export const collectContactSchema = z.object({
   name: personNameSchema,
-  civility: civilitySchema,
+  title: civilitySchema,
   jobTitle: text(100),
   contactDetails: personContactDetailsSchema,
 })
@@ -19,7 +19,7 @@ export type CollectContactValues = z.infer<typeof collectContactSchema>
 export const collectContactFields = [
   'name.firstName',
   'name.lastName',
-  'civility',
+  'title',
   'jobTitle',
   'contactDetails.email',
   'contactDetails.phoneNumber',
@@ -29,7 +29,7 @@ export const collectContactFields = [
 
 export const emptyCollectContact = (): CollectContactValues => ({
   name: { firstName: '', lastName: '' },
-  civility: UNKNOWN_CIVILITY,
+  title: UNKNOWN_CIVILITY,
   jobTitle: '',
   contactDetails: { email: '', phoneNumber: '', language: null, links: [] },
 })
@@ -39,7 +39,7 @@ export const toCollectContactInput = (
   organizationId: string,
 ): CollectContactInput => ({
   name: toPersonName(values.name),
-  civility: values.civility,
+  title: values.title,
   jobTitle: orNull(values.jobTitle),
   contactDetails: toPersonContactDetails(values.contactDetails),
   organizationIds: [organizationId],

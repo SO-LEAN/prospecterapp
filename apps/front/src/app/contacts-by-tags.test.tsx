@@ -37,7 +37,7 @@ const me: Account = {
 const inList = (id: string, firstName: string, lastName: string): ContactInList => ({
   id,
   name: { firstName, lastName },
-  civility: 'x',
+  title: 'x',
   jobTitle: null,
   contactDetails: { links: [] },
   masked: false,
@@ -64,7 +64,7 @@ const theCard: Contact = {
   name: { firstName: 'Ada', lastName: 'Lovelace' },
   possibleDuplicates: [],
   createdByAnAI: false,
-  civility: 'x',
+  title: 'x',
   contactDetails: { email: 'ada@acme.test', phoneNumber: null, language: null, links: [] },
   masked: false,
   _links: {

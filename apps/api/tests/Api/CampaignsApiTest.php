@@ -97,7 +97,7 @@ class CampaignsApiTest extends ApiTestCase
 
     public function testTheMessageAddressesAContactByTheirCivility(): void
     {
-        $this->requestJson('PATCH', '/api/contacts/'.$this->grace.'/civility', ['civility' => 'ms']);
+        $this->requestJson('PATCH', '/api/contacts/'.$this->grace.'/title', ['title' => 'ms']);
         $id = $this->requestJson('POST', '/api/campaigns', $this->aCampaign(message: 'Bonjour {civilité} {nom},'))['id'];
 
         $this->assertSame('Bonjour Madame Hopper,', $this->requestJson('GET', '/api/campaigns/'.$id.'/messages/'.$this->grace)['text']);

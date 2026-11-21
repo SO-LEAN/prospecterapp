@@ -44,7 +44,7 @@ const ada: Contact = {
   name: { firstName: 'Ada', lastName: 'Lovelace' },
   possibleDuplicates: [],
   createdByAnAI: false,
-  civility: 'x',
+  title: 'x',
   contactDetails: { email: 'ada@acme.test', phoneNumber: null, language: null, links: [] },
   masked: false,
   _links: { self: { href: `/api/contacts/${ADA}`, method: 'GET' } },

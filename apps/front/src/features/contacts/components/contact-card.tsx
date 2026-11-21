@@ -26,7 +26,7 @@ export function ContactCard({ contact }: { contact: ContactInList }) {
               >
                 {fullNameOf(contact) || t('contacts.unnamed')}
               </Link>
-              <CivilityMark civility={contact.civility} />
+              <CivilityMark civility={contact.title} />
             </div>
             {contact.jobTitle && <p className="truncate text-muted-foreground text-sm">{contact.jobTitle}</p>}
             {contact.contactDetails.email && (

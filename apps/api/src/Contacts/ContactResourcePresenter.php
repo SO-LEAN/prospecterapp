@@ -29,7 +29,7 @@ final class ContactResourcePresenter implements ConsultPersonOutput
     private const array ROUTES = [
         'Rename' => ['rename', 'api_contacts_rename'],
         'ChangeJobTitle' => ['changeJobTitle', 'api_contacts_change_job_title'],
-        'ChangeCivility' => ['changeCivility', 'api_contacts_change_civility'],
+        'ChangeCivility' => ['changeTitle', 'api_contacts_change_title'],
         'ChangeContactDetails' => ['changeContactDetails', 'api_contacts_change_contact_details'],
         'Forget' => ['forget', 'api_contacts_forget'],
     ];
@@ -55,7 +55,7 @@ final class ContactResourcePresenter implements ConsultPersonOutput
         $this->resource = new ContactResource(
             id: $contact->id,
             name: new PersonNameResource($contact->firstName, $contact->lastName),
-            civility: $contact->civility,
+            title: $contact->civility,
             jobTitle: $contact->jobTitle,
             contactDetails: PersonContactDetailsResource::of($contact),
             masked: $contact->masked,

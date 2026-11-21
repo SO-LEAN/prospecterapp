@@ -17,12 +17,12 @@ vi.mock('@/shared/auth/session', () => ({
 
 const CAMILLE = '0190a1c0-0000-7000-8000-000000000001'
 
-const camille = (links: Partial<Contact['_links']>, civility: Contact['civility'] = 'x'): Contact => ({
+const camille = (links: Partial<Contact['_links']>, civility: Contact['title'] = 'x'): Contact => ({
   id: CAMILLE,
   name: { firstName: 'Camille', lastName: 'Martin' },
   possibleDuplicates: [],
   createdByAnAI: false,
-  civility,
+  title: civility,
   contactDetails: { email: null, phoneNumber: null, language: null, links: [] },
   masked: false,
   _links: { self: { href: `/api/contacts/${CAMILLE}`, method: 'GET' }, ...links },
@@ -30,7 +30,7 @@ const camille = (links: Partial<Contact['_links']>, civility: Contact['civility'
 
 const theRightToChangeIt = {
   rename: { href: `/api/contacts/${CAMILLE}/name`, method: 'PATCH' },
-  changeCivility: { href: `/api/contacts/${CAMILLE}/civility`, method: 'PATCH' },
+  changeTitle: { href: `/api/contacts/${CAMILLE}/title`, method: 'PATCH' },
 }
 
 function renderTheSection(contact: Contact) {
@@ -66,7 +66,7 @@ describe('the name of a contact', () => {
     await user.click(screen.getByRole('button', { name: 'Enregistrer' }))
 
     await vi.waitFor(() =>
-      expect(sent).toContainEqual({ url: `/api/contacts/${CAMILLE}/civility`, body: { civility: 'ms' } }),
+      expect(sent).toContainEqual({ url: `/api/contacts/${CAMILLE}/title`, body: { title: 'ms' } }),
     )
   })
 
@@ -85,7 +85,7 @@ describe('the name of a contact', () => {
     await user.click(screen.getByRole('button', { name: 'Enregistrer' }))
 
     await vi.waitFor(() =>
-      expect(sent).toContainEqual({ url: `/api/contacts/${CAMILLE}/civility`, body: { civility: 'x' } }),
+      expect(sent).toContainEqual({ url: `/api/contacts/${CAMILLE}/title`, body: { title: 'x' } }),
     )
   })
 

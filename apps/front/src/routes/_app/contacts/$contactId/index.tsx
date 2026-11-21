@@ -71,7 +71,7 @@ function ContactPage() {
         title={
           <span className="inline-flex max-w-full items-center gap-2">
             <span className="truncate">{name}</span>
-            <CivilityMark civility={contact.civility} />
+            <CivilityMark civility={contact.title} />
           </span>
         }
         description={
