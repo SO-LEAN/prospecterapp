@@ -2658,6 +2658,7 @@ export interface components {
             noteExchange?: components["schemas"]["LinkResource"];
             planExchange?: components["schemas"]["LinkResource"];
             toMakeConform?: components["schemas"]["LinkResource"];
+            catchUpGmail?: components["schemas"]["LinkResource"];
         };
         TimelineResource: {
             items: components["schemas"]["ExchangeResource"][];

@@ -17,11 +17,18 @@ final readonly class TimelineLinksResource
         public ?LinkResource $planExchange = null,
         #[OA\Property(nullable: false, description: 'The exchanges of an organization to make conform, their contact forgotten, absent while there is none')]
         public ?LinkResource $toMakeConform = null,
+        #[OA\Property(nullable: false, description: 'Catch up the e-mails the mailbox of Gmail of the reader exchanged with the address of the organization itself, while its import is active and the organization has an e-mail, with the right to manage personal data')]
+        public ?LinkResource $catchUpGmail = null,
     ) {
     }
 
     public function withToMakeConform(?LinkResource $toMakeConform): self
     {
-        return new self($this->self, $this->next, $this->noteExchange, $this->planExchange, $toMakeConform);
+        return new self($this->self, $this->next, $this->noteExchange, $this->planExchange, $toMakeConform, $this->catchUpGmail);
+    }
+
+    public function withCatchUpGmail(?LinkResource $catchUpGmail): self
+    {
+        return new self($this->self, $this->next, $this->noteExchange, $this->planExchange, $this->toMakeConform, $catchUpGmail);
     }
 }

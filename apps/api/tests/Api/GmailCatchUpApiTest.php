@@ -152,6 +152,36 @@ class GmailCatchUpApiTest extends ApiTestCase
         $this->assertSame([['email', 'inbound', "Votre devis\n\nBonjour Michel.", 'organization']], array_map(static fn (array $item): array => [$item['exchange']['channel'], $item['exchange']['direction'], $item['exchange']['text'], $item['interlocutor']['kind']], $timeline['items']));
     }
 
+    public function testTheTimelineOfAnOrganizationLinksTheCatchUpWhileTheImportIsActive(): void
+    {
+        $this->login();
+        $globex = $this->anOrganization('contact@globex.test');
+        $this->assertArrayNotHasKey('catchUpGmail', $this->requestJson('GET', '/api/organizations/'.$globex.'/exchanges')['_links']);
+
+        $this->importTheMailOf('prospector-user');
+
+        $this->assertSame(['href' => '/api/organizations/'.$globex.'/gmail-catch-ups', 'method' => 'POST'], $this->requestJson('GET', '/api/organizations/'.$globex.'/exchanges')['_links']['catchUpGmail'] ?? null);
+    }
+
+    public function testTheTimelineOfAnOrganizationLinksNoCatchUpToAMemberWithoutThePersonalData(): void
+    {
+        $this->login();
+        $globex = $this->anOrganization('contact@globex.test');
+        $this->importTheMailOf('assistant-user');
+        $this->signInAnotherMember('assistant-user');
+
+        $this->assertArrayNotHasKey('catchUpGmail', $this->requestJson('GET', '/api/organizations/'.$globex.'/exchanges')['_links']);
+    }
+
+    public function testTheTimelineOfAnOrganizationWithoutEMailLinksNoCatchUp(): void
+    {
+        $this->login();
+        $globex = $this->anOrganization(null);
+        $this->importTheMailOf('prospector-user');
+
+        $this->assertArrayNotHasKey('catchUpGmail', $this->requestJson('GET', '/api/organizations/'.$globex.'/exchanges')['_links']);
+    }
+
     public function testAMemberWithoutThePersonalDataCatchesUpNothingOfAnOrganization(): void
     {
         $this->login();
