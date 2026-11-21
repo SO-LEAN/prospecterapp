@@ -6,6 +6,7 @@ namespace Prospecter\Core\Connectors\Domain\Model;
 
 use Prospecter\Core\Connectors\Domain\Exception\NotTheAdministrator;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Exception\PersonalDataManagersOnly;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
@@ -22,6 +23,23 @@ final readonly class Member
         public ?int $reminderMinutesBefore,
         public bool $managesPersonalData,
     ) {
+    }
+
+    /**
+     * The e-mails of a mailbox are personal data: only a member managing them catches them up (ADR 0081, 0154).
+     *
+     * @throws PersonalDataManagersOnly
+     */
+    public function ensureMayCatchUpMail(): void
+    {
+        if (!$this->mayCatchUpMail()) {
+            throw PersonalDataManagersOnly::because('Only a member allowed to manage personal data catches up the e-mails of their mailbox');
+        }
+    }
+
+    public function mayCatchUpMail(): bool
+    {
+        return $this->managesPersonalData;
     }
 
     /**
