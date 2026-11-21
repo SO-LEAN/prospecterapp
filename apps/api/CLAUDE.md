@@ -6,7 +6,7 @@ A JSON API that exposes the use cases of `packages/core`, a resource server for 
 
 ## Project rules
 
-- No Doctrine, no migrations: the aggregates live in DynamoDB (ADR 0048), the tables are created by `bin/console app:tables:recreate` (`make db`, the tests recreate them); the user pool by `bin/console app:user-pool:recreate`.
+- No Doctrine, no migrations: the aggregates live in DynamoDB (ADR 0048), the tables are created by `bin/console app:tables:recreate` (`make db`; the tests once in each of their processes, each test then getting the data of the demonstration back, ADR 0180); the user pool by `bin/console app:user-pool:recreate`.
 - No Symfony CLI: run commands through `docker compose run --rm php ...` (see the root `CLAUDE.md`).
 - No API Platform: plain controllers documented with NelmioApiDocBundle attributes.
 - Services in YAML: the ports and the services of the hexagon are registered in `config/services.yaml`, the core being pure PHP without Symfony attributes.

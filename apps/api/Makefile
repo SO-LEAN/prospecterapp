@@ -24,8 +24,9 @@ db: ministack ## Recreate in MiniStack the tables and the user pool, with the de
 	@$(PHP) bin/console app:tags:rebuild
 	@$(if $(filter later,$(FIGURES)),echo "API/The figures are counted later (FIGURES=later)",echo "API/Counting the figures of the demonstration..." && $(PHP) bin/console app:reporting:rebuild)
 
-# the tests recreate their tables and their user pool before each test: shared among a few processes, each with its own
-# on MiniStack (TEST_TOKEN, .env.test), the cache of the kernel warmed once before they start it together
+# the tests recreate their tables and their user pool once in each process, each test then getting the data and the
+# members of the demonstration back (ADR 0180): shared among a few processes, each with its own on MiniStack
+# (TEST_TOKEN, .env.test), the cache of the kernel warmed once before they start it together
 TEST_PROCESSES ?= 4
 test: ministack-test ## Run the tests of the API (on MiniStack: tables, user pool), in TEST_PROCESSES processes; FILTER= a test by name; FAILED=1, FAIL_FAST=1
 	@$(PHP) sh -c 'bin/console cache:warmup --env=test >/dev/null && vendor/bin/paratest --processes=$(TEST_PROCESSES) $(if $(FILTER),--filter="$(FILTER)") $(PHPUNIT_FAILED_FAST)'
