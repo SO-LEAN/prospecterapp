@@ -25,7 +25,7 @@ final readonly class ProcessRecipientOfCampaignExchangeHandler implements EventH
 
     public function __invoke(ExchangeFactsChanged $event): void
     {
-        $outcome = RecipientOutcome::tryFrom((string) $event->status);
+        $outcome = self::outcomeOf($event->status);
 
         if (null === $event->campaignId || null === $event->contactId || !$event->present || null === $outcome) {
             return;
@@ -37,5 +37,17 @@ final readonly class ProcessRecipientOfCampaignExchangeHandler implements EventH
             $campaign->process(new PersonId($event->contactId), $event->exchangeId, $outcome, $event->occurredAt);
             $this->campaigns->save($campaign);
         }
+    }
+
+    /**
+     * Prospecting's status of the exchange, translated here: a planned exchange processes nobody yet.
+     */
+    private static function outcomeOf(?string $status): ?RecipientOutcome
+    {
+        return match ($status) {
+            'done' => RecipientOutcome::Done,
+            'missed' => RecipientOutcome::Missed,
+            default => null,
+        };
     }
 }
