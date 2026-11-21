@@ -318,6 +318,21 @@ describe('a started campaign', () => {
     ).not.toBeInTheDocument()
   })
 
+  it('says how an AI sent the message of a campaign no longer led', async () => {
+    theApiAnswers({
+      campaign: {
+        ...started,
+        status: 'stopped',
+        messageMode: 'adapted',
+        stoppedAt: '2026-11-17T09:00:00+00:00',
+      },
+    })
+    await renderTheSpaAt(`/campaigns/${CAMPAIGN}`)
+
+    expect(await screen.findByText("Message pour l'IA")).toBeInTheDocument()
+    expect(screen.getByText('Adapté à chaque personne')).toBeInTheDocument()
+  })
+
   it('says its key moves to the next recipient', async () => {
     theApiAnswers()
     await renderTheSpaAt(`/campaigns/${CAMPAIGN}`)

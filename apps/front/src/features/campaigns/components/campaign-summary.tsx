@@ -32,6 +32,9 @@ export function CampaignSummary({ campaign }: { campaign: Campaign }) {
         <Detail label={t('campaigns.fields.message')}>
           <span className="whitespace-pre-wrap">{campaign.message}</span>
         </Detail>
+        <Detail label={t('campaigns.fields.messageMode')}>
+          {t(`campaigns.fields.messageModes.${campaign.messageMode}`)}
+        </Detail>
       </CardContent>
     </Card>
   )
