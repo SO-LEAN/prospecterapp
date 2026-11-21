@@ -376,6 +376,18 @@ final class Vocabulary
     }
 
     /**
+     * The mailbox an exchange was imported from, as the member knows it; nothing for one noted.
+     */
+    public static function describeProvenance(?string $provider): string
+    {
+        return match ($provider) {
+            null => '',
+            'google' => 'Gmail',
+            default => $provider,
+        };
+    }
+
+    /**
      * How a contact is reached, as the facts of PersonalData say it: "téléphone, mobile".
      */
     public static function describeReach(?bool $email, ?bool $phone, ?bool $mobile, ?bool $linkedIn): string

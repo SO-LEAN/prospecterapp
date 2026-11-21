@@ -543,6 +543,7 @@ final class ExchangeContext implements Context
             'contact' => Vocabulary::describeContactPresence($exchange->contactPresence),
             'texte à rendre conforme' => Vocabulary::describeYesOrNo($exchange->textToMakeConform),
             'à rendre conforme' => Vocabulary::describeYesOrNo($exchange->toMakeConform),
+            'provenance' => Vocabulary::describeProvenance($exchange->importedFrom),
         ];
     }
 }
