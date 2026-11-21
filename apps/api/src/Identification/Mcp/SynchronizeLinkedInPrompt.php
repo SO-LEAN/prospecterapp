@@ -63,11 +63,6 @@ final readonly class SynchronizeLinkedInPrompt
 
     private static function reading(WhatLinkedInSynchronizes $what, ?string $since): string
     {
-        return sprintf('Synchronise dans Prospecter mes %s LinkedIn%s. Lis-les avec tes propres outils (l\'extension Chrome de Claude par exemple) : Prospecter ne lit pas LinkedIn.', $what->value, self::since($since));
-    }
-
-    private static function since(?string $since): string
-    {
-        return null === $since || '' === trim($since) ? ', en me demandant d\'abord depuis quand' : ' depuis '.$since;
+        return sprintf('Synchronise dans Prospecter mes %s LinkedIn%s. Lis-les avec tes propres outils (l\'extension Chrome de Claude par exemple) : Prospecter ne lit pas LinkedIn.', $what->value, SynchronizedSince::said($since));
     }
 }
