@@ -4,7 +4,10 @@ namespace App\Contacts;
 
 use App\Contacts\Resource\OrganizationTimelineResource;
 use App\Prospecting\TimelineResourceFactory;
+use App\Security\IntentLinks;
 use App\Shared\Links;
+use Prospecter\Core\Connectors\Application\ConsultMailCatchUpIntents\ConsultMailCatchUpIntents;
+use Prospecter\Core\Connectors\Application\ConsultMailCatchUpIntents\KeptMailCatchUpIntents;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersons;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\KeptPersons;
 use Prospecter\Core\PersonalData\Application\PersonCard;
@@ -19,9 +22,9 @@ use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Symfony\Component\Clock\ClockInterface;
 
 /**
- * The timeline of an organization, composed of two contexts (ADR 0076): Prospecting knows its exchanges and the
- * person of each, PersonalData names the persons of the slice in one batch; the slice kept, then presented with
- * them (ADR 0085). A controller calls it after a command, which returns nothing, to answer with the fresh resource.
+ * The timeline of an organization, composed of the contexts (ADR 0076): Prospecting knows its exchanges and the
+ * person of each, PersonalData names the persons of the slice in one batch, Connectors says whether the e-mails
+ * exchanged with the organization itself may be caught up; the slice kept, then presented with them (ADR 0085). A controller calls it after a command, which returns nothing, to answer with the fresh resource.
  */
 final readonly class OrganizationTimelineReader
 {
@@ -30,8 +33,10 @@ final readonly class OrganizationTimelineReader
         private QueryHandler $consultExchangesToMakeConform,
         private QueryHandler $consultOrganizationUpcomingExchanges,
         private QueryHandler $consultPersons,
+        private QueryHandler $consultMailCatchUpIntents,
         private TimelineResourceFactory $timelines,
         private Links $links,
+        private IntentLinks $intentLinks,
         private ClockInterface $clock,
     ) {
     }
@@ -40,7 +45,10 @@ final readonly class OrganizationTimelineReader
     {
         $timeline = new KeptTimeline();
         ($this->consultOrganizationTimeline)(new ConsultOrganizationTimeline($reader, $organization->id, $this->clock->now(), $after), $timeline);
-        $presenter = OrganizationTimelinePresenter::ofTheTimeline($organization, $this->personsOf($reader, $timeline->timeline), $this->timelines, $this->links);
+        $catchUp = new KeptMailCatchUpIntents();
+        ($this->consultMailCatchUpIntents)(ConsultMailCatchUpIntents::ofOrganization($reader, $organization->id), $catchUp);
+        $presenter = OrganizationTimelinePresenter::ofTheTimeline($organization, $this->personsOf($reader, $timeline->timeline), $this->timelines, $this->links)
+            ->offeringTheCatchUp($catchUp->possibleIntents, $this->intentLinks);
         $presenter->present($timeline->timeline);
 
         return $presenter->resource;

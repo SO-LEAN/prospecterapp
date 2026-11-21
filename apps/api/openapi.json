@@ -9945,6 +9945,9 @@
                     },
                     "toMakeConform": {
                         "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "catchUpGmail": {
+                        "$ref": "#/components/schemas/LinkResource"
                     }
                 },
                 "type": "object"
