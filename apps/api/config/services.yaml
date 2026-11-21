@@ -417,6 +417,16 @@ when@test:
         Prospecter\Core\SharedKernel\Application\Port\Storage: '@Tests\App\Double\InMemoryStorage'
         Tests\App\Double\InMemoryStorage:
             public: true
+        # the data of the demonstration each API test starts from, made once in each process of the tests
+        Tests\App\Base\DataOfTheDemonstration:
+            arguments:
+                $tables: '@App\Shared\Persistence\Tables'
+                $demoData: '@App\Demo\DemoData'
+                $dynamoDb: '@Aws\DynamoDb\DynamoDbClient'
+                $accountSecrets: '@App\Shared\Persistence\AccountSecrets'
+                $ssm: '@Aws\Ssm\SsmClient'
+                $secretsPath: '%env(ACCOUNT_SECRETS_PATH)%'
+            public: true
         Prospecter\Core\SharedKernel\Application\Port\PrivateStorage: '@Tests\App\Double\InMemoryPrivateStorage'
         App\Shared\UploadForms: '@Tests\App\Double\InMemoryPrivateStorage'
         App\Shared\UploadSender: '@Tests\App\Double\InMemoryPrivateStorage'
