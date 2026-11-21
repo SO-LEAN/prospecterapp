@@ -89,7 +89,7 @@ What only an instance proves, and what its putting in service checked on `dev`: 
 - The code: no branch of the code on the environment but what the configuration names (the endpoints of MiniStack, the authentication of the storage, the profiler of `dev`).
 - The tables, their keys and indexes (`Shared\Persistence\Tables` locally, `tables.tf` on AWS, kept alike), the streams `NEW_IMAGE`, the TTL on `expiresAt`.
 - The subscriptions, from one file, `apps/api/config/subscriptions.json`.
-- The sizes of the functions: the API and the worker 1024 MB, the relay 512 MB, 28 s each.
+- The sizes of the functions: the API and the worker 1024 MB, the relay 512 MB, 28 s each but the worker, 120 s (ADR 0182).
 - The commands of the console: the same code, locally or with `INSTANCE=`.
 
 ## Why a local stack so close to AWS
