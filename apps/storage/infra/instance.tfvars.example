@@ -4,3 +4,8 @@ aws_account_id = "123456789012"
 region         = "eu-west-3"
 # when the account requires every role of an app to carry a permissions boundary
 permissions_boundary = "arn:aws:iam::123456789012:policy/my-boundary"
+# what 5 minutes tolerate before an alarm, told to the topic of the alerts the api publishes: errors of the function (0
+# when absent), throttled invocations (0 when absent), answers 5xx of its URL (5 when absent)
+# function_errors_threshold    = 2
+# function_throttles_threshold = 1
+# http_5xx_threshold           = 10

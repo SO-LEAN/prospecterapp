@@ -19,6 +19,11 @@ permissions_boundary = "arn:aws:iam::123456789012:policy/my-boundary"
 # MCP server; 10 and 20 when absent
 # oauth_rate_limit  = 10
 # oauth_burst_limit = 20
-# the addresses the alarms e-mail (a queue of the failures holding a message), each subscription confirmed from the
-# e-mail AWS sends; nobody told when absent
+# the addresses the alarms e-mail (a queue of the failures holding a message, a function failing, answers 5xx), each
+# subscription confirmed from the e-mail AWS sends; nobody told when absent
 # alert_emails = ["alerts@example.com"]
+# what 5 minutes tolerate before an alarm: errors of the api, the relay or the worker (0 when absent, the scheduled
+# function always 0), throttled invocations of a function (0 when absent), answers 5xx of the HTTP API (5 when absent)
+# function_errors_threshold    = 2
+# function_throttles_threshold = 1
+# http_5xx_threshold           = 10

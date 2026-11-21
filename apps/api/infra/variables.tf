@@ -111,3 +111,36 @@ variable "alert_emails" {
     error_message = "An alert address is an e-mail address."
   }
 }
+
+variable "function_errors_threshold" {
+  description = "How many errors of the api, the relay or the worker in 5 minutes are tolerated before their alarm (alerting.tf): 0, the default, the first one alerts; the scheduled function alerts at its first error whatever this value"
+  type        = number
+  default     = 0
+
+  validation {
+    condition     = var.function_errors_threshold >= 0
+    error_message = "A threshold is a count, 0 or more."
+  }
+}
+
+variable "function_throttles_threshold" {
+  description = "How many throttled invocations of a function in 5 minutes are tolerated before its alarm (alerting.tf): 0, the default, the first one alerts"
+  type        = number
+  default     = 0
+
+  validation {
+    condition     = var.function_throttles_threshold >= 0
+    error_message = "A threshold is a count, 0 or more."
+  }
+}
+
+variable "http_5xx_threshold" {
+  description = "How many answers 5xx of the HTTP API in 5 minutes are tolerated before its alarm (alerting.tf); 5 by default"
+  type        = number
+  default     = 5
+
+  validation {
+    condition     = var.http_5xx_threshold >= 0
+    error_message = "A threshold is a count, 0 or more."
+  }
+}
