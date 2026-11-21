@@ -21,7 +21,7 @@ A member leads a campaign by hand, recipient after recipient (0145). They want a
 
 - The member leads a campaign by one sentence to their AI, by hand and by the AI at the same time.
 - A query restores an aggregate once more (0177 named the same exception); the maintainer is not keen on it, to review with that one.
-- **A gap left open**: when the import of Gmail notes the e-mail the AI sent before the AI notes it (0154), the noting by `noter-l-envoi` answers « already noted »: the recipient stays to handle, and `destinataire-suivant` gives them again. Attaching the exchange noted first to the campaign is not decided here.
+- **A gap left open**: when the import of Gmail notes the e-mail the AI sent before the AI notes it (0154), the noting by `noter-l-envoi` answers « already noted »: the recipient stays to handle, and `destinataire-suivant` gives them again. The prompt tells the AI never to send a second message to a recipient, and to stop and say who; attaching the exchange noted first to the campaign is left to the maintainer.
 - A daily cap of the sendings, to come, will change the prompt.
 - The calls and the answers received stay out.
 
