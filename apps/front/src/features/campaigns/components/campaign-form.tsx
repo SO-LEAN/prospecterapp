@@ -10,7 +10,14 @@ import { Input } from '@/shared/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
 import { Textarea } from '@/shared/ui/textarea'
 import type { CampaignInput, Channel } from '../queries'
-import { type CampaignValues, CHANNELS, campaignFields, campaignSchema, toCampaignInput } from '../schema'
+import {
+  type CampaignValues,
+  CHANNELS,
+  campaignFields,
+  campaignSchema,
+  MESSAGE_MODES,
+  toCampaignInput,
+} from '../schema'
 
 type Props = {
   values: CampaignValues
@@ -75,7 +82,13 @@ export function CampaignForm({
         name="channel"
         render={({ field }) => (
           <FormField form={form} name="channel" label={t('campaigns.fields.channel')}>
-            <ChannelSelect channel={field.value} onChange={field.onChange} disabled={searchFrozen} />
+            <OptionSelect
+              value={field.value}
+              options={CHANNELS}
+              labelOf={(option) => t(`exchanges.channels.${option}`)}
+              onChange={field.onChange}
+              disabled={searchFrozen}
+            />
           </FormField>
         )}
       />
@@ -111,6 +124,25 @@ export function CampaignForm({
       >
         <Textarea rows={8} {...form.register('message')} />
       </FormField>
+      <Controller
+        control={form.control}
+        name="messageMode"
+        render={({ field }) => (
+          <FormField
+            form={form}
+            name="messageMode"
+            label={t('campaigns.fields.messageMode')}
+            hint={t('campaigns.fields.messageModeHint')}
+          >
+            <OptionSelect
+              value={field.value}
+              options={MESSAGE_MODES}
+              labelOf={(mode) => t(`campaigns.fields.messageModes.${mode}`)}
+              onChange={field.onChange}
+            />
+          </FormField>
+        )}
+      />
       <div className="flex justify-end gap-2">
         {onCancel && (
           <Button type="button" variant="ghost" onClick={onCancel}>
@@ -125,37 +157,44 @@ export function CampaignForm({
   )
 }
 
-type ChannelProps = {
+type OptionProps<Option extends string> = {
   id?: string
-  channel: Channel
-  onChange: (channel: Channel) => void
-  disabled: boolean
+  value: Option
+  options: readonly Option[]
+  labelOf: (option: Option) => string
+  onChange: (option: Option) => void
+  disabled?: boolean
   'aria-describedby'?: string
 }
 
-/** The channels, the props of its field given to its trigger, the control its label names. */
-function ChannelSelect({ channel, onChange, disabled, ...trigger }: ChannelProps) {
-  const { t } = useTranslation()
+/** One of the options, the props of its field given to its trigger, the control its label names. */
+function OptionSelect<Option extends string>({
+  value,
+  options,
+  labelOf,
+  onChange,
+  disabled,
+  ...trigger
+}: OptionProps<Option>) {
+  const chosen = (named: string) => {
+    const option = options.find((offered) => offered === named)
+    if (option) {
+      onChange(option)
+    }
+  }
 
   return (
-    <Select value={channel} disabled={disabled} onValueChange={(chosen) => channelNamed(chosen, onChange)}>
+    <Select value={value} disabled={disabled} onValueChange={chosen}>
       <SelectTrigger className="w-full" {...trigger}>
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
-        {CHANNELS.map((option) => (
+        {options.map((option) => (
           <SelectItem key={option} value={option}>
-            {t(`exchanges.channels.${option}`)}
+            {labelOf(option)}
           </SelectItem>
         ))}
       </SelectContent>
     </Select>
   )
-}
-
-function channelNamed(value: string, onChange: (channel: Channel) => void) {
-  const channel = CHANNELS.find((offered) => offered === value)
-  if (channel) {
-    onChange(channel)
-  }
 }

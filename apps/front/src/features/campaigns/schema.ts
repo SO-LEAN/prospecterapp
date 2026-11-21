@@ -1,12 +1,15 @@
 import { z } from 'zod'
 import { text } from '@/shared/forms/text'
 import { i18n } from '@/shared/i18n'
-import type { Campaign, CampaignInput, Channel } from './queries'
+import type { Campaign, CampaignInput, Channel, MessageMode } from './queries'
 
 const MAX_NAME = 100
 const MAX_MESSAGE = 5000
 
 export const CHANNELS = ['email', 'call', 'sms', 'linkedIn'] as const satisfies readonly Channel[]
+
+/** How an AI leading the campaign treats its message: sent as rendered, or adapted to each person. */
+export const MESSAGE_MODES = ['asIs', 'adapted'] as const satisfies readonly MessageMode[]
 
 const required = () => i18n.t('validation.required')
 
@@ -17,11 +20,12 @@ export const campaignSchema = z.object({
   tags: z.array(z.string()).min(1, { error: required }),
   message: z.string().max(MAX_MESSAGE, { error: () => i18n.t('validation.max', { max: MAX_MESSAGE }) }),
   subject: z.string(),
+  messageMode: z.enum(MESSAGE_MODES),
 })
 
 export type CampaignValues = z.input<typeof campaignSchema>
 
-export const campaignFields = ['name', 'channel', 'tags', 'message', 'subject'] as const
+export const campaignFields = ['name', 'channel', 'tags', 'message', 'subject', 'messageMode'] as const
 
 export const newCampaign = (): CampaignValues => ({
   name: '',
@@ -29,6 +33,7 @@ export const newCampaign = (): CampaignValues => ({
   tags: [],
   message: '',
   subject: '',
+  messageMode: 'asIs',
 })
 
 /** The campaign as saved, to revise it. */
@@ -38,6 +43,7 @@ export const revisionOf = (campaign: Campaign): CampaignValues => ({
   tags: campaign.tags,
   message: campaign.message,
   subject: campaign.subject ?? '',
+  messageMode: campaign.messageMode,
 })
 
 /** Only an e-mail has a subject: one typed before choosing another channel is not sent. */
@@ -47,7 +53,7 @@ export const toCampaignInput = (values: CampaignValues): CampaignInput => ({
   tags: values.tags,
   message: values.message,
   subject: values.channel === 'email' && values.subject.trim() !== '' ? values.subject.trim() : null,
-  messageMode: null,
+  messageMode: values.messageMode,
 })
 
 /** The automatic tag a contact carries when the channel reaches them (ADR 0144), as the api names them. */

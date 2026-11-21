@@ -794,6 +794,9 @@ export const fr = {
       tagsFrozen: 'La liste est figée : le canal et les tags ne changent plus.',
       subject: 'Objet',
       message: 'Message type',
+      messageModes: { asIs: 'Tel quel', adapted: 'Adapté à chaque personne' },
+      messageMode: "Message pour l'IA",
+      messageModeHint: 'Quand une IA mène la campagne, elle envoie elle-même chaque message.',
       messageHint:
         'Variables : {civilité}, {prénom}, {nom}, {organisation}, {fonction}. Une variable sans valeur reste vide.',
     },
