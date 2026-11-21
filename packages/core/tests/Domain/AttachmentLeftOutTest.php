@@ -21,4 +21,9 @@ class AttachmentLeftOutTest extends TestCase
     {
         $this->assertSame('Pièce jointe non importée : devis.pdf (300 Ko), à ouvrir dans Gmail', AttachmentLeftOut::mention('devis.pdf', 300 * self::KILOBYTE));
     }
+
+    public function testAFileUnderAKilobyteIsToldUnderAKilobyte(): void
+    {
+        $this->assertSame('Pièce jointe non importée : note.txt (moins de 1 Ko), à ouvrir dans Gmail', AttachmentLeftOut::mention('note.txt', 17));
+    }
 }

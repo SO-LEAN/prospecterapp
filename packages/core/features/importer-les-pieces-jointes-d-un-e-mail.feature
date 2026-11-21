@@ -32,6 +32,10 @@ Fonctionnalité: Les pièces jointes des e-mails importés
     Alors l'échange importé a les 10 premières
     Et son texte signale les 2 autres
 
+  Scénario: Une petite pièce jointe écartée est dite de moins de 1 Ko
+    Quand je reçois de "ada@acme.fr" un e-mail avec 12 pièces jointes, la onzième "note.txt" de 17 octets
+    Alors son texte signale « Pièce jointe non importée : note.txt (moins de 1 Ko), à ouvrir dans Gmail »
+
   Scénario: Les pièces jointes d'un e-mail envoyé sont jointes aussi
     Quand j'envoie à "ada@acme.fr" un e-mail avec "cv.pdf" (120 Ko)
     Alors l'échange importé a la pièce jointe "cv.pdf"

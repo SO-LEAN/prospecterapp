@@ -54,6 +54,7 @@ final class MailboxMailContext implements Context
     private const string DRAFT = 'DRAFT';
     private const int KILOBYTE = 1024;
     private const int MEGABYTE = 1024 * self::KILOBYTE;
+    private const int ELEVENTH = 11;
 
     private int $messages = 0;
     /** @var array<string, MailboxMail> the message received last, by mailbox */
@@ -109,6 +110,14 @@ final class MailboxMailContext implements Context
     {
         $attachments = array_map(static fn (int $rank): MailboxAttachment => self::attachment(sprintf('piece-%d.pdf', $rank), self::KILOBYTE), range(1, $count));
         $this->attachmentsSent = $count;
+
+        $this->fileAndNotify([self::MY_MAILBOX], $this->mail(new Email($sender), [self::INBOX], attachments: $attachments));
+    }
+
+    #[When('/^je reçois de "(?<sender>[^"]+)" un e-mail avec (?<count>\\d+) pièces jointes, la onzième "(?<name>[^"]+)" de (?<size>\\d+) octets$/')]
+    public function iReceiveAnEMailWithAttachmentsTheEleventhOf(string $sender, int $count, string $name, int $size): void
+    {
+        $attachments = array_map(static fn (int $rank): MailboxAttachment => self::ELEVENTH === $rank ? self::attachment($name, $size) : self::attachment(sprintf('piece-%d.pdf', $rank), self::KILOBYTE), range(1, $count));
 
         $this->fileAndNotify([self::MY_MAILBOX], $this->mail(new Email($sender), [self::INBOX], attachments: $attachments));
     }
@@ -456,6 +465,14 @@ final class MailboxMailContext implements Context
         $me = $this->scenario->me();
 
         $this->application->publishAgain(new EmailExchanged($me->accountId()->value, $me->id()->value, self::GOOGLE, hash('sha256', $contact), 'inbound', $this->scenario->personIdOf($contact), null, self::SUBJECT, self::TEXT, $this->application->now(), $this->application->now(), 'message-told', $attachments));
+    }
+
+    #[Then('/^son texte signale « (?<mention>.+) »$/')]
+    public function itsTextTells(string $mention): void
+    {
+        $text = StateOf::the($this->theImported())['facts']->text;
+
+        Expect::that(str_contains($text."\n", "\n".$mention."\n"), sprintf('The text of the imported exchange was expected to tell "%s", got "%s"', $mention, $text));
     }
 
     #[Then('/^son texte se termine par « (?<end>.+) »$/')]
