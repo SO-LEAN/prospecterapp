@@ -28,7 +28,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * The API as the SPA uses it, each test starting from the data of the demonstration (ADR 0048). A member calls it
- * with a real access token of the test user pool of MiniStack, recreated for each test with the members of the
+ * with a real access token of the test user pool of MiniStack, each test starting from the members of the
  * demonstration (ADR 0052).
  */
 abstract class ApiTestCase extends WebTestCase
@@ -47,8 +47,7 @@ abstract class ApiTestCase extends WebTestCase
     {
         $this->client = static::createClient([], ['HTTP_HOST' => 'api.test.prospecter.io']);
         self::getContainer()->get(DataOfTheDemonstration::class)->restore();
-        self::getContainer()->get(UserPool::class)->recreate();
-        self::getContainer()->get(DemoCredentials::class)->register();
+        self::getContainer()->get(MembersOfTheDemonstration::class)->restore();
     }
 
     /**
