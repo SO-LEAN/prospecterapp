@@ -34,11 +34,26 @@ final readonly class Table
     public function item(string $pk, string $sk): ?array
     {
         $pending = $this->unitOfWork->pendingWriteOn($this->name, $pk, $sk);
-        $item = null === $pending
-            ? $this->client->getItem(['TableName' => $this->name, 'Key' => $this->key($pk, $sk), 'ConsistentRead' => true])['Item'] ?? null
-            : $pending->itemPut();
 
-        return null === $item ? null : $this->documentOf($item);
+        if (null !== $pending) {
+            $put = $pending->itemPut();
+
+            return null === $put ? null : $this->documentOf($put);
+        }
+
+        return $this->storedItem($pk, $sk);
+    }
+
+    /**
+     * @return array<string, mixed>|null the item as the table keeps it, its revision noted by the open unit
+     */
+    private function storedItem(string $pk, string $sk): ?array
+    {
+        $stored = $this->client->getItem(['TableName' => $this->name, 'Key' => $this->key($pk, $sk), 'ConsistentRead' => true])['Item'] ?? null;
+        $item = null === $stored ? null : $this->documentOf($stored);
+        $this->noteRead([[$pk, $sk]], null === $item ? [] : [$item]);
+
+        return $item;
     }
 
     /**
@@ -74,7 +89,24 @@ final readonly class Table
             }
         }
 
+        $this->noteRead($keys, $found);
+
         return $found;
+    }
+
+    /**
+     * Notes the items read by key from the table in the open unit, those absent too.
+     *
+     * @param list<array{string, string}> $keys
+     * @param list<array<string, mixed>>  $found
+     */
+    private function noteRead(array $keys, array $found): void
+    {
+        $byKey = array_column(array_map(static fn (array $item): array => ['key' => $item['PK']."\0".$item['SK'], 'item' => $item], $found), 'item', 'key');
+
+        foreach ($keys as [$pk, $sk]) {
+            $this->unitOfWork->noteRead($this->name, $pk, $sk, $byKey[$pk."\0".$sk] ?? null);
+        }
     }
 
     /**
@@ -284,6 +316,18 @@ final readonly class Table
     }
 
     /**
+     * The put of an aggregate, under an optimistic lock on its revision (ADR 0181).
+     *
+     * @param array{PK: string, SK: string, ...} $item
+     */
+    public function revising(array $item): Write
+    {
+        $lock = $this->unitOfWork->lockOn($this->name, $item['PK'], $item['SK']);
+
+        return null === $lock ? $this->putting($item) : $this->putting($item, $lock->condition, $lock->values);
+    }
+
+    /**
      * A put of a transaction whose condition is about the item as stored: put again in the same unit, it keeps the
      * condition of the first put, the item as stored being the same.
      *
@@ -382,6 +426,16 @@ final readonly class Table
     public function deleting(string $pk, string $sk, ?string $condition = null, array $values = []): Write
     {
         return new Write($this->name, $pk, $sk, ['Delete' => ['TableName' => $this->name, 'Key' => $this->key($pk, $sk)] + $this->conditionOf($condition, $values)]);
+    }
+
+    /**
+     * The delete of an aggregate, under an optimistic lock on its revision (ADR 0181).
+     */
+    public function deletingRevised(string $pk, string $sk): Write
+    {
+        $lock = $this->unitOfWork->lockOn($this->name, $pk, $sk);
+
+        return null === $lock ? $this->deleting($pk, $sk) : $this->deleting($pk, $sk, $lock->condition, $lock->values);
     }
 
     /**

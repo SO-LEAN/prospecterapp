@@ -4,8 +4,9 @@ namespace App\Shared\Persistence;
 
 /**
  * The revision of an aggregate, written in its item by its repository at each save (`revision`) and read by the
- * retrievers of its facts: a matter of persistence, the aggregate does not know it (ADR 0048). No optimistic lock
- * reads it. An item written before it has none: the revision 0, until its next save.
+ * retrievers of its facts: a matter of persistence, the aggregate does not know it (ADR 0048). Its save and its
+ * removal hold to the revision its unit of work read (`RevisionLock`, ADR 0181). An item written before it has none:
+ * the revision 0, until its next save.
  */
 final class Revision
 {

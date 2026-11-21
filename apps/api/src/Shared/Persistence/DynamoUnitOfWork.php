@@ -16,7 +16,8 @@ use Prospecter\Core\SharedKernel\Domain\Exception\BusinessException;
  * without one, a write is sent at once. A write whose
  * condition does not hold throws the refusal it carries. A unit discarded at one level is abandoned until its
  * outermost level ends: what is written meanwhile, by the other reactions the event bus still calls, is thrown away
- * too, and what it published with it.
+ * too, and what it published with it. It remembers each item it first read by key, for the lock of its revision
+ * (ADR 0181), until its outermost level ends.
  */
 final class DynamoUnitOfWork implements UnitOfWork
 {
@@ -27,6 +28,8 @@ final class DynamoUnitOfWork implements UnitOfWork
     /** @var array<string, Write> by item */
     private array $pending = [];
     private bool $abandoned = false;
+    /** @var array<string, RevisionLock> by item, the lock of the revision the unit first read */
+    private array $locks = [];
 
     public function __construct(private readonly DynamoDbClient $client, private readonly CommitOutbox $outbox)
     {
@@ -65,6 +68,7 @@ final class DynamoUnitOfWork implements UnitOfWork
 
         if ([] === $this->levels) {
             $this->abandoned = false;
+            $this->locks = [];
             $this->outbox->clear();
         }
     }
@@ -113,6 +117,29 @@ final class DynamoUnitOfWork implements UnitOfWork
         $pending = $this->pending[Write::itemOf($table, $pk, $sk)] ?? null;
 
         return true === $pending?->replacesTheItem() ? $pending : null;
+    }
+
+    /**
+     * Notes, while a unit is open, an item read from its table, the first read winning: what the lock of its revision
+     * holds to (ADR 0181).
+     *
+     * @param array<string, mixed>|null $item null when it is absent
+     */
+    public function noteRead(string $table, string $pk, string $sk, ?array $item): void
+    {
+        if ([] === $this->levels) {
+            return;
+        }
+
+        $this->locks[Write::itemOf($table, $pk, $sk)] ??= RevisionLock::on($item);
+    }
+
+    /**
+     * The lock on the revision of an item the open unit read, null when it read none.
+     */
+    public function lockOn(string $table, string $pk, string $sk): ?RevisionLock
+    {
+        return $this->locks[Write::itemOf($table, $pk, $sk)] ?? null;
     }
 
     /**
