@@ -93,3 +93,13 @@ Fonctionnalité: Compléter une organisation sans rien écraser
     Alors ce n'est pas refusé
     Et l'organisation "Initech" est enregistrée avec :
       | liens | https://a.test/initech https://b.test/initech https://c.test/initech https://d.test/initech https://e.test/initech |
+
+  Scénario: Avant de compléter, je sais ce qui serait complété et ce qui diffère
+    Soit l'organisation "Initech" fait partie de mes organisations avec :
+      | site web | https://initech.fr |
+    Quand je compare l'organisation "Initech" à :
+      | SIRET    | 55210055400013          |
+      | site web | https://www.initech.com |
+      | e-mail   | contact@initech.fr      |
+    Alors serait complété : "SIRET, e-mail"
+    Et diffère : "site web"

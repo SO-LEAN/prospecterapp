@@ -227,6 +227,9 @@ use Prospecter\Core\Prospecting\Application\CampaignsOfTimeline;
 use Prospecter\Core\Prospecting\Application\CancelExchange\CancelExchangeHandler;
 use Prospecter\Core\Prospecting\Application\ChangeContactDetails\ChangeContactDetailsHandler;
 use Prospecter\Core\Prospecting\Application\ChangeLogo\ChangeLogoHandler;
+use Prospecter\Core\Prospecting\Application\CompareWithOrganization\CompareWithOrganization;
+use Prospecter\Core\Prospecting\Application\CompareWithOrganization\CompareWithOrganizationHandler;
+use Prospecter\Core\Prospecting\Application\CompareWithOrganization\KeptComparison as KeptOrganizationComparison;
 use Prospecter\Core\Prospecting\Application\CompleteOrganization\CompleteOrganizationHandler;
 use Prospecter\Core\Prospecting\Application\ConsultCalendar\Calendar;
 use Prospecter\Core\Prospecting\Application\ConsultCalendar\ConsultCalendar;
@@ -1081,6 +1084,13 @@ final class Application
         $kept = new KeptCallingOrganizations();
 
         return $this->ask(new RecognizeCallingOrganizationHandler($this->organizationSheetRetriever, $this->prospectors), $query, $kept) ? $kept->organizations : null;
+    }
+
+    public function compareWithOrganization(CompareWithOrganization $query): ?Comparison
+    {
+        $kept = new KeptOrganizationComparison();
+
+        return $this->ask(new CompareWithOrganizationHandler($this->organizations), $query, $kept) ? $kept->comparison : null;
     }
 
     public function compareWithContact(CompareWithContact $query): ?Comparison

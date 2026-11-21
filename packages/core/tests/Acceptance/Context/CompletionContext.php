@@ -10,6 +10,7 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use Prospecter\Core\PersonalData\Application\CompareWithContact\CompareWithContact;
 use Prospecter\Core\PersonalData\Application\CompleteContact\CompleteContact;
+use Prospecter\Core\Prospecting\Application\CompareWithOrganization\CompareWithOrganization;
 use Prospecter\Core\Prospecting\Application\CompleteOrganization\CompleteOrganization;
 use Prospecter\Core\SharedKernel\Application\Comparison;
 use Tests\Core\Acceptance\Expect;
@@ -30,6 +31,8 @@ final class CompletionContext implements Context
         'email' => 'e-mail',
         'phoneNumber' => 'téléphone',
         'links' => 'liens',
+        'siret' => 'SIRET',
+        'website' => 'site web',
     ];
 
     private ?Comparison $comparison = null;
@@ -53,6 +56,13 @@ final class CompletionContext implements Context
     {
         $values = Vocabulary::values($table->getRowsHash());
         $this->comparison = $this->application->compareWithContact(new CompareWithContact($this->application->signedIn(), $this->scenario->personIdOf($name), Vocabulary::civility($values['Civilité']), $values['fonction'], $values['e-mail'], $values['téléphone'], Vocabulary::links($values)));
+    }
+
+    #[When('je compare l\'organisation :name à :')]
+    public function iCompareTheOrganization(string $name, TableNode $table): void
+    {
+        $values = Vocabulary::values($table->getRowsHash());
+        $this->comparison = $this->application->compareWithOrganization(new CompareWithOrganization($this->scenario->idOf($name), $values['SIRET'], Vocabulary::links($values), $values['site web'], $values['e-mail'], $values['téléphone']));
     }
 
     #[Then('serait complété : :fields')]
