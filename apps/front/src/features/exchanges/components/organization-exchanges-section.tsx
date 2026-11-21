@@ -12,6 +12,7 @@ import {
 import { exchangesToMakeConformQuery, organizationTimelineQuery, organizationUpcomingQuery } from '../queries'
 import { ITSELF, newExchange } from '../schema'
 import { CampaignOfTheLine } from './campaign-of-the-exchange'
+import { CatchUpGmail } from './catch-up-gmail'
 import { ExchangeForm, type Interlocutors } from './exchange-form'
 import { ExchangeLine } from './exchange-line'
 import { NoteThenFollowUp } from './follow-up'
@@ -95,6 +96,7 @@ export function OrganizationExchangesSection({
   const slices = timeline.data.pages
   const mayNote = Boolean(slices[0]?._links.noteExchange)
   const mayPlan = Boolean(slices[0]?._links.planExchange)
+  const mayCatchUp = Boolean(all.data?.pages[0]?._links.catchUpGmail)
 
   return (
     <TimelineCard
@@ -105,6 +107,7 @@ export function OrganizationExchangesSection({
           <ToMakeConformBadge count={toMakeConform} pressed={onlyToMakeConform} onPress={setNarrowed} />
         )
       }
+      catchUp={mayCatchUp && <CatchUpGmail organizationId={organizationId} />}
       upcoming={upcoming}
       upcomingItems={onlyToMakeConform ? [] : upcoming.data?.pages.flatMap((slice) => slice.items)}
       items={slices.flatMap((slice) => slice.items)}
