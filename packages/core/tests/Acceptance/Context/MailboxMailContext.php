@@ -91,6 +91,16 @@ final class MailboxMailContext implements Context
         $this->fileAndNotify([self::MY_MAILBOX], $this->mailFrom($sender));
     }
 
+    /**
+     * "Cet échange" of the scenarios: the one the e-mail became.
+     */
+    #[Given('j\'ai importé l\'e-mail :subject reçu de :sender')]
+    public function iImportedTheEMail(string $subject, string $sender): void
+    {
+        $this->fileAndNotify([self::MY_MAILBOX], $this->mail(new Email($sender), [self::INBOX], subject: $subject));
+        $this->scenario->rememberTheExchange($this->theImported()->id()->value);
+    }
+
     #[When('je reçois un e-mail de :sender de Message-ID :messageId')]
     #[Given('j\'ai reçu un e-mail de :sender de Message-ID :messageId')]
     public function iReceiveAnEMailOfMessageId(string $sender, string $messageId): void

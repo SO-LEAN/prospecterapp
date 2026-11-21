@@ -190,6 +190,7 @@ final readonly class InMemoryTimelineRetriever implements TimelineRetriever
             campaignId: $state['campaign']?->value,
             withAContactToAttach: null !== $exchange->contactToAttach(),
             bookedByLink: $exchange->isBookedByLink(),
+            importedFrom: $state['importedFrom']?->provider,
         );
     }
 
