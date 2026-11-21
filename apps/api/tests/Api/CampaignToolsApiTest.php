@@ -168,6 +168,29 @@ class CampaignToolsApiTest extends ApiTestCase
         $this->assertTheToolIsRefusedAsItsEndpoint('destinataire-suivant', ['id' => $started], 'GET', '/api/campaigns/'.$started.'/messages/'.$this->ada, null, ['assistant-user', 'member-user', 'stranger']);
     }
 
+    public function testAnAdministratorLeadsACampaignOfTheTeamAsAProspector(): void
+    {
+        $started = $this->aStartedCampaign();
+        $this->login('admin-user');
+
+        $next = $this->callWithoutHandshake('destinataire-suivant', ['id' => $started])['structuredContent'];
+        $noted = $this->callWithoutHandshake('noter-l-envoi', ['id' => $started, 'contactId' => $next['contact']['id'], ...self::SENT_TO_ADA]);
+
+        $this->assertSame([2, 'noted'], [$next['pending'], $noted['structuredContent']['status']]);
+    }
+
+    public function testASendingNotedByHandIsAnsweredAlreadyNotedToTheAi(): void
+    {
+        $started = $this->aStartedCampaign();
+        $byHand = $this->requestJson('POST', '/api/campaigns/'.$started.'/recipients/'.$this->ada.'/exchanges', self::SENT_TO_ADA);
+        $this->assertResponseStatusCodeSame(201);
+
+        $again = $this->callWithoutHandshake('noter-l-envoi', ['id' => $started, 'contactId' => $this->ada, ...self::SENT_TO_ADA]);
+
+        $this->assertSame('alreadyNoted', $again['structuredContent']['status']);
+        $this->assertCount(1, $byHand['items']);
+    }
+
     public function testACampaignStoppedGivesNoNextRecipient(): void
     {
         $started = $this->aStartedCampaign();
@@ -190,6 +213,15 @@ class CampaignToolsApiTest extends ApiTestCase
         foreach (['« Relance PHP »', 'lister-campagnes', 'destinataire-suivant', 'noter-l-envoi', 'ecarter-destinataire-campagne'] as $step) {
             $this->assertStringContainsString($step, $text);
         }
+    }
+
+    public function testThePromptToLeadACampaignNeverSendsTwiceToARecipient(): void
+    {
+        $this->login();
+
+        $prompt = $this->callWithHandshake('prompts/get', ['name' => 'mener-une-campagne', 'arguments' => ['campagne' => 'Relance PHP']]);
+
+        $this->assertStringContainsString('Never send a second message to a recipient: when destinataire-suivant gives you again a recipient you sent to, stop and tell me who.', $prompt['messages'][0]['content']['text']);
     }
 
     public function testTheAiNotesTheEmailItSentToARecipientWhoIsProcessed(): void
