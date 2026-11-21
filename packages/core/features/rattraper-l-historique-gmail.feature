@@ -73,6 +73,22 @@ Fonctionnalité: Rattraper l'historique Gmail d'un contact ou d'une organisation
     Alors 199 échanges sont importés
     Et l'e-mail "RE: Présentation" n'est pas importé
 
+  Plan du scénario: Le rattrapage est proposé sur la fiche d'un contact ou d'une organisation qui a un e-mail
+    Alors le rattrapage Gmail de "<correspondant>" m'est proposé
+
+    Exemples:
+      | correspondant |
+      | Ada Lovelace  |
+      | Globex        |
+
+  Scénario: Sans import activé, le rattrapage n'est pas proposé
+    Soit je coupe l'import de mes e-mails Gmail
+    Alors le rattrapage Gmail de "Ada Lovelace" ne m'est pas proposé
+
+  Scénario: Sans e-mail, le rattrapage n'est pas proposé
+    Soit le contact "Alan Turing" de "ACME"
+    Alors le rattrapage Gmail de "Alan Turing" ne m'est pas proposé
+
   Scénario: L'accès retiré chez Google, l'import est à reconnecter
     Soit je retire l'accès de Prospecter dans mon compte Google
     Quand je rattrape l'historique Gmail de "Ada Lovelace"

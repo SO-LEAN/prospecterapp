@@ -14,6 +14,7 @@ use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\Connectors\Application\AskToImportMail\AskToImportMail;
 use Prospecter\Core\Connectors\Application\CatchUpMailHistory\CatchUpMailHistory;
 use Prospecter\Core\Connectors\Application\Connect\Connect;
+use Prospecter\Core\Connectors\Application\ConsultMailCatchUpIntents\ConsultMailCatchUpIntents;
 use Prospecter\Core\Connectors\Application\NoteMailboxNotification\NoteMailboxNotification;
 use Prospecter\Core\Connectors\Contract\Event\EmailExchanged;
 use Prospecter\Core\Connectors\Domain\Event\ConnectionEvent;
@@ -198,6 +199,28 @@ final class MailboxMailContext implements Context
         $this->application->dispatch($this->scenario->isAnOrganization($name)
             ? CatchUpMailHistory::ofOrganization($this->application->signedIn(), $this->scenario->idOf($name), $this->application->now())
             : CatchUpMailHistory::ofContact($this->application->signedIn(), $this->scenario->personIdOf($name), $this->application->now()));
+    }
+
+    #[Then('le rattrapage Gmail de :name m\'est proposé')]
+    public function theCatchUpIsOffered(string $name): void
+    {
+        Expect::same(['CatchUpGmail'], $this->catchUpIntentsOf($name));
+    }
+
+    #[Then('le rattrapage Gmail de :name ne m\'est pas proposé')]
+    public function theCatchUpIsNotOffered(string $name): void
+    {
+        Expect::same([], $this->catchUpIntentsOf($name));
+    }
+
+    /**
+     * @return list<string>|null
+     */
+    private function catchUpIntentsOf(string $name): ?array
+    {
+        return $this->application->consultMailCatchUpIntents($this->scenario->isAnOrganization($name)
+            ? ConsultMailCatchUpIntents::ofOrganization($this->application->signedIn(), $this->scenario->idOf($name))
+            : ConsultMailCatchUpIntents::ofContact($this->application->signedIn(), $this->scenario->personIdOf($name)));
     }
 
     #[Given('Gmail a oublié l\'historique de :mailbox')]
