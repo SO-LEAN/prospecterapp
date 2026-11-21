@@ -46,6 +46,7 @@ use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 use Prospecter\Core\SharedKernel\Domain\Exception\PersonalDataManagersOnly;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
+use Prospecter\Core\SharedKernel\Domain\Origin;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
@@ -76,6 +77,7 @@ final class Exchange implements ReleasesEvents
     private ?ExchangeFingerprint $fingerprint = null;
     private ?Erasure $erasure = null;
     private bool $bookedByLink = false;
+    private Origin $origin = Origin::Hand;
     /** @var list<Attachment> */
     private array $attachments = [];
 
@@ -97,16 +99,17 @@ final class Exchange implements ReleasesEvents
 
     /**
      * Done, or missed when the contact did not answer or come; fingerprinted by where it was read, if given
-     * (ADR 0166).
+     * (ADR 0166); by the hand of its member, or by an AI acting as them.
      *
      * @param list<OrganizationId> $organizationsOfTheContact
      *
      * @throws ExchangeInTheFuture|ChannelNotMissed
      */
-    public static function notedWithAContact(AccountId $accountId, MemberId $by, ExchangeId $id, PersonId $contact, array $organizationsOfTheContact, ExchangeFacts $facts, ExchangeStatus $outcome, \DateTimeImmutable $at, ?MessageReference $reference = null): self
+    public static function notedWithAContact(AccountId $accountId, MemberId $by, ExchangeId $id, PersonId $contact, array $organizationsOfTheContact, ExchangeFacts $facts, ExchangeStatus $outcome, \DateTimeImmutable $at, ?MessageReference $reference = null, Origin $origin = Origin::Hand): self
     {
         $exchange = self::noted($accountId, $by, $id, $contact, $organizationsOfTheContact, $facts, $outcome, $at);
         $exchange->fingerprint = ($reference ?? MessageReference::none())->fingerprintOf($facts, $contact);
+        $exchange->origin = $origin;
 
         return $exchange;
     }
@@ -163,14 +166,16 @@ final class Exchange implements ReleasesEvents
 
     /**
      * With the organization itself (its switchboard, its generic email): kept for it alone, in the timeline
-     * of no contact; fingerprinted by where it was read, if given (ADR 0166).
+     * of no contact; fingerprinted by where it was read, if given (ADR 0166); by the hand of its member, or by an AI
+     * acting as them.
      *
      * @throws ExchangeInTheFuture|ChannelNotMissed
      */
-    public static function notedWithTheOrganization(Organization $organization, MemberId $by, ExchangeId $id, ExchangeFacts $facts, ExchangeStatus $outcome, \DateTimeImmutable $at, ?MessageReference $reference = null): self
+    public static function notedWithTheOrganization(Organization $organization, MemberId $by, ExchangeId $id, ExchangeFacts $facts, ExchangeStatus $outcome, \DateTimeImmutable $at, ?MessageReference $reference = null, Origin $origin = Origin::Hand): self
     {
         $exchange = self::noted($organization->accountId(), $by, $id, null, [$organization->id()], $facts, $outcome, $at);
         $exchange->fingerprint = ($reference ?? MessageReference::none())->fingerprintOf($facts, $organization->id());
+        $exchange->origin = $origin;
 
         return $exchange;
     }
@@ -195,9 +200,9 @@ final class Exchange implements ReleasesEvents
      *
      * @throws PlannedExchangeInThePast
      */
-    public static function plannedWithAContact(AccountId $accountId, MemberId $by, ExchangeId $id, PersonId $contact, array $organizationsOfTheContact, ExchangeFacts $facts, \DateTimeImmutable $at): self
+    public static function plannedWithAContact(AccountId $accountId, MemberId $by, ExchangeId $id, PersonId $contact, array $organizationsOfTheContact, ExchangeFacts $facts, \DateTimeImmutable $at, Origin $origin = Origin::Hand): self
     {
-        return self::planned($accountId, $by, $id, $contact, $organizationsOfTheContact, $facts, $at);
+        return self::planned($accountId, $by, $id, $contact, $organizationsOfTheContact, $facts, $at, $origin);
     }
 
     /**
@@ -218,18 +223,19 @@ final class Exchange implements ReleasesEvents
     /**
      * @throws PlannedExchangeInThePast
      */
-    public static function plannedWithTheOrganization(Organization $organization, MemberId $by, ExchangeId $id, ExchangeFacts $facts, \DateTimeImmutable $at): self
+    public static function plannedWithTheOrganization(Organization $organization, MemberId $by, ExchangeId $id, ExchangeFacts $facts, \DateTimeImmutable $at, Origin $origin = Origin::Hand): self
     {
-        return self::planned($organization->accountId(), $by, $id, null, [$organization->id()], $facts, $at);
+        return self::planned($organization->accountId(), $by, $id, null, [$organization->id()], $facts, $at, $origin);
     }
 
     /**
      * @param list<OrganizationId> $keptFor
      */
-    private static function planned(AccountId $accountId, MemberId $by, ExchangeId $id, ?PersonId $contact, array $keptFor, ExchangeFacts $facts, \DateTimeImmutable $at): self
+    private static function planned(AccountId $accountId, MemberId $by, ExchangeId $id, ?PersonId $contact, array $keptFor, ExchangeFacts $facts, \DateTimeImmutable $at, Origin $origin = Origin::Hand): self
     {
         self::ensureToCome($facts->occurredAt, $at);
         $exchange = new self($id, $accountId, $by, $contact, $keptFor, $facts, ExchangeStatus::Planned, $at);
+        $exchange->origin = $origin;
         $exchange->recordThat(new ExchangePlanned($accountId, $by, $id, $at));
 
         return $exchange;

@@ -16,6 +16,7 @@ use Prospecter\Core\Prospecting\Domain\Policy\ExchangeChronology;
 use Prospecter\Core\Prospecting\Domain\Policy\ExchangeConformity;
 use Prospecter\Core\Prospecting\Domain\Policy\ExchangeReading;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
+use Prospecter\Core\SharedKernel\Domain\Origin;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
@@ -191,6 +192,7 @@ final readonly class InMemoryTimelineRetriever implements TimelineRetriever
             withAContactToAttach: null !== $exchange->contactToAttach(),
             bookedByLink: $exchange->isBookedByLink(),
             importedFrom: $state['importedFrom']?->provider,
+            createdByAnAI: Origin::Ai === $state['origin'],
         );
     }
 

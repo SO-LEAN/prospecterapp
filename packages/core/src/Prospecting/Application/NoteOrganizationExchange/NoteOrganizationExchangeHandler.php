@@ -22,6 +22,7 @@ use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
+use Prospecter\Core\SharedKernel\Domain\Origin;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 final readonly class NoteOrganizationExchangeHandler implements CommandHandler
@@ -42,7 +43,7 @@ final readonly class NoteOrganizationExchangeHandler implements CommandHandler
         $author = new MemberId($command->prospectorId);
         $organization = $this->organizations->get(new OrganizationId($command->organizationId));
         $exchange = null === $command->personId
-            ? Exchange::notedWithTheOrganization($organization, $author, new ExchangeId($command->id), self::factsOf($command), ExchangeStatus::outcome($command->missed), $command->executedAt, self::referenceOf($command))
+            ? Exchange::notedWithTheOrganization($organization, $author, new ExchangeId($command->id), self::factsOf($command), ExchangeStatus::outcome($command->missed), $command->executedAt, self::referenceOf($command), Origin::byAnAI($command->byAnAI))
             : $this->notedWithAContact($organization, $author, new PersonId($command->personId), $command);
         if ($command->noteOnce) {
             $this->notedOnce->ensureFirst($exchange);
@@ -60,7 +61,7 @@ final readonly class NoteOrganizationExchangeHandler implements CommandHandler
     {
         $organization->ensureHasContact($contact);
 
-        return Exchange::notedWithAContact($organization->accountId(), $author, new ExchangeId($command->id), $contact, $this->contactOrganizations->of($contact, $organization->accountId()), self::factsOf($command), ExchangeStatus::outcome($command->missed), $command->executedAt, self::referenceOf($command));
+        return Exchange::notedWithAContact($organization->accountId(), $author, new ExchangeId($command->id), $contact, $this->contactOrganizations->of($contact, $organization->accountId()), self::factsOf($command), ExchangeStatus::outcome($command->missed), $command->executedAt, self::referenceOf($command), Origin::byAnAI($command->byAnAI));
     }
 
     /**

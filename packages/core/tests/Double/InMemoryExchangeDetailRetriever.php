@@ -19,6 +19,7 @@ use Prospecter\Core\Prospecting\Domain\Policy\ExchangeConformity;
 use Prospecter\Core\Prospecting\Domain\Policy\ExchangePossibilities;
 use Prospecter\Core\Prospecting\Domain\Policy\ExchangeReading;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
+use Prospecter\Core\SharedKernel\Domain\Origin;
 
 /**
  * Reads the exchanges the in-memory repository saved, as the adapter reads the items of the table.
@@ -73,6 +74,7 @@ final readonly class InMemoryExchangeDetailRetriever implements ExchangeDetailRe
             bookedByLink: $state['bookedByLink'],
             importedFrom: $state['importedFrom']?->provider,
             providerMessageId: $state['importedFrom']?->providerMessageId,
+            createdByAnAI: Origin::Ai === $state['origin'],
         );
     }
 }

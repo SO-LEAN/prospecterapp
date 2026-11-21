@@ -19,6 +19,7 @@ use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Origin;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 final readonly class NoteExchangeHandler implements CommandHandler
@@ -49,6 +50,7 @@ final readonly class NoteExchangeHandler implements CommandHandler
             ExchangeStatus::outcome($command->missed),
             $command->executedAt,
             MessageReference::of($facts->channel, $command->messageId, $command->linkedInConversation),
+            Origin::byAnAI($command->byAnAI),
         );
         if ($command->noteOnce) {
             $this->notedOnce->ensureFirst($exchange);
