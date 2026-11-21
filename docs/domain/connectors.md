@@ -94,14 +94,14 @@ Code: `packages/core/src/Connectors`.
   - There is nothing to import from an e-mail in the spam, the trash or the drafts, received from an unknown sender, or sent to unknown recipients only, or for a person in copy. No contact is ever created.
   - An e-mail the member sends to themselves or to a member of the account has no correspondent.
   - A message gone in the meantime, or an import no longer active, imports nothing.
-- A member catches up, from a contact's or an organization's card, the e-mails their mailbox already exchanged with it (`CatchUpMailHistory`, ADR 0176).
+- A member reimports, from a contact's or an organization's card, the e-mails their mailbox already exchanged with it (`CatchUpMailHistory`, ADR 0176).
   - The correspondent's address is read from PersonalData, as the member reads it in clear, or from Prospecting for an organization the account prospects (`CorrespondentAddresses`). It is passed to the provider in its search and never kept.
-  - The messages exchanged with it over the previous 12 months, the 200 newest, except the spam, the trash and the drafts, are each given to the import as an added message (`Connection::catchUpMailWith()`, `MailboxMessageAdded`), asynchronously. The `ImportMail` rules keep only the sender and the recipients in « To ». An e-mail is logged once in the account, and never again once erased (ADR 0166), so catching up again logs nothing more.
+  - The messages exchanged with it over the previous 12 months, the 200 newest, except the spam, the trash and the drafts, are each given to the import as an added message (`Connection::catchUpMailWith()`, `MailboxMessageAdded`), asynchronously. The `ImportMail` rules keep only the sender and the recipients in « To ». An e-mail is logged once in the account, and never again once erased (ADR 0166), so reimporting again logs nothing more.
   - A correspondent the member does not read, or one of another account, is unknown (`UnknownContact`, `UnknownOrganization`), before any connection is looked at.
-  - A correspondent without an e-mail has nothing to catch up (`NoAddressToCatchUp`).
+  - A correspondent without an e-mail has nothing to reimport (`NoAddressToReimport`).
   - An import that is off or to reconnect refuses it (`MailImportNotActive`).
   - A token the provider refuses makes the import **to reconnect** (`MailImportLost`), and the command succeeds.
-  - Only a member allowed to manage personal data catches up (`PersonalDataManagersOnly`, checked first); the API refuses the others too, as for the import (ADR 0081). The catch-up is offered to them only while the import is active and the correspondent has an address (`ConsultMailCatchUpIntents`, `CatchUpGmail`).
+  - Only a member allowed to manage personal data reimports (`PersonalDataManagersOnly`, checked first); the API refuses the others too, as for the import (ADR 0081). The reimport is offered to them only while the import is active and the correspondent has an address (`ConsultMailCatchUpIntents`, `CatchUpGmail`).
 - A member views only their own connections (`ConsultMyConnections`). The address of their external account is personal data kept outside PersonalData: it is theirs alone, and forgotten when they disconnect (ADR 0120).
 
 ## What it publishes
@@ -118,7 +118,7 @@ It reads:
 - from PersonalData and Prospecting, who an address designates (`Correspondents`, `WhichContactsHaveTheseEmailsService`, `WhichOrganizationsHaveTheseEmailsService`);
 - from Prospecting, the exchanges (`HeldExchanges`, `ConsultHeldExchangesService`, `ConsultPlannedExchangesService`);
 - from PersonalData, the contacts' names, and the e-mail and phone of a booker it invites (`ContactNames`, `NameContactsService`);
-- a contact's address from PersonalData and an organization's from Prospecting, to catch up the e-mails exchanged with them (`CorrespondentAddresses`, `WhichEmailsHaveTheseContactsService`, `WhichEmailsHaveTheseOrganizationsService`, ADR 0176).
+- a contact's address from PersonalData and an organization's from Prospecting, to reimport the e-mails exchanged with them (`CorrespondentAddresses`, `WhichEmailsHaveTheseContactsService`, `WhichEmailsHaveTheseOrganizationsService`, ADR 0176).
 
 It reacts to the exchanges' facts (`ExchangeFactsChanged`) and to forgotten contacts (`ContactForgotten`).
 

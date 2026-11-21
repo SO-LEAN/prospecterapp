@@ -4,7 +4,7 @@ Members put tags on their organizations and contacts, to find later the ones tha
 
 ## Language
 
-- **Tag** (`Tag`): a `#` followed by 1 to 30 characters: unaccented capital letters, digits and underscores (#ESN, #SALON_2026). A tag is written one way whatever was typed: accents are removed, every other run of characters becomes an underscore, and nothing is left at either end (`éditeur logiciel` is #EDITEUR_LOGICIEL). Text that makes no tag is refused (`InvalidTag`).
+- **Tag** (`Tag`): a `#` followed by 1 to 30 characters: unaccented capital letters, digits and underscores (#ESN, #SALON_2026). A tag is written one way whatever was typed: accents are removed, every other run of characters becomes an underscore, and nothing is left at either end (`Café owners` is #CAFE_OWNERS). Text that makes no tag is refused (`InvalidTag`).
 - **Holder** (`Holder`): what carries tags, an organization (`OrganizationId`) or a contact (`PersonId`).
 - **Tagging** (`Tagging`): the tags an account's members put **by hand** on one holder, sorted by name. It is Campaigns' source data.
 - **Predefined tags** (`PredefinedTags`): tags proposed to every account, by family (`TagFamily`):
@@ -25,7 +25,7 @@ Members put tags on their organizations and contacts, to find later the ones tha
 - **Campaign** (`Campaign`, `CampaignId`): a communication campaign of an account's team, prepared by its author (`createdBy`). The members contact each person it targets themselves; Prospecter sends nothing (ADR 0144). A campaign has a name (`CampaignName`, 1 to 100 characters), a targeting, a message template and a status.
 - **Channel** (`Channel`): how each contact is contacted: e-mail, call, SMS or LinkedIn. Each channel needs the means its automatic tag stands for: #EMAIL, #PHONE, #SMS, #LINKEDIN.
 - **Targeting** (`Targeting`): the channel and the chosen tags (a `TagSelection`). Its **targeted tags** are the chosen tags plus the channel's tag, a tag chosen twice counted once, all within the 5 tags of a search.
-- **Message template** (`MessageTemplate`): the text of an e-mail, SMS or LinkedIn message, or a call's pitch, 5,000 characters at most, plus an e-mail's subject. Its variables are `{civilité}` (Madame or Monsieur), `{prénom}`, `{nom}`, `{organisation}` and `{fonction}`.
+- **Message template** (`MessageTemplate`): the text of an e-mail, SMS or LinkedIn message, or a call's pitch, 5,000 characters at most, plus an e-mail's subject. Its variables are `{title}` (Madame or Monsieur), `{firstName}`, `{lastName}`, `{organization}` and `{jobTitle}` (ADR 0190).
   - **Addressee** (`Addressee`): what a message calls a contact.
   - **Rendered message** (`RenderedMessage`): the message for one contact.
   - **Message mode** (`MessageMode`): how an AI running the campaign treats the message. It is sent **as is** (`asIs`, the default), as rendered for each person, or **adapted** (`adapted`) to each person, keeping its idea (ADR 0186).
