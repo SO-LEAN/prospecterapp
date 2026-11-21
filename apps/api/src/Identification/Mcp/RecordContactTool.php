@@ -3,6 +3,7 @@
 namespace App\Identification\Mcp;
 
 use App\Identification\ContactRecorder;
+use App\Identification\Designation;
 use App\Prospecting\OrganizationResolver;
 use App\Prospecting\OrganizationVoter;
 use App\Security\ToolAccess;
@@ -59,9 +60,9 @@ final readonly class RecordContactTool
     /**
      * @param RecordedPerson       $person          the person as you see them, each part optional
      * @param RecordedOrganization $organization    the organization they work for as you see it, each part optional
-     * @param ?string              $organizationId  the organization your member retained among those to confirm
+     * @param ?string              $organizationId  the organization your member retained among those to confirm, which wins over `newOrganization`
      * @param bool                 $newOrganization true when your member said it is none of those to confirm
-     * @param ?string              $personId        the contact your member retained among those to confirm
+     * @param ?string              $personId        the contact your member retained among those to confirm, which wins over `newPerson`
      * @param bool                 $newPerson       true when your member said they are none of those to confirm
      *
      * @return array<string, mixed>
@@ -84,6 +85,6 @@ final readonly class RecordContactTool
             $this->access->denyUnlessGranted(OrganizationVoter::ACCESS, $this->organizations->read($organizationId));
         }
 
-        return $this->results->of($this->recorder->record($this->access->member()->memberId(), $person, $organization, $organizationId, $newOrganization, $personId, $newPerson));
+        return $this->results->of($this->recorder->record($this->access->member()->memberId(), $person, $organization, Designation::of($organizationId, $newOrganization), Designation::of($personId, $newPerson)));
     }
 }

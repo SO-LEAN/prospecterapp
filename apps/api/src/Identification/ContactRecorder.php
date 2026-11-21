@@ -48,6 +48,9 @@ use Symfony\Component\Clock\ClockInterface;
  */
 final readonly class ContactRecorder
 {
+    /** How one addresses a person no clue says how. */
+    private const string UNKNOWN_CIVILITY = 'x';
+
     public function __construct(
         private QueryHandler $identifyOrganizations,
         private QueryHandler $identifyPersons,
@@ -64,52 +67,41 @@ final readonly class ContactRecorder
     /**
      * @param RecordedPerson       $person
      * @param RecordedOrganization $organization
-     * @param ?string              $organizationId  the organization retained among those to confirm, the access to it checked
-     * @param bool                 $newOrganization none of those to confirm: another one, to create
-     * @param ?string              $personId        the contact retained among those to confirm
-     * @param bool                 $newPerson       none of those to confirm: another one, to create
+     * @param Designation          $theOrganization the access to the one retained checked
      */
-    public function record(string $memberId, array $person, array $organization, ?string $organizationId = null, bool $newOrganization = false, ?string $personId = null, bool $newPerson = false): RecordingResource
+    public function record(string $memberId, array $person, array $organization, Designation $theOrganization, Designation $thePerson): RecordingResource
     {
-        $readOrganization = $this->readOrganization($memberId, $organization, $organizationId, $newOrganization);
-        $readPerson = $this->readPerson($memberId, $person, $readOrganization->id, $personId, $newPerson);
+        $readOrganization = $this->readOrganization($memberId, $organization, $theOrganization);
+        $readPerson = $this->readPerson($memberId, $person, $readOrganization->id, $thePerson);
 
         if (RecordedResource::TO_CONFIRM === $readOrganization->status || RecordedResource::TO_CONFIRM === $readPerson->status) {
             return new RecordingResource($readOrganization, $readPerson);
         }
 
-        if (null === $readOrganization->id) {
-            return $this->withTheOrganizationCreated($memberId, $person, $organization, $readPerson);
-        }
+        $contactWrite = $this->contactWrite($memberId, $person, $readPerson->id);
 
-        $organizationComparison = $this->organizationComparison($readOrganization->id, $organization);
-        $contactComparison = null === $readPerson->id ? null : $this->contactComparison($memberId, $readPerson->id, $person);
-
-        return new RecordingResource(
-            $this->completedOrganization($memberId, $readOrganization->id, $organization, $organizationComparison),
-            $this->recordedContact($memberId, $person, $readPerson->id, $contactComparison, $readOrganization->id),
-        );
+        return null === $readOrganization->id
+            ? $this->withTheOrganizationCreated($memberId, $organization, $contactWrite)
+            : new RecordingResource($this->completedOrganization($memberId, $readOrganization->id, $organization), $contactWrite($readOrganization->id));
     }
 
     /**
-     * The organization created, then what follows: a step failing, the organization the call created stops being
-     * prospected, by the gesture of the domain that erases it, and the failure goes on (ADR 0177).
+     * The organization created, then the contact written: a step failing, the organization the call created stops
+     * being prospected, by the gesture of the domain that erases it, and the failure goes on (ADR 0177).
      *
-     * @param RecordedPerson       $person
-     * @param RecordedOrganization $organization
+     * @param RecordedOrganization               $organization
+     * @param \Closure(string): RecordedResource $contactWrite
      */
-    private function withTheOrganizationCreated(string $memberId, array $person, array $organization, RecordedResource $readPerson): RecordingResource
+    private function withTheOrganizationCreated(string $memberId, array $organization, \Closure $contactWrite): RecordingResource
     {
-        $contactComparison = null === $readPerson->id ? null : $this->contactComparison($memberId, $readPerson->id, $person);
-        $created = $this->startedOrganization($memberId, $organization);
+        $starting = $this->startingOf($organization);
+        $created = $this->identities->next();
+        $this->commandBus->dispatch($starting->commandOf($memberId, $created, $this->clock->now()));
 
         try {
             $this->noteTheSiretOf($memberId, $created, $organization);
 
-            return new RecordingResource(
-                new RecordedResource(RecordedResource::CREATED, $created),
-                $this->recordedContact($memberId, $person, $readPerson->id, $contactComparison, $created),
-            );
+            return new RecordingResource(new RecordedResource(RecordedResource::CREATED, $created), $contactWrite($created));
         } catch (\Throwable $failure) {
             $this->commandBus->dispatch(new StopProspecting($memberId, $created, $this->clock->now()));
 
@@ -118,13 +110,21 @@ final readonly class ContactRecorder
     }
 
     /**
+     * The write of the contact for their organization, everything it reads read before any write.
+     *
      * @param RecordedPerson $person
+     *
+     * @return \Closure(string): RecordedResource
      */
-    private function recordedContact(string $memberId, array $person, ?string $personId, ?Comparison $comparison, string $organizationId): RecordedResource
+    private function contactWrite(string $memberId, array $person, ?string $personId): \Closure
     {
-        return null === $personId || null === $comparison
-            ? $this->collectedContact($memberId, $person, $organizationId)
-            : $this->completedContact($memberId, $personId, $person, $comparison, $organizationId);
+        if (null === $personId) {
+            return fn (string $organizationId): RecordedResource => $this->collectedContact($memberId, $person, $organizationId);
+        }
+
+        $comparison = $this->contactComparison($memberId, $personId, $person);
+
+        return fn (string $organizationId): RecordedResource => $this->completedContact($memberId, $personId, $person, $comparison, $organizationId);
     }
 
     /**
@@ -132,13 +132,13 @@ final readonly class ContactRecorder
      *
      * @param RecordedOrganization $organization
      */
-    private function readOrganization(string $memberId, array $organization, ?string $retained, bool $another): RecordedResource
+    private function readOrganization(string $memberId, array $organization, Designation $designation): RecordedResource
     {
-        if (null !== $retained) {
-            return new RecordedResource(RecordedResource::KNOWN, $retained);
+        if (null !== $designation->retained) {
+            return new RecordedResource(RecordedResource::KNOWN, $designation->retained);
         }
 
-        if ($another) {
+        if ($designation->isAnotherOne()) {
             return new RecordedResource(RecordedResource::NEW);
         }
 
@@ -153,13 +153,13 @@ final readonly class ContactRecorder
      *
      * @param RecordedPerson $person
      */
-    private function readPerson(string $memberId, array $person, ?string $organizationId, ?string $retained, bool $another): RecordedResource
+    private function readPerson(string $memberId, array $person, ?string $organizationId, Designation $designation): RecordedResource
     {
-        if (null !== $retained) {
-            return new RecordedResource(RecordedResource::KNOWN, $retained);
+        if (null !== $designation->retained) {
+            return new RecordedResource(RecordedResource::KNOWN, $designation->retained);
         }
 
-        if ($another) {
+        if ($designation->isAnotherOne()) {
             return new RecordedResource(RecordedResource::NEW);
         }
 
@@ -184,19 +184,12 @@ final readonly class ContactRecorder
     /**
      * @param RecordedOrganization $organization
      */
-    private function organizationComparison(string $organizationId, array $organization): Comparison
+    private function completedOrganization(string $memberId, string $organizationId, array $organization): RecordedResource
     {
         $compared = new KeptOrganizationComparison();
         ($this->compareWithOrganization)(new CompareWithOrganization($organizationId, $organization['siret'] ?? null, $organization['links'] ?? [], $organization['website'] ?? null, $organization['email'] ?? null, $organization['phoneNumber'] ?? null), $compared);
+        $comparison = $compared->comparison;
 
-        return $compared->comparison;
-    }
-
-    /**
-     * @param RecordedOrganization $organization
-     */
-    private function completedOrganization(string $memberId, string $organizationId, array $organization, Comparison $comparison): RecordedResource
-    {
         if ([] !== $comparison->completed) {
             $this->commandBus->dispatch(new CompleteOrganization($memberId, $organizationId, $organization['siret'] ?? null, $organization['links'] ?? [], $organization['website'] ?? null, $organization['email'] ?? null, $organization['phoneNumber'] ?? null, $this->clock->now()));
         }
@@ -210,20 +203,9 @@ final readonly class ContactRecorder
     private function contactComparison(string $memberId, string $personId, array $person): Comparison
     {
         $compared = new KeptContactComparison();
-        ($this->compareWithContact)(new CompareWithContact($memberId, $personId, $person['civility'] ?? 'x', $person['jobTitle'] ?? null, $person['email'] ?? null, $person['phoneNumber'] ?? null, $person['links'] ?? []), $compared);
+        ($this->compareWithContact)(new CompareWithContact($memberId, $personId, $person['civility'] ?? self::UNKNOWN_CIVILITY, $person['jobTitle'] ?? null, $person['email'] ?? null, $person['phoneNumber'] ?? null, $person['links'] ?? []), $compared);
 
         return $compared->comparison;
-    }
-
-    /**
-     * @param RecordedOrganization $organization
-     */
-    private function startedOrganization(string $memberId, array $organization): string
-    {
-        $id = $this->identities->next();
-        $this->commandBus->dispatch($this->startingOf($organization)->commandOf($memberId, $id, $this->clock->now()));
-
-        return $id;
     }
 
     /**
@@ -244,7 +226,7 @@ final readonly class ContactRecorder
     private function collectedContact(string $memberId, array $person, string $organizationId): RecordedResource
     {
         $id = $this->identities->next();
-        $this->commandBus->dispatch($this->collectingOf($person, $organizationId)->commandOf($memberId, $id, $this->clock->now()));
+        $this->commandBus->dispatch($this->collectingOf($person, [$organizationId])->commandOf($memberId, $id, $this->clock->now()));
 
         return new RecordedResource(RecordedResource::CREATED, $id);
     }
@@ -255,7 +237,7 @@ final readonly class ContactRecorder
     private function completedContact(string $memberId, string $personId, array $person, Comparison $comparison, string $organizationId): RecordedResource
     {
         if ([] !== $comparison->completed) {
-            $this->commandBus->dispatch(new CompleteContact($memberId, $personId, $person['civility'] ?? 'x', $person['jobTitle'] ?? null, $person['email'] ?? null, $person['phoneNumber'] ?? null, $person['links'] ?? [], $this->clock->now()));
+            $this->commandBus->dispatch(new CompleteContact($memberId, $personId, $person['civility'] ?? self::UNKNOWN_CIVILITY, $person['jobTitle'] ?? null, $person['email'] ?? null, $person['phoneNumber'] ?? null, $person['links'] ?? [], $this->clock->now()));
         }
 
         if (!in_array($personId, $this->organizations->read($organizationId)->contactIds, true)) {
@@ -309,15 +291,16 @@ final readonly class ContactRecorder
 
     /**
      * @param RecordedPerson $person
+     * @param list<string>   $organizationIds
      */
-    private function collectingOf(array $person, string $organizationId): CollectContactInput
+    private function collectingOf(array $person, array $organizationIds): CollectContactInput
     {
         return $this->inputs->valid(new CollectContactInput(
             new PersonNameInput($person['firstName'] ?? null, $person['lastName'] ?? null),
-            $person['civility'] ?? 'x',
+            $person['civility'] ?? self::UNKNOWN_CIVILITY,
             $person['jobTitle'] ?? null,
             new PersonContactDetailsInput($person['email'] ?? null, $person['phoneNumber'] ?? null, null, $person['links'] ?? []),
-            [$organizationId],
+            $organizationIds,
         ));
     }
 }
