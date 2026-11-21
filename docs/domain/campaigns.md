@@ -49,7 +49,7 @@ The tags the members put on their organizations and their contacts, to find late
 - The campaigns of an account are listed whole, the newest first, each with the contacts it targets counted (`ListCampaigns`, `ConsultCampaign`, `CampaignTargets`): a draft, those its search finds now, the tags of every contact derived once (`TagsOfEveryContact`, ADR 0144, 0143); a frozen one, its recipients; each says its recipients processed and dismissed, none before it is started (`CampaignProgress`).
 - The core renders the message of a campaign for a contact of the account (`RenderCampaignMessage`): each variable by what is known of them, the names, the civility and the job title as PersonalData lets the member read them, the first organization Prospecting lists for them, nothing when nothing is known, any other text kept; the subject the same way; a person the member reads as no contact of the account is unknown (`UnknownContact`).
 - Only a member with the right to manage personal data runs campaigns, every gesture and every reading: the API requires it (ADR 0081), the core checks no role.
-- A rebuild records again the facts of every account, or of one, as Prospecting and PersonalData give them from their state, through the same succession, each fact a unit of work of its own, without version nor wait (`RebuildTags`).
+- A rebuild records again the facts of every account, or of one, as Prospecting and PersonalData give them from their state, through the same succession but for a fact kept at the same revision, which a rebuilt one replaces, as it may have been recorded before the facts carried what they carry now (ADR 0184), each fact a unit of work of its own, without version nor wait (`RebuildTags`).
 
 ## What it publishes
 
