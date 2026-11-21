@@ -23,7 +23,7 @@ class McpNamesTest extends KernelTestCase
         'set', 'update', 'delete',
         'add', 'remove', 'create', 'log', 'schedule', 'reschedule', 'cancel', 'mark', 'attach', 'detach',
         'tag', 'untag', 'open', 'close', 'start', 'stop', 'freeze', 'dismiss', 'complete', 'reopen',
-        'rename', 'identify', 'record', 'retry', 'check', 'catch', 'sync', 'run',
+        'identify', 'record', 'retry', 'check', 'catch', 'sync', 'run',
     ];
 
     public function testEveryToolIsNamedByAKnownVerbThenItsObject(): void

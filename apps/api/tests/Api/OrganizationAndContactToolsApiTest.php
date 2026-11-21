@@ -40,7 +40,7 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         $ada = $this->ada();
         $name = ['firstName' => 'Augusta Ada', 'lastName' => 'King'];
 
-        $renamed = $this->assertTheToolActsAsItsEndpoint('rename-contact', ['id' => $ada, ...$name], 'PATCH', '/api/contacts/'.$ada.'/name', $name, self::PERSONAL_DATA_MANAGERS);
+        $renamed = $this->assertTheToolActsAsItsEndpoint('set-contact-name', ['id' => $ada, ...$name], 'PATCH', '/api/contacts/'.$ada.'/name', $name, self::PERSONAL_DATA_MANAGERS);
 
         $this->assertSame($name, $renamed['name']);
     }
