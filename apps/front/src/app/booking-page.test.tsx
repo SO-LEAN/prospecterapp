@@ -221,13 +221,26 @@ describe('the public page of a booking', () => {
     ])
   })
 
-  it('says its host calls the booker of a call at the number they gave', async () => {
+  it('says its host calls the booker of a call at the number they gave, in the international format', async () => {
     theApiBooks(201, { slot: '2026-11-24T09:15:00+01:00', channel: 'call', email: 'ada@acme.fr' })
 
     const user = await iFillTheFormFor('Appel', '09:15')
     await user.click(screen.getByRole('button', { name: 'Réserver' }))
 
-    expect(await screen.findByText('Camille vous appellera au 06 12 34 56 78.')).toBeInTheDocument()
+    expect(await screen.findByText('Camille vous appellera au +33 6 12 34 56 78.')).toBeInTheDocument()
+  })
+
+  it('says a number the page cannot read as the booker typed it', async () => {
+    theApiBooks(201, { slot: '2026-11-24T09:15:00+01:00', channel: 'call', email: 'ada@acme.fr' })
+
+    const user = await iFillTheFormFor('Appel', '09:15')
+    const phone = screen.getByLabelText(/^Téléphone/)
+    await user.clear(phone)
+    await user.type(phone, '+000000')
+    expect(phone).toHaveValue('+000000')
+    await user.click(screen.getByRole('button', { name: 'Réserver' }))
+
+    expect(await screen.findByText('Camille vous appellera au +000000.')).toBeInTheDocument()
   })
 
   it('tells a booker who has an appointment already when it is, and to write or call its host for another', async () => {

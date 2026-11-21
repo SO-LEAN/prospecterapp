@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { applyViolations, isProblem } from '@/shared/api/problem'
 import type { components } from '@/shared/api/schema'
 import { FormField } from '@/shared/forms/form-field'
-import { phoneAsTyped } from '@/shared/forms/phone'
+import { phoneAsRead, phoneAsTyped } from '@/shared/forms/phone'
 import { orNull } from '@/shared/forms/text'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
@@ -53,7 +53,7 @@ export function BookingForm({ code, channel, slot, recap, onDone }: Props) {
         body: { slot, channel, ...values, subject: orNull(values.subject), formShownAt },
       },
       {
-        onSuccess: () => onDone({ kind: 'booked', email: values.email, phone: values.phone }),
+        onSuccess: () => onDone({ kind: 'booked', email: values.email, phone: phoneAsRead(values.phone) }),
         onError: (error) => {
           const refusal = refusalOf(error)
           if (refusal?.reason === 'alreadyBooked') {
