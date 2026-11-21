@@ -217,7 +217,7 @@ Every command runs locally with `make console CMD="…"`, on an instance with `I
 | `app:keys:rebuild` | Writes again the keys the tables derive from the aggregates, among them those listing the accounts and the exchanges the rebuild reads: before `app:reporting:rebuild` on an instance holding older items. |
 | `app:organizations:locate-again` | Geocodes again the address of the organizations located before their municipality was kept, each by a command of its own, so that their facts carry it (ADR 0142). Once on an instance, after the deployment of `OrganizationFactsChanged.v3`, before `app:tags:rebuild`; run again, it finds only those whose address the geocoder no longer finds. |
 | `app:campaign:erase <id>` | Erases a campaign whatever its status, found by its identity among the accounts: the cleaning of a test, a request of a person. The application never deletes a started campaign. |
-| `app:tags:rebuild [--account=<id>]` | Records again the facts the tags of the contacts derive from, as Prospecting and PersonalData give them, through the succession of the worker: no version, no wait (ADR 0141). Once Campaigns derives them on an instance, then when the check finds them out of date. |
+| `app:tags:rebuild [--account=<id>]` | Records again the facts the tags of the contacts derive from, as Prospecting and PersonalData give them, through the succession of the worker but for a fact kept at the same revision, which it replaces: no version, no wait (ADR 0141, 0184). Once Campaigns derives them on an instance, then when the check finds them out of date. |
 
 | Symptom | Correction |
 |---|---|
