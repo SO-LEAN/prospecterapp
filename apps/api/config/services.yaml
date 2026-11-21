@@ -454,6 +454,9 @@ when@test:
             public: true
             tags:
                 - { name: app.subscription, subscription: prospecting-failing-reaction, context: prospecting, source: prospecter.prospecting.internal, event: ObservationsWritten.v1, inbox: true }
+        # a command failed when a test asks it to, before its use case runs
+        Tests\App\Double\FailingCommands:
+            public: true
         # another request taking an email meanwhile, when a test asks it to
         Tests\App\Double\EmailTakenMeanwhile:
             autowire: true
