@@ -22,7 +22,7 @@ final readonly class ShowDashboardTool
     /**
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'lire-tableau-de-bord', description: 'The dashboard of the account: its figures (organizations, contacts, exchanges) and the organizations to place on a map.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'get-dashboard', description: 'The dashboard of the account: its figures (organizations, contacts, exchanges) and the organizations to place on a map.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');

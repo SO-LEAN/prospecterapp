@@ -26,7 +26,7 @@ final readonly class ProposeMeetingPlaceTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'proposer-lieu-de-rendez-vous', description: 'The place proposed to meet a contact: the address of their organization.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'get-meeting-place', description: 'The place proposed to meet a contact: the address of their organization.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $id): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');

@@ -30,7 +30,7 @@ final readonly class ShowOrganizationTagsTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'lire-tags-organisation', description: 'The tags of an organization, which its contacts inherit.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'list-organization-tags', description: 'The tags of an organization, which its contacts inherit.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $id): array
     {
         $organization = $this->organizations->read($id);

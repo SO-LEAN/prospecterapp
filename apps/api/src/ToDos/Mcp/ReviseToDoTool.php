@@ -27,7 +27,7 @@ final readonly class ReviseToDoTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'reviser-a-faire', description: 'Change the text of a to-do and when it is due, both given; needs the right to manage the personal data. Answers the to-do.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
+    #[McpTool(name: 'update-todo', description: 'Change the text of a to-do and when it is due, both given; needs the right to manage the personal data. Answers the to-do.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
     public function __invoke(string $id, string $text, string $dueOn, ?string $dueAt = null): array
     {
         return $this->writes->write(

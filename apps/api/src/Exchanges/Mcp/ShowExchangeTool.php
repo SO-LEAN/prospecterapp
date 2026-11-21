@@ -30,7 +30,7 @@ final readonly class ShowExchangeTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'lire-echange', description: 'The detail of an exchange: its channel, direction, moment, status, report, interlocutor, attachments and campaign.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'get-exchange', description: 'The detail of an exchange: its channel, direction, moment, status, report, interlocutor, attachments and campaign.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $id): array
     {
         $member = $this->access->member();

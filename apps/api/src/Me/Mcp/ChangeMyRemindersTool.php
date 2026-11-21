@@ -36,7 +36,7 @@ final readonly class ChangeMyRemindersTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'changer-mes-rappels', description: 'Turn the reminders of the member on or off, and say how long before their exchanges and to-dos they are reminded. Answers their reminders.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
+    #[McpTool(name: 'update-my-reminders', description: 'Turn the reminders of the member on or off, and say how long before their exchanges and to-dos they are reminded. Answers their reminders.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
     public function __invoke(bool $enabled, int $minutesBefore): array
     {
         $this->access->denyUnlessGranted('ROLE_USER');

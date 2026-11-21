@@ -36,7 +36,7 @@ final readonly class ChangeJobTitleTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'changer-fonction-contact', description: 'Change what a contact does in their organization (their job title); needs the right to manage the personal data. Answers the contact.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
+    #[McpTool(name: 'set-contact-job-title', description: 'Change what a contact does in their organization (their job title); needs the right to manage the personal data. Answers the contact.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
     public function __invoke(string $id, ?string $jobTitle = null): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');

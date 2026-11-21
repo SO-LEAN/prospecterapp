@@ -30,7 +30,7 @@ final readonly class ConsultMyBookingPageTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'lire-ma-page-de-reservation', description: 'The booking page of the member: open or not, its public link, its slots by day, its inactive periods, its channels.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'get-my-booking-page', description: 'The booking page of the member: open or not, its public link, its slots by day, its inactive periods, its channels.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(?string $timeZone = null): array
     {
         $this->access->denyUnlessGranted('ROLE_USER');

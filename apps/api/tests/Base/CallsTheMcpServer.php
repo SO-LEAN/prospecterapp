@@ -119,13 +119,13 @@ trait CallsTheMcpServer
     }
 
     /**
-     * The tools a prompt names, `identifier` and those quoted in kebab-case (`noter-un-echange`).
+     * The tools a prompt names, `identify` and those quoted in kebab-case (`log-contact-exchange`).
      *
      * @return list<string>
      */
     protected static function toolsNamedIn(string $text): array
     {
-        preg_match_all('/`(identifier|[a-z]+(?:-[a-z]+)+)`/', $text, $names);
+        preg_match_all('/`(identify|[a-z]+(?:-[a-z]+)+)`/', $text, $names);
 
         return array_values(array_unique($names[1]));
     }

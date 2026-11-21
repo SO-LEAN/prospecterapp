@@ -51,7 +51,7 @@ final readonly class NoteOrganizationExchangeTool
      * @return array<string, mixed>
      */
     #[McpTool(
-        name: 'noter-un-echange-organisation',
+        name: 'log-organization-exchange',
         description: 'Note a call, a message or a meeting with an organization itself, or with one of its contacts, as read in a mailbox or a messaging: give the Message-ID of an e-mail, the conversation of a LinkedIn message. Each exchange is noted once in the account: noted again, the answer is its status alreadyNoted with the exchange noted first, or erasedBefore with who erased it, and nothing is noted.',
         annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false),
     )]

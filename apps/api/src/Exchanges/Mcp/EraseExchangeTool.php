@@ -22,7 +22,7 @@ final readonly class EraseExchangeTool
     /**
      * @param string $id the id of the exchange
      */
-    #[McpTool(name: 'effacer-echange', description: 'Erase an exchange from every timeline; needs the right to manage the personal data. Answers nothing.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'delete-exchange', description: 'Erase an exchange from every timeline; needs the right to manage the personal data. Answers nothing.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id): void
     {
         $this->writes->dispatched(

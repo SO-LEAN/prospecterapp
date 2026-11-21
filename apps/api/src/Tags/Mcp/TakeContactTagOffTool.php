@@ -34,7 +34,7 @@ final readonly class TakeContactTagOffTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'retirer-tag-contact', description: 'Take a tag put by hand off a contact. Answers their tags.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'untag-contact', description: 'Take a tag put by hand off a contact. Answers their tags.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id, string $tag): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');

@@ -32,7 +32,7 @@ final readonly class RetryPushTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'relancer-synchronisation-google', description: 'Push an exchange into the calendar of its holder at Google again, as it is now, once Google refused it; by its holder. Answers where its push stands.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true))]
+    #[McpTool(name: 'retry-google-sync', description: 'Push an exchange into the calendar of its holder at Google again, as it is now, once Google refused it; by its holder. Answers where its push stands.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true))]
     public function __invoke(string $id): array
     {
         $exchange = $this->writes->dispatched(

@@ -25,7 +25,7 @@ final readonly class RemoveContactTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'retirer-contact-organisation', description: 'Detach a contact from an organization; the person stays among the contacts of the account. Needs the right to manage the personal data. Answers the organization.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'remove-organization-contact', description: 'Detach a contact from an organization; the person stays among the contacts of the account. Needs the right to manage the personal data. Answers the organization.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id, string $personId): array
     {
         return $this->writes->write(

@@ -11,11 +11,11 @@ use Mcp\Server\Capability\Attribute\McpPrompt;
 final readonly class SynchronizeMailboxPrompt
 {
     private const string IDENTIFYING = <<<'STEP'
-        Demande à Prospecter qui il connaît parmi les correspondants avec `identifier`, par lots de cent au plus : chaque personne avec ses prénom et nom et son adresse e-mail, et son entreprise avec son nom et l'adresse e-mail (son domaine la désigne). Ne garde que les correspondants `known`, sauf ceux que je te demande de créer : ceux-là, enregistre-les avec `enregistrer-un-contact`. Pour chaque personne ou entreprise `toConfirm`, montre-moi ses candidats et demande-moi laquelle c'est, ou si c'en est une autre.
+        Demande à Prospecter qui il connaît parmi les correspondants avec `identify`, par lots de cent au plus : chaque personne avec ses prénom et nom et son adresse e-mail, et son entreprise avec son nom et l'adresse e-mail (son domaine la désigne). Ne garde que les correspondants `known`, sauf ceux que je te demande de créer : ceux-là, enregistre-les avec `record-contact`. Pour chaque personne ou entreprise `toConfirm`, montre-moi ses candidats et demande-moi laquelle c'est, ou si c'en est une autre.
         STEP;
 
     private const string NOTING = <<<'STEP'
-        Note chaque e-mail échangé avec un correspondant gardé avec `noter-un-echange` sur le contact (`noter-un-echange-organisation` quand c'est l'adresse de l'entreprise) : le canal `email`, le sens (`inbound` reçu, `outbound` envoyé), `occurredAt` le moment de son envoi, son sujet puis son texte, et `messageId`, son en-tête Message-ID tel que tu le lis dans la boîte. Un e-mail envoyé à deux contacts se note avec chacun.
+        Note chaque e-mail échangé avec un correspondant gardé avec `log-contact-exchange` sur le contact (`log-organization-exchange` quand c'est l'adresse de l'entreprise) : le canal `email`, le sens (`inbound` reçu, `outbound` envoyé), `occurredAt` le moment de son envoi, son sujet puis son texte, et `messageId`, son en-tête Message-ID tel que tu le lis dans la boîte. Un e-mail envoyé à deux contacts se note avec chacun.
         STEP;
 
     private const string REPORT = <<<'STEP'
@@ -34,7 +34,7 @@ final readonly class SynchronizeMailboxPrompt
      *
      * @return list<array{role: string, content: string}>
      */
-    #[McpPrompt(name: 'synchroniser-boite-e-mail', title: 'Synchroniser ma boîte e-mail', description: 'Note dans Prospecter les e-mails échangés avec vos contacts, sans rien doublonner.')]
+    #[McpPrompt(name: 'sync-mailbox', title: 'Synchroniser ma boîte e-mail', description: 'Note dans Prospecter les e-mails échangés avec vos contacts, sans rien doublonner.')]
     public function __invoke(?string $since = null): array
     {
         return [['role' => 'user', 'content' => implode("\n\n", [self::reading($since), self::IDENTIFYING, self::NOTING, self::REPORT, self::RULES])]];

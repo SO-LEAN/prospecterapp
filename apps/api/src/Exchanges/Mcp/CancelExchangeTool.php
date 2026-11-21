@@ -26,7 +26,7 @@ final readonly class CancelExchangeTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'annuler-echange', description: 'Cancel a planned exchange, saying who called it off if known; by its holder. It stays in the timelines, cancelled, and leaves the calendar at Google; it is never planned again. Answers the exchange.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'cancel-exchange', description: 'Cancel a planned exchange, saying who called it off if known; by its holder. It stays in the timelines, cancelled, and leaves the calendar at Google; it is never planned again. Answers the exchange.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id, ?string $canceller = null): array
     {
         return $this->writes->write(

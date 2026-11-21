@@ -52,7 +52,7 @@ final readonly class StartProspectingTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'prospecter-organisation', description: 'Start prospecting an organization, owned by the account of the member, located by its address as on the screen. Answers the new organization, and the organizations it may duplicate.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'start-prospecting', description: 'Start prospecting an organization, owned by the account of the member, located by its address as on the screen. Answers the new organization, and the organizations it may duplicate.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
     public function __invoke(
         ?string $corporateName = null,
         ?string $form = null,

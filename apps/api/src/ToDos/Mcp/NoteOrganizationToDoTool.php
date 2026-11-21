@@ -43,7 +43,7 @@ final readonly class NoteOrganizationToDoTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'noter-a-faire-organisation', description: 'Note a to-do for an organization itself, held by the member; needs the right to manage the personal data. Answers the to-do.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'create-organization-todo', description: 'Note a to-do for an organization itself, held by the member; needs the right to manage the personal data. Answers the to-do.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id, string $text, string $dueOn, ?string $dueAt = null): array
     {
         $organization = $this->writes->writable($id, User::PERSONAL_DATA);

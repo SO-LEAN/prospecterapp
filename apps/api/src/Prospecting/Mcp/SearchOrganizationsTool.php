@@ -31,7 +31,7 @@ final readonly class SearchOrganizationsTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'rechercher-organisations', description: 'The organizations the account of the member prospects, by the start of their corporate name or their e-mail, the most recent first, by slices.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'search-organizations', description: 'The organizations the account of the member prospects, by the start of their corporate name or their e-mail, the most recent first, by slices.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $q = '', ?string $after = null): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');

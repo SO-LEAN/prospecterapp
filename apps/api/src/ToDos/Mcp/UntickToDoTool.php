@@ -24,7 +24,7 @@ final readonly class UntickToDoTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'decocher-a-faire', description: 'Untick a to-do ticked off by mistake: it is to do again, the moment it was done forgotten; needs the right to manage the personal data. Answers the to-do.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'reopen-todo', description: 'Untick a to-do ticked off by mistake: it is to do again, the moment it was done forgotten; needs the right to manage the personal data. Answers the to-do.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id): array
     {
         return $this->writes->write(

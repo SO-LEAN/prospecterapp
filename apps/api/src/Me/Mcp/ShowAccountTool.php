@@ -22,7 +22,7 @@ final readonly class ShowAccountTool
     /**
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'lire-mon-compte', description: 'The profile of the member (name, contact details, picture, roles) and the organization of their account (identity, address, logo), with the links to what they read there.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'get-my-account', description: 'The profile of the member (name, contact details, picture, roles) and the organization of their account (identity, address, logo), with the links to what they read there.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(): array
     {
         $this->access->denyUnlessGranted('ROLE_USER');

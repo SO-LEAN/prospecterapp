@@ -37,7 +37,7 @@ final readonly class TagContactTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'taguer-contact', description: 'Put tags on a contact, a tag they carry already carried once. Answers their tags.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
+    #[McpTool(name: 'tag-contact', description: 'Put tags on a contact, a tag they carry already carried once. Answers their tags.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
     public function __invoke(string $id, array $tags): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');

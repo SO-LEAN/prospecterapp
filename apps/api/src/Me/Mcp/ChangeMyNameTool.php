@@ -24,7 +24,7 @@ final readonly class ChangeMyNameTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'changer-mon-nom', description: 'Change the first and last names of the member in their profile. Answers their account.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
+    #[McpTool(name: 'set-my-name', description: 'Change the first and last names of the member in their profile. Answers their account.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
     public function __invoke(?string $firstName = null, ?string $lastName = null): array
     {
         return $this->writes->write(

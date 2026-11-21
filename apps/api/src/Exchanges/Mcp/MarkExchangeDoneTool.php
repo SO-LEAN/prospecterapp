@@ -27,7 +27,7 @@ final readonly class MarkExchangeDoneTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'marquer-echange-fait', description: 'Mark done a planned exchange whose time has come, with its report and the moment it really took place; by its holder. It is no longer to process. Answers the exchange.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'mark-exchange-done', description: 'Mark done a planned exchange whose time has come, with its report and the moment it really took place; by its holder. It is no longer to process. Answers the exchange.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id, ?string $text = null, ?string $occurredAt = null): array
     {
         return $this->writes->write(

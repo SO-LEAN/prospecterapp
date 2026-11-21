@@ -28,7 +28,7 @@ class NotingToolsApiTest extends ApiTestCase
     {
         $contact = $this->aContactOf($this->anOrganization('ACME'));
 
-        $noted = $this->callWithoutHandshake('noter-un-echange', ['id' => $contact] + self::AN_EMAIL);
+        $noted = $this->callWithoutHandshake('log-contact-exchange', ['id' => $contact] + self::AN_EMAIL);
 
         $this->assertSame('noted', $noted['structuredContent']['status']);
         $timeline = $this->requestJson('GET', '/api/contacts/'.$contact.'/exchanges');
@@ -39,7 +39,7 @@ class NotingToolsApiTest extends ApiTestCase
     {
         $contact = $this->aContactOf($this->anOrganization('ACME'));
 
-        $this->callWithoutHandshake('noter-un-echange', ['id' => $contact] + self::AN_EMAIL);
+        $this->callWithoutHandshake('log-contact-exchange', ['id' => $contact] + self::AN_EMAIL);
 
         $timeline = $this->requestJson('GET', '/api/contacts/'.$contact.'/exchanges');
         $this->assertTrue($timeline['items'][0]['createdByAnAI'] ?? null);
@@ -49,7 +49,7 @@ class NotingToolsApiTest extends ApiTestCase
     {
         $contact = $this->aContactOf($this->anOrganization('ACME'));
 
-        $noted = $this->callWithoutHandshake('noter-un-echange', ['id' => $contact] + self::AN_EMAIL);
+        $noted = $this->callWithoutHandshake('log-contact-exchange', ['id' => $contact] + self::AN_EMAIL);
 
         $this->assertTrue($noted['structuredContent']['exchange']['createdByAnAI'] ?? null);
         $this->assertTrue($this->requestJson('GET', '/api/exchanges/'.$noted['structuredContent']['exchange']['id'])['createdByAnAI'] ?? null);
@@ -59,7 +59,7 @@ class NotingToolsApiTest extends ApiTestCase
     {
         $organization = $this->anOrganization('ACME');
 
-        $noted = $this->callWithoutHandshake('noter-un-echange-organisation', ['id' => $organization, 'channel' => 'call', 'direction' => 'inbound']);
+        $noted = $this->callWithoutHandshake('log-organization-exchange', ['id' => $organization, 'channel' => 'call', 'direction' => 'inbound']);
 
         $this->assertTrue($noted['structuredContent']['exchange']['createdByAnAI'] ?? null);
     }
@@ -67,9 +67,9 @@ class NotingToolsApiTest extends ApiTestCase
     public function testAnEMailNotedAgainIsAnsweredTheExchangeNotedFirstWithoutError(): void
     {
         $contact = $this->aContactOf($this->anOrganization('ACME'));
-        $first = $this->callWithoutHandshake('noter-un-echange', ['id' => $contact] + self::AN_EMAIL);
+        $first = $this->callWithoutHandshake('log-contact-exchange', ['id' => $contact] + self::AN_EMAIL);
 
-        $again = $this->callWithoutHandshake('noter-un-echange', ['id' => $contact, 'messageId' => '<ABC@acme.fr>'] + self::AN_EMAIL);
+        $again = $this->callWithoutHandshake('log-contact-exchange', ['id' => $contact, 'messageId' => '<ABC@acme.fr>'] + self::AN_EMAIL);
 
         $this->assertFalse($again['isError'] ?? false);
         $this->assertSame('alreadyNoted', $again['structuredContent']['status']);
@@ -80,10 +80,10 @@ class NotingToolsApiTest extends ApiTestCase
     public function testAnEMailErasedIsAnsweredWhoErasedItWithoutError(): void
     {
         $contact = $this->aContactOf($this->anOrganization('ACME'));
-        $first = $this->callWithoutHandshake('noter-un-echange', ['id' => $contact] + self::AN_EMAIL);
+        $first = $this->callWithoutHandshake('log-contact-exchange', ['id' => $contact] + self::AN_EMAIL);
         $this->requestJson('DELETE', '/api/exchanges/'.$first['structuredContent']['exchange']['id']);
 
-        $again = $this->callWithoutHandshake('noter-un-echange', ['id' => $contact] + self::AN_EMAIL);
+        $again = $this->callWithoutHandshake('log-contact-exchange', ['id' => $contact] + self::AN_EMAIL);
 
         $this->assertFalse($again['isError'] ?? false);
         $this->assertSame('erasedBefore', $again['structuredContent']['status']);
@@ -102,7 +102,7 @@ class NotingToolsApiTest extends ApiTestCase
             $this->login($member);
             $problem = $this->requestJson('POST', '/api/contacts/'.$contact.'/exchanges', self::AN_EMAIL);
 
-            $refusal = $this->callWithoutHandshake('noter-un-echange', ['id' => $contact] + self::AN_EMAIL);
+            $refusal = $this->callWithoutHandshake('log-contact-exchange', ['id' => $contact] + self::AN_EMAIL);
 
             $this->assertTrue($refusal['isError'] ?? false, $member);
             $this->assertSame($problem, json_decode($refusal['content'][0]['text'], true, flags: JSON_THROW_ON_ERROR), $member);
@@ -114,7 +114,7 @@ class NotingToolsApiTest extends ApiTestCase
         $contact = $this->aContactOf($this->anOrganization('ACME'));
         $this->login($this->aMemberOfTheFixtures('admin-user', Role::User, Role::Admin));
 
-        $noted = $this->callWithoutHandshake('noter-un-echange', ['id' => $contact] + self::AN_EMAIL);
+        $noted = $this->callWithoutHandshake('log-contact-exchange', ['id' => $contact] + self::AN_EMAIL);
 
         $this->assertSame('noted', $noted['structuredContent']['status']);
     }
@@ -123,9 +123,9 @@ class NotingToolsApiTest extends ApiTestCase
     {
         $organization = $this->anOrganization('ACME');
         $message = ['id' => $organization, 'channel' => 'malt', 'direction' => 'inbound', 'occurredAt' => '2026-10-14T09:12:00+00:00', 'text' => 'Bonjour'];
-        $first = $this->callWithoutHandshake('noter-un-echange-organisation', $message);
+        $first = $this->callWithoutHandshake('log-organization-exchange', $message);
 
-        $again = $this->callWithoutHandshake('noter-un-echange-organisation', ['text' => 'bonjour !'] + $message);
+        $again = $this->callWithoutHandshake('log-organization-exchange', ['text' => 'bonjour !'] + $message);
 
         $this->assertSame('alreadyNoted', $again['structuredContent']['status']);
         $this->assertSame($first['structuredContent']['exchange']['id'], $again['structuredContent']['exchange']['id']);
@@ -141,7 +141,7 @@ class NotingToolsApiTest extends ApiTestCase
             $this->login($member);
             $problem = $this->requestJson('POST', '/api/organizations/'.$organization.'/exchanges', ['exchange' => ['channel' => 'call', 'direction' => 'inbound']]);
 
-            $refusal = $this->callWithoutHandshake('noter-un-echange-organisation', ['id' => $organization, 'channel' => 'call', 'direction' => 'inbound']);
+            $refusal = $this->callWithoutHandshake('log-organization-exchange', ['id' => $organization, 'channel' => 'call', 'direction' => 'inbound']);
 
             $this->assertTrue($refusal['isError'] ?? false, $member);
             $this->assertSame($problem, json_decode($refusal['content'][0]['text'], true, flags: JSON_THROW_ON_ERROR), $member);
@@ -153,7 +153,7 @@ class NotingToolsApiTest extends ApiTestCase
         $organization = $this->anOrganization('ACME');
         $this->login($this->aMemberOfTheFixtures('admin-user', Role::User, Role::Admin));
 
-        $noted = $this->callWithoutHandshake('noter-un-echange-organisation', ['id' => $organization, 'channel' => 'call', 'direction' => 'inbound']);
+        $noted = $this->callWithoutHandshake('log-organization-exchange', ['id' => $organization, 'channel' => 'call', 'direction' => 'inbound']);
 
         $this->assertSame('noted', $noted['structuredContent']['status']);
     }

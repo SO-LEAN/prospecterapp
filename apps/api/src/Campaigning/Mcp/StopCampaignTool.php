@@ -24,7 +24,7 @@ final readonly class StopCampaignTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'arreter-campagne', description: 'Stop a started campaign for good, kept for the team to read; needs the right to manage the personal data. Answers the campaign.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'stop-campaign', description: 'Stop a started campaign for good, kept for the team to read; needs the right to manage the personal data. Answers the campaign.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id): array
     {
         return $this->writes->write(

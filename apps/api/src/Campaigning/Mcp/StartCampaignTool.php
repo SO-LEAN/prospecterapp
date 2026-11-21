@@ -23,7 +23,7 @@ final readonly class StartCampaignTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'demarrer-campagne', description: 'Start a frozen campaign: its recipients, its message and its channel no longer change, and it is stopped, never discarded; needs the right to manage the personal data. Answers the campaign.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'start-campaign', description: 'Start a frozen campaign: its recipients, its message and its channel no longer change, and it is stopped, never discarded; needs the right to manage the personal data. Answers the campaign.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id): array
     {
         return $this->writes->write(

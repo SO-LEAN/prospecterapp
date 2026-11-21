@@ -41,7 +41,7 @@ final readonly class AttachFileTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'joindre-piece-jointe', description: 'Join to an exchange a file by its address on the web, which Prospecter downloads and keeps private; a file behind a sign-in (an e-mail, a private drive) cannot be downloaded. Needs the right to manage the personal data. Answers the exchange.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true))]
+    #[McpTool(name: 'attach-file', description: 'Join to an exchange a file by its address on the web, which Prospecter downloads and keeps private; a file behind a sign-in (an e-mail, a private drive) cannot be downloaded. Needs the right to manage the personal data. Answers the exchange.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true))]
     public function __invoke(string $id, string $url, string $name): array
     {
         $this->writes->writable($id, User::PERSONAL_DATA);

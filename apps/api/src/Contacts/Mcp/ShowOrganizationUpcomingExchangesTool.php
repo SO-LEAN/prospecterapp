@@ -34,7 +34,7 @@ final readonly class ShowOrganizationUpcomingExchangesTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'lire-echanges-a-venir-organisation', description: 'The exchanges planned with an organization and its contacts, the soonest first, by slices.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'list-organization-upcoming-exchanges', description: 'The exchanges planned with an organization and its contacts, the soonest first, by slices.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $id, ?string $after = null): array
     {
         $organization = $this->organizations->read($id);

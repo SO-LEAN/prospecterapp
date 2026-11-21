@@ -37,7 +37,7 @@ final readonly class TakeOrganizationTagOffTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'retirer-tag-organisation', description: 'Take a tag put by hand off an organization; its contacts no longer inherit it. Answers its tags.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'untag-organization', description: 'Take a tag put by hand off an organization; its contacts no longer inherit it. Answers its tags.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id, string $tag): array
     {
         $organization = $this->organizations->read($id);

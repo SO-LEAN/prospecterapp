@@ -23,7 +23,7 @@ final readonly class FreezeCampaignTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'figer-campagne', description: 'Keep the contacts a draft campaign targets now as its recipients, for good: its channel and its tags no longer change; needs the right to manage the personal data. Answers the campaign.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'freeze-campaign', description: 'Keep the contacts a draft campaign targets now as its recipients, for good: its channel and its tags no longer change; needs the right to manage the personal data. Answers the campaign.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id): array
     {
         return $this->writes->write(

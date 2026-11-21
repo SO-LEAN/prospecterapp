@@ -37,21 +37,21 @@ class ReadingToolsApiTest extends ApiTestCase
 
     public function testTheAiSearchesTheOrganizationsAsTheScreenOfTheSearch(): void
     {
-        $this->assertTheToolAnswersAsItsEndpoint('rechercher-organisations', ['q' => 'Ba'], '/api/organizations?q=Ba');
+        $this->assertTheToolAnswersAsItsEndpoint('search-organizations', ['q' => 'Ba'], '/api/organizations?q=Ba');
     }
 
     public function testTheAiReadsAnOrganization(): void
     {
         $babbage = $this->babbage();
 
-        $this->assertTheToolAnswersAsItsEndpoint('lire-organisation', ['id' => $babbage], '/api/organizations/'.$babbage);
+        $this->assertTheToolAnswersAsItsEndpoint('get-organization', ['id' => $babbage], '/api/organizations/'.$babbage);
     }
 
     public function testAnUnknownResourceIsRefusedAsByItsEndpoint(): void
     {
         $unknown = self::newIdentity();
 
-        $this->assertTheToolAnswersAsItsEndpoint('lire-organisation', ['id' => $unknown], '/api/organizations/'.$unknown);
+        $this->assertTheToolAnswersAsItsEndpoint('get-organization', ['id' => $unknown], '/api/organizations/'.$unknown);
     }
 
     public function testAnInvalidArgumentIsRefusedWithTheViolationsOfItsEndpoint(): void
@@ -60,7 +60,7 @@ class ReadingToolsApiTest extends ApiTestCase
         $this->login();
         $violations = $this->requestJson('GET', '/api/organizations?q='.$tooLong)['violations'];
 
-        $refusal = $this->answerOf($this->callWithoutHandshake('rechercher-organisations', ['q' => $tooLong]));
+        $refusal = $this->answerOf($this->callWithoutHandshake('search-organizations', ['q' => $tooLong]));
 
         $this->assertSame($violations, $refusal['violations']);
     }
@@ -71,42 +71,42 @@ class ReadingToolsApiTest extends ApiTestCase
         $this->keepTheKernel();
         self::getContainer()->get(OutsideServices::class)->directoryLists(self::BABBAGE_COMPANY);
 
-        $this->assertTheToolAnswersAsItsEndpoint('chercher-etablissements', ['id' => $babbage], '/api/organizations/'.$babbage.'/establishments');
+        $this->assertTheToolAnswersAsItsEndpoint('search-company-directory', ['id' => $babbage], '/api/organizations/'.$babbage.'/establishments');
     }
 
     public function testAServiceOutOfReachIsToTryAgainLaterAsByItsEndpoint(): void
     {
         $babbage = $this->babbage();
 
-        $this->assertTheToolAnswersAsItsEndpoint('chercher-etablissements', ['id' => $babbage], '/api/organizations/'.$babbage.'/establishments');
+        $this->assertTheToolAnswersAsItsEndpoint('search-company-directory', ['id' => $babbage], '/api/organizations/'.$babbage.'/establishments');
     }
 
     public function testTheAiFollowsTheTimelineOfAContact(): void
     {
         $ada = $this->ada();
 
-        $this->assertTheToolAnswersAsItsEndpoint('lire-echanges-contact', ['id' => $ada], '/api/contacts/'.$ada.'/exchanges');
+        $this->assertTheToolAnswersAsItsEndpoint('list-contact-exchanges', ['id' => $ada], '/api/contacts/'.$ada.'/exchanges');
     }
 
     public function testTheAiReadsTheExchangesToComeWithAContact(): void
     {
         $ada = $this->ada();
 
-        $this->assertTheToolAnswersAsItsEndpoint('lire-echanges-a-venir-contact', ['id' => $ada], '/api/contacts/'.$ada.'/upcoming-exchanges');
+        $this->assertTheToolAnswersAsItsEndpoint('list-contact-upcoming-exchanges', ['id' => $ada], '/api/contacts/'.$ada.'/upcoming-exchanges');
     }
 
     public function testTheAiReadsWhereToMeetAContact(): void
     {
         $ada = $this->ada();
 
-        $this->assertTheToolAnswersAsItsEndpoint('proposer-lieu-de-rendez-vous', ['id' => $ada], '/api/contacts/'.$ada.'/meeting-place');
+        $this->assertTheToolAnswersAsItsEndpoint('get-meeting-place', ['id' => $ada], '/api/contacts/'.$ada.'/meeting-place');
     }
 
     public function testTheAiReadsAContact(): void
     {
         $ada = $this->ada();
 
-        $this->assertTheToolAnswersAsItsEndpoint('lire-contact', ['id' => $ada], '/api/contacts/'.$ada);
+        $this->assertTheToolAnswersAsItsEndpoint('get-contact', ['id' => $ada], '/api/contacts/'.$ada);
     }
 
     public function testTheAiOfTheAssistantReadsTheNameInClearAndTheRestMasked(): void
@@ -114,7 +114,7 @@ class ReadingToolsApiTest extends ApiTestCase
         $ada = $this->ada();
         $this->login('assistant-user');
 
-        $contact = $this->answerOf($this->callWithoutHandshake('lire-contact', ['id' => $ada]));
+        $contact = $this->answerOf($this->callWithoutHandshake('get-contact', ['id' => $ada]));
 
         $this->assertSame(['firstName' => 'Ada', 'lastName' => 'Lovelace'], $contact['name']);
         $this->assertNotSame('ada@babbage.test', $contact['contactDetails']['email']);
@@ -123,67 +123,67 @@ class ReadingToolsApiTest extends ApiTestCase
 
     public function testTheAiSearchesTheContacts(): void
     {
-        $this->assertTheToolAnswersAsItsEndpoint('rechercher-contacts', ['q' => 'Love'], '/api/contacts?q=Love');
+        $this->assertTheToolAnswersAsItsEndpoint('search-contacts', ['q' => 'Love'], '/api/contacts?q=Love');
     }
 
     public function testTheAiSearchesTheContactsByTheirTags(): void
     {
         $this->requestJson('POST', '/api/contacts/'.$this->ada().'/tags', ['tags' => ['#CLIENT']]);
 
-        $this->assertTheToolAnswersAsItsEndpoint('rechercher-contacts-par-tags', ['tags' => 'CLIENT'], '/api/tagged-contacts?tags=CLIENT');
+        $this->assertTheToolAnswersAsItsEndpoint('search-contacts-by-tags', ['tags' => 'CLIENT'], '/api/tagged-contacts?tags=CLIENT');
     }
 
     public function testTheAiReadsTheOrganizationsOfAContact(): void
     {
         $ada = $this->ada();
 
-        $this->assertTheToolAnswersAsItsEndpoint('lire-organisations-du-contact', ['id' => $ada], '/api/contacts/'.$ada.'/organizations');
+        $this->assertTheToolAnswersAsItsEndpoint('list-contact-organizations', ['id' => $ada], '/api/contacts/'.$ada.'/organizations');
     }
 
     public function testTheAiReadsTheOrganizationProposedForAContact(): void
     {
         $ada = $this->ada();
 
-        $this->assertTheToolAnswersAsItsEndpoint('lire-organisation-proposee', ['id' => $ada], '/api/contacts/'.$ada.'/proposed-organization');
+        $this->assertTheToolAnswersAsItsEndpoint('get-proposed-organization', ['id' => $ada], '/api/contacts/'.$ada.'/proposed-organization');
     }
 
     public function testTheAiReadsTheContactsOfAnOrganization(): void
     {
         $babbage = $this->babbage();
 
-        $this->assertTheToolAnswersAsItsEndpoint('lire-contacts-organisation', ['id' => $babbage], '/api/organizations/'.$babbage.'/contacts');
+        $this->assertTheToolAnswersAsItsEndpoint('list-organization-contacts', ['id' => $babbage], '/api/organizations/'.$babbage.'/contacts');
     }
 
     public function testTheAiFollowsTheTimelineOfAnOrganization(): void
     {
         $babbage = $this->babbage();
 
-        $this->assertTheToolAnswersAsItsEndpoint('lire-echanges-organisation', ['id' => $babbage], '/api/organizations/'.$babbage.'/exchanges');
+        $this->assertTheToolAnswersAsItsEndpoint('list-organization-exchanges', ['id' => $babbage], '/api/organizations/'.$babbage.'/exchanges');
     }
 
     public function testTheAiReadsTheExchangesToComeWithAnOrganization(): void
     {
         $babbage = $this->babbage();
 
-        $this->assertTheToolAnswersAsItsEndpoint('lire-echanges-a-venir-organisation', ['id' => $babbage], '/api/organizations/'.$babbage.'/upcoming-exchanges');
+        $this->assertTheToolAnswersAsItsEndpoint('list-organization-upcoming-exchanges', ['id' => $babbage], '/api/organizations/'.$babbage.'/upcoming-exchanges');
     }
 
     public function testTheAiReadsTheExchangesToMakeConformOfAnOrganization(): void
     {
         $babbage = $this->babbage();
 
-        $this->assertTheToolAnswersAsItsEndpoint('lire-echanges-a-mettre-en-conformite', ['id' => $babbage], '/api/organizations/'.$babbage.'/exchanges-to-make-conform');
+        $this->assertTheToolAnswersAsItsEndpoint('list-exchanges-pending-redaction', ['id' => $babbage], '/api/organizations/'.$babbage.'/exchanges-to-make-conform');
     }
 
     public function testTheAiRecognizesWhoCalls(): void
     {
-        $this->assertTheToolAnswersAsItsEndpoint('reconnaitre-appelant', ['phoneNumber' => '0388000042'], '/api/phone-numbers/0388000042');
+        $this->assertTheToolAnswersAsItsEndpoint('search-by-phone-number', ['phoneNumber' => '0388000042'], '/api/phone-numbers/0388000042');
     }
 
     public function testTheAiReadsTheCalendarOfItsMember(): void
     {
         $this->assertTheToolAnswersAsItsEndpoint(
-            'lire-agenda',
+            'get-calendar',
             ['from' => '2026-10-12T00:00:00+02:00', 'to' => '2026-10-19T00:00:00+02:00', 'timeZone' => 'Europe/Paris'],
             '/api/me/calendar?from=2026-10-12T00:00:00%2B02:00&to=2026-10-19T00:00:00%2B02:00&timeZone=Europe/Paris',
         );
@@ -192,7 +192,7 @@ class ReadingToolsApiTest extends ApiTestCase
     public function testTheAiReadsTheDayOfItsMember(): void
     {
         $this->assertTheToolAnswersAsItsEndpoint(
-            'lire-ma-journee',
+            'get-my-day',
             ['from' => '2026-10-15T00:00:00+02:00', 'to' => '2026-10-16T00:00:00+02:00'],
             '/api/me/day?from=2026-10-15T00:00:00%2B02:00&to=2026-10-16T00:00:00%2B02:00',
         );
@@ -200,13 +200,13 @@ class ReadingToolsApiTest extends ApiTestCase
 
     public function testTheAiReadsWhatItsMemberHasToProcess(): void
     {
-        $this->assertTheToolAnswersAsItsEndpoint('lire-echanges-a-traiter', ['timeZone' => 'Europe/Paris'], '/api/me/exchanges-to-process?timeZone=Europe/Paris');
+        $this->assertTheToolAnswersAsItsEndpoint('list-exchanges-to-handle', ['timeZone' => 'Europe/Paris'], '/api/me/exchanges-to-process?timeZone=Europe/Paris');
     }
 
     public function testTheAiReadsTheExchangesASlotOverlaps(): void
     {
         $this->assertTheToolAnswersAsItsEndpoint(
-            'lire-echanges-qui-chevauchent',
+            'list-overlapping-exchanges',
             ['startsAt' => '2026-10-13T10:00:00+02:00', 'durationInMinutes' => 60],
             '/api/me/planned-exchanges?startsAt=2026-10-13T10:00:00%2B02:00&durationInMinutes=60',
         );
@@ -216,7 +216,7 @@ class ReadingToolsApiTest extends ApiTestCase
     {
         $exchange = $this->anExchangeWithAda();
 
-        $this->assertTheToolAnswersAsItsEndpoint('lire-echange', ['id' => $exchange], '/api/exchanges/'.$exchange);
+        $this->assertTheToolAnswersAsItsEndpoint('get-exchange', ['id' => $exchange], '/api/exchanges/'.$exchange);
     }
 
     public function testTheAiReadsAFileJoinedToAnExchangeByALinkSignedForAMoment(): void
@@ -226,38 +226,38 @@ class ReadingToolsApiTest extends ApiTestCase
         self::getContainer()->get(InMemoryPrivateStorage::class)->send($upload, 2048, 'application/pdf');
         $attachment = $this->requestJson('POST', '/api/exchanges/'.$exchange.'/attachments', ['upload' => $upload, 'name' => 'devis.pdf'])['attachments'][0]['id'];
 
-        $this->assertTheToolAnswersAsItsEndpoint('telecharger-piece-jointe', ['id' => $exchange, 'attachmentId' => $attachment], '/api/exchanges/'.$exchange.'/attachments/'.$attachment);
+        $this->assertTheToolAnswersAsItsEndpoint('get-attachment-link', ['id' => $exchange, 'attachmentId' => $attachment], '/api/exchanges/'.$exchange.'/attachments/'.$attachment);
     }
 
     public function testTheAiReadsWhereThePushOfAnExchangeIntoTheCalendarStands(): void
     {
         $exchange = $this->anExchangeWithAda();
 
-        $this->assertTheToolAnswersAsItsEndpoint('lire-synchronisation-google', ['id' => $exchange], '/api/exchanges/'.$exchange.'/google-sync');
+        $this->assertTheToolAnswersAsItsEndpoint('get-exchange-google-sync', ['id' => $exchange], '/api/exchanges/'.$exchange.'/google-sync');
     }
 
     public function testTheAiReadsTheConnectionsOfItsMember(): void
     {
-        $this->assertTheToolAnswersAsItsEndpoint('lire-mes-connexions', [], '/api/me/connections');
+        $this->assertTheToolAnswersAsItsEndpoint('list-my-connections', [], '/api/me/connections');
     }
 
     public function testTheAiOfAnAdministratorReadsTheClientOfGoogleOfItsAccount(): void
     {
-        $this->assertTheToolAnswersAsItsEndpoint('lire-client-google', [], '/api/me/organization/clients/google');
+        $this->assertTheToolAnswersAsItsEndpoint('get-google-client', [], '/api/me/organization/clients/google');
     }
 
     public function testTheAiReadsWhatItsMemberStillHasToDo(): void
     {
         $this->aToDoAboutAda();
 
-        $this->assertTheToolAnswersAsItsEndpoint('lire-mes-a-faire', [], '/api/me/to-dos');
+        $this->assertTheToolAnswersAsItsEndpoint('list-my-todos', [], '/api/me/to-dos');
     }
 
     public function testTheAiReadsAToDo(): void
     {
         $toDo = $this->aToDoAboutAda();
 
-        $this->assertTheToolAnswersAsItsEndpoint('lire-a-faire', ['id' => $toDo], '/api/to-dos/'.$toDo);
+        $this->assertTheToolAnswersAsItsEndpoint('get-todo', ['id' => $toDo], '/api/to-dos/'.$toDo);
     }
 
     public function testTheAiReadsTheToDosOfAContact(): void
@@ -265,7 +265,7 @@ class ReadingToolsApiTest extends ApiTestCase
         $this->aToDoAboutAda();
         $ada = $this->ada();
 
-        $this->assertTheToolAnswersAsItsEndpoint('lire-a-faire-contact', ['id' => $ada], '/api/contacts/'.$ada.'/to-dos');
+        $this->assertTheToolAnswersAsItsEndpoint('list-contact-todos', ['id' => $ada], '/api/contacts/'.$ada.'/to-dos');
     }
 
     public function testTheAiReadsTheToDosOfAnOrganization(): void
@@ -273,7 +273,7 @@ class ReadingToolsApiTest extends ApiTestCase
         $this->aToDoAboutAda();
         $babbage = $this->babbage();
 
-        $this->assertTheToolAnswersAsItsEndpoint('lire-a-faire-organisation', ['id' => $babbage], '/api/organizations/'.$babbage.'/to-dos');
+        $this->assertTheToolAnswersAsItsEndpoint('list-organization-todos', ['id' => $babbage], '/api/organizations/'.$babbage.'/to-dos');
     }
 
     public function testTheAiReadsTheTagsOfAContact(): void
@@ -281,7 +281,7 @@ class ReadingToolsApiTest extends ApiTestCase
         $ada = $this->ada();
         $this->requestJson('POST', '/api/contacts/'.$ada.'/tags', ['tags' => ['#CLIENT']]);
 
-        $this->assertTheToolAnswersAsItsEndpoint('lire-tags-contact', ['id' => $ada], '/api/contacts/'.$ada.'/tags');
+        $this->assertTheToolAnswersAsItsEndpoint('list-contact-tags', ['id' => $ada], '/api/contacts/'.$ada.'/tags');
     }
 
     public function testTheAiReadsTheTagsOfAnOrganization(): void
@@ -289,33 +289,33 @@ class ReadingToolsApiTest extends ApiTestCase
         $babbage = $this->babbage();
         $this->requestJson('POST', '/api/organizations/'.$babbage.'/tags', ['tags' => ['#CLIENT']]);
 
-        $this->assertTheToolAnswersAsItsEndpoint('lire-tags-organisation', ['id' => $babbage], '/api/organizations/'.$babbage.'/tags');
+        $this->assertTheToolAnswersAsItsEndpoint('list-organization-tags', ['id' => $babbage], '/api/organizations/'.$babbage.'/tags');
     }
 
     public function testTheAiReadsTheTagsProposedToTheAccount(): void
     {
-        $this->assertTheToolAnswersAsItsEndpoint('lire-tags-proposes', [], '/api/tags');
+        $this->assertTheToolAnswersAsItsEndpoint('list-suggested-tags', [], '/api/tags');
     }
 
     public function testTheAiListsTheCampaignsOfTheTeam(): void
     {
         $this->aCampaignToAda();
 
-        $this->assertTheToolAnswersAsItsEndpoint('lister-campagnes', [], '/api/campaigns');
+        $this->assertTheToolAnswersAsItsEndpoint('list-campaigns', [], '/api/campaigns');
     }
 
     public function testTheAiReadsACampaign(): void
     {
         $campaign = $this->aCampaignToAda();
 
-        $this->assertTheToolAnswersAsItsEndpoint('lire-campagne', ['id' => $campaign], '/api/campaigns/'.$campaign);
+        $this->assertTheToolAnswersAsItsEndpoint('get-campaign', ['id' => $campaign], '/api/campaigns/'.$campaign);
     }
 
     public function testTheAiReadsTheRecipientsOfACampaign(): void
     {
         $campaign = $this->aCampaignToAda();
 
-        $this->assertTheToolAnswersAsItsEndpoint('lire-destinataires-campagne', ['id' => $campaign], '/api/campaigns/'.$campaign.'/recipients');
+        $this->assertTheToolAnswersAsItsEndpoint('list-campaign-recipients', ['id' => $campaign], '/api/campaigns/'.$campaign.'/recipients');
     }
 
     public function testTheAiReadsTheMessageOfACampaignForARecipient(): void
@@ -323,29 +323,29 @@ class ReadingToolsApiTest extends ApiTestCase
         $campaign = $this->aCampaignToAda();
         $ada = $this->ada();
 
-        $this->assertTheToolAnswersAsItsEndpoint('lire-message-campagne', ['id' => $campaign, 'contactId' => $ada], '/api/campaigns/'.$campaign.'/messages/'.$ada);
+        $this->assertTheToolAnswersAsItsEndpoint('get-campaign-message', ['id' => $campaign, 'contactId' => $ada], '/api/campaigns/'.$campaign.'/messages/'.$ada);
     }
 
     public function testTheAiReadsTheDashboard(): void
     {
         $this->keepTheKernel();
 
-        $this->assertTheToolAnswersAsItsEndpoint('lire-tableau-de-bord', [], '/api/dashboard');
+        $this->assertTheToolAnswersAsItsEndpoint('get-dashboard', [], '/api/dashboard');
     }
 
     public function testTheAiReadsTheAccountOfItsMember(): void
     {
-        $this->assertTheToolAnswersAsItsEndpoint('lire-mon-compte', [], '/api/me');
+        $this->assertTheToolAnswersAsItsEndpoint('get-my-account', [], '/api/me');
     }
 
     public function testTheAiReadsTheRemindersOfItsMember(): void
     {
-        $this->assertTheToolAnswersAsItsEndpoint('lire-mes-rappels', [], '/api/me/reminders');
+        $this->assertTheToolAnswersAsItsEndpoint('get-my-reminders', [], '/api/me/reminders');
     }
 
     public function testTheAiReadsTheBookingPageOfItsMember(): void
     {
-        $this->assertTheToolAnswersAsItsEndpoint('lire-ma-page-de-reservation', ['timeZone' => 'Europe/Paris'], '/api/me/booking-page?timeZone=Europe/Paris');
+        $this->assertTheToolAnswersAsItsEndpoint('get-my-booking-page', ['timeZone' => 'Europe/Paris'], '/api/me/booking-page?timeZone=Europe/Paris');
     }
 
     /**

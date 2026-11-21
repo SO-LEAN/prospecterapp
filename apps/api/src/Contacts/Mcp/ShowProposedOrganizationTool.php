@@ -25,7 +25,7 @@ final readonly class ShowProposedOrganizationTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'lire-organisation-proposee', description: 'The organization proposed for a contact not yet attached, by the domain of their e-mail, with the right to manage the personal data.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'get-proposed-organization', description: 'The organization proposed for a contact not yet attached, by the domain of their e-mail, with the right to manage the personal data.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $id): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');

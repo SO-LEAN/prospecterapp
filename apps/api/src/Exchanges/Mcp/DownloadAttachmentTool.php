@@ -32,7 +32,7 @@ final readonly class DownloadAttachmentTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'telecharger-piece-jointe', description: 'Where to read a file joined to an exchange: its name and a link signed for a minute, with the right to manage the personal data.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'get-attachment-link', description: 'Where to read a file joined to an exchange: its name and a link signed for a minute, with the right to manage the personal data.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $id, string $attachmentId): array
     {
         $member = $this->access->member();

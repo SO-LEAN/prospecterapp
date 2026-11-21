@@ -45,7 +45,7 @@ final readonly class PlanExchangeTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'planifier-echange', description: 'Plan a call, a meeting or a video call with a contact, held by the member, kept for the organizations the contact is part of, and pushed into their calendar at Google when connected. Answers the exchanges to come with the contact.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'schedule-contact-exchange', description: 'Plan a call, a meeting or a video call with a contact, held by the member, kept for the organizations the contact is part of, and pushed into their calendar at Google when connected. Answers the exchanges to come with the contact.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id, string $channel, string $occurredAt, ?int $durationInMinutes = null, ?string $text = null, ?string $place = null, ?string $link = null, bool $linkRequested = false): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');

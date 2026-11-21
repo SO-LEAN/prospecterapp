@@ -23,7 +23,7 @@ final readonly class OfferChannelsTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'proposer-canaux-reservation', description: 'Set how the member may be booked on their booking page, by call, by video call or both, given whole. Answers the booking page.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
+    #[McpTool(name: 'set-booking-channels', description: 'Set how the member may be booked on their booking page, by call, by video call or both, given whole. Answers the booking page.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
     public function __invoke(array $channels): array
     {
         return $this->writes->write(
