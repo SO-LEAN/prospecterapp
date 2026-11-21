@@ -31,7 +31,7 @@ class MySettingsToolsApiTest extends ApiTestCase
     {
         $reminders = ['enabled' => true, 'minutesBefore' => 30];
 
-        $changed = $this->assertTheToolActsAsItsEndpoint('changer-mes-rappels', $reminders, 'PATCH', '/api/me/reminders', $reminders, self::WRITERS);
+        $changed = $this->assertTheToolActsAsItsEndpoint('update-my-reminders', $reminders, 'PATCH', '/api/me/reminders', $reminders, self::WRITERS);
 
         $this->assertSame([true, 30], [$changed['enabled'], $changed['minutesBefore']]);
     }
@@ -40,7 +40,7 @@ class MySettingsToolsApiTest extends ApiTestCase
     {
         $name = ['firstName' => 'Michel', 'lastName' => 'Durand'];
 
-        $account = $this->assertTheToolActsAsItsEndpoint('changer-mon-nom', $name, 'PATCH', '/api/me/name', $name, self::WRITERS);
+        $account = $this->assertTheToolActsAsItsEndpoint('set-my-name', $name, 'PATCH', '/api/me/name', $name, self::WRITERS);
 
         $this->assertSame(['Michel', 'Durand'], [$account['name']['firstName'], $account['name']['lastName']]);
     }
@@ -49,7 +49,7 @@ class MySettingsToolsApiTest extends ApiTestCase
     {
         $details = ['email' => 'michel@solean.test', 'phoneNumber' => '+33612345678', 'language' => 'FR', 'links' => ['https://www.linkedin.com/in/michel-durand']];
 
-        $account = $this->assertTheToolActsAsItsEndpoint('changer-mes-coordonnees', $details, 'PATCH', '/api/me/contact-details', $details, self::WRITERS);
+        $account = $this->assertTheToolActsAsItsEndpoint('update-my-contact-details', $details, 'PATCH', '/api/me/contact-details', $details, self::WRITERS);
 
         $this->assertSame('michel@solean.test', $account['contactDetails']['email']);
     }
@@ -59,7 +59,7 @@ class MySettingsToolsApiTest extends ApiTestCase
         $this->keepTheKernel();
         self::getContainer()->get(TheWeb::class)->publish(self::PICTURE_ON_THE_WEB, (string) file_get_contents(__DIR__.'/../Fixtures/logo.png'));
 
-        $account = $this->assertTheToolActsAsItsEndpoint('changer-ma-photo', ['url' => self::PICTURE_ON_THE_WEB], 'POST', '/api/me/picture', null, self::WRITERS);
+        $account = $this->assertTheToolActsAsItsEndpoint('set-my-picture', ['url' => self::PICTURE_ON_THE_WEB], 'POST', '/api/me/picture', null, self::WRITERS);
 
         $this->assertStringEndsWith('.png', $account['picture']['url']);
     }

@@ -19,7 +19,7 @@ class SynchronizeMailboxPromptApiTest extends ApiTestCase
     {
         $this->login();
 
-        $prompt = $this->promptListed('synchroniser-boite-e-mail');
+        $prompt = $this->promptListed('sync-mailbox');
 
         $this->assertSame('Synchroniser ma boîte e-mail', $prompt['title'] ?? null);
         $this->assertSame([['since', false]], self::argumentsOf($prompt));
@@ -29,20 +29,20 @@ class SynchronizeMailboxPromptApiTest extends ApiTestCase
     {
         $this->login();
 
-        $text = $this->promptText('synchroniser-boite-e-mail', ['since' => '7 jours']);
+        $text = $this->promptText('sync-mailbox', ['since' => '7 jours']);
 
-        $this->assertStringContainsString('`identifier`', $text);
+        $this->assertStringContainsString('`identify`', $text);
         $this->assertStringContainsString('Ne garde que les correspondants `known`', $text);
-        $this->assertStringContainsString('`enregistrer-un-contact`', $text);
+        $this->assertStringContainsString('`record-contact`', $text);
     }
 
     public function testEachEmailIsNotedWithItsMessageId(): void
     {
         $this->login();
 
-        $text = $this->promptText('synchroniser-boite-e-mail', ['since' => '7 jours']);
+        $text = $this->promptText('sync-mailbox', ['since' => '7 jours']);
 
-        $this->assertStringContainsString('`noter-un-echange`', $text);
+        $this->assertStringContainsString('`log-contact-exchange`', $text);
         $this->assertStringContainsString('`messageId`', $text);
     }
 
@@ -50,7 +50,7 @@ class SynchronizeMailboxPromptApiTest extends ApiTestCase
     {
         $this->login();
 
-        $text = $this->promptText('synchroniser-boite-e-mail', ['since' => '7 jours']);
+        $text = $this->promptText('sync-mailbox', ['since' => '7 jours']);
 
         $this->assertStringContainsString('`alreadyNoted` et `erasedBefore` comptent comme déjà notés', $text);
     }
@@ -59,7 +59,7 @@ class SynchronizeMailboxPromptApiTest extends ApiTestCase
     {
         $this->login();
 
-        $text = $this->promptText('synchroniser-boite-e-mail', ['since' => '7 jours']);
+        $text = $this->promptText('sync-mailbox', ['since' => '7 jours']);
 
         $this->assertStringContainsString('Si Prospecter refuse un appel, arrête-toi et demande-moi', $text);
     }
@@ -68,7 +68,7 @@ class SynchronizeMailboxPromptApiTest extends ApiTestCase
     {
         $this->login();
 
-        $text = $this->promptText('synchroniser-boite-e-mail', ['since' => '7 jours']);
+        $text = $this->promptText('sync-mailbox', ['since' => '7 jours']);
 
         $this->assertStringContainsString('Ne crée jamais une personne ou une entreprise `toConfirm` sans ma réponse', $text);
     }
@@ -77,7 +77,7 @@ class SynchronizeMailboxPromptApiTest extends ApiTestCase
     {
         $this->login();
 
-        $text = $this->promptText('synchroniser-boite-e-mail', ['since' => '7 jours']);
+        $text = $this->promptText('sync-mailbox', ['since' => '7 jours']);
 
         $this->assertStringContainsString('Une synchronisation relancée ne doit compter que des déjà notés et des ignorés', $text);
     }
@@ -86,7 +86,7 @@ class SynchronizeMailboxPromptApiTest extends ApiTestCase
     {
         $this->login();
 
-        $text = $this->promptText('synchroniser-boite-e-mail', ['since' => '7 jours']);
+        $text = $this->promptText('sync-mailbox', ['since' => '7 jours']);
 
         $this->assertStringContainsString('Ne note jamais un e-mail sans son Message-ID', $text);
     }
@@ -95,7 +95,7 @@ class SynchronizeMailboxPromptApiTest extends ApiTestCase
     {
         $this->login();
 
-        $text = $this->promptText('synchroniser-boite-e-mail', ['since' => '7 jours']);
+        $text = $this->promptText('sync-mailbox', ['since' => '7 jours']);
 
         $this->assertSame([], array_diff(self::toolsNamedIn($text), array_column($this->everyToolListed(), 'name')));
     }
@@ -104,7 +104,7 @@ class SynchronizeMailboxPromptApiTest extends ApiTestCase
     {
         $this->login();
 
-        $text = $this->promptText('synchroniser-boite-e-mail', ['since' => 'le 1er novembre']);
+        $text = $this->promptText('sync-mailbox', ['since' => 'le 1er novembre']);
 
         $this->assertStringContainsString('ma boîte e-mail depuis le 1er novembre', $text);
     }
@@ -113,7 +113,7 @@ class SynchronizeMailboxPromptApiTest extends ApiTestCase
     {
         $this->login();
 
-        $text = $this->promptText('synchroniser-boite-e-mail');
+        $text = $this->promptText('sync-mailbox');
 
         $this->assertStringContainsString('ma boîte e-mail, en me demandant d\'abord depuis quand', $text);
     }

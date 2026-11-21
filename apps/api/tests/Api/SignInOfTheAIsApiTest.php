@@ -124,7 +124,7 @@ class SignInOfTheAIsApiTest extends ApiTestCase
         $tokens = $this->exchange($this->codeOfTheFacade());
         $this->client->setServerParameter('HTTP_AUTHORIZATION', 'Bearer '.$tokens['access_token']);
 
-        $result = $this->callWithoutHandshake('qui-suis-je');
+        $result = $this->callWithoutHandshake('get-me');
 
         $this->assertSame('Camille Martin', $result['structuredContent']['member']);
     }

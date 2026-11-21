@@ -27,7 +27,7 @@ final readonly class MoveExchangeTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'deplacer-echange', description: 'Move a planned exchange to another moment to come, for a new duration or its own; by its holder, its calendar at Google following. Answers the exchange, linking moving it back while the moment it was moved from is to come.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
+    #[McpTool(name: 'reschedule-exchange', description: 'Move a planned exchange to another moment to come, for a new duration or its own; by its holder, its calendar at Google following. Answers the exchange, linking moving it back while the moment it was moved from is to come.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
     public function __invoke(string $id, string $occurredAt, ?int $durationInMinutes = null): array
     {
         $before = $this->writes->dispatched(

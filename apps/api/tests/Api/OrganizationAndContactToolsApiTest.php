@@ -30,7 +30,7 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
     {
         $ada = $this->ada();
 
-        $changed = $this->assertTheToolActsAsItsEndpoint('changer-fonction-contact', ['id' => $ada, 'jobTitle' => 'CTO'], 'PATCH', '/api/contacts/'.$ada.'/job-title', ['jobTitle' => 'CTO'], self::PERSONAL_DATA_MANAGERS);
+        $changed = $this->assertTheToolActsAsItsEndpoint('set-contact-job-title', ['id' => $ada, 'jobTitle' => 'CTO'], 'PATCH', '/api/contacts/'.$ada.'/job-title', ['jobTitle' => 'CTO'], self::PERSONAL_DATA_MANAGERS);
 
         $this->assertSame('CTO', $changed['jobTitle']);
     }
@@ -40,7 +40,7 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         $ada = $this->ada();
         $name = ['firstName' => 'Augusta Ada', 'lastName' => 'King'];
 
-        $renamed = $this->assertTheToolActsAsItsEndpoint('renommer-contact', ['id' => $ada, ...$name], 'PATCH', '/api/contacts/'.$ada.'/name', $name, self::PERSONAL_DATA_MANAGERS);
+        $renamed = $this->assertTheToolActsAsItsEndpoint('rename-contact', ['id' => $ada, ...$name], 'PATCH', '/api/contacts/'.$ada.'/name', $name, self::PERSONAL_DATA_MANAGERS);
 
         $this->assertSame($name, $renamed['name']);
     }
@@ -49,7 +49,7 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
     {
         $ada = $this->ada();
 
-        $changed = $this->assertTheToolActsAsItsEndpoint('changer-civilite-contact', ['id' => $ada, 'civility' => 'ms'], 'PATCH', '/api/contacts/'.$ada.'/civility', ['civility' => 'ms'], self::PERSONAL_DATA_MANAGERS);
+        $changed = $this->assertTheToolActsAsItsEndpoint('set-contact-title', ['id' => $ada, 'civility' => 'ms'], 'PATCH', '/api/contacts/'.$ada.'/civility', ['civility' => 'ms'], self::PERSONAL_DATA_MANAGERS);
 
         $this->assertSame('ms', $changed['civility']);
     }
@@ -59,7 +59,7 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         $ada = $this->ada();
         $details = ['email' => 'ada@lovelace.test', 'phoneNumber' => '03 88 00 00 43', 'language' => 'GB', 'links' => ['linkedin.com/in/ada-lovelace']];
 
-        $changed = $this->assertTheToolActsAsItsEndpoint('changer-coordonnees-contact', ['id' => $ada, ...$details], 'PATCH', '/api/contacts/'.$ada.'/contact-details', $details, self::PERSONAL_DATA_MANAGERS);
+        $changed = $this->assertTheToolActsAsItsEndpoint('update-contact-details', ['id' => $ada, ...$details], 'PATCH', '/api/contacts/'.$ada.'/contact-details', $details, self::PERSONAL_DATA_MANAGERS);
 
         $this->assertSame('ada@lovelace.test', $changed['contactDetails']['email']);
         $this->assertSame(['linkedin', 'ada-lovelace'], [$changed['contactDetails']['links'][0]['source'], $changed['contactDetails']['links'][0]['identifier']]);
@@ -71,7 +71,7 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         $charles = ['firstName' => 'Charles', 'lastName' => 'Babbage', 'civility' => 'mr', 'jobTitle' => 'Founder', 'phoneNumber' => '03 88 00 00 44', 'links' => ['linkedin.com/in/charles-babbage'], 'organizationIds' => [$babbage]];
         $payload = ['name' => ['firstName' => 'Charles', 'lastName' => 'Babbage'], 'civility' => 'mr', 'jobTitle' => 'Founder', 'contactDetails' => ['phoneNumber' => '03 88 00 00 44', 'links' => ['linkedin.com/in/charles-babbage']], 'organizationIds' => [$babbage]];
 
-        $collected = $this->assertTheToolActsAsItsEndpoint('collecter-contact', $charles, 'POST', '/api/contacts', $payload, self::PERSONAL_DATA_MANAGERS);
+        $collected = $this->assertTheToolActsAsItsEndpoint('create-contact', $charles, 'POST', '/api/contacts', $payload, self::PERSONAL_DATA_MANAGERS);
 
         $this->assertSame([['firstName' => 'Charles', 'lastName' => 'Babbage'], 'Founder'], [$collected['name'], $collected['jobTitle']]);
     }
@@ -81,7 +81,7 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         $babbage = $this->babbage();
         $address = ['street' => '1 place Kléber', 'postalCode' => '67000', 'city' => 'Strasbourg', 'country' => 'FR'];
 
-        $relocated = $this->assertTheToolActsAsItsEndpoint('demenager-organisation', ['id' => $babbage, ...$address], 'PATCH', '/api/organizations/'.$babbage.'/address', $address, self::PROSPECTORS);
+        $relocated = $this->assertTheToolActsAsItsEndpoint('set-organization-address', ['id' => $babbage, ...$address], 'PATCH', '/api/organizations/'.$babbage.'/address', $address, self::PROSPECTORS);
 
         $this->assertSame($address, $relocated['address']);
     }
@@ -90,7 +90,7 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
     {
         $babbage = $this->babbage();
 
-        $written = $this->assertTheToolActsAsItsEndpoint('ecrire-observations-organisation', ['id' => $babbage, 'observations' => 'Rappeler en janvier'], 'PATCH', '/api/organizations/'.$babbage.'/observations', ['observations' => 'Rappeler en janvier'], self::PROSPECTORS);
+        $written = $this->assertTheToolActsAsItsEndpoint('set-organization-notes', ['id' => $babbage, 'observations' => 'Rappeler en janvier'], 'PATCH', '/api/organizations/'.$babbage.'/observations', ['observations' => 'Rappeler en janvier'], self::PROSPECTORS);
 
         $this->assertSame('Rappeler en janvier', $written['observations']);
     }
@@ -100,7 +100,7 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         $babbage = $this->babbage();
         $identity = ['corporateName' => 'Babbage & Sons', 'form' => 'SAS', 'type' => 'Client', 'siret' => '55210055400021'];
 
-        $revised = $this->assertTheToolActsAsItsEndpoint('reviser-identite-organisation', ['id' => $babbage, ...$identity], 'PATCH', '/api/organizations/'.$babbage.'/legal-identity', $identity, self::PROSPECTORS);
+        $revised = $this->assertTheToolActsAsItsEndpoint('update-organization-identity', ['id' => $babbage, ...$identity], 'PATCH', '/api/organizations/'.$babbage.'/legal-identity', $identity, self::PROSPECTORS);
 
         $this->assertSame($identity, $revised['legalIdentity']);
     }
@@ -110,7 +110,7 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         $babbage = $this->babbage();
         $details = ['email' => 'hello@babbage.test', 'phoneNumber' => '03 88 00 00 45', 'language' => 'FR', 'links' => ['https://www.welcometothejungle.com/fr/companies/babbage'], 'website' => 'www.babbage.test'];
 
-        $changed = $this->assertTheToolActsAsItsEndpoint('changer-coordonnees-organisation', ['id' => $babbage, ...$details], 'PATCH', '/api/organizations/'.$babbage.'/contact-details', $details, self::PROSPECTORS);
+        $changed = $this->assertTheToolActsAsItsEndpoint('update-organization-details', ['id' => $babbage, ...$details], 'PATCH', '/api/organizations/'.$babbage.'/contact-details', $details, self::PROSPECTORS);
 
         $this->assertSame(['hello@babbage.test', 'https://www.babbage.test'], [$changed['contactDetails']['email'], $changed['contactDetails']['website']]);
     }
@@ -120,7 +120,7 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         $babbage = $this->babbage();
         $holding = $this->aHolding();
 
-        $attached = $this->assertTheToolActsAsItsEndpoint('rattacher-a-holding', ['id' => $babbage, 'holdingId' => $holding], 'PATCH', '/api/organizations/'.$babbage.'/holding', ['holdingId' => $holding], self::PROSPECTORS);
+        $attached = $this->assertTheToolActsAsItsEndpoint('attach-to-holding', ['id' => $babbage, 'holdingId' => $holding], 'PATCH', '/api/organizations/'.$babbage.'/holding', ['holdingId' => $holding], self::PROSPECTORS);
 
         $this->assertSame($holding, $attached['holdingId']);
     }
@@ -130,10 +130,10 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         $babbage = $this->babbage();
         $this->requestJson('PATCH', '/api/organizations/'.$babbage.'/holding', ['holdingId' => $this->aHolding()]);
 
-        $detached = $this->assertTheToolActsAsItsEndpoint('detacher-de-holding', ['id' => $babbage], 'DELETE', '/api/organizations/'.$babbage.'/holding', null, self::PROSPECTORS);
+        $detached = $this->assertTheToolActsAsItsEndpoint('detach-from-holding', ['id' => $babbage], 'DELETE', '/api/organizations/'.$babbage.'/holding', null, self::PROSPECTORS);
 
         $this->assertNull($detached['holdingId']);
-        $this->assertTheToolAsksForAConfirmation('detacher-de-holding');
+        $this->assertTheToolAsksForAConfirmation('detach-from-holding');
     }
 
     public function testTheAiRemovesTheLogoOfAnOrganizationOnceItsMemberConfirmed(): void
@@ -141,10 +141,10 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         $babbage = $this->babbage();
         $this->uploadImage('/api/organizations/'.$babbage.'/logo');
 
-        $removed = $this->assertTheToolActsAsItsEndpoint('retirer-logo-organisation', ['id' => $babbage], 'DELETE', '/api/organizations/'.$babbage.'/logo', null, self::PROSPECTORS);
+        $removed = $this->assertTheToolActsAsItsEndpoint('delete-organization-logo', ['id' => $babbage], 'DELETE', '/api/organizations/'.$babbage.'/logo', null, self::PROSPECTORS);
 
         $this->assertNull($removed['logo']);
-        $this->assertTheToolAsksForAConfirmation('retirer-logo-organisation');
+        $this->assertTheToolAsksForAConfirmation('delete-organization-logo');
     }
 
     public function testTheAiSaysAPossibleDuplicateIsNoneOnceItsMemberConfirmed(): void
@@ -153,10 +153,10 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         $acme = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME SAS'], 'address' => ['city' => 'Paris']])['id'];
         $duplicate = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME s.a.s'], 'address' => ['city' => 'Paris']])['id'];
 
-        $dismissed = $this->assertTheToolActsAsItsEndpoint('ecarter-doublon-possible', ['id' => $duplicate, 'duplicateId' => $acme], 'DELETE', '/api/organizations/'.$duplicate.'/possible-duplicates/'.$acme, null, self::PROSPECTORS);
+        $dismissed = $this->assertTheToolActsAsItsEndpoint('dismiss-possible-duplicate-organization', ['id' => $duplicate, 'duplicateId' => $acme], 'DELETE', '/api/organizations/'.$duplicate.'/possible-duplicates/'.$acme, null, self::PROSPECTORS);
 
         $this->assertSame([], $dismissed['possibleDuplicates']);
-        $this->assertTheToolAsksForAConfirmation('ecarter-doublon-possible');
+        $this->assertTheToolAsksForAConfirmation('dismiss-possible-duplicate-organization');
     }
 
     public function testTheAiSaysAPossibleDuplicateOfAContactIsNoneOnceItsMemberConfirmed(): void
@@ -164,10 +164,10 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         $ada = $this->ada();
         $duplicate = $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'ada', 'lastName' => 'LOVELACE'], 'organizationIds' => [$this->babbage()]])['id'];
 
-        $dismissed = $this->assertTheToolActsAsItsEndpoint('ecarter-doublon-possible-contact', ['id' => $duplicate, 'duplicateId' => $ada], 'DELETE', '/api/contacts/'.$duplicate.'/possible-duplicates/'.$ada, null, self::PERSONAL_DATA_MANAGERS);
+        $dismissed = $this->assertTheToolActsAsItsEndpoint('dismiss-possible-duplicate-contact', ['id' => $duplicate, 'duplicateId' => $ada], 'DELETE', '/api/contacts/'.$duplicate.'/possible-duplicates/'.$ada, null, self::PERSONAL_DATA_MANAGERS);
 
         $this->assertSame([], $dismissed['possibleDuplicates']);
-        $this->assertTheToolAsksForAConfirmation('ecarter-doublon-possible-contact');
+        $this->assertTheToolAsksForAConfirmation('dismiss-possible-duplicate-contact');
     }
 
     public function testTheAiAddsAContactToAnOrganization(): void
@@ -175,7 +175,7 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         $babbage = $this->babbage();
         $charles = $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Charles', 'lastName' => 'Babbage'], 'organizationIds' => [$this->aHolding()]])['id'];
 
-        $added = $this->assertTheToolActsAsItsEndpoint('ajouter-contact-organisation', ['id' => $babbage, 'personId' => $charles], 'POST', '/api/organizations/'.$babbage.'/contacts', ['personId' => $charles], self::PERSONAL_DATA_MANAGERS);
+        $added = $this->assertTheToolActsAsItsEndpoint('add-organization-contact', ['id' => $babbage, 'personId' => $charles], 'POST', '/api/organizations/'.$babbage.'/contacts', ['personId' => $charles], self::PERSONAL_DATA_MANAGERS);
 
         $this->assertContains($charles, $added['contactIds']);
     }
@@ -185,10 +185,10 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         $babbage = $this->babbage();
         $charles = $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Charles', 'lastName' => 'Babbage'], 'organizationIds' => [$babbage, $this->aHolding()]])['id'];
 
-        $removed = $this->assertTheToolActsAsItsEndpoint('retirer-contact-organisation', ['id' => $babbage, 'personId' => $charles], 'DELETE', '/api/organizations/'.$babbage.'/contacts/'.$charles, null, self::PERSONAL_DATA_MANAGERS);
+        $removed = $this->assertTheToolActsAsItsEndpoint('remove-organization-contact', ['id' => $babbage, 'personId' => $charles], 'DELETE', '/api/organizations/'.$babbage.'/contacts/'.$charles, null, self::PERSONAL_DATA_MANAGERS);
 
         $this->assertNotContains($charles, $removed['contactIds']);
-        $this->assertTheToolAsksForAConfirmation('retirer-contact-organisation');
+        $this->assertTheToolAsksForAConfirmation('remove-organization-contact');
     }
 
     public function testTheAiStartsProspectingAnOrganization(): void
@@ -203,7 +203,7 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
             'holdingId' => $holding,
         ];
 
-        $started = $this->assertTheToolActsAsItsEndpoint('prospecter-organisation', $acme, 'POST', '/api/organizations', $payload, self::PROSPECTORS);
+        $started = $this->assertTheToolActsAsItsEndpoint('start-prospecting', $acme, 'POST', '/api/organizations', $payload, self::PROSPECTORS);
 
         $this->assertSame(['ACME SAS', 'Paris', 'Vu au salon', $holding], [$started['name'], $started['address']['city'], $started['observations'], $started['holdingId']]);
     }
@@ -213,17 +213,17 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         $babbage = $this->babbage();
         foreach (['assistant-user', 'member-user', 'stranger'] as $refused) {
             $this->login($refused);
-            $refusal = $this->callWithoutHandshake('arreter-prospection', ['id' => $babbage]);
+            $refusal = $this->callWithoutHandshake('stop-prospecting', ['id' => $babbage]);
 
             $this->assertSame($this->requestJson('DELETE', '/api/organizations/'.$babbage), $this->answerOf($refusal), sprintf('refused to %s', $refused));
         }
         $this->login();
 
-        $this->assertNotTrue($this->callWithoutHandshake('arreter-prospection', ['id' => $babbage])['isError'] ?? false);
+        $this->assertNotTrue($this->callWithoutHandshake('stop-prospecting', ['id' => $babbage])['isError'] ?? false);
 
         $this->requestJson('GET', '/api/organizations/'.$babbage);
         $this->assertResponseStatusCodeSame(404);
-        $this->assertTheToolAsksForAConfirmation('arreter-prospection');
+        $this->assertTheToolAsksForAConfirmation('stop-prospecting');
     }
 
     public function testTheAiOfAProspectorWithoutTheRightToManageThePersonalDataStopsProspectingAnOrganizationWithoutContacts(): void
@@ -231,7 +231,7 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         $holding = $this->aHolding();
         $this->login('assistant-user');
 
-        $this->assertNotTrue($this->callWithoutHandshake('arreter-prospection', ['id' => $holding])['isError'] ?? false);
+        $this->assertNotTrue($this->callWithoutHandshake('stop-prospecting', ['id' => $holding])['isError'] ?? false);
 
         $this->requestJson('GET', '/api/organizations/'.$holding);
         $this->assertResponseStatusCodeSame(404);
@@ -245,13 +245,13 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
 
         foreach (['member-user', 'stranger'] as $refused) {
             $this->login($refused);
-            $refusal = $this->answerOf($this->callWithoutHandshake('changer-logo-organisation', ['id' => $babbage, 'url' => self::LOGO_ON_THE_WEB]));
+            $refusal = $this->answerOf($this->callWithoutHandshake('set-organization-logo', ['id' => $babbage, 'url' => self::LOGO_ON_THE_WEB]));
 
             $this->assertSame($this->uploadImage('/api/organizations/'.$babbage.'/logo'), $refusal, sprintf('refused to %s', $refused));
         }
         $this->login();
 
-        $changed = $this->answerOf($this->callWithoutHandshake('changer-logo-organisation', ['id' => $babbage, 'url' => self::LOGO_ON_THE_WEB]));
+        $changed = $this->answerOf($this->callWithoutHandshake('set-organization-logo', ['id' => $babbage, 'url' => self::LOGO_ON_THE_WEB]));
 
         $this->assertStringEndsWith('.png', $changed['logo']['url']);
         $this->assertSame($this->requestJson('GET', '/api/organizations/'.$babbage), $changed);
@@ -266,7 +266,7 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         $this->login();
         $before = self::temporaryFilesHolding($logo);
 
-        $this->callWithoutHandshake('changer-logo-organisation', ['id' => $babbage, 'url' => self::LOGO_ON_THE_WEB]);
+        $this->callWithoutHandshake('set-organization-logo', ['id' => $babbage, 'url' => self::LOGO_ON_THE_WEB]);
 
         $this->assertSame($before, self::temporaryFilesHolding($logo));
     }
@@ -278,7 +278,7 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         self::getContainer()->get(TheWeb::class)->publish(TheWeb::ON_A_PRIVATE_NETWORK.'/logo.png', (string) file_get_contents(__DIR__.'/../Fixtures/logo.png'));
         $this->login();
 
-        $refusal = $this->answerOf($this->callWithoutHandshake('changer-logo-organisation', ['id' => $babbage, 'url' => TheWeb::ON_A_PRIVATE_NETWORK.'/logo.png']));
+        $refusal = $this->answerOf($this->callWithoutHandshake('set-organization-logo', ['id' => $babbage, 'url' => TheWeb::ON_A_PRIVATE_NETWORK.'/logo.png']));
 
         $this->assertSame([422, 'url'], [$refusal['status'], $refusal['violations'][0]['propertyPath']]);
         $this->assertNull($this->requestJson('GET', '/api/organizations/'.$babbage)['logo']);
@@ -291,7 +291,7 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         self::getContainer()->get(TheWeb::class)->publish(self::LOGO_ON_THE_WEB, str_repeat('a', 2_000_001));
         $this->login();
 
-        $refusal = $this->answerOf($this->callWithoutHandshake('changer-logo-organisation', ['id' => $babbage, 'url' => self::LOGO_ON_THE_WEB]));
+        $refusal = $this->answerOf($this->callWithoutHandshake('set-organization-logo', ['id' => $babbage, 'url' => self::LOGO_ON_THE_WEB]));
 
         $this->assertSame([422, 'url'], [$refusal['status'], $refusal['violations'][0]['propertyPath']]);
         $this->assertNull($this->requestJson('GET', '/api/organizations/'.$babbage)['logo']);
@@ -306,7 +306,7 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         $images->publish(TheWeb::HOST.'/moved.png', (string) file_get_contents(__DIR__.'/../Fixtures/logo.png'));
         $this->login();
 
-        $refusal = $this->answerOf($this->callWithoutHandshake('changer-logo-organisation', ['id' => $babbage, 'url' => self::LOGO_ON_THE_WEB]));
+        $refusal = $this->answerOf($this->callWithoutHandshake('set-organization-logo', ['id' => $babbage, 'url' => self::LOGO_ON_THE_WEB]));
 
         $this->assertSame([422, 'url'], [$refusal['status'], $refusal['violations'][0]['propertyPath']]);
         $this->assertNull($this->requestJson('GET', '/api/organizations/'.$babbage)['logo']);
@@ -319,7 +319,7 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         self::getContainer()->get(TheWeb::class)->publish(TheWeb::HOST.'/logo.png', 'no image');
         $this->login();
 
-        $refusal = $this->answerOf($this->callWithoutHandshake('changer-logo-organisation', ['id' => $babbage, 'url' => TheWeb::HOST.'/logo.png']));
+        $refusal = $this->answerOf($this->callWithoutHandshake('set-organization-logo', ['id' => $babbage, 'url' => TheWeb::HOST.'/logo.png']));
 
         $this->assertSame(422, $refusal['status']);
         $this->assertNull($this->requestJson('GET', '/api/organizations/'.$babbage)['logo']);

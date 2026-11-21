@@ -21,7 +21,7 @@ final readonly class DiscardCampaignTool
     /**
      * @param string $id the id of the campaign, never started
      */
-    #[McpTool(name: 'abandonner-campagne', description: 'Discard a campaign never started; needs the right to manage the personal data. Answers nothing.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'delete-campaign', description: 'Discard a campaign never started; needs the right to manage the personal data. Answers nothing.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id): void
     {
         $this->writes->dispatched(

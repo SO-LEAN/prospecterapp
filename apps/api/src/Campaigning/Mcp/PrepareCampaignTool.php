@@ -41,7 +41,7 @@ final readonly class PrepareCampaignTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'preparer-campagne', description: 'Prepare a campaign of the team, as a draft targeting the contacts carrying its tags whom its channel reaches; needs the right to manage the personal data. Answers the campaign.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'create-campaign', description: 'Prepare a campaign of the team, as a draft targeting the contacts carrying its tags whom its channel reaches; needs the right to manage the personal data. Answers the campaign.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $name, string $channel, array $tags, string $message, ?string $subject = null): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');

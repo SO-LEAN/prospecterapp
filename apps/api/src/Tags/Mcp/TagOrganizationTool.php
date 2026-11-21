@@ -40,7 +40,7 @@ final readonly class TagOrganizationTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'taguer-organisation', description: 'Put tags on an organization, which its contacts inherit, a tag it carries already carried once. Answers its tags.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
+    #[McpTool(name: 'tag-organization', description: 'Put tags on an organization, which its contacts inherit, a tag it carries already carried once. Answers its tags.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
     public function __invoke(string $id, array $tags): array
     {
         $organization = $this->organizations->read($id);

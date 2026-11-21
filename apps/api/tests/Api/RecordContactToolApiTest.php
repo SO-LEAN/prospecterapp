@@ -33,7 +33,7 @@ class RecordContactToolApiTest extends ApiTestCase
     {
         $this->login();
 
-        $recorded = $this->answerOf($this->callWithoutHandshake('enregistrer-un-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => self::GLOBEX]));
+        $recorded = $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => self::GLOBEX]));
 
         $this->assertSame(['created', 'created'], [$recorded['organization']['status'], $recorded['contact']['status']]);
         $organization = $this->requestJson('GET', '/api/organizations/'.$recorded['organization']['id']);
@@ -46,7 +46,7 @@ class RecordContactToolApiTest extends ApiTestCase
     {
         $this->login();
 
-        $globex = $this->answerOf($this->callWithoutHandshake('prospecter-organisation', ['corporateName' => 'Globex']));
+        $globex = $this->answerOf($this->callWithoutHandshake('start-prospecting', ['corporateName' => 'Globex']));
 
         $this->assertTrue($globex['createdByAnAI'] ?? null);
     }
@@ -55,7 +55,7 @@ class RecordContactToolApiTest extends ApiTestCase
     {
         $this->login();
 
-        $recorded = $this->answerOf($this->callWithoutHandshake('enregistrer-un-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => self::GLOBEX]));
+        $recorded = $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => self::GLOBEX]));
 
         $this->assertTrue($this->requestJson('GET', '/api/organizations/'.$recorded['organization']['id'])['createdByAnAI']);
     }
@@ -64,7 +64,7 @@ class RecordContactToolApiTest extends ApiTestCase
     {
         $this->login();
 
-        $recorded = $this->answerOf($this->callWithoutHandshake('enregistrer-un-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => self::GLOBEX]));
+        $recorded = $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => self::GLOBEX]));
 
         $this->assertTrue($this->requestJson('GET', '/api/contacts/'.$recorded['contact']['id'])['createdByAnAI']);
     }
@@ -73,7 +73,7 @@ class RecordContactToolApiTest extends ApiTestCase
     {
         $this->login();
 
-        $recorded = $this->answerOf($this->callWithoutHandshake('enregistrer-un-contact', ['person' => ['firstName' => 'Ada', 'lastName' => 'Lovelace', 'email' => 'ada@babbage.test', 'jobTitle' => 'CTO'], 'organization' => self::BABBAGE]));
+        $recorded = $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => ['firstName' => 'Ada', 'lastName' => 'Lovelace', 'email' => 'ada@babbage.test', 'jobTitle' => 'CTO'], 'organization' => self::BABBAGE]));
 
         $this->assertSame(['known', false], [$recorded['contact']['status'], $this->requestJson('GET', '/api/contacts/'.$recorded['contact']['id'])['createdByAnAI']]);
     }
@@ -81,9 +81,9 @@ class RecordContactToolApiTest extends ApiTestCase
     public function testAContactTheAiCollectsIsCreatedByAnAi(): void
     {
         $this->login();
-        $globex = $this->answerOf($this->callWithoutHandshake('prospecter-organisation', ['corporateName' => 'Globex']))['id'];
+        $globex = $this->answerOf($this->callWithoutHandshake('start-prospecting', ['corporateName' => 'Globex']))['id'];
 
-        $collected = $this->answerOf($this->callWithoutHandshake('collecter-contact', ['firstName' => 'Margaret', 'lastName' => 'Hamilton', 'organizationIds' => [$globex]]));
+        $collected = $this->answerOf($this->callWithoutHandshake('create-contact', ['firstName' => 'Margaret', 'lastName' => 'Hamilton', 'organizationIds' => [$globex]]));
 
         $this->assertTrue($collected['createdByAnAI'] ?? null);
     }
@@ -91,9 +91,9 @@ class RecordContactToolApiTest extends ApiTestCase
     public function testAnOrganizationFoundByItsPageIsNotCreatedAgain(): void
     {
         $this->login();
-        $globex = $this->callWithoutHandshake('prospecter-organisation', ['corporateName' => 'Globex', 'links' => ['https://www.linkedin.com/company/globex']])['structuredContent']['id'];
+        $globex = $this->callWithoutHandshake('start-prospecting', ['corporateName' => 'Globex', 'links' => ['https://www.linkedin.com/company/globex']])['structuredContent']['id'];
 
-        $recorded = $this->answerOf($this->callWithoutHandshake('enregistrer-un-contact', ['person' => ['firstName' => 'Margaret', 'lastName' => 'Hamilton'], 'organization' => ['links' => ['https://www.linkedin.com/company/globex/']]]));
+        $recorded = $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => ['firstName' => 'Margaret', 'lastName' => 'Hamilton'], 'organization' => ['links' => ['https://www.linkedin.com/company/globex/']]]));
 
         $this->assertSame(['known', $globex, 'created'], [$recorded['organization']['status'], $recorded['organization']['id'], $recorded['contact']['status']]);
         $this->assertSame([$recorded['contact']['id']], $this->requestJson('GET', '/api/organizations/'.$globex)['contactIds']);
@@ -103,7 +103,7 @@ class RecordContactToolApiTest extends ApiTestCase
     {
         $this->login();
 
-        $recorded = $this->answerOf($this->callWithoutHandshake('enregistrer-un-contact', [
+        $recorded = $this->answerOf($this->callWithoutHandshake('record-contact', [
             'person' => ['firstName' => 'Ada', 'lastName' => 'Lovelace', 'email' => 'ada@babbage.test', 'jobTitle' => 'CTO', 'links' => ['https://www.linkedin.com/in/ada-lovelace', 'https://www.malt.fr/profile/adalovelace']],
             'organization' => ['email' => 'contact@babbage.test'],
         ]));
@@ -116,9 +116,9 @@ class RecordContactToolApiTest extends ApiTestCase
     public function testTheSameCallTwiceCreatesNothingMore(): void
     {
         $this->login();
-        $first = $this->answerOf($this->callWithoutHandshake('enregistrer-un-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => self::GLOBEX]));
+        $first = $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => self::GLOBEX]));
 
-        $second = $this->answerOf($this->callWithoutHandshake('enregistrer-un-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => self::GLOBEX]));
+        $second = $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => self::GLOBEX]));
 
         $this->assertSame(
             [['known', $first['organization']['id']], ['known', $first['contact']['id'], [], []]],
@@ -131,7 +131,7 @@ class RecordContactToolApiTest extends ApiTestCase
     {
         $this->login();
 
-        $recorded = $this->answerOf($this->callWithoutHandshake('enregistrer-un-contact', ['person' => ['email' => 'ada@babbage.test'], 'organization' => self::GLOBEX]));
+        $recorded = $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => ['email' => 'ada@babbage.test'], 'organization' => self::GLOBEX]));
 
         $organizations = $this->requestJson('GET', '/api/contacts/'.$recorded['contact']['id'].'/organizations')['items'];
         $this->assertEqualsCanonicalizing(['Babbage & Co SAS', 'Globex'], array_column($organizations, 'name'));
@@ -141,18 +141,18 @@ class RecordContactToolApiTest extends ApiTestCase
     {
         $this->login();
 
-        $recorded = $this->answerOf($this->callWithoutHandshake('enregistrer-un-contact', ['person' => self::ADA_LOVELACE_HOMONYM, 'organization' => self::BABBAGE]));
+        $recorded = $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => self::ADA_LOVELACE_HOMONYM, 'organization' => self::BABBAGE]));
 
         $this->assertSame(['toConfirm', null, ['Ada Lovelace']], [$recorded['contact']['status'], $recorded['contact']['id'] ?? null, array_column($recorded['contact']['candidates'], 'name')]);
-        $this->assertSame('new', $this->answerOf($this->callWithoutHandshake('identifier', ['persons' => [['links' => self::ADA_LOVELACE_HOMONYM['links']]]]))['persons'][0]['status']);
+        $this->assertSame('new', $this->answerOf($this->callWithoutHandshake('identify', ['persons' => [['links' => self::ADA_LOVELACE_HOMONYM['links']]]]))['persons'][0]['status']);
     }
 
     public function testTheCandidateRetainedIsCompleted(): void
     {
         $this->login();
-        $candidate = $this->answerOf($this->callWithoutHandshake('enregistrer-un-contact', ['person' => self::ADA_LOVELACE_HOMONYM, 'organization' => self::BABBAGE]))['contact']['candidates'][0]['id'];
+        $candidate = $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => self::ADA_LOVELACE_HOMONYM, 'organization' => self::BABBAGE]))['contact']['candidates'][0]['id'];
 
-        $recorded = $this->answerOf($this->callWithoutHandshake('enregistrer-un-contact', ['person' => self::ADA_LOVELACE_HOMONYM, 'organization' => self::BABBAGE, 'personId' => $candidate]));
+        $recorded = $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => self::ADA_LOVELACE_HOMONYM, 'organization' => self::BABBAGE, 'personId' => $candidate]));
 
         $this->assertSame(['known', $candidate, ['links']], [$recorded['contact']['status'], $recorded['contact']['id'], $recorded['contact']['completed']]);
     }
@@ -160,9 +160,9 @@ class RecordContactToolApiTest extends ApiTestCase
     public function testAnotherPersonThanThoseToConfirmIsCreated(): void
     {
         $this->login();
-        $candidate = $this->answerOf($this->callWithoutHandshake('enregistrer-un-contact', ['person' => self::ADA_LOVELACE_HOMONYM, 'organization' => self::BABBAGE]))['contact']['candidates'][0]['id'];
+        $candidate = $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => self::ADA_LOVELACE_HOMONYM, 'organization' => self::BABBAGE]))['contact']['candidates'][0]['id'];
 
-        $recorded = $this->answerOf($this->callWithoutHandshake('enregistrer-un-contact', ['person' => self::ADA_LOVELACE_HOMONYM, 'organization' => self::BABBAGE, 'newPerson' => true]));
+        $recorded = $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => self::ADA_LOVELACE_HOMONYM, 'organization' => self::BABBAGE, 'newPerson' => true]));
 
         $this->assertSame('created', $recorded['contact']['status']);
         $this->assertNotSame($candidate, $recorded['contact']['id']);
@@ -172,10 +172,10 @@ class RecordContactToolApiTest extends ApiTestCase
     public function testAnOrganizationToConfirmIsRetainedByItsId(): void
     {
         $this->login();
-        $toConfirm = $this->answerOf($this->callWithoutHandshake('enregistrer-un-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => ['name' => 'Babbage & Co']]));
+        $toConfirm = $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => ['name' => 'Babbage & Co']]));
         $this->assertSame(['toConfirm', ['Babbage & Co SAS'], 'new'], [$toConfirm['organization']['status'], array_column($toConfirm['organization']['candidates'], 'name'), $toConfirm['contact']['status']]);
 
-        $recorded = $this->answerOf($this->callWithoutHandshake('enregistrer-un-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => ['name' => 'Babbage & Co'], 'organizationId' => $toConfirm['organization']['candidates'][0]['id']]));
+        $recorded = $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => ['name' => 'Babbage & Co'], 'organizationId' => $toConfirm['organization']['candidates'][0]['id']]));
 
         $this->assertSame(['known', 'created'], [$recorded['organization']['status'], $recorded['contact']['status']]);
         $this->assertContains($recorded['contact']['id'], $this->requestJson('GET', '/api/organizations/'.$toConfirm['organization']['candidates'][0]['id'])['contactIds']);
@@ -185,10 +185,10 @@ class RecordContactToolApiTest extends ApiTestCase
     {
         $this->login('assistant-user');
 
-        $refused = $this->answerOf($this->callWithoutHandshake('enregistrer-un-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => self::GLOBEX]));
+        $refused = $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => self::GLOBEX]));
 
         $this->assertSame([403, 'roleNotAllowed'], [$refused['status'], $refused['reason']]);
-        $this->assertSame('new', $this->answerOf($this->callWithoutHandshake('identifier', ['organizations' => [self::GLOBEX]]))['organizations'][0]['status']);
+        $this->assertSame('new', $this->answerOf($this->callWithoutHandshake('identify', ['organizations' => [self::GLOBEX]]))['organizations'][0]['status']);
     }
 
     public function testAMemberWhoIsNoProspectorIsRefused(): void
@@ -196,7 +196,7 @@ class RecordContactToolApiTest extends ApiTestCase
         $this->aMemberOfTheFixtures('member-user', Role::User, Role::PersonalData);
         $this->login('member-user');
 
-        $refused = $this->answerOf($this->callWithoutHandshake('enregistrer-un-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => self::GLOBEX]));
+        $refused = $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => self::GLOBEX]));
 
         $this->assertSame([403, 'roleNotAllowed'], [$refused['status'], $refused['reason']]);
     }
@@ -206,7 +206,7 @@ class RecordContactToolApiTest extends ApiTestCase
         $this->aMemberOfTheFixtures('admin-user', Role::User, Role::Admin);
         $this->login('admin-user');
 
-        $recorded = $this->answerOf($this->callWithoutHandshake('enregistrer-un-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => self::GLOBEX]));
+        $recorded = $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => self::GLOBEX]));
 
         $this->assertSame(['created', 'created'], [$recorded['organization']['status'], $recorded['contact']['status']]);
     }
@@ -214,10 +214,10 @@ class RecordContactToolApiTest extends ApiTestCase
     public function testAnOrganizationOfAnotherAccountIsUnknown(): void
     {
         $this->login();
-        $babbage = $this->answerOf($this->callWithoutHandshake('identifier', ['organizations' => [['emails' => ['contact@babbage.test']]]]))['organizations'][0]['candidates'][0]['id'];
+        $babbage = $this->answerOf($this->callWithoutHandshake('identify', ['organizations' => [['emails' => ['contact@babbage.test']]]]))['organizations'][0]['candidates'][0]['id'];
         $this->login($this->aMemberOfAnotherAccount('another-user'));
 
-        $refused = $this->answerOf($this->callWithoutHandshake('enregistrer-un-contact', ['person' => ['email' => 'ada@another.test'], 'organization' => ['siret' => '55210055400013'], 'organizationId' => $babbage]));
+        $refused = $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => ['email' => 'ada@another.test'], 'organization' => ['siret' => '55210055400013'], 'organizationId' => $babbage]));
 
         $this->assertSame([404, 'unknownOrganization'], [$refused['status'], $refused['reason']]);
         $this->login();
@@ -227,20 +227,20 @@ class RecordContactToolApiTest extends ApiTestCase
     public function testAContactOfAnotherAccountIsUnknown(): void
     {
         $this->login();
-        $ada = $this->answerOf($this->callWithoutHandshake('identifier', ['persons' => [['emails' => ['ada@babbage.test']]]]))['persons'][0]['candidates'][0]['id'];
+        $ada = $this->answerOf($this->callWithoutHandshake('identify', ['persons' => [['emails' => ['ada@babbage.test']]]]))['persons'][0]['candidates'][0]['id'];
         $this->login($this->aMemberOfAnotherAccount('another-user'));
 
-        $refused = $this->answerOf($this->callWithoutHandshake('enregistrer-un-contact', ['person' => ['email' => 'ada@babbage.test'], 'organization' => self::GLOBEX, 'personId' => $ada]));
+        $refused = $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => ['email' => 'ada@babbage.test'], 'organization' => self::GLOBEX, 'personId' => $ada]));
 
         $this->assertSame([404, 'unknownPerson'], [$refused['status'], $refused['reason']]);
-        $this->assertSame('new', $this->answerOf($this->callWithoutHandshake('identifier', ['organizations' => [self::GLOBEX]]))['organizations'][0]['status']);
+        $this->assertSame('new', $this->answerOf($this->callWithoutHandshake('identify', ['organizations' => [self::GLOBEX]]))['organizations'][0]['status']);
     }
 
     public function testAnOrganizationFoundIsCompletedWithoutChangingWhatIsNoted(): void
     {
         $this->login();
 
-        $recorded = $this->answerOf($this->callWithoutHandshake('enregistrer-un-contact', [
+        $recorded = $this->answerOf($this->callWithoutHandshake('record-contact', [
             'person' => self::MARGARET_HAMILTON,
             'organization' => ['email' => 'contact@babbage.test', 'name' => 'Babbage & Co', 'siret' => '55210055400013', 'phoneNumber' => '03 88 11 22 33'],
         ]));
@@ -254,7 +254,7 @@ class RecordContactToolApiTest extends ApiTestCase
     {
         $this->login();
 
-        $recorded = $this->answerOf($this->callWithoutHandshake('enregistrer-un-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => self::GLOBEX + ['siret' => '35600000049837']]));
+        $recorded = $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => self::GLOBEX + ['siret' => '35600000049837']]));
 
         $this->assertSame('35600000049837', $this->requestJson('GET', '/api/organizations/'.$recorded['organization']['id'])['legalIdentity']['siret']);
     }
@@ -263,7 +263,7 @@ class RecordContactToolApiTest extends ApiTestCase
     {
         $this->theNextFails(CollectContact::class);
 
-        $refused = $this->answerOf($this->callWithoutHandshake('enregistrer-un-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => self::GLOBEX]));
+        $refused = $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => self::GLOBEX]));
 
         $this->assertSame(422, $refused['status']);
         $this->assertNothingRemainsOfGlobexNorMargaret();
@@ -273,7 +273,7 @@ class RecordContactToolApiTest extends ApiTestCase
     {
         $this->theNextFails(StartProspecting::class);
 
-        $this->answerOf($this->callWithoutHandshake('enregistrer-un-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => self::GLOBEX]));
+        $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => self::GLOBEX]));
 
         $this->assertNothingRemainsOfGlobexNorMargaret();
     }
@@ -282,7 +282,7 @@ class RecordContactToolApiTest extends ApiTestCase
     {
         $this->theNextFails(CompleteOrganization::class);
 
-        $this->answerOf($this->callWithoutHandshake('enregistrer-un-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => self::GLOBEX + ['siret' => '35600000049837']]));
+        $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => self::GLOBEX + ['siret' => '35600000049837']]));
 
         $this->assertNothingRemainsOfGlobexNorMargaret();
     }
@@ -291,9 +291,9 @@ class RecordContactToolApiTest extends ApiTestCase
     {
         $this->theNextFails(CompleteOrganization::class);
 
-        $this->answerOf($this->callWithoutHandshake('enregistrer-un-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => self::BABBAGE + ['siret' => '55210055400013']]));
+        $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => self::BABBAGE + ['siret' => '55210055400013']]));
 
-        $babbage = $this->answerOf($this->callWithoutHandshake('identifier', ['organizations' => [['emails' => ['contact@babbage.test']]]]))['organizations'][0];
+        $babbage = $this->answerOf($this->callWithoutHandshake('identify', ['organizations' => [['emails' => ['contact@babbage.test']]]]))['organizations'][0];
         $this->assertSame('known', $babbage['status']);
         $this->assertNull($this->requestJson('GET', '/api/organizations/'.$babbage['candidates'][0]['id'])['legalIdentity']['siret']);
         $this->assertNothingRemainsOfGlobexNorMargaret();
@@ -303,7 +303,7 @@ class RecordContactToolApiTest extends ApiTestCase
     {
         $this->theNextFails(CompleteContact::class);
 
-        $this->answerOf($this->callWithoutHandshake('enregistrer-un-contact', ['person' => ['email' => 'ada@babbage.test', 'links' => ['https://www.malt.fr/profile/adalovelace']], 'organization' => self::GLOBEX]));
+        $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => ['email' => 'ada@babbage.test', 'links' => ['https://www.malt.fr/profile/adalovelace']], 'organization' => self::GLOBEX]));
 
         $this->assertNothingRemainsOfGlobexNorMargaret();
         $this->assertAdaIsAsShewas();
@@ -313,7 +313,7 @@ class RecordContactToolApiTest extends ApiTestCase
     {
         $this->theNextFails(AddContact::class);
 
-        $this->answerOf($this->callWithoutHandshake('enregistrer-un-contact', ['person' => ['email' => 'ada@babbage.test'], 'organization' => self::GLOBEX]));
+        $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => ['email' => 'ada@babbage.test'], 'organization' => self::GLOBEX]));
 
         $this->assertNothingRemainsOfGlobexNorMargaret();
         $this->assertAdaIsAsShewas();
@@ -323,7 +323,7 @@ class RecordContactToolApiTest extends ApiTestCase
     {
         $this->theNextFails(CollectContact::class, new \RuntimeException('DynamoDB out of reach, as the test asks'));
 
-        $this->sendWithoutHandshake('enregistrer-un-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => self::GLOBEX]);
+        $this->sendWithoutHandshake('record-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => self::GLOBEX]);
 
         $this->assertNothingRemainsOfGlobexNorMargaret();
     }
@@ -332,7 +332,7 @@ class RecordContactToolApiTest extends ApiTestCase
     {
         $this->theNextFails(StartProspecting::class, new \RuntimeException('Started although the person was given badly'));
 
-        $refused = $this->answerOf($this->callWithoutHandshake('enregistrer-un-contact', ['person' => self::MARGARET_HAMILTON + ['email' => 'not-an-email'], 'organization' => self::GLOBEX]));
+        $refused = $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => self::MARGARET_HAMILTON + ['email' => 'not-an-email'], 'organization' => self::GLOBEX]));
 
         $this->assertSame([422, ['contactDetails.email']], [$refused['status'], $this->violatedFields($refused)]);
     }
@@ -352,13 +352,13 @@ class RecordContactToolApiTest extends ApiTestCase
 
     private function assertNothingRemainsOfGlobexNorMargaret(): void
     {
-        $identified = $this->answerOf($this->callWithoutHandshake('identifier', ['organizations' => [self::GLOBEX], 'persons' => [['links' => self::MARGARET_HAMILTON['links']]]]));
+        $identified = $this->answerOf($this->callWithoutHandshake('identify', ['organizations' => [self::GLOBEX], 'persons' => [['links' => self::MARGARET_HAMILTON['links']]]]));
         $this->assertSame(['new', 'new'], [$identified['organizations'][0]['status'], $identified['persons'][0]['status']]);
     }
 
     private function assertAdaIsAsShewas(): void
     {
-        $ada = $this->answerOf($this->callWithoutHandshake('identifier', ['persons' => [['emails' => ['ada@babbage.test']]]]))['persons'][0]['candidates'][0]['id'];
+        $ada = $this->answerOf($this->callWithoutHandshake('identify', ['persons' => [['emails' => ['ada@babbage.test']]]]))['persons'][0]['candidates'][0]['id'];
         $this->assertSame(['https://www.linkedin.com/in/ada-lovelace'], array_column($this->requestJson('GET', '/api/contacts/'.$ada)['contactDetails']['links'], 'address'));
         $this->assertSame(['Babbage & Co SAS'], array_column($this->requestJson('GET', '/api/contacts/'.$ada.'/organizations')['items'], 'name'));
     }

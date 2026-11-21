@@ -36,7 +36,7 @@ final readonly class NoteCampaignExchangeTool
 
     /**
      * @param string      $id                   the id of the campaign
-     * @param string      $contactId            the id of the recipient, as `destinataire-suivant` gives it
+     * @param string      $contactId            the id of the recipient, as `get-next-recipient` gives it
      * @param string|null $text                 the text really sent, the subject then the body of an e-mail
      * @param string|null $occurredAt           when it was sent (ISO 8601), now when left out; never in the future
      * @param string|null $messageId            the header Message-ID of the e-mail sent, as read in the mailbox
@@ -45,7 +45,7 @@ final readonly class NoteCampaignExchangeTool
      * @return array<string, mixed>
      */
     #[McpTool(
-        name: 'noter-l-envoi',
+        name: 'log-sent-message',
         description: 'Note the message you sent yourself to a recipient of a campaign you lead, by the channel of the campaign: the recipient is processed, the campaign ended once nobody is left to handle. Give the text really sent and the Message-ID of the e-mail, or the conversation of the LinkedIn message. Each sending is noted once in the account: noted again, the answer is its status alreadyNoted with the exchange noted first, or erasedBefore with who erased it, and nothing is noted.',
         annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false),
     )]

@@ -25,7 +25,7 @@ final readonly class AddRecipientTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'ajouter-destinataire-campagne', description: 'Add a contact chosen to the recipients of a frozen campaign, kept once; needs the right to manage the personal data. Answers the campaign.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
+    #[McpTool(name: 'add-campaign-recipient', description: 'Add a contact chosen to the recipients of a frozen campaign, kept once; needs the right to manage the personal data. Answers the campaign.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
     public function __invoke(string $id, string $contactId): array
     {
         return $this->writes->write(

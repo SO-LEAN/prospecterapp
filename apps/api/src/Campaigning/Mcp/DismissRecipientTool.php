@@ -25,7 +25,7 @@ final readonly class DismissRecipientTool
      * @param string  $contactId the id of the contact, one of its recipients still to handle
      * @param ?string $reason    why, when said
      */
-    #[McpTool(name: 'ecarter-destinataire-campagne', description: 'Dismiss a recipient of a started campaign without an exchange, for good: the campaign ends once nobody is left to handle; needs the right to manage the personal data. Answers nothing.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'dismiss-campaign-recipient', description: 'Dismiss a recipient of a started campaign without an exchange, for good: the campaign ends once nobody is left to handle; needs the right to manage the personal data. Answers nothing.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id, string $contactId, ?string $reason = null): void
     {
         $this->writes->dispatched(

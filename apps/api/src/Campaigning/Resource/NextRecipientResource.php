@@ -9,7 +9,7 @@ use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
 /**
  * The recipient an AI leading a campaign handles next, how it reaches them, the message it sends them itself and how
- * it treats it, and how many are left (ADR 0144): `destinataire-suivant`, a tool without an endpoint.
+ * it treats it, and how many are left (ADR 0144): `get-next-recipient`, a tool without an endpoint.
  */
 final readonly class NextRecipientResource
 {

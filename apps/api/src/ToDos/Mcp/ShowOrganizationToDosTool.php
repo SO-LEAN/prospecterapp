@@ -31,7 +31,7 @@ final readonly class ShowOrganizationToDosTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'lire-a-faire-organisation', description: 'The to-dos of an organization and of its contacts, with the right to manage the personal data.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'list-organization-todos', description: 'The to-dos of an organization and of its contacts, with the right to manage the personal data.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $id): array
     {
         $organization = $this->organizations->read($id);

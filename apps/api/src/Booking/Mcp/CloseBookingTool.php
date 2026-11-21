@@ -20,7 +20,7 @@ final readonly class CloseBookingTool
     /**
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'fermer-reservation', description: 'Close the booking page of the member: nobody books them at its public link any more. Answers the booking page.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false))]
+    #[McpTool(name: 'close-booking', description: 'Close the booking page of the member: nobody books them at its public link any more. Answers the booking page.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false))]
     public function __invoke(): array
     {
         return $this->writes->write(

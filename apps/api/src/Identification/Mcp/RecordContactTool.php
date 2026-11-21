@@ -15,7 +15,7 @@ use Mcp\Server\Capability\Attribute\Schema;
 
 /**
  * Records in one call a contact and the organization they work for, finding what Prospecter knows already (ADR 0177):
- * no endpoint, the screens not asking it, as `identifier`.
+ * no endpoint, the screens not asking it, as `identify`.
  *
  * @phpstan-import-type RecordedPerson from ContactRecorder
  * @phpstan-import-type RecordedOrganization from ContactRecorder
@@ -67,7 +67,7 @@ final readonly class RecordContactTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'enregistrer-un-contact', description: 'Record a person and the organization they work for, in one call: Prospecter finds them by their keys (as `identifier`), creates what it does not know, fills what is empty without changing what is noted, and attaches the contact to the organization; calling twice creates nothing more. Answers for each `created`, `known` with the fields completed and those you gave otherwise than noted, or `toConfirm` with candidates (nothing written: ask your member, then call again naming the one retained or saying it is another one). Needs the right to manage the personal data.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
+    #[McpTool(name: 'record-contact', description: 'Record a person and the organization they work for, in one call: Prospecter finds them by their keys (as `identify`), creates what it does not know, fills what is empty without changing what is noted, and attaches the contact to the organization; calling twice creates nothing more. Answers for each `created`, `known` with the fields completed and those you gave otherwise than noted, or `toConfirm` with candidates (nothing written: ask your member, then call again naming the one retained or saying it is another one). Needs the right to manage the personal data.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
     public function __invoke(
         #[Schema(definition: self::PERSON)]
         array $person,

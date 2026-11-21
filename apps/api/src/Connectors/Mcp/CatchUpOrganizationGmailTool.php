@@ -30,7 +30,7 @@ final readonly class CatchUpOrganizationGmailTool
     /**
      * @param string $id the id of the organization, which has an e-mail of its own
      */
-    #[McpTool(name: 'rattraper-gmail-organisation', description: 'Catch up the e-mails the mailbox of Gmail of the member exchanged with the address of an organization itself over the 12 months before, the 200 newest, while the import of their e-mails is active; needs the right to manage the personal data. Answers nothing: the e-mails arrive in the timeline of the organization a moment later.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true))]
+    #[McpTool(name: 'catch-up-organization-emails', description: 'Catch up the e-mails the mailbox of Gmail of the member exchanged with the address of an organization itself over the 12 months before, the 200 newest, while the import of their e-mails is active; needs the right to manage the personal data. Answers nothing: the e-mails arrive in the timeline of the organization a moment later.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true))]
     public function __invoke(string $id): void
     {
         $organization = $this->organizations->read($id);

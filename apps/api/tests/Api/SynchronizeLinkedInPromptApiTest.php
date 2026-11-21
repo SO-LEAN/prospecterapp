@@ -19,7 +19,7 @@ class SynchronizeLinkedInPromptApiTest extends ApiTestCase
     {
         $this->login();
 
-        $prompt = $this->promptListed('synchroniser-linkedin');
+        $prompt = $this->promptListed('sync-linkedin');
 
         $this->assertSame('Synchroniser LinkedIn', $prompt['title'] ?? null);
         $this->assertSame([['what', true], ['since', false]], self::argumentsOf($prompt));
@@ -29,9 +29,9 @@ class SynchronizeLinkedInPromptApiTest extends ApiTestCase
     {
         $this->login();
 
-        $text = $this->promptText('synchroniser-linkedin', ['what' => 'messages', 'since' => '7 jours']);
+        $text = $this->promptText('sync-linkedin', ['what' => 'messages', 'since' => '7 jours']);
 
-        $this->assertStringContainsString('`noter-un-echange`', $text);
+        $this->assertStringContainsString('`log-contact-exchange`', $text);
         $this->assertStringContainsString('`linkedInConversation`', $text);
         $this->assertStringContainsString('`occurredAt`', $text);
     }
@@ -40,19 +40,19 @@ class SynchronizeLinkedInPromptApiTest extends ApiTestCase
     {
         $this->login();
 
-        $text = $this->promptText('synchroniser-linkedin', ['what' => 'contacts', 'since' => '7 jours']);
+        $text = $this->promptText('sync-linkedin', ['what' => 'contacts', 'since' => '7 jours']);
 
-        $this->assertStringContainsString('`enregistrer-un-contact`', $text);
-        $this->assertStringNotContainsString('`noter-un-echange`', $text);
+        $this->assertStringContainsString('`record-contact`', $text);
+        $this->assertStringNotContainsString('`log-contact-exchange`', $text);
     }
 
     public function testTheAiIdentifiesThePersonsBeforeAndAsksItsMemberAboutThoseToConfirm(): void
     {
         $this->login();
 
-        $text = $this->promptText('synchroniser-linkedin', ['what' => 'contacts', 'since' => '7 jours']);
+        $text = $this->promptText('sync-linkedin', ['what' => 'contacts', 'since' => '7 jours']);
 
-        $this->assertLessThan(strpos($text, '`enregistrer-un-contact`'), strpos($text, '`identifier`'));
+        $this->assertLessThan(strpos($text, '`record-contact`'), strpos($text, '`identify`'));
         $this->assertStringContainsString('`toConfirm`', $text);
     }
 
@@ -60,7 +60,7 @@ class SynchronizeLinkedInPromptApiTest extends ApiTestCase
     {
         $this->login();
 
-        $text = $this->promptText('synchroniser-linkedin', ['what' => 'messages', 'since' => 'le 1er novembre']);
+        $text = $this->promptText('sync-linkedin', ['what' => 'messages', 'since' => 'le 1er novembre']);
 
         $this->assertStringContainsString('mes messages LinkedIn depuis le 1er novembre', $text);
     }
@@ -69,7 +69,7 @@ class SynchronizeLinkedInPromptApiTest extends ApiTestCase
     {
         $this->login();
 
-        $text = $this->promptText('synchroniser-linkedin', ['what' => 'contacts']);
+        $text = $this->promptText('sync-linkedin', ['what' => 'contacts']);
 
         $this->assertStringContainsString('mes contacts LinkedIn, en me demandant d\'abord depuis quand', $text);
     }
@@ -78,7 +78,7 @@ class SynchronizeLinkedInPromptApiTest extends ApiTestCase
     {
         $this->login();
 
-        $text = $this->promptText('synchroniser-linkedin', ['what' => 'messages', 'since' => '7 jours']);
+        $text = $this->promptText('sync-linkedin', ['what' => 'messages', 'since' => '7 jours']);
 
         $this->assertStringContainsString('`alreadyNoted` et `erasedBefore` comptent comme déjà notés', $text);
         $this->assertStringContainsString('créés, complétés, déjà notés, ignorés', $text);
@@ -88,7 +88,7 @@ class SynchronizeLinkedInPromptApiTest extends ApiTestCase
     {
         $this->login();
 
-        $text = $this->promptText('synchroniser-linkedin', ['what' => 'contacts', 'since' => '7 jours']);
+        $text = $this->promptText('sync-linkedin', ['what' => 'contacts', 'since' => '7 jours']);
 
         $this->assertStringContainsString('Si Prospecter refuse un appel, arrête-toi et demande-moi', $text);
     }
@@ -97,7 +97,7 @@ class SynchronizeLinkedInPromptApiTest extends ApiTestCase
     {
         $this->login();
 
-        $text = $this->promptText('synchroniser-linkedin', ['what' => 'contacts', 'since' => '7 jours']);
+        $text = $this->promptText('sync-linkedin', ['what' => 'contacts', 'since' => '7 jours']);
 
         $this->assertStringContainsString('Ne crée jamais une personne ou une entreprise `toConfirm` sans ma réponse', $text);
     }
@@ -106,7 +106,7 @@ class SynchronizeLinkedInPromptApiTest extends ApiTestCase
     {
         $this->login();
 
-        $text = $this->promptText('synchroniser-linkedin', ['what' => 'messages', 'since' => '7 jours']);
+        $text = $this->promptText('sync-linkedin', ['what' => 'messages', 'since' => '7 jours']);
 
         $this->assertStringContainsString('Ne note jamais un message sans sa conversation quand tu la connais', $text);
     }
@@ -115,7 +115,7 @@ class SynchronizeLinkedInPromptApiTest extends ApiTestCase
     {
         $this->login();
 
-        $text = $this->promptText('synchroniser-linkedin', ['what' => 'contacts', 'since' => '7 jours']);
+        $text = $this->promptText('sync-linkedin', ['what' => 'contacts', 'since' => '7 jours']);
 
         $this->assertStringContainsString('`known` sans rien de complété, comme déjà noté', $text);
     }
@@ -124,7 +124,7 @@ class SynchronizeLinkedInPromptApiTest extends ApiTestCase
     {
         $this->login();
 
-        $text = $this->promptText('synchroniser-linkedin', ['what' => 'contacts', 'since' => '7 jours']);
+        $text = $this->promptText('sync-linkedin', ['what' => 'contacts', 'since' => '7 jours']);
 
         $this->assertStringContainsString('Une synchronisation relancée ne doit compter que des déjà notés', $text);
     }
@@ -133,7 +133,7 @@ class SynchronizeLinkedInPromptApiTest extends ApiTestCase
     {
         $this->login();
 
-        $text = $this->promptText('synchroniser-linkedin', ['what' => 'contacts', 'since' => '  ']);
+        $text = $this->promptText('sync-linkedin', ['what' => 'contacts', 'since' => '  ']);
 
         $this->assertStringContainsString('mes contacts LinkedIn, en me demandant d\'abord depuis quand', $text);
     }
@@ -142,7 +142,7 @@ class SynchronizeLinkedInPromptApiTest extends ApiTestCase
     {
         $this->login();
 
-        $text = $this->promptText('synchroniser-linkedin', ['what' => 'messages', 'since' => '7 jours']);
+        $text = $this->promptText('sync-linkedin', ['what' => 'messages', 'since' => '7 jours']);
 
         $this->assertSame([], array_diff(self::toolsNamedIn($text), array_column($this->everyToolListed(), 'name')));
     }
@@ -151,7 +151,7 @@ class SynchronizeLinkedInPromptApiTest extends ApiTestCase
     {
         $this->login();
 
-        $this->sendWithHandshake('prompts/get', ['name' => 'synchroniser-linkedin', 'arguments' => ['what' => 'posts']]);
+        $this->sendWithHandshake('prompts/get', ['name' => 'sync-linkedin', 'arguments' => ['what' => 'posts']]);
 
         $this->assertSame(-32602, $this->responseData()['error']['code'] ?? null);
     }

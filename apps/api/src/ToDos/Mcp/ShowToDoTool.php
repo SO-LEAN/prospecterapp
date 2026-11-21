@@ -31,7 +31,7 @@ final readonly class ShowToDoTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'lire-a-faire', description: 'A to-do: its text, its due date, its holder, its contact or organization, done or not, with the right to manage the personal data.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'get-todo', description: 'A to-do: its text, its due date, its holder, its contact or organization, done or not, with the right to manage the personal data.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $id): array
     {
         $toDo = $this->toDos->read($id);

@@ -27,8 +27,8 @@ use Prospecter\Core\SharedKernel\Application\QueryHandler;
 final readonly class NextRecipientReader
 {
     private const array INSTRUCTIONS = [
-        'asIs' => 'Send the message as it is, without changing a word, by your own means (the mailbox of your member for an e-mail, their LinkedIn for a LinkedIn message), then note it by noter-l-envoi with the text sent.',
-        'adapted' => 'You may rewrite the message for this person, from what you read of them (their profile, their past exchanges), always keeping the idea of the message: send it by your own means (the mailbox of your member for an e-mail, their LinkedIn for a LinkedIn message), then note it by noter-l-envoi with the text really sent.',
+        'asIs' => 'Send the message as it is, without changing a word, by your own means (the mailbox of your member for an e-mail, their LinkedIn for a LinkedIn message), then note it by log-sent-message with the text sent.',
+        'adapted' => 'You may rewrite the message for this person, from what you read of them (their profile, their past exchanges), always keeping the idea of the message: send it by your own means (the mailbox of your member for an e-mail, their LinkedIn for a LinkedIn message), then note it by log-sent-message with the text really sent.',
     ];
 
     public function __construct(

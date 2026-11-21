@@ -26,7 +26,7 @@ final readonly class RemoveAttachmentTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'retirer-piece-jointe', description: 'Remove a file joined to an exchange, and forget it; needs the right to manage the personal data. Answers the exchange.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'delete-attachment', description: 'Remove a file joined to an exchange, and forget it; needs the right to manage the personal data. Answers the exchange.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id, string $attachmentId): array
     {
         return $this->writes->write(

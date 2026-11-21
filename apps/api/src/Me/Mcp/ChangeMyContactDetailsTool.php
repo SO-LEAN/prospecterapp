@@ -26,7 +26,7 @@ final readonly class ChangeMyContactDetailsTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'changer-mes-coordonnees', description: 'Change the e-mail, phone number, language and links of the member in their profile; what is left out is removed. Answers their account.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
+    #[McpTool(name: 'update-my-contact-details', description: 'Change the e-mail, phone number, language and links of the member in their profile; what is left out is removed. Answers their account.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
     public function __invoke(?string $email = null, ?string $phoneNumber = null, ?string $language = null, array $links = []): array
     {
         return $this->writes->write(

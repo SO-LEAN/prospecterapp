@@ -11,7 +11,7 @@ use Mcp\Server\Capability\Attribute\Schema;
 
 /**
  * Which persons and organizations Prospecter knows, before an AI creates any (ADR 0173): no endpoint, the screens
- * not asking it yet, as `qui-suis-je`.
+ * not asking it yet, as `get-me`.
  *
  * @phpstan-import-type PersonCluesArray from IdentificationReader
  * @phpstan-import-type OrganizationCluesArray from IdentificationReader
@@ -62,7 +62,7 @@ final readonly class IdentifyTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'identifier', description: 'Before creating persons or organizations, which ones Prospecter knows: each is known (its id), new, or to confirm among candidates (ask your member), in the order given; nothing is written. A person is identified by a link, an email or a mobile, then by their first and last names (by their names only without the right to manage the personal data); an organization by its SIRET, a link, its website, its email or the domain of an email, then by its name.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'identify', description: 'Before creating persons or organizations, which ones Prospecter knows: each is known (its id), new, or to confirm among candidates (ask your member), in the order given; nothing is written. A person is identified by a link, an email or a mobile, then by their first and last names (by their names only without the right to manage the personal data); an organization by its SIRET, a link, its website, its email or the domain of an email, then by its name.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(
         #[Schema(definition: ['type' => 'array', 'items' => self::PERSON, 'maxItems' => self::AT_MOST])]
         array $persons = [],

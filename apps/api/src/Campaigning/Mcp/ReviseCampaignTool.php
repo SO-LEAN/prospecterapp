@@ -29,7 +29,7 @@ final readonly class ReviseCampaignTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'reviser-campagne', description: 'Change the name, the channel, the tags and the message of a draft campaign, given whole; needs the right to manage the personal data. Answers the campaign.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
+    #[McpTool(name: 'update-campaign', description: 'Change the name, the channel, the tags and the message of a draft campaign, given whole; needs the right to manage the personal data. Answers the campaign.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
     public function __invoke(string $id, string $name, string $channel, array $tags, string $message, ?string $subject = null): array
     {
         return $this->writes->write(

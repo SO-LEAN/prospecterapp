@@ -23,7 +23,7 @@ final readonly class DetachFromHoldingTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'detacher-de-holding', description: 'Detach an organization from its holding. Answers the organization.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'detach-from-holding', description: 'Detach an organization from its holding. Answers the organization.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id): array
     {
         return $this->writes->write(

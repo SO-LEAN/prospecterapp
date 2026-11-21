@@ -29,7 +29,7 @@ final readonly class ChangeLogoTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'changer-logo-organisation', description: 'Give an organization a new logo by the address of its image on the web (its site, its page on LinkedIn…), which Prospecter downloads and keeps. Answers the organization.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true))]
+    #[McpTool(name: 'set-organization-logo', description: 'Give an organization a new logo by the address of its image on the web (its site, its page on LinkedIn…), which Prospecter downloads and keeps. Answers the organization.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true))]
     public function __invoke(string $id, string $url): array
     {
         $this->writes->writable($id);

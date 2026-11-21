@@ -31,14 +31,14 @@ class BookingPageToolsApiTest extends ApiTestCase
 
     public function testTheAiSetsTheWeeklyWindowsOfThePage(): void
     {
-        $page = $this->assertTheToolActsAsItsEndpoint('regler-creneaux-reservation', self::AFTERNOONS, 'PATCH', '/api/me/booking-page/windows', self::AFTERNOONS, self::WRITERS);
+        $page = $this->assertTheToolActsAsItsEndpoint('set-booking-slots', self::AFTERNOONS, 'PATCH', '/api/me/booking-page/windows', self::AFTERNOONS, self::WRITERS);
 
         $this->assertSame([self::AFTERNOONS['windows'], 'Europe/Paris'], [$page['windows'], $page['timeZone']]);
     }
 
     public function testTheAiOffersTheChannelsOfThePage(): void
     {
-        $page = $this->assertTheToolActsAsItsEndpoint('proposer-canaux-reservation', ['channels' => ['call', 'videoCall']], 'PATCH', '/api/me/booking-page/channels', ['channels' => ['call', 'videoCall']], self::WRITERS);
+        $page = $this->assertTheToolActsAsItsEndpoint('set-booking-channels', ['channels' => ['call', 'videoCall']], 'PATCH', '/api/me/booking-page/channels', ['channels' => ['call', 'videoCall']], self::WRITERS);
 
         $this->assertSame(['call', 'videoCall'], $page['channels']);
     }
@@ -47,7 +47,7 @@ class BookingPageToolsApiTest extends ApiTestCase
     {
         $this->aPageReadyToOpen();
 
-        $page = $this->assertTheToolActsAsItsEndpoint('ouvrir-reservation', [], 'POST', '/api/me/booking-page/opening', null, self::WRITERS);
+        $page = $this->assertTheToolActsAsItsEndpoint('open-booking', [], 'POST', '/api/me/booking-page/opening', null, self::WRITERS);
 
         $this->assertTrue($page['open']);
         $this->assertNotNull($page['code']);
@@ -57,24 +57,24 @@ class BookingPageToolsApiTest extends ApiTestCase
     {
         $this->anOpenPage();
 
-        $page = $this->assertTheToolActsAsItsEndpoint('fermer-reservation', [], 'DELETE', '/api/me/booking-page/opening', null, self::WRITERS);
+        $page = $this->assertTheToolActsAsItsEndpoint('close-booking', [], 'DELETE', '/api/me/booking-page/opening', null, self::WRITERS);
 
         $this->assertFalse($page['open']);
-        $this->assertTheToolAsksForAConfirmation('fermer-reservation');
+        $this->assertTheToolAsksForAConfirmation('close-booking');
     }
 
     public function testTheAiChangesThePublicLinkOfThePage(): void
     {
         $former = $this->anOpenPage();
 
-        $page = $this->assertTheToolActsAsItsEndpoint('changer-lien-reservation', [], 'POST', '/api/me/booking-page/link', null, self::WRITERS);
+        $page = $this->assertTheToolActsAsItsEndpoint('set-booking-link', [], 'POST', '/api/me/booking-page/link', null, self::WRITERS);
 
         $this->assertNotSame($former, $page['code']);
     }
 
     public function testTheAiAddsAnInactivePeriodToThePage(): void
     {
-        $page = $this->assertTheToolActsAsItsEndpoint('ajouter-periode-inactive', self::HOLIDAYS, 'POST', '/api/me/booking-page/inactive-periods', self::HOLIDAYS, self::WRITERS);
+        $page = $this->assertTheToolActsAsItsEndpoint('add-inactive-period', self::HOLIDAYS, 'POST', '/api/me/booking-page/inactive-periods', self::HOLIDAYS, self::WRITERS);
 
         $this->assertSame([['2026-12-21', '2027-01-04']], array_map(static fn (array $period): array => [$period['firstDay'], $period['lastDay']], $page['inactivePeriods']));
     }
@@ -84,10 +84,10 @@ class BookingPageToolsApiTest extends ApiTestCase
         $this->login();
         $period = $this->requestJson('POST', '/api/me/booking-page/inactive-periods', self::HOLIDAYS)['inactivePeriods'][0]['id'];
 
-        $page = $this->assertTheToolActsAsItsEndpoint('retirer-periode-inactive', ['id' => $period], 'DELETE', '/api/me/booking-page/inactive-periods/'.$period, null, ['prospector-user']);
+        $page = $this->assertTheToolActsAsItsEndpoint('remove-inactive-period', ['id' => $period], 'DELETE', '/api/me/booking-page/inactive-periods/'.$period, null, ['prospector-user']);
 
         $this->assertSame([], $page['inactivePeriods']);
-        $this->assertTheToolAsksForAConfirmation('retirer-periode-inactive');
+        $this->assertTheToolAsksForAConfirmation('remove-inactive-period');
     }
 
     /**

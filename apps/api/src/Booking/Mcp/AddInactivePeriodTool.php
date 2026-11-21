@@ -25,7 +25,7 @@ final readonly class AddInactivePeriodTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'ajouter-periode-inactive', description: 'Add to the booking page of the member a period nobody books them in, their holidays for instance. Answers the booking page, each period with the link removing it.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'add-inactive-period', description: 'Add to the booking page of the member a period nobody books them in, their holidays for instance. Answers the booking page, each period with the link removing it.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $firstDay, string $lastDay): array
     {
         return $this->writes->write(

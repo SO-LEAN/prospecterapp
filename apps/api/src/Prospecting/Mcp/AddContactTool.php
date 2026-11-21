@@ -26,7 +26,7 @@ final readonly class AddContactTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'ajouter-contact-organisation', description: 'Attach a contact of the account to an organization, a contact to attach among them; needs the right to manage the personal data. Answers the organization.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'add-organization-contact', description: 'Attach a contact of the account to an organization, a contact to attach among them; needs the right to manage the personal data. Answers the organization.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id, string $personId): array
     {
         return $this->writes->write(

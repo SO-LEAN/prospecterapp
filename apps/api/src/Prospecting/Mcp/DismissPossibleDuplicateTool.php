@@ -25,7 +25,7 @@ final readonly class DismissPossibleDuplicateTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'ecarter-doublon-possible', description: 'Say, once checked, that an organization is no duplicate of the one it resembles; neither is flagged for the other any more. Answers the organization.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'dismiss-possible-duplicate-organization', description: 'Say, once checked, that an organization is no duplicate of the one it resembles; neither is flagged for the other any more. Answers the organization.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id, string $duplicateId): array
     {
         return $this->writes->write(

@@ -21,7 +21,7 @@ final readonly class EraseToDoTool
     /**
      * @param string $id the id of the to-do
      */
-    #[McpTool(name: 'effacer-a-faire', description: 'Erase a to-do; needs the right to manage the personal data. Answers nothing.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'delete-todo', description: 'Erase a to-do; needs the right to manage the personal data. Answers nothing.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id): void
     {
         $this->writes->dispatched(

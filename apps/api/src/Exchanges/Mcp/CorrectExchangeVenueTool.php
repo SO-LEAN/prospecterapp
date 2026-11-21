@@ -26,7 +26,7 @@ final readonly class CorrectExchangeVenueTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'corriger-lieu-echange', description: 'Correct where a meeting is held, or the link of a video call, planned or done; open to every prospector of the account. What is left out is removed. Answers the exchange.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
+    #[McpTool(name: 'set-exchange-venue', description: 'Correct where a meeting is held, or the link of a video call, planned or done; open to every prospector of the account. What is left out is removed. Answers the exchange.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
     public function __invoke(string $id, ?string $place = null, ?string $link = null): array
     {
         return $this->writes->write(

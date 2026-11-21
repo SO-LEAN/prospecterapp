@@ -30,7 +30,7 @@ final readonly class CheckMyConnectionsTool
     /**
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'verifier-mes-connexions', description: 'Ask the providers (Google) whether the connections of the member still work: one whose access its provider refuses is to reconnect, on the screen. Answers their connections.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true))]
+    #[McpTool(name: 'check-my-connections', description: 'Ask the providers (Google) whether the connections of the member still work: one whose access its provider refuses is to reconnect, on the screen. Answers their connections.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true))]
     public function __invoke(): array
     {
         $this->access->denyUnlessGranted('ROLE_USER');

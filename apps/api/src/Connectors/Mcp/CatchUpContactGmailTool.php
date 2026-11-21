@@ -24,7 +24,7 @@ final readonly class CatchUpContactGmailTool
     /**
      * @param string $id the id of the contact, who has an e-mail
      */
-    #[McpTool(name: 'rattraper-gmail-contact', description: 'Catch up the e-mails the mailbox of Gmail of the member exchanged with a contact over the 12 months before, the 200 newest, while the import of their e-mails is active; needs the right to manage the personal data. Answers nothing: the e-mails arrive in the timeline of the contact a moment later.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true))]
+    #[McpTool(name: 'catch-up-contact-emails', description: 'Catch up the e-mails the mailbox of Gmail of the member exchanged with a contact over the 12 months before, the 200 newest, while the import of their e-mails is active; needs the right to manage the personal data. Answers nothing: the e-mails arrive in the timeline of the contact a moment later.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true))]
     public function __invoke(string $id): void
     {
         $this->access->denyUnlessGranted('ROLE_USER');

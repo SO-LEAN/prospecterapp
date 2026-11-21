@@ -30,7 +30,7 @@ final readonly class RetryFailedPushesTool
     /**
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'relancer-synchronisations-google-echouees', description: 'Push again into the calendar of the member at Google every exchange of theirs Google refused. Answers their connections, how many exchanges are synced and failed.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true))]
+    #[McpTool(name: 'retry-failed-google-syncs', description: 'Push again into the calendar of the member at Google every exchange of theirs Google refused. Answers their connections, how many exchanges are synced and failed.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true))]
     public function __invoke(): array
     {
         $this->access->denyUnlessGranted('ROLE_USER');

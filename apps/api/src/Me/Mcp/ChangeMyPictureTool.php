@@ -26,7 +26,7 @@ final readonly class ChangeMyPictureTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'changer-ma-photo', description: 'Give the member a new picture in their profile by the address of its image on the web, which Prospecter downloads and keeps. Answers their account.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true))]
+    #[McpTool(name: 'set-my-picture', description: 'Give the member a new picture in their profile by the address of its image on the web, which Prospecter downloads and keeps. Answers their account.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true))]
     public function __invoke(string $url): array
     {
         $this->writes->writable();

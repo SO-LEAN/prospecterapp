@@ -25,7 +25,7 @@ final readonly class ShowToDosTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'lire-a-faire-contact', description: 'The to-dos of a contact, with the right to manage the personal data.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'list-contact-todos', description: 'The to-dos of a contact, with the right to manage the personal data.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $id): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');

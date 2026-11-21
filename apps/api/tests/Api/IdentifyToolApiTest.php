@@ -20,7 +20,7 @@ class IdentifyToolApiTest extends ApiTestCase
     {
         $this->login();
 
-        $identified = $this->answerOf($this->callWithoutHandshake('identifier', [
+        $identified = $this->answerOf($this->callWithoutHandshake('identify', [
             'organizations' => [['emails' => ['contact@babbage.test']], ['name' => 'Initech']],
             'persons' => [
                 ['emails' => ['ada@babbage.test']],
@@ -37,7 +37,7 @@ class IdentifyToolApiTest extends ApiTestCase
     {
         $this->login('assistant-user');
 
-        $identified = $this->answerOf($this->callWithoutHandshake('identifier', [
+        $identified = $this->answerOf($this->callWithoutHandshake('identify', [
             'persons' => [['emails' => ['ada@babbage.test']], ['firstName' => 'Ada', 'lastName' => 'Lovelace', 'emails' => ['ada@babbage.test']]],
         ]));
 
@@ -49,7 +49,7 @@ class IdentifyToolApiTest extends ApiTestCase
         $this->aMemberOfTheFixtures('admin-user', Role::User, Role::Admin);
         $this->login('admin-user');
 
-        $identified = $this->answerOf($this->callWithoutHandshake('identifier', ['persons' => [['emails' => ['ada@babbage.test']]]]));
+        $identified = $this->answerOf($this->callWithoutHandshake('identify', ['persons' => [['emails' => ['ada@babbage.test']]]]));
 
         $this->assertSame([['known', ['Ada Lovelace']]], self::described($identified['persons']));
     }
@@ -59,7 +59,7 @@ class IdentifyToolApiTest extends ApiTestCase
         $this->aMemberOfTheFixtures('member-user', Role::User);
         $this->login('member-user');
 
-        $refused = $this->answerOf($this->callWithoutHandshake('identifier', ['organizations' => [['name' => 'Babbage']]]));
+        $refused = $this->answerOf($this->callWithoutHandshake('identify', ['organizations' => [['name' => 'Babbage']]]));
 
         $this->assertSame([403, 'roleNotAllowed'], [$refused['status'], $refused['reason']]);
     }
@@ -68,7 +68,7 @@ class IdentifyToolApiTest extends ApiTestCase
     {
         $this->login();
 
-        $this->sendWithoutHandshake('identifier', ['organizations' => array_fill(0, 101, ['name' => 'Babbage'])]);
+        $this->sendWithoutHandshake('identify', ['organizations' => array_fill(0, 101, ['name' => 'Babbage'])]);
 
         $this->assertSame(-32602, $this->responseData()['error']['code'] ?? null);
     }

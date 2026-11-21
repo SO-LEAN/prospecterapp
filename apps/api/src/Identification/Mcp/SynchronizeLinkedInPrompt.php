@@ -12,15 +12,15 @@ use Mcp\Server\Exception\RegistryException;
 final readonly class SynchronizeLinkedInPrompt
 {
     private const string IDENTIFYING = <<<'STEP'
-        Avant de rien créer, demande à Prospecter qui il connaît avec `identifier`, par lots de cent au plus : chaque personne avec ses prénom et nom et l'adresse de son profil LinkedIn parmi ses liens, et son entreprise avec son nom et l'adresse de sa page LinkedIn. Pour chaque personne ou entreprise `toConfirm`, montre-moi ses candidats et demande-moi laquelle c'est, ou si c'en est une autre. Présente-moi les personnes `new` et laisse-moi choisir celles qui m'intéressent ; ignore les autres.
+        Avant de rien créer, demande à Prospecter qui il connaît avec `identify`, par lots de cent au plus : chaque personne avec ses prénom et nom et l'adresse de son profil LinkedIn parmi ses liens, et son entreprise avec son nom et l'adresse de sa page LinkedIn. Pour chaque personne ou entreprise `toConfirm`, montre-moi ses candidats et demande-moi laquelle c'est, ou si c'en est une autre. Présente-moi les personnes `new` et laisse-moi choisir celles qui m'intéressent ; ignore les autres.
         STEP;
 
     private const string RECORDING = <<<'STEP'
-        Enregistre chaque personne retenue avec `enregistrer-un-contact` : son nom, sa fonction, l'adresse de son profil LinkedIn parmi ses liens, et son entreprise avec l'adresse de sa page LinkedIn.
+        Enregistre chaque personne retenue avec `record-contact` : son nom, sa fonction, l'adresse de son profil LinkedIn parmi ses liens, et son entreprise avec l'adresse de sa page LinkedIn.
         STEP;
 
     private const string NOTING = <<<'STEP'
-        Note chaque message avec `noter-un-echange` sur le contact (`noter-un-echange-organisation` pour une page d'entreprise) : le canal `linkedIn`, le sens (`inbound` reçu, `outbound` envoyé), `occurredAt` à la minute où il a été envoyé, son texte, et `linkedInConversation`, l'identifiant de la conversation ou l'adresse de son fil (`linkedin.com/messaging/thread/<id>/`).
+        Note chaque message avec `log-contact-exchange` sur le contact (`log-organization-exchange` pour une page d'entreprise) : le canal `linkedIn`, le sens (`inbound` reçu, `outbound` envoyé), `occurredAt` à la minute où il a été envoyé, son texte, et `linkedInConversation`, l'identifiant de la conversation ou l'adresse de son fil (`linkedin.com/messaging/thread/<id>/`).
         STEP;
 
     private const string RULES = <<<'STEP'
@@ -40,7 +40,7 @@ final readonly class SynchronizeLinkedInPrompt
      *
      * @return list<array{role: string, content: string}>
      */
-    #[McpPrompt(name: 'synchroniser-linkedin', title: 'Synchroniser LinkedIn', description: 'Enregistre dans Prospecter vos contacts LinkedIn intéressants, ou note vos messages LinkedIn, sans rien doublonner.')]
+    #[McpPrompt(name: 'sync-linkedin', title: 'Synchroniser LinkedIn', description: 'Enregistre dans Prospecter vos contacts LinkedIn intéressants, ou note vos messages LinkedIn, sans rien doublonner.')]
     public function __invoke(string $what, ?string $since = null): array
     {
         return [['role' => 'user', 'content' => implode("\n\n", self::stepsOf(self::synchronized($what), $since))]];

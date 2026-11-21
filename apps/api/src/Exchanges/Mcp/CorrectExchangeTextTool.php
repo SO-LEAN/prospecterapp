@@ -26,7 +26,7 @@ final readonly class CorrectExchangeTextTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'corriger-texte-echange', description: 'Correct the text of an exchange only, its other facts staying, to make it conform once its contact was forgotten; open to every prospector of the account. Answers the exchange.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
+    #[McpTool(name: 'set-exchange-text', description: 'Correct the text of an exchange only, its other facts staying, to make it conform once its contact was forgotten; open to every prospector of the account. Answers the exchange.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
     public function __invoke(string $id, ?string $text = null, bool $madeConform = false): array
     {
         return $this->writes->write(

@@ -31,7 +31,7 @@ class McpApiTest extends ApiTestCase
     {
         $this->login();
 
-        $result = $this->callWithoutHandshake('qui-suis-je');
+        $result = $this->callWithoutHandshake('get-me');
 
         $this->assertSame(['member' => 'Camille Martin', 'account' => 'SOLEAN IT', 'readsPersonalData' => true], $result['structuredContent']);
     }
@@ -40,7 +40,7 @@ class McpApiTest extends ApiTestCase
     {
         $this->login('assistant-user');
 
-        $result = $this->callWithoutHandshake('qui-suis-je');
+        $result = $this->callWithoutHandshake('get-me');
 
         $this->assertFalse($result['structuredContent']['readsPersonalData']);
     }
@@ -49,7 +49,7 @@ class McpApiTest extends ApiTestCase
     {
         $this->login($this->aMemberOfTheFixtures('admin-user', Role::User, Role::Admin));
 
-        $result = $this->callWithoutHandshake('qui-suis-je');
+        $result = $this->callWithoutHandshake('get-me');
 
         $this->assertTrue($result['structuredContent']['readsPersonalData']);
     }
@@ -58,7 +58,7 @@ class McpApiTest extends ApiTestCase
     {
         $this->login();
 
-        $whoAmI = array_find($this->everyToolListed(), static fn (array $tool): bool => 'qui-suis-je' === $tool['name']);
+        $whoAmI = array_find($this->everyToolListed(), static fn (array $tool): bool => 'get-me' === $tool['name']);
         $this->assertTrue($whoAmI['annotations']['readOnlyHint'] ?? null);
     }
 
@@ -72,7 +72,7 @@ class McpApiTest extends ApiTestCase
         ]);
         $this->assertResponseNotHasHeader('Mcp-Session-Id');
 
-        $result = $this->callWithHandshake('tools/call', ['name' => 'qui-suis-je', 'arguments' => new \stdClass()]);
+        $result = $this->callWithHandshake('tools/call', ['name' => 'get-me', 'arguments' => new \stdClass()]);
 
         $this->assertSame(['member' => 'Camille Martin', 'account' => 'SOLEAN IT', 'readsPersonalData' => true], $result['structuredContent']);
         $this->assertResponseNotHasHeader('Mcp-Session-Id');

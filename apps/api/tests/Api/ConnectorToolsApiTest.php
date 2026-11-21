@@ -31,7 +31,7 @@ class ConnectorToolsApiTest extends ApiTestCase
 
     public function testTheAiChecksTheConnectionsOfItsMember(): void
     {
-        $connections = $this->assertTheToolActsAsItsEndpoint('verifier-mes-connexions', [], 'POST', '/api/me/connections/checks', null, self::WRITERS);
+        $connections = $this->assertTheToolActsAsItsEndpoint('check-my-connections', [], 'POST', '/api/me/connections/checks', null, self::WRITERS);
 
         $this->assertArrayHasKey('_links', $connections);
     }
@@ -41,10 +41,10 @@ class ConnectorToolsApiTest extends ApiTestCase
         $this->theProspectorImportsTheirMail();
         $ada = $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'], 'contactDetails' => ['email' => 'ada@acme.test'], 'organizationIds' => [$this->acme(null)]])['id'];
         $this->google()->receives('m1', 'Ada Lovelace <ada@acme.test>', 'Votre devis', 'Bonjour Michel.');
-        $this->assertTheToolIsRefusedAsItsEndpoint('rattraper-gmail-contact', ['id' => $ada], 'POST', '/api/contacts/'.$ada.'/gmail-catch-ups', null, ['assistant-user', 'admin-user', 'member-user', 'stranger']);
+        $this->assertTheToolIsRefusedAsItsEndpoint('catch-up-contact-emails', ['id' => $ada], 'POST', '/api/contacts/'.$ada.'/gmail-catch-ups', null, ['assistant-user', 'admin-user', 'member-user', 'stranger']);
         $this->login();
 
-        $this->assertNotTrue($this->callWithoutHandshake('rattraper-gmail-contact', ['id' => $ada])['isError'] ?? false);
+        $this->assertNotTrue($this->callWithoutHandshake('catch-up-contact-emails', ['id' => $ada])['isError'] ?? false);
 
         $this->assertSame(["Votre devis\n\nBonjour Michel."], array_column($this->requestJson('GET', '/api/contacts/'.$ada.'/exchanges')['items'], 'text'));
     }
@@ -54,10 +54,10 @@ class ConnectorToolsApiTest extends ApiTestCase
         $this->theProspectorImportsTheirMail();
         $acme = $this->acme('contact@acme.test');
         $this->google()->receives('m1', 'ACME <contact@acme.test>', 'Appel d’offres', 'Bonjour Michel.');
-        $this->assertTheToolIsRefusedAsItsEndpoint('rattraper-gmail-organisation', ['id' => $acme], 'POST', '/api/organizations/'.$acme.'/gmail-catch-ups', null, ['assistant-user', 'admin-user', 'member-user', 'stranger']);
+        $this->assertTheToolIsRefusedAsItsEndpoint('catch-up-organization-emails', ['id' => $acme], 'POST', '/api/organizations/'.$acme.'/gmail-catch-ups', null, ['assistant-user', 'admin-user', 'member-user', 'stranger']);
         $this->login();
 
-        $this->assertNotTrue($this->callWithoutHandshake('rattraper-gmail-organisation', ['id' => $acme])['isError'] ?? false);
+        $this->assertNotTrue($this->callWithoutHandshake('catch-up-organization-emails', ['id' => $acme])['isError'] ?? false);
 
         $this->assertSame(["Appel d’offres\n\nBonjour Michel."], array_map(static fn (array $item): string => $item['exchange']['text'], $this->requestJson('GET', '/api/organizations/'.$acme.'/exchanges')['items']));
     }

@@ -21,7 +21,7 @@ final readonly class OpenBookingTool
     /**
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'ouvrir-reservation', description: 'Open the booking page of the member at its public link, once their calendar at Google is connected. Answers the booking page.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'open-booking', description: 'Open the booking page of the member at its public link, once their calendar at Google is connected. Answers the booking page.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
     public function __invoke(): array
     {
         return $this->writes->write(

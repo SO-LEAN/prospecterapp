@@ -23,7 +23,7 @@ final readonly class RemoveLogoTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'retirer-logo-organisation', description: 'Remove the logo of an organization. Answers the organization.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'delete-organization-logo', description: 'Remove the logo of an organization. Answers the organization.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id): array
     {
         return $this->writes->write(

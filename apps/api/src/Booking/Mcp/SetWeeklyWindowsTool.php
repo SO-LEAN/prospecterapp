@@ -24,7 +24,7 @@ final readonly class SetWeeklyWindowsTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'regler-creneaux-reservation', description: 'Set the weekly windows the member may be booked in on their booking page, given whole. Answers the booking page.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
+    #[McpTool(name: 'set-booking-slots', description: 'Set the weekly windows the member may be booked in on their booking page, given whole. Answers the booking page.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
     public function __invoke(string $timeZone, array $windows): array
     {
         return $this->writes->write(

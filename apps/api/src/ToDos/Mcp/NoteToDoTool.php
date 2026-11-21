@@ -41,7 +41,7 @@ final readonly class NoteToDoTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'noter-a-faire', description: 'Note a to-do for a contact, held by the member, kept for the organizations the contact is part of; needs the right to manage the personal data. Answers the to-do.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'create-contact-todo', description: 'Note a to-do for a contact, held by the member, kept for the organizations the contact is part of; needs the right to manage the personal data. Answers the to-do.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id, string $text, string $dueOn, ?string $dueAt = null): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');

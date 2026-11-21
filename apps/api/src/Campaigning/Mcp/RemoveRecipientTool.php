@@ -22,7 +22,7 @@ final readonly class RemoveRecipientTool
      * @param string $id        the id of the campaign, frozen
      * @param string $contactId the id of the contact, one of its recipients
      */
-    #[McpTool(name: 'retirer-destinataire-campagne', description: 'Take a recipient off a frozen campaign, never the last one; needs the right to manage the personal data. Answers nothing.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'remove-campaign-recipient', description: 'Take a recipient off a frozen campaign, never the last one; needs the right to manage the personal data. Answers nothing.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id, string $contactId): void
     {
         $this->writes->dispatched(
