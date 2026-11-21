@@ -18,8 +18,10 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
 {
     /**
      * Kept on the screen: the forgetting of a contact (GDPR), the credentials of the sign-in, the connection of a
-     * connector, its consent given to Google in a browser; and the form of an upload, the tool joining a file
-     * preparing its own (ADR 0172).
+     * connector, its consent given to Google in a browser, and its disconnection, which an AI could not take back
+     * without that consent; the client of Google of the account and its notifications of Gmail, its credentials; the
+     * identity, the address and the logo of the organization of the account; and the form of an upload, the tool
+     * joining a file preparing its own (ADR 0172).
      */
     private const array NEVER = [
         'api_contacts_forget',
@@ -29,6 +31,15 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
         'api_me_connections_google_authorize',
         'api_me_connections_google_connect',
         'api_me_connections_google_import_gmail',
+        'api_me_connections_google_disconnect',
+        'api_me_connections_google_stop_gmail_import',
+        'api_me_configure_google_client',
+        'api_me_remove_google_client',
+        'api_me_configure_gmail_notifications',
+        'api_me_remove_gmail_notifications',
+        'api_me_revise_organization_identity',
+        'api_me_relocate_organization',
+        'api_me_change_organization_logo',
         'api_uploads_prepare',
     ];
 
@@ -44,19 +55,11 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
     ];
 
     /**
-     * The writes, which the tickets after the reads cover, the last of them removing this list.
+     * The writes still to cover: the noting of an exchange of a campaign, which the leading of a campaign by an AI
+     * covers, removing this list.
      */
     private const array TO_COVER = [
         'api_campaigns_note_exchange',
-        'api_me_change_organization_logo',
-        'api_me_configure_gmail_notifications',
-        'api_me_configure_google_client',
-        'api_me_connections_google_disconnect',
-        'api_me_connections_google_stop_gmail_import',
-        'api_me_relocate_organization',
-        'api_me_remove_gmail_notifications',
-        'api_me_remove_google_client',
-        'api_me_revise_organization_identity',
     ];
 
     public function testEveryEndpointOfAMemberHasItsTool(): void
