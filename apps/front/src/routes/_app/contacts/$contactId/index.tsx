@@ -118,7 +118,12 @@ function ContactPage() {
           />
         )}
         {contact._links.exchanges && (
-          <ExchangesSection contactId={contact.id} contactName={name} className="lg:col-span-2" />
+          <ExchangesSection
+            contactId={contact.id}
+            contactName={name}
+            mayCatchUpGmail={Boolean(contact._links.catchUpGmail)}
+            className="lg:col-span-2"
+          />
         )}
       </div>
       <NoteTheExchangeWithTheContact

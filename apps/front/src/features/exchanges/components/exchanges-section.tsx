@@ -4,6 +4,7 @@ import { attachTheFiles, useAttachFiles, useNoteExchange, usePlanExchange } from
 import type { Slot } from '../planning'
 import { meetingPlaceQuery, type PlannedExchangeInput, timelineQuery, upcomingQuery } from '../queries'
 import { CampaignOfTheLine } from './campaign-of-the-exchange'
+import { CatchUpGmail } from './catch-up-gmail'
 import { ExchangeForm } from './exchange-form'
 import { ExchangeLine } from './exchange-line'
 import { NoteThenFollowUp } from './follow-up'
@@ -11,7 +12,13 @@ import { JoinTheVideoCall } from './join-the-video-call'
 import { PlanForm } from './plan-form'
 import { NoteExchangeDialog, PlanExchangeDialog, ProposedExchangeDialog, TimelineCard } from './timeline-card'
 
-type Props = { contactId: string; contactName: string; className?: string }
+type Props = {
+  contactId: string
+  contactName: string
+  /** The contact links the catch-up of the e-mails exchanged with them. */
+  mayCatchUpGmail?: boolean
+  className?: string
+}
 
 type ProposedProps = { contactId: string; contactName: string; open: boolean; onClose: () => void }
 
@@ -36,7 +43,7 @@ export function NoteTheExchangeWithTheContact({ contactId, contactName, open, on
 }
 
 /** The timeline of the contact: what is to come, the soonest first, then the past, the most recent first, what follows loaded on scrolling. */
-export function ExchangesSection({ contactId, contactName, className }: Props) {
+export function ExchangesSection({ contactId, contactName, mayCatchUpGmail = false, className }: Props) {
   const timeline = useInfiniteQuery(timelineQuery(contactId))
   const upcoming = useInfiniteQuery(upcomingQuery(contactId))
   const note = useNoteExchange()
@@ -61,6 +68,7 @@ export function ExchangesSection({ contactId, contactName, className }: Props) {
       renderItem={(exchange) => <ExchangeLine exchange={exchange} campaignAside />}
       actionOf={(exchange) => <JoinTheVideoCall exchange={exchange} />}
       asideOf={(exchange) => <CampaignOfTheLine exchange={exchange} />}
+      catchUp={mayCatchUpGmail && <CatchUpGmail contactId={contactId} />}
       planExchange={
         mayPlan && (
           <PlanExchangeDialog name={contactName}>

@@ -98,6 +98,23 @@ describe('the card of a contact', () => {
     expect(await screen.findByText('Prochain échange : Visio demain 9h00')).toBeInTheDocument()
   })
 
+  it('offers to catch up Gmail on the exchanges of the contact when they link it', async () => {
+    theApiAnswers(
+      theContact({
+        _links: {
+          self: { href: `/api/contacts/${ADA}`, method: 'GET' },
+          ...withItsExchanges,
+          catchUpGmail: { href: `/api/contacts/${ADA}/gmail-catch-ups`, method: 'POST' },
+        },
+      }),
+      [],
+    )
+
+    await renderTheSpaAt(`/contacts/${ADA}`)
+
+    expect(await screen.findByRole('button', { name: 'Rattraper Gmail' })).toBeInTheDocument()
+  })
+
   it('flags the contact as a possible duplicate of another of their organization', async () => {
     const other = '0190a1c0-0000-7000-8000-000000000030'
     theApiAnswers(
