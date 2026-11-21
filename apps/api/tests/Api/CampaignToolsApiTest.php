@@ -133,6 +133,52 @@ class CampaignToolsApiTest extends ApiTestCase
         $this->assertTheToolAsksForAConfirmation('ecarter-destinataire-campagne');
     }
 
+    public function testTheAiTakesTheNextRecipientTheirAddressAndTheMessageToSendAsIs(): void
+    {
+        $started = $this->aStartedCampaign();
+        $first = $this->requestJson('GET', '/api/campaigns/'.$started.'/recipients')['items'][0]['contact'];
+
+        $next = $this->callWithoutHandshake('destinataire-suivant', ['id' => $started])['structuredContent'];
+
+        $this->assertSame(
+            [$first['id'], $first['contactDetails']['email'], 'email', ['subject' => 'Une mission PHP ?', 'text' => 'Bonjour '.$first['name']['firstName']], 'asIs', 2],
+            [$next['contact']['id'], $next['contact']['contactDetails']['email'], $next['channel'], $next['message'], $next['messageMode'], $next['pending']],
+        );
+        $this->assertSame('Send the message as it is, without changing a word, by your own means (the mailbox of your member for an e-mail, their LinkedIn for a LinkedIn message), then note it by noter-l-envoi with the text sent.', $next['instruction']);
+        $this->assertSame(['href' => '/api/campaigns/'.$started.'/recipients/'.$first['id'].'/exchanges', 'method' => 'POST'], $next['_links']['noteExchange']);
+    }
+
+    public function testTheAiMayAdaptTheMessageToTheNextRecipient(): void
+    {
+        $this->login();
+        $id = $this->requestJson('POST', '/api/campaigns', [...self::RELAUNCH, 'messageMode' => 'adapted'])['id'];
+        $this->requestJson('POST', '/api/campaigns/'.$id.'/freezing');
+        $this->requestJson('POST', '/api/campaigns/'.$id.'/starting');
+
+        $next = $this->callWithoutHandshake('destinataire-suivant', ['id' => $id])['structuredContent'];
+
+        $this->assertSame('adapted', $next['messageMode']);
+        $this->assertSame('You may rewrite the message for this person, from what you read of them (their profile, their past exchanges), always keeping the idea of the message: send it by your own means (the mailbox of your member for an e-mail, their LinkedIn for a LinkedIn message), then note it by noter-l-envoi with the text really sent.', $next['instruction']);
+    }
+
+    public function testTheNextRecipientIsRefusedAsTheMessageOfTheCampaign(): void
+    {
+        $started = $this->aStartedCampaign();
+
+        $this->assertTheToolIsRefusedAsItsEndpoint('destinataire-suivant', ['id' => $started], 'GET', '/api/campaigns/'.$started.'/messages/'.$this->ada, null, ['assistant-user', 'member-user', 'stranger']);
+    }
+
+    public function testACampaignStoppedGivesNoNextRecipient(): void
+    {
+        $started = $this->aStartedCampaign();
+        $this->requestJson('POST', '/api/campaigns/'.$started.'/stopping');
+
+        $refusal = $this->callWithoutHandshake('destinataire-suivant', ['id' => $started]);
+
+        $this->assertTrue($refusal['isError'] ?? false);
+        $this->assertSame('campaignNotRunning', json_decode($refusal['content'][0]['text'], true, flags: JSON_THROW_ON_ERROR)['reason']);
+    }
+
     public function testTheAiNotesTheEmailItSentToARecipientWhoIsProcessed(): void
     {
         $started = $this->aStartedCampaign();
