@@ -5,6 +5,8 @@ namespace App\Contacts;
 use App\Contacts\Resource\ContactResource;
 use App\Security\IntentLinks;
 use App\Shared\Links;
+use Prospecter\Core\Connectors\Application\ConsultMailCatchUpIntents\ConsultMailCatchUpIntents;
+use Prospecter\Core\Connectors\Application\ConsultMailCatchUpIntents\KeptMailCatchUpIntents;
 use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPerson;
 use Prospecter\Core\Prospecting\Application\ConsultContactToAttach\ConsultContactToAttach;
 use Prospecter\Core\Prospecting\Application\ConsultContactToAttach\KeptContactToAttach;
@@ -13,8 +15,9 @@ use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\KeptTimelineI
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 
 /**
- * A contact as the API shows it: read in PersonalData, what may be done with its timeline in Prospecting and whether
- * they wait for the reader to attach them, then
+ * A contact as the API shows it: read in PersonalData, what may be done with its timeline in Prospecting, whether
+ * they wait for the reader to attach them, and whether the e-mails exchanged with them may be caught up in Connectors,
+ * then
  * presented to the presenter it builds for the call (ADR 0085). A controller calls it after a command, which
  * returns nothing, to answer with the fresh resource.
  */
@@ -24,6 +27,7 @@ final readonly class ContactReader
         private QueryHandler $consultPerson,
         private QueryHandler $consultTimelineIntents,
         private QueryHandler $consultContactToAttach,
+        private QueryHandler $consultMailCatchUpIntents,
         private Links $links,
         private IntentLinks $intentLinks,
     ) {
@@ -35,7 +39,9 @@ final readonly class ContactReader
         ($this->consultTimelineIntents)(new ConsultTimelineIntents($reader, $id), $timeline);
         $toAttach = new KeptContactToAttach();
         ($this->consultContactToAttach)(new ConsultContactToAttach($reader, $id), $toAttach);
-        $presenter = new ContactResourcePresenter($timeline->intents, $toAttach->contactToAttach, $this->links, $this->intentLinks);
+        $catchUp = new KeptMailCatchUpIntents();
+        ($this->consultMailCatchUpIntents)(ConsultMailCatchUpIntents::ofContact($reader, $id), $catchUp);
+        $presenter = new ContactResourcePresenter($timeline->intents, $toAttach->contactToAttach, $catchUp->possibleIntents, $this->links, $this->intentLinks);
         ($this->consultPerson)(new ConsultPerson($reader, $id), $presenter);
 
         return $presenter->resource;

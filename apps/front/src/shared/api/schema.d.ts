@@ -2731,6 +2731,7 @@ export interface components {
             toDos?: components["schemas"]["LinkResource"];
             tags?: components["schemas"]["LinkResource"];
             proposedOrganization?: components["schemas"]["LinkResource"];
+            catchUpGmail?: components["schemas"]["LinkResource"];
         };
         PossibleDuplicateOfContactLinksResource: {
             self: components["schemas"]["LinkResource"];
