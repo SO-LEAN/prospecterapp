@@ -31,6 +31,19 @@ final readonly class StartProspectingInput
      */
     public function commandOf(string $prospectorId, string $id, \DateTimeImmutable $executedAt): StartProspecting
     {
+        return $this->command($prospectorId, $id, $executedAt, byAnAI: false);
+    }
+
+    /**
+     * The same prospecting, by an AI acting as the prospector.
+     */
+    public function commandOfAnAI(string $prospectorId, string $id, \DateTimeImmutable $executedAt): StartProspecting
+    {
+        return $this->command($prospectorId, $id, $executedAt, byAnAI: true);
+    }
+
+    private function command(string $prospectorId, string $id, \DateTimeImmutable $executedAt, bool $byAnAI): StartProspecting
+    {
         $address = $this->address ?? new AddressInput();
 
         return new StartProspecting(
@@ -51,6 +64,7 @@ final readonly class StartProspectingInput
             executedAt: $executedAt,
             links: $this->contactDetails->links,
             website: $this->contactDetails->website,
+            byAnAI: $byAnAI,
         );
     }
 }

@@ -41,6 +41,7 @@ const anOrganization = (organization: Partial<Organization> = {}): Organization 
   contactDetails: { links: [] },
   contactIds: [],
   possibleDuplicates: [],
+  createdByAnAI: false,
   createdAt: '2026-10-15T12:30:00+00:00',
   modifiedAt: '2026-10-15T12:30:00+00:00',
   _links: {

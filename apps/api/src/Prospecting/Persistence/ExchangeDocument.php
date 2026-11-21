@@ -24,7 +24,6 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
-use Prospecter\Core\SharedKernel\Domain\Origin;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
@@ -94,7 +93,7 @@ final class ExchangeDocument
             'campaign' => null === ($document['campaignId'] ?? null) ? null : new CampaignId($document['campaignId']),
             'importedFrom' => null === ($document['importedFrom'] ?? null) ? null : new ImportedEmail($document['importedFrom']['provider'], $document['importedFrom']['identity'], $document['importedFrom']['providerMessageId'] ?? null),
             'bookedByLink' => $document['bookedByLink'] ?? false,
-            'origin' => self::originOf($document),
+            'origin' => Documents::originOf($document),
             'fingerprint' => self::fingerprintOf($document),
             'facts' => new ExchangeFacts(Channel::from($facts['channel']), Direction::from($facts['direction']), Documents::momentOf($facts['occurredAt']), $facts['text'], self::duration($facts['durationInMinutes'] ?? null), $facts['place'] ?? null, self::link($facts['link'] ?? null), self::linkRequestedOf($document)),
             'status' => self::statusOf($document),
@@ -106,16 +105,6 @@ final class ExchangeDocument
             'createdAt' => Documents::momentOf($document['createdAt']),
             'modifiedAt' => Documents::momentOf($document['modifiedAt']),
         ]);
-    }
-
-    /**
-     * Written before the exchanges kept their origin, by hand.
-     *
-     * @param array<string, mixed> $document
-     */
-    public static function originOf(array $document): Origin
-    {
-        return Origin::tryFrom($document['origin'] ?? '') ?? Origin::Hand;
     }
 
     /**

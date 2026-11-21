@@ -153,7 +153,7 @@ final readonly class DynamoTimelineRetriever implements TimelineRetriever
             withAContactToAttach: Exchange::isWithAContactToAttach(null !== $document['contact'], [] !== $document['keptFor']),
             bookedByLink: $document['bookedByLink'] ?? false,
             importedFrom: $document['importedFrom']['provider'] ?? null,
-            createdByAnAI: Origin::Ai === ExchangeDocument::originOf($document),
+            createdByAnAI: Origin::Ai === Documents::originOf($document),
         );
     }
 

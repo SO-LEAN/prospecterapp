@@ -2584,6 +2584,8 @@ export interface components {
             modifiedAt: string;
             _links: components["schemas"]["OrganizationLinksResource"];
             possibleDuplicates: components["schemas"]["PossibleDuplicateResource"][];
+            /** @description An AI created it, acting as its member through the MCP server, never named */
+            createdByAnAI: boolean;
         };
         CampaignOfExchangeResource: {
             id: string;

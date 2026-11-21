@@ -84,6 +84,7 @@ final class OrganizationResourcePresenter implements ConsultOrganizationOutput
             modifiedAt: $response->modifiedAt,
             links: $this->linksOf($response),
             possibleDuplicates: array_map(fn (PossibleDuplicate $duplicate): PossibleDuplicateResource => $this->possibleDuplicateOf($response, $duplicate), $response->possibleDuplicates),
+            createdByAnAI: $response->createdByAnAI,
         );
     }
 

@@ -96,7 +96,7 @@ final readonly class ContactRecorder
     {
         $starting = $this->startingOf($organization);
         $created = $this->identities->next();
-        $this->commandBus->dispatch($starting->commandOf($memberId, $created, $this->clock->now()));
+        $this->commandBus->dispatch($starting->commandOfAnAI($memberId, $created, $this->clock->now()));
 
         try {
             $this->noteTheSiretOf($memberId, $created, $organization);

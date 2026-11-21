@@ -14,6 +14,7 @@ use Prospecter\Core\SharedKernel\Application\ExternalLink;
 use Prospecter\Core\SharedKernel\Application\FileResponse;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
+use Prospecter\Core\SharedKernel\Domain\Origin;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 /**
@@ -86,6 +87,7 @@ final readonly class DynamoOrganizationSheetRetriever implements OrganizationShe
             modifiedAt: Documents::momentOf($document['modifiedAt']),
             possibleIntents: array_map(static fn (OrganizationIntent $intent): string => $intent->name, OrganizationPossibilities::given(hasLogo: null !== $document['logo'], hasHolding: null !== $document['holdingId'], hasContacts: [] !== $document['contacts'], hasPossibleDuplicates: [] !== $possibleDuplicates)),
             possibleDuplicates: $possibleDuplicates,
+            createdByAnAI: Origin::Ai === Documents::originOf($document),
         );
     }
 }

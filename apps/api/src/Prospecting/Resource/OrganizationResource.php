@@ -6,6 +6,7 @@ use App\Shared\Resource\AddressResource;
 use App\Shared\Resource\ImageResource;
 use App\Shared\Resource\LegalIdentityResource;
 use App\Shared\Resource\LocationResource;
+use OpenApi\Attributes as OA;
 use Symfony\Component\Serializer\Attribute\Context;
 use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
@@ -36,6 +37,8 @@ final readonly class OrganizationResource
         #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]
         public OrganizationLinksResource $links,
         public array $possibleDuplicates,
+        #[OA\Property(description: ExchangeResource::CREATED_BY_AN_AI_DESCRIPTION)]
+        public bool $createdByAnAI,
     ) {
     }
 }

@@ -27,6 +27,7 @@ const aDuplicate = (possibleDuplicates: Organization['possibleDuplicates']): Org
   contactDetails: { links: [] },
   contactIds: [],
   possibleDuplicates,
+  createdByAnAI: false,
   createdAt: '2026-11-20T09:00:00+00:00',
   modifiedAt: '2026-11-20T09:00:00+00:00',
   _links: { self: { href: `/api/organizations/${DUPLICATE}`, method: 'GET' } },
