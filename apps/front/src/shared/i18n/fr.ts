@@ -715,7 +715,7 @@ export const fr = {
       description: 'Tout l’échange, qui l’a noté et qui l’a corrigé.',
       noted: 'Noté le {{moment}} par {{author}}',
       planned: 'Planifié le {{moment}} par {{author}}',
-      booked: 'Réservé le {{moment}} par le lien public',
+      booked: 'Réservé le {{moment}} par votre lien public · invitation envoyée par Google',
       importedFromGmail: 'Importé de Gmail le {{moment}}',
       openInGmail: 'Ouvrir dans Gmail',
       corrected: 'Modifié le {{moment}} par {{author}}',
