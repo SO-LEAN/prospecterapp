@@ -111,17 +111,16 @@ final class ToDoContext implements Context
     #[Then('je peux sur l\'action à faire :')]
     public function iMayOnTheToDo(TableNode $table): void
     {
-        Expect::that(null !== $this->consulted, sprintf('The to-do was expected, got: %s', $this->application->refusal()?->getMessage()));
+        $consulted = Expect::present($this->consulted, sprintf('The to-do was expected, got: %s', $this->application->refusal()?->getMessage()));
 
-        Expect::same($table->getColumn(0), Vocabulary::describeIntents($this->consulted->possibleIntents));
+        Expect::same($table->getColumn(0), Vocabulary::describeIntents($consulted->possibleIntents));
     }
 
     #[When('l\'action à faire à effacer est publiée de nouveau')]
     public function theToDoToEraseIsPublishedAgain(): void
     {
         $published = $this->application->events->published(ToDoLeftWithoutOrganization::class);
-        Expect::that([] !== $published, 'No to-do to erase was published');
-        $this->application->publishAgain(array_last($published));
+        $this->application->publishAgain(Expect::present(array_last($published), 'No to-do to erase was published'));
     }
 
     #[Then('les actions à faire de :name sont :')]
@@ -183,8 +182,8 @@ final class ToDoContext implements Context
     #[Then('elle n\'existe plus')]
     public function itIsGone(): void
     {
-        Expect::that(null !== $this->lastNoted, 'A to-do was expected to be noted');
-        Expect::same(null, $this->application->database->toDo((string) $this->lastNoted));
+        $lastNoted = Expect::present($this->lastNoted, 'A to-do was expected to be noted');
+        Expect::same(null, $this->application->database->toDo((string) $lastNoted));
     }
 
     #[Then(':name n\'a plus d\'action à faire')]
@@ -234,7 +233,7 @@ final class ToDoContext implements Context
         $toDos = $this->scenario->isAnOrganization($name)
             ? $this->application->consultOrganizationToDos(new ConsultOrganizationToDos($this->scenario->idOf($name)))
             : $this->application->consultToDos(new ConsultToDos($this->application->signedIn(), $this->scenario->personIdOf($name)));
-        Expect::that(null !== $toDos, sprintf('The to-dos were expected, got: %s', $this->application->refusal()?->getMessage()));
+        $toDos = Expect::present($toDos, sprintf('The to-dos were expected, got: %s', $this->application->refusal()?->getMessage()));
 
         return $toDos->toDos;
     }
@@ -244,9 +243,7 @@ final class ToDoContext implements Context
      */
     private function mine(): array
     {
-        Expect::that(null !== $this->mine, sprintf('My to-dos were expected, got: %s', $this->application->refusal()?->getMessage()));
-
-        return $this->mine;
+        return Expect::present($this->mine, sprintf('My to-dos were expected, got: %s', $this->application->refusal()?->getMessage()));
     }
 
     private static function dayOf(string $frenchDay): string

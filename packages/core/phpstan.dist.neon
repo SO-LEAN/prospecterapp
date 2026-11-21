@@ -6,6 +6,7 @@ parameters:
     ignoreErrors:
         # an array is typed where its values are read, never by a docblock the tool alone asks for (ADR 0022)
         - identifier: missingType.iterableValue
+          reportUnmatched: false
     # its result cache in the checkout, kept from one run to the next (the /tmp of the container goes with it)
     tmpDir: var/cache/phpstan
     paths:

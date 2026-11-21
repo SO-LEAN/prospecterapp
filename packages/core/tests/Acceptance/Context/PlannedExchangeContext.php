@@ -16,7 +16,6 @@ use Prospecter\Core\Prospecting\Application\MarkExchangeDone\MarkExchangeDone;
 use Prospecter\Core\Prospecting\Application\MarkExchangeMissed\MarkExchangeMissed;
 use Prospecter\Core\Prospecting\Application\MoveExchange\MoveExchange;
 use Prospecter\Core\Prospecting\Domain\Model\Canceller;
-use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 use Tests\Core\Double\StateOf;
@@ -82,7 +81,7 @@ final class PlannedExchangeContext implements Context
     public function iMayMoveItBack(string $may): void
     {
         $detail = $this->application->consultExchange(new ConsultExchange($this->application->signedIn(), $this->scenario->theExchange(), $this->application->now(), $this->movedFrom));
-        Expect::that(null !== $detail, sprintf('The exchange was expected, got: %s', $this->application->refusal()?->getMessage()));
+        $detail = Expect::present($detail, sprintf('The exchange was expected, got: %s', $this->application->refusal()?->getMessage()));
 
         Expect::same('peux' === $may, in_array('MoveExchangeBack', $detail->possibleIntents, true));
     }
@@ -102,10 +101,7 @@ final class PlannedExchangeContext implements Context
      */
     private function planned(): array
     {
-        $exchange = $this->application->database->exchange($this->scenario->theExchange());
-        Expect::that($exchange instanceof Exchange, 'An exchange was expected to be planned');
-
-        return StateOf::the($exchange);
+        return StateOf::the(Expect::present($this->application->database->exchange($this->scenario->theExchange()), 'An exchange was expected to be planned'));
     }
 
     private function markDone(\DateTimeImmutable $occurredAt, ?string $report): void

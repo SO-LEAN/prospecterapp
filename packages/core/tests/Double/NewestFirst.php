@@ -29,6 +29,6 @@ final class NewestFirst
         usort($found, static fn (object $a, object $b): int => strcmp($idOf($b), $idOf($a)));
         $slice = array_slice($found, 0, $max);
 
-        return new Slice($slice, count($found) > $max ? $idOf(array_last($slice)) : null);
+        return new Slice($slice, count($found) > $max ? $idOf(array_last($slice) ?? throw new \LogicException('A slice shorter than what was found is not empty')) : null);
     }
 }

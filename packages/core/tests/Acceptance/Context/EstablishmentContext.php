@@ -50,14 +50,14 @@ final class EstablishmentContext implements Context
     #[Then('l\'annuaire me propose :')]
     public function theDirectoryProposes(TableNode $table): void
     {
-        Expect::that(null !== $this->proposed, sprintf('Establishments were expected, got: %s', $this->unanswered ? 'no answer' : $this->application->refusal()?->getMessage()));
+        $proposed = Expect::present($this->proposed, sprintf('Establishments were expected, got: %s', $this->unanswered ? 'no answer' : $this->application->refusal()?->getMessage()));
         Expect::same($table->getHash(), array_map(static fn (FoundEstablishment $establishment): array => [
             'SIRET' => $establishment->siret,
             'dénomination' => $establishment->name,
             'adresse' => $establishment->address,
             'activité' => (string) $establishment->activity,
             'fermé' => $establishment->closed ? 'oui' : 'non',
-        ], $this->proposed));
+        ], $proposed));
     }
 
     #[Then('l\'annuaire ne me propose rien')]

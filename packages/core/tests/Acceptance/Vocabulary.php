@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\Acceptance;
 
+use Behat\Gherkin\Node\TableNode;
 use Prospecter\Core\Accounts\Domain\Model\Account;
 use Prospecter\Core\Accounts\Domain\Model\Member;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
@@ -144,6 +145,19 @@ final class Vocabulary
     ];
 
     /**
+     * A table of a label and its value per row.
+     *
+     * @return array<string, string>
+     */
+    public static function rows(TableNode $table): array
+    {
+        return array_map(
+            static fn (array|string $value): string => is_string($value) ? $value : throw new \UnexpectedValueException('A row gives one value to its label: '.implode(' | ', $value)),
+            $table->getRowsHash(),
+        );
+    }
+
+    /**
      * @param array<string, string> $table
      *
      * @return array<string, string|null> every known label, null when left out or empty
@@ -175,7 +189,7 @@ final class Vocabulary
      */
     public static function civility(?string $label): string
     {
-        return self::CIVILITIES[$label ?? 'inconnue'] ?? $label;
+        return null === $label ? self::CIVILITIES['inconnue'] : self::CIVILITIES[$label] ?? $label;
     }
 
     public static function describeCivility(string $civility): string
@@ -206,7 +220,15 @@ final class Vocabulary
      */
     public static function links(array $values): array
     {
-        return null === $values['liens'] ? [] : preg_split('/\s+/', $values['liens']);
+        return null === $values['liens'] ? [] : self::split('/\s+/', $values['liens']);
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function split(string $pattern, string $text): array
+    {
+        return preg_split($pattern, $text) ?: throw new \UnexpectedValueException(sprintf('"%s" does not split by %s', $text, $pattern));
     }
 
     /**

@@ -47,8 +47,7 @@ final class CalendarPushContext implements Context
     public function thePlanningIsPushedAgain(): void
     {
         $published = $this->application->events->published(ExchangeFactsChanged::class);
-        Expect::that([] !== $published, 'No fact of the exchange was published');
-        $this->application->publishAgain(array_last($published));
+        $this->application->publishAgain(Expect::present(array_last($published), 'No fact of the exchange was published'));
     }
 
     #[Then(self::TITLE)]
@@ -173,9 +172,8 @@ final class CalendarPushContext implements Context
     private function theEvent(): CalendarEvent
     {
         $event = $this->application->calendars->eventOf($this->scenario->theExchange());
-        Expect::that(null !== $event, sprintf('The exchange was expected in my calendar at Google, got: %s', $this->application->refusal()?->getMessage() ?? 'nothing'));
 
-        return $event;
+        return Expect::present($event, sprintf('The exchange was expected in my calendar at Google, got: %s', $this->application->refusal()?->getMessage() ?? 'nothing'));
     }
 
     /**

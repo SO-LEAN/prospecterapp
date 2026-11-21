@@ -109,7 +109,7 @@ final class InMemoryProviderMailbox implements ProviderMailbox
         $listed = array_slice($added, 0, $atMost);
         $complete = count($listed) === count($added);
 
-        return new MailboxChanges(array_map(static fn (array $message): string => $message['mail']->providerId, $listed), $complete ? $this->historyOf($mailbox) : (string) end($listed)['history'], $complete);
+        return new MailboxChanges(array_map(static fn (array $message): string => $message['mail']->providerId, $listed), $complete ? $this->historyOf($mailbox) : (string) (array_last($listed) ?? throw new \LogicException('A message was expected to be listed'))['history'], $complete);
     }
 
     public function messagesExchangedAfter(ClientCredentials $client, RefreshToken $refreshToken, \DateTimeImmutable $moment, int $atMost): MailboxChanges

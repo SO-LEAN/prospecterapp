@@ -57,7 +57,7 @@ final class PersonalDataContext implements Context
     public function aColleague(string $name, string $account, TableNode $table): void
     {
         $member = $this->scenario->aMemberOf($name, $account, Role::User, Role::Prospector);
-        $values = Vocabulary::values($table->getRowsHash());
+        $values = Vocabulary::values(Vocabulary::rows($table));
         $person = $this->application->persons->get($this->scenario->profileOf($member));
         $theColleague = $this->application->readers->readerFrom($member->id());
         $person->rename(Vocabulary::personName($values), by: $theColleague, at: $this->application->now());
@@ -209,7 +209,7 @@ final class PersonalDataContext implements Context
     {
         $personId = $this->scenario->personIdOf($name);
         $collected = array_filter($this->application->events->published(ContactCollected::class), static fn (ContactCollected $event): bool => $event->personId === $personId);
-        $this->application->publishAgain(array_last($collected));
+        $this->application->publishAgain(Expect::present(array_last($collected), sprintf('%s was not collected', $name)));
     }
 
     #[Then('aucun rattachement de contact collecté n\'a échoué')]
@@ -248,8 +248,9 @@ final class PersonalDataContext implements Context
     #[When('je demande la tranche suivante')]
     public function iAskTheNextSlice(): void
     {
-        Expect::that(null !== $this->searchedByTags && null !== $this->found?->next, 'A next slice was expected');
-        $this->searchByTags(new SearchContactsByTags($this->searchedByTags->memberId, $this->searchedByTags->tags, $this->found->next, $this->searchedByTags->max));
+        $searched = Expect::present($this->searchedByTags, 'A search by tags was expected');
+        $next = Expect::present($this->found?->next, 'A next slice was expected');
+        $this->searchByTags(new SearchContactsByTags($searched->memberId, $searched->tags, $next, $searched->max));
     }
 
     #[Then('c\'est la dernière tranche')]
@@ -312,14 +313,14 @@ final class PersonalDataContext implements Context
     #[When('/^je consulte ensemble les fiches de (?<names>.+)$/')]
     public function iConsultThePersonsOf(string $names): void
     {
-        $ids = array_map($this->scenario->personIdOf(...), (array) preg_split('/, | et /', $names));
+        $ids = array_map($this->scenario->personIdOf(...), Vocabulary::split('/, | et /', $names));
         $this->batch = $this->application->consultPersons(new ConsultPersons($this->application->signedIn(), $ids));
     }
 
     #[When('je change le nom de :name :')]
     public function iRename(string $name, TableNode $table): void
     {
-        $values = Vocabulary::values($table->getRowsHash());
+        $values = Vocabulary::values(Vocabulary::rows($table));
         $this->application->dispatch(new RenamePerson($this->application->signedIn(), $this->scenario->personIdOf($name), $values['prénom'], $values['nom'], $this->application->now()));
     }
 
@@ -371,7 +372,7 @@ final class PersonalDataContext implements Context
     private function possibleDuplicatesOf(string $name): array
     {
         $card = $this->application->consultPerson(new ConsultPerson($this->application->signedIn(), $this->scenario->personIdOf($name)));
-        Expect::that(null !== $card, sprintf('The card of %s was expected', $name));
+        $card = Expect::present($card, sprintf('The card of %s was expected', $name));
 
         return array_map(static fn (PossibleDuplicate $duplicate): string => trim(sprintf('%s %s', $duplicate->firstName, $duplicate->lastName)), $card->possibleDuplicates);
     }
@@ -379,8 +380,8 @@ final class PersonalDataContext implements Context
     #[Then('je vois la fiche :')]
     public function iSeeThePerson(TableNode $table): void
     {
-        Expect::that(null !== $this->consulted, sprintf('The person was expected, got: %s', $this->application->refusal()?->getMessage()));
-        Expect::describes($table->getRowsHash(), $this->describe($this->consulted));
+        $consulted = Expect::present($this->consulted, sprintf('The person was expected, got: %s', $this->application->refusal()?->getMessage()));
+        Expect::describes(Vocabulary::rows($table), $this->describe($consulted));
     }
 
     #[Then('je vois la fiche de :name avec :')]
@@ -393,24 +394,24 @@ final class PersonalDataContext implements Context
     #[Then('ses liens sont masqués')]
     public function theLinksAreMasked(): void
     {
-        Expect::that(null !== $this->consulted, 'The person was expected');
-        Expect::that($this->consulted->masked, 'The person was expected masked');
-        Expect::same('***', Vocabulary::describeLinks($this->consulted->links));
+        $consulted = Expect::present($this->consulted, 'The person was expected');
+        Expect::that($consulted->masked, 'The person was expected masked');
+        Expect::same('***', Vocabulary::describeLinks($consulted->links));
     }
 
     #[Then('sa civilité n\'est pas renseignée')]
     public function theCivilityIsNotNoted(): void
     {
-        Expect::that(null !== $this->consulted, sprintf('The person was expected, got: %s', $this->application->refusal()?->getMessage()));
-        Expect::same(Vocabulary::civility('inconnue'), $this->consulted->civility);
+        $consulted = Expect::present($this->consulted, sprintf('The person was expected, got: %s', $this->application->refusal()?->getMessage()));
+        Expect::same(Vocabulary::civility('inconnue'), $consulted->civility);
     }
 
     #[Then('je vois les fiches :')]
     public function iSeeThePersons(TableNode $table): void
     {
-        Expect::that(null !== $this->batch, sprintf('The persons were expected, got: %s', $this->application->refusal()?->getMessage()));
+        $batch = Expect::present($this->batch, sprintf('The persons were expected, got: %s', $this->application->refusal()?->getMessage()));
         $columns = array_flip(array_keys($table->getColumnsHash()[0] ?? []));
-        $seen = array_map(fn (PersonCard $person): array => array_intersect_key($this->describe($person), $columns), array_values($this->batch));
+        $seen = array_map(fn (PersonCard $person): array => array_intersect_key($this->describe($person), $columns), array_values($batch));
         usort($seen, static fn (array $a, array $b): int => strcmp((string) reset($a), (string) reset($b)));
 
         Expect::same($table->getColumnsHash(), $seen);
@@ -419,9 +420,9 @@ final class PersonalDataContext implements Context
     #[Then('la liste des contacts affiche :')]
     public function theListOfContactsShows(TableNode $table): void
     {
-        Expect::that(null !== $this->found, sprintf('Contacts were expected, got: %s', $this->application->refusal()?->getMessage()));
+        $found = Expect::present($this->found, sprintf('Contacts were expected, got: %s', $this->application->refusal()?->getMessage()));
         $columns = array_flip(array_keys($table->getColumnsHash()[0] ?? []));
-        $shown = array_map(fn (PersonCard $contact): array => array_intersect_key($this->describe($contact), $columns), $this->found->contacts);
+        $shown = array_map(fn (PersonCard $contact): array => array_intersect_key($this->describe($contact), $columns), $found->contacts);
 
         Expect::same($table->getColumnsHash(), $shown);
     }
@@ -429,16 +430,16 @@ final class PersonalDataContext implements Context
     #[Then('la liste des contacts est vide')]
     public function theListOfContactsIsEmpty(): void
     {
-        Expect::that(null !== $this->found, sprintf('Contacts were expected, got: %s', $this->application->refusal()?->getMessage()));
-        Expect::same([], $this->found->contacts);
+        $found = Expect::present($this->found, sprintf('Contacts were expected, got: %s', $this->application->refusal()?->getMessage()));
+        Expect::same([], $found->contacts);
     }
 
     #[Then(':name n\'est pas dans la liste')]
     public function isNotInTheList(string $name): void
     {
-        Expect::that(null !== $this->found, sprintf('Contacts were expected, got: %s', $this->application->refusal()?->getMessage()));
+        $found = Expect::present($this->found, sprintf('Contacts were expected, got: %s', $this->application->refusal()?->getMessage()));
         $absent = $this->scenario->personIdOf($name);
-        Expect::that(!array_any($this->found->contacts, static fn (PersonCard $contact): bool => $contact->id === $absent), sprintf('%s is in the list', $name));
+        Expect::that(!array_any($found->contacts, static fn (PersonCard $contact): bool => $contact->id === $absent), sprintf('%s is in the list', $name));
     }
 
     #[Then(':count contacts sont trouvés')]
@@ -450,29 +451,29 @@ final class PersonalDataContext implements Context
     #[Then('je peux sur mes contacts :')]
     public function iMayOnMyContacts(TableNode $table): void
     {
-        Expect::that(null !== $this->found, 'Contacts were expected');
-        Expect::same($table->getColumn(0), Vocabulary::describeIntents($this->found->possibleIntents));
+        $found = Expect::present($this->found, 'Contacts were expected');
+        Expect::same($table->getColumn(0), Vocabulary::describeIntents($found->possibleIntents));
     }
 
     #[Then('je ne peux rien faire sur mes contacts')]
     public function iMayDoNothingOnMyContacts(): void
     {
-        Expect::that(null !== $this->found, 'Contacts were expected');
-        Expect::same([], $this->found->possibleIntents);
+        $found = Expect::present($this->found, 'Contacts were expected');
+        Expect::same([], $found->possibleIntents);
     }
 
     #[Then('je peux sur sa fiche :')]
     public function iMayOnThePerson(TableNode $table): void
     {
-        Expect::that(null !== $this->consulted, 'The person was expected');
-        Expect::same($table->getColumn(0), Vocabulary::describeIntents($this->consulted->possibleIntents));
+        $consulted = Expect::present($this->consulted, 'The person was expected');
+        Expect::same($table->getColumn(0), Vocabulary::describeIntents($consulted->possibleIntents));
     }
 
     #[Then('je ne peux pas sur sa fiche :intent')]
     public function iMayNotOnThePerson(string $intent): void
     {
-        Expect::that(null !== $this->consulted, 'The person was expected');
-        Expect::that(!in_array($intent, Vocabulary::describeIntents($this->consulted->possibleIntents), true), sprintf('"%s" was not expected', $intent));
+        $consulted = Expect::present($this->consulted, 'The person was expected');
+        Expect::that(!in_array($intent, Vocabulary::describeIntents($consulted->possibleIntents), true), sprintf('"%s" was not expected', $intent));
     }
 
     /**
@@ -480,7 +481,7 @@ final class PersonalDataContext implements Context
      */
     private function collect(string $name, array $organizationIds, TableNode $table): void
     {
-        $values = Vocabulary::values($table->getRowsHash());
+        $values = Vocabulary::values(Vocabulary::rows($table));
         $id = $this->application->newIdentity();
         $this->application->dispatch(new CollectContact($this->application->signedIn(), $id, $values['prénom'], $values['nom'], Vocabulary::civility($values['Civilité']), $values['fonction'], $values['e-mail'], $values['téléphone'], $values['langue'], Vocabulary::links($values), $organizationIds, $this->application->now()));
 

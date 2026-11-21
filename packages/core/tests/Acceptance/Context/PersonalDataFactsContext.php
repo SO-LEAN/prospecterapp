@@ -25,7 +25,7 @@ final class PersonalDataFactsContext implements Context
         $published = array_filter($this->application->events->published(ContactFactsChanged::class), static fn (ContactFactsChanged $facts): bool => $facts->personId === $personId);
         $last = array_last($published);
 
-        Expect::that(null !== $last, sprintf('No facts of "%s" were published', $name));
+        $last = Expect::present($last, sprintf('No facts of "%s" were published', $name));
         Expect::same(
             ['present' => 'présent' === $presence, 'revision' => $revision, 'accountId' => $this->scenario->meAsProspector()->accountId->value],
             ['present' => $last->present, 'revision' => $last->revision, 'accountId' => $last->accountId],
@@ -38,7 +38,7 @@ final class PersonalDataFactsContext implements Context
         $personId = $this->scenario->personIdOf($name);
         $last = array_last(array_filter($this->application->events->published(ContactFactsChanged::class), static fn (ContactFactsChanged $facts): bool => $facts->personId === $personId));
 
-        Expect::that(null !== $last, sprintf('No facts of "%s" were published', $name));
+        $last = Expect::present($last, sprintf('No facts of "%s" were published', $name));
         Expect::same($reach, Vocabulary::describeReach($last->hasEmail, $last->hasPhone, $last->hasMobile, $last->hasLinkedIn));
     }
 

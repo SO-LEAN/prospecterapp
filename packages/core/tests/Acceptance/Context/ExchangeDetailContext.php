@@ -61,7 +61,7 @@ final class ExchangeDetailContext implements Context
     #[When('je corrige cet échange :')]
     public function iCorrectTheExchange(TableNode $table): void
     {
-        $values = $table->getRowsHash();
+        $values = Vocabulary::rows($table);
         $facts = StateOf::the($this->application->exchanges->get(new ExchangeId($this->scenario->theExchange())))['facts'];
         $this->application->dispatch(new CorrectExchange(
             prospectorId: $this->application->signedIn(),
@@ -97,7 +97,7 @@ final class ExchangeDetailContext implements Context
             channel: $facts->channel->value,
             direction: $facts->direction->value,
             occurredAt: $facts->occurredAt,
-            text: $table->getRowsHash()['texte'],
+            text: Vocabulary::rows($table)['texte'],
             missed: ExchangeStatus::Missed === $this->storedStatus(),
             executedAt: $this->application->now(),
             madeConform: true,
@@ -142,7 +142,7 @@ final class ExchangeDetailContext implements Context
     #[Then('je vois l\'échange :')]
     public function iSeeTheExchange(TableNode $table): void
     {
-        $expected = $table->getRowsHash();
+        $expected = Vocabulary::rows($table);
 
         Expect::same($expected, array_replace($expected, array_intersect_key($this->describe($this->consulted()), $expected)));
     }
@@ -159,9 +159,8 @@ final class ExchangeDetailContext implements Context
     private function consulted(): ExchangeDetail
     {
         $detail = $this->consult();
-        Expect::that(null !== $detail, sprintf('The exchange was expected, got: %s', $this->application->refusal()?->getMessage()));
 
-        return $detail;
+        return Expect::present($detail, sprintf('The exchange was expected, got: %s', $this->application->refusal()?->getMessage()));
     }
 
     private function consult(): ?ExchangeDetail

@@ -22,7 +22,7 @@ final class VideoCallLinkContext implements Context
     public function oncePushedTheVideoCallHasAMeetLink(): void
     {
         $created = $this->application->calendars->linkCreatedFor($this->scenario->theExchange());
-        Expect::that(null !== $created, 'Google was expected to create a Meet link');
+        $created = Expect::present($created, 'Google was expected to create a Meet link');
 
         Expect::same($created, $this->theVideoCall()->link);
     }
@@ -74,8 +74,7 @@ final class VideoCallLinkContext implements Context
     private function theVideoCall(): ExchangeDetail
     {
         $detail = $this->application->consultExchange(new ConsultExchange($this->application->signedIn(), $this->scenario->theExchange(), $this->application->now()));
-        Expect::that(null !== $detail, sprintf('The video call was expected, got: %s', $this->application->refusal()?->getMessage()));
 
-        return $detail;
+        return Expect::present($detail, sprintf('The video call was expected, got: %s', $this->application->refusal()?->getMessage()));
     }
 }

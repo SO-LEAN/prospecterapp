@@ -80,7 +80,7 @@ final class CalendarContext implements Context
     public function itShowsTheToDo(string $text, string $day, string $time = '', string $state = ''): void
     {
         $toDo = array_find($this->calendar()->toDos, static fn (ToDoInList $toDo): bool => $toDo->text === $text);
-        Expect::that(null !== $toDo, sprintf('The calendar does not show "%s"', $text));
+        $toDo = Expect::present($toDo, sprintf('The calendar does not show "%s"', $text));
 
         Expect::same([self::dayOf($day), '' === $time ? null : self::timeOf($time)], [$toDo->dueOn, $toDo->dueAt]);
         match ($state) {
@@ -94,7 +94,7 @@ final class CalendarContext implements Context
     public function itShowsTheExchange(string $exchange, string $contact, string $day, string $time, string $state): void
     {
         $shown = array_find($this->calendar()->exchanges, fn (ExchangeInTimeline $shown): bool => $shown->personId === $this->scenario->personIdOf($contact) && $shown->occurredAt == self::moment($day, $time));
-        Expect::that(null !== $shown, sprintf('The calendar does not show %s with %s on %s at %s', $exchange, $contact, $day, $time));
+        $shown = Expect::present($shown, sprintf('The calendar does not show %s with %s on %s at %s', $exchange, $contact, $day, $time));
 
         Expect::same('en retard' === $state, in_array($shown->id, $this->calendar()->late, true));
     }
@@ -103,16 +103,14 @@ final class CalendarContext implements Context
     public function itShowsTheExchangeAndWhoArrangedIt(string $day, string $time, string $origin): void
     {
         $shown = array_find($this->calendar()->exchanges, static fn (ExchangeInTimeline $shown): bool => $shown->occurredAt == self::moment($day, $time));
-        Expect::that(null !== $shown, sprintf('The calendar does not show an exchange on %s at %s', $day, $time));
+        $shown = Expect::present($shown, sprintf('The calendar does not show an exchange on %s at %s', $day, $time));
 
         Expect::same(str_starts_with($origin, 'réservé'), $shown->bookedByLink);
     }
 
     private function calendar(): Calendar
     {
-        Expect::that(null !== $this->calendar, sprintf('A calendar was expected, got: %s', $this->application->refusal()?->getMessage()));
-
-        return $this->calendar;
+        return Expect::present($this->calendar, sprintf('A calendar was expected, got: %s', $this->application->refusal()?->getMessage()));
     }
 
     private function plan(string $prospectorId, string $exchange, string $contact, \DateTimeImmutable $plannedAt): string

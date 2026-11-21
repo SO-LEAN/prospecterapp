@@ -513,6 +513,7 @@ use Tests\Core\Double\InMemoryTimelineRetriever;
 use Tests\Core\Double\InMemoryToDoListRetriever;
 use Tests\Core\Double\InMemoryToDoRepository;
 use Tests\Core\Double\InMemoryUnitOfWork;
+use Tests\Core\Double\Invocable;
 use Tests\Core\Double\KnownEstablishmentsDirectory;
 use Tests\Core\Double\KnownPlacesGeoLocation;
 use Tests\Core\Double\NoRecordingsInFlight;
@@ -880,7 +881,7 @@ final class Application
         $handler = $this->handlers[$command::class] ?? throw new \LogicException(sprintf('No handler for %s', $command::class));
         $wasOpen = $this->unitOfWork->isOpen();
         $this->attempt(function () use ($handler, $command): void {
-            $this->events->deliverAfter(static fn () => $handler($command));
+            $this->events->deliverAfter(static fn () => Invocable::of($handler)($command));
         });
 
         if (!$wasOpen && $this->unitOfWork->isOpen()) {
@@ -1606,6 +1607,9 @@ final class Application
         return $this->lastBookingCode;
     }
 
+    /**
+     * @return list<string>
+     */
     public function whichAreProspected(WhichAreProspected $query): array
     {
         $kept = new KeptProspected();
@@ -1788,7 +1792,7 @@ final class Application
     {
         $type = new \ReflectionMethod($handler, '__invoke')->getParameters()[0]->getType();
 
-        return $type instanceof \ReflectionNamedType ? $type->getName() : throw new \LogicException(sprintf('%s::__invoke() must take one command', $handler::class));
+        return $type instanceof \ReflectionNamedType && (class_exists($type->getName()) || interface_exists($type->getName())) ? $type->getName() : throw new \LogicException(sprintf('%s::__invoke() must take one command', $handler::class));
     }
 
     /**

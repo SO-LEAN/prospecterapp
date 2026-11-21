@@ -99,7 +99,7 @@ final class AttachmentContext implements Context
     public function theDetailLists(TableNode $table): void
     {
         $detail = $this->application->consultExchange(new ConsultExchange($this->application->signedIn(), $this->scenario->theExchange(), $this->application->now()));
-        Expect::that(null !== $detail, sprintf('The exchange was expected, got: %s', $this->application->refusal()?->getMessage()));
+        $detail = Expect::present($detail, sprintf('The exchange was expected, got: %s', $this->application->refusal()?->getMessage()));
         Expect::same($table->getColumn(0), array_map(static fn (AttachmentDetail $attachment): string => $attachment->name, $detail->attachments));
     }
 
@@ -107,7 +107,7 @@ final class AttachmentContext implements Context
     public function theDetailHidesTheAttachments(int $count): void
     {
         $detail = $this->application->consultExchange(new ConsultExchange($this->application->signedIn(), $this->scenario->theExchange(), $this->application->now()));
-        Expect::that(null !== $detail, sprintf('The exchange was expected, got: %s', $this->application->refusal()?->getMessage()));
+        $detail = Expect::present($detail, sprintf('The exchange was expected, got: %s', $this->application->refusal()?->getMessage()));
         Expect::same([[], $count], [$detail->attachments, $detail->hiddenAttachments]);
     }
 
@@ -123,9 +123,9 @@ final class AttachmentContext implements Context
     public function iDownloadItAsAttached(string $file): void
     {
         $this->iDownload($file);
-        Expect::that(null !== $this->download, sprintf('A link was expected, got: %s', $this->application->refusal()?->getMessage()));
-        Expect::same($file, $this->download->name);
-        Expect::same($this->contents[$file], $this->application->privateStorage->read($this->download->url));
+        $download = Expect::present($this->download, sprintf('A link was expected, got: %s', $this->application->refusal()?->getMessage()));
+        Expect::same($file, $download->name);
+        Expect::same($this->contents[$file], $this->application->privateStorage->read($download->url));
     }
 
     #[Then('le fichier :file est toujours gardé')]

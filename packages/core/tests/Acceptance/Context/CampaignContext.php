@@ -95,7 +95,7 @@ final class CampaignContext implements Context
     #[When('je prépare la campagne :name :')]
     public function iPrepareTheCampaign(string $name, TableNode $table): void
     {
-        $values = $table->getRowsHash();
+        $values = Vocabulary::rows($table);
         $this->prepare($name, $values['canal'], $values['tags'], $values['message'], $values['objet'] ?? null);
     }
 
@@ -362,7 +362,7 @@ final class CampaignContext implements Context
     #[When('je note pour :contact dans la campagne :name l\'échange :')]
     public function iNoteForTheRecipientTheExchange(string $contact, string $name, TableNode $table): void
     {
-        $row = $table->getRowsHash();
+        $row = Vocabulary::rows($table);
         $this->noteForTheRecipient($contact, $name, Vocabulary::frenchMoment($row['moment']), $row['texte'], missed: false);
     }
 
@@ -475,8 +475,8 @@ final class CampaignContext implements Context
         $exchangeId = $this->noted ?? throw new \LogicException('No exchange noted in the scenario');
         $last = array_last(array_filter($this->application->events->published(ExchangeFactsChanged::class), static fn (ExchangeFactsChanged $facts): bool => $facts->exchangeId === $exchangeId));
 
-        Expect::that(null !== $last, 'No facts of the exchange were published');
-        Expect::same([$this->campaignIds[$name], $this->scenario->personIdOf($contact)], [$last?->campaignId, $last?->contactId]);
+        $last = Expect::present($last, 'No facts of the exchange were published');
+        Expect::same([$this->campaignIds[$name], $this->scenario->personIdOf($contact)], [$last->campaignId, $last->contactId]);
     }
 
     #[Given('j\'ai noté pour :contact dans la campagne :name un e-mail émis')]
@@ -586,8 +586,8 @@ final class CampaignContext implements Context
         $exchangeId = $this->notedId();
         $last = array_last(array_filter($this->application->events->published(ExchangeFactsChanged::class), static fn (ExchangeFactsChanged $facts): bool => $facts->exchangeId === $exchangeId));
 
-        Expect::that(null !== $last, 'No facts of the exchange were published');
-        Expect::same([false, $this->campaignIds[$name], $this->scenario->personIdOf($contact)], [$last?->present, $last?->campaignId, $last?->contactId]);
+        $last = Expect::present($last, 'No facts of the exchange were published');
+        Expect::same([false, $this->campaignIds[$name], $this->scenario->personIdOf($contact)], [$last->present, $last->campaignId, $last->contactId]);
     }
 
     public function campaignIdOf(string $name): string
@@ -943,8 +943,8 @@ final class CampaignContext implements Context
     public function iSeeItPreparedByThem(string $name): void
     {
         $listed = array_find($this->listed, static fn (CampaignSheet $campaign): bool => $campaign->name === $name);
-        Expect::that(null !== $listed, sprintf('%s is not listed', $name));
-        Expect::same($this->scenario->memberIdOf('un autre prospecteur')->value, $listed?->authorId);
+        $listed = Expect::present($listed, sprintf('%s is not listed', $name));
+        Expect::same($this->scenario->memberIdOf('un autre prospecteur')->value, $listed->authorId);
     }
 
     #[Then('les campagnes listées sont :')]

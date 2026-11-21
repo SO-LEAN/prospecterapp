@@ -38,6 +38,9 @@ class ApplicationBoundaryTest extends TestCase
         );
     }
 
+    /**
+     * @param class-string $dataStructure
+     */
     #[DataProvider('dataStructures')]
     public function testARequestOrAResponseCarriesNoDomainClass(string $dataStructure): void
     {

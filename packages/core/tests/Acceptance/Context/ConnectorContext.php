@@ -101,6 +101,11 @@ final class ConnectorContext implements Context
         $this->connect($colleague, $this->pending()['state'], $this->pending()['code']);
     }
 
+    private function myLastToken(): string
+    {
+        return Expect::present(array_last($this->myTokens), 'Google was expected to grant me an access');
+    }
+
     private function colleagueOf(string $account): string
     {
         return $this->scenario->aMemberOf('un autre membre', $account, Role::User, Role::Prospector)->id()->value;
@@ -204,7 +209,7 @@ final class ConnectorContext implements Context
     private function myGoogleConnectionAsSeen(): array
     {
         $connection = $this->myGoogleConnection();
-        Expect::that(null !== $connection, sprintf('A connection to Google was expected, got: %s', $this->application->refusal()?->getMessage()));
+        $connection = Expect::present($connection, sprintf('A connection to Google was expected, got: %s', $this->application->refusal()?->getMessage()));
 
         return ['state' => $connection->state, 'account' => $connection->account];
     }
@@ -322,13 +327,13 @@ final class ConnectorContext implements Context
     #[Then('l\'accès est révoqué chez Google')]
     public function theAccessIsRevoked(): void
     {
-        Expect::that($this->application->providerAccess->hasRevoked(array_last($this->myTokens)), 'My access was expected to be revoked at Google');
+        Expect::that($this->application->providerAccess->hasRevoked($this->myLastToken()), 'My access was expected to be revoked at Google');
     }
 
     #[Then('l\'accès précédent est révoqué chez Google')]
     public function theFormerAccessIsRevoked(): void
     {
         Expect::that($this->application->providerAccess->hasRevoked($this->myTokens[0]), 'My former access was expected to be revoked at Google');
-        Expect::that(!$this->application->providerAccess->hasRevoked(array_last($this->myTokens)), 'My new access was expected to be kept');
+        Expect::that(!$this->application->providerAccess->hasRevoked($this->myLastToken()), 'My new access was expected to be kept');
     }
 }
