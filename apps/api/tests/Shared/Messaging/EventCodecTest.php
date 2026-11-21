@@ -152,6 +152,15 @@ class EventCodecTest extends TestCase
         $this->assertEquals($exchanged, $this->codec()->decode($this->codec()->encode($exchanged, new Cause(self::ID, null, 0))));
     }
 
+    public function testAnEMailExchangedPublishedBeforeItNamedItsAttachmentsIsReadWithoutThem(): void
+    {
+        $former = new TransportedEvent('prospecter.connectors', 'EmailExchanged.v2', self::ID, self::MOMENT_OF_THE_BUS, self::ID, null, 0, [
+            'accountId' => self::ID, 'memberId' => self::ID, 'provider' => 'google', 'emailId' => 'f00d', 'direction' => 'inbound', 'contactId' => self::ID, 'organizationId' => null, 'subject' => 'Votre devis', 'text' => 'Bonjour', 'exchangedAt' => self::MOMENT_OF_THE_BUS, 'occurredAt' => self::MOMENT_OF_THE_BUS, 'providerMessageId' => '18c2f4a9e0b1d3c7',
+        ]);
+
+        $this->assertEquals(new EmailExchanged(self::ID, self::ID, 'google', 'f00d', 'inbound', self::ID, null, 'Votre devis', 'Bonjour', new \DateTimeImmutable(self::MOMENT_OF_THE_BUS), new \DateTimeImmutable(self::MOMENT_OF_THE_BUS), '18c2f4a9e0b1d3c7'), $this->codec()->decode($former));
+    }
+
     public function testAnEMailExchangedPublishedBeforeItToldTheIdOfItsMessageIsReadWithoutIt(): void
     {
         $former = new TransportedEvent('prospecter.connectors', 'EmailExchanged.v1', self::ID, self::MOMENT_OF_THE_BUS, self::ID, null, 0, [
