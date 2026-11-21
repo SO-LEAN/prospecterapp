@@ -420,6 +420,19 @@ final class Connection implements ReleasesEvents
     }
 
     /**
+     * The attachments of an e-mail to import, each sent to the private storage once for each of its correspondents:
+     * the uploads of each attachment, in the order of the attachments (ADR 0182).
+     *
+     * @return list<list<string>>
+     *
+     * @throws AccessRevoked
+     */
+    public function depositAttachmentsOf(MailboxMail $mail, int $correspondents, ClientCredentials $client, ProviderMailbox $mailbox): array
+    {
+        return array_map(fn (MailboxAttachment $attachment): array => $mailbox->depositAttachment($client, $this->refreshToken, $mail->providerId, $attachment, $correspondents), $mail->attachmentsToImport());
+    }
+
+    /**
      * The mailbox imported: that of the account connected.
      */
     public function mailbox(): Email

@@ -7,6 +7,7 @@ namespace Prospecter\Core\Connectors\Domain\Port;
 use Prospecter\Core\Connectors\Domain\Exception\AccessRevoked;
 use Prospecter\Core\Connectors\Domain\Exception\HistoryExpired;
 use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
+use Prospecter\Core\Connectors\Domain\Model\MailboxAttachment;
 use Prospecter\Core\Connectors\Domain\Model\MailboxChanges;
 use Prospecter\Core\Connectors\Domain\Model\MailboxMail;
 use Prospecter\Core\Connectors\Domain\Model\MailboxWatch;
@@ -64,4 +65,14 @@ interface ProviderMailbox
      * @throws AccessRevoked
      */
     public function message(ClientCredentials $client, RefreshToken $refreshToken, string $messageId): ?MailboxMail;
+
+    /**
+     * An attachment of a message, read once and sent to the private storage as so many uploads, one for each exchange
+     * that will keep it (ADR 0182).
+     *
+     * @return list<string> the uploads
+     *
+     * @throws AccessRevoked
+     */
+    public function depositAttachment(ClientCredentials $client, RefreshToken $refreshToken, string $messageId, MailboxAttachment $attachment, int $copies): array;
 }

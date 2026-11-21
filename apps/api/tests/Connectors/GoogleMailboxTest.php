@@ -10,6 +10,7 @@ use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Connectors\Domain\Exception\AccessRevoked;
 use Prospecter\Core\Connectors\Domain\Exception\HistoryExpired;
 use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
+use Prospecter\Core\Connectors\Domain\Model\MailboxAttachment;
 use Prospecter\Core\Connectors\Domain\Model\MailboxChanges;
 use Prospecter\Core\Connectors\Domain\Model\MailboxMail;
 use Prospecter\Core\Connectors\Domain\Model\MailboxWatch;
@@ -20,6 +21,7 @@ use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\JsonMockResponse;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Tests\App\Double\InMemoryLogger;
+use Tests\App\Double\InMemoryPrivateStorage;
 
 /**
  * The mailbox of a member at Gmail, watched through the topic of their account (ADR 0154): each call with an access
@@ -33,10 +35,13 @@ class GoogleMailboxTest extends TestCase
     /** @var list<array{string, string, array<string, mixed>|null}> the calls to Gmail, with their body */
     private array $calls = [];
     private InMemoryLogger $logger;
+    private InMemoryPrivateStorage $privateStorage;
 
     protected function setUp(): void
     {
         $this->logger = new InMemoryLogger();
+        $this->privateStorage = new InMemoryPrivateStorage();
+        InMemoryPrivateStorage::forgetEverything();
     }
 
     public function testTheMailboxIsWatchedWithoutItsSpamItsTrashNorItsDrafts(): void
@@ -248,6 +253,22 @@ class GoogleMailboxTest extends TestCase
         $this->assertSame([['level' => 'info', 'message' => 'A message of a mailbox gone before its reading', 'context' => ['message' => 'm1']]], $this->logger->records);
     }
 
+    public function testAnAttachmentIsReadOnceAndSentToThePrivateStorageForEachCorrespondent(): void
+    {
+        $mailbox = $this->mailbox(new JsonMockResponse(['size' => 11, 'data' => self::base64url('le devis...')]));
+
+        $uploads = $mailbox->depositAttachment(self::client(), new RefreshToken('a-token'), 'm1', new MailboxAttachment('a1', 'devis.pdf', 11), 2);
+
+        $this->assertSame([['GET', self::GMAIL_URL.'/users/me/messages/m1/attachments/a1', null]], $this->calls);
+        $this->assertSame([11, 11], array_map(fn (string $upload): int => $this->privateStorage->uploaded($upload)->size, $uploads));
+        $this->assertNotSame($uploads[0], $uploads[1]);
+    }
+
+    private static function base64url(string $contents): string
+    {
+        return rtrim(strtr(base64_encode($contents), '+/', '-_'), '=');
+    }
+
     /**
      * Google answers the refresh, then each call to Gmail in turn.
      */
@@ -265,7 +286,7 @@ class GoogleMailboxTest extends TestCase
         });
         $endpoints = self::endpoints();
 
-        return new GoogleMailbox($google, $endpoints, new GoogleTokens($google, $endpoints), $this->logger);
+        return new GoogleMailbox($google, $endpoints, new GoogleTokens($google, $endpoints), $this->privateStorage, $this->privateStorage, $this->logger);
     }
 
     public static function endpoints(): GoogleEndpoints

@@ -313,6 +313,7 @@ use Prospecter\Core\Prospecting\Application\IdentifyOrganizations\KeptIdentifica
 use Prospecter\Core\Prospecting\Application\KeepCreatedVideoCallLink\KeepCreatedVideoCallLinkHandler;
 use Prospecter\Core\Prospecting\Application\KeepExchangesOfAttachedContact\KeepExchangesOfAttachedContactHandler;
 use Prospecter\Core\Prospecting\Application\KeepExchangesOfForgottenContact\KeepExchangesOfForgottenContactHandler;
+use Prospecter\Core\Prospecting\Application\KeepImportedAttachment\KeepImportedAttachmentHandler;
 use Prospecter\Core\Prospecting\Application\KeepToDosOfAttachedContact\KeepToDosOfAttachedContactHandler;
 use Prospecter\Core\Prospecting\Application\KeptTimeline;
 use Prospecter\Core\Prospecting\Application\KeptToDoList;
@@ -735,7 +736,7 @@ final class Application
         $this->clients = new InMemoryProviderClientRepository($database);
         $this->accountClientsRetriever = new InMemoryAccountClientsRetriever($database);
         $this->calendars = new InMemoryProviderCalendar($this->providerAccess);
-        $this->mailboxes = new InMemoryProviderMailbox($this->providerAccess, fn (): \DateTimeImmutable => $this->now);
+        $this->mailboxes = new InMemoryProviderMailbox($this->providerAccess, $this->privateStorage, fn (): \DateTimeImmutable => $this->now);
         $heldExchangeRetriever = new InMemoryHeldExchangeRetriever($database);
         $publishedHeldExchanges = new PublishedHeldExchanges($this->organizationSheetRetriever);
         $this->consultHeldExchangesService = new ConsultHeldExchangesHandler($heldExchangeRetriever, $publishedHeldExchanges);
@@ -1711,7 +1712,7 @@ final class Application
             new LiftContactSuspicionInReturnHandler($this->persons, $this->events),
             new DismissContactSuspicionInReturnHandler($this->persons, $this->events),
             new DismissSuspicionInReturnHandler($this->organizations, $this->events),
-            new NoteImportedEmailHandler($this->exchanges, $this->organizations, $this->prospectors, $this->contactOrganizations, new NotedOnce($this->exchanges), $this->events),
+            new NoteImportedEmailHandler($this->exchanges, $this->organizations, $this->prospectors, $this->contactOrganizations, new NotedOnce($this->exchanges), $this->privateStorage, $this->events),
             new ForgetContactsLeftWithoutOrganizationHandler($this->persons, $this->readers, $this->events),
             new ForgetContactLeftUnattachedHandler($this->persons, $this->readers, $this->events),
             new EraseExchangesOfContactLeftUnattachedHandler($this->exchanges, $this->events),
@@ -1731,6 +1732,7 @@ final class Application
             new EraseToDosOfForgottenContactHandler($this->toDos, $this->events),
             new DiscardRemovedLogoHandler($this->storage),
             new DiscardRemovedAttachmentHandler($this->privateStorage),
+            new KeepImportedAttachmentHandler($this->privateStorage),
             new DiscardAttachmentsOfErasedExchangeHandler($this->privateStorage),
             new RecordOrganizationFactsHandler($this->factRecorder),
             new RecordExchangeFactsHandler($this->factRecorder),

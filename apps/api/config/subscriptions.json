@@ -160,6 +160,13 @@
     "handler": "Prospecter\\Core\\Prospecting\\Application\\DiscardRemovedLogo\\DiscardRemovedLogoHandler",
     "inbox": false
   },
+  "prospecting-keep-imported-attachment": {
+    "context": "prospecting",
+    "sources": ["prospecter.prospecting.internal"],
+    "events": ["AttachmentImported.v1"],
+    "handler": "Prospecter\\Core\\Prospecting\\Application\\KeepImportedAttachment\\KeepImportedAttachmentHandler",
+    "inbox": false
+  },
   "prospecting-discard-removed-attachment": {
     "context": "prospecting",
     "sources": ["prospecter.prospecting.internal"],
@@ -216,7 +223,7 @@
   "prospecting-note-imported-email": {
     "context": "prospecting",
     "sources": ["prospecter.connectors"],
-    "events": ["EmailExchanged.v1", "EmailExchanged.v2"],
+    "events": ["EmailExchanged.v1", "EmailExchanged.v2", "EmailExchanged.v3"],
     "handler": "Prospecter\\Core\\Prospecting\\Application\\NoteImportedEmail\\NoteImportedEmailHandler",
     "inbox": true
   },

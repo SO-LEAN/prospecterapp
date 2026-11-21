@@ -2,10 +2,13 @@
 
 namespace App\Connectors\Google;
 
+use App\Shared\UploadForms;
+use App\Shared\UploadSender;
 use Monolog\Attribute\WithMonologChannel;
 use Prospecter\Core\Connectors\Domain\Exception\AccessRevoked;
 use Prospecter\Core\Connectors\Domain\Exception\HistoryExpired;
 use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
+use Prospecter\Core\Connectors\Domain\Model\MailboxAttachment;
 use Prospecter\Core\Connectors\Domain\Model\MailboxChanges;
 use Prospecter\Core\Connectors\Domain\Model\MailboxMail;
 use Prospecter\Core\Connectors\Domain\Model\MailboxWatch;
@@ -13,6 +16,7 @@ use Prospecter\Core\Connectors\Domain\Model\RefreshToken;
 use Prospecter\Core\Connectors\Domain\Port\ProviderMailbox;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
@@ -40,6 +44,8 @@ final readonly class GoogleMailbox implements ProviderMailbox
         private HttpClientInterface $httpClient,
         private GoogleEndpoints $endpoints,
         private GoogleTokens $tokens,
+        private UploadForms $uploadForms,
+        private UploadSender $uploads,
         private LoggerInterface $logger,
     ) {
     }
@@ -213,6 +219,43 @@ final readonly class GoogleMailbox implements ProviderMailbox
         $this->ensureGranted($response, $client);
 
         return $response->toArray();
+    }
+
+    /**
+     * Read once from Gmail, then sent with the form of an upload, as the API sends the files of the AIs (ADR 0172),
+     * once for each copy: the file goes through the function, never through the bus (ADR 0182).
+     *
+     * @see https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.messages.attachments/get
+     */
+    public function depositAttachment(ClientCredentials $client, RefreshToken $refreshToken, string $messageId, MailboxAttachment $attachment, int $copies): array
+    {
+        $path = sprintf('/users/me/messages/%s/attachments/%s', rawurlencode($messageId), rawurlencode($attachment->providerId));
+        $file = $this->fileOf($this->answerOf($client, $this->read($client, $refreshToken, $path)));
+
+        try {
+            return array_map(fn (): string => $this->sent($file), range(1, $copies));
+        } finally {
+            unlink($file->getPathname());
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $answer
+     */
+    private function fileOf(array $answer): File
+    {
+        $path = (string) tempnam(sys_get_temp_dir(), 'attachment');
+        file_put_contents($path, GmailMessage::decoded((string) ($answer['data'] ?? '')));
+
+        return new File($path);
+    }
+
+    private function sent(File $file): string
+    {
+        $form = $this->uploadForms->prepareUpload();
+        $this->uploads->upload($form, $file);
+
+        return $form->upload;
     }
 
     /**
