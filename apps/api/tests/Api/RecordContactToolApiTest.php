@@ -282,6 +282,15 @@ class RecordContactToolApiTest extends ApiTestCase
         $this->assertNothingRemainsOfGlobexNorMargaret();
     }
 
+    public function testAPersonGivenBadlyCreatesNoOrganization(): void
+    {
+        $this->theNextFails(StartProspecting::class, new \RuntimeException('Started although the person was given badly'));
+
+        $refused = $this->answerOf($this->callWithoutHandshake('enregistrer-un-contact', ['person' => self::MARGARET_HAMILTON + ['email' => 'not-an-email'], 'organization' => self::GLOBEX]));
+
+        $this->assertSame([422, ['contactDetails.email']], [$refused['status'], $this->violatedFields($refused)]);
+    }
+
     /**
      * The command of this class fails as its use case would refuse it, or as the server may, the kernel kept for the
      * double to.

@@ -110,7 +110,8 @@ final readonly class ContactRecorder
     }
 
     /**
-     * The write of the contact for their organization, everything it reads read before any write.
+     * The write of the contact for their organization, everything it reads read and its input checked before any
+     * write: a person given badly creates nothing to undo.
      *
      * @param RecordedPerson $person
      *
@@ -119,12 +120,22 @@ final readonly class ContactRecorder
     private function contactWrite(string $memberId, array $person, ?string $personId): \Closure
     {
         if (null === $personId) {
+            $this->ensureTheContactIsValid($person);
+
             return fn (string $organizationId): RecordedResource => $this->collectedContact($memberId, $person, $organizationId);
         }
 
         $comparison = $this->contactComparison($memberId, $personId, $person);
 
         return fn (string $organizationId): RecordedResource => $this->completedContact($memberId, $personId, $person, $comparison, $organizationId);
+    }
+
+    /**
+     * @param RecordedPerson $person
+     */
+    private function ensureTheContactIsValid(array $person): void
+    {
+        $this->collectingOf($person, []);
     }
 
     /**
