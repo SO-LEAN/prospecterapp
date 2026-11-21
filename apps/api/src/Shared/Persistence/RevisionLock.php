@@ -24,10 +24,18 @@ final readonly class RevisionLock
             return new self('attribute_not_exists(PK)', []);
         }
 
-        if (!isset($read[Revision::ATTRIBUTE])) {
+        return self::at(Revision::of($read));
+    }
+
+    /**
+     * The lock on a revision its client read (ADR 0187), the revision 0 an item written before the revisions.
+     */
+    public static function at(int $revision): self
+    {
+        if (Revision::NONE === $revision) {
             return new self('attribute_not_exists('.Revision::ATTRIBUTE.')', []);
         }
 
-        return new self(Revision::ATTRIBUTE.' = :read', [':read' => Revision::of($read)]);
+        return new self(Revision::ATTRIBUTE.' = :read', [':read' => $revision]);
     }
 }

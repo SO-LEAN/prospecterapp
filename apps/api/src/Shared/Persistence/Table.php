@@ -57,6 +57,14 @@ final readonly class Table
     }
 
     /**
+     * The revision its client read of an item of the table, that the save of what it read holds to (ADR 0187).
+     */
+    public function readAt(string $pk, string $sk, int $revision): RevisionRead
+    {
+        return new RevisionRead($this->name, $pk, $sk, $revision);
+    }
+
+    /**
      * @param list<array{string, string}> $keys PK and SK of each item
      *
      * @return list<array<string, mixed>> the items found, in no particular order

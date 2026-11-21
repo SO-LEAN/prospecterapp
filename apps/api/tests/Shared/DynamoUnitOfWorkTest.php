@@ -264,6 +264,52 @@ class DynamoUnitOfWorkTest extends ApiTestCase
         $this->assertSame('Ada', $this->storedNameOf('ada'));
     }
 
+    public function testARevisionHeldToTheRevisionTheClientReadIsCancelledOnceChangedSinceThoughTheUnitReadItAsStored(): void
+    {
+        $this->table->transact([$this->table->putting(['PK' => 'TEST#ada', 'SK' => 'TEST', 'revision' => 2])]);
+        $this->unitOfWork->holdTo($this->table->readAt('TEST#ada', 'TEST', 1));
+        $this->unitOfWork->begin();
+        $this->table->item('TEST#ada', 'TEST');
+        $this->table->transact([$this->table->revising(['PK' => 'TEST#ada', 'SK' => 'TEST', 'revision' => 3, 'name' => 'Ada'])]);
+
+        try {
+            $this->unitOfWork->commit();
+            $this->fail('The revision was expected to be cancelled');
+        } catch (ConditionFailed) {
+            $this->unitOfWork->discard();
+        }
+
+        $this->assertNull($this->storedNameOf('ada'), 'the change the client did not read is not overwritten');
+    }
+
+    public function testAnItemWrittenBeforeTheRevisionsReadSoByTheClientIsRevisedWhileUnchanged(): void
+    {
+        $this->put('ada', 'Ada');
+        $this->unitOfWork->holdTo($this->table->readAt('TEST#ada', 'TEST', 0));
+        $this->unitOfWork->begin();
+        $this->table->item('TEST#ada', 'TEST');
+        $this->table->transact([$this->table->revising(['PK' => 'TEST#ada', 'SK' => 'TEST', 'revision' => 1, 'name' => 'Ada Lovelace'])]);
+        $this->unitOfWork->commit();
+        $this->unitOfWork->discard();
+        $this->unitOfWork->release();
+
+        $this->assertSame('Ada Lovelace', $this->storedNameOf('ada'));
+    }
+
+    public function testOnceReleasedTheRevisionTheClientReadHoldsNoMore(): void
+    {
+        $this->table->transact([$this->table->putting(['PK' => 'TEST#ada', 'SK' => 'TEST', 'revision' => 2])]);
+        $this->unitOfWork->holdTo($this->table->readAt('TEST#ada', 'TEST', 1));
+        $this->unitOfWork->release();
+        $this->unitOfWork->begin();
+        $this->table->item('TEST#ada', 'TEST');
+        $this->table->transact([$this->table->revising(['PK' => 'TEST#ada', 'SK' => 'TEST', 'revision' => 3, 'name' => 'Ada'])]);
+        $this->unitOfWork->commit();
+        $this->unitOfWork->discard();
+
+        $this->assertSame('Ada', $this->storedNameOf('ada'));
+    }
+
     public function testMoreThanAHundredWritesAreRefusedBeforeAnyIsSent(): void
     {
         $this->unitOfWork->begin();
