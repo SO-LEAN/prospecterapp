@@ -20,7 +20,7 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
      * Kept on the screen: the forgetting of a contact (GDPR), the credentials of the sign-in, the connection of a
      * connector, its consent given to Google in a browser, and its disconnection, which an AI could not take back
      * without that consent; the client of Google of the account and its notifications of Gmail, its credentials; the
-     * identity, the address and the logo of the organization of the account; and the form of an upload, the tool
+     * identity, the address and the logo of the organization of the account (ADR 0183); and the form of an upload, the tool
      * joining a file preparing its own (ADR 0172).
      */
     private const array NEVER = [
