@@ -26,9 +26,10 @@ final readonly class HeldExchange
         private ?int $durationInMinutes,
         private ?string $venue,
         public ?PersonId $contact,
-        private OrganizationId $organization,
-        private string $organizationName,
+        private ?OrganizationId $organization,
+        private ?string $organizationName,
         private bool $linkRequested = false,
+        private bool $bookedByLink = false,
     ) {
     }
 
@@ -70,10 +71,26 @@ final readonly class HeldExchange
     }
 
     /**
+     * A call, the holder calling its contact.
+     */
+    public function isACall(): bool
+    {
+        return Channel::Call === $this->channel;
+    }
+
+    /**
+     * Booked by the public link of its holder, its event invites its contact, who booked it.
+     */
+    public function invitesItsContact(): bool
+    {
+        return $this->bookedByLink && null !== $this->contact;
+    }
+
+    /**
      * Its event, its contact named as its holder reads them, reminding them as they chose; a contact nobody names any
      * more, forgotten, leaves it, the event leading to the organization.
      */
-    public function asCalendarEvent(?string $contactName, ?int $reminderMinutesBefore): CalendarEvent
+    public function asCalendarEvent(?string $contactName, ?int $reminderMinutesBefore, ?Guest $guest = null): CalendarEvent
     {
         return new CalendarEvent(
             $this->id,
@@ -87,6 +104,7 @@ final readonly class HeldExchange
             $this->organizationName,
             $reminderMinutesBefore,
             $this->asksForALink(),
+            $guest,
         );
     }
 

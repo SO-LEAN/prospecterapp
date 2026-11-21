@@ -13,7 +13,7 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 /**
  * The exchanges held, in the published language of Prospecting (ADR 0127), each named by the first organization it
  * is still kept for, one reading per exchange: an exchange kept for no organization any more is about to be erased,
- * absent.
+ * absent; one with a contact to attach, kept for none until they are attached (ADR 0146), without organization.
  */
 final readonly class PublishedHeldExchanges
 {
@@ -34,7 +34,7 @@ final readonly class PublishedHeldExchanges
     private function responseOf(HeldExchange $exchange): ?HeldExchangeResponse
     {
         $organization = $this->firstOrganizationOf($exchange);
-        if (null === $organization) {
+        if (null === $organization && !self::isWithAContactToAttach($exchange)) {
             return null;
         }
 
@@ -49,9 +49,15 @@ final readonly class PublishedHeldExchanges
             $exchange->link,
             $exchange->linkRequested,
             $exchange->contactId,
-            $organization->id,
-            $organization->corporateName ?? $organization->fullName,
+            $organization?->id,
+            null === $organization ? null : $organization->corporateName ?? $organization->fullName,
+            $exchange->bookedByLink,
         );
+    }
+
+    private static function isWithAContactToAttach(HeldExchange $exchange): bool
+    {
+        return [] === $exchange->organizationIds && null !== $exchange->contactId;
     }
 
     /**

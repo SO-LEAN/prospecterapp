@@ -21,6 +21,7 @@ final class CalendarEntry implements ReleasesEvents
 
     private SyncState $state = SyncState::Pending;
     private ?string $reason = null;
+    private bool $invitesAGuest = false;
 
     private function __construct(
         private readonly ExchangeId $exchange,
@@ -44,6 +45,7 @@ final class CalendarEntry implements ReleasesEvents
     public function pushed(HeldExchange $exchange, \DateTimeImmutable $at): void
     {
         $this->startsAt = $exchange->startsAt;
+        $this->invitesAGuest = $exchange->invitesItsContact();
         $this->becomes(SyncState::Synced, null, $at);
     }
 
@@ -68,6 +70,14 @@ final class CalendarEntry implements ReleasesEvents
         $this->state = $state;
         $this->reason = $reason;
         $this->since = $at;
+    }
+
+    /**
+     * Its event invites a guest, and is still to come: withdrawn, the provider tells them it is cancelled.
+     */
+    public function invitesAGuestStillToComeAt(\DateTimeImmutable $at): bool
+    {
+        return $this->invitesAGuest && $this->startsAt >= $at;
     }
 
     public function hasFailed(): bool

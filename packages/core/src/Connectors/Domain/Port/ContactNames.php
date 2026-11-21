@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Connectors\Domain\Port;
 
+use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
@@ -17,4 +18,10 @@ interface ContactNames
      * None for a contact forgotten, or that the member does not reach.
      */
     public function nameOf(PersonId $contact, MemberId $readBy): ?string;
+
+    /**
+     * Their e-mail and their phone as the member reads them in clear; none for a contact forgotten, that the member
+     * does not reach, or reads masked.
+     */
+    public function contactDetailsOf(PersonId $contact, MemberId $readBy): ?ContactDetails;
 }

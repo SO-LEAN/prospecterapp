@@ -32,6 +32,8 @@ final class InMemoryProviderCalendar implements ProviderCalendar
     /** @var array<string, string> the Meet links created, by exchange */
     private array $links = [];
     private int $linksAsked = 0;
+    /** @var list<array{string, string}> what Google sent the guests: the notice and to whom */
+    private array $notices = [];
 
     public function __construct(private readonly InMemoryProviderAccess $access)
     {
@@ -53,9 +55,23 @@ final class InMemoryProviderCalendar implements ProviderCalendar
         $this->ensureGranted($client, $refreshToken);
         $this->ensureThere($calendar);
         $this->ensureAccepted($client);
+        $this->tellTheGuestOf($event, $this->calendars[$calendar][$event->exchange->value] ?? null);
         $this->calendars[$calendar][$event->exchange->value] = $event;
 
         return $event->createsALink ? $this->conferenceOf($event->exchange) : null;
+    }
+
+    /**
+     * As Google does for an event inviting someone: the invitation when they were not invited yet, an update otherwise.
+     */
+    private function tellTheGuestOf(CalendarEvent $event, ?CalendarEvent $before): void
+    {
+        if (null === $event->guest) {
+            return;
+        }
+
+        $alreadyInvited = null !== $before?->guest && $before->guest->email->equals($event->guest->email);
+        $this->notices[] = [$alreadyInvited ? 'update' : 'invitation', $event->guest->email->value];
     }
 
     /**
@@ -75,6 +91,15 @@ final class InMemoryProviderCalendar implements ProviderCalendar
         $this->ensureThere($calendar);
         unset($this->calendars[$calendar][$exchange->value]);
         $this->withdrawn[] = $exchange->value;
+    }
+
+    public function cancel(ClientCredentials $client, RefreshToken $refreshToken, string $calendar, ExchangeId $exchange): void
+    {
+        $guest = $this->calendars[$calendar][$exchange->value]->guest ?? null;
+        $this->remove($client, $refreshToken, $calendar, $exchange);
+        if (null !== $guest) {
+            $this->notices[] = ['cancellation', $guest->email->value];
+        }
     }
 
     /**
@@ -160,6 +185,14 @@ final class InMemoryProviderCalendar implements ProviderCalendar
     public function linksAsked(): int
     {
         return $this->linksAsked;
+    }
+
+    /**
+     * @return list<array{string, string}> each notice Google sent a guest, `invitation`, `update` or `cancellation`, and to whom
+     */
+    public function noticesSent(): array
+    {
+        return $this->notices;
     }
 
     public function wasWithdrawn(string $exchange): bool

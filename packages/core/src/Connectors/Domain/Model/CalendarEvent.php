@@ -23,10 +23,11 @@ final readonly class CalendarEvent
         public ?string $venue,
         public ?PersonId $contact,
         public ?string $contactName,
-        public OrganizationId $organization,
-        public string $organizationName,
+        public ?OrganizationId $organization,
+        public ?string $organizationName,
         public ?int $reminderMinutesBefore,
         public bool $createsALink = false,
+        public ?Guest $guest = null,
     ) {
     }
 }

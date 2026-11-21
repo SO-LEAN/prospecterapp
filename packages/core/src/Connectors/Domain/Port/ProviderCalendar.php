@@ -42,4 +42,12 @@ interface ProviderCalendar
      * @throws AccessRevoked|CalendarGone|CalendarRefusedThePush
      */
     public function remove(ClientCredentials $client, RefreshToken $refreshToken, string $calendar, ExchangeId $exchange): void;
+
+    /**
+     * The event of the exchange removed, the provider telling its guest it is cancelled; nothing done when there is
+     * none.
+     *
+     * @throws AccessRevoked|CalendarGone|CalendarRefusedThePush
+     */
+    public function cancel(ClientCredentials $client, RefreshToken $refreshToken, string $calendar, ExchangeId $exchange): void;
 }
