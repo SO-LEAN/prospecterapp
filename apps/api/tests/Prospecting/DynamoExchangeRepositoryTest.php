@@ -143,6 +143,27 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
         $this->assertNotNull($exchanges->fingerprinted($this->prospector->accountId, self::fingerprintOf($imported))?->erasure);
     }
 
+    public function testAnImportedExchangeIsReadWithTheIdOfItsMessageInTheMailboxThatImportedIt(): void
+    {
+        $exchanges = $this->exchanges();
+        $imported = $this->imported(new ImportedEmail('google', 'f00d', '18c2f4a9e0b1d3c7'));
+        $exchanges->save($imported);
+
+        $this->assertSame('18c2f4a9e0b1d3c7', Hydrator::stateOf($exchanges->get($imported->id()))['importedFrom']->providerMessageId);
+    }
+
+    public function testAnExchangeImportedBeforeTheIdOfItsMessageWasKeptHasNone(): void
+    {
+        $exchanges = $this->exchanges();
+        $imported = $this->imported();
+        $exchanges->save($imported);
+        $item = $this->prospectingTable()->item(ExchangeKeys::exchange($imported->id()->value), ExchangeKeys::EXCHANGE);
+        unset($item['exchange']['importedFrom']['providerMessageId']);
+        $this->prospectingTable()->batch([$item]);
+
+        $this->assertNull(Hydrator::stateOf($exchanges->get($imported->id()))['importedFrom']->providerMessageId);
+    }
+
     public function testANotedExchangeIsFoundByItsFingerprint(): void
     {
         $exchanges = $this->exchanges();
@@ -245,9 +266,12 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
         return Exchange::notedWithAContact($this->prospector->accountId, $this->prospector->id, new ExchangeId(self::newIdentity()), $this->contact, [$this->acme, $this->group], new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable($occurredAt), 'Rappeler lundi'), ExchangeStatus::Done, new \DateTimeImmutable(self::NOW));
     }
 
-    private function imported(): Exchange
+    private function imported(ImportedEmail $email = new ImportedEmail('google', 'f00d')): Exchange
     {
-        return Exchange::importedWithAContact($this->prospector->accountId, $this->prospector->id, new ExchangeId(self::newIdentity()), $this->contact, [$this->acme], new ExchangeFacts(Channel::Email, Direction::Inbound, new \DateTimeImmutable('2026-10-10 09:00 UTC'), "Votre devis\n\nBonjour"), new ImportedEmail('google', 'f00d'), new \DateTimeImmutable(self::NOW));
+        $imported = Exchange::importedWithAContact($this->prospector->accountId, $this->prospector->id, new ExchangeId(self::newIdentity()), $this->contact, [$this->acme], new ExchangeFacts(Channel::Email, Direction::Inbound, new \DateTimeImmutable('2026-10-10 09:00 UTC'), "Votre devis\n\nBonjour"), $email, new \DateTimeImmutable(self::NOW));
+        $imported->releaseEvents();
+
+        return $imported;
     }
 
     /**

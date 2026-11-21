@@ -51,7 +51,7 @@ final class ExchangeDocument
             'contact' => $state['contact']?->value,
             'keptFor' => array_map(static fn (OrganizationId $organization): string => (string) $organization, $state['keptFor']),
             'campaignId' => $state['campaign']?->value,
-            'importedFrom' => null === $state['importedFrom'] ? null : ['provider' => $state['importedFrom']->provider, 'identity' => $state['importedFrom']->identity],
+            'importedFrom' => null === $state['importedFrom'] ? null : ['provider' => $state['importedFrom']->provider, 'identity' => $state['importedFrom']->identity, 'providerMessageId' => $state['importedFrom']->providerMessageId],
             'bookedByLink' => $state['bookedByLink'],
             'fingerprint' => $state['fingerprint']?->value,
             'facts' => [
@@ -89,7 +89,7 @@ final class ExchangeDocument
             'contact' => null === $document['contact'] ? null : new PersonId($document['contact']),
             'keptFor' => array_map(static fn (string $organization): OrganizationId => new OrganizationId($organization), $document['keptFor']),
             'campaign' => null === ($document['campaignId'] ?? null) ? null : new CampaignId($document['campaignId']),
-            'importedFrom' => null === ($document['importedFrom'] ?? null) ? null : new ImportedEmail($document['importedFrom']['provider'], $document['importedFrom']['identity']),
+            'importedFrom' => null === ($document['importedFrom'] ?? null) ? null : new ImportedEmail($document['importedFrom']['provider'], $document['importedFrom']['identity'], $document['importedFrom']['providerMessageId'] ?? null),
             'bookedByLink' => $document['bookedByLink'] ?? false,
             'fingerprint' => self::fingerprintOf($document),
             'facts' => new ExchangeFacts(Channel::from($facts['channel']), Direction::from($facts['direction']), Documents::momentOf($facts['occurredAt']), $facts['text'], self::duration($facts['durationInMinutes'] ?? null), $facts['place'] ?? null, self::link($facts['link'] ?? null), self::linkRequestedOf($document)),
