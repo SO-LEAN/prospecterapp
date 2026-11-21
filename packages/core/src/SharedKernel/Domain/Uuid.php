@@ -10,12 +10,26 @@ namespace Prospecter\Core\SharedKernel\Domain;
 abstract readonly class Uuid implements \Stringable
 {
     private const string FORMAT = '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/';
+    private const string HASH = 'sha256';
+    private const string NAME_BASED = '8';
+    private const string RFC_VARIANT = '8';
 
     final public function __construct(public string $value)
     {
         if (!preg_match(self::FORMAT, $value)) {
             throw new \InvalidArgumentException(sprintf('"%s" is not a UUID', $value));
         }
+    }
+
+    /**
+     * The identity the core derives from what names it, always the same for the same name: a UUID of version 8,
+     * built from its hash (ADR 0154).
+     */
+    protected static function namedBy(string $name): static
+    {
+        $hash = hash(self::HASH, $name);
+
+        return new static(sprintf('%s-%s-%s%s-%s%s-%s', substr($hash, 0, 8), substr($hash, 8, 4), self::NAME_BASED, substr($hash, 13, 3), self::RFC_VARIANT, substr($hash, 17, 3), substr($hash, 20, 12)));
     }
 
     public static function isValid(string $value): bool
