@@ -328,6 +328,7 @@ final class CampaignContext implements Context
             $this->application->now(),
             messageId: $messageId,
             noteOnce: true,
+            byAnAI: true,
         ));
         $this->noted = null === $this->application->refusal() ? $id : $this->noted;
         $this->notedWith = $contact;
@@ -340,6 +341,14 @@ final class CampaignContext implements Context
         $exchange = $this->notedExchange();
 
         Expect::same(['email', 'outbound', $this->campaignIds[$name], $text], [$exchange->channel, $exchange->direction, $exchange->campaignId, $exchange->text]);
+    }
+
+    #[Then('l\'échange noté pour :contact est créé par une IA')]
+    public function theExchangeNotedIsCreatedByAnAI(string $contact): void
+    {
+        $this->notedWith = $contact;
+
+        Expect::same(true, $this->notedExchange()->createdByAnAI);
     }
 
     #[Then('un seul échange est noté pour :contact')]

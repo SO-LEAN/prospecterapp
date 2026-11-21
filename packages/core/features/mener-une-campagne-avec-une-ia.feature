@@ -61,3 +61,8 @@ Fonctionnalité: Mener une campagne avec une IA
     Quand je note pour "Ada Lovelace" dans la campagne "Relance PHP" le même e-mail
     Alors ce n'est pas refusé
     Et "Ada Lovelace" est traitée dans la campagne "Relance PHP"
+
+  Scénario: L'envoi noté par l'IA porte la marque d'une IA
+    Soit la campagne "Relance PHP" démarrée par e-mail avec "Ada Lovelace" puis "Grace Hopper", son message pour une IA "tel quel"
+    Quand une IA note l'e-mail envoyé à "Ada Lovelace" pour "Relance PHP", son Message-ID "<relance-ada@solean-it.test>" et le texte "Bonjour Ada"
+    Alors l'échange noté pour "Ada Lovelace" est créé par une IA

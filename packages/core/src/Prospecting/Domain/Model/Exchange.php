@@ -117,19 +117,20 @@ final class Exchange implements ReleasesEvents
     /**
      * For a recipient of a campaign still to handle, while it is led: outbound, by the channel of the campaign, done, or
      * missed when the call did not go through; it keeps its campaign (ADR 0145), and is fingerprinted as any exchange
-     * noted (ADR 0166).
+     * noted (ADR 0166); by the hand of its member, or by an AI leading the campaign as them (ADR 0185, 0186).
      *
      * @param list<OrganizationId> $organizationsOfTheContact
      *
      * @throws CampaignNotRunning|UnknownRecipient|RecipientAlreadyProcessed
      * @throws ExchangeInTheFuture|ChannelNotMissed
      */
-    public static function notedInACampaign(AccountId $accountId, MemberId $by, ExchangeId $id, RecipientInCampaign $recipient, array $organizationsOfTheContact, ExchangeFacts $facts, bool $missed, \DateTimeImmutable $at, ?MessageReference $reference = null): self
+    public static function notedInACampaign(AccountId $accountId, MemberId $by, ExchangeId $id, RecipientInCampaign $recipient, array $organizationsOfTheContact, ExchangeFacts $facts, bool $missed, \DateTimeImmutable $at, ?MessageReference $reference = null, Origin $origin = Origin::Hand): self
     {
         $recipient->ensureToHandle();
         $exchange = self::noted($accountId, $by, $id, $recipient->contact, $organizationsOfTheContact, $facts, ExchangeStatus::outcome($missed), $at);
         $exchange->campaign = $recipient->campaign;
         $exchange->fingerprint = ($reference ?? MessageReference::none())->fingerprintOf($facts, $recipient->contact);
+        $exchange->origin = $origin;
 
         return $exchange;
     }
