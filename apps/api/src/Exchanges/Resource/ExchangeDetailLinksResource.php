@@ -17,8 +17,8 @@ final readonly class ExchangeDetailLinksResource
         public ?LinkResource $correctText = null,
         #[OA\Property(nullable: false, description: 'The place of a meeting or the link of a video call, planned or done; offered without the right to manage personal data too')]
         public ?LinkResource $correctVenue = null,
-        #[OA\Property(nullable: false, description: 'Its contact forgotten, a correction of its facts or of its text with madeConform declares it made conform, until it is; offered without the right to manage personal data too')]
-        public ?LinkResource $makeConform = null,
+        #[OA\Property(nullable: false, description: 'Its contact forgotten, a correction of its facts or of its text with redacted declares it redacted, until it is; offered without the right to manage personal data too')]
+        public ?LinkResource $redact = null,
         #[OA\Property(nullable: false)]
         public ?LinkResource $eraseExchange = null,
         #[OA\Property(nullable: false, description: 'Joins a file sent with the form of an upload, while the exchange has room for one')]

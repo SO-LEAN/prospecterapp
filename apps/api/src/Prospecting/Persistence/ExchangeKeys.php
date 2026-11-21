@@ -58,9 +58,9 @@ final class ExchangeKeys
         return 'ACCOUNT_EXCHANGES#'.$accountId;
     }
 
-    public static function toMakeConform(string $organization): string
+    public static function toRedact(string $organization): string
     {
-        return 'TO_MAKE_CONFORM#'.$organization;
+        return 'TO_REDACT#'.$organization;
     }
 
     /**

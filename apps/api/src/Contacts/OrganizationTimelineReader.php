@@ -68,7 +68,7 @@ final readonly class OrganizationTimelineReader
     }
 
     /**
-     * Only its exchanges to make conform, their contact forgotten (ADR 0079).
+     * Only its exchanges to redact, their contact forgotten (ADR 0079).
      */
     public function readToMakeConform(string $reader, OrganizationSheet $organization, ?string $after = null): OrganizationTimelineResource
     {

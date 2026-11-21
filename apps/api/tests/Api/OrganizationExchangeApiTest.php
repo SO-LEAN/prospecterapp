@@ -147,11 +147,11 @@ class OrganizationExchangeApiTest extends ApiTestCase
         $this->requestJson('DELETE', '/api/contacts/'.$ada);
 
         $timeline = $this->requestJson('GET', '/api/organizations/'.$organization.'/exchanges');
-        $this->assertSame(1, $timeline['toMakeConform']);
-        $this->assertSame(['href' => '/api/organizations/'.$organization.'/exchanges-to-make-conform', 'method' => 'GET'], $timeline['_links']['toMakeConform']);
-        $toMakeConform = $this->requestJson('GET', $timeline['_links']['toMakeConform']['href']);
-        $this->assertSame([[['kind' => 'person', 'id' => $ada, 'name' => null, 'presence' => 'forgotten'], 'Ada, 06 12 34 56 78, attend notre devis', true, true]], array_map(static fn (array $item): array => [$item['interlocutor'], $item['exchange']['text'], $item['exchange']['textToMakeConform'], $item['exchange']['toMakeConform']], $toMakeConform['items']));
-        $this->assertSame(['self', 'noteExchange', 'planExchange', 'toMakeConform'], array_keys($toMakeConform['_links']));
+        $this->assertSame(1, $timeline['toRedact']);
+        $this->assertSame(['href' => '/api/organizations/'.$organization.'/exchanges-to-redact', 'method' => 'GET'], $timeline['_links']['toRedact']);
+        $toMakeConform = $this->requestJson('GET', $timeline['_links']['toRedact']['href']);
+        $this->assertSame([[['kind' => 'person', 'id' => $ada, 'name' => null, 'presence' => 'forgotten'], 'Ada, 06 12 34 56 78, attend notre devis', true, true]], array_map(static fn (array $item): array => [$item['interlocutor'], $item['exchange']['text'], $item['exchange']['textToRedact'], $item['exchange']['toRedact']], $toMakeConform['items']));
+        $this->assertSame(['self', 'noteExchange', 'planExchange', 'toRedact'], array_keys($toMakeConform['_links']));
     }
 
     public function testAnExchangeOfAForgottenContactIsMadeConformByCorrectingItsText(): void
@@ -163,16 +163,16 @@ class OrganizationExchangeApiTest extends ApiTestCase
 
         $detail = $this->requestJson('GET', '/api/exchanges/'.$exchange);
         $this->assertArrayNotHasKey('interlocutor', $detail['_links']);
-        $this->assertSame(['href' => '/api/exchanges/'.$exchange.'/text', 'method' => 'PATCH'], $detail['_links']['makeConform']);
-        $corrected = $this->requestJson('PATCH', $detail['_links']['makeConform']['href'], ['text' => 'La directrice attend notre devis', 'madeConform' => true]);
+        $this->assertSame(['href' => '/api/exchanges/'.$exchange.'/text', 'method' => 'PATCH'], $detail['_links']['redact']);
+        $corrected = $this->requestJson('PATCH', $detail['_links']['redact']['href'], ['text' => 'La directrice attend notre devis', 'redacted' => true]);
 
         $this->assertResponseStatusCodeSame(200);
-        $this->assertSame([false, false, '2026-10-15T09:00:00+00:00'], [$corrected['textToMakeConform'], $corrected['toMakeConform'], $corrected['madeConform']['at']]);
-        $this->assertArrayNotHasKey('makeConform', $corrected['_links']);
-        $this->assertSame(0, $this->requestJson('GET', '/api/organizations/'.$organization.'/exchanges')['toMakeConform']);
-        $problem = $this->requestJson('PATCH', '/api/exchanges/'.$exchange.'/text', ['text' => 'Encore', 'madeConform' => true]);
+        $this->assertSame([false, false, '2026-10-15T09:00:00+00:00'], [$corrected['textToRedact'], $corrected['toRedact'], $corrected['redacted']['at']]);
+        $this->assertArrayNotHasKey('redact', $corrected['_links']);
+        $this->assertSame(0, $this->requestJson('GET', '/api/organizations/'.$organization.'/exchanges')['toRedact']);
+        $problem = $this->requestJson('PATCH', '/api/exchanges/'.$exchange.'/text', ['text' => 'Encore', 'redacted' => true]);
         $this->assertResponseStatusCodeSame(409);
-        $this->assertSame('nothingToMakeConform', $problem['reason']);
+        $this->assertSame('nothingToRedact', $problem['reason']);
     }
 
     public function testAnOrganizationOfAnotherAccountIsNotFound(): void

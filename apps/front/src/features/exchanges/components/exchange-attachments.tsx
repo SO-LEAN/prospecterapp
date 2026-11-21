@@ -34,7 +34,7 @@ export function ExchangeAttachments({ exchange }: { exchange: ExchangeDetail }) 
           {t('exchanges.attachments.hidden', { count: exchange.hiddenAttachments })}
         </p>
       )}
-      {exchange.attachments.some((attachment) => attachment.toMakeConform) && (
+      {exchange.attachments.some((attachment) => attachment.toRedact) && (
         <PersonalDataWarning warning={t('exchanges.toMakeConform')} />
       )}
       {exchange.attachments.length > 0 && (
@@ -67,9 +67,7 @@ function AttachmentLine({ exchangeId, attachment }: { exchangeId: string; attach
   const removeLink = attachment._links.removeAttachment
 
   return (
-    <li
-      className={cn('flex items-center gap-2', attachment.toMakeConform && 'rounded-md bg-warning/15 px-2')}
-    >
+    <li className={cn('flex items-center gap-2', attachment.toRedact && 'rounded-md bg-warning/15 px-2')}>
       <Paperclip aria-hidden className="size-4 shrink-0 text-muted-foreground" />
       <a
         href={`${env.apiUrl}${attachment._links.download.href}`}

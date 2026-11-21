@@ -30,7 +30,7 @@ export type Interlocutor = OrganizationExchange['interlocutor']
 export type ContactPresence = NonNullable<Interlocutor['presence']>
 type Correction = components['schemas']['CorrectionInput']
 /** What happened, all of it: what noting and correcting an exchange send; a correction may declare it made conform. */
-export type ExchangeFacts = Omit<Correction, 'madeConform'> & Partial<Pick<Correction, 'madeConform'>>
+export type ExchangeFacts = Omit<Correction, 'redacted'> & Partial<Pick<Correction, 'redacted'>>
 export type ExchangeDetail = components['schemas']['ExchangeDetailResource']
 export type GoogleSync = components['schemas']['ExchangeSyncResource']
 export type Connections = components['schemas']['ConnectionsResource']
@@ -110,7 +110,7 @@ export const exchangesToMakeConformQuery = (organizationId: string) =>
     queryKey: [...timelineKeys.toMakeConform, { params: { path: { id: organizationId } } }, 'slices'],
     queryFn: async ({ pageParam, signal }) =>
       dataOf(
-        await fetchClient.GET('/api/organizations/{id}/exchanges-to-make-conform', {
+        await fetchClient.GET('/api/organizations/{id}/exchanges-to-redact', {
           params: { path: { id: organizationId }, query: { after: pageParam } },
           signal,
         }),

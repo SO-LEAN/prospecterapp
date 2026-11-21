@@ -22,7 +22,7 @@ use Prospecter\Core\SharedKernel\Domain\Origin;
 
 /**
  * Reads the item `EXCHANGE#<id>` / `EXCHANGE` that `DynamoExchangeRepository` writes as the detail of the
- * exchange, without restoring it (ADR 0088): as its reader may read it, with what is to make conform and what
+ * exchange, without restoring it (ADR 0088): as its reader may read it, with what is to redact and what
  * its state offers its reader at the moment of the reading, asked to the policies of the core.
  */
 final readonly class DynamoExchangeDetailRetriever implements ExchangeDetailRetriever
@@ -48,7 +48,7 @@ final readonly class DynamoExchangeDetailRetriever implements ExchangeDetailRetr
         $status = ExchangeDocument::statusOf($document);
         $hasText = null !== $facts['text'];
         $correction = $document['lastCorrection'] ?? null;
-        $madeConform = $document['madeConform'] ?? null;
+        $madeConform = $document['redacted'] ?? null;
         $contactForgotten = $document['contactForgotten'] ?? false;
         $attachments = $document['attachments'] ?? [];
         $read = ExchangeReading::readsTheAttachments($reader) ? $attachments : [];

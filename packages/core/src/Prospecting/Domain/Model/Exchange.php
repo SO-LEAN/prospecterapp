@@ -12,13 +12,13 @@ use Prospecter\Core\Prospecting\Domain\Event\ExchangeCorrected;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeErased;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeKeptFor;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeLeftWithoutOrganization;
-use Prospecter\Core\Prospecting\Domain\Event\ExchangeMadeConform;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeMarkedDone;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeMarkedMissed;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeMoved;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeNoLongerKeptFor;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeNoted;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangePlanned;
+use Prospecter\Core\Prospecting\Domain\Event\ExchangeRedacted;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeTextCorrected;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeVenueCorrected;
 use Prospecter\Core\Prospecting\Domain\Event\FileAttached;
@@ -28,7 +28,7 @@ use Prospecter\Core\Prospecting\Domain\Exception\ChannelNotMissed;
 use Prospecter\Core\Prospecting\Domain\Exception\ExchangeInTheFuture;
 use Prospecter\Core\Prospecting\Domain\Exception\LinkOnlyForAVideoCall;
 use Prospecter\Core\Prospecting\Domain\Exception\NoRoomForAnAttachment;
-use Prospecter\Core\Prospecting\Domain\Exception\NothingToMakeConform;
+use Prospecter\Core\Prospecting\Domain\Exception\NothingToRedact;
 use Prospecter\Core\Prospecting\Domain\Exception\NotTheHolder;
 use Prospecter\Core\Prospecting\Domain\Exception\NotUpcoming;
 use Prospecter\Core\Prospecting\Domain\Exception\NotYetDue;
@@ -437,14 +437,14 @@ final class Exchange implements ReleasesEvents
     /**
      * Once its text retouched: its files, if any, are made conform by removing them.
      *
-     * @throws NothingToMakeConform
+     * @throws NothingToRedact
      */
     public function declareConform(MemberId $by, \DateTimeImmutable $at): void
     {
         $this->ensurePossible(ExchangeIntent::MakeConform, $by, $at);
         $this->modifiedAt = $at;
         $this->madeConform = new Correction($by, $at);
-        $this->recordThat(new ExchangeMadeConform($this->accountId, $by, $this->id, $at));
+        $this->recordThat(new ExchangeRedacted($this->accountId, $by, $this->id, $at));
     }
 
     private function correctedBy(MemberId $by, \DateTimeImmutable $at): void
@@ -664,7 +664,7 @@ final class Exchange implements ReleasesEvents
     /**
      * Every intention starts with it: what the exchange does not offer the member now is refused.
      *
-     * @throws NoRoomForAnAttachment|NothingToMakeConform|NotPossibleInItsState|NotTheHolder
+     * @throws NoRoomForAnAttachment|NothingToRedact|NotPossibleInItsState|NotTheHolder
      */
     private function ensurePossible(ExchangeIntent $intent, MemberId $by, \DateTimeImmutable $at): void
     {
@@ -677,7 +677,7 @@ final class Exchange implements ReleasesEvents
         throw match ($intent) {
             ExchangeIntent::CorrectVenue => NotPossibleInItsState::because('Only a meeting or a video call takes place somewhere'),
             ExchangeIntent::AttachFile => NoRoomForAnAttachment::because(sprintf('An exchange holds %d attachments at most', self::MOST_ATTACHMENTS)),
-            ExchangeIntent::MakeConform => NothingToMakeConform::because('Only an exchange with a forgotten contact is to make conform'),
+            ExchangeIntent::MakeConform => NothingToRedact::because('Only an exchange with a forgotten contact is to redact'),
             ExchangeIntent::MarkExchangeDone, ExchangeIntent::MarkExchangeMissed, ExchangeIntent::MoveExchange, ExchangeIntent::CancelExchange => $this->whyNotHandledBy($by),
             ExchangeIntent::CorrectExchange => NotPossibleInItsState::because('Only an exchange that took place is corrected'),
             default => NotPossibleInItsState::because(sprintf('%s is not possible now', $intent->name)),

@@ -46,7 +46,7 @@ function theApiAnswers() {
     const path = new URL(url).pathname
     return method === 'POST'
       ? Response.json(
-          { ...anEmptyTimeline(path), toMakeConform: 0 },
+          { ...anEmptyTimeline(path), toRedact: 0 },
           { status: 201, headers: { Location: `/api/exchanges/${NOTED}` } },
         )
       : Response.json({ items: [], _links: { self: { href: path, method: 'GET' } } })
@@ -107,7 +107,7 @@ describe('noting an exchange, then planning what follows', () => {
     const queryClient = aCache()
     const timeline: OrganizationTimeline = {
       items: [],
-      toMakeConform: 0,
+      toRedact: 0,
       _links: anEmptyTimeline(`/api/organizations/${ACME}/exchanges`)._links,
     }
     queryClient.setQueryData(organizationTimelineQuery(ACME).queryKey, {

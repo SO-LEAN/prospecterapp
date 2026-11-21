@@ -19,8 +19,8 @@ final readonly class OrganizationTimelineResource
      */
     public function __construct(
         public array $items,
-        #[OA\Property(description: 'How many exchanges of the organization are to make conform, their contact forgotten')]
-        public int $toMakeConform,
+        #[OA\Property(description: 'How many exchanges of the organization are to redact, their contact forgotten')]
+        public int $toRedact,
         #[SerializedName('_links')]
         #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]
         public TimelineLinksResource $links,

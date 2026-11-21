@@ -79,13 +79,13 @@ Fonctionnalité: Les échanges d'un contact retiré ou effacé
 
   Scénario: Un échange dont le contact n'est pas effacé n'est pas à rendre conforme
     Quand je corrige le texte de cet échange en "Elle attend notre devis" et le déclare rendu conforme
-    Alors c'est refusé : "Only an exchange with a forgotten contact is to make conform"
+    Alors c'est refusé : "Only an exchange with a forgotten contact is to redact"
 
   Scénario: Un échange déjà rendu conforme ne l'est pas deux fois
     Soit j'efface la fiche de "Ada Lovelace"
     Et je corrige le texte de cet échange en "La directrice commerciale attend notre devis" et le déclare rendu conforme
     Quand je corrige le texte de cet échange en "La directrice attend notre devis" et le déclare rendu conforme
-    Alors c'est refusé : "Only an exchange with a forgotten contact is to make conform"
+    Alors c'est refusé : "Only an exchange with a forgotten contact is to redact"
 
   Scénario: Les pièces jointes d'un échange avec un contact effacé sont aussi à rendre conformes
     Soit "cv-ada.pdf" est joint à cet échange

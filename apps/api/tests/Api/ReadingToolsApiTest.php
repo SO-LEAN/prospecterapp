@@ -172,7 +172,7 @@ class ReadingToolsApiTest extends ApiTestCase
     {
         $babbage = $this->babbage();
 
-        $this->assertTheToolAnswersAsItsEndpoint('list-exchanges-pending-redaction', ['id' => $babbage], '/api/organizations/'.$babbage.'/exchanges-to-make-conform');
+        $this->assertTheToolAnswersAsItsEndpoint('list-exchanges-pending-redaction', ['id' => $babbage], '/api/organizations/'.$babbage.'/exchanges-to-redact');
     }
 
     public function testTheAiRecognizesWhoCalls(): void

@@ -135,7 +135,7 @@ class AttachmentApiTest extends ApiTestCase
         $this->requestJson('DELETE', '/api/contacts/'.$contact);
 
         $attachment = $this->requestJson('GET', '/api/exchanges/'.$exchange)['attachments'][0];
-        $this->assertTrue($attachment['toMakeConform']);
+        $this->assertTrue($attachment['toRedact']);
         $this->assertSame([], $this->requestJson('DELETE', $attachment['_links']['removeAttachment']['href'])['attachments']);
     }
 

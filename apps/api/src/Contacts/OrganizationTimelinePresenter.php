@@ -16,7 +16,7 @@ use Prospecter\Core\Prospecting\Application\Timeline;
 use Prospecter\Core\Prospecting\Application\TimelineOutput;
 
 /**
- * A slice of the timeline of an organization, or of its exchanges to make conform, each exchange with who
+ * A slice of the timeline of an organization, or of its exchanges to redact, each exchange with who
  * communicated: the person, still its contact, removed or forgotten, or the organization itself. Built for one call
  * with the persons of the slice, it keeps the resource (ADR 0085).
  */
@@ -24,7 +24,7 @@ final class OrganizationTimelinePresenter implements TimelineOutput
 {
     private const array ROUTES = ['api_organizations_timeline', 'api_organizations_note_exchange', 'api_organizations_plan_exchange'];
     private const array UPCOMING_ROUTES = ['api_organizations_upcoming_exchanges', 'api_organizations_note_exchange', 'api_organizations_plan_exchange'];
-    private const array TO_MAKE_CONFORM_ROUTES = ['api_organizations_exchanges_to_make_conform', 'api_organizations_note_exchange', 'api_organizations_plan_exchange'];
+    private const array TO_REDACT_ROUTES = ['api_organizations_exchanges_to_redact', 'api_organizations_note_exchange', 'api_organizations_plan_exchange'];
 
     private const string CATCH_UP = 'CatchUpGmail';
     private const string CATCH_UP_ROUTE = 'api_organizations_catch_up_gmail';
@@ -69,7 +69,7 @@ final class OrganizationTimelinePresenter implements TimelineOutput
      */
     public static function ofTheExchangesToMakeConform(OrganizationSheet $organization, array $persons, TimelineResourceFactory $timelines, Links $links): self
     {
-        return new self(self::TO_MAKE_CONFORM_ROUTES, $organization, $persons, $timelines, $links);
+        return new self(self::TO_REDACT_ROUTES, $organization, $persons, $timelines, $links);
     }
 
     public function present(Timeline $timeline): void
@@ -78,9 +78,9 @@ final class OrganizationTimelinePresenter implements TimelineOutput
 
         $this->resource = new OrganizationTimelineResource(
             items: array_map(fn (ExchangeInTimeline $exchange): OrganizationExchangeResource => new OrganizationExchangeResource($this->timelineResourceFactory->createExchange($exchange), $this->interlocutorOf($exchange)), $timeline->exchanges),
-            toMakeConform: $timeline->toMakeConform,
+            toRedact: $timeline->toMakeConform,
             links: $this->timelineResourceFactory->createLinks($this->routes, $subject, $timeline)
-                ->withToMakeConform(0 === $timeline->toMakeConform ? null : $this->links->to(self::TO_MAKE_CONFORM_ROUTES[0], $subject))
+                ->withToRedact(0 === $timeline->toMakeConform ? null : $this->links->to(self::TO_REDACT_ROUTES[0], $subject))
                 ->withCatchUpGmail($this->offersTheCatchUp() ? $this->links->to(self::CATCH_UP_ROUTE, $subject) : null),
         );
     }

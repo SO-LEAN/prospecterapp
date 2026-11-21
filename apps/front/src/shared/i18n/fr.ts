@@ -1003,7 +1003,7 @@ export const fr = {
     attachmentTooHeavy: '« {{name}} » est trop lourd : une pièce jointe pèse 10 Mo au plus.',
     attachmentNotSent: 'Le fichier « {{name}} » n’a pas pu être envoyé.',
     noRoomForAnAttachment: 'Un échange a 10 pièces jointes au plus.',
-    nothingToMakeConform:
+    nothingToRedact:
       'Cet échange n’est pas à rendre conforme : son contact n’a pas été effacé, ou il a déjà été rendu conforme.',
     notPossibleInItsState: 'Ce n’est pas possible pour le moment.',
     unknownAccount: 'Compte introuvable.',

@@ -20,7 +20,7 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 /**
  * Reads the timelines in the indexes `DynamoExchangeRepository` writes (`ExchangeKeys`), without restoring the
  * exchanges (ADR 0088): the timeline of a contact in `GSI1` of the exchanges, that of an organization in `GSI1`
- * of its links, those to make conform in `GSI2`, counted there (ADR 0074, 0076, 0079); the past below the position
+ * of its links, those to redact in `GSI2`, counted there (ADR 0074, 0076, 0079); the past below the position
  * of the moment of the reading, the most recent first, what is to come above it, the soonest first.
  */
 final readonly class DynamoTimelineRetriever implements TimelineRetriever
@@ -59,14 +59,14 @@ final readonly class DynamoTimelineRetriever implements TimelineRetriever
 
     public function toMakeConformIn(OrganizationSheet $organization, Prospector $reader, ?string $after, int $max): Timeline
     {
-        $links = $this->prospectingTable->query(ExchangeKeys::toMakeConform($organization->id), Table::BY_GSI2, $after, $max + 1);
+        $links = $this->prospectingTable->query(ExchangeKeys::toRedact($organization->id), Table::BY_GSI2, $after, $max + 1);
 
         return $this->timelineOf($this->itemsListedBy($links), $max, $this->countToMakeConform($organization), self::inTheTimelineOf($organization, $reader));
     }
 
     private function countToMakeConform(OrganizationSheet $organization): int
     {
-        return $this->prospectingTable->count(ExchangeKeys::toMakeConform($organization->id), Table::BY_GSI2);
+        return $this->prospectingTable->count(ExchangeKeys::toRedact($organization->id), Table::BY_GSI2);
     }
 
     /**
@@ -128,7 +128,7 @@ final readonly class DynamoTimelineRetriever implements TimelineRetriever
         $facts = $document['facts'];
         $hasText = null !== $facts['text'];
         $contactForgotten = self::contactForgotten($document);
-        $declaredConform = null !== ($document['madeConform'] ?? null);
+        $declaredConform = null !== ($document['redacted'] ?? null);
         $attachments = $document['attachments'] ?? [];
 
         return new ExchangeInTimeline(

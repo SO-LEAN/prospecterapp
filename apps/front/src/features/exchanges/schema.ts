@@ -36,7 +36,7 @@ export const exchangeSchema = z.object({
   text: text(MAX_TEXT),
   missed: z.boolean(),
   personId: z.string(),
-  madeConform: z.boolean(),
+  redacted: z.boolean(),
 })
 
 export type ExchangeValues = z.input<typeof exchangeSchema>
@@ -48,7 +48,7 @@ export const exchangeFields = [
   'text',
   'missed',
   'personId',
-  'madeConform',
+  'redacted',
 ] as const
 
 /** The interlocutor chosen when noting from the card of an organization: none is the organization itself. */
@@ -61,7 +61,7 @@ export const newExchange = (now: Date): DefaultValues<ExchangeValues> => ({
   text: '',
   missed: false,
   personId: ITSELF,
-  madeConform: false,
+  redacted: false,
 })
 
 /** The exchange as it is, to correct it. */
@@ -72,7 +72,7 @@ export const correctionOf = (exchange: ExchangeDetail): ExchangeValues => ({
   text: exchange.text ?? '',
   missed: exchange.status === 'missed',
   personId: ITSELF,
-  madeConform: false,
+  redacted: false,
 })
 
 export const toExchangeFacts = (values: ExchangeValues): ExchangeFacts => ({
@@ -81,7 +81,7 @@ export const toExchangeFacts = (values: ExchangeValues): ExchangeFacts => ({
   occurredAt: new Date(values.occurredAt).toISOString(),
   text: orNull(values.text),
   missed: isAgreedUpon(values.channel) && values.missed,
-  ...(values.madeConform && { madeConform: true }),
+  ...(values.redacted && { redacted: true }),
 })
 
 export const personIdOf = (values: ExchangeValues): string | null =>
@@ -112,13 +112,13 @@ export const toReport = (values: ReportValues): Report => ({
 })
 
 /** Mirrors `TextCorrectionInput` of the API. */
-export const textSchema = z.object({ text: text(MAX_TEXT), madeConform: z.boolean() })
+export const textSchema = z.object({ text: text(MAX_TEXT), redacted: z.boolean() })
 
 export type TextValues = z.input<typeof textSchema>
 
-export const textFields = ['text', 'madeConform'] as const
+export const textFields = ['text', 'redacted'] as const
 
 export const toTextCorrection = (values: TextValues): TextCorrection => ({
   text: orNull(values.text),
-  madeConform: values.madeConform,
+  redacted: values.redacted,
 })

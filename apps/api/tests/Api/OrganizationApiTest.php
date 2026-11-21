@@ -453,7 +453,7 @@ class OrganizationApiTest extends ApiTestCase
             ['GET', '', null], ['PATCH', '/legal-identity', []], ['PATCH', '/contact-details', []], ['PATCH', '/address', []],
             ['PATCH', '/observations', []], ['PATCH', '/holding', ['holdingId' => $mine]], ['DELETE', '/holding', null], ['DELETE', '/logo', null],
             ['POST', '/contacts', ['personId' => self::newIdentity()]], ['DELETE', '/contacts/'.self::newIdentity(), null], ['DELETE', '', null],
-            ['GET', '/contacts', null], ['GET', '/exchanges', null], ['GET', '/exchanges-to-make-conform', null],
+            ['GET', '/contacts', null], ['GET', '/exchanges', null], ['GET', '/exchanges-to-redact', null],
             ['POST', '/exchanges', ['exchange' => ['channel' => 'call', 'direction' => 'inbound']]],
             ['GET', '/to-dos', null], ['POST', '/to-dos', ['text' => 'Appeler', 'dueOn' => '2026-10-16']],
             ['DELETE', '/possible-duplicates/'.$mine, null],

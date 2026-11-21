@@ -14,9 +14,9 @@ use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
 
 /**
- * `GET /api/organizations/{id}/exchanges-to-make-conform`, for an AI (ADR 0163).
+ * `GET /api/organizations/{id}/exchanges-to-redact`, for an AI (ADR 0163).
  */
-#[Adapts('api_organizations_exchanges_to_make_conform')]
+#[Adapts('api_organizations_exchanges_to_redact')]
 final readonly class ShowExchangesToMakeConformTool
 {
     public function __construct(
@@ -34,7 +34,7 @@ final readonly class ShowExchangesToMakeConformTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'list-exchanges-pending-redaction', description: 'The exchanges of an organization to make conform, the most recent first, by slices.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'list-exchanges-pending-redaction', description: 'The exchanges of an organization to redact, the most recent first, by slices.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $id, ?string $after = null): array
     {
         $organization = $this->organizations->read($id);

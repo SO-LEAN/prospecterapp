@@ -155,7 +155,7 @@ export function ExchangeForm({
       >
         <Textarea rows={3} {...form.register('text')} />
       </FormField>
-      {mayDeclareConform && <MadeConformField {...form.register('madeConform')} />}
+      {mayDeclareConform && <MadeConformField {...form.register('redacted')} />}
 
       {withFiles && <FilesField files={files} onChange={setFiles} />}
 
