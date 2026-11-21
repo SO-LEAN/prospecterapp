@@ -129,7 +129,7 @@ Every event, domain or integration, travels as an EventBridge event:
 ```
 
 - `source`: `prospecter.<context>` for an integration event, `prospecter.<context>.internal` for a domain event. It tells apart a domain event and an integration event with the same name (`AccountOpened`).
-- `detail-type`: the class's short name and its contract version. A payload change bumps the version once an outbox or a failure queue may hold the former shape, which is now always the case on the instances. `ExchangeFactsChanged.v2` carries the exchange's status, `.v3` its contact and its campaign (ADR 0145), `.v4` whether an erased exchange went with its organization (ADR 0155); `.v1` to `.v3` are still read (`FORMER_TYPES`).
+- `detail-type`: the class's short name, in English and in the past tense (ADR 0190), and its contract version. A payload change bumps the version once an outbox or a failure queue may hold the former shape, which is now always the case on the instances. `ExchangeFactsChanged.v2` carries the exchange's status, `.v3` its contact and its campaign (ADR 0145), `.v4` whether an erased exchange went with its organization (ADR 0155); `.v1` to `.v3` are still read (`FORMER_TYPES`).
 - One `EventCodec` encodes both kinds, with the classes listed in `DomainEventTypes` and `IntegrationEventTypes`. `EventCodecTest` fails for a class missing from them.
 
 ## The subscriptions
