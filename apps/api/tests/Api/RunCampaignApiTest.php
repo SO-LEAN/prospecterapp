@@ -106,7 +106,7 @@ class RunCampaignApiTest extends ApiTestCase
     public function testAStoppedCampaignIsNotRun(): void
     {
         $id = $this->aStartedCampaign();
-        $this->requestJson('POST', '/api/campaigns/'.$id.'/stopping');
+        $this->requestJson('POST', '/api/campaigns/'.$id.'/stop');
 
         $this->assertSame('campaignNotRunning', $this->requestJson('POST', '/api/campaigns/'.$id.'/recipients/'.$this->ada.'/exchanges', [])['reason']);
         $this->assertResponseStatusCodeSame(409);
@@ -179,9 +179,9 @@ class RunCampaignApiTest extends ApiTestCase
     private function aStartedCampaign(): string
     {
         $id = $this->requestJson('POST', '/api/campaigns', ['name' => 'Appels ESN', 'channel' => 'call', 'tags' => [self::TAG], 'message' => 'Bonjour {prénom}', 'subject' => null])['id'];
-        $this->requestJson('POST', '/api/campaigns/'.$id.'/freezing');
+        $this->requestJson('POST', '/api/campaigns/'.$id.'/freeze');
         $this->assertResponseStatusCodeSame(200);
-        $this->requestJson('POST', '/api/campaigns/'.$id.'/starting');
+        $this->requestJson('POST', '/api/campaigns/'.$id.'/start');
         $this->assertResponseStatusCodeSame(200);
 
         return $id;

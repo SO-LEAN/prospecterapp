@@ -198,7 +198,7 @@ class CampaignsApiTest extends ApiTestCase
         $id = $this->aCampaignOfAnotherAccount();
         $intentions = [
             ['GET', '', null], ['PATCH', '', $this->aCampaign()], ['DELETE', '', null], ['GET', '/messages/'.$this->ada, null],
-            ['POST', '/freezing', null], ['POST', '/starting', null], ['POST', '/stopping', null], ['GET', '/recipients', null], ['POST', '/recipients/by-tags', ['tags' => [self::TAG]]],
+            ['POST', '/freeze', null], ['POST', '/start', null], ['POST', '/stop', null], ['GET', '/recipients', null], ['POST', '/recipients/by-tags', ['tags' => [self::TAG]]],
             ['POST', '/recipients', ['contactId' => $this->ada]], ['DELETE', '/recipients/'.$this->ada, null],
         ];
 

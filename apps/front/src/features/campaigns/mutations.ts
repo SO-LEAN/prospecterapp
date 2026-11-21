@@ -56,7 +56,7 @@ export function useFreezeCampaign() {
   const { t } = useTranslation()
   const recipientsChanged = useRecipientsChanged()
 
-  return api.useMutation('post', '/api/campaigns/{id}/freezing', {
+  return api.useMutation('post', '/api/campaigns/{id}/freeze', {
     onSuccess: async (campaign) => {
       await recipientsChanged(campaign)
       toast.success(t('campaigns.freeze.done'))
@@ -110,7 +110,7 @@ export function useStartCampaign() {
   const { t } = useTranslation()
   const recipientsChanged = useRecipientsChanged()
 
-  return api.useMutation('post', '/api/campaigns/{id}/starting', {
+  return api.useMutation('post', '/api/campaigns/{id}/start', {
     onSuccess: async (campaign) => {
       await recipientsChanged(campaign)
       toast.success(t('campaigns.start.done'))
@@ -123,7 +123,7 @@ export function useStopCampaign() {
   const { t } = useTranslation()
   const recipientsChanged = useRecipientsChanged()
 
-  return api.useMutation('post', '/api/campaigns/{id}/stopping', {
+  return api.useMutation('post', '/api/campaigns/{id}/stop', {
     onSuccess: async (campaign) => {
       await recipientsChanged(campaign)
       toast.success(t('campaigns.stop.done'))

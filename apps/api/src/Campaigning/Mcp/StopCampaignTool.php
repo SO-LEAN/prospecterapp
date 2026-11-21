@@ -9,7 +9,7 @@ use Prospecter\Core\Campaigns\Application\CampaignSheet;
 use Prospecter\Core\Campaigns\Application\StopCampaign\StopCampaign;
 
 /**
- * `POST /api/campaigns/{id}/stopping`, for an AI (ADR 0163), which asks its member before calling it: a campaign
+ * `POST /api/campaigns/{id}/stop`, for an AI (ADR 0163), which asks its member before calling it: a campaign
  * stopped is never started again.
  */
 #[Adapts('api_campaigns_stop')]

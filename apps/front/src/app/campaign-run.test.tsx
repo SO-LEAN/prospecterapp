@@ -55,7 +55,7 @@ const started: Campaign = {
   endedAt: null,
   _links: {
     self: { href: `/api/campaigns/${CAMPAIGN}`, method: 'GET' },
-    stop: { href: `/api/campaigns/${CAMPAIGN}/stopping`, method: 'POST' },
+    stop: { href: `/api/campaigns/${CAMPAIGN}/stop`, method: 'POST' },
     recipients: { href: `/api/campaigns/${CAMPAIGN}/recipients`, method: 'GET' },
   },
 }

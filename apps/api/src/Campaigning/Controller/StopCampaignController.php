@@ -31,7 +31,7 @@ final class StopCampaignController extends AbstractController
     ) {
     }
 
-    #[Route('/api/campaigns/{id}/stopping', name: 'api_campaigns_stop', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
+    #[Route('/api/campaigns/{id}/stop', name: 'api_campaigns_stop', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
     #[IsGranted(CampaignVoter::ACCESS, subject: 'campaign')]
     #[IsGranted(User::PERSONAL_DATA)]
     #[OA\Post(summary: 'Stop a started campaign, kept for the team to read')]

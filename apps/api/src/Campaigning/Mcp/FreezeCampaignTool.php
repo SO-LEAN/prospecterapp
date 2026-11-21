@@ -9,7 +9,7 @@ use Prospecter\Core\Campaigns\Application\CampaignSheet;
 use Prospecter\Core\Campaigns\Application\FreezeCampaign\FreezeCampaign;
 
 /**
- * `POST /api/campaigns/{id}/freezing`, for an AI (ADR 0163).
+ * `POST /api/campaigns/{id}/freeze`, for an AI (ADR 0163).
  */
 #[Adapts('api_campaigns_freeze')]
 final readonly class FreezeCampaignTool

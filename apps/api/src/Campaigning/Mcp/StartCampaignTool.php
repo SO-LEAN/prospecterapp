@@ -9,7 +9,7 @@ use Prospecter\Core\Campaigns\Application\CampaignSheet;
 use Prospecter\Core\Campaigns\Application\StartCampaign\StartCampaign;
 
 /**
- * `POST /api/campaigns/{id}/starting`, for an AI (ADR 0163).
+ * `POST /api/campaigns/{id}/start`, for an AI (ADR 0163).
  */
 #[Adapts('api_campaigns_start')]
 final readonly class StartCampaignTool

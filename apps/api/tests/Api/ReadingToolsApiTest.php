@@ -355,7 +355,7 @@ class ReadingToolsApiTest extends ApiTestCase
     {
         $this->requestJson('POST', '/api/contacts/'.$this->ada().'/tags', ['tags' => ['#CLIENT']]);
         $campaign = $this->requestJson('POST', '/api/campaigns', ['name' => 'Relance des clients', 'channel' => 'email', 'tags' => ['#CLIENT'], 'message' => 'Bonjour {prénom}', 'subject' => '{prénom}, une question'])['id'];
-        $this->requestJson('POST', '/api/campaigns/'.$campaign.'/freezing');
+        $this->requestJson('POST', '/api/campaigns/'.$campaign.'/freeze');
 
         return $campaign;
     }
