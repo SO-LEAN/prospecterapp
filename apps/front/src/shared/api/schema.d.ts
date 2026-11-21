@@ -1145,6 +1145,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/organizations/{id}/gmail-catch-ups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Catch up the e-mails my mailbox of Gmail exchanged with the address of the organization itself over the 12 months before, the 200 newest: imported as the import of my e-mails imports them, asynchronously */
+        post: operations["post_api_organizations_catch_up_gmail"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/me/connections/checks": {
         parameters: {
             query?: never;
@@ -7924,6 +7941,60 @@ export interface operations {
                 };
             };
             /** @description The import of my e-mails is not active, or the contact has no e-mail */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    post_api_organizations_catch_up_gmail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The catch-up started: the e-mails arrive in the timeline of the organization */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown organization, or one of another account, or no connection to Google */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description The import of my e-mails is not active, or the organization has no e-mail */
             409: {
                 headers: {
                     [name: string]: unknown;

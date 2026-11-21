@@ -108,6 +108,59 @@ class GmailCatchUpApiTest extends ApiTestCase
         $this->assertSame('noAddressToCatchUp', $problem['reason']);
     }
 
+    public function testTheEMailsExchangedWithAnOrganizationItselfAreCaughtUpIntoItsTimeline(): void
+    {
+        $this->login();
+        $globex = $this->anOrganization('contact@globex.test');
+        $this->importTheMailOf('prospector-user');
+        $this->google()->receives('m1', 'contact@globex.test', 'Votre devis', 'Bonjour Michel.');
+
+        $this->client->request('POST', '/api/organizations/'.$globex.'/gmail-catch-ups');
+
+        $this->assertResponseStatusCodeSame(202);
+        $timeline = $this->requestJson('GET', '/api/organizations/'.$globex.'/exchanges');
+        $this->assertSame([['email', 'inbound', "Votre devis\n\nBonjour Michel.", 'organization']], array_map(static fn (array $item): array => [$item['exchange']['channel'], $item['exchange']['direction'], $item['exchange']['text'], $item['interlocutor']['kind']], $timeline['items']));
+    }
+
+    public function testAMemberWithoutThePersonalDataCatchesUpNothingOfAnOrganization(): void
+    {
+        $this->login();
+        $globex = $this->anOrganization('contact@globex.test');
+        $this->signInAnotherMember('assistant-user');
+
+        $this->client->request('POST', '/api/organizations/'.$globex.'/gmail-catch-ups');
+
+        $this->assertResponseStatusCodeSame(403);
+    }
+
+    public function testAnOrganizationOfAnotherAccountIsNotFound(): void
+    {
+        $this->login();
+        $globex = $this->anOrganization('contact@globex.test');
+        $this->signInAnotherMember($this->aMemberOfAnotherAccount('stranger'));
+
+        $this->client->request('POST', '/api/organizations/'.$globex.'/gmail-catch-ups');
+
+        $this->assertResponseStatusCodeSame(404);
+    }
+
+    public function testAnOrganizationWithoutEMailHasNothingToCatchUp(): void
+    {
+        $this->login();
+        $globex = $this->anOrganization(null);
+        $this->importTheMailOf('prospector-user');
+
+        $problem = $this->requestJson('POST', '/api/organizations/'.$globex.'/gmail-catch-ups');
+
+        $this->assertResponseStatusCodeSame(409);
+        $this->assertSame('noAddressToCatchUp', $problem['reason']);
+    }
+
+    private function anOrganization(?string $email): string
+    {
+        return $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'Globex'], 'contactDetails' => ['email' => $email]])['id'];
+    }
+
     private function aContactOfAcme(?string $email): string
     {
         $acme = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];
