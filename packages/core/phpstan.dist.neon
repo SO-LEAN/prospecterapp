@@ -2,7 +2,10 @@ includes:
     - ../../packages/phpstan-rules/rules.neon
 
 parameters:
-    level: 5
+    level: 6
+    ignoreErrors:
+        # an array is typed where its values are read, never by a docblock the tool alone asks for (ADR 0022)
+        - identifier: missingType.iterableValue
     # its result cache in the checkout, kept from one run to the next (the /tmp of the container goes with it)
     tmpDir: var/cache/phpstan
     paths:
