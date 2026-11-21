@@ -2,19 +2,19 @@
 
 ## Role
 
-A JSON API that exposes the use cases of `packages/core`, a resource server for the SPA (`apps/front`): the members sign in with a Cognito user pool, whose tokens the API checks and whose credentials it adapts (ADR 0052). No server-rendered page. Full contract: `openapi.json` (generated, do not edit) and Swagger UI on `https://api.prospecter.localhost/api/doc`.
+A JSON API that exposes the use cases of `packages/core`. It is a resource server for the SPA (`apps/front`): members sign in with a Cognito user pool, and the API checks its tokens and adapts its credentials (ADR 0052). There are no server-rendered pages. The full contract is `openapi.json` (generated, do not edit), with Swagger UI at `https://api.prospecter.localhost/api/doc`.
 
 ## Project rules
 
-- No Doctrine, no migrations: the aggregates live in DynamoDB (ADR 0048), the tables are created by `bin/console app:tables:recreate` (`make db`; the tests once in each of their processes, each test then getting the data of the demonstration back, ADR 0180); the user pool by `bin/console app:user-pool:recreate`.
-- No Symfony CLI: run commands through `docker compose run --rm php ...` (see the root `CLAUDE.md`).
+- No Doctrine, no migrations: the aggregates live in DynamoDB (ADR 0048). `bin/console app:tables:recreate` creates the tables (`make db`; the tests create them once per process, and each test then gets the demonstration data back, ADR 0180). `bin/console app:user-pool:recreate` creates the user pool.
+- No Symfony CLI: run commands through `docker compose run --rm php ...` (see `docs/architecture/commands.md`).
 - No API Platform: plain controllers documented with NelmioApiDocBundle attributes.
-- Services in YAML: the ports and the services of the hexagon are registered in `config/services.yaml`, the core being pure PHP without Symfony attributes.
-- Messenger is synchronous: the command and event buses have no transport, handled within the request (ADR 0029, 0042); the reactions run after the command, in the worker, through the outbox and the bus of EventBridge (ADR 0101, `docs/architecture/contexts.md`).
-- No test reads the real clock (ADR 0150): the controllers read the fixed `clock` of `when@test`, a test names its moment, the tables forget from `app.commit_clock` fixed in 2100 (`docs/architecture/tests.md`).
+- Services in YAML: the hexagon's ports and services are registered in `config/services.yaml`, because the core is pure PHP without Symfony attributes.
+- Messenger is synchronous: the command and event buses have no transport and are handled within the request (ADR 0029, 0042). Reactions run after the command, in the worker, through the outbox and the EventBridge bus (ADR 0101, `docs/architecture/contexts.md`).
+- No test reads the real clock (ADR 0150): the controllers read the fixed `clock` of `when@test`, a test names its moment, and the tables forget from `app.commit_clock`, fixed in 2100 (`docs/architecture/tests.md`).
 - `Request::get()` no longer exists: use `$request->attributes`, `$request->query` or `$request->request`.
-- Symfony 8.1 is newer than what you remember: look it up rather than guess, `make console CMD="debug:container <id>"` (or `debug:router`, `debug:config <bundle>`, `config:dump-reference <bundle>`) and the sources under `vendor/`.
+- Symfony 8.1 is newer than what you remember: look things up rather than guess. Use `make console CMD="debug:container <id>"` (or `debug:router`, `debug:config <bundle>`, `config:dump-reference <bundle>`) and the sources under `vendor/`.
 
 ## What is in force
 
-Read before working on it: `docs/architecture/api.md` (endpoints, inputs, resources, presenters, links, errors, access, wiring), `docs/architecture/persistence.md` (DynamoDB: ports and adapters, tables, items, documents, search), `docs/architecture/auth.md` (Cognito, tokens, the firewall), `docs/architecture/contexts.md` (the anticorruption layers), `docs/architecture/local-stack.md` (the API in its Lambda), `docs/architecture/infra.md` (on AWS), `docs/architecture/tests.md` (the tests of the API).
+Read before working on the API: `docs/architecture/api.md` (endpoints, inputs, resources, presenters, links, errors, access, wiring), `docs/architecture/persistence.md` (DynamoDB: ports and adapters, tables, items, documents, search), `docs/architecture/auth.md` (Cognito, tokens, the firewall), `docs/architecture/contexts.md` (the anticorruption layers), `docs/architecture/local-stack.md` (the API in its Lambda), `docs/architecture/infra.md` (on AWS), `docs/architecture/tests.md` (the API tests).
