@@ -69,6 +69,7 @@ final readonly class NoteCampaignExchangeTool
             messageId: $input->messageId,
             linkedInConversation: $input->linkedInConversation,
             noteOnce: true,
+            byAnAI: true,
         ))));
     }
 }

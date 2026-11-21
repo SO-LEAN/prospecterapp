@@ -230,7 +230,7 @@ class CampaignToolsApiTest extends ApiTestCase
 
         $noted = $this->callWithoutHandshake('noter-l-envoi', ['id' => $started, 'contactId' => $this->ada, ...self::SENT_TO_ADA]);
 
-        $this->assertSame(['noted', 'email', 'outbound', 'Bonjour Ada'], [$noted['structuredContent']['status'], $noted['structuredContent']['exchange']['channel'] ?? null, $noted['structuredContent']['exchange']['direction'] ?? null, $noted['structuredContent']['exchange']['text'] ?? null]);
+        $this->assertSame(['noted', 'email', 'outbound', 'Bonjour Ada', true], [$noted['structuredContent']['status'], $noted['structuredContent']['exchange']['channel'] ?? null, $noted['structuredContent']['exchange']['direction'] ?? null, $noted['structuredContent']['exchange']['text'] ?? null, $noted['structuredContent']['exchange']['createdByAnAI'] ?? null]);
         $ada = array_find($this->requestJson('GET', '/api/campaigns/'.$started.'/recipients')['items'], fn (array $recipient): bool => $this->ada === $recipient['contact']['id']);
         $this->assertSame('processed', $ada['status'] ?? null);
     }
