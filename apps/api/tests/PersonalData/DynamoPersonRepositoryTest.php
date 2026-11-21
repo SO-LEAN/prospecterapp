@@ -4,6 +4,8 @@ namespace Tests\App\PersonalData;
 
 use App\PersonalData\Persistence\DynamoPersonRepository;
 use App\PersonalData\Persistence\PersonDocument;
+use App\Shared\Persistence\ConditionFailed;
+use App\Shared\Persistence\DynamoUnitOfWork;
 use App\Shared\Persistence\Table;
 use Prospecter\Core\PersonalData\Domain\Model\Civility;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
@@ -242,6 +244,62 @@ class DynamoPersonRepositoryTest extends ApiTestCase
         $this->persons()->save($ada);
 
         $this->assertEquals($ada, $this->persons()->get($ada->id()));
+    }
+
+    public function testAPersonChangedSinceItWasReadIsNotSavedOverTheChange(): void
+    {
+        $account = new AccountId(self::newIdentity());
+        $ada = $this->contactNamed($account, 'Ada', 'Lovelace');
+        $this->persons()->save($ada);
+        $unitOfWork = self::getContainer()->get(DynamoUnitOfWork::class);
+        $unitOfWork->begin();
+        $read = $this->persons()->get($ada->id());
+        $this->anotherRequestRenames($ada->id(), new PersonName('Ada', 'King'), $account);
+        $read->rename(new PersonName('Augusta', 'Lovelace'), by: $this->readerIn($account), at: new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        $this->persons()->save($read);
+
+        try {
+            $unitOfWork->commit();
+            $this->fail('The save was expected to be cancelled');
+        } catch (ConditionFailed) {
+            $unitOfWork->discard();
+        }
+
+        $this->assertEquals(new PersonName('Ada', 'King'), $this->persons()->get($ada->id())->name());
+    }
+
+    public function testAPersonChangedSinceItWasReadIsNotRemovedOverTheChange(): void
+    {
+        $account = new AccountId(self::newIdentity());
+        $ada = $this->contactNamed($account, 'Ada', 'Lovelace');
+        $this->persons()->save($ada);
+        $unitOfWork = self::getContainer()->get(DynamoUnitOfWork::class);
+        $unitOfWork->begin();
+        $read = $this->persons()->get($ada->id());
+        $this->anotherRequestRenames($ada->id(), new PersonName('Ada', 'King'), $account);
+        $this->persons()->remove($read);
+
+        try {
+            $unitOfWork->commit();
+            $this->fail('The removal was expected to be cancelled');
+        } catch (ConditionFailed) {
+            $unitOfWork->discard();
+        }
+
+        $this->assertEquals(new PersonName('Ada', 'King'), $this->persons()->get($ada->id())->name());
+    }
+
+    private function anotherRequestRenames(PersonId $person, PersonName $name, AccountId $account): void
+    {
+        $persons = new DynamoPersonRepository($this->asAnotherRequest($this->personalDataTable()));
+        $renaming = $persons->get($person);
+        $renaming->rename($name, by: $this->readerIn($account), at: new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        $persons->save($renaming);
+    }
+
+    private function readerIn(AccountId $account): Reader
+    {
+        return new Reader(new MemberId(self::newIdentity()), $account, new PersonId(self::newIdentity()), readsPersonalData: true);
     }
 
     private function contactNamed(AccountId $account, string $firstName, string $lastName): Person

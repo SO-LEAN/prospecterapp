@@ -33,7 +33,7 @@ use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
  *   deleted with the contact (ADR 0170).
  * The person carries its search keys and its phone number among the persons of the same account and purpose
  * (`SearchIndexes`), and its `revision`, incremented at each save: the revision of its facts (ADR 0099), which
- * the aggregate does not know.
+ * the aggregate does not know, and the one its save and its removal hold to, as their unit of work read it (ADR 0181).
  */
 final readonly class DynamoPersonRepository implements PersonRepository
 {
@@ -66,7 +66,7 @@ final readonly class DynamoPersonRepository implements PersonRepository
         $email = $person->contactDetails()->email?->value;
 
         $this->personalDataTable->transact([
-            $this->personalDataTable->deleting(PersonalDataKeys::person($person->id()->value), PersonalDataKeys::PERSON),
+            $this->personalDataTable->deletingRevised(PersonalDataKeys::person($person->id()->value), PersonalDataKeys::PERSON),
             ...(null === $person->searchKeys()->firstName ? [] : [$this->deletingTheFirstName($person)]),
             ...(null === $email ? [] : [$this->personalDataTable->deleting(self::emailKey($person->accountId(), $person->purpose(), $email), self::EMAIL)]),
             ...$this->releasing($person, $person->referencesHeld()),
@@ -135,7 +135,7 @@ final readonly class DynamoPersonRepository implements PersonRepository
         $storedEmail = $stored['email'] ?? null;
         $email = $document['contactDetails']['email'];
         $writes = [
-            $this->personalDataTable->putting($this->itemOf($person, $document, Revision::after($stored))),
+            $this->personalDataTable->revising($this->itemOf($person, $document, Revision::after($stored))),
             ...$this->firstNameWrites($person, null === $stored ? null : PersonDocument::person($stored['person'])),
         ];
 
