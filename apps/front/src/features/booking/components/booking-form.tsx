@@ -1,10 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useState } from 'react'
+import { type ChangeEvent, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { applyViolations, isProblem } from '@/shared/api/problem'
 import type { components } from '@/shared/api/schema'
 import { FormField } from '@/shared/forms/form-field'
+import { phoneAsTyped } from '@/shared/forms/phone'
 import { orNull } from '@/shared/forms/text'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
@@ -84,7 +85,14 @@ export function BookingForm({ code, channel, slot, recap, onDone }: Props) {
           label={t('booking.public.form.phone')}
           hint={t('booking.public.form.phoneHint')}
         >
-          <Input type="tel" autoComplete="tel" {...form.register('phone')} />
+          <Input
+            type="tel"
+            autoComplete="tel"
+            {...form.register('phone', {
+              onChange: (event: ChangeEvent<HTMLInputElement>) =>
+                form.setValue('phone', phoneAsTyped(event.target.value)),
+            })}
+          />
         </FormField>
         <FormField form={form} name="email" label={t('booking.public.form.email')}>
           <Input type="email" autoComplete="email" {...form.register('email')} />

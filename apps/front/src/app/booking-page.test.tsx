@@ -67,6 +67,18 @@ async function iFillTheFormFor(channel: 'Appel' | 'Visio', slot: string) {
   return user
 }
 
+/** The phone typed alone in the form of a call, on an open page. */
+async function iTypeThePhone(number: string) {
+  theApiBooks(201, {})
+  const user = userEvent.setup()
+  await renderTheSpaAt(`/booking/${CODE}`)
+  await user.click(await screen.findByRole('radio', { name: 'Appel' }))
+  await user.click(screen.getByRole('button', { name: '09:00' }))
+  const phone = screen.getByLabelText(/^Téléphone/)
+  await user.type(phone, number)
+  return phone
+}
+
 const anOpenPage = (channels: string[] = ['call', 'videoCall']) => ({
   open: true,
   host: {
@@ -295,6 +307,18 @@ describe('the public page of a booking', () => {
     await user.click(screen.getByRole('button', { name: 'Réserver' }))
 
     expect(await screen.findByText('Ce canal n’est pas proposé.')).toBeInTheDocument()
+  })
+
+  it('formats a French phone as the booker types it', async () => {
+    const phone = await iTypeThePhone('0612345678')
+
+    expect(phone).toHaveValue('06 12 34 56 78')
+  })
+
+  it('formats an international phone as its country writes it', async () => {
+    const phone = await iTypeThePhone('+32470123456')
+
+    expect(phone).toHaveValue('+32 470 12 34 56')
   })
 
   it('refuses to send a form without its phone', async () => {
