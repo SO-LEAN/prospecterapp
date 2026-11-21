@@ -102,9 +102,9 @@ final readonly class Recipients
      * the first exchange winning.
      */
     #[\NoDiscard]
-    public function processing(PersonId $contact, string $exchangeId, bool $missed): self
+    public function processing(PersonId $contact, string $exchangeId, RecipientOutcome $outcome): self
     {
-        return $this->handling($contact, static fn (Recipient $recipient): Recipient => $recipient->isPending() ? $recipient->processed($exchangeId, $missed) : $recipient);
+        return $this->handling($contact, static fn (Recipient $recipient): Recipient => $recipient->isPending() ? $recipient->processed($exchangeId, $outcome) : $recipient);
     }
 
     /**

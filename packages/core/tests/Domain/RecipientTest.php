@@ -6,6 +6,7 @@ namespace Tests\Core\Domain;
 
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Campaigns\Domain\Model\Recipient;
+use Prospecter\Core\Campaigns\Domain\Model\RecipientOutcome;
 use Prospecter\Core\Campaigns\Domain\Model\RecipientStatus;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
@@ -19,14 +20,14 @@ final class RecipientTest extends TestCase
 
     public function testAProcessedRecipientErasedStaysProcessed(): void
     {
-        $recipient = self::ada()->processed(self::EXCHANGE, missed: false)->erased();
+        $recipient = self::ada()->processed(self::EXCHANGE, RecipientOutcome::Done)->erased();
 
         $this->assertEquals([RecipientStatus::Processed, true], [$recipient->status, $recipient->erased]);
     }
 
     public function testAMissedCallErasedStaysMissed(): void
     {
-        $this->assertTrue(self::ada()->processed(self::EXCHANGE, missed: true)->erased()->missed);
+        $this->assertTrue(self::ada()->processed(self::EXCHANGE, RecipientOutcome::Missed)->erased()->missed);
     }
 
     public function testADismissedRecipientErasedStaysDismissed(): void
@@ -41,12 +42,12 @@ final class RecipientTest extends TestCase
 
     public function testAnErasedRecipientLeadsToNoExchangeAnyMore(): void
     {
-        $this->assertFalse(self::ada()->processed(self::EXCHANGE, missed: false)->erased()->isProcessedBy(self::EXCHANGE));
+        $this->assertFalse(self::ada()->processed(self::EXCHANGE, RecipientOutcome::Done)->erased()->isProcessedBy(self::EXCHANGE));
     }
 
     public function testARecipientWhoseExchangeWentWithItsOrganizationStaysProcessedWithoutIt(): void
     {
-        $this->assertEquals(new Recipient(new PersonId(self::ADA), RecipientStatus::Processed, missed: true), self::ada()->processed(self::EXCHANGE, missed: true)->withoutItsExchange());
+        $this->assertEquals(new Recipient(new PersonId(self::ADA), RecipientStatus::Processed, missed: true), self::ada()->processed(self::EXCHANGE, RecipientOutcome::Missed)->withoutItsExchange());
     }
 
     private static function ada(): Recipient
