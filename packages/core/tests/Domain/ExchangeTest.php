@@ -6,6 +6,7 @@ namespace Tests\Core\Domain;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Prospecter\Core\Prospecting\Domain\Event\AttachmentImported;
 use Prospecter\Core\Prospecting\Domain\Event\AttachmentRemoved;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeCancelled;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeContactForgotten;
@@ -647,6 +648,16 @@ class ExchangeTest extends TestCase
         $exchange->attach($this->anAttachment(self::ATTACHMENT), by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
 
         $this->assertEquals([new FileAttached(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new AttachmentId(self::ATTACHMENT), new \DateTimeImmutable(self::NOW))], $exchange->releaseEvents());
+    }
+
+    public function testImportingAnAttachmentRecordsItWithItsFileToKeep(): void
+    {
+        $exchange = $this->anExchange();
+        $exchange->releaseEvents();
+
+        $exchange->importAttachment($this->anAttachment(self::ATTACHMENT), by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
+
+        $this->assertEquals([new AttachmentImported(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new AttachmentId(self::ATTACHMENT), self::FILE, new \DateTimeImmutable(self::NOW))], $exchange->releaseEvents());
     }
 
     public function testRemovingAnAttachmentRecordsIt(): void
