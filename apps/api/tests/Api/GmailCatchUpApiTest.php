@@ -163,6 +163,20 @@ class GmailCatchUpApiTest extends ApiTestCase
         $this->assertSame(['href' => '/api/organizations/'.$globex.'/gmail-catch-ups', 'method' => 'POST'], $this->requestJson('GET', '/api/organizations/'.$globex.'/exchanges')['_links']['catchUpGmail'] ?? null);
     }
 
+    public function testAnAdministratorCatchesUpTheEMailsOfAnOrganizationFromItsTimeline(): void
+    {
+        $this->login($this->aMemberOfTheFixtures('administrator', Role::User, Role::Admin));
+        $globex = $this->anOrganization('contact@globex.test');
+        $this->importTheMailOf('administrator');
+        $this->google()->receives('m1', 'contact@globex.test', 'Votre devis', 'Bonjour.');
+        $this->assertArrayHasKey('catchUpGmail', $this->requestJson('GET', '/api/organizations/'.$globex.'/exchanges')['_links']);
+
+        $this->client->request('POST', '/api/organizations/'.$globex.'/gmail-catch-ups');
+
+        $this->assertResponseStatusCodeSame(202);
+        $this->assertCount(1, $this->requestJson('GET', '/api/organizations/'.$globex.'/exchanges')['items']);
+    }
+
     public function testTheTimelineOfAnOrganizationLinksNoCatchUpToAMemberWithoutThePersonalData(): void
     {
         $this->login();
