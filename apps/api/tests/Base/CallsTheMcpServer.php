@@ -119,22 +119,6 @@ trait CallsTheMcpServer
     }
 
     /**
-     * @return list<string> the names of the tools the server lists, page after page
-     */
-    protected function toolsServed(): array
-    {
-        $names = [];
-        $page = [];
-        do {
-            $listed = $this->callWithHandshake('tools/list', $page);
-            $names = [...$names, ...array_column($listed['tools'], 'name')];
-            $page = ['cursor' => $listed['nextCursor'] ?? null];
-        } while (null !== $page['cursor']);
-
-        return $names;
-    }
-
-    /**
      * The tools a prompt names, `identifier` and those quoted in kebab-case (`noter-un-echange`).
      *
      * @return list<string>

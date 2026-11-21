@@ -71,7 +71,7 @@ class SynchronizeMailboxPromptApiTest extends ApiTestCase
 
         $text = $this->promptText('synchroniser-boite-e-mail', ['since' => '7 jours']);
 
-        $this->assertSame([], array_diff(self::toolsNamedIn($text), $this->toolsServed()));
+        $this->assertSame([], array_diff(self::toolsNamedIn($text), array_column($this->everyToolListed(), 'name')));
     }
 
     public function testTheAiReadsTheMailboxSinceTheMomentGiven(): void

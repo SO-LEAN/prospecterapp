@@ -43,7 +43,7 @@ final readonly class SynchronizeLinkedInPrompt
     #[McpPrompt(name: 'synchroniser-linkedin', title: 'Synchroniser LinkedIn', description: 'Enregistre dans Prospecter vos contacts LinkedIn intéressants, ou note vos messages LinkedIn, sans rien doublonner.')]
     public function __invoke(string $what, ?string $since = null): array
     {
-        return [['role' => 'user', 'content' => implode("\n\n", $this->stepsOf(self::synchronized($what), $since))]];
+        return [['role' => 'user', 'content' => implode("\n\n", self::stepsOf(self::synchronized($what), $since))]];
     }
 
     private static function synchronized(string $what): WhatLinkedInSynchronizes
@@ -54,7 +54,7 @@ final readonly class SynchronizeLinkedInPrompt
     /**
      * @return list<string>
      */
-    private function stepsOf(WhatLinkedInSynchronizes $what, ?string $since): array
+    private static function stepsOf(WhatLinkedInSynchronizes $what, ?string $since): array
     {
         $noting = WhatLinkedInSynchronizes::Messages === $what ? [self::NOTING] : [];
 
