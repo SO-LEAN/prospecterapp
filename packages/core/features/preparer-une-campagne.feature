@@ -56,6 +56,24 @@ Fonctionnalité: Préparer une campagne
     Quand je change ses tags en "#ESN #STRASBOURG", son canal en "LinkedIn" et son message
     Alors la campagne "Relance ESN" est enregistrée ainsi
 
+  Scénario: Le message pour une IA est tel quel, par défaut
+    Quand je prépare la campagne "Relance ESN" avec le canal "E-mail" et les tags "#ESN"
+    Alors son message pour une IA est "tel quel"
+
+  Scénario: Je choisis que le message pour une IA soit adapté à chaque personne
+    Quand je prépare la campagne "Relance ESN" avec un message pour une IA "adapté"
+    Alors son message pour une IA est "adapté"
+
+  Scénario: Le message pour une IA change tant que la campagne n'est pas démarrée
+    Soit la campagne "Relance ESN" en brouillon cible les tags "#ESN"
+    Et la campagne "Relance ESN" est figée
+    Quand je change son message pour une IA en "adapté"
+    Alors son message pour une IA est "adapté"
+
+  Scénario: Un message pour une IA est tel quel ou adapté
+    Quand je prépare la campagne "Relance ESN" avec un message pour une IA "réécrit"
+    Alors c'est refusé : "An AI sends the message as is or adapted"
+
   Scénario: Le message type est rendu pour chaque contact
     Soit la campagne "Relance ESN" a le message "Bonjour {prénom} {nom}, chez {organisation}…"
     Quand je lis le message pour "Ada Lovelace"

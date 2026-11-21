@@ -13,6 +13,7 @@ final readonly class CampaignSheet
      * @param string                          $channel         `email`, `call`, `sms` or `linkedIn`
      * @param list<string>                    $tags            the tags chosen, with their mark
      * @param list<string>                    $targetedTags    the tags a contact carries to be targeted: those chosen and that of the channel
+     * @param string                          $messageMode     how an AI treats its message for each person: `asIs` or `adapted`
      * @param string                          $status          `draft`, `frozen`, `started`, `stopped` or `ended`
      * @param bool                            $followsTheTags  whether whom it targets is the search by its tags as the contacts
      *                                                         carry them now, as the domain says of its status: a draft
@@ -34,6 +35,7 @@ final readonly class CampaignSheet
         public array $targetedTags,
         public string $message,
         public ?string $subject,
+        public string $messageMode,
         public string $status,
         public bool $followsTheTags,
         public bool $running,
