@@ -12,6 +12,8 @@ use Behat\Step\When;
 use Prospecter\Core\Campaigns\Application\ConsultContactTags\ConsultContactTags;
 use Prospecter\Core\Campaigns\Application\ConsultOrganizationTags\ConsultOrganizationTags;
 use Prospecter\Core\Campaigns\Application\ConsultSuggestedTags\ConsultSuggestedTags;
+use Prospecter\Core\Campaigns\Domain\Model\Locality;
+use Prospecter\Core\Campaigns\Domain\Model\OrganizationFact;
 use Prospecter\Core\Prospecting\Application\LocateAgain\LocateAgain;
 use Prospecter\Core\Prospecting\Application\Relocate\Relocate;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
@@ -104,6 +106,23 @@ final class GeographicTagsContext implements Context
         $organization->relocateTo(new Address(city: $place), new Location(new GeoPoint(7.75, 48.58), 'none'), by: $this->scenario->managerOf($organization), at: $this->application->now());
         new \ReflectionProperty(Organization::class, 'municipalityCode')->setValue($organization, null);
         $this->application->organizations->save($organization);
+    }
+
+    /**
+     * Recorded before the facts carried the locality (ADR 0142), at the revision the organization still has.
+     */
+    #[Given('Campaigns garde le fait de :name à sa révision, sans sa commune')]
+    public function campaignsKeepsTheFactWithoutItsLocality(string $name): void
+    {
+        $organization = $this->scenario->organizationNamed($name);
+        $about = new OrganizationFact($organization->accountId(), $organization->id(), 0, true, [], Locality::unknown());
+        $kept = $this->application->campaignsFacts->find($about);
+
+        if (!$kept instanceof OrganizationFact) {
+            throw new \LogicException(sprintf('Campaigns keeps no fact of %s', $name));
+        }
+
+        $this->application->campaignsFacts->record(new OrganizationFact($kept->accountId, $kept->id, $kept->revision, $kept->present, $kept->contacts, Locality::unknown()), $kept);
     }
 
     #[When('les organisations situées sans code commune sont géocodées à nouveau')]

@@ -83,6 +83,13 @@ Fonctionnalité: Les tags géographiques
     Quand les tags calculés sont reconstruits
     Alors "Ada Lovelace" porte "#STRASBOURG #67 #GRAND_EST"
 
+  Scénario: Un fait gardé avant d'être enrichi l'est par la reconstruction, à la même révision
+    Soit "ACME" est située à Strasbourg
+    Et Campaigns garde le fait de "ACME" à sa révision, sans sa commune
+    Quand les tags calculés sont reconstruits
+    Alors "ACME" est située "#STRASBOURG #67 #GRAND_EST"
+    Et "Ada Lovelace" porte "#STRASBOURG #67 #GRAND_EST"
+
   Scénario: Une organisation située avant que son code commune soit gardé le reçoit, une fois
     Soit "ACME" a été située à Strasbourg sans son code commune
     Quand les organisations situées sans code commune sont géocodées à nouveau

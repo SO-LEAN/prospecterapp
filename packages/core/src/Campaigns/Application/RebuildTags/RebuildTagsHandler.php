@@ -15,7 +15,8 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 /**
  * Records again the facts of the organizations and of the contacts of each account, as Prospecting and PersonalData
  * give them now, through the succession the worker records by (ADR 0141): no version and no wait, the facts replacing
- * each other by their revision. Each fact is a unit of work of its own, without the unit of a command.
+ * each other by their revision, a fact rebuilt replacing the one kept at the same revision too. Each fact is a unit of
+ * work of its own, without the unit of a command.
  */
 final readonly class RebuildTagsHandler implements CommandHandler
 {
@@ -32,11 +33,11 @@ final readonly class RebuildTagsHandler implements CommandHandler
     {
         foreach ($this->accountsOf($command) as $accountId) {
             foreach ($this->organizations->of($accountId) as $fact) {
-                $this->inItsOwnUnit(fn () => $this->recorder->record($fact));
+                $this->inItsOwnUnit(fn () => $this->recorder->recordAgain($fact));
             }
 
             foreach ($this->contacts->of($accountId) as $fact) {
-                $this->inItsOwnUnit(fn () => $this->recorder->record($fact));
+                $this->inItsOwnUnit(fn () => $this->recorder->recordAgain($fact));
             }
         }
     }
