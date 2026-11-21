@@ -5,11 +5,15 @@ namespace Tests\App\Api;
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Double\ExchangeChangedMeanwhile;
+use Tests\App\Double\InMemoryPrivateStorage;
 use Tests\App\Double\OrganizationChangedMeanwhile;
 
 /**
  * Two writes of an organization at once lose neither: an addition is replayed from what it reads again, a change
- * made on the organization as it was read is refused, its author told (ADR 0181).
+ * made on the organization as it was read is refused, its author told (ADR 0181). With the delivery `sync` of the
+ * tests, a contact collected is attached within its command, which is replayed; with the delivery `outbox` of the
+ * instances, the reaction attaching it is applied again by the worker (ADR 0104).
  */
 #[Group('api')]
 class ConcurrentWritesApiTest extends ApiTestCase
@@ -44,6 +48,22 @@ class ConcurrentWritesApiTest extends ApiTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertEqualsCanonicalizing([$grace, $ada], $organization['contactIds']);
+    }
+
+    public function testAFileAttachedWhileTheExchangeIsCorrectedMeanwhileIsRefusedForTheStorageKeptItsUpload(): void
+    {
+        $exchange = $this->requestJson('POST', '/api/contacts/'.$this->collectedFor($this->acme, 'Ada').'/exchanges', ['channel' => 'email', 'direction' => 'inbound'])['items'][0]['id'];
+        $upload = $this->requestJson('POST', '/api/uploads')['upload'];
+        self::getContainer()->get(InMemoryPrivateStorage::class)->send($upload, 2048, 'application/pdf');
+        self::getContainer()->get(ExchangeChangedMeanwhile::class)->correctTextMeanwhile('Rappeler lundi');
+
+        $problem = $this->requestJson('POST', '/api/exchanges/'.$exchange.'/attachments', ['upload' => $upload, 'name' => 'devis.pdf']);
+
+        $this->assertResponseStatusCodeSame(409);
+        $this->assertSame('changedMeanwhile', $problem['reason']);
+        $detail = $this->requestJson('GET', '/api/exchanges/'.$exchange);
+        $this->assertSame([], $detail['attachments']);
+        $this->assertSame('Rappeler lundi', $detail['text']);
     }
 
     public function testAnAdditionStillChangedMeanwhileAfterThreeReplaysIsRefused(): void

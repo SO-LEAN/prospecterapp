@@ -463,6 +463,12 @@ when@test:
             autowire: true
             arguments: { $organizations: '@.inner', $commitClock: '@app.commit_clock' }
             public: true
+        # another request correcting the text of an exchange meanwhile, when a test asks it to (ADR 0181)
+        Tests\App\Double\ExchangeChangedMeanwhile:
+            decorates: Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository
+            autowire: true
+            arguments: { $exchanges: '@.inner', $commitClock: '@app.commit_clock' }
+            public: true
         # another request taking an email meanwhile, when a test asks it to
         Tests\App\Double\EmailTakenMeanwhile:
             autowire: true
