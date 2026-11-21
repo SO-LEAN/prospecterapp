@@ -36,7 +36,8 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
  *   whatever its status, listed in `GSI1` (`CALENDAR#<member>`) under the moment it happens, cancelled or not, then
  *   its id.
  * The exchange is listed in `GSI2` among those of its account (`ACCOUNT_EXCHANGES#<account>`, its id), and
- * carries its `revision`, incremented at each save: the revision of its facts, which the aggregate does not know.
+ * carries its `revision`, incremented at each save: the revision of its facts, which the aggregate does not know,
+ * and the one its save and its removal hold to, as their unit of work read it (ADR 0181).
  */
 final readonly class DynamoExchangeRepository implements ExchangeRepository
 {
@@ -57,7 +58,7 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
         $stored = $this->prospectingTable->item(ExchangeKeys::exchange($exchange->id()->value), ExchangeKeys::EXCHANGE);
 
         $this->prospectingTable->transact([
-            $this->prospectingTable->putting($this->itemOf($document, Revision::after($stored))),
+            $this->prospectingTable->revising($this->itemOf($document, Revision::after($stored))),
             ...$this->linksToItsOrganizations($document, $exchange->isToMakeConform(), $stored['exchange']['keptFor'] ?? []),
             ...$this->linkInTheAgendaOfItsHolder($document, $stored['exchange'] ?? null),
             $this->prospectingTable->putting(self::linkInTheCalendarOfItsHolder($document)),
@@ -106,7 +107,7 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
         $stored = $this->prospectingTable->item(ExchangeKeys::exchange($exchange->id()->value), ExchangeKeys::EXCHANGE);
 
         $this->prospectingTable->transact([
-            $this->prospectingTable->deleting(ExchangeKeys::exchange($exchange->id()->value), ExchangeKeys::EXCHANGE),
+            $this->prospectingTable->deletingRevised(ExchangeKeys::exchange($exchange->id()->value), ExchangeKeys::EXCHANGE),
             ...$this->linksToItsOrganizations(['keptFor' => []] + $document, false, $stored['exchange']['keptFor'] ?? []),
             ...$this->linkInTheAgendaOfItsHolder(['status' => ExchangeStatus::Done->value] + $document, $stored['exchange'] ?? null),
             $this->prospectingTable->deleting(ExchangeKeys::calendar($document['createdBy']), ExchangeKeys::exchange($document['id'])),

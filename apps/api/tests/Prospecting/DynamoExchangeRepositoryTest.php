@@ -4,6 +4,8 @@ namespace Tests\App\Prospecting;
 
 use App\Prospecting\Persistence\DynamoExchangeRepository;
 use App\Prospecting\Persistence\ExchangeKeys;
+use App\Shared\Persistence\ConditionFailed;
+use App\Shared\Persistence\DynamoUnitOfWork;
 use App\Shared\Persistence\Hydrator;
 use App\Shared\Persistence\Table;
 use Prospecter\Core\Prospecting\Domain\Exception\ExchangeNotedMeanwhile;
@@ -259,6 +261,58 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
         $this->expectException(UnknownExchange::class);
 
         $this->exchanges()->get(new ExchangeId(self::newIdentity()));
+    }
+
+    public function testAnExchangeChangedSinceItWasReadIsNotSavedOverTheChange(): void
+    {
+        $exchange = $this->noted('2026-10-10 09:00 UTC');
+        $this->exchanges()->save($exchange);
+        $unitOfWork = self::getContainer()->get(DynamoUnitOfWork::class);
+        $unitOfWork->begin();
+        $read = $this->exchanges()->get($exchange->id());
+        $theirs = $this->anotherRequestCorrects($exchange->id(), 'Objet : mission');
+        $read->correct(new ExchangeFacts(Channel::Call, Direction::Outbound, new \DateTimeImmutable('2026-10-12 10:00 UTC')), ExchangeStatus::Done, by: $this->prospector->id, at: new \DateTimeImmutable(self::NOW));
+        $this->exchanges()->save($read);
+
+        try {
+            $unitOfWork->commit();
+            $this->fail('The save was expected to be cancelled');
+        } catch (ConditionFailed) {
+            $unitOfWork->discard();
+        }
+
+        $this->assertEquals($theirs, Hydrator::stateOf($this->exchanges()->get($exchange->id()))['facts']);
+    }
+
+    public function testAnExchangeChangedSinceItWasReadIsNotRemovedOverTheChange(): void
+    {
+        $exchange = $this->noted('2026-10-10 09:00 UTC');
+        $this->exchanges()->save($exchange);
+        $unitOfWork = self::getContainer()->get(DynamoUnitOfWork::class);
+        $unitOfWork->begin();
+        $read = $this->exchanges()->get($exchange->id());
+        $theirs = $this->anotherRequestCorrects($exchange->id(), 'Objet : mission');
+        $this->exchanges()->remove($read);
+
+        try {
+            $unitOfWork->commit();
+            $this->fail('The removal was expected to be cancelled');
+        } catch (ConditionFailed) {
+            $unitOfWork->discard();
+        }
+
+        $this->assertEquals($theirs, Hydrator::stateOf($this->exchanges()->get($exchange->id()))['facts']);
+    }
+
+    private function anotherRequestCorrects(ExchangeId $exchange, string $text): ExchangeFacts
+    {
+        $exchanges = new DynamoExchangeRepository($this->asAnotherRequest($this->prospectingTable()));
+        $correcting = $exchanges->get($exchange);
+        $corrected = new ExchangeFacts(Channel::Email, Direction::Outbound, new \DateTimeImmutable('2026-10-12 10:00 UTC'), $text);
+        $correcting->correct($corrected, ExchangeStatus::Done, by: $this->prospector->id, at: new \DateTimeImmutable(self::NOW));
+        $exchanges->save($correcting);
+
+        return $corrected;
     }
 
     private function noted(string $occurredAt): Exchange
