@@ -11,7 +11,7 @@ namespace App\Shared\Persistence;
 final class Revision
 {
     public const string ATTRIBUTE = 'revision';
-    private const int NONE = 0;
+    public const int NONE = 0;
 
     /**
      * @param array<string, mixed>|null $item

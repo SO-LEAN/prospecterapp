@@ -17,7 +17,8 @@ use Prospecter\Core\SharedKernel\Domain\Exception\BusinessException;
  * condition does not hold throws the refusal it carries. A unit discarded at one level is abandoned until its
  * outermost level ends: what is written meanwhile, by the other reactions the event bus still calls, is thrown away
  * too, and what it published with it. It remembers each item it first read by key, for the lock of its revision
- * (ADR 0181), until its outermost level ends.
+ * (ADR 0181), until its outermost level ends; held to the revision a client read of an item, it locks that one
+ * instead (ADR 0187).
  */
 final class DynamoUnitOfWork implements UnitOfWork
 {
@@ -30,6 +31,7 @@ final class DynamoUnitOfWork implements UnitOfWork
     private bool $abandoned = false;
     /** @var array<string, RevisionLock> by item, the lock of the revision the unit first read */
     private array $locks = [];
+    private ?RevisionRead $heldTo = null;
 
     public function __construct(private readonly DynamoDbClient $client, private readonly CommitOutbox $outbox)
     {
@@ -120,6 +122,20 @@ final class DynamoUnitOfWork implements UnitOfWork
     }
 
     /**
+     * Holds the save of an item to the revision its client read, until released: the first read of that item by a
+     * unit locks this revision instead of the one it reads (ADR 0187).
+     */
+    public function holdTo(RevisionRead $read): void
+    {
+        $this->heldTo = $read;
+    }
+
+    public function release(): void
+    {
+        $this->heldTo = null;
+    }
+
+    /**
      * Notes, while a unit is open, an item read from its table, the first read winning: what the lock of its revision
      * holds to (ADR 0181).
      *
@@ -131,7 +147,15 @@ final class DynamoUnitOfWork implements UnitOfWork
             return;
         }
 
-        $this->locks[Write::itemOf($table, $pk, $sk)] ??= RevisionLock::on($item);
+        $this->locks[Write::itemOf($table, $pk, $sk)] ??= $this->isHeld($table, $pk, $sk) ? RevisionLock::at($this->heldTo->revision) : RevisionLock::on($item);
+    }
+
+    /**
+     * @phpstan-assert-if-true !null $this->heldTo
+     */
+    private function isHeld(string $table, string $pk, string $sk): bool
+    {
+        return null !== $this->heldTo && Write::itemOf($table, $pk, $sk) === Write::itemOf($this->heldTo->table, $this->heldTo->pk, $this->heldTo->sk);
     }
 
     /**
