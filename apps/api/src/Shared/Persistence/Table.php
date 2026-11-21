@@ -102,10 +102,14 @@ final readonly class Table
      */
     private function noteRead(array $keys, array $found): void
     {
-        $byKey = array_column(array_map(static fn (array $item): array => ['key' => $item['PK']."\0".$item['SK'], 'item' => $item], $found), 'item', 'key');
+        $byItem = [];
+
+        foreach ($found as $item) {
+            $byItem[Write::itemOf($this->name, $item['PK'], $item['SK'])] = $item;
+        }
 
         foreach ($keys as [$pk, $sk]) {
-            $this->unitOfWork->noteRead($this->name, $pk, $sk, $byKey[$pk."\0".$sk] ?? null);
+            $this->unitOfWork->noteRead($this->name, $pk, $sk, $byItem[Write::itemOf($this->name, $pk, $sk)] ?? null);
         }
     }
 

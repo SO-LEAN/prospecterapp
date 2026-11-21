@@ -10,7 +10,7 @@ namespace Prospecter\Core\SharedKernel\Domain\Exception;
  */
 final class ChangedMeanwhile extends NotPossibleInItsState
 {
-    public static function sinceRead(?\Throwable $detectedBy = null): self
+    public static function sinceRead(\Throwable $detectedBy): self
     {
         return self::because('Changed meanwhile, since it was read', previous: $detectedBy);
     }
