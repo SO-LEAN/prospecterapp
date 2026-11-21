@@ -159,6 +159,17 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         $this->assertTheToolAsksForAConfirmation('ecarter-doublon-possible');
     }
 
+    public function testTheAiSaysAPossibleDuplicateOfAContactIsNoneOnceItsMemberConfirmed(): void
+    {
+        $ada = $this->ada();
+        $duplicate = $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'ada', 'lastName' => 'LOVELACE'], 'organizationIds' => [$this->babbage()]])['id'];
+
+        $dismissed = $this->assertTheToolActsAsItsEndpoint('ecarter-doublon-possible-contact', ['id' => $duplicate, 'duplicateId' => $ada], 'DELETE', '/api/contacts/'.$duplicate.'/possible-duplicates/'.$ada, null, self::PERSONAL_DATA_MANAGERS);
+
+        $this->assertSame([], $dismissed['possibleDuplicates']);
+        $this->assertTheToolAsksForAConfirmation('ecarter-doublon-possible-contact');
+    }
+
     public function testTheAiAddsAContactToAnOrganization(): void
     {
         $babbage = $this->babbage();

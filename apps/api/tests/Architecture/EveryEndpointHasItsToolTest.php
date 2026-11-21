@@ -48,7 +48,6 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
      */
     private const array TO_COVER = [
         'api_campaigns_note_exchange',
-        'api_contacts_dismiss_possible_duplicate',
         'api_me_change_organization_logo',
         'api_me_configure_gmail_notifications',
         'api_me_configure_google_client',
