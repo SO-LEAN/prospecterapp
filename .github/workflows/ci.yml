@@ -1,7 +1,7 @@
 # Continuous integration (ADR 0057, 0109, 0110): what make ci runs locally, in Docker as locally, on the pull requests
 # to dev and main, which cannot be merged while it fails, and on the pushes of dev and main. A pull request runs the
 # checks its changes need, a push every one; each check runs in a job of its own, together, its lint and its tests
-# together too (make -j); the job ci sums them up, the check the rulesets require. The journeys are no check of the CI:
+# together too (make -j), each line printed as it comes, the progress of the tests shown while they run; the job ci sums them up, the check the rulesets require. The journeys are no check of the CI:
 # the agent runs them in its worktree, make ci running them there (ADR 0118).
 name: CI
 
@@ -82,7 +82,7 @@ jobs:
         run: make front-install
 
       - name: Check ${{ matrix.check }}
-        run: make -j --output-sync=recurse check-${{ matrix.check }}
+        run: make -j --output-sync=line check-${{ matrix.check }}
         env:
           # tflint downloads its AWS ruleset from GitHub, beyond the anonymous rate limit of the shared runners
           GITHUB_TOKEN: ${{ matrix.check == 'infra' && github.token || '' }}
