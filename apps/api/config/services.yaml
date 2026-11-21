@@ -457,6 +457,12 @@ when@test:
         # a command failed when a test asks it to, before its use case runs
         Tests\App\Double\FailingCommands:
             public: true
+        # another request attaching a contact to an organization meanwhile, when a test asks it to (ADR 0181)
+        Tests\App\Double\OrganizationChangedMeanwhile:
+            decorates: Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository
+            autowire: true
+            arguments: { $organizations: '@.inner', $commitClock: '@app.commit_clock' }
+            public: true
         # another request taking an email meanwhile, when a test asks it to
         Tests\App\Double\EmailTakenMeanwhile:
             autowire: true
