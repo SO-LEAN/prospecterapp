@@ -71,6 +71,12 @@ final class FingerprintContext implements Context
         $this->aiNotesWithTheOrganization($organization, Channel::Malt, $direction, $day, $time, $text);
     }
 
+    #[Given('/^l\'IA a noté depuis "(?<organization>[^"]+)" un appel (?<direction>reçu|envoyé) (?:de|à) "(?<contact>[^"]+)" le (?<day>\S+) à (?<time>\S+)$/')]
+    public function theAINotedACallFromTheOrganization(string $organization, string $direction, string $contact, string $day, string $time): void
+    {
+        $this->aiNotesWithTheOrganization($organization, Channel::Call, $direction, $day, $time, null, $this->scenario->personIdOf($contact));
+    }
+
     #[When('/^l\'IA note le SMS (?<direction>reçu|envoyé) (?:de|à) "(?<contact>[^"]+)" le (?<day>\S+) à (?<time>\S+) de Message-ID "(?<messageId>[^"]*)"$/')]
     public function theAINotesAnSmsWithAMessageId(string $direction, string $contact, string $day, string $time, string $messageId): void
     {
@@ -124,14 +130,14 @@ final class FingerprintContext implements Context
         Expect::same($count, count($with));
     }
 
-    private function aiNotesWithTheOrganization(string $organization, Channel $channel, string $direction, string $day, string $time, ?string $text): string
+    private function aiNotesWithTheOrganization(string $organization, Channel $channel, string $direction, string $day, string $time, ?string $text, ?string $contact = null): string
     {
         $id = $this->application->newIdentity();
         $this->application->dispatch(new NoteOrganizationExchange(
             prospectorId: $this->application->signedIn(),
             id: $id,
             organizationId: $this->scenario->idOf($organization),
-            personId: null,
+            personId: $contact,
             channel: $channel->value,
             direction: Vocabulary::direction($direction),
             occurredAt: Vocabulary::frenchMoment(sprintf('%s à %s', $day, $time)),
