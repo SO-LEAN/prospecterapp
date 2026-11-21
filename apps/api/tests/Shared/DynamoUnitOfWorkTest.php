@@ -156,6 +156,118 @@ class DynamoUnitOfWorkTest extends ApiTestCase
         $this->assertSame(5, $this->asAnotherRequest($this->table)->item('TEST#fact', 'TEST')['revision'] ?? null);
     }
 
+    public function testARevisionOfAnItemChangedSinceTheUnitReadItIsCancelled(): void
+    {
+        $this->table->transact([$this->table->putting(['PK' => 'TEST#ada', 'SK' => 'TEST', 'revision' => 1])]);
+        $this->unitOfWork->begin();
+        $this->table->item('TEST#ada', 'TEST');
+        $this->asAnotherRequest($this->table)->transact([$this->table->putting(['PK' => 'TEST#ada', 'SK' => 'TEST', 'revision' => 2])]);
+        $this->table->transact([$this->table->revising(['PK' => 'TEST#ada', 'SK' => 'TEST', 'revision' => 2, 'name' => 'Ada'])]);
+
+        try {
+            $this->unitOfWork->commit();
+            $this->fail('The revision was expected to be cancelled');
+        } catch (ConditionFailed) {
+            $this->unitOfWork->discard();
+        }
+
+        $this->assertNull($this->storedNameOf('ada'), 'the other request is not overwritten');
+    }
+
+    public function testARevisionOfAnItemCreatedSinceTheUnitReadItAbsentIsCancelled(): void
+    {
+        $this->unitOfWork->begin();
+        $this->table->item('TEST#ada', 'TEST');
+        $this->asAnotherRequest($this->table)->transact([$this->table->putting(['PK' => 'TEST#ada', 'SK' => 'TEST', 'revision' => 1])]);
+        $this->table->transact([$this->table->revising(['PK' => 'TEST#ada', 'SK' => 'TEST', 'revision' => 1, 'name' => 'Ada'])]);
+
+        $this->expectException(ConditionFailed::class);
+
+        try {
+            $this->unitOfWork->commit();
+        } finally {
+            $this->unitOfWork->discard();
+        }
+    }
+
+    public function testADeleteOfAnItemChangedSinceTheUnitReadItIsCancelled(): void
+    {
+        $this->table->transact([$this->table->putting(['PK' => 'TEST#ada', 'SK' => 'TEST', 'revision' => 1])]);
+        $this->unitOfWork->begin();
+        $this->table->item('TEST#ada', 'TEST');
+        $this->asAnotherRequest($this->table)->transact([$this->table->putting(['PK' => 'TEST#ada', 'SK' => 'TEST', 'revision' => 2, 'name' => 'Ada'])]);
+        $this->table->transact([$this->table->deletingRevised('TEST#ada', 'TEST')]);
+
+        try {
+            $this->unitOfWork->commit();
+            $this->fail('The delete was expected to be cancelled');
+        } catch (ConditionFailed) {
+            $this->unitOfWork->discard();
+        }
+
+        $this->assertSame('Ada', $this->storedNameOf('ada'));
+    }
+
+    public function testARevisionOfAnItemReadAmongOthersAndChangedSinceIsCancelled(): void
+    {
+        $this->table->transact([$this->table->putting(['PK' => 'TEST#ada', 'SK' => 'TEST', 'revision' => 1])]);
+        $this->unitOfWork->begin();
+        $this->table->items([['TEST#ada', 'TEST'], ['TEST#grace', 'TEST']]);
+        $this->asAnotherRequest($this->table)->transact([$this->table->putting(['PK' => 'TEST#ada', 'SK' => 'TEST', 'revision' => 2])]);
+        $this->table->item('TEST#ada', 'TEST');
+        $this->table->transact([$this->table->revising(['PK' => 'TEST#ada', 'SK' => 'TEST', 'revision' => 3, 'name' => 'Ada'])]);
+
+        try {
+            $this->unitOfWork->commit();
+            $this->fail('The revision was expected to be cancelled');
+        } catch (ConditionFailed) {
+            $this->unitOfWork->discard();
+        }
+
+        $this->assertNull($this->storedNameOf('ada'));
+    }
+
+    public function testWithoutAUnitARevisionHoldsToNoRead(): void
+    {
+        $this->table->transact([$this->table->putting(['PK' => 'TEST#ada', 'SK' => 'TEST', 'revision' => 1])]);
+        $this->table->item('TEST#ada', 'TEST');
+        $this->asAnotherRequest($this->table)->transact([$this->table->putting(['PK' => 'TEST#ada', 'SK' => 'TEST', 'revision' => 2])]);
+
+        $this->table->transact([$this->table->revising(['PK' => 'TEST#ada', 'SK' => 'TEST', 'revision' => 3, 'name' => 'Ada'])]);
+
+        $this->assertSame('Ada', $this->storedNameOf('ada'));
+    }
+
+    public function testAnItemWrittenBeforeTheRevisionsIsRevisedWhileUnchanged(): void
+    {
+        $this->put('ada', 'Ada');
+        $this->unitOfWork->begin();
+        $this->table->item('TEST#ada', 'TEST');
+        $this->table->transact([$this->table->revising(['PK' => 'TEST#ada', 'SK' => 'TEST', 'revision' => 1, 'name' => 'Ada Lovelace'])]);
+        $this->unitOfWork->commit();
+        $this->unitOfWork->discard();
+
+        $this->assertSame('Ada Lovelace', $this->storedNameOf('ada'));
+    }
+
+    public function testTheNextUnitLocksTheRevisionItReadsAgain(): void
+    {
+        $this->table->transact([$this->table->putting(['PK' => 'TEST#ada', 'SK' => 'TEST', 'revision' => 1])]);
+        $this->unitOfWork->begin();
+        $this->table->item('TEST#ada', 'TEST');
+        $this->unitOfWork->commit();
+        $this->unitOfWork->discard();
+        $this->asAnotherRequest($this->table)->transact([$this->table->putting(['PK' => 'TEST#ada', 'SK' => 'TEST', 'revision' => 2])]);
+
+        $this->unitOfWork->begin();
+        $this->table->item('TEST#ada', 'TEST');
+        $this->table->transact([$this->table->revising(['PK' => 'TEST#ada', 'SK' => 'TEST', 'revision' => 3, 'name' => 'Ada'])]);
+        $this->unitOfWork->commit();
+        $this->unitOfWork->discard();
+
+        $this->assertSame('Ada', $this->storedNameOf('ada'));
+    }
+
     public function testMoreThanAHundredWritesAreRefusedBeforeAnyIsSent(): void
     {
         $this->unitOfWork->begin();
