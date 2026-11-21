@@ -15,6 +15,7 @@ import { HoldingSection } from '@/features/organizations/components/holding-sect
 import { LegalIdentitySection } from '@/features/organizations/components/legal-identity-section'
 import { LogoSection } from '@/features/organizations/components/logo-section'
 import { ObservationsSection } from '@/features/organizations/components/observations-section'
+import { OrganizationBadges } from '@/features/organizations/components/organization-badges'
 import { PossibleDuplicates } from '@/features/organizations/components/possible-duplicates'
 import { StopProspecting } from '@/features/organizations/components/stop-prospecting'
 import {
@@ -31,7 +32,6 @@ import { ensureSharedQueryData } from '@/shared/api/ensure-shared-query-data'
 import { placeOf } from '@/shared/lib/address'
 import { notFoundWhenTheApiSaysSo, openedExchangeSearch, uuidParams } from '@/shared/lib/route-params'
 import { BackButton } from '@/shared/ui/back-button'
-import { Badge } from '@/shared/ui/badge'
 import { ErrorState } from '@/shared/ui/feedback/error-state'
 import { PageHeader } from '@/shared/ui/page-header'
 import { PageSkeleton } from '@/shared/ui/page-skeleton'
@@ -65,7 +65,6 @@ function OrganizationPage() {
   const { exchange: opened } = Route.useSearch()
   const { data: organization } = useSuspenseQuery(organizationQuery(organizationId))
   const { data: account } = useSuspenseQuery(accountQuery())
-  const { form, type } = organization.legalIdentity
   const navigate = useNavigate()
   const name = nameOf(organization)
 
@@ -75,12 +74,7 @@ function OrganizationPage() {
 
       <PageHeader
         title={name}
-        description={
-          <span className="flex flex-wrap gap-2">
-            {form && <Badge variant="secondary">{form}</Badge>}
-            {type && <Badge variant="outline">{type}</Badge>}
-          </span>
-        }
+        description={<OrganizationBadges organization={organization} />}
         actions={
           organization._links.stopProspecting && (
             <StopProspecting
