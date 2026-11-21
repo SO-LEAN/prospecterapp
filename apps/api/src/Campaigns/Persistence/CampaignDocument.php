@@ -30,7 +30,8 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
  * A campaign as its item keeps it (ADR 0048, 0144): its tags by their names without their mark, those of its target
  * derived from them and from its channel, never kept; frozen, its recipients by their identities and their statuses,
  * whether the call of one processed did not go through and the exchange that processed it (ADR 0145, 0152), why one
- * was dismissed, in the order they were added, none in a draft; the moments it was started, stopped and ended, none before.
+ * was dismissed, in the order they were added, none in a draft; the moments it was started, stopped and ended, none before;
+ * how an AI treats its message, as is for an item written before it was kept.
  */
 final class CampaignDocument
 {
@@ -51,6 +52,7 @@ final class CampaignDocument
             'tags' => array_map(static fn (Tag $tag): string => $tag->name, $targeting->chosen->tags),
             'message' => $state['message']->text,
             'subject' => $state['message']->subject,
+            'messageMode' => $state['message']->mode->value,
             'status' => $state['status']->value,
             'recipients' => array_map(self::recipientDocument(...), $state['recipients']->recipients),
             'createdAt' => Documents::moment($state['createdAt']),
@@ -74,7 +76,7 @@ final class CampaignDocument
             'createdBy' => new MemberId($document['createdBy']),
             'name' => CampaignName::of($document['name']),
             'targeting' => self::targetingOf($document),
-            'message' => MessageTemplate::of($document['message'], $document['subject'], $channel),
+            'message' => MessageTemplate::of($document['message'], $document['subject'], $channel, MessageMode::from(self::messageModeOf($document))),
             'status' => CampaignStatus::from($document['status']),
             'recipients' => Hydrator::restore(Recipients::class, ['recipients' => array_map(
                 self::recipient(...),
@@ -109,7 +111,7 @@ final class CampaignDocument
             targetedTags: self::named($targeting->targeted()),
             message: $document['message'],
             subject: $document['subject'],
-            messageMode: MessageMode::AsIs->value,
+            messageMode: self::messageModeOf($document),
             status: $document['status'],
             followsTheTags: $status->followsTheTags(),
             running: $status->isRunning(),
@@ -162,6 +164,16 @@ final class CampaignDocument
     private static function momentOrNone(?\DateTimeImmutable $moment): ?string
     {
         return null === $moment ? null : Documents::moment($moment);
+    }
+
+    /**
+     * As is for a campaign saved before an AI could adapt its message.
+     *
+     * @param array<string, mixed> $document
+     */
+    private static function messageModeOf(array $document): string
+    {
+        return $document['messageMode'] ?? MessageMode::AsIs->value;
     }
 
     /**
