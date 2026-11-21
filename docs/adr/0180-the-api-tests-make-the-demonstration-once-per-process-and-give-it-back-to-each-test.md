@@ -19,8 +19,9 @@ its end (`--output-sync=recurse`).
   deleted, the secrets put back; the users and the clients of the pool a test added deleted, the login email and the
   password of each member of the demonstration given back. Every test still starts from the same state, whatever ran
   before it.
-- A job of the CI prints each line as it comes (`--output-sync=line`); `make ci`, running several checks together,
-  prints the output of each once it ends.
+- A job of the CI runs its check without synchronising its output, so that the progress of the tests shows while
+  they run: make keeps the output of a command until it ends with any `--output-sync`, `line` too. `make ci`, running
+  several checks together, prints the output of each once it ends.
 
 ## Consequences
 - The setUp falls to some 0.08 s; the API tests run in half the time.
