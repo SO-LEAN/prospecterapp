@@ -11,6 +11,7 @@ use Prospecter\Core\Campaigns\Domain\Model\Campaign;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignName;
 use Prospecter\Core\Campaigns\Domain\Model\Channel;
 use Prospecter\Core\Campaigns\Domain\Model\ContactTags;
+use Prospecter\Core\Campaigns\Domain\Model\MessageMode;
 use Prospecter\Core\Campaigns\Domain\Model\MessageTemplate;
 use Prospecter\Core\Campaigns\Domain\Model\Reach;
 use Prospecter\Core\Campaigns\Domain\Model\Tag;
@@ -60,6 +61,16 @@ class DynamoCampaignRepositoryTest extends ApiTestCase
             ['Relance ESN', 'email', ['#ESN'], ['#ESN', '#EMAIL'], 'Bonjour {prénom}', 'Une question', 'draft', ['ReviseCampaign', 'DiscardCampaign', 'FreezeCampaign']],
             [$sheet->name, $sheet->channel, $sheet->tags, $sheet->targetedTags, $sheet->message, $sheet->subject, $sheet->status, $sheet->possibleIntents],
         );
+    }
+
+    public function testTheMessageAdaptedByAnAIIsRestoredAndReadSo(): void
+    {
+        $campaign = $this->aCampaign('Relance ESN', mode: MessageMode::Adapted);
+        $this->repository()->save($campaign);
+        $campaign->releaseEvents();
+
+        $this->assertEquals($campaign, $this->repository()->get($this->account, $campaign->id()));
+        $this->assertSame('adapted', $this->retriever()->get($this->account, $campaign->id())->messageMode);
     }
 
     public function testAFrozenCampaignIsRestoredWithItsRecipientsInTheirOrder(): void
@@ -203,14 +214,14 @@ class DynamoCampaignRepositoryTest extends ApiTestCase
         $this->retriever()->get($this->account, $campaign->id());
     }
 
-    private function aCampaign(string $name, ?AccountId $account = null): Campaign
+    private function aCampaign(string $name, ?AccountId $account = null, MessageMode $mode = MessageMode::AsIs): Campaign
     {
         return Campaign::prepare(
             new CampaignId(self::newIdentity()),
             $account ?? $this->account,
             CampaignName::of($name),
             Targeting::by(Channel::Email, ['#ESN']),
-            MessageTemplate::of('Bonjour {prénom}', 'Une question', Channel::Email),
+            MessageTemplate::of('Bonjour {prénom}', 'Une question', Channel::Email, $mode),
             new MemberId(self::newIdentity()),
             new \DateTimeImmutable('2026-11-17 10:00:00'),
         );
