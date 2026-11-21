@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Domain\Model;
 
+use Prospecter\Core\Prospecting\Domain\Event\AttachmentImported;
 use Prospecter\Core\Prospecting\Domain\Event\AttachmentRemoved;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeCancelled;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeContactForgotten;
@@ -543,6 +544,19 @@ final class Exchange implements ReleasesEvents
         $this->attachments[] = $attachment;
         $this->modifiedAt = $at;
         $this->recordThat(new FileAttached($this->accountId, $by, $this->id, $attachment->id, $at));
+    }
+
+    /**
+     * A file of the e-mail it was imported from, its upload kept once the exchange is written (ADR 0182).
+     *
+     * @throws NoRoomForAnAttachment
+     */
+    public function importAttachment(Attachment $attachment, MemberId $by, \DateTimeImmutable $at): void
+    {
+        $this->ensurePossible(ExchangeIntent::AttachFile, $by, $at);
+        $this->attachments[] = $attachment;
+        $this->modifiedAt = $at;
+        $this->recordThat(new AttachmentImported($this->accountId, $by, $this->id, $attachment->id, $attachment->file, $at));
     }
 
     /**
