@@ -24,6 +24,7 @@ const aDuplicate = (possibleDuplicates: Contact['possibleDuplicates']): Contact 
   id: DUPLICATE,
   name: { firstName: 'ada', lastName: 'LOVELACE' },
   possibleDuplicates,
+  createdByAnAI: false,
   civility: 'x',
   contactDetails: { email: null, phoneNumber: null, language: null, links: [] },
   masked: false,

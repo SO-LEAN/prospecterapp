@@ -6,6 +6,7 @@ use App\PersonalData\Persistence\DynamoPersonRepository;
 use App\PersonalData\Persistence\PersonDocument;
 use App\Shared\Persistence\ConditionFailed;
 use App\Shared\Persistence\DynamoUnitOfWork;
+use App\Shared\Persistence\Hydrator;
 use App\Shared\Persistence\Table;
 use Prospecter\Core\PersonalData\Domain\Model\Civility;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
@@ -20,6 +21,8 @@ use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
 use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\OrganizationId;
+use Prospecter\Core\SharedKernel\Domain\Origin;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 use Tests\App\Base\ApiTestCase;
@@ -114,6 +117,21 @@ class DynamoPersonRepositoryTest extends ApiTestCase
         $savedBefore = PersonDocument::of($camille);
         unset($savedBefore['civility']);
         $this->assertSame(Civility::X, PersonDocument::person($savedBefore)->civility());
+    }
+
+    public function testAContactAnAiCollectedIsReadBackCreatedByAnAiAndAPersonSavedBeforeByHand(): void
+    {
+        $persons = self::getContainer()->get(PersonRepository::class);
+        $accountId = new AccountId(self::newIdentity());
+        $collector = new Reader(new MemberId(self::newIdentity()), $accountId, new PersonId(self::newIdentity()), readsPersonalData: true);
+        $grace = Person::collectAsContact($collector, new PersonId(self::newIdentity()), new PersonName('Grace', 'Hopper'), Civility::X, null, new ContactDetails(), ExternalReferences::none(), [new OrganizationId(self::newIdentity())], new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS), Origin::Ai);
+        $grace->releaseEvents();
+        $persons->save($grace);
+
+        $this->assertEquals([$grace], $persons->ofIds([$grace->id()]));
+        $savedBefore = PersonDocument::of($grace);
+        unset($savedBefore['origin']);
+        $this->assertSame(Origin::Hand, Hydrator::stateOf(PersonDocument::person($savedBefore))['origin']);
     }
 
     public function testAnErasedPersonLeavesNoItemBehind(): void

@@ -62,7 +62,7 @@ final readonly class CollectContactTool
         $input = $this->inputs->valid(new CollectContactInput(new PersonNameInput($firstName, $lastName), $civility, $jobTitle, new PersonContactDetailsInput($email, $phoneNumber, $language, $links), $organizationIds));
         $memberId = $this->access->member()->memberId();
         $id = $this->identities->next();
-        $this->commandBus->dispatch($input->commandOf($memberId, $id, $this->clock->now()));
+        $this->commandBus->dispatch($input->commandOfAnAI($memberId, $id, $this->clock->now()));
 
         return $this->results->of($this->contactReader->read($memberId, $id));
     }

@@ -15,6 +15,7 @@ use Prospecter\Core\PersonalData\Domain\Policy\PersonReading;
 use Prospecter\Core\SharedKernel\Application\ExternalLink;
 use Prospecter\Core\SharedKernel\Application\FileResponse;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Origin;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
@@ -65,6 +66,7 @@ final class PersonCards
             possibleIntents: array_map(static fn (PersonIntent $intent): string => $intent->name, $possibleIntents),
             createdAt: Documents::momentOf($document['createdAt']),
             modifiedAt: Documents::momentOf($document['modifiedAt']),
+            createdByAnAI: Origin::Ai === Documents::originOf($document),
         );
     }
 }

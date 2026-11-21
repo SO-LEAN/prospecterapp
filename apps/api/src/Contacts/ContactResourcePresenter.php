@@ -62,6 +62,7 @@ final class ContactResourcePresenter implements ConsultPersonOutput
             toAttach: null === $this->toAttach ? null : new ToAttachResource($this->toAttach->lastMeetingAt, $this->toAttach->erasableFrom),
             links: $this->linksOf($contact),
             possibleDuplicates: array_map(fn (PossibleDuplicate $duplicate): PossibleDuplicateOfContactResource => $this->possibleDuplicateOf($contact, $duplicate), $contact->possibleDuplicates),
+            createdByAnAI: $contact->createdByAnAI,
         );
     }
 
