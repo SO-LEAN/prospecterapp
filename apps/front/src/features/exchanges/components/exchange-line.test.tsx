@@ -72,4 +72,16 @@ describe('ExchangeLine', () => {
 
     expect(screen.queryByTitle('Importé de Gmail')).not.toBeInTheDocument()
   })
+
+  it('badges an exchange an AI created, without naming the AI', async () => {
+    await renderInARouter(<ExchangeLine exchange={anExchange({ createdByAnAI: true })} />)
+
+    expect(screen.getByTitle('Créé par une IA')).toHaveTextContent('MCP')
+  })
+
+  it('does not badge an exchange noted by hand', async () => {
+    await renderInARouter(<ExchangeLine exchange={anExchange({ createdByAnAI: false })} />)
+
+    expect(screen.queryByTitle('Créé par une IA')).not.toBeInTheDocument()
+  })
 })

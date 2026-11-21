@@ -23,6 +23,7 @@ import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { formatMoment, formatUpcoming } from '@/shared/lib/format'
 import { cn } from '@/shared/lib/utils'
+import { CreatedByAnAIBadge } from '@/shared/ui/created-by-an-ai-badge'
 import { GmailLogo } from '@/shared/ui/gmail-logo'
 import { type Channel, directionWordsOf, type Exchange, type Interlocutor } from '../queries'
 import { CampaignOfTheLine } from './campaign-of-the-exchange'
@@ -44,7 +45,7 @@ type Summarized = Pick<
   Exchange,
   'channel' | 'direction' | 'occurredAt' | 'status' | 'canceller' | 'durationInMinutes'
 > &
-  Partial<Pick<Exchange, 'contactToAttach' | 'importedFrom'>>
+  Partial<Pick<Exchange, 'contactToAttach' | 'importedFrom' | 'createdByAnAI'>>
 
 const STATUS_ICONS: Partial<Record<Exchange['status'], LucideIcon>> = {
   planned: CalendarClock,
@@ -143,6 +144,7 @@ export function ExchangeSummary({
             }
           />
           <ToAttachBadge exchange={exchange} />
+          {exchange.createdByAnAI && <CreatedByAnAIBadge />}
         </p>
         {exchange.canceller && (
           <p className="text-muted-foreground text-xs">{t(`exchanges.cancelledBy.${exchange.canceller}`)}</p>
