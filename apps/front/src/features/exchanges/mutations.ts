@@ -272,6 +272,44 @@ export function useRemoveAttachment() {
 }
 
 /** Pushed again into my Google calendar by its holder, the exchange shows where its push stands now (ADR 0133). */
+/** Whose e-mails are caught up: a contact, or an organization itself. */
+export type CatchUpCorrespondent = { contactId: string } | { organizationId: string }
+
+/**
+ * The catch-up of Gmail answers at once, the import noting the e-mails a moment later: the timelines showing them are
+ * read again once the reactions ran, those of the organizations of a contact too.
+ */
+export function useCatchUpGmail() {
+  const queryClient = useQueryClient()
+  const { t } = useTranslation()
+
+  return useMutation({
+    mutationFn: async (correspondent: CatchUpCorrespondent) => {
+      const { error } =
+        'contactId' in correspondent
+          ? await fetchClient.POST('/api/contacts/{id}/gmail-catch-ups', {
+              params: { path: { id: correspondent.contactId } },
+            })
+          : await fetchClient.POST('/api/organizations/{id}/gmail-catch-ups', {
+              params: { path: { id: correspondent.organizationId } },
+            })
+      if (error) {
+        throw error
+      }
+    },
+    onSuccess: (_nothing, correspondent) => {
+      readAgainAfterTheReactions(
+        queryClient,
+        ...('contactId' in correspondent
+          ? [timelineQuery(correspondent.contactId).queryKey, timelineKeys.ofOrganizations]
+          : [organizationTimelineQuery(correspondent.organizationId).queryKey]),
+      )
+      readTheFiguresAgain(queryClient)
+      toast.success(t('exchanges.catchUpGmail.started'))
+    },
+  })
+}
+
 export function useRetryGooglePush() {
   const queryClient = useQueryClient()
 

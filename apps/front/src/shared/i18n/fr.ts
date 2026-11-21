@@ -705,6 +705,11 @@ export const fr = {
         'En attente de synchronisation avec Google : votre compte Google est à reconnecter.',
       failed: 'Google a refusé l’événement le {{at}}.',
     },
+    catchUpGmail: {
+      action: 'Rattraper Gmail',
+      reading: 'Lecture de Gmail…',
+      started: 'Rattrapage lancé : les e-mails arrivent dans la timeline.',
+    },
     detail: {
       title: 'Échange',
       description: 'Tout l’échange, qui l’a noté et qui l’a corrigé.',
