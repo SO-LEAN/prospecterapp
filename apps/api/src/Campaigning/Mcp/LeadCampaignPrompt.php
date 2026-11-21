@@ -5,33 +5,33 @@ namespace App\Campaigning\Mcp;
 use Mcp\Server\Capability\Attribute\McpPrompt;
 
 /**
- * The steps an AI follows to lead a started campaign for its member, recipient after recipient: it sends each message
- * with its own tools, Prospecter notes it (ADR 0144, 0186).
+ * The steps an AI follows to run a started campaign for its member, one recipient at a time. The AI sends each message
+ * with its own tools, and Prospecter logs it (ADR 0144, 0186).
  */
 final readonly class LeadCampaignPrompt
 {
     private const string STEPS = <<<'STEPS'
-        Mène pour moi la campagne « %s » de Prospecter, destinataire après destinataire. Prospecter n'envoie rien : c'est toi qui envoies chaque message.
+        Run the Prospecter campaign "%s" for me, one recipient after another. Prospecter sends nothing: you send each message yourself.
 
-        1. Trouve-la avec `list-campaigns` : elle doit être démarrée.
-        2. Demande son destinataire suivant avec `get-next-recipient` : comment le joindre, le message rendu pour lui et son instruction.
-        3. Envoie toi-même le message par son canal : par ma boîte e-mail pour un e-mail (le connecteur Gmail de Claude), par mon LinkedIn pour un message LinkedIn (l'extension de Claude pour Chrome). Suis son instruction : tel quel, envoie-le sans en changer un mot ; adapté, tu peux le réécrire pour cette personne, d'après son profil et nos échanges passés, en gardant toujours l'idée du message.
-        4. Note ce que tu as envoyé avec `log-sent-message` : le texte réellement envoyé, et le Message-ID de l'e-mail ou la conversation du message LinkedIn. Déjà noté (l'import de ma boîte a pu le noter avant toi), continue.
-        5. Un destinataire que tu ne peux pas joindre (pas d'adresse, un profil LinkedIn disparu) : écarte-le avec `dismiss-campaign-recipient` en disant pourquoi, une fois que je l'ai confirmé.
-        6. N'envoie jamais un second message à un destinataire : quand `get-next-recipient` te redonne un destinataire à qui tu as écrit, arrête-toi et dis-moi qui.
-        7. Recommence à l'étape 2, jusqu'à ce que `get-next-recipient` réponde que la campagne n'est plus menée (`campaignNotRunning`), ou que je te dise d'arrêter. Termine par un bilan : envoyés, écartés.
+        1. Find it with `list-campaigns`: it must be started.
+        2. Ask for its next recipient with `get-next-recipient`: how to reach them, the message rendered for them, and its instruction.
+        3. Send the message yourself on its channel: from my mailbox for an e-mail (Claude's Gmail connector), from my LinkedIn for a LinkedIn message (Claude's Chrome extension). Follow its instruction. As is: send it without changing a word. Adapted: you may rewrite it for this person, from their profile and our past exchanges, but always keep the message's idea.
+        4. Log what you sent with `log-sent-message`: the text you actually sent, and the e-mail's Message-ID or the LinkedIn conversation. If it is already logged (my mailbox import may have logged it before you), go on.
+        5. A recipient you cannot reach (no address, a LinkedIn profile that is gone): once I confirm, dismiss them with `dismiss-campaign-recipient` and say why.
+        6. Never send a second message to a recipient: when `get-next-recipient` gives you a recipient you already wrote to, stop and tell me who.
+        7. Go back to step 2 until `get-next-recipient` answers that the campaign is no longer running (`campaignNotRunning`), or until I tell you to stop. End with a report: sent, dismissed.
 
-        Si Prospecter refuse un appel, arrête-toi et demande-moi quoi faire, sans contourner son refus.
+        If Prospecter refuses a call, stop and ask me what to do. Do not work around the refusal.
         STEPS;
 
     /**
-     * @param string $campagne le nom de la campagne, ou son identifiant
+     * @param string $campaign the campaign's name or ID
      *
      * @return list<array{role: string, content: string}>
      */
-    #[McpPrompt(name: 'run-campaign', title: 'Mener une campagne', description: 'Envoie à chaque destinataire d\'une campagne démarrée son message par vos outils, et le note dans Prospecter.')]
-    public function __invoke(string $campagne): array
+    #[McpPrompt(name: 'run-campaign', title: 'Run a campaign', description: 'Send each recipient of a started campaign their message with your own tools, and log it in Prospecter.')]
+    public function __invoke(string $campaign): array
     {
-        return [['role' => 'user', 'content' => sprintf(self::STEPS, $campagne)]];
+        return [['role' => 'user', 'content' => sprintf(self::STEPS, $campaign)]];
     }
 }
