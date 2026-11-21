@@ -57,6 +57,17 @@ class DynamoCalendarEntryRepositoryTest extends ApiTestCase
         $this->assertTrue($this->entries()->find($entry->exchange())?->hasFailed());
     }
 
+    public function testThatItsEventInvitesAGuestIsKept(): void
+    {
+        $exchange = new HeldExchange(new ExchangeId(self::newIdentity()), new AccountId(self::newIdentity()), new MemberId(self::newIdentity()), ExchangeStatus::Planned, Channel::VideoCall, new \DateTimeImmutable('2026-10-20 14:00 UTC'), 15, null, new PersonId(self::newIdentity()), null, null, linkRequested: true, bookedByLink: true);
+        $entry = self::entryOf($exchange);
+        $entry->pushed($exchange, new \DateTimeImmutable('2026-10-15 09:00 UTC'));
+
+        $this->entries()->save($entry);
+
+        $this->assertTrue($this->entries()->find($entry->exchange())?->invitesAGuestStillToComeAt(new \DateTimeImmutable('2026-10-15 10:00 UTC')));
+    }
+
     private static function entryOf(HeldExchange $exchange): CalendarEntry
     {
         return CalendarEntry::of($exchange, Provider::Google, new \DateTimeImmutable('2026-10-15 09:00 UTC'));
