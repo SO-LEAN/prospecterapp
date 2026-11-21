@@ -47,8 +47,8 @@ class CampaignsApiTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(201);
         $this->assertSame(
-            ['Relance ESN', 'email', 'draft', [self::TAG], [self::TAG, '#EMAIL'], 'Bonjour {prénom}', '{prénom}, une question', 1],
-            [$campaign['name'], $campaign['channel'], $campaign['status'], $campaign['tags'], $campaign['targetedTags'], $campaign['message'], $campaign['subject'], $campaign['targeted']],
+            ['Relance ESN', 'email', 'draft', [self::TAG], [self::TAG, '#EMAIL'], 'Bonjour {prénom}', '{prénom}, une question', 'asIs', 1],
+            [$campaign['name'], $campaign['channel'], $campaign['status'], $campaign['tags'], $campaign['targetedTags'], $campaign['message'], $campaign['subject'], $campaign['messageMode'] ?? null, $campaign['targeted']],
         );
         $this->assertSame(['href' => '/api/tagged-contacts?tags=CAMPAIGN_151,EMAIL', 'method' => 'GET'], $campaign['_links']['target']);
         $this->assertSame(['self', 'revise', 'discard', 'freeze', 'target'], array_keys($campaign['_links']));
@@ -73,10 +73,10 @@ class CampaignsApiTest extends ApiTestCase
     {
         $id = $this->requestJson('POST', '/api/campaigns', $this->aCampaign())['id'];
 
-        $revised = $this->requestJson('PATCH', '/api/campaigns/'.$id, ['name' => 'Appels ESN', 'channel' => 'call', 'tags' => [self::TAG], 'message' => 'Pitch : {organisation}']);
+        $revised = $this->requestJson('PATCH', '/api/campaigns/'.$id, ['name' => 'Appels ESN', 'channel' => 'call', 'tags' => [self::TAG], 'message' => 'Pitch : {organisation}', 'messageMode' => 'adapted']);
 
         $this->assertResponseStatusCodeSame(200);
-        $this->assertSame(['Appels ESN', 'call', [self::TAG, '#PHONE'], null, 0], [$revised['name'], $revised['channel'], $revised['targetedTags'], $revised['subject'], $revised['targeted']]);
+        $this->assertSame(['Appels ESN', 'call', [self::TAG, '#PHONE'], null, 'adapted', 0], [$revised['name'], $revised['channel'], $revised['targetedTags'], $revised['subject'], $revised['messageMode'], $revised['targeted']]);
 
         $this->requestJson('DELETE', '/api/campaigns/'.$id);
 
@@ -138,6 +138,7 @@ class CampaignsApiTest extends ApiTestCase
         yield 'the tag of the channel a sixth' => [['tags' => ['#A', '#B', '#C', '#D', '#E']], 'tags', 'invalidTagSelection'];
         yield 'a message too long' => [['message' => str_repeat('a', 5001)], 'message', 'messageTooLong'];
         yield 'a subject for a call' => [['channel' => 'call'], 'subject', 'subjectOnlyForAnEmail'];
+        yield 'an unknown mode of the message for an AI' => [['messageMode' => 'rewritten'], 'messageMode', 'unknownMessageMode'];
     }
 
     public function testMyAccountLinksTheCampaignsOfMyTeam(): void

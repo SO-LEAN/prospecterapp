@@ -48,6 +48,7 @@ const draft: Campaign = {
   targetedTags: ['#ESN', '#EMAIL'],
   message: 'Bonjour {prénom}',
   subject: null,
+  messageMode: 'asIs',
   status: 'draft',
   author: { name: { firstName: 'Alan', lastName: 'Turing' }, email: null },
   progress: { processed: 0, dismissed: 0 },
