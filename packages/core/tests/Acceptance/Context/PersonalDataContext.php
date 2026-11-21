@@ -164,6 +164,15 @@ final class PersonalDataContext implements Context
         $this->scenario->rememberPerson($name, new PersonId($id));
     }
 
+    #[Given('l\'IA a enregistré le contact :name pour :organization')]
+    public function theAICollectedAContact(string $name, string $organization): void
+    {
+        [$firstName, $lastName] = explode(' ', $name, 2);
+        $id = $this->application->newIdentity();
+        $this->application->dispatch(new CollectContact($this->application->signedIn(), $id, $firstName, $lastName, Vocabulary::civility(null), jobTitle: null, email: null, phoneNumber: null, language: null, links: [], organizationIds: [$this->scenario->idOf($organization)], executedAt: $this->application->now(), byAnAI: true));
+        $this->scenario->rememberPerson($name, new PersonId($id));
+    }
+
     #[When('je renomme le contact :name en :firstName :lastName')]
     public function iRenameTheContact(string $name, string $firstName, string $lastName): void
     {
@@ -496,6 +505,7 @@ final class PersonalDataContext implements Context
             'photo' => null === $person->picture ? 'aucune' : basename($person->picture->url),
             'masquée' => Vocabulary::describeYesOrNo($person->masked),
             'modifiée le' => Vocabulary::describeMoment($person->modifiedAt),
+            'badge' => Vocabulary::describeBadge($person->createdByAnAI),
         ];
     }
 }

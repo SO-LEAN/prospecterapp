@@ -19,6 +19,7 @@ use Prospecter\Core\PersonalData\Domain\Policy\PersonPossibilities;
 use Prospecter\Core\PersonalData\Domain\Policy\PersonReading;
 use Prospecter\Core\SharedKernel\Application\ExternalLink;
 use Prospecter\Core\SharedKernel\Application\FileResponse;
+use Prospecter\Core\SharedKernel\Domain\Origin;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
@@ -99,6 +100,7 @@ final readonly class InMemoryPersonCardRetriever implements PersonCardRetriever
             possibleIntents: array_map(static fn (PersonIntent $intent): string => $intent->name, PersonPossibilities::given($reader, $person->id(), $person->accountId(), $person->purpose())),
             createdAt: $state['createdAt'],
             modifiedAt: $state['modifiedAt'],
+            createdByAnAI: Origin::Ai === $state['origin'],
         );
     }
 

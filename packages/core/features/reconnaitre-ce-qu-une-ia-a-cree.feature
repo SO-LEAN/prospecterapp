@@ -57,6 +57,18 @@ Fonctionnalité: Reconnaître ce qu'une IA a créé
     Alors je vois l'organisation :
       | badge | |
 
+  Scénario: Un contact qu'une IA enregistre porte le badge
+    Soit l'IA a enregistré le contact "Grace Hopper" pour "ACME"
+    Alors je vois la fiche de "Grace Hopper" avec :
+      | badge | MCP |
+
+  Scénario: Ce qu'une IA ne fait que compléter ne prend pas le badge
+    Quand l'IA complète le contact "Ada Lovelace" :
+      | fonction | CTO |
+    Alors je vois la fiche de "Ada Lovelace" avec :
+      | fonction | CTO |
+      | badge    |     |
+
   Scénario: Corriger à la main un échange noté par une IA lui garde son badge
     Soit l'IA a noté le message LinkedIn reçu de "Ada Lovelace" dans la conversation "2-abc" le 18/11/2026 à 9h12 : "Bonjour Michel !"
     Et nous sommes le "2026-11-18 11:00"

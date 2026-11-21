@@ -38,6 +38,7 @@ final class CompletionContext implements Context
     private ?Comparison $comparison = null;
 
     #[When('je complète le contact :name :')]
+    #[When('l\'IA complète le contact :name :')]
     public function iCompleteTheContact(string $name, TableNode $table): void
     {
         $values = Vocabulary::values($table->getRowsHash());

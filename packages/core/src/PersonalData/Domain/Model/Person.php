@@ -32,6 +32,7 @@ use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
 use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
+use Prospecter\Core\SharedKernel\Domain\Origin;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
@@ -56,6 +57,7 @@ final class Person implements ReleasesEvents
     private ?File $picture = null;
     private ?string $jobTitle = null;
     private Civility $civility = Civility::X;
+    private Origin $origin = Origin::Hand;
     private ExternalReferences $references;
     /** @var list<ExternalReference> */
     private array $formerReferences = [];
@@ -84,14 +86,15 @@ final class Person implements ReleasesEvents
 
     /**
      * A person the account of the member prospects, collected by a member with the right to manage personal
-     * data, for at least one of the organizations it prospects: a contact is never alone (ADR 0042).
+     * data, for at least one of the organizations it prospects: a contact is never alone (ADR 0042); by the hand of the
+     * member, or by an AI acting as them.
      *
      * @param list<OrganizationId> $organizations where the person works, prospected by the account
      *
      * @throws PersonalDataManagersOnly
      * @throws ContactWithoutOrganization
      */
-    public static function collectAsContact(Reader $by, PersonId $id, PersonName $name, Civility $civility, ?string $jobTitle, ContactDetails $contactDetails, ExternalReferences $references, array $organizations, \DateTimeImmutable $at): self
+    public static function collectAsContact(Reader $by, PersonId $id, PersonName $name, Civility $civility, ?string $jobTitle, ContactDetails $contactDetails, ExternalReferences $references, array $organizations, \DateTimeImmutable $at, Origin $origin = Origin::Hand): self
     {
         self::ensureCollectedByAManager($by);
 
@@ -103,6 +106,7 @@ final class Person implements ReleasesEvents
         $contact->civility = $civility;
         $contact->jobTitle = $jobTitle;
         $contact->references = $references;
+        $contact->origin = $origin;
         $contact->recordThat(new ContactCollected($by->accountId, $by->id, $id, $organizations, $at));
 
         return $contact;

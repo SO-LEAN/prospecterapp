@@ -9,7 +9,7 @@ use Prospecter\Core\SharedKernel\Application\FileResponse;
 
 /**
  * A person as the reader may see them: in clear, or masked (then without picture), the name and the civility of a
- * contact in clear.
+ * contact in clear; whether an AI collected them.
  */
 final readonly class PersonCard
 {
@@ -34,6 +34,7 @@ final readonly class PersonCard
         public array $possibleIntents,
         public \DateTimeImmutable $createdAt,
         public \DateTimeImmutable $modifiedAt,
+        public bool $createdByAnAI = false,
     ) {
     }
 }
