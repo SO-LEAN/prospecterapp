@@ -59,9 +59,10 @@ final readonly class ProspectingHeldExchanges implements HeldExchanges
             $held->durationInMinutes,
             $held->place ?? $held->link,
             null === $held->contactId ? null : new PersonId($held->contactId),
-            new OrganizationId($held->organizationId),
+            null === $held->organizationId ? null : new OrganizationId($held->organizationId),
             $held->organizationName,
             $held->linkRequested,
+            $held->bookedByLink,
         );
     }
 }

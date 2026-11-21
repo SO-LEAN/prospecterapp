@@ -6,12 +6,16 @@ use Prospecter\Core\Connectors\Domain\Port\ContactNames;
 use Prospecter\Core\PersonalData\Contract\Service\NameContacts\KeptContactNames;
 use Prospecter\Core\PersonalData\Contract\Service\NameContacts\NameContacts;
 use Prospecter\Core\PersonalData\Contract\Service\NameContacts\NameContactsService;
+use Prospecter\Core\SharedKernel\Domain\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
+use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 /**
  * Anticorruption layer (ADR 0045, 0089): Connectors names a contact as the member reads them, from PersonalData, asked
- * about a set of one (ADR 0127).
+ * about a set of one (ADR 0127), and reaches them at their e-mail and their phone read in clear, to invite them
+ * (ADR 0175).
  */
 final readonly class PersonalDataContactNames implements ContactNames
 {
@@ -26,5 +30,14 @@ final readonly class PersonalDataContactNames implements ContactNames
         $name = $kept->names[0] ?? null;
 
         return null === $name ? null : trim(sprintf('%s %s', $name->firstName, $name->lastName));
+    }
+
+    public function contactDetailsOf(PersonId $contact, MemberId $readBy): ?ContactDetails
+    {
+        $kept = new KeptContactNames();
+        ($this->nameContactsService)(new NameContacts($readBy->value, [$contact->value]), $kept);
+        $named = $kept->names[0] ?? null;
+
+        return null === $named ? null : new ContactDetails(Email::orNone($named->email), PhoneNumber::orNone($named->phoneNumber));
     }
 }
