@@ -2275,6 +2275,12 @@ export interface components {
              * @default null
              */
             subject: string | null;
+            /**
+             * @description How an AI leading it treats the message for each person: sent as rendered, or adapted to them, its idea kept; as is when left out
+             * @default null
+             * @enum {string|null}
+             */
+            messageMode: "asIs" | "adapted" | null;
         };
         InactivePeriodInput: {
             /**
@@ -3344,6 +3350,11 @@ export interface components {
             message: string;
             /** @description The subject of an e-mail */
             subject?: string | null;
+            /**
+             * @description How an AI leading it treats the message for each person: sent as rendered, or adapted to them, its idea kept
+             * @enum {string}
+             */
+            messageMode: "asIs" | "adapted";
             /** @enum {string} */
             status: "draft" | "frozen" | "started" | "stopped" | "ended";
             author: components["schemas"]["AuthorResource"];

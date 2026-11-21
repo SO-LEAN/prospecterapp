@@ -1021,6 +1021,7 @@ export const fr = {
     unknownChannel: 'Une campagne se mène par e-mail, appel, SMS ou LinkedIn.',
     messageTooLong: 'Le message fait {{max}} caractères au plus.',
     subjectOnlyForAnEmail: 'Seul un e-mail a un objet.',
+    unknownMessageMode: 'Une IA envoie le message tel quel ou adapté.',
     campaignWithoutRecipient: 'Une campagne garde au moins un destinataire.',
     tooManyRecipients: 'Une campagne a {{max}} destinataires au plus.',
     unknownRecipient: 'Ce contact n’est pas destinataire de la campagne.',

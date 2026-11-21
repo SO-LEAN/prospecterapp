@@ -8933,6 +8933,16 @@
                         "type": "string",
                         "nullable": true,
                         "default": null
+                    },
+                    "messageMode": {
+                        "description": "How an AI leading it treats the message for each person: sent as rendered, or adapted to them, its idea kept; as is when left out",
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "enum": [
+                            "asIs",
+                            "adapted"
+                        ]
                     }
                 },
                 "type": "object"
@@ -12020,6 +12030,7 @@
                     "tags",
                     "targetedTags",
                     "message",
+                    "messageMode",
                     "status",
                     "author",
                     "progress",
@@ -12064,6 +12075,14 @@
                         "description": "The subject of an e-mail",
                         "type": "string",
                         "nullable": true
+                    },
+                    "messageMode": {
+                        "description": "How an AI leading it treats the message for each person: sent as rendered, or adapted to them, its idea kept",
+                        "type": "string",
+                        "enum": [
+                            "asIs",
+                            "adapted"
+                        ]
                     },
                     "status": {
                         "type": "string",

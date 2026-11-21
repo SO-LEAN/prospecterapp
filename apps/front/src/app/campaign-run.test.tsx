@@ -45,6 +45,7 @@ const started: Campaign = {
   targetedTags: ['#ESN', '#PHONE'],
   message: 'Pitch pour {prénom}',
   subject: null,
+  messageMode: 'asIs',
   status: 'started',
   author: { name: { firstName: 'Alan', lastName: 'Turing' }, email: null },
   progress: { processed: 1, dismissed: 0 },

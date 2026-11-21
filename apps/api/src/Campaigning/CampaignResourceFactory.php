@@ -48,6 +48,7 @@ final readonly class CampaignResourceFactory
             targetedTags: $campaign->targetedTags,
             message: $campaign->message,
             subject: $campaign->subject,
+            messageMode: $campaign->messageMode,
             status: $campaign->status,
             author: new AuthorResource(new PersonNameResource($author?->firstName, $author?->lastName), $author?->email),
             progress: new CampaignProgressResource($campaign->processed, $campaign->dismissed),

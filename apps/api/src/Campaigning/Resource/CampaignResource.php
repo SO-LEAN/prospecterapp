@@ -30,6 +30,8 @@ final readonly class CampaignResource
         public string $message,
         #[OA\Property(description: 'The subject of an e-mail')]
         public ?string $subject,
+        #[OA\Property(description: 'How an AI leading it treats the message for each person: sent as rendered, or adapted to them, its idea kept', enum: ['asIs', 'adapted'])]
+        public string $messageMode,
         #[OA\Property(enum: ['draft', 'frozen', 'started', 'stopped', 'ended'])]
         public string $status,
         #[OA\Property(description: 'Who prepared it')]
