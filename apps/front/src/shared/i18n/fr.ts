@@ -83,10 +83,10 @@ export const fr = {
     loading: 'Chargement…',
     loadMore: 'Charger plus',
     unlocated: 'Non géolocalisée',
-    mcp: 'MCP',
-    createdByAnAI: 'Créé par une IA',
     unlocatedExplanation:
       'Adresse introuvable sur la carte : vérifiez-la pour la voir sur la carte et dans les itinéraires.',
+    mcp: 'MCP',
+    createdByAnAI: 'Créé par une IA',
   },
   errors: {
     title: 'Une erreur est survenue',
