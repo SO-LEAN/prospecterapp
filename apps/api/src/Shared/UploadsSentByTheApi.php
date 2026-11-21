@@ -11,7 +11,8 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 /**
  * The files the API sends to the private bucket with the form of an upload, as a browser does (ADR 0172): to the
  * bucket at the address the API reaches it at, in place of the origin of the form (its signature covers its policy,
- * not its host), or at the address of the form when none is given (S3 itself).
+ * not its host), or at the address of the form when none is given (S3 itself); the form sent whole, with its length,
+ * S3 refusing one sent in chunks.
  */
 final readonly class UploadsSentByTheApi implements UploadSender
 {
@@ -31,7 +32,7 @@ final readonly class UploadsSentByTheApi implements UploadSender
 
         $this->http->request('POST', $this->addressOf($form), [
             'headers' => $body->getPreparedHeaders()->toArray(),
-            'body' => $body->bodyToIterable(),
+            'body' => $body->bodyToString(),
         ])->getContent();
     }
 

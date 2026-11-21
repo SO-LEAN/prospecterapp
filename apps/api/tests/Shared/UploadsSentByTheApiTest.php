@@ -41,12 +41,24 @@ class UploadsSentByTheApiTest extends TestCase
     }
 
     /**
-     * @param list<array{method: string, url: string, body: string}> $requests
+     * S3 refuses a form sent in chunks, without its length, which MiniStack takes.
+     */
+    public function testTheFileIsSentWithItsLengthAsS3RequiresIt(): void
+    {
+        $requests = [];
+
+        $this->uploads($requests, '')->upload($this->form(), new File(__DIR__.'/../Fixtures/logo.png'));
+
+        $this->assertSame(['Content-Length: '.strlen($requests[0]['body'])], $requests[0]['length']);
+    }
+
+    /**
+     * @param list<array{method: string, url: string, body: string, length: list<string>}> $requests
      */
     private function uploads(array &$requests, string $endpoint): UploadsSentByTheApi
     {
         $http = new MockHttpClient(static function (string $method, string $url, array $options) use (&$requests): MockResponse {
-            $requests[] = ['method' => $method, 'url' => $url, 'body' => self::bodyOf($options['body'] ?? '')];
+            $requests[] = ['method' => $method, 'url' => $url, 'body' => (string) $options['body'], 'length' => $options['normalized_headers']['content-length'] ?? []];
 
             return new MockResponse('', ['http_code' => 204]);
         });
@@ -57,22 +69,5 @@ class UploadsSentByTheApiTest extends TestCase
     private function form(): UploadResource
     {
         return new UploadResource('0123456789abcdef0123456789abcdef', self::FORM, ['key' => 'uploads/0123456789abcdef0123456789abcdef', 'policy' => 'a-policy'], 10 * 1024 * 1024);
-    }
-
-    /**
-     * The body as the client prepares it: a string, or a closure giving it chunk by chunk.
-     */
-    private static function bodyOf(mixed $body): string
-    {
-        if (!$body instanceof \Closure) {
-            return (string) $body;
-        }
-
-        $read = '';
-        while ('' !== $chunk = $body(8192)) {
-            $read .= $chunk;
-        }
-
-        return $read;
     }
 }
