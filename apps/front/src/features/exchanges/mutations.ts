@@ -271,7 +271,6 @@ export function useRemoveAttachment() {
   })
 }
 
-/** Pushed again into my Google calendar by its holder, the exchange shows where its push stands now (ADR 0133). */
 /** Whose e-mails are caught up: a contact, or an organization itself. */
 export type CatchUpCorrespondent = { contactId: string } | { organizationId: string }
 
@@ -310,6 +309,7 @@ export function useCatchUpGmail() {
   })
 }
 
+/** Pushed again into my Google calendar by its holder, the exchange shows where its push stands now (ADR 0133). */
 export function useRetryGooglePush() {
   const queryClient = useQueryClient()
 

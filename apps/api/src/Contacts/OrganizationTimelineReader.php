@@ -24,7 +24,8 @@ use Symfony\Component\Clock\ClockInterface;
 /**
  * The timeline of an organization, composed of the contexts (ADR 0076): Prospecting knows its exchanges and the
  * person of each, PersonalData names the persons of the slice in one batch, Connectors says whether the e-mails
- * exchanged with the organization itself may be caught up; the slice kept, then presented with them (ADR 0085). A controller calls it after a command, which returns nothing, to answer with the fresh resource.
+ * exchanged with the organization itself may be caught up; the slice kept, then presented with them (ADR 0085). A
+ * controller calls it after a command, which returns nothing, to answer with the fresh resource.
  */
 final readonly class OrganizationTimelineReader
 {
@@ -47,8 +48,7 @@ final readonly class OrganizationTimelineReader
         ($this->consultOrganizationTimeline)(new ConsultOrganizationTimeline($reader, $organization->id, $this->clock->now(), $after), $timeline);
         $catchUp = new KeptMailCatchUpIntents();
         ($this->consultMailCatchUpIntents)(ConsultMailCatchUpIntents::ofOrganization($reader, $organization->id), $catchUp);
-        $presenter = OrganizationTimelinePresenter::ofTheTimeline($organization, $this->personsOf($reader, $timeline->timeline), $this->timelines, $this->links)
-            ->offeringTheCatchUp($catchUp->possibleIntents, $this->intentLinks);
+        $presenter = OrganizationTimelinePresenter::ofTheTimeline($organization, $this->personsOf($reader, $timeline->timeline), $catchUp->possibleIntents, $this->timelines, $this->links, $this->intentLinks);
         $presenter->present($timeline->timeline);
 
         return $presenter->resource;
