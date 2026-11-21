@@ -1,0 +1,46 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Prospecter\Core\Campaigns\Application\NextRecipient;
+
+use Prospecter\Core\Campaigns\Domain\Port\Addressees;
+use Prospecter\Core\Campaigns\Domain\Port\Campaigners;
+use Prospecter\Core\Campaigns\Domain\Repository\CampaignRepository;
+use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Domain\CampaignId;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
+
+/**
+ * Asks the campaign itself, restored by its repository, as `RenderCampaignMessage` does: its next recipient and its
+ * message are rules of the aggregate. Read again at each call, a recipient handled meanwhile on the screen is no
+ * longer the next.
+ */
+final readonly class NextRecipientHandler implements QueryHandler
+{
+    public function __construct(
+        private CampaignRepository $campaigns,
+        private Campaigners $campaigners,
+        private Addressees $addressees,
+    ) {
+    }
+
+    public function __invoke(NextRecipient $query, NextRecipientOutput $output): void
+    {
+        $member = new MemberId($query->memberId);
+        $accountId = $this->campaigners->accountOf($member);
+        $campaign = $this->campaigns->get($accountId, new CampaignId($query->campaignId));
+        $contact = $campaign->nextRecipient();
+        $message = $campaign->messageFor($this->addressees->addressee($accountId, $member, $contact));
+
+        $output->present(new RecipientToHandle(
+            $query->campaignId,
+            $contact->value,
+            $campaign->channel()->value,
+            $message->subject,
+            $message->text,
+            $campaign->messageMode()->value,
+            $campaign->stillToHandle(),
+        ));
+    }
+}

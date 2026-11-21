@@ -19,6 +19,8 @@ use Prospecter\Core\Campaigns\Application\DismissRecipient\DismissRecipient;
 use Prospecter\Core\Campaigns\Application\EraseCampaign\EraseCampaign;
 use Prospecter\Core\Campaigns\Application\FreezeCampaign\FreezeCampaign;
 use Prospecter\Core\Campaigns\Application\ListCampaigns\ListCampaigns;
+use Prospecter\Core\Campaigns\Application\NextRecipient\NextRecipient;
+use Prospecter\Core\Campaigns\Application\NextRecipient\RecipientToHandle;
 use Prospecter\Core\Campaigns\Application\PrepareCampaign\PrepareCampaign;
 use Prospecter\Core\Campaigns\Application\RebuildTags\RebuildTags;
 use Prospecter\Core\Campaigns\Application\RecipientInSheet;
@@ -35,6 +37,7 @@ use Prospecter\Core\Campaigns\Contract\Service\WhichRecipientsArePending\WhichRe
 use Prospecter\Core\Campaigns\Domain\Model\Campaign;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignName;
 use Prospecter\Core\Campaigns\Domain\Model\Channel;
+use Prospecter\Core\Campaigns\Domain\Model\MessageMode;
 use Prospecter\Core\Campaigns\Domain\Model\MessageTemplate;
 use Prospecter\Core\Campaigns\Domain\Model\Targeting;
 use Prospecter\Core\PersonalData\Application\ChangePersonContactDetails\ChangePersonContactDetails;
@@ -83,6 +86,7 @@ final class CampaignContext implements Context
     /** @var array<string, string> */
     private array $campaignNames = [];
     private ?CampaignMessage $rendered = null;
+    private ?RecipientToHandle $next = null;
     /** @var list<CampaignSheet> */
     private array $listed = [];
     /** @var array<string, int> */
@@ -262,6 +266,49 @@ final class CampaignContext implements Context
         $this->theFrozenCampaign($name);
         $this->itsRecipientsAreInAnyOrder($one, $two, $three);
         $this->theStartedCampaign($name);
+    }
+
+    #[Given('la campagne :name démarrée par e-mail avec :one puis :other, l\'objet :subject et le message :message')]
+    public function theCampaignStartedByEmailWithItsMessage(string $name, string $one, string $other, string $subject, string $message): void
+    {
+        $this->startedByEmail($name, $one, $other, $message, $subject, MessageMode::AsIs);
+    }
+
+    #[Given('la campagne :name démarrée par e-mail avec :one puis :other, son message pour une IA :mode')]
+    public function theCampaignStartedByEmailWithItsMessageForAnAI(string $name, string $one, string $other, string $mode): void
+    {
+        $this->startedByEmail($name, $one, $other, self::A_MESSAGE, null, MessageMode::from(self::messageModeNamed($mode)));
+    }
+
+    #[When('une IA demande le destinataire suivant de :name')]
+    public function anAIAsksTheNextRecipient(string $name): void
+    {
+        $this->current = $name;
+        $this->next = $this->application->nextRecipient(new NextRecipient($this->application->signedIn(), $this->currentId()));
+    }
+
+    #[Then('elle reçoit :contact, l\'objet :subject et le message :text')]
+    public function itGetsTheRecipientAndTheirMessage(string $contact, string $subject, string $text): void
+    {
+        $next = $this->nextRecipient();
+
+        Expect::same([$this->scenario->personIdOf($contact), $subject, $text], [$next->contactId, $next->subject, $next->text]);
+    }
+
+    #[Then('le message est à envoyer :mode, :pending destinataires restant à traiter')]
+    public function theMessageIsToSend(string $mode, int $pending): void
+    {
+        $next = $this->nextRecipient();
+
+        Expect::same([$mode, $pending], [self::MESSAGE_MODES[$next->messageMode], $next->pending]);
+    }
+
+    #[Then('elle reçoit :contact, :pending destinataire restant à traiter')]
+    public function itGetsTheLastRecipient(string $contact, int $pending): void
+    {
+        $next = $this->nextRecipient();
+
+        Expect::same([$this->scenario->personIdOf($contact), $pending], [$next->contactId, $next->pending]);
     }
 
     #[When('je note pour :contact dans la campagne :name l\'échange :')]
@@ -923,6 +970,22 @@ final class CampaignContext implements Context
         return array_find($timeline->exchanges ?? [], static fn (ExchangeInTimeline $exchange): bool => $exchange->id === $id) ?? throw new \LogicException('The timeline does not show the exchange noted');
     }
 
+    private function startedByEmail(string $name, string $one, string $other, string $message, ?string $subject, MessageMode $mode): void
+    {
+        $this->application->dispatch(new RebuildTags(null));
+        $this->arrange($name, 'E-mail', self::SOME_TAGS, $message, $subject, mode: $mode);
+        $this->theFrozenCampaign($name);
+        $this->iRemoveTheRecipient($other);
+        $this->iAddTheContact($other);
+        Expect::same([$this->scenario->personIdOf($one), $this->scenario->personIdOf($other)], array_map(strval(...), array_keys($this->sheet()->recipients)));
+        $this->theStartedCampaign($name);
+    }
+
+    private function nextRecipient(): RecipientToHandle
+    {
+        return $this->next ?? throw new \LogicException(sprintf('No next recipient: %s', $this->application->refusal()?->getMessage()));
+    }
+
     private function prepare(string $name, string $channel, string $tags, string $message, ?string $subject = null, string $messageMode = 'asIs'): void
     {
         $this->current = $name;
@@ -940,7 +1003,7 @@ final class CampaignContext implements Context
         ));
     }
 
-    private function arrange(string $name, string $channel, string $tags, string $message, ?string $subject = null, ?AccountId $accountId = null, ?MemberId $author = null): void
+    private function arrange(string $name, string $channel, string $tags, string $message, ?string $subject = null, ?AccountId $accountId = null, ?MemberId $author = null, MessageMode $mode = MessageMode::AsIs): void
     {
         $this->current = $name;
         $this->campaignIds[$name] = $this->application->newIdentity();
@@ -950,7 +1013,7 @@ final class CampaignContext implements Context
             $accountId ?? $this->scenario->me()->accountId(),
             CampaignName::of($name),
             Targeting::by($channel, self::listed($tags)),
-            MessageTemplate::of($message, $subject, $channel),
+            MessageTemplate::of($message, $subject, $channel, $mode),
             by: $author ?? new MemberId($this->application->signedIn()),
             at: $this->application->now(),
         ));
