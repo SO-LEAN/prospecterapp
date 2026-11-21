@@ -20,9 +20,10 @@ final readonly class LeadCampaignPrompt
         1. Find it by lister-campagnes; it must be started.
         2. Ask destinataire-suivant for its next recipient: how to reach them, the message rendered for them and its instruction.
         3. Send the message yourself, by its channel: by my mailbox for an e-mail (Gmail), by my LinkedIn for a LinkedIn message (the Chrome extension of Claude). Follow its instruction: as is, send it without changing a word; adapted, you may rewrite it for this person, from their profile and our past exchanges, always keeping the idea of the message. Prospecter sends nothing.
-        4. Note what you sent by noter-l-envoi, with the text really sent and the Message-ID of the e-mail, or the conversation of the LinkedIn message. Already noted, go on.
+        4. Note what you sent by noter-l-envoi, with the text really sent and the Message-ID of the e-mail, or the conversation of the LinkedIn message. Already noted (the import of my mailbox may have noted it first), go on.
         5. A recipient you cannot reach (no address, a LinkedIn profile gone): dismiss them by ecarter-destinataire-campagne, saying why, once I confirmed.
-        6. Start again at step 2, until destinataire-suivant answers that the campaign is no longer led (campaignNotRunning), or I tell you to stop. Then tell me how many you sent and dismissed.
+        6. Never send a second message to a recipient: when destinataire-suivant gives you again a recipient you sent to, stop and tell me who.
+        7. Start again at step 2, until destinataire-suivant answers that the campaign is no longer led (campaignNotRunning), or I tell you to stop. Then tell me how many you sent and dismissed.
         STEPS;
 
     /**
