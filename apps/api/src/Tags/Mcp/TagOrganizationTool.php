@@ -36,7 +36,7 @@ final readonly class TagOrganizationTool
 
     /**
      * @param string       $id   the id of the organization
-     * @param list<string> $tags each written one way, with its mark or not: `éditeur logiciel` is #EDITEUR_LOGICIEL
+     * @param list<string> $tags each written one way, with its mark or not: `Café owners` is #CAFE_OWNERS
      *
      * @return array<string, mixed>
      */

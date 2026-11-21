@@ -287,7 +287,7 @@ final class CampaignTest extends TestCase
     {
         $campaign = $this->prepared();
         $targeting = Targeting::by(Channel::LinkedIn, ['#ESN', '#PHP']);
-        $message = MessageTemplate::of('Salut {prénom}', null, Channel::LinkedIn);
+        $message = MessageTemplate::of('Salut {firstName}', null, Channel::LinkedIn);
         $campaign->revise(CampaignName::of('Relance PHP'), $targeting, $message, new MemberId('0190a1c0-0000-7000-8000-000000000009'), $this->now());
         $state = StateOf::the($campaign);
 
@@ -371,7 +371,7 @@ final class CampaignTest extends TestCase
             new AccountId(self::ACCOUNT),
             CampaignName::of('Relance ESN'),
             Targeting::by(Channel::Email, ['#ESN']),
-            MessageTemplate::of('Bonjour {prénom}', 'Une question', Channel::Email),
+            MessageTemplate::of('Bonjour {firstName}', 'Une question', Channel::Email),
             new MemberId(self::ME),
             $this->now(),
         );

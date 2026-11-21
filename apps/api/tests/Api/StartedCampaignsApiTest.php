@@ -180,6 +180,6 @@ class StartedCampaignsApiTest extends ApiTestCase
      */
     private function aCampaign(): array
     {
-        return ['name' => 'Relance ESN', 'channel' => 'email', 'tags' => [self::TAG], 'message' => 'Bonjour {prénom}', 'subject' => null];
+        return ['name' => 'Relance ESN', 'channel' => 'email', 'tags' => [self::TAG], 'message' => 'Bonjour {firstName}', 'subject' => null];
     }
 }

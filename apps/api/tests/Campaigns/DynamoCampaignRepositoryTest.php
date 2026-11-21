@@ -59,7 +59,7 @@ class DynamoCampaignRepositoryTest extends ApiTestCase
         $sheet = $this->retriever()->get($this->account, $campaign->id());
 
         $this->assertSame(
-            ['Relance ESN', 'email', ['#ESN'], ['#ESN', '#EMAIL'], 'Bonjour {prénom}', 'Une question', 'draft', ['ReviseCampaign', 'DiscardCampaign', 'FreezeCampaign']],
+            ['Relance ESN', 'email', ['#ESN'], ['#ESN', '#EMAIL'], 'Bonjour {firstName}', 'Une question', 'draft', ['ReviseCampaign', 'DiscardCampaign', 'FreezeCampaign']],
             [$sheet->name, $sheet->channel, $sheet->tags, $sheet->targetedTags, $sheet->message, $sheet->subject, $sheet->status, $sheet->possibleIntents],
         );
     }
@@ -222,7 +222,7 @@ class DynamoCampaignRepositoryTest extends ApiTestCase
             $account ?? $this->account,
             CampaignName::of($name),
             Targeting::by(Channel::Email, ['#ESN']),
-            MessageTemplate::of('Bonjour {prénom}', 'Une question', Channel::Email, $mode),
+            MessageTemplate::of('Bonjour {firstName}', 'Une question', Channel::Email, $mode),
             new MemberId(self::newIdentity()),
             new \DateTimeImmutable('2026-11-17 10:00:00'),
         );

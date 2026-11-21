@@ -40,7 +40,7 @@ const relance: Campaign = {
   channel: 'email',
   tags: ['#ESN'],
   targetedTags: ['#ESN', '#EMAIL'],
-  message: 'Bonjour {prénom}',
+  message: 'Bonjour {firstName}',
   subject: null,
   messageMode: 'asIs',
   status: 'draft',
@@ -338,12 +338,12 @@ describe('the campaigns of the team', () => {
     )
   })
 
-  it('names the variables of the message, the civility first', async () => {
+  it('names the variables of the message, the title first', async () => {
     theApiAnswers()
     await renderTheSpaAt('/campaigns/new')
 
     expect(
-      await screen.findByText(/\{civilité\}, \{prénom\}, \{nom\}, \{organisation\}, \{fonction\}/),
+      await screen.findByText(/\{title\}, \{firstName\}, \{lastName\}, \{organization\}, \{jobTitle\}/),
     ).toBeInTheDocument()
   })
 

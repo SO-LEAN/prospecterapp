@@ -9,8 +9,8 @@ use Prospecter\Core\Campaigns\Domain\Policy\AutomaticTags;
 
 /**
  * A tag, written one way whatever a member typed (ADR 0138): a `#` then 1 to 30 capital letters without accents,
- * digits and underscores, the accents removed and every other run of characters an underscore (`éditeur logiciel`
- * is #EDITEUR_LOGICIEL).
+ * digits and underscores, the accents removed and every other run of characters an underscore (`Café owners` is
+ * #CAFE_OWNERS).
  */
 final readonly class Tag implements \Stringable
 {

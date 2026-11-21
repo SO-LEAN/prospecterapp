@@ -31,9 +31,9 @@ final class MessageTemplateTest extends TestCase
      */
     public static function renderings(): iterable
     {
-        yield 'every variable' => ['{prénom} {nom}, {organisation}', 'Ada Lovelace, ACME'];
-        yield 'twice the same' => ['{prénom}… {prénom} ?', 'Ada… Ada ?'];
-        yield 'one without value' => ['Bonjour {prénom}, {fonction}.', 'Bonjour Ada, .'];
+        yield 'every variable' => ['{firstName} {lastName}, {organization}', 'Ada Lovelace, ACME'];
+        yield 'twice the same' => ['{firstName}… {firstName} ?', 'Ada… Ada ?'];
+        yield 'one without value' => ['Bonjour {firstName}, {jobTitle}.', 'Bonjour Ada, .'];
         yield 'an unknown one kept' => ['Bonjour {surnom}', 'Bonjour {surnom}'];
         yield 'no variable' => ['Bonjour', 'Bonjour'];
         yield 'nothing' => ['', ''];
@@ -44,7 +44,7 @@ final class MessageTemplateTest extends TestCase
     {
         $addressee = new Addressee('Grace', 'Hopper', $civility, null, null);
 
-        $this->assertSame($rendered, MessageTemplate::of('Bonjour {civilité} {nom},', null, Channel::Sms)->renderedFor($addressee)->text);
+        $this->assertSame($rendered, MessageTemplate::of('Bonjour {title} {lastName},', null, Channel::Sms)->renderedFor($addressee)->text);
     }
 
     /**
@@ -59,7 +59,7 @@ final class MessageTemplateTest extends TestCase
 
     public function testAnEmailHasItsSubjectRenderedToo(): void
     {
-        $message = MessageTemplate::of('Bonjour', ' {prénom}, une question ', Channel::Email)->renderedFor(new Addressee('Ada', null, 'x', null, null));
+        $message = MessageTemplate::of('Bonjour', ' {firstName}, une question ', Channel::Email)->renderedFor(new Addressee('Ada', null, 'x', null, null));
 
         $this->assertSame('Ada, une question', $message->subject);
     }
