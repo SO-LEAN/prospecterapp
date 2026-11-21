@@ -3,6 +3,7 @@
 namespace App\Connectors\Google;
 
 use EmailReplyParser\EmailReplyParser;
+use Prospecter\Core\Connectors\Domain\Model\MailboxAttachment;
 use Prospecter\Core\Connectors\Domain\Model\MailboxMail;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Soundasleep\Html2Text;
@@ -19,6 +20,7 @@ final readonly class GmailMessage
     private const string PLAIN_TEXT = 'text/plain';
     private const string HTML = 'text/html';
     private const string UTF8 = 'UTF-8';
+    private const string ATTACHMENT = 'attachment';
 
     /**
      * None without the address of its sender: nobody to recognize.
@@ -42,7 +44,37 @@ final readonly class GmailMessage
             new \DateTimeImmutable('@'.intdiv((int) $message['internalDate'], self::MILLISECONDS)),
             $headers['subject'] ?? '',
             self::textOf($message['payload'] ?? []),
+            self::attachmentsIn($message['payload'] ?? []),
         );
+    }
+
+    /**
+     * The parts with a file name, those of the parts read in their order, but the images embedded in the body
+     * (ADR 0182).
+     *
+     * @param array<string, mixed> $part
+     *
+     * @return list<MailboxAttachment>
+     */
+    private static function attachmentsIn(array $part): array
+    {
+        $attachments = self::isAttached($part) ? [new MailboxAttachment((string) ($part['body']['attachmentId'] ?? ''), $part['filename'], (int) ($part['body']['size'] ?? 0))] : [];
+
+        return array_merge($attachments, ...array_map(self::attachmentsIn(...), $part['parts'] ?? []));
+    }
+
+    /**
+     * A part named by a Content-ID and not given as an attachment is shown in the body, the logo of a signature: a
+     * file shown inline without one (Apple Mail) is attached all the same.
+     *
+     * @param array<string, mixed> $part
+     */
+    private static function isAttached(array $part): bool
+    {
+        $headers = self::headersOf($part);
+        $embedded = isset($headers['content-id']) && !str_starts_with(mb_strtolower(trim($headers['content-disposition'] ?? '')), self::ATTACHMENT);
+
+        return '' !== ($part['filename'] ?? '') && !$embedded;
     }
 
     /**
@@ -153,7 +185,7 @@ final readonly class GmailMessage
     /**
      * Gmail answers the body of a part in base64url.
      */
-    private static function decoded(string $data): string
+    public static function decoded(string $data): string
     {
         return (string) base64_decode(strtr($data, '-_', '+/'), true);
     }

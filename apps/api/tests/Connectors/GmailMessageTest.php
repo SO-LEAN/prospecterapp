@@ -5,6 +5,7 @@ namespace Tests\App\Connectors;
 use App\Connectors\Google\GmailMessage;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Prospecter\Core\Connectors\Domain\Model\MailboxAttachment;
 use Prospecter\Core\Connectors\Domain\Model\MailboxMail;
 use Prospecter\Core\SharedKernel\Domain\Email;
 
@@ -83,6 +84,64 @@ class GmailMessageTest extends TestCase
         ]]));
 
         $this->assertSame('Le texte', $mail?->text);
+    }
+
+    public function testItsAttachmentsAreThePartsWithAFileNameInTheirOrder(): void
+    {
+        $mail = GmailMessage::read(self::message(['mimeType' => 'multipart/mixed', 'parts' => [
+            ['mimeType' => 'text/plain', 'filename' => '', 'body' => ['data' => self::encoded('Le texte')]],
+            self::attachment('devis.pdf', 'a1', 307200, 'attachment; filename="devis.pdf"'),
+            self::attachment('cv.pdf', 'a2', 1024, 'attachment; filename="cv.pdf"'),
+        ]]));
+
+        $this->assertEquals([new MailboxAttachment('a1', 'devis.pdf', 307200), new MailboxAttachment('a2', 'cv.pdf', 1024)], $mail?->attachments);
+    }
+
+    /**
+     * The logo of a signature, embedded in the body of the message and named by its Content-ID.
+     */
+    public function testAnImageEmbeddedInTheBodyIsNoAttachment(): void
+    {
+        $mail = GmailMessage::read(self::message(['mimeType' => 'multipart/related', 'parts' => [
+            ['mimeType' => 'text/html', 'filename' => '', 'body' => ['data' => self::encoded('<p>Ada</p><img src="cid:logo">')]],
+            self::attachment('logo.png', 'a1', 4096, 'inline; filename="logo.png"', '<logo>'),
+        ]]));
+
+        $this->assertSame([], $mail?->attachments);
+    }
+
+    /**
+     * Apple Mail sends a document it shows in the body inline, without naming it by a Content-ID.
+     */
+    public function testAFileShownInlineWithoutContentIdIsAnAttachment(): void
+    {
+        $mail = GmailMessage::read(self::message(['mimeType' => 'multipart/mixed', 'parts' => [
+            self::attachment('devis.pdf', 'a1', 307200, 'inline; filename="devis.pdf"'),
+        ]]));
+
+        $this->assertEquals([new MailboxAttachment('a1', 'devis.pdf', 307200)], $mail?->attachments);
+    }
+
+    /**
+     * Gmail names its attachments by a Content-ID too.
+     */
+    public function testAFileAttachedWithAContentIdIsAnAttachment(): void
+    {
+        $mail = GmailMessage::read(self::message(['mimeType' => 'multipart/mixed', 'parts' => [
+            self::attachment('devis.pdf', 'a1', 307200, 'attachment; filename="devis.pdf"', '<f_abc>'),
+        ]]));
+
+        $this->assertEquals([new MailboxAttachment('a1', 'devis.pdf', 307200)], $mail?->attachments);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function attachment(string $name, string $id, int $size, string $disposition, ?string $contentId = null): array
+    {
+        $headers = [['name' => 'Content-Disposition', 'value' => $disposition], ...(null === $contentId ? [] : [['name' => 'Content-ID', 'value' => $contentId]])];
+
+        return ['mimeType' => 'application/octet-stream', 'filename' => $name, 'headers' => $headers, 'body' => ['attachmentId' => $id, 'size' => $size]];
     }
 
     public function testAMessageInHtmlOnlyIsReadAsTextWithoutItsQuote(): void
