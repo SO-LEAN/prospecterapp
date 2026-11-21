@@ -427,6 +427,14 @@ when@test:
                 $ssm: '@Aws\Ssm\SsmClient'
                 $secretsPath: '%env(ACCOUNT_SECRETS_PATH)%'
             public: true
+        # the user pool each API test starts from, with the members of the demonstration, made once in each process
+        Tests\App\Base\MembersOfTheDemonstration:
+            arguments:
+                $pool: '@App\SignIn\UserPool'
+                $demoCredentials: '@App\Demo\DemoCredentials'
+                $credentials: '@App\SignIn\Credentials'
+                $cognito: '@Aws\CognitoIdentityProvider\CognitoIdentityProviderClient'
+            public: true
         Prospecter\Core\SharedKernel\Application\Port\PrivateStorage: '@Tests\App\Double\InMemoryPrivateStorage'
         App\Shared\UploadForms: '@Tests\App\Double\InMemoryPrivateStorage'
         App\Shared\UploadSender: '@Tests\App\Double\InMemoryPrivateStorage'
