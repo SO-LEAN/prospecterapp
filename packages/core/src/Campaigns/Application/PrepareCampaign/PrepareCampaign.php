@@ -10,7 +10,7 @@ final readonly class PrepareCampaign
      * @param string       $channel     `email`, `call`, `sms` or `linkedIn`
      * @param list<string> $tags        the tags chosen, as the member typed them
      * @param string|null  $subject     the subject of an e-mail
-     * @param string       $messageMode how an AI treats the message for each person: `asIs` or `adapted`
+     * @param string|null  $messageMode how an AI treats the message for each person: `asIs` or `adapted`, as is when not said
      */
     public function __construct(
         public string $memberId,
@@ -21,7 +21,7 @@ final readonly class PrepareCampaign
         public string $message,
         public ?string $subject,
         public \DateTimeImmutable $executedAt,
-        public string $messageMode = 'asIs',
+        public ?string $messageMode = null,
     ) {
     }
 }

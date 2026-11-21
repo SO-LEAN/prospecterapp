@@ -12,8 +12,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 final readonly class CampaignInput
 {
-    private const string AS_IS = 'asIs';
-
     /**
      * @param list<string>|null $tags
      */
@@ -48,7 +46,7 @@ final readonly class CampaignInput
             message: (string) $this->message,
             subject: $this->subject,
             executedAt: $executedAt,
-            messageMode: $this->messageMode ?? self::AS_IS,
+            messageMode: $this->messageMode,
         );
     }
 
@@ -63,7 +61,7 @@ final readonly class CampaignInput
             message: (string) $this->message,
             subject: $this->subject,
             executedAt: $executedAt,
-            messageMode: $this->messageMode ?? self::AS_IS,
+            messageMode: $this->messageMode,
         );
     }
 }

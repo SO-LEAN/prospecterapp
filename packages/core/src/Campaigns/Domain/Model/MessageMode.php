@@ -16,10 +16,12 @@ enum MessageMode: string
     case Adapted = 'adapted';
 
     /**
+     * As is when the member does not say.
+     *
      * @throws UnknownMessageMode
      */
-    public static function named(string $name): self
+    public static function named(?string $name): self
     {
-        return self::tryFrom($name) ?? throw UnknownMessageMode::named($name);
+        return null === $name ? self::AsIs : self::tryFrom($name) ?? throw UnknownMessageMode::named($name);
     }
 }
