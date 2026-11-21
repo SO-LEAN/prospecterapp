@@ -43,7 +43,12 @@ const anExchange = (exchange: Partial<Exchange>): Exchange => ({
 const upcomingLink = { href: `/api/contacts/${ADA}/upcoming-exchanges`, method: 'GET' }
 const nothingToCome: Timeline = { items: [], _links: { self: upcomingLink } }
 
-async function renderTheSection(timeline: Timeline, detail?: ExchangeDetail, upcoming = nothingToCome) {
+async function renderTheSection(
+  timeline: Timeline,
+  detail?: ExchangeDetail,
+  upcoming = nothingToCome,
+  mayCatchUpGmail = false,
+) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { staleTime: Number.POSITIVE_INFINITY } },
   })
@@ -54,7 +59,7 @@ async function renderTheSection(timeline: Timeline, detail?: ExchangeDetail, upc
   }
   await renderInARouter(
     <QueryClientProvider client={queryClient}>
-      <ExchangesSection contactId={ADA} contactName="Ada Lovelace" />
+      <ExchangesSection contactId={ADA} contactName="Ada Lovelace" mayCatchUpGmail={mayCatchUpGmail} />
     </QueryClientProvider>,
   )
 }
@@ -207,6 +212,18 @@ describe('ExchangesSection', () => {
     expect(line).toHaveTextContent('Peut contenir des données personnelles')
     expect(line).toHaveTextContent('Grace rappellera lundi')
     expect(screen.queryByRole('button', { name: 'Noter un échange' })).not.toBeInTheDocument()
+  })
+
+  it('offers to catch up Gmail in its header when the contact links it', async () => {
+    await renderTheSection({ items: [], _links: { self: timelineLink } }, undefined, nothingToCome, true)
+
+    expect(screen.getByRole('button', { name: 'Rattraper Gmail' })).toBeInTheDocument()
+  })
+
+  it('offers no catch-up of Gmail when the contact does not link it', async () => {
+    await renderTheSection({ items: [], _links: { self: timelineLink } })
+
+    expect(screen.queryByRole('button', { name: 'Rattraper Gmail' })).not.toBeInTheDocument()
   })
 
   it('says there is none yet', async () => {
