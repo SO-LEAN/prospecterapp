@@ -83,6 +83,8 @@ final readonly class DynamoExchangeDetailRetriever implements ExchangeDetailRetr
             possibleIntents: array_map(static fn (ExchangeIntent $intent): string => $intent->name, ExchangePossibilities::given(new ExchangeSituation(count($attachments), ExchangeConformity::awaitsBeingMadeConform($contactForgotten, null !== $madeConform), $status, $occurredAt <= $asOf, $document['createdBy'] === $reader->id->value, Channel::from($facts['channel']), null !== $movedFrom && Exchange::isAMomentToCome($movedFrom, $asOf)))),
             campaignId: $document['campaignId'] ?? null,
             bookedByLink: $document['bookedByLink'] ?? false,
+            importedFrom: $document['importedFrom']['provider'] ?? null,
+            providerMessageId: $document['importedFrom']['providerMessageId'] ?? null,
         );
     }
 }

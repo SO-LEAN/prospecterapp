@@ -66,6 +66,8 @@ final readonly class ExchangeDetailResource
         public ?CampaignOfExchangeResource $campaign,
         #[OA\Property(description: 'Its contact booked it by the public link of its holder, who planned nothing themselves (ADR 0164)')]
         public bool $bookedByLink,
+        #[OA\Property(enum: ExchangeResource::PROVIDERS, description: ExchangeResource::IMPORTED_FROM_DESCRIPTION)]
+        public ?string $importedFrom,
         #[SerializedName('_links')]
         #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]
         public ExchangeDetailLinksResource $links,

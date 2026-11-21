@@ -16,6 +16,8 @@ final readonly class ExchangeResource
     public const array STATUSES = ['planned', 'done', 'missed', 'cancelled'];
     public const string STATUS_DESCRIPTION = 'planned: still to come; done: it happened; missed: the contact did not come or answer; cancelled: called off before it happened';
     public const array CANCELLERS = ['prospector', 'contact'];
+    public const array PROVIDERS = ['google'];
+    public const string IMPORTED_FROM_DESCRIPTION = 'The provider of the mailbox it was imported from, google for Gmail; null for an exchange noted (ADR 0174)';
 
     /**
      * @param list<string> $organizationIds

@@ -14,6 +14,7 @@ use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
+use Prospecter\Core\Prospecting\Domain\Model\ImportedEmail;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
@@ -23,6 +24,7 @@ use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
+use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\App\Base\ApiTestCase;
 
 /**
@@ -303,6 +305,49 @@ class ExchangeApiTest extends ApiTestCase
         $this->assertSame(['channel'], $this->violatedFields($problem));
     }
 
+    public function testTheDetailOfAnImportedExchangeSaysWhereItComesFromAndOpensItsMessageInGmail(): void
+    {
+        $id = $this->anImportedExchange(new ImportedEmail('google', 'f00d', '18c2f4a9e0b1d3c7'));
+
+        $exchange = $this->requestJson('GET', '/api/exchanges/'.$id);
+
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSame('google', $exchange['importedFrom']);
+        $this->assertSame(['href' => 'https://mail.google.com/mail/#all/18c2f4a9e0b1d3c7', 'method' => 'GET'], $exchange['_links']['openInMailbox']);
+    }
+
+    public function testTheDetailOfAnImportedExchangeReadWithoutTheRightSaysWhereItComesFromButOpensNothing(): void
+    {
+        $id = $this->anImportedExchange(new ImportedEmail('google', 'f00d', '18c2f4a9e0b1d3c7'));
+        $this->login($this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector));
+
+        $exchange = $this->requestJson('GET', '/api/exchanges/'.$id);
+
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSame(['google', true], [$exchange['importedFrom'], $exchange['textFlagged']]);
+        $this->assertArrayNotHasKey('openInMailbox', $exchange['_links']);
+    }
+
+    public function testTheDetailOfAnImportedExchangeOpensItsMessageInGmailToAnAdministrator(): void
+    {
+        $id = $this->anImportedExchange(new ImportedEmail('google', 'f00d', '18c2f4a9e0b1d3c7'));
+        $this->login($this->aMemberOfTheFixtures('administrator', Role::User, Role::Admin));
+
+        $exchange = $this->requestJson('GET', '/api/exchanges/'.$id);
+
+        $this->assertSame('https://mail.google.com/mail/#all/18c2f4a9e0b1d3c7', $exchange['_links']['openInMailbox']['href'] ?? null);
+    }
+
+    public function testTheDetailOfAnImportedExchangeWhoseMessageIdWasNotKeptOpensNothing(): void
+    {
+        $id = $this->anImportedExchange(new ImportedEmail('google', 'f00d'));
+
+        $exchange = $this->requestJson('GET', '/api/exchanges/'.$id);
+
+        $this->assertSame('google', $exchange['importedFrom']);
+        $this->assertArrayNotHasKey('openInMailbox', $exchange['_links']);
+    }
+
     public function testAnExchangeNeverNotedIsNotFound(): void
     {
         $this->requestJson('GET', '/api/exchanges/'.self::newIdentity());
@@ -354,6 +399,19 @@ class ExchangeApiTest extends ApiTestCase
     private function anOrganization(string $name): string
     {
         return $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => $name]])['id'];
+    }
+
+    /**
+     * An e-mail of Ada imported by the prospector of the fixtures, as the import of their mailbox notes it.
+     */
+    private function anImportedExchange(ImportedEmail $email): string
+    {
+        $organization = $this->anOrganization('ACME');
+        $contact = $this->aContactOf($organization);
+        $exchange = Exchange::importedWithAContact($this->accountOfTheFixtures(), new MemberId($this->memberIdOf('prospector-user')), new ExchangeId(self::newIdentity()), new PersonId($contact), [new OrganizationId($organization)], new ExchangeFacts(Channel::Email, Direction::Inbound, new \DateTimeImmutable('2026-10-14 09:00 UTC'), "Votre devis\n\nBonjour"), $email, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        self::getContainer()->get(ExchangeRepository::class)->save($exchange);
+
+        return $exchange->id()->value;
     }
 
     private function anExchangeOfAnotherAccount(): string
