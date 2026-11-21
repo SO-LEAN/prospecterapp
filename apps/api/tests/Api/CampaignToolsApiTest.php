@@ -221,7 +221,7 @@ class CampaignToolsApiTest extends ApiTestCase
 
         $prompt = $this->callWithHandshake('prompts/get', ['name' => 'mener-une-campagne', 'arguments' => ['campagne' => 'Relance PHP']]);
 
-        $this->assertStringContainsString('Never send a second message to a recipient: when destinataire-suivant gives you again a recipient you sent to, stop and tell me who.', $prompt['messages'][0]['content']['text']);
+        $this->assertStringContainsString('N\'envoie jamais un second message à un destinataire : quand `destinataire-suivant` te redonne un destinataire à qui tu as écrit, arrête-toi et dis-moi qui.', $prompt['messages'][0]['content']['text']);
     }
 
     public function testTheAiNotesTheEmailItSentToARecipientWhoIsProcessed(): void
