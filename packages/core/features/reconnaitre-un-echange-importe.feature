@@ -23,3 +23,23 @@ Fonctionnalité: Reconnaître un échange importé de Gmail
       | canal  | provenance |
       | E-mail | Gmail      |
       | E-mail |            |
+
+  Scénario: Le détail de l'échange importé dit sa provenance
+    Quand je consulte cet échange
+    Alors je vois l'échange :
+      | provenance | Gmail |
+
+  Scénario: Sans le droit aux données personnelles, l'échange importé est marqué comme importé, son texte signalé
+    Soit je perds le droit aux données personnelles
+    Quand je consulte cet échange
+    Alors je vois l'échange :
+      | provenance | Gmail |
+      | signalé    | oui   |
+
+  Scénario: Un échange importé se corrige comme les autres et garde sa provenance
+    Soit nous sommes le "2026-11-18 11:00"
+    Quand je corrige le texte de cet échange en "Votre devis, validé"
+    Alors je vois l'échange :
+      | texte      | Votre devis, validé           |
+      | provenance | Gmail                         |
+      | modifié    | le 18/11/2026 à 11:00 par moi |

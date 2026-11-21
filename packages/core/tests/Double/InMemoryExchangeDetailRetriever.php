@@ -71,6 +71,7 @@ final readonly class InMemoryExchangeDetailRetriever implements ExchangeDetailRe
             possibleIntents: array_map(static fn (ExchangeIntent $intent): string => $intent->name, ExchangePossibilities::given(new ExchangeSituation(count($attachments), ExchangeConformity::awaitsBeingMadeConform($contactForgotten, null !== $madeConform), $state['status'], $facts->occurredAt <= $asOf, $state['createdBy']->equals($reader->id), $facts->channel, null !== $movedFrom && Exchange::isAMomentToCome($movedFrom, $asOf)))),
             campaignId: $state['campaign']?->value,
             bookedByLink: $state['bookedByLink'],
+            importedFrom: $state['importedFrom']?->provider,
         );
     }
 }
