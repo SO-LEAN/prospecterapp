@@ -23,6 +23,7 @@ use Prospecter\Core\PersonalData\Application\PossibleDuplicate;
 use Prospecter\Core\PersonalData\Application\RenamePerson\RenamePerson;
 use Prospecter\Core\PersonalData\Application\SearchContacts\ContactPage;
 use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContacts;
+use Prospecter\Core\PersonalData\Contract\Event\ContactCollected;
 use Prospecter\Core\PersonalData\Domain\Event\DuplicateSuspicionLifted;
 use Prospecter\Core\PersonalData\Domain\Model\Civility;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
@@ -150,6 +151,23 @@ final class PersonalDataContext implements Context
     public function iCollectAContactAlone(string $name, TableNode $table): void
     {
         $this->collect($name, [], $table);
+    }
+
+    /**
+     * As the worker may deliver it once more, or after a client attached the contact meanwhile (ADR 0177).
+     */
+    #[When('la collecte de :name est délivrée une fois de plus')]
+    public function theCollectionIsDeliveredAgain(string $name): void
+    {
+        $personId = $this->scenario->personIdOf($name);
+        $collected = array_filter($this->application->events->published(ContactCollected::class), static fn (ContactCollected $event): bool => $event->personId === $personId);
+        $this->application->publishAgain(array_last($collected));
+    }
+
+    #[Then('aucun rattachement de contact collecté n\'a échoué')]
+    public function noAttachmentOfACollectedContactFailed(): void
+    {
+        Expect::same([], array_map(static fn (\Throwable $failure): string => $failure->getMessage(), $this->application->events->failuresOf(ContactCollected::class)));
     }
 
     #[When('je liste mes contacts')]

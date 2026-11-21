@@ -15,7 +15,8 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * A contact collected in PersonalData joins the organizations it was collected for, by its collector: the
- * integration event PersonalData publishes, translated into the words of Prospecting (ADR 0046).
+ * integration event PersonalData publishes, translated into the words of Prospecting (ADR 0046). An organization a
+ * client attached them to meanwhile, before the reaction ran, names them already: it stays as it is (ADR 0177).
  */
 final readonly class AttachCollectedContactHandler implements EventHandler
 {
@@ -28,10 +29,16 @@ final readonly class AttachCollectedContactHandler implements EventHandler
     public function __invoke(ContactCollected $event): void
     {
         $collector = new MemberId($event->memberId);
+        $contact = new PersonId($event->personId);
 
         foreach ($event->organizationIds as $organizationId) {
             $organization = $this->organizations->get(new OrganizationId($organizationId));
-            $organization->addContact(new PersonId($event->personId), by: $collector, at: $event->occurredAt);
+
+            if ($organization->hasContact($contact)) {
+                continue;
+            }
+
+            $organization->addContact($contact, by: $collector, at: $event->occurredAt);
             $this->organizations->save($organization);
             $this->publishWhatHappenedTo($organization);
         }
