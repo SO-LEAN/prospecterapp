@@ -48,19 +48,16 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
      */
     private const array TO_COVER = [
         'api_campaigns_note_exchange',
-        'api_contacts_catch_up_gmail',
         'api_contacts_dismiss_possible_duplicate',
         'api_me_change_organization_logo',
         'api_me_configure_gmail_notifications',
         'api_me_configure_google_client',
-        'api_me_connections_check',
         'api_me_connections_google_disconnect',
         'api_me_connections_google_stop_gmail_import',
         'api_me_relocate_organization',
         'api_me_remove_gmail_notifications',
         'api_me_remove_google_client',
         'api_me_revise_organization_identity',
-        'api_organizations_catch_up_gmail',
     ];
 
     public function testEveryEndpointOfAMemberHasItsTool(): void
