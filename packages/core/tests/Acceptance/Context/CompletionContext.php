@@ -10,6 +10,7 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use Prospecter\Core\PersonalData\Application\CompareWithContact\CompareWithContact;
 use Prospecter\Core\PersonalData\Application\CompleteContact\CompleteContact;
+use Prospecter\Core\Prospecting\Application\CompleteOrganization\CompleteOrganization;
 use Prospecter\Core\SharedKernel\Application\Comparison;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
@@ -38,6 +39,13 @@ final class CompletionContext implements Context
     {
         $values = Vocabulary::values($table->getRowsHash());
         $this->application->dispatch(new CompleteContact($this->application->signedIn(), $this->scenario->personIdOf($name), Vocabulary::civility($values['Civilité']), $values['fonction'], $values['e-mail'], $values['téléphone'], Vocabulary::links($values), $this->application->now()));
+    }
+
+    #[When('je complète l\'organisation :name :')]
+    public function iCompleteTheOrganization(string $name, TableNode $table): void
+    {
+        $values = Vocabulary::values($table->getRowsHash());
+        $this->application->dispatch(new CompleteOrganization($this->application->signedIn(), $this->scenario->idOf($name), $values['SIRET'], Vocabulary::links($values), $values['site web'], $values['e-mail'], $values['téléphone'], $this->application->now()));
     }
 
     #[When('je compare le contact :name à :')]

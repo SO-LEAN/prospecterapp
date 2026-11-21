@@ -227,6 +227,7 @@ use Prospecter\Core\Prospecting\Application\CampaignsOfTimeline;
 use Prospecter\Core\Prospecting\Application\CancelExchange\CancelExchangeHandler;
 use Prospecter\Core\Prospecting\Application\ChangeContactDetails\ChangeContactDetailsHandler;
 use Prospecter\Core\Prospecting\Application\ChangeLogo\ChangeLogoHandler;
+use Prospecter\Core\Prospecting\Application\CompleteOrganization\CompleteOrganizationHandler;
 use Prospecter\Core\Prospecting\Application\ConsultCalendar\Calendar;
 use Prospecter\Core\Prospecting\Application\ConsultCalendar\ConsultCalendar;
 use Prospecter\Core\Prospecting\Application\ConsultCalendar\ConsultCalendarHandler;
@@ -1344,6 +1345,7 @@ final class Application
             new ForgetContactHandler($this->persons, $this->readers, $this->events),
             new DismissPossibleDuplicateOfContactHandler($this->persons, $this->readers, $this->events),
             new AddContactHandler($this->organizations, $this->knownContacts, $this->events),
+            new CompleteOrganizationHandler($this->organizations, $this->events, $this->organizationSirets, $this->organizationReferences, $this->organizationWebsites, $this->organizationEmails),
             new RemoveContactHandler($this->organizations, $this->events, $this->orphans),
             new StopProspectingHandler($this->organizations, $this->events, $this->orphans),
             new DismissPossibleDuplicateHandler($this->organizations, $this->events),

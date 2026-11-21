@@ -69,6 +69,7 @@ final class Vocabulary
         'TickOffToDo' => 'cocher l\'action',
         'UntickToDo' => 'décocher l\'action',
         'EraseToDo' => 'supprimer l\'action',
+        'Complete' => 'compléter',
     ];
 
     private const string MOMENT = 'Y-m-d H:i';

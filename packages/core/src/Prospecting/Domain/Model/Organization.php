@@ -18,6 +18,7 @@ use Prospecter\Core\Prospecting\Domain\Event\LocatedAgain;
 use Prospecter\Core\Prospecting\Domain\Event\LogoChanged;
 use Prospecter\Core\Prospecting\Domain\Event\LogoRemoved;
 use Prospecter\Core\Prospecting\Domain\Event\ObservationsWritten;
+use Prospecter\Core\Prospecting\Domain\Event\OrganizationCompleted;
 use Prospecter\Core\Prospecting\Domain\Event\ProspectingStarted;
 use Prospecter\Core\Prospecting\Domain\Event\ProspectingStopped;
 use Prospecter\Core\Prospecting\Domain\Event\Relocated;
@@ -33,8 +34,10 @@ use Prospecter\Core\Prospecting\Domain\Policy\OrganizationPossibilities;
 use Prospecter\Core\Prospecting\Domain\Service\OrphanContacts;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Address;
+use Prospecter\Core\SharedKernel\Domain\Completion;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
+use Prospecter\Core\SharedKernel\Domain\ExternalReference;
 use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
 use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\GeoPoint;
@@ -54,6 +57,12 @@ use Prospecter\Core\SharedKernel\Domain\Siret;
 final class Organization implements ReleasesEvents
 {
     use RecordsEvents;
+
+    private const string SIRET = 'siret';
+    private const string LINKS = 'links';
+    private const string WEBSITE = 'website';
+    private const string EMAIL = 'email';
+    private const string PHONE_NUMBER = 'phoneNumber';
 
     private ?OrganizationId $holdingId = null;
     private ?Address $address = null;
@@ -275,6 +284,73 @@ final class Organization implements ReleasesEvents
         $this->website = $website;
         $this->modifiedAt = $at;
         $this->recordThat(new ContactDetailsChanged($this->accountId, $by, $this->id, $at));
+    }
+
+    /**
+     * Fills what the organization lacks, never changing what is noted (ADR 0177); nothing to fill, nothing happens.
+     */
+    public function completeWith(OrganizationSupplement $supplement, MemberId $by, \DateTimeImmutable $at): void
+    {
+        $completion = $this->completionWith($supplement);
+
+        if (!$completion->completesAnything()) {
+            return;
+        }
+
+        $identity = $this->legalIdentity;
+        $this->legalIdentity = new LegalIdentity($identity->corporateName, $identity->form, $identity->type, $completion->completes(self::SIRET) ? $supplement->siret : $identity->siret);
+        $this->references = ExternalReferences::of([...$this->references->all(), ...$this->linksToAdd($supplement)]);
+        $this->website = $completion->completes(self::WEBSITE) ? $supplement->website : $this->website;
+        $this->contactDetails = new ContactDetails(
+            $completion->completes(self::EMAIL) ? $supplement->email : $this->contactDetails->email,
+            $completion->completes(self::PHONE_NUMBER) ? $supplement->phoneNumber : $this->contactDetails->phoneNumber,
+            $this->contactDetails->language,
+        );
+        $this->modifiedAt = $at;
+        $this->recordThat(new OrganizationCompleted($this->accountId, $by, $this->id, $at));
+    }
+
+    /**
+     * What the supplement would fill of the organization, and what it gives otherwise than noted.
+     */
+    public function completionWith(OrganizationSupplement $supplement): Completion
+    {
+        $this->ensurePossible(OrganizationIntent::Complete);
+        $linksNotHeld = $this->linksNotHeld($supplement);
+        $linksToAdd = $this->linksToAdd($supplement);
+
+        return new Completion()
+            ->with(self::SIRET, $this->legalIdentity->siret?->value, $supplement->siret?->value)
+            ->withSome(self::LINKS, filled: count($linksToAdd), left: count($linksNotHeld) - count($linksToAdd))
+            ->with(self::WEBSITE, $this->website?->value, $supplement->website?->value)
+            ->with(self::EMAIL, $this->contactDetails->email?->value, $supplement->email?->value)
+            ->with(self::PHONE_NUMBER, $this->contactDetails->phoneNumber?->value, $supplement->phoneNumber?->value);
+    }
+
+    /**
+     * The links given it does not hold yet, each once, while there is room for them.
+     *
+     * @return list<ExternalReference>
+     */
+    private function linksToAdd(OrganizationSupplement $supplement): array
+    {
+        return array_slice($this->linksNotHeld($supplement), 0, ExternalReferences::MAX - count($this->references->all()));
+    }
+
+    /**
+     * @return list<ExternalReference>
+     */
+    private function linksNotHeld(OrganizationSupplement $supplement): array
+    {
+        $notHeld = [];
+
+        foreach ($supplement->links as $link) {
+            if (!$this->references->holds($link)) {
+                $notHeld[$link->key()] ??= $link;
+            }
+        }
+
+        return array_values($notHeld);
     }
 
     public function relocateTo(?Address $address, ?Location $location, MemberId $by, \DateTimeImmutable $at): void
