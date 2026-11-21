@@ -41,6 +41,7 @@ final readonly class CatchUpMailHistoryHandler implements CommandHandler
     public function __invoke(CatchUpMailHistory $command): void
     {
         $me = $this->members->get(new MemberId($command->memberId));
+        $me->ensureMayCatchUpMail();
         $address = $this->addressOf($command, $me);
         $connection = $this->connections->get($me->id, Provider::Google);
         $client = $this->clients->get($me->accountId, Provider::Google);

@@ -85,6 +85,10 @@ Fonctionnalité: Rattraper l'historique Gmail d'un contact ou d'une organisation
     Soit je coupe l'import de mes e-mails Gmail
     Alors le rattrapage Gmail de "Ada Lovelace" ne m'est pas proposé
 
+  Scénario: Sans le droit aux données personnelles, le rattrapage n'est pas proposé
+    Soit je perds le droit aux données personnelles
+    Alors le rattrapage Gmail de "Globex" ne m'est pas proposé
+
   Scénario: Sans e-mail, le rattrapage n'est pas proposé
     Soit le contact "Alan Turing" de "ACME"
     Alors le rattrapage Gmail de "Alan Turing" ne m'est pas proposé
@@ -100,6 +104,11 @@ Fonctionnalité: Rattraper l'historique Gmail d'un contact ou d'une organisation
     Soit je coupe l'import de mes e-mails Gmail
     Quand je rattrape l'historique Gmail de "Ada Lovelace"
     Alors c'est refusé : "The import of the e-mails is not active"
+
+  Scénario: Sans le droit aux données personnelles, pas de rattrapage
+    Soit je perds le droit aux données personnelles
+    Quand je rattrape l'historique Gmail de "Globex"
+    Alors c'est refusé : "Only a member allowed to manage personal data catches up the e-mails of their mailbox"
 
   Scénario: Sans e-mail, pas de rattrapage
     Soit le contact "Alan Turing" de "ACME"
@@ -117,3 +126,16 @@ Fonctionnalité: Rattraper l'historique Gmail d'un contact ou d'une organisation
       | correspondant |
       | Grace Hopper  |
       | Initech       |
+
+  Plan du scénario: Sans connexion, un contact ou une organisation d'un autre compte reste introuvable
+    Soit l'organisation "Initech SAS" qui utilise Prospecter
+    Et l'organisation "Initech" d'e-mail "contact@initech.fr" appartient à "Initech SAS"
+    Et le contact "Grace Hopper" de "Initech" a l'adresse e-mail "grace@initech.fr"
+    Et j'ai déconnecté mon compte Google
+    Quand je rattrape l'historique Gmail de "<correspondant>"
+    Alors c'est introuvable, pour la raison "<raison>"
+
+    Exemples:
+      | correspondant | raison              |
+      | Grace Hopper  | unknownContact      |
+      | Initech       | unknownOrganization |

@@ -161,6 +161,13 @@ final class ScenarioContext implements Context
         Expect::that(ErrorType::NotFound === $this->application->refusal()?->type, sprintf('Not found was expected, got: %s', $this->application->refusal()?->type->name ?? 'no refusal'));
     }
 
+    #[Then('c\'est introuvable, pour la raison :reason')]
+    public function itIsNotFoundFor(string $reason): void
+    {
+        $this->itIsNotFound();
+        Expect::same($reason, $this->application->refusal()?->reason);
+    }
+
     public function save(string $name, Organization $organization): Organization
     {
         $this->application->organizations->save($organization);
