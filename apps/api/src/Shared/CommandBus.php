@@ -2,20 +2,47 @@
 
 namespace App\Shared;
 
+use App\Shared\Persistence\ConditionFailed;
+use Prospecter\Core\SharedKernel\Application\Addition;
+use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
+use Prospecter\Core\SharedKernel\Domain\Exception\ChangedMeanwhile;
+use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * Sends a command of the core to its handler. Handled synchronously: a refusal of the core is thrown back
- * as is, so that the API translates it like any other (404, 409, 422).
+ * as is, so that the API translates it like any other (404, 409, 422). An addition its transaction cancelled, what it
+ * read having changed meanwhile, is run again from what it reads then, three times at most after a short random wait
+ * (ADR 0181).
  */
 final readonly class CommandBus
 {
-    public function __construct(private MessageBusInterface $commandBus)
+    private const int REPLAYS_OF_AN_ADDITION = 3;
+    private const int LONGEST_WAIT_BEFORE_A_REPLAY_IN_MS = 100;
+
+    public function __construct(private MessageBusInterface $commandBus, private ClockInterface $clock)
     {
     }
 
     public function dispatch(object $command): void
+    {
+        for ($replay = 1;; ++$replay) {
+            try {
+                $this->dispatchOnce($command);
+
+                return;
+            } catch (ConditionFailed $conflict) {
+                if (!$command instanceof Addition || $replay > self::REPLAYS_OF_AN_ADDITION) {
+                    throw UseCaseRefused::because(ChangedMeanwhile::sinceRead($conflict));
+                }
+
+                $this->clock->sleep(random_int(1, self::LONGEST_WAIT_BEFORE_A_REPLAY_IN_MS) / 1000);
+            }
+        }
+    }
+
+    private function dispatchOnce(object $command): void
     {
         try {
             $this->commandBus->dispatch($command);
