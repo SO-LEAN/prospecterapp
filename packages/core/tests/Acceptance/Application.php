@@ -81,6 +81,10 @@ use Prospecter\Core\Campaigns\Application\ListCampaigns\KeptCampaigns;
 use Prospecter\Core\Campaigns\Application\ListCampaigns\ListCampaigns;
 use Prospecter\Core\Campaigns\Application\ListCampaigns\ListCampaignsHandler;
 use Prospecter\Core\Campaigns\Application\NameCampaigns\NameCampaignsHandler;
+use Prospecter\Core\Campaigns\Application\NextRecipient\KeptRecipientToHandle;
+use Prospecter\Core\Campaigns\Application\NextRecipient\NextRecipient;
+use Prospecter\Core\Campaigns\Application\NextRecipient\NextRecipientHandler;
+use Prospecter\Core\Campaigns\Application\NextRecipient\RecipientToHandle;
 use Prospecter\Core\Campaigns\Application\PrepareCampaign\PrepareCampaignHandler;
 use Prospecter\Core\Campaigns\Application\ProcessRecipientOfCampaignExchange\ProcessRecipientOfCampaignExchangeHandler;
 use Prospecter\Core\Campaigns\Application\PutTags\PutTagsHandler;
@@ -1027,6 +1031,13 @@ final class Application
         $kept = new KeptCampaignMessage();
 
         return $this->ask(new RenderCampaignMessageHandler($this->campaigns, $this->campaigners, $this->addressees), $query, $kept) ? $kept->message : null;
+    }
+
+    public function nextRecipient(NextRecipient $query): ?RecipientToHandle
+    {
+        $kept = new KeptRecipientToHandle();
+
+        return $this->ask(new NextRecipientHandler($this->campaigns, $this->campaigners, $this->addressees), $query, $kept) ? $kept->recipient : null;
     }
 
     public function searchContactsByTags(SearchContactsByTags $query): ?TaggedContactPage

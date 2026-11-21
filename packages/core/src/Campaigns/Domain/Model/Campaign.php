@@ -300,6 +300,18 @@ final class Campaign implements ReleasesEvents
     }
 
     #[\NoDiscard]
+    public function channel(): Channel
+    {
+        return $this->targeting->channel;
+    }
+
+    #[\NoDiscard]
+    public function messageMode(): MessageMode
+    {
+        return $this->message->mode;
+    }
+
+    #[\NoDiscard]
     public function stillToHandle(): int
     {
         return $this->recipients->pendingCount();
