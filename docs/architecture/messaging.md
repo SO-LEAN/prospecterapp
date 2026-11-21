@@ -92,7 +92,7 @@ Each exchange is erased by its own reaction, so that a gesture never exceeds the
 | Domain event | What happened to an aggregate, in the words of its context (`ProspectingStopped`), identities only; `Domain/Event` of its context, never outside it. |
 | Integration event | What a context promises the others (`ContactCollected`), plain data of its `Contract/Event`. |
 | Facts | An integration event carrying the snapshot of an aggregate and its revision rather than an intention (`OrganizationFactsChanged`); a **terminal** fact (absent, revision 0) ends the aggregate (ADR 0099). |
-| Revision | A counter the repository increments at each `save()`, unknown to the aggregate: the latest snapshot has the highest. |
+| Revision | A counter the repository increments at each `save()`, unknown to the aggregate: the latest snapshot has the highest. The save and the removal hold to the one their unit of work read, an optimistic lock (ADR 0181, [persistence.md](persistence.md)). |
 | Translator | A `Publish…Handler`: on the synchronous `event.bus`, within the command, it turns a domain event into an integration event or facts. |
 | Reaction | Any other `EventHandler`: it runs in the worker, after the command, reached as a subscription. |
 | Subscription | An entry of `apps/api/config/subscriptions.json`, named `<context>-<intent>`: its sources, its events, its reaction(s), its inbox; a rule of the bus on AWS. |
