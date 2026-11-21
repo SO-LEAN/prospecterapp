@@ -202,15 +202,26 @@ class CampaignToolsApiTest extends ApiTestCase
         $this->assertSame('campaignNotRunning', json_decode($refusal['content'][0]['text'], true, flags: JSON_THROW_ON_ERROR)['reason']);
     }
 
+    public function testThePromptToLeadACampaignIsListedWithTheCampaignToRun(): void
+    {
+        $this->login();
+
+        $prompt = $this->promptListed('run-campaign');
+
+        $this->assertSame(['Run a campaign', 'Send each recipient of a started campaign their message with your own tools, and log it in Prospecter.'], [$prompt['title'] ?? null, $prompt['description'] ?? null]);
+        $this->assertSame([['campaign', true]], self::argumentsOf($prompt));
+        $this->assertSame(['the campaign\'s name or ID'], array_column($prompt['arguments'] ?? [], 'description'));
+    }
+
     public function testThePromptToLeadACampaignGivesTheAiItsSteps(): void
     {
         $this->login();
 
-        $prompt = $this->callWithHandshake('prompts/get', ['name' => 'run-campaign', 'arguments' => ['campagne' => 'Relance PHP']]);
+        $prompt = $this->callWithHandshake('prompts/get', ['name' => 'run-campaign', 'arguments' => ['campaign' => 'Relance PHP']]);
 
         $text = $prompt['messages'][0]['content']['text'];
         $this->assertSame('user', $prompt['messages'][0]['role']);
-        foreach (['« Relance PHP »', 'list-campaigns', 'get-next-recipient', 'log-sent-message', 'dismiss-campaign-recipient'] as $step) {
+        foreach (['"Relance PHP"', 'list-campaigns', 'get-next-recipient', 'log-sent-message', 'dismiss-campaign-recipient'] as $step) {
             $this->assertStringContainsString($step, $text);
         }
     }
@@ -219,9 +230,9 @@ class CampaignToolsApiTest extends ApiTestCase
     {
         $this->login();
 
-        $prompt = $this->callWithHandshake('prompts/get', ['name' => 'run-campaign', 'arguments' => ['campagne' => 'Relance PHP']]);
+        $prompt = $this->callWithHandshake('prompts/get', ['name' => 'run-campaign', 'arguments' => ['campaign' => 'Relance PHP']]);
 
-        $this->assertStringContainsString('N\'envoie jamais un second message à un destinataire : quand `get-next-recipient` te redonne un destinataire à qui tu as écrit, arrête-toi et dis-moi qui.', $prompt['messages'][0]['content']['text']);
+        $this->assertStringContainsString('Never send a second message to a recipient: when `get-next-recipient` gives you a recipient you already wrote to, stop and tell me who.', $prompt['messages'][0]['content']['text']);
     }
 
     public function testTheAiNotesTheEmailItSentToARecipientWhoIsProcessed(): void
