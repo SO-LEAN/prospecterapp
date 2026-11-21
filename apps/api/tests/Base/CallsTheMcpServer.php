@@ -65,13 +65,85 @@ trait CallsTheMcpServer
      */
     protected function callWithHandshake(string $method, array $params): array
     {
+        $this->sendWithHandshake($method, $params);
+
+        return $this->resultOfTheCall();
+    }
+
+    /**
+     * A request of the revision of the handshake, its answer left to read: a result, or the error of the protocol.
+     *
+     * @param array<string, mixed> $params
+     */
+    protected function sendWithHandshake(string $method, array $params): void
+    {
         $this->client->request('POST', '/mcp', server: [
             'HTTP_ACCEPT' => 'application/json, text/event-stream',
             'CONTENT_TYPE' => 'application/json',
             'HTTP_MCP_PROTOCOL_VERSION' => self::REVISION_OF_THE_HANDSHAKE,
         ], content: json_encode(['jsonrpc' => '2.0', 'id' => 1, 'method' => $method, 'params' => $params], JSON_THROW_ON_ERROR));
+    }
 
-        return $this->resultOfTheCall();
+    /**
+     * A prompt as the server lists it, its arguments included.
+     *
+     * @return array<string, mixed>
+     */
+    protected function promptListed(string $name): array
+    {
+        $prompts = $this->callWithHandshake('prompts/list', [])['prompts'];
+
+        return array_find($prompts, static fn (array $prompt): bool => $name === $prompt['name']) ?? throw new \LogicException(sprintf('No prompt "%s" is listed.', $name));
+    }
+
+    /**
+     * @param array<string, mixed> $prompt
+     *
+     * @return list<array{string, bool}> the name of each argument and whether it is required
+     */
+    protected static function argumentsOf(array $prompt): array
+    {
+        return array_map(static fn (array $argument): array => [$argument['name'], $argument['required'] ?? false], $prompt['arguments'] ?? []);
+    }
+
+    /**
+     * The text of a prompt got with its arguments.
+     *
+     * @param array<string, string> $arguments
+     */
+    protected function promptText(string $name, array $arguments = []): string
+    {
+        $messages = $this->callWithHandshake('prompts/get', ['name' => $name, 'arguments' => (object) $arguments])['messages'];
+
+        return implode("\n", array_map(static fn (array $message): string => $message['content']['text'], $messages));
+    }
+
+    /**
+     * @return list<string> the names of the tools the server lists, page after page
+     */
+    protected function toolsServed(): array
+    {
+        $names = [];
+        $page = [];
+        do {
+            $listed = $this->callWithHandshake('tools/list', $page);
+            $names = [...$names, ...array_column($listed['tools'], 'name')];
+            $page = ['cursor' => $listed['nextCursor'] ?? null];
+        } while (null !== $page['cursor']);
+
+        return $names;
+    }
+
+    /**
+     * The tools a prompt names, `identifier` and those quoted in kebab-case (`noter-un-echange`).
+     *
+     * @return list<string>
+     */
+    protected static function toolsNamedIn(string $text): array
+    {
+        preg_match_all('/`(identifier|[a-z]+(?:-[a-z]+)+)`/', $text, $names);
+
+        return array_values(array_unique($names[1]));
     }
 
     /**
