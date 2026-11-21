@@ -104,9 +104,9 @@ class SynchronizeMailboxPromptApiTest extends ApiTestCase
     {
         $this->login();
 
-        $text = $this->promptText('sync-mailbox', ['since' => 'le 1er novembre']);
+        $text = $this->promptText('sync-mailbox', ['since' => 'November 1']);
 
-        $this->assertStringContainsString('ma boîte e-mail depuis le 1er novembre', $text);
+        $this->assertStringContainsString('How far back: November 1.', $text);
     }
 
     public function testTheAiAsksSinceWhenWhenItIsNotGiven(): void
@@ -115,6 +115,6 @@ class SynchronizeMailboxPromptApiTest extends ApiTestCase
 
         $text = $this->promptText('sync-mailbox');
 
-        $this->assertStringContainsString('ma boîte e-mail, en me demandant d\'abord depuis quand', $text);
+        $this->assertStringContainsString('First ask me how far back to go.', $text);
     }
 }
