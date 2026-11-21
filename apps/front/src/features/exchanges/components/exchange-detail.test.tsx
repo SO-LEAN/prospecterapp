@@ -37,12 +37,12 @@ const anExchange = (exchange: Partial<ExchangeDetail>): ExchangeDetail => ({
   linkAwaited: false,
   phoneNumber: null,
   textFlagged: false,
-  textToMakeConform: false,
-  toMakeConform: false,
+  textToRedact: false,
+  toRedact: false,
   organizationIds: [],
   noted: { at: '2026-10-15T12:35:00+00:00', by: { name: { firstName: 'Michel', lastName: 'Maier' } } },
   corrected: null,
-  madeConform: null,
+  redacted: null,
   attachments: [],
   hiddenAttachments: 0,
   bookedByLink: false,
@@ -348,12 +348,12 @@ describe('ExchangeDetailSheet', () => {
     const user = await renderTheDetail(
       anExchange({
         interlocutor: { kind: 'person', id: ADA, name: null, presence: 'forgotten' },
-        textToMakeConform: true,
-        toMakeConform: true,
+        textToRedact: true,
+        toRedact: true,
         _links: {
           self,
           correctText: { href: `${self.href}/text`, method: 'PATCH' },
-          makeConform: { href: `${self.href}/text`, method: 'PATCH' },
+          redact: { href: `${self.href}/text`, method: 'PATCH' },
         },
       }),
     )
@@ -370,7 +370,7 @@ describe('ExchangeDetailSheet', () => {
   it('shows who declared it made conform', async () => {
     await renderTheDetail(
       anExchange({
-        madeConform: {
+        redacted: {
           at: '2026-10-16T08:00:00+00:00',
           by: { name: { firstName: 'Michel', lastName: 'Maier' } },
         },
@@ -411,7 +411,7 @@ describe('ExchangeDetailSheet', () => {
             name: 'cahier-des-charges.pdf',
             size: 1572864,
             mediaType: 'application/pdf',
-            toMakeConform: false,
+            toRedact: false,
             _links: {
               download: { href: attachment, method: 'GET' },
               removeAttachment: { href: attachment, method: 'DELETE' },

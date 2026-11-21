@@ -28,8 +28,8 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
  *   an exchange with the organization itself is in the timeline of no contact;
  * - `EXCHANGES#<organization>` / `EXCHANGE#<id>`: the exchanges kept for an organization, written with it, listed
  *   in `GSI1` in the timeline of the organization (`ORGANIZATION_TIMELINE#<organization>`) under the same position,
- *   and, while the exchange is to make conform, in `GSI2` among those of the organization
- *   (`TO_MAKE_CONFORM#<organization>`, ADR 0079), counted there;
+ *   and, while the exchange is to be redacted, in `GSI2` among those of the organization
+ *   (`TO_REDACT#<organization>`, ADR 0079), counted there;
  * - `AGENDA#<member>` / `EXCHANGE#<id>`: while it is planned, the exchange in the agenda of the member who planned
  *   it, listed in `GSI1` (`AGENDA#<member>`) under the same position;
  * - `CALENDAR#<member>` / `EXCHANGE#<id>`: the exchange in the calendar of its holder, who planned or noted it,
@@ -210,7 +210,7 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
     /**
      * The links to write and to delete so that the organizations the exchange is kept for are those of the
      * document, each at the moment of the exchange in the timeline of its organization: a correction may move it;
-     * among those to make conform of its organization while it is.
+     * among those to redact of its organization while it is.
      *
      * @param array<string, mixed> $document
      * @param list<string>         $storedKeptFor
@@ -226,7 +226,7 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
             'SK' => $exchange,
             'GSI1PK' => ExchangeKeys::organizationTimeline($organization),
             'GSI1SK' => $position,
-            ...($toMakeConform ? ['GSI2PK' => ExchangeKeys::toMakeConform($organization), 'GSI2SK' => $position] : []),
+            ...($toMakeConform ? ['GSI2PK' => ExchangeKeys::toRedact($organization), 'GSI2SK' => $position] : []),
         ];
 
         return [

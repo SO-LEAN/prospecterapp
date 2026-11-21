@@ -81,11 +81,11 @@ export function ExchangeLine({
         <ExchangeText
           text={exchange.text}
           flagged={exchange.textFlagged}
-          toMakeConform={exchange.textToMakeConform}
+          toMakeConform={exchange.textToRedact}
           className="truncate"
         />
       )}
-      {exchange.toMakeConform && !exchange.textToMakeConform && <ToMakeConform />}
+      {exchange.toRedact && !exchange.textToRedact && <ToMakeConform />}
       {exchange.attachmentCount > 0 && <AttachmentCount count={exchange.attachmentCount} />}
       {!campaignAside && exchange.campaign && (
         <div className="mt-1">

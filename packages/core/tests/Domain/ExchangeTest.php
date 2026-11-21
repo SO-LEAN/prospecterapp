@@ -14,13 +14,13 @@ use Prospecter\Core\Prospecting\Domain\Event\ExchangeCorrected;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeErased;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeKeptFor;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeLeftWithoutOrganization;
-use Prospecter\Core\Prospecting\Domain\Event\ExchangeMadeConform;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeMarkedDone;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeMarkedMissed;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeMoved;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeNoLongerKeptFor;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeNoted;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangePlanned;
+use Prospecter\Core\Prospecting\Domain\Event\ExchangeRedacted;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeTextCorrected;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeVenueCorrected;
 use Prospecter\Core\Prospecting\Domain\Event\FileAttached;
@@ -30,7 +30,7 @@ use Prospecter\Core\Prospecting\Domain\Exception\ExchangeInTheFuture;
 use Prospecter\Core\Prospecting\Domain\Exception\InvalidVideoCallLink;
 use Prospecter\Core\Prospecting\Domain\Exception\LinkOnlyForAVideoCall;
 use Prospecter\Core\Prospecting\Domain\Exception\NoRoomForAnAttachment;
-use Prospecter\Core\Prospecting\Domain\Exception\NothingToMakeConform;
+use Prospecter\Core\Prospecting\Domain\Exception\NothingToRedact;
 use Prospecter\Core\Prospecting\Domain\Exception\NotTheHolder;
 use Prospecter\Core\Prospecting\Domain\Exception\NotUpcoming;
 use Prospecter\Core\Prospecting\Domain\Exception\NotYetDue;
@@ -589,7 +589,7 @@ class ExchangeTest extends TestCase
         $exchange->declareConform(by: $this->colleagueWithoutTheRight()->id, at: $later);
 
         $this->assertEquals(new Correction($this->colleagueWithoutTheRight()->id, $later), StateOf::the($exchange)['madeConform']);
-        $this->assertEquals([new ExchangeMadeConform(new AccountId(self::MINE), $this->colleagueWithoutTheRight()->id, new ExchangeId(self::EXCHANGE), $later)], $exchange->releaseEvents());
+        $this->assertEquals([new ExchangeRedacted(new AccountId(self::MINE), $this->colleagueWithoutTheRight()->id, new ExchangeId(self::EXCHANGE), $later)], $exchange->releaseEvents());
     }
 
     public function testDeclaredConformItsTextIsNoLongerToMakeConformButItsFilesStay(): void
@@ -623,7 +623,7 @@ class ExchangeTest extends TestCase
 
     public function testAnExchangeWhoseContactIsKnownIsNotDeclaredConform(): void
     {
-        $this->expectException(NothingToMakeConform::class);
+        $this->expectException(NothingToRedact::class);
 
         $this->anExchange()->declareConform(by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
     }
@@ -684,7 +684,7 @@ class ExchangeTest extends TestCase
         try {
             $this->carryOut($intent, $exchange, $prospector->id);
             $refused = false;
-        } catch (NoRoomForAnAttachment|NothingToMakeConform|NotPossibleInItsState|NotTheHolder) {
+        } catch (NoRoomForAnAttachment|NothingToRedact|NotPossibleInItsState|NotTheHolder) {
             $refused = true;
         }
 

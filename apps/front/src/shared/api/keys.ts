@@ -14,7 +14,7 @@ export const queryKeys = {
   contactTags: ['get', '/api/contacts/{id}/tags'],
   organizationTimelines: ['get', '/api/organizations/{id}/exchanges'],
   organizationUpcomingExchanges: ['get', '/api/organizations/{id}/upcoming-exchanges'],
-  exchangesToMakeConform: ['get', '/api/organizations/{id}/exchanges-to-make-conform'],
+  exchangesToMakeConform: ['get', '/api/organizations/{id}/exchanges-to-redact'],
   exchange: ['get', '/api/exchanges/{id}'],
   campaignList: ['get', '/api/campaigns'],
   campaign: ['get', '/api/campaigns/{id}'],

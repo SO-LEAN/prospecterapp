@@ -7,8 +7,8 @@ namespace Prospecter\Core\Prospecting\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 
 /**
- * The exchange has nothing to make conform: its contact was not forgotten, or it was made conform already.
+ * The exchange has nothing to redact: its contact was not forgotten, or it was redacted already.
  */
-final class NothingToMakeConform extends NotPossibleInItsState
+final class NothingToRedact extends NotPossibleInItsState
 {
 }

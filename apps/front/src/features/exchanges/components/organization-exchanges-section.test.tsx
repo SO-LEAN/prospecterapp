@@ -26,8 +26,8 @@ const anExchange = (exchange: Partial<Exchange>): Exchange => ({
   durationInMinutes: null,
   text: null,
   textFlagged: false,
-  textToMakeConform: false,
-  toMakeConform: false,
+  textToRedact: false,
+  toRedact: false,
   organizationIds: [ACME],
   attachmentCount: 0,
   contactToAttach: false,
@@ -49,7 +49,7 @@ function renderTheSection(timeline: OrganizationTimeline, toMakeConform?: Organi
     pages: [
       {
         items: [],
-        toMakeConform: 0,
+        toRedact: 0,
         _links: { self: { href: `/api/organizations/${ACME}/upcoming-exchanges`, method: 'GET' } },
       },
     ],
@@ -93,7 +93,7 @@ describe('OrganizationExchangesSection', () => {
           },
         },
       ],
-      toMakeConform: 0,
+      toRedact: 0,
       _links: { self: timelineLink, noteExchange: noteLink },
     })
 
@@ -120,7 +120,7 @@ describe('OrganizationExchangesSection', () => {
         exchange: anExchange({ id: `0190a1c0-0000-7000-8000-00000000002${index}`, channel, direction }),
         interlocutor: { kind: 'organization', id: ACME, name: 'ACME', presence: null },
       })),
-      toMakeConform: 0,
+      toRedact: 0,
       _links: { self: timelineLink, noteExchange: noteLink },
     })
 
@@ -147,7 +147,7 @@ describe('OrganizationExchangesSection', () => {
           interlocutor: { kind: 'person', id: ROBERT, name: 'Robert Noyce', presence: 'removed' },
         },
       ],
-      toMakeConform: 0,
+      toRedact: 0,
       _links: { self: timelineLink },
     })
 
@@ -159,8 +159,8 @@ describe('OrganizationExchangesSection', () => {
     const forgotten = { kind: 'person', id: ROBERT, name: null, presence: 'forgotten' } as const
     const toMakeConform = anExchange({
       text: 'Robert, 06 12 34 56 78',
-      textToMakeConform: true,
-      toMakeConform: true,
+      textToRedact: true,
+      toRedact: true,
     })
     renderTheSection(
       {
@@ -168,12 +168,12 @@ describe('OrganizationExchangesSection', () => {
           { exchange: anExchange({ id: '0190a1c0-0000-7000-8000-000000000012' }), interlocutor: forgotten },
           { exchange: toMakeConform, interlocutor: forgotten },
         ],
-        toMakeConform: 1,
+        toRedact: 1,
         _links: { self: timelineLink },
       },
       {
         items: [{ exchange: toMakeConform, interlocutor: forgotten }],
-        toMakeConform: 1,
+        toRedact: 1,
         _links: { self: timelineLink },
       },
     )
@@ -192,7 +192,7 @@ describe('OrganizationExchangesSection', () => {
   })
 
   it('offers no entry when the timeline does not', () => {
-    renderTheSection({ items: [], toMakeConform: 0, _links: { self: timelineLink } })
+    renderTheSection({ items: [], toRedact: 0, _links: { self: timelineLink } })
 
     expect(screen.getByText('Aucun échange noté.')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Noter un échange' })).not.toBeInTheDocument()
@@ -202,7 +202,7 @@ describe('OrganizationExchangesSection', () => {
   it('offers to catch up Gmail in its header when the timeline links it', () => {
     renderTheSection({
       items: [],
-      toMakeConform: 0,
+      toRedact: 0,
       _links: {
         self: timelineLink,
         catchUpGmail: { href: `/api/organizations/${ACME}/gmail-catch-ups`, method: 'POST' },

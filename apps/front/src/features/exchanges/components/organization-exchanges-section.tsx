@@ -78,7 +78,7 @@ export function OrganizationExchangesSection({
 }: Props) {
   const all = useInfiniteQuery(organizationTimelineQuery(organizationId))
   const [narrowed, setNarrowed] = useState(false)
-  const toMakeConform = all.data?.pages[0]?.toMakeConform ?? 0
+  const toMakeConform = all.data?.pages[0]?.toRedact ?? 0
   const onlyToMakeConform = narrowed && toMakeConform > 0
   const narrowedTimeline = useInfiniteQuery({
     ...exchangesToMakeConformQuery(organizationId),

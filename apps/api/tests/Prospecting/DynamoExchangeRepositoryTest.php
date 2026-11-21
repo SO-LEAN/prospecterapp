@@ -116,7 +116,7 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
         $this->assertEquals([$second->id(), $first->id()], array_map(static fn (Exchange $exchange): ExchangeId => $exchange->id(), $found));
     }
 
-    public function testAnExchangeMadeConformIsReadWithWhoDeclaredIt(): void
+    public function testARedactedExchangeIsReadWithWhoDeclaredIt(): void
     {
         $exchanges = $this->exchanges();
         $exchange = $this->noted('2026-10-10 09:00 UTC');
@@ -126,6 +126,8 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
         $exchange->declareConform(by: $this->prospector->id, at: new \DateTimeImmutable(self::NOW));
         $exchanges->save($exchange);
 
+        $item = $this->prospectingTable()->item(ExchangeKeys::exchange($exchange->id()->value), ExchangeKeys::EXCHANGE);
+        $this->assertSame($this->prospector->id->value, $item['exchange']['redacted']['by']);
         $read = $exchanges->get($exchange->id());
         $this->assertEquals(new Correction($this->prospector->id, new \DateTimeImmutable(self::NOW)), Hydrator::stateOf($read)['madeConform']);
         $this->assertFalse($read->isToMakeConform());

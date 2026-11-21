@@ -13,8 +13,8 @@ final readonly class TextCorrectionInput
     public function __construct(
         #[Assert\Length(max: CorrectionInput::MAX_TEXT)]
         public ?string $text = null,
-        #[OA\Property(description: 'Declares the exchange made conform, its contact forgotten; only while the link makeConform is offered')]
-        public bool $madeConform = false,
+        #[OA\Property(description: 'Declares the exchange redacted, its contact forgotten; only while the link redact is offered')]
+        public bool $redacted = false,
     ) {
     }
 }

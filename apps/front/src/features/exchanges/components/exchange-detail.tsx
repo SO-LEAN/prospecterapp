@@ -117,7 +117,7 @@ function Exchange({
   const attach = useAttachFiles()
   const correctVenue = useCorrectExchangeVenue()
   const params = { path: { id: exchange.id } }
-  const mayDeclareConform = Boolean(exchange._links.makeConform)
+  const mayDeclareConform = Boolean(exchange._links.redact)
 
   if (correcting === 'facts') {
     return (
@@ -127,7 +127,7 @@ function Exchange({
           mayDeclareConform={mayDeclareConform}
           onCancel={() => setCorrecting(null)}
           onSubmit={async (body) => {
-            await correct.mutateAsync({ params, body: { madeConform: false, ...body } })
+            await correct.mutateAsync({ params, body: { redacted: false, ...body } })
             setCorrecting(null)
           }}
         />
@@ -217,7 +217,7 @@ function Exchange({
             <ExchangeText
               text={exchange.text}
               flagged={exchange.textFlagged}
-              toMakeConform={exchange.textToMakeConform}
+              toMakeConform={exchange.textToRedact}
               className="whitespace-pre-wrap break-words"
             />
           </div>
@@ -238,11 +238,11 @@ function Exchange({
             })}
           </p>
         )}
-        {exchange.madeConform && (
+        {exchange.redacted && (
           <p>
             {t('exchanges.detail.madeConform', {
-              moment: formatMoment(exchange.madeConform.at),
-              author: memberName(exchange.madeConform.by),
+              moment: formatMoment(exchange.redacted.at),
+              author: memberName(exchange.redacted.by),
             })}
           </p>
         )}

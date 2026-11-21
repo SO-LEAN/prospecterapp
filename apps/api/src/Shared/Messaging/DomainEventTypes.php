@@ -94,7 +94,7 @@ final readonly class DomainEventTypes extends EventTypes
             'ExchangeErased.v3' => Prospecting\ExchangeErased::class,
             'ExchangeKeptFor.v1' => Prospecting\ExchangeKeptFor::class,
             'ExchangeLeftWithoutOrganization.v1' => Prospecting\ExchangeLeftWithoutOrganization::class,
-            'ExchangeMadeConform.v1' => Prospecting\ExchangeMadeConform::class,
+            'ExchangeRedacted.v1' => Prospecting\ExchangeRedacted::class,
             'ExchangeMarkedDone.v1' => Prospecting\ExchangeMarkedDone::class,
             'ExchangeMarkedMissed.v1' => Prospecting\ExchangeMarkedMissed::class,
             'ExchangeMoved.v1' => Prospecting\ExchangeMoved::class,

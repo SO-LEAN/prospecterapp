@@ -22,22 +22,22 @@ final readonly class CorrectExchangeTool
     }
 
     /**
-     * @param string      $id          the id of the exchange
-     * @param string      $channel     call, sms, email, linkedIn, malt, meeting, videoCall or other
-     * @param string      $direction   inbound (the contact reached out) or outbound
-     * @param string      $occurredAt  when it happened (ISO 8601); never in the future
-     * @param string|null $text        what was said or written
-     * @param bool        $missed      the contact did not answer or come: a call, a meeting or a video call only
-     * @param bool        $madeConform declares the exchange made conform, its contact forgotten; only while its link makeConform is offered
+     * @param string      $id         the id of the exchange
+     * @param string      $channel    call, sms, email, linkedIn, malt, meeting, videoCall or other
+     * @param string      $direction  inbound (the contact reached out) or outbound
+     * @param string      $occurredAt when it happened (ISO 8601); never in the future
+     * @param string|null $text       what was said or written
+     * @param bool        $missed     the contact did not answer or come: a call, a meeting or a video call only
+     * @param bool        $redacted   declares the exchange redacted, its contact forgotten; only while its link redact is offered
      *
      * @return array<string, mixed>
      */
     #[McpTool(name: 'update-exchange', description: 'Correct every fact of an exchange that took place, its channel, direction, moment, text and whether it was missed; its contact stays. Needs the right to manage the personal data. Answers the exchange.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
-    public function __invoke(string $id, string $channel, string $direction, string $occurredAt, ?string $text = null, bool $missed = false, bool $madeConform = false): array
+    public function __invoke(string $id, string $channel, string $direction, string $occurredAt, ?string $text = null, bool $missed = false, bool $redacted = false): array
     {
         return $this->writes->write(
             $id,
-            $this->inputs->mapped(CorrectionInput::class, ['channel' => $channel, 'direction' => $direction, 'occurredAt' => $occurredAt, 'text' => $text, 'missed' => $missed, 'madeConform' => $madeConform]),
+            $this->inputs->mapped(CorrectionInput::class, ['channel' => $channel, 'direction' => $direction, 'occurredAt' => $occurredAt, 'text' => $text, 'missed' => $missed, 'redacted' => $redacted]),
             static fn (CorrectionInput $input, ExchangeDetail $exchange, string $memberId, \DateTimeImmutable $now): CorrectExchange => new CorrectExchange(
                 prospectorId: $memberId,
                 id: $exchange->id,
@@ -47,7 +47,7 @@ final readonly class CorrectExchangeTool
                 text: $input->text,
                 missed: $input->missed,
                 executedAt: $now,
-                madeConform: $input->madeConform,
+                madeConform: $input->redacted,
             ),
             User::PERSONAL_DATA,
         );

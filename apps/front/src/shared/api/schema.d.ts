@@ -645,23 +645,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/organizations/{id}/exchanges-to-make-conform": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** The exchanges of the timeline of the organization whose contact was forgotten, their text or their files still to make conform, the most recent first */
-        get: operations["get_api_organizations_exchanges_to_make_conform"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/me/exchanges-to-process": {
         parameters: {
             query?: never;
@@ -671,6 +654,23 @@ export interface paths {
         };
         /** What the signed-in member has to process: the exchanges they planned whose end has passed, not yet marked done, missed nor cancelled, and their to-dos still to do of the day and before, on their clock, UTC unless their time zone is given */
         get: operations["get_api_me_exchanges_to_process"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/organizations/{id}/exchanges-to-redact": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The exchanges of the timeline of the organization whose contact was forgotten, their text or their files still to redact, the most recent first */
+        get: operations["get_api_organizations_exchanges_to_redact"];
         put?: never;
         post?: never;
         delete?: never;
@@ -811,7 +811,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Correct the text of an exchange only, to make it conform, and declare it made conform once its contact was forgotten; open to every prospector of the account */
+        /** Correct the text of an exchange only, to redact it, and declare it redacted once its contact was forgotten; open to every prospector of the account */
         patch: operations["patch_api_exchanges_correct_text"];
         trace?: never;
     };
@@ -2126,19 +2126,19 @@ export interface components {
              */
             missed: boolean;
             /**
-             * @description Declares the exchange made conform, its contact forgotten; only while the link makeConform is offered
+             * @description Declares the exchange redacted, its contact forgotten; only while the link redact is offered
              * @default false
              */
-            madeConform: boolean;
+            redacted: boolean;
         };
         TextCorrectionInput: {
             /** @default null */
             text: string | null;
             /**
-             * @description Declares the exchange made conform, its contact forgotten; only while the link makeConform is offered
+             * @description Declares the exchange redacted, its contact forgotten; only while the link redact is offered
              * @default false
              */
-            madeConform: boolean;
+            redacted: boolean;
         };
         VenueCorrectionInput: {
             /**
@@ -2649,10 +2649,10 @@ export interface components {
             link?: string | null;
             /** @description Its text may hold personal data: flagged to a prospector reading it without the right to manage them */
             textFlagged: boolean;
-            /** @description Its contact forgotten, its text may still hold their personal data, until it is declared made conform */
-            textToMakeConform: boolean;
+            /** @description Its contact forgotten, its text may still hold their personal data, until it is declared redacted */
+            textToRedact: boolean;
             /** @description Its contact forgotten, its text or its files may still hold their personal data */
-            toMakeConform: boolean;
+            toRedact: boolean;
             /** @description The organizations it is kept for: those the contact was part of when it was noted, or the organization itself */
             organizationIds: string[];
             /** @description How many files are joined to it */
@@ -2677,7 +2677,7 @@ export interface components {
             next?: components["schemas"]["LinkResource"];
             noteExchange?: components["schemas"]["LinkResource"];
             planExchange?: components["schemas"]["LinkResource"];
-            toMakeConform?: components["schemas"]["LinkResource"];
+            toRedact?: components["schemas"]["LinkResource"];
             catchUpGmail?: components["schemas"]["LinkResource"];
         };
         TimelineResource: {
@@ -2843,8 +2843,8 @@ export interface components {
         };
         OrganizationTimelineResource: {
             items: components["schemas"]["OrganizationExchangeResource"][];
-            /** @description How many exchanges of the organization are to make conform, their contact forgotten */
-            toMakeConform: number;
+            /** @description How many exchanges of the organization are to redact, their contact forgotten */
+            toRedact: number;
             _links: components["schemas"]["TimelineLinksResource"];
         };
         CallerResource: {
@@ -2997,8 +2997,8 @@ export interface components {
             /** @description In bytes */
             size: number;
             mediaType: string;
-            /** @description The contact of the exchange forgotten, it may hold their personal data: made conform by removing it */
-            toMakeConform: boolean;
+            /** @description The contact of the exchange forgotten, it may hold their personal data: redacted by removing it */
+            toRedact: boolean;
             _links: components["schemas"]["AttachmentLinksResource"];
         };
         ExchangeDetailLinksResource: {
@@ -3007,7 +3007,7 @@ export interface components {
             correctExchange?: components["schemas"]["LinkResource"];
             correctText?: components["schemas"]["LinkResource"];
             correctVenue?: components["schemas"]["LinkResource"];
-            makeConform?: components["schemas"]["LinkResource"];
+            redact?: components["schemas"]["LinkResource"];
             eraseExchange?: components["schemas"]["LinkResource"];
             attachFile?: components["schemas"]["LinkResource"];
             markDone?: components["schemas"]["LinkResource"];
@@ -3056,17 +3056,17 @@ export interface components {
             phoneNumber?: string | null;
             /** @description Its text may hold personal data: flagged to a prospector reading it without the right to manage them */
             textFlagged: boolean;
-            /** @description Its contact forgotten, its text may still hold their personal data, until it is declared made conform */
-            textToMakeConform: boolean;
+            /** @description Its contact forgotten, its text may still hold their personal data, until it is declared redacted */
+            textToRedact: boolean;
             /** @description Its contact forgotten, its text or its files may still hold their personal data */
-            toMakeConform: boolean;
+            toRedact: boolean;
             /** @description The organizations it is kept for: those the contact was part of when it was noted, or the organization itself */
             organizationIds: string[];
             noted: components["schemas"]["StampResource"];
             /** @description The last correction, null while it is as it was noted */
             corrected?: components["schemas"]["StampResource"] | null;
-            /** @description Who declared it made conform, and when; null while it is not */
-            madeConform?: components["schemas"]["StampResource"] | null;
+            /** @description Who declared it redacted, and when; null while it is not */
+            redacted?: components["schemas"]["StampResource"] | null;
             /** @description The files joined to it, in the order they were */
             attachments: components["schemas"]["AttachmentResource"][];
             /** @description How many files are joined to it but hidden to a prospector reading it without the right to manage personal data */
@@ -6132,55 +6132,6 @@ export interface operations {
             };
         };
     };
-    get_api_organizations_exchanges_to_make_conform: {
-        parameters: {
-            query?: {
-                after?: string | null;
-            };
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description A slice of the exchanges to make conform, the next one at the link next */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["OrganizationTimelineResource"];
-                };
-            };
-            /** @description Missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not a prospector */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProblemResource"];
-                };
-            };
-            /** @description Unknown organization, or one of another account */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProblemResource"];
-                };
-            };
-        };
-    };
     get_api_me_exchanges_to_process: {
         parameters: {
             query?: {
@@ -6223,6 +6174,55 @@ export interface operations {
             };
             /** @description A time zone unknown */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    get_api_organizations_exchanges_to_redact: {
+        parameters: {
+            query?: {
+                after?: string | null;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description A slice of the exchanges to redact, the next one at the link next */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrganizationTimelineResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown organization, or one of another account */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -6603,7 +6603,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Declared made conform while nothing is to make conform */
+            /** @description Declared redacted while nothing is to redact */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -6672,7 +6672,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Declared made conform while nothing is to make conform */
+            /** @description Declared redacted while nothing is to redact */
             409: {
                 headers: {
                     [name: string]: unknown;

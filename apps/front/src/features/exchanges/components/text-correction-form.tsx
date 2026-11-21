@@ -25,7 +25,7 @@ export function TextCorrectionForm({ text, mayDeclareConform, onSubmit, onCancel
   const [globalErrors, setGlobalErrors] = useState<string[]>([])
   const form = useForm<TextValues>({
     resolver: zodResolver(textSchema),
-    defaultValues: { text: text ?? '', madeConform: false },
+    defaultValues: { text: text ?? '', redacted: false },
   })
   const { isSubmitting } = useFormState({ control: form.control })
 
@@ -48,7 +48,7 @@ export function TextCorrectionForm({ text, mayDeclareConform, onSubmit, onCancel
       <FormField form={form} name="text" label={t('exchanges.text')} optional={t('common.optional')}>
         <Textarea rows={5} {...form.register('text')} />
       </FormField>
-      {mayDeclareConform && <MadeConformField {...form.register('madeConform')} />}
+      {mayDeclareConform && <MadeConformField {...form.register('redacted')} />}
       <div className="flex justify-end gap-2">
         <Button type="button" variant="ghost" onClick={onCancel}>
           {t('common.cancel')}
