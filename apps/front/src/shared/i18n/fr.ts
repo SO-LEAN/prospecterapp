@@ -952,7 +952,7 @@ export const fr = {
     exchangeAlreadyNoted: 'Cet échange est déjà noté.',
     exchangeErasedBefore: 'Cet échange a été supprimé : il n’est pas noté de nouveau.',
     exchangeNotedMeanwhile: 'Cet échange vient d’être noté.',
-    changedMeanwhile: 'Cette fiche vient d’être modifiée par ailleurs : rechargez-la, puis recommencez.',
+    changedMeanwhile: 'Cette fiche vient d’être modifiée par ailleurs : rechargez-la, puis recommencez.',
     referenceNotOfTheChannel: 'Cette référence ne correspond pas au canal de l’échange.',
     referenceTakenMeanwhile: 'Ce lien vient d’être noté sur une autre fiche.',
     tooManyLinks: 'Une fiche a {{max}} liens au plus.',
