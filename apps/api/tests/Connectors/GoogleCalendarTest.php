@@ -73,6 +73,14 @@ class GoogleCalendarTest extends TestCase
         $this->assertSame([['email' => 'ada@acme.fr']], $this->calls[0][2]['attendees'] ?? null);
     }
 
+    public function testAnEventInvitingItsGuestPutAgainWithoutTellingThemKeepsThemWithoutAWord(): void
+    {
+        $this->calendar(new JsonMockResponse([]))->put(self::client(), new RefreshToken('a-token'), 'the-calendar', self::eventInviting(new Guest(new Email('ada@acme.fr'), isTold: false)));
+
+        $this->assertSame(['PUT', self::eventUrl()], self::methodsAndUrls($this->calls)[0]);
+        $this->assertSame([['email' => 'ada@acme.fr']], $this->calls[0][2]['attendees'] ?? null);
+    }
+
     public function testAnEventInvitingItsGuestShowsThemNoLinkIntoProspecter(): void
     {
         $this->calendar(new JsonMockResponse([]))->put(self::client(), new RefreshToken('a-token'), 'the-calendar', self::eventInviting(new Guest(new Email('ada@acme.fr'))));

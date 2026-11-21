@@ -144,11 +144,11 @@ final readonly class GoogleCalendar implements ProviderCalendar
     }
 
     /**
-     * Google tells the guest of an event, and nobody else (ADR 0175).
+     * Google tells the guest of an event when the push is to tell them, and nobody else (ADR 0175).
      */
     private static function updatesOf(CalendarEvent $event): string
     {
-        return null === $event->guest ? self::TELLS_NOBODY : self::TELLS_THE_GUESTS;
+        return true === $event->guest?->isTold ? self::TELLS_THE_GUESTS : self::TELLS_NOBODY;
     }
 
     private static function eventPath(string $calendar, ExchangeId $exchange, string $updates = self::TELLS_NOBODY): string
