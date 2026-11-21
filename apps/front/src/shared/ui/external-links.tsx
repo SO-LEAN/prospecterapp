@@ -24,17 +24,17 @@ function SourceMark({ source }: { source: string }) {
   const { t } = useTranslation()
 
   switch (source) {
-    case 'linkedin':
-    case 'linkedin-company':
+    case 'linkedInProfile':
+    case 'linkedInCompany':
       return (
-        <span role="img" aria-label={t('links.sources.linkedin')} className="inline-flex shrink-0">
+        <span role="img" aria-label={t('links.sources.linkedIn')} className="inline-flex shrink-0">
           <LinkedInLogo className="size-4" />
         </span>
       )
     case 'malt':
       return <Initials name={t('links.sources.malt')} initials="M" color="#FC5757" />
-    case 'welcometothejungle':
-      return <Initials name={t('links.sources.welcometothejungle')} initials="W" color="#1C1C1C" />
+    case 'welcomeToTheJungle':
+      return <Initials name={t('links.sources.welcomeToTheJungle')} initials="W" color="#1C1C1C" />
     default:
       return <Globe className="size-4 shrink-0" role="img" aria-label={t('links.web')} />
   }

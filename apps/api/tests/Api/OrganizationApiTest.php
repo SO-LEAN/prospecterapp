@@ -174,7 +174,7 @@ class OrganizationApiTest extends ApiTestCase
         $changed = $this->requestJson('PATCH', '/api/organizations/'.$id.'/contact-details', ['links' => ['HTTPS://www.Welcometothejungle.com/fr/companies/ACME/jobs'], 'website' => 'HTTPS://www.Acme.fr/contact']);
 
         $this->assertResponseIsSuccessful();
-        $this->assertSame([[['source' => 'welcometothejungle', 'identifier' => 'acme', 'address' => 'HTTPS://www.Welcometothejungle.com/fr/companies/ACME/jobs']], 'https://www.acme.fr'], [$changed['contactDetails']['links'], $changed['contactDetails']['website']]);
+        $this->assertSame([[['source' => 'welcomeToTheJungle', 'identifier' => 'acme', 'address' => 'HTTPS://www.Welcometothejungle.com/fr/companies/ACME/jobs']], 'https://www.acme.fr'], [$changed['contactDetails']['links'], $changed['contactDetails']['website']]);
     }
 
     public function testALinkOfAnotherOrganizationOfTheAccountIsRefusedNamingIt(): void
@@ -237,7 +237,7 @@ class OrganizationApiTest extends ApiTestCase
         $started = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME'], 'contactDetails' => ['links' => ['linkedin.com/company/acme-corp'], 'website' => 'acme.fr']]);
 
         $this->assertResponseStatusCodeSame(201);
-        $this->assertSame([[['source' => 'linkedin-company', 'identifier' => 'acme-corp', 'address' => 'https://linkedin.com/company/acme-corp']], 'https://acme.fr'], [$started['contactDetails']['links'], $started['contactDetails']['website']]);
+        $this->assertSame([[['source' => 'linkedInCompany', 'identifier' => 'acme-corp', 'address' => 'https://linkedin.com/company/acme-corp']], 'https://acme.fr'], [$started['contactDetails']['links'], $started['contactDetails']['website']]);
     }
 
     public function testAnOrganizationStartedWithTheLinkOfAnotherIsRefusedNamingIt(): void

@@ -12,7 +12,11 @@ const ada = {
   language: null,
   links: [
     herMaltProfile,
-    { source: 'linkedin', identifier: 'ada-lovelace', address: 'https://www.linkedin.com/in/ada-lovelace' },
+    {
+      source: 'linkedInProfile',
+      identifier: 'ada-lovelace',
+      address: 'https://www.linkedin.com/in/ada-lovelace',
+    },
   ],
 }
 const message = { text: 'Bonjour Ada,\nune question & une autre', subject: 'Ada, une question' }

@@ -19,7 +19,7 @@ vi.mock('@/shared/auth/session', () => ({
 
 const ACME = '0190a1c0-0000-7000-8000-000000000001'
 const ITS_PAGE = {
-  source: 'linkedin-company',
+  source: 'linkedInCompany',
   identifier: 'acme-corp',
   address: 'https://www.linkedin.com/company/acme-corp',
 }

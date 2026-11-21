@@ -2400,8 +2400,8 @@ export interface components {
         };
         ExternalLinkResource: {
             /**
-             * @description A known tool (linkedin, linkedin-company, malt, welcometothejungle), or the host of the address without www
-             * @example welcometothejungle
+             * @description A known tool (linkedInProfile, linkedInCompany, malt, welcomeToTheJungle), or the host of the address without www
+             * @example welcomeToTheJungle
              */
             source: string;
             /**

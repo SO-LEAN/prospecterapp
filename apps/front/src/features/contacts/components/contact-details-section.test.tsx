@@ -19,7 +19,7 @@ vi.mock('@/shared/auth/session', () => ({
 const ADA = '0190a1c0-0000-7000-8000-000000000001'
 const A_COMPANY_PAGE = 'https://www.linkedin.com/company/acme'
 const HER_PROFILE = {
-  source: 'linkedin',
+  source: 'linkedInProfile',
   identifier: 'ada-lovelace',
   address: 'https://www.linkedin.com/in/ada-lovelace',
 }
@@ -44,9 +44,9 @@ const aPageOfAnotherKind = {
   violations: [
     {
       propertyPath: 'links',
-      title: 'A page of linkedin-company designates an organization',
+      title: 'A page of linkedInCompany designates an organization',
       reason: 'referenceOfAnotherKind',
-      context: { source: 'linkedin-company', designates: 'organization' },
+      context: { source: 'linkedInCompany', designates: 'organization' },
     },
   ],
 }

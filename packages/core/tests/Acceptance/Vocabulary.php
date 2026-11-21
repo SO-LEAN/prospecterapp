@@ -99,10 +99,10 @@ final class Vocabulary
 
     /** The known sources as a sentence names them, by their value. */
     private const array SOURCES = [
-        'LinkedIn' => 'linkedin',
-        'LinkedIn entreprise' => 'linkedin-company',
+        'LinkedIn' => 'linkedInProfile',
+        'LinkedIn entreprise' => 'linkedInCompany',
         'Malt' => 'malt',
-        'Welcome to the Jungle' => 'welcometothejungle',
+        'Welcome to the Jungle' => 'welcomeToTheJungle',
     ];
 
     private const array STATUSES = [

@@ -292,7 +292,7 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
         $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
         $acme = $this->organizationOnTheWeb($prospector, self::A_PAGE, null);
         self::getContainer()->get(OrganizationRepository::class)->save($acme);
-        $this->prospectingTable()->batch([], [[sprintf('REFERENCE#%s#linkedin-company#acme-corp', $prospector->accountId->value), 'REFERENCE']]);
+        $this->prospectingTable()->batch([], [[sprintf('REFERENCE#%s#linkedInCompany#acme-corp', $prospector->accountId->value), 'REFERENCE']]);
 
         self::getContainer()->get(DynamoOrganizationRepository::class)->writeTheKeysAgain();
 
@@ -342,7 +342,7 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
 
         self::getContainer()->get(DynamoOrganizationRepository::class)->writeTheKeysAgain();
 
-        $this->assertSame([['linkedin-company', 'acme-corp']], self::sourcesAndIdentifiersOf(self::getContainer()->get(OrganizationRepository::class)->get($acme->id())));
+        $this->assertSame([['linkedInCompany', 'acme-corp']], self::sourcesAndIdentifiersOf(self::getContainer()->get(OrganizationRepository::class)->get($acme->id())));
         $this->assertEquals($acme->id(), self::getContainer()->get(OrganizationRepository::class)->withReference($prospector->accountId, self::reference(self::A_PAGE), except: new OrganizationId(self::newIdentity()))?->id());
         $this->assertNull($this->prospectingTable()->item(sprintf('REFERENCE#%s#linkedin.com#linkedin.com/company/acme-corp', $prospector->accountId->value), 'REFERENCE'));
     }
@@ -546,7 +546,7 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
         $item = $this->prospectingTable()->item(OrganizationKeys::organization($organization->id()->value), OrganizationKeys::ORGANIZATION);
         $item['organization']['references'] = [$link];
         $reservation = sprintf('REFERENCE#%s#%s#%s', $organization->accountId()->value, $link['source'], $link['identifier']);
-        $this->prospectingTable()->batch([$item, ['PK' => $reservation, 'SK' => 'REFERENCE', 'ownerId' => $organization->id()->value]], [[sprintf('REFERENCE#%s#linkedin-company#acme-corp', $organization->accountId()->value), 'REFERENCE']]);
+        $this->prospectingTable()->batch([$item, ['PK' => $reservation, 'SK' => 'REFERENCE', 'ownerId' => $organization->id()->value]], [[sprintf('REFERENCE#%s#linkedInCompany#acme-corp', $organization->accountId()->value), 'REFERENCE']]);
     }
 
     /**
@@ -573,7 +573,7 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
         unset($item['organization']['references']);
         $item['organization']['linkedInPage'] = $page;
         $reservation = sprintf('LINKEDIN_PAGE#%s#%s', $organization->accountId()->value, $page);
-        $this->prospectingTable()->batch([$item, ['PK' => $reservation, 'SK' => 'LINKEDIN_PAGE', 'ownerId' => $organization->id()->value]], [[sprintf('REFERENCE#%s#linkedin-company#acme-corp', $organization->accountId()->value), 'REFERENCE']]);
+        $this->prospectingTable()->batch([$item, ['PK' => $reservation, 'SK' => 'LINKEDIN_PAGE', 'ownerId' => $organization->id()->value]], [[sprintf('REFERENCE#%s#linkedInCompany#acme-corp', $organization->accountId()->value), 'REFERENCE']]);
     }
 
     private function organizationIn(Prospector $prospector, string $corporateName, string $city): Organization

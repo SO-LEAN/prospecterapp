@@ -86,7 +86,7 @@ class DynamoOrganizationSheetRetrieverTest extends ApiTestCase
 
         $sheet = $this->sheetOf($acme);
 
-        $this->assertEquals([[new ExternalLink('linkedin-company', 'acme-corp', 'https://linkedin.com/company/ACME-Corp')], 'https://acme.fr'], [$sheet->links, $sheet->website]);
+        $this->assertEquals([[new ExternalLink('linkedInCompany', 'acme-corp', 'https://linkedin.com/company/ACME-Corp')], 'https://acme.fr'], [$sheet->links, $sheet->website]);
     }
 
     public function testTheSheetOfAnOrganizationResemblingOthersNamesThoseStillProspected(): void

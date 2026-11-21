@@ -9146,9 +9146,9 @@
                 ],
                 "properties": {
                     "source": {
-                        "description": "A known tool (linkedin, linkedin-company, malt, welcometothejungle), or the host of the address without www",
+                        "description": "A known tool (linkedInProfile, linkedInCompany, malt, welcomeToTheJungle), or the host of the address without www",
                         "type": "string",
-                        "example": "welcometothejungle"
+                        "example": "welcomeToTheJungle"
                     },
                     "identifier": {
                         "description": "What the link designates on its source, in lower case: what recognizes it",

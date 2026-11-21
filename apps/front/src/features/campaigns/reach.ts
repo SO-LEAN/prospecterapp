@@ -4,7 +4,7 @@ import type { CampaignMessage, Channel } from './queries'
 type ContactDetails = components['schemas']['PersonContactDetailsResource']
 
 /** The source of the profile of a person on LinkedIn, among their links. */
-const LINKEDIN_PROFILE = 'linkedin'
+const LINKEDIN_PROFILE = 'linkedInProfile'
 
 /** What opens the tool of the channel for a recipient: the mail, the SMS, the call, or the profile in a new tab. */
 export type Opening = { href: string; external: boolean }

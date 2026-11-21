@@ -360,7 +360,7 @@ class CheckConsistencyCommandTest extends ApiTestCase
         foreach ($profiles as $profile) {
             $grace->changeContactDetails(new ContactDetails(), ExternalReferences::designating([$profile], Designated::Person), by: new Reader(new MemberId(DemoData::PROSPECTOR), new AccountId(DemoData::SOLEAN_IT), $grace->id(), false), at: new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         }
-        $this->personalDataTable()->batch([], [[sprintf('REFERENCE#%s#linkedin#ada-lovelace', DemoData::SOLEAN_IT), 'REFERENCE']]);
+        $this->personalDataTable()->batch([], [[sprintf('REFERENCE#%s#linkedInProfile#ada-lovelace', DemoData::SOLEAN_IT), 'REFERENCE']]);
         self::getContainer()->get(PersonRepository::class)->save($grace);
 
         return $grace->id()->value;

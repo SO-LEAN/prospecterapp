@@ -95,7 +95,7 @@ Fonctionnalité: Commencer à prospecter une organisation
     Quand je commence à prospecter l'organisation :
       | raison sociale | ACME                                     |
       | liens          | https://www.linkedin.com/in/ada-lovelace |
-    Alors c'est refusé : "A page of linkedin designates a person"
+    Alors c'est refusé : "A page of linkedInProfile designates a person"
     Et l'organisation "SOLEAN IT" compte 0 organisation active
 
   Scénario: L'organisation peut faire partie d'une holding que je prospecte

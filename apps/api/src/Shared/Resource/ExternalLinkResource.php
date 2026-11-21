@@ -11,7 +11,7 @@ use Prospecter\Core\SharedKernel\Application\ExternalLink;
 final readonly class ExternalLinkResource
 {
     public function __construct(
-        #[OA\Property(description: 'A known tool (linkedin, linkedin-company, malt, welcometothejungle), or the host of the address without www', example: 'welcometothejungle')]
+        #[OA\Property(description: 'A known tool (linkedInProfile, linkedInCompany, malt, welcomeToTheJungle), or the host of the address without www', example: 'welcomeToTheJungle')]
         public string $source,
         #[OA\Property(description: 'What the link designates on its source, in lower case: what recognizes it', example: 'acme')]
         public string $identifier,

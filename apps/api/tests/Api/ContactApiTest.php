@@ -89,12 +89,12 @@ class ContactApiTest extends ApiTestCase
     {
         $organization = $this->anOrganization('ACME');
         $collected = $this->collect(self::ADA, $organization);
-        $countess = ['source' => 'linkedin', 'identifier' => 'countess-of-lovelace', 'address' => 'https://linkedin.com/in/countess-of-lovelace?utm_source=share'];
+        $countess = ['source' => 'linkedInProfile', 'identifier' => 'countess-of-lovelace', 'address' => 'https://linkedin.com/in/countess-of-lovelace?utm_source=share'];
         $this->assertSame([$countess], $collected['contactDetails']['links']);
         $this->assertSame([[$countess]], array_column(array_column($this->requestJson('GET', '/api/organizations/'.$organization.'/contacts')['items'], 'contactDetails'), 'links'));
 
         $changed = $this->requestJson('PATCH', '/api/contacts/'.$collected['id'].'/contact-details', ['email' => 'ada@analytical-engine.test', 'links' => ['https://fr.linkedin.com/in/Augusta-Ada/', 'https://www.malt.fr/profile/adalovelace']]);
-        $this->assertSame([['linkedin', 'augusta-ada'], ['malt', 'adalovelace']], array_map(static fn (array $link): array => [$link['source'], $link['identifier']], $changed['contactDetails']['links']));
+        $this->assertSame([['linkedInProfile', 'augusta-ada'], ['malt', 'adalovelace']], array_map(static fn (array $link): array => [$link['source'], $link['identifier']], $changed['contactDetails']['links']));
 
         $problem = $this->requestJson('PATCH', '/api/contacts/'.$collected['id'].'/contact-details', ['links' => ['https://www.linkedin.com/company/acme']]);
         $this->assertResponseStatusCodeSame(422);
