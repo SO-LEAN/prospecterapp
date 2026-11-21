@@ -12,7 +12,6 @@ use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Campaigns\Application\CampaignSheet;
-use Prospecter\Core\Campaigns\Application\ReviseCampaign\ReviseCampaign;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -45,16 +44,7 @@ final class ReviseCampaignController extends AbstractController
     #[OA\Response(response: 422, description: 'Without a name or too long, an unknown channel, no tag or more than five with that of the channel, a message too long, a subject for another channel than an e-mail', content: new Model(type: ProblemResource::class))]
     public function __invoke(CampaignSheet $campaign, #[MapRequestPayload] CampaignInput $input, #[CurrentUser] User $user): JsonResponse
     {
-        $this->commandBus->dispatch(new ReviseCampaign(
-            memberId: $user->memberId(),
-            campaignId: $campaign->id,
-            name: (string) $input->name,
-            channel: (string) $input->channel,
-            tags: $input->tags ?? [],
-            message: (string) $input->message,
-            subject: $input->subject,
-            executedAt: $this->clock->now(),
-        ));
+        $this->commandBus->dispatch($input->revisionOf($user->memberId(), $campaign->id, $this->clock->now()));
 
         return $this->json($this->campaignReader->read($user->memberId(), $campaign->id));
     }

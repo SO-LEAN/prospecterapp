@@ -11,7 +11,6 @@ use App\Shared\Identities;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Campaigns\Application\PrepareCampaign\PrepareCampaign;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -43,16 +42,7 @@ final class PrepareCampaignController extends AbstractController
     public function __invoke(#[MapRequestPayload] CampaignInput $input, #[CurrentUser] User $user): JsonResponse
     {
         $id = $this->identities->next();
-        $this->commandBus->dispatch(new PrepareCampaign(
-            memberId: $user->memberId(),
-            campaignId: $id,
-            name: (string) $input->name,
-            channel: (string) $input->channel,
-            tags: $input->tags ?? [],
-            message: (string) $input->message,
-            subject: $input->subject,
-            executedAt: $this->clock->now(),
-        ));
+        $this->commandBus->dispatch($input->preparationOf($user->memberId(), $id, $this->clock->now()));
 
         return $this->json($this->campaignReader->read($user->memberId(), $id), Response::HTTP_CREATED);
     }
