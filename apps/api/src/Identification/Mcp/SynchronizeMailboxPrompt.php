@@ -42,6 +42,6 @@ final readonly class SynchronizeMailboxPrompt
 
     private static function reading(?string $since): string
     {
-        return sprintf('Synchronise dans Prospecter ma boîte e-mail%s. Lis-la avec tes propres outils (le connecteur Gmail de Claude par exemple) : Prospecter ne la lit pas pour toi.', SynchronizedSince::said($since));
+        return sprintf('Synchronise dans Prospecter ma boîte e-mail. %s Lis-la avec tes propres outils (le connecteur Gmail de Claude par exemple) : Prospecter ne la lit pas pour toi.', SynchronizedSince::said($since));
     }
 }

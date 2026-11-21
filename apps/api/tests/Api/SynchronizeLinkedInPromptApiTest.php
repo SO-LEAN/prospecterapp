@@ -21,15 +21,24 @@ class SynchronizeLinkedInPromptApiTest extends ApiTestCase
 
         $prompt = $this->promptListed('sync-linkedin');
 
-        $this->assertSame('Synchroniser LinkedIn', $prompt['title'] ?? null);
+        $this->assertSame(['Sync LinkedIn', 'Record your relevant LinkedIn contacts in Prospecter, or log your LinkedIn messages, without duplicates.'], [$prompt['title'] ?? null, $prompt['description'] ?? null]);
         $this->assertSame([['what', true], ['since', false]], self::argumentsOf($prompt));
+    }
+
+    public function testTheAiTellsItsMemberWhatEachArgumentMeans(): void
+    {
+        $this->login();
+
+        $prompt = $this->promptListed('sync-linkedin');
+
+        $this->assertSame(['contacts or messages', 'how far back to go ("7 days", "November 1"…), asked when not given'], array_column($prompt['arguments'] ?? [], 'description'));
     }
 
     public function testEachMessageIsNotedWithItsConversationAndItsMinute(): void
     {
         $this->login();
 
-        $text = $this->promptText('sync-linkedin', ['what' => 'messages', 'since' => '7 jours']);
+        $text = $this->promptText('sync-linkedin', ['what' => 'messages', 'since' => '7 days']);
 
         $this->assertStringContainsString('`log-contact-exchange`', $text);
         $this->assertStringContainsString('`linkedInConversation`', $text);
@@ -40,7 +49,7 @@ class SynchronizeLinkedInPromptApiTest extends ApiTestCase
     {
         $this->login();
 
-        $text = $this->promptText('sync-linkedin', ['what' => 'contacts', 'since' => '7 jours']);
+        $text = $this->promptText('sync-linkedin', ['what' => 'contacts', 'since' => '7 days']);
 
         $this->assertStringContainsString('`record-contact`', $text);
         $this->assertStringNotContainsString('`log-contact-exchange`', $text);
@@ -50,7 +59,7 @@ class SynchronizeLinkedInPromptApiTest extends ApiTestCase
     {
         $this->login();
 
-        $text = $this->promptText('sync-linkedin', ['what' => 'contacts', 'since' => '7 jours']);
+        $text = $this->promptText('sync-linkedin', ['what' => 'contacts', 'since' => '7 days']);
 
         $this->assertLessThan(strpos($text, '`record-contact`'), strpos($text, '`identify`'));
         $this->assertStringContainsString('`toConfirm`', $text);
@@ -60,9 +69,9 @@ class SynchronizeLinkedInPromptApiTest extends ApiTestCase
     {
         $this->login();
 
-        $text = $this->promptText('sync-linkedin', ['what' => 'messages', 'since' => 'le 1er novembre']);
+        $text = $this->promptText('sync-linkedin', ['what' => 'messages', 'since' => 'November 1']);
 
-        $this->assertStringContainsString('mes messages LinkedIn depuis le 1er novembre', $text);
+        $this->assertStringContainsString('Sync my LinkedIn messages into Prospecter. How far back: November 1.', $text);
     }
 
     public function testTheAiAsksSinceWhenWhenItIsNotGiven(): void
@@ -71,62 +80,62 @@ class SynchronizeLinkedInPromptApiTest extends ApiTestCase
 
         $text = $this->promptText('sync-linkedin', ['what' => 'contacts']);
 
-        $this->assertStringContainsString('mes contacts LinkedIn, en me demandant d\'abord depuis quand', $text);
+        $this->assertStringContainsString('Sync my LinkedIn contacts into Prospecter. First ask me how far back to go.', $text);
     }
 
     public function testASynchronizationPlayedAgainEndsOnAReportOfWhatWasAlreadyNoted(): void
     {
         $this->login();
 
-        $text = $this->promptText('sync-linkedin', ['what' => 'messages', 'since' => '7 jours']);
+        $text = $this->promptText('sync-linkedin', ['what' => 'messages', 'since' => '7 days']);
 
-        $this->assertStringContainsString('`alreadyNoted` et `erasedBefore` comptent comme déjà notés', $text);
-        $this->assertStringContainsString('créés, complétés, déjà notés, ignorés', $text);
+        $this->assertStringContainsString('`alreadyNoted` and `erasedBefore` count as already logged', $text);
+        $this->assertStringContainsString('created, completed, already logged, ignored', $text);
     }
 
     public function testTheAiStopsAndAsksWhenProspecterRefuses(): void
     {
         $this->login();
 
-        $text = $this->promptText('sync-linkedin', ['what' => 'contacts', 'since' => '7 jours']);
+        $text = $this->promptText('sync-linkedin', ['what' => 'contacts', 'since' => '7 days']);
 
-        $this->assertStringContainsString('Si Prospecter refuse un appel, arrête-toi et demande-moi', $text);
+        $this->assertStringContainsString('If Prospecter refuses a call, stop and ask me', $text);
     }
 
     public function testTheAiCreatesNothingToConfirmWithoutTheAnswerOfItsMember(): void
     {
         $this->login();
 
-        $text = $this->promptText('sync-linkedin', ['what' => 'contacts', 'since' => '7 jours']);
+        $text = $this->promptText('sync-linkedin', ['what' => 'contacts', 'since' => '7 days']);
 
-        $this->assertStringContainsString('Ne crée jamais une personne ou une entreprise `toConfirm` sans ma réponse', $text);
+        $this->assertStringContainsString('Never create a `toConfirm` person or company without my answer', $text);
     }
 
     public function testTheAiNotesNoMessageWithoutItsConversation(): void
     {
         $this->login();
 
-        $text = $this->promptText('sync-linkedin', ['what' => 'messages', 'since' => '7 jours']);
+        $text = $this->promptText('sync-linkedin', ['what' => 'messages', 'since' => '7 days']);
 
-        $this->assertStringContainsString('Ne note jamais un message sans sa conversation quand tu la connais', $text);
+        $this->assertStringContainsString('Never log a message without its conversation when you know it', $text);
     }
 
     public function testAContactKnownWithNothingCompletedCountsAsAlreadyNoted(): void
     {
         $this->login();
 
-        $text = $this->promptText('sync-linkedin', ['what' => 'contacts', 'since' => '7 jours']);
+        $text = $this->promptText('sync-linkedin', ['what' => 'contacts', 'since' => '7 days']);
 
-        $this->assertStringContainsString('`known` sans rien de complété, comme déjà noté', $text);
+        $this->assertStringContainsString('`known` with nothing completed counts as already logged', $text);
     }
 
     public function testASynchronizationPlayedAgainCountsOnlyWhatWasAlreadyNoted(): void
     {
         $this->login();
 
-        $text = $this->promptText('sync-linkedin', ['what' => 'contacts', 'since' => '7 jours']);
+        $text = $this->promptText('sync-linkedin', ['what' => 'contacts', 'since' => '7 days']);
 
-        $this->assertStringContainsString('Une synchronisation relancée ne doit compter que des déjà notés', $text);
+        $this->assertStringContainsString('A sync run again counts only items already logged', $text);
     }
 
     public function testABlankSinceWhenIsAskedAsWhenItIsNotGiven(): void
@@ -135,14 +144,14 @@ class SynchronizeLinkedInPromptApiTest extends ApiTestCase
 
         $text = $this->promptText('sync-linkedin', ['what' => 'contacts', 'since' => '  ']);
 
-        $this->assertStringContainsString('mes contacts LinkedIn, en me demandant d\'abord depuis quand', $text);
+        $this->assertStringContainsString('Sync my LinkedIn contacts into Prospecter. First ask me how far back to go.', $text);
     }
 
     public function testEveryToolThePromptNamesIsServed(): void
     {
         $this->login();
 
-        $text = $this->promptText('sync-linkedin', ['what' => 'messages', 'since' => '7 jours']);
+        $text = $this->promptText('sync-linkedin', ['what' => 'messages', 'since' => '7 days']);
 
         $this->assertSame([], array_diff(self::toolsNamedIn($text), array_column($this->everyToolListed(), 'name')));
     }

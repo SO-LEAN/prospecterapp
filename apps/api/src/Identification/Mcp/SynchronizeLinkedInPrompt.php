@@ -6,41 +6,41 @@ use Mcp\Server\Capability\Attribute\McpPrompt;
 use Mcp\Server\Exception\RegistryException;
 
 /**
- * The steps an AI follows to synchronize the contacts or the messages of LinkedIn of its member, read with its own
- * tools, so that nothing is created nor noted twice: the member asks it in their words.
+ * The steps an AI follows to sync its member's LinkedIn contacts or messages, which it reads with its own tools, so
+ * that nothing is created or logged twice. The member asks for it in their own words.
  */
 final readonly class SynchronizeLinkedInPrompt
 {
     private const string IDENTIFYING = <<<'STEP'
-        Avant de rien créer, demande à Prospecter qui il connaît avec `identify`, par lots de cent au plus : chaque personne avec ses prénom et nom et l'adresse de son profil LinkedIn parmi ses liens, et son entreprise avec son nom et l'adresse de sa page LinkedIn. Pour chaque personne ou entreprise `toConfirm`, montre-moi ses candidats et demande-moi laquelle c'est, ou si c'en est une autre. Présente-moi les personnes `new` et laisse-moi choisir celles qui m'intéressent ; ignore les autres.
+        Before you create anything, ask Prospecter who it knows with `identify`, in batches of at most a hundred: each person with their first and last names and their LinkedIn profile URL among their links, and their company with its name and its LinkedIn page URL. For each person or company that is `toConfirm`, show me its candidates and ask me which one it is, or whether it is someone else. Show me the `new` persons and let me pick the ones I care about; ignore the others.
         STEP;
 
     private const string RECORDING = <<<'STEP'
-        Enregistre chaque personne retenue avec `record-contact` : son nom, sa fonction, l'adresse de son profil LinkedIn parmi ses liens, et son entreprise avec l'adresse de sa page LinkedIn.
+        Record each person I picked with `record-contact`: their name, their job title, their LinkedIn profile URL among their links, and their company with its LinkedIn page URL.
         STEP;
 
     private const string NOTING = <<<'STEP'
-        Note chaque message avec `log-contact-exchange` sur le contact (`log-organization-exchange` pour une page d'entreprise) : le canal `linkedIn`, le sens (`inbound` reçu, `outbound` envoyé), `occurredAt` à la minute où il a été envoyé, son texte, et `linkedInConversation`, l'identifiant de la conversation ou l'adresse de son fil (`linkedin.com/messaging/thread/<id>/`).
+        Log each message with `log-contact-exchange` on the contact (`log-organization-exchange` for a company page): the channel `linkedIn`, the direction (`inbound` received, `outbound` sent), `occurredAt` at the minute it was sent, its text, and `linkedInConversation`, the conversation ID or the thread URL (`linkedin.com/messaging/thread/<id>/`).
         STEP;
 
     private const string RULES = <<<'STEP'
-        Règles :
-        - Ne crée jamais une personne ou une entreprise `toConfirm` sans ma réponse.
-        - Ne note jamais un message sans sa conversation quand tu la connais.
-        - Si Prospecter refuse un appel, arrête-toi et demande-moi quoi faire, sans contourner son refus.
+        Rules:
+        - Never create a `toConfirm` person or company without my answer.
+        - Never log a message without its conversation when you know it.
+        - If Prospecter refuses a call, stop and ask me what to do. Do not work around the refusal.
         STEP;
 
     private const string REPORT = <<<'STEP'
-        Termine par un bilan : créés, complétés, déjà notés, ignorés. Un contact `created` compte comme créé ; `known` avec des champs complétés, comme complété ; `known` sans rien de complété, comme déjà noté ; un message `noted` compte comme créé, `alreadyNoted` et `erasedBefore` comptent comme déjà notés ; ce que j'ai écarté, comme ignoré. Une synchronisation relancée ne doit compter que des déjà notés.
+        End with a report: created, completed, already logged, ignored. A `created` contact counts as created. A `known` contact with completed fields counts as completed; `known` with nothing completed counts as already logged. A `noted` message counts as created; `alreadyNoted` and `erasedBefore` count as already logged. What I turned down counts as ignored. A sync run again counts only items already logged.
         STEP;
 
     /**
-     * @param string  $what  contacts ou messages
-     * @param ?string $since depuis quand (« 7 jours », « 1er novembre »…), demandé sinon
+     * @param string  $what  contacts or messages
+     * @param ?string $since how far back to go ("7 days", "November 1"…), asked when not given
      *
      * @return list<array{role: string, content: string}>
      */
-    #[McpPrompt(name: 'sync-linkedin', title: 'Synchroniser LinkedIn', description: 'Enregistre dans Prospecter vos contacts LinkedIn intéressants, ou note vos messages LinkedIn, sans rien doublonner.')]
+    #[McpPrompt(name: 'sync-linkedin', title: 'Sync LinkedIn', description: 'Record your relevant LinkedIn contacts in Prospecter, or log your LinkedIn messages, without duplicates.')]
     public function __invoke(string $what, ?string $since = null): array
     {
         return [['role' => 'user', 'content' => implode("\n\n", self::stepsOf(self::synchronized($what), $since))]];
@@ -63,6 +63,6 @@ final readonly class SynchronizeLinkedInPrompt
 
     private static function reading(WhatLinkedInSynchronizes $what, ?string $since): string
     {
-        return sprintf('Synchronise dans Prospecter mes %s LinkedIn%s. Lis-les avec tes propres outils (l\'extension Chrome de Claude par exemple) : Prospecter ne lit pas LinkedIn.', $what->value, SynchronizedSince::said($since));
+        return sprintf('Sync my LinkedIn %s into Prospecter. %s Read them with your own tools (Claude\'s Chrome extension, for example): Prospecter does not read LinkedIn.', $what->value, SynchronizedSince::said($since));
     }
 }
