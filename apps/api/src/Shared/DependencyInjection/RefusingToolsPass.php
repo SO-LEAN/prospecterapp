@@ -30,6 +30,7 @@ final class RefusingToolsPass implements CompilerPassInterface
             new Reference(RefusalProblems::class),
             new Reference(UnavailabilityProblems::class),
             new Reference('serializer'),
+            new Reference('logger'),
         ])]);
     }
 
