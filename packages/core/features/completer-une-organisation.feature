@@ -9,40 +9,43 @@ Fonctionnalité: Compléter une organisation sans rien écraser
     Et je suis connecté en tant que prospecteur de "SOLEAN IT"
     Et l'organisation "ACME" fait partie de mes organisations
 
-  Scénario: Ce qui est vide est complété
+  Plan du scénario: Ce qui est vide est complété
     Quand je complète l'organisation "ACME" :
-      | SIRET     | 55210055400013                         |
-      | liens     | https://www.linkedin.com/company/acme  |
-      | site web  | https://www.acme.fr                    |
-      | e-mail    | contact@acme.fr                        |
-      | téléphone | 03 88 11 22 33                         |
+      | <champ> | <donné> |
     Alors ce n'est pas refusé
     Et l'organisation "ACME" est enregistrée avec :
-      | SIRET     | 55210055400013                        |
-      | liens     | https://www.linkedin.com/company/acme |
-      | site web  | https://www.acme.fr                   |
-      | e-mail    | contact@acme.fr                       |
-      | téléphone | +33 3 88 11 22 33                     |
+      | <champ> | <noté> |
 
-  Scénario: Ce qui est noté reste, un lien de plus s'ajoute aux autres
+    Exemples:
+      | champ     | donné                                 | noté                                  |
+      | SIRET     | 55210055400013                        | 55210055400013                        |
+      | liens     | https://www.linkedin.com/company/acme | https://www.linkedin.com/company/acme |
+      | site web  | https://www.acme.fr                   | https://www.acme.fr                   |
+      | e-mail    | contact@acme.fr                       | contact@acme.fr                       |
+      | téléphone | 03 88 11 22 33                        | +33 3 88 11 22 33                     |
+
+  Plan du scénario: Ce qui est noté reste
     Soit l'organisation "Initech" fait partie de mes organisations avec :
-      | SIRET     | 35600000049837                          |
-      | liens     | https://www.welcometothejungle.com/fr/companies/initech |
-      | site web  | https://initech.fr                      |
-      | e-mail    | contact@initech.fr                      |
-      | téléphone | 03 88 00 00 00                          |
+      | <champ> | <noté> |
     Quand je complète l'organisation "Initech" :
-      | SIRET     | 55210055400013                          |
-      | liens     | https://www.linkedin.com/company/initech |
-      | site web  | https://www.initech.com                 |
-      | e-mail    | hello@initech.fr                        |
-      | téléphone | 03 88 11 22 33                          |
+      | <champ> | <donné> |
     Alors l'organisation "Initech" est enregistrée avec :
-      | SIRET     | 35600000049837                                                                                   |
-      | liens     | https://www.welcometothejungle.com/fr/companies/initech https://www.linkedin.com/company/initech |
-      | site web  | https://initech.fr                                                                               |
-      | e-mail    | contact@initech.fr                                                                               |
-      | téléphone | +33 3 88 00 00 00                                                                                |
+      | <champ> | <gardé> |
+
+    Exemples:
+      | champ     | noté               | donné                   | gardé              |
+      | SIRET     | 35600000049837     | 55210055400013          | 35600000049837     |
+      | site web  | https://initech.fr | https://www.initech.com | https://initech.fr |
+      | e-mail    | contact@initech.fr | hello@initech.fr        | contact@initech.fr |
+      | téléphone | 03 88 00 00 00     | 03 88 11 22 33          | +33 3 88 00 00 00  |
+
+  Scénario: Un lien de plus s'ajoute à ceux notés
+    Soit l'organisation "Initech" fait partie de mes organisations avec :
+      | liens | https://www.welcometothejungle.com/fr/companies/initech |
+    Quand je complète l'organisation "Initech" :
+      | liens | https://www.linkedin.com/company/initech |
+    Alors l'organisation "Initech" est enregistrée avec :
+      | liens | https://www.welcometothejungle.com/fr/companies/initech https://www.linkedin.com/company/initech |
 
   Scénario: Le SIRET d'une autre organisation est refusé
     Soit l'organisation "ACME Lyon" fait partie de mes organisations avec :
