@@ -62,6 +62,32 @@ class SynchronizeMailboxPromptApiTest extends ApiTestCase
         $text = $this->promptText('synchroniser-boite-e-mail', ['since' => '7 jours']);
 
         $this->assertStringContainsString('Si Prospecter refuse un appel, arrête-toi et demande-moi', $text);
+    }
+
+    public function testTheAiCreatesNothingToConfirmWithoutTheAnswerOfItsMember(): void
+    {
+        $this->login();
+
+        $text = $this->promptText('synchroniser-boite-e-mail', ['since' => '7 jours']);
+
+        $this->assertStringContainsString('Ne crée jamais une personne ou une entreprise `toConfirm` sans ma réponse', $text);
+    }
+
+    public function testASynchronizationPlayedAgainCountsOnlyWhatWasAlreadyNotedOrIgnored(): void
+    {
+        $this->login();
+
+        $text = $this->promptText('synchroniser-boite-e-mail', ['since' => '7 jours']);
+
+        $this->assertStringContainsString('Une synchronisation relancée ne doit compter que des déjà notés et des ignorés', $text);
+    }
+
+    public function testTheAiNotesNoEmailWithoutItsMessageId(): void
+    {
+        $this->login();
+
+        $text = $this->promptText('synchroniser-boite-e-mail', ['since' => '7 jours']);
+
         $this->assertStringContainsString('Ne note jamais un e-mail sans son Message-ID', $text);
     }
 
