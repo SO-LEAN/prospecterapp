@@ -16,7 +16,7 @@ A React single page application talking to the API (`apps/api`) over JSON, its m
 | Forms | react-hook-form + zod | Uncontrolled inputs (no re-render per key), schema validation mirroring the API. |
 | Auth | aws-amplify v6 (`aws-amplify/auth`) | SRP on the Cognito user pool from our own screen (the password never leaves the browser), token refresh. |
 | UI kit | shadcn/ui (Radix) + Tailwind CSS 4 | Accessible primitives, code owned by the project (see `design-system.md`). |
-| Phone numbers | libphonenumber-js | The metadata of libphonenumber, the library the core reads the numbers with: a phone laid out as it is typed (`shared/forms/phone.ts`, `AsYouType`, French without its country code). |
+| Phone numbers | libphonenumber-js | The metadata of libphonenumber, the library the core reads the numbers with: a phone laid out as it is typed (`shared/forms/phone.ts`, `AsYouType`, French without its country code) and written in the international format (`parsePhoneNumberFromString`). |
 | Maps | MapLibre + OpenFreeMap | Open source vector maps, no API key; loaded lazily. |
 | i18n | react-i18next, typed keys | French today, other languages without touching the screens. |
 | Quality | Biome, Vitest + Testing Library, Playwright | One fast linter/formatter; component tests as a user would act, the screens tested there; end-to-end journeys only for what no other test links (ADR 0122, `docs/architecture/tests.md`). |
