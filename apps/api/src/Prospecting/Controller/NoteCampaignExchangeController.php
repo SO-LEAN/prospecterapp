@@ -46,7 +46,7 @@ final class NoteCampaignExchangeController extends AbstractController
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'Unknown campaign or of another account, or no recipient of it', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 409, description: 'The campaign is not started, or the recipient is handled already', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 422, description: 'A moment in the future, or a missed exchange that is no call', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 422, description: 'A moment in the future, a missed exchange that is no call, or a reference of another channel', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $id, string $contactId, #[MapRequestPayload] CampaignExchangeInput $input, #[CurrentUser] User $user): JsonResponse
     {
         $exchange = $this->identities->next();
@@ -59,6 +59,8 @@ final class NoteCampaignExchangeController extends AbstractController
             text: $input->text,
             missed: $input->missed,
             executedAt: $this->clock->now(),
+            messageId: $input->messageId,
+            linkedInConversation: $input->linkedInConversation,
         ));
 
         return $this->json($this->timelineReader->read($user->memberId(), $contactId), Response::HTTP_CREATED, ['Location' => $this->generateUrl('api_exchanges_show', ['id' => $exchange])]);

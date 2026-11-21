@@ -1853,6 +1853,16 @@ export interface components {
              * @default false
              */
             missed: boolean;
+            /**
+             * @description The header Message-ID of the e-mail sent: an e-mail of the same Message-ID is noted once in the account; an e-mail only
+             * @default null
+             */
+            messageId: string | null;
+            /**
+             * @description The conversation of the LinkedIn message sent, its identifier or the address of its thread (linkedin.com/messaging/thread/<id>/): a message of the same conversation, minute, direction and text is noted once in the account; a LinkedIn message only
+             * @default null
+             */
+            linkedInConversation: string | null;
         };
         ExchangeInput: {
             /**
@@ -4435,7 +4445,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description A moment in the future, or a missed exchange that is no call */
+            /** @description A moment in the future, a missed exchange that is no call, or a reference of another channel */
             422: {
                 headers: {
                     [name: string]: unknown;

@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { fullNameOf } from '@/features/contacts/queries'
-import { isAgreedUpon } from '@/features/exchanges/queries'
+import { isAgreedUpon, NOTED_BY_HAND } from '@/features/exchanges/queries'
 import { localMoment } from '@/features/exchanges/schema'
 import { applyViolations } from '@/shared/api/problem'
 import { FormField } from '@/shared/forms/form-field'
@@ -355,6 +355,7 @@ function RecipientForm({
           occurredAt: new Date(values.occurredAt).toISOString(),
           text: orNull(values.text),
           missed: isAgreedUpon(campaign.channel) && values.missed,
+          ...NOTED_BY_HAND,
         },
       })
       onHandled('processed')

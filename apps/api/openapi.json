@@ -1118,7 +1118,7 @@
                         }
                     },
                     "422": {
-                        "description": "A moment in the future, or a missed exchange that is no call",
+                        "description": "A moment in the future, a missed exchange that is no call, or a reference of another channel",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -8161,6 +8161,20 @@
                         "description": "Missed: the contact did not answer; a call only, its status then missed",
                         "type": "boolean",
                         "default": false
+                    },
+                    "messageId": {
+                        "description": "The header Message-ID of the e-mail sent: an e-mail of the same Message-ID is noted once in the account; an e-mail only",
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 1000
+                    },
+                    "linkedInConversation": {
+                        "description": "The conversation of the LinkedIn message sent, its identifier or the address of its thread (linkedin.com/messaging/thread/<id>/): a message of the same conversation, minute, direction and text is noted once in the account; a LinkedIn message only",
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 1000
                     }
                 },
                 "type": "object"

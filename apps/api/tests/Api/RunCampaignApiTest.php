@@ -68,6 +68,16 @@ class RunCampaignApiTest extends ApiTestCase
         $this->assertSame(['call', 'outbound', 'missed', ['id' => $id, 'name' => 'Appels ESN']], [$exchange['channel'], $exchange['direction'], $exchange['status'], $exchange['campaign']]);
     }
 
+    public function testWhereTheExchangeOfARecipientWasSentIsThatOfTheChannelOfTheCampaign(): void
+    {
+        $id = $this->aStartedCampaign();
+
+        $problem = $this->requestJson('POST', '/api/campaigns/'.$id.'/recipients/'.$this->ada.'/exchanges', ['messageId' => '<relance@solean-it.test>']);
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSame([['messageId'], 'referenceNotOfTheChannel'], [$this->violatedFields($problem), $problem['reason']]);
+    }
+
     public function testDismissingTheLastRecipientToHandleEndsTheCampaign(): void
     {
         $id = $this->aStartedCampaign();
