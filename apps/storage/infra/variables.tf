@@ -35,3 +35,36 @@ variable "permissions_boundary" {
   type        = string
   default     = null
 }
+
+variable "function_errors_threshold" {
+  description = "How many errors of the function in 5 minutes are tolerated before its alarm (alerting.tf): 0, the default, the first one alerts"
+  type        = number
+  default     = 0
+
+  validation {
+    condition     = var.function_errors_threshold >= 0
+    error_message = "A threshold is a count, 0 or more."
+  }
+}
+
+variable "function_throttles_threshold" {
+  description = "How many throttled invocations of the function in 5 minutes are tolerated before its alarm (alerting.tf): 0, the default, the first one alerts"
+  type        = number
+  default     = 0
+
+  validation {
+    condition     = var.function_throttles_threshold >= 0
+    error_message = "A threshold is a count, 0 or more."
+  }
+}
+
+variable "http_5xx_threshold" {
+  description = "How many answers 5xx of the function URL in 5 minutes are tolerated before its alarm (alerting.tf); 5 by default"
+  type        = number
+  default     = 5
+
+  validation {
+    condition     = var.http_5xx_threshold >= 0
+    error_message = "A threshold is a count, 0 or more."
+  }
+}
