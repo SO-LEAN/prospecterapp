@@ -179,6 +179,19 @@ class CampaignToolsApiTest extends ApiTestCase
         $this->assertSame('campaignNotRunning', json_decode($refusal['content'][0]['text'], true, flags: JSON_THROW_ON_ERROR)['reason']);
     }
 
+    public function testThePromptToLeadACampaignGivesTheAiItsSteps(): void
+    {
+        $this->login();
+
+        $prompt = $this->callWithHandshake('prompts/get', ['name' => 'mener-une-campagne', 'arguments' => ['campagne' => 'Relance PHP']]);
+
+        $text = $prompt['messages'][0]['content']['text'];
+        $this->assertSame('user', $prompt['messages'][0]['role']);
+        foreach (['« Relance PHP »', 'lister-campagnes', 'destinataire-suivant', 'noter-l-envoi', 'ecarter-destinataire-campagne'] as $step) {
+            $this->assertStringContainsString($step, $text);
+        }
+    }
+
     public function testTheAiNotesTheEmailItSentToARecipientWhoIsProcessed(): void
     {
         $started = $this->aStartedCampaign();
