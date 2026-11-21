@@ -6,6 +6,7 @@ use App\PersonalData\Persistence\DynamoPersonRepository;
 use App\Shared\Identities;
 use App\Shared\Messaging\CommitOutbox;
 use App\Shared\Persistence\DynamoUnitOfWork;
+use App\Shared\Persistence\RevisionsRead;
 use App\Shared\Persistence\Table;
 use Aws\DynamoDb\DynamoDbClient;
 use Aws\DynamoDb\Marshaler;
@@ -52,6 +53,6 @@ final class EmailTakenMeanwhile implements EventHandler
 
     private function anotherRequest(): DynamoPersonRepository
     {
-        return new DynamoPersonRepository(new Table($this->client, $this->marshaler, new DynamoUnitOfWork($this->client, new CommitOutbox([], $this->marshaler, $this->identities, $this->commitClock)), $this->personalDataTable->name));
+        return new DynamoPersonRepository(new Table($this->client, $this->marshaler, new DynamoUnitOfWork($this->client, new CommitOutbox([], $this->marshaler, $this->identities, $this->commitClock)), new RevisionsRead(), $this->personalDataTable->name));
     }
 }

@@ -24,7 +24,7 @@ final readonly class Table
     private const int BATCH_GET_SIZE = 100;
     private const int BATCH_WRITE_SIZE = 25;
 
-    public function __construct(private DynamoDbClient $client, private Marshaler $marshaler, private DynamoUnitOfWork $unitOfWork, public string $name)
+    public function __construct(private DynamoDbClient $client, private Marshaler $marshaler, private DynamoUnitOfWork $unitOfWork, private RevisionsRead $revisionsRead, public string $name)
     {
     }
 
@@ -54,6 +54,22 @@ final readonly class Table
         $this->noteRead([[$pk, $sk]], null === $item ? [] : [$item]);
 
         return $item;
+    }
+
+    /**
+     * Keeps the revision of the next reads of an item, to expose it with what is read from it (ADR 0187).
+     */
+    public function watchRevision(string $pk, string $sk): void
+    {
+        $this->revisionsRead->watch($this->name, $pk, $sk);
+    }
+
+    /**
+     * The revision of the last read of an item watched.
+     */
+    public function revisionRead(string $pk, string $sk): int
+    {
+        return $this->revisionsRead->of($this->name, $pk, $sk);
     }
 
     /**
@@ -103,7 +119,7 @@ final readonly class Table
     }
 
     /**
-     * Notes the items read by key from the table in the open unit, those absent too.
+     * Notes the items read by key from the table in the open unit, those absent too, and the revisions watched.
      *
      * @param list<array{string, string}> $keys
      * @param list<array<string, mixed>>  $found
@@ -117,7 +133,9 @@ final readonly class Table
         }
 
         foreach ($keys as [$pk, $sk]) {
-            $this->unitOfWork->noteRead($this->name, $pk, $sk, $byItem[Write::itemOf($this->name, $pk, $sk)] ?? null);
+            $item = $byItem[Write::itemOf($this->name, $pk, $sk)] ?? null;
+            $this->unitOfWork->noteRead($this->name, $pk, $sk, $item);
+            $this->revisionsRead->note($this->name, $pk, $sk, $item);
         }
     }
 
