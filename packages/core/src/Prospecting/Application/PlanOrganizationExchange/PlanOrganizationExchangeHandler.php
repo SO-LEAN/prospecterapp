@@ -19,6 +19,7 @@ use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
+use Prospecter\Core\SharedKernel\Domain\Origin;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 final readonly class PlanOrganizationExchangeHandler implements CommandHandler
@@ -38,7 +39,7 @@ final readonly class PlanOrganizationExchangeHandler implements CommandHandler
         $holder = new MemberId($command->prospectorId);
         $organization = $this->organizations->get(new OrganizationId($command->organizationId));
         $exchange = null === $command->personId
-            ? Exchange::plannedWithTheOrganization($organization, $holder, new ExchangeId($command->id), self::factsOf($command), $command->executedAt)
+            ? Exchange::plannedWithTheOrganization($organization, $holder, new ExchangeId($command->id), self::factsOf($command), $command->executedAt, Origin::byAnAI($command->byAnAI))
             : $this->plannedWithAContact($organization, $holder, new PersonId($command->personId), $command);
         $this->exchanges->save($exchange);
         $this->publishWhatHappenedTo($exchange);
@@ -51,7 +52,7 @@ final readonly class PlanOrganizationExchangeHandler implements CommandHandler
     {
         $organization->ensureHasContact($contact);
 
-        return Exchange::plannedWithAContact($organization->accountId(), $holder, new ExchangeId($command->id), $contact, $this->contactOrganizations->of($contact, $organization->accountId()), self::factsOf($command), $command->executedAt);
+        return Exchange::plannedWithAContact($organization->accountId(), $holder, new ExchangeId($command->id), $contact, $this->contactOrganizations->of($contact, $organization->accountId()), self::factsOf($command), $command->executedAt, Origin::byAnAI($command->byAnAI));
     }
 
     private static function factsOf(PlanOrganizationExchange $command): ExchangeFacts

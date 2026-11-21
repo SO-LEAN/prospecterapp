@@ -187,6 +187,7 @@ final class ExchangeDetailContext implements Context
             'texte à rendre conforme' => Vocabulary::describeYesOrNo($exchange->textToMakeConform),
             'à rendre conforme' => Vocabulary::describeYesOrNo($exchange->toMakeConform),
             'provenance' => Vocabulary::describeProvenance($exchange->importedFrom),
+            'badge' => Vocabulary::describeBadge($exchange->createdByAnAI),
             'rendu conforme' => null === $exchange->madeConformAt || null === $exchange->madeConformBy ? '' : Vocabulary::describeDoneBy($exchange->madeConformAt, $this->scenario->nameOfMember(new MemberId($exchange->madeConformBy))),
         ];
     }

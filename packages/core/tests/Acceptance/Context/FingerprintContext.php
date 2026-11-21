@@ -139,7 +139,9 @@ final class FingerprintContext implements Context
             missed: false,
             executedAt: $this->application->now(),
             noteOnce: true,
+            byAnAI: true,
         ));
+        $this->scenario->rememberTheExchange($id);
 
         return $id;
     }
@@ -160,7 +162,9 @@ final class FingerprintContext implements Context
             messageId: $messageId,
             linkedInConversation: $linkedInConversation,
             noteOnce: true,
+            byAnAI: true,
         ));
+        $this->scenario->rememberTheExchange($id);
 
         return $id;
     }

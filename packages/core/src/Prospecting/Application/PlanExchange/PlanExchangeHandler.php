@@ -17,6 +17,7 @@ use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Origin;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 final readonly class PlanExchangeHandler implements CommandHandler
@@ -43,6 +44,7 @@ final readonly class PlanExchangeHandler implements CommandHandler
             $this->contactOrganizations->keepersOf($contact, $prospector),
             ExchangeFacts::planned(Channel::from($command->channel), $command->plannedAt, Duration::inMinutes($command->durationInMinutes), $command->agenda, $command->place, VideoCallLink::orNone($command->link), $command->linkRequested),
             $command->executedAt,
+            Origin::byAnAI($command->byAnAI),
         );
         $this->exchanges->save($exchange);
         $this->publishWhatHappenedTo($exchange);

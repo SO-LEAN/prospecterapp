@@ -143,6 +143,13 @@ final class ExchangeContext implements Context
         $this->plan($this->application->signedIn(), $organization, $contact, Vocabulary::channelOfAnExchange($exchange), Vocabulary::frenchMoment(sprintf('%s à %s', $day, $time)), null, linkRequested: '' !== $meet);
     }
 
+    #[Given('/^l\'IA a planifié (?<exchange>'.self::ANY_PLANNED.') avec "(?<interlocutor>[^"]+)" le (?<day>\S+) à (?<time>\S+)$/')]
+    public function theAIPlannedAnExchange(string $exchange, string $interlocutor, string $day, string $time): void
+    {
+        $this->plan($this->application->signedIn(), $interlocutor, $interlocutor, Vocabulary::channelOfAnExchange($exchange), Vocabulary::frenchMoment(sprintf('%s à %s', $day, $time)), null, byAnAI: true);
+        $this->expectPlanned();
+    }
+
     #[Given('/^"(?<member>[^"]+)" a planifié (?<exchange>'.self::ANY_PLANNED.') avec "(?<contact>[^"]+)" le (?<day>\S+) à (?<time>\S+)$/')]
     public function aMemberPlannedAnExchange(string $member, string $exchange, string $contact, string $day, string $time): void
     {
@@ -424,13 +431,13 @@ final class ExchangeContext implements Context
     /**
      * With a contact, or from the card of an organization, with it or with one of its contacts.
      */
-    private function plan(string $prospectorId, string $from, string $interlocutor, string $channel, \DateTimeImmutable $plannedAt, ?int $minutes, ?string $place = null, ?string $link = null, ?string $agenda = null, bool $linkRequested = false): void
+    private function plan(string $prospectorId, string $from, string $interlocutor, string $channel, \DateTimeImmutable $plannedAt, ?int $minutes, ?string $place = null, ?string $link = null, ?string $agenda = null, bool $linkRequested = false, bool $byAnAI = false): void
     {
         $id = $this->application->newIdentity();
         $personId = $this->scenario->isAnOrganization($interlocutor) ? null : $this->scenario->personIdOf($interlocutor);
         $this->application->dispatch($this->scenario->isAnOrganization($from)
-            ? new PlanOrganizationExchange($prospectorId, $id, $this->scenario->idOf($from), $personId, $channel, $plannedAt, $minutes, $agenda, $this->application->now(), $place, $link, $linkRequested)
-            : new PlanExchange($prospectorId, $id, (string) $personId, $channel, $plannedAt, $minutes, $agenda, $this->application->now(), $place, $link, $linkRequested));
+            ? new PlanOrganizationExchange($prospectorId, $id, $this->scenario->idOf($from), $personId, $channel, $plannedAt, $minutes, $agenda, $this->application->now(), $place, $link, $linkRequested, $byAnAI)
+            : new PlanExchange($prospectorId, $id, (string) $personId, $channel, $plannedAt, $minutes, $agenda, $this->application->now(), $place, $link, $linkRequested, $byAnAI));
         $this->lastNoted = null === $this->application->refusal() ? $id : null;
         $this->lastNotedWith = $interlocutor;
         $this->scenario->rememberTheExchange($id);
@@ -544,6 +551,7 @@ final class ExchangeContext implements Context
             'texte à rendre conforme' => Vocabulary::describeYesOrNo($exchange->textToMakeConform),
             'à rendre conforme' => Vocabulary::describeYesOrNo($exchange->toMakeConform),
             'provenance' => Vocabulary::describeProvenance($exchange->importedFrom),
+            'badge' => Vocabulary::describeBadge($exchange->createdByAnAI),
         ];
     }
 }

@@ -12,7 +12,7 @@ namespace Prospecter\Core\Prospecting\Application;
  * it without the right to manage personal data, what is to make conform once its contact was forgotten, whether its
  * contact waits to be attached, the exchange kept for no organization until then (ADR 0146), and the campaign it was
  * noted in, named as Campaigns names it now, none once erased (ADR 0145), and whether its contact booked it by the
- * public link of its holder (ADR 0164), and the provider of the mailbox it was imported from, none when noted (ADR 0174).
+ * public link of its holder (ADR 0164), and the provider of the mailbox it was imported from, none when noted (ADR 0174), and whether an AI created it.
  */
 final readonly class ExchangeInTimeline
 {
@@ -43,6 +43,7 @@ final readonly class ExchangeInTimeline
         public ?string $campaignName = null,
         public bool $bookedByLink = false,
         public ?string $importedFrom = null,
+        public bool $createdByAnAI = false,
     ) {
     }
 
