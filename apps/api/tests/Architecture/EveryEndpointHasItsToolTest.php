@@ -62,6 +62,7 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
         'api_campaigns_revise',
         'api_campaigns_start',
         'api_campaigns_stop',
+        'api_contacts_catch_up_gmail',
         'api_contacts_dismiss_possible_duplicate',
         'api_contacts_tag',
         'api_contacts_take_off_tag',
