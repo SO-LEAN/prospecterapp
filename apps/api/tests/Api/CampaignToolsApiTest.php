@@ -62,7 +62,7 @@ class CampaignToolsApiTest extends ApiTestCase
     {
         $draft = $this->aDraft();
 
-        $campaign = $this->assertTheToolActsAsItsEndpoint('freeze-campaign', ['id' => $draft], 'POST', '/api/campaigns/'.$draft.'/freezing', null, self::TEAM_WRITERS);
+        $campaign = $this->assertTheToolActsAsItsEndpoint('freeze-campaign', ['id' => $draft], 'POST', '/api/campaigns/'.$draft.'/freeze', null, self::TEAM_WRITERS);
 
         $this->assertSame('frozen', $campaign['status']);
     }
@@ -71,7 +71,7 @@ class CampaignToolsApiTest extends ApiTestCase
     {
         $frozen = $this->aFrozenCampaign();
 
-        $campaign = $this->assertTheToolActsAsItsEndpoint('start-campaign', ['id' => $frozen], 'POST', '/api/campaigns/'.$frozen.'/starting', null, self::TEAM_WRITERS);
+        $campaign = $this->assertTheToolActsAsItsEndpoint('start-campaign', ['id' => $frozen], 'POST', '/api/campaigns/'.$frozen.'/start', null, self::TEAM_WRITERS);
 
         $this->assertSame(['started', 2], [$campaign['status'], $campaign['targeted']]);
     }
@@ -80,7 +80,7 @@ class CampaignToolsApiTest extends ApiTestCase
     {
         $started = $this->aStartedCampaign();
 
-        $campaign = $this->assertTheToolActsAsItsEndpoint('stop-campaign', ['id' => $started], 'POST', '/api/campaigns/'.$started.'/stopping', null, self::TEAM_WRITERS);
+        $campaign = $this->assertTheToolActsAsItsEndpoint('stop-campaign', ['id' => $started], 'POST', '/api/campaigns/'.$started.'/stop', null, self::TEAM_WRITERS);
 
         $this->assertSame('stopped', $campaign['status']);
         $this->assertTheToolAsksForAConfirmation('stop-campaign');
@@ -152,8 +152,8 @@ class CampaignToolsApiTest extends ApiTestCase
     {
         $this->login();
         $id = $this->requestJson('POST', '/api/campaigns', [...self::RELAUNCH, 'messageMode' => 'adapted'])['id'];
-        $this->requestJson('POST', '/api/campaigns/'.$id.'/freezing');
-        $this->requestJson('POST', '/api/campaigns/'.$id.'/starting');
+        $this->requestJson('POST', '/api/campaigns/'.$id.'/freeze');
+        $this->requestJson('POST', '/api/campaigns/'.$id.'/start');
 
         $next = $this->callWithoutHandshake('get-next-recipient', ['id' => $id])['structuredContent'];
 
@@ -194,7 +194,7 @@ class CampaignToolsApiTest extends ApiTestCase
     public function testACampaignStoppedGivesNoNextRecipient(): void
     {
         $started = $this->aStartedCampaign();
-        $this->requestJson('POST', '/api/campaigns/'.$started.'/stopping');
+        $this->requestJson('POST', '/api/campaigns/'.$started.'/stop');
 
         $refusal = $this->callWithoutHandshake('get-next-recipient', ['id' => $started]);
 
@@ -294,7 +294,7 @@ class CampaignToolsApiTest extends ApiTestCase
     private function aStartedCampaign(): string
     {
         $id = $this->aFrozenCampaign();
-        $this->requestJson('POST', '/api/campaigns/'.$id.'/starting');
+        $this->requestJson('POST', '/api/campaigns/'.$id.'/start');
         $this->assertResponseStatusCodeSame(200);
 
         return $id;
@@ -306,7 +306,7 @@ class CampaignToolsApiTest extends ApiTestCase
     private function aFrozenCampaign(): string
     {
         $id = $this->aDraft();
-        $this->requestJson('POST', '/api/campaigns/'.$id.'/freezing');
+        $this->requestJson('POST', '/api/campaigns/'.$id.'/freeze');
         $this->assertResponseStatusCodeSame(200);
 
         return $id;

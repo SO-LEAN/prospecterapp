@@ -1494,7 +1494,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/campaigns/{id}/freezing": {
+    "/api/campaigns/{id}/freeze": {
         parameters: {
             query?: never;
             header?: never;
@@ -1563,7 +1563,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/campaigns/{id}/starting": {
+    "/api/campaigns/{id}/start": {
         parameters: {
             query?: never;
             header?: never;
@@ -1580,7 +1580,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/campaigns/{id}/stopping": {
+    "/api/campaigns/{id}/stop": {
         parameters: {
             query?: never;
             header?: never;

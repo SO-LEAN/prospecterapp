@@ -36,9 +36,9 @@ class CampaignRecipientsApiTest extends ApiTestCase
     public function testAFrozenCampaignKeepsTheContactsItsSearchFoundToHandle(): void
     {
         $draft = $this->requestJson('POST', '/api/campaigns', $this->aCampaign());
-        $this->assertSame(['href' => '/api/campaigns/'.$draft['id'].'/freezing', 'method' => 'POST'], $draft['_links']['freeze']);
+        $this->assertSame(['href' => '/api/campaigns/'.$draft['id'].'/freeze', 'method' => 'POST'], $draft['_links']['freeze']);
 
-        $frozen = $this->requestJson('POST', '/api/campaigns/'.$draft['id'].'/freezing');
+        $frozen = $this->requestJson('POST', '/api/campaigns/'.$draft['id'].'/freeze');
 
         $this->assertResponseStatusCodeSame(200);
         $this->assertSame(['frozen', 1], [$frozen['status'], $frozen['targeted']]);
@@ -135,7 +135,7 @@ class CampaignRecipientsApiTest extends ApiTestCase
     {
         $id = $this->requestJson('POST', '/api/campaigns', [...$this->aCampaign(), 'tags' => ['#PERSONNE']])['id'];
 
-        $problem = $this->requestJson('POST', '/api/campaigns/'.$id.'/freezing');
+        $problem = $this->requestJson('POST', '/api/campaigns/'.$id.'/freeze');
 
         $this->assertResponseStatusCodeSame(422);
         $this->assertSame('campaignWithoutRecipient', $problem['reason']);
@@ -183,7 +183,7 @@ class CampaignRecipientsApiTest extends ApiTestCase
     private function gesturesOn(string $id, string $contact): array
     {
         return [
-            ['POST', '/api/campaigns/'.$id.'/freezing', null, 200],
+            ['POST', '/api/campaigns/'.$id.'/freeze', null, 200],
             ['GET', '/api/campaigns/'.$id.'/recipients', null, 200],
             ['POST', '/api/campaigns/'.$id.'/recipients/by-tags', ['tags' => [self::OTHER_TAG]], 200],
             ['POST', '/api/campaigns/'.$id.'/recipients', ['contactId' => $contact], 200],
@@ -194,7 +194,7 @@ class CampaignRecipientsApiTest extends ApiTestCase
     private function aFrozenCampaign(): string
     {
         $id = $this->requestJson('POST', '/api/campaigns', $this->aCampaign())['id'];
-        $this->requestJson('POST', '/api/campaigns/'.$id.'/freezing');
+        $this->requestJson('POST', '/api/campaigns/'.$id.'/freeze');
         $this->assertResponseStatusCodeSame(200);
 
         return $id;

@@ -57,8 +57,8 @@ class EraseCampaignCommandTest extends ApiTestCase
         $this->requestJson('POST', '/api/organizations/'.$organization.'/tags', ['tags' => [self::TAG]]);
         $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'], 'contactDetails' => ['email' => 'ada@acme.test'], 'organizationIds' => [$organization]]);
         $id = $this->requestJson('POST', '/api/campaigns', ['name' => 'Relance', 'channel' => 'email', 'tags' => [self::TAG], 'message' => 'Bonjour', 'subject' => null])['id'];
-        $this->requestJson('POST', '/api/campaigns/'.$id.'/freezing');
-        $this->requestJson('POST', '/api/campaigns/'.$id.'/starting');
+        $this->requestJson('POST', '/api/campaigns/'.$id.'/freeze');
+        $this->requestJson('POST', '/api/campaigns/'.$id.'/start');
         $this->assertResponseStatusCodeSame(200);
 
         return $id;

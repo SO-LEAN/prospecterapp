@@ -28,15 +28,15 @@ class StartedCampaignsApiTest extends ApiTestCase
     {
         $id = $this->aFrozenCampaign();
         $frozen = $this->requestJson('GET', '/api/campaigns/'.$id);
-        $this->assertSame(['href' => '/api/campaigns/'.$id.'/starting', 'method' => 'POST'], $frozen['_links']['start']);
+        $this->assertSame(['href' => '/api/campaigns/'.$id.'/start', 'method' => 'POST'], $frozen['_links']['start']);
 
-        $started = $this->requestJson('POST', '/api/campaigns/'.$id.'/starting');
+        $started = $this->requestJson('POST', '/api/campaigns/'.$id.'/start');
 
         $this->assertResponseStatusCodeSame(200);
         $this->assertSame(['started', null], [$started['status'], $started['stoppedAt']]);
         $this->assertNotNull($started['startedAt']);
         $this->assertSame(['self', 'stop', 'recipients'], array_keys($started['_links']));
-        $this->assertSame(['href' => '/api/campaigns/'.$id.'/stopping', 'method' => 'POST'], $started['_links']['stop']);
+        $this->assertSame(['href' => '/api/campaigns/'.$id.'/stop', 'method' => 'POST'], $started['_links']['stop']);
         $this->assertSame([['noteExchange', 'dismiss']], array_map(static fn (array $recipient): array => array_keys($recipient['_links']), $this->requestJson('GET', '/api/campaigns/'.$id.'/recipients')['items']));
     }
 
@@ -56,7 +56,7 @@ class StartedCampaignsApiTest extends ApiTestCase
     {
         $id = $this->requestJson('POST', '/api/campaigns', $this->aCampaign())['id'];
 
-        $problem = $this->requestJson('POST', '/api/campaigns/'.$id.'/starting');
+        $problem = $this->requestJson('POST', '/api/campaigns/'.$id.'/start');
 
         $this->assertResponseStatusCodeSame(409);
         $this->assertSame('campaignNotFrozen', $problem['reason']);
@@ -66,14 +66,14 @@ class StartedCampaignsApiTest extends ApiTestCase
     {
         $id = $this->aStartedCampaign();
 
-        $stopped = $this->requestJson('POST', '/api/campaigns/'.$id.'/stopping');
+        $stopped = $this->requestJson('POST', '/api/campaigns/'.$id.'/stop');
 
         $this->assertResponseStatusCodeSame(200);
         $this->assertSame('stopped', $stopped['status']);
         $this->assertNotNull($stopped['stoppedAt']);
         $this->assertSame(['self', 'recipients'], array_keys($stopped['_links']));
         $this->assertContains($id, array_column($this->requestJson('GET', '/api/campaigns')['items'], 'id'));
-        $this->assertSame('campaignNotFrozen', $this->requestJson('POST', '/api/campaigns/'.$id.'/starting')['reason']);
+        $this->assertSame('campaignNotFrozen', $this->requestJson('POST', '/api/campaigns/'.$id.'/start')['reason']);
         $this->assertResponseStatusCodeSame(409);
     }
 
@@ -108,7 +108,7 @@ class StartedCampaignsApiTest extends ApiTestCase
         $this->assertSame(['frozen', 0], [$emptied['status'], $emptied['targeted']]);
         $this->assertArrayNotHasKey('start', $emptied['_links']);
         $this->assertArrayHasKey('discard', $emptied['_links']);
-        $this->assertSame('campaignWithoutRecipient', $this->requestJson('POST', '/api/campaigns/'.$id.'/starting')['reason']);
+        $this->assertSame('campaignWithoutRecipient', $this->requestJson('POST', '/api/campaigns/'.$id.'/start')['reason']);
         $this->assertResponseStatusCodeSame(422);
 
         $this->requestJson('DELETE', '/api/campaigns/'.$id);
@@ -146,13 +146,13 @@ class StartedCampaignsApiTest extends ApiTestCase
      */
     private function gesturesOn(string $id): array
     {
-        return [['/api/campaigns/'.$id.'/starting', 200], ['/api/campaigns/'.$id.'/stopping', 200]];
+        return [['/api/campaigns/'.$id.'/start', 200], ['/api/campaigns/'.$id.'/stop', 200]];
     }
 
     private function aStartedCampaign(): string
     {
         $id = $this->aFrozenCampaign();
-        $this->requestJson('POST', '/api/campaigns/'.$id.'/starting');
+        $this->requestJson('POST', '/api/campaigns/'.$id.'/start');
         $this->assertResponseStatusCodeSame(200);
 
         return $id;
@@ -161,7 +161,7 @@ class StartedCampaignsApiTest extends ApiTestCase
     private function aFrozenCampaign(): string
     {
         $id = $this->requestJson('POST', '/api/campaigns', $this->aCampaign())['id'];
-        $this->requestJson('POST', '/api/campaigns/'.$id.'/freezing');
+        $this->requestJson('POST', '/api/campaigns/'.$id.'/freeze');
         $this->assertResponseStatusCodeSame(200);
 
         return $id;

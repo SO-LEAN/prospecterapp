@@ -156,8 +156,8 @@ class CampaignExchangesApiTest extends ApiTestCase
     private function aStartedCampaign(): string
     {
         $id = $this->requestJson('POST', '/api/campaigns', ['name' => 'Relance', 'channel' => 'email', 'tags' => [self::TAG], 'message' => 'Bonjour {prénom}', 'subject' => 'Une question'])['id'];
-        $this->requestJson('POST', '/api/campaigns/'.$id.'/freezing');
-        $this->requestJson('POST', '/api/campaigns/'.$id.'/starting');
+        $this->requestJson('POST', '/api/campaigns/'.$id.'/freeze');
+        $this->requestJson('POST', '/api/campaigns/'.$id.'/start');
         $this->assertResponseStatusCodeSame(200);
 
         return $id;

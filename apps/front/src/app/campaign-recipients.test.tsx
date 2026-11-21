@@ -60,7 +60,7 @@ const draft: Campaign = {
     self,
     revise: { href: `/api/campaigns/${CAMPAIGN}`, method: 'PATCH' },
     discard: { href: `/api/campaigns/${CAMPAIGN}`, method: 'DELETE' },
-    freeze: { href: `/api/campaigns/${CAMPAIGN}/freezing`, method: 'POST' },
+    freeze: { href: `/api/campaigns/${CAMPAIGN}/freeze`, method: 'POST' },
     target: { href: '/api/tagged-contacts?tags=ESN,EMAIL', method: 'GET' },
   },
 }
@@ -74,7 +74,7 @@ const frozen: Campaign = {
     discard: { href: `/api/campaigns/${CAMPAIGN}`, method: 'DELETE' },
     addRecipient: { href: `/api/campaigns/${CAMPAIGN}/recipients`, method: 'POST' },
     addRecipientsByTags: { href: `/api/campaigns/${CAMPAIGN}/recipients/by-tags`, method: 'POST' },
-    start: { href: `/api/campaigns/${CAMPAIGN}/starting`, method: 'POST' },
+    start: { href: `/api/campaigns/${CAMPAIGN}/start`, method: 'POST' },
     recipients: { href: `/api/campaigns/${CAMPAIGN}/recipients`, method: 'GET' },
   },
 }
@@ -85,7 +85,7 @@ const started: Campaign = {
   startedAt: '2026-11-16T17:00:00+00:00',
   _links: {
     self,
-    stop: { href: `/api/campaigns/${CAMPAIGN}/stopping`, method: 'POST' },
+    stop: { href: `/api/campaigns/${CAMPAIGN}/stop`, method: 'POST' },
     recipients: { href: `/api/campaigns/${CAMPAIGN}/recipients`, method: 'GET' },
   },
 }
@@ -241,7 +241,7 @@ describe('the recipients of a campaign', () => {
 
     await waitFor(() =>
       expect(calls).toContainEqual(
-        expect.objectContaining({ method: 'POST', pathname: `/api/campaigns/${CAMPAIGN}/freezing` }),
+        expect.objectContaining({ method: 'POST', pathname: `/api/campaigns/${CAMPAIGN}/freeze` }),
       ),
     )
     expect(await screen.findByRole('heading', { name: 'Destinataires' })).toBeInTheDocument()
@@ -262,7 +262,7 @@ describe('the recipients of a campaign', () => {
 
     await waitFor(() =>
       expect(calls).toContainEqual(
-        expect.objectContaining({ method: 'POST', pathname: `/api/campaigns/${CAMPAIGN}/starting` }),
+        expect.objectContaining({ method: 'POST', pathname: `/api/campaigns/${CAMPAIGN}/start` }),
       ),
     )
   })
@@ -300,7 +300,7 @@ describe('the recipients of a campaign', () => {
 
     await waitFor(() =>
       expect(calls).toContainEqual(
-        expect.objectContaining({ method: 'POST', pathname: `/api/campaigns/${CAMPAIGN}/stopping` }),
+        expect.objectContaining({ method: 'POST', pathname: `/api/campaigns/${CAMPAIGN}/stop` }),
       ),
     )
   })

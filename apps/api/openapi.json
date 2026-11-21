@@ -7077,7 +7077,7 @@
                 }
             }
         },
-        "/api/campaigns/{id}/freezing": {
+        "/api/campaigns/{id}/freeze": {
             "post": {
                 "tags": [
                     "Campaigns"
@@ -7379,7 +7379,7 @@
                 }
             }
         },
-        "/api/campaigns/{id}/starting": {
+        "/api/campaigns/{id}/start": {
             "post": {
                 "tags": [
                     "Campaigns"
@@ -7454,7 +7454,7 @@
                 }
             }
         },
-        "/api/campaigns/{id}/stopping": {
+        "/api/campaigns/{id}/stop": {
             "post": {
                 "tags": [
                     "Campaigns"

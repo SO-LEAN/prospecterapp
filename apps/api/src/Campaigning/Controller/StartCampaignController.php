@@ -31,7 +31,7 @@ final class StartCampaignController extends AbstractController
     ) {
     }
 
-    #[Route('/api/campaigns/{id}/starting', name: 'api_campaigns_start', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
+    #[Route('/api/campaigns/{id}/start', name: 'api_campaigns_start', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
     #[IsGranted(CampaignVoter::ACCESS, subject: 'campaign')]
     #[IsGranted(User::PERSONAL_DATA)]
     #[OA\Post(summary: 'Start a frozen campaign: its recipients, its message and its channel no longer change, and it is stopped, never discarded')]

@@ -31,7 +31,7 @@ final class FreezeCampaignController extends AbstractController
     ) {
     }
 
-    #[Route('/api/campaigns/{id}/freezing', name: 'api_campaigns_freeze', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
+    #[Route('/api/campaigns/{id}/freeze', name: 'api_campaigns_freeze', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
     #[IsGranted(CampaignVoter::ACCESS, subject: 'campaign')]
     #[IsGranted(User::PERSONAL_DATA)]
     #[OA\Post(summary: 'Keep the contacts a draft campaign targets now as its recipients, for good: its channel and its tags no longer change')]
