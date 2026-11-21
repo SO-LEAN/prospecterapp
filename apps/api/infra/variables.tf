@@ -99,3 +99,15 @@ variable "oauth_burst_limit" {
   type        = number
   default     = 20
 }
+
+variable "alert_emails" {
+  description = "The addresses the alarms of the instance e-mail (alerting.tf), each subscribed to its topic and confirmed from the e-mail AWS sends; none, the default, the alarms telling nobody. Sensitive: the plan of a pull request is a public log"
+  type        = list(string)
+  default     = []
+  sensitive   = true
+
+  validation {
+    condition     = alltrue([for email in var.alert_emails : can(regex("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$", email))])
+    error_message = "An alert address is an e-mail address."
+  }
+}

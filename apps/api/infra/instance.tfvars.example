@@ -19,3 +19,6 @@ permissions_boundary = "arn:aws:iam::123456789012:policy/my-boundary"
 # MCP server; 10 and 20 when absent
 # oauth_rate_limit  = 10
 # oauth_burst_limit = 20
+# the addresses the alarms e-mail (a queue of the failures holding a message), each subscription confirmed from the
+# e-mail AWS sends; nobody told when absent
+# alert_emails = ["alerts@example.com"]
