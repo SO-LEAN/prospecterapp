@@ -3,6 +3,8 @@
 namespace App\Campaigning\Input;
 
 use OpenApi\Attributes as OA;
+use Prospecter\Core\Campaigns\Application\PrepareCampaign\PrepareCampaign;
+use Prospecter\Core\Campaigns\Application\ReviseCampaign\ReviseCampaign;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -29,5 +31,33 @@ final readonly class CampaignInput
         #[OA\Property(description: 'The subject of an e-mail')]
         public ?string $subject = null,
     ) {
+    }
+
+    public function preparationOf(string $memberId, string $campaignId, \DateTimeImmutable $executedAt): PrepareCampaign
+    {
+        return new PrepareCampaign(
+            memberId: $memberId,
+            campaignId: $campaignId,
+            name: (string) $this->name,
+            channel: (string) $this->channel,
+            tags: $this->tags ?? [],
+            message: (string) $this->message,
+            subject: $this->subject,
+            executedAt: $executedAt,
+        );
+    }
+
+    public function revisionOf(string $memberId, string $campaignId, \DateTimeImmutable $executedAt): ReviseCampaign
+    {
+        return new ReviseCampaign(
+            memberId: $memberId,
+            campaignId: $campaignId,
+            name: (string) $this->name,
+            channel: (string) $this->channel,
+            tags: $this->tags ?? [],
+            message: (string) $this->message,
+            subject: $this->subject,
+            executedAt: $executedAt,
+        );
     }
 }

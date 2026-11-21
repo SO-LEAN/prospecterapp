@@ -34,9 +34,12 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
 
     /**
      * Writes that are no DELETE but that nothing takes back, their tools destructive as those of a DELETE: a
-     * cancelled exchange is never planned again.
+     * cancelled exchange is never planned again, a stopped campaign never started again, a dismissed recipient never
+     * handled again in their campaign.
      */
     private const array NEVER_TAKEN_BACK = [
+        'api_campaigns_dismiss_recipient',
+        'api_campaigns_stop',
         'api_exchanges_cancel',
     ];
 
@@ -51,17 +54,7 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
         'api_booking_page_open',
         'api_booking_page_remove_inactive_period',
         'api_booking_page_set_windows',
-        'api_campaigns_add_recipient',
-        'api_campaigns_add_recipients_by_tags',
-        'api_campaigns_discard',
-        'api_campaigns_dismiss_recipient',
-        'api_campaigns_freeze',
         'api_campaigns_note_exchange',
-        'api_campaigns_prepare',
-        'api_campaigns_remove_recipient',
-        'api_campaigns_revise',
-        'api_campaigns_start',
-        'api_campaigns_stop',
         'api_contacts_catch_up_gmail',
         'api_contacts_dismiss_possible_duplicate',
         'api_me_change_contact_details',
