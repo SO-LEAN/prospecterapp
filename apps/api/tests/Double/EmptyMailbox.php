@@ -8,6 +8,7 @@ use Prospecter\Core\Connectors\Domain\Model\MailboxMail;
 use Prospecter\Core\Connectors\Domain\Model\MailboxWatch;
 use Prospecter\Core\Connectors\Domain\Model\RefreshToken;
 use Prospecter\Core\Connectors\Domain\Port\ProviderMailbox;
+use Prospecter\Core\SharedKernel\Domain\Email;
 
 /**
  * A mailbox of Gmail without a message, its history standing where a test says, watched a week from the moment of
@@ -38,6 +39,11 @@ final readonly class EmptyMailbox implements ProviderMailbox
     public function messagesExchangedAfter(ClientCredentials $client, RefreshToken $refreshToken, \DateTimeImmutable $moment, int $atMost): MailboxChanges
     {
         return new MailboxChanges([], $this->historyId, true);
+    }
+
+    public function messagesExchangedWith(ClientCredentials $client, RefreshToken $refreshToken, Email $address, \DateTimeImmutable $moment, int $atMost): array
+    {
+        return [];
     }
 
     public function message(ClientCredentials $client, RefreshToken $refreshToken, string $messageId): ?MailboxMail
