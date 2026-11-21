@@ -209,6 +209,8 @@ use Prospecter\Core\PersonalData\Contract\Service\WhichAreContacts\KeptContacts;
 use Prospecter\Core\PersonalData\Contract\Service\WhichAreContacts\WhichAreContacts;
 use Prospecter\Core\PersonalData\Contract\Service\WhichContactsHaveTheseEmails\KeptContactsByEmail;
 use Prospecter\Core\PersonalData\Contract\Service\WhichContactsHaveTheseEmails\WhichContactsHaveTheseEmails;
+use Prospecter\Core\PersonalData\Contract\Service\WhichEmailsHaveTheseContacts\KeptEmailsOfContacts;
+use Prospecter\Core\PersonalData\Contract\Service\WhichEmailsHaveTheseContacts\WhichEmailsHaveTheseContacts;
 use Prospecter\Core\PersonalData\Domain\Service\DuplicateSuspicion as ContactDuplicateSuspicion;
 use Prospecter\Core\PersonalData\Domain\Service\EmailUniqueness as PersonalDataEmailUniqueness;
 use Prospecter\Core\PersonalData\Domain\Service\ReferenceUniqueness as PersonReferenceUniqueness;
@@ -384,6 +386,8 @@ use Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\Nam
 use Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\OrganizationsOfContactResponse;
 use Prospecter\Core\Prospecting\Contract\Service\WhichAreProspected\KeptProspected;
 use Prospecter\Core\Prospecting\Contract\Service\WhichAreProspected\WhichAreProspected;
+use Prospecter\Core\Prospecting\Contract\Service\WhichEmailsHaveTheseOrganizations\KeptEmailsOfOrganizations;
+use Prospecter\Core\Prospecting\Contract\Service\WhichEmailsHaveTheseOrganizations\WhichEmailsHaveTheseOrganizations;
 use Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsHaveTheseEmails\KeptOrganizationsByEmail;
 use Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsHaveTheseEmails\WhichOrganizationsHaveTheseEmails;
 use Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsNameTheseContacts\KeptOrganizationsNamingContacts;
@@ -1582,6 +1586,28 @@ final class Application
         ($this->whichOrganizationsHaveTheseEmailsService)($query, $kept);
 
         return $kept->organizations;
+    }
+
+    /**
+     * @return array<string, ?string>
+     */
+    public function whichEmailsHaveTheseOrganizations(WhichEmailsHaveTheseOrganizations $query): array
+    {
+        $kept = new KeptEmailsOfOrganizations();
+        new WhichEmailsHaveTheseOrganizationsHandler($this->organizations)($query, $kept);
+
+        return $kept->emails;
+    }
+
+    /**
+     * @return array<string, ?string>
+     */
+    public function whichEmailsHaveTheseContacts(WhichEmailsHaveTheseContacts $query): array
+    {
+        $kept = new KeptEmailsOfContacts();
+        new WhichEmailsHaveTheseContactsHandler($this->personCardRetriever, $this->readers)($query, $kept);
+
+        return $kept->emails;
     }
 
     public function listOrganizationFacts(ListOrganizationFacts $query): KeptOrganizationFacts

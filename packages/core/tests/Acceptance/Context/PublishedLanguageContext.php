@@ -25,6 +25,7 @@ use Prospecter\Core\PersonalData\Contract\Service\PresentMembers\MemberPresentat
 use Prospecter\Core\PersonalData\Contract\Service\PresentMembers\PresentMembers;
 use Prospecter\Core\PersonalData\Contract\Service\WhichAreContacts\WhichAreContacts;
 use Prospecter\Core\PersonalData\Contract\Service\WhichContactsHaveTheseEmails\WhichContactsHaveTheseEmails;
+use Prospecter\Core\PersonalData\Contract\Service\WhichEmailsHaveTheseContacts\WhichEmailsHaveTheseContacts;
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultHeldExchanges;
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultPlannedExchanges;
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\HeldExchangeResponse;
@@ -37,6 +38,7 @@ use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\Organizat
 use Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\NameOrganizationsOfContacts;
 use Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\OrganizationsOfContactResponse;
 use Prospecter\Core\Prospecting\Contract\Service\WhichAreProspected\WhichAreProspected;
+use Prospecter\Core\Prospecting\Contract\Service\WhichEmailsHaveTheseOrganizations\WhichEmailsHaveTheseOrganizations;
 use Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsHaveTheseEmails\WhichOrganizationsHaveTheseEmails;
 use Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsNameTheseContacts\OrganizationsNamingContactResponse;
 use Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsNameTheseContacts\WhichOrganizationsNameTheseContacts;
@@ -96,6 +98,11 @@ final class PublishedLanguageContext implements Context
      * @var array<string, string> the identity having each address asked, by the address
      */
     private array $byEmail = [];
+
+    /**
+     * @var array<string, ?string> the address of each one answered, by its identity
+     */
+    private array $emailsOf = [];
 
     #[Given(':name est membre de :account avec le droit aux données personnelles')]
     public function aMemberManagingPersonalData(string $name, string $account): void
@@ -193,6 +200,51 @@ final class PublishedLanguageContext implements Context
     public function personalDataAnswersNoContactByEmail(): void
     {
         Expect::same([], $this->byEmail);
+    }
+
+    #[When('un autre contexte demande à PersonalData les adresses e-mail, comme :reader les lit, de :')]
+    public function anotherContextAsksTheEmailsOfContacts(string $reader, TableNode $contacts): void
+    {
+        $this->emailsOf = $this->application->whichEmailsHaveTheseContacts(new WhichEmailsHaveTheseContacts($this->memberIdOf($reader), array_map($this->scenario->personIdOf(...), $contacts->getColumn(0))));
+    }
+
+    #[Then('PersonalData répond les adresses e-mail :')]
+    public function personalDataAnswersTheEmailsOfContacts(TableNode $expected): void
+    {
+        Expect::same($expected->getColumnsHash(), $this->describeEmailsOf('contact', fn (string $id): string => $this->scenario->nameOfPerson(new PersonId($id))));
+    }
+
+    #[When('un autre contexte demande à Prospecting les adresses e-mail, pour :account, de :')]
+    public function anotherContextAsksTheEmailsOfOrganizations(string $account, TableNode $organizations): void
+    {
+        $this->emailsOf = $this->application->whichEmailsHaveTheseOrganizations(new WhichEmailsHaveTheseOrganizations(array_map($this->scenario->idOf(...), $organizations->getColumn(0)), $this->scenario->accountIdOf($account)->value));
+    }
+
+    #[Then('Prospecting répond les adresses e-mail :')]
+    public function prospectingAnswersTheEmailsOfOrganizations(TableNode $expected): void
+    {
+        Expect::same($expected->getColumnsHash(), $this->describeEmailsOf('organisation', fn (string $id): string => $this->scenario->nameOf(new OrganizationId($id))));
+    }
+
+    #[Then('/^(?:PersonalData|Prospecting) ne répond aucune adresse e-mail$/')]
+    public function noEmailIsAnswered(): void
+    {
+        Expect::same([], $this->emailsOf);
+    }
+
+    /**
+     * Each one answered with its address, none written empty, in the order of their names.
+     *
+     * @param \Closure(string): string $nameOf
+     *
+     * @return list<array<string, string>>
+     */
+    private function describeEmailsOf(string $column, \Closure $nameOf): array
+    {
+        $described = array_map(static fn (string $id, ?string $email): array => [$column => $nameOf($id), 'adresse' => $email ?? ''], array_keys($this->emailsOf), $this->emailsOf);
+        usort($described, static fn (array $one, array $other): int => strcmp($one[$column], $other[$column]));
+
+        return $described;
     }
 
     #[When('un autre contexte demande à Prospecting quelles organisations de :account ont les adresses :')]
