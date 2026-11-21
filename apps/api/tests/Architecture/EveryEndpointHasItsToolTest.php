@@ -11,8 +11,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
  * The MCP server never lags behind the application (ADR 0163): every endpoint a member calls, a route whose controller
- * declares `#[IsGranted]`, has its tool, the tool naming it by `#[Adapts]`, but those kept on the screen and those the
- * tickets after the first still have to cover.
+ * declares `#[IsGranted]`, has its tool, the tool naming it by `#[Adapts]`, but those kept on the screen.
  */
 class EveryEndpointHasItsToolTest extends KernelTestCase
 {
@@ -54,19 +53,11 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
         'api_exchanges_cancel',
     ];
 
-    /**
-     * The writes still to cover: the noting of an exchange of a campaign, which the leading of a campaign by an AI
-     * covers, removing this list.
-     */
-    private const array TO_COVER = [
-        'api_campaigns_note_exchange',
-    ];
-
     public function testEveryEndpointOfAMemberHasItsTool(): void
     {
-        $withoutTool = array_diff(array_keys($this->endpointsOfTheMembers()), array_keys($this->adaptedByATool()), self::NEVER, self::TO_COVER);
+        $withoutTool = array_diff(array_keys($this->endpointsOfTheMembers()), array_keys($this->adaptedByATool()), self::NEVER);
 
-        $this->assertSame([], array_values(array_map($this->named(...), $withoutTool)), 'Endpoints without a tool of the MCP server, nor in NEVER or TO_COVER');
+        $this->assertSame([], array_values(array_map($this->named(...), $withoutTool)), 'Endpoints without a tool of the MCP server, nor in NEVER');
     }
 
     public function testEveryToolOfAReadingSaysItChangesNothing(): void
@@ -101,18 +92,11 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
         $this->assertSame([], array_values(array_intersect(self::NEVER, array_keys($this->adaptedByATool()))), 'Endpoints kept on the screen that a tool adapts');
     }
 
-    public function testNoEndpointToCoverHasItsToolAlready(): void
-    {
-        self::bootKernel();
-
-        $this->assertSame([], array_values(array_intersect(self::TO_COVER, array_keys($this->adaptedByATool()))), 'Endpoints in TO_COVER that a tool adapts');
-    }
-
     public function testEveryEndpointNamedApartExists(): void
     {
         $routes = self::getContainer()->get(RouterInterface::class)->getRouteCollection();
 
-        $this->assertSame([], array_values(array_filter([...array_keys($this->adaptedByATool()), ...self::NEVER, ...self::NEVER_TAKEN_BACK, ...self::TO_COVER], static fn (string $route): bool => null === $routes->get($route))), 'Routes named by #[Adapts], NEVER, NEVER_TAKEN_BACK or TO_COVER that no longer exist');
+        $this->assertSame([], array_values(array_filter([...array_keys($this->adaptedByATool()), ...self::NEVER, ...self::NEVER_TAKEN_BACK], static fn (string $route): bool => null === $routes->get($route))), 'Routes named by #[Adapts], NEVER or NEVER_TAKEN_BACK that no longer exist');
     }
 
     /**
