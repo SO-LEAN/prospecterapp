@@ -3,6 +3,7 @@
 namespace Tests\App\Shared;
 
 use App\Shared\Resource\UploadResource;
+use App\Shared\ServiceUnavailable;
 use App\Shared\UploadsSentByTheApi;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -50,6 +51,18 @@ class UploadsSentByTheApiTest extends TestCase
         $this->uploads($requests, '')->upload($this->form(), new File(__DIR__.'/../Fixtures/logo.png'));
 
         $this->assertSame(['Content-Length: '.strlen($requests[0]['body'])], $requests[0]['length']);
+    }
+
+    public function testTheBucketRefusingTheFileMakesThePrivateFilesUnavailableForNow(): void
+    {
+        $http = new MockHttpClient(new MockResponse('<Error><Code>NotImplemented</Code></Error>', ['http_code' => 501]));
+
+        try {
+            new UploadsSentByTheApi($http, '')->upload($this->form(), new File(__DIR__.'/../Fixtures/logo.png'));
+            $this->fail('The file was kept');
+        } catch (ServiceUnavailable $unavailable) {
+            $this->assertSame('privateFilesUnavailable', $unavailable->reason);
+        }
     }
 
     /**

@@ -1052,6 +1052,7 @@ export const fr = {
     tooManyRequests: 'Ce lien a été ouvert trop souvent : réessayez dans une minute.',
     directoryUnreachable:
       'L’annuaire des entreprises ne répond pas pour le moment : réessayez plus tard, ou tapez le SIRET.',
+    privateFilesUnavailable: 'Le fichier ne peut pas être gardé pour le moment : réessayez plus tard.',
   },
   validation: {
     required: 'Ce champ est obligatoire.',

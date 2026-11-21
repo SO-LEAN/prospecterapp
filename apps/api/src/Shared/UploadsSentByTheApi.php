@@ -6,6 +6,7 @@ use App\Shared\Resource\UploadResource;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Mime\Part\DataPart;
 use Symfony\Component\Mime\Part\Multipart\FormDataPart;
+use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
@@ -30,10 +31,14 @@ final readonly class UploadsSentByTheApi implements UploadSender
             'file' => DataPart::fromPath($file->getPathname(), $file->getFilename()),
         ]);
 
-        $this->http->request('POST', $this->addressOf($form), [
-            'headers' => $body->getPreparedHeaders()->toArray(),
-            'body' => $body->bodyToString(),
-        ])->getContent();
+        try {
+            $this->http->request('POST', $this->addressOf($form), [
+                'headers' => $body->getPreparedHeaders()->toArray(),
+                'body' => $body->bodyToString(),
+            ])->getContent();
+        } catch (ExceptionInterface $failure) {
+            throw ServiceUnavailable::privateFiles($failure);
+        }
     }
 
     private function addressOf(UploadResource $form): string
