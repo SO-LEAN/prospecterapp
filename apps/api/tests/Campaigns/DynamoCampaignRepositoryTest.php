@@ -14,6 +14,7 @@ use Prospecter\Core\Campaigns\Domain\Model\ContactTags;
 use Prospecter\Core\Campaigns\Domain\Model\MessageMode;
 use Prospecter\Core\Campaigns\Domain\Model\MessageTemplate;
 use Prospecter\Core\Campaigns\Domain\Model\Reach;
+use Prospecter\Core\Campaigns\Domain\Model\RecipientOutcome;
 use Prospecter\Core\Campaigns\Domain\Model\Tag;
 use Prospecter\Core\Campaigns\Domain\Model\Targeting;
 use Prospecter\Core\Campaigns\Domain\Repository\CampaignRepository;
@@ -104,7 +105,7 @@ class DynamoCampaignRepositoryTest extends ApiTestCase
     {
         $campaign = $this->aFrozenCampaign(self::ADA, self::ALAN);
         $campaign->start(new MemberId(self::newIdentity()), new \DateTimeImmutable('2026-11-17 12:00:00'));
-        $campaign->process(new PersonId(self::ADA), self::EXCHANGE, missed: true, at: new \DateTimeImmutable('2026-11-17 12:30:00'));
+        $campaign->process(new PersonId(self::ADA), self::EXCHANGE, RecipientOutcome::Missed, at: new \DateTimeImmutable('2026-11-17 12:30:00'));
         $campaign->dismiss(new PersonId(self::ALAN), 'Parti', new MemberId(self::newIdentity()), new \DateTimeImmutable('2026-11-17 13:00:00'));
         $this->repository()->save($campaign);
         $campaign->releaseEvents();
@@ -121,7 +122,7 @@ class DynamoCampaignRepositoryTest extends ApiTestCase
     {
         $campaign = $this->aFrozenCampaign(self::ADA, self::ALAN);
         $campaign->start(new MemberId(self::newIdentity()), new \DateTimeImmutable('2026-11-17 12:00:00'));
-        $campaign->process(new PersonId(self::ADA), self::EXCHANGE, missed: true, at: new \DateTimeImmutable('2026-11-17 12:30:00'));
+        $campaign->process(new PersonId(self::ADA), self::EXCHANGE, RecipientOutcome::Missed, at: new \DateTimeImmutable('2026-11-17 12:30:00'));
         $campaign->forget(new PersonId(self::ADA), new \DateTimeImmutable('2026-11-17 13:00:00'));
         $this->repository()->save($campaign);
         $campaign->releaseEvents();

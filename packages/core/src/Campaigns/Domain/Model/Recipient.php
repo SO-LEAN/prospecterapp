@@ -31,9 +31,9 @@ final readonly class Recipient
     }
 
     #[\NoDiscard]
-    public function processed(string $exchangeId, bool $missed): self
+    public function processed(string $exchangeId, RecipientOutcome $outcome): self
     {
-        return new self($this->contact, RecipientStatus::Processed, $missed, exchangeId: $exchangeId);
+        return new self($this->contact, RecipientStatus::Processed, RecipientOutcome::Missed === $outcome, exchangeId: $exchangeId);
     }
 
     #[\NoDiscard]

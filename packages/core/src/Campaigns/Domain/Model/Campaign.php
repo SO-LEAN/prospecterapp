@@ -168,13 +168,13 @@ final class Campaign implements ReleasesEvents
      * The exchange noted for a recipient in the campaign processes them, as Prospecting tells it: a reaction of the
      * system, recording nothing; a recipient handled already, or a campaign no longer led, stays as it is.
      */
-    public function process(PersonId $contact, string $exchangeId, bool $missed, \DateTimeImmutable $at): void
+    public function process(PersonId $contact, string $exchangeId, RecipientOutcome $outcome, \DateTimeImmutable $at): void
     {
         if (!$this->status->isRunning()) {
             return;
         }
 
-        $this->recipients = $this->recipients->processing($contact, $exchangeId, $missed);
+        $this->recipients = $this->recipients->processing($contact, $exchangeId, $outcome);
         $this->endOnceNobodyIsPending($at);
     }
 
