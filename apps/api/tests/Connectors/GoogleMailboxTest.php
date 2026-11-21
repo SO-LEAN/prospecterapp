@@ -176,6 +176,26 @@ class GoogleMailboxTest extends TestCase
         $this->assertSame([['level' => 'warning', 'message' => 'The history of a mailbox expired: its oldest messages since its last reading are not imported', 'context' => ['leftOut' => 2]]], $this->logger->records);
     }
 
+    public function testTheMessagesExchangedWithAnAddressAfterAMomentAreSearchedTheNewestFirstAtMostSoMany(): void
+    {
+        $mailbox = $this->mailbox(new JsonMockResponse(['messages' => [['id' => 'm3'], ['id' => 'm2']]]));
+
+        $messageIds = $mailbox->messagesExchangedWith(self::client(), new RefreshToken('a-token'), new Email('ada@acme.fr'), new \DateTimeImmutable('2025-11-18 09:12:00 UTC'), 200);
+
+        $this->assertSame(['m3', 'm2'], $messageIds);
+        $this->assertSame([
+            ['GET', self::GMAIL_URL.'/users/me/messages?q=%7Bfrom:ada@acme.fr%20to:ada@acme.fr%7D%20after:1763457120%20-in:draft%20-in:spam%20-in:trash&maxResults=200', null],
+        ], $this->calls);
+    }
+
+    #[DataProvider('accessRefused')]
+    public function testASearchGmailNoLongerGrantsIsAnAccessRevoked(int $status): void
+    {
+        $this->expectException(AccessRevoked::class);
+
+        $this->mailbox(new MockResponse('', ['http_code' => $status]))->messagesExchangedWith(self::client(), new RefreshToken('a-token'), new Email('ada@acme.fr'), new \DateTimeImmutable('2025-11-18 09:12:00 UTC'), 200);
+    }
+
     public function testAMessageIsReadWhole(): void
     {
         $mailbox = $this->mailbox(new JsonMockResponse(['id' => 'm1', 'labelIds' => ['INBOX'], 'internalDate' => '1794993120000', 'payload' => [

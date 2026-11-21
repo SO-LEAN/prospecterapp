@@ -11,6 +11,7 @@ use Prospecter\Core\Connectors\Domain\Model\MailboxMail;
 use Prospecter\Core\Connectors\Domain\Model\MailboxWatch;
 use Prospecter\Core\Connectors\Domain\Model\RefreshToken;
 use Prospecter\Core\Connectors\Domain\Port\ProviderMailbox;
+use Prospecter\Core\SharedKernel\Domain\Email;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -179,6 +180,20 @@ final readonly class GoogleMailbox implements ProviderMailbox
         $this->warnOfTheLeftOut(count($newestFirst) - $atMost);
 
         return new MailboxChanges(array_reverse(array_slice($newestFirst, 0, $atMost)), $historyId, true);
+    }
+
+    /**
+     * Gmail searches the address as sender or as recipient (`{from: to:}`, either of them), its copies with it: the
+     * import keeps the sender and the recipients in « To » only. The newest first, on one page.
+     *
+     * @see https://support.google.com/mail/answer/7190
+     */
+    public function messagesExchangedWith(ClientCredentials $client, RefreshToken $refreshToken, Email $address, \DateTimeImmutable $moment, int $atMost): array
+    {
+        $query = ['q' => sprintf('{from:%1$s to:%1$s} after:%2$d %3$s', $address->value, $moment->getTimestamp(), self::NOT_EXCHANGED), 'maxResults' => $atMost];
+        $page = $this->answerOf($client, $this->read($client, $refreshToken, '/users/me/messages', $query));
+
+        return array_map(static fn (array $message): string => (string) $message['id'], $page['messages'] ?? []);
     }
 
     private function warnOfTheLeftOut(int $leftOut): void
