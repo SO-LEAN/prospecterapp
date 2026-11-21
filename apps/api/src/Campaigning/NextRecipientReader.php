@@ -7,6 +7,7 @@ use App\Campaigning\Resource\NextRecipientResource;
 use App\Campaigning\Resource\RecipientLinksResource;
 use App\Contacts\ContactInListResourceFactory;
 use App\Contacts\OrganizationsOfContacts;
+use App\Contacts\Resource\ContactInListResource;
 use App\Contacts\TagsOfContacts;
 use App\Shared\Links;
 use Prospecter\Core\Campaigns\Application\NextRecipient\KeptRecipientToHandle;
@@ -43,12 +44,11 @@ final readonly class NextRecipientReader
     public function read(string $reader, string $campaignId): NextRecipientResource
     {
         $next = $this->nextOf($reader, $campaignId);
-        $contacts = [$next->contactId];
         $recipient = ['id' => $campaignId, 'contactId' => $next->contactId];
 
         return new NextRecipientResource(
             campaignId: $campaignId,
-            contact: $this->contactInListResourceFactory->create($this->personOf($reader, $next->contactId), $this->organizationsOfContacts->read($reader, $contacts)[$next->contactId] ?? [], $this->tagsOfContacts->read($reader, $contacts)[$next->contactId] ?? []),
+            contact: $this->contactOf($reader, $next->contactId),
             channel: $next->channel,
             message: new CampaignMessageResource($next->subject, $next->text),
             messageMode: $next->messageMode,
@@ -67,6 +67,17 @@ final readonly class NextRecipientReader
         ($this->nextRecipient)(new NextRecipient($reader, $campaignId), $kept);
 
         return $kept->recipient ?? throw new \LogicException('The next recipient was not presented');
+    }
+
+    private function contactOf(string $reader, string $contactId): ContactInListResource
+    {
+        $contacts = [$contactId];
+
+        return $this->contactInListResourceFactory->create(
+            $this->personOf($reader, $contactId),
+            $this->organizationsOfContacts->read($reader, $contacts)[$contactId] ?? [],
+            $this->tagsOfContacts->read($reader, $contacts)[$contactId] ?? [],
+        );
     }
 
     /**
