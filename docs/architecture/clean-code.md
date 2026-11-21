@@ -135,6 +135,7 @@ The repository is public and written in English (ADR 0017). Agents write like wh
 | `actual`, `actually` meaning "current" | `current`, `currently` |
 | `eventually` meaning "possibly" | `possibly`, `optionally` |
 | `X of Y of Z` | `Z's Y X`, or a compound noun |
+| `note` (an exchange), in prose | `log`; code names keep `Note…` until a branch touches them |
 
 ## PHP and TypeScript specifics
 

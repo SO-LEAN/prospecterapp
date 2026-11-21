@@ -77,7 +77,7 @@ Each of the following commands runs one use case. A member completes their profi
 - the keys that list accounts, and exchanges by account (ADR 0099);
 - the links of exchanges and to-dos in their holders' calendars (ADR 0115, 0134);
 - the reservations of the contacts' links (ADR 0159, ADR 0165; run once on each instance for the LinkedIn profiles and pages stored before links existed, which are taken as links);
-- the reservations of the organizations' website links and domains (ADR 0160);
+- the reservations of the organizations' links and website domains (ADR 0160);
 - the links of the organizations' resemblance keys (ADR 0162; run once on each instance for the organizations stored before it) and of the contacts' resemblance keys (ADR 0170; run once on each instance for the contacts stored before it);
 - the registry of the exchanges' fingerprints (ADR 0166; run once on each instance where e-mails were imported before it).
 
