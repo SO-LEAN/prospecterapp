@@ -34,6 +34,8 @@ type Props<Item> = {
   planExchange?: ReactNode
   /** What narrows the timeline, beside its title. */
   filter?: ReactNode
+  /** The catch-up of the e-mails exchanged with the interlocutor, when the timeline offers it. */
+  catchUp?: ReactNode
   className?: string
 }
 
@@ -53,6 +55,7 @@ export function TimelineCard<Item>({
   noteExchange,
   planExchange,
   filter,
+  catchUp,
   className,
 }: Props<Item>) {
   const { t } = useTranslation()
@@ -69,9 +72,10 @@ export function TimelineCard<Item>({
     <Card className={className}>
       <CardHeader>
         <CardTitle className="text-base">{t('exchanges.title')}</CardTitle>
-        {(filter || noteExchange || planExchange) && (
+        {(filter || catchUp || noteExchange || planExchange) && (
           <CardAction className="flex flex-wrap justify-end gap-2">
             {filter}
+            {catchUp}
             {planExchange}
             {noteExchange}
           </CardAction>

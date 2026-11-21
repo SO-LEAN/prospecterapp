@@ -195,5 +195,19 @@ describe('OrganizationExchangesSection', () => {
 
     expect(screen.getByText('Aucun échange noté.')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Noter un échange' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Rattraper Gmail' })).not.toBeInTheDocument()
+  })
+
+  it('offers to catch up Gmail in its header when the timeline links it', () => {
+    renderTheSection({
+      items: [],
+      toMakeConform: 0,
+      _links: {
+        self: timelineLink,
+        catchUpGmail: { href: `/api/organizations/${ACME}/gmail-catch-ups`, method: 'POST' },
+      },
+    })
+
+    expect(screen.getByRole('button', { name: 'Rattraper Gmail' })).toBeInTheDocument()
   })
 })
