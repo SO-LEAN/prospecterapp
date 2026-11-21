@@ -357,6 +357,7 @@ const anOverlap = (occurredAt: string): PlannedExchanges['items'][number] => ({
     attachmentCount: 0,
     contactToAttach: false,
     bookedByLink: false,
+    createdByAnAI: false,
     _links: { self: { href: '/api/exchanges/0190a1c0-0000-7000-8000-000000000010', method: 'GET' } },
   },
   interlocutor: { kind: 'person', id: ADA, name: 'Ada Lovelace', presence: 'present' },

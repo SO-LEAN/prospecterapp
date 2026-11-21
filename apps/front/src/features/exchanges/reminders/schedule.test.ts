@@ -22,6 +22,7 @@ function plannedAt14(status: DayExchange['exchange']['status'] = 'planned'): Day
       attachmentCount: 0,
       contactToAttach: false,
       bookedByLink: false,
+      createdByAnAI: false,
       _links: { self: { href: '/api/exchanges/0190a1c0-0000-7000-8000-000000000001', method: 'GET' } },
     },
     interlocutor: {

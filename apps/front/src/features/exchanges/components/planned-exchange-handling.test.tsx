@@ -66,6 +66,7 @@ const aPlannedExchange = (exchange: Partial<ExchangeDetail>): ExchangeDetail => 
   attachments: [],
   hiddenAttachments: 0,
   bookedByLink: false,
+  createdByAnAI: false,
   _links: { self, ...handling },
   ...exchange,
 })

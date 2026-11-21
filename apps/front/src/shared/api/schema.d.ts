@@ -2650,6 +2650,8 @@ export interface components {
              * @enum {string|null}
              */
             importedFrom?: "google" | null;
+            /** @description An AI created it, acting as its member through the MCP server, never named */
+            createdByAnAI: boolean;
             _links: components["schemas"]["ExchangeLinksResource"];
         };
         TimelineLinksResource: {
@@ -3058,6 +3060,8 @@ export interface components {
              * @enum {string|null}
              */
             importedFrom?: "google" | null;
+            /** @description An AI created it, acting as its member through the MCP server, never named */
+            createdByAnAI: boolean;
             _links: components["schemas"]["ExchangeDetailLinksResource"];
         };
         AttachmentDownloadResource: {

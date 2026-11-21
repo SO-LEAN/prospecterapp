@@ -72,6 +72,7 @@ function planned(
       attachmentCount: 0,
       contactToAttach: false,
       bookedByLink: false,
+      createdByAnAI: false,
       _links: linksOf(id, occurredAt <= NOW),
       ...exchange,
     },

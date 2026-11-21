@@ -17,6 +17,7 @@ final readonly class ExchangeResource
     public const string STATUS_DESCRIPTION = 'planned: still to come; done: it happened; missed: the contact did not come or answer; cancelled: called off before it happened';
     public const array CANCELLERS = ['prospector', 'contact'];
     public const array PROVIDERS = ['google'];
+    public const string CREATED_BY_AN_AI_DESCRIPTION = 'An AI created it, acting as its member through the MCP server, never named';
     public const string IMPORTED_FROM_DESCRIPTION = 'The provider of the mailbox it was imported from, google for Gmail; null for an exchange noted (ADR 0174)';
 
     /**
@@ -59,6 +60,8 @@ final readonly class ExchangeResource
         public bool $bookedByLink,
         #[OA\Property(enum: self::PROVIDERS, description: self::IMPORTED_FROM_DESCRIPTION)]
         public ?string $importedFrom,
+        #[OA\Property(description: self::CREATED_BY_AN_AI_DESCRIPTION)]
+        public bool $createdByAnAI,
         #[SerializedName('_links')]
         #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]
         public ExchangeLinksResource $links,

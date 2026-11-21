@@ -35,6 +35,35 @@ class NotingToolsApiTest extends ApiTestCase
         $this->assertSame([$noted['structuredContent']['exchange']['id']], array_column($timeline['items'], 'id'));
     }
 
+    public function testAnExchangeTheAiNotesIsCreatedByAnAiInTheTimeline(): void
+    {
+        $contact = $this->aContactOf($this->anOrganization('ACME'));
+
+        $this->callWithoutHandshake('noter-un-echange', ['id' => $contact] + self::AN_EMAIL);
+
+        $timeline = $this->requestJson('GET', '/api/contacts/'.$contact.'/exchanges');
+        $this->assertTrue($timeline['items'][0]['createdByAnAI'] ?? null);
+    }
+
+    public function testAnExchangeTheAiNotesIsCreatedByAnAiInItsDetail(): void
+    {
+        $contact = $this->aContactOf($this->anOrganization('ACME'));
+
+        $noted = $this->callWithoutHandshake('noter-un-echange', ['id' => $contact] + self::AN_EMAIL);
+
+        $this->assertTrue($noted['structuredContent']['exchange']['createdByAnAI'] ?? null);
+        $this->assertTrue($this->requestJson('GET', '/api/exchanges/'.$noted['structuredContent']['exchange']['id'])['createdByAnAI'] ?? null);
+    }
+
+    public function testAnExchangeTheAiNotesWithAnOrganizationIsCreatedByAnAi(): void
+    {
+        $organization = $this->anOrganization('ACME');
+
+        $noted = $this->callWithoutHandshake('noter-un-echange-organisation', ['id' => $organization, 'channel' => 'call', 'direction' => 'inbound']);
+
+        $this->assertTrue($noted['structuredContent']['exchange']['createdByAnAI'] ?? null);
+    }
+
     public function testAnEMailNotedAgainIsAnsweredTheExchangeNotedFirstWithoutError(): void
     {
         $contact = $this->aContactOf($this->anOrganization('ACME'));

@@ -63,6 +63,7 @@ final readonly class PlanExchangeTool
             link: $input->link,
             linkRequested: $input->linkRequested,
             executedAt: $this->clock->now(),
+            byAnAI: true,
         ));
 
         return $this->results->of($this->timelineReader->readUpcoming($memberId, $id));
