@@ -12,11 +12,11 @@ trait ActsAsItsEndpoint
 {
     use CallsTheMcpServer;
 
-    private const array WRITERS = ['prospector-user', 'assistant-user', 'admin-user', 'member-user', 'stranger'];
+    protected const array WRITERS = ['prospector-user', 'assistant-user', 'admin-user', 'member-user', 'stranger'];
 
-    private const array PROSPECTORS = ['prospector-user', 'assistant-user', 'admin-user'];
+    protected const array PROSPECTORS = ['prospector-user', 'assistant-user', 'admin-user'];
 
-    private const array PERSONAL_DATA_MANAGERS = ['prospector-user', 'admin-user'];
+    protected const array PERSONAL_DATA_MANAGERS = ['prospector-user', 'admin-user'];
 
     /**
      * Each writer calls the tool: refused, the endpoint refuses them the same; done, by a writer the endpoint allows,
@@ -74,27 +74,9 @@ trait ActsAsItsEndpoint
      */
     private function assertTheToolAsksForAConfirmation(string $tool): void
     {
+        $this->login();
         $listed = array_find($this->everyToolListed(), static fn (array $listed): bool => $tool === $listed['name']);
 
         $this->assertSame(['readOnlyHint' => false, 'destructiveHint' => true], array_intersect_key($listed['annotations'] ?? [], ['readOnlyHint' => true, 'destructiveHint' => true]));
-    }
-
-    /**
-     * The tools an AI lists, page after page.
-     *
-     * @return list<array<string, mixed>>
-     */
-    private function everyToolListed(): array
-    {
-        $this->login();
-        $tools = [];
-        $cursor = [];
-        do {
-            $page = $this->callWithHandshake('tools/list', $cursor);
-            $tools = [...$tools, ...$page['tools']];
-            $cursor = isset($page['nextCursor']) ? ['cursor' => $page['nextCursor']] : null;
-        } while (null !== $cursor);
-
-        return $tools;
     }
 }
