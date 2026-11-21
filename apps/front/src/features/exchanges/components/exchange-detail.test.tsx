@@ -153,6 +153,34 @@ describe('ExchangeDetailSheet', () => {
     expect(screen.queryByText(/^Planifié le/)).not.toBeInTheDocument()
   })
 
+  it('says an exchange was imported from Gmail rather than noted', async () => {
+    await renderTheDetail(anExchange({ channel: 'email', importedFrom: 'google' }))
+
+    expect(screen.getByText(/^Importé de Gmail le 15 oct\. 2026, .*\d$/)).toBeInTheDocument()
+    expect(screen.queryByText(/^Noté le/)).not.toBeInTheDocument()
+  })
+
+  it('offers to open the e-mail an exchange was imported from in Gmail, in a new tab', async () => {
+    const message = 'https://mail.google.com/mail/#all/18c2f4a9e0b1d3c7'
+    await renderTheDetail(
+      anExchange({
+        channel: 'email',
+        importedFrom: 'google',
+        _links: { self, openInMailbox: { href: message, method: 'GET' } },
+      }),
+    )
+
+    const open = screen.getByRole('link', { name: 'Ouvrir dans Gmail' })
+    expect(open).toHaveAttribute('href', message)
+    expect(open).toHaveAttribute('target', '_blank')
+  })
+
+  it('offers to open nothing in Gmail when the api does not link to its e-mail', async () => {
+    await renderTheDetail(anExchange({ channel: 'email', importedFrom: 'google' }))
+
+    expect(screen.queryByRole('link', { name: 'Ouvrir dans Gmail' })).not.toBeInTheDocument()
+  })
+
   it('says who planned an exchange still to come', async () => {
     await renderTheDetail(anExchange({ status: 'planned', channel: 'videoCall', durationInMinutes: 30 }))
 
