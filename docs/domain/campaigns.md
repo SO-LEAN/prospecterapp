@@ -99,7 +99,7 @@ Members put tags on their organizations and contacts, to find later the ones tha
   Once nobody is left to handle, the campaign is **ended**, and the moment is kept; it allows nothing more. Processing is a system reaction: a recipient already handled, a campaign no longer running, or an exchange of no campaign changes nothing, and nothing is recorded.
 - A processed recipient links to the exchange logged for them, and the exchange links to its campaign (ADR 0152). A member who erases that exchange puts the recipient back to handle (`ReopenRecipientOfErasedExchange`, reacting to its last `ExchangeFactsChanged`, absent, which names its campaign and its contact):
   - an ended campaign is started again; a stopped one stays stopped;
-  - an exchange erased with its organization, when prospecting of the last one stopped, never does this: the recipient stays processed without it (ADR 0155);
+  - an exchange erased with its organization, when the account stopped prospecting the last organization keeping it, never does this: the recipient stays processed without it (ADR 0155);
   - another exchange of the recipient, a recipient erased since, or an erased campaign changes nothing.
 
   This is a system reaction: nothing is recorded. A campaign erased by the operations leaves its exchanges in their timelines, no longer named by any campaign.

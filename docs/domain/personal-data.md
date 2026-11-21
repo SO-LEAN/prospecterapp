@@ -50,7 +50,7 @@ Natural persons' personal data, and who reads it. Code: `packages/core/src/Perso
   - Only empty fields are filled: their title, job title, email, phone number, and their links while there is room among the five. Nothing already logged is overwritten, and nothing changes when there is nothing to fill.
   - The email and the links stay unique among the account's contacts.
   - Beforehand, `CompareWithContact` reports, by the same rule, the fields it would fill and the fields given with a different value than the one logged.
-- A person is identified from the clues a client gives about them (`IdentifyPersons`, ADR 0173). It only reads. It takes one list at a time, in its order, and searches the account's contacts.
+- A person is identified from the clues a client gives about them (`IdentifyPersons`, ADR 0173). It only reads, a whole list at once, in its order, among the account's contacts.
   - It first uses their keys, the surest first (`PersonKeys`): each link, current or former, each email, each mobile; a landline, which a whole organization shares, is not one.
   - If the keys designate one contact, the person is **known**. If they designate several, or a mobile shared by two contacts, the person is **to confirm**, never known.
   - If they designate none, the person's resemblance key finds homonyms, those in the organizations the client says they work for first: the person is to confirm.
@@ -68,7 +68,7 @@ Natural persons' personal data, and who reads it. Code: `packages/core/src/Perso
   - Forgetting a contact lifts their suspicions.
   - Only a member with the right to manage personal data reads who is suspected (`PersonReading::showsPossibleDuplicatesTo()`). After checking, that member says that a contact is not a duplicate of one they are suspected of (`DismissPossibleDuplicate`; refused otherwise: `NotASuspectedDuplicateContact`). The two are never suspected of each other again (`DismissSuspicionInReturn`, ADR 0170).
 - A link designates one contact in an account, through their current links or a former one (ADR 0159, ADR 0165).
-  - Collecting or logging a contact with a link another contact holds is refused, naming that contact (`ReferenceUniqueness`, `ReferenceAlreadyUsed`).
+  - Collecting a contact, or logging a link on one, with a link another contact holds is refused, naming that contact (`ReferenceUniqueness`, `ReferenceAlreadyUsed`).
   - Another account, and a member for their own profile, may log it.
   - A contact keeps a link they already hold, so that two contacts who logged the same link before the rule block nothing. `app:consistency:check` lists them, for the members to merge or correct.
 - Searching contacts by the beginning of their email, and recognizing a caller by their phone number, need the right to manage personal data: a reader of masked data could guess them from what they cannot read (ADR 0031, 0072). Without the right, contacts are searched by the beginning of their name only (`Reader::searchesTheEmails()`; ADR 0129).
