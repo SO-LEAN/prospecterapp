@@ -63,6 +63,7 @@ final readonly class DynamoHeldExchangeRetriever implements HeldExchangeRetrieve
             ExchangeDocument::linkRequestedOf($document),
             $document['contact'],
             $document['keptFor'],
+            $document['bookedByLink'] ?? false,
         );
     }
 }
