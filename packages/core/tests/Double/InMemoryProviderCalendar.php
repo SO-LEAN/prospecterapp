@@ -62,11 +62,12 @@ final class InMemoryProviderCalendar implements ProviderCalendar
     }
 
     /**
-     * As Google does for an event inviting someone: the invitation when they were not invited yet, an update otherwise.
+     * As Google does for an event inviting someone, when asked to tell them: the invitation when they were not invited
+     * yet, an update otherwise.
      */
     private function tellTheGuestOf(CalendarEvent $event, ?CalendarEvent $before): void
     {
-        if (null === $event->guest) {
+        if (null === $event->guest || !$event->guest->isTold) {
             return;
         }
 

@@ -78,7 +78,7 @@ final readonly class CalendarPusher
 
         $entry = $this->entries->find($exchange->id);
         try {
-            $this->putInto($connection, $exchange, $client->credentials(), $at);
+            $this->putInto($connection, $exchange, $entry, $client->credentials(), $at);
             $this->keepThePushOf($exchange, $entry, $connection, $at);
         } catch (CalendarRefusedThePush) {
             $this->keepTheRefusal($entry ?? CalendarEntry::of($exchange, self::PROVIDER, $at), $at);
@@ -88,17 +88,17 @@ final readonly class CalendarPusher
         $this->publishWhatHappenedTo($connection);
     }
 
-    private function putInto(Connection $connection, HeldExchange $exchange, ClientCredentials $client, \DateTimeImmutable $at): void
+    private function putInto(Connection $connection, HeldExchange $exchange, ?CalendarEntry $entry, ClientCredentials $client, \DateTimeImmutable $at): void
     {
         $holder = $this->members->get($exchange->holder);
-        $connection->push($exchange->asCalendarEvent($this->contactNameOf($exchange), $holder->reminderMinutesBefore, $this->guestOf($exchange, $holder)), $client, $this->calendars, $at);
+        $connection->push($exchange->asCalendarEvent($this->contactNameOf($exchange), $holder->reminderMinutesBefore, $this->guestOf($exchange, $holder, $entry)), $client, $this->calendars, $at);
     }
 
     /**
      * The contact who booked it, at their e-mail as its holder reads it, none without one; called by its holder at
-     * their phone, for a call.
+     * their phone, for a call; told of the push when the event is new to them or moved.
      */
-    private function guestOf(HeldExchange $exchange, Member $holder): ?Guest
+    private function guestOf(HeldExchange $exchange, Member $holder, ?CalendarEntry $entry): ?Guest
     {
         if (null === $exchange->contact || !$exchange->invitesItsContact()) {
             return null;
@@ -109,7 +109,11 @@ final readonly class CalendarPusher
             return null;
         }
 
-        return $exchange->isACall() ? new Guest($details->email, $details->phoneNumber, $holder->firstName) : new Guest($details->email);
+        $isTold = $entry?->tellsItsGuestOfAPushOf($exchange) ?? true;
+
+        return $exchange->isACall()
+            ? new Guest($details->email, $details->phoneNumber, $holder->firstName, $isTold)
+            : new Guest($details->email, isTold: $isTold);
     }
 
     private function contactNameOf(HeldExchange $exchange): ?string

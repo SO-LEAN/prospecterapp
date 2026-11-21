@@ -50,6 +50,13 @@ Fonctionnalité: Inviter qui me réserve par mon agenda Google
     Quand je la marque faite
     Alors Google n'envoie rien à "ada@acme.fr"
 
+  Scénario: Arrêter de prospecter l'organisation du demandeur annule son rendez-vous à venir, sans autre avis
+    Soit on a réservé une visio par mon lien public le 24/11/2026 à 9h00
+    Et je rattache à "ACME" qui a réservé
+    Quand j'arrête de prospecter "ACME"
+    Alors l'événement n'est plus dans mon agenda Google
+    Et Google envoie l'annulation à "ada@acme.fr"
+
   Scénario: Un rendez-vous réservé passé que je supprime ne prévient personne
     Soit on a réservé une visio par mon lien public le 24/11/2026 à 9h00
     Et nous sommes le 24/11/2026 à 9h30
@@ -57,6 +64,12 @@ Fonctionnalité: Inviter qui me réserve par mon agenda Google
     Quand je supprime l'échange de cette réservation
     Alors l'événement n'est plus dans mon agenda Google
     Et Google n'envoie rien à "ada@acme.fr"
+
+  Scénario: Sans le droit aux données personnelles, je n'invite plus qui m'a réservé
+    Soit on a réservé une visio par mon lien public le 24/11/2026 à 9h00
+    Et je perds le droit aux données personnelles
+    Quand je la déplace au 25/11/2026 à 10h00
+    Alors l'événement n'invite personne
 
   Scénario: Un échange que je planifie moi-même n'invite toujours personne
     Soit le contact "Ada Lovelace" de "ACME"

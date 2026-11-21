@@ -114,7 +114,7 @@ final class CalendarPushContext implements Context
     #[Then('/^Google envoie (?<notice>l\'invitation|la mise à jour|l\'annulation) à "(?<email>[^"]+)"$/u')]
     public function googleSends(string $notice, string $email): void
     {
-        Expect::same([self::NOTICES[$notice], $email], $this->noticesSentByTheGesture()[0] ?? null);
+        Expect::same([[self::NOTICES[$notice], $email]], $this->noticesSentByTheGesture());
     }
 
     #[Then('Google n\'envoie rien à :email')]
