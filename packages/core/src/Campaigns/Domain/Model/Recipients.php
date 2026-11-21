@@ -151,12 +151,14 @@ final readonly class Recipients
     }
 
     /**
-     * In the order they were added.
+     * In the order they were added; asked of a campaign led only, which ends once nobody is left to handle.
      */
     #[\NoDiscard]
     public function firstPending(): PersonId
     {
-        return array_find($this->recipients, static fn (Recipient $recipient): bool => $recipient->isPending())->contact;
+        $first = array_find($this->recipients, static fn (Recipient $recipient): bool => $recipient->isPending());
+
+        return $first->contact ?? throw new \LogicException('Nobody is left to handle: the campaign has ended');
     }
 
     #[\NoDiscard]
