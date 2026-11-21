@@ -5,7 +5,6 @@ namespace Tests\App\Base;
 use App\Demo\DemoCredentials;
 use App\Demo\DemoData;
 use App\Shared\Identities;
-use App\Shared\Persistence\Tables;
 use App\SignIn\Credentials;
 use App\SignIn\UserPool;
 use Aws\CognitoIdentityProvider\CognitoIdentityProviderClient;
@@ -28,9 +27,9 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
- * The API as the SPA uses it, on tables recreated for each test with the data of the demonstration (ADR 0048).
- * A member calls it with a real access token of the test user pool of MiniStack, recreated for each test with
- * the members of the demonstration (ADR 0052).
+ * The API as the SPA uses it, each test starting from the data of the demonstration (ADR 0048). A member calls it
+ * with a real access token of the test user pool of MiniStack, recreated for each test with the members of the
+ * demonstration (ADR 0052).
  */
 abstract class ApiTestCase extends WebTestCase
 {
@@ -47,8 +46,7 @@ abstract class ApiTestCase extends WebTestCase
     protected function setUp(): void
     {
         $this->client = static::createClient([], ['HTTP_HOST' => 'api.test.prospecter.io']);
-        self::getContainer()->get(Tables::class)->recreate();
-        self::getContainer()->get(DemoData::class)->load();
+        self::getContainer()->get(DataOfTheDemonstration::class)->restore();
         self::getContainer()->get(UserPool::class)->recreate();
         self::getContainer()->get(DemoCredentials::class)->register();
     }
