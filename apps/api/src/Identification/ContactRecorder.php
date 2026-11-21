@@ -237,7 +237,7 @@ final readonly class ContactRecorder
     private function collectedContact(string $memberId, array $person, string $organizationId): RecordedResource
     {
         $id = $this->identities->next();
-        $this->commandBus->dispatch($this->collectingOf($person, [$organizationId])->commandOf($memberId, $id, $this->clock->now()));
+        $this->commandBus->dispatch($this->collectingOf($person, [$organizationId])->commandOfAnAI($memberId, $id, $this->clock->now()));
 
         return new RecordedResource(RecordedResource::CREATED, $id);
     }

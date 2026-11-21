@@ -34,6 +34,19 @@ final readonly class CollectContactInput
      */
     public function commandOf(string $readerId, string $id, \DateTimeImmutable $executedAt): CollectContact
     {
+        return $this->command($readerId, $id, $executedAt, byAnAI: false);
+    }
+
+    /**
+     * The same collecting, by an AI acting as the reader.
+     */
+    public function commandOfAnAI(string $readerId, string $id, \DateTimeImmutable $executedAt): CollectContact
+    {
+        return $this->command($readerId, $id, $executedAt, byAnAI: true);
+    }
+
+    private function command(string $readerId, string $id, \DateTimeImmutable $executedAt, bool $byAnAI): CollectContact
+    {
         return new CollectContact(
             readerId: $readerId,
             id: $id,
@@ -47,6 +60,7 @@ final readonly class CollectContactInput
             links: $this->contactDetails->links,
             organizationIds: $this->organizationIds,
             executedAt: $executedAt,
+            byAnAI: $byAnAI,
         );
     }
 }

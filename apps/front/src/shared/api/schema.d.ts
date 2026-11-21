@@ -2773,6 +2773,8 @@ export interface components {
             masked: boolean;
             _links: components["schemas"]["ContactLinksResource"];
             possibleDuplicates: components["schemas"]["PossibleDuplicateOfContactResource"][];
+            /** @description An AI created it, acting as its member through the MCP server, never named */
+            createdByAnAI: boolean;
             toAttach?: components["schemas"]["ToAttachResource"];
         };
         OrganizationOfContactResource: {

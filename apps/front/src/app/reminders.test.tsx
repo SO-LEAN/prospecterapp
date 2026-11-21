@@ -43,6 +43,7 @@ const ada: Contact = {
   id: ADA,
   name: { firstName: 'Ada', lastName: 'Lovelace' },
   possibleDuplicates: [],
+  createdByAnAI: false,
   civility: 'x',
   contactDetails: { email: 'ada@acme.test', phoneNumber: null, language: null, links: [] },
   masked: false,

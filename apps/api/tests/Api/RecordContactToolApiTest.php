@@ -60,6 +60,34 @@ class RecordContactToolApiTest extends ApiTestCase
         $this->assertTrue($this->requestJson('GET', '/api/organizations/'.$recorded['organization']['id'])['createdByAnAI']);
     }
 
+    public function testAContactTheAiRecordsIsCreatedByAnAi(): void
+    {
+        $this->login();
+
+        $recorded = $this->answerOf($this->callWithoutHandshake('enregistrer-un-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => self::GLOBEX]));
+
+        $this->assertTrue($this->requestJson('GET', '/api/contacts/'.$recorded['contact']['id'])['createdByAnAI']);
+    }
+
+    public function testAContactTheAiOnlyCompletesIsNotCreatedByAnAi(): void
+    {
+        $this->login();
+
+        $recorded = $this->answerOf($this->callWithoutHandshake('enregistrer-un-contact', ['person' => ['firstName' => 'Ada', 'lastName' => 'Lovelace', 'email' => 'ada@babbage.test', 'jobTitle' => 'CTO'], 'organization' => self::BABBAGE]));
+
+        $this->assertSame(['known', false], [$recorded['contact']['status'], $this->requestJson('GET', '/api/contacts/'.$recorded['contact']['id'])['createdByAnAI']]);
+    }
+
+    public function testAContactTheAiCollectsIsCreatedByAnAi(): void
+    {
+        $this->login();
+        $globex = $this->answerOf($this->callWithoutHandshake('prospecter-organisation', ['corporateName' => 'Globex']))['id'];
+
+        $collected = $this->answerOf($this->callWithoutHandshake('collecter-contact', ['firstName' => 'Margaret', 'lastName' => 'Hamilton', 'organizationIds' => [$globex]]));
+
+        $this->assertTrue($collected['createdByAnAI'] ?? null);
+    }
+
     public function testAnOrganizationFoundByItsPageIsNotCreatedAgain(): void
     {
         $this->login();

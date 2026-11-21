@@ -10274,7 +10274,8 @@
                     "contactDetails",
                     "masked",
                     "_links",
-                    "possibleDuplicates"
+                    "possibleDuplicates",
+                    "createdByAnAI"
                 ],
                 "properties": {
                     "id": {
@@ -10311,6 +10312,10 @@
                         "items": {
                             "$ref": "#/components/schemas/PossibleDuplicateOfContactResource"
                         }
+                    },
+                    "createdByAnAI": {
+                        "description": "An AI created it, acting as its member through the MCP server, never named",
+                        "type": "boolean"
                     },
                     "toAttach": {
                         "$ref": "#/components/schemas/ToAttachResource"

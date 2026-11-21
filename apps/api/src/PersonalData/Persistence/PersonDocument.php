@@ -17,7 +17,7 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * A person as a plain document of its DynamoDB item, and back (ADR 0048): its value objects as they are,
- * its recorded events never.
+ * its recorded events never; its origin from those written before it was kept, by hand.
  */
 final class PersonDocument
 {
@@ -41,6 +41,7 @@ final class PersonDocument
             'picture' => Documents::file($state['picture']),
             'possibleDuplicates' => array_map(static fn (PersonId $id): string => $id->value, $state['possibleDuplicates']),
             'notDuplicates' => array_map(static fn (PersonId $id): string => $id->value, $state['notDuplicates']),
+            'origin' => $state['origin']->value,
             'createdAt' => Documents::moment($state['createdAt']),
             'modifiedAt' => Documents::moment($state['modifiedAt']),
         ];
@@ -64,6 +65,7 @@ final class PersonDocument
             'picture' => Documents::fileOf($document['picture']),
             'possibleDuplicates' => array_map(static fn (string $id): PersonId => new PersonId($id), $document['possibleDuplicates'] ?? []),
             'notDuplicates' => array_map(static fn (string $id): PersonId => new PersonId($id), $document['notDuplicates'] ?? []),
+            'origin' => Documents::originOf($document),
             'createdAt' => Documents::momentOf($document['createdAt']),
             'modifiedAt' => Documents::momentOf($document['modifiedAt']),
         ]);

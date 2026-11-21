@@ -21,6 +21,7 @@ const camille = (links: Partial<Contact['_links']>, civility: Contact['civility'
   id: CAMILLE,
   name: { firstName: 'Camille', lastName: 'Martin' },
   possibleDuplicates: [],
+  createdByAnAI: false,
   civility,
   contactDetails: { email: null, phoneNumber: null, language: null, links: [] },
   masked: false,
