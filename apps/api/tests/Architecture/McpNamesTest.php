@@ -10,7 +10,7 @@ use Symfony\Component\Routing\RouterInterface;
 
 /**
  * Each MCP tool and prompt name is English kebab-case: an imperative verb, then its object. Each intent has one verb
- * across the server, so an AI guesses a name from the ones it has read.
+ * across the server, so an AI guesses a name from the ones it has read (ADR 0189).
  */
 class McpNamesTest extends KernelTestCase
 {
