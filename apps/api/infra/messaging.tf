@@ -215,7 +215,7 @@ resource "aws_lambda_function" "worker" {
   handler                        = "App\\Shared\\Messaging\\IntegrationEventConsumer"
   layers                         = [local.bref_php]
   memory_size                    = 1024
-  timeout                        = 28
+  timeout                        = 120
   reserved_concurrent_executions = coalesce(var.worker_concurrency, local.unreserved_concurrency)
   filename                       = local.package
   source_code_hash               = base64sha256(var.code_version)
