@@ -96,6 +96,13 @@ Fonctionnalité: Les tags géographiques
     Quand le dernier fait de "ACME" est délivré une fois de plus
     Alors "ACME" n'a aucun tag géographique
 
+  Scénario: Une reconstruction ne rend pas une organisation dont Campaigns garde le fait terminal
+    Soit "ACME" est située à Strasbourg
+    Et Campaigns garde le fait terminal de "ACME", reçu pendant la reconstruction
+    Quand les tags calculés sont reconstruits
+    Alors "ACME" n'a aucun tag géographique
+    Et "Ada Lovelace" ne porte plus "#STRASBOURG"
+
   Scénario: Une organisation située avant que son code commune soit gardé le reçoit, une fois
     Soit "ACME" a été située à Strasbourg sans son code commune
     Quand les organisations situées sans code commune sont géocodées à nouveau

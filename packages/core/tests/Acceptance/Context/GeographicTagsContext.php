@@ -31,6 +31,7 @@ final class GeographicTagsContext implements Context
     use SharesTheScenario;
 
     private const string ADDRESS_PARTS = ', ';
+    private const int TERMINAL_REVISION = 0;
 
     private ?int $locatedAgain = null;
 
@@ -115,15 +116,19 @@ final class GeographicTagsContext implements Context
     #[Given('Campaigns garde le fait de :name à sa révision, sans sa commune')]
     public function campaignsKeepsTheFactWithoutItsLocality(string $name): void
     {
-        $organization = $this->scenario->organizationNamed($name);
-        $about = new OrganizationFact($organization->accountId(), $organization->id(), 0, true, [], Locality::unknown());
-        $kept = $this->application->campaignsFacts->find($about);
-
-        if (!$kept instanceof OrganizationFact) {
-            throw new \LogicException(sprintf('Campaigns keeps no fact of %s', $name));
-        }
-
+        $kept = $this->keptFactOf($name);
         $this->application->campaignsFacts->record(new OrganizationFact($kept->accountId, $kept->id, $kept->revision, $kept->present, $kept->contacts, Locality::unknown()), $kept);
+    }
+
+    /**
+     * Recorded by the worker once the organization was no longer prospected, while the rebuild still read it as
+     * prospected.
+     */
+    #[Given('Campaigns garde le fait terminal de :name, reçu pendant la reconstruction')]
+    public function campaignsKeepsTheTerminalFact(string $name): void
+    {
+        $kept = $this->keptFactOf($name);
+        $this->application->campaignsFacts->record(new OrganizationFact($kept->accountId, $kept->id, self::TERMINAL_REVISION, false, [], Locality::unknown()), $kept);
     }
 
     #[When('le dernier fait de :name est délivré une fois de plus')]
@@ -186,6 +191,14 @@ final class GeographicTagsContext implements Context
         foreach ($expected[0] as $tag) {
             Expect::that(in_array($tag, $carried, true), sprintf('%s does not carry %s, only %s', $contact, $tag, implode(' ', $carried)));
         }
+    }
+
+    private function keptFactOf(string $name): OrganizationFact
+    {
+        $organization = $this->scenario->organizationNamed($name);
+        $kept = $this->application->campaignsFacts->find(new OrganizationFact($organization->accountId(), $organization->id(), self::TERMINAL_REVISION, false, [], Locality::unknown()));
+
+        return $kept instanceof OrganizationFact ? $kept : throw new \LogicException(sprintf('Campaigns keeps no fact of %s', $name));
     }
 
     /**
