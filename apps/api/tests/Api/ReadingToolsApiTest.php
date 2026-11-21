@@ -177,7 +177,7 @@ class ReadingToolsApiTest extends ApiTestCase
 
     public function testTheAiRecognizesWhoCalls(): void
     {
-        $this->assertTheToolAnswersAsItsEndpoint('search-by-phone-number', ['phoneNumber' => '0388000042'], '/api/phone-numbers/0388000042');
+        $this->assertTheToolAnswersAsItsEndpoint('get-caller', ['phoneNumber' => '0388000042'], '/api/phone-numbers/0388000042');
     }
 
     public function testTheAiReadsTheCalendarOfItsMember(): void

@@ -37,7 +37,7 @@ final readonly class RenameContactTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'rename-contact', description: 'Change the first and last names of a contact, nothing else changes; needs the right to manage the personal data. Answers the contact.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
+    #[McpTool(name: 'set-contact-name', description: 'Change the first and last names of a contact, nothing else changes; needs the right to manage the personal data. Answers the contact.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
     public function __invoke(string $id, ?string $firstName = null, ?string $lastName = null): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');
