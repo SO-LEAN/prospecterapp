@@ -41,6 +41,23 @@ final class CampaignsFactSuccessionTest extends TestCase
         yield 'the terminal fact received twice' => [self::terminal(), self::terminal(), false];
     }
 
+    #[DataProvider('rebuilds')]
+    public function testAFactRebuiltReplacesTheKnownOneAtTheSameRevisionToo(?OrganizationFact $known, OrganizationFact $rebuilt, bool $replaces): void
+    {
+        $this->assertSame($replaces, FactSuccession::replacesAsRebuilt($rebuilt, $known));
+    }
+
+    /**
+     * @return iterable<string, array{?OrganizationFact, OrganizationFact, bool}>
+     */
+    public static function rebuilds(): iterable
+    {
+        yield 'the same revision, enriched since' => [self::present(2), self::present(2), true];
+        yield 'a lower revision, a later one received meanwhile' => [self::present(3), self::present(2), false];
+        yield 'the terminal fact rebuilt after a present one' => [self::present(5), self::terminal(), true];
+        yield 'a present fact rebuilt after the terminal one' => [self::terminal(), self::present(6), false];
+    }
+
     private static function present(int $revision): OrganizationFact
     {
         return new OrganizationFact(new AccountId(self::ACCOUNT), new OrganizationId(self::ACME), $revision, true, [], Locality::unknown());
