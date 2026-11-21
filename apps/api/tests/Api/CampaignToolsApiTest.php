@@ -20,6 +20,8 @@ class CampaignToolsApiTest extends ApiTestCase
 
     private const array RELAUNCH = ['name' => 'Relance PHP', 'channel' => 'email', 'tags' => [self::TAG], 'message' => 'Bonjour {prénom}', 'subject' => 'Une mission PHP ?'];
 
+    private const array SENT_TO_ADA = ['text' => 'Bonjour Ada', 'messageId' => '<relance-ada@solean-it.test>'];
+
     /** The members a campaign of the team of the prospector is written by: another account knows nothing of it. */
     private const array TEAM_WRITERS = ['prospector-user', 'admin-user'];
 
@@ -129,6 +131,36 @@ class CampaignToolsApiTest extends ApiTestCase
         $alan = array_find($this->requestJson('GET', '/api/campaigns/'.$started.'/recipients')['items'], fn (array $recipient): bool => $this->alan === $recipient['contact']['id']);
         $this->assertSame(['dismissed', 'Parti de la société'], [$alan['status'] ?? null, $alan['reason'] ?? null]);
         $this->assertTheToolAsksForAConfirmation('ecarter-destinataire-campagne');
+    }
+
+    public function testTheAiNotesTheEmailItSentToARecipientWhoIsProcessed(): void
+    {
+        $started = $this->aStartedCampaign();
+
+        $noted = $this->callWithoutHandshake('noter-l-envoi', ['id' => $started, 'contactId' => $this->ada, ...self::SENT_TO_ADA]);
+
+        $this->assertSame(['noted', 'email', 'outbound', 'Bonjour Ada'], [$noted['structuredContent']['status'], $noted['structuredContent']['exchange']['channel'] ?? null, $noted['structuredContent']['exchange']['direction'] ?? null, $noted['structuredContent']['exchange']['text'] ?? null]);
+        $ada = array_find($this->requestJson('GET', '/api/campaigns/'.$started.'/recipients')['items'], fn (array $recipient): bool => $this->ada === $recipient['contact']['id']);
+        $this->assertSame('processed', $ada['status'] ?? null);
+    }
+
+    public function testTheSendingNotedAgainIsAnsweredTheExchangeNotedFirstWithoutError(): void
+    {
+        $started = $this->aStartedCampaign();
+        $first = $this->callWithoutHandshake('noter-l-envoi', ['id' => $started, 'contactId' => $this->ada, ...self::SENT_TO_ADA]);
+
+        $again = $this->callWithoutHandshake('noter-l-envoi', ['id' => $started, 'contactId' => $this->ada, ...self::SENT_TO_ADA]);
+
+        $this->assertFalse($again['isError'] ?? false);
+        $this->assertSame(['alreadyNoted', $first['structuredContent']['exchange']['id']], [$again['structuredContent']['status'], $again['structuredContent']['exchange']['id'] ?? null]);
+        $this->assertCount(1, $this->requestJson('GET', '/api/contacts/'.$this->ada.'/exchanges')['items']);
+    }
+
+    public function testNotingTheSendingIsRefusedAsItsEndpointRefusesIt(): void
+    {
+        $started = $this->aStartedCampaign();
+
+        $this->assertTheToolIsRefusedAsItsEndpoint('noter-l-envoi', ['id' => $started, 'contactId' => $this->ada, ...self::SENT_TO_ADA], 'POST', '/api/campaigns/'.$started.'/recipients/'.$this->ada.'/exchanges', self::SENT_TO_ADA, ['assistant-user', 'member-user', 'stranger']);
     }
 
     public function testTheAiDiscardsADraftOnceItsMemberConfirmed(): void
