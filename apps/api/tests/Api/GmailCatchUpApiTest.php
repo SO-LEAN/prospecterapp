@@ -43,6 +43,36 @@ class GmailCatchUpApiTest extends ApiTestCase
         $this->assertSame([['email', 'inbound', "Votre devis\n\nBonjour Michel."]], array_map(static fn (array $exchange): array => [$exchange['channel'], $exchange['direction'], $exchange['text']], $timeline['items']));
     }
 
+    public function testTheCardOfAContactLinksTheCatchUpWhileTheImportIsActive(): void
+    {
+        $this->login();
+        $ada = $this->aContactOfAcme('ada@acme.test');
+        $this->assertArrayNotHasKey('catchUpGmail', $this->requestJson('GET', '/api/contacts/'.$ada)['_links']);
+
+        $this->importTheMailOf('prospector-user');
+
+        $this->assertSame(['href' => '/api/contacts/'.$ada.'/gmail-catch-ups', 'method' => 'POST'], $this->requestJson('GET', '/api/contacts/'.$ada)['_links']['catchUpGmail'] ?? null);
+    }
+
+    public function testTheCardOfAContactLinksNoCatchUpToAMemberWithoutThePersonalData(): void
+    {
+        $this->login();
+        $ada = $this->aContactOfAcme('ada@acme.test');
+        $this->importTheMailOf('assistant-user');
+        $this->signInAnotherMember('assistant-user');
+
+        $this->assertArrayNotHasKey('catchUpGmail', $this->requestJson('GET', '/api/contacts/'.$ada)['_links']);
+    }
+
+    public function testTheCardOfAContactLinksTheCatchUpToAnAdministrator(): void
+    {
+        $this->login($this->aMemberOfTheFixtures('administrator', Role::User, Role::Admin));
+        $ada = $this->aContactOfAcme('ada@acme.test');
+        $this->importTheMailOf('administrator');
+
+        $this->assertArrayHasKey('catchUpGmail', $this->requestJson('GET', '/api/contacts/'.$ada)['_links']);
+    }
+
     public function testAnAdministratorCatchesUpTheirEMailsToo(): void
     {
         $this->login($this->aMemberOfTheFixtures('administrator', Role::User, Role::Admin));

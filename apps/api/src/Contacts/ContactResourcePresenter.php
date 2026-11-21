@@ -40,7 +40,15 @@ final class ContactResourcePresenter implements ConsultPersonOutput
 
     public private(set) ContactResource $resource;
 
-    public function __construct(private readonly TimelineIntentsResponse $timeline, private readonly ?ContactToAttachInList $toAttach, private readonly Links $links, private readonly IntentLinks $intentLinks)
+    private const array CATCH_UP_ROUTES = [
+        'CatchUpGmail' => ['catchUpGmail', 'api_contacts_catch_up_gmail'],
+    ];
+
+    /**
+     * @param list<string> $catchUpIntents what Connectors offers of the e-mails exchanged with the contact, nothing to
+     *                                     a reader who does not read their address in clear
+     */
+    public function __construct(private readonly TimelineIntentsResponse $timeline, private readonly ?ContactToAttachInList $toAttach, private readonly array $catchUpIntents, private readonly Links $links, private readonly IntentLinks $intentLinks)
     {
     }
 
@@ -81,6 +89,7 @@ final class ContactResourcePresenter implements ConsultPersonOutput
             ...$this->possible(self::TIMELINE_ROUTES, $this->timeline->possibleIntents, $id),
             ...$this->toDosOf($id),
             ...$this->proposalOf($id),
+            ...$this->possible(self::CATCH_UP_ROUTES, $this->catchUpIntents, $id),
             'tags' => $this->links->to('api_contacts_tags', $id),
         ];
 
