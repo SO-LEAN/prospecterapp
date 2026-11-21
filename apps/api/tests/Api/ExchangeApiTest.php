@@ -305,6 +305,28 @@ class ExchangeApiTest extends ApiTestCase
         $this->assertSame(['channel'], $this->violatedFields($problem));
     }
 
+    public function testTheTimelineOfAContactTellsTheExchangesImportedFromThoseNoted(): void
+    {
+        $organization = $this->anOrganization('ACME');
+        $contact = $this->aContactOf($organization);
+        $this->note($contact, ['channel' => 'email', 'direction' => 'inbound', 'occurredAt' => '2026-10-13T09:00:00+00:00']);
+        $this->anImportedExchange(new ImportedEmail('google', 'f00d', '18c2f4a9e0b1d3c7'), $organization, $contact);
+
+        $timeline = $this->requestJson('GET', '/api/contacts/'.$contact.'/exchanges');
+
+        $this->assertSame(['google', null], array_column($timeline['items'], 'importedFrom'));
+    }
+
+    public function testTheTimelineOfAnOrganizationTellsTheExchangesImported(): void
+    {
+        $organization = $this->anOrganization('ACME');
+        $this->anImportedExchange(new ImportedEmail('google', 'f00d'), $organization);
+
+        $timeline = $this->requestJson('GET', '/api/organizations/'.$organization.'/exchanges');
+
+        $this->assertSame(['google'], array_column(array_column($timeline['items'], 'exchange'), 'importedFrom'));
+    }
+
     public function testTheDetailOfAnImportedExchangeSaysWhereItComesFromAndOpensItsMessageInGmail(): void
     {
         $id = $this->anImportedExchange(new ImportedEmail('google', 'f00d', '18c2f4a9e0b1d3c7'));
@@ -404,10 +426,10 @@ class ExchangeApiTest extends ApiTestCase
     /**
      * An e-mail of Ada imported by the prospector of the fixtures, as the import of their mailbox notes it.
      */
-    private function anImportedExchange(ImportedEmail $email): string
+    private function anImportedExchange(ImportedEmail $email, ?string $organization = null, ?string $contact = null): string
     {
-        $organization = $this->anOrganization('ACME');
-        $contact = $this->aContactOf($organization);
+        $organization ??= $this->anOrganization('ACME');
+        $contact ??= $this->aContactOf($organization);
         $exchange = Exchange::importedWithAContact($this->accountOfTheFixtures(), new MemberId($this->memberIdOf('prospector-user')), new ExchangeId(self::newIdentity()), new PersonId($contact), [new OrganizationId($organization)], new ExchangeFacts(Channel::Email, Direction::Inbound, new \DateTimeImmutable('2026-10-14 09:00 UTC'), "Votre devis\n\nBonjour"), $email, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         self::getContainer()->get(ExchangeRepository::class)->save($exchange);
 
