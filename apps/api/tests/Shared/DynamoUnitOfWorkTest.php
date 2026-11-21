@@ -3,13 +3,9 @@
 namespace Tests\App\Shared;
 
 use App\PersonalData\Persistence\DynamoPersonRepository;
-use App\Shared\Identities;
-use App\Shared\Messaging\CommitOutbox;
 use App\Shared\Persistence\ConditionFailed;
 use App\Shared\Persistence\DynamoUnitOfWork;
 use App\Shared\Persistence\Table;
-use Aws\DynamoDb\DynamoDbClient;
-use Aws\DynamoDb\Marshaler;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
@@ -383,16 +379,6 @@ class DynamoUnitOfWorkTest extends ApiTestCase
         $table = self::getContainer()->get('app.table.personal_data');
         $this->assertInstanceOf(Table::class, $table);
         new DynamoPersonRepository($this->asAnotherRequest($table))->save($person);
-    }
-
-    /**
-     * The same table, with the unit of work of another request.
-     */
-    private function asAnotherRequest(Table $table): Table
-    {
-        $client = self::getContainer()->get(DynamoDbClient::class);
-
-        return new Table($client, self::getContainer()->get(Marshaler::class), new DynamoUnitOfWork($client, new CommitOutbox([], self::getContainer()->get(Marshaler::class), new Identities(), self::getContainer()->get('app.commit_clock'))), $table->name);
     }
 
     private function personWithTheEmail(AccountId $account, string $email): Person
