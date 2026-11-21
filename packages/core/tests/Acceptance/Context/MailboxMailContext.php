@@ -59,6 +59,7 @@ final class MailboxMailContext implements Context
     /** @var array<string, MailboxMail> the message received last, by mailbox */
     private array $lastReceived = [];
     private ?MailboxMail $oldestReceived = null;
+    private int $attachmentsSent = 0;
 
     #[When('je reçois le :moment un e-mail de :from ayant pour objet :subject et pour texte :text')]
     public function iReceiveAnEMail(string $moment, string $from, string $subject, string $text): void
@@ -107,6 +108,7 @@ final class MailboxMailContext implements Context
     public function iReceiveAnEMailWithAttachments(string $sender, int $count): void
     {
         $attachments = array_map(static fn (int $rank): MailboxAttachment => self::attachment(sprintf('piece-%d.pdf', $rank), self::KILOBYTE), range(1, $count));
+        $this->attachmentsSent = $count;
 
         $this->fileAndNotify([self::MY_MAILBOX], $this->mail(new Email($sender), [self::INBOX], attachments: $attachments));
     }
@@ -421,9 +423,39 @@ final class MailboxMailContext implements Context
     public function itsTextTellsTheOthers(int $count): void
     {
         $text = StateOf::the($this->theImported())['facts']->text;
-        $told = array_filter(range(1, 12), static fn (int $rank): bool => str_contains($text, sprintf('Pièce jointe non importée : piece-%d.pdf', $rank)));
+        $told = array_filter(range(1, $this->attachmentsSent), static fn (int $rank): bool => str_contains($text, sprintf('Pièce jointe non importée : piece-%d.pdf', $rank)));
 
-        Expect::same(range(13 - $count, 12), array_values($told));
+        Expect::same(range($this->attachmentsSent - $count + 1, $this->attachmentsSent), array_values($told));
+    }
+
+    /**
+     * What Connectors tells, its files already sent to the storage, beyond what it imports itself: Prospecting holds
+     * what an exchange holds (ADR 0182).
+     */
+    #[When('l\'import me dit échangé avec :contact un e-mail dont :count fichiers sont envoyés au stockage')]
+    public function theImportTellsAnEMailWithFilesSent(string $contact, int $count): void
+    {
+        $files = array_map(static fn (int $rank): array => ['name' => sprintf('piece-%d.pdf', $rank), 'size' => self::KILOBYTE], range(1, $count));
+
+        $this->theImportTellsAnEMailWith($contact, $files);
+    }
+
+    #[When('l\'import me dit échangé avec :contact un e-mail dont :name de :megabytes Mo est envoyé au stockage')]
+    public function theImportTellsAnEMailWithAFileSent(string $contact, string $name, int $megabytes): void
+    {
+        $this->theImportTellsAnEMailWith($contact, [['name' => $name, 'size' => $megabytes * self::MEGABYTE]]);
+    }
+
+    /**
+     * @param list<array{name: string, size: int}> $files
+     */
+    private function theImportTellsAnEMailWith(string $contact, array $files): void
+    {
+        $this->attachmentsSent = count($files);
+        $attachments = array_map(fn (array $file): array => ['upload' => $this->application->privateStorage->send(str_repeat('x', $file['size']), 'application/pdf'), ...$file], $files);
+        $me = $this->scenario->me();
+
+        $this->application->publishAgain(new EmailExchanged($me->accountId()->value, $me->id()->value, self::GOOGLE, hash('sha256', $contact), 'inbound', $this->scenario->personIdOf($contact), null, self::SUBJECT, self::TEXT, $this->application->now(), $this->application->now(), 'message-told', $attachments));
     }
 
     #[Then('/^son texte se termine par « (?<end>.+) »$/')]

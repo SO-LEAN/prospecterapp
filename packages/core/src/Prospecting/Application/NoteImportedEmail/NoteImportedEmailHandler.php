@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\NoteImportedEmail;
 
 use Prospecter\Core\Connectors\Contract\Event\EmailExchanged;
+use Prospecter\Core\Prospecting\Domain\Exception\AttachmentTooHeavy;
 use Prospecter\Core\Prospecting\Domain\Exception\ContactToAttachOfAnother;
 use Prospecter\Core\Prospecting\Domain\Exception\ExchangeAlreadyNoted;
 use Prospecter\Core\Prospecting\Domain\Exception\ExchangeErasedBefore;
@@ -73,7 +74,8 @@ final readonly class NoteImportedEmailHandler implements EventHandler
 
     /**
      * Its files, sent to the storage by the import as the uploads of this exchange, and those it cannot bring: left
-     * out by the import, or no longer in the storage, its uploads gone after a day (ADR 0182).
+     * out by the import, no longer in the storage, its uploads gone after a day, or more than the exchange holds
+     * (ADR 0077, 0182).
      *
      * @return array{list<Attachment>, list<array{name: string, size: int}>}
      */
@@ -82,15 +84,31 @@ final readonly class NoteImportedEmailHandler implements EventHandler
         $attachments = [];
         $leftOut = $email->attachmentsLeftOut;
         foreach ($email->attachments as $attachment) {
-            try {
-                $upload = $this->privateStorage->uploaded($attachment['upload']);
-                $attachments[] = new Attachment(AttachmentId::ofImportedEmail($exchange, $attachment['upload']), $attachment['name'], $upload->size, $upload->mediaType, $attachment['upload']);
-            } catch (UnknownUpload) {
+            $joined = count($attachments) < Exchange::MOST_ATTACHMENTS ? $this->joined($attachment, $exchange) : null;
+            if (null === $joined) {
                 $leftOut[] = ['name' => $attachment['name'], 'size' => $attachment['size']];
+                continue;
             }
+            $attachments[] = $joined;
         }
 
         return [$attachments, $leftOut];
+    }
+
+    /**
+     * None once its upload is gone, or heavier than an exchange holds.
+     *
+     * @param array{upload: string, name: string, size: int} $attachment
+     */
+    private function joined(array $attachment, ExchangeId $exchange): ?Attachment
+    {
+        try {
+            $upload = $this->privateStorage->uploaded($attachment['upload']);
+
+            return new Attachment(AttachmentId::ofImportedEmail($exchange, $attachment['upload']), $attachment['name'], $upload->size, $upload->mediaType, $attachment['upload']);
+        } catch (UnknownUpload|AttachmentTooHeavy) {
+            return null;
+        }
     }
 
     /**
