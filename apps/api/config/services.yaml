@@ -207,7 +207,7 @@ services:
     Prospecter\Core\Connectors\Application\Port\MailImportsRetriever: '@App\Connectors\Persistence\DynamoMailImportsRetriever'
     Prospecter\Core\Connectors\Domain\Repository\ProviderClientRepository: '@App\Connectors\Persistence\DynamoProviderClientRepository'
     Prospecter\Core\Connectors\Application\Port\AccountClientsRetriever: '@App\Connectors\Persistence\DynamoAccountClientsRetriever'
-    Prospecter\Core\Connectors\Domain\Port\Members: '@App\Connectors\AntiCorruption\AccountsMembers'
+    Prospecter\Core\Connectors\Domain\Port\Members: '@App\Connectors\AntiCorruption\AccountsAndPersonalDataMembers'
     Prospecter\Core\Connectors\Domain\Port\ProviderAccess: '@App\Connectors\Google\GoogleProviderAccess'
     Prospecter\Core\Connectors\Domain\Port\ProviderCalendar: '@App\Connectors\Google\GoogleCalendar'
     Prospecter\Core\Connectors\Domain\Port\ProviderMailbox: '@App\Connectors\Google\GoogleMailbox'

@@ -14,10 +14,13 @@ use Prospecter\Core\Connectors\Domain\Model\CalendarEvent;
 use Prospecter\Core\Connectors\Domain\Model\Channel;
 use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
 use Prospecter\Core\Connectors\Domain\Model\ExchangeId;
+use Prospecter\Core\Connectors\Domain\Model\Guest;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Model\RefreshToken;
+use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
+use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\JsonMockResponse;
 use Symfony\Component\HttpClient\Response\MockResponse;
@@ -60,6 +63,41 @@ class GoogleCalendarTest extends TestCase
             'end' => ['dateTime' => '2026-11-17T14:30:00+01:00', 'timeZone' => 'Europe/Paris'],
             'reminders' => ['useDefault' => false, 'overrides' => [['method' => 'popup', 'minutes' => 10]]],
         ]]], $this->calls);
+    }
+
+    public function testAnEventInvitingItsGuestIsPutWithThemGoogleTellingThem(): void
+    {
+        $this->calendar(new JsonMockResponse([]))->put(self::client(), new RefreshToken('a-token'), 'the-calendar', self::eventInviting(new Guest(new Email('ada@acme.fr'))));
+
+        $this->assertSame(['PUT', self::CALENDAR_URL.'/calendars/the-calendar/events/'.self::eventId().'?sendUpdates=all'], self::methodsAndUrls($this->calls)[0]);
+        $this->assertSame([['email' => 'ada@acme.fr']], $this->calls[0][2]['attendees'] ?? null);
+    }
+
+    public function testAnEventInvitingItsGuestShowsThemNoLinkIntoProspecter(): void
+    {
+        $this->calendar(new JsonMockResponse([]))->put(self::client(), new RefreshToken('a-token'), 'the-calendar', self::eventInviting(new Guest(new Email('ada@acme.fr'))));
+
+        $body = $this->calls[0][2] ?? [];
+        $this->assertSame('Visio · Ada Lovelace', $body['summary']);
+        $this->assertArrayNotHasKey('description', $body);
+    }
+
+    public function testACallInvitingItsGuestSaysWhoCallsThemAndAtWhichNumber(): void
+    {
+        $guest = new Guest(new Email('ada@acme.fr'), PhoneNumber::of('06 12 34 56 78'), 'Alan');
+
+        $this->calendar(new JsonMockResponse([]))->put(self::client(), new RefreshToken('a-token'), 'the-calendar', self::eventInviting($guest, Channel::Call));
+
+        $this->assertSame('Alan vous appellera au +33 6 12 34 56 78.', $this->calls[0][2]['description'] ?? null);
+    }
+
+    public function testACallOfAHostWithoutFirstNameSaysAtWhichNumberTheGuestIsCalled(): void
+    {
+        $guest = new Guest(new Email('ada@acme.fr'), PhoneNumber::of('06 12 34 56 78'));
+
+        $this->calendar(new JsonMockResponse([]))->put(self::client(), new RefreshToken('a-token'), 'the-calendar', self::eventInviting($guest, Channel::Call));
+
+        $this->assertSame('Vous serez appelé au +33 6 12 34 56 78.', $this->calls[0][2]['description'] ?? null);
     }
 
     public function testAnEventWithTheOrganizationItselfLeadsToItsCardWithoutReminder(): void
@@ -141,6 +179,13 @@ class GoogleCalendarTest extends TestCase
         yield 'removed before' => [410];
     }
 
+    public function testAnEventCancelledIsRemovedGoogleTellingItsGuests(): void
+    {
+        $this->calendar(new MockResponse('', ['http_code' => 204]))->cancel(self::client(), new RefreshToken('a-token'), 'the-calendar', new ExchangeId(self::EXCHANGE));
+
+        $this->assertSame([['DELETE', self::CALENDAR_URL.'/calendars/the-calendar/events/'.self::eventId().'?sendUpdates=all']], self::methodsAndUrls($this->calls));
+    }
+
     public function testATokenGoogleRefusesRevokesTheAccess(): void
     {
         $this->expectException(AccessRevoked::class);
@@ -218,6 +263,14 @@ class GoogleCalendarTest extends TestCase
     private static function event(?int $reminder = null): CalendarEvent
     {
         return new CalendarEvent(new ExchangeId(self::EXCHANGE), Channel::VideoCall, new \DateTimeImmutable('2026-11-17 13:00 UTC'), new \DateTimeImmutable('2026-11-17 13:30 UTC'), 'https://meet.google.com/abc-defg-hij', new PersonId(self::CONTACT), 'Ada Lovelace', new OrganizationId(self::ORGANIZATION), 'ACME', $reminder);
+    }
+
+    /**
+     * A booking by somebody nobody knew, their contact to attach kept for no organization yet.
+     */
+    private static function eventInviting(Guest $guest, Channel $channel = Channel::VideoCall): CalendarEvent
+    {
+        return new CalendarEvent(new ExchangeId(self::EXCHANGE), $channel, new \DateTimeImmutable('2026-11-24 08:00 UTC'), new \DateTimeImmutable('2026-11-24 08:15 UTC'), null, new PersonId(self::CONTACT), 'Ada Lovelace', null, null, 10, guest: $guest);
     }
 
     private static function eventAskingALink(): CalendarEvent
