@@ -58,9 +58,7 @@ class McpApiTest extends ApiTestCase
     {
         $this->login();
 
-        $tools = $this->callWithHandshake('tools/list', [])['tools'];
-
-        $whoAmI = array_find($tools, static fn (array $tool): bool => 'qui-suis-je' === $tool['name']);
+        $whoAmI = array_find($this->everyToolListed(), static fn (array $tool): bool => 'qui-suis-je' === $tool['name']);
         $this->assertTrue($whoAmI['annotations']['readOnlyHint'] ?? null);
     }
 

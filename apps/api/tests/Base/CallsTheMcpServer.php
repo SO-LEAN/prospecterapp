@@ -97,4 +97,22 @@ trait CallsTheMcpServer
             ? json_decode($result['content'][0]['text'], true, flags: JSON_THROW_ON_ERROR)
             : $result['structuredContent'];
     }
+
+    /**
+     * The tools an AI lists to the member signed in, page after page.
+     *
+     * @return list<array<string, mixed>>
+     */
+    protected function everyToolListed(): array
+    {
+        $tools = [];
+        $cursor = [];
+        do {
+            $page = $this->callWithHandshake('tools/list', $cursor);
+            $tools = [...$tools, ...$page['tools']];
+            $cursor = isset($page['nextCursor']) ? ['cursor' => $page['nextCursor']] : null;
+        } while (null !== $cursor);
+
+        return $tools;
+    }
 }

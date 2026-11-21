@@ -64,8 +64,6 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
         'api_campaigns_stop',
         'api_contacts_catch_up_gmail',
         'api_contacts_dismiss_possible_duplicate',
-        'api_contacts_tag',
-        'api_contacts_take_off_tag',
         'api_me_change_contact_details',
         'api_me_change_name',
         'api_me_change_organization_logo',
@@ -81,8 +79,6 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
         'api_me_remove_google_client',
         'api_me_revise_organization_identity',
         'api_organizations_catch_up_gmail',
-        'api_organizations_tag',
-        'api_organizations_take_off_tag',
     ];
 
     public function testEveryEndpointOfAMemberHasItsTool(): void
