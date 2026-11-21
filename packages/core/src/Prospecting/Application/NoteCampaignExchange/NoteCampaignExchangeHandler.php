@@ -18,6 +18,7 @@ use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Origin;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
@@ -62,6 +63,7 @@ final readonly class NoteCampaignExchangeHandler implements CommandHandler
             $command->missed,
             $command->executedAt,
             $reference,
+            Origin::byAnAI($command->byAnAI),
         );
 
         if (!$command->noteOnce) {
