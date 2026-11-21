@@ -216,7 +216,7 @@
   "prospecting-note-imported-email": {
     "context": "prospecting",
     "sources": ["prospecter.connectors"],
-    "events": ["EmailExchanged.v1"],
+    "events": ["EmailExchanged.v1", "EmailExchanged.v2"],
     "handler": "Prospecter\\Core\\Prospecting\\Application\\NoteImportedEmail\\NoteImportedEmailHandler",
     "inbox": true
   },

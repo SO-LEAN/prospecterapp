@@ -12,6 +12,7 @@ use App\Shared\Messaging\TransportedEvent;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Accounts\Contract\Event\AccountOpened;
+use Prospecter\Core\Connectors\Contract\Event\EmailExchanged;
 use Prospecter\Core\PersonalData\Contract\Event\ContactFactsChanged;
 use Prospecter\Core\PersonalData\Domain\Event\ContactCollected;
 use Prospecter\Core\Prospecting\Contract\Event\ExchangeFactsChanged;
@@ -135,6 +136,22 @@ class EventCodecTest extends TestCase
 
         $this->assertSame('OrganizationFactsChanged.v3', $this->codec()->encode($organization, new Cause(self::ID, null, 0))->detailType);
         $this->assertSame('ContactFactsChanged.v2', $this->codec()->encode($contact, new Cause(self::ID, null, 0))->detailType);
+    }
+
+    public function testAnEMailExchangedIsWrittenWithTheIdOfItsMessageInTheMailbox(): void
+    {
+        $exchanged = new EmailExchanged(self::ID, self::ID, 'google', 'f00d', 'inbound', self::ID, null, 'Votre devis', 'Bonjour', new \DateTimeImmutable(self::MOMENT), new \DateTimeImmutable(self::MOMENT), '18c2f4a9e0b1d3c7');
+
+        $this->assertSame('EmailExchanged.v2', $this->codec()->encode($exchanged, new Cause(self::ID, null, 0))->detailType);
+    }
+
+    public function testAnEMailExchangedPublishedBeforeItToldTheIdOfItsMessageIsReadWithoutIt(): void
+    {
+        $former = new TransportedEvent('prospecter.connectors', 'EmailExchanged.v1', self::ID, self::MOMENT_OF_THE_BUS, self::ID, null, 0, [
+            'accountId' => self::ID, 'memberId' => self::ID, 'provider' => 'google', 'emailId' => 'f00d', 'direction' => 'inbound', 'contactId' => self::ID, 'organizationId' => null, 'subject' => 'Votre devis', 'text' => 'Bonjour', 'exchangedAt' => self::MOMENT_OF_THE_BUS, 'occurredAt' => self::MOMENT_OF_THE_BUS,
+        ]);
+
+        $this->assertEquals(new EmailExchanged(self::ID, self::ID, 'google', 'f00d', 'inbound', self::ID, null, 'Votre devis', 'Bonjour', new \DateTimeImmutable(self::MOMENT_OF_THE_BUS), new \DateTimeImmutable(self::MOMENT_OF_THE_BUS)), $this->codec()->decode($former));
     }
 
     public function testTheErasureOfAnExchangeIsWrittenWithItsContactItsCampaignAndWhetherItWentWithItsOrganization(): void
