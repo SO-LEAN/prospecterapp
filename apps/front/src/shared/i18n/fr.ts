@@ -555,7 +555,7 @@ export const fr = {
         optional: 'facultatif',
         trap: 'Ne remplissez pas ce champ',
         privacy:
-          'Vos coordonnées servent à organiser ce rendez-vous : votre e-mail est confié à Google, dont l’agenda vous invite. Elles sont effacées sous 30 jours si nous ne poursuivons pas.',
+          'Vos coordonnées servent à organiser ce rendez-vous : votre e-mail est confié à Google, dont l’agenda vous invite. Elles sont effacées sous 30 jours si nous ne poursuivons pas.',
         submit: 'Réserver',
         failed: 'Votre réservation n’a pas abouti : réessayez dans un instant.',
       },
