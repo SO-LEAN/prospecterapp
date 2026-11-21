@@ -65,3 +65,13 @@ Fonctionnalité: Enregistrer un contact
       | prénom | Ada           |
       | e-mail | ada@acme.test |
     Alors ce n'est pas refusé
+
+  Scénario: Rattaché entre-temps, le contact collecté ne l'est pas une seconde fois
+    Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
+    Quand j'enregistre le contact "Ada Lovelace" pour "ACME" :
+      | prénom | Ada      |
+      | nom    | Lovelace |
+    Et la collecte de "Ada Lovelace" est délivrée une fois de plus
+    Alors aucun rattachement de contact collecté n'a échoué
+    Et les contacts de "ACME" sont :
+      | Ada Lovelace |
