@@ -43,6 +43,19 @@ class GmailCatchUpApiTest extends ApiTestCase
         $this->assertSame([['email', 'inbound', "Votre devis\n\nBonjour Michel."]], array_map(static fn (array $exchange): array => [$exchange['channel'], $exchange['direction'], $exchange['text']], $timeline['items']));
     }
 
+    public function testAnEMailCaughtUpOpensInGmailByTheIdOfItsMessageInTheMailbox(): void
+    {
+        $this->login();
+        $ada = $this->aContactOfAcme('ada@acme.test');
+        $this->importTheMailOf('prospector-user');
+        $this->google()->receives('m1', 'ada@acme.test', 'Votre devis', 'Bonjour Michel.');
+
+        $this->client->request('POST', '/api/contacts/'.$ada.'/gmail-catch-ups');
+
+        $imported = $this->requestJson('GET', '/api/contacts/'.$ada.'/exchanges')['items'][0]['id'];
+        $this->assertSame('https://mail.google.com/mail/#all/m1', $this->requestJson('GET', '/api/exchanges/'.$imported)['_links']['openInMailbox']['href'] ?? null);
+    }
+
     public function testTheCardOfAContactLinksTheCatchUpWhileTheImportIsActive(): void
     {
         $this->login();
