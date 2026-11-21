@@ -100,9 +100,7 @@ final class ReportingContext implements Context
     {
         $organizationId = $this->scenario->idOf($name);
         $last = array_last(array_filter($this->application->events->published(OrganizationFactsChanged::class), static fn (OrganizationFactsChanged $facts): bool => $facts->organizationId === $organizationId));
-
-        Expect::that(null !== $last, sprintf('No facts of "%s" were published', $name));
-        $this->application->publishAgain($last);
+        $this->application->publishAgain(Expect::present($last, sprintf('No facts of "%s" were published', $name)));
     }
 
     #[When('Reporting reçoit en même temps les faits :')]
@@ -118,8 +116,8 @@ final class ReportingContext implements Context
     public function myFiguresAre(TableNode $table): void
     {
         $figures = $this->application->consultFigures(new ConsultFigures($this->application->signedIn(), $this->application->now()));
-        Expect::that(null !== $figures, sprintf('The figures were expected, got: %s', $this->application->refusal()?->getMessage()));
-        $expected = array_map(intval(...), $table->getRowsHash());
+        $figures = Expect::present($figures, sprintf('The figures were expected, got: %s', $this->application->refusal()?->getMessage()));
+        $expected = array_map(intval(...), Vocabulary::rows($table));
 
         Expect::same($expected, array_map(static fn (string $label): int => $figures->{self::FIGURES[$label]}, array_combine(array_keys($expected), array_keys($expected))));
     }
@@ -136,7 +134,7 @@ final class ReportingContext implements Context
 
     private function startProspecting(TableNode $table): void
     {
-        $values = Vocabulary::values($table->getRowsHash());
+        $values = Vocabulary::values(Vocabulary::rows($table));
         $id = $this->application->newIdentity();
         $this->application->dispatch(new StartProspecting(
             prospectorId: $this->application->signedIn(),

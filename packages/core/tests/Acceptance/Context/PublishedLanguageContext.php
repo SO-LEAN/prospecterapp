@@ -470,7 +470,7 @@ final class PublishedLanguageContext implements Context
     public function accountsAnswersNoReminderOf(string $name): void
     {
         $member = $this->consulted[$this->memberIdOf($name)] ?? null;
-        Expect::that(null !== $member, sprintf('Accounts did not answer about "%s"', $name));
+        $member = Expect::present($member, sprintf('Accounts did not answer about "%s"', $name));
         Expect::same(null, $member->reminderMinutesBefore);
     }
 

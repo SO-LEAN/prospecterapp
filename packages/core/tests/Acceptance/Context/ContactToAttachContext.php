@@ -62,7 +62,7 @@ final class ContactToAttachContext implements Context
     public function isAContactToAttach(string $name, string $day): void
     {
         $toAttach = $this->contactToAttach($name);
-        Expect::that(null !== $toAttach, sprintf('"%s" is no contact to attach', $name));
+        $toAttach = Expect::present($toAttach, sprintf('"%s" is no contact to attach', $name));
 
         Expect::same($day, $this->dayOf($toAttach->erasableFrom));
     }

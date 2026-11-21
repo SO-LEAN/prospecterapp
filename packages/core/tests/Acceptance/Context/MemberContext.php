@@ -34,7 +34,7 @@ final class MemberContext implements Context
     #[When('j\'inscris :name à mon compte :')]
     public function iRegisterAMember(string $name, TableNode $table): void
     {
-        $values = Vocabulary::values($table->getRowsHash());
+        $values = Vocabulary::values(Vocabulary::rows($table));
         $member = $this->application->newIdentity();
         $profile = $this->application->newIdentity();
         $this->application->dispatch(new RegisterAMember($this->application->signedIn(), $member, $profile, Vocabulary::roles($values['rôles']), $this->application->now()));
@@ -71,7 +71,7 @@ final class MemberContext implements Context
     {
         $profile = $this->application->persons->get($this->scenario->profileOf($this->scenario->memberNamed($name)));
 
-        Expect::describes($table->getRowsHash(), [
+        Expect::describes(Vocabulary::rows($table), [
             'prénom' => (string) StateOf::the($profile)['name']->firstName,
             'nom' => (string) StateOf::the($profile)['name']->lastName,
             'e-mail' => (string) $profile->contactDetails()->email,

@@ -139,8 +139,7 @@ final class GeographicTagsContext implements Context
             $this->application->events->published(OrganizationFactsChanged::class),
             static fn (OrganizationFactsChanged $fact): bool => $fact->organizationId === $organizationId,
         );
-        Expect::that([] !== $published, sprintf('No fact of %s was published', $name));
-        $this->application->publishAgain(array_last($published));
+        $this->application->publishAgain(Expect::present(array_last($published), sprintf('No fact of %s was published', $name)));
     }
 
     #[When('les organisations situées sans code commune sont géocodées à nouveau')]

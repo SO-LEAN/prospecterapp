@@ -38,7 +38,7 @@ final class AccountContext implements Context
     #[Given('mon profil est :')]
     public function myProfileIs(TableNode $table): void
     {
-        $values = Vocabulary::values($table->getRowsHash());
+        $values = Vocabulary::values(Vocabulary::rows($table));
         $me = $this->scenario->myPerson();
         $me->rename(Vocabulary::personName($values), by: $this->scenario->meAsReader(), at: $this->application->now());
         $me->changeContactDetails(Vocabulary::contactDetails($values), Vocabulary::personReferences($values), by: $this->scenario->meAsReader(), at: $this->application->now());
@@ -54,7 +54,7 @@ final class AccountContext implements Context
     #[When('j\'ouvre le compte de mon organisation :')]
     public function iOpenTheAccountOfMyOrganization(TableNode $table): void
     {
-        $values = Vocabulary::values($table->getRowsHash());
+        $values = Vocabulary::values(Vocabulary::rows($table));
         $founder = $this->application->newIdentity();
         $this->application->dispatch(new OpenAccount($this->application->newIdentity(), $values['raison sociale'], $values['forme juridique'], $founder, $this->application->newIdentity(), $this->application->now()));
 
@@ -74,14 +74,14 @@ final class AccountContext implements Context
     #[When('je change mon nom :')]
     public function iChangeMyName(TableNode $table): void
     {
-        $values = Vocabulary::values($table->getRowsHash());
+        $values = Vocabulary::values(Vocabulary::rows($table));
         $this->application->dispatch(new RenamePerson($this->application->signedIn(), $this->scenario->profileOf($this->scenario->me())->value, $values['prénom'], $values['nom'], $this->application->now()));
     }
 
     #[When('je change mes coordonnées :')]
     public function iChangeMyContactDetails(TableNode $table): void
     {
-        $values = Vocabulary::values($table->getRowsHash());
+        $values = Vocabulary::values(Vocabulary::rows($table));
         $this->application->dispatch(new ChangePersonContactDetails($this->application->signedIn(), $this->scenario->profileOf($this->scenario->me())->value, $values['e-mail'], $values['téléphone'], $values['langue'], Vocabulary::links($values), $this->application->now()));
     }
 
@@ -94,7 +94,7 @@ final class AccountContext implements Context
     #[When('je révise l\'identité de mon organisation :')]
     public function iReviseMyOrganizationIdentity(TableNode $table): void
     {
-        $values = Vocabulary::values($table->getRowsHash());
+        $values = Vocabulary::values(Vocabulary::rows($table));
         $this->application->dispatch(new ReviseMyOrganizationIdentity($this->application->signedIn(), $values['raison sociale'], $values['forme juridique'], $values['type'], $this->application->now()));
     }
 
@@ -107,7 +107,7 @@ final class AccountContext implements Context
     #[When('je déménage mon organisation à l\'adresse :')]
     public function iRelocateMyOrganization(TableNode $table): void
     {
-        $values = Vocabulary::values($table->getRowsHash());
+        $values = Vocabulary::values(Vocabulary::rows($table));
         $this->application->dispatch(new RelocateMyOrganization($this->application->signedIn(), $values['rue'], $values['code postal'], $values['ville'], $values['pays'], $this->application->now()));
     }
 
@@ -120,11 +120,10 @@ final class AccountContext implements Context
     #[Then('je vois mon compte :')]
     public function iSeeMyAccount(TableNode $table): void
     {
-        Expect::that(null !== $this->account && null !== $this->myPerson, sprintf('My account was expected, got: %s', $this->application->refusal()?->getMessage()));
-        $account = $this->account;
-        $me = $this->myPerson;
+        $account = Expect::present($this->account, sprintf('My account was expected, got: %s', $this->application->refusal()?->getMessage()));
+        $me = Expect::present($this->myPerson, 'My profile was expected');
 
-        Expect::describes($table->getRowsHash(), [
+        Expect::describes(Vocabulary::rows($table), [
             'prénom' => (string) $me->firstName,
             'nom' => (string) $me->lastName,
             'e-mail' => (string) $me->email,
@@ -139,15 +138,15 @@ final class AccountContext implements Context
     #[Then('je peux sur mon profil :')]
     public function iMayOnMyProfile(TableNode $table): void
     {
-        Expect::that(null !== $this->myPerson, 'My profile was expected');
-        Expect::same($table->getColumn(0), Vocabulary::describeIntents($this->myPerson->possibleIntents));
+        $myPerson = Expect::present($this->myPerson, 'My profile was expected');
+        Expect::same($table->getColumn(0), Vocabulary::describeIntents($myPerson->possibleIntents));
     }
 
     #[Then('je peux sur mon organisation :')]
     public function iMayOnMyOrganization(TableNode $table): void
     {
-        Expect::that(null !== $this->account, 'My account was expected');
-        Expect::same($table->getColumn(0), Vocabulary::describeIntents($this->account->accountIntents));
+        $account = Expect::present($this->account, 'My account was expected');
+        Expect::same($table->getColumn(0), Vocabulary::describeIntents($account->accountIntents));
     }
 
     #[Then('mon compte est enregistré avec :')]
@@ -155,6 +154,6 @@ final class AccountContext implements Context
     {
         $me = $this->scenario->me();
 
-        Expect::describes($table->getRowsHash(), Vocabulary::describeAccount($me, $this->application->accounts->get($me->accountId()), $this->scenario->myPerson()));
+        Expect::describes(Vocabulary::rows($table), Vocabulary::describeAccount($me, $this->application->accounts->get($me->accountId()), $this->scenario->myPerson()));
     }
 }

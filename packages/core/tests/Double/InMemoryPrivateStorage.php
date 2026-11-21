@@ -16,7 +16,7 @@ final class InMemoryPrivateStorage implements PrivateStorage
 {
     private const string LINKS = 'https://private.test/';
 
-    /** @var array<string, array{contents: string, mediaType: string}> by upload */
+    /** @var array<array{contents: string, mediaType: string}> by upload */
     private array $uploads = [];
     /** @var array<string, string> contents by file */
     private array $kept = [];

@@ -22,7 +22,7 @@ final class ScenariosTest extends TestCase
     /** @return iterable<string, array{string}> */
     public static function features(): iterable
     {
-        foreach (glob(self::FEATURES.'/*.feature') as $feature) {
+        foreach (glob(self::FEATURES.'/*.feature') ?: [] as $feature) {
             yield basename($feature) => [$feature];
         }
     }

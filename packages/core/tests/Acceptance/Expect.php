@@ -16,6 +16,18 @@ final class Expect
         }
     }
 
+    /**
+     * @template T
+     *
+     * @param T|null $value
+     *
+     * @return T
+     */
+    public static function present(mixed $value, string $failure): mixed
+    {
+        return $value ?? throw new \RuntimeException($failure);
+    }
+
     public static function same(mixed $expected, mixed $actual): void
     {
         self::that($expected === $actual, sprintf("Expected:\n%s\nActual:\n%s", self::export($expected), self::export($actual)));

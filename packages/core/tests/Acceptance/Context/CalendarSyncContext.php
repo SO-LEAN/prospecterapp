@@ -39,9 +39,7 @@ final class CalendarSyncContext implements Context
     {
         $filled = $this->application->events->published(CalendarToFill::class);
         $connection = $this->application->connections->find(new MemberId($this->application->signedIn()), Provider::Google);
-        Expect::that([] !== $filled && null !== $connection, 'A connection whose calendar is to fill was expected');
-
-        $this->pushUnderWay = [array_last($filled), $connection];
+        $this->pushUnderWay = [Expect::present(array_last($filled), 'A calendar to fill was expected'), Expect::present($connection, 'A connection to Google was expected')];
     }
 
     /**
@@ -66,8 +64,7 @@ final class CalendarSyncContext implements Context
     {
         $this->application->calendars->answerAgain();
         $published = $this->application->events->published(ExchangeFactsChanged::class);
-        Expect::that([] !== $published, 'No fact of the exchange was published');
-        $this->application->publishAgain(array_last($published));
+        $this->application->publishAgain(Expect::present(array_last($published), 'No fact of the exchange was published'));
     }
 
     #[Given('Google refuse les événements que je pousse')]
@@ -122,7 +119,7 @@ final class CalendarSyncContext implements Context
     private function itsSync(): ?ExchangeSync
     {
         $kept = $this->application->consultExchangeSync($this->scenario->theExchange());
-        Expect::that(null !== $kept, sprintf('Refused: %s', $this->application->refusal()?->getMessage()));
+        $kept = Expect::present($kept, sprintf('Refused: %s', $this->application->refusal()?->getMessage()));
 
         return $kept->sync;
     }

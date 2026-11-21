@@ -42,8 +42,8 @@ final class ReminderContext implements Context
     public function iTurnMyRemindersOff(): void
     {
         $this->iConsultMyReminders();
-        Expect::that(null !== $this->reminders, 'My reminders were expected');
-        $this->application->dispatch(new ChangeMyReminders($this->application->signedIn(), false, $this->reminders->minutesBefore, $this->application->now()));
+        $reminders = Expect::present($this->reminders, 'My reminders were expected');
+        $this->application->dispatch(new ChangeMyReminders($this->application->signedIn(), false, $reminders->minutesBefore, $this->application->now()));
     }
 
     #[Given('un autre membre de :account a réglé ses rappels à :minutes minutes avant')]
@@ -75,7 +75,7 @@ final class ReminderContext implements Context
     private function expectMyReminders(bool $enabled, int $minutesBefore): void
     {
         $this->iConsultMyReminders();
-        Expect::that(null !== $this->reminders, sprintf('My reminders were expected, got: %s', $this->application->refusal()?->getMessage()));
-        Expect::same(['enabled' => $enabled, 'minutesBefore' => $minutesBefore], ['enabled' => $this->reminders->enabled, 'minutesBefore' => $this->reminders->minutesBefore]);
+        $reminders = Expect::present($this->reminders, sprintf('My reminders were expected, got: %s', $this->application->refusal()?->getMessage()));
+        Expect::same(['enabled' => $enabled, 'minutesBefore' => $minutesBefore], ['enabled' => $reminders->enabled, 'minutesBefore' => $reminders->minutesBefore]);
     }
 }

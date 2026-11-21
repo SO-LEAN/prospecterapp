@@ -13,6 +13,9 @@ use Prospecter\Core\Campaigns\Domain\Model\TagSelection;
 
 final class TagSelectionTest extends TestCase
 {
+    /**
+     * @param list<string> $typed
+     */
     #[DataProvider('selections')]
     public function testEachTagChosenIsWrittenAsATagAndChosenOnce(array $typed, string $chosen): void
     {
@@ -31,6 +34,9 @@ final class TagSelectionTest extends TestCase
         yield 'six typed, five once written' => [['#A', '#B', '#C', '#D', '#E', '#a'], '#A #B #C #D #E'];
     }
 
+    /**
+     * @param list<string> $typed
+     */
     #[DataProvider('outOfRange')]
     public function testFromOneToFiveTagsAreChosen(array $typed): void
     {

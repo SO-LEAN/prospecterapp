@@ -98,9 +98,7 @@ final class MyDayContext implements Context
 
     private function myDay(): MyDay
     {
-        Expect::that(null !== $this->myDay, sprintf('My day was expected, got: %s', $this->application->refusal()?->getMessage()));
-
-        return $this->myDay;
+        return Expect::present($this->myDay, sprintf('My day was expected, got: %s', $this->application->refusal()?->getMessage()));
     }
 
     /**

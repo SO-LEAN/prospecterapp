@@ -90,7 +90,7 @@ final class MailboxMailContext implements Context
     #[When('la pièce jointe importée est délivrée une fois de plus')]
     public function theImportedAttachmentIsDeliveredAgain(): void
     {
-        $this->application->publishAgain(array_last($this->application->events->published(AttachmentImported::class)));
+        $this->application->publishAgain(Expect::present(array_last($this->application->events->published(AttachmentImported::class)), 'No attachment was imported'));
     }
 
     #[Given('le stockage privé oublie les envois avant qu\'ils soient joints')]
@@ -388,8 +388,8 @@ final class MailboxMailContext implements Context
     {
         $attachment = array_find(StateOf::the($this->theImported())['attachments'], static fn (Attachment $attachment): bool => $attachment->name === $name);
 
-        Expect::that(null !== $attachment, sprintf('The imported exchange was expected to have the attachment %s', $name));
-        Expect::that($this->application->privateStorage->holds((string) $attachment?->file), sprintf('The file of %s was expected to be kept', $name));
+        $attachment = Expect::present($attachment, sprintf('The imported exchange was expected to have the attachment %s', $name));
+        Expect::that($this->application->privateStorage->holds((string) $attachment->file), sprintf('The file of %s was expected to be kept', $name));
     }
 
     #[Then('l\'échange importé n\'a pas de pièce jointe')]

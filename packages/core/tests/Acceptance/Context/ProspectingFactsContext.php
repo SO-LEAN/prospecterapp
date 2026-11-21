@@ -29,7 +29,7 @@ final class ProspectingFactsContext implements Context
         $published = array_filter($this->application->events->published(OrganizationFactsChanged::class), static fn (OrganizationFactsChanged $facts): bool => $facts->organizationId === $organizationId);
         $last = array_last($published);
 
-        Expect::that(null !== $last, sprintf('No facts of "%s" were published', $name));
+        $last = Expect::present($last, sprintf('No facts of "%s" were published', $name));
         Expect::same(
             ['present' => 'présente' === $presence, 'located' => 'géolocalisée' === $location, 'revision' => $revision, 'accountId' => $this->scenario->meAsProspector()->accountId->value],
             ['present' => $last->present, 'located' => $last->located, 'revision' => $last->revision, 'accountId' => $last->accountId],
@@ -48,7 +48,7 @@ final class ProspectingFactsContext implements Context
         $organizationId = $this->scenario->idOf($name);
         $last = array_last(array_filter($this->application->events->published(OrganizationFactsChanged::class), static fn (OrganizationFactsChanged $facts): bool => $facts->organizationId === $organizationId));
 
-        Expect::that(null !== $last, sprintf('No facts of "%s" were published', $name));
+        $last = Expect::present($last, sprintf('No facts of "%s" were published', $name));
         Expect::same([$municipality, $country], [$last->municipalityCode, $last->country]);
     }
 
@@ -58,7 +58,7 @@ final class ProspectingFactsContext implements Context
         $organizationId = $this->scenario->idOf($name);
         $last = array_last(array_filter($this->application->events->published(OrganizationFactsChanged::class), static fn (OrganizationFactsChanged $facts): bool => $facts->organizationId === $organizationId));
 
-        Expect::that(null !== $last, sprintf('No facts of "%s" were published', $name));
+        $last = Expect::present($last, sprintf('No facts of "%s" were published', $name));
         Expect::same($contacts, implode(', ', array_map(fn (string $id): string => $this->scenario->nameOfPerson(new PersonId($id)), $last->contacts ?? [])));
     }
 
@@ -83,7 +83,7 @@ final class ProspectingFactsContext implements Context
         $published = array_filter($this->application->events->published(ExchangeFactsChanged::class), static fn (ExchangeFactsChanged $facts): bool => $facts->exchangeId === $exchangeId);
         $last = array_last($published);
 
-        Expect::that(null !== $last, 'No facts of the exchange were published');
+        $last = Expect::present($last, 'No facts of the exchange were published');
         Expect::same($expected, ['present' => $last->present, 'status' => $last->status, 'notedAt' => null === $last->notedAt ? null : Vocabulary::describeFrenchMoment($last->notedAt), 'revision' => $last->revision]);
     }
 }

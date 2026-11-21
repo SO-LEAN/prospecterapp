@@ -41,43 +41,43 @@ final class CompletionContext implements Context
     #[When('l\'IA complète le contact :name :')]
     public function iCompleteTheContact(string $name, TableNode $table): void
     {
-        $values = Vocabulary::values($table->getRowsHash());
+        $values = Vocabulary::values(Vocabulary::rows($table));
         $this->application->dispatch(new CompleteContact($this->application->signedIn(), $this->scenario->personIdOf($name), Vocabulary::civility($values['Civilité']), $values['fonction'], $values['e-mail'], $values['téléphone'], Vocabulary::links($values), $this->application->now()));
     }
 
     #[When('je complète l\'organisation :name :')]
     public function iCompleteTheOrganization(string $name, TableNode $table): void
     {
-        $values = Vocabulary::values($table->getRowsHash());
+        $values = Vocabulary::values(Vocabulary::rows($table));
         $this->application->dispatch(new CompleteOrganization($this->application->signedIn(), $this->scenario->idOf($name), $values['SIRET'], Vocabulary::links($values), $values['site web'], $values['e-mail'], $values['téléphone'], $this->application->now()));
     }
 
     #[When('je compare le contact :name à :')]
     public function iCompareTheContact(string $name, TableNode $table): void
     {
-        $values = Vocabulary::values($table->getRowsHash());
+        $values = Vocabulary::values(Vocabulary::rows($table));
         $this->comparison = $this->application->compareWithContact(new CompareWithContact($this->application->signedIn(), $this->scenario->personIdOf($name), Vocabulary::civility($values['Civilité']), $values['fonction'], $values['e-mail'], $values['téléphone'], Vocabulary::links($values)));
     }
 
     #[When('je compare l\'organisation :name à :')]
     public function iCompareTheOrganization(string $name, TableNode $table): void
     {
-        $values = Vocabulary::values($table->getRowsHash());
+        $values = Vocabulary::values(Vocabulary::rows($table));
         $this->comparison = $this->application->compareWithOrganization(new CompareWithOrganization($this->scenario->idOf($name), $values['SIRET'], Vocabulary::links($values), $values['site web'], $values['e-mail'], $values['téléphone']));
     }
 
     #[Then('serait complété : :fields')]
     public function wouldBeCompleted(string $fields): void
     {
-        Expect::that(null !== $this->comparison, sprintf('The comparison was expected, got: %s', $this->application->refusal()?->getMessage()));
-        Expect::same($fields, self::described($this->comparison->completed));
+        $comparison = Expect::present($this->comparison, sprintf('The comparison was expected, got: %s', $this->application->refusal()?->getMessage()));
+        Expect::same($fields, self::described($comparison->completed));
     }
 
     #[Then('diffère : :fields')]
     public function differs(string $fields): void
     {
-        Expect::that(null !== $this->comparison, 'The comparison was expected');
-        Expect::same($fields, self::described($this->comparison->differing));
+        $comparison = Expect::present($this->comparison, 'The comparison was expected');
+        Expect::same($fields, self::described($comparison->differing));
     }
 
     /**

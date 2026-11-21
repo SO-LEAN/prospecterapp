@@ -48,7 +48,7 @@ final class BookSlotContext implements Context
     #[When('/^on réserve (?<channel>un appel|une visio) par mon lien public le '.self::SLOT.' :$/u')]
     public function someoneBooksAs(string $channel, string $day, string $time, TableNode $table): void
     {
-        $booker = $table->getRowsHash();
+        $booker = Vocabulary::rows($table);
         $this->book(self::CHANNELS[$channel], $day, $time, $booker['téléphone'], $booker['e-mail'], $booker['prénom'], $booker['nom'], $booker['objet'] ?? null);
     }
 

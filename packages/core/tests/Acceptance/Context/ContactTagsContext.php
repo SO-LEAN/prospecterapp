@@ -43,7 +43,7 @@ final class ContactTagsContext implements Context
     {
         $inherited = array_find($this->tagsOf($contact)->inherited, static fn (InheritedTagResponse $inherited): bool => $inherited->name === $tag);
 
-        Expect::that(null !== $inherited, sprintf('%s does not inherit %s', $contact, $tag));
+        $inherited = Expect::present($inherited, sprintf('%s does not inherit %s', $contact, $tag));
         Expect::same(self::listed($organizations), array_map(fn (string $id): string => $this->scenario->nameOf(new OrganizationId($id)), $inherited->from));
     }
 

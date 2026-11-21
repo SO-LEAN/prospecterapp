@@ -63,7 +63,7 @@ final class OrganizationContext implements Context
     #[Given('l\'organisation :name fait partie de mes organisations avec :')]
     public function anOrganizationOfMineWith(string $name, TableNode $table): void
     {
-        $this->detail($this->anOrganizationOfMine($name), $table->getRowsHash());
+        $this->detail($this->anOrganizationOfMine($name), Vocabulary::rows($table));
     }
 
     #[Given('l\'organisation sans raison sociale :email fait partie de mes organisations')]
@@ -104,7 +104,7 @@ final class OrganizationContext implements Context
     #[Given('l\'organisation :name appartient à :owner avec :')]
     public function anOrganizationProspectedByWith(string $name, string $owner, TableNode $table): void
     {
-        $this->detail($this->anOrganizationProspectedBy($name, $owner), $table->getRowsHash());
+        $this->detail($this->anOrganizationProspectedBy($name, $owner), Vocabulary::rows($table));
     }
 
     #[Given(':count organisations font partie de mes organisations')]
@@ -143,7 +143,7 @@ final class OrganizationContext implements Context
 
     private function startProspecting(TableNode $table, bool $byAnAI): void
     {
-        $values = Vocabulary::values($table->getRowsHash());
+        $values = Vocabulary::values(Vocabulary::rows($table));
         $id = $this->application->newIdentity();
         $this->application->dispatch(new StartProspecting(
             prospectorId: $this->me(),
@@ -171,7 +171,7 @@ final class OrganizationContext implements Context
     #[When('je révise l\'identité de :name :')]
     public function iReviseTheLegalIdentity(string $name, TableNode $table): void
     {
-        $values = Vocabulary::values($table->getRowsHash());
+        $values = Vocabulary::values(Vocabulary::rows($table));
         $this->application->dispatch(new ReviseLegalIdentity($this->me(), $this->scenario->idOf($name), $values['raison sociale'], $values['forme juridique'], $values['type'], $this->application->now()));
         $this->rememberIfAccepted($values['raison sociale'], $this->scenario->idOf($name));
     }
@@ -186,7 +186,7 @@ final class OrganizationContext implements Context
     #[When('je change les coordonnées de :name :')]
     public function iChangeTheContactDetails(string $name, TableNode $table): void
     {
-        $values = Vocabulary::values($table->getRowsHash());
+        $values = Vocabulary::values(Vocabulary::rows($table));
         $this->application->dispatch($this->scenario->isAnOrganization($name)
             ? new ChangeContactDetails($this->me(), $this->scenario->idOf($name), $values['e-mail'], $values['téléphone'], $values['langue'], $this->application->now(), Vocabulary::links($values), $values['site web'])
             : new ChangePersonContactDetails($this->me(), $this->scenario->personIdOf($name), $values['e-mail'], $values['téléphone'], $values['langue'], Vocabulary::links($values), $this->application->now()));
@@ -195,7 +195,7 @@ final class OrganizationContext implements Context
     #[When('je déménage :name à l\'adresse :')]
     public function iRelocate(string $name, TableNode $table): void
     {
-        $values = Vocabulary::values($table->getRowsHash());
+        $values = Vocabulary::values(Vocabulary::rows($table));
         $this->application->dispatch(new Relocate($this->me(), $this->scenario->idOf($name), $values['rue'], $values['code postal'], $values['ville'], $values['pays'], $this->application->now()));
     }
 
@@ -307,14 +307,14 @@ final class OrganizationContext implements Context
     #[When('je demande la suite')]
     public function iAskForTheNextSlice(): void
     {
-        Expect::that(null !== $this->found?->next, 'A next slice was expected');
-        $this->found = $this->application->searchProspectedOrganizations(new SearchProspectedOrganizations($this->me(), after: $this->found->next, max: $this->max));
+        $next = Expect::present($this->found?->next, 'A next slice was expected');
+        $this->found = $this->application->searchProspectedOrganizations(new SearchProspectedOrganizations($this->me(), after: $next, max: $this->max));
     }
 
     #[Then('l\'organisation :name est enregistrée avec :')]
     public function theOrganizationIsStoredWith(string $name, TableNode $table): void
     {
-        Expect::describes($table->getRowsHash(), Vocabulary::describeOrganization($this->scenario->organizationNamed($name), $this->scenario->nameOf(...), $this->scenario->me()->id()));
+        Expect::describes(Vocabulary::rows($table), Vocabulary::describeOrganization($this->scenario->organizationNamed($name), $this->scenario->nameOf(...), $this->scenario->me()->id()));
     }
 
     #[Then('l\'organisation :name compte :count organisation(s) active(s)')]
@@ -326,10 +326,10 @@ final class OrganizationContext implements Context
     #[Then('je vois l\'organisation :')]
     public function iSeeTheOrganization(TableNode $table): void
     {
-        Expect::that(null !== $this->consulted, sprintf('The organization was expected, got: %s', $this->application->refusal()?->getMessage()));
-        $organization = $this->consulted;
+        $consulted = Expect::present($this->consulted, sprintf('The organization was expected, got: %s', $this->application->refusal()?->getMessage()));
+        $organization = $consulted;
 
-        Expect::describes($table->getRowsHash(), [
+        Expect::describes(Vocabulary::rows($table), [
             'raison sociale' => (string) $organization->corporateName,
             'forme juridique' => (string) $organization->form,
             'SIRET' => (string) $organization->siret,
@@ -346,8 +346,8 @@ final class OrganizationContext implements Context
     #[Then('je peux :')]
     public function iMay(TableNode $table): void
     {
-        Expect::that(null !== $this->consulted, sprintf('The organization was expected, got: %s', $this->application->refusal()?->getMessage()));
-        Expect::same($table->getColumn(0), Vocabulary::describeIntents($this->consulted->possibleIntents));
+        $consulted = Expect::present($this->consulted, sprintf('The organization was expected, got: %s', $this->application->refusal()?->getMessage()));
+        Expect::same($table->getColumn(0), Vocabulary::describeIntents($consulted->possibleIntents));
     }
 
     #[Given(':name a été signalée comme doublon possible de :other')]
@@ -397,7 +397,7 @@ final class OrganizationContext implements Context
     private function possibleDuplicatesOf(string $name): array
     {
         $sheet = $this->application->consultOrganization(new ConsultOrganization($this->scenario->idOf($name)));
-        Expect::that(null !== $sheet, sprintf('The organization was expected, got: %s', $this->application->refusal()?->getMessage()));
+        $sheet = Expect::present($sheet, sprintf('The organization was expected, got: %s', $this->application->refusal()?->getMessage()));
 
         return array_map(static fn (PossibleDuplicate $duplicate): string => $duplicate->fullName, $sheet->possibleDuplicates);
     }
@@ -405,8 +405,8 @@ final class OrganizationContext implements Context
     #[Then('je trouve :count organisation(s)')]
     public function iFindOrganizations(int $count): void
     {
-        Expect::that(null !== $this->found, sprintf('Organizations were expected, got: %s', $this->application->refusal()?->getMessage()));
-        Expect::same($count, count($this->found->organizations));
+        $found = Expect::present($this->found, sprintf('Organizations were expected, got: %s', $this->application->refusal()?->getMessage()));
+        Expect::same($count, count($found->organizations));
     }
 
     #[Then('il y a une suite')]
@@ -424,13 +424,13 @@ final class OrganizationContext implements Context
     #[Then('la liste affiche :')]
     public function theListShows(TableNode $table): void
     {
-        Expect::that(null !== $this->found, 'Organizations were expected');
+        $found = Expect::present($this->found, 'Organizations were expected');
         $columns = array_flip(array_keys($table->getColumnsHash()[0] ?? []));
         $shown = array_map(static fn (FoundOrganization $organization): array => array_intersect_key([
             'nom' => $organization->fullName,
             'ville' => (string) $organization->city,
             'doublon possible de' => implode(', ', array_map(static fn (PossibleDuplicate $duplicate): string => $duplicate->fullName, $organization->possibleDuplicates)),
-        ], $columns), $this->found->organizations);
+        ], $columns), $found->organizations);
 
         Expect::same($table->getColumnsHash(), $shown);
     }

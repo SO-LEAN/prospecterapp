@@ -14,6 +14,9 @@ use PHPUnit\Framework\TestCase;
  */
 class DomainClassesAreFinalTest extends TestCase
 {
+    /**
+     * @param class-string $class
+     */
     #[DataProvider('domainClasses')]
     public function testAClassOfTheDomainIsFinalUnlessTheDomainExtendsIt(string $class): void
     {

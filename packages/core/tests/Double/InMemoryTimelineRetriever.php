@@ -137,7 +137,7 @@ final readonly class InMemoryTimelineRetriever implements TimelineRetriever
 
         return new Timeline(
             array_map($read, $slice),
-            count($timeline) > $max ? self::positionOf(array_last($slice)) : null,
+            count($timeline) > $max ? self::positionOf(self::lastOf($slice)) : null,
             array_map(static fn (TimelineIntent $intent): string => $intent->name, TimelineIntent::cases()),
             $toMakeConform,
         );
@@ -157,7 +157,7 @@ final readonly class InMemoryTimelineRetriever implements TimelineRetriever
 
         return new Timeline(
             array_map($read, $slice),
-            count($upcoming) > $max ? self::positionOf(array_last($slice)) : null,
+            count($upcoming) > $max ? self::positionOf(self::lastOf($slice)) : null,
             array_map(static fn (TimelineIntent $intent): string => $intent->name, TimelineIntent::cases()),
             $toMakeConform,
         );
@@ -201,6 +201,14 @@ final readonly class InMemoryTimelineRetriever implements TimelineRetriever
         $state = StateOf::the($exchange);
 
         return ExchangeChronology::listedAt($state['facts']->occurredAt, $state['cancellation']?->at);
+    }
+
+    /**
+     * @param list<Exchange> $slice shorter than the exchanges listed
+     */
+    private static function lastOf(array $slice): Exchange
+    {
+        return array_last($slice) ?? throw new \LogicException('A slice shorter than the exchanges listed is not empty');
     }
 
     private static function positionOf(Exchange $exchange): string

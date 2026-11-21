@@ -36,7 +36,7 @@ final class WhatIsToProcessContext implements Context
     public function thereIs(string $text, string $overdue): void
     {
         $toDo = array_find($this->toProcess()->toDos, static fn (ToDoInList $toDo): bool => $toDo->text === $text);
-        Expect::that(null !== $toDo, sprintf('"%s" is not to process', $text));
+        $toDo = Expect::present($toDo, sprintf('"%s" is not to process', $text));
 
         Expect::same($overdue, match ($days = $this->toProcess()->daysOverdue[$toDo->id] ?? null) {
             0 => 'pour aujourd\'hui',
@@ -68,7 +68,7 @@ final class WhatIsToProcessContext implements Context
     public function thereIsAContactToAttach(string $name, string $day): void
     {
         $toAttach = array_find($this->toProcess()->contactsToAttach, fn (ContactToAttachInList $contact): bool => $contact->personId === $this->scenario->personIdOf($name));
-        Expect::that(null !== $toAttach, sprintf('"%s" is not to attach', $name));
+        $toAttach = Expect::present($toAttach, sprintf('"%s" is not to attach', $name));
 
         Expect::same($day, $toAttach->erasableFrom->setTimezone($this->application->readerClock())->format('d/m/Y'));
     }
@@ -92,9 +92,7 @@ final class WhatIsToProcessContext implements Context
 
     private function toProcess(): WhatIsToProcess
     {
-        Expect::that(null !== $this->toProcess, sprintf('The exchanges to process were expected, got: %s', $this->application->refusal()?->getMessage()));
-
-        return $this->toProcess;
+        return Expect::present($this->toProcess, sprintf('The exchanges to process were expected, got: %s', $this->application->refusal()?->getMessage()));
     }
 
     /**

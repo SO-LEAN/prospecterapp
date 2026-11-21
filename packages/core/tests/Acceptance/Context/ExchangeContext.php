@@ -78,7 +78,7 @@ final class ExchangeContext implements Context
     #[When('je note un échange avec :contact :')]
     public function iNoteAnExchangeWith(string $contact, TableNode $table): void
     {
-        $values = $table->getRowsHash();
+        $values = Vocabulary::rows($table);
         $this->note($contact, Vocabulary::channel($values['canal']), Vocabulary::direction($values['sens']), Vocabulary::frenchMoment($values['moment']), $values['texte'] ?? null, false);
     }
 
@@ -177,8 +177,8 @@ final class ExchangeContext implements Context
     #[Then('le lieu proposé est :place')]
     public function theProposedPlaceIs(string $place): void
     {
-        Expect::that(null !== $this->proposedPlace, 'A place was expected to be proposed');
-        Expect::same($place, implode(', ', array_filter([$this->proposedPlace->street, trim(sprintf('%s %s', $this->proposedPlace->postalCode, $this->proposedPlace->city)), $this->proposedPlace->country])));
+        $proposedPlace = Expect::present($this->proposedPlace, 'A place was expected to be proposed');
+        Expect::same($place, implode(', ', array_filter([$proposedPlace->street, trim(sprintf('%s %s', $proposedPlace->postalCode, $proposedPlace->city)), $proposedPlace->country])));
     }
 
     #[Then('aucun lieu n\'est proposé')]
@@ -222,10 +222,10 @@ final class ExchangeContext implements Context
     #[Then('il dure de :start à :end')]
     public function itLastsFrom(string $start, string $end): void
     {
-        $planned = array_find($this->upcomingOf($this->lastNotedWith), fn (ExchangeInTimeline $exchange): bool => $exchange->id === $this->lastNoted);
-        $from = $planned?->occurredAt;
+        $planned = Expect::present(array_find($this->upcomingOf($this->lastNotedWith), fn (ExchangeInTimeline $exchange): bool => $exchange->id === $this->lastNoted), 'The exchange was expected to be upcoming');
+        $from = $planned->occurredAt;
 
-        Expect::same([$start, $end], [$from?->format('G\hi'), $from?->modify(sprintf('+%d minutes', $planned->durationInMinutes))->format('G\hi')]);
+        Expect::same([$start, $end], [$from->format('G\hi'), $from->modify(sprintf('+%d minutes', $planned->durationInMinutes))->format('G\hi')]);
     }
 
     #[Then('j\'en suis le titulaire')]
@@ -247,10 +247,10 @@ final class ExchangeContext implements Context
     #[Then('je vois ces échanges qui le chevauchent :')]
     public function iSeeTheseOverlappingExchanges(TableNode $table): void
     {
-        Expect::that(null !== $this->overlapping, sprintf('The overlapping exchanges were expected, got: %s', $this->application->refusal()?->getMessage()));
+        $overlapping = Expect::present($this->overlapping, sprintf('The overlapping exchanges were expected, got: %s', $this->application->refusal()?->getMessage()));
         $columns = array_flip($table->getRow(0));
 
-        Expect::same($table->getColumnsHash(), array_map(fn (ExchangeInTimeline $exchange): array => array_replace($columns, array_intersect_key($this->describe($exchange, ''), $columns)), $this->overlapping));
+        Expect::same($table->getColumnsHash(), array_map(fn (ExchangeInTimeline $exchange): array => array_replace($columns, array_intersect_key($this->describe($exchange, ''), $columns)), $overlapping));
     }
 
     #[Then('rien ne le chevauche')]
@@ -305,9 +305,9 @@ final class ExchangeContext implements Context
     #[Then('/^la timeline de "(?<name>[^"]+)" montre (?:ce|cet) (?:SMS|e-mail|appel|message LinkedIn|rendez-vous)$/')]
     public function theTimelineShowsTheLastNoted(string $name): void
     {
-        Expect::that(null !== $this->lastNoted, sprintf('An exchange was expected to be noted, got: %s', $this->application->refusal()?->getMessage()));
+        $lastNoted = Expect::present($this->lastNoted, sprintf('An exchange was expected to be noted, got: %s', $this->application->refusal()?->getMessage()));
 
-        Expect::that(array_any($this->timelineOfNow($name), fn (ExchangeInTimeline $exchange): bool => $exchange->id === $this->lastNoted), sprintf('The timeline of %s does not show the exchange', $name));
+        Expect::that(array_any($this->timelineOfNow($name), fn (ExchangeInTimeline $exchange): bool => $exchange->id === $lastNoted), sprintf('The timeline of %s does not show the exchange', $name));
     }
 
     #[Then('la timeline de :organization le montre avec l\'interlocuteur :interlocutor')]
@@ -350,10 +350,9 @@ final class ExchangeContext implements Context
     public function theExchangeToEraseIsPublishedAgain(): void
     {
         $published = $this->application->events->published(ExchangeLeftWithoutOrganization::class);
-        Expect::that([] !== $published, 'No exchange to erase was published');
         $this->databaseBeforeDeliveredAgain = $this->application->database->snapshot();
         $this->privateStorageBeforeDeliveredAgain = clone $this->application->privateStorage;
-        $this->application->publishAgain(array_last($published));
+        $this->application->publishAgain(Expect::present(array_last($published), 'No exchange to erase was published'));
     }
 
     #[Then('rien de plus n\'est écrit')]
@@ -374,10 +373,10 @@ final class ExchangeContext implements Context
     #[Then('je vois les :count plus récents')]
     public function iSeeTheMostRecent(int $count): void
     {
-        Expect::that(null !== $this->timeline, sprintf('A timeline was expected, got: %s', $this->application->refusal()?->getMessage()));
+        $timeline = Expect::present($this->timeline, sprintf('A timeline was expected, got: %s', $this->application->refusal()?->getMessage()));
         $mostRecent = array_slice($this->storedTimelineOf($this->timelineOf), 0, $count);
 
-        Expect::same(array_map(static fn (Exchange $exchange): string => $exchange->id()->value, $mostRecent), array_map(static fn (ExchangeInTimeline $exchange): string => $exchange->id, $this->timeline->exchanges));
+        Expect::same(array_map(static fn (Exchange $exchange): string => $exchange->id()->value, $mostRecent), array_map(static fn (ExchangeInTimeline $exchange): string => $exchange->id, $timeline->exchanges));
     }
 
     #[Then('la timeline de :organization signale :count échanges à rendre conformes')]
@@ -396,10 +395,10 @@ final class ExchangeContext implements Context
     public function theExchangesToMakeConformAre(string $organization, TableNode $table): void
     {
         $this->iConsultTheExchangesToMakeConform($organization);
-        Expect::that(null !== $this->timeline, sprintf('The exchanges to make conform were expected, got: %s', $this->application->refusal()?->getMessage()));
+        $timeline = Expect::present($this->timeline, sprintf('The exchanges to make conform were expected, got: %s', $this->application->refusal()?->getMessage()));
         $columns = array_flip($table->getRow(0));
 
-        Expect::same($table->getColumnsHash(), array_map(fn (ExchangeInTimeline $exchange): array => array_replace($columns, array_intersect_key($this->describe($exchange, $organization), $columns)), $this->timeline->exchanges));
+        Expect::same($table->getColumnsHash(), array_map(fn (ExchangeInTimeline $exchange): array => array_replace($columns, array_intersect_key($this->describe($exchange, $organization), $columns)), $timeline->exchanges));
     }
 
     #[Then('je peux sur la timeline :')]
@@ -417,12 +416,13 @@ final class ExchangeContext implements Context
     #[Then('je peux lire la suite après le dernier')]
     public function iMayReadWhatFollows(): void
     {
-        Expect::that(null !== $this->timeline?->next, 'A next slice was expected');
-        $last = array_last($this->timeline->exchanges);
-        $following = $this->consultTimelineOf($this->timelineOf, after: $this->timeline->next);
+        $timeline = Expect::present($this->timeline, 'A timeline was expected');
+        $next = Expect::present($timeline->next, 'A next slice was expected');
+        $last = array_last($timeline->exchanges);
+        $following = $this->consultTimelineOf($this->timelineOf, after: $next);
         $older = array_filter($following->exchanges ?? [], static fn (ExchangeInTimeline $exchange): bool => $exchange->occurredAt < $last?->occurredAt);
 
-        Expect::same(count($this->storedTimelineOf($this->timelineOf)) - count($this->timeline->exchanges), count($older));
+        Expect::same(count($this->storedTimelineOf($this->timelineOf)) - count($timeline->exchanges), count($older));
     }
 
     /**
@@ -430,9 +430,7 @@ final class ExchangeContext implements Context
      */
     private function offeredOnTheTimeline(): array
     {
-        Expect::that(null !== $this->timelineIntents, sprintf('What the timeline offers was expected, got: %s', $this->application->refusal()?->getMessage()));
-
-        return $this->timelineIntents;
+        return Expect::present($this->timelineIntents, sprintf('What the timeline offers was expected, got: %s', $this->application->refusal()?->getMessage()));
     }
 
     /**
@@ -464,7 +462,7 @@ final class ExchangeContext implements Context
         $upcoming = $this->scenario->isAnOrganization($name)
             ? $this->application->consultOrganizationUpcomingExchanges(new ConsultOrganizationUpcomingExchanges($prospector, $this->scenario->idOf($name), $this->application->now()))
             : $this->application->consultUpcomingExchanges(new ConsultUpcomingExchanges($prospector, $this->scenario->personIdOf($name), $this->application->now()));
-        Expect::that(null !== $upcoming, sprintf('The upcoming exchanges were expected, got: %s', $this->application->refusal()?->getMessage()));
+        $upcoming = Expect::present($upcoming, sprintf('The upcoming exchanges were expected, got: %s', $this->application->refusal()?->getMessage()));
 
         return $upcoming->exchanges;
     }
@@ -509,7 +507,7 @@ final class ExchangeContext implements Context
     private function timelineOfNow(string $name): array
     {
         $timeline = $this->consultTimelineOf($name);
-        Expect::that(null !== $timeline, sprintf('A timeline was expected, got: %s', $this->application->refusal()?->getMessage()));
+        $timeline = Expect::present($timeline, sprintf('A timeline was expected, got: %s', $this->application->refusal()?->getMessage()));
 
         return $timeline->exchanges;
     }
