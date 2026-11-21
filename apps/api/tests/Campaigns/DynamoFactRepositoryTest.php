@@ -68,6 +68,16 @@ class DynamoFactRepositoryTest extends ApiTestCase
         $this->assertEquals($fact, $this->repository()->find($fact));
     }
 
+    public function testAFactRebuiltAtTheSameRevisionReplacesTheKeptOne(): void
+    {
+        $this->recorder()->record($this->organizationNaming(4));
+        $rebuilt = new OrganizationFact($this->account, $this->organization, 4, true, [], new Locality('67482', 'FR'));
+
+        $this->recorder()->recordAgain($rebuilt);
+
+        $this->assertEquals($rebuilt, $this->repository()->find($rebuilt));
+    }
+
     public function testAContactFactKeepsHowTheContactIsReached(): void
     {
         $fact = new ContactFact($this->account, new PersonId(self::newIdentity()), 3, true, new Reach(true, true, true, false));
