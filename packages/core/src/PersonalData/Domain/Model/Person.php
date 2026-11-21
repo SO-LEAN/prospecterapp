@@ -375,17 +375,20 @@ final class Person implements ReleasesEvents
     public function completionWith(ContactSupplement $supplement, Reader $by): Completion
     {
         $this->ensurePossible(PersonIntent::Complete, $by);
-        $email = $this->contactDetails->email;
-        $phoneNumber = $this->contactDetails->phoneNumber;
         $linksNotHeld = $this->linksNotHeld($supplement);
         $linksToAdd = $this->linksToAdd($supplement);
 
         return new Completion()
-            ->with(self::CIVILITY, Civility::X !== $this->civility, Civility::X !== $supplement->civility, $this->civility === $supplement->civility)
-            ->with(self::JOB_TITLE, null !== $this->jobTitle, null !== $supplement->jobTitle, $this->jobTitle === $supplement->jobTitle)
-            ->with(self::EMAIL, null !== $email, null !== $supplement->email, null !== $email && null !== $supplement->email && $email->equals($supplement->email))
-            ->with(self::PHONE_NUMBER, null !== $phoneNumber, null !== $supplement->phoneNumber, $phoneNumber?->value === $supplement->phoneNumber?->value)
-            ->withSome(self::LINKS, count($linksToAdd), count($linksNotHeld) - count($linksToAdd));
+            ->with(self::CIVILITY, self::noted($this->civility), self::noted($supplement->civility))
+            ->with(self::JOB_TITLE, $this->jobTitle, $supplement->jobTitle)
+            ->with(self::EMAIL, $this->contactDetails->email?->value, $supplement->email?->value)
+            ->with(self::PHONE_NUMBER, $this->contactDetails->phoneNumber?->value, $supplement->phoneNumber?->value)
+            ->withSome(self::LINKS, filled: count($linksToAdd), left: count($linksNotHeld) - count($linksToAdd));
+    }
+
+    private static function noted(Civility $civility): ?string
+    {
+        return Civility::X === $civility ? null : $civility->value;
     }
 
     /**

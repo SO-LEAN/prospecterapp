@@ -104,3 +104,35 @@ Fonctionnalité: Compléter un contact sans rien écraser
       | fonction | CTO |
     Alors ce n'est pas refusé
     Et aucun fait de contact n'est publié
+
+  Scénario: Avant de compléter, je sais ce qui serait complété et ce qui diffère
+    Soit la fonction de "Ada Lovelace" est "Directrice technique"
+    Quand je compare le contact "Ada Lovelace" à :
+      | fonction | CTO                                      |
+      | liens    | https://www.linkedin.com/in/ada-lovelace |
+    Alors serait complété : "liens"
+    Et diffère : "fonction"
+
+  Scénario: Une même adresse e-mail ne diffère pas, une autre si
+    Soit le contact "Grace Hopper" de "ACME" a l'adresse e-mail "grace@acme.fr"
+    Quand je compare le contact "Grace Hopper" à :
+      | e-mail    | GRACE@acme.fr  |
+      | téléphone | 06 12 34 56 78 |
+    Alors serait complété : "téléphone"
+    Et diffère : ""
+
+  Scénario: Les liens sans place diffèrent
+    Soit "Ada Lovelace" a noté le lien "https://a.test/ada"
+    Et "Ada Lovelace" a noté le lien "https://b.test/ada"
+    Et "Ada Lovelace" a noté le lien "https://c.test/ada"
+    Et "Ada Lovelace" a noté le lien "https://d.test/ada"
+    Quand je compare le contact "Ada Lovelace" à :
+      | liens | https://a.test/ada https://e.test/ada https://f.test/ada |
+    Alors serait complété : "liens"
+    Et diffère : "liens"
+
+  Scénario: Sans le droit, je ne compare pas un contact
+    Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
+    Quand je compare le contact "Ada Lovelace" à :
+      | fonction | CTO |
+    Alors c'est refusé : "Only a member allowed to manage personal data may complete a contact"

@@ -21,13 +21,12 @@ final readonly class Completion
     /**
      * A field noted keeps its value; one left empty takes the value given.
      */
-    public function with(string $field, bool $noted, bool $given, bool $same): self
+    public function with(string $field, ?string $noted, ?string $given): self
     {
         return match (true) {
-            !$given => $this,
-            !$noted => new self([...$this->completed, $field], $this->differing),
-            !$same => new self($this->completed, [...$this->differing, $field]),
-            default => $this,
+            null === $given, $noted === $given => $this,
+            null === $noted => new self([...$this->completed, $field], $this->differing),
+            default => new self($this->completed, [...$this->differing, $field]),
         };
     }
 

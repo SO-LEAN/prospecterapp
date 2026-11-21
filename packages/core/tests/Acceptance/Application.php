@@ -160,6 +160,9 @@ use Prospecter\Core\PersonalData\Application\ChangePersonPicture\ChangePersonPic
 use Prospecter\Core\PersonalData\Application\CollectContact\CollectContactHandler;
 use Prospecter\Core\PersonalData\Application\CollectTheFounderProfile\CollectTheFounderProfileHandler;
 use Prospecter\Core\PersonalData\Application\CollectTheMemberProfile\CollectTheMemberProfileHandler;
+use Prospecter\Core\PersonalData\Application\CompareWithContact\CompareWithContact;
+use Prospecter\Core\PersonalData\Application\CompareWithContact\CompareWithContactHandler;
+use Prospecter\Core\PersonalData\Application\CompareWithContact\KeptComparison as KeptContactComparison;
 use Prospecter\Core\PersonalData\Application\CompleteContact\CompleteContactHandler;
 use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPerson;
 use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPersonHandler;
@@ -415,6 +418,7 @@ use Prospecter\Core\Reporting\Application\RecordExchangeFacts\RecordExchangeFact
 use Prospecter\Core\Reporting\Application\RecordOrganizationFacts\RecordOrganizationFactsHandler;
 use Prospecter\Core\Reporting\Domain\Model\Fact;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
+use Prospecter\Core\SharedKernel\Application\Comparison;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
 use Prospecter\Core\SharedKernel\Application\FileStore;
@@ -1076,6 +1080,13 @@ final class Application
         $kept = new KeptCallingOrganizations();
 
         return $this->ask(new RecognizeCallingOrganizationHandler($this->organizationSheetRetriever, $this->prospectors), $query, $kept) ? $kept->organizations : null;
+    }
+
+    public function compareWithContact(CompareWithContact $query): ?Comparison
+    {
+        $kept = new KeptContactComparison();
+
+        return $this->ask(new CompareWithContactHandler($this->persons, $this->readers), $query, $kept) ? $kept->comparison : null;
     }
 
     /**
