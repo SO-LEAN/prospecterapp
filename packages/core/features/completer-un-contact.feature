@@ -10,47 +10,53 @@ Fonctionnalité: Compléter un contact sans rien écraser
     Et le contact "Ada Lovelace" de "ACME"
     Et je suis connecté en tant que prospecteur de "SOLEAN IT"
 
-  Scénario: Ce qui est vide est complété
+  Plan du scénario: Ce qui est vide est complété
     Quand je complète le contact "Ada Lovelace" :
-      | fonction  | CTO                                      |
-      | e-mail    | ada@acme.fr                              |
-      | téléphone | 06 12 34 56 78                           |
-      | liens     | https://www.linkedin.com/in/ada-lovelace |
-      | Civilité  | Madame                                   |
+      | <champ> | <donné> |
     Alors je vois la fiche de "Ada Lovelace" avec :
-      | Civilité  | Madame                                   |
-      | fonction  | CTO                                      |
-      | e-mail    | ada@acme.fr                              |
-      | téléphone | +33 6 12 34 56 78                        |
-      | liens     | https://www.linkedin.com/in/ada-lovelace |
+      | <champ> | <noté> |
 
-  Scénario: Ce qui est noté reste, un lien de plus s'ajoute aux autres
+    Exemples:
+      | champ     | donné                                    | noté                                     |
+      | fonction  | CTO                                      | CTO                                      |
+      | e-mail    | ada@acme.fr                              | ada@acme.fr                              |
+      | téléphone | 06 12 34 56 78                           | +33 6 12 34 56 78                        |
+      | liens     | https://www.linkedin.com/in/ada-lovelace | https://www.linkedin.com/in/ada-lovelace |
+      | Civilité  | Madame                                   | Madame                                   |
+
+  Scénario: Une fonction notée reste
     Soit la fonction de "Ada Lovelace" est "Directrice technique"
-    Et "Ada Lovelace" a la civilité "Madame"
-    Et "Ada Lovelace" a noté le lien "https://www.malt.fr/profile/adalovelace"
     Quand je complète le contact "Ada Lovelace" :
-      | fonction | CTO                                      |
-      | liens    | https://www.linkedin.com/in/ada-lovelace |
-      | Civilité | Monsieur                                 |
+      | fonction | CTO |
     Alors je vois la fiche de "Ada Lovelace" avec :
-      | Civilité | Madame                                                                            |
-      | fonction | Directrice technique                                                              |
-      | liens    | https://www.malt.fr/profile/adalovelace https://www.linkedin.com/in/ada-lovelace |
+      | fonction | Directrice technique |
 
-  Scénario: Une adresse e-mail et un téléphone notés restent
+  Scénario: Une civilité notée reste
+    Soit "Ada Lovelace" a la civilité "Madame"
+    Quand je complète le contact "Ada Lovelace" :
+      | Civilité | Monsieur |
+    Alors je vois la fiche de "Ada Lovelace" avec :
+      | Civilité | Madame |
+
+  Scénario: Un lien de plus s'ajoute à ceux notés
+    Soit "Ada Lovelace" a noté le lien "https://www.malt.fr/profile/adalovelace"
+    Quand je complète le contact "Ada Lovelace" :
+      | liens | https://www.linkedin.com/in/ada-lovelace |
+    Alors je vois la fiche de "Ada Lovelace" avec :
+      | liens | https://www.malt.fr/profile/adalovelace https://www.linkedin.com/in/ada-lovelace |
+
+  Scénario: Une adresse e-mail notée reste
     Soit le contact "Grace Hopper" de "ACME" a l'adresse e-mail "grace@acme.fr"
-    Et le contact "Alan Turing" de "ACME" a le téléphone "03 88 00 00 00"
     Quand je complète le contact "Grace Hopper" :
-      | e-mail    | grace.hopper@acme.fr |
-      | téléphone | 06 12 34 56 78       |
-    Et je complète le contact "Alan Turing" :
-      | e-mail    | alan@acme.fr   |
-      | téléphone | 06 98 76 54 32 |
+      | e-mail | grace.hopper@acme.fr |
     Alors je vois la fiche de "Grace Hopper" avec :
-      | e-mail    | grace@acme.fr     |
-      | téléphone | +33 6 12 34 56 78 |
-    Et je vois la fiche de "Alan Turing" avec :
-      | e-mail    | alan@acme.fr      |
+      | e-mail | grace@acme.fr |
+
+  Scénario: Un téléphone noté reste
+    Soit le contact "Alan Turing" de "ACME" a le téléphone "03 88 00 00 00"
+    Quand je complète le contact "Alan Turing" :
+      | téléphone | 06 98 76 54 32 |
+    Alors je vois la fiche de "Alan Turing" avec :
       | téléphone | +33 3 88 00 00 00 |
 
   Scénario: Au-delà de cinq liens, les autres ne sont pas notés
