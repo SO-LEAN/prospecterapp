@@ -68,6 +68,7 @@ final readonly class ImportMailHandler implements EventHandler
             $mail->text,
             $mail->exchangedAt,
             $added->occurredAt,
+            $mail->providerId,
         );
     }
 }

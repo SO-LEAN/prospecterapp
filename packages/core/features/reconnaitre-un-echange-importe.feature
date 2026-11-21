@@ -29,6 +29,10 @@ Fonctionnalité: Reconnaître un échange importé de Gmail
     Alors je vois l'échange :
       | provenance | Gmail |
 
+  Scénario: Le détail de l'échange importé permet d'ouvrir l'e-mail d'origine dans Gmail
+    Quand je consulte cet échange
+    Alors il m'est proposé d'ouvrir l'e-mail d'origine dans ma boîte Gmail
+
   Scénario: Sans le droit aux données personnelles, l'échange importé est marqué comme importé, son texte signalé
     Soit je perds le droit aux données personnelles
     Quand je consulte cet échange

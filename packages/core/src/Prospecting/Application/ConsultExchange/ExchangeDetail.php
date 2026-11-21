@@ -14,7 +14,8 @@ namespace Prospecter\Core\Prospecting\Application\ConsultExchange;
  * manage personal data, its text flagged and its files hidden, only counted; its contact forgotten, what is to make
  * conform, and who declared it made conform; the campaign it was noted in, named as Campaigns names it now, none once
  * erased (ADR 0152); whether its contact booked it by the public link of its holder (ADR 0164); the provider of the
- * mailbox it was imported from, none when noted, whoever reads it (ADR 0174).
+ * mailbox it was imported from, none when noted, whoever reads it, and the id the provider gives its message in the
+ * mailbox that imported it, which opens it there, none for one imported before it was kept (ADR 0174).
  */
 final readonly class ExchangeDetail
 {
@@ -56,6 +57,7 @@ final readonly class ExchangeDetail
         public ?string $campaignName = null,
         public bool $bookedByLink = false,
         public ?string $importedFrom = null,
+        public ?string $providerMessageId = null,
     ) {
     }
 

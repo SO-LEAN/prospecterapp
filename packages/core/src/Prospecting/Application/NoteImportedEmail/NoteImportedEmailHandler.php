@@ -126,6 +126,6 @@ final readonly class NoteImportedEmailHandler implements EventHandler
 
     private static function importedFrom(EmailExchanged $email): ImportedEmail
     {
-        return new ImportedEmail($email->provider, $email->emailId);
+        return new ImportedEmail($email->provider, $email->emailId, $email->providerMessageId);
     }
 }

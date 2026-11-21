@@ -20,6 +20,7 @@ use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Model\Scope;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
+use Prospecter\Core\Prospecting\Application\ConsultExchange\ConsultExchange;
 use Prospecter\Core\Prospecting\Application\EraseExchange\EraseExchange;
 use Prospecter\Core\Prospecting\Domain\Model\ContactToAttach;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
@@ -233,6 +234,17 @@ final class MailboxMailContext implements Context
         $expected = sprintf("%s…\n\n%s…", str_repeat('o', $subjectLength - 1), str_repeat('t', $textLength - 1));
 
         Expect::same($expected, StateOf::the($this->theImported())['facts']->text);
+    }
+
+    /**
+     * The message of the mailbox that imported it, which the provider opens.
+     */
+    #[Then('il m\'est proposé d\'ouvrir l\'e-mail d\'origine dans ma boîte Gmail')]
+    public function iMayOpenTheOriginalEMail(): void
+    {
+        $detail = $this->application->consultExchange(new ConsultExchange($this->application->signedIn(), $this->scenario->theExchange(), $this->application->now()));
+
+        Expect::same($this->lastReceived[self::MY_MAILBOX]->providerId, $detail?->providerMessageId);
     }
 
     #[Then('j\'en suis l\'auteur')]
