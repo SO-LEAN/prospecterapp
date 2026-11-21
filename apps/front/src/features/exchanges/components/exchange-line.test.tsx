@@ -59,4 +59,16 @@ describe('ExchangeLine', () => {
 
     expect(screen.queryByText('Campagne effacée')).not.toBeInTheDocument()
   })
+
+  it('marks an exchange imported from Gmail', async () => {
+    await renderInARouter(<ExchangeLine exchange={anExchange({ importedFrom: 'google' })} />)
+
+    expect(screen.getByTitle('Importé de Gmail')).toBeInTheDocument()
+  })
+
+  it('does not mark an exchange noted', async () => {
+    await renderInARouter(<ExchangeLine exchange={anExchange({ importedFrom: null })} />)
+
+    expect(screen.queryByTitle('Importé de Gmail')).not.toBeInTheDocument()
+  })
 })

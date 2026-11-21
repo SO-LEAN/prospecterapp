@@ -23,6 +23,7 @@ import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { formatMoment, formatUpcoming } from '@/shared/lib/format'
 import { cn } from '@/shared/lib/utils'
+import { GmailLogo } from '@/shared/ui/gmail-logo'
 import { type Channel, directionWordsOf, type Exchange, type Interlocutor } from '../queries'
 import { CampaignOfTheLine } from './campaign-of-the-exchange'
 import { ExchangeText, PersonalDataWarning } from './exchange-text'
@@ -43,7 +44,7 @@ type Summarized = Pick<
   Exchange,
   'channel' | 'direction' | 'occurredAt' | 'status' | 'canceller' | 'durationInMinutes'
 > &
-  Partial<Pick<Exchange, 'contactToAttach'>>
+  Partial<Pick<Exchange, 'contactToAttach' | 'importedFrom'>>
 
 const STATUS_ICONS: Partial<Record<Exchange['status'], LucideIcon>> = {
   planned: CalendarClock,
@@ -122,8 +123,9 @@ export function ExchangeSummary({
 
   return (
     <div className="flex items-start gap-3">
-      <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-accent text-accent-foreground">
+      <span className="relative flex size-8 shrink-0 items-center justify-center rounded-full bg-accent text-accent-foreground">
         <ChannelIcon aria-hidden className="size-4" />
+        {exchange.importedFrom === 'google' && <ImportedFromGmail />}
       </span>
       <div className="min-w-0 flex-1">
         {interlocutor && <InterlocutorName interlocutor={interlocutor} linkedToTheCard={linkedToTheCard} />}
@@ -226,6 +228,21 @@ function CardLink({ interlocutor, className, children }: CardLinkProps) {
     >
       {children}
     </Link>
+  )
+}
+
+/** The mark of Gmail on the channel of an exchange imported from it, said on hover and to a screen reader. */
+function ImportedFromGmail() {
+  const { t } = useTranslation()
+
+  return (
+    <span
+      title={t('exchanges.importedFromGmail')}
+      className="absolute -right-1 -bottom-1 flex size-4 items-center justify-center rounded-full bg-background ring-1 ring-border"
+    >
+      <GmailLogo className="size-2.5" />
+      <span className="sr-only">{t('exchanges.importedFromGmail')}</span>
+    </span>
   )
 }
 

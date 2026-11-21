@@ -623,6 +623,7 @@ export const fr = {
     unknownPerson: 'Contact effacé',
     removedContact: '(ne fait plus partie de l’organisation)',
     mayHoldPersonalData: 'Peut contenir des données personnelles',
+    importedFromGmail: 'Importé de Gmail',
     toMakeConform: 'Ce contact a été effacé (RGPD) : retouchez ce contenu pour le rendre conforme.',
     toMakeConformCount_one: '{{count}} à rendre conforme',
     toMakeConformCount_other: '{{count}} à rendre conformes',
