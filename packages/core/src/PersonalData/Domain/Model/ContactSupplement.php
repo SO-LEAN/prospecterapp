@@ -4,7 +4,14 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\PersonalData\Domain\Model;
 
+use Prospecter\Core\PersonalData\Domain\Exception\InvalidCivility;
+use Prospecter\Core\SharedKernel\Domain\Designated;
 use Prospecter\Core\SharedKernel\Domain\Email;
+use Prospecter\Core\SharedKernel\Domain\Exception\InvalidEmail;
+use Prospecter\Core\SharedKernel\Domain\Exception\InvalidPhoneNumber;
+use Prospecter\Core\SharedKernel\Domain\Exception\NotAWebAddress;
+use Prospecter\Core\SharedKernel\Domain\Exception\ReferenceOfAnotherKind;
+use Prospecter\Core\SharedKernel\Domain\Exception\UnrecognizedPage;
 use Prospecter\Core\SharedKernel\Domain\ExternalReference;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
@@ -24,5 +31,21 @@ final readonly class ContactSupplement
         public ?PhoneNumber $phoneNumber = null,
         public array $links = [],
     ) {
+    }
+
+    /**
+     * @param list<string> $links the addresses of their links
+     *
+     * @throws InvalidCivility|InvalidEmail|InvalidPhoneNumber|NotAWebAddress|ReferenceOfAnotherKind|UnrecognizedPage
+     */
+    public static function given(string $civility, ?string $jobTitle, ?string $email, ?string $phoneNumber, array $links): self
+    {
+        return new self(
+            Civility::of($civility),
+            $jobTitle,
+            Email::orNone($email),
+            PhoneNumber::orNone($phoneNumber),
+            array_map(static fn (string $address): ExternalReference => ExternalReference::designating($address, Designated::Person), $links),
+        );
     }
 }
