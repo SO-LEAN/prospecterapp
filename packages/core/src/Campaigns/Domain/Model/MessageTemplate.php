@@ -10,7 +10,8 @@ use Prospecter\Core\Campaigns\Domain\Exception\SubjectOnlyForAnEmail;
 /**
  * The message the member writes once for every contact of a campaign (ADR 0144): the text of an e-mail, a SMS or a
  * LinkedIn message, or the pitch of a call, 5,000 characters at most, and the subject of an e-mail. Its variables are
- * replaced by what is known of each contact, by nothing when nothing is.
+ * replaced by what is known of each contact, by nothing when nothing is. An AI leading the campaign sends it as it is
+ * rendered, unless it is to be adapted to each person.
  */
 final readonly class MessageTemplate
 {
@@ -24,6 +25,7 @@ final readonly class MessageTemplate
     private function __construct(
         public string $text,
         public ?string $subject,
+        public MessageMode $mode,
     ) {
     }
 
@@ -31,14 +33,14 @@ final readonly class MessageTemplate
      * @throws MessageTooLong
      * @throws SubjectOnlyForAnEmail
      */
-    public static function of(string $text, ?string $subject, Channel $channel): self
+    public static function of(string $text, ?string $subject, Channel $channel, MessageMode $mode = MessageMode::AsIs): self
     {
         $subject = '' === trim($subject ?? '') ? null : trim($subject);
 
         return match (true) {
             mb_strlen($text) > self::MAX => throw MessageTooLong::longerThan(self::MAX),
             null !== $subject && Channel::Email !== $channel => throw SubjectOnlyForAnEmail::because('Only an e-mail has a subject', 'subject'),
-            default => new self($text, $subject),
+            default => new self($text, $subject, $mode),
         };
     }
 

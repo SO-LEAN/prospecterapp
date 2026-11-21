@@ -6,6 +6,7 @@ namespace Prospecter\Core\Campaigns\Application\ReviseCampaign;
 
 use Prospecter\Core\Campaigns\Domain\Model\CampaignName;
 use Prospecter\Core\Campaigns\Domain\Model\Channel;
+use Prospecter\Core\Campaigns\Domain\Model\MessageMode;
 use Prospecter\Core\Campaigns\Domain\Model\MessageTemplate;
 use Prospecter\Core\Campaigns\Domain\Model\Targeting;
 use Prospecter\Core\Campaigns\Domain\Port\Campaigners;
@@ -39,7 +40,7 @@ final readonly class ReviseCampaignHandler implements CommandHandler
         $campaign->revise(
             $name,
             Targeting::by($channel, $command->tags),
-            MessageTemplate::of($command->message, $command->subject, $channel),
+            MessageTemplate::of($command->message, $command->subject, $channel, MessageMode::named($command->messageMode)),
             by: $member,
             at: $command->executedAt,
         );

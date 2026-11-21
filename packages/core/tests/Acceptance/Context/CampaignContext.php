@@ -65,6 +65,7 @@ final class CampaignContext implements Context
     private const array CHANNELS = ['E-mail' => 'email', 'Appel' => 'call', 'SMS' => 'sms', 'LinkedIn' => 'linkedIn'];
     private const array STATUSES = ['draft' => 'brouillon', 'frozen' => 'figée', 'started' => 'démarrée', 'stopped' => 'arrêtée', 'ended' => 'terminée'];
     private const array RECIPIENT_STATUSES = ['pending' => 'à traiter', 'erased' => 'plus à traiter', 'processed' => 'traité', 'dismissed' => 'écarté'];
+    private const array MESSAGE_MODES = ['asIs' => 'tel quel', 'adapted' => 'adapté'];
     private const string NOBODY_CARRIES = '#PERSONNE';
     private const string A_MESSAGE = 'Bonjour {prénom}';
     private const string REVISED_MESSAGE = 'Bonjour {prénom}, je reviens vers vous';
@@ -128,6 +129,20 @@ final class CampaignContext implements Context
     public function iPrepareTheCampaignBySmsWithASubject(string $name, string $subject): void
     {
         $this->prepare($name, 'SMS', self::SOME_TAGS, self::A_MESSAGE, $subject);
+    }
+
+    #[When('je prépare la campagne :name avec un message pour une IA :mode')]
+    public function iPrepareTheCampaignWithAMessageForAnAI(string $name, string $mode): void
+    {
+        $this->prepare($name, 'E-mail', self::SOME_TAGS, self::A_MESSAGE, messageMode: self::messageModeNamed($mode));
+    }
+
+    /**
+     * A mode the scenarios do not name is given as written, for the core to refuse it.
+     */
+    private static function messageModeNamed(string $mode): string
+    {
+        return (string) (array_search($mode, self::MESSAGE_MODES, true) ?: $mode);
     }
 
     #[Given('la campagne :name en brouillon')]
@@ -640,6 +655,13 @@ final class CampaignContext implements Context
         $this->application->dispatch(new ReviseCampaign($this->application->signedIn(), $sheet->id, $sheet->name, $sheet->channel, self::listed($tags), $sheet->message, $sheet->subject, $this->application->now()));
     }
 
+    #[When('je change son message pour une IA en :mode')]
+    public function iChangeItsMessageForAnAI(string $mode): void
+    {
+        $sheet = $this->sheet();
+        $this->application->dispatch(new ReviseCampaign($this->application->signedIn(), $sheet->id, $sheet->name, $sheet->channel, $sheet->tags, $sheet->message, $sheet->subject, $this->application->now(), self::messageModeNamed($mode)));
+    }
+
     #[When('je la renomme :name et change son message')]
     public function iRenameItAndChangeItsMessage(string $name): void
     {
@@ -791,6 +813,12 @@ final class CampaignContext implements Context
         );
     }
 
+    #[Then('son message pour une IA est :mode')]
+    public function itsMessageForAnAIIs(string $mode): void
+    {
+        Expect::same($mode, self::MESSAGE_MODES[$this->sheet()->messageMode]);
+    }
+
     #[Then('il vaut :text')]
     public function itReads(string $text): void
     {
@@ -895,7 +923,7 @@ final class CampaignContext implements Context
         return array_find($timeline->exchanges ?? [], static fn (ExchangeInTimeline $exchange): bool => $exchange->id === $id) ?? throw new \LogicException('The timeline does not show the exchange noted');
     }
 
-    private function prepare(string $name, string $channel, string $tags, string $message, ?string $subject = null): void
+    private function prepare(string $name, string $channel, string $tags, string $message, ?string $subject = null, string $messageMode = 'asIs'): void
     {
         $this->current = $name;
         $this->campaignIds[$name] = $this->application->newIdentity();
@@ -908,6 +936,7 @@ final class CampaignContext implements Context
             $message,
             $subject,
             $this->application->now(),
+            $messageMode,
         ));
     }
 

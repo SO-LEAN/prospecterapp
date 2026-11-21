@@ -11,6 +11,7 @@ use Prospecter\Core\Campaigns\Domain\Model\CampaignIntent;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignName;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignStatus;
 use Prospecter\Core\Campaigns\Domain\Model\Channel;
+use Prospecter\Core\Campaigns\Domain\Model\MessageMode;
 use Prospecter\Core\Campaigns\Domain\Model\MessageTemplate;
 use Prospecter\Core\Campaigns\Domain\Model\Recipient;
 use Prospecter\Core\Campaigns\Domain\Model\Recipients;
@@ -108,6 +109,7 @@ final class CampaignDocument
             targetedTags: self::named($targeting->targeted()),
             message: $document['message'],
             subject: $document['subject'],
+            messageMode: MessageMode::AsIs->value,
             status: $document['status'],
             followsTheTags: $status->followsTheTags(),
             running: $status->isRunning(),
