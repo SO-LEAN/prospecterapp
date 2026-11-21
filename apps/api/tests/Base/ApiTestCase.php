@@ -7,6 +7,7 @@ use App\Demo\DemoData;
 use App\Shared\Identities;
 use App\Shared\Messaging\CommitOutbox;
 use App\Shared\Persistence\DynamoUnitOfWork;
+use App\Shared\Persistence\RevisionsRead;
 use App\Shared\Persistence\Table;
 use App\SignIn\Credentials;
 use App\SignIn\UserPool;
@@ -155,7 +156,7 @@ abstract class ApiTestCase extends WebTestCase
         $client = self::getContainer()->get(DynamoDbClient::class);
         $marshaler = self::getContainer()->get(Marshaler::class);
 
-        return new Table($client, $marshaler, new DynamoUnitOfWork($client, new CommitOutbox([], $marshaler, new Identities(), self::getContainer()->get('app.commit_clock'))), $table->name);
+        return new Table($client, $marshaler, new DynamoUnitOfWork($client, new CommitOutbox([], $marshaler, new Identities(), self::getContainer()->get('app.commit_clock'))), new RevisionsRead(), $table->name);
     }
 
     /**

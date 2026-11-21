@@ -7,6 +7,7 @@ use App\Shared\Identities;
 use App\Shared\Messaging\CommitOutbox;
 use App\Shared\Persistence\DynamoUnitOfWork;
 use App\Shared\Persistence\Hydrator;
+use App\Shared\Persistence\RevisionsRead;
 use App\Shared\Persistence\Table;
 use Aws\DynamoDb\DynamoDbClient;
 use Aws\DynamoDb\Marshaler;
@@ -97,6 +98,6 @@ final class ExchangeChangedMeanwhile implements ExchangeRepository
 
     private function anotherRequest(): DynamoExchangeRepository
     {
-        return new DynamoExchangeRepository(new Table($this->client, $this->marshaler, new DynamoUnitOfWork($this->client, new CommitOutbox([], $this->marshaler, $this->identities, $this->commitClock)), $this->prospectingTable->name));
+        return new DynamoExchangeRepository(new Table($this->client, $this->marshaler, new DynamoUnitOfWork($this->client, new CommitOutbox([], $this->marshaler, $this->identities, $this->commitClock)), new RevisionsRead(), $this->prospectingTable->name));
     }
 }
