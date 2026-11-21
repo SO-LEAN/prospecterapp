@@ -8,7 +8,7 @@ use Prospecter\Core\SharedKernel\Application\ExternalLink;
 use Prospecter\Core\SharedKernel\Application\FileResponse;
 
 /**
- * The sheet of an organization of an account, with what its state offers now.
+ * The sheet of an organization of an account, with what its state offers now, and whether an AI created it.
  */
 final readonly class OrganizationSheet
 {
@@ -47,6 +47,7 @@ final readonly class OrganizationSheet
         public \DateTimeImmutable $modifiedAt,
         public array $possibleIntents,
         public array $possibleDuplicates,
+        public bool $createdByAnAI = false,
     ) {
     }
 }

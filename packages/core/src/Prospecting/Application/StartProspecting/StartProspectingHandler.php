@@ -24,6 +24,7 @@ use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
+use Prospecter\Core\SharedKernel\Domain\Origin;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 final readonly class StartProspectingHandler implements CommandHandler
@@ -51,6 +52,7 @@ final readonly class StartProspectingHandler implements CommandHandler
             new LegalIdentity($command->corporateName, $command->form, $command->type),
             new ContactDetails(Email::orNone($command->email), PhoneNumber::orNone($command->phoneNumber), $command->language),
             $command->executedAt,
+            Origin::byAnAI($command->byAnAI),
         );
         $this->placeOnTheWeb($organization, $command, $prospector->id);
         $this->locate($organization, $command, $prospector->id);

@@ -45,6 +45,18 @@ Fonctionnalité: Reconnaître ce qu'une IA a créé
     Alors je vois l'échange :
       | badge | MCP |
 
+  Scénario: Une organisation qu'une IA commence à prospecter porte le badge
+    Soit l'IA a commencé à prospecter l'organisation :
+      | raison sociale | Globex |
+    Quand je consulte l'organisation "Globex"
+    Alors je vois l'organisation :
+      | badge | MCP |
+
+  Scénario: Une organisation commencée à la main ne porte pas le badge
+    Quand je consulte l'organisation "ACME"
+    Alors je vois l'organisation :
+      | badge | |
+
   Scénario: Corriger à la main un échange noté par une IA lui garde son badge
     Soit l'IA a noté le message LinkedIn reçu de "Ada Lovelace" dans la conversation "2-abc" le 18/11/2026 à 9h12 : "Bonjour Michel !"
     Et nous sommes le "2026-11-18 11:00"
