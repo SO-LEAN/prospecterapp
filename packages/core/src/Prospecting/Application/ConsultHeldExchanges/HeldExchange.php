@@ -26,6 +26,7 @@ final readonly class HeldExchange
         public bool $linkRequested,
         public ?string $contactId,
         public array $organizationIds,
+        public bool $bookedByLink = false,
     ) {
     }
 }

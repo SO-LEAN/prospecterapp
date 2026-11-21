@@ -76,6 +76,13 @@ final class BookSlotContext implements Context
         $this->book(self::CHANNELS[$channel], $day, $time);
     }
 
+    #[Given('/^on a réservé (?<channel>un appel|une visio) par mon lien public le '.self::SLOT.'$/u')]
+    public function someoneBooked(string $channel, string $day, string $time): void
+    {
+        $this->someoneBooks($channel, $day, $time);
+        $this->expectBooked();
+    }
+
     #[Given('/^quelqu\'un vient de réserver par mon lien public le '.self::SLOT.'$/u')]
     public function someoneJustBooked(string $day, string $time): void
     {
@@ -220,6 +227,24 @@ final class BookSlotContext implements Context
             $subject,
             $this->application->now(),
         ));
+        $this->rememberWhatWasBooked(sprintf('%s %s', $firstName, $lastName));
+    }
+
+    /**
+     * « Cette visio » of the scenarios is the exchange booked, its booker named as they gave their name.
+     */
+    private function rememberWhatWasBooked(string $booker): void
+    {
+        $exchange = $this->application->database->exchange($this->appointment ?? '');
+        if (null === $exchange) {
+            return;
+        }
+
+        $this->scenario->rememberTheExchange((string) $exchange->id());
+        $contact = StateOf::the($exchange)['contact'];
+        if (null !== $contact) {
+            $this->scenario->rememberPerson($booker, $contact);
+        }
     }
 
     private function expectBooked(): void

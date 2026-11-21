@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace Tests\Core\Acceptance\Context;
 
 use Behat\Behat\Context\Context;
+use Behat\Behat\Hook\Scope\BeforeStepScope;
+use Behat\Hook\BeforeStep;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 use Prospecter\Core\Connectors\Domain\Model\CalendarEvent;
 use Prospecter\Core\Prospecting\Contract\Event\ExchangeFactsChanged;
+use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 
@@ -21,7 +24,12 @@ final class CalendarPushContext implements Context
 {
     use SharesTheScenario;
 
+    private const array NOTICES = ['l\'invitation' => 'invitation', 'la mise à jour' => 'update', 'l\'annulation' => 'cancellation'];
+    private const string GESTURE = 'When';
     private const string TITLE = '/^mon agenda Google a l\'événement « (?<title>[^»]+) » le (?<day>\S+) de (?<from>\S+) à (?<until>\S+)$/u';
+
+    private int $noticesBeforeTheGesture = 0;
+    private string $previousStepType = '';
 
     #[Given('Google refuse désormais mon jeton')]
     public function googleRefusesMyTokenFromNowOn(): void
@@ -65,9 +73,62 @@ final class CalendarPushContext implements Context
         $event = $this->theEvent();
         $card = $this->scenario->isAnOrganization($name)
             ? ['contact' => null, 'organization' => $this->scenario->organizationNamed($name)->id()->value]
-            : ['contact' => $this->scenario->personIdOf($name), 'organization' => $event->organization->value];
+            : ['contact' => $this->scenario->personIdOf($name), 'organization' => $event->organization?->value];
 
-        Expect::same($card, ['contact' => $event->contact?->value, 'organization' => $event->organization->value]);
+        Expect::same($card, ['contact' => $event->contact?->value, 'organization' => $event->organization?->value]);
+    }
+
+    #[Then('l\'événement invite :email')]
+    public function theEventInvites(string $email): void
+    {
+        Expect::same($email, $this->theEvent()->guest?->email->value);
+    }
+
+    #[Then('l\'événement n\'invite personne')]
+    public function theEventInvitesNobody(): void
+    {
+        Expect::same(null, $this->theEvent()->guest);
+    }
+
+    #[Then('/^l\'événement dit que "(?<caller>[^"]+)" l\'appellera au (?<phone>[^a-z]+)$/u')]
+    public function theEventSaysWhoWillCallAt(string $caller, string $phone): void
+    {
+        $guest = $this->theEvent()->guest;
+
+        Expect::same([$caller, PhoneNumber::of(trim($phone))->value], [$guest?->calledBy, $guest?->calledAt?->value]);
+    }
+
+    /**
+     * What Google sends the guests is read from the gesture of the scenario on: its first step « Quand ».
+     */
+    #[BeforeStep]
+    public function markTheNoticesSentBeforeTheGesture(BeforeStepScope $scope): void
+    {
+        $type = $scope->getStep()->getKeywordType();
+        if (self::GESTURE === $type && self::GESTURE !== $this->previousStepType) {
+            $this->noticesBeforeTheGesture = count($this->application->calendars->noticesSent());
+        }
+        $this->previousStepType = $type;
+    }
+
+    #[Then('/^Google envoie (?<notice>l\'invitation|la mise à jour|l\'annulation) à "(?<email>[^"]+)"$/u')]
+    public function googleSends(string $notice, string $email): void
+    {
+        Expect::same([self::NOTICES[$notice], $email], $this->noticesSentByTheGesture()[0] ?? null);
+    }
+
+    #[Then('Google n\'envoie rien à :email')]
+    public function googleSendsNothing(string $email): void
+    {
+        Expect::same([], array_filter($this->noticesSentByTheGesture(), static fn (array $notice): bool => $email === $notice[1]));
+    }
+
+    /**
+     * @return list<array{string, string}>
+     */
+    private function noticesSentByTheGesture(): array
+    {
+        return array_slice($this->application->calendars->noticesSent(), $this->noticesBeforeTheGesture);
     }
 
     #[Then('l\'événement me rappelle :minutes minutes avant')]
@@ -125,8 +186,10 @@ final class CalendarPushContext implements Context
     {
         $channel = Vocabulary::describeChannel($event->channel->value);
 
-        return null === $event->contactName
-            ? sprintf('%s · %s', $channel, $event->organizationName)
-            : sprintf('%s · %s (%s)', $channel, $event->contactName, $event->organizationName);
+        return match (true) {
+            null === $event->contactName => sprintf('%s · %s', $channel, $event->organizationName),
+            null === $event->organizationName => sprintf('%s · %s', $channel, $event->contactName),
+            default => sprintf('%s · %s (%s)', $channel, $event->contactName, $event->organizationName),
+        };
     }
 }

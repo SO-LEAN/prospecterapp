@@ -9,7 +9,9 @@ use Prospecter\Core\Connectors\Domain\Model\CalendarEntry;
 use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
 use Prospecter\Core\Connectors\Domain\Model\Connection;
 use Prospecter\Core\Connectors\Domain\Model\ExchangeId;
+use Prospecter\Core\Connectors\Domain\Model\Guest;
 use Prospecter\Core\Connectors\Domain\Model\HeldExchange;
+use Prospecter\Core\Connectors\Domain\Model\Member;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Port\ContactNames;
 use Prospecter\Core\Connectors\Domain\Port\HeldExchanges;
@@ -89,7 +91,25 @@ final readonly class CalendarPusher
     private function putInto(Connection $connection, HeldExchange $exchange, ClientCredentials $client, \DateTimeImmutable $at): void
     {
         $holder = $this->members->get($exchange->holder);
-        $connection->push($exchange->asCalendarEvent($this->contactNameOf($exchange), $holder->reminderMinutesBefore), $client, $this->calendars, $at);
+        $connection->push($exchange->asCalendarEvent($this->contactNameOf($exchange), $holder->reminderMinutesBefore, $this->guestOf($exchange, $holder)), $client, $this->calendars, $at);
+    }
+
+    /**
+     * The contact who booked it, at their e-mail as its holder reads it, none without one; called by its holder at
+     * their phone, for a call.
+     */
+    private function guestOf(HeldExchange $exchange, Member $holder): ?Guest
+    {
+        if (null === $exchange->contact || !$exchange->invitesItsContact()) {
+            return null;
+        }
+
+        $details = $this->contactNames->contactDetailsOf($exchange->contact, $exchange->holder);
+        if (null === $details?->email) {
+            return null;
+        }
+
+        return $exchange->isACall() ? new Guest($details->email, $details->phoneNumber, $holder->firstName) : new Guest($details->email);
     }
 
     private function contactNameOf(HeldExchange $exchange): ?string
@@ -147,7 +167,7 @@ final readonly class CalendarPusher
     private function withdrawFrom(Connection $connection, ExchangeId $id, ClientCredentials $client, ?CalendarEntry $entry, \DateTimeImmutable $at): void
     {
         try {
-            $connection->withdraw($id, $client, $this->calendars, $at);
+            $this->takeOut($connection, $id, $client, $entry, $at);
             $this->forget($entry);
         } catch (CalendarRefusedThePush $refusal) {
             if (null === $entry) {
@@ -155,6 +175,18 @@ final readonly class CalendarPusher
             }
 
             $this->keepTheRefusal($entry, $at);
+        }
+    }
+
+    /**
+     * An event inviting a guest, still to come, is cancelled for them; any other one is removed without a word.
+     */
+    private function takeOut(Connection $connection, ExchangeId $id, ClientCredentials $client, ?CalendarEntry $entry, \DateTimeImmutable $at): void
+    {
+        if (true === $entry?->invitesAGuestStillToComeAt($at)) {
+            $connection->cancel($id, $client, $this->calendars, $at);
+        } else {
+            $connection->withdraw($id, $client, $this->calendars, $at);
         }
     }
 

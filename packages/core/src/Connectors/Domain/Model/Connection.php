@@ -198,14 +198,34 @@ final class Connection implements ReleasesEvents
      */
     public function withdraw(ExchangeId $exchange, ClientCredentials $client, ProviderCalendar $calendars, \DateTimeImmutable $at): void
     {
+        $this->takeOut($client, $at, static fn (RefreshToken $token, string $calendar) => $calendars->remove($client, $token, $calendar, $exchange));
+    }
+
+    /**
+     * Withdrawn as above, the provider telling its guest it is cancelled.
+     *
+     * @throws CalendarRefusedThePush
+     */
+    public function cancel(ExchangeId $exchange, ClientCredentials $client, ProviderCalendar $calendars, \DateTimeImmutable $at): void
+    {
+        $this->takeOut($client, $at, static fn (RefreshToken $token, string $calendar) => $calendars->cancel($client, $token, $calendar, $exchange));
+    }
+
+    /**
+     * @param \Closure(RefreshToken, string): void $removal
+     *
+     * @throws CalendarRefusedThePush
+     */
+    private function takeOut(ClientCredentials $client, \DateTimeImmutable $at, \Closure $removal): void
+    {
         $calendar = $this->calendar;
         if (null === $calendar) {
             return;
         }
 
-        $this->reachTheCalendar($client, $at, function () use ($exchange, $client, $calendars, $calendar): void {
+        $this->reachTheCalendar($client, $at, function () use ($removal, $calendar): void {
             try {
-                $calendars->remove($client, $this->refreshToken, $calendar, $exchange);
+                $removal($this->refreshToken, $calendar);
             } catch (CalendarGone) {
                 $this->calendar = null;
             }

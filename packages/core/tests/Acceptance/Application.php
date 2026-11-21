@@ -428,7 +428,7 @@ use Prospecter\Core\SharedKernel\Domain\Exception\BusinessException;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Tests\Core\Double\AccountsAndPersonalDataHosts;
 use Tests\Core\Double\AccountsCampaigners;
-use Tests\Core\Double\AccountsMembers;
+use Tests\Core\Double\AccountsAndPersonalDataMembers;
 use Tests\Core\Double\AccountsProspectors;
 use Tests\Core\Double\AccountsReaders;
 use Tests\Core\Double\AccountsSourceAccounts;
@@ -603,7 +603,7 @@ final class Application
     public readonly InMemoryProviderMailbox $mailboxes;
     public readonly InMemoryProviderClientRepository $clients;
     private readonly InMemoryAccountClientsRetriever $accountClientsRetriever;
-    private readonly AccountsMembers $connectingMembers;
+    private readonly AccountsAndPersonalDataMembers $connectingMembers;
     public readonly InMemoryProviderCalendar $calendars;
     private readonly ConsultHeldExchangesHandler $consultHeldExchangesService;
     private readonly ConsultPlannedExchangesHandler $consultPlannedExchangesService;
@@ -725,7 +725,6 @@ final class Application
         $this->providerAccess = new InMemoryProviderAccess();
         $this->clients = new InMemoryProviderClientRepository($database);
         $this->accountClientsRetriever = new InMemoryAccountClientsRetriever($database);
-        $this->connectingMembers = new AccountsMembers($this->consultMembersService);
         $this->calendars = new InMemoryProviderCalendar($this->providerAccess);
         $this->mailboxes = new InMemoryProviderMailbox($this->providerAccess, fn (): \DateTimeImmutable => $this->now);
         $heldExchangeRetriever = new InMemoryHeldExchangeRetriever($database);
@@ -734,6 +733,7 @@ final class Application
         $this->consultPlannedExchangesService = new ConsultPlannedExchangesHandler($heldExchangeRetriever, $publishedHeldExchanges);
         $this->nameContactsService = new NameContactsHandler($this->personCardRetriever, $this->readers);
         $this->presentMembersService = new PresentMembersHandler(new InMemoryMemberPresentationRetriever($database));
+        $this->connectingMembers = new AccountsAndPersonalDataMembers($this->consultMembersService, $this->presentMembersService);
         $this->heldExchanges = new ProspectingHeldExchanges($this->consultHeldExchangesService, $this->consultPlannedExchangesService);
         $this->calendarEntries = new InMemoryCalendarEntryRepository($database);
         $this->calendarPusher = new CalendarPusher($this->heldExchanges, $this->calendarEntries, $this->connections, $this->clients, $this->connectingMembers, new PersonalDataContactNames($this->nameContactsService), $this->calendars, $this->events);

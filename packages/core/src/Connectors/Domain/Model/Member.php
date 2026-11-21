@@ -12,7 +12,8 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 /**
  * A member as Connectors knows them from Accounts: their account, whether they administer it, and how long before
  * their planned exchanges they are reminded, none when they turned their reminders off, and whether they manage the
- * personal data, which the import of their e-mails needs (ADR 0154).
+ * personal data, which the import of their e-mails needs (ADR 0154); their first name as they present themselves,
+ * which the guest they call reads.
  */
 final readonly class Member
 {
@@ -22,6 +23,7 @@ final readonly class Member
         private bool $administers,
         public ?int $reminderMinutesBefore,
         public bool $managesPersonalData,
+        public ?string $firstName = null,
     ) {
     }
 
