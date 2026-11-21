@@ -90,6 +90,12 @@ Fonctionnalité: Les tags géographiques
     Alors "ACME" est située "#STRASBOURG #67 #GRAND_EST"
     Et "Ada Lovelace" porte "#STRASBOURG #67 #GRAND_EST"
 
+  Scénario: Au fil de l'eau, un fait délivré une fois de plus ne remplace pas celui gardé à sa révision
+    Soit "ACME" est située à Strasbourg
+    Et Campaigns garde le fait de "ACME" à sa révision, sans sa commune
+    Quand le dernier fait de "ACME" est délivré une fois de plus
+    Alors "ACME" n'a aucun tag géographique
+
   Scénario: Une organisation située avant que son code commune soit gardé le reçoit, une fois
     Soit "ACME" a été située à Strasbourg sans son code commune
     Quand les organisations situées sans code commune sont géocodées à nouveau

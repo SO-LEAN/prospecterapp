@@ -16,6 +16,7 @@ use Prospecter\Core\Campaigns\Domain\Model\Locality;
 use Prospecter\Core\Campaigns\Domain\Model\OrganizationFact;
 use Prospecter\Core\Prospecting\Application\LocateAgain\LocateAgain;
 use Prospecter\Core\Prospecting\Application\Relocate\Relocate;
+use Prospecter\Core\Prospecting\Contract\Event\OrganizationFactsChanged;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\SharedKernel\Domain\Address;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
@@ -123,6 +124,18 @@ final class GeographicTagsContext implements Context
         }
 
         $this->application->campaignsFacts->record(new OrganizationFact($kept->accountId, $kept->id, $kept->revision, $kept->present, $kept->contacts, Locality::unknown()), $kept);
+    }
+
+    #[When('le dernier fait de :name est délivré une fois de plus')]
+    public function theLastFactIsDeliveredAgain(string $name): void
+    {
+        $organizationId = $this->scenario->idOf($name);
+        $published = array_filter(
+            $this->application->events->published(OrganizationFactsChanged::class),
+            static fn (OrganizationFactsChanged $fact): bool => $fact->organizationId === $organizationId,
+        );
+        Expect::that([] !== $published, sprintf('No fact of %s was published', $name));
+        $this->application->publishAgain(array_last($published));
     }
 
     #[When('les organisations situées sans code commune sont géocodées à nouveau')]
