@@ -27,6 +27,15 @@ final readonly class RecipientInCampaign
     }
 
     /**
+     * What the exchange noted for them in the campaign tells: outbound, by the channel of the campaign.
+     */
+    #[\NoDiscard]
+    public function exchangeFacts(\DateTimeImmutable $occurredAt, ?string $text): ExchangeFacts
+    {
+        return new ExchangeFacts($this->channel, Direction::Outbound, $occurredAt, $text);
+    }
+
+    /**
      * @throws CampaignNotRunning
      * @throws UnknownRecipient
      * @throws RecipientAlreadyProcessed

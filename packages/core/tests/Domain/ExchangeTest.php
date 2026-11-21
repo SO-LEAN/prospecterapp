@@ -845,7 +845,7 @@ class ExchangeTest extends TestCase
 
     public function testErasingAnExchangeOfACampaignNamesItsCampaign(): void
     {
-        $exchange = Exchange::notedInACampaign(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new RecipientInCampaign(new CampaignId(self::CAMPAIGN), new PersonId(self::CONTACT), Channel::Email, running: true, recipient: true, pending: true), [new OrganizationId(self::ACME)], new \DateTimeImmutable(self::NOW), null, missed: false, at: new \DateTimeImmutable(self::NOW));
+        $exchange = Exchange::notedInACampaign(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new RecipientInCampaign(new CampaignId(self::CAMPAIGN), new PersonId(self::CONTACT), Channel::Email, running: true, recipient: true, pending: true), [new OrganizationId(self::ACME)], new ExchangeFacts(Channel::Email, Direction::Outbound, new \DateTimeImmutable(self::NOW)), missed: false, at: new \DateTimeImmutable(self::NOW));
         $exchange->releaseEvents();
 
         $exchange->erase(by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));

@@ -34,3 +34,30 @@ Fonctionnalité: Mener une campagne avec une IA
     Et "Ada Lovelace" est traitée dans la campagne "Relance PHP"
     Quand une IA demande le destinataire suivant de "Relance PHP"
     Alors elle reçoit "Grace Hopper", 1 destinataire restant à traiter
+
+  Scénario: Noter l'envoi traite le destinataire
+    Soit la campagne "Relance PHP" démarrée par e-mail avec "Ada Lovelace" puis "Grace Hopper", son message pour une IA "tel quel"
+    Quand une IA note l'e-mail envoyé à "Ada Lovelace" pour "Relance PHP", son Message-ID "<relance-ada@solean-it.test>" et le texte "Bonjour Ada"
+    Alors un e-mail émis de la campagne "Relance PHP" est noté pour "Ada Lovelace", avec le texte "Bonjour Ada"
+    Et "Ada Lovelace" est traitée dans la campagne "Relance PHP"
+    Quand une IA demande le destinataire suivant de "Relance PHP"
+    Alors elle reçoit "Grace Hopper", 1 destinataire restant à traiter
+
+  Scénario: Le même envoi noté deux fois ne fait qu'un échange
+    Soit la campagne "Relance PHP" démarrée par e-mail avec "Ada Lovelace" puis "Grace Hopper", son message pour une IA "tel quel"
+    Et une IA a noté l'e-mail envoyé à "Ada Lovelace" pour "Relance PHP", son Message-ID "<relance-ada@solean-it.test>" et le texte "Bonjour Ada"
+    Quand une IA note l'e-mail envoyé à "Ada Lovelace" pour "Relance PHP", son Message-ID "<relance-ada@solean-it.test>" et le texte "Bonjour Ada"
+    Alors c'est refusé : "Exchange already noted"
+    Et un seul échange est noté pour "Ada Lovelace"
+
+  Scénario: L'envoi noté garde le texte que l'IA a réellement envoyé
+    Soit la campagne "Relance PHP" démarrée par e-mail avec "Ada Lovelace" puis "Grace Hopper", son message pour une IA "adapté"
+    Quand une IA note l'e-mail envoyé à "Ada Lovelace" pour "Relance PHP", son Message-ID "<relance-ada@solean-it.test>" et le texte "Bonjour Ada, j'ai lu votre article sur PHP 8.5"
+    Alors un e-mail émis de la campagne "Relance PHP" est noté pour "Ada Lovelace", avec le texte "Bonjour Ada, j'ai lu votre article sur PHP 8.5"
+
+  Scénario: Noter à la main l'envoi d'un destinataire n'est jamais refusé comme doublon
+    Soit la campagne "Relance PHP" démarrée par e-mail avec "Ada Lovelace" puis "Grace Hopper", son message pour une IA "tel quel"
+    Et j'ai noté un autre e-mail envoyé à "Ada Lovelace", hors de la campagne
+    Quand je note pour "Ada Lovelace" dans la campagne "Relance PHP" le même e-mail
+    Alors ce n'est pas refusé
+    Et "Ada Lovelace" est traitée dans la campagne "Relance PHP"

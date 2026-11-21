@@ -55,7 +55,7 @@ class DynamoExchangeFactsRetrieverTest extends ApiTestCase
     {
         $campaign = new CampaignId(self::newIdentity());
         $recipient = new RecipientInCampaign($campaign, new PersonId(self::CONTACT), Channel::Call, running: true, recipient: true, pending: true);
-        $exchange = Exchange::notedInACampaign($this->prospector->accountId, $this->prospector->id, new ExchangeId(self::newIdentity()), $recipient, [new OrganizationId(self::newIdentity())], new \DateTimeImmutable('2026-10-10 09:00 UTC'), null, true, new \DateTimeImmutable(self::NOW));
+        $exchange = Exchange::notedInACampaign($this->prospector->accountId, $this->prospector->id, new ExchangeId(self::newIdentity()), $recipient, [new OrganizationId(self::newIdentity())], $recipient->exchangeFacts(new \DateTimeImmutable('2026-10-10 09:00 UTC'), null), true, new \DateTimeImmutable(self::NOW));
 
         $this->exchanges()->save($exchange);
 
