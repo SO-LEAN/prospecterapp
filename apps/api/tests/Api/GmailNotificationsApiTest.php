@@ -73,6 +73,20 @@ class GmailNotificationsApiTest extends ApiTestCase
         $this->assertSame([['email', 'inbound', "Votre devis\n\nBonjour Michel, c'est validé."]], array_map(static fn (array $exchange): array => [$exchange['channel'], $exchange['direction'], $exchange['text']], $timeline['items']));
     }
 
+    public function testAnEMailImportedOpensInGmailByTheIdOfItsMessageInTheMailbox(): void
+    {
+        $this->login();
+        $acme = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];
+        $ada = $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'], 'contactDetails' => ['email' => 'ada@acme.test'], 'organizationIds' => [$acme]])['id'];
+        $this->aMemberImportingTheMailOf(self::MAILBOX);
+        $this->google()->receives('m1', 'ada@acme.test', 'Votre devis', 'Bonjour Michel');
+
+        $this->notify($this->tokenOf(), self::MAILBOX, 1010);
+
+        $imported = $this->requestJson('GET', '/api/contacts/'.$ada.'/exchanges')['items'][0]['id'];
+        $this->assertSame('https://mail.google.com/mail/#all/m1', $this->requestJson('GET', '/api/exchanges/'.$imported)['_links']['openInMailbox']['href'] ?? null);
+    }
+
     public function testANotificationOfAMailboxNobodyImportsIsAnsweredAndIgnored(): void
     {
         $this->aMemberImportingTheMailOf(self::MAILBOX);
