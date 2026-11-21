@@ -37,7 +37,6 @@ use Prospecter\Core\SharedKernel\Domain\Address;
 use Prospecter\Core\SharedKernel\Domain\Completion;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
-use Prospecter\Core\SharedKernel\Domain\ExternalReference;
 use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
 use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\GeoPoint;
@@ -299,7 +298,7 @@ final class Organization implements ReleasesEvents
 
         $identity = $this->legalIdentity;
         $this->legalIdentity = new LegalIdentity($identity->corporateName, $identity->form, $identity->type, $completion->completes(self::SIRET) ? $supplement->siret : $identity->siret);
-        $this->references = ExternalReferences::of([...$this->references->all(), ...$this->linksToAdd($supplement)]);
+        $this->references = ExternalReferences::of([...$this->references->all(), ...$this->references->roomFor($supplement->links)]);
         $this->website = $completion->completes(self::WEBSITE) ? $supplement->website : $this->website;
         $this->contactDetails = new ContactDetails(
             $completion->completes(self::EMAIL) ? $supplement->email : $this->contactDetails->email,
@@ -316,8 +315,8 @@ final class Organization implements ReleasesEvents
     public function completionWith(OrganizationSupplement $supplement): Completion
     {
         $this->ensurePossible(OrganizationIntent::Complete);
-        $linksNotHeld = $this->linksNotHeld($supplement);
-        $linksToAdd = $this->linksToAdd($supplement);
+        $linksNotHeld = $this->references->notHeldAmong($supplement->links);
+        $linksToAdd = $this->references->roomFor($supplement->links);
 
         return new Completion()
             ->with(self::SIRET, $this->legalIdentity->siret?->value, $supplement->siret?->value)
@@ -325,32 +324,6 @@ final class Organization implements ReleasesEvents
             ->with(self::WEBSITE, $this->website?->value, $supplement->website?->value)
             ->with(self::EMAIL, $this->contactDetails->email?->value, $supplement->email?->value)
             ->with(self::PHONE_NUMBER, $this->contactDetails->phoneNumber?->value, $supplement->phoneNumber?->value);
-    }
-
-    /**
-     * The links given it does not hold yet, each once, while there is room for them.
-     *
-     * @return list<ExternalReference>
-     */
-    private function linksToAdd(OrganizationSupplement $supplement): array
-    {
-        return array_slice($this->linksNotHeld($supplement), 0, ExternalReferences::MAX - count($this->references->all()));
-    }
-
-    /**
-     * @return list<ExternalReference>
-     */
-    private function linksNotHeld(OrganizationSupplement $supplement): array
-    {
-        $notHeld = [];
-
-        foreach ($supplement->links as $link) {
-            if (!$this->references->holds($link)) {
-                $notHeld[$link->key()] ??= $link;
-            }
-        }
-
-        return array_values($notHeld);
     }
 
     public function relocateTo(?Address $address, ?Location $location, MemberId $by, \DateTimeImmutable $at): void

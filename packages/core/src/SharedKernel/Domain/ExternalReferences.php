@@ -67,6 +67,38 @@ final readonly class ExternalReferences
     }
 
     /**
+     * Those given they do not hold, each once (ADR 0177).
+     *
+     * @param list<ExternalReference> $given
+     *
+     * @return list<ExternalReference>
+     */
+    public function notHeldAmong(array $given): array
+    {
+        $notHeld = [];
+
+        foreach ($given as $reference) {
+            if (!$this->holds($reference)) {
+                $notHeld[$reference->key()] ??= $reference;
+            }
+        }
+
+        return array_values($notHeld);
+    }
+
+    /**
+     * Those given they do not hold, while there is room for them beside theirs (ADR 0177).
+     *
+     * @param list<ExternalReference> $given
+     *
+     * @return list<ExternalReference>
+     */
+    public function roomFor(array $given): array
+    {
+        return array_slice($this->notHeldAmong($given), 0, self::MAX - count($this->references));
+    }
+
+    /**
      * Whether one of them is of this source: a person is reached on LinkedIn by their profile there.
      */
     public function hasOneOf(KnownSource $source): bool

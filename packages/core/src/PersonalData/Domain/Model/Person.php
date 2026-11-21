@@ -364,7 +364,7 @@ final class Person implements ReleasesEvents
             $completion->completes(self::PHONE_NUMBER) ? $supplement->phoneNumber : $this->contactDetails->phoneNumber,
             $this->contactDetails->language,
         );
-        $this->references = ExternalReferences::of([...$this->references->all(), ...$this->linksToAdd($supplement)]);
+        $this->references = ExternalReferences::of([...$this->references->all(), ...$this->references->roomFor($supplement->links)]);
         $this->modifiedAt = $at;
         $this->recordThat(new ContactCompleted($this->accountId, $by->id, $this->id, $at));
     }
@@ -375,8 +375,8 @@ final class Person implements ReleasesEvents
     public function completionWith(ContactSupplement $supplement, Reader $by): Completion
     {
         $this->ensurePossible(PersonIntent::Complete, $by);
-        $linksNotHeld = $this->linksNotHeld($supplement);
-        $linksToAdd = $this->linksToAdd($supplement);
+        $linksNotHeld = $this->references->notHeldAmong($supplement->links);
+        $linksToAdd = $this->references->roomFor($supplement->links);
 
         return new Completion()
             ->with(self::CIVILITY, self::noted($this->civility), self::noted($supplement->civility))
@@ -389,32 +389,6 @@ final class Person implements ReleasesEvents
     private static function noted(Civility $civility): ?string
     {
         return Civility::X === $civility ? null : $civility->value;
-    }
-
-    /**
-     * The links given they do not hold yet, each once, while there is room for them.
-     *
-     * @return list<ExternalReference>
-     */
-    private function linksToAdd(ContactSupplement $supplement): array
-    {
-        return array_slice($this->linksNotHeld($supplement), 0, ExternalReferences::MAX - count($this->references->all()));
-    }
-
-    /**
-     * @return list<ExternalReference>
-     */
-    private function linksNotHeld(ContactSupplement $supplement): array
-    {
-        $notHeld = [];
-
-        foreach ($supplement->links as $link) {
-            if (!$this->references->holds($link)) {
-                $notHeld[$link->key()] ??= $link;
-            }
-        }
-
-        return array_values($notHeld);
     }
 
     public function changePicture(File $picture, Reader $by, \DateTimeImmutable $at): void
