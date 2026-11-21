@@ -186,7 +186,7 @@ describe('the public page of a booking', () => {
     expect(screen.getByText('Visio, mardi 24 novembre à 9h00, 15 min')).toBeInTheDocument()
     expect(
       screen.getByText(
-        'Vos coordonnées servent à organiser ce rendez-vous. Elles sont effacées sous 30 jours si nous ne poursuivons pas.',
+        'Vos coordonnées servent à organiser ce rendez-vous : votre e-mail est confié à Google, dont l’agenda vous invite. Elles sont effacées sous 30 jours si nous ne poursuivons pas.',
       ),
     ).toBeInTheDocument()
     expect(screen.getByLabelText(/^Objet/)).not.toBeRequired()
