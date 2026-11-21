@@ -60,6 +60,6 @@ final readonly class InMemoryTagsRetriever implements TagsRetriever
      */
     private static function tagsOf(Tagging $tagging): array
     {
-        return array_map(static fn (Tag $tag): string => (string) $tag, StateOf::the($tagging)['tags']);
+        return array_map(static fn (Tag $tag): string => (string) $tag, StateOf::the($tagging)->value('tags'));
     }
 }

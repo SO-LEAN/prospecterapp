@@ -62,7 +62,7 @@ final class ExchangeDetailContext implements Context
     public function iCorrectTheExchange(TableNode $table): void
     {
         $values = Vocabulary::rows($table);
-        $facts = StateOf::the($this->application->exchanges->get(new ExchangeId($this->scenario->theExchange())))['facts'];
+        $facts = StateOf::the($this->application->exchanges->get(new ExchangeId($this->scenario->theExchange())))->value('facts');
         $this->application->dispatch(new CorrectExchange(
             prospectorId: $this->application->signedIn(),
             id: $this->scenario->theExchange(),
@@ -90,7 +90,7 @@ final class ExchangeDetailContext implements Context
     #[When('je corrige cet échange et le déclare rendu conforme :')]
     public function iMakeTheExchangeConform(TableNode $table): void
     {
-        $facts = StateOf::the($this->application->exchanges->get(new ExchangeId($this->scenario->theExchange())))['facts'];
+        $facts = StateOf::the($this->application->exchanges->get(new ExchangeId($this->scenario->theExchange())))->value('facts');
         $this->application->dispatch(new CorrectExchange(
             prospectorId: $this->application->signedIn(),
             id: $this->scenario->theExchange(),
@@ -106,7 +106,7 @@ final class ExchangeDetailContext implements Context
 
     private function storedStatus(): ExchangeStatus
     {
-        return StateOf::the($this->application->exchanges->get(new ExchangeId($this->scenario->theExchange())))['status'];
+        return StateOf::the($this->application->exchanges->get(new ExchangeId($this->scenario->theExchange())))->value('status');
     }
 
     #[When('je corrige le lieu de cet échange en :place')]

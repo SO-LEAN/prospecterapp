@@ -59,7 +59,7 @@ final class CampaignTest extends TestCase
 
     public function testAPreparedCampaignIsADraft(): void
     {
-        $this->assertSame(CampaignStatus::Draft, StateOf::the($this->prepared())['status']);
+        $this->assertSame(CampaignStatus::Draft, StateOf::the($this->prepared())->value('status'));
     }
 
     public function testADraftIsRevisedDiscardedAndFrozen(): void
@@ -109,7 +109,7 @@ final class CampaignTest extends TestCase
 
         $campaign->dismiss(new PersonId(self::ALAN), 'Parti', new MemberId(self::ME), $this->later());
 
-        $this->assertEquals([CampaignStatus::Ended, $this->later()], [StateOf::the($campaign)['status'], StateOf::the($campaign)['endedAt']]);
+        $this->assertEquals([CampaignStatus::Ended, $this->later()], [StateOf::the($campaign)->value('status'), StateOf::the($campaign)->value('endedAt')]);
     }
 
     public function testTheNextRecipientIsTheFirstStillToHandle(): void
@@ -143,7 +143,7 @@ final class CampaignTest extends TestCase
 
         $campaign->process(new PersonId(self::ADA), self::EXCHANGE, RecipientOutcome::Missed, at: $this->now());
 
-        $this->assertEquals([new Recipient(new PersonId(self::ADA), RecipientStatus::Dismissed), Recipient::pending(new PersonId(self::ALAN))], StateOf::the($campaign)['recipients']->recipients);
+        $this->assertEquals([new Recipient(new PersonId(self::ADA), RecipientStatus::Dismissed), Recipient::pending(new PersonId(self::ALAN))], StateOf::the($campaign)->value('recipients')->recipients);
     }
 
     public function testAStoppedCampaignProcessesNobody(): void
@@ -152,7 +152,7 @@ final class CampaignTest extends TestCase
 
         $campaign->process(new PersonId(self::ADA), self::EXCHANGE, RecipientOutcome::Done, at: $this->now());
 
-        $this->assertTrue(StateOf::the($campaign)['recipients']->recipients[0]->isPending());
+        $this->assertTrue(StateOf::the($campaign)->value('recipients')->recipients[0]->isPending());
     }
 
     public function testTheErasureOfTheExchangeOfARecipientReopensAnEndedCampaign(): void
@@ -164,7 +164,7 @@ final class CampaignTest extends TestCase
         $campaign->reopenAfterErasureOf(self::EXCHANGE, $this->later());
 
         $state = StateOf::the($campaign);
-        $this->assertEquals([CampaignStatus::Started, null, $this->later(), Recipient::pending(new PersonId(self::ADA))], [$state['status'], $state['endedAt'], $state['modifiedAt'], $state['recipients']->recipients[0]]);
+        $this->assertEquals([CampaignStatus::Started, null, $this->later(), Recipient::pending(new PersonId(self::ADA))], [$state->value('status'), $state->value('endedAt'), $state->value('modifiedAt'), $state->value('recipients')->recipients[0]]);
     }
 
     public function testTheErasureOfAnotherExchangeChangesNothing(): void
@@ -176,7 +176,7 @@ final class CampaignTest extends TestCase
         $campaign->reopenAfterErasureOf(self::OTHER_EXCHANGE, $this->later());
 
         $state = StateOf::the($campaign);
-        $this->assertEquals([CampaignStatus::Ended, $this->now(), $this->now()], [$state['status'], $state['endedAt'], $state['modifiedAt']]);
+        $this->assertEquals([CampaignStatus::Ended, $this->now(), $this->now()], [$state->value('status'), $state->value('endedAt'), $state->value('modifiedAt')]);
     }
 
     public function testARecipientErasedSinceIsNotToHandleAgain(): void
@@ -187,7 +187,7 @@ final class CampaignTest extends TestCase
 
         $campaign->reopenAfterErasureOf(self::EXCHANGE, $this->later());
 
-        $this->assertEquals(new Recipient(new PersonId(self::ADA), RecipientStatus::Processed, erased: true), StateOf::the($campaign)['recipients']->recipients[0]);
+        $this->assertEquals(new Recipient(new PersonId(self::ADA), RecipientStatus::Processed, erased: true), StateOf::the($campaign)->value('recipients')->recipients[0]);
     }
 
     public function testAnExchangeGoneWithItsOrganizationLeavesItsRecipientProcessedWithoutIt(): void
@@ -198,7 +198,7 @@ final class CampaignTest extends TestCase
         $campaign->forgetExchangeGoneWithItsOrganization(self::EXCHANGE);
 
         $state = StateOf::the($campaign);
-        $this->assertEquals([CampaignStatus::Started, new Recipient(new PersonId(self::ADA), RecipientStatus::Processed, missed: true)], [$state['status'], $state['recipients']->recipients[0]]);
+        $this->assertEquals([CampaignStatus::Started, new Recipient(new PersonId(self::ADA), RecipientStatus::Processed, missed: true)], [$state->value('status'), $state->value('recipients')->recipients[0]]);
     }
 
     public function testAStoppedCampaignStaysStoppedWhenItsRecipientIsToHandleAgain(): void
@@ -210,7 +210,7 @@ final class CampaignTest extends TestCase
         $campaign->reopenAfterErasureOf(self::EXCHANGE, $this->later());
 
         $state = StateOf::the($campaign);
-        $this->assertEquals([CampaignStatus::Stopped, Recipient::pending(new PersonId(self::ADA))], [$state['status'], $state['recipients']->recipients[0]]);
+        $this->assertEquals([CampaignStatus::Stopped, Recipient::pending(new PersonId(self::ADA))], [$state->value('status'), $state->value('recipients')->recipients[0]]);
     }
 
     public function testTheReopeningRecordsNoEvent(): void
@@ -291,7 +291,7 @@ final class CampaignTest extends TestCase
         $campaign->revise(CampaignName::of('Relance PHP'), $targeting, $message, new MemberId('0190a1c0-0000-7000-8000-000000000009'), $this->now());
         $state = StateOf::the($campaign);
 
-        $this->assertEquals([CampaignName::of('Relance PHP'), $targeting, $message, new MemberId(self::ME)], [$state['name'], $state['targeting'], $state['message'], $state['createdBy']]);
+        $this->assertEquals([CampaignName::of('Relance PHP'), $targeting, $message, new MemberId(self::ME)], [$state->value('name'), $state->value('targeting'), $state->value('message'), $state->value('createdBy')]);
     }
 
     public function testFrozenItsSearchIsTheSameWhateverTheOrderOfItsTags(): void
@@ -302,7 +302,7 @@ final class CampaignTest extends TestCase
 
         $campaign->revise(CampaignName::of('Relance PHP'), Targeting::by(Channel::Email, ['#php', '#ESN']), MessageTemplate::of('Salut', null, Channel::Email), new MemberId(self::ME), $this->now());
 
-        $this->assertEquals(CampaignName::of('Relance PHP'), StateOf::the($campaign)['name']);
+        $this->assertEquals(CampaignName::of('Relance PHP'), StateOf::the($campaign)->value('name'));
     }
 
     public function testFreezingKeepsOnlyTheContactsItsSearchFinds(): void

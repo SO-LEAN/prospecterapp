@@ -47,6 +47,6 @@ final readonly class InMemoryContactsToAttachRetriever implements ContactsToAtta
     {
         $state = StateOf::the($contactToAttach);
 
-        return new ContactToAttachInList((string) $contactToAttach->id(), $state['lastMeetingAt'], UnattachedErasure::from($state['lastMeetingAt'], $state['clock']));
+        return new ContactToAttachInList((string) $contactToAttach->id(), $state->value('lastMeetingAt'), UnattachedErasure::from($state->value('lastMeetingAt'), $state->value('clock')));
     }
 }

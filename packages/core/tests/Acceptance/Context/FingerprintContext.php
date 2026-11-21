@@ -126,7 +126,7 @@ final class FingerprintContext implements Context
     public function hasExchanges(string $contact, int $count): void
     {
         $person = $this->scenario->personIdOf($contact);
-        $with = array_filter($this->application->database->exchanges(), static fn (Exchange $exchange): bool => StateOf::the($exchange)['contact']?->value === $person);
+        $with = array_filter($this->application->database->exchanges(), static fn (Exchange $exchange): bool => StateOf::the($exchange)->value('contact')?->value === $person);
         Expect::same($count, count($with));
     }
 

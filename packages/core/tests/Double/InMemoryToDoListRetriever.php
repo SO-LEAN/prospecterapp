@@ -8,6 +8,7 @@ use Prospecter\Core\Prospecting\Application\Port\ToDoListRetriever;
 use Prospecter\Core\Prospecting\Application\ToDoInList;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownToDo;
 use Prospecter\Core\Prospecting\Domain\Model\CalendarPeriod;
+use Prospecter\Core\Prospecting\Domain\Model\Due;
 use Prospecter\Core\Prospecting\Domain\Model\ToDoId;
 use Prospecter\Core\Prospecting\Domain\Model\ToDoIntent;
 use Prospecter\Core\Prospecting\Domain\Policy\ToDoPossibilities;
@@ -27,34 +28,34 @@ final readonly class InMemoryToDoListRetriever implements ToDoListRetriever
 
     public function get(ToDoId $id): ToDoInList
     {
-        return $this->inList(static fn (array $state): bool => $state['id']->equals($id))[0] ?? throw UnknownToDo::identifiedBy($id);
+        return $this->inList(static fn (State $state): bool => $state->object('id', ToDoId::class)->equals($id))[0] ?? throw UnknownToDo::identifiedBy($id);
     }
 
     public function forContact(PersonId $contact, AccountId $accountId): array
     {
-        return $this->inList(static fn (array $state): bool => true === $state['contact']?->equals($contact) && $state['accountId']->equals($accountId));
+        return $this->inList(static fn (State $state): bool => true === $state->objectOrNull('contact', PersonId::class)?->equals($contact) && $state->object('accountId', AccountId::class)->equals($accountId));
     }
 
     public function keptFor(OrganizationId $organization): array
     {
-        return $this->inList(static fn (array $state): bool => array_any($state['keptFor'], $organization->equals(...)));
+        return $this->inList(static fn (State $state): bool => array_any($state->listOf('keptFor', OrganizationId::class), $organization->equals(...)));
     }
 
     public function stillToDoBy(MemberId $holder): array
     {
-        return $this->inList(static fn (array $state): bool => null === $state['doneAt'] && $state['createdBy']->equals($holder));
+        return $this->inList(static fn (State $state): bool => null === $state->objectOrNull('doneAt', \DateTimeImmutable::class) && $state->object('createdBy', MemberId::class)->equals($holder));
     }
 
     public function dueIn(MemberId $holder, CalendarPeriod $period): array
     {
-        $due = $this->inList(static fn (array $state): bool => $state['createdBy']->equals($holder) && $state['due']->day >= $period->firstDay() && $state['due']->day <= $period->lastDay());
+        $due = $this->inList(static fn (State $state): bool => $state->object('createdBy', MemberId::class)->equals($holder) && $state->object('due', Due::class)->day >= $period->firstDay() && $state->object('due', Due::class)->day <= $period->lastDay());
         usort($due, static fn (ToDoInList $a, ToDoInList $b): int => [$a->dueOn, $a->dueAt ?? '', $a->id] <=> [$b->dueOn, $b->dueAt ?? '', $b->id]);
 
         return $due;
     }
 
     /**
-     * @param \Closure(array<string, mixed>): bool $kept
+     * @param \Closure(State): bool $kept
      *
      * @return list<ToDoInList>
      */
@@ -62,17 +63,17 @@ final readonly class InMemoryToDoListRetriever implements ToDoListRetriever
     {
         $states = array_filter(array_map(StateOf::the(...), $this->database->toDos()), $kept);
 
-        return array_values(array_map(static fn (array $state): ToDoInList => new ToDoInList(
-            $state['id']->value,
-            $state['accountId']->value,
-            $state['contact']?->value,
-            array_map(static fn (OrganizationId $organization): string => $organization->value, $state['keptFor']),
-            $state['text'],
-            $state['due']->day,
-            $state['due']->time,
-            $state['doneAt'],
-            $state['createdBy']->value,
-            array_map(static fn (ToDoIntent $intent): string => $intent->name, ToDoPossibilities::given(null !== $state['doneAt'])),
+        return array_values(array_map(static fn (State $state): ToDoInList => new ToDoInList(
+            $state->object('id', ToDoId::class)->value,
+            $state->object('accountId', AccountId::class)->value,
+            $state->objectOrNull('contact', PersonId::class)?->value,
+            array_map(static fn (OrganizationId $organization): string => $organization->value, $state->listOf('keptFor', OrganizationId::class)),
+            $state->string('text'),
+            $state->object('due', Due::class)->day,
+            $state->object('due', Due::class)->time,
+            $state->objectOrNull('doneAt', \DateTimeImmutable::class),
+            $state->object('createdBy', MemberId::class)->value,
+            array_map(static fn (ToDoIntent $intent): string => $intent->name, ToDoPossibilities::given(null !== $state->objectOrNull('doneAt', \DateTimeImmutable::class))),
         ), $states));
     }
 }

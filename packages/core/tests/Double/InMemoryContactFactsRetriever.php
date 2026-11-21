@@ -46,7 +46,7 @@ final readonly class InMemoryContactFactsRetriever implements ContactFactsRetrie
     private function factsOf(Person $person): ContactFactsResponse
     {
         $state = StateOf::the($person);
-        $contactDetails = $state['contactDetails'];
+        $contactDetails = $state->value('contactDetails');
 
         return new ContactFactsResponse(
             (string) $person->id(),
@@ -55,7 +55,7 @@ final readonly class InMemoryContactFactsRetriever implements ContactFactsRetrie
             null !== $contactDetails->email,
             null !== $contactDetails->phoneNumber,
             true === $contactDetails->phoneNumber?->isMobile(),
-            $state['references']->hasOneOf(KnownSource::LinkedInProfile),
+            $state->value('references')->hasOneOf(KnownSource::LinkedInProfile),
         );
     }
 }

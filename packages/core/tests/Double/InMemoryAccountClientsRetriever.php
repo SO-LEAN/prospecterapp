@@ -27,6 +27,6 @@ final readonly class InMemoryAccountClientsRetriever implements AccountClientsRe
     {
         $state = StateOf::the($client);
 
-        return new AccountClient($state['credentials']->provider->value, $state['credentials']->id, $state['mailboxNotifications']?->topic, $state['mailboxNotifications']?->pushAccount->value);
+        return new AccountClient($state->value('credentials')->provider->value, $state->value('credentials')->id, $state->value('mailboxNotifications')?->topic, $state->value('mailboxNotifications')?->pushAccount->value);
     }
 }

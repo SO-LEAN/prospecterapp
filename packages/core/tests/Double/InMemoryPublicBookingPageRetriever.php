@@ -32,22 +32,22 @@ final readonly class InMemoryPublicBookingPageRetriever implements PublicBooking
         }
         $state = StateOf::the($page);
         /** @var MemberId $host */
-        $host = $state['host'];
+        $host = $state->value('host');
         /** @var AccountId $accountId */
-        $accountId = $state['accountId'];
+        $accountId = $state->value('accountId');
         /** @var OfferedChannels $channels */
-        $channels = $state['channels'];
+        $channels = $state->value('channels');
         /** @var WeeklyWindows $windows */
-        $windows = $state['windows'];
+        $windows = $state->value('windows');
         /** @var ?HostTimeZone $timeZone */
-        $timeZone = $state['timeZone'];
+        $timeZone = $state->value('timeZone');
         /** @var array<string, InactivePeriod> $periods */
-        $periods = $state['inactivePeriods'];
+        $periods = $state->value('inactivePeriods');
 
         return new BookingSchedule(
             $host->value,
             $accountId->value,
-            (bool) $state['open'],
+            (bool) $state->value('open'),
             array_map(static fn (Channel $channel): string => $channel->value, $channels->channels),
             array_map(static fn (Window $window): array => ['weekday' => $window->weekday->value, 'from' => $window->from->text(), 'to' => $window->to->text()], $windows->windows),
             $timeZone?->name,

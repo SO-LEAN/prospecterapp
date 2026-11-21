@@ -179,7 +179,7 @@ final class OrganizationContext implements Context
     #[When('je note le SIRET :siret sur :name')]
     public function iNoteTheSiret(string $siret, string $name): void
     {
-        $identity = StateOf::the($this->scenario->organizationNamed($name))['legalIdentity'];
+        $identity = StateOf::the($this->scenario->organizationNamed($name))->value('legalIdentity');
         $this->application->dispatch(new ReviseLegalIdentity($this->me(), $this->scenario->idOf($name), $identity->corporateName, $identity->form, $identity->type, $this->application->now(), siret: $siret));
     }
 
@@ -270,13 +270,13 @@ final class OrganizationContext implements Context
     #[Then('les contacts de :organization sont :')]
     public function theContactsOfTheOrganizationAre(string $organization, TableNode $table): void
     {
-        Expect::same($table->getColumn(0), array_map($this->scenario->nameOfPerson(...), StateOf::the($this->scenario->organizationNamed($organization))['contacts']));
+        Expect::same($table->getColumn(0), array_map($this->scenario->nameOfPerson(...), StateOf::the($this->scenario->organizationNamed($organization))->value('contacts')));
     }
 
     #[Then(':organization n\'a pas de contact')]
     public function theOrganizationHasNoContact(string $organization): void
     {
-        Expect::same([], StateOf::the($this->scenario->organizationNamed($organization))['contacts']);
+        Expect::same([], StateOf::the($this->scenario->organizationNamed($organization))->value('contacts'));
     }
 
     #[When('je consulte l\'organisation :name')]
@@ -471,7 +471,7 @@ final class OrganizationContext implements Context
     {
         $values = Vocabulary::values(array_diff_key($details, ['logo' => true]));
         $manager = $this->scenario->managerOf($organization);
-        $organization->reviseLegalIdentity(new LegalIdentity(StateOf::the($organization)['legalIdentity']->corporateName, $values['forme juridique'], siret: Siret::orNone($values['SIRET'])), by: $manager, at: $this->application->now());
+        $organization->reviseLegalIdentity(new LegalIdentity(StateOf::the($organization)->value('legalIdentity')->corporateName, $values['forme juridique'], siret: Siret::orNone($values['SIRET'])), by: $manager, at: $this->application->now());
         $organization->changeContactDetails(Vocabulary::contactDetails($values), ExternalReferences::designating(Vocabulary::links($values), Designated::Organization), Website::orNone($values['site web']), by: $manager, at: $this->application->now());
         $address = Vocabulary::address($values);
         $organization->relocateTo($address, null === $address ? null : $this->application->geoLocation->find((string) $address), by: $manager, at: $this->application->now());

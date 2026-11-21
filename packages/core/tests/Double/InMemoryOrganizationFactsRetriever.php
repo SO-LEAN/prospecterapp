@@ -46,10 +46,10 @@ final readonly class InMemoryOrganizationFactsRetriever implements OrganizationF
             (string) $organization->id(),
             $this->database->revisionOf((string) $organization->id()),
             true,
-            null !== $state['geoPoint'],
-            array_map(static fn (PersonId $contact): string => (string) $contact, $state['contacts']),
-            $state['municipalityCode'],
-            $state['address']?->country,
+            null !== $state->value('geoPoint'),
+            array_map(static fn (PersonId $contact): string => (string) $contact, $state->value('contacts')),
+            $state->value('municipalityCode'),
+            $state->value('address')?->country,
         );
     }
 }

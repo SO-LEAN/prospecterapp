@@ -64,7 +64,9 @@ tests/Acceptance/Application    the hexagon wired to the doubles; the only place
 tests/Acceptance/Context/       step definitions (ScenarioContext shares the state, SharesTheScenario gathers it)
 tests/Acceptance/Vocabulary     the tables' French labels, and how they read entities and value objects
 tests/Acceptance/Expect         assertions (PHPUnit's need its runner to describe a failure)
-tests/Double/                   the ports' test implementations
+tests/Double/                   the ports' test implementations; StateOf, the private state of an aggregate, each property
+                                read as the type expected of it (State)
+tests/Support/                  PHPUnit: the helpers of the tests (State)
 tests/Domain/                   PHPUnit: value objects rich in edge cases, intents refused exactly when not offered
 tests/Application/              PHPUnit: the handlers' decorators: translating the domain's refusals (UseCaseRefused,
                                 RefusalTranslating…Handler), and the unit of work they begin and commit (Transactional…Handler)

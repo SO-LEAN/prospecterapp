@@ -422,7 +422,7 @@ final class InMemoryDatabase
             throw ExchangeNotedMeanwhile::byAnother();
         }
         $this->fingerprints[$key] = $registered ?? new Fingerprinted($exchange->id());
-        $contact = StateOf::the($exchange)['contact'];
+        $contact = StateOf::the($exchange)->value('contact');
         if (null !== $contact) {
             $this->fingerprintsOfContacts[$exchange->accountId()->value.'#'.$contact->value][] = $key;
         }
@@ -449,7 +449,7 @@ final class InMemoryDatabase
     {
         $fingerprint = $exchange->fingerprint();
         if (null !== $fingerprint) {
-            $this->fingerprints[self::fingerprintKey($exchange->accountId(), $fingerprint)] = new Fingerprinted($exchange->id(), StateOf::the($exchange)['erasure']);
+            $this->fingerprints[self::fingerprintKey($exchange->accountId(), $fingerprint)] = new Fingerprinted($exchange->id(), StateOf::the($exchange)->value('erasure'));
         }
     }
 

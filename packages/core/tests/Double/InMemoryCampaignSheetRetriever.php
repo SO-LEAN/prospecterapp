@@ -52,7 +52,7 @@ final readonly class InMemoryCampaignSheetRetriever implements CampaignSheetRetr
             $campaign = $this->database->campaign($accountId->value, $id->value);
 
             if (null !== $campaign) {
-                $names[$id->value] = StateOf::the($campaign)['name']->value;
+                $names[$id->value] = StateOf::the($campaign)->value('name')->value;
             }
         }
 
@@ -70,31 +70,31 @@ final readonly class InMemoryCampaignSheetRetriever implements CampaignSheetRetr
     private static function sheetOf(Campaign $campaign): CampaignSheet
     {
         $state = StateOf::the($campaign);
-        $targeting = $state['targeting'];
+        $targeting = $state->value('targeting');
 
         return new CampaignSheet(
             id: $campaign->id()->value,
             accountId: $campaign->accountId()->value,
-            name: $state['name']->value,
+            name: $state->value('name')->value,
             channel: $targeting->channel->value,
             tags: self::named($targeting->chosen),
             targetedTags: self::named($targeting->targeted()),
-            message: $state['message']->text,
-            subject: $state['message']->subject,
-            messageMode: $state['message']->mode->value,
-            status: $state['status']->value,
-            followsTheTags: $state['status']->followsTheTags(),
-            running: $state['status']->isRunning(),
-            processed: CampaignProgress::processedAmong(self::statusesOf($state['recipients'])),
-            dismissed: CampaignProgress::dismissedAmong(self::statusesOf($state['recipients'])),
-            recipients: self::recipientsOf($state['recipients']),
-            authorId: $state['createdBy']->value,
-            possibleIntents: array_map(static fn (CampaignIntent $intent): string => $intent->name, CampaignPossibilities::given($state['status'], $state['recipients']->keepsSomeone())),
-            createdAt: $state['createdAt'],
-            modifiedAt: $state['modifiedAt'],
-            startedAt: $state['startedAt'],
-            stoppedAt: $state['stoppedAt'],
-            endedAt: $state['endedAt'],
+            message: $state->value('message')->text,
+            subject: $state->value('message')->subject,
+            messageMode: $state->value('message')->mode->value,
+            status: $state->value('status')->value,
+            followsTheTags: $state->value('status')->followsTheTags(),
+            running: $state->value('status')->isRunning(),
+            processed: CampaignProgress::processedAmong(self::statusesOf($state->value('recipients'))),
+            dismissed: CampaignProgress::dismissedAmong(self::statusesOf($state->value('recipients'))),
+            recipients: self::recipientsOf($state->value('recipients')),
+            authorId: $state->value('createdBy')->value,
+            possibleIntents: array_map(static fn (CampaignIntent $intent): string => $intent->name, CampaignPossibilities::given($state->value('status'), $state->value('recipients')->keepsSomeone())),
+            createdAt: $state->value('createdAt'),
+            modifiedAt: $state->value('modifiedAt'),
+            startedAt: $state->value('startedAt'),
+            stoppedAt: $state->value('stoppedAt'),
+            endedAt: $state->value('endedAt'),
         );
     }
 

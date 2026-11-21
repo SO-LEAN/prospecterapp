@@ -11,11 +11,8 @@ namespace Tests\Core\Double;
  */
 final class StateOf
 {
-    /**
-     * @return array<string, mixed>
-     */
-    public static function the(object $aggregate): array
+    public static function the(object $aggregate): State
     {
-        return \Closure::bind(fn (): array => get_object_vars($this), $aggregate, $aggregate::class)();
+        return new State(\Closure::bind(fn (): array => get_object_vars($this), $aggregate, $aggregate::class)());
     }
 }

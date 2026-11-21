@@ -248,7 +248,7 @@ final class MailboxMailContext implements Context
     #[Then('l\'e-mail :subject n\'est pas importé')]
     public function theEMailIsNotImported(string $subject): void
     {
-        $imported = array_any($this->imported(), static fn (Exchange $exchange): bool => str_starts_with(StateOf::the($exchange)['facts']->text, $subject."\n"));
+        $imported = array_any($this->imported(), static fn (Exchange $exchange): bool => str_starts_with(StateOf::the($exchange)->value('facts')->text, $subject."\n"));
 
         Expect::that(!$imported, sprintf('The e-mail "%s" was expected not to be imported', $subject));
     }
@@ -346,7 +346,7 @@ final class MailboxMailContext implements Context
     #[Given('je supprime l\'échange importé :subject')]
     public function iEraseTheImportedExchangeOfSubject(string $subject): void
     {
-        $imported = array_find($this->imported(), static fn (Exchange $exchange): bool => str_starts_with(StateOf::the($exchange)['facts']->text, $subject."\n"));
+        $imported = array_find($this->imported(), static fn (Exchange $exchange): bool => str_starts_with(StateOf::the($exchange)->value('facts')->text, $subject."\n"));
 
         $this->application->dispatch(new EraseExchange($this->application->signedIn(), ($imported ?? throw new \LogicException(sprintf('No exchange imported of subject "%s"', $subject)))->id()->value, $this->application->now()));
     }
@@ -361,7 +361,7 @@ final class MailboxMailContext implements Context
     #[Then('le texte de l\'échange importé est :subject suivi de :text')]
     public function theTextOfTheImportedExchangeIs(string $subject, string $text): void
     {
-        Expect::same(sprintf("%s\n\n%s", $subject, $text), StateOf::the($this->theImported())['facts']->text);
+        Expect::same(sprintf("%s\n\n%s", $subject, $text), StateOf::the($this->theImported())->value('facts')->text);
     }
 
     #[Then('le texte de l\'échange importé commence par :subjectLength caractères de l\'objet et finit par :textLength caractères du texte')]
@@ -369,7 +369,7 @@ final class MailboxMailContext implements Context
     {
         $expected = sprintf("%s…\n\n%s…", str_repeat('o', $subjectLength - 1), str_repeat('t', $textLength - 1));
 
-        Expect::same($expected, StateOf::the($this->theImported())['facts']->text);
+        Expect::same($expected, StateOf::the($this->theImported())->value('facts')->text);
     }
 
     /**
@@ -386,7 +386,7 @@ final class MailboxMailContext implements Context
     #[Then('l\'échange importé a la pièce jointe :name')]
     public function theImportedExchangeHasTheAttachment(string $name): void
     {
-        $attachment = array_find(StateOf::the($this->theImported())['attachments'], static fn (Attachment $attachment): bool => $attachment->name === $name);
+        $attachment = array_find(StateOf::the($this->theImported())->value('attachments'), static fn (Attachment $attachment): bool => $attachment->name === $name);
 
         $attachment = Expect::present($attachment, sprintf('The imported exchange was expected to have the attachment %s', $name));
         Expect::that($this->application->privateStorage->holds((string) $attachment->file), sprintf('The file of %s was expected to be kept', $name));
@@ -395,7 +395,7 @@ final class MailboxMailContext implements Context
     #[Then('l\'échange importé n\'a pas de pièce jointe')]
     public function theImportedExchangeHasNoAttachment(): void
     {
-        Expect::same([], StateOf::the($this->theImported())['attachments']);
+        Expect::same([], StateOf::the($this->theImported())->value('attachments'));
     }
 
     #[Then('l\'échange avec :first et celui avec :second ont chacun leur fichier :name')]
@@ -414,7 +414,7 @@ final class MailboxMailContext implements Context
 
     private function fileOf(Exchange $exchange, string $name): string
     {
-        $attachment = array_find(StateOf::the($exchange)['attachments'], static fn (Attachment $attachment): bool => $attachment->name === $name)
+        $attachment = array_find(StateOf::the($exchange)->value('attachments'), static fn (Attachment $attachment): bool => $attachment->name === $name)
             ?? throw new \RuntimeException(sprintf('The exchange was expected to have the attachment %s', $name));
 
         return $attachment->file;
@@ -423,7 +423,7 @@ final class MailboxMailContext implements Context
     #[Then('l\'échange importé a les :count premières')]
     public function theImportedExchangeHasTheFirst(int $count): void
     {
-        $names = array_map(static fn (Attachment $attachment): string => $attachment->name, StateOf::the($this->theImported())['attachments']);
+        $names = array_map(static fn (Attachment $attachment): string => $attachment->name, StateOf::the($this->theImported())->value('attachments'));
 
         Expect::same(array_map(static fn (int $rank): string => sprintf('piece-%d.pdf', $rank), range(1, $count)), $names);
     }
@@ -431,7 +431,7 @@ final class MailboxMailContext implements Context
     #[Then('son texte signale les :count autres')]
     public function itsTextTellsTheOthers(int $count): void
     {
-        $text = StateOf::the($this->theImported())['facts']->text;
+        $text = StateOf::the($this->theImported())->value('facts')->text;
         $told = array_filter(range(1, $this->attachmentsSent), static fn (int $rank): bool => str_contains($text, sprintf('Pièce jointe non importée : piece-%d.pdf', $rank)));
 
         Expect::same(range($this->attachmentsSent - $count + 1, $this->attachmentsSent), array_values($told));
@@ -470,7 +470,7 @@ final class MailboxMailContext implements Context
     #[Then('/^son texte signale « (?<mention>.+) »$/')]
     public function itsTextTells(string $mention): void
     {
-        $text = StateOf::the($this->theImported())['facts']->text;
+        $text = StateOf::the($this->theImported())->value('facts')->text;
 
         Expect::that(str_contains($text."\n", "\n".$mention."\n"), sprintf('The text of the imported exchange was expected to tell "%s", got "%s"', $mention, $text));
     }
@@ -478,7 +478,7 @@ final class MailboxMailContext implements Context
     #[Then('/^son texte se termine par « (?<end>.+) »$/')]
     public function itsTextEndsWith(string $end): void
     {
-        $text = StateOf::the($this->theImported())['facts']->text;
+        $text = StateOf::the($this->theImported())->value('facts')->text;
 
         Expect::that(str_ends_with($text, "\n".$end), sprintf('The text of the imported exchange was expected to end with "%s", got "%s"', $end, $text));
     }
@@ -486,7 +486,7 @@ final class MailboxMailContext implements Context
     #[Then('j\'en suis l\'auteur')]
     public function iAmItsAuthor(): void
     {
-        Expect::same($this->application->signedIn(), StateOf::the($this->theImported())['createdBy']->value);
+        Expect::same($this->application->signedIn(), StateOf::the($this->theImported())->value('createdBy')->value);
     }
 
     #[Then('/^l\'échange importé est gardé pour (?<organizations>.+)$/')]
@@ -494,7 +494,7 @@ final class MailboxMailContext implements Context
     {
         preg_match_all('/"([^"]+)"/', $organizations, $names);
 
-        Expect::same($names[1], array_map($this->scenario->nameOf(...), StateOf::the($this->theImported())['keptFor']));
+        Expect::same($names[1], array_map($this->scenario->nameOf(...), StateOf::the($this->theImported())->value('keptFor')));
     }
 
     #[Then('aucun échange n\'est importé')]
@@ -531,13 +531,13 @@ final class MailboxMailContext implements Context
     {
         $oldest = $this->oldestReceived?->identityIn(new Email(self::MY_MAILBOX));
 
-        Expect::that(!array_any($this->imported(), static fn (Exchange $exchange): bool => StateOf::the($exchange)['importedFrom']?->identity === $oldest), 'The oldest e-mail was expected not to be imported');
+        Expect::that(!array_any($this->imported(), static fn (Exchange $exchange): bool => StateOf::the($exchange)->value('importedFrom')?->identity === $oldest), 'The oldest e-mail was expected not to be imported');
     }
 
     #[Then('/^la timeline de "(?<name>[^"]+)" montre un e-mail (?<direction>reçu|envoyé)$/')]
     public function theTimelineShowsAnEMail(string $name, string $direction): void
     {
-        $shown = array_any($this->imported(), fn (Exchange $exchange): bool => $this->correspondentOf($exchange) === $name && Vocabulary::direction($direction) === StateOf::the($exchange)['facts']->direction->value);
+        $shown = array_any($this->imported(), fn (Exchange $exchange): bool => $this->correspondentOf($exchange) === $name && Vocabulary::direction($direction) === StateOf::the($exchange)->value('facts')->direction->value);
 
         Expect::that($shown, sprintf('The timeline of %s was expected to show an e-mail %s', $name, $direction));
     }
@@ -549,7 +549,7 @@ final class MailboxMailContext implements Context
     {
         $state = StateOf::the($exchange);
 
-        return null === $state['contact'] ? $this->scenario->nameOf($state['keptFor'][0]) : $this->scenario->nameOfPerson($state['contact']);
+        return null === $state->value('contact') ? $this->scenario->nameOf($state->value('keptFor')[0]) : $this->scenario->nameOfPerson($state->value('contact'));
     }
 
     #[Then('/^"(?<account>[^"]+)" n\'a aucun autre contact que (?<names>.+)$/')]
@@ -642,7 +642,7 @@ final class MailboxMailContext implements Context
      */
     private function imported(): array
     {
-        return array_values(array_filter($this->application->database->exchanges(), static fn (Exchange $exchange): bool => null !== StateOf::the($exchange)['importedFrom']));
+        return array_values(array_filter($this->application->database->exchanges(), static fn (Exchange $exchange): bool => null !== StateOf::the($exchange)->value('importedFrom')));
     }
 
     private function theImported(): Exchange

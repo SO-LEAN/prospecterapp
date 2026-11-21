@@ -68,7 +68,7 @@ final readonly class InMemoryPersonCardRetriever implements PersonCardRetriever
             $name = null === ($duplicate = $this->database->person($id->value)) ? new PersonName(lastName: $id->value) : $duplicate->name();
 
             return new PossibleDuplicate($id->value, $name->firstName, $name->lastName);
-        }, StateOf::the($person)['possibleDuplicates']);
+        }, StateOf::the($person)->value('possibleDuplicates'));
     }
 
     /**
@@ -81,7 +81,7 @@ final readonly class InMemoryPersonCardRetriever implements PersonCardRetriever
         $state = StateOf::the($person);
         $masked = Reading::Masked === PersonReading::by($reader, $person->id());
         $nameMasked = Reading::Masked === PersonReading::ofTheName($reader, $person->id(), $person->purpose());
-        $name = $state['name'];
+        $name = $state->value('name');
         $contact = $person->contactDetails();
 
         return new PersonCard(
@@ -90,17 +90,17 @@ final readonly class InMemoryPersonCardRetriever implements PersonCardRetriever
             firstName: $nameMasked ? Masking::name($name->firstName) : $name->firstName,
             lastName: $nameMasked ? Masking::name($name->lastName) : $name->lastName,
             civility: $person->civility()->value,
-            jobTitle: $masked ? Masking::jobTitle($state['jobTitle']) : $state['jobTitle'],
+            jobTitle: $masked ? Masking::jobTitle($state->value('jobTitle')) : $state->value('jobTitle'),
             email: $masked ? Masking::email($contact->email?->value) : $contact->email?->value,
             phoneNumber: $masked ? Masking::phoneNumber($contact->phoneNumber) : $contact->phoneNumber?->international(),
             language: $contact->language,
             links: $masked ? array_map(ExternalLink::masked(...), Masking::references($person->references())) : ExternalLink::allOf($person->references()),
             possibleDuplicates: $possibleDuplicates,
-            picture: $masked ? null : FileResponse::orNone($state['picture']),
+            picture: $masked ? null : FileResponse::orNone($state->value('picture')),
             possibleIntents: array_map(static fn (PersonIntent $intent): string => $intent->name, PersonPossibilities::given($reader, $person->id(), $person->accountId(), $person->purpose())),
-            createdAt: $state['createdAt'],
-            modifiedAt: $state['modifiedAt'],
-            createdByAnAI: Origin::Ai === $state['origin'],
+            createdAt: $state->value('createdAt'),
+            modifiedAt: $state->value('modifiedAt'),
+            createdByAnAI: Origin::Ai === $state->value('origin'),
         );
     }
 

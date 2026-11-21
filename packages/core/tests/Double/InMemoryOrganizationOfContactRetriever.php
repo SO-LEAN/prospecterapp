@@ -36,11 +36,11 @@ final readonly class InMemoryOrganizationOfContactRetriever implements Organizat
 
     private static function names(Organization $organization, PersonId $contact): bool
     {
-        return array_any(StateOf::the($organization)['contacts'], $contact->equals(...));
+        return array_any(StateOf::the($organization)->value('contacts'), $contact->equals(...));
     }
 
     private static function organizationOfContact(Organization $organization): OrganizationOfContact
     {
-        return new OrganizationOfContact($organization->id()->value, StateOf::the($organization)['legalIdentity']->fullName());
+        return new OrganizationOfContact($organization->id()->value, StateOf::the($organization)->value('legalIdentity')->fullName());
     }
 }
