@@ -271,7 +271,7 @@ final class Connection implements ReleasesEvents
     public function renewMailWatch(ProviderClient $client, ProviderMailbox $mailbox, \DateTimeImmutable $at): void
     {
         $notifications = $client->mailboxNotifications();
-        if (MailImport::Active !== $this->mailImport || null === $notifications) {
+        if (!$this->importsMail() || null === $notifications) {
             return;
         }
 
@@ -290,7 +290,7 @@ final class Connection implements ReleasesEvents
      */
     public function noteMailboxChange(string $historyId, \DateTimeImmutable $at): void
     {
-        if (MailImport::Active !== $this->mailImport) {
+        if (!$this->importsMail()) {
             return;
         }
 
@@ -315,7 +315,7 @@ final class Connection implements ReleasesEvents
      */
     public function readMailboxHistory(Member $reader, ClientCredentials $client, ProviderMailbox $mailbox, \DateTimeImmutable $at): void
     {
-        if (MailImport::Active !== $this->mailImport) {
+        if (!$this->importsMail()) {
             return;
         }
 
@@ -365,7 +365,7 @@ final class Connection implements ReleasesEvents
      */
     public function catchUpMailWith(Email $address, ClientCredentials $client, ProviderMailbox $mailbox, \DateTimeImmutable $at): void
     {
-        if (MailImport::Active !== $this->mailImport) {
+        if (!$this->importsMail()) {
             throw MailImportNotActive::toCatchUp();
         }
 
@@ -388,7 +388,7 @@ final class Connection implements ReleasesEvents
      */
     public function mailOf(string $messageId, ClientCredentials $client, ProviderMailbox $mailbox): ?MailboxMail
     {
-        if (MailImport::Active !== $this->mailImport) {
+        if (!$this->importsMail()) {
             return null;
         }
 
@@ -447,6 +447,14 @@ final class Connection implements ReleasesEvents
     {
         $access->revoke($this->provider, $this->refreshToken);
         $this->recordThat(new Disconnected($this->accountId, $this->member, $at));
+    }
+
+    /**
+     * The mailbox notifies Prospecter, and is read: neither off nor to reconnect.
+     */
+    public function importsMail(): bool
+    {
+        return MailImport::Active === $this->mailImport;
     }
 
     /**

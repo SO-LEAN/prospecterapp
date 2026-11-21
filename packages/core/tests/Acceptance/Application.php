@@ -125,6 +125,9 @@ use Prospecter\Core\Connectors\Application\ConsultExchangeSync\KeptExchangeSync;
 use Prospecter\Core\Connectors\Application\ConsultMailboxPusher\ConsultMailboxPusher;
 use Prospecter\Core\Connectors\Application\ConsultMailboxPusher\ConsultMailboxPusherHandler;
 use Prospecter\Core\Connectors\Application\ConsultMailboxPusher\KeptMailboxPusher;
+use Prospecter\Core\Connectors\Application\ConsultMailCatchUpIntents\ConsultMailCatchUpIntents;
+use Prospecter\Core\Connectors\Application\ConsultMailCatchUpIntents\ConsultMailCatchUpIntentsHandler;
+use Prospecter\Core\Connectors\Application\ConsultMailCatchUpIntents\KeptMailCatchUpIntents;
 use Prospecter\Core\Connectors\Application\ConsultMyAccountClients\ConsultMyAccountClients;
 use Prospecter\Core\Connectors\Application\ConsultMyAccountClients\ConsultMyAccountClientsHandler;
 use Prospecter\Core\Connectors\Application\ConsultMyAccountClients\KeptAccountClients;
@@ -544,6 +547,7 @@ final class Application
     private readonly WhichContactsHaveTheseEmailsHandler $whichContactsHaveTheseEmailsService;
     private readonly WhichAreProspectedHandler $whichAreProspectedService;
     private readonly WhichOrganizationsHaveTheseEmailsHandler $whichOrganizationsHaveTheseEmailsService;
+    private readonly PersonalDataAndProspectingCorrespondentAddresses $correspondentAddresses;
     private readonly NameOrganizationsOfContactsHandler $nameOrganizationsOfContactsService;
     private readonly WhichOrganizationsNameTheseContactsHandler $whichOrganizationsNameTheseContactsService;
     private readonly InMemoryOrganizationFactsRetriever $organizationFactsRetriever;
@@ -686,6 +690,7 @@ final class Application
         $this->listAccountsService = new ListAccountsHandler(new InMemoryAccountListRetriever($database));
         $this->prospectors = new AccountsProspectors($this->consultMembersService);
         $this->readers = new AccountsReaders($this->consultMembersService);
+        $this->correspondentAddresses = new PersonalDataAndProspectingCorrespondentAddresses(new WhichEmailsHaveTheseContactsHandler($this->personCardRetriever, $this->readers), new WhichEmailsHaveTheseOrganizationsHandler($this->organizations));
         $this->knownContacts = new PersonalDataKnownContacts($this->whichAreContactsService);
         $this->prospectedOrganizations = new ProspectingOrganizations($this->whichAreProspectedService);
         $this->events = new SynchronousEvents();
@@ -918,6 +923,16 @@ final class Application
         $handler = new ConsultMyConnectionsHandler($this->myConnectionsRetriever, $this->accountClientsRetriever, $this->connectingMembers);
 
         return $this->ask($handler, new ConsultMyConnections($member ?? $this->signedIn(), $this->now), $kept) ? $kept : null;
+    }
+
+    /**
+     * @return list<string>|null
+     */
+    public function consultMailCatchUpIntents(ConsultMailCatchUpIntents $query): ?array
+    {
+        $kept = new KeptMailCatchUpIntents();
+
+        return $this->ask(new ConsultMailCatchUpIntentsHandler($this->connections, $this->connectingMembers, $this->correspondentAddresses), $query, $kept) ? $kept->possibleIntents : null;
     }
 
     public function consultExchangeSync(string $exchange): ?KeptExchangeSync
@@ -1341,7 +1356,7 @@ final class Application
             new RenewMailWatchHandler($this->connections, $this->clients, $this->mailboxes, $this->connectingMembers, $this->events),
             new NoteMailboxNotificationHandler($this->connections, $this->events),
             new StopMailImportHandler($this->connections, $this->clients, $this->mailboxes, $this->connectingMembers, $this->events),
-            new CatchUpMailHistoryHandler($this->connections, $this->clients, $this->mailboxes, $this->connectingMembers, new PersonalDataAndProspectingCorrespondentAddresses(new WhichEmailsHaveTheseContactsHandler($this->personCardRetriever, $this->readers), new WhichEmailsHaveTheseOrganizationsHandler($this->organizations)), $this->events),
+            new CatchUpMailHistoryHandler($this->connections, $this->clients, $this->mailboxes, $this->connectingMembers, $this->correspondentAddresses, $this->events),
             new ConnectHandler($this->authorizations, $this->connections, $this->clients, $this->providerAccess, $this->mailboxes, $this->connectingMembers, $this->events),
             new CheckMyConnectionsHandler($this->connections, $this->clients, $this->providerAccess, $this->connectingMembers, $this->events),
             new DisconnectHandler($this->connections, $this->providerAccess, $this->clients, $this->mailboxes, $this->connectingMembers, $this->events),
