@@ -39,7 +39,7 @@ use Prospecter\Core\SharedKernel\Domain\Siret;
  *   email, the one to attach a contact of that domain to proposed first (ADR 0146).
  * The organization carries its search keys and its phone number among the organizations of its account
  * (`SearchIndexes`), and its `revision`, incremented at each save: the revision of its facts, which the aggregate
- * does not know.
+ * does not know, and the one its save and its removal hold to, as their unit of work read it (ADR 0181).
  */
 final readonly class DynamoOrganizationRepository implements OrganizationRepository
 {
@@ -120,7 +120,7 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
     {
         $document = OrganizationDocument::of($organization);
         $stored = $this->prospectingTable->item(OrganizationKeys::organization($organization->id()->value), OrganizationKeys::ORGANIZATION);
-        $writes = [$this->prospectingTable->putting($this->itemOf($organization, $document, Revision::after($stored)))];
+        $writes = [$this->prospectingTable->revising($this->itemOf($organization, $document, Revision::after($stored)))];
         $email = $document['contactDetails']['email'];
         $storedEmail = $stored['email'] ?? null;
 
@@ -141,7 +141,7 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
         $email = $document['contactDetails']['email'];
 
         $this->prospectingTable->transact([
-            $this->prospectingTable->deleting(OrganizationKeys::organization($organization->id()->value), OrganizationKeys::ORGANIZATION),
+            $this->prospectingTable->deletingRevised(OrganizationKeys::organization($organization->id()->value), OrganizationKeys::ORGANIZATION),
             ...(null === $email ? [] : [
                 $this->prospectingTable->deleting(self::emailKey($organization->accountId(), $email), self::EMAIL),
                 $this->prospectingTable->deleting(...self::emailDomainKeys($document['accountId'], $email, $document['id'])),

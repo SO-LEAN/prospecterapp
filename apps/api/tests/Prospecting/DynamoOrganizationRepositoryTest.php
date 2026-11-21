@@ -4,6 +4,8 @@ namespace Tests\App\Prospecting;
 
 use App\Prospecting\Persistence\DynamoOrganizationRepository;
 use App\Prospecting\Persistence\OrganizationKeys;
+use App\Shared\Persistence\ConditionFailed;
+use App\Shared\Persistence\DynamoUnitOfWork;
 use App\Shared\Persistence\Table;
 use Prospecter\Core\Prospecting\Domain\Exception\ReferenceAlreadyUsed;
 use Prospecter\Core\Prospecting\Domain\Exception\SiretAlreadyUsed;
@@ -449,6 +451,61 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
         $organizations->save($acme);
 
         $this->assertEquals($acme, $organizations->get($acme->id()));
+    }
+
+    public function testAnOrganizationChangedSinceItWasReadIsNotSavedOverTheChange(): void
+    {
+        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()), managesPersonalData: true);
+        $acme = $this->organizationWithTheEmail($prospector, 'contact@acme.test');
+        $organizations->save($acme);
+        $grace = new PersonId(self::newIdentity());
+        $unitOfWork = self::getContainer()->get(DynamoUnitOfWork::class);
+        $unitOfWork->begin();
+        $read = $organizations->get($acme->id());
+        $this->anotherRequestAttaches($grace, $acme->id(), $prospector);
+        $read->addContact(new PersonId(self::newIdentity()), by: $prospector->id, at: new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        $organizations->save($read);
+
+        try {
+            $unitOfWork->commit();
+            $this->fail('The save was expected to be cancelled');
+        } catch (ConditionFailed) {
+            $unitOfWork->discard();
+        }
+
+        $this->assertTrue($organizations->get($acme->id())->hasContact($grace), 'the contact attached meanwhile stays');
+    }
+
+    public function testAnOrganizationChangedSinceItWasReadIsNotRemovedOverTheChange(): void
+    {
+        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()), managesPersonalData: true);
+        $acme = $this->organizationWithTheEmail($prospector, 'contact@acme.test');
+        $organizations->save($acme);
+        $grace = new PersonId(self::newIdentity());
+        $unitOfWork = self::getContainer()->get(DynamoUnitOfWork::class);
+        $unitOfWork->begin();
+        $read = $organizations->get($acme->id());
+        $this->anotherRequestAttaches($grace, $acme->id(), $prospector);
+        $organizations->remove($read);
+
+        try {
+            $unitOfWork->commit();
+            $this->fail('The removal was expected to be cancelled');
+        } catch (ConditionFailed) {
+            $unitOfWork->discard();
+        }
+
+        $this->assertTrue($organizations->get($acme->id())->hasContact($grace), 'the organization stays, with the contact attached meanwhile');
+    }
+
+    private function anotherRequestAttaches(PersonId $contact, OrganizationId $organization, Prospector $prospector): void
+    {
+        $organizations = new DynamoOrganizationRepository($this->asAnotherRequest($this->prospectingTable()));
+        $attaching = $organizations->get($organization);
+        $attaching->addContact($contact, by: $prospector->id, at: new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        $organizations->save($attaching);
     }
 
     private function prospectingTable(): Table
