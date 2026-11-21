@@ -18,13 +18,16 @@ final readonly class MailboxMail
     private const int LONGEST_TEXT = 10000;
     private const string ELLIPSIS = '…';
     private const string HASH = 'sha256';
+    private const int HEAVIEST_ATTACHMENT = 10 * 1024 * 1024;
+    private const int MOST_ATTACHMENTS = 10;
 
     public string $subject;
     public string $text;
 
     /**
-     * @param list<Email>  $recipients its recipients in « To », none in copy
-     * @param list<string> $labels     where the provider files it
+     * @param list<Email>             $recipients  its recipients in « To », none in copy
+     * @param list<string>            $labels      where the provider files it
+     * @param list<MailboxAttachment> $attachments the files attached to it, in their order
      */
     public function __construct(
         public string $providerId,
@@ -35,6 +38,7 @@ final readonly class MailboxMail
         public \DateTimeImmutable $exchangedAt,
         string $subject,
         string $text,
+        public array $attachments = [],
     ) {
         $this->subject = self::cut($subject, self::LONGEST_SUBJECT);
         $this->text = self::cut($text, self::LONGEST_TEXT);
@@ -49,6 +53,37 @@ final readonly class MailboxMail
         $messageId = new MessageId((string) $this->messageId);
 
         return $messageId->isMissing() ? hash(self::HASH, sprintf('%s#%s', $mailbox->value, $this->providerId)) : $messageId->identity();
+    }
+
+    /**
+     * Its attachments an exchange may hold, in their order: the first ten of them weighing 10 MB at most.
+     *
+     * @return list<MailboxAttachment>
+     */
+    public function attachmentsToImport(): array
+    {
+        return array_slice($this->lightEnough(), 0, self::MOST_ATTACHMENTS);
+    }
+
+    /**
+     * What an exchange could not hold is not downloaded: told to the member to open it at the provider (ADR 0077,
+     * 0182).
+     *
+     * @return list<MailboxAttachment>
+     */
+    public function attachmentsLeftOut(): array
+    {
+        $imported = $this->attachmentsToImport();
+
+        return array_values(array_filter($this->attachments, static fn (MailboxAttachment $attachment): bool => !in_array($attachment, $imported, true)));
+    }
+
+    /**
+     * @return list<MailboxAttachment>
+     */
+    private function lightEnough(): array
+    {
+        return array_values(array_filter($this->attachments, static fn (MailboxAttachment $attachment): bool => $attachment->size <= self::HEAVIEST_ATTACHMENT));
     }
 
     /**
