@@ -27,6 +27,7 @@ import { notFoundWhenTheApiSaysSo, openedExchangeSearch, uuidParams } from '@/sh
 import { BackButton } from '@/shared/ui/back-button'
 import { Badge } from '@/shared/ui/badge'
 import { CivilityMark } from '@/shared/ui/civility-mark'
+import { CreatedByAnAIBadge } from '@/shared/ui/created-by-an-ai-badge'
 import { ErrorState } from '@/shared/ui/feedback/error-state'
 import { PageHeader } from '@/shared/ui/page-header'
 import { PageSkeleton } from '@/shared/ui/page-skeleton'
@@ -77,6 +78,7 @@ function ContactPage() {
           <span className="flex flex-wrap gap-2">
             {contact.jobTitle && <Badge variant="secondary">{contact.jobTitle}</Badge>}
             {contact.masked && <Badge variant="outline">{t('contacts.masked')}</Badge>}
+            {contact.createdByAnAI && <CreatedByAnAIBadge />}
             {contact._links.exchanges && <NextExchange contactId={contact.id} />}
           </span>
         }
