@@ -165,6 +165,13 @@ describe('ExchangeDetailSheet', () => {
     expect(screen.queryByText(/^Noté le/)).not.toBeInTheDocument()
   })
 
+  it('badges an exchange an AI noted, its member its author', async () => {
+    await renderTheDetail(anExchange({ createdByAnAI: true }))
+
+    expect(screen.getByTitle('Créé par une IA')).toHaveTextContent('MCP')
+    expect(screen.getByText(/^Noté le 15 oct\. 2026, .* par Michel Maier$/)).toBeInTheDocument()
+  })
+
   it('offers to open the e-mail an exchange was imported from in Gmail, in a new tab', async () => {
     const message = 'https://mail.google.com/mail/#all/18c2f4a9e0b1d3c7'
     await renderTheDetail(
