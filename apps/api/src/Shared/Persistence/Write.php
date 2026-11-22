@@ -4,16 +4,20 @@ declare(strict_types=1);
 
 namespace App\Shared\Persistence;
 
+use App\Shared\Typed;
+
 /**
  * One write of a transaction, a put, a delete or an addition to the numbers of one item of a table: the operation of
  * TransactWriteItems, what to throw when its condition does not hold, given the cancellation as its cause (a refusal
  * of the domain, or the delivery already applied of an item of inbox), and how it is kept after another write of its
  * item the unit is about to send: in its place, unless it says otherwise.
+ *
+ * @phpstan-type Operation array{Put?: array<string, mixed>, Delete?: array<string, mixed>, Update?: array<string, mixed>}
  */
 final readonly class Write
 {
     /**
-     * @param array<string, mixed>                         $operation
+     * @param Operation                                    $operation
      * @param (\Closure(ConditionFailed): \Throwable)|null $refusal
      * @param (\Closure(self): self)|null                  $afterPending what it becomes after a pending write of its item
      */
@@ -63,6 +67,6 @@ final readonly class Write
      */
     public function itemPut(): ?array
     {
-        return $this->operation['Put']['Item'] ?? null;
+        return isset($this->operation['Put']) ? Typed::document($this->operation['Put']['Item'] ?? null) : null;
     }
 }

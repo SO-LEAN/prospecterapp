@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Shared\Persistence;
 
 use App\Shared\ServiceUnavailable;
+use App\Shared\Typed;
 use Aws\Ssm\Exception\SsmException;
 use Aws\Ssm\SsmClient;
 
@@ -29,7 +30,7 @@ final readonly class AccountSecrets
     public function put(string $account, string $name, #[\SensitiveParameter] string $secret): int
     {
         try {
-            return (int) $this->ssm->putParameter(['Name' => $this->nameOf($account, $name), 'Value' => $secret, 'Type' => 'SecureString', 'Overwrite' => true])['Version'];
+            return Typed::int($this->ssm->putParameter(['Name' => $this->nameOf($account, $name), 'Value' => $secret, 'Type' => 'SecureString', 'Overwrite' => true])['Version']);
         } catch (SsmException $failure) {
             throw ServiceUnavailable::secrets($failure);
         }
@@ -38,7 +39,7 @@ final readonly class AccountSecrets
     public function find(string $account, string $name, int $version): ?string
     {
         try {
-            return $this->ssm->getParameter(['Name' => sprintf('%s:%d', $this->nameOf($account, $name), $version), 'WithDecryption' => true])['Parameter']['Value'];
+            return Typed::string(Typed::document($this->ssm->getParameter(['Name' => sprintf('%s:%d', $this->nameOf($account, $name), $version), 'WithDecryption' => true])['Parameter'])['Value'] ?? null);
         } catch (SsmException $failure) {
             return self::isMissing($failure) ? null : throw ServiceUnavailable::secrets($failure);
         }
@@ -65,7 +66,7 @@ final readonly class AccountSecrets
     {
         $names = [];
         foreach ($this->ssm->getPaginator('GetParametersByPath', ['Path' => $this->path, 'Recursive' => true]) as $page) {
-            $names = [...$names, ...array_column($page['Parameters'], 'Name')];
+            $names = [...$names, ...Typed::strings(array_column(Typed::documents($page['Parameters']), 'Name'))];
         }
 
         foreach (array_chunk($names, self::DELETED_AT_ONCE) as $chunk) {

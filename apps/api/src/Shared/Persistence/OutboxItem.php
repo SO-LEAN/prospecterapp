@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Shared\Persistence;
 
 use App\Shared\Messaging\TransportedEvent;
+use App\Shared\Typed;
 
 /**
  * What a commit published in a context, written with what it changed, in the table of the context: the stream of
@@ -34,9 +35,9 @@ final readonly class OutboxItem
     public static function fromDocument(array $document): self
     {
         return new self(
-            substr((string) $document['PK'], strlen(self::PARTITION)),
-            array_map(TransportedEvent::fromOutbox(...), json_decode((string) $document['events'], true, flags: \JSON_THROW_ON_ERROR)),
-            Documents::momentOf((string) $document['occurredAt']),
+            substr(Typed::string($document['PK']), strlen(self::PARTITION)),
+            array_values(array_map(TransportedEvent::fromOutbox(...), Typed::array(json_decode(Typed::string($document['events']), true, flags: \JSON_THROW_ON_ERROR)))),
+            Documents::momentOf(Typed::string($document['occurredAt'])),
         );
     }
 

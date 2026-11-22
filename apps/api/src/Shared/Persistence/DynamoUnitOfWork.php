@@ -57,7 +57,8 @@ final class DynamoUnitOfWork implements UnitOfWork
             $this->send();
         }
 
-        $this->levels[$level] = true;
+        array_pop($this->levels);
+        $this->levels[] = true;
     }
 
     public function discard(): void

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Shared\Persistence;
 
+use App\Shared\Typed;
+
 /**
  * Reads and restores the state of an aggregate without its constructor (ADR 0028, 0048): the domain keeps
  * its named constructors and private properties, the persistence gives back what they built.
@@ -15,7 +17,7 @@ final class Hydrator
      */
     public static function stateOf(object $aggregate): array
     {
-        return \Closure::bind(fn (): array => get_object_vars($this), $aggregate, $aggregate::class)();
+        return Typed::document(\Closure::bind(fn (): array => get_object_vars($this), $aggregate, $aggregate::class)());
     }
 
     /**
