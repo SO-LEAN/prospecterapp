@@ -26,7 +26,7 @@ final readonly class StorageClient implements Storage
         $form = new FormDataPart(['file' => DataPart::fromPath($file->getPathname(), sprintf('upload.%s', $file->getExtension()))]);
         $contentType = $form->getPreparedHeaders()->get('Content-Type')?->getBodyAsString() ?? '';
 
-        return $this->entry->send('POST', '/files', ['Content-Type' => $contentType], $form->bodyToString())->toArray()['url'];
+        return Typed::string($this->entry->send('POST', '/files', ['Content-Type' => $contentType], $form->bodyToString())->toArray()['url'] ?? null);
     }
 
     public function remove(string $url): void

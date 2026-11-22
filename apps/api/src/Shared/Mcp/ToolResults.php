@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Shared\Mcp;
 
+use App\Shared\Typed;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\SerializerInterface;
 
@@ -22,6 +23,6 @@ final readonly class ToolResults
      */
     public function of(object $resource): array
     {
-        return json_decode($this->serializer->serialize($resource, 'json', ['json_encode_options' => JsonResponse::DEFAULT_ENCODING_OPTIONS]), true, flags: JSON_THROW_ON_ERROR);
+        return Typed::document(json_decode($this->serializer->serialize($resource, 'json', ['json_encode_options' => JsonResponse::DEFAULT_ENCODING_OPTIONS]), true, flags: JSON_THROW_ON_ERROR));
     }
 }
