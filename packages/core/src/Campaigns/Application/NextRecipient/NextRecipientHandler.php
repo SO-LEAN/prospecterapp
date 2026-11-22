@@ -6,6 +6,7 @@ namespace Prospecter\Core\Campaigns\Application\NextRecipient;
 
 use Prospecter\Core\Campaigns\Domain\Port\Addressees;
 use Prospecter\Core\Campaigns\Domain\Port\Campaigners;
+use Prospecter\Core\Campaigns\Domain\Port\CampaignExchanges;
 use Prospecter\Core\Campaigns\Domain\Repository\CampaignRepository;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\CampaignId;
@@ -14,7 +15,8 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 /**
  * Asks the campaign itself, restored by its repository, as `RenderCampaignMessage` does: its next recipient and its
  * message are rules of the aggregate. Read again at each call, a recipient handled meanwhile on the screen is no
- * longer the next.
+ * longer the next; nor is one Prospecting noted an exchange of the campaign with, before its reaction processes them
+ * (ADR 0195).
  */
 final readonly class NextRecipientHandler implements QueryHandler
 {
@@ -22,6 +24,7 @@ final readonly class NextRecipientHandler implements QueryHandler
         private CampaignRepository $campaigns,
         private Campaigners $campaigners,
         private Addressees $addressees,
+        private CampaignExchanges $campaignExchanges,
     ) {
     }
 
@@ -30,7 +33,8 @@ final readonly class NextRecipientHandler implements QueryHandler
         $member = new MemberId($query->memberId);
         $accountId = $this->campaigners->accountOf($member);
         $campaign = $this->campaigns->get($accountId, new CampaignId($query->campaignId));
-        $contact = $campaign->nextRecipient(exchangedWith: []);
+        $exchangedWith = $this->campaignExchanges->exchangedWith($accountId, $campaign->id(), $campaign->pendingRecipients());
+        $contact = $campaign->nextRecipient($exchangedWith);
         $message = $campaign->messageFor($this->addressees->addressee($accountId, $member, $contact));
 
         $output->present(new RecipientToHandle(
@@ -40,7 +44,7 @@ final readonly class NextRecipientHandler implements QueryHandler
             $message->subject,
             $message->text,
             $campaign->messageMode()->value,
-            $campaign->stillToHandle(exchangedWith: []),
+            $campaign->stillToHandle($exchangedWith),
         ));
     }
 }

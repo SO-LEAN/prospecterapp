@@ -43,6 +43,28 @@ Fonctionnalité: Mener une campagne avec une IA
     Quand une IA demande le destinataire suivant de "Relance PHP"
     Alors elle reçoit "Grace Hopper", 1 destinataire restant à traiter
 
+  Scénario: Juste après l'envoi noté, avant que Campaigns le traite, le destinataire suivant est le prochain
+    Soit la campagne "Relance PHP" démarrée par e-mail avec "Ada Lovelace" puis "Grace Hopper", son message pour une IA "tel quel"
+    Et les réactions aux gestes n'ont pas encore suivi
+    Quand une IA note l'e-mail envoyé à "Ada Lovelace" pour "Relance PHP", son Message-ID "<relance-ada@solean-it.test>" et le texte "Bonjour Ada"
+    Et une IA demande le destinataire suivant de "Relance PHP"
+    Alors elle reçoit "Grace Hopper", 1 destinataire restant à traiter
+
+  Scénario: Juste après le dernier envoi noté, avant que Campaigns le traite, la campagne n'est plus menée
+    Soit la campagne "Relance PHP" démarrée par e-mail avec "Ada Lovelace" puis "Grace Hopper", son message pour une IA "tel quel"
+    Et "Ada Lovelace" est traitée dans la campagne "Relance PHP"
+    Et les réactions aux gestes n'ont pas encore suivi
+    Quand une IA note l'e-mail envoyé à "Grace Hopper" pour "Relance PHP", son Message-ID "<relance-grace@solean-it.test>" et le texte "Bonjour Grace"
+    Et une IA demande le destinataire suivant de "Relance PHP"
+    Alors c'est refusé : "Only a started campaign is run"
+
+  Scénario: Juste après un destinataire écarté, le destinataire suivant est le prochain
+    Soit la campagne "Relance PHP" démarrée par e-mail avec "Ada Lovelace" puis "Grace Hopper", son message pour une IA "tel quel"
+    Et les réactions aux gestes n'ont pas encore suivi
+    Quand j'écarte "Ada Lovelace" de la campagne "Relance PHP", pour "Son profil LinkedIn n'existe plus"
+    Et une IA demande le destinataire suivant de "Relance PHP"
+    Alors elle reçoit "Grace Hopper", 1 destinataire restant à traiter
+
   Scénario: Le même envoi noté deux fois ne fait qu'un échange
     Soit la campagne "Relance PHP" démarrée par e-mail avec "Ada Lovelace" puis "Grace Hopper", son message pour une IA "tel quel"
     Et une IA a noté l'e-mail envoyé à "Ada Lovelace" pour "Relance PHP", son Message-ID "<relance-ada@solean-it.test>" et le texte "Bonjour Ada"
