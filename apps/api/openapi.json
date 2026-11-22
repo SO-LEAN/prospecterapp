@@ -7034,6 +7034,20 @@
                             "type": "string",
                             "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
                         }
+                    },
+                    {
+                        "name": "timeZone",
+                        "in": "query",
+                        "description": "The time zone of the reader, by its name in the database of the time zones; UTC otherwise",
+                        "required": false,
+                        "schema": {
+                            "description": "The time zone of the reader, by its name in the database of the time zones; UTC otherwise",
+                            "type": "string",
+                            "example": "Europe/Paris",
+                            "nullable": true,
+                            "default": null
+                        },
+                        "example": "Europe/Paris"
                     }
                 ],
                 "responses": {
@@ -7062,6 +7076,16 @@
                     },
                     "404": {
                         "description": "Unknown campaign, or one of another account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "An unknown time zone",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -9275,6 +9299,18 @@
                 },
                 "type": "object"
             },
+            "MyClockQuery": {
+                "properties": {
+                    "timeZone": {
+                        "description": "The time zone of the reader, by its name in the database of the time zones; UTC otherwise",
+                        "type": "string",
+                        "example": "Europe/Paris",
+                        "nullable": true,
+                        "default": null
+                    }
+                },
+                "type": "object"
+            },
             "InactivePeriodInput": {
                 "properties": {
                     "firstDay": {
@@ -9352,18 +9388,6 @@
                         "type": "string",
                         "format": "date-time",
                         "example": "2026-11-23T09:05:00.000Z",
-                        "nullable": true,
-                        "default": null
-                    }
-                },
-                "type": "object"
-            },
-            "MyClockQuery": {
-                "properties": {
-                    "timeZone": {
-                        "description": "The time zone of the reader, by its name in the database of the time zones; UTC otherwise",
-                        "type": "string",
-                        "example": "Europe/Paris",
                         "nullable": true,
                         "default": null
                     }
@@ -12470,6 +12494,11 @@
                     },
                     "dailyCap": {
                         "description": "The most recipients processed a day, a guard an AI stops at and the member may go beyond; none without a cap",
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "processedToday": {
+                        "description": "Its recipients processed today, on the clock of the reader, when the campaign is read alone; none in a list",
                         "type": "integer",
                         "nullable": true
                     },

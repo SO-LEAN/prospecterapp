@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Booking\Mcp;
 
-use App\Shared\Input\MyClockQuery;
 use App\Booking\MyBookingPageReader;
 use App\Security\ToolAccess;
+use App\Shared\Input\MyClockQuery;
 use App\Shared\Mcp\Adapts;
 use App\Shared\Mcp\ToolInputs;
 use App\Shared\Mcp\ToolResults;

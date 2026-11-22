@@ -6,6 +6,7 @@ namespace App\Campaigns\Persistence;
 
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Hydrator;
+use App\Shared\Typed;
 use Prospecter\Core\Campaigns\Application\CampaignSheet;
 use Prospecter\Core\Campaigns\Application\RecipientInSheet;
 use Prospecter\Core\Campaigns\Domain\Model\Campaign;
@@ -64,7 +65,7 @@ final class CampaignDocument
             'startedAt' => self::momentOrNone($state['startedAt']),
             'stoppedAt' => self::momentOrNone($state['stoppedAt']),
             'endedAt' => self::momentOrNone($state['endedAt']),
-            'dailyCap' => $state['dailyCap']?->sends,
+            'dailyCap' => $state['dailyCap'] instanceof DailyCap ? $state['dailyCap']->sends : null,
         ];
     }
 
@@ -175,7 +176,9 @@ final class CampaignDocument
      */
     private static function dailyCapOf(array $document): ?int
     {
-        return $document['dailyCap'] ?? null;
+        $dailyCap = $document['dailyCap'] ?? null;
+
+        return null === $dailyCap ? null : Typed::int($dailyCap);
     }
 
     private static function momentOrNone(?\DateTimeImmutable $moment): ?string

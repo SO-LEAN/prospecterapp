@@ -937,13 +937,13 @@ parameters:
 			path: src/Campaigns/Persistence/CampaignDocument.php
 
 		-
-			message: '#^Method App\\Campaigns\\Persistence\\CampaignDocument\:\:recipientsOf\(\) should return list\<array\{contactId\: string, status\: string, missed\?\: bool, reason\?\: string\|null, exchangeId\?\: string\|null, erased\?\: bool\}\> but returns mixed\.$#'
+			message: '#^Method App\\Campaigns\\Persistence\\CampaignDocument\:\:recipientsOf\(\) should return list\<array\{contactId\: string, status\: string, missed\?\: bool, reason\?\: string\|null, exchangeId\?\: string\|null, erased\?\: bool, processedAt\?\: string\|null\}\> but returns mixed\.$#'
 			identifier: return.type
 			count: 1
 			path: src/Campaigns/Persistence/CampaignDocument.php
 
 		-
-			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, Closure\(Prospecter\\Core\\Campaigns\\Domain\\Model\\Recipient\)\: array\{contactId\: string, status\: string, missed\: bool, reason\: string\|null, exchangeId\: string\|null, erased\: bool\} given\.$#'
+			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, Closure\(Prospecter\\Core\\Campaigns\\Domain\\Model\\Recipient\)\: array\{contactId\: string, status\: string, missed\: bool, reason\: string\|null, exchangeId\: string\|null, erased\: bool, processedAt\: string\|null\} given\.$#'
 			identifier: argument.type
 			count: 1
 			path: src/Campaigns/Persistence/CampaignDocument.php
