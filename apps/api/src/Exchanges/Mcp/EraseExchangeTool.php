@@ -27,10 +27,9 @@ final readonly class EraseExchangeTool
     #[McpTool(name: 'delete-exchange', description: 'Erase an exchange from every timeline; needs the right to manage the personal data. Answers nothing.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id): void
     {
-        $this->writes->dispatched(
+        $this->writes->changed(
             $id,
-            null,
-            static fn (null $input, ExchangeDetail $exchange, string $memberId, \DateTimeImmutable $now): EraseExchange => new EraseExchange($memberId, $exchange->id, $now),
+            static fn (ExchangeDetail $exchange, string $memberId, \DateTimeImmutable $now): EraseExchange => new EraseExchange($memberId, $exchange->id, $now),
             User::PERSONAL_DATA,
         );
     }

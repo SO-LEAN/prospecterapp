@@ -36,16 +36,26 @@ final readonly class ToDoWrites
     /**
      * @template TInput of object
      *
-     * @param TInput|null                                                           $input   the input of the endpoint, none for an endpoint without
-     * @param \Closure(TInput|null, ToDoInList, string, \DateTimeImmutable): object $command the command of the endpoint, from its input, for the to-do, by the member, at this moment
+     * @param TInput                                                           $input   the input of the endpoint
+     * @param \Closure(TInput, ToDoInList, string, \DateTimeImmutable): object $command the command of the endpoint, from its input, for the to-do, by the member, at this moment
      *
      * @return array<string, mixed>
      */
-    public function write(string $id, ?object $input, \Closure $command): array
+    public function write(string $id, object $input, \Closure $command): array
     {
-        $toDo = $this->dispatched($id, $input, $command);
+        return $this->answer($this->dispatched($id, $input, $command));
+    }
 
-        return $this->results->of($this->toDoReader->read($this->access->member()->memberId(), $toDo->id));
+    /**
+     * It does the same as write() for an endpoint without an input.
+     *
+     * @param \Closure(ToDoInList, string, \DateTimeImmutable): object $command the command of the endpoint, for the to-do, by the member, at this moment
+     *
+     * @return array<string, mixed>
+     */
+    public function change(string $id, \Closure $command): array
+    {
+        return $this->answer($this->changed($id, $command));
     }
 
     /**
@@ -53,16 +63,48 @@ final readonly class ToDoWrites
      *
      * @template TInput of object
      *
-     * @param TInput|null                                                           $input
-     * @param \Closure(TInput|null, ToDoInList, string, \DateTimeImmutable): object $command
+     * @param TInput                                                           $input
+     * @param \Closure(TInput, ToDoInList, string, \DateTimeImmutable): object $command
      */
-    public function dispatched(string $id, ?object $input, \Closure $command): ToDoInList
+    public function dispatched(string $id, object $input, \Closure $command): ToDoInList
+    {
+        $toDo = $this->writable($id);
+        $this->commandBus->dispatch($command($this->inputs->valid($input), $toDo, $this->access->member()->memberId(), $this->clock->now()));
+
+        return $toDo;
+    }
+
+    /**
+     * It does the same as dispatched() for an endpoint without an input.
+     *
+     * @param \Closure(ToDoInList, string, \DateTimeImmutable): object $command the command of the endpoint, for the to-do, by the member, at this moment
+     */
+    public function changed(string $id, \Closure $command): ToDoInList
+    {
+        $toDo = $this->writable($id);
+        $this->commandBus->dispatch($command($toDo, $this->access->member()->memberId(), $this->clock->now()));
+
+        return $toDo;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function answer(ToDoInList $toDo): array
+    {
+        return $this->results->of($this->toDoReader->read($this->access->member()->memberId(), $toDo->id));
+    }
+
+    /**
+     * Reads the route's to-do. It refuses the member unless they are a prospector with access to it and the right to
+     * manage the personal data.
+     */
+    private function writable(string $id): ToDoInList
     {
         $toDo = $this->toDos->read($id);
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');
         $this->access->denyUnlessGranted(ToDoVoter::ACCESS, $toDo);
         $this->access->denyUnlessGranted(User::PERSONAL_DATA);
-        $this->commandBus->dispatch($command(null === $input ? null : $this->inputs->valid($input), $toDo, $this->access->member()->memberId(), $this->clock->now()));
 
         return $toDo;
     }
