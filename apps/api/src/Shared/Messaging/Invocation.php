@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Shared\Messaging;
 
+use App\Shared\Typed;
+
 /**
  * What the rule of a subscription gives the worker, by its input transformer: the name of the subscription, and
  * the event as it travelled, `{"subscription", "source", "detailType", "detail"}`.
@@ -22,13 +24,15 @@ final readonly class Invocation
      */
     public static function of(mixed $payload): self
     {
-        if (!self::hasEvery(self::FIELDS, $payload) || !self::hasEvery(self::FIELDS_OF_THE_DETAIL, $payload['detail'])) {
+        $payload = self::hasEvery(self::FIELDS, $payload) ? Typed::document($payload) : null;
+
+        if (null === $payload || !self::hasEvery(self::FIELDS_OF_THE_DETAIL, $payload['detail'])) {
             throw UnreadableEvent::because(new \UnexpectedValueException(sprintf('an invocation has %s, its detail %s', implode(', ', self::FIELDS), implode(', ', self::FIELDS_OF_THE_DETAIL))));
         }
 
         try {
-            return new self($payload['subscription'], TransportedEvent::fromEventBridge(['source' => $payload['source'], 'detail-type' => $payload['detailType'], 'detail' => $payload['detail']]));
-        } catch (\TypeError $failure) {
+            return new self(Typed::string($payload['subscription']), TransportedEvent::fromEventBridge(['source' => $payload['source'], 'detail-type' => $payload['detailType'], 'detail' => $payload['detail']]));
+        } catch (\UnexpectedValueException $failure) {
             throw UnreadableEvent::because($failure);
         }
     }
@@ -40,10 +44,13 @@ final readonly class Invocation
      */
     public static function traceOf(mixed $payload): array
     {
+        $payload = is_array($payload) ? $payload : [];
+        $detail = is_array($payload['detail'] ?? null) ? $payload['detail'] : [];
+
         return [
             'subscription' => $payload['subscription'] ?? null,
-            'eventId' => $payload['detail']['eventId'] ?? null,
-            'correlationId' => $payload['detail']['correlationId'] ?? null,
+            'eventId' => $detail['eventId'] ?? null,
+            'correlationId' => $detail['correlationId'] ?? null,
         ];
     }
 
