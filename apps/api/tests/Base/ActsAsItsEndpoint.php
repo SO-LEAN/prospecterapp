@@ -44,13 +44,11 @@ trait ActsAsItsEndpoint
             }
 
             $this->assertContains($writer, $allowed, sprintf('%s done by %s, whom its endpoint refuses', $tool, $writer));
-            $this->assertSame($this->requestJson('GET', $answer['_links']['self']['href']), $answer, sprintf('%s done by %s', $tool, $writer));
+            $this->assertSame($this->requestJson('GET', self::stringAt($answer, '_links', 'self', 'href')), $answer, sprintf('%s done by %s', $tool, $writer));
             $done[] = $answer;
         }
 
-        $this->assertNotSame([], $done, sprintf('%s done by nobody', $tool));
-
-        return $done[0];
+        return $done[0] ?? throw new \LogicException(sprintf('%s done by nobody', $tool));
     }
 
     /**
@@ -77,8 +75,8 @@ trait ActsAsItsEndpoint
     private function assertTheToolAsksForAConfirmation(string $tool): void
     {
         $this->login();
-        $listed = array_find($this->everyToolListed(), static fn (array $listed): bool => $tool === $listed['name']);
+        $listed = array_find($this->everyToolListed(), static fn (array $listed): bool => $tool === $listed['name']) ?? throw new \LogicException(sprintf('%s is not listed', $tool));
 
-        $this->assertSame(['readOnlyHint' => false, 'destructiveHint' => true], array_intersect_key($listed['annotations'] ?? [], ['readOnlyHint' => true, 'destructiveHint' => true]));
+        $this->assertSame(['readOnlyHint' => false, 'destructiveHint' => true], array_intersect_key(self::recordAt($listed, 'annotations'), ['readOnlyHint' => true, 'destructiveHint' => true]));
     }
 }

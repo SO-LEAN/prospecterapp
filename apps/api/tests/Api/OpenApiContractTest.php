@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Api;
 
+use App\Shared\Typed;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -22,7 +23,7 @@ class OpenApiContractTest extends KernelTestCase
         $tester->execute(['--format' => 'json']);
 
         $this->assertJsonStringEqualsJsonFile(
-            self::getContainer()->getParameter('kernel.project_dir').'/openapi.json',
+            Typed::string(self::getContainer()->getParameter('kernel.project_dir')).'/openapi.json',
             $tester->getDisplay(),
             'apps/api/openapi.json is out of date: run `make api-doc` and commit the result (it also regenerates the front types).',
         );

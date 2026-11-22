@@ -60,7 +60,7 @@ class ReadingToolsApiTest extends ApiTestCase
     {
         $tooLong = str_repeat('a', 101);
         $this->login();
-        $violations = $this->requestJson('GET', '/api/organizations?q='.$tooLong)['violations'];
+        $violations = self::valueAt($this->requestJson('GET', '/api/organizations?q='.$tooLong), 'violations');
 
         $refusal = $this->answerOf($this->callWithoutHandshake('search-organizations', ['q' => $tooLong]));
 
@@ -71,7 +71,7 @@ class ReadingToolsApiTest extends ApiTestCase
     {
         $babbage = $this->babbage();
         $this->keepTheKernel();
-        self::getContainer()->get(OutsideServices::class)->directoryLists(self::BABBAGE_COMPANY);
+        self::service(OutsideServices::class)->directoryLists(self::BABBAGE_COMPANY);
 
         $this->assertTheToolAnswersAsItsEndpoint('search-company-directory', ['id' => $babbage], '/api/organizations/'.$babbage.'/establishments');
     }
@@ -119,8 +119,8 @@ class ReadingToolsApiTest extends ApiTestCase
         $contact = $this->answerOf($this->callWithoutHandshake('get-contact', ['id' => $ada]));
 
         $this->assertSame(['firstName' => 'Ada', 'lastName' => 'Lovelace'], $contact['name']);
-        $this->assertNotSame('ada@babbage.test', $contact['contactDetails']['email']);
-        $this->assertNotSame('03 88 00 00 42', $contact['contactDetails']['phoneNumber']);
+        $this->assertNotSame('ada@babbage.test', self::valueAt($contact, 'contactDetails', 'email'));
+        $this->assertNotSame('03 88 00 00 42', self::valueAt($contact, 'contactDetails', 'phoneNumber'));
     }
 
     public function testTheAiSearchesTheContacts(): void
@@ -224,9 +224,9 @@ class ReadingToolsApiTest extends ApiTestCase
     public function testTheAiReadsAFileJoinedToAnExchangeByALinkSignedForAMoment(): void
     {
         $exchange = $this->anExchangeWithAda();
-        $upload = $this->requestJson('POST', '/api/uploads')['upload'];
-        self::getContainer()->get(InMemoryPrivateStorage::class)->send($upload, 2048, 'application/pdf');
-        $attachment = $this->requestJson('POST', '/api/exchanges/'.$exchange.'/attachments', ['upload' => $upload, 'name' => 'devis.pdf'])['attachments'][0]['id'];
+        $upload = self::stringAt($this->requestJson('POST', '/api/uploads'), 'upload');
+        self::service(InMemoryPrivateStorage::class)->send($upload, 2048, 'application/pdf');
+        $attachment = self::stringAt($this->requestJson('POST', '/api/exchanges/'.$exchange.'/attachments', ['upload' => $upload, 'name' => 'devis.pdf']), 'attachments', 0, 'id');
 
         $this->assertTheToolAnswersAsItsEndpoint('get-attachment-link', ['id' => $exchange, 'attachmentId' => $attachment], '/api/exchanges/'.$exchange.'/attachments/'.$attachment);
     }
@@ -356,7 +356,7 @@ class ReadingToolsApiTest extends ApiTestCase
     private function aCampaignToAda(): string
     {
         $this->requestJson('POST', '/api/contacts/'.$this->ada().'/tags', ['tags' => ['#CLIENT']]);
-        $campaign = $this->requestJson('POST', '/api/campaigns', ['name' => 'Relance des clients', 'channel' => 'email', 'tags' => ['#CLIENT'], 'message' => 'Bonjour {firstName}', 'subject' => '{firstName}, une question'])['id'];
+        $campaign = self::stringAt($this->requestJson('POST', '/api/campaigns', ['name' => 'Relance des clients', 'channel' => 'email', 'tags' => ['#CLIENT'], 'message' => 'Bonjour {firstName}', 'subject' => '{firstName}, une question']), 'id');
         $this->requestJson('POST', '/api/campaigns/'.$campaign.'/freeze');
 
         return $campaign;
@@ -367,7 +367,7 @@ class ReadingToolsApiTest extends ApiTestCase
      */
     private function aToDoAboutAda(): string
     {
-        return $this->requestJson('POST', '/api/contacts/'.$this->ada().'/to-dos', ['text' => 'Rappeler Ada', 'dueOn' => '2026-10-16'])['id'];
+        return self::stringAt($this->requestJson('POST', '/api/contacts/'.$this->ada().'/to-dos', ['text' => 'Rappeler Ada', 'dueOn' => '2026-10-16']), 'id');
     }
 
     /**
@@ -375,7 +375,7 @@ class ReadingToolsApiTest extends ApiTestCase
      */
     private function anExchangeWithAda(): string
     {
-        return $this->requestJson('GET', '/api/contacts/'.$this->ada().'/exchanges')['items'][0]['id'];
+        return self::stringAt($this->requestJson('GET', '/api/contacts/'.$this->ada().'/exchanges'), 'items', 0, 'id');
     }
 
     /**
@@ -385,7 +385,7 @@ class ReadingToolsApiTest extends ApiTestCase
     {
         $this->login();
 
-        return $this->requestJson('GET', '/api/contacts?q=Lovelace')['items'][0]['id'];
+        return self::stringAt($this->requestJson('GET', '/api/contacts?q=Lovelace'), 'items', 0, 'id');
     }
 
     /**
@@ -395,7 +395,7 @@ class ReadingToolsApiTest extends ApiTestCase
     {
         $this->login();
 
-        return $this->requestJson('GET', '/api/organizations?q=Babbage')['items'][0]['id'];
+        return self::stringAt($this->requestJson('GET', '/api/organizations?q=Babbage'), 'items', 0, 'id');
     }
 
     /**

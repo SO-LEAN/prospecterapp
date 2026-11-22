@@ -31,8 +31,8 @@ class IdentifyToolApiTest extends ApiTestCase
             ],
         ]));
 
-        $this->assertSame([['known', ['Babbage & Co SAS']], ['new', []]], self::described($identified['organizations']));
-        $this->assertSame([['known', ['Ada Lovelace']], ['new', []], ['toConfirm', ['Ada Lovelace']]], self::described($identified['persons']));
+        $this->assertSame([['known', ['Babbage & Co SAS']], ['new', []]], self::described(self::recordsAt($identified, 'organizations')));
+        $this->assertSame([['known', ['Ada Lovelace']], ['new', []], ['toConfirm', ['Ada Lovelace']]], self::described(self::recordsAt($identified, 'persons')));
     }
 
     public function testAnAssistantWithoutTheRightToManageThePersonalDataIdentifiesAPersonByTheirNameOnly(): void
@@ -43,7 +43,7 @@ class IdentifyToolApiTest extends ApiTestCase
             'persons' => [['emails' => ['ada@babbage.test']], ['firstName' => 'Ada', 'lastName' => 'Lovelace', 'emails' => ['ada@babbage.test']]],
         ]));
 
-        $this->assertSame([['new', []], ['toConfirm', ['Ada Lovelace']]], self::described($identified['persons']));
+        $this->assertSame([['new', []], ['toConfirm', ['Ada Lovelace']]], self::described(self::recordsAt($identified, 'persons')));
     }
 
     public function testAnAdministratorIdentifiesAsAProspectorWithTheRight(): void
@@ -53,7 +53,7 @@ class IdentifyToolApiTest extends ApiTestCase
 
         $identified = $this->answerOf($this->callWithoutHandshake('identify', ['persons' => [['emails' => ['ada@babbage.test']]]]));
 
-        $this->assertSame([['known', ['Ada Lovelace']]], self::described($identified['persons']));
+        $this->assertSame([['known', ['Ada Lovelace']]], self::described(self::recordsAt($identified, 'persons')));
     }
 
     public function testAMemberWhoIsNoProspectorIsRefused(): void
@@ -72,16 +72,16 @@ class IdentifyToolApiTest extends ApiTestCase
 
         $this->sendWithoutHandshake('identify', ['organizations' => array_fill(0, 101, ['name' => 'Babbage'])]);
 
-        $this->assertSame(-32602, $this->responseData()['error']['code'] ?? null);
+        $this->assertSame(-32602, self::valueAt($this->responseData(), 'error', 'code'));
     }
 
     /**
-     * @param list<array{status: string, candidates: list<array{id: string, name: string}>}> $identifications
+     * @param list<array<string, mixed>> $identifications
      *
      * @return list<array{string, list<string>}>
      */
     private static function described(array $identifications): array
     {
-        return array_map(static fn (array $identification): array => [$identification['status'], array_column($identification['candidates'], 'name')], $identifications);
+        return array_map(static fn (array $identification): array => [self::stringAt($identification, 'status'), array_map(static fn (array $candidate): string => self::stringAt($candidate, 'name'), self::recordsAt($identification, 'candidates'))], $identifications);
     }
 }

@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Tests\App\Api;
 
+use App\Shared\Typed;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Base\ReadsResources;
 use Tests\App\Double\RefusingSsm;
 
 /**
@@ -17,6 +19,8 @@ use Tests\App\Double\RefusingSsm;
 #[Group('api')]
 class GoogleClientApiTest extends ApiTestCase
 {
+    use ReadsResources;
+
     private const string THE_CLIENT = '/api/me/organization/clients/google';
     private const string REDIRECT_URI = 'https://front.test.prospecter.io/settings/connectors/google';
     private const string GMAIL_NOTIFICATIONS = '/api/me/organization/clients/google/gmail-notifications';
@@ -59,8 +63,8 @@ class GoogleClientApiTest extends ApiTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertSame(['topic' => self::TOPIC, 'pushAccount' => self::PUSH_ACCOUNT], $client['gmailNotifications']);
-        $this->assertSame(['href' => self::GMAIL_NOTIFICATIONS, 'method' => 'DELETE'], $client['_links']['removeGmailNotifications']);
-        $this->assertSame(self::TOPIC, $this->requestJson('GET', self::THE_CLIENT)['gmailNotifications']['topic']);
+        $this->assertSame(['href' => self::GMAIL_NOTIFICATIONS, 'method' => 'DELETE'], self::valueAt($client, '_links', 'removeGmailNotifications'));
+        $this->assertSame(self::TOPIC, self::valueAt($this->requestJson('GET', self::THE_CLIENT), 'gmailNotifications', 'topic'));
     }
 
     public function testAnAdministratorRemovesTheTopic(): void
@@ -72,7 +76,7 @@ class GoogleClientApiTest extends ApiTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertArrayNotHasKey('gmailNotifications', $client);
-        $this->assertArrayNotHasKey('removeGmailNotifications', $client['_links']);
+        $this->assertArrayNotHasKey('removeGmailNotifications', self::recordAt($client, '_links'));
     }
 
     public function testATopicIsNamedInFull(): void
@@ -103,8 +107,8 @@ class GoogleClientApiTest extends ApiTestCase
         $this->assertResponseIsSuccessful();
         $this->assertSame(['client-of-solean', true], [$client['clientId'], $client['secretSet']]);
         $this->assertStringNotContainsString('secret-of-solean', (string) $this->client->getResponse()->getContent());
-        $this->assertSame('client-of-solean', $this->requestJson('GET', self::THE_CLIENT)['clientId']);
-        $this->assertStringContainsString('client_id=client-of-solean', $this->requestJson('POST', '/api/me/connections/google/authorizations')['address']);
+        $this->assertSame('client-of-solean', self::valueAt($this->requestJson('GET', self::THE_CLIENT), 'clientId'));
+        $this->assertStringContainsString('client_id=client-of-solean', self::stringAt($this->requestJson('POST', '/api/me/connections/google/authorizations'), 'address'));
     }
 
     public function testAClientNeedsItsIdAndItsSecret(): void
@@ -115,7 +119,7 @@ class GoogleClientApiTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(422);
         $this->assertSame(['clientId', 'clientSecret'], $this->violatedFields($problem));
-        $this->assertSame('client-of-the-double', $this->requestJson('GET', self::THE_CLIENT)['clientId']);
+        $this->assertSame('client-of-the-double', self::valueAt($this->requestJson('GET', self::THE_CLIENT), 'clientId'));
     }
 
     #[DataProvider('gesturesWhoseSecretSsmRefuses')]
@@ -123,7 +127,7 @@ class GoogleClientApiTest extends ApiTestCase
     {
         $this->client->disableReboot();
         $this->loginAnAdministrator();
-        self::getContainer()->get(RefusingSsm::class)->refuse($operation);
+        self::service(RefusingSsm::class)->refuse($operation);
 
         $problem = $this->requestJson($method, $uri, 'PATCH' === $method ? ['clientId' => 'client-of-solean', 'clientSecret' => 'secret-of-solean'] : null);
 
@@ -146,11 +150,11 @@ class GoogleClientApiTest extends ApiTestCase
     {
         $this->client->disableReboot();
         $this->loginAnAdministrator();
-        self::getContainer()->get(RefusingSsm::class)->refuse('PutParameter');
+        self::service(RefusingSsm::class)->refuse('PutParameter');
 
         $this->requestJson('PATCH', self::THE_CLIENT, ['clientId' => 'client-of-solean', 'clientSecret' => 'secret-of-solean']);
 
-        $this->assertSame('client-of-the-double', $this->requestJson('GET', self::THE_CLIENT)['clientId']);
+        $this->assertSame('client-of-the-double', self::valueAt($this->requestJson('GET', self::THE_CLIENT), 'clientId'));
     }
 
     public function testAnAdministratorRemovesTheClient(): void
@@ -170,7 +174,7 @@ class GoogleClientApiTest extends ApiTestCase
                 'configure' => ['href' => self::THE_CLIENT, 'method' => 'PATCH'],
             ],
         ], $client);
-        $this->assertArrayNotHasKey('connectGoogle', $this->requestJson('GET', '/api/me/connections')['_links']);
+        $this->assertArrayNotHasKey('connectGoogle', self::recordAt($this->requestJson('GET', '/api/me/connections'), '_links'));
     }
 
     public function testNoClientToRemove(): void
@@ -197,7 +201,7 @@ class GoogleClientApiTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(403);
         $this->loginAnAdministrator();
-        $this->assertSame('client-of-the-double', $this->requestJson('GET', self::THE_CLIENT)['clientId']);
+        $this->assertSame('client-of-the-double', self::valueAt($this->requestJson('GET', self::THE_CLIENT), 'clientId'));
     }
 
     /**
@@ -218,10 +222,10 @@ class GoogleClientApiTest extends ApiTestCase
     public function testTheConnectionsLinkTheClientForAnAdministratorOnly(): void
     {
         $this->loginAnAdministrator();
-        $this->assertSame(['href' => self::THE_CLIENT, 'method' => 'GET'], $this->requestJson('GET', '/api/me/connections')['_links']['googleClient']);
+        $this->assertSame(['href' => self::THE_CLIENT, 'method' => 'GET'], self::valueAt($this->requestJson('GET', '/api/me/connections'), '_links', 'googleClient'));
 
         $this->login('prospector-user');
-        $this->assertArrayNotHasKey('googleClient', $this->requestJson('GET', '/api/me/connections')['_links']);
+        $this->assertArrayNotHasKey('googleClient', self::recordAt($this->requestJson('GET', '/api/me/connections'), '_links'));
     }
 
     public function testAnAnonymousVisitorSeesNoClient(): void
@@ -236,7 +240,7 @@ class GoogleClientApiTest extends ApiTestCase
      */
     private function notificationEndpoint(): string
     {
-        return sprintf('%s/api/accounts/%s/gmail-notifications', $_SERVER['DEFAULT_URI'], $this->accountOfTheFixtures()->value);
+        return sprintf('%s/api/accounts/%s/gmail-notifications', Typed::string($_SERVER['DEFAULT_URI']), $this->accountOfTheFixtures()->value);
     }
 
     private function loginAnAdministrator(): void

@@ -7,6 +7,7 @@ namespace Tests\App\Api;
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Base\ReadsResources;
 use Tests\App\Double\EmailTakenMeanwhile;
 use Tests\App\Double\FailingReaction;
 
@@ -16,6 +17,8 @@ use Tests\App\Double\FailingReaction;
 #[Group('api')]
 class AllOrNothingApiTest extends ApiTestCase
 {
+    use ReadsResources;
+
     private string $organization;
 
     protected function setUp(): void
@@ -23,7 +26,7 @@ class AllOrNothingApiTest extends ApiTestCase
         parent::setUp();
         $this->client->disableReboot();
         $this->login();
-        $this->organization = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];
+        $this->organization = self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']]), 'id');
     }
 
     public function testAReactionThatRefusesRefusesTheCommandWhichWritesNothing(): void
@@ -65,11 +68,11 @@ class AllOrNothingApiTest extends ApiTestCase
 
     private function emailTakenMeanwhile(): EmailTakenMeanwhile
     {
-        return self::getContainer()->get(EmailTakenMeanwhile::class);
+        return self::service(EmailTakenMeanwhile::class);
     }
 
     private function reaction(): FailingReaction
     {
-        return self::getContainer()->get(FailingReaction::class);
+        return self::service(FailingReaction::class);
     }
 }

@@ -8,11 +8,14 @@ use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Reporting\Application\RebuildFigures\RebuildFigures;
 use Prospecter\Core\Reporting\Application\RebuildFigures\RebuildFiguresHandler;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Base\ReadsResources;
 use Tests\App\Double\OutsideServices;
 
 #[Group('api')]
 class DashboardApiTest extends ApiTestCase
 {
+    use ReadsResources;
+
     private const array FIGURES = ['activeOrganizations', 'locatedOrganizations', 'contacts', 'exchanges', 'exchangesThisMonth'];
 
     protected function setUp(): void
@@ -38,27 +41,27 @@ class DashboardApiTest extends ApiTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertSame('SOLEAN IT', $dashboard['organizationName']);
-        $this->assertSame(['Babbage & Co SAS'], array_column($dashboard['markers'], 'name'), 'only the located organizations are placed on the map');
+        $this->assertSame(['Babbage & Co SAS'], array_column(self::recordsAt($dashboard, 'markers'), 'name'), 'only the located organizations are placed on the map');
     }
 
     public function testTheOrganizationsStartedAreCounted(): void
     {
-        self::getContainer()->get(RebuildFiguresHandler::class)(new RebuildFigures());
-        $before = $this->requestJson('GET', '/api/dashboard')['stats'];
+        self::service(RebuildFiguresHandler::class)(new RebuildFigures());
+        $before = self::recordAt($this->requestJson('GET', '/api/dashboard'), 'stats');
 
         $this->startProspectingAnOrganizationTheGeocoderPlaces();
         $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'Nowhere Ltd']]);
-        $after = $this->requestJson('GET', '/api/dashboard')['stats'];
+        $after = self::recordAt($this->requestJson('GET', '/api/dashboard'), 'stats');
 
         $this->assertSame(self::FIGURES, array_keys($after));
-        $this->assertSame($before['activeOrganizations'] + 2, $after['activeOrganizations']);
-        $this->assertSame($before['locatedOrganizations'] + 1, $after['locatedOrganizations']);
+        $this->assertSame(self::intAt($before, 'activeOrganizations') + 2, $after['activeOrganizations']);
+        $this->assertSame(self::intAt($before, 'locatedOrganizations') + 1, $after['locatedOrganizations']);
     }
 
     private function startProspectingAnOrganizationTheGeocoderPlaces(): void
     {
-        self::getContainer()->get(OutsideServices::class)->geocoderPlaces(7.7456, 48.5834);
+        self::service(OutsideServices::class)->geocoderPlaces(7.7456, 48.5834);
         $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'Somewhere SAS'], 'address' => ['city' => 'Strasbourg']]);
-        self::getContainer()->get(OutsideServices::class)->reset();
+        self::service(OutsideServices::class)->reset();
     }
 }

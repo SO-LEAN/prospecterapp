@@ -1,156 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Call to an undefined method object\:\:createUserPoolClient\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: tests/Api/AccessTokenTest.php
-
-		-
-			message: '#^Call to an undefined method object\:\:id\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: tests/Api/AccessTokenTest.php
-
-		-
-			message: '#^Call to an undefined method object\:\:modify\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: tests/Api/AccessTokenTest.php
-
-		-
-			message: '#^Call to an undefined method object\:\:register\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: tests/Api/AccessTokenTest.php
-
-		-
-			message: '#^Cannot access offset ''ClientId'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/AccessTokenTest.php
-
-		-
-			message: '#^Cannot access offset ''UserPoolClient'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/AccessTokenTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\AccessTokenTest\:\:anotherClient\(\) should return string but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/AccessTokenTest.php
-
-		-
-			message: '#^Cannot access offset ''address'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
-			path: tests/Api/AccountApiTest.php
-
-		-
-			message: '#^Cannot access offset ''changeMyName'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/AccountApiTest.php
-
-		-
-			message: '#^Cannot access offset ''changeMyOrganizationLogo'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/AccountApiTest.php
-
-		-
-			message: '#^Cannot access offset ''changeMyPicture'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/AccountApiTest.php
-
-		-
-			message: '#^Cannot access offset ''corporateName'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 3
-			path: tests/Api/AccountApiTest.php
-
-		-
-			message: '#^Cannot access offset ''email'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 3
-			path: tests/Api/AccountApiTest.php
-
-		-
-			message: '#^Cannot access offset ''firstName'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/AccountApiTest.php
-
-		-
-			message: '#^Cannot access offset ''legalIdentity'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 3
-			path: tests/Api/AccountApiTest.php
-
-		-
-			message: '#^Cannot access offset ''links'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/AccountApiTest.php
-
-		-
-			message: '#^Cannot access offset ''location'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/AccountApiTest.php
-
-		-
-			message: '#^Cannot access offset ''logo'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/AccountApiTest.php
-
-		-
-			message: '#^Cannot access offset ''relocateMyOrganization'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/AccountApiTest.php
-
-		-
-			message: '#^Cannot access offset ''self'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/AccountApiTest.php
-
-		-
-			message: '#^Cannot access offset ''url'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
-			path: tests/Api/AccountApiTest.php
-
-		-
-			message: '#^Parameter \#2 \$string of method PHPUnit\\Framework\\Assert\:\:assertStringEndsWith\(\) expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 2
-			path: tests/Api/AccountApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\AllOrNothingApiTest\:\:emailTakenMeanwhile\(\) should return Tests\\App\\Double\\EmailTakenMeanwhile but returns object\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/AllOrNothingApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\AllOrNothingApiTest\:\:reaction\(\) should return Tests\\App\\Double\\FailingReaction but returns object\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/AllOrNothingApiTest.php
-
-		-
-			message: '#^Property Tests\\App\\Api\\AllOrNothingApiTest\:\:\$organization \(string\) does not accept mixed\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: tests/Api/AllOrNothingApiTest.php
-
-		-
 			message: '#^Binary operation "\." between non\-falsy\-string and mixed results in an error\.$#'
 			identifier: binaryOp.invalid
 			count: 2
@@ -475,19 +325,7 @@ parameters:
 			path: tests/Api/BookingPageToolsApiTest.php
 
 		-
-			message: '#^Cannot access offset ''href'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/BookingPageToolsApiTest.php
-
-		-
 			message: '#^Cannot access offset ''id'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/BookingPageToolsApiTest.php
-
-		-
-			message: '#^Cannot access offset ''self'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 1
 			path: tests/Api/BookingPageToolsApiTest.php
@@ -505,18 +343,6 @@ parameters:
 			path: tests/Api/BookingPageToolsApiTest.php
 
 		-
-			message: '#^Offset 0 might not exist on array\{\}\|list\{0\: array\<string, mixed\>, 1\?\: array\<string, mixed\>, 2\?\: array\<string, mixed\>, 3\?\: array\<string, mixed\>, 4\?\: array\<string, mixed\>\}\.$#'
-			identifier: offsetAccess.notFound
-			count: 1
-			path: tests/Api/BookingPageToolsApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$array of function array_intersect_key expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/BookingPageToolsApiTest.php
-
-		-
 			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, Closure\(array\)\: array\{mixed, mixed\} given\.$#'
 			identifier: argument.type
 			count: 1
@@ -530,12 +356,6 @@ parameters:
 
 		-
 			message: '#^Parameter \#2 \$array of function array_map expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/BookingPageToolsApiTest.php
-
-		-
-			message: '#^Parameter \#2 \$uri of method Tests\\App\\Base\\ApiTestCase\:\:requestJson\(\) expects string, mixed given\.$#'
 			identifier: argument.type
 			count: 1
 			path: tests/Api/BookingPageToolsApiTest.php
@@ -1093,12 +913,6 @@ parameters:
 			path: tests/Api/CampaignToolsApiTest.php
 
 		-
-			message: '#^Cannot access offset ''href'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/CampaignToolsApiTest.php
-
-		-
 			message: '#^Cannot access offset ''id'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 8
@@ -1153,12 +967,6 @@ parameters:
 			path: tests/Api/CampaignToolsApiTest.php
 
 		-
-			message: '#^Cannot access offset ''self'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/CampaignToolsApiTest.php
-
-		-
 			message: '#^Cannot access offset ''status'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 6
@@ -1189,12 +997,6 @@ parameters:
 			path: tests/Api/CampaignToolsApiTest.php
 
 		-
-			message: '#^Offset 0 might not exist on array\{\}\|list\{0\: array\<string, mixed\>, 1\?\: array\<string, mixed\>, 2\?\: array\<string, mixed\>, 3\?\: array\<string, mixed\>, 4\?\: array\<string, mixed\>\}\.$#'
-			identifier: offsetAccess.notFound
-			count: 1
-			path: tests/Api/CampaignToolsApiTest.php
-
-		-
 			message: '#^Parameter \#1 \$array of function array_column expects array, mixed given\.$#'
 			identifier: argument.type
 			count: 2
@@ -1204,12 +1006,6 @@ parameters:
 			message: '#^Parameter \#1 \$array of function array_find expects array, mixed given\.$#'
 			identifier: argument.type
 			count: 2
-			path: tests/Api/CampaignToolsApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$array of function array_intersect_key expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 1
 			path: tests/Api/CampaignToolsApiTest.php
 
 		-
@@ -1240,12 +1036,6 @@ parameters:
 			message: '#^Parameter \#2 \$haystack of method PHPUnit\\Framework\\Assert\:\:assertStringContainsString\(\) expects string, mixed given\.$#'
 			identifier: argument.type
 			count: 2
-			path: tests/Api/CampaignToolsApiTest.php
-
-		-
-			message: '#^Parameter \#2 \$uri of method Tests\\App\\Base\\ApiTestCase\:\:requestJson\(\) expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 1
 			path: tests/Api/CampaignToolsApiTest.php
 
 		-
@@ -1363,138 +1153,6 @@ parameters:
 			path: tests/Api/CampaignsApiTest.php
 
 		-
-			message: '#^Binary operation "\." between mixed and '' '' results in an error\.$#'
-			identifier: binaryOp.invalid
-			count: 2
-			path: tests/Api/CommitOutboxApiTest.php
-
-		-
-			message: '#^Binary operation "\." between non\-falsy\-string and mixed results in an error\.$#'
-			identifier: binaryOp.invalid
-			count: 2
-			path: tests/Api/CommitOutboxApiTest.php
-
-		-
-			message: '#^Cannot access offset ''detail'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 3
-			path: tests/Api/CommitOutboxApiTest.php
-
-		-
-			message: '#^Cannot access offset ''payload'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 3
-			path: tests/Api/CommitOutboxApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$array of function array_filter expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 3
-			path: tests/Api/CommitOutboxApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$array of function array_intersect_key expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 3
-			path: tests/Api/CommitOutboxApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, Closure\(array\)\: non\-falsy\-string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/CommitOutboxApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$json of function json_decode expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 4
-			path: tests/Api/CommitOutboxApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$moment of static method App\\Shared\\Persistence\\Documents\:\:momentOf\(\) expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/CommitOutboxApiTest.php
-
-		-
-			message: '#^Parameter \#2 \$array of function array_map expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/CommitOutboxApiTest.php
-
-		-
-			message: '#^Parameter \#2 \$callback of function array_filter expects \(callable\(mixed\)\: bool\)\|null, Closure\(array\)\: bool given\.$#'
-			identifier: argument.type
-			count: 3
-			path: tests/Api/CommitOutboxApiTest.php
-
-		-
-			message: '#^Property Tests\\App\\Api\\CommitOutboxApiTest\:\:\$contact \(string\) does not accept mixed\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: tests/Api/CommitOutboxApiTest.php
-
-		-
-			message: '#^Property Tests\\App\\Api\\CommitOutboxApiTest\:\:\$organization \(string\) does not accept mixed\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: tests/Api/CommitOutboxApiTest.php
-
-		-
-			message: '#^Binary operation "\." between ''/api/exchanges/'' and mixed results in an error\.$#'
-			identifier: binaryOp.invalid
-			count: 2
-			path: tests/Api/ConcurrentWritesApiTest.php
-
-		-
-			message: '#^Call to an undefined method object\:\:correctTextMeanwhile\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: tests/Api/ConcurrentWritesApiTest.php
-
-		-
-			message: '#^Call to an undefined method object\:\:send\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: tests/Api/ConcurrentWritesApiTest.php
-
-		-
-			message: '#^Cannot access offset ''id'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/ConcurrentWritesApiTest.php
-
-		-
-			message: '#^Cannot access offset 0 on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/ConcurrentWritesApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\ConcurrentWritesApiTest\:\:collectedFor\(\) should return string but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/ConcurrentWritesApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\ConcurrentWritesApiTest\:\:organizationChangedMeanwhile\(\) should return Tests\\App\\Double\\OrganizationChangedMeanwhile but returns object\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/ConcurrentWritesApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\ConcurrentWritesApiTest\:\:prospect\(\) should return string but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/ConcurrentWritesApiTest.php
-
-		-
-			message: '#^Parameter \#2 \$haystack of method PHPUnit\\Framework\\Assert\:\:assertNotContains\(\) expects iterable, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/ConcurrentWritesApiTest.php
-
-		-
 			message: '#^Anonymous function should return string but returns mixed\.$#'
 			identifier: return.type
 			count: 1
@@ -1510,18 +1168,6 @@ parameters:
 			message: '#^Call to an undefined method object\:\:dispatch\(\)\.$#'
 			identifier: method.notFound
 			count: 3
-			path: tests/Api/ConnectorToolsApiTest.php
-
-		-
-			message: '#^Cannot access offset ''href'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/ConnectorToolsApiTest.php
-
-		-
-			message: '#^Cannot access offset ''self'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
 			path: tests/Api/ConnectorToolsApiTest.php
 
 		-
@@ -1543,19 +1189,7 @@ parameters:
 			path: tests/Api/ConnectorToolsApiTest.php
 
 		-
-			message: '#^Offset 0 might not exist on array\{\}\|list\{0\: array\<string, mixed\>, 1\?\: array\<string, mixed\>, 2\?\: array\<string, mixed\>, 3\?\: array\<string, mixed\>, 4\?\: array\<string, mixed\>\}\.$#'
-			identifier: offsetAccess.notFound
-			count: 1
-			path: tests/Api/ConnectorToolsApiTest.php
-
-		-
 			message: '#^Parameter \#1 \$array of function array_column expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/ConnectorToolsApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$array of function array_intersect_key expects array, mixed given\.$#'
 			identifier: argument.type
 			count: 1
 			path: tests/Api/ConnectorToolsApiTest.php
@@ -1568,12 +1202,6 @@ parameters:
 
 		-
 			message: '#^Parameter \#2 \$array of function array_map expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/ConnectorToolsApiTest.php
-
-		-
-			message: '#^Parameter \#2 \$uri of method Tests\\App\\Base\\ApiTestCase\:\:requestJson\(\) expects string, mixed given\.$#'
 			identifier: argument.type
 			count: 1
 			path: tests/Api/ConnectorToolsApiTest.php
@@ -1885,60 +1513,6 @@ parameters:
 			path: tests/Api/ContactsToAttachApiTest.php
 
 		-
-			message: '#^Binary operation "\+" between mixed and 1 results in an error\.$#'
-			identifier: binaryOp.invalid
-			count: 1
-			path: tests/Api/DashboardApiTest.php
-
-		-
-			message: '#^Binary operation "\+" between mixed and 2 results in an error\.$#'
-			identifier: binaryOp.invalid
-			count: 1
-			path: tests/Api/DashboardApiTest.php
-
-		-
-			message: '#^Call to an undefined method object\:\:geocoderPlaces\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: tests/Api/DashboardApiTest.php
-
-		-
-			message: '#^Call to an undefined method object\:\:reset\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: tests/Api/DashboardApiTest.php
-
-		-
-			message: '#^Cannot access offset ''activeOrganizations'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
-			path: tests/Api/DashboardApiTest.php
-
-		-
-			message: '#^Cannot access offset ''locatedOrganizations'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
-			path: tests/Api/DashboardApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$array of function array_column expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/DashboardApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$array of function array_keys expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/DashboardApiTest.php
-
-		-
-			message: '#^Trying to invoke object but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 1
-			path: tests/Api/DashboardApiTest.php
-
-		-
 			message: '#^Call to an undefined method object\:\:save\(\)\.$#'
 			identifier: method.notFound
 			count: 2
@@ -2035,12 +1609,6 @@ parameters:
 			path: tests/Api/ExchangeAndToDoToolsApiTest.php
 
 		-
-			message: '#^Cannot access offset ''href'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/ExchangeAndToDoToolsApiTest.php
-
-		-
 			message: '#^Cannot access offset ''id'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 6
@@ -2062,12 +1630,6 @@ parameters:
 			message: '#^Cannot access offset ''propertyPath'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 3
-			path: tests/Api/ExchangeAndToDoToolsApiTest.php
-
-		-
-			message: '#^Cannot access offset ''self'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
 			path: tests/Api/ExchangeAndToDoToolsApiTest.php
 
 		-
@@ -2119,12 +1681,6 @@ parameters:
 			path: tests/Api/ExchangeAndToDoToolsApiTest.php
 
 		-
-			message: '#^Offset 0 might not exist on array\{\}\|list\{0\: array\<string, mixed\>, 1\?\: array\<string, mixed\>, 2\?\: array\<string, mixed\>, 3\?\: array\<string, mixed\>, 4\?\: array\<string, mixed\>\}\.$#'
-			identifier: offsetAccess.notFound
-			count: 1
-			path: tests/Api/ExchangeAndToDoToolsApiTest.php
-
-		-
 			message: '#^Parameter \#1 \$array of function array_column expects array, mixed given\.$#'
 			identifier: argument.type
 			count: 1
@@ -2133,7 +1689,7 @@ parameters:
 		-
 			message: '#^Parameter \#1 \$array of function array_intersect_key expects array, mixed given\.$#'
 			identifier: argument.type
-			count: 2
+			count: 1
 			path: tests/Api/ExchangeAndToDoToolsApiTest.php
 
 		-
@@ -2164,12 +1720,6 @@ parameters:
 			message: '#^Parameter \#2 \$haystack of method PHPUnit\\Framework\\Assert\:\:assertStringContainsString\(\) expects string, mixed given\.$#'
 			identifier: argument.type
 			count: 4
-			path: tests/Api/ExchangeAndToDoToolsApiTest.php
-
-		-
-			message: '#^Parameter \#2 \$uri of method Tests\\App\\Base\\ApiTestCase\:\:requestJson\(\) expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 1
 			path: tests/Api/ExchangeAndToDoToolsApiTest.php
 
 		-
@@ -2863,48 +2413,6 @@ parameters:
 			path: tests/Api/GmailNotificationsApiTest.php
 
 		-
-			message: '#^Call to an undefined method object\:\:refuse\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: tests/Api/GoogleClientApiTest.php
-
-		-
-			message: '#^Cannot access offset ''googleClient'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/GoogleClientApiTest.php
-
-		-
-			message: '#^Cannot access offset ''removeGmailNotifications'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/GoogleClientApiTest.php
-
-		-
-			message: '#^Cannot access offset ''topic'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/GoogleClientApiTest.php
-
-		-
-			message: '#^Parameter \#2 \$array of method PHPUnit\\Framework\\Assert\:\:assertArrayNotHasKey\(\) expects array\<mixed\>\|ArrayAccess\<\(int\|string\), covariant mixed\>, mixed given\.$#'
-			identifier: argument.type
-			count: 3
-			path: tests/Api/GoogleClientApiTest.php
-
-		-
-			message: '#^Parameter \#2 \$haystack of method PHPUnit\\Framework\\Assert\:\:assertStringContainsString\(\) expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/GoogleClientApiTest.php
-
-		-
-			message: '#^Parameter \#2 \.\.\.\$values of function sprintf expects bool\|float\|int\|string\|null, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/GoogleClientApiTest.php
-
-		-
 			message: '#^Anonymous function should return string but returns mixed\.$#'
 			identifier: return.type
 			count: 1
@@ -3163,36 +2671,6 @@ parameters:
 			path: tests/Api/HandlePlannedExchangeApiTest.php
 
 		-
-			message: '#^Cannot access offset ''code'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/IdentifyToolApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$identifications of static method Tests\\App\\Api\\IdentifyToolApiTest\:\:described\(\) expects list\<array\{status\: string, candidates\: list\<array\{id\: string, name\: string\}\>\}\>, mixed given\.$#'
-			identifier: argument.type
-			count: 4
-			path: tests/Api/IdentifyToolApiTest.php
-
-		-
-			message: '#^Call to an undefined method object\:\:modify\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: tests/Api/McpApiTest.php
-
-		-
-			message: '#^Cannot access offset ''readOnlyHint'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/McpApiTest.php
-
-		-
-			message: '#^Cannot access offset ''readsPersonalData'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
-			path: tests/Api/McpApiTest.php
-
-		-
 			message: '#^Binary operation "\." between ''/api/contacts/'' and mixed results in an error\.$#'
 			identifier: binaryOp.invalid
 			count: 3
@@ -3361,84 +2839,6 @@ parameters:
 			path: tests/Api/MyDayApiTest.php
 
 		-
-			message: '#^Call to an undefined method object\:\:publish\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: tests/Api/MySettingsToolsApiTest.php
-
-		-
-			message: '#^Cannot access offset ''email'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/MySettingsToolsApiTest.php
-
-		-
-			message: '#^Cannot access offset ''firstName'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/MySettingsToolsApiTest.php
-
-		-
-			message: '#^Cannot access offset ''href'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/MySettingsToolsApiTest.php
-
-		-
-			message: '#^Cannot access offset ''lastName'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/MySettingsToolsApiTest.php
-
-		-
-			message: '#^Cannot access offset ''self'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/MySettingsToolsApiTest.php
-
-		-
-			message: '#^Cannot access offset ''url'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/MySettingsToolsApiTest.php
-
-		-
-			message: '#^Offset 0 might not exist on array\{\}\|list\{0\: array\<string, mixed\>, 1\?\: array\<string, mixed\>, 2\?\: array\<string, mixed\>, 3\?\: array\<string, mixed\>, 4\?\: array\<string, mixed\>\}\.$#'
-			identifier: offsetAccess.notFound
-			count: 1
-			path: tests/Api/MySettingsToolsApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$array of function array_intersect_key expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/MySettingsToolsApiTest.php
-
-		-
-			message: '#^Parameter \#2 \$string of method PHPUnit\\Framework\\Assert\:\:assertStringEndsWith\(\) expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/MySettingsToolsApiTest.php
-
-		-
-			message: '#^Parameter \#2 \$uri of method Tests\\App\\Base\\ApiTestCase\:\:requestJson\(\) expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/MySettingsToolsApiTest.php
-
-		-
-			message: '#^Binary operation "\." between ''/api/contacts/'' and mixed results in an error\.$#'
-			identifier: binaryOp.invalid
-			count: 1
-			path: tests/Api/NoActivityJournalTest.php
-
-		-
-			message: '#^Call to an undefined method object\:\:scan\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: tests/Api/NoActivityJournalTest.php
-
-		-
 			message: '#^Binary operation "\." between ''/api/exchanges/'' and mixed results in an error\.$#'
 			identifier: binaryOp.invalid
 			count: 2
@@ -3529,18 +2929,6 @@ parameters:
 			path: tests/Api/NotingToolsApiTest.php
 
 		-
-			message: '#^Binary operation "\." between array\|bool\|float\|int\|string\|UnitEnum\|null and ''/openapi\.json'' results in an error\.$#'
-			identifier: binaryOp.invalid
-			count: 1
-			path: tests/Api/OpenApiContractTest.php
-
-		-
-			message: '#^Parameter \#1 \$expectedFile of method PHPUnit\\Framework\\Assert\:\:assertJsonStringEqualsJsonFile\(\) expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/OpenApiContractTest.php
-
-		-
 			message: '#^Binary operation "\." between ''/api/contacts/'' and mixed results in an error\.$#'
 			identifier: binaryOp.invalid
 			count: 1
@@ -3583,12 +2971,6 @@ parameters:
 			path: tests/Api/OrganizationAndContactToolsApiTest.php
 
 		-
-			message: '#^Cannot access offset ''href'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/OrganizationAndContactToolsApiTest.php
-
-		-
 			message: '#^Cannot access offset ''id'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 2
@@ -3610,12 +2992,6 @@ parameters:
 			message: '#^Cannot access offset ''propertyPath'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 3
-			path: tests/Api/OrganizationAndContactToolsApiTest.php
-
-		-
-			message: '#^Cannot access offset ''self'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
 			path: tests/Api/OrganizationAndContactToolsApiTest.php
 
 		-
@@ -3661,18 +3037,6 @@ parameters:
 			path: tests/Api/OrganizationAndContactToolsApiTest.php
 
 		-
-			message: '#^Offset 0 might not exist on array\{\}\|list\{0\: array\<string, mixed\>, 1\?\: array\<string, mixed\>, 2\?\: array\<string, mixed\>, 3\?\: array\<string, mixed\>, 4\?\: array\<string, mixed\>\}\.$#'
-			identifier: offsetAccess.notFound
-			count: 1
-			path: tests/Api/OrganizationAndContactToolsApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$array of function array_intersect_key expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/OrganizationAndContactToolsApiTest.php
-
-		-
 			message: '#^Parameter \#2 \$haystack of method PHPUnit\\Framework\\Assert\:\:assertContains\(\) expects iterable, mixed given\.$#'
 			identifier: argument.type
 			count: 1
@@ -3686,12 +3050,6 @@ parameters:
 
 		-
 			message: '#^Parameter \#2 \$string of method PHPUnit\\Framework\\Assert\:\:assertStringEndsWith\(\) expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/OrganizationAndContactToolsApiTest.php
-
-		-
-			message: '#^Parameter \#2 \$uri of method Tests\\App\\Base\\ApiTestCase\:\:requestJson\(\) expects string, mixed given\.$#'
 			identifier: argument.type
 			count: 1
 			path: tests/Api/OrganizationAndContactToolsApiTest.php
@@ -4345,84 +3703,6 @@ parameters:
 			path: tests/Api/PushToGoogleApiTest.php
 
 		-
-			message: '#^Binary operation "\." between ''/api/campaigns/'' and mixed results in an error\.$#'
-			identifier: binaryOp.invalid
-			count: 1
-			path: tests/Api/ReadingToolsApiTest.php
-
-		-
-			message: '#^Binary operation "\." between non\-falsy\-string and mixed results in an error\.$#'
-			identifier: binaryOp.invalid
-			count: 1
-			path: tests/Api/ReadingToolsApiTest.php
-
-		-
-			message: '#^Call to an undefined method object\:\:directoryLists\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: tests/Api/ReadingToolsApiTest.php
-
-		-
-			message: '#^Call to an undefined method object\:\:send\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: tests/Api/ReadingToolsApiTest.php
-
-		-
-			message: '#^Cannot access offset ''email'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/ReadingToolsApiTest.php
-
-		-
-			message: '#^Cannot access offset ''id'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 4
-			path: tests/Api/ReadingToolsApiTest.php
-
-		-
-			message: '#^Cannot access offset ''phoneNumber'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/ReadingToolsApiTest.php
-
-		-
-			message: '#^Cannot access offset 0 on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 4
-			path: tests/Api/ReadingToolsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\ReadingToolsApiTest\:\:aCampaignToAda\(\) should return string but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/ReadingToolsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\ReadingToolsApiTest\:\:aToDoAboutAda\(\) should return string but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/ReadingToolsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\ReadingToolsApiTest\:\:ada\(\) should return string but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/ReadingToolsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\ReadingToolsApiTest\:\:anExchangeWithAda\(\) should return string but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/ReadingToolsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\ReadingToolsApiTest\:\:babbage\(\) should return string but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/ReadingToolsApiTest.php
-
-		-
 			message: '#^Binary operation "\." between ''/api/contacts/'' and mixed results in an error\.$#'
 			identifier: binaryOp.invalid
 			count: 7
@@ -4505,12 +3785,6 @@ parameters:
 			identifier: argument.type
 			count: 2
 			path: tests/Api/RecordContactToolApiTest.php
-
-		-
-			message: '#^Cannot access offset ''changeMyReminders'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/RemindersApiTest.php
 
 		-
 			message: '#^Access to an undefined property object\:\:\$headers\.$#'
@@ -4651,102 +3925,6 @@ parameters:
 			path: tests/Api/RunCampaignApiTest.php
 
 		-
-			message: '#^Binary operation "\." between ''Bearer '' and mixed results in an error\.$#'
-			identifier: binaryOp.invalid
-			count: 2
-			path: tests/Api/SignInOfTheAIsApiTest.php
-
-		-
-			message: '#^Call to an undefined method object\:\:clientId\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: tests/Api/SignInOfTheAIsApiTest.php
-
-		-
-			message: '#^Call to an undefined method object\:\:globalSignOut\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: tests/Api/SignInOfTheAIsApiTest.php
-
-		-
-			message: '#^Call to an undefined method object\:\:mcpClientId\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: tests/Api/SignInOfTheAIsApiTest.php
-
-		-
-			message: '#^Call to an undefined method object\:\:revokeToken\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: tests/Api/SignInOfTheAIsApiTest.php
-
-		-
-			message: '#^Cannot access offset ''member'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/SignInOfTheAIsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\SignInOfTheAIsApiTest\:\:codeOfTheFacade\(\) should return string but returns array\<mixed\>\|string\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/SignInOfTheAIsApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$refreshToken of method Tests\\App\\Api\\SignInOfTheAIsApiTest\:\:refresh\(\) expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 3
-			path: tests/Api/SignInOfTheAIsApiTest.php
-
-		-
-			message: '#^Call to an undefined method object\:\:adminInitiateAuth\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: tests/Api/SignInTest.php
-
-		-
-			message: '#^Call to an undefined method object\:\:clientId\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: tests/Api/SignInTest.php
-
-		-
-			message: '#^Call to an undefined method object\:\:id\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: tests/Api/SignInTest.php
-
-		-
-			message: '#^Call to an undefined method object\:\:memberSigningInWith\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: tests/Api/SignInTest.php
-
-		-
-			message: '#^Cannot access offset ''changeMyLoginEmail'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/SignInTest.php
-
-		-
-			message: '#^Cannot access offset ''changeMyPassword'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/SignInTest.php
-
-		-
-			message: '#^Cannot access offset ''propertyPath'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 3
-			path: tests/Api/SignInTest.php
-
-		-
-			message: '#^Cannot access offset 0 on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 3
-			path: tests/Api/SignInTest.php
-
-		-
 			message: '#^Binary operation "\." between ''/api/campaigns/'' and mixed results in an error\.$#'
 			identifier: binaryOp.invalid
 			count: 2
@@ -4861,21 +4039,9 @@ parameters:
 			path: tests/Api/SynchronizeMailboxPromptApiTest.php
 
 		-
-			message: '#^Cannot access offset ''href'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/TagToolsApiTest.php
-
-		-
 			message: '#^Cannot access offset ''id'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 2
-			path: tests/Api/TagToolsApiTest.php
-
-		-
-			message: '#^Cannot access offset ''self'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
 			path: tests/Api/TagToolsApiTest.php
 
 		-
@@ -4897,27 +4063,9 @@ parameters:
 			path: tests/Api/TagToolsApiTest.php
 
 		-
-			message: '#^Offset 0 might not exist on array\{\}\|list\{0\: array\<string, mixed\>, 1\?\: array\<string, mixed\>, 2\?\: array\<string, mixed\>, 3\?\: array\<string, mixed\>, 4\?\: array\<string, mixed\>\}\.$#'
-			identifier: offsetAccess.notFound
-			count: 1
-			path: tests/Api/TagToolsApiTest.php
-
-		-
 			message: '#^Parameter \#1 \$array of function array_column expects array, mixed given\.$#'
 			identifier: argument.type
 			count: 4
-			path: tests/Api/TagToolsApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$array of function array_intersect_key expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/TagToolsApiTest.php
-
-		-
-			message: '#^Parameter \#2 \$uri of method Tests\\App\\Base\\ApiTestCase\:\:requestJson\(\) expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 1
 			path: tests/Api/TagToolsApiTest.php
 
 		-

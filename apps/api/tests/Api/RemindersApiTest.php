@@ -7,6 +7,7 @@ namespace Tests\App\Api;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Base\ReadsResources;
 
 /**
  * My reminders follow my account, whatever the device: ten minutes before by default, mine only.
@@ -14,6 +15,8 @@ use Tests\App\Base\ApiTestCase;
 #[Group('api')]
 class RemindersApiTest extends ApiTestCase
 {
+    use ReadsResources;
+
     #[DataProvider('members')]
     public function testEveryMemberIsRemindedTenMinutesBeforeByDefault(string $member): void
     {
@@ -23,7 +26,7 @@ class RemindersApiTest extends ApiTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertSame([true, 10], [$reminders['enabled'], $reminders['minutesBefore']]);
-        $this->assertSame(['href' => '/api/me/reminders', 'method' => 'PATCH'], $reminders['_links']['changeMyReminders']);
+        $this->assertSame(['href' => '/api/me/reminders', 'method' => 'PATCH'], self::valueAt($reminders, '_links', 'changeMyReminders'));
     }
 
     /**

@@ -7,6 +7,7 @@ namespace Tests\App\Api;
 use App\Demo\DemoData;
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Model\Role;
+use Symfony\Component\Clock\MockClock;
 use Tests\App\Base\ApiTestCase;
 use Tests\App\Base\CallsTheMcpServer;
 
@@ -44,7 +45,7 @@ class McpApiTest extends ApiTestCase
 
         $result = $this->callWithoutHandshake('get-me');
 
-        $this->assertFalse($result['structuredContent']['readsPersonalData']);
+        $this->assertFalse(self::valueAt($result, 'structuredContent', 'readsPersonalData'));
     }
 
     public function testAnAiOfAnAdministratorReadsThePersonalDataAsTheyDo(): void
@@ -53,7 +54,7 @@ class McpApiTest extends ApiTestCase
 
         $result = $this->callWithoutHandshake('get-me');
 
-        $this->assertTrue($result['structuredContent']['readsPersonalData']);
+        $this->assertTrue(self::valueAt($result, 'structuredContent', 'readsPersonalData'));
     }
 
     public function testKnowingWhomItServesChangesNothing(): void
@@ -61,7 +62,8 @@ class McpApiTest extends ApiTestCase
         $this->login();
 
         $whoAmI = array_find($this->everyToolListed(), static fn (array $tool): bool => 'get-me' === $tool['name']);
-        $this->assertTrue($whoAmI['annotations']['readOnlyHint'] ?? null);
+        $this->assertNotNull($whoAmI);
+        $this->assertTrue(self::valueAt($whoAmI, 'annotations', 'readOnlyHint'));
     }
 
     public function testAClientOfTheHandshakeIsAnsweredTheSameWithoutSession(): void
@@ -92,7 +94,7 @@ class McpApiTest extends ApiTestCase
     public function testAnExpiredTokenIsRefusedAsAnInvalidToken(): void
     {
         $token = $this->tokensOf(DemoData::PROSPECTOR)['AccessToken'];
-        self::getContainer()->get('app.token_clock')->modify('+2 hours');
+        self::service(MockClock::class, 'app.token_clock')->modify('+2 hours');
         $this->client->setServerParameter('HTTP_AUTHORIZATION', 'Bearer '.$token);
 
         $this->client->request('POST', '/mcp', server: ['CONTENT_TYPE' => 'application/json'], content: '{}');
