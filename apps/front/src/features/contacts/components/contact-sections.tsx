@@ -37,7 +37,10 @@ const nameAndTitleSchema = personNameSchema.extend({ title: civilitySchema })
 
 const nameAndTitleFields = [...personNameFields, 'title'] as const
 
-/** The name of a contact and how one addresses them, beside it: the title sent only when it changed. */
+/**
+ * The name of a contact and how one addresses them, beside it: the title sent only when it changed, on the revision the
+ * rename answered.
+ */
 export function NameSection({ contact }: { contact: Contact }) {
   const { t } = useTranslation()
   const rename = useRenameContact()
@@ -54,10 +57,17 @@ export function NameSection({ contact }: { contact: Contact }) {
           schema={nameAndTitleSchema}
           defaultValues={{ ...toPersonNameValues(contact.name), title }}
           fields={nameAndTitleFields}
-          save={async (values) => {
-            await rename.mutateAsync({ params: path, body: toPersonName(values) })
+          revision={contact.revision}
+          save={async (values, revision) => {
+            const renamed = await rename.mutateAsync({
+              params: { ...path, query: { revision } },
+              body: toPersonName(values),
+            })
             if (contact._links.changeTitle && values.title !== title) {
-              await changeTitle.mutateAsync({ params: path, body: { title: values.title } })
+              await changeTitle.mutateAsync({
+                params: { ...path, query: { revision: renamed?.revision } },
+                body: { title: values.title },
+              })
             }
           }}
           onDone={close}
@@ -91,9 +101,10 @@ export function JobTitleSection({ contact }: { contact: Contact }) {
           schema={jobTitleSchema}
           defaultValues={{ jobTitle: contact.jobTitle ?? '' }}
           fields={['jobTitle']}
-          save={(values) =>
+          revision={contact.revision}
+          save={(values, revision) =>
             change.mutateAsync({
-              params: { path: { id: contact.id } },
+              params: { path: { id: contact.id }, query: { revision } },
               body: { jobTitle: orNull(values.jobTitle) },
             })
           }
@@ -126,8 +137,12 @@ export function ContactDetailsSection({ contact }: { contact: Contact }) {
           schema={personContactDetailsSchema}
           defaultValues={toPersonContactDetailsValues(details)}
           fields={personContactDetailsFields}
-          save={(values) =>
-            change.mutateAsync({ params: { path: { id: contact.id } }, body: toPersonContactDetails(values) })
+          revision={contact.revision}
+          save={(values, revision) =>
+            change.mutateAsync({
+              params: { path: { id: contact.id }, query: { revision } },
+              body: toPersonContactDetails(values),
+            })
           }
           onDone={close}
         >
