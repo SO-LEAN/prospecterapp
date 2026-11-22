@@ -26,6 +26,16 @@ final readonly class CalendarQuery
     ) {
     }
 
+    public function start(): \DateTimeImmutable
+    {
+        return $this->from ?? throw new \LogicException('A validated period has a start');
+    }
+
+    public function end(): \DateTimeImmutable
+    {
+        return $this->to ?? throw new \LogicException('A validated period has an end');
+    }
+
     /**
      * The moment on the clock of the reader.
      */

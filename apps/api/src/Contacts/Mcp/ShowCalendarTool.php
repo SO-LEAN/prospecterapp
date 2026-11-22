@@ -42,6 +42,6 @@ final readonly class ShowCalendarTool
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');
         $period = $this->inputs->mapped(CalendarQuery::class, ['from' => $from, 'to' => $to, 'timeZone' => $timeZone]);
 
-        return $this->results->of($this->agendaReader->readCalendar($this->access->member()->memberId(), $period->from, $period->to, $period->read($this->clock->now())));
+        return $this->results->of($this->agendaReader->readCalendar($this->access->member()->memberId(), $period->start(), $period->end(), $period->read($this->clock->now())));
     }
 }

@@ -38,6 +38,6 @@ final class ShowMyDayController extends AbstractController
     #[OA\Response(response: 422, description: 'Invalid day: a bound missing, an end before the start', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[CurrentUser] User $user, #[MapQueryString(validationFailedStatusCode: Response::HTTP_UNPROCESSABLE_ENTITY, mapWhenEmpty: true)] PeriodQuery $day): JsonResponse
     {
-        return $this->json($this->agendaReader->readMyDay($user->memberId(), $day->from, $day->to, $this->clock->now()));
+        return $this->json($this->agendaReader->readMyDay($user->memberId(), $day->start(), $day->end(), $this->clock->now()));
     }
 }

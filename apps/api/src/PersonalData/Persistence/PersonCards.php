@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\PersonalData\Persistence;
 
 use App\Shared\Persistence\Documents;
+use App\Shared\Typed;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\PersonalData\Application\PossibleDuplicate;
 use Prospecter\Core\PersonalData\Domain\Model\PersonIntent;
@@ -28,37 +29,41 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 final class PersonCards
 {
     /**
-     * @param array<string, mixed> $document
+     * Whether the reader reaches the person of an item's untyped document.
      */
-    public static function isReachableBy(Reader $reader, array $document): bool
+    public static function isReachableBy(Reader $reader, mixed $document): bool
     {
-        return PersonReading::isReachableBy($reader, new AccountId($document['accountId']));
+        return PersonReading::isReachableBy($reader, new AccountId(Typed::string(Typed::document($document)['accountId'])));
     }
 
     /**
-     * For a person the reader reaches; their possible duplicates read apart, a list of persons showing none.
+     * Builds the card of a person the reader reaches, from an item's untyped document. The caller reads the possible
+     * duplicates apart. A list of persons shows none.
      *
-     * @param array<string, mixed>    $document
      * @param list<PossibleDuplicate> $possibleDuplicates
      */
-    public static function of(array $document, Reader $reader, array $possibleDuplicates = []): PersonCard
+    public static function of(mixed $document, Reader $reader, array $possibleDuplicates = []): PersonCard
     {
-        $id = new PersonId($document['id']);
-        $purpose = Purpose::from($document['purpose']);
+        $document = Typed::document($document);
+        $id = new PersonId(Typed::string($document['id']));
+        $purpose = Purpose::from(Typed::string($document['purpose']));
         $masked = Reading::Masked === PersonReading::by($reader, $id);
         $nameMasked = Reading::Masked === PersonReading::ofTheName($reader, $id, $purpose);
-        $name = $document['name'];
+        $name = Typed::document($document['name']);
+        $firstName = Typed::stringOrNull($name['firstName'] ?? null);
+        $lastName = Typed::stringOrNull($name['lastName'] ?? null);
+        $jobTitle = Typed::stringOrNull($document['jobTitle']);
         $contact = Documents::contactDetailsOf($document['contactDetails']);
         $references = PersonDocument::referencesOf($document);
-        $possibleIntents = PersonPossibilities::given($reader, $id, new AccountId($document['accountId']), $purpose);
+        $possibleIntents = PersonPossibilities::given($reader, $id, new AccountId(Typed::string($document['accountId'])), $purpose);
 
         return new PersonCard(
-            id: $document['id'],
+            id: $id->value,
             masked: $masked,
-            firstName: $nameMasked ? Masking::name($name['firstName'] ?? null) : $name['firstName'] ?? null,
-            lastName: $nameMasked ? Masking::name($name['lastName'] ?? null) : $name['lastName'] ?? null,
+            firstName: $nameMasked ? Masking::name($firstName) : $firstName,
+            lastName: $nameMasked ? Masking::name($lastName) : $lastName,
             civility: PersonDocument::civilityOf($document)->value,
-            jobTitle: $masked ? Masking::jobTitle($document['jobTitle']) : $document['jobTitle'],
+            jobTitle: $masked ? Masking::jobTitle($jobTitle) : $jobTitle,
             email: $masked ? Masking::email($contact->email?->value) : $contact->email?->value,
             phoneNumber: $masked ? Masking::phoneNumber($contact->phoneNumber) : $contact->phoneNumber?->international(),
             language: $contact->language,
@@ -66,8 +71,8 @@ final class PersonCards
             possibleDuplicates: $possibleDuplicates,
             picture: $masked ? null : FileResponse::orNone(Documents::fileOf($document['picture'])),
             possibleIntents: array_map(static fn (PersonIntent $intent): string => $intent->name, $possibleIntents),
-            createdAt: Documents::momentOf($document['createdAt']),
-            modifiedAt: Documents::momentOf($document['modifiedAt']),
+            createdAt: Documents::momentOf(Typed::string($document['createdAt'])),
+            modifiedAt: Documents::momentOf(Typed::string($document['modifiedAt'])),
             createdByAnAI: Origin::Ai === Documents::originOf($document),
         );
     }

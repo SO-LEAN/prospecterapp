@@ -35,9 +35,8 @@ final readonly class ChangeMyPictureTool
 
         return $this->images->whileDownloaded(
             $this->inputs->valid(new WebAddressInput($url)),
-            fn (File $picture): array => $this->writes->write(
-                null,
-                static fn (null $input, string $memberId, string $personId, \DateTimeImmutable $now): ChangePersonPicture => new ChangePersonPicture(readerId: $memberId, id: $personId, picture: $picture, executedAt: $now),
+            fn (File $picture): array => $this->writes->change(
+                static fn (string $memberId, string $personId, \DateTimeImmutable $now): ChangePersonPicture => new ChangePersonPicture(readerId: $memberId, id: $personId, picture: $picture, executedAt: $now),
             ),
         );
     }

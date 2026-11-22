@@ -15,6 +15,7 @@ use Prospecter\Core\PersonalData\Domain\Model\ContactCard;
 use Prospecter\Core\PersonalData\Domain\Model\NewContact;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
+use Prospecter\Core\PersonalData\Domain\Model\PersonResemblanceKey;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\PersonalData\Domain\Model\Reader;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
@@ -40,7 +41,7 @@ class DynamoPersonRepositoryTest extends ApiTestCase
 {
     public function testTheReservationRefusesAnEmailTakenMeanwhile(): void
     {
-        $persons = self::getContainer()->get(PersonRepository::class);
+        $persons = self::service(PersonRepository::class);
         $account = new AccountId(self::newIdentity());
         $persons->save($this->personWithTheEmail($account, 'ada@solean-it.io'));
 
@@ -51,7 +52,7 @@ class DynamoPersonRepositoryTest extends ApiTestCase
 
     public function testTheQuestionLeavesThePersonItselfOut(): void
     {
-        $persons = self::getContainer()->get(PersonRepository::class);
+        $persons = self::service(PersonRepository::class);
         $account = new AccountId(self::newIdentity());
         $ada = $this->personWithTheEmail($account, 'ada@solean-it.io');
         $persons->save($ada);
@@ -63,7 +64,7 @@ class DynamoPersonRepositoryTest extends ApiTestCase
 
     public function testTheContactsHavingEmailsAreFoundByTheirReservations(): void
     {
-        $persons = self::getContainer()->get(PersonRepository::class);
+        $persons = self::service(PersonRepository::class);
         $account = new AccountId(self::newIdentity());
         $ada = $this->personWithTheEmail($account, 'ada@solean-it.io');
         $persons->save($ada);
@@ -76,7 +77,7 @@ class DynamoPersonRepositoryTest extends ApiTestCase
 
     public function testAnErasedPersonFreesItsEmail(): void
     {
-        $persons = self::getContainer()->get(PersonRepository::class);
+        $persons = self::service(PersonRepository::class);
         $account = new AccountId(self::newIdentity());
         $ada = $this->personWithTheEmail($account, 'ada@solean-it.io');
         $persons->save($ada);
@@ -88,7 +89,7 @@ class DynamoPersonRepositoryTest extends ApiTestCase
 
     public function testAPersonIsReadBackAsItWasSaved(): void
     {
-        $persons = self::getContainer()->get(PersonRepository::class);
+        $persons = self::service(PersonRepository::class);
         $ada = $this->personWithTheEmail(new AccountId(self::newIdentity()), 'ada@solean-it.io');
         $ada->releaseEvents();
         $persons->save($ada);
@@ -98,7 +99,7 @@ class DynamoPersonRepositoryTest extends ApiTestCase
 
     public function testTheLinksOfAPersonAreReadBackAndAPersonSavedBeforeHasNone(): void
     {
-        $persons = self::getContainer()->get(PersonRepository::class);
+        $persons = self::service(PersonRepository::class);
         $ada = $this->personWithTheEmail(new AccountId(self::newIdentity()), 'ada@solean-it.io');
         $ada->changeContactDetails($ada->contactDetails(), ExternalReferences::designating(['linkedin.com/in/ada', 'https://www.malt.fr/profile/ada'], Designated::Person), by: new Reader(new MemberId(self::newIdentity()), $ada->accountId(), $ada->id(), readsPersonalData: true), at: new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         $ada->releaseEvents();
@@ -112,7 +113,7 @@ class DynamoPersonRepositoryTest extends ApiTestCase
 
     public function testTheTitleOfAContactIsReadBackAndAPersonSavedBeforeHasAnUnknownOne(): void
     {
-        $persons = self::getContainer()->get(PersonRepository::class);
+        $persons = self::service(PersonRepository::class);
         $camille = $this->personWithTheEmail(new AccountId(self::newIdentity()), 'camille@solean-it.io');
         $camille->changeCivility(Civility::Mr, by: new Reader(new MemberId(self::newIdentity()), $camille->accountId(), new PersonId(self::newIdentity()), readsPersonalData: true), at: new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         $camille->releaseEvents();
@@ -127,7 +128,7 @@ class DynamoPersonRepositoryTest extends ApiTestCase
 
     public function testAContactAnAiCollectedIsReadBackCreatedByAnAiAndAPersonSavedBeforeByHand(): void
     {
-        $persons = self::getContainer()->get(PersonRepository::class);
+        $persons = self::service(PersonRepository::class);
         $accountId = new AccountId(self::newIdentity());
         $collector = new Reader(new MemberId(self::newIdentity()), $accountId, new PersonId(self::newIdentity()), readsPersonalData: true);
         $grace = Person::collectAsContact($collector, new NewContact(new PersonId(self::newIdentity()), new ContactCard(new PersonName('Grace', 'Hopper'), new ContactDetails(), Civility::X, null, ExternalReferences::none()), [new OrganizationId(self::newIdentity())]), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS), Origin::Ai);
@@ -142,7 +143,7 @@ class DynamoPersonRepositoryTest extends ApiTestCase
 
     public function testAnErasedPersonLeavesNoItemBehind(): void
     {
-        $persons = self::getContainer()->get(PersonRepository::class);
+        $persons = self::service(PersonRepository::class);
         $ada = $this->personWithTheEmail(new AccountId(self::newIdentity()), 'ada@solean-it.io');
         $persons->save($ada);
 
@@ -203,7 +204,7 @@ class DynamoPersonRepositoryTest extends ApiTestCase
         $ada = $this->contactNamed($account, 'Ada', 'Lovelace');
         $this->persons()->save($ada);
 
-        $this->assertEquals([$ada->id()], $this->persons()->resembling($account, $this->contactNamed($account, 'ada', 'LOVELACE')->resemblanceKey(), except: new PersonId(self::newIdentity())));
+        $this->assertEquals([$ada->id()], $this->persons()->resembling($account, self::resemblanceKeyOf($this->contactNamed($account, 'ada', 'LOVELACE')), except: new PersonId(self::newIdentity())));
     }
 
     public function testTheProfileOfAMemberNamedLikeAContactResemblesNoContact(): void
@@ -211,7 +212,7 @@ class DynamoPersonRepositoryTest extends ApiTestCase
         $account = new AccountId(self::newIdentity());
         $this->persons()->save(Person::collect(new Gesture($account, new MemberId(self::newIdentity()), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)), new PersonId(self::newIdentity()), Purpose::Membership, new ContactCard(new PersonName('Ada', 'Lovelace'))));
 
-        $this->assertSame([], $this->persons()->resembling($account, $this->contactNamed($account, 'Ada', 'Lovelace')->resemblanceKey(), except: new PersonId(self::newIdentity())));
+        $this->assertSame([], $this->persons()->resembling($account, self::resemblanceKeyOf($this->contactNamed($account, 'Ada', 'Lovelace')), except: new PersonId(self::newIdentity())));
     }
 
     public function testAForgottenContactResemblesNoOtherOne(): void
@@ -222,7 +223,7 @@ class DynamoPersonRepositoryTest extends ApiTestCase
 
         $this->persons()->remove($ada);
 
-        $this->assertSame([], $this->persons()->resembling($account, $ada->resemblanceKey(), except: new PersonId(self::newIdentity())));
+        $this->assertSame([], $this->persons()->resembling($account, self::resemblanceKeyOf($ada), except: new PersonId(self::newIdentity())));
     }
 
     public function testARenamedContactNoLongerResemblesThoseOfItsFormerName(): void
@@ -230,7 +231,7 @@ class DynamoPersonRepositoryTest extends ApiTestCase
         $account = new AccountId(self::newIdentity());
         $ada = $this->contactNamed($account, 'Ada', 'Lovelace');
         $this->persons()->save($ada);
-        $formerKey = $ada->resemblanceKey();
+        $formerKey = self::resemblanceKeyOf($ada);
 
         $ada->rename(new PersonName('Grace', 'Hopper'), by: new Reader(new MemberId(self::newIdentity()), $account, new PersonId(self::newIdentity()), readsPersonalData: true), at: new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         $this->persons()->save($ada);
@@ -255,9 +256,9 @@ class DynamoPersonRepositoryTest extends ApiTestCase
         $this->persons()->save($ada);
         $this->personalDataTable()->batch([], [[sprintf('RESEMBLANCE#%s#%s', $account->value, $ada->resemblanceKey()), 'PERSON#'.$ada->id()]]);
 
-        self::getContainer()->get(DynamoPersonRepository::class)->writeTheKeysAgain();
+        self::service(DynamoPersonRepository::class)->writeTheKeysAgain();
 
-        $this->assertEquals([$ada->id()], $this->persons()->resembling($account, $ada->resemblanceKey(), except: new PersonId(self::newIdentity())));
+        $this->assertEquals([$ada->id()], $this->persons()->resembling($account, self::resemblanceKeyOf($ada), except: new PersonId(self::newIdentity())));
     }
 
     public function testAContactIsReadBackWithTheContactsTheyAreNotADuplicateOf(): void
@@ -275,7 +276,7 @@ class DynamoPersonRepositoryTest extends ApiTestCase
         $account = new AccountId(self::newIdentity());
         $ada = $this->contactNamed($account, 'Ada', 'Lovelace');
         $this->persons()->save($ada);
-        $unitOfWork = self::getContainer()->get(DynamoUnitOfWork::class);
+        $unitOfWork = self::service(DynamoUnitOfWork::class);
         $unitOfWork->begin();
         $read = $this->persons()->get($ada->id());
         $this->anotherRequestRenames($ada->id(), new PersonName('Ada', 'King'), $account);
@@ -297,7 +298,7 @@ class DynamoPersonRepositoryTest extends ApiTestCase
         $account = new AccountId(self::newIdentity());
         $ada = $this->contactNamed($account, 'Ada', 'Lovelace');
         $this->persons()->save($ada);
-        $unitOfWork = self::getContainer()->get(DynamoUnitOfWork::class);
+        $unitOfWork = self::service(DynamoUnitOfWork::class);
         $unitOfWork->begin();
         $read = $this->persons()->get($ada->id());
         $this->anotherRequestRenames($ada->id(), new PersonName('Ada', 'King'), $account);
@@ -333,7 +334,7 @@ class DynamoPersonRepositoryTest extends ApiTestCase
 
     private function persons(): PersonRepository
     {
-        return self::getContainer()->get(PersonRepository::class);
+        return self::service(PersonRepository::class);
     }
 
     private function personWithThePhoneNumber(AccountId $account, string $phoneNumber): Person
@@ -343,10 +344,15 @@ class DynamoPersonRepositoryTest extends ApiTestCase
 
     private function personalDataTable(): Table
     {
-        $table = self::getContainer()->get('app.table.personal_data');
-        $this->assertInstanceOf(Table::class, $table);
+        return self::tableOf('personal_data');
+    }
 
-        return $table;
+    private static function resemblanceKeyOf(Person $contact): PersonResemblanceKey
+    {
+        $key = $contact->resemblanceKey();
+        self::assertNotNull($key);
+
+        return $key;
     }
 
     private function personWithTheEmail(AccountId $account, string $email): Person

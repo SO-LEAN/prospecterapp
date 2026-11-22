@@ -6,6 +6,7 @@ namespace App\PersonalData\Persistence;
 
 use App\Shared\Persistence\SearchIndexes;
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\PersonalData\Application\Port\PersonCardRetriever;
 use Prospecter\Core\PersonalData\Application\PossibleDuplicate;
@@ -28,7 +29,8 @@ final readonly class DynamoPersonCardRetriever implements PersonCardRetriever
 
     public function get(PersonId $id, Reader $reader): PersonCard
     {
-        $document = $this->personalDataTable->item(PersonalDataKeys::person($id->value), PersonalDataKeys::PERSON)['person'] ?? null;
+        $item = $this->personalDataTable->item(PersonalDataKeys::person($id->value), PersonalDataKeys::PERSON);
+        $document = null === $item ? null : Typed::document($item['person']);
 
         if (null === $document || !PersonCards::isReachableBy($reader, $document)) {
             throw UnknownPerson::identifiedBy($id);
@@ -46,14 +48,25 @@ final readonly class DynamoPersonCardRetriever implements PersonCardRetriever
      */
     private function possibleDuplicatesOf(array $document): array
     {
-        $ids = $document['possibleDuplicates'] ?? [];
+        $ids = Typed::strings($document['possibleDuplicates'] ?? []);
         $named = [];
 
         foreach ($this->personalDataTable->items(array_map(static fn (string $id): array => [PersonalDataKeys::person($id), PersonalDataKeys::PERSON], $ids)) as $item) {
-            $named[$item['person']['id']] = new PossibleDuplicate($item['person']['id'], $item['person']['name']['firstName'] ?? null, $item['person']['name']['lastName'] ?? null);
+            $duplicate = self::possibleDuplicate(Typed::document($item['person']));
+            $named[$duplicate->id] = $duplicate;
         }
 
         return array_values(array_filter(array_map(static fn (string $id): ?PossibleDuplicate => $named[$id] ?? null, $ids)));
+    }
+
+    /**
+     * @param array<string, mixed> $person
+     */
+    private static function possibleDuplicate(array $person): PossibleDuplicate
+    {
+        $name = Typed::document($person['name']);
+
+        return new PossibleDuplicate(Typed::string($person['id']), Typed::stringOrNull($name['firstName'] ?? null), Typed::stringOrNull($name['lastName'] ?? null));
     }
 
     /**

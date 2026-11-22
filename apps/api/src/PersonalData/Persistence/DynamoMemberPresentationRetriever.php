@@ -6,6 +6,7 @@ namespace App\PersonalData\Persistence;
 
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\PersonalData\Application\Port\MemberPresentationRetriever;
 use Prospecter\Core\PersonalData\Application\PresentMembers\MemberPresentation;
 use Prospecter\Core\SharedKernel\Application\FileResponse;
@@ -27,9 +28,9 @@ final readonly class DynamoMemberPresentationRetriever implements MemberPresenta
      */
     public function ofIds(array $ids): array
     {
-        $documents = array_map(static fn (array $item): array => $item['person'], $this->personalDataTable->items(array_map(static fn (PersonId $id): array => [PersonalDataKeys::person($id->value), PersonalDataKeys::PERSON], $ids)));
+        $items = $this->personalDataTable->items(array_map(static fn (PersonId $id): array => [PersonalDataKeys::person($id->value), PersonalDataKeys::PERSON], $ids));
 
-        return array_map(self::presentationOf(...), $documents);
+        return array_map(static fn (array $item): MemberPresentation => self::presentationOf(Typed::document($item['person'])), $items);
     }
 
     /**
@@ -37,6 +38,8 @@ final readonly class DynamoMemberPresentationRetriever implements MemberPresenta
      */
     private static function presentationOf(array $document): MemberPresentation
     {
-        return new MemberPresentation($document['id'], $document['name']['firstName'] ?? null, $document['name']['lastName'] ?? null, FileResponse::orNone(Documents::fileOf($document['picture'])), $document['purpose']);
+        $name = Typed::document($document['name']);
+
+        return new MemberPresentation(Typed::string($document['id']), Typed::stringOrNull($name['firstName'] ?? null), Typed::stringOrNull($name['lastName'] ?? null), FileResponse::orNone(Documents::fileOf($document['picture'])), Typed::string($document['purpose']));
     }
 }

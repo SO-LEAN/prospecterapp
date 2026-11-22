@@ -49,7 +49,7 @@ class DynamoContactFactsRetrieverTest extends ApiTestCase
     public function testTheFactsAreReadAsTheUnitOfWorkIsAboutToWriteThem(): void
     {
         $contact = $this->kept(Purpose::Prospecting, 'Lovelace');
-        $unitOfWork = self::getContainer()->get(DynamoUnitOfWork::class);
+        $unitOfWork = self::service(DynamoUnitOfWork::class);
         $unitOfWork->begin();
 
         $this->persons()->save($contact);
@@ -116,11 +116,11 @@ class DynamoContactFactsRetrieverTest extends ApiTestCase
 
     private function persons(): PersonRepository
     {
-        return self::getContainer()->get(PersonRepository::class);
+        return self::service(PersonRepository::class);
     }
 
     private function retriever(): ContactFactsRetriever
     {
-        return self::getContainer()->get(ContactFactsRetriever::class);
+        return self::service(ContactFactsRetriever::class);
     }
 }

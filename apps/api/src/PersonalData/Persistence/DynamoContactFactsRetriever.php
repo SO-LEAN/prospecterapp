@@ -7,6 +7,7 @@ namespace App\PersonalData\Persistence;
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Revision;
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\PersonalData\Application\Port\ContactFactsRetriever;
 use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\ContactFactsResponse;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
@@ -32,7 +33,7 @@ final readonly class DynamoContactFactsRetriever implements ContactFactsRetrieve
 
         return match (true) {
             null === $item => ContactFactsResponse::absent($id->value),
-            Purpose::Prospecting->value === $item['person']['purpose'] => self::factsOf($item),
+            Purpose::Prospecting->value === Typed::document($item['person'])['purpose'] => self::factsOf($item),
             default => null,
         };
     }
@@ -49,11 +50,11 @@ final readonly class DynamoContactFactsRetriever implements ContactFactsRetrieve
      */
     private static function factsOf(array $item): ContactFactsResponse
     {
-        $person = $item['person'];
+        $person = Typed::document($item['person']);
         $contactDetails = Documents::contactDetailsOf($person['contactDetails']);
 
         return new ContactFactsResponse(
-            $person['id'],
+            Typed::string($person['id']),
             Revision::of($item),
             true,
             null !== $contactDetails->email,

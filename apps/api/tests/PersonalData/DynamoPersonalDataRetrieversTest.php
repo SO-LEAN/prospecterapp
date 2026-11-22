@@ -97,7 +97,7 @@ class DynamoPersonalDataRetrieversTest extends ApiTestCase
         $this->persons()->save($me);
         $ada = $this->aContact('Ada', 'Lovelace');
 
-        $presented = self::getContainer()->get(MemberPresentationRetriever::class)->ofIds([$me->id(), $ada->id(), new PersonId(self::newIdentity())]);
+        $presented = self::service(MemberPresentationRetriever::class)->ofIds([$me->id(), $ada->id(), new PersonId(self::newIdentity())]);
 
         $this->assertEqualsCanonicalizing([
             [$me->id()->value, 'Grace', 'Hopper', 'https://static.test/grace.png', 'membership'],
@@ -140,8 +140,8 @@ class DynamoPersonalDataRetrieversTest extends ApiTestCase
         $grace = $this->aContact('Grace', 'Hopper');
         $reader = $this->readerWithTheRight();
 
-        $all = self::getContainer()->get(ContactPageRetriever::class)->sliceFor($reader, null, null, 1);
-        $found = self::getContainer()->get(ContactPageRetriever::class)->sliceFor($reader, SearchKey::of('hop'), null, 20);
+        $all = self::service(ContactPageRetriever::class)->sliceFor($reader, null, null, 1);
+        $found = self::service(ContactPageRetriever::class)->sliceFor($reader, SearchKey::of('hop'), null, 20);
 
         $this->assertCount(1, $all->contacts);
         $this->assertNotNull($all->next);
@@ -153,7 +153,7 @@ class DynamoPersonalDataRetrieversTest extends ApiTestCase
     {
         $ada = $this->aContact('Ada', 'Lovelace');
         $reader = $this->readerWithoutTheRight();
-        $retriever = self::getContainer()->get(ContactPageRetriever::class);
+        $retriever = self::service(ContactPageRetriever::class);
 
         $this->assertSame([$ada->id()->value], array_map(static fn (PersonCard $card): string => $card->id, $retriever->sliceFor($reader, SearchKey::of('lovel'), null, 20)->contacts));
         $this->assertSame([], $retriever->sliceFor($reader, SearchKey::of('ada@love'), null, 20)->contacts);
@@ -191,7 +191,7 @@ class DynamoPersonalDataRetrieversTest extends ApiTestCase
     {
         $alan = $this->aContactWithoutAnEmail('Alan', 'Turing');
 
-        self::getContainer()->get(DynamoPersonRepository::class)->writeTheKeysAgain();
+        self::service(DynamoPersonRepository::class)->writeTheKeysAgain();
 
         $this->assertSame([$alan->id()->value], $this->foundBy('ala', $this->readerWithTheRight()));
     }
@@ -201,7 +201,7 @@ class DynamoPersonalDataRetrieversTest extends ApiTestCase
      */
     private function foundBy(string $search, Reader $reader): array
     {
-        return array_map(static fn (PersonCard $card): string => $card->id, self::getContainer()->get(ContactPageRetriever::class)->sliceFor($reader, SearchKey::of($search), null, 20)->contacts);
+        return array_map(static fn (PersonCard $card): string => $card->id, self::service(ContactPageRetriever::class)->sliceFor($reader, SearchKey::of($search), null, 20)->contacts);
     }
 
     private function aContactWithoutAnEmail(string $firstName, string $lastName): Person
@@ -249,11 +249,11 @@ class DynamoPersonalDataRetrieversTest extends ApiTestCase
 
     private function cards(): PersonCardRetriever
     {
-        return self::getContainer()->get(PersonCardRetriever::class);
+        return self::service(PersonCardRetriever::class);
     }
 
     private function persons(): PersonRepository
     {
-        return self::getContainer()->get(PersonRepository::class);
+        return self::service(PersonRepository::class);
     }
 }
