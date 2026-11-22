@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Consistency;
 
 use App\Prospecting\Persistence\ContactToAttachDocument;
+use App\Shared\Typed;
 use Symfony\Component\Clock\ClockInterface;
 
 /**
@@ -82,7 +83,7 @@ final readonly class ReactionsBetweenContexts
         $organizations = $this->tables->organizationsOf($accountId);
         $contacts = $this->tables->contactsOf($accountId);
         $toAttach = $this->tables->contactsToAttachOf($accountId);
-        $contactsToAttach = array_column($toAttach, 'id');
+        $contactsToAttach = Typed::strings(array_column($toAttach, 'id'));
 
         return [
             ...$this->contactsNotAttached($accountId, array_values(array_diff($contacts, $contactsToAttach)), $organizations),
@@ -102,7 +103,7 @@ final readonly class ReactionsBetweenContexts
      */
     private function contactsNotAttached(string $accountId, array $contacts, array $organizations): array
     {
-        $notAttached = array_values(array_diff($contacts, ...array_column($organizations, 'contacts')));
+        $notAttached = array_values(array_diff($contacts, ...array_map(static fn (array $organization): array => Typed::strings($organization['contacts']), $organizations)));
 
         return array_map(static fn (string $contact): Discrepancy => new Discrepancy($accountId, $contact, 'contact attached to no organization', Correction::GiveTheReactionAgain), $notAttached);
     }
@@ -118,8 +119,8 @@ final readonly class ReactionsBetweenContexts
         $discrepancies = [];
 
         foreach ($organizations as $organization) {
-            foreach (array_diff($organization['contacts'], $contacts) as $forgotten) {
-                $discrepancies[] = new Discrepancy($accountId, $forgotten, 'forgotten contact still attached to '.$organization['id'], Correction::GiveTheReactionAgain);
+            foreach (array_diff(Typed::strings($organization['contacts']), $contacts) as $forgotten) {
+                $discrepancies[] = new Discrepancy($accountId, $forgotten, 'forgotten contact still attached to '.Typed::string($organization['id']), Correction::GiveTheReactionAgain);
             }
         }
 
@@ -136,7 +137,7 @@ final readonly class ReactionsBetweenContexts
         $now = $this->clock->now();
         $past = array_filter($toAttach, static fn (array $document): bool => ContactToAttachDocument::erasableFrom($document) <= $now);
 
-        return array_values(array_map(static fn (array $document): Discrepancy => new Discrepancy($accountId, $document['id'], 'contact to attach past the day of their erasure, not erased', Correction::EraseTheUnattached), $past));
+        return array_values(array_map(static fn (array $document): Discrepancy => new Discrepancy($accountId, Typed::string($document['id']), 'contact to attach past the day of their erasure, not erased', Correction::EraseTheUnattached), $past));
     }
 
     /**
@@ -147,16 +148,19 @@ final readonly class ReactionsBetweenContexts
      */
     private function exchangesOfOrganizationsGone(string $accountId, array $organizations, array $contactsToAttach): array
     {
-        $prospected = array_column($organizations, 'id');
+        $prospected = Typed::strings(array_column($organizations, 'id'));
         $discrepancies = [];
 
         foreach ($this->tables->exchangesOf($accountId) as $exchange) {
-            foreach (array_diff($exchange['keptFor'], $prospected) as $gone) {
-                $discrepancies[] = new Discrepancy($accountId, $exchange['id'], sprintf('exchange kept for %s, no longer prospected', $gone), Correction::GiveTheReactionAgain);
+            $id = Typed::string($exchange['id']);
+            $keptFor = Typed::strings($exchange['keptFor']);
+
+            foreach (array_diff($keptFor, $prospected) as $gone) {
+                $discrepancies[] = new Discrepancy($accountId, $id, sprintf('exchange kept for %s, no longer prospected', $gone), Correction::GiveTheReactionAgain);
             }
 
-            if ([] === $exchange['keptFor'] && !in_array($exchange['contact'], $contactsToAttach, true)) {
-                $discrepancies[] = new Discrepancy($accountId, $exchange['id'], 'exchange kept for no organization, not erased', Correction::GiveTheReactionAgain);
+            if ([] === $keptFor && !in_array($exchange['contact'], $contactsToAttach, true)) {
+                $discrepancies[] = new Discrepancy($accountId, $id, 'exchange kept for no organization, not erased', Correction::GiveTheReactionAgain);
             }
         }
 

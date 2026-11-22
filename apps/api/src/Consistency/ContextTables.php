@@ -14,6 +14,7 @@ use App\Prospecting\Persistence\ExchangeKeys;
 use App\Prospecting\Persistence\OrganizationKeys;
 use App\Reporting\Persistence\ReportingKeys;
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 
 /**
  * The tables of every context, read directly by their keys and their indexes, never through the services the contexts
@@ -67,7 +68,7 @@ final readonly class ContextTables
      */
     private static function accountIdOf(array $item): string
     {
-        return $item['account']['id'];
+        return Typed::string(Typed::document($item['account'])['id']);
     }
 
     public function isAnAccount(string $accountId): bool
@@ -80,7 +81,17 @@ final readonly class ContextTables
      */
     public function members(): array
     {
-        return array_map(static fn (array $item): array => $item['member'], $this->accountsTable->scan(AccountsKeys::MEMBER.'#'));
+        return array_map(static fn (array $item): array => self::memberOf(Typed::document($item['member'])), $this->accountsTable->scan(AccountsKeys::MEMBER.'#'));
+    }
+
+    /**
+     * @param array<string, mixed> $member
+     *
+     * @return array{id: string, accountId: string, personId: string}
+     */
+    private static function memberOf(array $member): array
+    {
+        return ['id' => Typed::string($member['id']), 'accountId' => Typed::string($member['accountId']), 'personId' => Typed::string($member['personId'])];
     }
 
     /**
@@ -92,7 +103,7 @@ final readonly class ContextTables
     {
         $keys = array_map(static fn (string $id): array => [PersonalDataKeys::person($id), PersonalDataKeys::PERSON], $personIds);
 
-        return array_map(static fn (array $item): string => $item['person']['id'], $this->personalDataTable->items($keys));
+        return array_map(static fn (array $item): string => Typed::string(Typed::document($item['person'])['id']), $this->personalDataTable->items($keys));
     }
 
     /**
@@ -100,7 +111,7 @@ final readonly class ContextTables
      */
     public function contactsOf(string $accountId): array
     {
-        return array_column($this->contactDocumentsOf($accountId), 'id');
+        return Typed::strings(array_column($this->contactDocumentsOf($accountId), 'id'));
     }
 
     /**
@@ -108,7 +119,7 @@ final readonly class ContextTables
      */
     public function contactDocumentsOf(string $accountId): array
     {
-        return array_map(static fn (array $item): array => $item['person'], $this->personalDataTable->query(PersonalDataKeys::contactsOf($accountId), Table::BY_GSI1));
+        return array_map(static fn (array $item): array => Typed::document($item['person']), $this->personalDataTable->query(PersonalDataKeys::contactsOf($accountId), Table::BY_GSI1));
     }
 
     public function countContactsOf(string $accountId): int
@@ -121,7 +132,7 @@ final readonly class ContextTables
      */
     public function organizationsOf(string $accountId): array
     {
-        return array_map(static fn (array $item): array => $item['organization'], $this->prospectingTable->query(OrganizationKeys::ofAccount($accountId), Table::BY_GSI1));
+        return array_map(static fn (array $item): array => Typed::document($item['organization']), $this->prospectingTable->query(OrganizationKeys::ofAccount($accountId), Table::BY_GSI1));
     }
 
     public function countOrganizationsOf(string $accountId): int
@@ -134,7 +145,17 @@ final readonly class ContextTables
      */
     public function taggingsOf(string $accountId): array
     {
-        return array_map(static fn (array $item): array => $item['tagging'], $this->campaignsTable->queryBetween(CampaignsKeys::account($accountId), null, ...CampaignsKeys::taggings()));
+        return array_map(static fn (array $item): array => self::taggingOf(Typed::document($item['tagging'])), $this->campaignsTable->queryBetween(CampaignsKeys::account($accountId), null, ...CampaignsKeys::taggings()));
+    }
+
+    /**
+     * @param array<string, mixed> $tagging
+     *
+     * @return array{holder: string, holderId: string}
+     */
+    private static function taggingOf(array $tagging): array
+    {
+        return ['holder' => Typed::string($tagging['holder']), 'holderId' => Typed::string($tagging['holderId'])];
     }
 
     /**
@@ -143,9 +164,9 @@ final readonly class ContextTables
      */
     public function recipientsOf(string $accountId): array
     {
-        $campaigns = array_column($this->campaignsTable->queryBetween(CampaignsKeys::account($accountId), null, ...CampaignsKeys::campaigns()), 'campaign');
+        $campaigns = Typed::documents(array_column($this->campaignsTable->queryBetween(CampaignsKeys::account($accountId), null, ...CampaignsKeys::campaigns()), 'campaign'));
 
-        return array_combine(array_column($campaigns, 'id'), array_map(self::notErased(...), $campaigns));
+        return array_combine(Typed::strings(array_column($campaigns, 'id')), array_map(self::notErased(...), $campaigns));
     }
 
     /**
@@ -155,19 +176,19 @@ final readonly class ContextTables
      */
     private static function notErased(array $campaign): array
     {
-        $kept = array_filter($campaign['recipients'] ?? [], static fn (array $recipient): bool => !self::isErased($recipient));
+        $kept = array_filter(Typed::documents($campaign['recipients'] ?? []), static fn (array $recipient): bool => !self::isErased($recipient));
 
-        return array_column($kept, 'contactId');
+        return Typed::strings(array_column($kept, 'contactId'));
     }
 
     /**
      * By its status alone when saved before an erased recipient kept what was done with them.
      *
-     * @param array{status: string, erased?: bool} $recipient
+     * @param array<string, mixed> $recipient
      */
     private static function isErased(array $recipient): bool
     {
-        return $recipient['erased'] ?? self::ERASED === $recipient['status'];
+        return isset($recipient['erased']) ? Typed::bool($recipient['erased']) : self::ERASED === $recipient['status'];
     }
 
     /**
@@ -178,7 +199,7 @@ final readonly class ContextTables
     {
         $facts = $this->presentOrganizationFactsOf($accountId);
 
-        return array_combine(array_map(static fn (array $item): string => CampaignsKeys::organizationOfFact($item['SK']), $facts), array_column($facts, 'contacts'));
+        return array_combine(array_map(self::organizationOfTheFact(...), $facts), array_map(static fn (array $item): array => Typed::strings($item['contacts']), $facts));
     }
 
     /**
@@ -189,7 +210,15 @@ final readonly class ContextTables
     {
         $facts = $this->presentOrganizationFactsOf($accountId);
 
-        return array_combine(array_map(static fn (array $item): string => CampaignsKeys::organizationOfFact($item['SK']), $facts), array_map(OrganizationFactItem::localityIn(...), $facts));
+        return array_combine(array_map(self::organizationOfTheFact(...), $facts), array_map(OrganizationFactItem::localityIn(...), $facts));
+    }
+
+    /**
+     * @param array<string, mixed> $item
+     */
+    private static function organizationOfTheFact(array $item): string
+    {
+        return CampaignsKeys::organizationOfFact(Typed::string($item['SK']));
     }
 
     /**
@@ -197,7 +226,7 @@ final readonly class ContextTables
      */
     private function presentOrganizationFactsOf(string $accountId): array
     {
-        return array_values(array_filter($this->campaignsTable->queryBetween(CampaignsKeys::account($accountId), null, ...CampaignsKeys::organizationFacts()), static fn (array $item): bool => $item['present']));
+        return array_values(array_filter($this->campaignsTable->queryBetween(CampaignsKeys::account($accountId), null, ...CampaignsKeys::organizationFacts()), static fn (array $item): bool => Typed::bool($item['present'])));
     }
 
     /**
@@ -209,8 +238,8 @@ final readonly class ContextTables
         $reaches = [];
 
         foreach ($this->campaignsTable->queryBetween(CampaignsKeys::account($accountId), null, ...CampaignsKeys::contactFacts()) as $item) {
-            if (array_key_exists('hasEmail', $item) && $item['present']) {
-                $reaches[substr($item['SK'], strlen(CampaignsKeys::contactFact('')))] = ['hasEmail' => $item['hasEmail'], 'hasPhone' => $item['hasPhone'], 'hasMobile' => $item['hasMobile'], 'hasLinkedIn' => $item['hasLinkedIn']];
+            if (array_key_exists('hasEmail', $item) && Typed::bool($item['present'])) {
+                $reaches[substr(Typed::string($item['SK']), strlen(CampaignsKeys::contactFact('')))] = ['hasEmail' => Typed::bool($item['hasEmail']), 'hasPhone' => Typed::bool($item['hasPhone']), 'hasMobile' => Typed::bool($item['hasMobile']), 'hasLinkedIn' => Typed::bool($item['hasLinkedIn'])];
             }
         }
 
@@ -226,7 +255,7 @@ final readonly class ContextTables
     public function contactsToAttachOf(string $accountId): array
     {
         $items = $this->prospectingTable->queryAfter(DynamoContactToAttachRepository::ERASURE, Table::BY_GSI2, '0');
-        $documents = array_map(static fn (array $item): array => $item['contactToAttach'], $items);
+        $documents = array_map(static fn (array $item): array => Typed::document($item['contactToAttach']), $items);
 
         return array_values(array_filter($documents, static fn (array $document): bool => $document['accountId'] === $accountId));
     }
@@ -236,7 +265,7 @@ final readonly class ContextTables
      */
     public function exchangesOf(string $accountId): array
     {
-        return array_map(static fn (array $item): array => $item['exchange'], $this->prospectingTable->query(ExchangeKeys::ofAccount($accountId), Table::BY_GSI2));
+        return array_map(static fn (array $item): array => Typed::document($item['exchange']), $this->prospectingTable->query(ExchangeKeys::ofAccount($accountId), Table::BY_GSI2));
     }
 
     /**
@@ -244,9 +273,10 @@ final readonly class ContextTables
      */
     public function exchangesOutOfTheListOfTheirAccount(): array
     {
-        $outOfTheList = array_filter($this->prospectingTable->scan(ExchangeKeys::exchange('')), static fn (array $item): bool => ExchangeKeys::ofAccount($item['exchange']['accountId']) !== ($item['GSI2PK'] ?? null));
+        $exchanges = array_map(static fn (array $item): array => ['document' => Typed::document($item['exchange']), 'listedIn' => $item['GSI2PK'] ?? null], $this->prospectingTable->scan(ExchangeKeys::exchange('')));
+        $outOfTheList = array_filter($exchanges, static fn (array $exchange): bool => ExchangeKeys::ofAccount(Typed::string($exchange['document']['accountId'])) !== $exchange['listedIn']);
 
-        return array_values(array_map(static fn (array $item): array => $item['exchange'], $outOfTheList));
+        return array_column($outOfTheList, 'document');
     }
 
     /**
@@ -256,9 +286,9 @@ final readonly class ContextTables
     public function connectedMembersByAccount(): array
     {
         $connected = [];
-        foreach (array_column($this->connectorsTable->scan(ConnectorsKeys::member('')), 'connection') as $connection) {
+        foreach (Typed::documents(array_column($this->connectorsTable->scan(ConnectorsKeys::member('')), 'connection')) as $connection) {
             if (self::CONNECTED === $connection['state']) {
-                $connected[$connection['accountId']][$connection['member']] = $connection['provider'];
+                $connected[Typed::string($connection['accountId'])][Typed::string($connection['member'])] = Typed::string($connection['provider']);
             }
         }
 
@@ -269,7 +299,7 @@ final readonly class ContextTables
     {
         $entry = $this->connectorsTable->item(ConnectorsKeys::exchange($exchangeId), ConnectorsKeys::entry($provider))['entry'] ?? null;
 
-        return null !== $entry && self::SYNCED === ($entry['state'] ?? self::SYNCED);
+        return null !== $entry && self::SYNCED === (Typed::document($entry)['state'] ?? self::SYNCED);
     }
 
     /**
@@ -280,6 +310,6 @@ final readonly class ContextTables
     {
         $active = $this->reportingTable->item(ReportingKeys::PROJECTION, ReportingKeys::ACTIVE);
 
-        return null === $active ? [] : $this->reportingTable->query(ReportingKeys::figures((int) $active['version'], $accountId));
+        return null === $active ? [] : $this->reportingTable->query(ReportingKeys::figures(Typed::int($active['version']), $accountId));
     }
 }

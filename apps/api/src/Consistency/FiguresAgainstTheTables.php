@@ -7,6 +7,7 @@ namespace App\Consistency;
 use App\Prospecting\Persistence\ExchangeDocument;
 use App\Reporting\Persistence\ReportingKeys;
 use App\Shared\Persistence\Documents;
+use App\Shared\Typed;
 
 /**
  * The figures of each account counted again from the tables of Accounts, PersonalData and Prospecting, against those
@@ -78,7 +79,7 @@ final readonly class FiguresAgainstTheTables
      */
     private static function exchangesByMonth(array $exchanges): array
     {
-        $months = array_map(static fn (array $exchange): string => Documents::momentOf($exchange['facts']['occurredAt'])->format(self::MONTH), $exchanges);
+        $months = array_map(static fn (array $exchange): string => Documents::momentOf(Typed::string(Typed::document($exchange['facts'])['occurredAt']))->format(self::MONTH), $exchanges);
         $exchangesByMonth = array_count_values($months);
 
         return array_combine(array_map(self::figureOfTheMonth(...), array_keys($exchangesByMonth)), $exchangesByMonth);
@@ -92,9 +93,10 @@ final readonly class FiguresAgainstTheTables
         $reported = [];
 
         foreach ($this->tables->figuresReportedFor($accountId) as $item) {
-            $reported += ReportingKeys::TOTAL === $item['SK']
-                ? array_map(intval(...), array_intersect_key($item, array_flip(self::FIGURES_OF_THE_TOTAL)))
-                : [self::figureOfTheMonth(substr($item['SK'], strlen(ReportingKeys::MONTH))) => (int) $item[ReportingKeys::EXCHANGES]];
+            $sortKey = Typed::string($item['SK']);
+            $reported += ReportingKeys::TOTAL === $sortKey
+                ? array_map(Typed::int(...), array_intersect_key($item, array_flip(self::FIGURES_OF_THE_TOTAL)))
+                : [self::figureOfTheMonth(substr($sortKey, strlen(ReportingKeys::MONTH))) => Typed::int($item[ReportingKeys::EXCHANGES])];
         }
 
         return $reported;
