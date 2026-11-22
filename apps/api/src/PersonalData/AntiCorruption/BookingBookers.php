@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\PersonalData\AntiCorruption;
 
 use Prospecter\Core\Booking\Contract\Service\ConsultAppointments\ConsultAppointments;

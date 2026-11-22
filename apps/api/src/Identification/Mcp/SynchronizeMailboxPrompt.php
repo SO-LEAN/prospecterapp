@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Identification\Mcp;
 
 use Mcp\Server\Capability\Attribute\McpPrompt;

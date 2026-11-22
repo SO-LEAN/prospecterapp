@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Shared\Messaging;
 
 use Prospecter\Core\Accounts\Contract\Event as Accounts;

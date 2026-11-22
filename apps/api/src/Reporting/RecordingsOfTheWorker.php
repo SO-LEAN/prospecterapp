@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Reporting;
 
 use Prospecter\Core\Reporting\Application\Port\RecordingsInFlight;

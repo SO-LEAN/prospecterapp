@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Connectors\Persistence;
 
 use App\Shared\Persistence\Table;

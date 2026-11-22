@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Exchanges\Resource;
 
 use App\Shared\Resource\LinkResource;

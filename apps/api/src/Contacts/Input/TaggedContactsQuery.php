@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Contacts\Input;
 
 use OpenApi\Attributes as OA;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Connectors\Input;
 
 use Symfony\Component\Validator\Constraints as Assert;

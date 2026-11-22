@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\App\Double;
 
 use Prospecter\Core\Prospecting\Domain\Event\ObservationsWritten;

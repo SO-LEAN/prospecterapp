@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Prospecting\Input;
 
 use App\Shared\Input\AddressInput;

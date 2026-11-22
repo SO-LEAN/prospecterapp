@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Reporting\Command;
 
 use App\Reporting\AntiCorruption\AccountsSourceAccounts;
