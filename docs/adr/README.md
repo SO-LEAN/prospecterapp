@@ -195,4 +195,4 @@ Why the project is shaped the way it is: one record per decision, in the order t
 | [0190](0190-stored-and-exposed-names-are-consistent-english.md) | Stored and exposed names are consistent English | architecture | Accepted | 2026-11-22 |
 | [0191](0191-domain-methods-take-four-parameters-at-most-through-argument-objects.md) | Domain methods take four parameters at most, through argument objects | architecture | Accepted | 2026-11-22 |
 | [0192](0192-phpstan-checks-the-core-at-its-highest-level.md) | PHPStan checks the core at its highest level | architecture | Accepted | 2026-11-22 |
-| [0193](0193-personal-data-collects-a-contact-by-its-reader.md) | PersonalData collects a contact by its Reader, not by a Gesture | architecture | Accepted | 2026-11-22 |
+| [0193](0193-an-actor-whose-right-its-aggregate-checks-stands-for-the-gesture.md) | An actor whose right its aggregate checks stands for the Gesture | architecture | Accepted | 2026-11-22 |
