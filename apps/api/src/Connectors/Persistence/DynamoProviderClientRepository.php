@@ -8,6 +8,7 @@ use App\Shared\Persistence\AccountSecrets;
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Hydrator;
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\Connectors\Domain\Exception\NoClient;
 use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
 use Prospecter\Core\Connectors\Domain\Model\MailboxNotifications;
@@ -35,15 +36,16 @@ final readonly class DynamoProviderClientRepository implements ProviderClientRep
 
     public function find(AccountId $account, Provider $provider): ?ProviderClient
     {
-        $document = $this->connectorsTable->item(ConnectorsKeys::account($account->value), ConnectorsKeys::client($provider->value))['client'] ?? null;
-        $secret = null === $document ? null : $this->accountSecrets->find($account->value, self::secretOf($provider), (int) $document['secretVersion']);
+        $item = $this->connectorsTable->item(ConnectorsKeys::account($account->value), ConnectorsKeys::client($provider->value));
+        $document = null === $item ? null : Typed::document($item['client']);
+        $secret = null === $document ? null : $this->accountSecrets->find($account->value, self::secretOf($provider), Typed::int($document['secretVersion']));
 
         return null === $secret ? null : Hydrator::restore(ProviderClient::class, [
             'accountId' => $account,
-            'credentials' => new ClientCredentials($provider, $document['clientId'], $secret),
+            'credentials' => new ClientCredentials($provider, Typed::string($document['clientId']), $secret),
             'mailboxNotifications' => self::mailboxNotificationsOf($document),
-            'createdAt' => Documents::momentOf($document['createdAt']),
-            'modifiedAt' => Documents::momentOf($document['modifiedAt']),
+            'createdAt' => Documents::momentOf(Typed::string($document['createdAt'])),
+            'modifiedAt' => Documents::momentOf(Typed::string($document['modifiedAt'])),
         ]);
     }
 
@@ -52,9 +54,9 @@ final readonly class DynamoProviderClientRepository implements ProviderClientRep
      */
     private static function mailboxNotificationsOf(array $document): ?MailboxNotifications
     {
-        $topic = $document['mailboxTopic'] ?? null;
+        $topic = Typed::stringOrNull($document['mailboxTopic'] ?? null);
 
-        return null === $topic ? null : new MailboxNotifications($topic, new Email($document['mailboxPushAccount']));
+        return null === $topic ? null : new MailboxNotifications($topic, new Email(Typed::string($document['mailboxPushAccount'])));
     }
 
     public function save(ProviderClient $client): void
@@ -73,8 +75,8 @@ final readonly class DynamoProviderClientRepository implements ProviderClientRep
                 'secretVersion' => $this->accountSecrets->put($account, self::secretOf($credentials->provider), $credentials->secret),
                 'mailboxTopic' => $client->mailboxNotifications()?->topic,
                 'mailboxPushAccount' => $client->mailboxNotifications()?->pushAccount->value,
-                'createdAt' => Documents::moment($state['createdAt']),
-                'modifiedAt' => Documents::moment($state['modifiedAt']),
+                'createdAt' => Documents::moment(Typed::object($state['createdAt'], \DateTimeImmutable::class)),
+                'modifiedAt' => Documents::moment(Typed::object($state['modifiedAt'], \DateTimeImmutable::class)),
             ],
         ])]);
     }

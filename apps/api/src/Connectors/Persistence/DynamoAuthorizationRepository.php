@@ -7,6 +7,7 @@ namespace App\Connectors\Persistence;
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Hydrator;
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\Connectors\Domain\Model\PendingAuthorization;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Model\Scope;
@@ -48,15 +49,16 @@ final readonly class DynamoAuthorizationRepository implements AuthorizationRepos
 
     public function find(string $state): ?PendingAuthorization
     {
-        $document = $this->connectorsTable->item(ConnectorsKeys::authorization($state), ConnectorsKeys::AUTHORIZATION)['authorization'] ?? null;
+        $item = $this->connectorsTable->item(ConnectorsKeys::authorization($state), ConnectorsKeys::AUTHORIZATION);
+        $document = null === $item ? null : Typed::document($item['authorization']);
 
         return null === $document ? null : Hydrator::restore(PendingAuthorization::class, [
-            'state' => $document['state'],
-            'member' => new MemberId($document['member']),
-            'provider' => Provider::from($document['provider']),
-            'codeVerifier' => $document['codeVerifier'],
-            'expiresAt' => Documents::momentOf($document['expiresAt']),
-            'scopes' => array_map(Scope::from(...), $document['scopes'] ?? self::THE_CALENDAR),
+            'state' => Typed::string($document['state']),
+            'member' => new MemberId(Typed::string($document['member'])),
+            'provider' => Provider::from(Typed::string($document['provider'])),
+            'codeVerifier' => Typed::string($document['codeVerifier']),
+            'expiresAt' => Documents::momentOf(Typed::string($document['expiresAt'])),
+            'scopes' => array_map(Scope::from(...), Typed::strings($document['scopes'] ?? self::THE_CALENDAR)),
         ]);
     }
 

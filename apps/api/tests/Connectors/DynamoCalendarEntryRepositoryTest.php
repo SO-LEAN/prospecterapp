@@ -82,6 +82,6 @@ class DynamoCalendarEntryRepositoryTest extends ApiTestCase
 
     private function entries(): CalendarEntryRepository
     {
-        return self::getContainer()->get(CalendarEntryRepository::class);
+        return self::service(CalendarEntryRepository::class);
     }
 }

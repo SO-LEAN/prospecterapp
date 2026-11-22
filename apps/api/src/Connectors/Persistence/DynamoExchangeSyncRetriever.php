@@ -6,6 +6,7 @@ namespace App\Connectors\Persistence;
 
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\Connectors\Application\ExchangeSync;
 use Prospecter\Core\Connectors\Application\Port\ExchangeSyncRetriever;
 use Prospecter\Core\Connectors\Domain\Model\ExchangeId;
@@ -24,13 +25,14 @@ final readonly class DynamoExchangeSyncRetriever implements ExchangeSyncRetrieve
 
     public function find(ExchangeId $exchange, MemberId $member): ?ExchangeSync
     {
-        $entry = $this->connectorsTable->query(ConnectorsKeys::exchange($exchange->value))[0]['entry'] ?? null;
+        $item = $this->connectorsTable->query(ConnectorsKeys::exchange($exchange->value))[0] ?? null;
+        $entry = null === $item ? null : Typed::document($item['entry']);
         if (null === $entry || $member->value !== $entry['member']) {
             return null;
         }
 
-        $since = $entry['since'] ?? null;
+        $since = Typed::stringOrNull($entry['since'] ?? null);
 
-        return new ExchangeSync($entry['provider'], $entry['state'] ?? SyncState::Synced->value, null === $since ? null : Documents::momentOf($since), $entry['reason'] ?? null);
+        return new ExchangeSync(Typed::string($entry['provider']), Typed::stringOrNull($entry['state'] ?? null) ?? SyncState::Synced->value, null === $since ? null : Documents::momentOf($since), Typed::stringOrNull($entry['reason'] ?? null));
     }
 }

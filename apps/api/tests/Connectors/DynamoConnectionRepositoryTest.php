@@ -6,6 +6,7 @@ namespace Tests\App\Connectors;
 
 use App\Shared\Persistence\ConditionFailed;
 use App\Shared\Persistence\Hydrator;
+use App\Shared\Typed;
 use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
 use Prospecter\Core\Connectors\Domain\Model\Connection;
 use Prospecter\Core\Connectors\Domain\Model\Grant;
@@ -92,7 +93,7 @@ class DynamoConnectionRepositoryTest extends ApiTestCase
     {
         $connection = self::aConnectionImportingTheMail();
         $this->connections()->save($connection);
-        $account = Hydrator::stateOf($connection)['accountId'];
+        $account = Typed::object(Hydrator::stateOf($connection)['accountId'], AccountId::class);
 
         $this->assertTrue($connection->isTheSameAs($this->connections()->importing($account, Provider::Google, new Email('michel@exemple.fr')) ?? self::fail('The connection importing the mailbox was expected')));
         $this->assertNull($this->connections()->importing(new AccountId(self::newIdentity()), Provider::Google, new Email('michel@exemple.fr')), 'Another account imports nothing of the mailbox');
@@ -106,7 +107,7 @@ class DynamoConnectionRepositoryTest extends ApiTestCase
 
         $this->connections()->save($connection);
 
-        $this->assertNull($this->connections()->importing(Hydrator::stateOf($connection)['accountId'], Provider::Google, new Email('michel@exemple.fr')));
+        $this->assertNull($this->connections()->importing(Typed::object(Hydrator::stateOf($connection)['accountId'], AccountId::class), Provider::Google, new Email('michel@exemple.fr')));
     }
 
     private static function aConnectionImportingTheMail(): Connection
@@ -139,6 +140,6 @@ class DynamoConnectionRepositoryTest extends ApiTestCase
 
     private function connections(): ConnectionRepository
     {
-        return self::getContainer()->get(ConnectionRepository::class);
+        return self::service(ConnectionRepository::class);
     }
 }

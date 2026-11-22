@@ -6,6 +6,7 @@ namespace App\Connectors\Persistence;
 
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\Connectors\Application\MyConnection;
 use Prospecter\Core\Connectors\Application\Port\MyConnectionsRetriever;
 use Prospecter\Core\Connectors\Domain\Model\MailImport;
@@ -25,18 +26,29 @@ final readonly class DynamoMyConnectionsRetriever implements MyConnectionsRetrie
 
     public function of(MemberId $me, \DateTimeImmutable $from): array
     {
-        $upcoming = array_column($this->connectorsTable->queryAfter(ConnectorsKeys::entriesOf($me->value), Table::BY_GSI1, Documents::moment($from)), 'entry');
+        $upcoming = Typed::documents(array_column($this->connectorsTable->queryAfter(ConnectorsKeys::entriesOf($me->value), Table::BY_GSI1, Documents::moment($from)), 'entry'));
 
-        return array_map(static fn (array $item): MyConnection => new MyConnection(
-            $item['connection']['provider'],
-            $item['connection']['state'],
-            $item['connection']['externalAccount'],
-            Documents::momentOf($item['connection']['connectedAt']),
-            self::count($upcoming, $item['connection']['provider'], SyncState::Synced),
-            self::count($upcoming, $item['connection']['provider'], SyncState::Failed),
-            $item['connection']['mailImport'] ?? MailImport::Off->value,
-            Documents::momentOfOrNone($item['connection']['lastNotifiedAt'] ?? null),
-        ), $this->connectorsTable->query(ConnectorsKeys::member($me->value)));
+        return array_map(static fn (array $connection): MyConnection => self::connectionOf($connection, $upcoming), Typed::documents(array_column($this->connectorsTable->query(ConnectorsKeys::member($me->value)), 'connection')));
+    }
+
+    /**
+     * @param array<string, mixed>       $connection
+     * @param list<array<string, mixed>> $upcoming   the member's upcoming entries
+     */
+    private static function connectionOf(array $connection, array $upcoming): MyConnection
+    {
+        $provider = Typed::string($connection['provider']);
+
+        return new MyConnection(
+            $provider,
+            Typed::string($connection['state']),
+            Typed::string($connection['externalAccount']),
+            Documents::momentOf(Typed::string($connection['connectedAt'])),
+            self::count($upcoming, $provider, SyncState::Synced),
+            self::count($upcoming, $provider, SyncState::Failed),
+            Typed::stringOrNull($connection['mailImport'] ?? null) ?? MailImport::Off->value,
+            Documents::momentOfOrNone(Typed::stringOrNull($connection['lastNotifiedAt'] ?? null)),
+        );
     }
 
     /**

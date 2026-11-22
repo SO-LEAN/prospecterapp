@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Connectors\Persistence;
 
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\Connectors\Application\AccountClient;
 use Prospecter\Core\Connectors\Application\Port\AccountClientsRetriever;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
@@ -21,8 +22,8 @@ final readonly class DynamoAccountClientsRetriever implements AccountClientsRetr
     public function of(AccountId $account): array
     {
         return array_map(
-            static fn (array $item): AccountClient => new AccountClient($item['client']['provider'], $item['client']['clientId'], $item['client']['mailboxTopic'] ?? null, $item['client']['mailboxPushAccount'] ?? null),
-            $this->connectorsTable->query(ConnectorsKeys::account($account->value)),
+            static fn (array $client): AccountClient => new AccountClient(Typed::string($client['provider']), Typed::string($client['clientId']), Typed::stringOrNull($client['mailboxTopic'] ?? null), Typed::stringOrNull($client['mailboxPushAccount'] ?? null)),
+            Typed::documents(array_column($this->connectorsTable->query(ConnectorsKeys::account($account->value)), 'client')),
         );
     }
 }
