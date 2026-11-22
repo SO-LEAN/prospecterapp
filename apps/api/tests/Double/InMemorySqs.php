@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Double;
 
+use App\Shared\Typed;
 use Aws\CommandInterface;
 use Aws\Result;
 use GuzzleHttp\Promise\Create;
@@ -28,7 +29,7 @@ final class InMemorySqs
      */
     public function messagesOf(string $queue): array
     {
-        return array_values(array_map(static fn (string $body): array => json_decode($body, true, flags: \JSON_THROW_ON_ERROR), $this->queues[$queue] ?? []));
+        return array_values(array_map(static fn (string $body): array => Typed::document(json_decode($body, true, flags: \JSON_THROW_ON_ERROR)), $this->queues[$queue] ?? []));
     }
 
     public function send(string $queue, string $body): void
@@ -39,10 +40,10 @@ final class InMemorySqs
     public function __invoke(CommandInterface $command): PromiseInterface
     {
         return Create::promiseFor(new Result(match ($command->getName()) {
-            'GetQueueUrl' => ['QueueUrl' => self::URL.$command['QueueName']],
-            'SendMessage' => $this->sendMessage($this->queueOf($command), $command['MessageBody']),
-            'ReceiveMessage' => ['Messages' => $this->receive($this->queueOf($command), $command['MaxNumberOfMessages'] ?? 1)],
-            'DeleteMessage' => $this->delete($this->queueOf($command), $command['ReceiptHandle']),
+            'GetQueueUrl' => ['QueueUrl' => self::URL.Typed::string($command['QueueName'])],
+            'SendMessage' => $this->sendMessage($this->queueOf($command), Typed::string($command['MessageBody'])),
+            'ReceiveMessage' => ['Messages' => $this->receive($this->queueOf($command), Typed::int($command['MaxNumberOfMessages'] ?? 1))],
+            'DeleteMessage' => $this->delete($this->queueOf($command), Typed::string($command['ReceiptHandle'])),
             'GetQueueAttributes' => ['Attributes' => $this->countsOf($this->queueOf($command))],
             default => throw new \LogicException(sprintf('The SQS of the tests does not answer %s', $command->getName())),
         }));
@@ -50,7 +51,7 @@ final class InMemorySqs
 
     private function queueOf(CommandInterface $command): string
     {
-        return substr($command['QueueUrl'], strlen(self::URL));
+        return substr(Typed::string($command['QueueUrl']), strlen(self::URL));
     }
 
     /**

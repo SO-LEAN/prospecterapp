@@ -7,6 +7,7 @@ namespace Tests\App\Shared;
 use App\Shared\Messaging\OutboxDelivery;
 use App\Shared\Messaging\TransportedEvent;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 use Tests\App\Base\ApiTestCase;
@@ -39,7 +40,7 @@ class RepublishOutboxCommandTest extends ApiTestCase
     public function testTheMomentIsAsked(): void
     {
         $this->publishThroughTheOutbox('prospecter.accounts');
-        $tester = new CommandTester(new Application(self::$kernel)->find('app:outbox:republish'));
+        $tester = new CommandTester(new Application(self::$kernel ?? self::bootKernel())->find('app:outbox:republish'));
 
         $this->assertSame(Command::INVALID, $tester->execute([]));
         $this->assertSame([], $this->bus()->puts);
@@ -48,24 +49,24 @@ class RepublishOutboxCommandTest extends ApiTestCase
     private function publishThroughTheOutbox(string ...$sources): void
     {
         foreach ($sources as $source) {
-            self::getContainer()->get(OutboxDelivery::class)->deliver(new TransportedEvent($source, 'Happened.v1', self::newIdentity(), '2026-11-10T09:00:00.000000Z', self::newIdentity(), null, 0, []));
+            self::service(OutboxDelivery::class)->deliver(new TransportedEvent($source, 'Happened.v1', self::newIdentity(), '2026-11-10T09:00:00.000000Z', self::newIdentity(), null, 0, []));
         }
     }
 
     private function committedAt(): \DateTimeImmutable
     {
-        return self::getContainer()->get('app.commit_clock')->now();
+        return self::service(ClockInterface::class, 'app.commit_clock')->now();
     }
 
     private function republish(\DateTimeImmutable $since): int
     {
-        $tester = new CommandTester(new Application(self::$kernel)->find('app:outbox:republish'));
+        $tester = new CommandTester(new Application(self::$kernel ?? self::bootKernel())->find('app:outbox:republish'));
 
         return $tester->execute(['--since' => $since->format(\DATE_ATOM)]);
     }
 
     private function bus(): InMemoryEventBridge
     {
-        return self::getContainer()->get(InMemoryEventBridge::class);
+        return self::service(InMemoryEventBridge::class);
     }
 }

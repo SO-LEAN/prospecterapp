@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Local;
 
+use App\Shared\Typed;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -47,7 +48,7 @@ class CorsTest extends WebTestCase
         $allowed = str_replace('$PUBLIC_PORT_SUFFIX', self::PORT_OF_A_WORKTREE, $this->allowedByTheLocalHttpApi());
 
         $this->assertSame('https://prospecter.localhost'.self::PORT_OF_A_WORKTREE, $allowed);
-        $this->assertMatchesRegularExpression('#'.$_ENV['CORS_ALLOW_ORIGIN'].'#', $allowed);
+        $this->assertMatchesRegularExpression('#'.Typed::string($_ENV['CORS_ALLOW_ORIGIN']).'#', $allowed);
     }
 
     private function preflightFrom(string $origin): void
@@ -63,6 +64,6 @@ class CorsTest extends WebTestCase
     {
         preg_match('/AllowOrigins=([^,]+),AllowMethods=/', (string) file_get_contents(self::DEPLOYMENT_OF_THE_LOCAL_FUNCTIONS), $match);
 
-        return $match[1];
+        return $match[1] ?? self::fail('The local HTTP API names no origin it allows.');
     }
 }

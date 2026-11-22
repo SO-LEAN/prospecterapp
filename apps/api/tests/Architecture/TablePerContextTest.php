@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Architecture;
 
+use App\Shared\Typed;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -80,8 +81,10 @@ class TablePerContextTest extends TestCase
         $found = [];
 
         foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($root.$folder, \FilesystemIterator::SKIP_DOTS)) as $file) {
-            if (preg_match_all(self::TABLE, (string) file_get_contents($file->getPathname()), $matches)) {
-                $found[substr($file->getPathname(), strlen($root))] = $matches[1];
+            $pathname = Typed::object($file, \SplFileInfo::class)->getPathname();
+
+            if (preg_match_all(self::TABLE, (string) file_get_contents($pathname), $matches)) {
+                $found[substr($pathname, strlen($root))] = $matches[1];
             }
         }
 

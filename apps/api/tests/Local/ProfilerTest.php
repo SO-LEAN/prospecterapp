@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Local;
 
+use App\Shared\Typed;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Yaml\Yaml;
@@ -27,25 +28,28 @@ class ProfilerTest extends WebTestCase
 
     public function testInDevTheProfilesAreKeptOutOfTheCache(): void
     {
-        $dsn = $this->devConfiguration('web_profiler')['framework']['profiler']['dsn'];
+        $dsn = $this->devSetting('web_profiler', 'framework', 'profiler', 'dsn');
 
         $this->assertSame('file:%kernel.project_dir%/var/profiler', $dsn);
     }
 
     public function testInDevTheCorsOfTheApiAndOfItsLocalHttpApiExposeTheDebugTokens(): void
     {
-        $exposed = $this->devConfiguration('nelmio_cors')['nelmio_cors']['defaults']['expose_headers'];
+        $exposed = Typed::strings($this->devSetting('nelmio_cors', 'nelmio_cors', 'defaults', 'expose_headers'));
 
         $this->assertSame(['Location', 'X-Debug-Token', 'X-Debug-Token-Link'], $exposed);
         $this->assertSame(array_map(strtolower(...), $exposed), $this->exposedByTheLocalHttpApi());
     }
 
     /**
-     * @return array<string, mixed>
+     * The setting at this path in a package's dev configuration.
      */
-    private function devConfiguration(string $package): array
+    private function devSetting(string $package, string ...$path): mixed
     {
-        return Yaml::parseFile(self::getContainer()->getParameter('kernel.project_dir')."/config/packages/{$package}.yaml")['when@dev'];
+        $file = Typed::string(self::getContainer()->getParameter('kernel.project_dir'))."/config/packages/{$package}.yaml";
+        $devConfiguration = Typed::document(Yaml::parseFile($file))['when@dev'];
+
+        return array_reduce($path, static fn (mixed $setting, string $name): mixed => Typed::document($setting)[$name], $devConfiguration);
     }
 
     /**
@@ -55,6 +59,6 @@ class ProfilerTest extends WebTestCase
     {
         preg_match('/ExposeHeaders=([a-z,-]+?),MaxAge=/', (string) file_get_contents(self::DEPLOYMENT_OF_THE_LOCAL_FUNCTIONS), $match);
 
-        return explode(',', $match[1]);
+        return explode(',', $match[1] ?? self::fail('The local HTTP API exposes no header.'));
     }
 }

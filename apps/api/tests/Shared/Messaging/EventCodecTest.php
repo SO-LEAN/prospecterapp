@@ -54,6 +54,9 @@ class EventCodecTest extends TestCase
         $this->assertEquals($event, $this->codec()->decode($this->transported($this->codec()->encode($event, new Cause(self::ID, null, 0)))));
     }
 
+    /**
+     * @param class-string $class
+     */
     #[DataProvider('events')]
     public function testAnEventIsListedUnderTheSourceOfItsContext(string $class): void
     {
@@ -232,7 +235,7 @@ class EventCodecTest extends TestCase
         foreach (glob($root.'*/{Contract,Domain}/Event/*.php', \GLOB_BRACE) ?: [] as $file) {
             $class = 'Prospecter\\Core\\'.str_replace(['/', '.php'], ['\\', ''], substr($file, strlen($root)));
 
-            if (!new \ReflectionClass($class)->isAbstract()) {
+            if (class_exists($class) && !new \ReflectionClass($class)->isAbstract()) {
                 yield $class => [$class];
             }
         }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Architecture;
 
+use App\Shared\Typed;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -70,9 +71,10 @@ class DomainBehindTheApplicationTest extends TestCase
         $files = [];
 
         foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($root, \FilesystemIterator::SKIP_DOTS)) as $file) {
-            $path = substr($file->getPathname(), strlen($root));
+            $pathname = Typed::object($file, \SplFileInfo::class)->getPathname();
+            $path = substr($pathname, strlen($root));
 
-            if (!$this->isAnAdapter($path) && preg_match(self::DOMAIN, (string) file_get_contents($file->getPathname()))) {
+            if (!$this->isAnAdapter($path) && preg_match(self::DOMAIN, (string) file_get_contents($pathname))) {
                 $files[] = $path;
             }
         }

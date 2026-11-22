@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Double;
 
+use App\Shared\Typed;
 use Prospecter\Core\SharedKernel\Application\Port\Storage;
 
 /**
@@ -16,7 +17,7 @@ final class InMemoryStorage implements Storage
 
     public function add(\SplFileInfo $file): string
     {
-        $url = sprintf('%s/%s.%s', $_ENV['STORAGE_PUBLIC_URL'], bin2hex(random_bytes(8)), $file->getExtension());
+        $url = sprintf('%s/%s.%s', Typed::string($_ENV['STORAGE_PUBLIC_URL']), bin2hex(random_bytes(8)), $file->getExtension());
         $this->urls[$url] = true;
 
         return $url;

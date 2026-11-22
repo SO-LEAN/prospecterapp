@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Double;
 
+use App\Shared\Typed;
 use Symfony\Component\HttpClient\Response\JsonMockResponse;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Contracts\HttpClient\ResponseInterface;
@@ -218,7 +219,7 @@ final class GoogleDouble
             return new MockResponse('', ['http_code' => 500]);
         }
 
-        $this->watches[] = (string) (json_decode((string) ($options['body'] ?? ''), true)['topicName'] ?? '');
+        $this->watches[] = Typed::string(Typed::document(json_decode(Typed::string($options['body'] ?? '{}'), true))['topicName'] ?? '');
 
         return new JsonMockResponse(['historyId' => '1000', 'expiration' => (string) (new \DateTimeImmutable(self::WATCHED_UNTIL)->getTimestamp() * 1000)]);
     }
@@ -261,12 +262,12 @@ final class GoogleDouble
      */
     private function calendar(string $method, string $address, array $options): ResponseInterface
     {
-        $body = is_string($options['body'] ?? null) && '' !== $options['body'] ? (array) json_decode($options['body'], true) : [];
+        $body = is_string($options['body'] ?? null) && '' !== $options['body'] ? Typed::document(json_decode($options['body'], true)) : [];
         $segments = explode('/', trim((string) parse_url($address, \PHP_URL_PATH), '/'));
         parse_str((string) parse_url($address, \PHP_URL_QUERY), $query);
         $body = '1' === ($query['conferenceDataVersion'] ?? null) ? $body : array_diff_key($body, ['conferenceData' => true]);
         $calendar = $segments[1] ?? '';
-        $event = $segments[3] ?? null;
+        $event = $segments[3] ?? '';
 
         if ('POST' === $method && ['calendars'] === $segments) {
             $id = sprintf('calendar-of-the-double-%d', count($this->calendars) + 1);
@@ -280,9 +281,9 @@ final class GoogleDouble
         }
 
         return match ($method) {
-            'PUT' => isset($this->calendars[$calendar][$event]) ? $this->put($calendar, (string) $event, $body) : new MockResponse('', ['http_code' => 404]),
-            'POST' => $this->put($calendar, (string) ($body['id'] ?? ''), $body),
-            'DELETE' => $this->delete($calendar, (string) $event),
+            'PUT' => isset($this->calendars[$calendar][$event]) ? $this->put($calendar, $event, $body) : new MockResponse('', ['http_code' => 404]),
+            'POST' => $this->put($calendar, Typed::string($body['id'] ?? ''), $body),
+            'DELETE' => $this->delete($calendar, $event),
             default => new MockResponse('', ['http_code' => 405]),
         };
     }
@@ -310,7 +311,7 @@ final class GoogleDouble
      */
     private static function conferenceAskedBy(array $event): ?string
     {
-        $requestId = $event['conferenceData']['createRequest']['requestId'] ?? null;
+        $requestId = Typed::document(Typed::document($event['conferenceData'] ?? [])['createRequest'] ?? [])['requestId'] ?? null;
 
         return is_string($requestId) ? sprintf('https://meet.google.com/%s', substr(md5($requestId), 0, 10)) : null;
     }
@@ -334,9 +335,9 @@ final class GoogleDouble
     private static function formOf(array $options): array
     {
         $body = $options['body'] ?? '';
-        parse_str(is_string($body) ? $body : http_build_query($body), $form);
+        parse_str(is_string($body) ? $body : http_build_query(Typed::array($body)), $form);
 
-        return array_filter($form, is_string(...));
+        return Typed::namedStrings(array_filter($form, is_string(...)));
     }
 
     /**

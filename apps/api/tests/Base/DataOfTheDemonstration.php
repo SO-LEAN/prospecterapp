@@ -7,6 +7,7 @@ namespace Tests\App\Base;
 use App\Demo\DemoData;
 use App\Shared\Persistence\AccountSecrets;
 use App\Shared\Persistence\Tables;
+use App\Shared\Typed;
 use Aws\DynamoDb\DynamoDbClient;
 use Aws\Ssm\SsmClient;
 
@@ -38,7 +39,9 @@ final class DataOfTheDemonstration
 
     public function restore(): void
     {
-        if (null === self::$items) {
+        $kept = self::$items;
+
+        if (null === $kept) {
             $this->make();
 
             return;
@@ -46,7 +49,7 @@ final class DataOfTheDemonstration
 
         $this->restoreTheSecrets();
 
-        foreach (self::$items as $table => $items) {
+        foreach ($kept as $table => $items) {
             $this->restoreTheItems($table, $items);
         }
     }
@@ -92,7 +95,7 @@ final class DataOfTheDemonstration
             $pending = [$table => $chunk];
 
             while ([] !== $pending) {
-                $pending = $this->dynamoDb->batchWriteItem(['RequestItems' => $pending])['UnprocessedItems'] ?? [];
+                $pending = array_map(Typed::documents(...), Typed::document($this->dynamoDb->batchWriteItem(['RequestItems' => $pending])['UnprocessedItems'] ?? []));
             }
         }
     }
@@ -103,20 +106,35 @@ final class DataOfTheDemonstration
      */
     private function itemsOf(string $table): array
     {
-        $request = ['TableName' => $table, 'ConsistentRead' => true];
         $items = [];
+        $lastKey = null;
 
         do {
-            $result = $this->dynamoDb->scan($request);
+            $result = $this->dynamoDb->scan(['TableName' => $table, 'ConsistentRead' => true, ...(null === $lastKey ? [] : ['ExclusiveStartKey' => $lastKey])]);
 
-            foreach ($result['Items'] ?? [] as $item) {
-                $items[$item['PK']['S'].'|'.$item['SK']['S']] = self::canonical($item);
+            foreach (Typed::documents($result['Items'] ?? []) as $item) {
+                $key = self::keyOf($item);
+                $items[$key['PK']['S'].'|'.$key['SK']['S']] = self::canonical($item);
             }
 
-            $request['ExclusiveStartKey'] = $result['LastEvaluatedKey'] ?? null;
-        } while (null !== $request['ExclusiveStartKey']);
+            $last = $result['LastEvaluatedKey'] ?? null;
+            $lastKey = null === $last ? null : self::keyOf(Typed::document($last));
+        } while (null !== $lastKey);
 
         return $items;
+    }
+
+    /**
+     * @param array<string, mixed> $item as DynamoDB gives it
+     *
+     * @return array{PK: array{S: string}, SK: array{S: string}}
+     */
+    private static function keyOf(array $item): array
+    {
+        return [
+            'PK' => ['S' => Typed::string(Typed::document($item['PK'])['S'])],
+            'SK' => ['S' => Typed::string(Typed::document($item['SK'])['S'])],
+        ];
     }
 
     /**
@@ -127,16 +145,18 @@ final class DataOfTheDemonstration
         $secrets = [];
 
         foreach ($this->ssm->getPaginator('GetParametersByPath', ['Path' => $this->secretsPath, 'Recursive' => true, 'WithDecryption' => true]) as $page) {
-            $secrets = [...$secrets, ...array_column($page['Parameters'], 'Value', 'Name')];
+            $secrets = [...$secrets, ...Typed::namedStrings(array_column(Typed::documents($page['Parameters']), 'Value', 'Name'))];
         }
 
         return $secrets;
     }
 
     /**
-     * @param array<array-key, mixed> $value
+     * @template K of array-key
      *
-     * @return array<array-key, mixed>
+     * @param array<K, mixed> $value
+     *
+     * @return array<K, mixed>
      */
     private static function canonical(array $value): array
     {

@@ -9,6 +9,7 @@ use App\Shared\Messaging\TransportedEvent;
 use App\Shared\Persistence\ConditionFailed;
 use App\Shared\Persistence\DynamoUnitOfWork;
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Tests\App\Base\ApiTestCase;
 
 /**
@@ -25,9 +26,9 @@ class CommitOutboxTest extends ApiTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->unitOfWork = self::getContainer()->get(DynamoUnitOfWork::class);
-        $this->delivery = self::getContainer()->get(OutboxDelivery::class);
-        $table = self::getContainer()->get('app.table.accounts');
+        $this->unitOfWork = self::service(DynamoUnitOfWork::class);
+        $this->delivery = self::service(OutboxDelivery::class);
+        $table = self::tableOf('accounts');
         $this->assertInstanceOf(Table::class, $table);
         $this->accounts = $table;
     }
@@ -87,7 +88,7 @@ class CommitOutboxTest extends ApiTestCase
 
         $this->assertNull($this->accounts->item('TEST#ada', 'TEST'));
         $this->assertSame([], $this->accounts->scan('OUTBOX#'));
-        $this->assertSame([], self::getContainer()->get('app.table.personal_data')->scan('OUTBOX#'));
+        $this->assertSame([], self::tableOf('personal_data')->scan('OUTBOX#'));
     }
 
     public function testAnEventPublishedOutsideAUnitIsACommitOfItsOwn(): void
@@ -148,7 +149,7 @@ class CommitOutboxTest extends ApiTestCase
      */
     private function detailTypesOfTheOutbox(): array
     {
-        return array_map(static fn (array $item): array => array_column(json_decode((string) $item['events'], true, flags: \JSON_THROW_ON_ERROR), 'detailType'), $this->accounts->scan('OUTBOX#'));
+        return array_map(static fn (array $item): array => Typed::strings(array_column(Typed::documents(json_decode(Typed::string($item['events']), true, flags: \JSON_THROW_ON_ERROR)), 'detailType')), $this->accounts->scan('OUTBOX#'));
     }
 
     private function event(string $source, string $detailType, string $name = 'SOLEAN IT'): TransportedEvent

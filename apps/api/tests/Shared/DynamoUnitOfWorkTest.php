@@ -8,6 +8,7 @@ use App\PersonalData\Persistence\DynamoPersonRepository;
 use App\Shared\Persistence\ConditionFailed;
 use App\Shared\Persistence\DynamoUnitOfWork;
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\PersonalData\Domain\Model\ContactCard;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
@@ -31,8 +32,8 @@ class DynamoUnitOfWorkTest extends ApiTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->unitOfWork = self::getContainer()->get(DynamoUnitOfWork::class);
-        $table = self::getContainer()->get('app.table.accounts');
+        $this->unitOfWork = self::service(DynamoUnitOfWork::class);
+        $table = self::tableOf('accounts');
         $this->assertInstanceOf(Table::class, $table);
         $this->table = $table;
     }
@@ -365,7 +366,7 @@ class DynamoUnitOfWorkTest extends ApiTestCase
 
     public function testARefusalDetectedAtTheCommitIsTheOneItsWriteCarriesNothingWritten(): void
     {
-        $persons = self::getContainer()->get(DynamoPersonRepository::class);
+        $persons = self::service(DynamoPersonRepository::class);
         $account = new AccountId(self::newIdentity());
         $ada = $this->personWithTheEmail($account, 'ada@solean-it.io');
         $this->unitOfWork->begin();
@@ -389,7 +390,7 @@ class DynamoUnitOfWorkTest extends ApiTestCase
     }
 
     /**
-     * @param array<string, int> $increments
+     * @param non-empty-array<string, int> $increments
      */
     private function add(string $id, array $increments): void
     {
@@ -411,7 +412,7 @@ class DynamoUnitOfWorkTest extends ApiTestCase
 
     private function readNameOf(string $id): ?string
     {
-        return $this->table->item('TEST#'.$id, 'TEST')['name'] ?? null;
+        return Typed::stringOrNull($this->table->item('TEST#'.$id, 'TEST')['name'] ?? null);
     }
 
     /**
@@ -419,7 +420,7 @@ class DynamoUnitOfWorkTest extends ApiTestCase
      */
     private function storedNameOf(string $id): ?string
     {
-        return $this->asAnotherRequest($this->table)->item('TEST#'.$id, 'TEST')['name'] ?? null;
+        return Typed::stringOrNull($this->asAnotherRequest($this->table)->item('TEST#'.$id, 'TEST')['name'] ?? null);
     }
 
     /**
@@ -427,7 +428,7 @@ class DynamoUnitOfWorkTest extends ApiTestCase
      */
     private function anotherRequestSaves(Person $person): void
     {
-        $table = self::getContainer()->get('app.table.personal_data');
+        $table = self::tableOf('personal_data');
         $this->assertInstanceOf(Table::class, $table);
         new DynamoPersonRepository($this->asAnotherRequest($table))->save($person);
     }

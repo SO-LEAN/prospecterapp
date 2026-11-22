@@ -6,6 +6,7 @@ namespace Tests\App\Shared;
 
 use App\Shared\Resource\UploadResource;
 use App\Shared\ServiceUnavailable;
+use App\Shared\Typed;
 use App\Shared\UploadsSentByTheApi;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -95,7 +96,7 @@ class UploadsSentByTheApiTest extends TestCase
     private function uploads(array &$requests, string $endpoint): UploadsSentByTheApi
     {
         $http = new MockHttpClient(static function (string $method, string $url, array $options) use (&$requests): MockResponse {
-            $requests[] = ['method' => $method, 'url' => $url, 'body' => (string) $options['body'], 'length' => $options['normalized_headers']['content-length'] ?? []];
+            $requests[] = ['method' => $method, 'url' => $url, 'body' => Typed::string($options['body']), 'length' => Typed::strings(Typed::document($options['normalized_headers'])['content-length'] ?? [])];
 
             return new MockResponse('', ['http_code' => 204]);
         });

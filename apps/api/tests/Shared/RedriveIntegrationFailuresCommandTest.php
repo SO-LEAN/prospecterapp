@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Shared;
 
+use App\Shared\Typed;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Command\Command;
@@ -31,7 +32,7 @@ class RedriveIntegrationFailuresCommandTest extends KernelTestCase
         $this->assertSame([
             ['function' => 'prospecter-test-worker', 'type' => 'Event', 'payload' => $givenUp],
             ['function' => 'prospecter-test-worker', 'type' => 'Event', 'payload' => $refused],
-        ], self::getContainer()->get(InMemoryLambda::class)->invocations);
+        ], $this->lambda()->invocations);
         $this->assertSame([], $this->queue()->messagesOf(self::FAILURES));
     }
 
@@ -41,7 +42,7 @@ class RedriveIntegrationFailuresCommandTest extends KernelTestCase
 
         $this->assertSame(Command::FAILURE, $this->redrive());
 
-        $this->assertSame([], self::getContainer()->get(InMemoryLambda::class)->invocations);
+        $this->assertSame([], $this->lambda()->invocations);
         $this->assertCount(1, $this->queue()->messagesOf(self::FAILURES));
     }
 
@@ -52,7 +53,12 @@ class RedriveIntegrationFailuresCommandTest extends KernelTestCase
 
     private function queue(): InMemorySqs
     {
-        return self::getContainer()->get(InMemorySqs::class);
+        return Typed::object(self::getContainer()->get(InMemorySqs::class), InMemorySqs::class);
+    }
+
+    private function lambda(): InMemoryLambda
+    {
+        return Typed::object(self::getContainer()->get(InMemoryLambda::class), InMemoryLambda::class);
     }
 
     /**

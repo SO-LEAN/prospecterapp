@@ -114,6 +114,16 @@ final class SubscriptionsPass implements CompilerPassInterface
         $file = Typed::string($container->getParameter('kernel.project_dir')).self::FILE;
         $container->addResource(new FileResource($file));
 
+        return self::listedIn($file);
+    }
+
+    /**
+     * Reads the subscriptions a file lists, and checks each one as it reads it.
+     *
+     * @return array<string, Listed>
+     */
+    public static function listedIn(string $file): array
+    {
         return array_map(self::listed(...), Typed::document(json_decode((string) file_get_contents($file), true, flags: \JSON_THROW_ON_ERROR)));
     }
 
