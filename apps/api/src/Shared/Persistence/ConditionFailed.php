@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Shared\Persistence;
 
+use App\Shared\Typed;
 use Aws\DynamoDb\Exception\DynamoDbException;
 use Prospecter\Core\SharedKernel\Domain\Exception\ChangedMeanwhile;
 
@@ -23,7 +24,7 @@ final class ConditionFailed extends \RuntimeException
 
     public static function in(DynamoDbException $cancelled): self
     {
-        $reasons = $cancelled->get('CancellationReasons') ?? [];
+        $reasons = Typed::documents($cancelled->get('CancellationReasons') ?? []);
 
         return new self(array_keys(array_filter($reasons, static fn (array $reason): bool => 'ConditionalCheckFailed' === ($reason['Code'] ?? null))), $cancelled);
     }

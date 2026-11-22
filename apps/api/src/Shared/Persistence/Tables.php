@@ -89,7 +89,7 @@ final readonly class Tables
     }
 
     /**
-     * @return list<array{AttributeName: string, KeyType: string}>
+     * @return list<array{AttributeName: string, KeyType: 'HASH'|'RANGE'}>
      */
     private static function keySchema(string $partition, string $sort): array
     {

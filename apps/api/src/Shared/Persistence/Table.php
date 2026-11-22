@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Shared\Persistence;
 
+use App\Shared\Typed;
 use Aws\DynamoDb\DynamoDbClient;
 use Aws\DynamoDb\Marshaler;
+use Aws\ResultInterface;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessException;
 
 /**
@@ -51,7 +53,7 @@ final readonly class Table
      */
     private function storedItem(string $pk, string $sk): ?array
     {
-        $stored = $this->client->getItem(['TableName' => $this->name, 'Key' => $this->key($pk, $sk), 'ConsistentRead' => true])['Item'] ?? null;
+        $stored = $this->client->getItem(['TableName' => $this->name, 'Key' => self::key($pk, $sk), 'ConsistentRead' => true])['Item'] ?? null;
         $item = null === $stored ? null : $this->documentOf($stored);
         $this->noteRead([[$pk, $sk]], null === $item ? [] : [$item]);
 
@@ -106,18 +108,36 @@ final readonly class Table
         $found = [];
 
         foreach (array_chunk($keys, self::BATCH_GET_SIZE) as $chunk) {
-            $request = [$this->name => ['Keys' => array_map(fn (array $key): array => $this->key(...$key), $chunk), 'ConsistentRead' => true]];
-
-            while ([] !== $request) {
-                $result = $this->client->batchGetItem(['RequestItems' => $request]);
-                $found = [...$found, ...array_map($this->documentOf(...), $result['Responses'][$this->name] ?? [])];
-                $request = $result['UnprocessedKeys'] ?? [];
+            while ([] !== $chunk) {
+                $result = $this->client->batchGetItem(['RequestItems' => [$this->name => ['Keys' => array_map(static fn (array $key): array => self::key(...$key), $chunk), 'ConsistentRead' => true]]]);
+                $found = [...$found, ...$this->documentsOf(Typed::document($result['Responses'] ?? [])[$this->name] ?? [])];
+                $chunk = $this->unprocessedKeysOf($result);
             }
         }
 
         $this->noteRead($keys, $found);
 
         return $found;
+    }
+
+    /**
+     * @return list<array{string, string}> PK and SK of each item the batch left to read again
+     */
+    private function unprocessedKeysOf(ResultInterface $result): array
+    {
+        $unprocessed = Typed::document($result['UnprocessedKeys'] ?? [])[$this->name] ?? null;
+
+        return null === $unprocessed ? [] : array_map(self::pkAndSkOf(...), $this->documentsOf(Typed::document($unprocessed)['Keys'] ?? []));
+    }
+
+    /**
+     * @param array<string, mixed> $item
+     *
+     * @return array{string, string}
+     */
+    private static function pkAndSkOf(array $item): array
+    {
+        return [Typed::string($item['PK'] ?? null), Typed::string($item['SK'] ?? null)];
     }
 
     /**
@@ -131,7 +151,7 @@ final readonly class Table
         $byItem = [];
 
         foreach ($found as $item) {
-            $byItem[Write::itemOf($this->name, $item['PK'], $item['SK'])] = $item;
+            $byItem[Write::itemOf($this->name, ...self::pkAndSkOf($item))] = $item;
         }
 
         foreach ($keys as [$pk, $sk]) {
@@ -201,7 +221,7 @@ final readonly class Table
     {
         $sortKey = self::keyNamesOf($index)[1];
         $items = [...$this->notRewritten($stored, $pending), ...$this->putIn($pending, $partition, $index, $range)];
-        usort($items, static fn (array $one, array $other): int => $range->compare($one[$sortKey], $other[$sortKey]));
+        usort($items, static fn (array $one, array $other): int => $range->compare(Typed::string($one[$sortKey] ?? null), Typed::string($other[$sortKey] ?? null)));
 
         return $items;
     }
@@ -216,7 +236,7 @@ final readonly class Table
     {
         $rewritten = array_flip(array_map(static fn (Write $write): string => $write->item(), $pending));
 
-        return array_values(array_filter($stored, fn (array $item): bool => !isset($rewritten[Write::itemOf($this->name, $item['PK'], $item['SK'])])));
+        return array_values(array_filter($stored, fn (array $item): bool => !isset($rewritten[Write::itemOf($this->name, ...self::pkAndSkOf($item))])));
     }
 
     /**
@@ -229,7 +249,7 @@ final readonly class Table
         [$partitionKey, $sortKey] = self::keyNamesOf($index);
         $put = array_map($this->documentOf(...), array_values(array_filter(array_map(static fn (Write $write): ?array => $write->itemPut(), $pending))));
 
-        return array_values(array_filter($put, static fn (array $item): bool => $partition === ($item[$partitionKey] ?? null) && isset($item[$sortKey]) && $range->contains($item[$sortKey])));
+        return array_values(array_filter($put, static fn (array $item): bool => $partition === ($item[$partitionKey] ?? null) && isset($item[$sortKey]) && $range->contains(Typed::string($item[$sortKey]))));
     }
 
     /**
@@ -243,16 +263,17 @@ final readonly class Table
             'TableName' => $this->name,
             'KeyConditionExpression' => null === $condition ? '#pk = :pk' : '#pk = :pk AND '.$condition,
             'ExpressionAttributeNames' => ['#pk' => $pkName] + (null === $condition ? [] : ['#sk' => $skName]),
-            'ExpressionAttributeValues' => $this->marshaler->marshalItem([':pk' => $partition] + $range->values()),
+            'ExpressionAttributeValues' => self::strings([':pk' => $partition] + $range->values()),
             'ScanIndexForward' => $range->ascending,
         ] + (null === $index ? ['ConsistentRead' => true] : ['IndexName' => $index]);
         $found = [];
+        $last = null;
 
         do {
-            $result = $this->client->query($request + (null === $limit ? [] : ['Limit' => $limit - count($found)]));
-            $found = [...$found, ...array_map($this->documentOf(...), $result['Items'] ?? [])];
-            $request['ExclusiveStartKey'] = $result['LastEvaluatedKey'] ?? null;
-        } while (null !== $request['ExclusiveStartKey'] && (null === $limit || count($found) < $limit));
+            $result = $this->client->query($request + self::startingAfter($last) + (null === $limit ? [] : ['Limit' => $limit - count($found)]));
+            $found = [...$found, ...$this->documentsOf($result['Items'] ?? [])];
+            $last = $this->lastKeyOf($result);
+        } while (null !== $last && (null === $limit || count($found) < $limit));
 
         return $found;
     }
@@ -275,16 +296,17 @@ final readonly class Table
             'IndexName' => $index,
             'KeyConditionExpression' => '#pk = :pk',
             'ExpressionAttributeNames' => ['#pk' => $index.'PK'],
-            'ExpressionAttributeValues' => $this->marshaler->marshalItem([':pk' => $partition]),
+            'ExpressionAttributeValues' => self::strings([':pk' => $partition]),
             'Select' => 'COUNT',
         ];
         $count = 0;
+        $last = null;
 
         do {
-            $result = $this->client->query($request);
-            $count += (int) $result['Count'];
-            $request['ExclusiveStartKey'] = $result['LastEvaluatedKey'] ?? null;
-        } while (null !== $request['ExclusiveStartKey']);
+            $result = $this->client->query($request + self::startingAfter($last));
+            $count += Typed::int($result['Count']);
+            $last = $this->lastKeyOf($result);
+        } while (null !== $last);
 
         return $count;
     }
@@ -321,16 +343,17 @@ final readonly class Table
             'TableName' => $this->name,
             'FilterExpression' => 'begins_with(#pk, :prefix)',
             'ExpressionAttributeNames' => ['#pk' => 'PK'],
-            'ExpressionAttributeValues' => $this->marshaler->marshalItem([':prefix' => $partitionPrefix]),
+            'ExpressionAttributeValues' => self::strings([':prefix' => $partitionPrefix]),
             'ConsistentRead' => true,
         ];
         $found = [];
+        $last = null;
 
         do {
-            $result = $this->client->scan($request);
-            $found = [...$found, ...array_map($this->documentOf(...), $result['Items'] ?? [])];
-            $request['ExclusiveStartKey'] = $result['LastEvaluatedKey'] ?? null;
-        } while (null !== $request['ExclusiveStartKey']);
+            $result = $this->client->scan($request + self::startingAfter($last));
+            $found = [...$found, ...$this->documentsOf($result['Items'] ?? [])];
+            $last = $this->lastKeyOf($result);
+        } while (null !== $last);
 
         return $found;
     }
@@ -410,7 +433,7 @@ final readonly class Table
 
         return new Write($this->name, $pk, $sk, ['Update' => [
             'TableName' => $this->name,
-            'Key' => $this->key($pk, $sk),
+            'Key' => self::key($pk, $sk),
             'UpdateExpression' => 'ADD '.implode(', ', array_map(static fn (string $placeholder): string => sprintf('#%1$s :%1$s', $placeholder), $placeholders)),
             'ExpressionAttributeNames' => array_combine(array_map(static fn (string $placeholder): string => '#'.$placeholder, $placeholders), $names),
             'ExpressionAttributeValues' => $this->marshaler->marshalItem(array_combine(array_map(static fn (string $placeholder): string => ':'.$placeholder, $placeholders), array_values($increments))),
@@ -423,28 +446,28 @@ final readonly class Table
     private function incrementsOf(Write $addition): array
     {
         $update = $addition->operation['Update'] ?? throw new \LogicException(sprintf('Only an addition is followed by an addition to %s %s', $addition->pk, $addition->sk));
-        $values = $this->marshaler->unmarshalItem($update['ExpressionAttributeValues']);
+        $values = $this->documentOf($update['ExpressionAttributeValues'] ?? null);
         $increments = [];
 
-        foreach ($update['ExpressionAttributeNames'] as $placeholder => $name) {
-            $increments[$name] = (int) $values[':'.substr($placeholder, 1)];
+        foreach (Typed::namedStrings($update['ExpressionAttributeNames'] ?? null) as $placeholder => $name) {
+            $increments[$name] = Typed::int($values[':'.substr($placeholder, 1)] ?? null);
         }
 
         return $increments;
     }
 
     /**
-     * @param array<string, int> $increments
-     * @param array<string, int> $others
+     * @param array<string, int>           $increments
+     * @param non-empty-array<string, int> $others
      *
      * @return non-empty-array<string, int>
      */
     private static function sum(array $increments, array $others): array
     {
-        $sum = $increments;
+        $sum = $increments + $others;
 
         foreach ($others as $name => $increment) {
-            $sum[$name] = ($sum[$name] ?? 0) + $increment;
+            $sum[$name] = ($increments[$name] ?? 0) + $increment;
         }
 
         return $sum;
@@ -457,7 +480,7 @@ final readonly class Table
      */
     public function deleting(string $pk, string $sk, ?string $condition = null, array $values = []): Write
     {
-        return new Write($this->name, $pk, $sk, ['Delete' => ['TableName' => $this->name, 'Key' => $this->key($pk, $sk)] + $this->conditionOf($condition, $values)]);
+        return new Write($this->name, $pk, $sk, ['Delete' => ['TableName' => $this->name, 'Key' => self::key($pk, $sk)] + $this->conditionOf($condition, $values)]);
     }
 
     /**
@@ -492,14 +515,13 @@ final readonly class Table
     {
         $requests = [
             ...array_map(fn (array $item): array => ['PutRequest' => ['Item' => $this->marshaler->marshalItem($item)]], $puts),
-            ...array_map(fn (array $key): array => ['DeleteRequest' => ['Key' => $this->key(...$key)]], $deletes),
+            ...array_map(static fn (array $key): array => ['DeleteRequest' => ['Key' => self::key(...$key)]], $deletes),
         ];
 
         foreach (array_chunk($requests, self::BATCH_WRITE_SIZE) as $chunk) {
-            $pending = [$this->name => $chunk];
-
-            while ([] !== $pending) {
-                $pending = $this->client->batchWriteItem(['RequestItems' => $pending])['UnprocessedItems'] ?? [];
+            while ([] !== $chunk) {
+                $unprocessed = $this->client->batchWriteItem(['RequestItems' => [$this->name => $chunk]])['UnprocessedItems'] ?? [];
+                $chunk = Typed::documents(Typed::document($unprocessed)[$this->name] ?? []);
             }
         }
     }
@@ -514,25 +536,58 @@ final readonly class Table
             'IndexName' => $index,
             'KeyConditionExpression' => '#pk = :pk AND '.$sortKeyCondition,
             'ExpressionAttributeNames' => ['#pk' => $index.'PK', '#sk' => $index.'SK'],
-            'ExpressionAttributeValues' => $this->marshaler->marshalItem([':pk' => $partition, ':sk' => $sortKey]),
+            'ExpressionAttributeValues' => self::strings([':pk' => $partition, ':sk' => $sortKey]),
         ];
         $keys = [];
+        $last = null;
 
         do {
-            $result = $this->client->query($request);
-            $keys = [...$keys, ...array_map(fn (array $item): string => (string) $this->documentOf($item)['PK'], $result['Items'] ?? [])];
-            $request['ExclusiveStartKey'] = $result['LastEvaluatedKey'] ?? null;
-        } while (null !== $request['ExclusiveStartKey']);
+            $result = $this->client->query($request + self::startingAfter($last));
+            $keys = [...$keys, ...array_map(static fn (array $item): string => Typed::string($item['PK'] ?? null), $this->documentsOf($result['Items'] ?? []))];
+            $last = $this->lastKeyOf($result);
+        } while (null !== $last);
 
         return $keys;
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array<string, array{S: string}>
      */
-    private function key(string $pk, string $sk): array
+    private static function key(string $pk, string $sk): array
     {
-        return $this->marshaler->marshalItem(['PK' => $pk, 'SK' => $sk]);
+        return self::strings(['PK' => $pk, 'SK' => $sk]);
+    }
+
+    /**
+     * @param array<string, string> $strings
+     *
+     * @return array<string, array{S: string}> as DynamoDB takes them
+     */
+    private static function strings(array $strings): array
+    {
+        return array_map(static fn (string $string): array => ['S' => $string], $strings);
+    }
+
+    /**
+     * @param array<string, array{S: string}>|null $last
+     *
+     * @return array{ExclusiveStartKey?: array<string, array{S: string}>} where a page of a query or a scan starts
+     */
+    private static function startingAfter(?array $last): array
+    {
+        return null === $last ? [] : ['ExclusiveStartKey' => $last];
+    }
+
+    /**
+     * The key of the last item a page of a query or a scan read, to read the next page from; none after the last one.
+     *
+     * @return array<string, array{S: string}>|null
+     */
+    private function lastKeyOf(ResultInterface $result): ?array
+    {
+        $last = $result['LastEvaluatedKey'] ?? null;
+
+        return null === $last ? null : self::strings(Typed::namedStrings($this->documentOf($last)));
     }
 
     /**
@@ -553,12 +608,18 @@ final readonly class Table
     }
 
     /**
-     * @param array<string, mixed> $item
-     *
-     * @return array<string, mixed>
+     * @return array<string, mixed> an item as DynamoDB gives it, as plain data
      */
-    private function documentOf(array $item): array
+    private function documentOf(mixed $item): array
     {
-        return $this->marshaler->unmarshalItem($item);
+        return Typed::document($this->marshaler->unmarshalItem(Typed::array($item)));
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function documentsOf(mixed $items): array
+    {
+        return array_values(array_map($this->documentOf(...), Typed::array($items)));
     }
 }

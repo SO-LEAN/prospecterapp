@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Shared\Persistence;
 
+use App\Shared\Typed;
+
 /**
  * The revision of an aggregate, written in its item by its repository at each save (`revision`) and read by the
  * retrievers of its facts: a matter of persistence, the aggregate does not know it (ADR 0048). Its save and its
@@ -20,7 +22,7 @@ final class Revision
      */
     public static function of(?array $item): int
     {
-        return (int) ($item[self::ATTRIBUTE] ?? self::NONE);
+        return Typed::int($item[self::ATTRIBUTE] ?? self::NONE);
     }
 
     /**

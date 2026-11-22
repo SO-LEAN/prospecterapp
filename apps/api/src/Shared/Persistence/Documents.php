@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Shared\Persistence;
 
+use App\Shared\Typed;
 use Prospecter\Core\SharedKernel\Domain\Address;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Designated;
@@ -54,7 +55,7 @@ final class Documents
      */
     public static function originOf(array $document): Origin
     {
-        return Origin::tryFrom($document['origin'] ?? '') ?? Origin::Hand;
+        return Origin::tryFrom(Typed::stringOrNull($document['origin'] ?? null) ?? '') ?? Origin::Hand;
     }
 
     /**
@@ -70,7 +71,7 @@ final class Documents
      */
     public static function legalIdentityOf(array $document): LegalIdentity
     {
-        return new LegalIdentity($document['corporateName'] ?? null, $document['form'] ?? null, $document['type'] ?? null, Siret::orNone($document['siret'] ?? null));
+        return new LegalIdentity(Typed::stringOrNull($document['corporateName'] ?? null), Typed::stringOrNull($document['form'] ?? null), Typed::stringOrNull($document['type'] ?? null), Siret::orNone(Typed::stringOrNull($document['siret'] ?? null)));
     }
 
     /**
@@ -86,7 +87,7 @@ final class Documents
      */
     public static function contactDetailsOf(array $document): ContactDetails
     {
-        return new ContactDetails(Email::orNone($document['email'] ?? null), self::phoneNumberOf($document['phoneNumber'] ?? null), $document['language'] ?? null);
+        return new ContactDetails(Email::orNone(Typed::stringOrNull($document['email'] ?? null)), self::phoneNumberOf(Typed::stringOrNull($document['phoneNumber'] ?? null)), Typed::stringOrNull($document['language'] ?? null));
     }
 
     /**
@@ -115,7 +116,7 @@ final class Documents
      */
     public static function addressOf(?array $document): ?Address
     {
-        return null === $document ? null : new Address($document['street'], $document['postalCode'], $document['city'], $document['country']);
+        return null === $document ? null : new Address(Typed::stringOrNull($document['street']), Typed::stringOrNull($document['postalCode']), Typed::stringOrNull($document['city']), Typed::stringOrNull($document['country']));
     }
 
     /**
@@ -131,7 +132,7 @@ final class Documents
      */
     public static function geoPointOf(?array $document): ?GeoPoint
     {
-        return null === $document ? null : new GeoPoint((float) $document['longitude'], (float) $document['latitude']);
+        return null === $document ? null : new GeoPoint(Typed::float($document['longitude']), Typed::float($document['latitude']));
     }
 
     /**
@@ -147,7 +148,7 @@ final class Documents
      */
     public static function fileOf(?array $document): ?File
     {
-        return null === $document ? null : new File((string) $document['url'], (string) $document['extension'], (int) $document['size']);
+        return null === $document ? null : new File(Typed::string($document['url']), Typed::string($document['extension']), Typed::int($document['size']));
     }
 
     /**
