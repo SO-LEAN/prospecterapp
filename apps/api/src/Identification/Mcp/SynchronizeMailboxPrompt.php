@@ -32,7 +32,7 @@ final readonly class SynchronizeMailboxPrompt
         STEP;
 
     /**
-     * @param ?string $since how far back to go ("7 days", "November 1"…), asked when not given
+     * @param ?string $since how far back to go, in quotes ("7 days", "November 1"…), asked when not given
      *
      * @return list<array{role: string, content: string}>
      */
