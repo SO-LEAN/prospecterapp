@@ -19,3 +19,8 @@
 /.phpunit.cache/
 ###< phpunit/phpunit ###
 
+
+###> symfony/framework-bundle: config reference ###
+# written by Symfony at each build of the debug container; the configuration is in YAML (ADR 0194)
+/config/reference.php
+###< symfony/framework-bundle: config reference ###
