@@ -23,6 +23,13 @@ final class TypedTest extends TestCase
         $this->assertNull(Typed::stringOrNull(null));
     }
 
+    public function testAnEmptyStringIsNoFilledString(): void
+    {
+        $this->expectException(\UnexpectedValueException::class);
+
+        Typed::filledString('');
+    }
+
     public function testANumericStringIsNoInteger(): void
     {
         $this->expectException(\UnexpectedValueException::class);
