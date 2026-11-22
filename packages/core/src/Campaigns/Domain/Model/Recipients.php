@@ -151,20 +151,42 @@ final readonly class Recipients
     }
 
     /**
-     * In the order they were added; asked of a campaign led only, which ends once nobody is left to handle.
+     * In the order they were added, but those an exchange was noted with meanwhile: none once nobody else is left.
+     *
+     * @param list<PersonId> $exchangedWith
      */
     #[\NoDiscard]
-    public function firstPending(): PersonId
+    public function firstPending(array $exchangedWith): ?PersonId
     {
-        $first = array_find($this->recipients, static fn (Recipient $recipient): bool => $recipient->isPending());
-
-        return $first->contact ?? throw new \LogicException('Nobody is left to handle: the campaign has ended');
+        return ($this->pendingBut($exchangedWith)[0] ?? null)?->contact;
     }
 
+    /**
+     * @param list<PersonId> $exchangedWith
+     */
     #[\NoDiscard]
-    public function pendingCount(): int
+    public function pendingCount(array $exchangedWith): int
     {
-        return count(array_filter($this->recipients, static fn (Recipient $recipient): bool => $recipient->isPending()));
+        return count($this->pendingBut($exchangedWith));
+    }
+
+    /**
+     * @return list<PersonId>
+     */
+    #[\NoDiscard]
+    public function pending(): array
+    {
+        return array_map(static fn (Recipient $recipient): PersonId => $recipient->contact, $this->pendingBut([]));
+    }
+
+    /**
+     * @param list<PersonId> $exchangedWith
+     *
+     * @return list<Recipient>
+     */
+    private function pendingBut(array $exchangedWith): array
+    {
+        return array_values(array_filter($this->recipients, static fn (Recipient $recipient): bool => $recipient->isPending() && !array_any($exchangedWith, $recipient->is(...))));
     }
 
     #[\NoDiscard]

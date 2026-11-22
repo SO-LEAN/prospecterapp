@@ -288,16 +288,28 @@ final class Campaign implements ReleasesEvents
     }
 
     /**
-     * The first recipient still to handle, while it is led: someone is, or it would have ended.
+     * The first recipient still to handle, while it is led, but those Prospecting noted an exchange of the campaign
+     * with that it has not processed yet (ADR 0195): with nobody else, it is about to end.
+     *
+     * @param list<PersonId> $exchangedWith
      *
      * @throws CampaignNotRunning
      */
     #[\NoDiscard]
-    public function nextRecipient(): PersonId
+    public function nextRecipient(array $exchangedWith): PersonId
     {
         $this->ensurePossible(CampaignIntent::RunCampaign);
 
-        return $this->recipients->firstPending();
+        return $this->recipients->firstPending($exchangedWith) ?? throw CampaignNotRunning::toRun();
+    }
+
+    /**
+     * @return list<PersonId>
+     */
+    #[\NoDiscard]
+    public function pendingRecipients(): array
+    {
+        return $this->recipients->pending();
     }
 
     #[\NoDiscard]
@@ -312,10 +324,13 @@ final class Campaign implements ReleasesEvents
         return $this->message->mode;
     }
 
+    /**
+     * @param list<PersonId> $exchangedWith
+     */
     #[\NoDiscard]
-    public function stillToHandle(): int
+    public function stillToHandle(array $exchangedWith): int
     {
-        return $this->recipients->pendingCount();
+        return $this->recipients->pendingCount($exchangedWith);
     }
 
     #[\NoDiscard]

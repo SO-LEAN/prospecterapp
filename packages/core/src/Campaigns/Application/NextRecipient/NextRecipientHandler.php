@@ -30,7 +30,7 @@ final readonly class NextRecipientHandler implements QueryHandler
         $member = new MemberId($query->memberId);
         $accountId = $this->campaigners->accountOf($member);
         $campaign = $this->campaigns->get($accountId, new CampaignId($query->campaignId));
-        $contact = $campaign->nextRecipient();
+        $contact = $campaign->nextRecipient(exchangedWith: []);
         $message = $campaign->messageFor($this->addressees->addressee($accountId, $member, $contact));
 
         $output->present(new RecipientToHandle(
@@ -40,7 +40,7 @@ final readonly class NextRecipientHandler implements QueryHandler
             $message->subject,
             $message->text,
             $campaign->messageMode()->value,
-            $campaign->stillToHandle(),
+            $campaign->stillToHandle(exchangedWith: []),
         ));
     }
 }
