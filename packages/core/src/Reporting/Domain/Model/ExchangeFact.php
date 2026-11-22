@@ -28,6 +28,7 @@ final readonly class ExchangeFact implements Fact
     /**
      * The fact of an exchange where Prospecting says it stands; published before it had a status, it was held.
      */
+    // @phpstan-ignore prospecter.parameters (a value object listing its fields, as its constructor does)
     public static function withStatus(AccountId $accountId, ExchangeId $id, int $revision, bool $present, ?string $status, ?\DateTimeImmutable $notedAt): self
     {
         return new self($accountId, $id, $revision, $present, !in_array($status, self::NOT_HELD, true), $notedAt);

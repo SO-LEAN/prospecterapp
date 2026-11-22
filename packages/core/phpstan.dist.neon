@@ -1,6 +1,10 @@
 includes:
     - ../../packages/phpstan-rules/rules.neon
 
+# the core alone has a domain model (ADR 0191, 0193)
+rules:
+    - Prospecter\PHPStan\DomainMethodsTakeFourParametersAtMostRule
+
 parameters:
     level: max
     ignoreErrors:
