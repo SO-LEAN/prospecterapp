@@ -46,7 +46,7 @@ final class AskForGoogleAuthorizationController extends AbstractController
     public function __invoke(#[CurrentUser] User $user): JsonResponse
     {
         $request = $this->googleAuthorization->newRequest();
-        $this->commandBus->dispatch(new AskForAuthorization($user->memberId(), self::GOOGLE, $request->state, $request->codeVerifier, $this->clock->now()));
+        $this->commandBus->dispatch(new AskForAuthorization(memberId: $user->memberId(), provider: self::GOOGLE, state: $request->state, codeVerifier: $request->codeVerifier, executedAt: $this->clock->now()));
 
         return $this->json(new AuthorizationResource($this->googleAuthorization->addressOf($request, $this->clientOfMyAccount($user))), Response::HTTP_CREATED);
     }

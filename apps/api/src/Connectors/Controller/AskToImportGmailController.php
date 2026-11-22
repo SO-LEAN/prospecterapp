@@ -47,7 +47,7 @@ final class AskToImportGmailController extends AbstractController
     public function __invoke(#[CurrentUser] User $user): JsonResponse
     {
         $request = $this->googleAuthorization->newRequest();
-        $this->commandBus->dispatch(new AskToImportMail($user->memberId(), self::GOOGLE, $request->state, $request->codeVerifier, $this->clock->now()));
+        $this->commandBus->dispatch(new AskToImportMail(memberId: $user->memberId(), provider: self::GOOGLE, state: $request->state, codeVerifier: $request->codeVerifier, executedAt: $this->clock->now()));
 
         $mine = $this->myConnections($user);
 

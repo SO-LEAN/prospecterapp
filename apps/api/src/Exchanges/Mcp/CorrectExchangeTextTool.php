@@ -34,7 +34,7 @@ final readonly class CorrectExchangeTextTool
             $id,
             $revision,
             new TextCorrectionInput($text, $redacted),
-            static fn (TextCorrectionInput $input, ExchangeDetail $exchange, string $memberId, \DateTimeImmutable $now): CorrectExchangeText => new CorrectExchangeText($memberId, $exchange->id, $input->text, $now, $input->redacted),
+            static fn (TextCorrectionInput $input, ExchangeDetail $exchange, string $memberId, \DateTimeImmutable $now): CorrectExchangeText => new CorrectExchangeText(prospectorId: $memberId, id: $exchange->id, text: $input->text, executedAt: $now, madeConform: $input->redacted),
         );
     }
 }

@@ -20,11 +20,11 @@ final readonly class CatchUpMailHistory
 
     public static function ofContact(string $memberId, string $contactId, \DateTimeImmutable $executedAt): self
     {
-        return new self($memberId, $contactId, null, $executedAt);
+        return new self(memberId: $memberId, contactId: $contactId, organizationId: null, executedAt: $executedAt);
     }
 
     public static function ofOrganization(string $memberId, string $organizationId, \DateTimeImmutable $executedAt): self
     {
-        return new self($memberId, null, $organizationId, $executedAt);
+        return new self(memberId: $memberId, contactId: null, organizationId: $organizationId, executedAt: $executedAt);
     }
 }

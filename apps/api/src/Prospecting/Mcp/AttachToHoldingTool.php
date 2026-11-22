@@ -31,7 +31,7 @@ final readonly class AttachToHoldingTool
         return $this->writes->write(
             $id,
             new HoldingInput($holdingId),
-            static fn (HoldingInput $input, OrganizationSheet $organization, string $memberId, \DateTimeImmutable $now): AttachToHolding => new AttachToHolding($memberId, $organization->id, $input->holdingId, $now),
+            static fn (HoldingInput $input, OrganizationSheet $organization, string $memberId, \DateTimeImmutable $now): AttachToHolding => new AttachToHolding(prospectorId: $memberId, id: $organization->id, holdingId: $input->holdingId, executedAt: $now),
         );
     }
 }

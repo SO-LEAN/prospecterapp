@@ -45,7 +45,7 @@ final readonly class OrganizationTimelineReader
     public function read(string $reader, OrganizationSheet $organization, ?string $after = null): OrganizationTimelineResource
     {
         $timeline = new KeptTimeline();
-        ($this->consultOrganizationTimeline)(new ConsultOrganizationTimeline($reader, $organization->id, $this->clock->now(), $after), $timeline);
+        ($this->consultOrganizationTimeline)(new ConsultOrganizationTimeline(prospectorId: $reader, organizationId: $organization->id, asOf: $this->clock->now(), after: $after), $timeline);
         $catchUp = new KeptMailCatchUpIntents();
         ($this->consultMailCatchUpIntents)(ConsultMailCatchUpIntents::ofOrganization($reader, $organization->id), $catchUp);
         $presenter = OrganizationTimelinePresenter::ofTheTimeline($organization, $this->personsOf($reader, $timeline->timeline), $catchUp->possibleIntents, $this->timelines, $this->links, $this->intentLinks);
@@ -60,7 +60,7 @@ final readonly class OrganizationTimelineReader
     public function readUpcoming(string $reader, OrganizationSheet $organization, ?string $after = null): OrganizationTimelineResource
     {
         $timeline = new KeptTimeline();
-        ($this->consultOrganizationUpcomingExchanges)(new ConsultOrganizationUpcomingExchanges($reader, $organization->id, $this->clock->now(), $after), $timeline);
+        ($this->consultOrganizationUpcomingExchanges)(new ConsultOrganizationUpcomingExchanges(prospectorId: $reader, organizationId: $organization->id, asOf: $this->clock->now(), after: $after), $timeline);
         $presenter = OrganizationTimelinePresenter::ofWhatIsToCome($organization, $this->personsOf($reader, $timeline->timeline), $this->timelines, $this->links);
         $presenter->present($timeline->timeline);
 

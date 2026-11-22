@@ -44,7 +44,7 @@ final class TagOrganizationController extends AbstractController
     #[OA\Response(response: 422, description: 'No tag, one that makes no tag (`invalidTag`), or an automatic one (`automaticTag`)', content: new Model(type: ProblemResource::class))]
     public function __invoke(OrganizationSheet $organization, #[MapRequestPayload] TagsInput $input, #[CurrentUser] User $user): JsonResponse
     {
-        $this->commandBus->dispatch(new PutTags($user->memberId(), TagRoutes::Organization->value, $organization->id, $input->tags, $this->clock->now()));
+        $this->commandBus->dispatch(new PutTags(memberId: $user->memberId(), holder: TagRoutes::Organization->value, holderId: $organization->id, tags: $input->tags, executedAt: $this->clock->now()));
 
         return $this->json($this->tagsReader->read($user->memberId(), $organization->id));
     }

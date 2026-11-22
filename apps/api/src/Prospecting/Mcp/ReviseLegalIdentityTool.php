@@ -36,7 +36,7 @@ final readonly class ReviseLegalIdentityTool
             $id,
             $revision,
             new ReviseLegalIdentityInput($corporateName, $form, $type, $siret),
-            static fn (ReviseLegalIdentityInput $input, OrganizationSheet $organization, string $memberId, \DateTimeImmutable $now): ReviseLegalIdentity => new ReviseLegalIdentity($memberId, $organization->id, $input->corporateName, $input->form, $input->type, $now, $input->siret),
+            static fn (ReviseLegalIdentityInput $input, OrganizationSheet $organization, string $memberId, \DateTimeImmutable $now): ReviseLegalIdentity => new ReviseLegalIdentity(prospectorId: $memberId, id: $organization->id, corporateName: $input->corporateName, form: $input->form, type: $input->type, executedAt: $now, siret: $input->siret),
         );
     }
 }

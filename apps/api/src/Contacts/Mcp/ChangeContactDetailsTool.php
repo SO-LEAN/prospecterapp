@@ -48,7 +48,7 @@ final readonly class ChangeContactDetailsTool
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');
         $input = $this->inputs->valid(new PersonContactDetailsInput($email, $phoneNumber, $language, $links));
         $memberId = $this->access->member()->memberId();
-        $this->commandBus->dispatch(new ChangePersonContactDetails($memberId, $id, $input->email, $input->phoneNumber, $input->language, $input->links, $this->clock->now()), $this->revisions->readAt($id, $revision));
+        $this->commandBus->dispatch(new ChangePersonContactDetails(readerId: $memberId, id: $id, email: $input->email, phoneNumber: $input->phoneNumber, language: $input->language, links: $input->links, executedAt: $this->clock->now()), $this->revisions->readAt($id, $revision));
 
         return $this->results->of($this->contactReader->read($memberId, $id));
     }

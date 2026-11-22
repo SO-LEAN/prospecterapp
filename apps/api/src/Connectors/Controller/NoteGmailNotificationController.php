@@ -35,7 +35,7 @@ final class NoteGmailNotificationController extends AbstractController
     public function __invoke(string $account, #[MapRequestPayload] PubSubPushInput $input): Response
     {
         $notification = $input->notification();
-        $this->commandBus->dispatch(new NoteMailboxNotification($account, self::GOOGLE, $notification['emailAddress'], $notification['historyId'], $this->clock->now()));
+        $this->commandBus->dispatch(new NoteMailboxNotification(accountId: $account, provider: self::GOOGLE, mailbox: $notification['emailAddress'], historyId: $notification['historyId'], executedAt: $this->clock->now()));
 
         return new Response(status: Response::HTTP_NO_CONTENT);
     }

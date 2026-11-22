@@ -46,7 +46,7 @@ final readonly class RenameContactTool
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');
         $input = $this->inputs->valid(new PersonNameInput($firstName, $lastName));
         $memberId = $this->access->member()->memberId();
-        $this->commandBus->dispatch(new RenamePerson($memberId, $id, $input->firstName, $input->lastName, $this->clock->now()), $this->revisions->readAt($id, $revision));
+        $this->commandBus->dispatch(new RenamePerson(readerId: $memberId, id: $id, firstName: $input->firstName, lastName: $input->lastName, executedAt: $this->clock->now()), $this->revisions->readAt($id, $revision));
 
         return $this->results->of($this->contactReader->read($memberId, $id));
     }

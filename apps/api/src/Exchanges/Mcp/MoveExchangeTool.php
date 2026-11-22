@@ -33,7 +33,7 @@ final readonly class MoveExchangeTool
         $before = $this->writes->dispatched(
             $id,
             $this->inputs->mapped(MomentInput::class, ['occurredAt' => $occurredAt, 'durationInMinutes' => $durationInMinutes]),
-            static fn (MomentInput $input, ExchangeDetail $exchange, string $memberId, \DateTimeImmutable $now): MoveExchange => new MoveExchange($memberId, $exchange->id, $input->occurredAt ?? throw new \LogicException('The moment is validated'), $now, $input->durationInMinutes),
+            static fn (MomentInput $input, ExchangeDetail $exchange, string $memberId, \DateTimeImmutable $now): MoveExchange => new MoveExchange(prospectorId: $memberId, id: $exchange->id, plannedAt: $input->occurredAt ?? throw new \LogicException('The moment is validated'), executedAt: $now, durationInMinutes: $input->durationInMinutes),
         );
 
         return $this->writes->answer($before->id, movedFrom: $before->occurredAt);

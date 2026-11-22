@@ -45,7 +45,7 @@ final readonly class ChangeCivilityTool
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');
         $input = $this->inputs->valid(new TitleInput($title));
         $memberId = $this->access->member()->memberId();
-        $this->commandBus->dispatch(new ChangeCivility($memberId, $id, $input->title, $this->clock->now()), $this->revisions->readAt($id, $revision));
+        $this->commandBus->dispatch(new ChangeCivility(readerId: $memberId, id: $id, civility: $input->title, executedAt: $this->clock->now()), $this->revisions->readAt($id, $revision));
 
         return $this->results->of($this->contactReader->read($memberId, $id));
     }

@@ -49,7 +49,7 @@ final class CorrectExchangeTextController extends AbstractController
     #[OA\Response(response: 422, description: 'Invalid text: too long, or another fact of the exchange', content: new Model(type: ProblemResource::class))]
     public function __invoke(ExchangeDetail $exchange, #[MapRequestPayload] TextCorrectionInput $input, #[CurrentUser] User $user, #[MapQueryParameter(options: ['min_range' => 0], validationFailedStatusCode: 422)] ?int $revision = null): JsonResponse
     {
-        $this->commandBus->dispatch(new CorrectExchangeText($user->memberId(), $exchange->id, $input->text, $this->clock->now(), $input->redacted), $this->revisions->readAt($exchange->id, $revision));
+        $this->commandBus->dispatch(new CorrectExchangeText(prospectorId: $user->memberId(), id: $exchange->id, text: $input->text, executedAt: $this->clock->now(), madeConform: $input->redacted), $this->revisions->readAt($exchange->id, $revision));
 
         return $this->json($this->exchangeReader->read($user->memberId(), $exchange->id));
     }

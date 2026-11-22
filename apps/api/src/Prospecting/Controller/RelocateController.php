@@ -49,7 +49,7 @@ final class RelocateController extends AbstractController
     #[OA\Response(response: 422, description: 'Invalid address', content: new Model(type: ProblemResource::class))]
     public function __invoke(OrganizationSheet $organization, #[MapRequestPayload] AddressInput $input, #[CurrentUser] User $user, #[MapQueryParameter(options: ['min_range' => 0], validationFailedStatusCode: 422)] ?int $revision = null): JsonResponse
     {
-        $this->commandBus->dispatch(new Relocate($user->memberId(), $organization->id, $input->street, $input->postalCode, $input->city, $input->country, $this->clock->now()), $this->revisions->readAt($organization->id, $revision));
+        $this->commandBus->dispatch(new Relocate(prospectorId: $user->memberId(), id: $organization->id, street: $input->street, postalCode: $input->postalCode, city: $input->city, country: $input->country, executedAt: $this->clock->now()), $this->revisions->readAt($organization->id, $revision));
 
         return $this->json($this->organizationReader->read($organization->id));
     }

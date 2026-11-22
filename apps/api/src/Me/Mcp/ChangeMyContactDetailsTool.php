@@ -31,7 +31,7 @@ final readonly class ChangeMyContactDetailsTool
     {
         return $this->writes->write(
             new PersonContactDetailsInput($email, $phoneNumber, $language, $links),
-            static fn (PersonContactDetailsInput $input, string $memberId, string $personId, \DateTimeImmutable $now): ChangePersonContactDetails => new ChangePersonContactDetails($memberId, $personId, $input->email, $input->phoneNumber, $input->language, $input->links, $now),
+            static fn (PersonContactDetailsInput $input, string $memberId, string $personId, \DateTimeImmutable $now): ChangePersonContactDetails => new ChangePersonContactDetails(readerId: $memberId, id: $personId, email: $input->email, phoneNumber: $input->phoneNumber, language: $input->language, links: $input->links, executedAt: $now),
         );
     }
 }

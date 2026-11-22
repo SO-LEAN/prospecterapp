@@ -38,7 +38,7 @@ final class RelocateMyOrganizationController extends AbstractController
     #[OA\Response(response: 422, description: 'Invalid address', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[MapRequestPayload] AddressInput $input, #[CurrentUser] User $user): JsonResponse
     {
-        $this->commandBus->dispatch(new RelocateMyOrganization($user->memberId(), $input->street, $input->postalCode, $input->city, $input->country, $this->clock->now()));
+        $this->commandBus->dispatch(new RelocateMyOrganization(memberId: $user->memberId(), street: $input->street, postalCode: $input->postalCode, city: $input->city, country: $input->country, executedAt: $this->clock->now()));
 
         return $this->json($this->myAccountReader->read($user->memberId()));
     }

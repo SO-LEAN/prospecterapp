@@ -31,7 +31,7 @@ final readonly class DismissPossibleDuplicateTool
         return $this->writes->write(
             $id,
             null,
-            static fn (null $input, OrganizationSheet $organization, string $memberId, \DateTimeImmutable $now): DismissPossibleDuplicate => new DismissPossibleDuplicate($memberId, $organization->id, $duplicateId, $now),
+            static fn (null $input, OrganizationSheet $organization, string $memberId, \DateTimeImmutable $now): DismissPossibleDuplicate => new DismissPossibleDuplicate(prospectorId: $memberId, id: $organization->id, duplicateId: $duplicateId, executedAt: $now),
         );
     }
 }

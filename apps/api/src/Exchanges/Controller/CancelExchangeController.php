@@ -44,7 +44,7 @@ final class CancelExchangeController extends AbstractController
     #[OA\Response(response: 422, description: 'Unknown canceller', content: new Model(type: ProblemResource::class))]
     public function __invoke(ExchangeDetail $exchange, #[MapRequestPayload] CancellationInput $input, #[CurrentUser] User $user): JsonResponse
     {
-        $this->commandBus->dispatch(new CancelExchange($user->memberId(), $exchange->id, $input->canceller, $this->clock->now()));
+        $this->commandBus->dispatch(new CancelExchange(prospectorId: $user->memberId(), id: $exchange->id, canceller: $input->canceller, executedAt: $this->clock->now()));
 
         return $this->json($this->exchangeReader->read($user->memberId(), $exchange->id));
     }

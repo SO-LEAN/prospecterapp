@@ -45,7 +45,7 @@ final readonly class ChangeJobTitleTool
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');
         $input = $this->inputs->valid(new JobTitleInput($jobTitle));
         $memberId = $this->access->member()->memberId();
-        $this->commandBus->dispatch(new ChangeJobTitle($memberId, $id, $input->jobTitle, $this->clock->now()), $this->revisions->readAt($id, $revision));
+        $this->commandBus->dispatch(new ChangeJobTitle(readerId: $memberId, id: $id, jobTitle: $input->jobTitle, executedAt: $this->clock->now()), $this->revisions->readAt($id, $revision));
 
         return $this->results->of($this->contactReader->read($memberId, $id));
     }

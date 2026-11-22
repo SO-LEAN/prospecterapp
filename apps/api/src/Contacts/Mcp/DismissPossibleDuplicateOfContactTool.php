@@ -39,7 +39,7 @@ final readonly class DismissPossibleDuplicateOfContactTool
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');
         $memberId = $this->access->member()->memberId();
-        $this->commandBus->dispatch(new DismissPossibleDuplicate($memberId, $id, $duplicateId, $this->clock->now()));
+        $this->commandBus->dispatch(new DismissPossibleDuplicate(readerId: $memberId, id: $id, duplicateId: $duplicateId, executedAt: $this->clock->now()));
 
         return $this->results->of($this->contactReader->read($memberId, $id));
     }

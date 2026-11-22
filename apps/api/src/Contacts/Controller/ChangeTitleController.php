@@ -46,7 +46,7 @@ final class ChangeTitleController extends AbstractController
     #[OA\Response(response: 422, description: 'Unknown title', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $id, #[MapRequestPayload] TitleInput $input, #[CurrentUser] User $user, #[MapQueryParameter(options: ['min_range' => 0], validationFailedStatusCode: 422)] ?int $revision = null): JsonResponse
     {
-        $this->commandBus->dispatch(new ChangeCivility($user->memberId(), $id, $input->title, $this->clock->now()), $this->revisions->readAt($id, $revision));
+        $this->commandBus->dispatch(new ChangeCivility(readerId: $user->memberId(), id: $id, civility: $input->title, executedAt: $this->clock->now()), $this->revisions->readAt($id, $revision));
 
         return $this->json($this->contactReader->read($user->memberId(), $id));
     }

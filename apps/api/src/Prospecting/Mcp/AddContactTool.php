@@ -32,7 +32,7 @@ final readonly class AddContactTool
         return $this->writes->write(
             $id,
             new ContactInput($personId),
-            static fn (ContactInput $input, OrganizationSheet $organization, string $memberId, \DateTimeImmutable $now): AddContact => new AddContact($memberId, $organization->id, $input->personId, $now),
+            static fn (ContactInput $input, OrganizationSheet $organization, string $memberId, \DateTimeImmutable $now): AddContact => new AddContact(prospectorId: $memberId, id: $organization->id, personId: $input->personId, executedAt: $now),
             User::PERSONAL_DATA,
         );
     }

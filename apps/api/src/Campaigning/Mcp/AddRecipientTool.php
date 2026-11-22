@@ -31,7 +31,7 @@ final readonly class AddRecipientTool
         return $this->writes->write(
             $id,
             new RecipientInput($contactId),
-            static fn (RecipientInput $input, CampaignSheet $campaign, string $memberId, \DateTimeImmutable $now): AddRecipient => new AddRecipient($memberId, $campaign->id, (string) $input->contactId, $now),
+            static fn (RecipientInput $input, CampaignSheet $campaign, string $memberId, \DateTimeImmutable $now): AddRecipient => new AddRecipient(memberId: $memberId, campaignId: $campaign->id, contactId: (string) $input->contactId, executedAt: $now),
         );
     }
 }

@@ -32,7 +32,7 @@ final readonly class CancelExchangeTool
         return $this->writes->write(
             $id,
             new CancellationInput($canceller),
-            static fn (CancellationInput $input, ExchangeDetail $exchange, string $memberId, \DateTimeImmutable $now): CancelExchange => new CancelExchange($memberId, $exchange->id, $input->canceller, $now),
+            static fn (CancellationInput $input, ExchangeDetail $exchange, string $memberId, \DateTimeImmutable $now): CancelExchange => new CancelExchange(prospectorId: $memberId, id: $exchange->id, canceller: $input->canceller, executedAt: $now),
         );
     }
 }

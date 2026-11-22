@@ -38,7 +38,7 @@ final class DismissPossibleDuplicateOfContactController extends AbstractControll
     #[OA\Response(response: 409, description: 'The contact is not suspected of being a duplicate of this one (notASuspectedDuplicateContact)', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $id, string $duplicateId, #[CurrentUser] User $user): JsonResponse
     {
-        $this->commandBus->dispatch(new DismissPossibleDuplicate($user->memberId(), $id, $duplicateId, $this->clock->now()));
+        $this->commandBus->dispatch(new DismissPossibleDuplicate(readerId: $user->memberId(), id: $id, duplicateId: $duplicateId, executedAt: $this->clock->now()));
 
         return $this->json($this->contactReader->read($user->memberId(), $id));
     }

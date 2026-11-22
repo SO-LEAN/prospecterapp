@@ -28,7 +28,7 @@ final readonly class RemoveRecipientTool
         $this->writes->dispatched(
             $id,
             null,
-            static fn (null $input, CampaignSheet $campaign, string $memberId, \DateTimeImmutable $now): RemoveRecipient => new RemoveRecipient($memberId, $campaign->id, $contactId, $now),
+            static fn (null $input, CampaignSheet $campaign, string $memberId, \DateTimeImmutable $now): RemoveRecipient => new RemoveRecipient(memberId: $memberId, campaignId: $campaign->id, contactId: $contactId, executedAt: $now),
         );
     }
 }

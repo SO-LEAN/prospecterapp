@@ -31,7 +31,7 @@ final readonly class RemoveContactTool
         return $this->writes->write(
             $id,
             null,
-            static fn (null $input, OrganizationSheet $organization, string $memberId, \DateTimeImmutable $now): RemoveContact => new RemoveContact($memberId, $organization->id, $personId, $now),
+            static fn (null $input, OrganizationSheet $organization, string $memberId, \DateTimeImmutable $now): RemoveContact => new RemoveContact(prospectorId: $memberId, id: $organization->id, personId: $personId, executedAt: $now),
             User::PERSONAL_DATA,
         );
     }

@@ -38,7 +38,7 @@ final class TakeContactTagOffController extends AbstractController
     #[OA\Response(response: 404, description: 'No contact of my account (`unknownContact`), or a tag it does not carry (`tagNotCarried`)', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $id, string $tag, #[CurrentUser] User $user): JsonResponse
     {
-        $this->commandBus->dispatch(new TakeOffTag($user->memberId(), TagRoutes::Contact->value, $id, $tag, $this->clock->now()));
+        $this->commandBus->dispatch(new TakeOffTag(memberId: $user->memberId(), holder: TagRoutes::Contact->value, holderId: $id, tag: $tag, executedAt: $this->clock->now()));
 
         return $this->json($this->contactTagsReader->read($user->memberId(), $id));
     }

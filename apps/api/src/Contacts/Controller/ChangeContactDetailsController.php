@@ -46,7 +46,7 @@ final class ChangeContactDetailsController extends AbstractController
     #[OA\Response(response: 422, description: 'Invalid contact details, or email or link already used by another contact', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $id, #[MapRequestPayload] PersonContactDetailsInput $input, #[CurrentUser] User $user, #[MapQueryParameter(options: ['min_range' => 0], validationFailedStatusCode: 422)] ?int $revision = null): JsonResponse
     {
-        $this->commandBus->dispatch(new ChangePersonContactDetails($user->memberId(), $id, $input->email, $input->phoneNumber, $input->language, $input->links, $this->clock->now()), $this->revisions->readAt($id, $revision));
+        $this->commandBus->dispatch(new ChangePersonContactDetails(readerId: $user->memberId(), id: $id, email: $input->email, phoneNumber: $input->phoneNumber, language: $input->language, links: $input->links, executedAt: $this->clock->now()), $this->revisions->readAt($id, $revision));
 
         return $this->json($this->contactReader->read($user->memberId(), $id));
     }

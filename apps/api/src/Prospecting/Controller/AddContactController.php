@@ -45,7 +45,7 @@ final class AddContactController extends AbstractController
     #[OA\Response(response: 422, description: 'Invalid person id', content: new Model(type: ProblemResource::class))]
     public function __invoke(OrganizationSheet $organization, #[MapRequestPayload] ContactInput $input, #[CurrentUser] User $user): JsonResponse
     {
-        $this->commandBus->dispatch(new AddContact($user->memberId(), $organization->id, $input->personId, $this->clock->now()));
+        $this->commandBus->dispatch(new AddContact(prospectorId: $user->memberId(), id: $organization->id, personId: $input->personId, executedAt: $this->clock->now()));
 
         return $this->json($this->organizationReader->read($organization->id));
     }

@@ -46,7 +46,7 @@ final class RenameContactController extends AbstractController
     #[OA\Response(response: 422, description: 'Invalid name', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $id, #[MapRequestPayload] PersonNameInput $input, #[CurrentUser] User $user, #[MapQueryParameter(options: ['min_range' => 0], validationFailedStatusCode: 422)] ?int $revision = null): JsonResponse
     {
-        $this->commandBus->dispatch(new RenamePerson($user->memberId(), $id, $input->firstName, $input->lastName, $this->clock->now()), $this->revisions->readAt($id, $revision));
+        $this->commandBus->dispatch(new RenamePerson(readerId: $user->memberId(), id: $id, firstName: $input->firstName, lastName: $input->lastName, executedAt: $this->clock->now()), $this->revisions->readAt($id, $revision));
 
         return $this->json($this->contactReader->read($user->memberId(), $id));
     }

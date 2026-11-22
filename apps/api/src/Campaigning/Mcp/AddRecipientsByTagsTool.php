@@ -31,7 +31,7 @@ final readonly class AddRecipientsByTagsTool
         return $this->writes->write(
             $id,
             new RecipientSearchInput($tags),
-            static fn (RecipientSearchInput $input, CampaignSheet $campaign, string $memberId, \DateTimeImmutable $now): AddRecipientsByTags => new AddRecipientsByTags($memberId, $campaign->id, $input->tags ?? [], $now),
+            static fn (RecipientSearchInput $input, CampaignSheet $campaign, string $memberId, \DateTimeImmutable $now): AddRecipientsByTags => new AddRecipientsByTags(memberId: $memberId, campaignId: $campaign->id, tags: $input->tags ?? [], executedAt: $now),
         );
     }
 }

@@ -45,7 +45,7 @@ final class AddRecipientsByTagsController extends AbstractController
     #[OA\Response(response: 422, description: 'No tag, more than five with that of the channel, or more than 500 recipients', content: new Model(type: ProblemResource::class))]
     public function __invoke(CampaignSheet $campaign, #[MapRequestPayload] RecipientSearchInput $input, #[CurrentUser] User $user): JsonResponse
     {
-        $this->commandBus->dispatch(new AddRecipientsByTags($user->memberId(), $campaign->id, $input->tags ?? [], $this->clock->now()));
+        $this->commandBus->dispatch(new AddRecipientsByTags(memberId: $user->memberId(), campaignId: $campaign->id, tags: $input->tags ?? [], executedAt: $this->clock->now()));
 
         return $this->json($this->campaignReader->read($user->memberId(), $campaign->id));
     }
