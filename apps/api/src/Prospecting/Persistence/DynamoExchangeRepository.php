@@ -19,6 +19,7 @@ use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\Prospecting\Domain\Model\Fingerprinted;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
@@ -166,6 +167,21 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
     public function withContact(PersonId $contact, AccountId $accountId): array
     {
         return $this->exchangesOf($this->prospectingTable->query(ExchangeKeys::timeline($accountId->value, $contact->value), Table::BY_GSI1));
+    }
+
+    /**
+     * Each contact's timeline (GSI1), its documents read for their campaign only: no exchange is restored.
+     *
+     * @param list<PersonId> $contacts
+     *
+     * @return list<PersonId>
+     */
+    public function contactsWithAnExchangeOf(AccountId $accountId, CampaignId $campaign, array $contacts): array
+    {
+        return array_values(array_filter($contacts, fn (PersonId $contact): bool => array_any(
+            $this->prospectingTable->query(ExchangeKeys::timeline($accountId->value, $contact->value), Table::BY_GSI1),
+            static fn (array $item): bool => is_array($item['exchange']) && $campaign->value === ($item['exchange']['campaignId'] ?? null),
+        )));
     }
 
     /**

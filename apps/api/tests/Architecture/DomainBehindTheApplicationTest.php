@@ -41,6 +41,7 @@ class DomainBehindTheApplicationTest extends TestCase
         'Campaigns/AntiCorruption/PersonalDataContactsReach.php',
         'Campaigns/AntiCorruption/AccountsCampaigners.php',
         'Campaigns/AntiCorruption/PersonalDataAndProspectingAddressees.php',
+        'Campaigns/AntiCorruption/ProspectingCampaignExchanges.php',
         'Booking/AntiCorruption/AccountsAndPersonalDataHosts.php',
         'Booking/AntiCorruption/ConnectorsConnectedCalendars.php',
         'Booking/AntiCorruption/ProspectingHostAgendas.php',

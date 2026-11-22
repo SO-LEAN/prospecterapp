@@ -19,6 +19,7 @@ use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\Fingerprinted;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Symfony\Component\Clock\ClockInterface;
@@ -82,6 +83,16 @@ final class ExchangeChangedMeanwhile implements ExchangeRepository
     public function withContact(PersonId $contact, AccountId $accountId): array
     {
         return $this->exchanges->withContact($contact, $accountId);
+    }
+
+    /**
+     * @param list<PersonId> $contacts
+     *
+     * @return list<PersonId>
+     */
+    public function contactsWithAnExchangeOf(AccountId $accountId, CampaignId $campaign, array $contacts): array
+    {
+        return $this->exchanges->contactsWithAnExchangeOf($accountId, $campaign, $contacts);
     }
 
     private function anotherRequestCorrectsTheTextOf(ExchangeId $id): void
