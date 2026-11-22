@@ -3,6 +3,7 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CampaignEnded } from '@/features/campaigns/components/campaign-ended'
+import { CampaignDailyCount } from '@/features/campaigns/components/campaign-daily-count'
 import { CampaignForm } from '@/features/campaigns/components/campaign-form'
 import { CampaignMenu } from '@/features/campaigns/components/campaign-menu'
 import { CampaignProgress } from '@/features/campaigns/components/campaign-progress'
@@ -65,6 +66,7 @@ function CampaignPage() {
           <span className="flex items-center gap-3">
             <CampaignStatusBadge status={campaign.status} />
             {campaign.startedAt && <CampaignProgress campaign={campaign} />}
+            {campaign.status === 'started' && <CampaignDailyCount campaign={campaign} />}
           </span>
         }
         actions={

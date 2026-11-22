@@ -780,6 +780,9 @@ export const fr = {
     },
     progress: '{{handled}} / {{targeted}}',
     progressLabel: '{{handled}} traités sur {{targeted}} ciblés',
+    dailyCap: {
+      today: '{{processed}} / {{cap}} aujourd’hui',
+    },
     by: 'par {{name}}',
     new: { title: 'Nouvelle campagne', submit: 'Préparer la campagne' },
     prepared: 'Campagne préparée',

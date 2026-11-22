@@ -1,5 +1,6 @@
 import { api } from '@/shared/api/client'
 import type { components } from '@/shared/api/schema'
+import { readerTimeZone } from '@/shared/lib/time-zone'
 
 export type Campaign = components['schemas']['CampaignResource']
 export type CampaignList = components['schemas']['CampaignListResource']
@@ -14,8 +15,11 @@ export type Recipient = components['schemas']['RecipientResource']
 /** The campaigns of the team, read whole, each with its target counted (ADR 0144). */
 export const campaignsQuery = () => api.queryOptions('get', '/api/campaigns')
 
+/** Read on the clock of the reader, which its recipients processed today are counted on. */
 export const campaignQuery = (campaignId: string) =>
-  api.queryOptions('get', '/api/campaigns/{id}', { params: { path: { id: campaignId } } })
+  api.queryOptions('get', '/api/campaigns/{id}', {
+    params: { path: { id: campaignId }, query: { timeZone: readerTimeZone() } },
+  })
 
 /** The recipients a frozen campaign keeps, read whole: 500 at most. */
 export const campaignRecipientsQuery = (campaignId: string) =>
