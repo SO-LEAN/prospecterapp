@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Campaigns\Application\ReviseCampaign;
 
+use Prospecter\Core\Campaigns\Domain\Model\CampaignBrief;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignName;
 use Prospecter\Core\Campaigns\Domain\Model\Channel;
 use Prospecter\Core\Campaigns\Domain\Model\MessageMode;
@@ -38,11 +39,9 @@ final readonly class ReviseCampaignHandler implements CommandHandler
         $name = CampaignName::of($command->name);
         $channel = Channel::named($command->channel);
         $campaign->revise(
-            $name,
-            Targeting::by($channel, $command->tags),
-            MessageTemplate::of($command->message, $command->subject, $channel, MessageMode::named($command->messageMode)),
-            by: $member,
-            at: $command->executedAt,
+            new CampaignBrief($name, Targeting::by($channel, $command->tags), MessageTemplate::of($command->message, $command->subject, $channel, MessageMode::named($command->messageMode))),
+            $member,
+            $command->executedAt,
         );
         $this->campaigns->save($campaign);
         $this->publishWhatHappenedTo($campaign);

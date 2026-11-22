@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Campaigns\Application\PrepareCampaign;
 
 use Prospecter\Core\Campaigns\Domain\Model\Campaign;
+use Prospecter\Core\Campaigns\Domain\Model\CampaignBrief;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignName;
 use Prospecter\Core\Campaigns\Domain\Model\Channel;
 use Prospecter\Core\Campaigns\Domain\Model\MessageMode;
@@ -16,6 +17,7 @@ use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\CampaignId;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
@@ -38,13 +40,9 @@ final readonly class PrepareCampaignHandler implements CommandHandler
         $name = CampaignName::of($command->name);
         $channel = Channel::named($command->channel);
         $campaign = Campaign::prepare(
+            new Gesture($this->campaigners->accountOf($member), $member, $command->executedAt),
             new CampaignId($command->campaignId),
-            $this->campaigners->accountOf($member),
-            $name,
-            Targeting::by($channel, $command->tags),
-            MessageTemplate::of($command->message, $command->subject, $channel, MessageMode::named($command->messageMode)),
-            by: $member,
-            at: $command->executedAt,
+            new CampaignBrief($name, Targeting::by($channel, $command->tags), MessageTemplate::of($command->message, $command->subject, $channel, MessageMode::named($command->messageMode))),
         );
         $this->campaigns->save($campaign);
         $this->publishWhatHappenedTo($campaign);

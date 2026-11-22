@@ -18,9 +18,11 @@ use Prospecter\Core\Campaigns\Domain\Exception\CampaignNotRunning;
 use Prospecter\Core\Campaigns\Domain\Exception\CampaignWithoutRecipient;
 use Prospecter\Core\Campaigns\Domain\Model\Addressee;
 use Prospecter\Core\Campaigns\Domain\Model\Campaign;
+use Prospecter\Core\Campaigns\Domain\Model\CampaignBrief;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignIntent;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignName;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignStatus;
+use Prospecter\Core\Campaigns\Domain\Model\Candidate;
 use Prospecter\Core\Campaigns\Domain\Model\Channel;
 use Prospecter\Core\Campaigns\Domain\Model\ContactTags;
 use Prospecter\Core\Campaigns\Domain\Model\MessageTemplate;
@@ -35,6 +37,7 @@ use Prospecter\Core\Campaigns\Domain\Policy\CampaignPossibilities;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\Core\Double\StateOf;
@@ -289,7 +292,7 @@ final class CampaignTest extends TestCase
         $campaign = $this->prepared();
         $targeting = Targeting::by(Channel::LinkedIn, ['#ESN', '#PHP']);
         $message = MessageTemplate::of('Salut {firstName}', null, Channel::LinkedIn);
-        $campaign->revise(CampaignName::of('Relance PHP'), $targeting, $message, new MemberId('0190a1c0-0000-7000-8000-000000000009'), $this->now());
+        $campaign->revise(new CampaignBrief(CampaignName::of('Relance PHP'), $targeting, $message), new MemberId('0190a1c0-0000-7000-8000-000000000009'), $this->now());
         $state = StateOf::the($campaign);
 
         $this->assertEquals([CampaignName::of('Relance PHP'), $targeting, $message, new MemberId(self::ME)], [$state->object('name', CampaignName::class), $state->object('targeting', Targeting::class), $state->object('message', MessageTemplate::class), $state->object('createdBy', MemberId::class)]);
@@ -298,10 +301,10 @@ final class CampaignTest extends TestCase
     public function testFrozenItsSearchIsTheSameWhateverTheOrderOfItsTags(): void
     {
         $campaign = $this->prepared();
-        $campaign->revise(CampaignName::of('Relance'), Targeting::by(Channel::Email, ['#ESN', '#PHP']), MessageTemplate::of('Bonjour', null, Channel::Email), new MemberId(self::ME), $this->now());
+        $campaign->revise(new CampaignBrief(CampaignName::of('Relance'), Targeting::by(Channel::Email, ['#ESN', '#PHP']), MessageTemplate::of('Bonjour', null, Channel::Email)), new MemberId(self::ME), $this->now());
         $campaign->freeze([self::ADA => $this->reachedByEmail('#ESN', '#PHP')], new MemberId(self::ME), $this->now());
 
-        $campaign->revise(CampaignName::of('Relance PHP'), Targeting::by(Channel::Email, ['#php', '#ESN']), MessageTemplate::of('Salut', null, Channel::Email), new MemberId(self::ME), $this->now());
+        $campaign->revise(new CampaignBrief(CampaignName::of('Relance PHP'), Targeting::by(Channel::Email, ['#php', '#ESN']), MessageTemplate::of('Salut', null, Channel::Email)), new MemberId(self::ME), $this->now());
 
         $this->assertEquals(CampaignName::of('Relance PHP'), StateOf::the($campaign)->object('name', CampaignName::class));
     }
@@ -321,10 +324,10 @@ final class CampaignTest extends TestCase
         $me = new MemberId(self::ME);
 
         match ($intent) {
-            CampaignIntent::ReviseCampaign => $campaign->revise(CampaignName::of('Relance'), Targeting::by(Channel::Email, ['#ESN']), MessageTemplate::of('Bonjour', null, Channel::Email), $me, $this->now()),
+            CampaignIntent::ReviseCampaign => $campaign->revise(new CampaignBrief(CampaignName::of('Relance'), Targeting::by(Channel::Email, ['#ESN']), MessageTemplate::of('Bonjour', null, Channel::Email)), $me, $this->now()),
             CampaignIntent::DiscardCampaign => $campaign->discard($me, $this->now()),
             CampaignIntent::FreezeCampaign => $campaign->freeze([self::ADA => $this->reachedByEmail('#ESN')], $me, $this->now()),
-            CampaignIntent::AddRecipients => $campaign->addRecipient(new PersonId(self::ALAN), $this->reachedByEmail(), new Addressee('Alan', 'Turing', 'x', null, null), $me, $this->now()),
+            CampaignIntent::AddRecipients => $campaign->addRecipient(new Candidate(new PersonId(self::ALAN), $this->reachedByEmail(), new Addressee('Alan', 'Turing', 'x', null, null)), $me, $this->now()),
             CampaignIntent::RemoveRecipient => $campaign->removeRecipient(new PersonId(self::ADA), $me, $this->now()),
             CampaignIntent::StartCampaign => $campaign->start($me, $this->now()),
             CampaignIntent::StopCampaign => $campaign->stop($me, $this->now()),
@@ -368,13 +371,9 @@ final class CampaignTest extends TestCase
     private function prepared(): Campaign
     {
         return Campaign::prepare(
+            new Gesture(new AccountId(self::ACCOUNT), new MemberId(self::ME), $this->now()),
             new CampaignId(self::CAMPAIGN),
-            new AccountId(self::ACCOUNT),
-            CampaignName::of('Relance ESN'),
-            Targeting::by(Channel::Email, ['#ESN']),
-            MessageTemplate::of('Bonjour {firstName}', 'Une question', Channel::Email),
-            new MemberId(self::ME),
-            $this->now(),
+            new CampaignBrief(CampaignName::of('Relance ESN'), Targeting::by(Channel::Email, ['#ESN']), MessageTemplate::of('Bonjour {firstName}', 'Une question', Channel::Email)),
         );
     }
 
