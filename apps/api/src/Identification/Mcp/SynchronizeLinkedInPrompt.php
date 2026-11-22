@@ -38,7 +38,7 @@ final readonly class SynchronizeLinkedInPrompt
 
     /**
      * @param string  $what  contacts or messages
-     * @param ?string $since how far back to go ("7 days", "November 1"…), asked when not given
+     * @param ?string $since how far back to go, in quotes ("7 days", "November 1"…), asked when not given
      *
      * @return list<array{role: string, content: string}>
      */

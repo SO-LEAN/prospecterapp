@@ -33,7 +33,7 @@ class SynchronizeLinkedInPromptApiTest extends ApiTestCase
 
         $prompt = $this->promptListed('sync-linkedin');
 
-        $this->assertSame(['contacts or messages', 'how far back to go ("7 days", "November 1"…), asked when not given'], array_column($prompt['arguments'] ?? [], 'description'));
+        $this->assertSame(['contacts or messages', 'how far back to go, in quotes ("7 days", "November 1"…), asked when not given'], array_column($prompt['arguments'] ?? [], 'description'));
     }
 
     public function testEachMessageIsNotedWithItsConversationAndItsMinute(): void
