@@ -18,6 +18,7 @@ use Prospecter\Core\SharedKernel\Domain\Designated;
 use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
 use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\GeoPoint;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\Location;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
@@ -103,7 +104,7 @@ class DynamoOrganizationSheetRetrieverTest extends ApiTestCase
 
     private function prospect(Prospector $prospector, string $corporateName, ?string $form = null): Organization
     {
-        $organization = Organization::prospectedBy($prospector, new OrganizationId(self::newIdentity()), new LegalIdentity($corporateName, $form), new ContactDetails(), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        $organization = Organization::prospectedBy(new Gesture($prospector->accountId, $prospector->id, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)), new OrganizationId(self::newIdentity()), new LegalIdentity($corporateName, $form), new ContactDetails());
         $this->organizations()->save($organization);
 
         return $organization;

@@ -69,7 +69,7 @@ final class LinkContext implements Context
 
     private function anOrganizationOfMine(string $name): Organization
     {
-        $organization = Organization::prospectedBy($this->scenario->meAsProspector(), new OrganizationId($this->application->newIdentity()), new LegalIdentity($name), new ContactDetails(), $this->application->now());
+        $organization = Organization::prospectedBy($this->scenario->myGesture(), new OrganizationId($this->application->newIdentity()), new LegalIdentity($name), new ContactDetails());
 
         return $this->scenario->save($name, $organization);
     }

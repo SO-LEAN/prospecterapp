@@ -14,6 +14,7 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Address;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\GeoPoint;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\Location;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
@@ -125,7 +126,7 @@ class DynamoOrganizationFactsRetrieverTest extends ApiTestCase
 
     private function prospected(string $name): Organization
     {
-        return Organization::prospectedBy($this->prospector, new OrganizationId(self::newIdentity()), new LegalIdentity($name), new ContactDetails(), new \DateTimeImmutable(self::NOW));
+        return Organization::prospectedBy(new Gesture($this->prospector->accountId, $this->prospector->id, new \DateTimeImmutable(self::NOW)), new OrganizationId(self::newIdentity()), new LegalIdentity($name), new ContactDetails());
     }
 
     private function organizations(): OrganizationRepository

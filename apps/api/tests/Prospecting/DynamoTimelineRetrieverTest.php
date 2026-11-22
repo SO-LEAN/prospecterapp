@@ -236,7 +236,7 @@ class DynamoTimelineRetrieverTest extends ApiTestCase
 
     private function prospectWithTheContact(string $corporateName): Organization
     {
-        $organization = Organization::prospectedBy($this->prospector, new OrganizationId(self::newIdentity()), new LegalIdentity($corporateName), new ContactDetails(), new \DateTimeImmutable(self::NOW));
+        $organization = Organization::prospectedBy(new Gesture($this->prospector->accountId, $this->prospector->id, new \DateTimeImmutable(self::NOW)), new OrganizationId(self::newIdentity()), new LegalIdentity($corporateName), new ContactDetails());
         $organization->addContact($this->contact, $this->prospector->id, new \DateTimeImmutable(self::NOW));
         $this->organizations()->save($organization);
 

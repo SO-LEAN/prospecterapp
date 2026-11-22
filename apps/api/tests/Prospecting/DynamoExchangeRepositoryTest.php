@@ -88,7 +88,7 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
 
     private function notedWithTheOrganization(string $occurredAt): Exchange
     {
-        $organization = Organization::prospectedBy($this->prospector, $this->acme, new LegalIdentity('ACME'), new ContactDetails(), new \DateTimeImmutable(self::NOW));
+        $organization = Organization::prospectedBy(new Gesture($this->prospector->accountId, $this->prospector->id, new \DateTimeImmutable(self::NOW)), $this->acme, new LegalIdentity('ACME'), new ContactDetails());
 
         return Exchange::noted(new Gesture($organization->accountId(), $this->prospector->id, new \DateTimeImmutable(self::NOW)), new ExchangeId(self::newIdentity()), new OrganizationCorrespondent($organization->id()), Noting::of(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable($occurredAt)), ExchangeStatus::Done));
     }

@@ -19,6 +19,7 @@ use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\SharedKernel\Application\Exception\ErrorType;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
@@ -333,6 +334,26 @@ final class ScenarioContext implements Context
     public function prospectorOf(AccountId $accountId): Prospector
     {
         return new Prospector(new MemberId($this->application->newIdentity()), $accountId, managesPersonalData: true);
+    }
+
+    /**
+     * What I do now, by hand.
+     */
+    public function myGesture(): Gesture
+    {
+        $me = $this->meAsProspector();
+
+        return new Gesture($me->accountId, $me->id, $this->application->now());
+    }
+
+    /**
+     * What a prospector of this account does now, the author of what a scenario arranges.
+     */
+    public function aGestureIn(AccountId $accountId): Gesture
+    {
+        $prospector = $this->prospectorOf($accountId);
+
+        return new Gesture($prospector->accountId, $prospector->id, $this->application->now());
     }
 
     /**

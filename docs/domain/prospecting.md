@@ -146,7 +146,7 @@ The organizations an account prospects, their contacts, the exchanges with them,
 
 - Organizations and contacts:
   - the organizations an account prospects (`Organization`); its contacts (`PersonId`s only, `AddContact` / `RemoveContact`, never alone: `OrphanContacts`); `StopProspecting`;
-  - the `Prospector` who starts prospecting an organization or reads (with or without the right to manage personal data), read through the `Prospectors` port (`prospectorFrom()`, implemented outside the core from Accounts' members);
+  - the `Prospector` who acts or reads (with or without the right to manage personal data), whose `Gesture` starts prospecting an organization (`Organization::prospectedBy()`), read through the `Prospectors` port (`prospectorFrom()`, implemented outside the core from Accounts' members);
   - the `KnownContacts` port (whether a person is one the account prospects, answered from PersonalData);
   - an organization's possible duplicates (`ResemblanceKey`, `DuplicateSuspicion` before the organization is saved, `Organization::reconsiderDuplicates()`, `suspectDuplicateOf()`, `liftSuspicionOf()`, `dismissSuspicionOf()`, `knowItIsNoDuplicateOf()`, `DismissPossibleDuplicate` and the reactions in return `SuspectDuplicateInReturn`, `LiftSuspicionInReturn`, `DismissSuspicionInReturn`, read as `PossibleDuplicate`, ADR 0162);
   - `ConsultOrganizationsOfContacts` (batch), `RecognizeCallingOrganization` (which organization has a number), `IdentifyOrganizations` (which organizations clues designate, read through the `DesignatedOrganizationRetriever` port, ADR 0173).

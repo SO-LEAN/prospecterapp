@@ -40,6 +40,7 @@ use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
 use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\GeoPoint;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\Location;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
@@ -96,13 +97,13 @@ final class Organization implements ReleasesEvents
     /**
      * By the hand of the prospector, or by an AI acting as them.
      */
-    public static function prospectedBy(Prospector $prospector, OrganizationId $id, LegalIdentity $legalIdentity, ContactDetails $contactDetails, \DateTimeImmutable $at, Origin $origin = Origin::Hand): self
+    public static function prospectedBy(Gesture $gesture, OrganizationId $id, LegalIdentity $legalIdentity, ContactDetails $contactDetails): self
     {
         self::ensureItCanBeNamed($legalIdentity, $contactDetails);
 
-        $organization = new self($id, $prospector->accountId, $prospector->id, $legalIdentity, $contactDetails, $at);
-        $organization->origin = $origin;
-        $organization->recordThat(new ProspectingStarted($prospector->accountId, $prospector->id, $id, $at));
+        $organization = new self($id, $gesture->accountId, $gesture->by, $legalIdentity, $contactDetails, $gesture->at);
+        $organization->origin = $gesture->origin;
+        $organization->recordThat(new ProspectingStarted($gesture->accountId, $gesture->by, $id, $gesture->at));
 
         return $organization;
     }

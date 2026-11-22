@@ -22,6 +22,7 @@ use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
 use Prospecter\Core\SharedKernel\Domain\ExternalReference;
 use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
@@ -191,7 +192,7 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
     public function testAnOrganizationAnAiStartedIsReadBackCreatedByAnAi(): void
     {
         $organizations = self::getContainer()->get(OrganizationRepository::class);
-        $acme = Organization::prospectedBy(new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity())), new OrganizationId(self::newIdentity()), new LegalIdentity('ACME'), new ContactDetails(), new \DateTimeImmutable('2026-10-18 19:00 UTC'), Origin::Ai);
+        $acme = Organization::prospectedBy(new Gesture(new AccountId(self::newIdentity()), new MemberId(self::newIdentity()), new \DateTimeImmutable('2026-10-18 19:00 UTC'), Origin::Ai), new OrganizationId(self::newIdentity()), new LegalIdentity('ACME'), new ContactDetails());
         $acme->releaseEvents();
         $organizations->save($acme);
 
@@ -529,7 +530,7 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
 
     private function organizationOnTheWeb(Prospector $prospector, ?string $page, ?string $site): Organization
     {
-        $organization = Organization::prospectedBy($prospector, new OrganizationId(self::newIdentity()), new LegalIdentity('ACME'), new ContactDetails(), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        $organization = Organization::prospectedBy(new Gesture($prospector->accountId, $prospector->id, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)), new OrganizationId(self::newIdentity()), new LegalIdentity('ACME'), new ContactDetails());
         $organization->changeContactDetails(new ContactDetails(), ExternalReferences::designating(array_filter([$page]), Designated::Organization), Website::orNone($site), by: $prospector->id, at: new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
 
         return $organization;
@@ -578,7 +579,7 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
 
     private function organizationIn(Prospector $prospector, string $corporateName, string $city): Organization
     {
-        $organization = Organization::prospectedBy($prospector, new OrganizationId(self::newIdentity()), new LegalIdentity($corporateName), new ContactDetails(), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        $organization = Organization::prospectedBy(new Gesture($prospector->accountId, $prospector->id, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)), new OrganizationId(self::newIdentity()), new LegalIdentity($corporateName), new ContactDetails());
         $organization->relocateTo(new Address(city: $city), null, by: $prospector->id, at: new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
 
         return $organization;
@@ -586,11 +587,11 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
 
     private function organizationWithTheSiret(Prospector $prospector, string $siret): Organization
     {
-        return Organization::prospectedBy($prospector, new OrganizationId(self::newIdentity()), new LegalIdentity('ACME', siret: new Siret($siret)), new ContactDetails(), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        return Organization::prospectedBy(new Gesture($prospector->accountId, $prospector->id, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)), new OrganizationId(self::newIdentity()), new LegalIdentity('ACME', siret: new Siret($siret)), new ContactDetails());
     }
 
     private function organizationWithTheEmail(Prospector $prospector, string $email): Organization
     {
-        return Organization::prospectedBy($prospector, new OrganizationId(self::newIdentity()), new LegalIdentity(), new ContactDetails(new Email($email)), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        return Organization::prospectedBy(new Gesture($prospector->accountId, $prospector->id, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)), new OrganizationId(self::newIdentity()), new LegalIdentity(), new ContactDetails(new Email($email)));
     }
 }

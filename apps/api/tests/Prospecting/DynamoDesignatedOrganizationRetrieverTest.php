@@ -14,6 +14,7 @@ use Prospecter\Core\SharedKernel\Domain\Designated;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\ExternalReference;
 use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
@@ -93,7 +94,7 @@ class DynamoDesignatedOrganizationRetrieverTest extends ApiTestCase
 
     private function prospect(Prospector $prospector, LegalIdentity $legalIdentity, ContactDetails $contactDetails = new ContactDetails()): Organization
     {
-        $organization = Organization::prospectedBy($prospector, new OrganizationId(self::newIdentity()), $legalIdentity, $contactDetails, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        $organization = Organization::prospectedBy(new Gesture($prospector->accountId, $prospector->id, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)), new OrganizationId(self::newIdentity()), $legalIdentity, $contactDetails);
         self::getContainer()->get(OrganizationRepository::class)->save($organization);
 
         return $organization;
