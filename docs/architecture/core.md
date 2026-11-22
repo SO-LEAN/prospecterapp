@@ -21,7 +21,7 @@ A folder exists only when it holds something. The shared kernel is only model, s
 
 - `src/SharedKernel/{Domain,Application}`: what every context shares, kept small:
   - the published identities `AccountId`, `MemberId`, `PersonId` and `OrganizationId`;
-  - in `Domain/Event`, the base classes of every domain event (`DomainEvent`, `OrganizationEvent`, `PersonEvent`, `AccountEvent`), plus `ReleasesEvents` and `RecordsEvents`;
+  - `DomainEvent`, the base class of every domain event (in `Domain/Event`), and `ReleasesEvents` and `RecordsEvents`;
   - `Email` (lower case), `PhoneNumber` (E.164, ADR 0072), `ContactDetails`;
   - links to outside tools (ADR 0165):
     - `ExternalReference` holds a source (a `KnownSource` or the address's host) and the identifier of what it points to there. It recognizes the link and keeps the pasted address to open it.
@@ -99,7 +99,7 @@ A folder exists only when it holds something. The shared kernel is only model, s
 
   Every intention method starts with the same check (`ensurePossible`). It throws `NotPossibleInItsState` for an intent that is not offered. A new intention gets a case in the intent enum, a check, and a line in `OrganizationIntentsTest`, `ExchangeTest`, `AccountIntentsTest` or `PersonIntentsTest`.
 - Domain events (ADR 0042, 0043):
-  - Every intention method records one event in the past tense (`recordThat(new Relocated(...))`). An event carries identities only, never personal data. It also carries the file that a reaction must remove from the storage (`LogoRemoved`, `AttachmentRemoved`, `ExchangeErased`, ADR 0101). An aggregate `implements ReleasesEvents` and `use RecordsEvents`. Its events live in `<Context>/Domain/Event` and never leave the context.
+  - Every intention method records one event in the past tense (`recordThat(new Relocated(...))`). An event carries identities only, never personal data. It also carries the file that a reaction must remove from the storage (`LogoRemoved`, `AttachmentRemoved`, `ExchangeErased`, ADR 0101). An aggregate `implements ReleasesEvents` and `use RecordsEvents`. Its events live in `<Context>/Domain/Event` and never leave the context. So do the parents that group them by subject: Prospecting's `OrganizationEvent`, PersonalData's `PersonEvent`, Accounts' `AccountEvent`, Connectors' `ClientEvent`.
   - The handler `use PublishesEvents` and calls `publishWhatHappenedTo($aggregate)` after saving it. The events go to the `Events` port. The translators run within the use case, the reactions after it (ADR 0101).
   - A new intention gets its event, and its intents test checks that the event is recorded.
 - What another context must know is an integration event (ADR 0046). It is plain data in `<Context>/Contract/Event` (PersonalData's `ContactCollected` and `ContactForgotten`, Prospecting's `ContactsLeftWithoutOrganization`). It is built from the domain event and published by a handler of the emitting context (`PublishContactCollectedHandler`). The exception is Connectors' `EmailExchanged`, the e-mail that an import reports. The reaction that reads the e-mail publishes it (`ImportMailHandler`), so that no domain event carries the e-mail's text (ADR 0154).

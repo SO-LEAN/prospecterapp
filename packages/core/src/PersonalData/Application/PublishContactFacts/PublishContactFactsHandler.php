@@ -6,9 +6,9 @@ namespace Prospecter\Core\PersonalData\Application\PublishContactFacts;
 
 use Prospecter\Core\PersonalData\Application\Port\ContactFactsRetriever;
 use Prospecter\Core\PersonalData\Contract\Event\ContactFactsChanged;
+use Prospecter\Core\PersonalData\Domain\Event\PersonEvent;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
-use Prospecter\Core\SharedKernel\Domain\Event\PersonEvent;
 
 /**
  * Tells the other contexts the facts of a contact each time something happens to it, read as its service reads

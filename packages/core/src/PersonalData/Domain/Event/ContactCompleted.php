@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\PersonalData\Domain\Event;
 
-use Prospecter\Core\SharedKernel\Domain\Event\PersonEvent;
-
 /**
  * What a contact lacked was filled, what was noted kept (ADR 0177).
  */
