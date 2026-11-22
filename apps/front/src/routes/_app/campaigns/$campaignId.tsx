@@ -2,8 +2,8 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { CampaignEnded } from '@/features/campaigns/components/campaign-ended'
 import { CampaignDailyCount } from '@/features/campaigns/components/campaign-daily-count'
+import { CampaignEnded } from '@/features/campaigns/components/campaign-ended'
 import { CampaignForm } from '@/features/campaigns/components/campaign-form'
 import { CampaignMenu } from '@/features/campaigns/components/campaign-menu'
 import { CampaignProgress } from '@/features/campaigns/components/campaign-progress'
@@ -12,6 +12,7 @@ import { CampaignRun } from '@/features/campaigns/components/campaign-run'
 import { CampaignStatusBadge } from '@/features/campaigns/components/campaign-status-badge'
 import { CampaignSummary } from '@/features/campaigns/components/campaign-summary'
 import { CampaignTarget } from '@/features/campaigns/components/campaign-target'
+import { DailyCapSetting } from '@/features/campaigns/components/daily-cap-setting'
 import { FreezeCampaign } from '@/features/campaigns/components/freeze-campaign'
 import { StartCampaign } from '@/features/campaigns/components/start-campaign'
 import { useReviseCampaign } from '@/features/campaigns/mutations'
@@ -80,6 +81,7 @@ function CampaignPage() {
           </div>
         }
       />
+      <DailyCapSetting campaign={campaign} />
       <CampaignInItsState campaign={campaign} />
     </div>
   )

@@ -1,4 +1,5 @@
-import { act, screen } from '@testing-library/react'
+import { act, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { toast } from 'sonner'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { Account } from '@/features/account/mutations'
@@ -71,7 +72,10 @@ function theApiAnswers(campaign: Campaign = started) {
     }
     const answers: Record<string, unknown> = {
       '/api/me': me,
-      '/api/me/connections': { connections: [], _links: { self: { href: '/api/me/connections', method: 'GET' } } },
+      '/api/me/connections': {
+        connections: [],
+        _links: { self: { href: '/api/me/connections', method: 'GET' } },
+      },
       '/api/me/reminders': {
         enabled: false,
         minutesBefore: 10,
@@ -104,8 +108,47 @@ describe('the daily cap of a campaign', () => {
     await renderTheSpaAt(`/campaigns/${CAMPAIGN}`)
 
     await screen.findByText('12 / 30 aujourd’hui')
-    const read = calls.find(({ method, url }) => method === 'GET' && url.pathname === `/api/campaigns/${CAMPAIGN}`)
+    const read = calls.find(
+      ({ method, url }) => method === 'GET' && url.pathname === `/api/campaigns/${CAMPAIGN}`,
+    )
     expect(read?.url.searchParams.get('timeZone')).toBe(Intl.DateTimeFormat().resolvedOptions().timeZone)
+  })
+
+  it('sets the cap on the sheet of the campaign', async () => {
+    const calls = theApiAnswers()
+    const user = userEvent.setup()
+    await renderTheSpaAt(`/campaigns/${CAMPAIGN}`)
+
+    const field = await screen.findByLabelText('Plafond par jour')
+    await user.clear(field)
+    await user.type(field, '20')
+    await user.click(screen.getByRole('button', { name: 'Enregistrer le plafond' }))
+
+    await waitFor(() =>
+      expect(calls).toContainEqual(expect.objectContaining({ method: 'PUT', body: { dailyCap: 20 } })),
+    )
+  })
+
+  it('takes the cap off when the field is left empty', async () => {
+    const calls = theApiAnswers()
+    const user = userEvent.setup()
+    await renderTheSpaAt(`/campaigns/${CAMPAIGN}`)
+
+    await user.clear(await screen.findByLabelText('Plafond par jour'))
+    await user.click(screen.getByRole('button', { name: 'Enregistrer le plafond' }))
+
+    await waitFor(() =>
+      expect(calls).toContainEqual(expect.objectContaining({ method: 'PUT', body: { dailyCap: null } })),
+    )
+  })
+
+  it('no longer offers to change the cap of a stopped campaign', async () => {
+    const { setDailyCap: _, ...links } = started._links
+    theApiAnswers({ ...started, status: 'stopped', _links: links })
+    await renderTheSpaAt(`/campaigns/${CAMPAIGN}`)
+
+    expect((await screen.findAllByRole('heading', { name: 'Relance PHP' })).length).toBeGreaterThan(0)
+    expect(screen.queryByLabelText('Plafond par jour')).not.toBeInTheDocument()
   })
 
   it('shows the count in orange beyond the cap', async () => {
