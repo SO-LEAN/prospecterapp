@@ -22,6 +22,7 @@ const ACME = '0190a1c0-0000-7000-8000-000000000002'
 
 const acme: Organization = {
   id: ACME,
+  revision: 1,
   name: 'ACME',
   legalIdentity: { corporateName: 'ACME' },
   contactDetails: { links: [] },

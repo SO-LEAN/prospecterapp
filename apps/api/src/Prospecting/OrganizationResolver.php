@@ -2,6 +2,7 @@
 
 namespace App\Prospecting;
 
+use App\Prospecting\Persistence\OrganizationRevisions;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganization;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\KeptOrganization;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
@@ -16,7 +17,7 @@ use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
  */
 final readonly class OrganizationResolver implements ValueResolverInterface
 {
-    public function __construct(private QueryHandler $consultOrganization)
+    public function __construct(private QueryHandler $consultOrganization, private OrganizationRevisions $revisions)
     {
     }
 
@@ -38,6 +39,7 @@ final readonly class OrganizationResolver implements ValueResolverInterface
     public function read(string $id): OrganizationSheet
     {
         $kept = new KeptOrganization();
+        $this->revisions->watch($id);
         ($this->consultOrganization)(new ConsultOrganization($id), $kept);
 
         return $kept->organization;

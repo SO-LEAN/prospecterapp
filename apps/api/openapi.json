@@ -745,6 +745,18 @@
                 "operationId": "patch_api_organizations_change_contact_details",
                 "parameters": [
                     {
+                        "name": "revision",
+                        "in": "query",
+                        "description": "The record's revision as the client read it. If the record changed since, the change is refused (409 changedMeanwhile) instead of erasing the other change. Without it, the change holds to the record as the API reads it.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "nullable": true,
+                            "default": null,
+                            "minimum": 0
+                        }
+                    },
+                    {
                         "name": "id",
                         "in": "path",
                         "required": true,
@@ -790,6 +802,16 @@
                     },
                     "404": {
                         "description": "Unknown organization, or one that is neither mine nor prospected by mine",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Changed since the revision sent was read",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1498,6 +1520,18 @@
                 "operationId": "patch_api_organizations_relocate",
                 "parameters": [
                     {
+                        "name": "revision",
+                        "in": "query",
+                        "description": "The record's revision as the client read it. If the record changed since, the change is refused (409 changedMeanwhile) instead of erasing the other change. Without it, the change holds to the record as the API reads it.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "nullable": true,
+                            "default": null,
+                            "minimum": 0
+                        }
+                    },
+                    {
                         "name": "id",
                         "in": "path",
                         "required": true,
@@ -1543,6 +1577,16 @@
                     },
                     "404": {
                         "description": "Unknown organization, or one that is neither mine nor prospected by mine",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Changed since the revision sent was read",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1647,6 +1691,18 @@
                 "operationId": "patch_api_organizations_revise_legal_identity",
                 "parameters": [
                     {
+                        "name": "revision",
+                        "in": "query",
+                        "description": "The record's revision as the client read it. If the record changed since, the change is refused (409 changedMeanwhile) instead of erasing the other change. Without it, the change holds to the record as the API reads it.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "nullable": true,
+                            "default": null,
+                            "minimum": 0
+                        }
+                    },
+                    {
                         "name": "id",
                         "in": "path",
                         "required": true,
@@ -1692,6 +1748,16 @@
                     },
                     "404": {
                         "description": "Unknown organization, or one that is neither mine nor prospected by mine",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Changed since the revision sent was read",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2007,6 +2073,18 @@
                 "operationId": "patch_api_organizations_write_observations",
                 "parameters": [
                     {
+                        "name": "revision",
+                        "in": "query",
+                        "description": "The record's revision as the client read it. If the record changed since, the change is refused (409 changedMeanwhile) instead of erasing the other change. Without it, the change holds to the record as the API reads it.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "nullable": true,
+                            "default": null,
+                            "minimum": 0
+                        }
+                    },
+                    {
                         "name": "id",
                         "in": "path",
                         "required": true,
@@ -2052,6 +2130,16 @@
                     },
                     "404": {
                         "description": "Unknown organization, or one that is neither mine nor prospected by mine",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Changed since the revision sent was read",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -9698,7 +9786,8 @@
                     "modifiedAt",
                     "_links",
                     "possibleDuplicates",
-                    "createdByAnAI"
+                    "createdByAnAI",
+                    "revision"
                 ],
                 "properties": {
                     "id": {
@@ -9771,6 +9860,10 @@
                     "createdByAnAI": {
                         "description": "An AI created it, acting as its member through the MCP server, never named",
                         "type": "boolean"
+                    },
+                    "revision": {
+                        "description": "The record's revision as read. Send it back with a change to what was read: if the record changed since, the change is refused (409 changedMeanwhile).",
+                        "type": "integer"
                     }
                 },
                 "type": "object"

@@ -2,6 +2,7 @@
 
 namespace App\Prospecting\Presenter;
 
+use App\Prospecting\Persistence\OrganizationRevisions;
 use App\Prospecting\Resource\OrganizationContactDetailsResource;
 use App\Prospecting\Resource\OrganizationLinksResource;
 use App\Prospecting\Resource\OrganizationResource;
@@ -58,7 +59,7 @@ final class OrganizationResourcePresenter implements ConsultOrganizationOutput
 
     public private(set) OrganizationResource $resource;
 
-    public function __construct(private readonly ImageResourceFactory $imageResourceFactory, private readonly Links $links, private readonly IntentLinks $intentLinks)
+    public function __construct(private readonly ImageResourceFactory $imageResourceFactory, private readonly Links $links, private readonly IntentLinks $intentLinks, private readonly OrganizationRevisions $revisions)
     {
     }
 
@@ -85,6 +86,7 @@ final class OrganizationResourcePresenter implements ConsultOrganizationOutput
             links: $this->linksOf($response),
             possibleDuplicates: array_map(fn (PossibleDuplicate $duplicate): PossibleDuplicateResource => $this->possibleDuplicateOf($response, $duplicate), $response->possibleDuplicates),
             createdByAnAI: $response->createdByAnAI,
+            revision: $this->revisions->lastRead($response->id),
         );
     }
 

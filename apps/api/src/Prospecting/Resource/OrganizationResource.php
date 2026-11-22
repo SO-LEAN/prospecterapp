@@ -6,6 +6,7 @@ use App\Shared\Resource\AddressResource;
 use App\Shared\Resource\ImageResource;
 use App\Shared\Resource\LegalIdentityResource;
 use App\Shared\Resource\LocationResource;
+use App\Shared\Resource\RevisionDescription;
 use OpenApi\Attributes as OA;
 use Symfony\Component\Serializer\Attribute\Context;
 use Symfony\Component\Serializer\Attribute\SerializedName;
@@ -39,6 +40,8 @@ final readonly class OrganizationResource
         public array $possibleDuplicates,
         #[OA\Property(description: ExchangeResource::CREATED_BY_AN_AI_DESCRIPTION)]
         public bool $createdByAnAI,
+        #[OA\Property(description: RevisionDescription::OF_A_RECORD)]
+        public int $revision,
     ) {
     }
 }

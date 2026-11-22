@@ -3,6 +3,8 @@
 namespace App\Shared;
 
 use App\Shared\Persistence\ConditionFailed;
+use App\Shared\Persistence\DynamoUnitOfWork;
+use App\Shared\Persistence\RevisionRead;
 use Prospecter\Core\SharedKernel\Application\Addition;
 use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
 use Symfony\Component\Clock\ClockInterface;
@@ -13,18 +15,35 @@ use Symfony\Component\Messenger\MessageBusInterface;
  * Sends a command of the core to its handler. Handled synchronously: a refusal of the core is thrown back
  * as is, so that the API translates it like any other (404, 409, 422). An addition its transaction cancelled, what it
  * read having changed meanwhile, is run again from what it reads then, three times at most after a short random wait
- * (ADR 0181).
+ * (ADR 0181). A command sent with the revision its client read of the record it changes holds to it (ADR 0187).
  */
 final readonly class CommandBus
 {
     private const int REPLAYS_OF_AN_ADDITION = 3;
     private const int LONGEST_WAIT_BEFORE_A_REPLAY_IN_MS = 100;
 
-    public function __construct(private MessageBusInterface $commandBus, private ClockInterface $clock)
+    public function __construct(private MessageBusInterface $commandBus, private ClockInterface $clock, private DynamoUnitOfWork $unitOfWork)
     {
     }
 
-    public function dispatch(object $command): void
+    public function dispatch(object $command, ?RevisionRead $read = null): void
+    {
+        if (null === $read) {
+            $this->dispatchReplayingAnAddition($command);
+
+            return;
+        }
+
+        $this->unitOfWork->holdTo($read);
+
+        try {
+            $this->dispatchReplayingAnAddition($command);
+        } finally {
+            $this->unitOfWork->release();
+        }
+    }
+
+    private function dispatchReplayingAnAddition(object $command): void
     {
         for ($replay = 1;; ++$replay) {
             try {

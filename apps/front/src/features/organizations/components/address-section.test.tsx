@@ -32,6 +32,7 @@ const NO_LOCATION = 'Adresse non géolocalisée.'
 
 const anOrganization = (organization: Partial<Organization>): Organization => ({
   id: BABBAGE,
+  revision: 1,
   name: 'Babbage & Co',
   legalIdentity: { corporateName: 'Babbage & Co' },
   contactDetails: { links: [] },

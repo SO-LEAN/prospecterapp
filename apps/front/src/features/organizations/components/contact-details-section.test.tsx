@@ -27,6 +27,7 @@ const ITS_SITE = 'https://www.acme.fr'
 
 const anOrganization = (organization: Partial<Organization> = {}): Organization => ({
   id: ACME,
+  revision: 1,
   name: 'ACME',
   legalIdentity: { corporateName: 'ACME', siret: null },
   contactDetails: { links: [] },
