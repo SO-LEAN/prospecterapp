@@ -15,6 +15,16 @@ final class Typed
         return is_string($value) ? $value : throw self::unexpected('a string', $value);
     }
 
+    /**
+     * @return non-empty-string
+     */
+    public static function filledString(mixed $value): string
+    {
+        $string = self::string($value);
+
+        return '' !== $string ? $string : throw self::unexpected('a filled string', $value);
+    }
+
     public static function stringOrNull(mixed $value): ?string
     {
         return null === $value ? null : self::string($value);
