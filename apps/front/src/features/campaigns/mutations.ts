@@ -157,6 +157,22 @@ export function useNoteCampaignExchange(campaignId: string) {
   })
 }
 
+/** The cap answered with the campaign: it is read again on the clock of the reader, with the list. */
+export function useSetDailyCap() {
+  const queryClient = useQueryClient()
+  const { t } = useTranslation()
+
+  return api.useMutation('put', '/api/campaigns/{id}/daily-cap', {
+    onSuccess: async (campaign) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: campaignQuery(campaign.id).queryKey }),
+        queryClient.invalidateQueries({ queryKey: campaignKeys.list }),
+      ])
+      toast.success(t('campaigns.dailyCap.saved'))
+    },
+  })
+}
+
 /** Dismissed within the gesture: the campaign, its recipients and the list are read again at once. */
 export function useDismissRecipient(campaignId: string) {
   const queryClient = useQueryClient()

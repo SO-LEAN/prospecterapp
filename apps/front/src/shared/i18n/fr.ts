@@ -781,6 +781,9 @@ export const fr = {
     progress: '{{handled}} / {{targeted}}',
     progressLabel: '{{handled}} traités sur {{targeted}} ciblés',
     dailyCap: {
+      label: 'Plafond par jour',
+      save: 'Enregistrer le plafond',
+      saved: 'Plafond enregistré.',
       today: '{{processed}} / {{cap}} aujourd’hui',
     },
     by: 'par {{name}}',
