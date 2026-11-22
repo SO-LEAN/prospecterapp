@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\SignIn\OAuth;
 
+use App\Shared\Typed;
 use Symfony\Component\HttpClient\Exception\TransportException;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -60,12 +61,12 @@ final readonly class ClientMetadataDocuments
         }
 
         try {
-            return $this->http->request('GET', $clientId, [
+            return Typed::document($this->http->request('GET', $clientId, [
                 'max_redirects' => 0,
                 'timeout' => self::SECONDS,
                 'max_duration' => self::SECONDS,
                 'on_progress' => self::stopBeyondTheLargestDocument(...),
-            ])->toArray();
+            ])->toArray());
         } catch (ExceptionInterface $failure) {
             throw UnknownClient::named($clientId, $failure->getMessage());
         }

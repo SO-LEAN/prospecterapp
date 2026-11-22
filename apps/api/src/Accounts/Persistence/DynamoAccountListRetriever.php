@@ -6,6 +6,7 @@ namespace App\Accounts\Persistence;
 
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\Accounts\Application\Port\AccountListRetriever;
 use Prospecter\Core\SharedKernel\Domain\Slice;
 
@@ -23,6 +24,6 @@ final readonly class DynamoAccountListRetriever implements AccountListRetriever
     {
         $items = $this->accountsTable->query(AccountsKeys::ALL_ACCOUNTS, Table::BY_GSI1, $after, $max + 1);
 
-        return Documents::slice(array_map(static fn (array $item): string => $item['account']['id'], $items), $max, static fn (string $accountId): string => $accountId);
+        return Documents::slice(array_map(static fn (array $item): string => Typed::string(Typed::document($item['account'])['id']), $items), $max, static fn (string $accountId): string => $accountId);
     }
 }

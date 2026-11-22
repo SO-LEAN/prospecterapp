@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\SignIn\OAuth;
 
+use App\Shared\Typed;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
@@ -63,6 +64,8 @@ final readonly class Seal
             throw BrokenSeal::given();
         }
 
-        return false === $message ? throw BrokenSeal::given() : json_decode($message, true, flags: JSON_THROW_ON_ERROR);
+        $envelope = Typed::document(false === $message ? throw BrokenSeal::given() : json_decode($message, true, flags: JSON_THROW_ON_ERROR));
+
+        return ['for' => Typed::string($envelope['for']), 'until' => Typed::int($envelope['until']), 'content' => Typed::namedStrings($envelope['content'])];
     }
 }

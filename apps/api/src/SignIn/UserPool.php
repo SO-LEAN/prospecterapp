@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\SignIn;
 
+use App\Shared\Typed;
 use App\SignIn\OAuth\AuthorizationServer;
 use Aws\CognitoIdentityProvider\CognitoIdentityProviderClient;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -34,7 +35,7 @@ final readonly class UserPool
 
     public function id(): string
     {
-        return $this->cache->get($this->cacheKey('id'), fn (): string => $this->found()['Id'] ?? throw new \LogicException(sprintf('No user pool "%s": run app:user-pool:recreate', $this->name)));
+        return $this->cache->get($this->cacheKey('id'), fn (): string => $this->foundId() ?? throw new \LogicException(sprintf('No user pool "%s": run app:user-pool:recreate', $this->name)));
     }
 
     public function clientId(): string
@@ -54,7 +55,7 @@ final readonly class UserPool
 
     public function mcpClientSecret(): string
     {
-        return $this->cache->get($this->cacheKey('mcp-secret'), fn (): string => $this->cognito->describeUserPoolClient(['UserPoolId' => $this->id(), 'ClientId' => $this->mcpClientId()])['UserPoolClient']['ClientSecret']);
+        return $this->cache->get($this->cacheKey('mcp-secret'), fn (): string => Typed::string(Typed::document($this->cognito->describeUserPoolClient(['UserPoolId' => $this->id(), 'ClientId' => $this->mcpClientId()])['UserPoolClient'])['ClientSecret']));
     }
 
     /**
@@ -78,10 +79,10 @@ final readonly class UserPool
      */
     public function recreate(): void
     {
-        $found = $this->found();
+        $foundId = $this->foundId();
 
-        if (null !== $found) {
-            $this->cognito->deleteUserPool(['UserPoolId' => $found['Id']]);
+        if (null !== $foundId) {
+            $this->cognito->deleteUserPool(['UserPoolId' => $foundId]);
         }
 
         $this->cache->delete($this->cacheKey('id'));
@@ -93,7 +94,7 @@ final readonly class UserPool
 
     private function create(): void
     {
-        $id = $this->cognito->createUserPool([
+        $created = $this->cognito->createUserPool([
             'PoolName' => $this->name,
             'AliasAttributes' => ['email'],
             'Policies' => ['PasswordPolicy' => [
@@ -104,7 +105,8 @@ final readonly class UserPool
                 'RequireSymbols' => false,
             ]],
             'AdminCreateUserConfig' => ['AllowAdminCreateUserOnly' => true],
-        ])['UserPool']['Id'];
+        ]);
+        $id = Typed::string(Typed::document($created['UserPool'])['Id']);
 
         // the SPA signs in by SRP and refreshes its tokens; the API alone, with its credentials, signs in by password (commands, tests)
         $this->cognito->createUserPoolClient([
@@ -130,24 +132,21 @@ final readonly class UserPool
         ]);
     }
 
-    /**
-     * @return array{Id: string}|null
-     */
-    private function found(): ?array
+    private function foundId(): ?string
     {
-        $request = ['MaxResults' => self::LIST_SIZE];
+        $nextToken = null;
 
         do {
-            $result = $this->cognito->listUserPools($request);
+            $result = $this->cognito->listUserPools(['MaxResults' => self::LIST_SIZE, ...(null === $nextToken ? [] : ['NextToken' => $nextToken])]);
 
-            $pool = array_find($result['UserPools'] ?? [], fn (array $pool): bool => $this->name === $pool['Name']);
+            $pool = array_find(Typed::documents($result['UserPools'] ?? []), fn (array $pool): bool => $this->name === $pool['Name']);
 
             if (null !== $pool) {
-                return $pool;
+                return Typed::string($pool['Id']);
             }
 
-            $request['NextToken'] = $result['NextToken'] ?? null;
-        } while (null !== $request['NextToken']);
+            $nextToken = Typed::stringOrNull($result['NextToken'] ?? null);
+        } while (null !== $nextToken);
 
         return null;
     }
@@ -155,9 +154,9 @@ final readonly class UserPool
     private function clientNamed(string $name, string $poolId): string
     {
         $clients = $this->cognito->listUserPoolClients(['UserPoolId' => $poolId, 'MaxResults' => self::LIST_SIZE])['UserPoolClients'] ?? [];
-        $client = array_find($clients, static fn (array $client): bool => $name === $client['ClientName']);
+        $client = array_find(Typed::documents($clients), static fn (array $client): bool => $name === $client['ClientName']);
 
-        return $client['ClientId'] ?? throw new \LogicException(sprintf('No client "%s" in the user pool "%s"', $name, $this->name));
+        return null === $client ? throw new \LogicException(sprintf('No client "%s" in the user pool "%s"', $name, $this->name)) : Typed::string($client['ClientId']);
     }
 
     private function cacheKey(string $what): string

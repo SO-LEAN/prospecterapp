@@ -7,10 +7,16 @@ namespace App\Accounts\Persistence;
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Hydrator;
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\Accounts\Domain\Exception\UnknownAccount;
 use Prospecter\Core\Accounts\Domain\Model\Account;
 use Prospecter\Core\Accounts\Domain\Repository\AccountRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Address;
+use Prospecter\Core\SharedKernel\Domain\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\File;
+use Prospecter\Core\SharedKernel\Domain\GeoPoint;
+use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 
 /**
  * The accounts in the table of Accounts (ADR 0048): `ACCOUNT#<id>` / `ACCOUNT`, the account as a document, listed
@@ -25,17 +31,17 @@ final readonly class DynamoAccountRepository implements AccountRepository
     public function get(AccountId $id): Account
     {
         $item = $this->accountsTable->item(AccountsKeys::account($id->value), AccountsKeys::ACCOUNT) ?? throw UnknownAccount::identifiedBy($id);
-        $document = $item['account'];
+        $document = Typed::document($item['account']);
 
         return Hydrator::restore(Account::class, [
-            'id' => new AccountId($document['id']),
+            'id' => new AccountId(Typed::string($document['id'])),
             'legalIdentity' => Documents::legalIdentityOf($document['legalIdentity']),
             'contactDetails' => Documents::contactDetailsOf($document['contactDetails']),
             'logo' => Documents::fileOf($document['logo']),
             'address' => Documents::addressOf($document['address'] ?? null),
             'geoPoint' => Documents::geoPointOf($document['geoPoint'] ?? null),
-            'createdAt' => Documents::momentOf($document['createdAt']),
-            'modifiedAt' => Documents::momentOf($document['modifiedAt']),
+            'createdAt' => Documents::momentOf(Typed::string($document['createdAt'])),
+            'modifiedAt' => Documents::momentOf(Typed::string($document['modifiedAt'])),
         ]);
     }
 
@@ -44,14 +50,14 @@ final readonly class DynamoAccountRepository implements AccountRepository
         $state = Hydrator::stateOf($account);
 
         $this->accountsTable->transact([$this->accountsTable->putting(self::itemOf([
-            'id' => (string) $state['id'],
-            'legalIdentity' => Documents::legalIdentity($state['legalIdentity']),
-            'contactDetails' => Documents::contactDetails($state['contactDetails']),
-            'logo' => Documents::file($state['logo']),
-            'address' => Documents::address($state['address']),
-            'geoPoint' => Documents::geoPoint($state['geoPoint']),
-            'createdAt' => Documents::moment($state['createdAt']),
-            'modifiedAt' => Documents::moment($state['modifiedAt']),
+            'id' => Typed::object($state['id'], AccountId::class)->value,
+            'legalIdentity' => Documents::legalIdentity(Typed::object($state['legalIdentity'], LegalIdentity::class)),
+            'contactDetails' => Documents::contactDetails(Typed::object($state['contactDetails'], ContactDetails::class)),
+            'logo' => Documents::file(Typed::objectOrNull($state['logo'], File::class)),
+            'address' => Documents::address(Typed::objectOrNull($state['address'], Address::class)),
+            'geoPoint' => Documents::geoPoint(Typed::objectOrNull($state['geoPoint'], GeoPoint::class)),
+            'createdAt' => Documents::moment(Typed::object($state['createdAt'], \DateTimeImmutable::class)),
+            'modifiedAt' => Documents::moment(Typed::object($state['modifiedAt'], \DateTimeImmutable::class)),
         ]))]);
     }
 
@@ -62,7 +68,7 @@ final readonly class DynamoAccountRepository implements AccountRepository
     public function writeTheKeysAgain(): int
     {
         $items = $this->accountsTable->scan(AccountsKeys::ACCOUNT.'#');
-        $this->accountsTable->batch(array_map(static fn (array $item): array => self::itemOf($item['account']), $items));
+        $this->accountsTable->batch(array_map(static fn (array $item): array => self::itemOf(Typed::document($item['account'])), $items));
 
         return count($items);
     }
@@ -70,15 +76,17 @@ final readonly class DynamoAccountRepository implements AccountRepository
     /**
      * @param array<string, mixed> $document
      *
-     * @return array<string, mixed>
+     * @return array{PK: string, SK: string, ...}
      */
     private static function itemOf(array $document): array
     {
+        $id = Typed::string($document['id']);
+
         return [
-            'PK' => AccountsKeys::account($document['id']),
+            'PK' => AccountsKeys::account($id),
             'SK' => AccountsKeys::ACCOUNT,
             'GSI1PK' => AccountsKeys::ALL_ACCOUNTS,
-            'GSI1SK' => $document['id'],
+            'GSI1SK' => $id,
             'account' => $document,
         ];
     }

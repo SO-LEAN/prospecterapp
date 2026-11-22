@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\App\SignIn;
 
+use App\Shared\Typed;
 use App\SignIn\Credentials;
 use App\SignIn\UserPool;
 use Aws\CognitoIdentityProvider\CognitoIdentityProviderClient;
@@ -30,14 +31,15 @@ final class OpenAccountCommandTest extends ApiTestCase
     {
         $this->assertSame(Command::SUCCESS, $this->open('Babbage & Co', self::FOUNDER, '--form=SA'));
 
-        $this->client->setServerParameter('HTTP_AUTHORIZATION', 'Bearer '.$this->tokensOfTheFounder()['AccessToken']);
+        $this->client->setServerParameter('HTTP_AUTHORIZATION', 'Bearer '.$this->accessTokenOfTheFounder());
         $account = $this->requestJson('GET', '/api/me');
 
         $this->assertResponseIsSuccessful();
-        $this->assertSame('Babbage & Co', $account['organization']['legalIdentity']['corporateName']);
-        $this->assertSame('SA', $account['organization']['legalIdentity']['form']);
+        $legalIdentity = Typed::document(Typed::document($account['organization'])['legalIdentity']);
+        $this->assertSame('Babbage & Co', $legalIdentity['corporateName']);
+        $this->assertSame('SA', $legalIdentity['form']);
         $this->assertSame(['firstName' => null, 'lastName' => null], $account['name'], 'the founder fills in their profile');
-        $this->assertNull($account['contactDetails']['email']);
+        $this->assertNull(Typed::document($account['contactDetails'])['email']);
 
         $this->requestJson('GET', '/api/organizations');
         $this->assertResponseIsSuccessful('the founder prospects');
@@ -51,7 +53,7 @@ final class OpenAccountCommandTest extends ApiTestCase
 
         $this->assertSame([], $this->outboxOf('personal_data'));
         $this->assertCount(1, $this->outboxOf('accounts'));
-        $this->assertNotNull(self::getContainer()->get(Credentials::class)->memberSigningInWith(self::FOUNDER));
+        $this->assertNotNull(self::service(Credentials::class)->memberSigningInWith(self::FOUNDER));
     }
 
     public function testAnEmailSomebodySignsInWithOpensNothing(): void
@@ -62,12 +64,12 @@ final class OpenAccountCommandTest extends ApiTestCase
     public function testAShortPasswordOpensNothing(): void
     {
         $this->assertSame(Command::INVALID, $this->open('Babbage & Co', self::FOUNDER, '--password=short'));
-        $this->assertNull(self::getContainer()->get(Credentials::class)->memberSigningInWith(self::FOUNDER));
+        $this->assertNull(self::service(Credentials::class)->memberSigningInWith(self::FOUNDER));
     }
 
     private function open(string $corporateName, string $email, string ...$options): int
     {
-        $command = new CommandTester(new Application(self::$kernel)->find('app:account:open'));
+        $command = new CommandTester(new Application(self::$kernel ?? self::bootKernel())->find('app:account:open'));
         $input = ['corporate-name' => $corporateName, 'email' => $email, '--password' => self::PASSWORD];
 
         foreach ($options as $option) {
@@ -78,19 +80,18 @@ final class OpenAccountCommandTest extends ApiTestCase
         return $command->execute($input);
     }
 
-    /**
-     * @return array{AccessToken: string}
-     */
-    private function tokensOfTheFounder(): array
+    private function accessTokenOfTheFounder(): string
     {
-        $pool = self::getContainer()->get(UserPool::class);
-        $credentials = self::getContainer()->get(Credentials::class);
+        $pool = self::service(UserPool::class);
+        $credentials = self::service(Credentials::class);
 
-        return self::getContainer()->get(CognitoIdentityProviderClient::class)->adminInitiateAuth([
+        $result = Typed::document(self::service(CognitoIdentityProviderClient::class)->adminInitiateAuth([
             'UserPoolId' => $pool->id(),
             'ClientId' => $pool->clientId(),
             'AuthFlow' => 'ADMIN_USER_PASSWORD_AUTH',
-            'AuthParameters' => ['USERNAME' => $credentials->memberSigningInWith(self::FOUNDER), 'PASSWORD' => self::PASSWORD],
-        ])['AuthenticationResult'];
+            'AuthParameters' => ['USERNAME' => Typed::string($credentials->memberSigningInWith(self::FOUNDER)), 'PASSWORD' => self::PASSWORD],
+        ])['AuthenticationResult']);
+
+        return Typed::string($result['AccessToken']);
     }
 }

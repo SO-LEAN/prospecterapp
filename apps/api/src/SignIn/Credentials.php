@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\SignIn;
 
+use App\Shared\Typed;
 use Aws\CognitoIdentityProvider\CognitoIdentityProviderClient;
 use Aws\CognitoIdentityProvider\Exception\CognitoIdentityProviderException;
 
@@ -33,7 +34,7 @@ final readonly class Credentials
     {
         $attributes = $this->cognito->adminGetUser(['UserPoolId' => $this->pool->id(), 'Username' => $memberId])['UserAttributes'] ?? [];
 
-        return (string) array_column($attributes, 'Value', 'Name')['email'];
+        return Typed::string(array_column(Typed::array($attributes), 'Value', 'Name')['email']);
     }
 
     /**
@@ -79,7 +80,7 @@ final readonly class Credentials
     {
         $users = $this->cognito->listUsers(['UserPoolId' => $this->pool->id(), 'Filter' => sprintf('email = "%s"', addcslashes($loginEmail, '"\\'))])['Users'] ?? [];
 
-        return array_column($users, 'Username');
+        return Typed::strings(array_column(Typed::array($users), 'Username'));
     }
 
     /**

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Security;
 
 use App\Shared\Resource\ProblemResource;
+use App\Shared\Typed;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
@@ -31,6 +32,6 @@ final readonly class AccessProblems
     {
         $vote = array_find($denial->getAccessDecision()->votes ?? [], static fn (Vote $vote): bool => isset($vote->extraData[AccountResourceVoter::UNKNOWN]));
 
-        return $vote?->extraData[AccountResourceVoter::UNKNOWN];
+        return Typed::stringOrNull($vote?->extraData[AccountResourceVoter::UNKNOWN]);
     }
 }

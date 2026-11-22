@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Accounts\Persistence;
 
+use App\Shared\Typed;
 use Prospecter\Core\Accounts\Domain\Model\ReminderDelay;
 use Prospecter\Core\Accounts\Domain\Model\Reminders;
 
@@ -21,11 +22,22 @@ final class RemindersDocument
         return ['enabled' => $reminders->enabled, 'minutesBefore' => $reminders->delay->value];
     }
 
-    /**
-     * @param array{enabled: bool, minutesBefore: int|string}|null $document
-     */
-    public static function restore(?array $document): Reminders
+    public static function restore(mixed $document): Reminders
     {
-        return null === $document ? Reminders::byDefault() : new Reminders($document['enabled'], ReminderDelay::from((int) $document['minutesBefore']));
+        if (null === $document) {
+            return Reminders::byDefault();
+        }
+
+        $document = Typed::document($document);
+
+        return new Reminders(Typed::bool($document['enabled']), ReminderDelay::from(self::minutesOf($document['minutesBefore'])));
+    }
+
+    /**
+     * The minutes before as a number, or as the string of a number DynamoDB gave back.
+     */
+    private static function minutesOf(mixed $minutes): int
+    {
+        return is_int($minutes) ? $minutes : (int) Typed::string($minutes);
     }
 }
