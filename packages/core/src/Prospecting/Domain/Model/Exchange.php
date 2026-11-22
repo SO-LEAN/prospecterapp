@@ -10,6 +10,7 @@ use Prospecter\Core\Prospecting\Domain\Event\ExchangeCancelled;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeContactForgotten;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeCorrected;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeErased;
+use Prospecter\Core\Prospecting\Domain\Event\ExchangeJoinedCampaign;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeKeptFor;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeLeftWithoutOrganization;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeMarkedDone;
@@ -25,6 +26,7 @@ use Prospecter\Core\Prospecting\Domain\Event\FileAttached;
 use Prospecter\Core\Prospecting\Domain\Event\VideoCallLinkReceived;
 use Prospecter\Core\Prospecting\Domain\Exception\CampaignNotRunning;
 use Prospecter\Core\Prospecting\Domain\Exception\ChannelNotMissed;
+use Prospecter\Core\Prospecting\Domain\Exception\ExchangeAlreadyNoted;
 use Prospecter\Core\Prospecting\Domain\Exception\ExchangeInTheFuture;
 use Prospecter\Core\Prospecting\Domain\Exception\LinkOnlyForAVideoCall;
 use Prospecter\Core\Prospecting\Domain\Exception\NoRoomForAnAttachment;
@@ -289,6 +291,33 @@ final class Exchange implements ReleasesEvents
         $this->status = $outcome;
         $this->correctedBy($by, $at);
         $this->recordThat(new ExchangeCorrected($this->accountId, $by, $this->id, $at));
+    }
+
+    /**
+     * Noted first outside any campaign, as the import of a mailbox notes an e-mail before the AI that sent it, it
+     * becomes the exchange of the recipient once the AI notes the same sending: a correction by the AI's member
+     * (ADR 0195). Any other exchange of that fingerprint stays already noted.
+     *
+     * @throws ExchangeAlreadyNoted|CampaignNotRunning|UnknownRecipient|RecipientAlreadyProcessed
+     */
+    public function joinCampaign(RecipientInCampaign $recipient, MemberId $by, \DateTimeImmutable $at): void
+    {
+        if (!$this->isTheSendingTo($recipient)) {
+            throw ExchangeAlreadyNoted::because('Exchange already noted', context: ['exchange' => $this->id->value]);
+        }
+
+        $recipient->ensureToHandle();
+        $this->campaign = $recipient->campaign;
+        $this->correctedBy($by, $at);
+        $this->recordThat(new ExchangeJoinedCampaign($this->accountId, $by, $this->id, $at));
+    }
+
+    private function isTheSendingTo(RecipientInCampaign $recipient): bool
+    {
+        return null === $this->campaign
+            && true === $this->contact?->equals($recipient->contact)
+            && $recipient->channel === $this->facts->channel
+            && Direction::Outbound === $this->facts->direction;
     }
 
     /**

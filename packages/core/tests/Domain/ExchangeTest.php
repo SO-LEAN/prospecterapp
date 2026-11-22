@@ -12,6 +12,7 @@ use Prospecter\Core\Prospecting\Domain\Event\ExchangeCancelled;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeContactForgotten;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeCorrected;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeErased;
+use Prospecter\Core\Prospecting\Domain\Event\ExchangeJoinedCampaign;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeKeptFor;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeLeftWithoutOrganization;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeMarkedDone;
@@ -26,6 +27,7 @@ use Prospecter\Core\Prospecting\Domain\Event\ExchangeVenueCorrected;
 use Prospecter\Core\Prospecting\Domain\Event\FileAttached;
 use Prospecter\Core\Prospecting\Domain\Event\VideoCallLinkReceived;
 use Prospecter\Core\Prospecting\Domain\Exception\ChannelNotMissed;
+use Prospecter\Core\Prospecting\Domain\Exception\ExchangeAlreadyNoted;
 use Prospecter\Core\Prospecting\Domain\Exception\ExchangeInTheFuture;
 use Prospecter\Core\Prospecting\Domain\Exception\InvalidVideoCallLink;
 use Prospecter\Core\Prospecting\Domain\Exception\LinkOnlyForAVideoCall;
@@ -36,6 +38,7 @@ use Prospecter\Core\Prospecting\Domain\Exception\NotUpcoming;
 use Prospecter\Core\Prospecting\Domain\Exception\NotYetDue;
 use Prospecter\Core\Prospecting\Domain\Exception\PlaceOnlyForAMeeting;
 use Prospecter\Core\Prospecting\Domain\Exception\PlannedExchangeInThePast;
+use Prospecter\Core\Prospecting\Domain\Exception\RecipientAlreadyProcessed;
 use Prospecter\Core\Prospecting\Domain\Model\Attachment;
 use Prospecter\Core\Prospecting\Domain\Model\AttachmentId;
 use Prospecter\Core\Prospecting\Domain\Model\Cancellation;
@@ -80,6 +83,7 @@ class ExchangeTest extends TestCase
     private const string CAMPAIGN = '0190a1c0-0000-7000-8000-000000000008';
     private const string FILE = '6f1c2a9e0b7d4c3a8e5f1b2c3d4e5f60';
     private const string NOW = '2026-10-18 19:00';
+    private const string LATER = '2026-10-18 19:05';
     private const string MEET = 'https://meet.google.com/abc-defg-hij';
 
     public function testNotingRecordsIt(): void
@@ -862,6 +866,72 @@ class ExchangeTest extends TestCase
         $this->assertEquals([new ExchangeErased(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), [], new \DateTimeImmutable(self::NOW), new PersonId(self::CONTACT), new CampaignId(self::CAMPAIGN))], $exchange->releaseEvents());
     }
 
+    public function testAnEmailSentJoinsTheCampaignOfItsRecipient(): void
+    {
+        $exchange = $this->noted(new ExchangeFacts(Channel::Email, Direction::Outbound, new \DateTimeImmutable(self::NOW)));
+        $exchange->releaseEvents();
+
+        $exchange->joinCampaign($this->recipientInCampaign(), by: $this->colleagueWithoutTheRight()->id, at: new \DateTimeImmutable(self::LATER));
+
+        $this->assertEquals([new ExchangeJoinedCampaign(new AccountId(self::MINE), $this->colleagueWithoutTheRight()->id, new ExchangeId(self::EXCHANGE), new \DateTimeImmutable(self::LATER))], $exchange->releaseEvents());
+        $this->assertEquals(new CampaignId(self::CAMPAIGN), StateOf::the($exchange)->object('campaign', CampaignId::class));
+    }
+
+    public function testWhoJoinsTheCampaignCorrectsTheExchange(): void
+    {
+        $exchange = $this->noted(new ExchangeFacts(Channel::Email, Direction::Outbound, new \DateTimeImmutable(self::NOW)));
+
+        $exchange->joinCampaign($this->recipientInCampaign(), by: $this->colleagueWithoutTheRight()->id, at: new \DateTimeImmutable(self::LATER));
+
+        $this->assertEquals(new Correction($this->colleagueWithoutTheRight()->id, new \DateTimeImmutable(self::LATER)), StateOf::the($exchange)->objectOrNull('lastCorrection', Correction::class));
+    }
+
+    public function testTheEmailOfARecipientHandledAlreadyNeverJoinsTheCampaign(): void
+    {
+        $exchange = $this->noted(new ExchangeFacts(Channel::Email, Direction::Outbound, new \DateTimeImmutable(self::NOW)));
+
+        $this->expectException(RecipientAlreadyProcessed::class);
+
+        $exchange->joinCampaign(new RecipientInCampaign(new CampaignId(self::CAMPAIGN), new PersonId(self::CONTACT), Channel::Email, running: true, recipient: true, pending: false), by: $this->me()->id, at: new \DateTimeImmutable(self::LATER));
+    }
+
+    public function testAnExchangeOfACampaignNeverJoinsTheCampaign(): void
+    {
+        $exchange = $this->noted(new ExchangeFacts(Channel::Email, Direction::Outbound, new \DateTimeImmutable(self::NOW)));
+        $exchange->joinCampaign($this->recipientInCampaign(), by: $this->me()->id, at: new \DateTimeImmutable(self::LATER));
+
+        $this->expectExceptionObject(ExchangeAlreadyNoted::because('Exchange already noted', context: ['exchange' => self::EXCHANGE]));
+
+        $exchange->joinCampaign($this->recipientInCampaign(), by: $this->me()->id, at: new \DateTimeImmutable(self::LATER));
+    }
+
+    public function testAnExchangeWithAnotherContactNeverJoinsTheCampaign(): void
+    {
+        $exchange = $this->noted(new ExchangeFacts(Channel::Email, Direction::Outbound, new \DateTimeImmutable(self::NOW)));
+
+        $this->expectException(ExchangeAlreadyNoted::class);
+
+        $exchange->joinCampaign(new RecipientInCampaign(new CampaignId(self::CAMPAIGN), new PersonId(self::ACME), Channel::Email, running: true, recipient: true, pending: true), by: $this->me()->id, at: new \DateTimeImmutable(self::LATER));
+    }
+
+    public function testAnEmailReceivedNeverJoinsTheCampaign(): void
+    {
+        $exchange = $this->noted(new ExchangeFacts(Channel::Email, Direction::Inbound, new \DateTimeImmutable(self::NOW)));
+
+        $this->expectException(ExchangeAlreadyNoted::class);
+
+        $exchange->joinCampaign($this->recipientInCampaign(), by: $this->me()->id, at: new \DateTimeImmutable(self::LATER));
+    }
+
+    public function testAMessageOfAnotherChannelNeverJoinsTheCampaign(): void
+    {
+        $exchange = $this->noted(new ExchangeFacts(Channel::LinkedIn, Direction::Outbound, new \DateTimeImmutable(self::NOW)));
+
+        $this->expectException(ExchangeAlreadyNoted::class);
+
+        $exchange->joinCampaign($this->recipientInCampaign(), by: $this->me()->id, at: new \DateTimeImmutable(self::LATER));
+    }
+
     public function testErasingAnExchangeWithItsOrganizationSaysSo(): void
     {
         $exchange = $this->noted(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable(self::NOW)));
@@ -957,6 +1027,11 @@ class ExchangeTest extends TestCase
     private function noted(ExchangeFacts $facts, ExchangeStatus $outcome = ExchangeStatus::Done): Exchange
     {
         return Exchange::noted(new Gesture(new AccountId(self::MINE), $this->me()->id, new \DateTimeImmutable(self::NOW)), new ExchangeId(self::EXCHANGE), new ContactCorrespondent(new PersonId(self::CONTACT), [new OrganizationId(self::ACME), new OrganizationId(self::GROUP)]), Noting::of($facts, $outcome));
+    }
+
+    private function recipientInCampaign(): RecipientInCampaign
+    {
+        return new RecipientInCampaign(new CampaignId(self::CAMPAIGN), new PersonId(self::CONTACT), Channel::Email, running: true, recipient: true, pending: true);
     }
 
     private function me(): Prospector
