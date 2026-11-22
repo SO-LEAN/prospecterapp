@@ -197,4 +197,5 @@ Why the project is shaped the way it is: one record per decision, in the order t
 | [0192](0192-phpstan-checks-the-core-at-its-highest-level.md) | PHPStan checks the core at its highest level | architecture | Accepted | 2026-11-22 |
 | [0193](0193-an-actor-whose-right-its-aggregate-checks-stands-for-the-gesture.md) | An actor whose right its aggregate checks stands for the Gesture | architecture | Accepted | 2026-11-22 |
 | [0194](0194-strict-types-in-the-api-and-the-storage.md) | Strict types in the API and the storage | architecture | Accepted | 2026-11-22 |
+| [0195](0195-a-sending-noted-first-outside-a-campaign-joins-it-the-next-recipient-does-not-wait-for-the-reaction.md) | A sending noted first outside a campaign joins it, and the next recipient does not wait for the reaction | architecture | Accepted | 2026-11-22 |
 | [0196](0196-no-mutant-of-the-core-is-skipped-for-lack-of-time.md) | No mutant of the core is skipped for lack of time, and make mutation fails when one is | architecture | Accepted | 2026-11-22 |
