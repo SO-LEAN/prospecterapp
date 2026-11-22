@@ -39,3 +39,35 @@ Fonctionnalité: Fixer un plafond d'envois par jour
     Et la campagne "Relance PHP" est arrêtée
     Quand je fixe le plafond de "Relance PHP" à 30 envois par jour
     Alors c'est refusé : "A started campaign does not change"
+
+  Scénario: Au plafond du jour, l'IA est avertie
+    Soit la campagne "Relance PHP" démarrée par e-mail avec "Ada Lovelace" puis "Grace Hopper", son message pour une IA "tel quel"
+    Et je fixe le plafond de "Relance PHP" à 1 envoi par jour
+    Et "Ada Lovelace" est traitée dans la campagne "Relance PHP"
+    Quand une IA demande le destinataire suivant de "Relance PHP"
+    Alors elle reçoit "Grace Hopper", avec l'avertissement « plafond du jour atteint (1) »
+
+  Scénario: Sous le plafond du jour, l'IA n'est pas avertie
+    Soit la campagne "Relance PHP" démarrée par e-mail avec "Ada Lovelace" puis "Grace Hopper", son message pour une IA "tel quel"
+    Et je fixe le plafond de "Relance PHP" à 2 envois par jour
+    Et "Ada Lovelace" est traitée dans la campagne "Relance PHP"
+    Quand une IA demande le destinataire suivant de "Relance PHP"
+    Alors elle reçoit "Grace Hopper", sans avertissement, 1 traité aujourd'hui sur 2
+
+  Scénario: Le plafond du jour se compte au jour du membre
+    Soit je lis l'heure de "Europe/Paris"
+    Et nous sommes le "2026-11-16 22:30 UTC"
+    Et la campagne "Relance PHP" démarrée par e-mail avec "Ada Lovelace" puis "Grace Hopper", son message pour une IA "tel quel"
+    Et je fixe le plafond de "Relance PHP" à 1 envoi par jour
+    Et "Ada Lovelace" est traitée dans la campagne "Relance PHP"
+    Quand nous sommes le "2026-11-16 23:30 UTC"
+    Et une IA demande le destinataire suivant de "Relance PHP"
+    Alors elle reçoit "Grace Hopper", sans avertissement, 0 traité aujourd'hui sur 1
+
+  Scénario: Dépasser le plafond du jour n'est pas refusé
+    Soit la campagne "Relance PHP" démarrée par e-mail avec "Ada Lovelace" puis "Grace Hopper", son message pour une IA "tel quel"
+    Et je fixe le plafond de "Relance PHP" à 1 envoi par jour
+    Et "Ada Lovelace" est traitée dans la campagne "Relance PHP"
+    Quand je note pour "Grace Hopper" dans la campagne "Relance PHP" un échange
+    Alors ce n'est pas refusé
+    Et "Grace Hopper" est traitée dans la campagne "Relance PHP"

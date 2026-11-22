@@ -19,6 +19,7 @@ use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersons;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\KeptPersons;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Symfony\Component\Clock\ClockInterface;
 
 /**
  * The next recipient of a campaign composed of three contexts, as the recipients are (`RecipientsReader`): Campaigns
@@ -33,6 +34,8 @@ final readonly class NextRecipientReader
         'adapted' => 'You may rewrite the message for this person, from what you know of them (their profile, your past exchanges), but always keep the message\'s idea. Send it with your own tools: your member\'s mailbox for an e-mail, their LinkedIn for a LinkedIn message. Then log it with `log-sent-message` and the text you actually sent.',
     ];
 
+    private const string NO_CLOCK = 'UTC';
+
     public function __construct(
         private QueryHandler $nextRecipient,
         private QueryHandler $consultPersons,
@@ -40,12 +43,16 @@ final readonly class NextRecipientReader
         private TagsOfContacts $tagsOfContacts,
         private ContactInListResourceFactory $contactInListResourceFactory,
         private Links $links,
+        private ClockInterface $clock,
     ) {
     }
 
-    public function read(string $reader, string $campaignId): NextRecipientResource
+    /**
+     * @param ?string $timeZone the member's clock, which the day of the daily cap is on; UTC otherwise
+     */
+    public function read(string $reader, string $campaignId, ?string $timeZone = null): NextRecipientResource
     {
-        $next = $this->nextOf($reader, $campaignId);
+        $next = $this->nextOf($reader, $campaignId, $timeZone ?? self::NO_CLOCK);
         $recipient = ['id' => $campaignId, 'contactId' => $next->contactId];
 
         return new NextRecipientResource(
@@ -63,10 +70,10 @@ final readonly class NextRecipientReader
         );
     }
 
-    private function nextOf(string $reader, string $campaignId): RecipientToHandle
+    private function nextOf(string $reader, string $campaignId, string $timeZone): RecipientToHandle
     {
         $kept = new KeptRecipientToHandle();
-        $this->nextRecipient->__invoke(new NextRecipient($reader, $campaignId), $kept);
+        $this->nextRecipient->__invoke(new NextRecipient($reader, $campaignId, $timeZone, $this->clock->now()), $kept);
 
         return $kept->recipient ?? throw new \LogicException('The next recipient was not presented');
     }

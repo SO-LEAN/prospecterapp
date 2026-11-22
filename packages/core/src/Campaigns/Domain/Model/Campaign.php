@@ -351,6 +351,12 @@ final class Campaign implements ReleasesEvents
     }
 
     #[\NoDiscard]
+    public function dailyCap(): ?DailyCap
+    {
+        return $this->dailyCap;
+    }
+
+    #[\NoDiscard]
     public function processedOnTheDayOf(\DateTimeImmutable $at, \DateTimeZone $clock): int
     {
         return CampaignProgress::processedOnTheDayOf($at, $clock, $this->recipients->processedAt());
