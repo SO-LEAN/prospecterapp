@@ -78,3 +78,11 @@ Fonctionnalité: Fixer un plafond d'envois par jour
     Quand je note pour "Grace Hopper" dans la campagne "Relance PHP" un échange
     Alors ce n'est pas refusé
     Et "Grace Hopper" est traitée dans la campagne "Relance PHP"
+
+  Scénario: L'IA à ma demande dépasse le plafond du jour sans refus
+    Soit la campagne "Relance PHP" démarrée par e-mail avec "Ada Lovelace" puis "Grace Hopper", son message pour une IA "tel quel"
+    Et je fixe le plafond de "Relance PHP" à 1 envoi par jour
+    Et "Ada Lovelace" est traitée dans la campagne "Relance PHP"
+    Quand une IA note l'e-mail envoyé à "Grace Hopper" pour "Relance PHP", son Message-ID "<relance-grace@solean-it.test>" et le texte "Bonjour Grace"
+    Alors ce n'est pas refusé
+    Et "Grace Hopper" est traitée dans la campagne "Relance PHP"
