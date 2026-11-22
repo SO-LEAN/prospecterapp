@@ -9,6 +9,7 @@ use App\Shared\Persistence\Hydrator;
 use App\Shared\Persistence\Revision;
 use App\Shared\Persistence\Table;
 use App\Shared\Persistence\Write;
+use App\Shared\Typed;
 use Prospecter\Core\Prospecting\Domain\Exception\ExchangeNotedMeanwhile;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownExchange;
 use Prospecter\Core\Prospecting\Domain\Model\Erasure;
@@ -62,8 +63,8 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
 
         $this->prospectingTable->transact([
             $this->prospectingTable->revising($this->itemOf($document, Revision::after($stored))),
-            ...$this->linksToItsOrganizations($document, $exchange->isToMakeConform(), $stored['exchange']['keptFor'] ?? []),
-            ...$this->linkInTheAgendaOfItsHolder($document, $stored['exchange'] ?? null),
+            ...$this->linksToItsOrganizations($document, $exchange->isToMakeConform(), self::storedKeptFor($stored)),
+            ...$this->linkInTheAgendaOfItsHolder($document, self::storedDocument($stored)),
             $this->prospectingTable->putting(self::linkInTheCalendarOfItsHolder($document)),
             ...$this->registrationOfItsFingerprint($exchange, $stored),
         ]);
@@ -90,7 +91,7 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
     /**
      * Listed among the fingerprints of its contact in `GSI1`, to be forgotten with them.
      *
-     * @return array<string, mixed>|null
+     * @return array{PK: string, SK: string, ...}|null
      */
     private static function registrationOf(Exchange $exchange): ?array
     {
@@ -99,7 +100,7 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
             return null;
         }
         $registration = ['PK' => ExchangeKeys::fingerprint($exchange->accountId()->value, $fingerprint->value), 'SK' => ExchangeKeys::FINGERPRINT, 'exchangeId' => $exchange->id()->value];
-        $contact = Hydrator::stateOf($exchange)['contact'];
+        $contact = Typed::objectOrNull(Hydrator::stateOf($exchange)['contact'], PersonId::class);
 
         return null === $contact ? $registration : $registration + ['GSI1PK' => ExchangeKeys::fingerprintsOf($exchange->accountId()->value, $contact->value), 'GSI1SK' => $fingerprint->value];
     }
@@ -111,11 +112,31 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
 
         $this->prospectingTable->transact([
             $this->prospectingTable->deletingRevised(ExchangeKeys::exchange($exchange->id()->value), ExchangeKeys::EXCHANGE),
-            ...$this->linksToItsOrganizations(['keptFor' => []] + $document, false, $stored['exchange']['keptFor'] ?? []),
-            ...$this->linkInTheAgendaOfItsHolder(['status' => ExchangeStatus::Done->value] + $document, $stored['exchange'] ?? null),
-            $this->prospectingTable->deleting(ExchangeKeys::calendar($document['createdBy']), ExchangeKeys::exchange($document['id'])),
+            ...$this->linksToItsOrganizations(['keptFor' => []] + $document, false, self::storedKeptFor($stored)),
+            ...$this->linkInTheAgendaOfItsHolder(['status' => ExchangeStatus::Done->value] + $document, self::storedDocument($stored)),
+            $this->prospectingTable->deleting(ExchangeKeys::calendar(Typed::string($document['createdBy'])), ExchangeKeys::exchange($exchange->id()->value)),
             ...$this->erasureOfItsFingerprint($exchange),
         ]);
+    }
+
+    /**
+     * @param array<string, mixed>|null $stored the item of the exchange as stored, none for a new one
+     *
+     * @return array<string, mixed>|null
+     */
+    private static function storedDocument(?array $stored): ?array
+    {
+        return null === $stored ? null : Typed::document($stored['exchange']);
+    }
+
+    /**
+     * @param array<string, mixed>|null $stored the item of the exchange as stored, none for a new one
+     *
+     * @return list<string>
+     */
+    private static function storedKeptFor(?array $stored): array
+    {
+        return Typed::strings(self::storedDocument($stored)['keptFor'] ?? []);
     }
 
     /**
@@ -146,22 +167,22 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
         if (null === $item) {
             return null;
         }
-        $erasure = isset($item['erasedBy']) ? new Erasure(new MemberId($item['erasedBy']), Documents::momentOf($item['erasedAt'])) : null;
+        $erasure = isset($item['erasedBy']) ? new Erasure(new MemberId(Typed::string($item['erasedBy'])), Documents::momentOf(Typed::string($item['erasedAt']))) : null;
 
-        return new Fingerprinted(new ExchangeId($item['exchangeId']), $erasure);
+        return new Fingerprinted(new ExchangeId(Typed::string($item['exchangeId'])), $erasure);
     }
 
     public function forgetFingerprintsOf(AccountId $accountId, PersonId $contact): void
     {
         $registrations = $this->prospectingTable->query(ExchangeKeys::fingerprintsOf($accountId->value, $contact->value), Table::BY_GSI1);
-        $this->prospectingTable->transact(array_map(fn (array $registration): Write => $this->prospectingTable->deleting($registration['PK'], $registration['SK']), $registrations));
+        $this->prospectingTable->transact(array_map(fn (array $registration): Write => $this->prospectingTable->deleting(Typed::string($registration['PK']), Typed::string($registration['SK'])), $registrations));
     }
 
     public function keptFor(OrganizationId $organization): array
     {
         $links = $this->prospectingTable->query(ExchangeKeys::keptFor($organization->value));
 
-        return $this->exchangesOf($this->prospectingTable->items(array_map(static fn (array $link): array => [$link['SK'], ExchangeKeys::EXCHANGE], $links)));
+        return $this->exchangesOf($this->prospectingTable->items(array_map(static fn (string $exchange): array => [$exchange, ExchangeKeys::EXCHANGE], Typed::strings(array_column($links, 'SK')))));
     }
 
     public function withContact(PersonId $contact, AccountId $accountId): array
@@ -194,8 +215,8 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
     {
         $items = $this->prospectingTable->scan(ExchangeKeys::EXCHANGE.'#');
         $this->prospectingTable->batch([
-            ...array_map(fn (array $item): array => $this->itemOf($item['exchange'], Revision::of($item)), $items),
-            ...array_map(static fn (array $item): array => self::linkInTheCalendarOfItsHolder($item['exchange']), $items),
+            ...array_map(fn (array $item): array => $this->itemOf(Typed::document($item['exchange']), Revision::of($item)), $items),
+            ...array_map(static fn (array $item): array => self::linkInTheCalendarOfItsHolder(Typed::document($item['exchange'])), $items),
             ...array_values(array_filter(array_map(static fn (array $item): ?array => self::registrationOf(ExchangeDocument::exchange($item['exchange'])), $items))),
         ]);
 
@@ -205,21 +226,24 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
     /**
      * @param array<string, mixed> $document
      *
-     * @return array<string, mixed>
+     * @return array{PK: string, SK: string, ...}
      */
     private function itemOf(array $document, int $revision): array
     {
-        $inTheTimelineOfItsContact = null === $document['contact'] ? [] : [
-            'GSI1PK' => ExchangeKeys::timeline($document['accountId'], $document['contact']),
+        $id = Typed::string($document['id']);
+        $accountId = Typed::string($document['accountId']);
+        $contact = Typed::stringOrNull($document['contact']);
+        $inTheTimelineOfItsContact = null === $contact ? [] : [
+            'GSI1PK' => ExchangeKeys::timeline($accountId, $contact),
             'GSI1SK' => ExchangeKeys::positionOf($document),
         ];
 
         return [
-            'PK' => ExchangeKeys::exchange($document['id']),
+            'PK' => ExchangeKeys::exchange($id),
             'SK' => ExchangeKeys::EXCHANGE,
             ...$inTheTimelineOfItsContact,
-            'GSI2PK' => ExchangeKeys::ofAccount($document['accountId']),
-            'GSI2SK' => $document['id'],
+            'GSI2PK' => ExchangeKeys::ofAccount($accountId),
+            'GSI2SK' => $id,
             Revision::ATTRIBUTE => $revision,
             'exchange' => $document,
         ];
@@ -237,8 +261,9 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
      */
     private function linksToItsOrganizations(array $document, bool $toMakeConform, array $storedKeptFor): array
     {
-        $exchange = ExchangeKeys::exchange($document['id']);
+        $exchange = ExchangeKeys::exchange(Typed::string($document['id']));
         $position = ExchangeKeys::positionOf($document);
+        $keptFor = Typed::strings($document['keptFor']);
         $link = static fn (string $organization): array => [
             'PK' => ExchangeKeys::keptFor($organization),
             'SK' => $exchange,
@@ -248,8 +273,8 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
         ];
 
         return [
-            ...array_map(fn (string $organization): Write => $this->prospectingTable->putting($link($organization)), $document['keptFor']),
-            ...array_map(fn (string $organization): Write => $this->prospectingTable->deleting(ExchangeKeys::keptFor($organization), $exchange), array_values(array_diff($storedKeptFor, $document['keptFor']))),
+            ...array_map(fn (string $organization): Write => $this->prospectingTable->putting($link($organization)), $keptFor),
+            ...array_map(fn (string $organization): Write => $this->prospectingTable->deleting(ExchangeKeys::keptFor($organization), $exchange), array_values(array_diff($storedKeptFor, $keptFor))),
         ];
     }
 
@@ -264,8 +289,8 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
      */
     private function linkInTheAgendaOfItsHolder(array $document, ?array $stored): array
     {
-        $agenda = ExchangeKeys::agenda($document['createdBy']);
-        $exchange = ExchangeKeys::exchange($document['id']);
+        $agenda = ExchangeKeys::agenda(Typed::string($document['createdBy']));
+        $exchange = ExchangeKeys::exchange(Typed::string($document['id']));
 
         return match (true) {
             ExchangeStatus::Planned === ExchangeDocument::statusOf($document) => [$this->prospectingTable->putting(['PK' => $agenda, 'SK' => $exchange, 'GSI1PK' => $agenda, 'GSI1SK' => ExchangeKeys::positionOf($document)])],
@@ -280,13 +305,13 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
      *
      * @param array<string, mixed> $document
      *
-     * @return array<string, string>
+     * @return array{PK: string, SK: string, GSI1PK: string, GSI1SK: string}
      */
     private static function linkInTheCalendarOfItsHolder(array $document): array
     {
-        $calendar = ExchangeKeys::calendar($document['createdBy']);
+        $calendar = ExchangeKeys::calendar(Typed::string($document['createdBy']));
 
-        return ['PK' => $calendar, 'SK' => ExchangeKeys::exchange($document['id']), 'GSI1PK' => $calendar, 'GSI1SK' => ExchangeKeys::calendarPositionOf($document)];
+        return ['PK' => $calendar, 'SK' => ExchangeKeys::exchange(Typed::string($document['id'])), 'GSI1PK' => $calendar, 'GSI1SK' => ExchangeKeys::calendarPositionOf($document)];
     }
 
     /**

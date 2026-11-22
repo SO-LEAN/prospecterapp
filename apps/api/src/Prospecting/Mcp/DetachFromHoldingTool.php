@@ -28,10 +28,9 @@ final readonly class DetachFromHoldingTool
     #[McpTool(name: 'detach-from-holding', description: 'Detach an organization from its holding. Answers the organization.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id): array
     {
-        return $this->writes->write(
+        return $this->writes->change(
             $id,
-            null,
-            static fn (null $input, OrganizationSheet $organization, string $memberId, \DateTimeImmutable $now): DetachFromHolding => new DetachFromHolding($memberId, $organization->id, $now),
+            static fn (OrganizationSheet $organization, string $memberId, \DateTimeImmutable $now): DetachFromHolding => new DetachFromHolding($memberId, $organization->id, $now),
         );
     }
 }

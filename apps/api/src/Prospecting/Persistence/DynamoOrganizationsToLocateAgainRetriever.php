@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Prospecting\Persistence;
 
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\Prospecting\Application\Port\OrganizationsToLocateAgainRetriever;
 
 /**
@@ -21,8 +22,13 @@ final readonly class DynamoOrganizationsToLocateAgainRetriever implements Organi
     public function all(): iterable
     {
         foreach ($this->prospectingTable->scan(OrganizationKeys::organization('')) as $item) {
-            if (OrganizationKeys::ORGANIZATION === $item['SK'] && self::locatedWithoutItsMunicipality($item['organization'])) {
-                yield $item['organization']['id'];
+            if (OrganizationKeys::ORGANIZATION !== $item['SK']) {
+                continue;
+            }
+            $organization = Typed::document($item['organization']);
+
+            if (self::locatedWithoutItsMunicipality($organization)) {
+                yield Typed::string($organization['id']);
             }
         }
     }

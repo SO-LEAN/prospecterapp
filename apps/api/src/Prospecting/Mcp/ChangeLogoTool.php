@@ -38,10 +38,9 @@ final readonly class ChangeLogoTool
 
         return $this->images->whileDownloaded(
             $this->inputs->valid(new WebAddressInput($url)),
-            fn (File $logo): array => $this->writes->write(
+            fn (File $logo): array => $this->writes->change(
                 $id,
-                null,
-                static fn (null $input, OrganizationSheet $organization, string $memberId, \DateTimeImmutable $now): ChangeLogo => new ChangeLogo(prospectorId: $memberId, id: $organization->id, logo: $logo, executedAt: $now),
+                static fn (OrganizationSheet $organization, string $memberId, \DateTimeImmutable $now): ChangeLogo => new ChangeLogo(prospectorId: $memberId, id: $organization->id, logo: $logo, executedAt: $now),
             ),
         );
     }

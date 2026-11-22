@@ -6,6 +6,7 @@ namespace App\Prospecting\Persistence;
 
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\Prospecting\Application\IdentifyOrganizations\Candidate;
 use Prospecter\Core\Prospecting\Application\Port\DesignatedOrganizationRetriever;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
@@ -49,11 +50,9 @@ final readonly class DynamoDesignatedOrganizationRetriever implements Designated
      */
     public function named(array $ids): array
     {
-        $items = $this->prospectingTable->items(array_map(static fn (OrganizationId $id): array => [OrganizationKeys::organization($id->value), OrganizationKeys::ORGANIZATION], $ids));
-        $documents = array_column(array_map(static fn (array $item): array => $item['organization'], $items), null, 'id');
-        $named = array_filter(array_map(static fn (OrganizationId $id): ?array => $documents[$id->value] ?? null, $ids));
+        $items = $this->prospectingTable->itemsInTheOrderOf(array_map(static fn (OrganizationId $id): string => OrganizationKeys::organization($id->value), $ids), OrganizationKeys::ORGANIZATION);
 
-        return array_values(array_map(self::candidate(...), $named));
+        return array_map(static fn (array $item): Candidate => self::candidate(Typed::document($item['organization'])), $items);
     }
 
     /**
@@ -63,12 +62,12 @@ final readonly class DynamoDesignatedOrganizationRetriever implements Designated
     {
         $name = Documents::legalIdentityOf($document['legalIdentity'])->fullName();
 
-        return new Candidate($document['id'], '' === $name ? $document['contactDetails']['email'] : $name);
+        return new Candidate(Typed::string($document['id']), '' === $name ? Typed::string(Typed::document($document['contactDetails'])['email']) : $name);
     }
 
     private function holderOf(string $kind, AccountId $accountId, string $value): ?OrganizationId
     {
-        $holder = $this->prospectingTable->item(OrganizationKeys::reservation($kind, $accountId->value, $value), $kind)['ownerId'] ?? null;
+        $holder = Typed::stringOrNull($this->prospectingTable->item(OrganizationKeys::reservation($kind, $accountId->value, $value), $kind)['ownerId'] ?? null);
 
         return null === $holder ? null : new OrganizationId($holder);
     }

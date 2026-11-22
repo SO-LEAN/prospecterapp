@@ -20,7 +20,7 @@ final class SearchIndexes
     /**
      * The attributes the item of an aggregate carries for the indexes.
      *
-     * @return array<string, string>
+     * @return array{NAMEPK?: string, NAMESK?: string, EMAILPK?: string, EMAILSK?: string, PHONEPK?: string, PHONESK?: string}
      */
     public static function of(string $scope, SearchKeys $keys, ?PhoneNumber $phoneNumber): array
     {
@@ -33,7 +33,7 @@ final class SearchIndexes
      * The attributes putting an item in the index `NAME` under a key: the name of an aggregate on its item, or the
      * first name of a person on an item beside it, of the same partition key (ADR 0149).
      *
-     * @return array<string, string>
+     * @return array{NAMEPK: string, NAMESK: string}
      */
     public static function inTheNames(string $scope, SearchKey $name): array
     {

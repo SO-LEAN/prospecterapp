@@ -6,13 +6,20 @@ namespace App\Prospecting\Persistence;
 
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Hydrator;
+use App\Shared\Typed;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\Website;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Address;
+use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Designated;
 use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
+use Prospecter\Core\SharedKernel\Domain\File;
+use Prospecter\Core\SharedKernel\Domain\GeoPoint;
+use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
+use Prospecter\Core\SharedKernel\Domain\Origin;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
@@ -32,53 +39,56 @@ final class OrganizationDocument
         $state = Hydrator::stateOf($organization);
 
         return [
-            'id' => (string) $state['id'],
-            'accountId' => (string) $state['accountId'],
-            'createdBy' => (string) $state['createdBy'],
-            'holdingId' => null === $state['holdingId'] ? null : (string) $state['holdingId'],
-            'legalIdentity' => Documents::legalIdentity($state['legalIdentity']),
-            'contactDetails' => Documents::contactDetails($state['contactDetails']),
-            'references' => Documents::references($state['references']),
-            'website' => $state['website']?->value,
-            'address' => Documents::address($state['address']),
-            'geoPoint' => Documents::geoPoint($state['geoPoint']),
-            'municipalityCode' => $state['municipalityCode'],
-            'observations' => $state['observations'],
-            'logo' => Documents::file($state['logo']),
-            'contacts' => array_map(static fn (PersonId $contact): string => (string) $contact, $state['contacts']),
-            'possibleDuplicates' => array_map(static fn (OrganizationId $duplicate): string => (string) $duplicate, $state['possibleDuplicates']),
-            'notDuplicates' => array_map(static fn (OrganizationId $checked): string => (string) $checked, $state['notDuplicates']),
-            'origin' => $state['origin']->value,
-            'createdAt' => Documents::moment($state['createdAt']),
-            'modifiedAt' => Documents::moment($state['modifiedAt']),
+            'id' => Typed::object($state['id'], OrganizationId::class)->value,
+            'accountId' => Typed::object($state['accountId'], AccountId::class)->value,
+            'createdBy' => Typed::object($state['createdBy'], MemberId::class)->value,
+            'holdingId' => Typed::objectOrNull($state['holdingId'], OrganizationId::class)?->value,
+            'legalIdentity' => Documents::legalIdentity(Typed::object($state['legalIdentity'], LegalIdentity::class)),
+            'contactDetails' => Documents::contactDetails(Typed::object($state['contactDetails'], ContactDetails::class)),
+            'references' => Documents::references(Typed::object($state['references'], ExternalReferences::class)),
+            'website' => Typed::objectOrNull($state['website'], Website::class)?->value,
+            'address' => Documents::address(Typed::objectOrNull($state['address'], Address::class)),
+            'geoPoint' => Documents::geoPoint(Typed::objectOrNull($state['geoPoint'], GeoPoint::class)),
+            'municipalityCode' => Typed::stringOrNull($state['municipalityCode']),
+            'observations' => Typed::stringOrNull($state['observations']),
+            'logo' => Documents::file(Typed::objectOrNull($state['logo'], File::class)),
+            'contacts' => array_map(static fn (PersonId $contact): string => $contact->value, Typed::objects($state['contacts'], PersonId::class)),
+            'possibleDuplicates' => array_map(static fn (OrganizationId $duplicate): string => $duplicate->value, Typed::objects($state['possibleDuplicates'], OrganizationId::class)),
+            'notDuplicates' => array_map(static fn (OrganizationId $checked): string => $checked->value, Typed::objects($state['notDuplicates'], OrganizationId::class)),
+            'origin' => Typed::object($state['origin'], Origin::class)->value,
+            'createdAt' => Documents::moment(Typed::object($state['createdAt'], \DateTimeImmutable::class)),
+            'modifiedAt' => Documents::moment(Typed::object($state['modifiedAt'], \DateTimeImmutable::class)),
         ];
     }
 
     /**
-     * @param array<string, mixed> $document
+     * Restores the organization from its item's untyped document.
      */
-    public static function organization(array $document): Organization
+    public static function organization(mixed $document): Organization
     {
+        $document = Typed::document($document);
+        $holdingId = Typed::stringOrNull($document['holdingId']);
+
         return Hydrator::restore(Organization::class, [
-            'id' => new OrganizationId($document['id']),
-            'accountId' => new AccountId($document['accountId']),
-            'createdBy' => new MemberId($document['createdBy']),
-            'holdingId' => null === $document['holdingId'] ? null : new OrganizationId($document['holdingId']),
+            'id' => new OrganizationId(Typed::string($document['id'])),
+            'accountId' => new AccountId(Typed::string($document['accountId'])),
+            'createdBy' => new MemberId(Typed::string($document['createdBy'])),
+            'holdingId' => null === $holdingId ? null : new OrganizationId($holdingId),
             'legalIdentity' => Documents::legalIdentityOf($document['legalIdentity']),
             'contactDetails' => Documents::contactDetailsOf($document['contactDetails']),
             'references' => self::referencesOf($document),
-            'website' => Website::orNone($document['website'] ?? null),
+            'website' => Website::orNone(Typed::stringOrNull($document['website'] ?? null)),
             'address' => Documents::addressOf($document['address']),
             'geoPoint' => Documents::geoPointOf($document['geoPoint']),
-            'municipalityCode' => $document['municipalityCode'] ?? null,
-            'observations' => $document['observations'],
+            'municipalityCode' => Typed::stringOrNull($document['municipalityCode'] ?? null),
+            'observations' => Typed::stringOrNull($document['observations']),
             'logo' => Documents::fileOf($document['logo']),
-            'contacts' => array_map(static fn (string $contact): PersonId => new PersonId($contact), $document['contacts']),
-            'possibleDuplicates' => array_map(static fn (string $duplicate): OrganizationId => new OrganizationId($duplicate), $document['possibleDuplicates'] ?? []),
-            'notDuplicates' => array_map(static fn (string $checked): OrganizationId => new OrganizationId($checked), $document['notDuplicates'] ?? []),
+            'contacts' => array_map(static fn (string $contact): PersonId => new PersonId($contact), Typed::strings($document['contacts'])),
+            'possibleDuplicates' => array_map(static fn (string $duplicate): OrganizationId => new OrganizationId($duplicate), Typed::strings($document['possibleDuplicates'] ?? [])),
+            'notDuplicates' => array_map(static fn (string $checked): OrganizationId => new OrganizationId($checked), Typed::strings($document['notDuplicates'] ?? [])),
             'origin' => Documents::originOf($document),
-            'createdAt' => Documents::momentOf($document['createdAt']),
-            'modifiedAt' => Documents::momentOf($document['modifiedAt']),
+            'createdAt' => Documents::momentOf(Typed::string($document['createdAt'])),
+            'modifiedAt' => Documents::momentOf(Typed::string($document['modifiedAt'])),
         ]);
     }
 
@@ -89,7 +99,7 @@ final class OrganizationDocument
      */
     public static function referencesOf(array $document): ExternalReferences
     {
-        return isset($document['references']) ? Documents::referencesOf($document['references']) : Documents::referencesBeforeTheLinks(array_filter([$document['linkedInPage'] ?? null]), Designated::Organization);
+        return isset($document['references']) ? Documents::referencesOf($document['references']) : Documents::referencesBeforeTheLinks(array_filter([Typed::stringOrNull($document['linkedInPage'] ?? null)]), Designated::Organization);
     }
 
     /**

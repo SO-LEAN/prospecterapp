@@ -37,16 +37,30 @@ final readonly class OrganizationWrites
     /**
      * @template TInput of object
      *
-     * @param TInput|null                                                                  $input   the input of the endpoint, none for an endpoint without
-     * @param \Closure(TInput|null, OrganizationSheet, string, \DateTimeImmutable): object $command the command of the endpoint, from its input, for the organization, by the member, at this moment
+     * @param TInput                                                                  $input   the input of the endpoint
+     * @param \Closure(TInput, OrganizationSheet, string, \DateTimeImmutable): object $command the command of the endpoint, from its input, for the organization, by the member, at this moment
      *
      * @return array<string, mixed>
      */
-    public function write(string $id, ?object $input, \Closure $command, string ...$attributes): array
+    public function write(string $id, object $input, \Closure $command, string ...$attributes): array
     {
         $organization = $this->writable($id, ...$attributes);
 
-        return $this->written($organization, $command(null === $input ? null : $this->inputs->valid($input), $organization, $this->access->member()->memberId(), $this->clock->now()));
+        return $this->written($organization, $command($this->inputs->valid($input), $organization, $this->access->member()->memberId(), $this->clock->now()));
+    }
+
+    /**
+     * It does the same as write() for an endpoint without an input.
+     *
+     * @param \Closure(OrganizationSheet, string, \DateTimeImmutable): object $command the command of the endpoint, for the organization, by the member, at this moment
+     *
+     * @return array<string, mixed>
+     */
+    public function change(string $id, \Closure $command, string ...$attributes): array
+    {
+        $organization = $this->writable($id, ...$attributes);
+
+        return $this->written($organization, $command($organization, $this->access->member()->memberId(), $this->clock->now()));
     }
 
     /**

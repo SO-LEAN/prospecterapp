@@ -7,6 +7,7 @@ namespace App\Prospecting\Persistence;
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Revision;
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\Prospecting\Application\Port\OrganizationFactsRetriever;
 use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\OrganizationFactsResponse;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
@@ -43,8 +44,8 @@ final readonly class DynamoOrganizationFactsRetriever implements OrganizationFac
      */
     private static function factsOf(array $item): OrganizationFactsResponse
     {
-        $organization = $item['organization'];
+        $organization = Typed::document($item['organization']);
 
-        return new OrganizationFactsResponse($organization['id'], Revision::of($item), true, null !== $organization['geoPoint'], $organization['contacts'], $organization['municipalityCode'] ?? null, $organization['address']['country'] ?? null);
+        return new OrganizationFactsResponse(Typed::string($organization['id']), Revision::of($item), true, null !== $organization['geoPoint'], Typed::strings($organization['contacts']), Typed::stringOrNull($organization['municipalityCode'] ?? null), Documents::addressOf($organization['address'])?->country);
     }
 }

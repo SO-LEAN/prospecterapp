@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Prospecting\Persistence;
 
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\Port\AgendaRetriever;
 use Prospecter\Core\Prospecting\Domain\Model\CalendarPeriod;
@@ -51,12 +52,9 @@ final readonly class DynamoAgendaRetriever implements AgendaRetriever
      */
     private function plannedAt(array $links, Prospector $holder): array
     {
-        $items = array_column($this->prospectingTable->items(array_map(static fn (array $link): array => [$link['SK'], ExchangeKeys::EXCHANGE], $links)), null, 'PK');
+        $items = $this->prospectingTable->itemsInTheOrderOf(Typed::strings(array_column($links, 'SK')), ExchangeKeys::EXCHANGE);
 
-        return array_values(array_map(
-            static fn (array $link): ExchangeInTimeline => self::inTheAgenda($items[$link['SK']]['exchange'], $holder),
-            array_filter($links, static fn (array $link): bool => isset($items[$link['SK']])),
-        ));
+        return array_map(static fn (array $item): ExchangeInTimeline => self::inTheAgenda(Typed::document($item['exchange']), $holder), $items);
     }
 
     /**
@@ -64,6 +62,6 @@ final readonly class DynamoAgendaRetriever implements AgendaRetriever
      */
     private static function inTheAgenda(array $document, Prospector $holder): ExchangeInTimeline
     {
-        return DynamoTimelineRetriever::inTimeline($document, ContactPresence::ofTheContact(null !== $document['contact'], $document['contactForgotten'] ?? false), $holder);
+        return DynamoTimelineRetriever::inTimeline($document, ContactPresence::ofTheContact(null !== $document['contact'], Typed::bool($document['contactForgotten'] ?? false)), $holder);
     }
 }

@@ -6,6 +6,7 @@ namespace App\Prospecting\Persistence;
 
 use App\Shared\Persistence\Table;
 use App\Shared\Persistence\Write;
+use App\Shared\Typed;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownToDo;
 use Prospecter\Core\Prospecting\Domain\Model\ToDo;
 use Prospecter\Core\Prospecting\Domain\Model\ToDoId;
@@ -43,7 +44,7 @@ final readonly class DynamoToDoRepository implements ToDoRepository
 
         $this->prospectingTable->transact([
             $this->prospectingTable->putting($this->itemOf($document)),
-            ...$this->linksToItsOrganizations($document['id'], $document['keptFor'], $stored['toDo']['keptFor'] ?? []),
+            ...$this->linksToItsOrganizations($toDo->id()->value, Typed::strings($document['keptFor']), self::storedKeptFor($stored)),
             $this->prospectingTable->putting(self::linkInTheCalendarOfItsHolder($document)),
         ]);
     }
@@ -55,9 +56,19 @@ final readonly class DynamoToDoRepository implements ToDoRepository
 
         $this->prospectingTable->transact([
             $this->prospectingTable->deleting(ToDoKeys::toDo($id), ToDoKeys::TO_DO),
-            ...$this->linksToItsOrganizations($id, [], $stored['toDo']['keptFor'] ?? []),
-            $this->prospectingTable->deleting(ToDoKeys::calendar(ToDoDocument::of($toDo)['createdBy']), ToDoKeys::toDo($id)),
+            ...$this->linksToItsOrganizations($id, [], self::storedKeptFor($stored)),
+            $this->prospectingTable->deleting(ToDoKeys::calendar(Typed::string(ToDoDocument::of($toDo)['createdBy'])), ToDoKeys::toDo($id)),
         ]);
+    }
+
+    /**
+     * @param array<string, mixed>|null $stored the item of the to-do as stored, none for a new one
+     *
+     * @return list<string>
+     */
+    private static function storedKeptFor(?array $stored): array
+    {
+        return null === $stored ? [] : Typed::strings(Typed::document($stored['toDo'])['keptFor'] ?? []);
     }
 
     public function keptFor(OrganizationId $organization): array
@@ -77,7 +88,7 @@ final readonly class DynamoToDoRepository implements ToDoRepository
     public function writeTheKeysAgain(): int
     {
         $items = $this->prospectingTable->scan(ToDoKeys::TO_DO.'#');
-        $this->prospectingTable->batch(array_map(static fn (array $item): array => self::linkInTheCalendarOfItsHolder($item['toDo']), $items));
+        $this->prospectingTable->batch(array_map(static fn (array $item): array => self::linkInTheCalendarOfItsHolder(Typed::document($item['toDo'])), $items));
 
         return count($items);
     }
@@ -91,27 +102,29 @@ final readonly class DynamoToDoRepository implements ToDoRepository
     {
         $links = $prospectingTable->query(ToDoKeys::keptFor($organization));
 
-        return $prospectingTable->items(array_map(static fn (array $link): array => [$link['SK'], ToDoKeys::TO_DO], $links));
+        return $prospectingTable->items(array_map(static fn (string $toDo): array => [$toDo, ToDoKeys::TO_DO], Typed::strings(array_column($links, 'SK'))));
     }
 
     /**
      * @param array<string, mixed> $document
      *
-     * @return array<string, mixed>
+     * @return array{PK: string, SK: string, ...}
      */
     private function itemOf(array $document): array
     {
-        $amongThoseOfItsContact = null === $document['contact'] ? [] : [
-            'GSI1PK' => ToDoKeys::ofContact($document['accountId'], $document['contact']),
-            'GSI1SK' => $document['id'],
+        $id = Typed::string($document['id']);
+        $contact = Typed::stringOrNull($document['contact']);
+        $amongThoseOfItsContact = null === $contact ? [] : [
+            'GSI1PK' => ToDoKeys::ofContact(Typed::string($document['accountId']), $contact),
+            'GSI1SK' => $id,
         ];
         $stillToDoByItsHolder = null !== $document['doneAt'] ? [] : [
-            'GSI2PK' => ToDoKeys::stillToDoBy($document['createdBy']),
-            'GSI2SK' => $document['id'],
+            'GSI2PK' => ToDoKeys::stillToDoBy(Typed::string($document['createdBy'])),
+            'GSI2SK' => $id,
         ];
 
         return [
-            'PK' => ToDoKeys::toDo($document['id']),
+            'PK' => ToDoKeys::toDo($id),
             'SK' => ToDoKeys::TO_DO,
             ...$amongThoseOfItsContact,
             ...$stillToDoByItsHolder,
@@ -122,13 +135,13 @@ final readonly class DynamoToDoRepository implements ToDoRepository
     /**
      * @param array<string, mixed> $document
      *
-     * @return array<string, mixed>
+     * @return array{PK: string, SK: string, GSI1PK: string, GSI1SK: string}
      */
     private static function linkInTheCalendarOfItsHolder(array $document): array
     {
-        $calendar = ToDoKeys::calendar($document['createdBy']);
+        $calendar = ToDoKeys::calendar(Typed::string($document['createdBy']));
 
-        return ['PK' => $calendar, 'SK' => ToDoKeys::toDo($document['id']), 'GSI1PK' => $calendar, 'GSI1SK' => ToDoKeys::calendarPositionOf($document)];
+        return ['PK' => $calendar, 'SK' => ToDoKeys::toDo(Typed::string($document['id'])), 'GSI1PK' => $calendar, 'GSI1SK' => ToDoKeys::calendarPositionOf($document)];
     }
 
     /**

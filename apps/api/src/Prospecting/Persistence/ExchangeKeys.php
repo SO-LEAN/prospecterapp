@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Prospecting\Persistence;
 
 use App\Shared\Persistence\Documents;
+use App\Shared\Typed;
 
 /**
  * The keys of the items of the exchanges, written by `DynamoExchangeRepository` and read by the retrievers
@@ -89,7 +90,7 @@ final class ExchangeKeys
      */
     public static function calendarPositionOf(array $document): string
     {
-        return $document['facts']['occurredAt'].'#'.$document['id'];
+        return Typed::string(Typed::document($document['facts'])['occurredAt']).'#'.Typed::string($document['id']);
     }
 
     /**
@@ -117,6 +118,6 @@ final class ExchangeKeys
      */
     public static function positionOf(array $document): string
     {
-        return Documents::moment(ExchangeDocument::listedAt($document)).'#'.$document['id'];
+        return Documents::moment(ExchangeDocument::listedAt($document)).'#'.Typed::string($document['id']);
     }
 }

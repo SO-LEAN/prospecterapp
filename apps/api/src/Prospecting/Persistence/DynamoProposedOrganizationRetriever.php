@@ -6,6 +6,7 @@ namespace App\Prospecting\Persistence;
 
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\Prospecting\Application\Port\ProposedOrganizationRetriever;
 use Prospecter\Core\Prospecting\Application\ProposeOrganizationToAttach\ProposedOrganization;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
@@ -25,9 +26,9 @@ final readonly class DynamoProposedOrganizationRetriever implements ProposedOrga
     public function firstWithEmailDomain(AccountId $accountId, string $domain): ?ProposedOrganization
     {
         $first = $this->prospectingTable->queryAfter(OrganizationKeys::ofEmailDomain($accountId->value, $domain), null, self::FIRST, 1)[0] ?? null;
-        $item = null === $first ? null : $this->prospectingTable->item($first['SK'], OrganizationKeys::ORGANIZATION);
+        $item = null === $first ? null : $this->prospectingTable->item(Typed::string($first['SK']), OrganizationKeys::ORGANIZATION);
 
-        return null === $item ? null : self::proposed($item['organization']);
+        return null === $item ? null : self::proposed(Typed::document($item['organization']));
     }
 
     /**
@@ -37,6 +38,6 @@ final readonly class DynamoProposedOrganizationRetriever implements ProposedOrga
     {
         $name = Documents::legalIdentityOf($document['legalIdentity'])->fullName();
 
-        return new ProposedOrganization($document['id'], '' === $name ? $document['contactDetails']['email'] : $name);
+        return new ProposedOrganization(Typed::string($document['id']), '' === $name ? Typed::string(Typed::document($document['contactDetails'])['email']) : $name);
     }
 }

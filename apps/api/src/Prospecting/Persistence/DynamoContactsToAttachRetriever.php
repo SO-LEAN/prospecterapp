@@ -6,6 +6,7 @@ namespace App\Prospecting\Persistence;
 
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\Prospecting\Application\ContactToAttachInList;
 use Prospecter\Core\Prospecting\Application\Port\ContactsToAttachRetriever;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
@@ -35,14 +36,15 @@ final readonly class DynamoContactsToAttachRetriever implements ContactsToAttach
     public function findHeldBy(MemberId $holder, PersonId $person): ?ContactToAttachInList
     {
         $item = $this->prospectingTable->item(DynamoContactToAttachRepository::key($person->value), DynamoContactToAttachRepository::CONTACT_TO_ATTACH);
+        $document = null === $item ? null : Typed::document($item['contactToAttach']);
 
-        return $holder->value === ($item['contactToAttach']['holder'] ?? null) ? ContactToAttachDocument::inList($item['contactToAttach']) : null;
+        return null !== $document && $holder->value === $document['holder'] ? ContactToAttachDocument::inList($document) : null;
     }
 
     public function leftUnattachedAt(\DateTimeImmutable $at): array
     {
         $items = $this->prospectingTable->queryBetween(DynamoContactToAttachRepository::ERASURE, Table::BY_GSI2, self::FIRST, Documents::moment($at).self::AFTER_EVERY_PERSON);
 
-        return array_map(static fn (array $item): string => $item['contactToAttach']['id'], $items);
+        return array_map(static fn (array $item): string => Typed::string(Typed::document($item['contactToAttach'])['id']), $items);
     }
 }

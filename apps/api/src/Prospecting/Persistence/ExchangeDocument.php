@@ -6,6 +6,7 @@ namespace App\Prospecting\Persistence;
 
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Hydrator;
+use App\Shared\Typed;
 use Prospecter\Core\Prospecting\Domain\Model\Attachment;
 use Prospecter\Core\Prospecting\Domain\Model\AttachmentId;
 use Prospecter\Core\Prospecting\Domain\Model\Cancellation;
@@ -26,6 +27,7 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
+use Prospecter\Core\SharedKernel\Domain\Origin;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
@@ -45,19 +47,20 @@ final class ExchangeDocument
     public static function of(Exchange $exchange): array
     {
         $state = Hydrator::stateOf($exchange);
-        $facts = $state['facts'];
+        $facts = Typed::object($state['facts'], ExchangeFacts::class);
+        $importedFrom = Typed::objectOrNull($state['importedFrom'], ImportedEmail::class);
 
         return [
-            'id' => (string) $state['id'],
-            'accountId' => (string) $state['accountId'],
-            'createdBy' => (string) $state['createdBy'],
-            'contact' => $state['contact']?->value,
-            'keptFor' => array_map(static fn (OrganizationId $organization): string => (string) $organization, $state['keptFor']),
-            'campaignId' => $state['campaign']?->value,
-            'importedFrom' => null === $state['importedFrom'] ? null : ['provider' => $state['importedFrom']->provider, 'identity' => $state['importedFrom']->identity, 'providerMessageId' => $state['importedFrom']->providerMessageId],
-            'bookedByLink' => $state['bookedByLink'],
-            'origin' => $state['origin']->value,
-            'fingerprint' => $state['fingerprint']?->value,
+            'id' => Typed::object($state['id'], ExchangeId::class)->value,
+            'accountId' => Typed::object($state['accountId'], AccountId::class)->value,
+            'createdBy' => Typed::object($state['createdBy'], MemberId::class)->value,
+            'contact' => Typed::objectOrNull($state['contact'], PersonId::class)?->value,
+            'keptFor' => array_map(static fn (OrganizationId $organization): string => $organization->value, Typed::objects($state['keptFor'], OrganizationId::class)),
+            'campaignId' => Typed::objectOrNull($state['campaign'], CampaignId::class)?->value,
+            'importedFrom' => null === $importedFrom ? null : ['provider' => $importedFrom->provider, 'identity' => $importedFrom->identity, 'providerMessageId' => $importedFrom->providerMessageId],
+            'bookedByLink' => Typed::bool($state['bookedByLink']),
+            'origin' => Typed::object($state['origin'], Origin::class)->value,
+            'fingerprint' => Typed::objectOrNull($state['fingerprint'], ExchangeFingerprint::class)?->value,
             'facts' => [
                 'channel' => $facts->channel->value,
                 'direction' => $facts->direction->value,
@@ -68,45 +71,68 @@ final class ExchangeDocument
                 'link' => $facts->link?->url,
                 'linkRequested' => $facts->linkRequested,
             ],
-            'status' => $state['status']->value,
-            'lastCorrection' => self::correctionDocument($state['lastCorrection']),
-            'contactForgotten' => $state['contactForgotten'],
-            'redacted' => self::correctionDocument($state['madeConform']),
-            'cancellation' => self::cancellationDocument($state['cancellation']),
-            'attachments' => array_map(self::attachmentDocument(...), $state['attachments']),
-            'createdAt' => Documents::moment($state['createdAt']),
-            'modifiedAt' => Documents::moment($state['modifiedAt']),
+            'status' => Typed::object($state['status'], ExchangeStatus::class)->value,
+            'lastCorrection' => self::correctionDocument(Typed::objectOrNull($state['lastCorrection'], Correction::class)),
+            'contactForgotten' => Typed::bool($state['contactForgotten']),
+            'redacted' => self::correctionDocument(Typed::objectOrNull($state['madeConform'], Correction::class)),
+            'cancellation' => self::cancellationDocument(Typed::objectOrNull($state['cancellation'], Cancellation::class)),
+            'attachments' => array_map(self::attachmentDocument(...), Typed::objects($state['attachments'], Attachment::class)),
+            'createdAt' => Documents::moment(Typed::object($state['createdAt'], \DateTimeImmutable::class)),
+            'modifiedAt' => Documents::moment(Typed::object($state['modifiedAt'], \DateTimeImmutable::class)),
         ];
     }
 
     /**
-     * @param array<string, mixed> $document
+     * Restores the exchange from its item's untyped document.
      */
-    public static function exchange(array $document): Exchange
+    public static function exchange(mixed $document): Exchange
     {
-        $facts = $document['facts'];
+        $document = Typed::document($document);
+        $facts = Typed::document($document['facts']);
+        $contact = Typed::stringOrNull($document['contact']);
+        $campaign = Typed::stringOrNull($document['campaignId'] ?? null);
 
         return Hydrator::restore(Exchange::class, [
-            'id' => new ExchangeId($document['id']),
-            'accountId' => new AccountId($document['accountId']),
-            'createdBy' => new MemberId($document['createdBy']),
-            'contact' => null === $document['contact'] ? null : new PersonId($document['contact']),
-            'keptFor' => array_map(static fn (string $organization): OrganizationId => new OrganizationId($organization), $document['keptFor']),
-            'campaign' => null === ($document['campaignId'] ?? null) ? null : new CampaignId($document['campaignId']),
-            'importedFrom' => null === ($document['importedFrom'] ?? null) ? null : new ImportedEmail($document['importedFrom']['provider'], $document['importedFrom']['identity'], $document['importedFrom']['providerMessageId'] ?? null),
-            'bookedByLink' => $document['bookedByLink'] ?? false,
+            'id' => new ExchangeId(Typed::string($document['id'])),
+            'accountId' => new AccountId(Typed::string($document['accountId'])),
+            'createdBy' => new MemberId(Typed::string($document['createdBy'])),
+            'contact' => null === $contact ? null : new PersonId($contact),
+            'keptFor' => self::keptForOf($document),
+            'campaign' => null === $campaign ? null : new CampaignId($campaign),
+            'importedFrom' => self::importedFromOf($document['importedFrom'] ?? null),
+            'bookedByLink' => Typed::bool($document['bookedByLink'] ?? false),
             'origin' => Documents::originOf($document),
             'fingerprint' => self::fingerprintOf($document),
-            'facts' => new ExchangeFacts(Channel::from($facts['channel']), Direction::from($facts['direction']), Documents::momentOf($facts['occurredAt']), $facts['text'], self::duration($facts['durationInMinutes'] ?? null), $facts['place'] ?? null, self::link($facts['link'] ?? null), self::linkRequestedOf($document)),
+            'facts' => new ExchangeFacts(Channel::from(Typed::string($facts['channel'])), Direction::from(Typed::string($facts['direction'])), Documents::momentOf(Typed::string($facts['occurredAt'])), Typed::stringOrNull($facts['text']), self::duration($facts['durationInMinutes'] ?? null), Typed::stringOrNull($facts['place'] ?? null), self::link(Typed::stringOrNull($facts['link'] ?? null)), self::linkRequestedOf($document)),
             'status' => self::statusOf($document),
-            'lastCorrection' => self::correction($document['lastCorrection'] ?? null),
-            'contactForgotten' => $document['contactForgotten'] ?? false,
-            'madeConform' => self::correction($document['redacted'] ?? null),
+            'lastCorrection' => self::correctionOf($document['lastCorrection'] ?? null),
+            'contactForgotten' => Typed::bool($document['contactForgotten'] ?? false),
+            'madeConform' => self::correctionOf($document['redacted'] ?? null),
             'cancellation' => self::cancellation($document['cancellation'] ?? null),
-            'attachments' => array_map(self::attachment(...), $document['attachments'] ?? []),
-            'createdAt' => Documents::momentOf($document['createdAt']),
-            'modifiedAt' => Documents::momentOf($document['modifiedAt']),
+            'attachments' => self::attachmentsOf($document),
+            'createdAt' => Documents::momentOf(Typed::string($document['createdAt'])),
+            'modifiedAt' => Documents::momentOf(Typed::string($document['modifiedAt'])),
         ]);
+    }
+
+    /**
+     * @param array<string, mixed> $document
+     *
+     * @return list<OrganizationId>
+     */
+    private static function keptForOf(array $document): array
+    {
+        return array_map(static fn (string $organization): OrganizationId => new OrganizationId($organization), Typed::strings($document['keptFor']));
+    }
+
+    private static function importedFromOf(mixed $email): ?ImportedEmail
+    {
+        if (null === $email) {
+            return null;
+        }
+        $email = Typed::document($email);
+
+        return new ImportedEmail(Typed::string($email['provider']), Typed::string($email['identity']), Typed::stringOrNull($email['providerMessageId'] ?? null));
     }
 
     /**
@@ -118,14 +144,15 @@ final class ExchangeDocument
     private static function fingerprintOf(array $document): ?ExchangeFingerprint
     {
         if (array_key_exists('fingerprint', $document)) {
-            return null === $document['fingerprint'] ? null : Hydrator::restore(ExchangeFingerprint::class, ['value' => $document['fingerprint']]);
+            return null === $document['fingerprint'] ? null : Hydrator::restore(ExchangeFingerprint::class, ['value' => Typed::string($document['fingerprint'])]);
         }
-        $email = $document['importedFrom'] ?? null;
-        if (null === $email || ($document['contactForgotten'] ?? false)) {
+        $email = self::importedFromOf($document['importedFrom'] ?? null);
+        if (null === $email || Typed::bool($document['contactForgotten'] ?? false)) {
             return null;
         }
+        $contact = Typed::stringOrNull($document['contact']);
 
-        return ExchangeFingerprint::ofEmail($email['identity'], null === $document['contact'] ? new OrganizationId($document['keptFor'][0]) : new PersonId($document['contact']));
+        return ExchangeFingerprint::ofEmail($email->identity, null === $contact ? self::keptForOf($document)[0] : new PersonId($contact));
     }
 
     /**
@@ -136,9 +163,9 @@ final class ExchangeDocument
      */
     public static function statusOf(array $document): ExchangeStatus
     {
-        $status = ExchangeStatus::tryFrom($document['status'] ?? '') ?? ExchangeStatus::Done;
+        $status = ExchangeStatus::tryFrom(Typed::stringOrNull($document['status'] ?? null) ?? '') ?? ExchangeStatus::Done;
 
-        return ExchangeStatus::Done === $status ? ExchangeStatus::outcome($document['facts']['missed'] ?? false) : $status;
+        return ExchangeStatus::Done === $status ? ExchangeStatus::outcome(Typed::bool(self::factsOf($document)['missed'] ?? false)) : $status;
     }
 
     /**
@@ -148,7 +175,27 @@ final class ExchangeDocument
      */
     public static function linkRequestedOf(array $document): bool
     {
-        return true === ($document['facts']['linkRequested'] ?? false);
+        return true === (self::factsOf($document)['linkRequested'] ?? false);
+    }
+
+    /**
+     * @param array<string, mixed> $document
+     *
+     * @return array<string, mixed>
+     */
+    private static function factsOf(array $document): array
+    {
+        return Typed::document($document['facts'] ?? []);
+    }
+
+    /**
+     * @param array<string, mixed> $document
+     *
+     * @return array<string, mixed>
+     */
+    private static function cancellationOf(array $document): array
+    {
+        return Typed::document($document['cancellation'] ?? []);
     }
 
     /**
@@ -178,7 +225,7 @@ final class ExchangeDocument
      */
     public static function cancellerOf(array $document): ?string
     {
-        return $document['cancellation']['canceller'] ?? null;
+        return Typed::stringOrNull(self::cancellationOf($document)['canceller'] ?? null);
     }
 
     /**
@@ -188,17 +235,36 @@ final class ExchangeDocument
      */
     public static function listedAt(array $document): \DateTimeImmutable
     {
-        $cancelledAt = $document['cancellation']['at'] ?? null;
+        $cancelledAt = Typed::stringOrNull(self::cancellationOf($document)['at'] ?? null);
 
-        return ExchangeChronology::listedAt(Documents::momentOf($document['facts']['occurredAt']), null === $cancelledAt ? null : Documents::momentOf($cancelledAt));
+        return ExchangeChronology::listedAt(Documents::momentOf(Typed::string(self::factsOf($document)['occurredAt'])), null === $cancelledAt ? null : Documents::momentOf($cancelledAt));
     }
 
     /**
-     * Restored without its constructor: a duration accepted once stays, whatever the limits become.
+     * Restores the duration without its constructor, so a duration accepted once stays whatever the limits become.
+     * Some durations were written as a string of digits.
      */
-    private static function duration(int|string|null $minutes): ?Duration
+    private static function duration(mixed $minutes): ?Duration
     {
-        return null === $minutes ? null : Hydrator::restore(Duration::class, ['minutes' => (int) $minutes]);
+        return null === $minutes ? null : Hydrator::restore(Duration::class, ['minutes' => self::wholeNumberOf($minutes)]);
+    }
+
+    /**
+     * The exchange's duration in minutes, or null when it was not given. Some durations were written as a string of
+     * digits.
+     *
+     * @param array<string, mixed> $facts
+     */
+    public static function durationInMinutesOf(array $facts): ?int
+    {
+        $minutes = $facts['durationInMinutes'] ?? null;
+
+        return null === $minutes ? null : self::wholeNumberOf($minutes);
+    }
+
+    private static function wholeNumberOf(mixed $number): int
+    {
+        return is_string($number) ? (int) $number : Typed::int($number);
     }
 
     /**
@@ -225,20 +291,24 @@ final class ExchangeDocument
         return null === $cancellation ? null : ['by' => (string) $cancellation->by, 'at' => Documents::moment($cancellation->at), 'canceller' => $cancellation->canceller?->value];
     }
 
-    /**
-     * @param array{by: string, at: string, canceller: ?string}|null $document
-     */
-    private static function cancellation(?array $document): ?Cancellation
+    private static function cancellation(mixed $document): ?Cancellation
     {
-        return null === $document ? null : new Cancellation(new MemberId($document['by']), Documents::momentOf($document['at']), Canceller::tryFrom($document['canceller'] ?? ''));
+        if (null === $document) {
+            return null;
+        }
+        $document = Typed::document($document);
+
+        return new Cancellation(new MemberId(Typed::string($document['by'])), Documents::momentOf(Typed::string($document['at'])), Canceller::tryFrom(Typed::stringOrNull($document['canceller'] ?? null) ?? ''));
     }
 
-    /**
-     * @param array{by: string, at: string}|null $document
-     */
-    private static function correction(?array $document): ?Correction
+    public static function correctionOf(mixed $document): ?Correction
     {
-        return null === $document ? null : new Correction(new MemberId($document['by']), Documents::momentOf($document['at']));
+        if (null === $document) {
+            return null;
+        }
+        $document = Typed::document($document);
+
+        return new Correction(new MemberId(Typed::string($document['by'])), Documents::momentOf(Typed::string($document['at'])));
     }
 
     /**
@@ -250,18 +320,28 @@ final class ExchangeDocument
     }
 
     /**
-     * Restored without its constructor: a file accepted once stays, whatever the limit becomes.
+     * Restores each file without its constructor, so a file accepted once stays whatever the limit becomes.
      *
-     * @param array{id: string, name: string, size: int|string, mediaType: string, file: string} $document
+     * @param array<string, mixed> $document
+     *
+     * @return list<Attachment>
+     */
+    public static function attachmentsOf(array $document): array
+    {
+        return array_map(self::attachment(...), Typed::documents($document['attachments'] ?? []));
+    }
+
+    /**
+     * @param array<string, mixed> $document
      */
     private static function attachment(array $document): Attachment
     {
         return Hydrator::restore(Attachment::class, [
-            'id' => new AttachmentId($document['id']),
-            'name' => $document['name'],
-            'size' => (int) $document['size'],
-            'mediaType' => $document['mediaType'],
-            'file' => $document['file'],
+            'id' => new AttachmentId(Typed::string($document['id'])),
+            'name' => Typed::string($document['name']),
+            'size' => self::wholeNumberOf($document['size']),
+            'mediaType' => Typed::string($document['mediaType']),
+            'file' => Typed::string($document['file']),
         ]);
     }
 }

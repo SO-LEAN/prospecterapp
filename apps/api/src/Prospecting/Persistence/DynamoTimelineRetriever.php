@@ -6,6 +6,7 @@ namespace App\Prospecting\Persistence;
 
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\Port\TimelineRetriever;
@@ -80,9 +81,7 @@ final readonly class DynamoTimelineRetriever implements TimelineRetriever
      */
     private function itemsListedBy(array $links): array
     {
-        $byKey = array_column($this->prospectingTable->items(array_map(static fn (array $link): array => [$link['SK'], ExchangeKeys::EXCHANGE], $links)), null, 'PK');
-
-        return array_values(array_filter(array_map(static fn (array $link): ?array => $byKey[$link['SK']] ?? null, $links)));
+        return $this->prospectingTable->itemsInTheOrderOf(Typed::strings(array_column($links, 'SK')), ExchangeKeys::EXCHANGE);
     }
 
     /**
@@ -91,7 +90,7 @@ final readonly class DynamoTimelineRetriever implements TimelineRetriever
      */
     private function timelineOf(array $items, int $max, int $toMakeConform, \Closure $read): Timeline
     {
-        $slice = Documents::slice(array_column($items, 'exchange'), $max, ExchangeKeys::positionOf(...));
+        $slice = Documents::slice(Typed::documents(array_column($items, 'exchange')), $max, ExchangeKeys::positionOf(...));
 
         return new Timeline(
             array_map($read, $slice->content),
@@ -106,7 +105,11 @@ final readonly class DynamoTimelineRetriever implements TimelineRetriever
      */
     private static function inTheTimelineOfTheContact(Prospector $reader): \Closure
     {
-        return static fn (array $document): ExchangeInTimeline => self::inTimeline($document, ContactPresence::ofTheContact(null !== $document['contact'], self::contactForgotten($document)), $reader);
+        return static function (array $exchange) use ($reader): ExchangeInTimeline {
+            $document = Typed::document($exchange);
+
+            return self::inTimeline($document, ContactPresence::ofTheContact(null !== $document['contact'], self::contactForgotten($document)), $reader);
+        };
     }
 
     /**
@@ -114,8 +117,9 @@ final readonly class DynamoTimelineRetriever implements TimelineRetriever
      */
     private static function inTheTimelineOf(OrganizationSheet $organization, Prospector $reader): \Closure
     {
-        return static function (array $document) use ($organization, $reader): ExchangeInTimeline {
-            $contact = $document['contact'];
+        return static function (array $exchange) use ($organization, $reader): ExchangeInTimeline {
+            $document = Typed::document($exchange);
+            $contact = Typed::stringOrNull($document['contact']);
             $presence = ContactPresence::inTheOrganization(null !== $contact, self::contactForgotten($document), in_array($contact, $organization->contactIds, true));
 
             return self::inTimeline($document, $presence, $reader);
@@ -127,34 +131,37 @@ final readonly class DynamoTimelineRetriever implements TimelineRetriever
      */
     public static function inTimeline(array $document, ?ContactPresence $presence, Prospector $reader): ExchangeInTimeline
     {
-        $facts = $document['facts'];
-        $hasText = null !== $facts['text'];
+        $facts = Typed::document($document['facts']);
+        $text = Typed::stringOrNull($facts['text']);
+        $contact = Typed::stringOrNull($document['contact']);
+        $keptFor = Typed::strings($document['keptFor']);
         $contactForgotten = self::contactForgotten($document);
         $declaredConform = null !== ($document['redacted'] ?? null);
-        $attachments = $document['attachments'] ?? [];
+        $attachments = Typed::array($document['attachments'] ?? []);
+        $importedFrom = $document['importedFrom'] ?? null;
 
         return new ExchangeInTimeline(
-            id: $document['id'],
-            personId: $document['contact'],
+            id: Typed::string($document['id']),
+            personId: $contact,
             contactPresence: $presence?->value,
-            channel: $facts['channel'],
-            direction: $facts['direction'],
-            occurredAt: Documents::momentOf($facts['occurredAt']),
+            channel: Typed::string($facts['channel']),
+            direction: Typed::string($facts['direction']),
+            occurredAt: Documents::momentOf(Typed::string($facts['occurredAt'])),
             status: ExchangeDocument::statusOf($document)->value,
             canceller: ExchangeDocument::cancellerOf($document),
-            durationInMinutes: isset($facts['durationInMinutes']) ? (int) $facts['durationInMinutes'] : null,
-            text: $facts['text'],
-            place: $facts['place'] ?? null,
-            link: $facts['link'] ?? null,
-            textFlagged: ExchangeReading::isTextFlagged($hasText, $reader),
-            textToMakeConform: ExchangeConformity::isTextToMakeConform($hasText, $contactForgotten, $declaredConform),
+            durationInMinutes: ExchangeDocument::durationInMinutesOf($facts),
+            text: $text,
+            place: Typed::stringOrNull($facts['place'] ?? null),
+            link: Typed::stringOrNull($facts['link'] ?? null),
+            textFlagged: ExchangeReading::isTextFlagged(null !== $text, $reader),
+            textToMakeConform: ExchangeConformity::isTextToMakeConform(null !== $text, $contactForgotten, $declaredConform),
             toMakeConform: ExchangeConformity::isToMakeConform($contactForgotten, $declaredConform, [] !== $attachments),
-            organizationIds: $document['keptFor'],
+            organizationIds: $keptFor,
             attachmentCount: count($attachments),
-            campaignId: $document['campaignId'] ?? null,
-            withAContactToAttach: Exchange::isWithAContactToAttach(null !== $document['contact'], [] !== $document['keptFor']),
-            bookedByLink: $document['bookedByLink'] ?? false,
-            importedFrom: $document['importedFrom']['provider'] ?? null,
+            campaignId: Typed::stringOrNull($document['campaignId'] ?? null),
+            withAContactToAttach: Exchange::isWithAContactToAttach(null !== $contact, [] !== $keptFor),
+            bookedByLink: Typed::bool($document['bookedByLink'] ?? false),
+            importedFrom: null === $importedFrom ? null : Typed::string(Typed::document($importedFrom)['provider']),
             createdByAnAI: Origin::Ai === Documents::originOf($document),
         );
     }
@@ -164,6 +171,6 @@ final readonly class DynamoTimelineRetriever implements TimelineRetriever
      */
     private static function contactForgotten(array $document): bool
     {
-        return $document['contactForgotten'] ?? false;
+        return Typed::bool($document['contactForgotten'] ?? false);
     }
 }

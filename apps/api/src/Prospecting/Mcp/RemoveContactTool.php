@@ -30,10 +30,9 @@ final readonly class RemoveContactTool
     #[McpTool(name: 'remove-organization-contact', description: 'Detach a contact from an organization; the person stays among the contacts of the account. Needs the right to manage the personal data. Answers the organization.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id, string $personId): array
     {
-        return $this->writes->write(
+        return $this->writes->change(
             $id,
-            null,
-            static fn (null $input, OrganizationSheet $organization, string $memberId, \DateTimeImmutable $now): RemoveContact => new RemoveContact(prospectorId: $memberId, id: $organization->id, personId: $personId, executedAt: $now),
+            static fn (OrganizationSheet $organization, string $memberId, \DateTimeImmutable $now): RemoveContact => new RemoveContact(prospectorId: $memberId, id: $organization->id, personId: $personId, executedAt: $now),
             User::PERSONAL_DATA,
         );
     }

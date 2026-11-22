@@ -6,10 +6,12 @@ namespace App\Prospecting\Persistence;
 
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\AttachmentDetail;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
 use Prospecter\Core\Prospecting\Application\Port\ExchangeDetailRetriever;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownExchange;
+use Prospecter\Core\Prospecting\Domain\Model\Attachment;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
 use Prospecter\Core\Prospecting\Domain\Model\ContactPresence;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
@@ -37,7 +39,7 @@ final readonly class DynamoExchangeDetailRetriever implements ExchangeDetailRetr
     {
         $item = $this->prospectingTable->item(ExchangeKeys::exchange($id->value), ExchangeKeys::EXCHANGE) ?? throw UnknownExchange::identifiedBy($id);
 
-        return self::detailOf($item['exchange'], $reader, $asOf, $movedFrom);
+        return self::detailOf(Typed::document($item['exchange']), $reader, $asOf, $movedFrom);
     }
 
     /**
@@ -45,49 +47,53 @@ final readonly class DynamoExchangeDetailRetriever implements ExchangeDetailRetr
      */
     private static function detailOf(array $document, Prospector $reader, \DateTimeImmutable $asOf, ?\DateTimeImmutable $movedFrom): ExchangeDetail
     {
-        $facts = $document['facts'];
-        $occurredAt = Documents::momentOf($facts['occurredAt']);
+        $facts = Typed::document($document['facts']);
+        $occurredAt = Documents::momentOf(Typed::string($facts['occurredAt']));
+        $channel = Typed::string($facts['channel']);
         $status = ExchangeDocument::statusOf($document);
-        $hasText = null !== $facts['text'];
-        $correction = $document['lastCorrection'] ?? null;
-        $madeConform = $document['redacted'] ?? null;
-        $contactForgotten = $document['contactForgotten'] ?? false;
-        $attachments = $document['attachments'] ?? [];
+        $text = Typed::stringOrNull($facts['text']);
+        $contact = Typed::stringOrNull($document['contact']);
+        $createdBy = Typed::string($document['createdBy']);
+        $correction = ExchangeDocument::correctionOf($document['lastCorrection'] ?? null);
+        $madeConform = ExchangeDocument::correctionOf($document['redacted'] ?? null);
+        $contactForgotten = Typed::bool($document['contactForgotten'] ?? false);
+        $attachments = ExchangeDocument::attachmentsOf($document);
         $read = ExchangeReading::readsTheAttachments($reader) ? $attachments : [];
         $attachmentsToMakeConform = ExchangeConformity::areAttachmentsToMakeConform($contactForgotten);
+        $importedFrom = null === ($document['importedFrom'] ?? null) ? null : Typed::document($document['importedFrom']);
 
         return new ExchangeDetail(
-            id: $document['id'],
-            accountId: $document['accountId'],
-            personId: $document['contact'],
-            contactPresence: ContactPresence::ofTheContact(null !== $document['contact'], $contactForgotten)?->value,
-            channel: $facts['channel'],
-            direction: $facts['direction'],
+            id: Typed::string($document['id']),
+            accountId: Typed::string($document['accountId']),
+            personId: $contact,
+            contactPresence: ContactPresence::ofTheContact(null !== $contact, $contactForgotten)?->value,
+            channel: $channel,
+            direction: Typed::string($facts['direction']),
             occurredAt: $occurredAt,
             status: $status->value,
             canceller: ExchangeDocument::cancellerOf($document),
-            durationInMinutes: isset($facts['durationInMinutes']) ? (int) $facts['durationInMinutes'] : null,
-            text: $facts['text'],
-            place: $facts['place'] ?? null,
-            link: $facts['link'] ?? null,
+            durationInMinutes: ExchangeDocument::durationInMinutesOf($facts),
+            text: $text,
+            place: Typed::stringOrNull($facts['place'] ?? null),
+            link: Typed::stringOrNull($facts['link'] ?? null),
             linkAwaited: Exchange::awaitsALink(ExchangeDocument::linkRequestedOf($document), $status),
-            textFlagged: ExchangeReading::isTextFlagged($hasText, $reader),
-            textToMakeConform: ExchangeConformity::isTextToMakeConform($hasText, $contactForgotten, null !== $madeConform),
+            textFlagged: ExchangeReading::isTextFlagged(null !== $text, $reader),
+            textToMakeConform: ExchangeConformity::isTextToMakeConform(null !== $text, $contactForgotten, null !== $madeConform),
             toMakeConform: ExchangeConformity::isToMakeConform($contactForgotten, null !== $madeConform, [] !== $attachments),
-            organizationIds: $document['keptFor'],
-            createdBy: $document['createdBy'],
-            createdAt: Documents::momentOf($document['createdAt']),
-            correctedBy: $correction['by'] ?? null,
-            correctedAt: null === $correction ? null : Documents::momentOf($correction['at']),
-            madeConformBy: $madeConform['by'] ?? null,
-            madeConformAt: null === $madeConform ? null : Documents::momentOf($madeConform['at']),
-            attachments: array_map(static fn (array $attachment): AttachmentDetail => new AttachmentDetail($attachment['id'], $attachment['name'], (int) $attachment['size'], $attachment['mediaType'], $attachmentsToMakeConform), $read),
+            organizationIds: Typed::strings($document['keptFor']),
+            createdBy: $createdBy,
+            createdAt: Documents::momentOf(Typed::string($document['createdAt'])),
+            correctedBy: $correction?->by->value,
+            correctedAt: $correction?->at,
+            madeConformBy: $madeConform?->by->value,
+            madeConformAt: $madeConform?->at,
+            attachments: array_map(static fn (Attachment $attachment): AttachmentDetail => new AttachmentDetail($attachment->id->value, $attachment->name, $attachment->size, $attachment->mediaType, $attachmentsToMakeConform), $read),
             hiddenAttachments: count($attachments) - count($read),
-            possibleIntents: array_map(static fn (ExchangeIntent $intent): string => $intent->name, ExchangePossibilities::given(new ExchangeSituation(count($attachments), ExchangeConformity::awaitsBeingMadeConform($contactForgotten, null !== $madeConform), $status, $occurredAt <= $asOf, $document['createdBy'] === $reader->id->value, Channel::from($facts['channel']), null !== $movedFrom && Exchange::isAMomentToCome($movedFrom, $asOf)))),
-            campaignId: $document['campaignId'] ?? null,
-            bookedByLink: $document['bookedByLink'] ?? false,
-            importedFrom: $document['importedFrom']['provider'] ?? null,
-            providerMessageId: $document['importedFrom']['providerMessageId'] ?? null,
+            possibleIntents: array_map(static fn (ExchangeIntent $intent): string => $intent->name, ExchangePossibilities::given(new ExchangeSituation(count($attachments), ExchangeConformity::awaitsBeingMadeConform($contactForgotten, null !== $madeConform), $status, $occurredAt <= $asOf, $createdBy === $reader->id->value, Channel::from($channel), null !== $movedFrom && Exchange::isAMomentToCome($movedFrom, $asOf)))),
+            campaignId: Typed::stringOrNull($document['campaignId'] ?? null),
+            bookedByLink: Typed::bool($document['bookedByLink'] ?? false),
+            importedFrom: null === $importedFrom ? null : Typed::string($importedFrom['provider']),
+            providerMessageId: null === $importedFrom ? null : Typed::stringOrNull($importedFrom['providerMessageId'] ?? null),
             createdByAnAI: Origin::Ai === Documents::originOf($document),
         );
     }

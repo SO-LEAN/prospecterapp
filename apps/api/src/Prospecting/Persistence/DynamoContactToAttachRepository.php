@@ -6,6 +6,7 @@ namespace App\Prospecting\Persistence;
 
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\Prospecting\Domain\Model\ContactToAttach;
 use Prospecter\Core\Prospecting\Domain\Repository\ContactToAttachRepository;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
@@ -34,12 +35,13 @@ final readonly class DynamoContactToAttachRepository implements ContactToAttachR
     public function save(ContactToAttach $contactToAttach): void
     {
         $document = ContactToAttachDocument::of($contactToAttach);
-        $position = Documents::moment(ContactToAttachDocument::erasableFrom($document)).'#'.$document['id'];
+        $id = Typed::string($document['id']);
+        $position = Documents::moment(ContactToAttachDocument::erasableFrom($document)).'#'.$id;
 
         $this->prospectingTable->transact([$this->prospectingTable->putting([
-            'PK' => self::key($document['id']),
+            'PK' => self::key($id),
             'SK' => self::CONTACT_TO_ATTACH,
-            'GSI1PK' => self::heldBy($document['holder']),
+            'GSI1PK' => self::heldBy(Typed::string($document['holder'])),
             'GSI1SK' => $position,
             'GSI2PK' => self::ERASURE,
             'GSI2SK' => $position,

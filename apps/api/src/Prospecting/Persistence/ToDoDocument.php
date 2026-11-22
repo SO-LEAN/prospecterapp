@@ -6,6 +6,7 @@ namespace App\Prospecting\Persistence;
 
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Hydrator;
+use App\Shared\Typed;
 use Prospecter\Core\Prospecting\Application\ToDoInList;
 use Prospecter\Core\Prospecting\Domain\Model\Due;
 use Prospecter\Core\Prospecting\Domain\Model\ToDo;
@@ -28,58 +29,65 @@ final class ToDoDocument
     public static function of(ToDo $toDo): array
     {
         $state = Hydrator::stateOf($toDo);
+        $due = Typed::object($state['due'], Due::class);
 
         return [
-            'id' => (string) $state['id'],
-            'accountId' => (string) $state['accountId'],
-            'createdBy' => (string) $state['createdBy'],
-            'contact' => $state['contact']?->value,
-            'keptFor' => array_map(static fn (OrganizationId $organization): string => (string) $organization, $state['keptFor']),
-            'text' => $state['text'],
-            'due' => ['day' => $state['due']->day, 'time' => $state['due']->time],
-            'doneAt' => null === $state['doneAt'] ? null : Documents::moment($state['doneAt']),
-            'createdAt' => Documents::moment($state['createdAt']),
-            'modifiedAt' => Documents::moment($state['modifiedAt']),
+            'id' => Typed::object($state['id'], ToDoId::class)->value,
+            'accountId' => Typed::object($state['accountId'], AccountId::class)->value,
+            'createdBy' => Typed::object($state['createdBy'], MemberId::class)->value,
+            'contact' => Typed::objectOrNull($state['contact'], PersonId::class)?->value,
+            'keptFor' => array_map(static fn (OrganizationId $organization): string => $organization->value, Typed::objects($state['keptFor'], OrganizationId::class)),
+            'text' => Typed::string($state['text']),
+            'due' => ['day' => $due->day, 'time' => $due->time],
+            'doneAt' => Documents::momentOrNone(Typed::objectOrNull($state['doneAt'], \DateTimeImmutable::class)),
+            'createdAt' => Documents::moment(Typed::object($state['createdAt'], \DateTimeImmutable::class)),
+            'modifiedAt' => Documents::moment(Typed::object($state['modifiedAt'], \DateTimeImmutable::class)),
         ];
     }
 
     /**
-     * @param array<string, mixed> $document
+     * Restores the to-do from its item's untyped document.
      */
-    public static function toDo(array $document): ToDo
+    public static function toDo(mixed $document): ToDo
     {
+        $document = Typed::document($document);
+        $contact = Typed::stringOrNull($document['contact']);
+        $due = Typed::document($document['due']);
+
         return Hydrator::restore(ToDo::class, [
-            'id' => new ToDoId($document['id']),
-            'accountId' => new AccountId($document['accountId']),
-            'createdBy' => new MemberId($document['createdBy']),
-            'contact' => null === $document['contact'] ? null : new PersonId($document['contact']),
-            'keptFor' => array_map(static fn (string $organization): OrganizationId => new OrganizationId($organization), $document['keptFor']),
-            'text' => $document['text'],
-            'due' => Hydrator::restore(Due::class, ['day' => $document['due']['day'], 'time' => $document['due']['time']]),
-            'doneAt' => null === $document['doneAt'] ? null : Documents::momentOf($document['doneAt']),
-            'createdAt' => Documents::momentOf($document['createdAt']),
-            'modifiedAt' => Documents::momentOf($document['modifiedAt']),
+            'id' => new ToDoId(Typed::string($document['id'])),
+            'accountId' => new AccountId(Typed::string($document['accountId'])),
+            'createdBy' => new MemberId(Typed::string($document['createdBy'])),
+            'contact' => null === $contact ? null : new PersonId($contact),
+            'keptFor' => array_map(static fn (string $organization): OrganizationId => new OrganizationId($organization), Typed::strings($document['keptFor'])),
+            'text' => Typed::string($document['text']),
+            'due' => Hydrator::restore(Due::class, ['day' => Typed::string($due['day']), 'time' => Typed::stringOrNull($due['time'])]),
+            'doneAt' => Documents::momentOfOrNone(Typed::stringOrNull($document['doneAt'])),
+            'createdAt' => Documents::momentOf(Typed::string($document['createdAt'])),
+            'modifiedAt' => Documents::momentOf(Typed::string($document['modifiedAt'])),
         ]);
     }
 
     /**
-     * The read model, without restoring the to-do (ADR 0088).
-     *
-     * @param array<string, mixed> $document
+     * Builds the read model from its item's untyped document, without restoring the to-do (ADR 0088).
      */
-    public static function inList(array $document): ToDoInList
+    public static function inList(mixed $document): ToDoInList
     {
+        $document = Typed::document($document);
+        $due = Typed::document($document['due']);
+        $doneAt = Documents::momentOfOrNone(Typed::stringOrNull($document['doneAt']));
+
         return new ToDoInList(
-            id: $document['id'],
-            accountId: $document['accountId'],
-            personId: $document['contact'],
-            organizationIds: $document['keptFor'],
-            text: $document['text'],
-            dueOn: $document['due']['day'],
-            dueAt: $document['due']['time'],
-            doneAt: null === $document['doneAt'] ? null : Documents::momentOf($document['doneAt']),
-            heldBy: $document['createdBy'],
-            possibleIntents: array_map(static fn (ToDoIntent $intent): string => $intent->name, ToDoPossibilities::given(null !== $document['doneAt'])),
+            id: Typed::string($document['id']),
+            accountId: Typed::string($document['accountId']),
+            personId: Typed::stringOrNull($document['contact']),
+            organizationIds: Typed::strings($document['keptFor']),
+            text: Typed::string($document['text']),
+            dueOn: Typed::string($due['day']),
+            dueAt: Typed::stringOrNull($due['time']),
+            doneAt: $doneAt,
+            heldBy: Typed::string($document['createdBy']),
+            possibleIntents: array_map(static fn (ToDoIntent $intent): string => $intent->name, ToDoPossibilities::given(null !== $doneAt)),
         );
     }
 }

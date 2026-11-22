@@ -28,10 +28,9 @@ final readonly class RemoveLogoTool
     #[McpTool(name: 'delete-organization-logo', description: 'Remove the logo of an organization. Answers the organization.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id): array
     {
-        return $this->writes->write(
+        return $this->writes->change(
             $id,
-            null,
-            static fn (null $input, OrganizationSheet $organization, string $memberId, \DateTimeImmutable $now): RemoveLogo => new RemoveLogo($memberId, $organization->id, $now),
+            static fn (OrganizationSheet $organization, string $memberId, \DateTimeImmutable $now): RemoveLogo => new RemoveLogo($memberId, $organization->id, $now),
         );
     }
 }
