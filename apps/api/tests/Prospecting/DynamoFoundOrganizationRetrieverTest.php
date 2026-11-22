@@ -30,10 +30,10 @@ class DynamoFoundOrganizationRetrieverTest extends ApiTestCase
         $duplicate = $this->prospect($prospector, 'ACME s.a.s');
         $acme->suspectDuplicateOf($duplicate->id(), $prospector->id, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         $duplicate->suspectDuplicateOf($acme->id(), $prospector->id, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
-        self::getContainer()->get(OrganizationRepository::class)->save($acme);
-        self::getContainer()->get(OrganizationRepository::class)->save($duplicate);
+        self::service(OrganizationRepository::class)->save($acme);
+        self::service(OrganizationRepository::class)->save($duplicate);
 
-        $found = self::getContainer()->get(FoundOrganizationRetriever::class)->sliceProspectedBy($prospector->accountId, null, null, 10)->organizations;
+        $found = self::service(FoundOrganizationRetriever::class)->sliceProspectedBy($prospector->accountId, null, null, 10)->organizations;
 
         $this->assertEquals([[new PossibleDuplicate($acme->id()->value, 'Acme SAS')], [new PossibleDuplicate($duplicate->id()->value, 'ACME s.a.s')]], array_column($found, 'possibleDuplicates'));
     }
@@ -41,7 +41,7 @@ class DynamoFoundOrganizationRetrieverTest extends ApiTestCase
     private function prospect(Prospector $prospector, string $corporateName): Organization
     {
         $organization = Organization::prospectedBy(new Gesture($prospector->accountId, $prospector->id, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)), new OrganizationId(self::newIdentity()), new LegalIdentity($corporateName), new ContactDetails());
-        self::getContainer()->get(OrganizationRepository::class)->save($organization);
+        self::service(OrganizationRepository::class)->save($organization);
 
         return $organization;
     }

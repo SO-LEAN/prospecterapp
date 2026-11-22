@@ -87,7 +87,7 @@ class DynamoDesignatedOrganizationRetrieverTest extends ApiTestCase
 
     private function retriever(): DesignatedOrganizationRetriever
     {
-        return self::getContainer()->get(DesignatedOrganizationRetriever::class);
+        return self::service(DesignatedOrganizationRetriever::class);
     }
 
     private static function aProspector(): Prospector
@@ -98,7 +98,7 @@ class DynamoDesignatedOrganizationRetrieverTest extends ApiTestCase
     private function prospect(Prospector $prospector, LegalIdentity $legalIdentity, ContactDetails $contactDetails = new ContactDetails()): Organization
     {
         $organization = Organization::prospectedBy(new Gesture($prospector->accountId, $prospector->id, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)), new OrganizationId(self::newIdentity()), $legalIdentity, $contactDetails);
-        self::getContainer()->get(OrganizationRepository::class)->save($organization);
+        self::service(OrganizationRepository::class)->save($organization);
 
         return $organization;
     }
@@ -106,6 +106,6 @@ class DynamoDesignatedOrganizationRetrieverTest extends ApiTestCase
     private function changeContactDetails(Organization $organization, Prospector $prospector, ExternalReferences $references, ?Website $website = null): void
     {
         $organization->changeContactDetails(new ContactDetails(), new WebPresence($references, $website), $prospector->id, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
-        self::getContainer()->get(OrganizationRepository::class)->save($organization);
+        self::service(OrganizationRepository::class)->save($organization);
     }
 }

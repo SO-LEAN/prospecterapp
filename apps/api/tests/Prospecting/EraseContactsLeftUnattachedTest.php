@@ -49,10 +49,10 @@ class EraseContactsLeftUnattachedTest extends ApiTestCase
 
         $this->assertStringContainsString('1 contact(s) left unattached erased', $this->erase());
 
-        $this->assertSame([], self::getContainer()->get(PersonRepository::class)->ofIds([new PersonId($left)]));
-        $this->assertSame([], self::getContainer()->get(ExchangeRepository::class)->withContact(new PersonId($left), $this->accountOfTheFixtures()));
-        $this->assertNull(self::getContainer()->get(ContactToAttachRepository::class)->find(new PersonId($left)));
-        $this->assertNotNull(self::getContainer()->get(ContactToAttachRepository::class)->find(new PersonId($waiting)));
+        $this->assertSame([], self::service(PersonRepository::class)->ofIds([new PersonId($left)]));
+        $this->assertSame([], self::service(ExchangeRepository::class)->withContact(new PersonId($left), $this->accountOfTheFixtures()));
+        $this->assertNull(self::service(ContactToAttachRepository::class)->find(new PersonId($left)));
+        $this->assertNotNull(self::service(ContactToAttachRepository::class)->find(new PersonId($waiting)));
         $this->assertStringContainsString('0 contact(s) left unattached erased', $this->erase());
     }
 
@@ -60,11 +60,11 @@ class EraseContactsLeftUnattachedTest extends ApiTestCase
     {
         $left = $this->aContactToAttachMetOn('2026-09-14 10:00 Europe/Paris');
 
-        $answer = self::getContainer()->get(ScheduledTasksFunction::class)->handle([], new Context('request', 0, 'function', 'trace'));
+        $answer = self::service(ScheduledTasksFunction::class)->handle([], new Context('request', 0, 'function', 'trace'));
 
         $this->assertSame(['erased' => 1], $answer['ran']['erase-unattached']);
 
-        $this->assertNull(self::getContainer()->get(ContactToAttachRepository::class)->find(new PersonId($left)));
+        $this->assertNull(self::service(ContactToAttachRepository::class)->find(new PersonId($left)));
     }
 
     public function testTheDailyFunctionOfTheScheduleMakesUpARunMissed(): void
@@ -72,18 +72,18 @@ class EraseContactsLeftUnattachedTest extends ApiTestCase
         $dueTheDayBeforeYesterday = $this->aContactToAttachMetOn('2026-09-13 10:00 Europe/Paris');
         $dueYesterday = $this->aContactToAttachMetOn('2026-09-14 10:00 Europe/Paris');
 
-        $answer = self::getContainer()->get(ScheduledTasksFunction::class)->handle([], new Context('request', 0, 'function', 'trace'));
+        $answer = self::service(ScheduledTasksFunction::class)->handle([], new Context('request', 0, 'function', 'trace'));
 
         $this->assertSame(['erased' => 2], $answer['ran']['erase-unattached']);
-        $this->assertNull(self::getContainer()->get(ContactToAttachRepository::class)->find(new PersonId($dueTheDayBeforeYesterday)));
-        $this->assertNull(self::getContainer()->get(ContactToAttachRepository::class)->find(new PersonId($dueYesterday)));
+        $this->assertNull(self::service(ContactToAttachRepository::class)->find(new PersonId($dueTheDayBeforeYesterday)));
+        $this->assertNull(self::service(ContactToAttachRepository::class)->find(new PersonId($dueYesterday)));
     }
 
     public function testTheContactsToAttachAreReadByHolderAndByTheMomentTheyAreErasedFrom(): void
     {
         $later = $this->aContactToAttachMetOn('2026-09-20 10:00 Europe/Paris');
         $sooner = $this->aContactToAttachMetOn('2026-09-14 23:30 Europe/Paris');
-        $retriever = self::getContainer()->get(ContactsToAttachRetriever::class);
+        $retriever = self::service(ContactsToAttachRetriever::class);
 
         $held = array_column($retriever->heldBy(new MemberId($this->memberIdOf('prospector-user'))), 'personId');
         $this->assertSame([$sooner, $later], array_values(array_intersect($held, [$sooner, $later])));
@@ -107,9 +107,9 @@ class EraseContactsLeftUnattachedTest extends ApiTestCase
         $member = new MemberId($this->memberIdOf('prospector-user'));
         $at = new \DateTimeImmutable($meeting);
         $person = Person::collectToAttach(new Reader($member, $account, new PersonId(self::newIdentity()), true), new PersonId(self::newIdentity()), new ContactCard(new PersonName('Ada', 'Lovelace'), new ContactDetails(new Email(self::newIdentity().'@acme.test'))), $at);
-        self::getContainer()->get(PersonRepository::class)->save($person);
-        self::getContainer()->get(ContactToAttachRepository::class)->save(ContactToAttach::metBy(new Prospector($member, $account, managesPersonalData: true), $person->id(), $at, $at));
-        self::getContainer()->get(ExchangeRepository::class)->save(Exchange::noted(new Gesture($account, $member, $at), new ExchangeId(self::newIdentity()), new ContactCorrespondent($person->id(), []), Noting::of(new ExchangeFacts(Channel::VideoCall, Direction::Outbound, $at), ExchangeStatus::Done)));
+        self::service(PersonRepository::class)->save($person);
+        self::service(ContactToAttachRepository::class)->save(ContactToAttach::metBy(new Prospector($member, $account, managesPersonalData: true), $person->id(), $at, $at));
+        self::service(ExchangeRepository::class)->save(Exchange::noted(new Gesture($account, $member, $at), new ExchangeId(self::newIdentity()), new ContactCorrespondent($person->id(), []), Noting::of(new ExchangeFacts(Channel::VideoCall, Direction::Outbound, $at), ExchangeStatus::Done)));
 
         return $person->id()->value;
     }

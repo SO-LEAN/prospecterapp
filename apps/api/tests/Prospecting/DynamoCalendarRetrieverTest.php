@@ -6,7 +6,6 @@ namespace Tests\App\Prospecting;
 
 use App\Prospecting\Persistence\DynamoExchangeRepository;
 use App\Prospecting\Persistence\ExchangeKeys;
-use App\Shared\Persistence\Table;
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\Port\CalendarRetriever;
 use Prospecter\Core\Prospecting\Domain\Model\CalendarPeriod;
@@ -89,12 +88,11 @@ class DynamoCalendarRetrieverTest extends ApiTestCase
     {
         $exchange = $this->noted('2026-11-10 08:00 UTC');
         $this->exchanges()->save($exchange);
-        $table = self::getContainer()->get('app.table.prospecting');
-        $this->assertInstanceOf(Table::class, $table);
+        $table = self::tableOf('prospecting');
         $table->batch([], [[ExchangeKeys::calendar($this->prospector->id->value), ExchangeKeys::exchange($exchange->id()->value)]]);
         $this->assertSame([], $this->calendarOf($this->prospector, '2026-11-09 00:00 UTC', '2026-11-16 00:00 UTC'));
 
-        self::getContainer()->get(DynamoExchangeRepository::class)->writeTheKeysAgain();
+        self::service(DynamoExchangeRepository::class)->writeTheKeysAgain();
 
         $this->assertSame([[$exchange->id()->value, 'done']], self::described($this->calendarOf($this->prospector, '2026-11-09 00:00 UTC', '2026-11-16 00:00 UTC')));
     }
@@ -104,7 +102,7 @@ class DynamoCalendarRetrieverTest extends ApiTestCase
      */
     private function calendarOf(Prospector $holder, string $from, string $until): array
     {
-        return self::getContainer()->get(CalendarRetriever::class)->heldBy($holder, new CalendarPeriod(new \DateTimeImmutable($from), new \DateTimeImmutable($until)));
+        return self::service(CalendarRetriever::class)->heldBy($holder, new CalendarPeriod(new \DateTimeImmutable($from), new \DateTimeImmutable($until)));
     }
 
     /**
@@ -129,6 +127,6 @@ class DynamoCalendarRetrieverTest extends ApiTestCase
 
     private function exchanges(): ExchangeRepository
     {
-        return self::getContainer()->get(ExchangeRepository::class);
+        return self::service(ExchangeRepository::class);
     }
 }

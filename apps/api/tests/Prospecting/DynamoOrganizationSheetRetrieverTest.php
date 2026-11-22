@@ -115,12 +115,12 @@ class DynamoOrganizationSheetRetrieverTest extends ApiTestCase
 
     private function sheetOf(Organization $organization): OrganizationSheet
     {
-        return self::getContainer()->get(OrganizationSheetRetriever::class)->get($organization->id());
+        return self::service(OrganizationSheetRetriever::class)->get($organization->id());
     }
 
     private function organizations(): OrganizationRepository
     {
-        return self::getContainer()->get(OrganizationRepository::class);
+        return self::service(OrganizationRepository::class);
     }
 
     private function aProspector(): Prospector

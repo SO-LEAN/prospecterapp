@@ -31,9 +31,9 @@ class DynamoHeldExchangeRetrieverTest extends ApiTestCase
     {
         $accountId = new AccountId(self::newIdentity());
         $exchange = Exchange::bookedByAContact(new Gesture($accountId, new MemberId(self::newIdentity()), new \DateTimeImmutable(self::NOW)), new ExchangeId(self::newIdentity()), new ContactCorrespondent(new PersonId(self::newIdentity()), []), ExchangeFacts::planned(Channel::VideoCall, new \DateTimeImmutable('2026-11-24 08:00 UTC'), Duration::inMinutes(15), null));
-        self::getContainer()->get(ExchangeRepository::class)->save($exchange);
+        self::service(ExchangeRepository::class)->save($exchange);
 
-        $held = self::getContainer()->get(HeldExchangeRetriever::class)->ofIds($accountId, [$exchange->id()]);
+        $held = self::service(HeldExchangeRetriever::class)->ofIds($accountId, [$exchange->id()]);
 
         $this->assertSame([true], array_map(static fn (HeldExchange $exchange): bool => $exchange->bookedByLink, $held));
     }

@@ -7,10 +7,11 @@ namespace Tests\App\Prospecting;
 use App\Campaigns\Persistence\CampaignsKeys;
 use App\Demo\DemoData;
 use App\Prospecting\Persistence\OrganizationKeys;
-use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Base\ReadsResources;
 use Tests\App\Double\OutsideServices;
 
 /**
@@ -19,6 +20,8 @@ use Tests\App\Double\OutsideServices;
  */
 class LocateOrganizationsAgainCommandTest extends ApiTestCase
 {
+    use ReadsResources;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -27,8 +30,8 @@ class LocateOrganizationsAgainCommandTest extends ApiTestCase
 
     public function testAnOrganizationLocatedBeforeGetsItsMunicipalityOnce(): void
     {
-        self::getContainer()->get(OutsideServices::class)->geocoderPlaces(7.7456, 48.5834);
-        $organization = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME'], 'address' => ['city' => 'Strasbourg']])['id'];
+        self::service(OutsideServices::class)->geocoderPlaces(7.7456, 48.5834);
+        $organization = self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME'], 'address' => ['city' => 'Strasbourg']]), 'id');
         $this->forgetTheMunicipalityOf($organization);
         $this->assertSame([], $this->requestJson('GET', '/api/organizations/'.$organization.'/tags')['automatic']);
 
@@ -40,8 +43,8 @@ class LocateOrganizationsAgainCommandTest extends ApiTestCase
 
     public function testAnOrganizationWhoseAddressTheGeocoderNoLongerFindsIsCountedApart(): void
     {
-        self::getContainer()->get(OutsideServices::class)->geocoderPlaces(7.7456, 48.5834);
-        $organization = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME'], 'address' => ['city' => 'Strasbourg']])['id'];
+        self::service(OutsideServices::class)->geocoderPlaces(7.7456, 48.5834);
+        $organization = self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME'], 'address' => ['city' => 'Strasbourg']]), 'id');
         $this->forgetTheMunicipalityOf($organization);
 
         $this->assertStringContainsString('0 organization(s) located again, 1 whose address the geocoder no longer finds', $this->locateAgain(placed: false));
@@ -55,17 +58,17 @@ class LocateOrganizationsAgainCommandTest extends ApiTestCase
      */
     private function locateAgain(bool $placed = true): string
     {
-        $geocoder = self::getContainer()->get(OutsideServices::class);
+        $geocoder = self::service(OutsideServices::class);
         $geocoder->reset();
 
         if ($placed) {
             $geocoder->geocoderPlaces(7.7456, 48.5834);
         }
-        $tester = new CommandTester(new Application(self::$kernel)->find('app:organizations:locate-again'));
+        $tester = new CommandTester(new Application($this->client->getKernel())->find('app:organizations:locate-again'));
         $tester->execute([]);
         $tester->assertCommandIsSuccessful();
 
-        return preg_replace('/\s+/', ' ', $tester->getDisplay());
+        return Typed::string(preg_replace('/\s+/', ' ', $tester->getDisplay()));
     }
 
     /**
@@ -73,22 +76,13 @@ class LocateOrganizationsAgainCommandTest extends ApiTestCase
      */
     private function forgetTheMunicipalityOf(string $organization): void
     {
-        $item = $this->table('prospecting')->item(OrganizationKeys::organization($organization), OrganizationKeys::ORGANIZATION);
-        $this->assertNotNull($item);
-        unset($item['organization']['municipalityCode']);
-        $this->table('prospecting')->batch([$item]);
+        $item = self::storedItem(self::tableOf('prospecting'), OrganizationKeys::organization($organization), OrganizationKeys::ORGANIZATION);
+        $document = Typed::document($item['organization']);
+        unset($document['municipalityCode']);
+        self::tableOf('prospecting')->batch([['organization' => $document] + $item]);
 
-        $fact = $this->table('campaigns')->item(CampaignsKeys::account(DemoData::SOLEAN_IT), CampaignsKeys::organizationFact($organization));
-        $this->assertNotNull($fact);
+        $fact = self::storedItem(self::tableOf('campaigns'), CampaignsKeys::account(DemoData::SOLEAN_IT), CampaignsKeys::organizationFact($organization));
         unset($fact['municipalityCode'], $fact['country']);
-        $this->table('campaigns')->batch([$fact]);
-    }
-
-    private function table(string $context): Table
-    {
-        $table = self::getContainer()->get('app.table.'.$context);
-        $this->assertInstanceOf(Table::class, $table);
-
-        return $table;
+        self::tableOf('campaigns')->batch([$fact]);
     }
 }

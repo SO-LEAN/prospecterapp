@@ -6,7 +6,7 @@ namespace Tests\App\Prospecting;
 
 use App\Prospecting\Persistence\ExchangeKeys;
 use App\Shared\Persistence\Hydrator;
-use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
 use Prospecter\Core\Prospecting\Application\Port\ExchangeDetailRetriever;
@@ -141,12 +141,11 @@ class DynamoExchangeDetailRetrieverTest extends ApiTestCase
     public function testACallNotedMissedBeforeMissedWasAStatusReadsAsMissed(?string $status): void
     {
         $exchange = $this->noted();
-        $table = self::getContainer()->get('app.table.prospecting');
-        $this->assertInstanceOf(Table::class, $table);
-        $item = $table->item(ExchangeKeys::exchange($exchange->id()->value), ExchangeKeys::EXCHANGE);
-        $item['exchange'] = ['status' => $status] + $item['exchange'];
-        $item['exchange']['facts']['missed'] = true;
-        $table->batch([$item]);
+        $table = self::tableOf('prospecting');
+        $item = self::storedItem($table, ExchangeKeys::exchange($exchange->id()->value), ExchangeKeys::EXCHANGE);
+        $document = Typed::document($item['exchange']);
+        $facts = ['missed' => true] + Typed::document($document['facts']);
+        $table->batch([['exchange' => ['status' => $status, 'facts' => $facts] + $document] + $item]);
 
         $this->assertSame('missed', $this->detailOf($exchange, $this->me)->status);
         $this->assertSame(ExchangeStatus::Missed, Hydrator::stateOf($this->exchanges()->get($exchange->id()))['status']);
@@ -209,11 +208,11 @@ class DynamoExchangeDetailRetrieverTest extends ApiTestCase
 
     private function detailOf(Exchange $exchange, Prospector $reader, string $asOf = self::NOW): ExchangeDetail
     {
-        return self::getContainer()->get(ExchangeDetailRetriever::class)->get($exchange->id(), $reader, new \DateTimeImmutable($asOf));
+        return self::service(ExchangeDetailRetriever::class)->get($exchange->id(), $reader, new \DateTimeImmutable($asOf));
     }
 
     private function exchanges(): ExchangeRepository
     {
-        return self::getContainer()->get(ExchangeRepository::class);
+        return self::service(ExchangeRepository::class);
     }
 }

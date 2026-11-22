@@ -6,6 +6,7 @@ namespace Tests\App\Prospecting;
 
 use App\Prospecting\Directory\RechercheEntreprisesDirectory;
 use App\Shared\ServiceUnavailable;
+use App\Shared\Typed;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Prospecting\Domain\Model\Establishment;
@@ -162,7 +163,7 @@ class RechercheEntreprisesDirectoryTest extends TestCase
      */
     private static function company(string $name, array ...$establishments): array
     {
-        return ['siren' => substr($establishments[0]['siret'], 0, 9), 'nom_complet' => $name, 'matching_etablissements' => $establishments];
+        return ['siren' => substr(Typed::string($establishments[0]['siret']), 0, 9), 'nom_complet' => $name, 'matching_etablissements' => $establishments];
     }
 
     /**

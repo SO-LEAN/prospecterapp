@@ -6,7 +6,7 @@ namespace Tests\App\Prospecting;
 
 use App\Prospecting\Persistence\OrganizationKeys;
 use App\Shared\Persistence\DynamoUnitOfWork;
-use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\Prospecting\Application\Port\OrganizationFactsRetriever;
 use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\OrganizationFactsResponse;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
@@ -75,7 +75,7 @@ class DynamoOrganizationFactsRetrieverTest extends ApiTestCase
     public function testTheFactsAreReadAsTheUnitOfWorkIsAboutToWriteThem(): void
     {
         $organization = $this->prospected('ACME');
-        $unitOfWork = self::getContainer()->get(DynamoUnitOfWork::class);
+        $unitOfWork = self::service(DynamoUnitOfWork::class);
         $unitOfWork->begin();
 
         $this->organizations()->save($organization);
@@ -118,12 +118,11 @@ class DynamoOrganizationFactsRetrieverTest extends ApiTestCase
      */
     private function forgetTheMunicipalityOf(Organization $organization): void
     {
-        $table = self::getContainer()->get('app.table.prospecting');
-        $this->assertInstanceOf(Table::class, $table);
-        $item = $table->item(OrganizationKeys::organization($organization->id()->value), OrganizationKeys::ORGANIZATION);
-        $this->assertNotNull($item);
-        unset($item['organization']['municipalityCode']);
-        $table->batch([$item]);
+        $table = self::tableOf('prospecting');
+        $item = self::storedItem($table, OrganizationKeys::organization($organization->id()->value), OrganizationKeys::ORGANIZATION);
+        $document = Typed::document($item['organization']);
+        unset($document['municipalityCode']);
+        $table->batch([['organization' => $document] + $item]);
     }
 
     private function prospected(string $name): Organization
@@ -133,11 +132,11 @@ class DynamoOrganizationFactsRetrieverTest extends ApiTestCase
 
     private function organizations(): OrganizationRepository
     {
-        return self::getContainer()->get(OrganizationRepository::class);
+        return self::service(OrganizationRepository::class);
     }
 
     private function retriever(): OrganizationFactsRetriever
     {
-        return self::getContainer()->get(OrganizationFactsRetriever::class);
+        return self::service(OrganizationFactsRetriever::class);
     }
 }
