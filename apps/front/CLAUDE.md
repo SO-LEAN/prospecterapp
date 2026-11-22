@@ -27,7 +27,7 @@ Before declaring work done: `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `mak
   - a journey that signs a member out, because a Cognito global sign-out also signs out the journeys running beside it;
   - a journey that reads what the others change in the account (a figure, a count).
 
-  The main journey runs first, in the `alone` project of `playwright.config.ts`. Then the dashboard runs in the `alone-dashboard` project (`dashboard-figures.spec.ts`), in the account that the console opens for the run (ADR 0122).
+  Of these, the main journey runs first, in the `alone` project of `playwright.config.ts`. Then the dashboard runs in the `alone-dashboard` project (`dashboard-figures.spec.ts`), in the account that the console opens for the run (ADR 0122).
 - `make e2e` runs Playwright inside the network of the checkout's stack (ADR 0116), never on the host network. Inside, the local hosts resolve to the address of the stack's `nginx`. On the host network, each container that a function starts changes the network interfaces. Chromium then drops its requests (`net::ERR_NETWORK_CHANGED`), so the first journey after a stack switch would fail (ADR 0084).
 - MapLibre 6 loads its worker from `maplibre-gl-worker.mjs`, next to its own file. Vite's bundling moves that file. `map-view.tsx` passes the real URL (`?url` import + `setWorkerUrl`). Without it the map stays grey (markers shown, no tiles, "Worker failed to load" in the console).
 - MapLibre's stylesheet comes with the map's lazy chunk, after `app/styles.css`. A rule that restyles its elements (the popups) goes in `shared/ui/map/map-view.css`, which is imported right after it. Otherwise MapLibre wins at equal specificity (a white popup in the dark theme).

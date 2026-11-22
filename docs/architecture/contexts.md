@@ -23,7 +23,7 @@ Each context's language and rules are in `docs/domain/accounts.md`, `personal-da
   - `PersonalDataAndProspectingCorrespondents`: the contact or organization an e-mail address designates (ADR 0154);
   - `PersonalDataAndProspectingCorrespondentAddresses`: a contact's or an organization's address, to reimport the e-mails exchanged with it;
   - `App\Campaigns\AntiCorruption\AccountsTaggers`, `ProspectingTaggableOrganizations`, `PersonalDataTaggableContacts`: the account of a member who tags, and whether the account prospects an organization or knows a contact;
-  - `App\Campaigns\AntiCorruption\ProspectingCampaignExchanges`: which of a campaign's recipients Prospecting already logged one of the campaign's exchanges with, for the next recipient (ADR 0195);
+  - `App\Campaigns\AntiCorruption\ProspectingCampaignExchanges`: the campaign's recipients that Prospecting already logged a campaign exchange with, for the next recipient (ADR 0195);
   - `AccountsCampaigners`, `PersonalDataAndProspectingAddressees`: the account of a member who runs campaigns, and what a message calls a contact (ADR 0144);
   - `App\Prospecting\AntiCorruption\CampaignsCampaignRecipients`, `CampaignsCampaignNames`: whether a contact is a recipient a started campaign still has to handle, and the names of the campaigns in a timeline (ADR 0145);
   - `App\Booking\AntiCorruption\AccountsAndPersonalDataHosts`, `ConnectorsConnectedCalendars`, `ProspectingHostAgendas`: a host's account and its corporate name, how the host presents themselves, whether their calendar is connected, and the exchanges they still have planned (ADR 0148, 0153);
