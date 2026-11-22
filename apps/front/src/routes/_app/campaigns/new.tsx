@@ -40,6 +40,7 @@ function NewCampaign() {
         <CampaignForm
           values={empty}
           submitLabel={t('campaigns.new.submit')}
+          withDailyCap
           onCancel={cancel}
           tagsField={(chosen, onChange) => <TagsFilter chosen={chosen} onChange={onChange} />}
           onTargetingChange={target.follow}

@@ -318,6 +318,28 @@ describe('the campaigns of the team', () => {
     expect(await screen.findByRole('heading', { name: 'Relance ESN' })).toBeInTheDocument()
   })
 
+  it('prepares a draft with its daily cap', async () => {
+    const calls = theApiAnswers()
+    await renderTheSpaAt('/campaigns/new')
+
+    await userEvent.type(await screen.findByLabelText('Nom'), 'Relance ESN')
+    await userEvent.click(screen.getByRole('button', { name: 'Filtrer par tag' }))
+    await userEvent.click(await screen.findByRole('option', { name: '#ESN' }))
+    await userEvent.type(screen.getByLabelText('Message type'), 'Bonjour')
+    await userEvent.type(screen.getByLabelText(/Plafond par jour/), '30')
+    await userEvent.click(screen.getByRole('button', { name: 'Préparer la campagne' }))
+
+    await waitFor(() =>
+      expect(calls).toContainEqual(
+        expect.objectContaining({
+          method: 'POST',
+          pathname: '/api/campaigns',
+          body: expect.objectContaining({ dailyCap: 30 }),
+        }),
+      ),
+    )
+  })
+
   it('prepares a draft whose message an AI adapts to each person', async () => {
     const calls = theApiAnswers()
     await renderTheSpaAt('/campaigns/new')
