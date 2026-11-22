@@ -6,7 +6,7 @@ This document states the rules in force. The decision records (`docs/adr`) expla
 
 ## Layout
 
-The code is grouped by bounded context, then by layer (ADR 0030). `tests/Architecture/BoundedContextsTest` fails when a context uses another one.
+The code is grouped by bounded context, then by layer (ADR 0030). `tests/Architecture/BoundedContextsTest` fails when a context uses another one. It reads the contexts from the folders of `src`, so a new context is checked as soon as it is added. A context's domain uses neither its application nor its Contract (`tests/Architecture/DomainLayerTest`).
 
 A context's `Domain` is grouped by kind of building block (ADR 0086):
 
@@ -64,7 +64,7 @@ A folder exists only when it holds something. The shared kernel is only model, s
 
 ## Rules
 
-- Pure PHP: `composer.json` requires only `php`, `ext-intl` (for `SearchKey` normalization) and `giggsey/libphonenumber-for-php` (what a phone number is, `PhoneNumber`, ADR 0072), apart from dev tools. Never add a framework or infrastructure dependency. The core reaches the outside through ports (`Port/`, repository interfaces) implemented in `apps/api`.
+- Pure PHP: `composer.json` requires only `php`, `ext-intl` (for `SearchKey` normalization) and `giggsey/libphonenumber-for-php` (what a phone number is, `PhoneNumber`, ADR 0072), apart from dev tools. Never add a framework or infrastructure dependency. `src` imports only PHP, the core and the vendors that `tests/Architecture/PermittedVendorsTest` names (`libphonenumber`). The core reaches the outside through ports (`Port/`, repository interfaces) implemented in `apps/api`.
 - Ports have two sides.
   - A use case's primary port is how its client drives it: its handler and its request. A query's primary port also includes the output port the client passes on each call. The output port is the half of the conversation that answers the client. The core calls an `OutputPort`, but the port serves the client, not the core. The client's presenters implement it (the API's presenters, `Kept…` in the core and its scenarios). It is never replaced by a double.
   - The secondary ports are what the core asks of the outside (repositories, the retrievers in `Application/Port`, `Domain/Port`, `Storage`, `PrivateStorage`, `GeoLocation`, `Events`). They are injected once and implemented by the adapters in `apps/api`. They have working doubles in `tests/Double`.
