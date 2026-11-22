@@ -13,6 +13,7 @@ use Prospecter\Core\Campaigns\Domain\Event\CampaignRecipientsChanged;
 use Prospecter\Core\Campaigns\Domain\Event\CampaignRevised;
 use Prospecter\Core\Campaigns\Domain\Event\CampaignStarted;
 use Prospecter\Core\Campaigns\Domain\Event\CampaignStopped;
+use Prospecter\Core\Campaigns\Domain\Event\DailyCapSet;
 use Prospecter\Core\Campaigns\Domain\Event\RecipientDismissed;
 use Prospecter\Core\Campaigns\Domain\Exception\CampaignNotRunning;
 use Prospecter\Core\Campaigns\Domain\Exception\CampaignWithoutRecipient;
@@ -25,6 +26,7 @@ use Prospecter\Core\Campaigns\Domain\Model\CampaignStatus;
 use Prospecter\Core\Campaigns\Domain\Model\Candidate;
 use Prospecter\Core\Campaigns\Domain\Model\Channel;
 use Prospecter\Core\Campaigns\Domain\Model\ContactTags;
+use Prospecter\Core\Campaigns\Domain\Model\DailyCap;
 use Prospecter\Core\Campaigns\Domain\Model\MessageTemplate;
 use Prospecter\Core\Campaigns\Domain\Model\Reach;
 use Prospecter\Core\Campaigns\Domain\Model\Recipient;
@@ -66,19 +68,19 @@ final class CampaignTest extends TestCase
         $this->assertSame(CampaignStatus::Draft, StateOf::the($this->prepared())->object('status', CampaignStatus::class));
     }
 
-    public function testADraftIsRevisedDiscardedAndFrozen(): void
+    public function testADraftIsRevisedDiscardedFrozenAndCapped(): void
     {
-        $this->assertSame([CampaignIntent::ReviseCampaign, CampaignIntent::DiscardCampaign, CampaignIntent::FreezeCampaign], CampaignPossibilities::given(CampaignStatus::Draft, hasRecipients: false));
+        $this->assertSame([CampaignIntent::ReviseCampaign, CampaignIntent::DiscardCampaign, CampaignIntent::FreezeCampaign, CampaignIntent::SetDailyCap], CampaignPossibilities::given(CampaignStatus::Draft, hasRecipients: false));
     }
 
-    public function testAFrozenCampaignChangesItsRecipientsIsStillRevisedAndDiscardedAndStarts(): void
+    public function testAFrozenCampaignChangesItsRecipientsIsStillRevisedDiscardedAndCappedAndStarts(): void
     {
-        $this->assertSame([CampaignIntent::ReviseCampaign, CampaignIntent::DiscardCampaign, CampaignIntent::AddRecipients, CampaignIntent::RemoveRecipient, CampaignIntent::StartCampaign], CampaignPossibilities::given(CampaignStatus::Frozen, hasRecipients: true));
+        $this->assertSame([CampaignIntent::ReviseCampaign, CampaignIntent::DiscardCampaign, CampaignIntent::AddRecipients, CampaignIntent::RemoveRecipient, CampaignIntent::SetDailyCap, CampaignIntent::StartCampaign], CampaignPossibilities::given(CampaignStatus::Frozen, hasRecipients: true));
     }
 
     public function testAFrozenCampaignItsErasedContactsEmptiedNoLongerStarts(): void
     {
-        $this->assertSame([CampaignIntent::ReviseCampaign, CampaignIntent::DiscardCampaign, CampaignIntent::AddRecipients, CampaignIntent::RemoveRecipient], CampaignPossibilities::given(CampaignStatus::Frozen, hasRecipients: false));
+        $this->assertSame([CampaignIntent::ReviseCampaign, CampaignIntent::DiscardCampaign, CampaignIntent::AddRecipients, CampaignIntent::RemoveRecipient, CampaignIntent::SetDailyCap], CampaignPossibilities::given(CampaignStatus::Frozen, hasRecipients: false));
     }
 
     public function testStartingAFrozenCampaignItsErasedContactsEmptiedIsRefusedForWantOfRecipient(): void
@@ -91,9 +93,9 @@ final class CampaignTest extends TestCase
         $campaign->start(new MemberId(self::ME), $this->now());
     }
 
-    public function testAStartedCampaignIsRunAndStopped(): void
+    public function testAStartedCampaignIsRunStoppedAndCapped(): void
     {
-        $this->assertSame([CampaignIntent::RunCampaign, CampaignIntent::StopCampaign], CampaignPossibilities::given(CampaignStatus::Started, hasRecipients: true));
+        $this->assertSame([CampaignIntent::RunCampaign, CampaignIntent::StopCampaign, CampaignIntent::SetDailyCap], CampaignPossibilities::given(CampaignStatus::Started, hasRecipients: true));
     }
 
     public function testAStoppedCampaignOffersNothing(): void
@@ -104,6 +106,15 @@ final class CampaignTest extends TestCase
     public function testAnEndedCampaignOffersNothing(): void
     {
         $this->assertSame([], CampaignPossibilities::given(CampaignStatus::Ended, hasRecipients: true));
+    }
+
+    public function testTheDailyCapOfAStartedCampaignChanges(): void
+    {
+        $campaign = $this->in(CampaignStatus::Started);
+
+        $campaign->setDailyCap(DailyCap::of(30), new MemberId(self::ME), $this->now());
+
+        $this->assertEquals(DailyCap::of(30), StateOf::the($campaign)->objectOrNull('dailyCap', DailyCap::class));
     }
 
     public function testDismissingTheLastRecipientToHandleEndsTheCampaign(): void
@@ -287,6 +298,7 @@ final class CampaignTest extends TestCase
             CampaignIntent::StartCampaign->name => CampaignStarted::class,
             CampaignIntent::StopCampaign->name => CampaignStopped::class,
             CampaignIntent::RunCampaign->name => RecipientDismissed::class,
+            CampaignIntent::SetDailyCap->name => DailyCapSet::class,
         ];
 
         foreach (CampaignStatus::cases() as $status) {
@@ -362,6 +374,7 @@ final class CampaignTest extends TestCase
             CampaignIntent::StartCampaign => $campaign->start($me, $this->now()),
             CampaignIntent::StopCampaign => $campaign->stop($me, $this->now()),
             CampaignIntent::RunCampaign => $campaign->dismiss(new PersonId(self::ADA), null, $me, $this->now()),
+            CampaignIntent::SetDailyCap => $campaign->setDailyCap(DailyCap::of(30), $me, $this->now()),
         };
     }
 

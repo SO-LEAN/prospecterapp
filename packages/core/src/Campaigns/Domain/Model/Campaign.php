@@ -11,6 +11,7 @@ use Prospecter\Core\Campaigns\Domain\Event\CampaignRecipientsChanged;
 use Prospecter\Core\Campaigns\Domain\Event\CampaignRevised;
 use Prospecter\Core\Campaigns\Domain\Event\CampaignStarted;
 use Prospecter\Core\Campaigns\Domain\Event\CampaignStopped;
+use Prospecter\Core\Campaigns\Domain\Event\DailyCapSet;
 use Prospecter\Core\Campaigns\Domain\Event\RecipientDismissed;
 use Prospecter\Core\Campaigns\Domain\Exception\CampaignNotFrozen;
 use Prospecter\Core\Campaigns\Domain\Exception\CampaignNotRunning;
@@ -208,6 +209,19 @@ final class Campaign implements ReleasesEvents
     public function forgetExchangeGoneWithItsOrganization(string $exchangeId): void
     {
         $this->recipients = $this->recipients->forgettingExchange($exchangeId);
+    }
+
+    /**
+     * Its cap changes at any time until it is stopped or ended, even started; none takes the cap off.
+     *
+     * @throws NotPossibleInItsState
+     */
+    public function setDailyCap(?DailyCap $dailyCap, MemberId $by, \DateTimeImmutable $at): void
+    {
+        $this->ensurePossible(CampaignIntent::SetDailyCap);
+        $this->dailyCap = $dailyCap;
+        $this->modifiedAt = $at;
+        $this->recordThat(new DailyCapSet($this->accountId, $by, $this->id, $at));
     }
 
     /**

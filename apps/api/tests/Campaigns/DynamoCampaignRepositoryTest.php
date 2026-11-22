@@ -63,7 +63,7 @@ class DynamoCampaignRepositoryTest extends ApiTestCase
         $sheet = $this->retriever()->get($this->account, $campaign->id());
 
         $this->assertSame(
-            ['Relance ESN', 'email', ['#ESN'], ['#ESN', '#EMAIL'], 'Bonjour {firstName}', 'Une question', 'draft', ['ReviseCampaign', 'DiscardCampaign', 'FreezeCampaign']],
+            ['Relance ESN', 'email', ['#ESN'], ['#ESN', '#EMAIL'], 'Bonjour {firstName}', 'Une question', 'draft', ['ReviseCampaign', 'DiscardCampaign', 'FreezeCampaign', 'SetDailyCap']],
             [$sheet->name, $sheet->channel, $sheet->tags, $sheet->targetedTags, $sheet->message, $sheet->subject, $sheet->status, $sheet->possibleIntents],
         );
     }
