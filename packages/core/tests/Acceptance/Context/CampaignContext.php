@@ -145,6 +145,27 @@ final class CampaignContext implements Context
         $this->prepare($name, 'E-mail', self::SOME_TAGS, self::A_MESSAGE, messageMode: self::messageModeNamed($mode));
     }
 
+    #[When('je prépare la campagne :name avec un plafond de :cap envois par jour')]
+    #[When('je prépare la campagne :name avec un plafond de :cap envoi par jour')]
+    public function iPrepareTheCampaignWithADailyCap(string $name, int $cap): void
+    {
+        $this->prepare($name, 'E-mail', self::SOME_TAGS, self::A_MESSAGE, dailyCap: $cap);
+    }
+
+    #[Then('la campagne :name a un plafond de :cap envois par jour')]
+    public function theCampaignHasADailyCapOf(string $name, int $cap): void
+    {
+        $this->current = $name;
+        Expect::same($cap, $this->sheet()->dailyCap);
+    }
+
+    #[Then('la campagne :name n\'a pas de plafond par jour')]
+    public function theCampaignHasNoDailyCap(string $name): void
+    {
+        $this->current = $name;
+        Expect::same(null, $this->sheet()->dailyCap);
+    }
+
     /**
      * A mode the scenarios do not name is given as written, for the core to refuse it.
      */
@@ -1054,7 +1075,7 @@ final class CampaignContext implements Context
         return $this->next ?? throw new \LogicException(sprintf('No next recipient: %s', $this->application->refusal()?->getMessage()));
     }
 
-    private function prepare(string $name, string $channel, string $tags, string $message, ?string $subject = null, ?string $messageMode = null): void
+    private function prepare(string $name, string $channel, string $tags, string $message, ?string $subject = null, ?string $messageMode = null, ?int $dailyCap = null): void
     {
         $this->current = $name;
         $this->campaignIds[$name] = $this->application->newIdentity();
@@ -1068,6 +1089,7 @@ final class CampaignContext implements Context
             $subject,
             $this->application->now(),
             $messageMode,
+            $dailyCap,
         ));
     }
 

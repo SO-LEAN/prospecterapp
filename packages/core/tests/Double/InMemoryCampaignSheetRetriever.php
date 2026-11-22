@@ -12,6 +12,7 @@ use Prospecter\Core\Campaigns\Domain\Model\Campaign;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignIntent;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignName;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignStatus;
+use Prospecter\Core\Campaigns\Domain\Model\DailyCap;
 use Prospecter\Core\Campaigns\Domain\Model\MessageTemplate;
 use Prospecter\Core\Campaigns\Domain\Model\Recipient;
 use Prospecter\Core\Campaigns\Domain\Model\Recipients;
@@ -100,6 +101,7 @@ final readonly class InMemoryCampaignSheetRetriever implements CampaignSheetRetr
             startedAt: $state->objectOrNull('startedAt', \DateTimeImmutable::class),
             stoppedAt: $state->objectOrNull('stoppedAt', \DateTimeImmutable::class),
             endedAt: $state->objectOrNull('endedAt', \DateTimeImmutable::class),
+            dailyCap: $state->objectOrNull('dailyCap', DailyCap::class)?->sends,
         );
     }
 

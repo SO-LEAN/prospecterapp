@@ -25,6 +25,7 @@ final readonly class CampaignSheet
      * @param list<string>                    $possibleIntents the names of the intents its state offers (`ReviseCampaign`,
      *                                                         `DiscardCampaign`, `FreezeCampaign`, `AddRecipients`,
      *                                                         `RemoveRecipient`, `StartCampaign`, `StopCampaign`, `RunCampaign`)
+     * @param int|null                        $dailyCap        the most recipients processed a day, a guard only; none when not set
      */
     public function __construct(
         public string $id,
@@ -49,6 +50,7 @@ final readonly class CampaignSheet
         public ?\DateTimeImmutable $startedAt,
         public ?\DateTimeImmutable $stoppedAt,
         public ?\DateTimeImmutable $endedAt,
+        public ?int $dailyCap = null,
     ) {
     }
 }
