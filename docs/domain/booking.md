@@ -18,7 +18,7 @@ Each member's booking page: when they may be booked, how, and the public link th
 - **Slot**: 15 minutes when the host may be booked, starting on a window's quarter hour. A slot is **free** when no exchange the host still has planned overlaps it. Such an exchange is a **busy period** (`BusyPeriod`), half open: an exchange that ends as a slot starts leaves the slot free.
 - **Suspended**: an open page whose calendar is not connected. It offers nothing until the calendar is connected again (`BookingSuspension`).
 - **Host identity** (`HostIdentity`): who the host is to the bookers: their name, their picture and their account's corporate name.
-- **Booker** (`Booker`): who books a slot, as they state it: their first name, last name, phone (E.164) and e-mail, all of them given (`IncompleteBooker`, « A booker gives their first name, last name, phone and e-mail »).
+- **Booker** (`Booker`): the person who books a slot, as they describe themselves. They give their first name, last name, phone (E.164) and e-mail. All four are required (`IncompleteBooker`, « A booker gives their first name, last name, phone and e-mail »).
 - **Appointment** (`Appointment`): a host's slot that a booker booked through the public link, by a channel, about a subject if any. It holds its slot until the slot ends or the appointment's exchange is erased. It also holds the identity the client gives the booker, which the booker takes if nobody in the account is them.
 
 ## Rules
@@ -50,7 +50,7 @@ Each member's booking page: when they may be booked, how, and the public link th
   - a link offering nothing books nothing (`BookingUnavailable`, « This booking link offers no slot »);
   - a channel the page does not offer is refused (`ChannelNotOffered`);
   - so is a slot the page does not offer as free, or one another booker took meanwhile (`SlotNotFree`, « This slot was just taken »);
-  - a booker who already has an upcoming appointment with the host, by the same e-mail whatever its letter case, is told when it is, on the host's clock (`AlreadyBooked`, « You already have an appointment »).
+  - a booker who already has an upcoming appointment with the host is told when it is, on the host's clock. The booker is recognized by the same e-mail, whatever its letter case (`AlreadyBooked`, « You already have an appointment »).
 
   A host's upcoming appointments are busy periods, just like their exchanges (`BusyPeriods`): a booked slot is no longer offered. The booking becomes an exchange the host planned, with one of the account's contacts or a contact to attach (`docs/architecture/contexts.md`). Its event in the host's calendar invites the booker, and Google tells them of each change (Connectors, ADR 0175).
 - An appointment lives as long as the exchange it became (ADR 0171). When the exchange is erased, by the host or with its organization, the appointment is forgotten (`ForgetAppointmentOfErasedExchange`): its slot is free again and its booker has no upcoming appointment. This is a system reaction: nothing is recorded. A cancelled exchange keeps its slot taken until the slot ends.
