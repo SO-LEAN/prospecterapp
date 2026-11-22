@@ -6,6 +6,7 @@ namespace Tests\App\Api;
 
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Model\Role;
+use Symfony\Component\Clock\MockClock;
 use Tests\App\Base\ActsAsItsEndpoint;
 use Tests\App\Base\ApiTestCase;
 
@@ -26,6 +27,9 @@ class CampaignToolsApiTest extends ApiTestCase
 
     /** The members a campaign of the team of the prospector is written by: another account knows nothing of it. */
     private const array TEAM_WRITERS = ['prospector-user', 'admin-user'];
+
+    /** Late on the day of the clock of the controllers in UTC, already the next one in Paris. */
+    private const string LATE_THAT_DAY = '2026-10-15 23:00:00 UTC';
 
     private string $ada;
     private string $alan;
@@ -106,14 +110,20 @@ class CampaignToolsApiTest extends ApiTestCase
         $this->assertSame(2, $campaign['dailyCap']);
     }
 
+    /**
+     * Processed at 9:00 UTC on 15 October, read at 23:00 UTC: already the next day in Paris.
+     */
     public function testTheAiReadsTheRecipientsProcessedTodayOnItsMembersClock(): void
     {
+        $this->keepTheKernel();
         $started = $this->aStartedCampaign();
         $this->requestJson('POST', '/api/campaigns/'.$started.'/recipients/'.$this->ada.'/exchanges', self::SENT_TO_ADA);
+        $this->theClockShows(self::LATE_THAT_DAY);
 
-        $campaign = $this->callWithoutHandshake('get-campaign', ['id' => $started, 'timeZone' => 'Europe/Paris']);
+        $inParis = $this->callWithoutHandshake('get-campaign', ['id' => $started, 'timeZone' => 'Europe/Paris']);
+        $inUtc = $this->callWithoutHandshake('get-campaign', ['id' => $started]);
 
-        $this->assertSame(1, self::valueAt($campaign, 'structuredContent', 'processedToday'));
+        $this->assertSame([0, 1], [self::valueAt($inParis, 'structuredContent', 'processedToday'), self::valueAt($inUtc, 'structuredContent', 'processedToday')]);
     }
 
     public function testTheAiAddsAContactChosenToAFrozenCampaign(): void
@@ -202,6 +212,25 @@ class CampaignToolsApiTest extends ApiTestCase
         $this->assertSame(
             [$this->alan, ['sends' => 1, 'processedToday' => 1, 'reached' => true], 'Today\'s cap is reached (1). Stop, and ask your member whether to go beyond it before you send this message.'],
             [self::valueAt($next, 'structuredContent', 'contact', 'id'), self::valueAt($next, 'structuredContent', 'dailyCap'), self::valueAt($next, 'structuredContent', 'warning')],
+        );
+    }
+
+    /**
+     * Processed at 9:00 UTC on 15 October, asked at 23:00 UTC: already the next day in Paris, the cap no longer reached.
+     */
+    public function testTheDayOfTheDailyCapIsTheMembers(): void
+    {
+        $this->keepTheKernel();
+        $started = $this->aStartedCampaign();
+        $this->requestJson('PUT', '/api/campaigns/'.$started.'/daily-cap', ['dailyCap' => 1]);
+        $this->requestJson('POST', '/api/campaigns/'.$started.'/recipients/'.$this->ada.'/exchanges', self::SENT_TO_ADA);
+        $this->theClockShows(self::LATE_THAT_DAY);
+
+        $next = $this->callWithoutHandshake('get-next-recipient', ['id' => $started, 'timeZone' => 'Europe/Paris']);
+
+        $this->assertSame(
+            [['sends' => 1, 'processedToday' => 0, 'reached' => false], null],
+            [self::valueAt($next, 'structuredContent', 'dailyCap'), self::valueAt($next, 'structuredContent', 'warning')],
         );
     }
 
@@ -364,6 +393,13 @@ class CampaignToolsApiTest extends ApiTestCase
         $this->requestJson('GET', '/api/campaigns/'.$draft);
         $this->assertResponseStatusCodeSame(404);
         $this->assertTheToolAsksForAConfirmation('delete-campaign');
+    }
+
+    private function theClockShows(string $moment): void
+    {
+        $clock = $this->client->getContainer()->get('clock');
+        self::assertInstanceOf(MockClock::class, $clock);
+        $clock->modify($moment);
     }
 
     /**

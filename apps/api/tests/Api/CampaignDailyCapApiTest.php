@@ -6,6 +6,7 @@ namespace Tests\App\Api;
 
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Model\Role;
+use Symfony\Component\Clock\MockClock;
 use Tests\App\Base\ApiTestCase;
 use Tests\App\Base\ReadsResources;
 
@@ -19,6 +20,7 @@ class CampaignDailyCapApiTest extends ApiTestCase
     use ReadsResources;
 
     private const string TAG = '#CAMPAIGN_218';
+    private const string LATE_THAT_DAY = '2026-10-15 23:00:00 UTC';
 
     private string $ada;
 
@@ -65,15 +67,21 @@ class CampaignDailyCapApiTest extends ApiTestCase
         );
     }
 
+    /**
+     * Processed at 9:00 UTC on 15 October, read at 23:00 UTC: still that day in UTC, already the next one in Paris.
+     */
     public function testTheCampaignCountsItsRecipientsProcessedTodayOnTheReadersClock(): void
     {
+        $this->keepTheKernel();
         $id = $this->aStartedCampaign();
         $this->requestJson('POST', '/api/campaigns/'.$id.'/recipients/'.$this->ada.'/exchanges', ['occurredAt' => '2026-10-15T08:00:00+00:00', 'text' => 'Bonjour Ada', 'missed' => false]);
         $this->assertResponseStatusCodeSame(201);
+        $this->theClockShows(self::LATE_THAT_DAY);
 
-        $campaign = $this->requestJson('GET', '/api/campaigns/'.$id.'?timeZone=Europe/Paris');
+        $inParis = $this->requestJson('GET', '/api/campaigns/'.$id.'?timeZone=Europe/Paris');
+        $inUtc = $this->requestJson('GET', '/api/campaigns/'.$id);
 
-        $this->assertSame(1, $campaign['processedToday']);
+        $this->assertSame([0, 1], [self::valueAt($inParis, 'processedToday'), self::valueAt($inUtc, 'processedToday')]);
     }
 
     public function testTheCampaignIsNotReadOnAnUnknownClock(): void
@@ -103,6 +111,13 @@ class CampaignDailyCapApiTest extends ApiTestCase
         $this->requestJson('PUT', '/api/campaigns/'.$id.'/daily-cap', ['dailyCap' => 2]);
 
         $this->assertResponseStatusCodeSame(403);
+    }
+
+    private function theClockShows(string $moment): void
+    {
+        $clock = $this->client->getContainer()->get('clock');
+        self::assertInstanceOf(MockClock::class, $clock);
+        $clock->modify($moment);
     }
 
     private function aStartedCampaign(): string
