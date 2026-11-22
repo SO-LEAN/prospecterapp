@@ -121,7 +121,7 @@ final class CampaignTest extends TestCase
         $campaign = $this->in(CampaignStatus::Started);
         $campaign->dismiss(new PersonId(self::ADA), null, new MemberId(self::ME), $this->now());
 
-        $this->assertEquals(new PersonId(self::ALAN), $campaign->nextRecipient());
+        $this->assertEquals(new PersonId(self::ALAN), $campaign->nextRecipient(exchangedWith: []));
     }
 
     public function testTheNextRecipientCountsAmongThoseStillToHandle(): void
@@ -129,7 +129,37 @@ final class CampaignTest extends TestCase
         $campaign = $this->in(CampaignStatus::Started);
         $campaign->process(new PersonId(self::ADA), self::EXCHANGE, RecipientOutcome::Done, at: $this->now());
 
-        $this->assertSame(1, $campaign->stillToHandle());
+        $this->assertSame(1, $campaign->stillToHandle(exchangedWith: []));
+    }
+
+    public function testTheNextRecipientIsNotOneAnExchangeWasNotedWithMeanwhile(): void
+    {
+        $campaign = $this->in(CampaignStatus::Started);
+
+        $this->assertEquals(new PersonId(self::ALAN), $campaign->nextRecipient(exchangedWith: [new PersonId(self::ADA)]));
+    }
+
+    public function testThoseStillToHandleAreNotThoseAnExchangeWasNotedWithMeanwhile(): void
+    {
+        $campaign = $this->in(CampaignStatus::Started);
+
+        $this->assertSame(1, $campaign->stillToHandle(exchangedWith: [new PersonId(self::ADA)]));
+    }
+
+    public function testACampaignWhoseLastRecipientsWereExchangedWithMeanwhileHasNoNextRecipient(): void
+    {
+        $campaign = $this->in(CampaignStatus::Started);
+        $this->expectExceptionObject(CampaignNotRunning::toRun());
+
+        (void) $campaign->nextRecipient(exchangedWith: [new PersonId(self::ADA), new PersonId(self::ALAN)]);
+    }
+
+    public function testThePendingRecipientsAreThoseStillToHandle(): void
+    {
+        $campaign = $this->in(CampaignStatus::Started);
+        $campaign->dismiss(new PersonId(self::ADA), null, new MemberId(self::ME), $this->now());
+
+        $this->assertEquals([new PersonId(self::ALAN)], $campaign->pendingRecipients());
     }
 
     public function testACampaignNotLedHasNoNextRecipient(): void
@@ -137,7 +167,7 @@ final class CampaignTest extends TestCase
         $campaign = $this->in(CampaignStatus::Stopped);
         $this->expectExceptionObject(CampaignNotRunning::toRun());
 
-        (void) $campaign->nextRecipient();
+        (void) $campaign->nextRecipient(exchangedWith: []);
     }
 
     public function testProcessingARecipientHandledAlreadyChangesNothing(): void
