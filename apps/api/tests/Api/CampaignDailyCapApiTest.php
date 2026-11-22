@@ -68,7 +68,7 @@ class CampaignDailyCapApiTest extends ApiTestCase
     }
 
     /**
-     * Processed at 9:00 UTC on 15 October, read at 23:00 UTC: still that day in UTC, already the next one in Paris.
+     * Processed at 8:00 UTC on 15 October, read at 23:00 UTC: still that day in UTC, already the next one in Paris.
      */
     public function testTheCampaignCountsItsRecipientsProcessedTodayOnTheReadersClock(): void
     {

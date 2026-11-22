@@ -28,7 +28,7 @@ class CampaignToolsApiTest extends ApiTestCase
     /** The members a campaign of the team of the prospector is written by: another account knows nothing of it. */
     private const array TEAM_WRITERS = ['prospector-user', 'admin-user'];
 
-    /** Late on the day of the clock of the controllers in UTC, already the next one in Paris. */
+    /** Late on the controllers' day in UTC, and already the next day in Paris. */
     private const string LATE_THAT_DAY = '2026-10-15 23:00:00 UTC';
 
     private string $ada;
