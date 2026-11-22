@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Campaigns\Persistence;
 
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\Campaigns\Application\CampaignSheet;
 use Prospecter\Core\Campaigns\Application\Port\CampaignSheetRetriever;
 use Prospecter\Core\Campaigns\Domain\Exception\UnknownCampaign;
@@ -43,7 +44,13 @@ final readonly class DynamoCampaignSheetRetriever implements CampaignSheetRetrie
     {
         $items = [] === $ids ? [] : $this->campaignsTable->items(array_map(static fn (CampaignId $id): array => [CampaignsKeys::account($accountId->value), CampaignsKeys::campaign($id->value)], $ids));
 
-        return array_column(array_column($items, 'campaign'), 'name', 'id');
+        $names = [];
+
+        foreach (Typed::documents(array_column($items, 'campaign')) as $campaign) {
+            $names[Typed::string($campaign['id'])] = Typed::string($campaign['name']);
+        }
+
+        return $names;
     }
 
     public function ofAccount(AccountId $accountId): array

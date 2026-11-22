@@ -33,7 +33,7 @@ final readonly class SetDailyCapTool
         return $this->writes->write(
             $id,
             new DailyCapInput($dailyCap),
-            static fn (?DailyCapInput $input, CampaignSheet $campaign, string $memberId, \DateTimeImmutable $now): SetDailyCap => new SetDailyCap(memberId: $memberId, campaignId: $campaign->id, dailyCap: $input?->dailyCap, executedAt: $now),
+            static fn (DailyCapInput $input, CampaignSheet $campaign, string $memberId, \DateTimeImmutable $now): SetDailyCap => new SetDailyCap(memberId: $memberId, campaignId: $campaign->id, dailyCap: $input->dailyCap, executedAt: $now),
         );
     }
 }

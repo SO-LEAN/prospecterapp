@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Booking\Persistence;
 
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\Booking\Application\ConsultPublicBookingPage\BookingSchedule;
 use Prospecter\Core\Booking\Application\Port\PublicBookingPageRetriever;
 
@@ -19,7 +20,7 @@ final readonly class DynamoPublicBookingPageRetriever implements PublicBookingPa
 
     public function byCode(string $code): ?BookingSchedule
     {
-        $host = $this->bookingTable->item(BookingKeys::code($code), BookingKeys::CODE)['host'] ?? null;
+        $host = Typed::stringOrNull($this->bookingTable->item(BookingKeys::code($code), BookingKeys::CODE)['host'] ?? null);
         $document = null === $host ? null : $this->bookingTable->item(BookingKeys::page($host), BookingKeys::PAGE)['page'] ?? null;
 
         return null === $document ? null : BookingPageDocument::schedule($document);

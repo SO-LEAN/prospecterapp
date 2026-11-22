@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Campaigns\Persistence;
 
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\Campaigns\Application\Port\ContactTagSources;
 use Prospecter\Core\Campaigns\Application\Port\TaggedContactsRetriever;
 use Prospecter\Core\Campaigns\Domain\Model\HolderKind;
@@ -60,10 +61,10 @@ final readonly class DynamoTaggedContactsRetriever implements TaggedContactsRetr
         $links = [];
 
         foreach ($items as $item) {
-            $contact = self::contactOf((string) $item['SK']);
+            $contact = self::contactOf(Typed::string($item['SK']));
 
             if (isset($item['organization'])) {
-                $links[$contact][] = (string) $item['organization'];
+                $links[$contact][] = Typed::string($item['organization']);
             } elseif ((bool) $item['present']) {
                 $facts[$contact] = $item;
             }
@@ -88,7 +89,7 @@ final readonly class DynamoTaggedContactsRetriever implements TaggedContactsRetr
         $localities = [];
 
         foreach ($this->campaignsTable->queryBetween($account, null, ...CampaignsKeys::organizationFacts()) as $item) {
-            $localities[CampaignsKeys::organizationOfFact((string) $item['SK'])] = OrganizationFactItem::localityIn($item);
+            $localities[CampaignsKeys::organizationOfFact(Typed::string($item['SK']))] = OrganizationFactItem::localityIn($item);
         }
 
         return $localities;
@@ -102,7 +103,8 @@ final readonly class DynamoTaggedContactsRetriever implements TaggedContactsRetr
         $tags = [];
 
         foreach ($this->campaignsTable->queryBetween($account, null, ...CampaignsKeys::taggings()) as $item) {
-            $tags[$item['tagging']['holder']][$item['tagging']['holderId']] = $item['tagging']['tags'];
+            $tagging = Typed::document($item['tagging']);
+            $tags[Typed::string($tagging['holder'])][Typed::string($tagging['holderId'])] = Typed::strings($tagging['tags']);
         }
 
         return $tags;

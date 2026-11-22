@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Booking\Persistence;
 
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\RateLimiter\LimiterStateInterface;
 use Symfony\Component\RateLimiter\Policy\SlidingWindow;
@@ -34,7 +35,7 @@ final readonly class DynamoRateLimiterStorage implements StorageInterface
 
     public function fetch(string $limiterStateId): ?LimiterStateInterface
     {
-        $state = $this->bookingTable->item(BookingKeys::rateLimit($limiterStateId), BookingKeys::RATE_LIMIT)['state'] ?? null;
+        $state = Typed::stringOrNull($this->bookingTable->item(BookingKeys::rateLimit($limiterStateId), BookingKeys::RATE_LIMIT)['state'] ?? null);
         $restored = null === $state ? null : unserialize($state, ['allowed_classes' => [SlidingWindow::class]]);
 
         return $restored instanceof LimiterStateInterface ? $restored : null;

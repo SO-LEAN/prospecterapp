@@ -26,10 +26,9 @@ final readonly class DiscardCampaignTool
     #[McpTool(name: 'delete-campaign', description: 'Discard a campaign never started; needs the right to manage the personal data. Answers nothing.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id): void
     {
-        $this->writes->dispatched(
+        $this->writes->changed(
             $id,
-            null,
-            static fn (null $input, CampaignSheet $campaign, string $memberId, \DateTimeImmutable $now): DiscardCampaign => new DiscardCampaign($memberId, $campaign->id, $now),
+            static fn (CampaignSheet $campaign, string $memberId, \DateTimeImmutable $now): DiscardCampaign => new DiscardCampaign($memberId, $campaign->id, $now),
         );
     }
 }

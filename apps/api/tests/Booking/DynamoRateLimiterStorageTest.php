@@ -46,6 +46,6 @@ class DynamoRateLimiterStorageTest extends ApiTestCase
 
     private function storage(): DynamoRateLimiterStorage
     {
-        return self::getContainer()->get(DynamoRateLimiterStorage::class);
+        return self::service(DynamoRateLimiterStorage::class);
     }
 }

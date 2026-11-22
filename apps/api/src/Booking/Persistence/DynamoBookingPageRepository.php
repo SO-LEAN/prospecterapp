@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Booking\Persistence;
 
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\Booking\Domain\Exception\UnknownBookingPage;
 use Prospecter\Core\Booking\Domain\Model\BookingCode;
 use Prospecter\Core\Booking\Domain\Model\BookingPage;
@@ -37,7 +38,7 @@ final readonly class DynamoBookingPageRepository implements BookingPageRepositor
 
     public function findByCode(BookingCode $code): ?BookingPage
     {
-        $host = $this->bookingTable->item(BookingKeys::code($code->value), BookingKeys::CODE)['host'] ?? null;
+        $host = Typed::stringOrNull($this->bookingTable->item(BookingKeys::code($code->value), BookingKeys::CODE)['host'] ?? null);
 
         return null === $host ? null : $this->find(new MemberId($host));
     }
@@ -45,17 +46,26 @@ final readonly class DynamoBookingPageRepository implements BookingPageRepositor
     public function save(BookingPage $page): void
     {
         $document = BookingPageDocument::of($page);
-        $storedCode = $this->bookingTable->item(BookingKeys::page($document['host']), BookingKeys::PAGE)['page']['code'] ?? null;
-        $writes = [$this->bookingTable->putting(['PK' => BookingKeys::page($document['host']), 'SK' => BookingKeys::PAGE, 'page' => $document])];
+        $host = $page->host()->value;
+        $code = Typed::stringOrNull($document['code']);
+        $storedCode = $this->storedCodeOf($host);
+        $writes = [$this->bookingTable->putting(['PK' => BookingKeys::page($host), 'SK' => BookingKeys::PAGE, 'page' => $document])];
 
-        if ($document['code'] !== $storedCode && null !== $document['code']) {
-            $writes[] = $this->bookingTable->putting(['PK' => BookingKeys::code($document['code']), 'SK' => BookingKeys::CODE, 'host' => $document['host']], self::NO_SUCH_CODE_YET);
+        if ($code !== $storedCode && null !== $code) {
+            $writes[] = $this->bookingTable->putting(['PK' => BookingKeys::code($code), 'SK' => BookingKeys::CODE, 'host' => $host], self::NO_SUCH_CODE_YET);
         }
 
-        if ($document['code'] !== $storedCode && null !== $storedCode) {
+        if ($code !== $storedCode && null !== $storedCode) {
             $writes[] = $this->bookingTable->deleting(BookingKeys::code($storedCode), BookingKeys::CODE);
         }
 
         $this->bookingTable->transact($writes);
+    }
+
+    private function storedCodeOf(string $host): ?string
+    {
+        $stored = $this->bookingTable->item(BookingKeys::page($host), BookingKeys::PAGE)['page'] ?? null;
+
+        return null === $stored ? null : Typed::stringOrNull(Typed::document($stored)['code'] ?? null);
     }
 }

@@ -26,9 +26,8 @@ final readonly class ChangeBookingLinkTool
     #[McpTool(name: 'set-booking-link', description: 'Give the booking page of the member a new public link, the former one leading nowhere any more. Answers the booking page.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
     public function __invoke(): array
     {
-        return $this->writes->write(
-            null,
-            fn (null $input, string $memberId, \DateTimeImmutable $now): ChangeBookingLink => new ChangeBookingLink(memberId: $memberId, drawnCode: $this->codes->draw(), executedAt: $now),
+        return $this->writes->change(
+            fn (string $memberId, \DateTimeImmutable $now): ChangeBookingLink => new ChangeBookingLink(memberId: $memberId, drawnCode: $this->codes->draw(), executedAt: $now),
         );
     }
 }

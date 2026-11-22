@@ -6,6 +6,7 @@ namespace App\Booking\Persistence;
 
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Hydrator;
+use App\Shared\Typed;
 use Prospecter\Core\Booking\Application\ConsultPublicBookingPage\BookingSchedule;
 use Prospecter\Core\Booking\Application\MyBookingPage;
 use Prospecter\Core\Booking\Domain\Model\BookingCode;
@@ -41,61 +42,65 @@ final class BookingPageDocument
         $state = Hydrator::stateOf($page);
 
         return [
-            'host' => (string) $state['host'],
-            'accountId' => (string) $state['accountId'],
-            'windows' => array_map(static fn (Window $window): array => ['weekday' => $window->weekday->value, 'from' => $window->from->text(), 'to' => $window->to->text()], $state['windows']->windows),
-            'timeZone' => $state['timeZone']?->name,
-            'inactivePeriods' => array_values(array_map(static fn (InactivePeriod $period): array => ['id' => $period->id->value, 'firstDay' => $period->firstDay, 'lastDay' => $period->lastDay], $state['inactivePeriods'])),
-            'channels' => array_map(static fn (Channel $channel): string => $channel->value, $state['channels']->channels),
-            'open' => $state['open'],
-            'code' => $state['code']?->value,
-            'createdAt' => Documents::moment($state['createdAt']),
-            'modifiedAt' => Documents::moment($state['modifiedAt']),
+            'host' => Typed::object($state['host'], MemberId::class)->value,
+            'accountId' => Typed::object($state['accountId'], AccountId::class)->value,
+            'windows' => array_map(static fn (Window $window): array => ['weekday' => $window->weekday->value, 'from' => $window->from->text(), 'to' => $window->to->text()], Typed::object($state['windows'], WeeklyWindows::class)->windows),
+            'timeZone' => Typed::objectOrNull($state['timeZone'], HostTimeZone::class)?->name,
+            'inactivePeriods' => array_map(static fn (InactivePeriod $period): array => ['id' => $period->id->value, 'firstDay' => $period->firstDay, 'lastDay' => $period->lastDay], Typed::objects($state['inactivePeriods'], InactivePeriod::class)),
+            'channels' => array_map(static fn (Channel $channel): string => $channel->value, Typed::object($state['channels'], OfferedChannels::class)->channels),
+            'open' => Typed::bool($state['open']),
+            'code' => Typed::objectOrNull($state['code'], BookingCode::class)?->value,
+            'createdAt' => Documents::moment(Typed::object($state['createdAt'], \DateTimeImmutable::class)),
+            'modifiedAt' => Documents::moment(Typed::object($state['modifiedAt'], \DateTimeImmutable::class)),
         ];
     }
 
     /**
-     * @param array<string, mixed> $document
+     * Restores the page from its item's untyped document.
      */
-    public static function page(array $document): BookingPage
+    public static function page(mixed $document): BookingPage
     {
-        $periods = array_map(self::period(...), $document['inactivePeriods']);
+        $document = Typed::document($document);
+        $periods = array_map(self::period(...), self::periodsOf($document));
+        $timeZone = Typed::stringOrNull($document['timeZone']);
+        $code = Typed::stringOrNull($document['code']);
 
         return Hydrator::restore(BookingPage::class, [
-            'host' => new MemberId($document['host']),
-            'accountId' => new AccountId($document['accountId']),
-            'windows' => new WeeklyWindows(...array_map(self::window(...), $document['windows'])),
-            'timeZone' => null === $document['timeZone'] ? null : new HostTimeZone($document['timeZone']),
+            'host' => new MemberId(Typed::string($document['host'])),
+            'accountId' => new AccountId(Typed::string($document['accountId'])),
+            'windows' => new WeeklyWindows(...array_map(self::window(...), self::windowsOf($document))),
+            'timeZone' => null === $timeZone ? null : new HostTimeZone($timeZone),
             'inactivePeriods' => array_combine(array_map(static fn (InactivePeriod $period): string => $period->id->value, $periods), $periods),
-            'channels' => new OfferedChannels(...array_map(Channel::from(...), $document['channels'])),
-            'open' => $document['open'],
-            'code' => null === $document['code'] ? null : new BookingCode($document['code']),
-            'createdAt' => Documents::momentOf($document['createdAt']),
-            'modifiedAt' => Documents::momentOf($document['modifiedAt']),
+            'channels' => new OfferedChannels(...array_map(Channel::from(...), Typed::strings($document['channels']))),
+            'open' => Typed::bool($document['open']),
+            'code' => null === $code ? null : new BookingCode($code),
+            'createdAt' => Documents::momentOf(Typed::string($document['createdAt'])),
+            'modifiedAt' => Documents::momentOf(Typed::string($document['modifiedAt'])),
         ]);
     }
 
     /**
      * The read model of its host, without restoring the page (ADR 0088): the periods ended before the day of the
-     * reading left out, the soonest first.
-     *
-     * @param array<string, mixed> $document
+     * reading left out, the soonest first. Its item's document is untyped.
      */
-    public static function myPage(array $document, string $today, bool $calendarConnected): MyBookingPage
+    public static function myPage(mixed $document, string $today, bool $calendarConnected): MyBookingPage
     {
-        $periods = array_values(array_filter($document['inactivePeriods'], static fn (array $period): bool => !self::period($period)->hasEndedBefore($today)));
+        $document = Typed::document($document);
+        $periods = array_values(array_filter(self::periodsOf($document), static fn (array $period): bool => !self::period($period)->hasEndedBefore($today)));
         usort($periods, static fn (array $one, array $other): int => [$one['firstDay'], $one['id']] <=> [$other['firstDay'], $other['id']]);
+        $open = Typed::bool($document['open']);
+        $code = Typed::stringOrNull($document['code']);
 
         return new MyBookingPage(
-            $document['open'],
-            $document['windows'],
-            $document['timeZone'],
+            $open,
+            self::windowsOf($document),
+            Typed::stringOrNull($document['timeZone']),
             $periods,
-            $document['channels'],
-            $document['code'],
+            Typed::strings($document['channels']),
+            $code,
             $calendarConnected,
-            self::intents($document['open'], null !== $document['code']),
-            BookingSuspension::isSuspended($document['open'], $calendarConnected),
+            self::intents($open, null !== $code),
+            BookingSuspension::isSuspended($open, $calendarConnected),
         );
     }
 
@@ -105,13 +110,13 @@ final class BookingPageDocument
     }
 
     /**
-     * The page as its public link needs it, without restoring it (ADR 0088).
-     *
-     * @param array<string, mixed> $document
+     * The page as its public link needs it, from its item's untyped document, without restoring it (ADR 0088).
      */
-    public static function schedule(array $document): BookingSchedule
+    public static function schedule(mixed $document): BookingSchedule
     {
-        return new BookingSchedule($document['host'], $document['accountId'], $document['open'], $document['channels'], $document['windows'], $document['timeZone'], $document['inactivePeriods']);
+        $document = Typed::document($document);
+
+        return new BookingSchedule(Typed::string($document['host']), Typed::string($document['accountId']), Typed::bool($document['open']), Typed::strings($document['channels']), self::windowsOf($document), Typed::stringOrNull($document['timeZone']), self::periodsOf($document));
     }
 
     /**
@@ -120,6 +125,26 @@ final class BookingPageDocument
     private static function intents(bool $open, bool $hasALink): array
     {
         return array_map(static fn (BookingPageIntent $intent): string => $intent->name, BookingPagePossibilities::given($open, $hasALink));
+    }
+
+    /**
+     * @param array<string, mixed> $document
+     *
+     * @return list<array{id: string, firstDay: string, lastDay: string}>
+     */
+    private static function periodsOf(array $document): array
+    {
+        return array_map(static fn (array $period): array => ['id' => Typed::string($period['id']), 'firstDay' => Typed::string($period['firstDay']), 'lastDay' => Typed::string($period['lastDay'])], Typed::documents($document['inactivePeriods']));
+    }
+
+    /**
+     * @param array<string, mixed> $document
+     *
+     * @return list<array{weekday: string, from: string, to: string}>
+     */
+    private static function windowsOf(array $document): array
+    {
+        return array_map(static fn (array $window): array => ['weekday' => Typed::string($window['weekday']), 'from' => Typed::string($window['from']), 'to' => Typed::string($window['to'])], Typed::documents($document['windows']));
     }
 
     /**

@@ -28,10 +28,9 @@ final readonly class FreezeCampaignTool
     #[McpTool(name: 'freeze-campaign', description: 'Keep the contacts a draft campaign targets now as its recipients, for good: its channel and its tags no longer change; needs the right to manage the personal data. Answers the campaign.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id): array
     {
-        return $this->writes->write(
+        return $this->writes->change(
             $id,
-            null,
-            static fn (null $input, CampaignSheet $campaign, string $memberId, \DateTimeImmutable $now): FreezeCampaign => new FreezeCampaign($memberId, $campaign->id, $now),
+            static fn (CampaignSheet $campaign, string $memberId, \DateTimeImmutable $now): FreezeCampaign => new FreezeCampaign($memberId, $campaign->id, $now),
         );
     }
 }

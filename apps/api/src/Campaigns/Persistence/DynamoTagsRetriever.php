@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Campaigns\Persistence;
 
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\Campaigns\Application\Port\TagsRetriever;
 use Prospecter\Core\Campaigns\Domain\Model\Holder;
 use Prospecter\Core\Campaigns\Domain\Model\Tag;
@@ -26,14 +27,14 @@ final readonly class DynamoTagsRetriever implements TagsRetriever
     {
         $document = $this->campaignsTable->item(CampaignsKeys::account($accountId->value), CampaignsKeys::tagging($holder->kind->value, $holder->id->value))['tagging'] ?? null;
 
-        return null === $document ? [] : self::marked($document['tags']);
+        return null === $document ? [] : self::marked(Typed::strings(Typed::document($document)['tags']));
     }
 
     public function carriedIn(AccountId $accountId): array
     {
-        $taggings = array_column($this->campaignsTable->queryBetween(CampaignsKeys::account($accountId->value), null, ...CampaignsKeys::taggings()), 'tagging');
+        $taggings = Typed::documents(array_column($this->campaignsTable->queryBetween(CampaignsKeys::account($accountId->value), null, ...CampaignsKeys::taggings()), 'tagging'));
 
-        return array_values(array_unique(self::marked(array_merge([], ...array_column($taggings, 'tags')))));
+        return array_values(array_unique(self::marked(array_merge([], ...array_map(static fn (array $tagging): array => Typed::strings($tagging['tags']), $taggings)))));
     }
 
     public function localityOf(AccountId $accountId, OrganizationId $organizationId): ?array

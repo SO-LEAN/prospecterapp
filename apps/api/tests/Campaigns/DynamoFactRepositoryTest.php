@@ -6,6 +6,7 @@ namespace Tests\App\Campaigns;
 
 use App\Shared\Persistence\ConditionFailed;
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\Campaigns\Application\FactRecorder;
 use Prospecter\Core\Campaigns\Domain\Model\ContactFact;
 use Prospecter\Core\Campaigns\Domain\Model\Locality;
@@ -56,7 +57,7 @@ class DynamoFactRepositoryTest extends ApiTestCase
         $this->recorder()->record($this->organizationNaming(2, $ada));
 
         $this->assertSame([], $this->linksOf($ada));
-        $item = $this->campaignsTable()->item('ACCOUNT#'.$this->account->value, 'FACT#ORGANIZATION#'.$this->organization->value);
+        $item = self::storedItem($this->campaignsTable(), 'ACCOUNT#'.$this->account->value, 'FACT#ORGANIZATION#'.$this->organization->value);
         $this->assertFalse($item['present']);
         $this->assertSame(new \DateTimeImmutable('2100-01-16 00:00:00 UTC')->getTimestamp(), $item['expiresAt']);
     }
@@ -113,24 +114,21 @@ class DynamoFactRepositoryTest extends ApiTestCase
         $prefix = 'FACT#CONTACT#'.$contact->value.'#ORGANIZATION#';
         $links = $this->campaignsTable()->queryBetween('ACCOUNT#'.$this->account->value, null, $prefix, $prefix.'~');
 
-        return array_column($links, 'organization');
+        return Typed::strings(array_column($links, 'organization'));
     }
 
     private function recorder(): FactRecorder
     {
-        return self::getContainer()->get(FactRecorder::class);
+        return self::service(FactRecorder::class);
     }
 
     private function repository(): FactRepository
     {
-        return self::getContainer()->get(FactRepository::class);
+        return self::service(FactRepository::class);
     }
 
     private function campaignsTable(): Table
     {
-        $table = self::getContainer()->get('app.table.campaigns');
-        $this->assertInstanceOf(Table::class, $table);
-
-        return $table;
+        return self::tableOf('campaigns');
     }
 }

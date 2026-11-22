@@ -25,9 +25,8 @@ final readonly class CloseBookingTool
     #[McpTool(name: 'close-booking', description: 'Close the booking page of the member: nobody books them at its public link any more. Answers the booking page.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false))]
     public function __invoke(): array
     {
-        return $this->writes->write(
-            null,
-            static fn (null $input, string $memberId, \DateTimeImmutable $now): CloseBooking => new CloseBooking(memberId: $memberId, executedAt: $now),
+        return $this->writes->change(
+            static fn (string $memberId, \DateTimeImmutable $now): CloseBooking => new CloseBooking(memberId: $memberId, executedAt: $now),
         );
     }
 }

@@ -251,19 +251,16 @@ class DynamoCampaignRepositoryTest extends ApiTestCase
 
     private function repository(): CampaignRepository
     {
-        return self::getContainer()->get(CampaignRepository::class);
+        return self::service(CampaignRepository::class);
     }
 
     private function retriever(): CampaignSheetRetriever
     {
-        return self::getContainer()->get(CampaignSheetRetriever::class);
+        return self::service(CampaignSheetRetriever::class);
     }
 
     private function campaignsTable(): Table
     {
-        $table = self::getContainer()->get('app.table.campaigns');
-        $this->assertInstanceOf(Table::class, $table);
-
-        return $table;
+        return self::tableOf('campaigns');
     }
 }

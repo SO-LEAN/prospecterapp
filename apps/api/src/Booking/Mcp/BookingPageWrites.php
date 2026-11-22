@@ -30,18 +30,43 @@ final readonly class BookingPageWrites
     /**
      * @template TInput of object
      *
-     * @param TInput|null                                               $input    the input of the endpoint, none for an endpoint without
-     * @param \Closure(TInput|null, string, \DateTimeImmutable): object $command  the command of the endpoint, from its input, by the member, at this moment
-     * @param ?string                                                   $timeZone the time zone the page is answered on; UTC otherwise
+     * @param TInput                                               $input    the input of the endpoint
+     * @param \Closure(TInput, string, \DateTimeImmutable): object $command  the command of the endpoint, from its input, by the member, at this moment
+     * @param ?string                                              $timeZone the time zone the page is answered on; UTC otherwise
      *
      * @return array<string, mixed>
      */
-    public function write(?object $input, \Closure $command, ?string $timeZone = null): array
+    public function write(object $input, \Closure $command, ?string $timeZone = null): array
     {
         $this->access->denyUnlessGranted('ROLE_USER');
         $memberId = $this->access->member()->memberId();
-        $this->commandBus->dispatch($command(null === $input ? null : $this->inputs->valid($input), $memberId, $this->clock->now()));
+        $this->commandBus->dispatch($command($this->inputs->valid($input), $memberId, $this->clock->now()));
 
+        return $this->answered($memberId, $timeZone);
+    }
+
+    /**
+     * It does the same as write() for an endpoint without an input.
+     *
+     * @param \Closure(string, \DateTimeImmutable): object $command  the command of the endpoint, by the member, at this moment
+     * @param ?string                                      $timeZone the time zone the page is answered on; UTC otherwise
+     *
+     * @return array<string, mixed>
+     */
+    public function change(\Closure $command, ?string $timeZone = null): array
+    {
+        $this->access->denyUnlessGranted('ROLE_USER');
+        $memberId = $this->access->member()->memberId();
+        $this->commandBus->dispatch($command($memberId, $this->clock->now()));
+
+        return $this->answered($memberId, $timeZone);
+    }
+
+    /**
+     * @return array<string, mixed> the member's booking page as the screen then reads it
+     */
+    private function answered(string $memberId, ?string $timeZone): array
+    {
         return $this->results->of($this->myBookingPageReader->read($memberId, $timeZone));
     }
 }
