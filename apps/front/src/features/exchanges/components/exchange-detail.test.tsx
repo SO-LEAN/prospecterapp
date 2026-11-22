@@ -58,10 +58,7 @@ const anExchange = (exchange: Partial<ExchangeDetail>): ExchangeDetail => ({
   ...exchange,
 })
 
-async function renderTheDetail(exchange: ExchangeDetail) {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { staleTime: Number.POSITIVE_INFINITY } },
-  })
+async function renderTheDetail(exchange: ExchangeDetail, queryClient = aQueryClient()) {
   queryClient.setQueryData(exchangeQuery(exchange.id).queryKey, exchange)
   await renderInARouter(
     <QueryClientProvider client={queryClient}>
@@ -69,6 +66,21 @@ async function renderTheDetail(exchange: ExchangeDetail) {
     </QueryClientProvider>,
   )
   return userEvent.setup()
+}
+
+function aQueryClient() {
+  return new QueryClient({ defaultOptions: { queries: { staleTime: Number.POSITIVE_INFINITY } } })
+}
+
+/** The revision each correction was sent on, the API answering the exchange at the next one. */
+function revisionsSent(exchange: ExchangeDetail) {
+  const revisions: Array<{ path: string; revision: string | null }> = []
+  theApi.mockImplementation(async (input) => {
+    const url = new URL((input as Request).url)
+    revisions.push({ path: url.pathname, revision: url.searchParams.get('revision') })
+    return Response.json({ ...exchange, revision: exchange.revision + 1 })
+  })
+  return revisions
 }
 
 describe('ExchangeDetailSheet', () => {
@@ -278,6 +290,50 @@ describe('ExchangeDetailSheet', () => {
     await user.click(screen.getByRole('button', { name: 'Corriger le lieu' }))
 
     expect(screen.getByLabelText(/Lieu/)).toHaveValue('Café de Flore')
+  })
+
+  it('corrects its text on the revision it was read at when the correction opened, not on one read since', async () => {
+    const exchange = anExchange({
+      revision: 7,
+      _links: { self, correctText: { href: `${self.href}/text`, method: 'PATCH' } },
+    })
+    const revisions = revisionsSent(exchange)
+    const queryClient = aQueryClient()
+    const user = await renderTheDetail(exchange, queryClient)
+
+    await user.click(screen.getByRole('button', { name: 'Corriger le texte' }))
+    queryClient.setQueryData(exchangeQuery(EXCHANGE).queryKey, { ...exchange, revision: 9 })
+    await user.click(await screen.findByRole('button', { name: 'Enregistrer' }))
+
+    await vi.waitFor(() => expect(revisions).toContainEqual({ path: `${self.href}/text`, revision: '7' }))
+  })
+
+  it('corrects the place of a meeting on the revision it was read at', async () => {
+    const exchange = anExchange({
+      revision: 7,
+      status: 'planned',
+      channel: 'meeting',
+      place: 'Café de Flore',
+      _links: { self, correctVenue: { href: `${self.href}/venue`, method: 'PATCH' } },
+    })
+    const revisions = revisionsSent(exchange)
+    const user = await renderTheDetail(exchange)
+
+    await user.click(screen.getByRole('button', { name: 'Corriger le lieu' }))
+    await user.click(screen.getByRole('button', { name: 'Enregistrer' }))
+
+    await vi.waitFor(() => expect(revisions).toContainEqual({ path: `${self.href}/venue`, revision: '7' }))
+  })
+
+  it('corrects its facts on the revision it was read at', async () => {
+    const exchange = anExchange({ revision: 7 })
+    const revisions = revisionsSent(exchange)
+    const user = await renderTheDetail(exchange)
+
+    await user.click(screen.getByRole('button', { name: 'Corriger' }))
+    await user.click(screen.getByRole('button', { name: 'Enregistrer' }))
+
+    await vi.waitFor(() => expect(revisions).toContainEqual({ path: `${self.href}/facts`, revision: '7' }))
   })
 
   it('shows who noted it as a member without a name while their profile has neither name nor email', async () => {
