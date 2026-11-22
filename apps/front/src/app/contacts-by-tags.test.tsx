@@ -61,6 +61,7 @@ const TAGGED: Record<string, ContactInList[]> = { ESN: [grace, ada], 'ESN,EMAIL'
 
 const theCard: Contact = {
   id: ADA,
+  revision: 1,
   name: { firstName: 'Ada', lastName: 'Lovelace' },
   possibleDuplicates: [],
   createdByAnAI: false,

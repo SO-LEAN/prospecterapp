@@ -7,6 +7,7 @@ use App\Contacts\Resource\ContactResource;
 use App\Contacts\Resource\PossibleDuplicateOfContactLinksResource;
 use App\Contacts\Resource\PossibleDuplicateOfContactResource;
 use App\Contacts\Resource\ToAttachResource;
+use App\PersonalData\Persistence\PersonRevisions;
 use App\PersonalData\Resource\PersonContactDetailsResource;
 use App\PersonalData\Resource\PersonNameResource;
 use App\Security\IntentLinks;
@@ -46,7 +47,7 @@ final class ContactResourcePresenter implements ConsultPersonOutput
     /**
      * @param list<string> $catchUpIntents what Connectors offers of the e-mails exchanged with the contact
      */
-    public function __construct(private readonly TimelineIntentsResponse $timeline, private readonly ?ContactToAttachInList $toAttach, private readonly array $catchUpIntents, private readonly Links $links, private readonly IntentLinks $intentLinks)
+    public function __construct(private readonly TimelineIntentsResponse $timeline, private readonly ?ContactToAttachInList $toAttach, private readonly array $catchUpIntents, private readonly Links $links, private readonly IntentLinks $intentLinks, private readonly PersonRevisions $revisions)
     {
     }
 
@@ -63,6 +64,7 @@ final class ContactResourcePresenter implements ConsultPersonOutput
             links: $this->linksOf($contact),
             possibleDuplicates: array_map(fn (PossibleDuplicate $duplicate): PossibleDuplicateOfContactResource => $this->possibleDuplicateOf($contact, $duplicate), $contact->possibleDuplicates),
             createdByAnAI: $contact->createdByAnAI,
+            revision: $this->revisions->lastRead($contact->id),
         );
     }
 

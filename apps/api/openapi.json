@@ -2305,6 +2305,18 @@
                 "operationId": "patch_api_contacts_change_contact_details",
                 "parameters": [
                     {
+                        "name": "revision",
+                        "in": "query",
+                        "description": "The record's revision as the client read it. If the record changed since, the change is refused (409 changedMeanwhile) instead of erasing the other change. Without it, the change holds to the record as the API reads it.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "nullable": true,
+                            "default": null,
+                            "minimum": 0
+                        }
+                    },
+                    {
                         "name": "id",
                         "in": "path",
                         "required": true,
@@ -2358,6 +2370,16 @@
                             }
                         }
                     },
+                    "409": {
+                        "description": "Changed since the revision sent was read",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
                     "422": {
                         "description": "Invalid contact details, or email or link already used by another contact",
                         "content": {
@@ -2379,6 +2401,18 @@
                 "summary": "Change what a contact does in their organization",
                 "operationId": "patch_api_contacts_change_job_title",
                 "parameters": [
+                    {
+                        "name": "revision",
+                        "in": "query",
+                        "description": "The record's revision as the client read it. If the record changed since, the change is refused (409 changedMeanwhile) instead of erasing the other change. Without it, the change holds to the record as the API reads it.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "nullable": true,
+                            "default": null,
+                            "minimum": 0
+                        }
+                    },
                     {
                         "name": "id",
                         "in": "path",
@@ -2433,6 +2467,16 @@
                             }
                         }
                     },
+                    "409": {
+                        "description": "Changed since the revision sent was read",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
                     "422": {
                         "description": "Invalid job title",
                         "content": {
@@ -2454,6 +2498,18 @@
                 "summary": "Note how one addresses a contact, Ms or Mr, or that it is unknown (x)",
                 "operationId": "patch_api_contacts_change_title",
                 "parameters": [
+                    {
+                        "name": "revision",
+                        "in": "query",
+                        "description": "The record's revision as the client read it. If the record changed since, the change is refused (409 changedMeanwhile) instead of erasing the other change. Without it, the change holds to the record as the API reads it.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "nullable": true,
+                            "default": null,
+                            "minimum": 0
+                        }
+                    },
                     {
                         "name": "id",
                         "in": "path",
@@ -2500,6 +2556,16 @@
                     },
                     "404": {
                         "description": "Unknown contact, or one of another account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Changed since the revision sent was read",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3091,6 +3157,18 @@
                 "operationId": "patch_api_contacts_rename",
                 "parameters": [
                     {
+                        "name": "revision",
+                        "in": "query",
+                        "description": "The record's revision as the client read it. If the record changed since, the change is refused (409 changedMeanwhile) instead of erasing the other change. Without it, the change holds to the record as the API reads it.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "nullable": true,
+                            "default": null,
+                            "minimum": 0
+                        }
+                    },
+                    {
                         "name": "id",
                         "in": "path",
                         "required": true,
@@ -3136,6 +3214,16 @@
                     },
                     "404": {
                         "description": "Unknown contact, or one of another account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Changed since the revision sent was read",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -10392,7 +10480,8 @@
                     "masked",
                     "_links",
                     "possibleDuplicates",
-                    "createdByAnAI"
+                    "createdByAnAI",
+                    "revision"
                 ],
                 "properties": {
                     "id": {
@@ -10433,6 +10522,10 @@
                     "createdByAnAI": {
                         "description": "An AI created it, acting as its member through the MCP server, never named",
                         "type": "boolean"
+                    },
+                    "revision": {
+                        "description": "The record's revision as read. Send it back with a change to what was read: if the record changed since, the change is refused (409 changedMeanwhile).",
+                        "type": "integer"
                     },
                     "toAttach": {
                         "$ref": "#/components/schemas/ToAttachResource"

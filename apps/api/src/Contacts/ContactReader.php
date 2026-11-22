@@ -3,6 +3,7 @@
 namespace App\Contacts;
 
 use App\Contacts\Resource\ContactResource;
+use App\PersonalData\Persistence\PersonRevisions;
 use App\Security\IntentLinks;
 use App\Shared\Links;
 use Prospecter\Core\Connectors\Application\ConsultMailCatchUpIntents\ConsultMailCatchUpIntents;
@@ -29,6 +30,7 @@ final readonly class ContactReader
         private QueryHandler $consultMailCatchUpIntents,
         private Links $links,
         private IntentLinks $intentLinks,
+        private PersonRevisions $revisions,
     ) {
     }
 
@@ -40,7 +42,8 @@ final readonly class ContactReader
         ($this->consultContactToAttach)(new ConsultContactToAttach($reader, $id), $toAttach);
         $catchUp = new KeptMailCatchUpIntents();
         ($this->consultMailCatchUpIntents)(ConsultMailCatchUpIntents::ofContact($reader, $id), $catchUp);
-        $presenter = new ContactResourcePresenter($timeline->intents, $toAttach->contactToAttach, $catchUp->possibleIntents, $this->links, $this->intentLinks);
+        $presenter = new ContactResourcePresenter($timeline->intents, $toAttach->contactToAttach, $catchUp->possibleIntents, $this->links, $this->intentLinks, $this->revisions);
+        $this->revisions->watch($id);
         ($this->consultPerson)(new ConsultPerson($reader, $id), $presenter);
 
         return $presenter->resource;

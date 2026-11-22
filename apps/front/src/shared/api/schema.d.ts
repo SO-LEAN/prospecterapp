@@ -2793,6 +2793,8 @@ export interface components {
             possibleDuplicates: components["schemas"]["PossibleDuplicateOfContactResource"][];
             /** @description An AI created it, acting as its member through the MCP server, never named */
             createdByAnAI: boolean;
+            /** @description The record's revision as read. Send it back with a change to what was read: if the record changed since, the change is refused (409 changedMeanwhile). */
+            revision: number;
             toAttach?: components["schemas"]["ToAttachResource"];
         };
         OrganizationOfContactResource: {
@@ -5396,7 +5398,10 @@ export interface operations {
     };
     patch_api_contacts_change_contact_details: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description The record's revision as the client read it. If the record changed since, the change is refused (409 changedMeanwhile) instead of erasing the other change. Without it, the change holds to the record as the API reads it. */
+                revision?: number | null;
+            };
             header?: never;
             path: {
                 id: string;
@@ -5443,6 +5448,15 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
+            /** @description Changed since the revision sent was read */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
             /** @description Invalid contact details, or email or link already used by another contact */
             422: {
                 headers: {
@@ -5456,7 +5470,10 @@ export interface operations {
     };
     patch_api_contacts_change_job_title: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description The record's revision as the client read it. If the record changed since, the change is refused (409 changedMeanwhile) instead of erasing the other change. Without it, the change holds to the record as the API reads it. */
+                revision?: number | null;
+            };
             header?: never;
             path: {
                 id: string;
@@ -5503,6 +5520,15 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
+            /** @description Changed since the revision sent was read */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
             /** @description Invalid job title */
             422: {
                 headers: {
@@ -5516,7 +5542,10 @@ export interface operations {
     };
     patch_api_contacts_change_title: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description The record's revision as the client read it. If the record changed since, the change is refused (409 changedMeanwhile) instead of erasing the other change. Without it, the change holds to the record as the API reads it. */
+                revision?: number | null;
+            };
             header?: never;
             path: {
                 id: string;
@@ -5556,6 +5585,15 @@ export interface operations {
             };
             /** @description Unknown contact, or one of another account */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Changed since the revision sent was read */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -6017,7 +6055,10 @@ export interface operations {
     };
     patch_api_contacts_rename: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description The record's revision as the client read it. If the record changed since, the change is refused (409 changedMeanwhile) instead of erasing the other change. Without it, the change holds to the record as the API reads it. */
+                revision?: number | null;
+            };
             header?: never;
             path: {
                 id: string;
@@ -6057,6 +6098,15 @@ export interface operations {
             };
             /** @description Unknown contact, or one of another account */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Changed since the revision sent was read */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
