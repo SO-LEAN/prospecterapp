@@ -54,9 +54,9 @@ class CampaignToolsApiTest extends ApiTestCase
     {
         $this->login();
 
-        $campaign = $this->callWithoutHandshake('create-campaign', [...self::RELAUNCH, 'dailyCap' => 30])['structuredContent'];
+        $campaign = $this->callWithoutHandshake('create-campaign', [...self::RELAUNCH, 'dailyCap' => 30]);
 
-        $this->assertSame(30, $campaign['dailyCap']);
+        $this->assertSame(30, self::valueAt($campaign, 'structuredContent', 'dailyCap'));
     }
 
     public function testTheAiRevisesADraft(): void
@@ -104,6 +104,16 @@ class CampaignToolsApiTest extends ApiTestCase
         $campaign = $this->assertTheToolActsAsItsEndpoint('set-campaign-daily-cap', ['id' => $started, 'dailyCap' => 2], 'PUT', '/api/campaigns/'.$started.'/daily-cap', ['dailyCap' => 2], self::TEAM_WRITERS);
 
         $this->assertSame(2, $campaign['dailyCap']);
+    }
+
+    public function testTheAiReadsTheRecipientsProcessedTodayOnItsMembersClock(): void
+    {
+        $started = $this->aStartedCampaign();
+        $this->requestJson('POST', '/api/campaigns/'.$started.'/recipients/'.$this->ada.'/exchanges', self::SENT_TO_ADA);
+
+        $campaign = $this->callWithoutHandshake('get-campaign', ['id' => $started, 'timeZone' => 'Europe/Paris']);
+
+        $this->assertSame(1, self::valueAt($campaign, 'structuredContent', 'processedToday'));
     }
 
     public function testTheAiAddsAContactChosenToAFrozenCampaign(): void

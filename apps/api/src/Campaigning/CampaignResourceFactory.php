@@ -41,7 +41,10 @@ final readonly class CampaignResourceFactory
     {
     }
 
-    public function of(CampaignSheet $campaign, int $targeted, ?PersonCard $author): CampaignResource
+    /**
+     * @param ?int $processedToday its recipients processed on the reader's day, read with the campaign alone
+     */
+    public function of(CampaignSheet $campaign, int $targeted, ?PersonCard $author, ?int $processedToday = null): CampaignResource
     {
         return new CampaignResource(
             id: $campaign->id,
@@ -60,6 +63,7 @@ final readonly class CampaignResourceFactory
             stoppedAt: $campaign->stoppedAt?->format(\DateTimeInterface::ATOM),
             endedAt: $campaign->endedAt?->format(\DateTimeInterface::ATOM),
             dailyCap: $campaign->dailyCap,
+            processedToday: $processedToday,
             links: $this->linksOf($campaign),
         );
     }

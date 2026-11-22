@@ -54,6 +54,7 @@ const started: Campaign = {
   stoppedAt: null,
   endedAt: null,
   dailyCap: null,
+  processedToday: null,
   _links: {
     self: { href: `/api/campaigns/${CAMPAIGN}`, method: 'GET' },
     stop: { href: `/api/campaigns/${CAMPAIGN}/stop`, method: 'POST' },

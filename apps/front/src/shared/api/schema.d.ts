@@ -2321,6 +2321,14 @@ export interface components {
              */
             dailyCap: number | null;
         };
+        MyClockQuery: {
+            /**
+             * @description The time zone of the reader, by its name in the database of the time zones; UTC otherwise
+             * @default null
+             * @example Europe/Paris
+             */
+            timeZone: string | null;
+        };
         InactivePeriodInput: {
             /**
              * Format: date
@@ -2386,14 +2394,6 @@ export interface components {
              * @example 2026-11-23T09:05:00.000Z
              */
             formShownAt: string | null;
-        };
-        MyClockQuery: {
-            /**
-             * @description The time zone of the reader, by its name in the database of the time zones; UTC otherwise
-             * @default null
-             * @example Europe/Paris
-             */
-            timeZone: string | null;
         };
         ChannelsInput: {
             /** @default null */
@@ -3424,6 +3424,8 @@ export interface components {
             endedAt?: string | null;
             /** @description The most recipients processed a day, a guard an AI stops at and the member may go beyond; none without a cap */
             dailyCap?: number | null;
+            /** @description Its recipients processed today, on the clock of the reader, when the campaign is read alone; none in a list */
+            processedToday?: number | null;
             _links: components["schemas"]["CampaignLinksResource"];
         };
         CampaignListLinksResource: {
@@ -9394,7 +9396,13 @@ export interface operations {
     };
     get_api_campaigns_show: {
         parameters: {
-            query?: never;
+            query?: {
+                /**
+                 * @description The time zone of the reader, by its name in the database of the time zones; UTC otherwise
+                 * @example Europe/Paris
+                 */
+                timeZone?: string | null;
+            };
             header?: never;
             path: {
                 id: string;
@@ -9430,6 +9438,15 @@ export interface operations {
             };
             /** @description Unknown campaign, or one of another account */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description An unknown time zone */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };

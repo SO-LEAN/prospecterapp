@@ -7,6 +7,7 @@ namespace Tests\App\Api;
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Base\ReadsResources;
 
 /**
  * The daily cap of a campaign, set as it is prepared and changed until it is stopped, and its recipients processed
@@ -15,6 +16,8 @@ use Tests\App\Base\ApiTestCase;
 #[Group('api')]
 class CampaignDailyCapApiTest extends ApiTestCase
 {
+    use ReadsResources;
+
     private const string TAG = '#CAMPAIGN_218';
 
     private string $ada;
@@ -23,9 +26,9 @@ class CampaignDailyCapApiTest extends ApiTestCase
     {
         parent::setUp();
         $this->login();
-        $organization = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];
+        $organization = self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']]), 'id');
         $this->requestJson('POST', '/api/organizations/'.$organization.'/tags', ['tags' => [self::TAG]]);
-        $this->ada = $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'], 'contactDetails' => ['email' => 'ada@acme.test'], 'organizationIds' => [$organization]])['id'];
+        $this->ada = self::stringAt($this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'], 'contactDetails' => ['email' => 'ada@acme.test'], 'organizationIds' => [$organization]]), 'id');
     }
 
     public function testACampaignIsPreparedWithItsDailyCap(): void
@@ -58,8 +61,28 @@ class CampaignDailyCapApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(409);
         $this->assertSame(
             [['href' => '/api/campaigns/'.$id.'/daily-cap', 'method' => 'PUT'], false, 'startedCampaign'],
-            [$started['_links']['setDailyCap'] ?? null, array_key_exists('setDailyCap', $stopped['_links']), $refusal['reason']],
+            [self::valueAt($started, '_links', 'setDailyCap'), array_key_exists('setDailyCap', self::record(self::valueAt($stopped, '_links'))), $refusal['reason']],
         );
+    }
+
+    public function testTheCampaignCountsItsRecipientsProcessedTodayOnTheReadersClock(): void
+    {
+        $id = $this->aStartedCampaign();
+        $this->requestJson('POST', '/api/campaigns/'.$id.'/recipients/'.$this->ada.'/exchanges', ['occurredAt' => '2026-10-15T08:00:00+00:00', 'text' => 'Bonjour Ada', 'missed' => false]);
+        $this->assertResponseStatusCodeSame(201);
+
+        $campaign = $this->requestJson('GET', '/api/campaigns/'.$id.'?timeZone=Europe/Paris');
+
+        $this->assertSame(1, $campaign['processedToday']);
+    }
+
+    public function testTheCampaignIsNotReadOnAnUnknownClock(): void
+    {
+        $id = $this->aStartedCampaign();
+
+        $this->requestJson('GET', '/api/campaigns/'.$id.'?timeZone=Mars/Olympus');
+
+        $this->assertResponseStatusCodeSame(422);
     }
 
     public function testAnAdministratorSetsTheDailyCap(): void
@@ -84,7 +107,7 @@ class CampaignDailyCapApiTest extends ApiTestCase
 
     private function aStartedCampaign(): string
     {
-        $id = $this->requestJson('POST', '/api/campaigns', $this->aCampaign())['id'];
+        $id = self::stringAt($this->requestJson('POST', '/api/campaigns', $this->aCampaign()), 'id');
         $this->requestJson('POST', '/api/campaigns/'.$id.'/freeze');
         $this->requestJson('POST', '/api/campaigns/'.$id.'/start');
         $this->assertResponseStatusCodeSame(200);

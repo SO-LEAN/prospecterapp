@@ -51,6 +51,7 @@ const relance: Campaign = {
   stoppedAt: null,
   endedAt: null,
   dailyCap: null,
+  processedToday: null,
   _links: {
     self: { href: `/api/campaigns/${CAMPAIGN}`, method: 'GET' },
     revise: { href: `/api/campaigns/${CAMPAIGN}`, method: 'PATCH' },
