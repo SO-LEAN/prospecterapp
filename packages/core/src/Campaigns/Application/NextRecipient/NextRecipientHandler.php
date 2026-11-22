@@ -16,7 +16,8 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
  * Asks the campaign itself, restored by its repository, as `RenderCampaignMessage` does: its next recipient and its
  * message are rules of the aggregate. Read again at each call, a recipient handled meanwhile on the screen is no
  * longer the next; nor is one Prospecting noted an exchange of the campaign with, before its reaction processes them
- * (ADR 0195).
+ * (ADR 0195). Its daily cap reached on the member's clock, the recipient is still given, with the warning: a guard
+ * only.
  */
 final readonly class NextRecipientHandler implements QueryHandler
 {
@@ -36,6 +37,8 @@ final readonly class NextRecipientHandler implements QueryHandler
         $exchangedWith = $this->campaignExchanges->exchangedWith($accountId, $campaign->id(), $campaign->pendingRecipients());
         $contact = $campaign->nextRecipient($exchangedWith);
         $message = $campaign->messageFor($this->addressees->addressee($accountId, $member, $contact));
+        $processedToday = $campaign->processedOnTheDayOf($query->at, new \DateTimeZone($query->timeZone));
+        $dailyCap = $campaign->dailyCap();
 
         $output->present(new RecipientToHandle(
             $query->campaignId,
@@ -45,6 +48,9 @@ final readonly class NextRecipientHandler implements QueryHandler
             $message->text,
             $campaign->messageMode()->value,
             $campaign->stillToHandle($exchangedWith),
+            $dailyCap?->sends,
+            $processedToday,
+            $dailyCap?->isReachedBy($processedToday) ?? false,
         ));
     }
 }

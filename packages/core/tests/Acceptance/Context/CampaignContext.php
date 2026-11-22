@@ -323,7 +323,7 @@ final class CampaignContext implements Context
     public function anAIAsksTheNextRecipient(string $name): void
     {
         $this->current = $name;
-        $this->next = $this->application->nextRecipient(new NextRecipient($this->application->signedIn(), $this->currentId()));
+        $this->next = $this->application->nextRecipient(new NextRecipient($this->application->signedIn(), $this->currentId(), $this->application->readerClock()->getName(), $this->application->now()));
     }
 
     #[Then('elle reçoit :contact, l\'objet :subject et le message :text')]
@@ -348,6 +348,22 @@ final class CampaignContext implements Context
         $next = $this->nextRecipient();
 
         Expect::same([$this->scenario->personIdOf($contact), $pending], [$next->contactId, $next->pending]);
+    }
+
+    #[Then('/^elle reçoit "(?<contact>[^"]+)", avec l\'avertissement « plafond du jour atteint \((?<cap>\d+)\) »$/')]
+    public function itGetsTheRecipientWithTheDailyCapReached(string $contact, int $cap): void
+    {
+        $next = $this->nextRecipient();
+
+        Expect::same([$this->scenario->personIdOf($contact), true, $cap], [$next->contactId, $next->dailyCapReached, $next->dailyCap]);
+    }
+
+    #[Then('elle reçoit :contact, sans avertissement, :processed traité aujourd\'hui sur :cap')]
+    public function itGetsTheRecipientBelowTheDailyCap(string $contact, int $processed, int $cap): void
+    {
+        $next = $this->nextRecipient();
+
+        Expect::same([$this->scenario->personIdOf($contact), false, $processed, $cap], [$next->contactId, $next->dailyCapReached, $next->processedToday, $next->dailyCap]);
     }
 
     #[Given('une IA a noté l\'e-mail envoyé à :contact pour :name, son Message-ID :messageId et le texte :text')]
