@@ -137,18 +137,23 @@ final class BookingPage implements ReleasesEvents
      */
     public function book(AppointmentRequest $request, HostAgenda $agenda, \DateTimeImmutable $at): Appointment
     {
-        if (!in_array($request->channel, $this->channels->channels, true)) {
+        if (!$this->channels->offers($request->channel)) {
             throw ChannelNotOffered::refused();
         }
-        $bookersAppointment = $agenda->appointmentOf($request->booker->email);
-        if (null !== $bookersAppointment) {
-            throw AlreadyBooked::at($this->onTheClockOfTheHost($bookersAppointment->slot()));
-        }
+        $this->ensureNoAppointmentToComeWith($request->booker, $agenda);
         if (!$this->offers($request->slot, $agenda->busyPeriods, $at)) {
             throw SlotNotFree::refused();
         }
 
         return Appointment::booked($this->accountId, $this->host, $request->onTheClockOf($this->onTheClockOfTheHost($request->slot)->getTimezone()), $at);
+    }
+
+    private function ensureNoAppointmentToComeWith(Booker $booker, HostAgenda $agenda): void
+    {
+        $bookersAppointment = $agenda->appointmentOf($booker->email);
+        if (null !== $bookersAppointment) {
+            throw AlreadyBooked::at($this->onTheClockOfTheHost($bookersAppointment->slot()));
+        }
     }
 
     private function onTheClockOfTheHost(\DateTimeImmutable $moment): \DateTimeImmutable

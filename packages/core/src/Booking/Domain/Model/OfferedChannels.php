@@ -23,4 +23,9 @@ final readonly class OfferedChannels
     {
         return [] !== $this->channels;
     }
+
+    public function offers(Channel $channel): bool
+    {
+        return in_array($channel, $this->channels, true);
+    }
 }
