@@ -32,17 +32,30 @@ final readonly class MyProfileWrites
     /**
      * @template TInput of object
      *
-     * @param TInput|null                                                       $input   the input of the endpoint, none for an endpoint without
-     * @param \Closure(TInput|null, string, string, \DateTimeImmutable): object $command the command of the endpoint, from its input, by the member, on their profile, at this moment
+     * @param TInput                                                       $input   the input of the endpoint
+     * @param \Closure(TInput, string, string, \DateTimeImmutable): object $command the command of the endpoint, from its input, by the member, on their profile, at this moment
      *
      * @return array<string, mixed>
      */
-    public function write(?object $input, \Closure $command): array
+    public function write(object $input, \Closure $command): array
     {
         $member = $this->writable();
-        $this->commandBus->dispatch($command(null === $input ? null : $this->inputs->valid($input), $member->memberId(), $member->personId(), $this->clock->now()));
 
-        return $this->results->of($this->myAccountReader->read($member->memberId()));
+        return $this->dispatched($member, $command($this->inputs->valid($input), $member->memberId(), $member->personId(), $this->clock->now()));
+    }
+
+    /**
+     * It does the same as write() for an endpoint without an input.
+     *
+     * @param \Closure(string, string, \DateTimeImmutable): object $command the command of the endpoint, by the member, on their profile, at this moment
+     *
+     * @return array<string, mixed>
+     */
+    public function change(\Closure $command): array
+    {
+        $member = $this->writable();
+
+        return $this->dispatched($member, $command($member->memberId(), $member->personId(), $this->clock->now()));
     }
 
     /**
@@ -53,5 +66,15 @@ final readonly class MyProfileWrites
         $this->access->denyUnlessGranted('ROLE_USER');
 
         return $this->access->member();
+    }
+
+    /**
+     * @return array<string, mixed> their account as the screen reads it once the command is dispatched
+     */
+    private function dispatched(User $member, object $command): array
+    {
+        $this->commandBus->dispatch($command);
+
+        return $this->results->of($this->myAccountReader->read($member->memberId()));
     }
 }

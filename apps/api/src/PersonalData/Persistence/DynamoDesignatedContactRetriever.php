@@ -6,6 +6,7 @@ namespace App\PersonalData\Persistence;
 
 use App\Shared\Persistence\SearchIndexes;
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\PersonalData\Application\Port\DesignatedContactRetriever;
 use Prospecter\Core\PersonalData\Domain\Model\PersonResemblanceKey;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
@@ -46,12 +47,12 @@ final readonly class DynamoDesignatedContactRetriever implements DesignatedConta
     {
         $links = $this->personalDataTable->query(PersonalDataKeys::ofResemblance($accountId->value, $key->value));
 
-        return array_map(static fn (array $link): PersonId => new PersonId($link['personId']), $links);
+        return array_map(static fn (array $link): PersonId => new PersonId(Typed::string($link['personId'])), $links);
     }
 
     private function holderOf(string $reservation, string $kind): ?PersonId
     {
-        $holder = $this->personalDataTable->item($reservation, $kind)['ownerId'] ?? null;
+        $holder = Typed::stringOrNull($this->personalDataTable->item($reservation, $kind)['ownerId'] ?? null);
 
         return null === $holder ? null : new PersonId($holder);
     }

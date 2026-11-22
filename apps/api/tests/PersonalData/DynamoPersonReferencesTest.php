@@ -8,6 +8,7 @@ use App\PersonalData\Persistence\DynamoPersonRepository;
 use App\PersonalData\Persistence\PersonalDataKeys;
 use App\PersonalData\Persistence\PersonDocument;
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\PersonalData\Domain\Exception\ReferenceTakenMeanwhile;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
@@ -162,7 +163,7 @@ class DynamoPersonReferencesTest extends ApiTestCase
         $this->persons()->save($ada);
         $this->forgetTheReservationsOf($account, self::ADA, 'https://www.linkedin.com/in/ada-l');
 
-        self::getContainer()->get(DynamoPersonRepository::class)->writeTheKeysAgain();
+        self::service(DynamoPersonRepository::class)->writeTheKeysAgain();
 
         $this->assertEquals($ada->id(), $this->persons()->contactHoldingReference($account, self::reference(self::ADA), except: new PersonId(self::newIdentity()))?->id());
         $this->assertEquals($ada->id(), $this->persons()->contactHoldingReference($account, self::reference('https://www.linkedin.com/in/ada-l'), except: new PersonId(self::newIdentity()))?->id());
@@ -176,7 +177,7 @@ class DynamoPersonReferencesTest extends ApiTestCase
         $this->persons()->save($younger);
         $this->forgetTheReservationsOf($account, self::ADA);
 
-        self::getContainer()->get(DynamoPersonRepository::class)->writeTheKeysAgain();
+        self::service(DynamoPersonRepository::class)->writeTheKeysAgain();
 
         $this->assertEquals($oldest->id(), $this->persons()->contactHoldingReference($account, self::reference(self::ADA), except: new PersonId(self::newIdentity()))?->id());
     }
@@ -187,12 +188,12 @@ class DynamoPersonReferencesTest extends ApiTestCase
         $ada = $this->contactWithTheProfiles($account, self::ADA, 'https://www.linkedin.com/in/ada-l');
         $this->persons()->save($ada);
         $this->forgetTheReservationsOf($account, self::ADA, 'https://www.linkedin.com/in/ada-l');
-        $item = $this->personalDataTable()->item(PersonalDataKeys::person($ada->id()->value), PersonalDataKeys::PERSON);
-        $item['person'] = self::savedBeforeTheLinks($item['person']);
+        $item = self::storedItem($this->personalDataTable(), PersonalDataKeys::person($ada->id()->value), PersonalDataKeys::PERSON);
+        $item['person'] = self::savedBeforeTheLinks(Typed::document($item['person']));
         $formerReservation = sprintf('LINKEDIN#%s#%s', $account->value, self::ADA);
         $this->personalDataTable()->batch([$item, ['PK' => $formerReservation, 'SK' => 'LINKEDIN', 'ownerId' => $ada->id()->value]]);
 
-        self::getContainer()->get(DynamoPersonRepository::class)->writeTheKeysAgain();
+        self::service(DynamoPersonRepository::class)->writeTheKeysAgain();
 
         $this->assertEquals($ada->id(), $this->persons()->contactHoldingReference($account, self::reference('https://www.linkedin.com/in/ada-l'), except: new PersonId(self::newIdentity()))?->id());
         $this->assertNull($this->personalDataTable()->item($formerReservation, 'LINKEDIN'));
@@ -204,13 +205,13 @@ class DynamoPersonReferencesTest extends ApiTestCase
         $ada = $this->contactWithTheProfiles($account, self::ADA);
         $this->persons()->save($ada);
         $this->forgetTheReservationsOf($account, self::ADA);
-        $item = $this->personalDataTable()->item(PersonalDataKeys::person($ada->id()->value), PersonalDataKeys::PERSON);
-        $item['person']['references'] = [['source' => 'linkedin.com', 'identifier' => 'linkedin.com/in/ada-lovelace', 'address' => self::ADA]];
+        $item = self::storedItem($this->personalDataTable(), PersonalDataKeys::person($ada->id()->value), PersonalDataKeys::PERSON);
+        $item['person'] = ['references' => [['source' => 'linkedin.com', 'identifier' => 'linkedin.com/in/ada-lovelace', 'address' => self::ADA]]] + Typed::document($item['person']);
         $formerReservation = sprintf('REFERENCE#%s#linkedin.com#linkedin.com/in/ada-lovelace', $account->value);
         $this->personalDataTable()->batch([$item, ['PK' => $formerReservation, 'SK' => 'REFERENCE', 'ownerId' => $ada->id()->value]]);
         $this->assertSame(['linkedin.com#linkedin.com/in/ada-lovelace'], array_map(static fn (ExternalReference $reference): string => $reference->key(), $this->persons()->get($ada->id())->references()->all()), 'read as stored');
 
-        self::getContainer()->get(DynamoPersonRepository::class)->writeTheKeysAgain();
+        self::service(DynamoPersonRepository::class)->writeTheKeysAgain();
 
         $this->assertEquals($ada->id(), $this->persons()->contactHoldingReference($account, self::reference(self::ADA), except: new PersonId(self::newIdentity()))?->id());
         $this->assertNull($this->personalDataTable()->item($formerReservation, 'REFERENCE'));
@@ -221,14 +222,14 @@ class DynamoPersonReferencesTest extends ApiTestCase
         $account = new AccountId(self::newIdentity());
         $this->persons()->save($this->personWithTheProfiles($account, Purpose::Membership, self::ADA));
 
-        self::getContainer()->get(DynamoPersonRepository::class)->writeTheKeysAgain();
+        self::service(DynamoPersonRepository::class)->writeTheKeysAgain();
 
         $this->assertNull($this->personalDataTable()->item(self::reservationKey($account, self::ADA), 'REFERENCE'));
     }
 
     private function forgetTheReservationsOf(AccountId $account, string ...$profiles): void
     {
-        $this->personalDataTable()->batch([], array_map(static fn (string $profile): array => [self::reservationKey($account, $profile), 'REFERENCE'], $profiles));
+        $this->personalDataTable()->batch([], array_values(array_map(static fn (string $profile): array => [self::reservationKey($account, $profile), 'REFERENCE'], $profiles)));
     }
 
     private static function reservationKey(AccountId $account, string $profile): string
@@ -250,8 +251,8 @@ class DynamoPersonReferencesTest extends ApiTestCase
      */
     private static function savedBeforeTheLinks(array $document): array
     {
-        $document['linkedInProfile'] = $document['references'][0]['address'] ?? null;
-        $document['formerLinkedInProfiles'] = array_column($document['formerReferences'], 'address');
+        $document['linkedInProfile'] = Typed::documents($document['references'])[0]['address'] ?? null;
+        $document['formerLinkedInProfiles'] = array_column(Typed::documents($document['formerReferences']), 'address');
         unset($document['references'], $document['formerReferences']);
 
         return $document;
@@ -276,10 +277,7 @@ class DynamoPersonReferencesTest extends ApiTestCase
 
     private function personalDataTable(): Table
     {
-        $table = self::getContainer()->get('app.table.personal_data');
-        $this->assertInstanceOf(Table::class, $table);
-
-        return $table;
+        return self::tableOf('personal_data');
     }
 
     private function contactWithTheProfiles(AccountId $account, string ...$profiles): Person
@@ -307,6 +305,6 @@ class DynamoPersonReferencesTest extends ApiTestCase
 
     private function persons(): PersonRepository
     {
-        return self::getContainer()->get(PersonRepository::class);
+        return self::service(PersonRepository::class);
     }
 }

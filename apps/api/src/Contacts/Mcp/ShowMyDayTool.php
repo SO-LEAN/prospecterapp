@@ -41,6 +41,6 @@ final readonly class ShowMyDayTool
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');
         $day = $this->inputs->mapped(PeriodQuery::class, ['from' => $from, 'to' => $to]);
 
-        return $this->results->of($this->agendaReader->readMyDay($this->access->member()->memberId(), $day->from, $day->to, $this->clock->now()));
+        return $this->results->of($this->agendaReader->readMyDay($this->access->member()->memberId(), $day->start(), $day->end(), $this->clock->now()));
     }
 }

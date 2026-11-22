@@ -38,6 +38,6 @@ final class ShowCalendarController extends AbstractController
     #[OA\Response(response: 422, description: 'Invalid period: a bound missing, an end before the start, longer than six weeks; or a time zone unknown', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[CurrentUser] User $user, #[MapQueryString(validationFailedStatusCode: Response::HTTP_UNPROCESSABLE_ENTITY, mapWhenEmpty: true)] CalendarQuery $period): JsonResponse
     {
-        return $this->json($this->agendaReader->readCalendar($user->memberId(), $period->from, $period->to, $period->read($this->clock->now())));
+        return $this->json($this->agendaReader->readCalendar($user->memberId(), $period->start(), $period->end(), $period->read($this->clock->now())));
     }
 }

@@ -6,15 +6,19 @@ namespace App\PersonalData\Persistence;
 
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Hydrator;
+use App\Shared\Typed;
 use Prospecter\Core\PersonalData\Domain\Model\Civility;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Designated;
 use Prospecter\Core\SharedKernel\Domain\ExternalReference;
 use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
+use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\KnownSource;
+use Prospecter\Core\SharedKernel\Domain\Origin;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
@@ -29,47 +33,51 @@ final class PersonDocument
     public static function of(Person $person): array
     {
         $state = Hydrator::stateOf($person);
+        $name = Typed::object($state['name'], PersonName::class);
 
         return [
-            'id' => (string) $state['id'],
-            'accountId' => (string) $state['accountId'],
-            'purpose' => $state['purpose']->value,
-            'name' => ['firstName' => $state['name']->firstName, 'lastName' => $state['name']->lastName],
-            'contactDetails' => Documents::contactDetails($state['contactDetails']),
-            'references' => Documents::references($state['references']),
-            'formerReferences' => Documents::references(ExternalReferences::of($state['formerReferences'])),
-            'jobTitle' => $state['jobTitle'],
-            'title' => $state['civility']->value,
-            'picture' => Documents::file($state['picture']),
-            'possibleDuplicates' => array_map(static fn (PersonId $id): string => $id->value, $state['possibleDuplicates']),
-            'notDuplicates' => array_map(static fn (PersonId $id): string => $id->value, $state['notDuplicates']),
-            'origin' => $state['origin']->value,
-            'createdAt' => Documents::moment($state['createdAt']),
-            'modifiedAt' => Documents::moment($state['modifiedAt']),
+            'id' => Typed::object($state['id'], PersonId::class)->value,
+            'accountId' => Typed::object($state['accountId'], AccountId::class)->value,
+            'purpose' => Typed::object($state['purpose'], Purpose::class)->value,
+            'name' => ['firstName' => $name->firstName, 'lastName' => $name->lastName],
+            'contactDetails' => Documents::contactDetails(Typed::object($state['contactDetails'], ContactDetails::class)),
+            'references' => Documents::references(Typed::object($state['references'], ExternalReferences::class)),
+            'formerReferences' => Documents::references(ExternalReferences::of(Typed::objects($state['formerReferences'], ExternalReference::class))),
+            'jobTitle' => Typed::stringOrNull($state['jobTitle']),
+            'title' => Typed::object($state['civility'], Civility::class)->value,
+            'picture' => Documents::file(Typed::objectOrNull($state['picture'], File::class)),
+            'possibleDuplicates' => array_map(static fn (PersonId $id): string => $id->value, Typed::objects($state['possibleDuplicates'], PersonId::class)),
+            'notDuplicates' => array_map(static fn (PersonId $id): string => $id->value, Typed::objects($state['notDuplicates'], PersonId::class)),
+            'origin' => Typed::object($state['origin'], Origin::class)->value,
+            'createdAt' => Documents::moment(Typed::object($state['createdAt'], \DateTimeImmutable::class)),
+            'modifiedAt' => Documents::moment(Typed::object($state['modifiedAt'], \DateTimeImmutable::class)),
         ];
     }
 
     /**
-     * @param array<string, mixed> $document
+     * Restores the person from its item's untyped document.
      */
-    public static function person(array $document): Person
+    public static function person(mixed $document): Person
     {
+        $document = Typed::document($document);
+        $name = Typed::document($document['name']);
+
         return Hydrator::restore(Person::class, [
-            'id' => new PersonId($document['id']),
-            'accountId' => new AccountId($document['accountId']),
-            'purpose' => Purpose::from($document['purpose']),
-            'name' => new PersonName($document['name']['firstName'] ?? null, $document['name']['lastName'] ?? null),
+            'id' => new PersonId(Typed::string($document['id'])),
+            'accountId' => new AccountId(Typed::string($document['accountId'])),
+            'purpose' => Purpose::from(Typed::string($document['purpose'])),
+            'name' => new PersonName(Typed::stringOrNull($name['firstName'] ?? null), Typed::stringOrNull($name['lastName'] ?? null)),
             'contactDetails' => Documents::contactDetailsOf($document['contactDetails']),
             'references' => self::referencesOf($document),
             'formerReferences' => self::formerReferencesOf($document)->all(),
-            'jobTitle' => $document['jobTitle'],
+            'jobTitle' => Typed::stringOrNull($document['jobTitle']),
             'civility' => self::civilityOf($document),
             'picture' => Documents::fileOf($document['picture']),
-            'possibleDuplicates' => array_map(static fn (string $id): PersonId => new PersonId($id), $document['possibleDuplicates'] ?? []),
-            'notDuplicates' => array_map(static fn (string $id): PersonId => new PersonId($id), $document['notDuplicates'] ?? []),
+            'possibleDuplicates' => array_map(static fn (string $id): PersonId => new PersonId($id), Typed::strings($document['possibleDuplicates'] ?? [])),
+            'notDuplicates' => array_map(static fn (string $id): PersonId => new PersonId($id), Typed::strings($document['notDuplicates'] ?? [])),
             'origin' => Documents::originOf($document),
-            'createdAt' => Documents::momentOf($document['createdAt']),
-            'modifiedAt' => Documents::momentOf($document['modifiedAt']),
+            'createdAt' => Documents::momentOf(Typed::string($document['createdAt'])),
+            'modifiedAt' => Documents::momentOf(Typed::string($document['modifiedAt'])),
         ]);
     }
 
@@ -80,7 +88,7 @@ final class PersonDocument
      */
     public static function civilityOf(array $document): Civility
     {
-        return Civility::tryFrom($document['title'] ?? '') ?? Civility::X;
+        return Civility::tryFrom(Typed::stringOrNull($document['title'] ?? null) ?? '') ?? Civility::X;
     }
 
     /**
@@ -91,7 +99,7 @@ final class PersonDocument
      */
     public static function referencesOf(array $document): ExternalReferences
     {
-        return isset($document['references']) ? Documents::referencesOf($document['references']) : Documents::referencesBeforeTheLinks(array_filter([$document['linkedInProfile'] ?? null]), Designated::Person);
+        return isset($document['references']) ? Documents::referencesOf($document['references']) : Documents::referencesBeforeTheLinks(array_filter([Typed::stringOrNull($document['linkedInProfile'] ?? null)]), Designated::Person);
     }
 
     /**
@@ -139,6 +147,6 @@ final class PersonDocument
      */
     private static function formerReferencesOf(array $document): ExternalReferences
     {
-        return isset($document['formerReferences']) ? Documents::referencesOf($document['formerReferences']) : Documents::referencesBeforeTheLinks($document['formerLinkedInProfiles'] ?? [], Designated::Person);
+        return isset($document['formerReferences']) ? Documents::referencesOf($document['formerReferences']) : Documents::referencesBeforeTheLinks(Typed::strings($document['formerLinkedInProfiles'] ?? []), Designated::Person);
     }
 }

@@ -8,6 +8,7 @@ use App\Shared\Persistence\Revision;
 use App\Shared\Persistence\SearchIndexes;
 use App\Shared\Persistence\Table;
 use App\Shared\Persistence\Write;
+use App\Shared\Typed;
 use Prospecter\Core\PersonalData\Domain\Exception\ReferenceTakenMeanwhile;
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
@@ -79,7 +80,7 @@ final readonly class DynamoPersonRepository implements PersonRepository
     public function resembling(AccountId $accountId, PersonResemblanceKey $key, PersonId $except): array
     {
         $links = $this->personalDataTable->query(PersonalDataKeys::ofResemblance($accountId->value, $key->value));
-        $resembling = array_map(static fn (array $link): PersonId => new PersonId($link['personId']), $links);
+        $resembling = array_map(static fn (array $link): PersonId => new PersonId(Typed::string($link['personId'])), $links);
 
         return array_values(array_filter($resembling, static fn (PersonId $id): bool => !$id->equals($except)));
     }
@@ -88,7 +89,7 @@ final readonly class DynamoPersonRepository implements PersonRepository
     {
         $holder = $this->personalDataTable->item(self::emailKey($accountId, $purpose, $email->value), self::EMAIL);
 
-        return null !== $holder && $holder['ownerId'] !== $except->value;
+        return null !== $holder && Typed::string($holder['ownerId']) !== $except->value;
     }
 
     /**
@@ -102,7 +103,7 @@ final readonly class DynamoPersonRepository implements PersonRepository
         $reservations = $this->personalDataTable->items(array_map(static fn (string $key): array => [$key, self::EMAIL], array_keys($emailsByKey)));
         $contacts = [];
         foreach ($reservations as $reservation) {
-            $contacts[$emailsByKey[$reservation['PK']]] = new PersonId($reservation['ownerId']);
+            $contacts[$emailsByKey[Typed::string($reservation['PK'])]] = new PersonId(Typed::string($reservation['ownerId']));
         }
 
         return $contacts;
@@ -110,7 +111,7 @@ final readonly class DynamoPersonRepository implements PersonRepository
 
     public function contactWithEmail(AccountId $accountId, Email $email): ?Person
     {
-        $holder = $this->personalDataTable->item(self::emailKey($accountId, Purpose::Prospecting, $email->value), self::EMAIL)['ownerId'] ?? null;
+        $holder = Typed::stringOrNull($this->personalDataTable->item(self::emailKey($accountId, Purpose::Prospecting, $email->value), self::EMAIL)['ownerId'] ?? null);
 
         return null === $holder ? null : $this->get(new PersonId($holder));
     }
@@ -118,14 +119,14 @@ final readonly class DynamoPersonRepository implements PersonRepository
     public function contactWithPhoneNumber(AccountId $accountId, PhoneNumber $phoneNumber): ?Person
     {
         $key = SearchIndexes::withPhoneNumber($this->personalDataTable, PersonalDataKeys::scopeOf($accountId, Purpose::Prospecting), $phoneNumber)[0] ?? null;
-        $document = null === $key ? null : $this->personalDataTable->item($key, PersonalDataKeys::PERSON)['person'] ?? null;
+        $item = null === $key ? null : $this->personalDataTable->item($key, PersonalDataKeys::PERSON);
 
-        return null === $document ? null : PersonDocument::person($document);
+        return null === $item ? null : PersonDocument::person($item['person']);
     }
 
     public function contactHoldingReference(AccountId $accountId, ExternalReference $reference, PersonId $except): ?Person
     {
-        $holder = $this->personalDataTable->item(self::referenceKey($accountId, $reference), self::REFERENCE)['ownerId'] ?? null;
+        $holder = Typed::stringOrNull($this->personalDataTable->item(self::referenceKey($accountId, $reference), self::REFERENCE)['ownerId'] ?? null);
 
         return null === $holder || $holder === $except->value ? null : $this->get(new PersonId($holder));
     }
@@ -134,22 +135,24 @@ final readonly class DynamoPersonRepository implements PersonRepository
     {
         $document = PersonDocument::of($person);
         $stored = $this->personalDataTable->item(PersonalDataKeys::person($person->id()->value), PersonalDataKeys::PERSON);
-        $storedEmail = $stored['email'] ?? null;
-        $email = $document['contactDetails']['email'];
+        $storedEmail = Typed::stringOrNull($stored['email'] ?? null);
+        $storedPerson = null === $stored ? null : PersonDocument::person($stored['person']);
+        $email = self::emailOf($document);
+        $id = self::idOf($document);
         $writes = [
             $this->personalDataTable->revising($this->itemOf($person, $document, Revision::after($stored))),
-            ...$this->firstNameWrites($person, null === $stored ? null : PersonDocument::person($stored['person'])),
+            ...$this->firstNameWrites($person, $storedPerson),
         ];
 
         if ($email !== $storedEmail && null !== $email) {
-            $writes[] = $this->personalDataTable->putting(['PK' => self::emailKey($person->accountId(), $person->purpose(), $email), 'SK' => self::EMAIL, 'ownerId' => $document['id']], 'attribute_not_exists(PK) OR ownerId = :owner', [':owner' => $document['id']], EmailAlreadyUsed::byAnother(...));
+            $writes[] = $this->personalDataTable->putting(['PK' => self::emailKey($person->accountId(), $person->purpose(), $email), 'SK' => self::EMAIL, 'ownerId' => $id], 'attribute_not_exists(PK) OR ownerId = :owner', [':owner' => $id], EmailAlreadyUsed::byAnother(...));
         }
 
         if ($email !== $storedEmail && null !== $storedEmail) {
             $writes[] = $this->personalDataTable->deleting(self::emailKey($person->accountId(), $person->purpose(), $storedEmail), self::EMAIL);
         }
 
-        $this->personalDataTable->transact([...$writes, ...$this->referenceWrites($person, null === $stored ? null : PersonDocument::person($stored['person'])), ...$this->resemblanceLinkChanged($person, $person->resemblanceKey()?->value, $stored[self::RESEMBLANCE_KEY] ?? null)]);
+        $this->personalDataTable->transact([...$writes, ...$this->referenceWrites($person, $storedPerson), ...$this->resemblanceLinkChanged($person, $person->resemblanceKey()?->value, Typed::stringOrNull($stored[self::RESEMBLANCE_KEY] ?? null))]);
     }
 
     /**
@@ -193,7 +196,7 @@ final readonly class DynamoPersonRepository implements PersonRepository
         $reservations = $this->personalDataTable->items(array_map(static fn (ExternalReference $reference): array => [self::referenceKey($person->accountId(), $reference), self::REFERENCE], $references));
         $own = array_filter($reservations, static fn (array $reservation): bool => $reservation['ownerId'] === $person->id()->value);
 
-        return array_values(array_map(fn (array $reservation): Write => $this->personalDataTable->deleting($reservation['PK'], self::REFERENCE, 'ownerId = :owner', [':owner' => $person->id()->value]), $own));
+        return array_values(array_map(fn (array $reservation): Write => $this->personalDataTable->deleting(Typed::string($reservation['PK']), self::REFERENCE, 'ownerId = :owner', [':owner' => $person->id()->value]), $own));
     }
 
     /**
@@ -206,7 +209,7 @@ final readonly class DynamoPersonRepository implements PersonRepository
     public function writeTheKeysAgain(): int
     {
         $stored = array_values(array_filter($this->personalDataTable->scan(PersonalDataKeys::PERSON.'#'), static fn (array $item): bool => PersonalDataKeys::PERSON === $item['SK']));
-        $items = array_map(static fn (array $item): array => ['person' => PersonDocument::recognizedAgain($item['person'])] + $item, $stored);
+        $items = array_map(static fn (array $item): array => ['person' => PersonDocument::recognizedAgain(Typed::document($item['person']))] + $item, $stored);
         $persons = array_map(static fn (array $item): Person => PersonDocument::person($item['person']), $items);
         $reservations = $this->referenceReservationsOf($persons);
         $this->personalDataTable->batch(
@@ -216,7 +219,7 @@ final readonly class DynamoPersonRepository implements PersonRepository
                 ...$reservations,
                 ...self::resemblanceLinksOf($persons),
             ],
-            array_map(static fn (array $former): array => [$former['PK'], $former['SK']], [...$this->personalDataTable->scan('TOKEN'), ...$this->personalDataTable->scan(self::FORMER_LINKEDIN.'#'), ...$this->referencesNoLongerHeld($reservations)]),
+            array_map(static fn (array $former): array => [Typed::string($former['PK']), Typed::string($former['SK'])], [...$this->personalDataTable->scan('TOKEN'), ...$this->personalDataTable->scan(self::FORMER_LINKEDIN.'#'), ...$this->referencesNoLongerHeld($reservations)]),
         );
 
         return count($items);
@@ -263,20 +266,39 @@ final readonly class DynamoPersonRepository implements PersonRepository
     /**
      * @param array<string, mixed> $document
      *
-     * @return array<string, mixed>
+     * @return array{PK: string, SK: string, ...}
      */
     private function itemOf(Person $person, array $document, int $revision): array
     {
-        return SearchIndexes::of(PersonalDataKeys::scopeOf($person->accountId(), $person->purpose()), $person->searchKeys(), $person->contactDetails()->phoneNumber) + [
-            'PK' => PersonalDataKeys::person($document['id']),
+        $id = self::idOf($document);
+
+        return [
+            'PK' => PersonalDataKeys::person($id),
             'SK' => PersonalDataKeys::PERSON,
-            'GSI1PK' => PersonalDataKeys::listOf(new AccountId($document['accountId']), Purpose::from($document['purpose'])),
-            'GSI1SK' => $document['id'],
-            'email' => $document['contactDetails']['email'],
+            'GSI1PK' => PersonalDataKeys::listOf(new AccountId(Typed::string($document['accountId'])), Purpose::from(Typed::string($document['purpose']))),
+            'GSI1SK' => $id,
+            'email' => self::emailOf($document),
             self::RESEMBLANCE_KEY => $person->resemblanceKey()?->value,
             Revision::ATTRIBUTE => $revision,
             'person' => $document,
+            ...SearchIndexes::of(PersonalDataKeys::scopeOf($person->accountId(), $person->purpose()), $person->searchKeys(), $person->contactDetails()->phoneNumber),
         ];
+    }
+
+    /**
+     * @param array<string, mixed> $document
+     */
+    private static function idOf(array $document): string
+    {
+        return Typed::string($document['id']);
+    }
+
+    /**
+     * @param array<string, mixed> $document
+     */
+    private static function emailOf(array $document): ?string
+    {
+        return Typed::stringOrNull(Typed::document($document['contactDetails'])['email'] ?? null);
     }
 
     /**
@@ -328,7 +350,7 @@ final readonly class DynamoPersonRepository implements PersonRepository
     }
 
     /**
-     * @return array<string, string>
+     * @return array{PK: string, SK: string, personId: string}
      */
     private static function resemblanceLink(string $accountId, string $key, string $personId): array
     {
@@ -341,7 +363,7 @@ final readonly class DynamoPersonRepository implements PersonRepository
     }
 
     /**
-     * @return array<string, string>|null
+     * @return array{PK: string, SK: string, ...}|null
      */
     private function firstNameItemOf(Person $person): ?array
     {

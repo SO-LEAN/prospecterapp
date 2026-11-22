@@ -51,7 +51,7 @@ class DynamoDesignatedContactRetrieverTest extends ApiTestCase
     {
         $ada = $this->aContact('Ada', 'Lovelace', new ContactDetails(), ExternalReferences::designating([self::PROFILE], Designated::Person));
         $ada->changeContactDetails(new ContactDetails(), ExternalReferences::none(), $this->readerWithTheRight(), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
-        self::getContainer()->get(PersonRepository::class)->save($ada);
+        self::service(PersonRepository::class)->save($ada);
 
         $this->assertSame($ada->id()->value, $this->retriever()->withReference($this->account, self::profile())?->value);
     }
@@ -94,7 +94,7 @@ class DynamoDesignatedContactRetrieverTest extends ApiTestCase
 
     private function retriever(): DesignatedContactRetriever
     {
-        return self::getContainer()->get(DesignatedContactRetriever::class);
+        return self::service(DesignatedContactRetriever::class);
     }
 
     private static function profile(): ExternalReference
@@ -106,7 +106,7 @@ class DynamoDesignatedContactRetrieverTest extends ApiTestCase
     {
         $contact = Person::collect(new Gesture($this->account, new MemberId(self::newIdentity()), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)), new PersonId(self::newIdentity()), Purpose::Prospecting, new ContactCard(new PersonName($firstName, $lastName), $contactDetails));
         $contact->changeContactDetails($contactDetails, $references ?? ExternalReferences::none(), $this->readerWithTheRight(), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
-        self::getContainer()->get(PersonRepository::class)->save($contact);
+        self::service(PersonRepository::class)->save($contact);
 
         return $contact;
     }
