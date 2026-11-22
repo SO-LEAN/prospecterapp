@@ -9,6 +9,8 @@ use App\Campaigning\CampaignVoter;
 use App\Campaigning\NextRecipientReader;
 use App\Security\ToolAccess;
 use App\Security\User;
+use App\Shared\Input\MyClockQuery;
+use App\Shared\Mcp\ToolInputs;
 use App\Shared\Mcp\ToolResults;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
@@ -23,21 +25,23 @@ final readonly class NextRecipientTool
         private ToolAccess $access,
         private CampaignResolver $campaigns,
         private NextRecipientReader $nextRecipients,
+        private ToolInputs $inputs,
         private ToolResults $results,
     ) {
     }
 
     /**
-     * @param string $id the id of the campaign
+     * @param string  $id       the id of the campaign
+     * @param ?string $timeZone the time zone of the member, by its name (Europe/Paris), which the day of its daily cap is on; UTC otherwise
      *
      * @return array<string, mixed>
      */
     #[McpTool(
         name: 'get-next-recipient',
-        description: 'The next recipient of a started campaign you lead for your member, how to reach them, the message rendered for them and what to do with it (its instruction: send it as is, or adapt it to the person), and how many are left to handle. Send it yourself, then note it by log-sent-message, or dismiss the recipient by dismiss-campaign-recipient when they cannot be reached; ask again for the next one. Refused once the campaign is no longer led (campaignNotRunning): stopped, or ended once nobody is left to handle.',
+        description: 'The next recipient of a started campaign you lead for your member, how to reach them, the message rendered for them and what to do with it (its instruction: send it as is, or adapt it to the person), and how many are left to handle. Send it yourself, then note it by log-sent-message, or dismiss the recipient by dismiss-campaign-recipient when they cannot be reached; ask again for the next one. Once its daily cap is reached, it warns you: stop, and ask your member whether to go beyond it. Refused once the campaign is no longer led (campaignNotRunning): stopped, or ended once nobody is left to handle.',
         annotations: new ToolAnnotations(readOnlyHint: true),
     )]
-    public function __invoke(string $id): array
+    public function __invoke(string $id, ?string $timeZone = null): array
     {
         $member = $this->access->member();
         $campaign = $this->campaigns->read($member, $id);
@@ -45,6 +49,8 @@ final readonly class NextRecipientTool
         $this->access->denyUnlessGranted(CampaignVoter::ACCESS, $campaign);
         $this->access->denyUnlessGranted(User::PERSONAL_DATA);
 
-        return $this->results->of($this->nextRecipients->read($member->memberId(), $campaign->id));
+        $clock = $this->inputs->valid(new MyClockQuery($timeZone));
+
+        return $this->results->of($this->nextRecipients->read($member->memberId(), $campaign->id, $clock->timeZone));
     }
 }
