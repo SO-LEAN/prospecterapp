@@ -40,7 +40,7 @@ final class RsaPublicKey
 
         $lengthBytes = ltrim(pack('N', $length), "\x00");
 
-        return $type.chr(0x80 | strlen($lengthBytes)).$lengthBytes.$content;
+        return $type.pack('C', 0x80 | strlen($lengthBytes)).$lengthBytes.$content;
     }
 
     private static function decoded(string $base64Url): string

@@ -6,6 +6,7 @@ namespace App\Accounts\Persistence;
 
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\Accounts\Application\Port\MemberRetriever;
 use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\MemberResponse;
 use Prospecter\Core\Accounts\Domain\Model\Role;
@@ -28,14 +29,16 @@ final readonly class DynamoMemberRetriever implements MemberRetriever
      */
     public function ofIds(array $ids): array
     {
-        $documents = array_map(static fn (array $item): array => $item['member'], $this->accountsTable->items(array_map(static fn (MemberId $id): array => [AccountsKeys::member($id->value), AccountsKeys::MEMBER], $ids)));
+        $documents = array_map(static fn (array $item): array => Typed::document($item['member']), $this->accountsTable->items(array_map(static fn (MemberId $id): array => [AccountsKeys::member($id->value), AccountsKeys::MEMBER], $ids)));
         $accountNames = $this->accountNamesOf($documents);
         $members = [];
 
         foreach ($documents as $document) {
-            $roles = array_map(Role::from(...), $document['roles']);
+            $id = Typed::string($document['id']);
+            $accountId = Typed::string($document['accountId']);
+            $roles = array_map(Role::from(...), Typed::strings($document['roles']));
             $reminders = RemindersDocument::restore($document['reminders'] ?? null);
-            $members[$document['id']] = new MemberResponse($document['id'], $document['accountId'], $document['personId'], PersonalDataRight::isGrantedBy(...$roles), AdministrationRight::isGrantedBy(...$roles), $reminders->enabled ? $reminders->delay->value : null, $accountNames[$document['accountId']] ?? null);
+            $members[$id] = new MemberResponse($id, $accountId, Typed::string($document['personId']), PersonalDataRight::isGrantedBy(...$roles), AdministrationRight::isGrantedBy(...$roles), $reminders->enabled ? $reminders->delay->value : null, $accountNames[$accountId] ?? null);
         }
 
         return $members;
@@ -50,10 +53,11 @@ final readonly class DynamoMemberRetriever implements MemberRetriever
      */
     private function accountNamesOf(array $members): array
     {
-        $accountIds = array_values(array_unique(array_map(static fn (array $member): string => $member['accountId'], $members)));
+        $accountIds = array_values(array_unique(array_map(static fn (array $member): string => Typed::string($member['accountId']), $members)));
         $names = [];
         foreach ($this->accountsTable->items(array_map(static fn (string $id): array => [AccountsKeys::account($id), AccountsKeys::ACCOUNT], $accountIds)) as $item) {
-            $names[$item['account']['id']] = Documents::legalIdentityOf($item['account']['legalIdentity'])->corporateName;
+            $account = Typed::document($item['account']);
+            $names[Typed::string($account['id'])] = Documents::legalIdentityOf($account['legalIdentity'])->corporateName;
         }
 
         return $names;

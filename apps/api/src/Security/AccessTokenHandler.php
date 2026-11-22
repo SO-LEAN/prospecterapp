@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Security;
 
+use App\Shared\Typed;
 use App\SignIn\SigningKeys;
 use App\SignIn\UserPool;
 use Lcobucci\JWT\Encoding\JoseEncoder;
@@ -46,7 +47,7 @@ final readonly class AccessTokenHandler implements AccessTokenHandlerInterface
     public function getUserBadgeFrom(#[\SensitiveParameter] string $accessToken): UserBadge
     {
         try {
-            $token = new Parser(new JoseEncoder())->parse($accessToken);
+            $token = new Parser(new JoseEncoder())->parse(Typed::filledString($accessToken));
         } catch (\Throwable) {
             throw new BadCredentialsException('Invalid access token.');
         }
@@ -55,7 +56,14 @@ final readonly class AccessTokenHandler implements AccessTokenHandlerInterface
             throw new BadCredentialsException('Invalid access token.');
         }
 
-        return new UserBadge((string) $token->claims()->get('username'));
+        return new UserBadge(self::usernameOf($token));
+    }
+
+    private static function usernameOf(UnencryptedToken $token): string
+    {
+        $username = $token->claims()->get('username');
+
+        return is_string($username) ? $username : throw new BadCredentialsException('Invalid access token.');
     }
 
     /**
@@ -63,15 +71,16 @@ final readonly class AccessTokenHandler implements AccessTokenHandlerInterface
      */
     private function constraintsFor(UnencryptedToken $token): array
     {
-        $key = $this->keys->named((string) $token->headers()->get('kid'));
+        $kid = $token->headers()->get('kid');
+        $key = is_string($kid) ? $this->keys->named($kid) : null;
 
         if (null === $key) {
             throw new BadCredentialsException('Invalid access token.');
         }
 
         return [
-            new SignedWith(new Sha256(), InMemory::plainText($key)),
-            new IssuedBy($this->pool->issuer()),
+            new SignedWith(new Sha256(), InMemory::plainText(Typed::filledString($key))),
+            new IssuedBy(Typed::filledString($this->pool->issuer())),
             new HasClaimWithValue('token_use', 'access'),
             new IssuedForOneOf(array_map($this->pool->clientIdNamed(...), $this->clientNames)),
             new Expires(),

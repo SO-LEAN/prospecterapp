@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Security;
 
+use App\Shared\Typed;
 use Prospecter\Core\Accounts\Application\MyAccount;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -41,7 +42,7 @@ final readonly class User implements UserInterface
 
     public function getUserIdentifier(): string
     {
-        return $this->id;
+        return Typed::filledString($this->id);
     }
 
     public function memberId(): string

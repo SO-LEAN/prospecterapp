@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\SignIn;
 
+use App\Shared\Typed;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -55,9 +56,9 @@ final readonly class SigningKeys
     {
         $keys = [];
 
-        foreach ($this->httpClient->request('GET', $this->pool->keysUrl())->toArray()['keys'] ?? [] as $key) {
+        foreach (Typed::documents($this->httpClient->request('GET', $this->pool->keysUrl())->toArray()['keys'] ?? []) as $key) {
             if ('RSA' === ($key['kty'] ?? null)) {
-                $keys[$key['kid']] = RsaPublicKey::pemOf($key['n'], $key['e']);
+                $keys[Typed::string($key['kid'])] = RsaPublicKey::pemOf(Typed::string($key['n']), Typed::string($key['e']));
             }
         }
 

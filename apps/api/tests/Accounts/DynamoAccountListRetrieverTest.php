@@ -6,7 +6,6 @@ namespace Tests\App\Accounts;
 
 use App\Accounts\Persistence\AccountsKeys;
 use App\Accounts\Persistence\DynamoAccountRepository;
-use App\Shared\Persistence\Table;
 use Prospecter\Core\Accounts\Application\Port\AccountListRetriever;
 use Prospecter\Core\Accounts\Domain\Model\Account;
 use Prospecter\Core\Accounts\Domain\Repository\AccountRepository;
@@ -36,14 +35,13 @@ class DynamoAccountListRetrieverTest extends ApiTestCase
     {
         $account = $this->opened('ACME');
         $afterIt = self::newIdentity();
-        $table = self::getContainer()->get('app.table.accounts');
-        $this->assertInstanceOf(Table::class, $table);
-        $item = $table->item(AccountsKeys::account($account->id()->value), AccountsKeys::ACCOUNT);
+        $table = self::tableOf('accounts');
+        $item = self::storedItem($table, AccountsKeys::account($account->id()->value), AccountsKeys::ACCOUNT);
         unset($item['GSI1PK'], $item['GSI1SK']);
         $table->batch([$item]);
         $this->assertNotContains($account->id()->value, $this->retriever()->sliceOf($afterIt, 1)->content);
 
-        self::getContainer()->get(DynamoAccountRepository::class)->writeTheKeysAgain();
+        self::service(DynamoAccountRepository::class)->writeTheKeysAgain();
 
         $this->assertSame([$account->id()->value], $this->retriever()->sliceOf($afterIt, 1)->content);
     }
@@ -51,13 +49,13 @@ class DynamoAccountListRetrieverTest extends ApiTestCase
     private function opened(string $name): Account
     {
         $account = Account::open(new AccountId(self::newIdentity()), new LegalIdentity($name), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
-        self::getContainer()->get(AccountRepository::class)->save($account);
+        self::service(AccountRepository::class)->save($account);
 
         return $account;
     }
 
     private function retriever(): AccountListRetriever
     {
-        return self::getContainer()->get(AccountListRetriever::class);
+        return self::service(AccountListRetriever::class);
     }
 }

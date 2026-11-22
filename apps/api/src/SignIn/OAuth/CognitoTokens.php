@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\SignIn\OAuth;
 
+use App\Shared\Typed;
 use App\SignIn\UserPool;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -65,6 +66,6 @@ final readonly class CognitoTokens
             throw GrantRefused::because(sprintf('Cognito refused the grant: %s', $answer->getContent(false)));
         }
 
-        return $answer->toArray();
+        return Typed::document($answer->toArray());
     }
 }

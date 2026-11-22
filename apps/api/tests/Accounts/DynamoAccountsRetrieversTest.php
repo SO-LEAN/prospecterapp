@@ -6,7 +6,7 @@ namespace Tests\App\Accounts;
 
 use App\Accounts\Persistence\AccountsKeys;
 use App\Shared\Persistence\Hydrator;
-use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Prospecter\Core\Accounts\Application\Port\MemberRetriever;
 use Prospecter\Core\Accounts\Application\Port\MyAccountRetriever;
@@ -38,9 +38,9 @@ class DynamoAccountsRetrieversTest extends ApiTestCase
         $account = $this->anAccount();
         $me = $this->aMemberOf($account, Role::User, Role::Prospector);
 
-        $myAccount = self::getContainer()->get(MyAccountRetriever::class)->of($me->id());
+        $myAccount = self::service(MyAccountRetriever::class)->of($me->id());
 
-        $this->assertSame([$me->id()->value, $account->id()->value, Hydrator::stateOf($me)['personId']->value], [$myAccount->memberId, $myAccount->accountId, $myAccount->personId]);
+        $this->assertSame([$me->id()->value, $account->id()->value, Typed::object(Hydrator::stateOf($me)['personId'], PersonId::class)->value], [$myAccount->memberId, $myAccount->accountId, $myAccount->personId]);
         $this->assertSame(['ROLE_USER', 'ROLE_PROSPECTOR'], $myAccount->roles);
         $this->assertSame(['SOLEAN IT', 'Strasbourg'], [$myAccount->organizationCorporateName, $myAccount->organizationCity]);
         $this->assertSame(array_map(static fn (AccountIntent $intent): string => $intent->name, AccountIntent::cases()), $myAccount->accountIntents);
@@ -50,7 +50,7 @@ class DynamoAccountsRetrieversTest extends ApiTestCase
     {
         $this->expectException(UnknownMember::class);
 
-        self::getContainer()->get(MyAccountRetriever::class)->of(new MemberId(self::newIdentity()));
+        self::service(MyAccountRetriever::class)->of(new MemberId(self::newIdentity()));
     }
 
     /**
@@ -62,9 +62,9 @@ class DynamoAccountsRetrieversTest extends ApiTestCase
         $account = $this->anAccount();
         $member = $this->aMemberOf($account, ...$roles);
 
-        $published = self::getContainer()->get(MemberRetriever::class)->ofIds([$member->id()])[$member->id()->value];
+        $published = self::service(MemberRetriever::class)->ofIds([$member->id()])[$member->id()->value];
 
-        $this->assertSame([$member->id()->value, $account->id()->value, Hydrator::stateOf($member)['personId']->value, $readsPersonalData], [$published->id, $published->accountId, $published->personId, $published->readsPersonalData]);
+        $this->assertSame([$member->id()->value, $account->id()->value, Typed::object(Hydrator::stateOf($member)['personId'], PersonId::class)->value, $readsPersonalData], [$published->id, $published->accountId, $published->personId, $published->readsPersonalData]);
     }
 
     public function testTheMembersAreReadInOneBatchTheUnknownOnesAbsent(): void
@@ -73,7 +73,7 @@ class DynamoAccountsRetrieversTest extends ApiTestCase
         $member = $this->aMemberOf($account, Role::User, Role::Prospector);
         $unknown = new MemberId(self::newIdentity());
 
-        $members = self::getContainer()->get(MemberRetriever::class)->ofIds([$member->id(), $unknown]);
+        $members = self::service(MemberRetriever::class)->ofIds([$member->id(), $unknown]);
 
         $this->assertSame([$member->id()->value], array_keys($members));
     }
@@ -83,7 +83,7 @@ class DynamoAccountsRetrieversTest extends ApiTestCase
         $account = $this->anAccount();
         $member = $this->aMemberOf($account, Role::User, Role::Prospector);
 
-        $published = self::getContainer()->get(MemberRetriever::class)->ofIds([$member->id()])[$member->id()->value];
+        $published = self::service(MemberRetriever::class)->ofIds([$member->id()])[$member->id()->value];
 
         $this->assertSame('SOLEAN IT', $published->accountName);
     }
@@ -92,12 +92,12 @@ class DynamoAccountsRetrieversTest extends ApiTestCase
     {
         $member = $this->aMemberOf($this->anAccount(), Role::User, Role::Prospector);
         $member->changeReminders(new Reminders(false, ReminderDelay::HalfAnHour), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
-        self::getContainer()->get(MemberRepository::class)->save($member);
+        self::service(MemberRepository::class)->save($member);
 
-        $reminders = self::getContainer()->get(MyRemindersRetriever::class)->of($member->id());
+        $reminders = self::service(MyRemindersRetriever::class)->of($member->id());
 
         $this->assertSame([false, 30], [$reminders->enabled, $reminders->minutesBefore]);
-        $this->assertEquals(new Reminders(false, ReminderDelay::HalfAnHour), Hydrator::stateOf(self::getContainer()->get(MemberRepository::class)->get($member->id()))['reminders']);
+        $this->assertEquals(new Reminders(false, ReminderDelay::HalfAnHour), Hydrator::stateOf(self::service(MemberRepository::class)->get($member->id()))['reminders']);
     }
 
     public function testAMemberWrittenBeforeTheRemindersHasThoseByDefault(): void
@@ -105,10 +105,10 @@ class DynamoAccountsRetrieversTest extends ApiTestCase
         $member = $this->aMemberOf($this->anAccount(), Role::User, Role::Prospector);
         $this->forgetTheRemindersOf($member);
 
-        $reminders = self::getContainer()->get(MyRemindersRetriever::class)->of($member->id());
+        $reminders = self::service(MyRemindersRetriever::class)->of($member->id());
 
         $this->assertSame([true, 10], [$reminders->enabled, $reminders->minutesBefore]);
-        $this->assertEquals(Reminders::byDefault(), Hydrator::stateOf(self::getContainer()->get(MemberRepository::class)->get($member->id()))['reminders']);
+        $this->assertEquals(Reminders::byDefault(), Hydrator::stateOf(self::service(MemberRepository::class)->get($member->id()))['reminders']);
     }
 
     /**
@@ -125,7 +125,7 @@ class DynamoAccountsRetrieversTest extends ApiTestCase
     {
         $account = Account::open(new AccountId(self::newIdentity()), new LegalIdentity('SOLEAN IT'), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         $account->relocateTo(new Address(city: 'Strasbourg'), null, Member::register(new MemberId(self::newIdentity()), $account->id(), new PersonId(self::newIdentity()), Role::Admin), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
-        self::getContainer()->get(AccountRepository::class)->save($account);
+        self::service(AccountRepository::class)->save($account);
 
         return $account;
     }
@@ -133,17 +133,17 @@ class DynamoAccountsRetrieversTest extends ApiTestCase
     private function aMemberOf(Account $account, Role ...$roles): Member
     {
         $member = Member::register(new MemberId(self::newIdentity()), $account->id(), new PersonId(self::newIdentity()), ...$roles);
-        self::getContainer()->get(MemberRepository::class)->save($member);
+        self::service(MemberRepository::class)->save($member);
 
         return $member;
     }
 
     private function forgetTheRemindersOf(Member $member): void
     {
-        $table = self::getContainer()->get('app.table.accounts');
-        \assert($table instanceof Table);
-        $item = $table->item(AccountsKeys::member($member->id()->value), AccountsKeys::MEMBER);
-        unset($item['member']['reminders']);
-        $table->transact([$table->putting($item)]);
+        $table = self::tableOf('accounts');
+        $item = self::storedItem($table, AccountsKeys::member($member->id()->value), AccountsKeys::MEMBER);
+        $document = Typed::document($item['member']);
+        unset($document['reminders']);
+        $table->transact([$table->putting(['PK' => AccountsKeys::member($member->id()->value), 'SK' => AccountsKeys::MEMBER, 'member' => $document] + $item)]);
     }
 }

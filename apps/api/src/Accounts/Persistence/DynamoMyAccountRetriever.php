@@ -6,6 +6,7 @@ namespace App\Accounts\Persistence;
 
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\Accounts\Application\MyAccount;
 use Prospecter\Core\Accounts\Application\Port\MyAccountRetriever;
 use Prospecter\Core\Accounts\Domain\Exception\UnknownAccount;
@@ -28,17 +29,18 @@ final readonly class DynamoMyAccountRetriever implements MyAccountRetriever
 
     public function of(MemberId $me): MyAccount
     {
-        $member = ($this->accountsTable->item(AccountsKeys::member($me->value), AccountsKeys::MEMBER) ?? throw UnknownMember::identifiedBy($me))['member'];
-        $account = ($this->accountsTable->item(AccountsKeys::account($member['accountId']), AccountsKeys::ACCOUNT) ?? throw UnknownAccount::identifiedBy(new AccountId($member['accountId'])))['account'];
+        $member = Typed::document(($this->accountsTable->item(AccountsKeys::member($me->value), AccountsKeys::MEMBER) ?? throw UnknownMember::identifiedBy($me))['member']);
+        $accountId = Typed::string($member['accountId']);
+        $account = Typed::document(($this->accountsTable->item(AccountsKeys::account($accountId), AccountsKeys::ACCOUNT) ?? throw UnknownAccount::identifiedBy(new AccountId($accountId)))['account']);
         $identity = Documents::legalIdentityOf($account['legalIdentity']);
         $address = Documents::addressOf($account['address'] ?? null);
         $geoPoint = Documents::geoPointOf($account['geoPoint'] ?? null);
 
         return new MyAccount(
-            memberId: $member['id'],
-            accountId: $account['id'],
-            personId: $member['personId'],
-            roles: $member['roles'],
+            memberId: Typed::string($member['id']),
+            accountId: Typed::string($account['id']),
+            personId: Typed::string($member['personId']),
+            roles: Typed::strings($member['roles']),
             organizationCorporateName: $identity->corporateName,
             organizationForm: $identity->form,
             organizationType: $identity->type,
@@ -49,9 +51,9 @@ final readonly class DynamoMyAccountRetriever implements MyAccountRetriever
             organizationCountry: $address?->country,
             organizationLongitude: $geoPoint?->longitude,
             organizationLatitude: $geoPoint?->latitude,
-            accountIntents: array_map(static fn (AccountIntent $intent): string => $intent->name, AccountPossibilities::given($account['id'] === $member['accountId'])),
-            createdAt: Documents::momentOf($account['createdAt']),
-            modifiedAt: Documents::momentOf($account['modifiedAt']),
+            accountIntents: array_map(static fn (AccountIntent $intent): string => $intent->name, AccountPossibilities::given($account['id'] === $accountId)),
+            createdAt: Documents::momentOf(Typed::string($account['createdAt'])),
+            modifiedAt: Documents::momentOf(Typed::string($account['modifiedAt'])),
         );
     }
 }

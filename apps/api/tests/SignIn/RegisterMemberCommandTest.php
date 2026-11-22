@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\App\SignIn;
 
+use App\Shared\Typed;
 use App\SignIn\Credentials;
 use App\SignIn\UserPool;
 use Aws\CognitoIdentityProvider\CognitoIdentityProviderClient;
@@ -25,7 +26,7 @@ final class RegisterMemberCommandTest extends ApiTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $command = new CommandTester(new Application(self::$kernel)->find('app:account:open'));
+        $command = new CommandTester(new Application(self::$kernel ?? self::bootKernel())->find('app:account:open'));
         $command->execute(['corporate-name' => 'Babbage & Co', 'email' => self::FOUNDER, '--password' => self::PASSWORD]);
     }
 
@@ -43,9 +44,9 @@ final class RegisterMemberCommandTest extends ApiTestCase
         $account = $this->requestJson('GET', '/api/me');
 
         $this->assertResponseIsSuccessful();
-        $this->assertSame('Babbage & Co', $account['organization']['legalIdentity']['corporateName']);
+        $this->assertSame('Babbage & Co', Typed::document(Typed::document($account['organization'])['legalIdentity'])['corporateName']);
         $this->assertSame(['firstName' => null, 'lastName' => null], $account['name'], 'the member fills in their profile');
-        $this->assertNull($account['contactDetails']['email']);
+        $this->assertNull(Typed::document($account['contactDetails'])['email']);
         $this->assertSame(self::MEMBER, $this->requestJson('GET', '/api/me/sign-in')['loginEmail']);
     }
 
@@ -112,7 +113,7 @@ final class RegisterMemberCommandTest extends ApiTestCase
 
     private function register(string $administratorEmail, string $email, string ...$options): int
     {
-        $command = new CommandTester(new Application(self::$kernel)->find('app:member:register'));
+        $command = new CommandTester(new Application(self::$kernel ?? self::bootKernel())->find('app:member:register'));
         $input = ['administrator-email' => $administratorEmail, 'email' => $email, '--password' => self::PASSWORD];
 
         foreach ($options as $option) {
@@ -125,19 +126,19 @@ final class RegisterMemberCommandTest extends ApiTestCase
 
     private function signInAs(string $email): void
     {
-        $pool = self::getContainer()->get(UserPool::class);
-        $tokens = self::getContainer()->get(CognitoIdentityProviderClient::class)->adminInitiateAuth([
+        $pool = self::service(UserPool::class);
+        $tokens = Typed::document(self::service(CognitoIdentityProviderClient::class)->adminInitiateAuth([
             'UserPoolId' => $pool->id(),
             'ClientId' => $pool->clientId(),
             'AuthFlow' => 'ADMIN_USER_PASSWORD_AUTH',
-            'AuthParameters' => ['USERNAME' => $this->credentials()->memberSigningInWith($email), 'PASSWORD' => self::PASSWORD],
-        ])['AuthenticationResult'];
+            'AuthParameters' => ['USERNAME' => Typed::string($this->credentials()->memberSigningInWith($email)), 'PASSWORD' => self::PASSWORD],
+        ])['AuthenticationResult']);
 
-        $this->client->setServerParameter('HTTP_AUTHORIZATION', 'Bearer '.$tokens['AccessToken']);
+        $this->client->setServerParameter('HTTP_AUTHORIZATION', 'Bearer '.Typed::string($tokens['AccessToken']));
     }
 
     private function credentials(): Credentials
     {
-        return self::getContainer()->get(Credentials::class);
+        return self::service(Credentials::class);
     }
 }
