@@ -18,7 +18,7 @@ final readonly class Siret
 
     public function __construct(string $typed)
     {
-        $value = preg_replace('/\s+/', '', $typed);
+        $value = (string) preg_replace('/\s+/', '', $typed);
 
         if (!self::isFourteenDigits($value) || !self::hasItsKey($value)) {
             throw InvalidSiret::of($typed);

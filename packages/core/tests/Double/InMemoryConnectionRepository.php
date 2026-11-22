@@ -56,10 +56,10 @@ final class InMemoryConnectionRepository implements ConnectionRepository
 
     public function importing(AccountId $account, Provider $provider, Email $mailbox): ?Connection
     {
-        return array_find($this->database->connections(), static function (Connection $connection) use ($account, $provider, $mailbox): bool {
+        return array_find($this->database->connections(), static function (Connection $connection) use ($account, $mailbox): bool {
             $state = StateOf::the($connection);
 
-            return $state->value('accountId')->equals($account) && $provider === $state->value('provider') && $state->value('externalAccount')->equals($mailbox) && MailImport::Off !== $state->value('mailImport');
+            return $state->object('accountId', AccountId::class)->equals($account) && $state->object('externalAccount', Email::class)->equals($mailbox) && MailImport::Off !== $state->object('mailImport', MailImport::class);
         });
     }
 

@@ -35,11 +35,11 @@ final readonly class InMemoryToDoRepository implements ToDoRepository
 
     public function keptFor(OrganizationId $organization): array
     {
-        return array_values(array_filter($this->database->toDos(), static fn (ToDo $toDo): bool => array_any(StateOf::the($toDo)->value('keptFor'), $organization->equals(...))));
+        return array_values(array_filter($this->database->toDos(), static fn (ToDo $toDo): bool => array_any(StateOf::the($toDo)->listOf('keptFor', OrganizationId::class), $organization->equals(...))));
     }
 
     public function forContact(PersonId $contact, AccountId $accountId): array
     {
-        return array_values(array_filter($this->database->toDos(), static fn (ToDo $toDo): bool => true === StateOf::the($toDo)->value('contact')?->equals($contact) && $toDo->accountId()->equals($accountId)));
+        return array_values(array_filter($this->database->toDos(), static fn (ToDo $toDo): bool => true === StateOf::the($toDo)->objectOrNull('contact', PersonId::class)?->equals($contact) && $toDo->accountId()->equals($accountId)));
     }
 }

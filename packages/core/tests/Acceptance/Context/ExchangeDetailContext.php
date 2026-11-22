@@ -17,6 +17,7 @@ use Prospecter\Core\Prospecting\Application\CorrectExchangeVenue\CorrectExchange
 use Prospecter\Core\Prospecting\Application\EraseExchange\EraseExchange;
 use Prospecter\Core\Prospecting\Application\NoteExchange\NoteExchange;
 use Prospecter\Core\Prospecting\Application\NoteOrganizationExchange\NoteOrganizationExchange;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
@@ -62,7 +63,7 @@ final class ExchangeDetailContext implements Context
     public function iCorrectTheExchange(TableNode $table): void
     {
         $values = Vocabulary::rows($table);
-        $facts = StateOf::the($this->application->exchanges->get(new ExchangeId($this->scenario->theExchange())))->value('facts');
+        $facts = StateOf::the($this->application->exchanges->get(new ExchangeId($this->scenario->theExchange())))->object('facts', ExchangeFacts::class);
         $this->application->dispatch(new CorrectExchange(
             prospectorId: $this->application->signedIn(),
             id: $this->scenario->theExchange(),
@@ -90,7 +91,7 @@ final class ExchangeDetailContext implements Context
     #[When('je corrige cet échange et le déclare rendu conforme :')]
     public function iMakeTheExchangeConform(TableNode $table): void
     {
-        $facts = StateOf::the($this->application->exchanges->get(new ExchangeId($this->scenario->theExchange())))->value('facts');
+        $facts = StateOf::the($this->application->exchanges->get(new ExchangeId($this->scenario->theExchange())))->object('facts', ExchangeFacts::class);
         $this->application->dispatch(new CorrectExchange(
             prospectorId: $this->application->signedIn(),
             id: $this->scenario->theExchange(),
@@ -106,7 +107,7 @@ final class ExchangeDetailContext implements Context
 
     private function storedStatus(): ExchangeStatus
     {
-        return StateOf::the($this->application->exchanges->get(new ExchangeId($this->scenario->theExchange())))->value('status');
+        return StateOf::the($this->application->exchanges->get(new ExchangeId($this->scenario->theExchange())))->object('status', ExchangeStatus::class);
     }
 
     #[When('je corrige le lieu de cet échange en :place')]

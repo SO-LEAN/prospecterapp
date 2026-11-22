@@ -7,6 +7,8 @@ namespace Tests\Core\Double;
 use Prospecter\Core\Connectors\Application\ExchangeSync;
 use Prospecter\Core\Connectors\Application\Port\ExchangeSyncRetriever;
 use Prospecter\Core\Connectors\Domain\Model\ExchangeId;
+use Prospecter\Core\Connectors\Domain\Model\Provider;
+use Prospecter\Core\Connectors\Domain\Model\SyncState;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
@@ -27,6 +29,6 @@ final readonly class InMemoryExchangeSyncRetriever implements ExchangeSyncRetrie
 
         $state = StateOf::the($entry);
 
-        return new ExchangeSync($state->value('provider')->value, $state->value('state')->value, $state->value('since'), $state->value('reason'));
+        return new ExchangeSync($state->object('provider', Provider::class)->value, $state->object('state', SyncState::class)->value, $state->object('since', \DateTimeImmutable::class), $state->stringOrNull('reason'));
     }
 }

@@ -42,8 +42,8 @@ class BackedEnumValuesTest extends TestCase
         $root = dirname(__DIR__, 2).'/src/';
         $enums = [];
 
-        foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($root, \FilesystemIterator::SKIP_DOTS)) as $file) {
-            $class = 'Prospecter\Core\\'.str_replace(['/', '.php'], ['\\', ''], substr($file->getPathname(), strlen($root)));
+        foreach (FilesUnder::the($root) as $path) {
+            $class = 'Prospecter\Core\\'.str_replace(['/', '.php'], ['\\', ''], substr($path, strlen($root)));
 
             if (self::isBackedByText($class) && !in_array($class, self::SYMFONY_CASING, true)) {
                 $enums[] = $class;

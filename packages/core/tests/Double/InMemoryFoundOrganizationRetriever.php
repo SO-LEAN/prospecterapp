@@ -10,6 +10,10 @@ use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\FoundO
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\SharedKernel\Application\FileResponse;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Address;
+use Prospecter\Core\SharedKernel\Domain\File;
+use Prospecter\Core\SharedKernel\Domain\GeoPoint;
+use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\SearchKey;
 use Prospecter\Core\SharedKernel\Domain\SearchKeys;
 use Prospecter\Core\SharedKernel\Domain\Slice;
@@ -34,16 +38,16 @@ final readonly class InMemoryFoundOrganizationRetriever implements FoundOrganiza
     private function found(Organization $organization): FoundOrganization
     {
         $state = StateOf::the($organization);
-        $address = $state->value('address');
-        $geoPoint = $state->value('geoPoint');
+        $address = $state->objectOrNull('address', Address::class);
+        $geoPoint = $state->objectOrNull('geoPoint', GeoPoint::class);
 
         return new FoundOrganization(
             id: $organization->id()->value,
-            fullName: $state->value('legalIdentity')->fullName(),
+            fullName: $state->object('legalIdentity', LegalIdentity::class)->fullName(),
             postalCode: $address?->postalCode,
             city: $address?->city,
             country: $address?->country,
-            logo: FileResponse::orNone($state->value('logo')),
+            logo: FileResponse::orNone($state->objectOrNull('logo', File::class)),
             longitude: $geoPoint?->longitude,
             latitude: $geoPoint?->latitude,
             possibleDuplicates: PossibleDuplicates::of($organization, $this->database),

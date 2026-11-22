@@ -19,6 +19,7 @@ use Prospecter\Core\Connectors\Domain\Model\ProviderClient;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\Prospecting\Domain\Exception\ExchangeNotedMeanwhile;
 use Prospecter\Core\Prospecting\Domain\Model\ContactToAttach;
+use Prospecter\Core\Prospecting\Domain\Model\Erasure;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFingerprint;
 use Prospecter\Core\Prospecting\Domain\Model\Fingerprinted;
@@ -422,7 +423,7 @@ final class InMemoryDatabase
             throw ExchangeNotedMeanwhile::byAnother();
         }
         $this->fingerprints[$key] = $registered ?? new Fingerprinted($exchange->id());
-        $contact = StateOf::the($exchange)->value('contact');
+        $contact = StateOf::the($exchange)->objectOrNull('contact', PersonId::class);
         if (null !== $contact) {
             $this->fingerprintsOfContacts[$exchange->accountId()->value.'#'.$contact->value][] = $key;
         }
@@ -449,7 +450,7 @@ final class InMemoryDatabase
     {
         $fingerprint = $exchange->fingerprint();
         if (null !== $fingerprint) {
-            $this->fingerprints[self::fingerprintKey($exchange->accountId(), $fingerprint)] = new Fingerprinted($exchange->id(), StateOf::the($exchange)->value('erasure'));
+            $this->fingerprints[self::fingerprintKey($exchange->accountId(), $fingerprint)] = new Fingerprinted($exchange->id(), StateOf::the($exchange)->objectOrNull('erasure', Erasure::class));
         }
     }
 

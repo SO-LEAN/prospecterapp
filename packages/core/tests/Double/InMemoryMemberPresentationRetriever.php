@@ -7,7 +7,9 @@ namespace Tests\Core\Double;
 use Prospecter\Core\PersonalData\Application\Port\MemberPresentationRetriever;
 use Prospecter\Core\PersonalData\Application\PresentMembers\MemberPresentation;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
+use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\SharedKernel\Application\FileResponse;
+use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
@@ -33,6 +35,6 @@ final readonly class InMemoryMemberPresentationRetriever implements MemberPresen
     {
         $state = StateOf::the($person);
 
-        return new MemberPresentation($person->id()->value, $state->value('name')->firstName, $state->value('name')->lastName, FileResponse::orNone($state->value('picture')), $person->purpose()->value);
+        return new MemberPresentation($person->id()->value, $state->object('name', PersonName::class)->firstName, $state->object('name', PersonName::class)->lastName, FileResponse::orNone($state->objectOrNull('picture', File::class)), $person->purpose()->value);
     }
 }

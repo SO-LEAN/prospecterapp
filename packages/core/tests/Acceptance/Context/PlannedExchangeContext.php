@@ -16,6 +16,8 @@ use Prospecter\Core\Prospecting\Application\MarkExchangeDone\MarkExchangeDone;
 use Prospecter\Core\Prospecting\Application\MarkExchangeMissed\MarkExchangeMissed;
 use Prospecter\Core\Prospecting\Application\MoveExchange\MoveExchange;
 use Prospecter\Core\Prospecting\Domain\Model\Canceller;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
+use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 use Tests\Core\Double\State;
@@ -34,14 +36,14 @@ final class PlannedExchangeContext implements Context
     #[Given('/^(?:(?<done>j\'ai marqué|je marque) cette visio|je la marque) faite$/')]
     public function iMarkItDone(string $done = ''): void
     {
-        $this->markDone($this->planned()->value('facts')->occurredAt, null);
+        $this->markDone($this->planned()->object('facts', ExchangeFacts::class)->occurredAt, null);
         $this->expectAcceptedWhen($done, 'j\'ai marqué');
     }
 
     #[When('je marque cette visio faite avec le texte :report')]
     public function iMarkItDoneWithItsReport(string $report): void
     {
-        $this->markDone($this->planned()->value('facts')->occurredAt, $report);
+        $this->markDone($this->planned()->object('facts', ExchangeFacts::class)->occurredAt, $report);
     }
 
     #[When('/^je marque cette visio faite le (?<day>\S+) à (?<time>\S+)$/')]
@@ -74,7 +76,7 @@ final class PlannedExchangeContext implements Context
     public function iMoveIt(string $day, string $time, string $duration = ''): void
     {
         $minutes = '' === $duration ? null : Vocabulary::minutes($duration);
-        $this->movedFrom = $this->planned()->value('facts')->occurredAt;
+        $this->movedFrom = $this->planned()->object('facts', ExchangeFacts::class)->occurredAt;
         $this->application->dispatch(new MoveExchange($this->application->signedIn(), $this->scenario->theExchange(), Vocabulary::frenchMoment(sprintf('%s à %s', $day, $time)), $this->application->now(), $minutes));
     }
 
@@ -91,7 +93,7 @@ final class PlannedExchangeContext implements Context
     public function itIsNoLongerUpcoming(): void
     {
         Expect::that(null === $this->application->refusal(), sprintf('Refused: %s', $this->application->refusal()?->getMessage()));
-        $contact = $this->planned()->value('contact');
+        $contact = $this->planned()->objectOrNull('contact', PersonId::class);
         $upcoming = $this->application->consultUpcomingExchanges(new ConsultUpcomingExchanges($this->application->signedIn(), (string) $contact?->value, $this->application->now()));
 
         Expect::that(!array_any($upcoming->exchanges ?? [], fn (ExchangeInTimeline $exchange): bool => $exchange->id === $this->scenario->theExchange()), 'The exchange is still among the upcoming ones');

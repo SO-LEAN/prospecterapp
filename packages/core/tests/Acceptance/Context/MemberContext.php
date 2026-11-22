@@ -12,6 +12,7 @@ use Behat\Step\When;
 use Prospecter\Core\Accounts\Application\RegisterAMember\RegisterAMember;
 use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\ConsultMembers;
 use Prospecter\Core\Accounts\Domain\Model\Role;
+use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\Core\Acceptance\Expect;
@@ -51,7 +52,7 @@ final class MemberContext implements Context
         $member = $this->scenario->memberNamed($name);
 
         Expect::same($account, $this->scenario->nameOf($member->accountId()));
-        Expect::same($roles, implode(', ', array_map(static fn (Role $role): string => $role->value, StateOf::the($member)->value('roles'))));
+        Expect::same($roles, implode(', ', array_map(static fn (Role $role): string => $role->value, StateOf::the($member)->listOf('roles', Role::class))));
     }
 
     #[Then(':name a le droit aux données personnelles')]
@@ -72,8 +73,8 @@ final class MemberContext implements Context
         $profile = $this->application->persons->get($this->scenario->profileOf($this->scenario->memberNamed($name)));
 
         Expect::describes(Vocabulary::rows($table), [
-            'prénom' => (string) StateOf::the($profile)->value('name')->firstName,
-            'nom' => (string) StateOf::the($profile)->value('name')->lastName,
+            'prénom' => (string) StateOf::the($profile)->object('name', PersonName::class)->firstName,
+            'nom' => (string) StateOf::the($profile)->object('name', PersonName::class)->lastName,
             'e-mail' => (string) $profile->contactDetails()->email,
         ]);
     }

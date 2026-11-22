@@ -13,7 +13,7 @@ use Prospecter\Core\Campaigns\Domain\Model\Tag;
  * (`data/insee-geography.php`). An address whose country is given and is not French gets none, whatever the geocoder
  * found; a municipality outside a big area, or more recent than the tables, its department and its region only.
  */
-final readonly class GeographicTags
+final class GeographicTags
 {
     private const array FRENCH_COUNTRIES = ['FR', 'GP', 'MQ', 'GF', 'RE', 'YT'];
     private const string OVERSEAS = '97';
@@ -21,6 +21,11 @@ final readonly class GeographicTags
     private const int OVERSEAS_DEPARTMENT_LENGTH = 3;
     private const string FRENCH_PART = ' (partie française)';
     private const string TABLES = __DIR__.'/../../../../data/insee-geography.php';
+
+    /** @var array{areas: array<string>, municipalities: array<string>, departments: array<string>, regions: array<string>}|null read once */
+    private static ?array $tables = null;
+    /** @var array<string, true>|null the names of the areas and of the regions, read once */
+    private static ?array $reserved = null;
 
     /**
      * @return list<Tag> the city first, then the department and the region
@@ -49,13 +54,12 @@ final readonly class GeographicTags
     #[\NoDiscard]
     public static function reserve(string $name): bool
     {
-        static $names = null;
-        $names ??= array_fill_keys(array_map(
+        self::$reserved ??= array_fill_keys(array_map(
             static fn (Tag $tag): string => $tag->name,
             [...array_map(self::areaTag(...), self::tables()['areas']), ...array_map(static fn (string $region): Tag => Tag::written(Tag::MARK.$region), self::tables()['regions'])],
         ), true);
 
-        return isset($names[$name]);
+        return isset(self::$reserved[$name]);
     }
 
     private static function isFrench(?string $country): bool
@@ -74,12 +78,35 @@ final readonly class GeographicTags
     }
 
     /**
-     * @return array{areas: array<string, string>, municipalities: array<string, string>, departments: array<string, string>, regions: array<string, string>}
+     * @return array{areas: array<string>, municipalities: array<string>, departments: array<string>, regions: array<string>}
      */
     private static function tables(): array
     {
-        static $tables = null;
+        return self::$tables ??= self::read(require self::TABLES);
+    }
 
-        return $tables ??= require self::TABLES;
+    /**
+     * @return array{areas: array<string>, municipalities: array<string>, departments: array<string>, regions: array<string>}
+     */
+    private static function read(mixed $tables): array
+    {
+        return [
+            'areas' => self::labels($tables, 'areas'),
+            'municipalities' => self::labels($tables, 'municipalities'),
+            'departments' => self::labels($tables, 'departments'),
+            'regions' => self::labels($tables, 'regions'),
+        ];
+    }
+
+    /**
+     * @return array<string> by code
+     */
+    private static function labels(mixed $tables, string $table): array
+    {
+        $labels = is_array($tables) ? $tables[$table] ?? null : null;
+
+        return is_array($labels)
+            ? array_map(static fn (mixed $label): string => is_string($label) ? $label : throw new \LogicException(sprintf('The table %s of %s holds no label', $table, self::TABLES)), $labels)
+            : throw new \LogicException(sprintf('%s has no table %s', self::TABLES, $table));
     }
 }

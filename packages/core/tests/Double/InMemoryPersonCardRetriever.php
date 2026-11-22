@@ -19,6 +19,7 @@ use Prospecter\Core\PersonalData\Domain\Policy\PersonPossibilities;
 use Prospecter\Core\PersonalData\Domain\Policy\PersonReading;
 use Prospecter\Core\SharedKernel\Application\ExternalLink;
 use Prospecter\Core\SharedKernel\Application\FileResponse;
+use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\Origin;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
@@ -68,7 +69,7 @@ final readonly class InMemoryPersonCardRetriever implements PersonCardRetriever
             $name = null === ($duplicate = $this->database->person($id->value)) ? new PersonName(lastName: $id->value) : $duplicate->name();
 
             return new PossibleDuplicate($id->value, $name->firstName, $name->lastName);
-        }, StateOf::the($person)->value('possibleDuplicates'));
+        }, StateOf::the($person)->listOf('possibleDuplicates', PersonId::class));
     }
 
     /**
@@ -81,7 +82,7 @@ final readonly class InMemoryPersonCardRetriever implements PersonCardRetriever
         $state = StateOf::the($person);
         $masked = Reading::Masked === PersonReading::by($reader, $person->id());
         $nameMasked = Reading::Masked === PersonReading::ofTheName($reader, $person->id(), $person->purpose());
-        $name = $state->value('name');
+        $name = $state->object('name', PersonName::class);
         $contact = $person->contactDetails();
 
         return new PersonCard(
@@ -90,17 +91,17 @@ final readonly class InMemoryPersonCardRetriever implements PersonCardRetriever
             firstName: $nameMasked ? Masking::name($name->firstName) : $name->firstName,
             lastName: $nameMasked ? Masking::name($name->lastName) : $name->lastName,
             civility: $person->civility()->value,
-            jobTitle: $masked ? Masking::jobTitle($state->value('jobTitle')) : $state->value('jobTitle'),
+            jobTitle: $masked ? Masking::jobTitle($state->stringOrNull('jobTitle')) : $state->stringOrNull('jobTitle'),
             email: $masked ? Masking::email($contact->email?->value) : $contact->email?->value,
             phoneNumber: $masked ? Masking::phoneNumber($contact->phoneNumber) : $contact->phoneNumber?->international(),
             language: $contact->language,
             links: $masked ? array_map(ExternalLink::masked(...), Masking::references($person->references())) : ExternalLink::allOf($person->references()),
             possibleDuplicates: $possibleDuplicates,
-            picture: $masked ? null : FileResponse::orNone($state->value('picture')),
+            picture: $masked ? null : FileResponse::orNone($state->objectOrNull('picture', File::class)),
             possibleIntents: array_map(static fn (PersonIntent $intent): string => $intent->name, PersonPossibilities::given($reader, $person->id(), $person->accountId(), $person->purpose())),
-            createdAt: $state->value('createdAt'),
-            modifiedAt: $state->value('modifiedAt'),
-            createdByAnAI: Origin::Ai === $state->value('origin'),
+            createdAt: $state->object('createdAt', \DateTimeImmutable::class),
+            modifiedAt: $state->object('modifiedAt', \DateTimeImmutable::class),
+            createdByAnAI: Origin::Ai === $state->object('origin', Origin::class),
         );
     }
 

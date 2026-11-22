@@ -20,8 +20,11 @@ use Prospecter\Core\Prospecting\Application\ConsultExchange\ConsultExchange;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
 use Prospecter\Core\Prospecting\Application\EraseExchange\EraseExchange;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 use Tests\Core\Acceptance\Expect;
@@ -113,11 +116,11 @@ final class BookSlotContext implements Context
     public function iHaveAPlannedExchange(string $channel, string $day, string $time, string $end, string $contact, string $text): void
     {
         $exchange = StateOf::the($this->bookedExchange());
-        $facts = $exchange->value('facts');
+        $facts = $exchange->object('facts', ExchangeFacts::class);
 
         Expect::same(
             [self::CHANNELS[$channel], 'planned', $this->slot($day, $time)->format(\DATE_ATOM), $this->slot($day, $end)->format(\DATE_ATOM), $contact, $text],
-            [$facts->channel->value, $exchange->value('status')->value, $this->onMyClock($facts->occurredAt), $this->onMyClock($facts->occurredAt->modify(sprintf('+%d minutes', $facts->duration?->minutes))), $this->nameOf($exchange->value('contact')), $facts->text],
+            [$facts->channel->value, $exchange->object('status', ExchangeStatus::class)->value, $this->onMyClock($facts->occurredAt), $this->onMyClock($facts->occurredAt->modify(sprintf('+%d minutes', $facts->duration?->minutes))), $this->nameOf($exchange->objectOrNull('contact', PersonId::class)), $facts->text],
         );
     }
 
@@ -128,14 +131,14 @@ final class BookSlotContext implements Context
 
         Expect::same(
             [self::CHANNELS[$channel], $this->scenario->personIdOf($contact), [$this->scenario->idOf($organization)]],
-            [$exchange->value('facts')->channel->value, $exchange->value('contact')?->value, array_map(strval(...), $exchange->value('keptFor'))],
+            [$exchange->object('facts', ExchangeFacts::class)->channel->value, $exchange->objectOrNull('contact', PersonId::class)?->value, array_map(strval(...), $exchange->listOf('keptFor', OrganizationId::class))],
         );
     }
 
     #[Then('/^"(?<name>[^"]+)" est un contact à rattacher, au (?<phone>[^a-z]+) et à (?<email>\S+)$/u')]
     public function isAContactToAttachReachedAt(string $name, string $phone, string $email): void
     {
-        $contact = StateOf::the($this->bookedExchange())->value('contact') ?? throw new \LogicException('The booked exchange has no contact');
+        $contact = StateOf::the($this->bookedExchange())->objectOrNull('contact', PersonId::class) ?? throw new \LogicException('The booked exchange has no contact');
         $details = $this->application->persons->get($contact)->contactDetails();
 
         Expect::same(
@@ -151,7 +154,7 @@ final class BookSlotContext implements Context
 
         Expect::same(
             [true, $person->value],
-            [true === $this->application->contactsToAttach->find($person)?->isHeldBy(new MemberId($this->application->signedIn())), StateOf::the($this->bookedExchange())->value('contact')?->value],
+            [true === $this->application->contactsToAttach->find($person)?->isHeldBy(new MemberId($this->application->signedIn())), StateOf::the($this->bookedExchange())->objectOrNull('contact', PersonId::class)?->value],
         );
     }
 
@@ -160,9 +163,9 @@ final class BookSlotContext implements Context
     {
         $person = new PersonId($this->scenario->personIdOf($contact));
         $accountId = $this->application->prospectors->prospectorFrom(new MemberId($this->application->signedIn()))->accountId;
-        $thatDay = array_values(array_filter($this->application->exchanges->withContact($person, $accountId), fn (Exchange $exchange): bool => str_starts_with($this->onMyClock(StateOf::the($exchange)->value('facts')->occurredAt), Vocabulary::frenchMoment(sprintf('%s à 0h00', $day))->format('Y-m-d'))));
+        $thatDay = array_values(array_filter($this->application->exchanges->withContact($person, $accountId), fn (Exchange $exchange): bool => str_starts_with($this->onMyClock(StateOf::the($exchange)->object('facts', ExchangeFacts::class)->occurredAt), Vocabulary::frenchMoment(sprintf('%s à 0h00', $day))->format('Y-m-d'))));
 
-        Expect::same([$this->scenario->memberIdOf($member)->value], array_map(static fn (Exchange $exchange): string => StateOf::the($exchange)->value('createdBy')->value, $thatDay));
+        Expect::same([$this->scenario->memberIdOf($member)->value], array_map(static fn (Exchange $exchange): string => StateOf::the($exchange)->object('createdBy', MemberId::class)->value, $thatDay));
     }
 
     #[Then('aucun contact n\'est créé')]
@@ -241,7 +244,7 @@ final class BookSlotContext implements Context
         }
 
         $this->scenario->rememberTheExchange((string) $exchange->id());
-        $contact = StateOf::the($exchange)->value('contact');
+        $contact = StateOf::the($exchange)->objectOrNull('contact', PersonId::class);
         if (null !== $contact) {
             $this->scenario->rememberPerson($booker, $contact);
         }

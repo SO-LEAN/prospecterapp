@@ -7,10 +7,13 @@ namespace Tests\Core\Double;
 use Prospecter\Core\Prospecting\Application\ConsultHeldExchanges\HeldExchange;
 use Prospecter\Core\Prospecting\Application\Port\HeldExchangeRetriever;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\OrganizationId;
+use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Reads the exchanges the in-memory repository saved, as the adapter reads their items, and the agenda of a holder
@@ -40,9 +43,9 @@ final readonly class InMemoryHeldExchangeRetriever implements HeldExchangeRetrie
         $planned = array_values(array_filter($this->database->exchanges(), static function (Exchange $exchange) use ($accountId, $holder, $from): bool {
             $state = StateOf::the($exchange);
 
-            return ExchangeStatus::Planned === $state->value('status') && $exchange->accountId()->equals($accountId) && $state->value('createdBy')->equals($holder) && $state->value('facts')->occurredAt >= $from;
+            return ExchangeStatus::Planned === $state->object('status', ExchangeStatus::class) && $exchange->accountId()->equals($accountId) && $state->object('createdBy', MemberId::class)->equals($holder) && $state->object('facts', ExchangeFacts::class)->occurredAt >= $from;
         }));
-        usort($planned, static fn (Exchange $a, Exchange $b): int => [StateOf::the($a)->value('facts')->occurredAt, (string) $a->id()] <=> [StateOf::the($b)->value('facts')->occurredAt, (string) $b->id()]);
+        usort($planned, static fn (Exchange $a, Exchange $b): int => [StateOf::the($a)->object('facts', ExchangeFacts::class)->occurredAt, (string) $a->id()] <=> [StateOf::the($b)->object('facts', ExchangeFacts::class)->occurredAt, (string) $b->id()]);
 
         return array_map(self::heldExchangeOf(...), $planned);
     }
@@ -50,21 +53,21 @@ final readonly class InMemoryHeldExchangeRetriever implements HeldExchangeRetrie
     private static function heldExchangeOf(Exchange $exchange): HeldExchange
     {
         $state = StateOf::the($exchange);
-        $facts = $state->value('facts');
+        $facts = $state->object('facts', ExchangeFacts::class);
 
         return new HeldExchange(
-            (string) $state->value('id'),
-            (string) $state->value('createdBy'),
-            $state->value('status')->value,
+            (string) $state->object('id', ExchangeId::class),
+            (string) $state->object('createdBy', MemberId::class),
+            $state->object('status', ExchangeStatus::class)->value,
             $facts->channel->value,
             $facts->occurredAt,
             $facts->duration?->minutes,
             $facts->place,
             $facts->link?->url,
             $facts->linkRequested,
-            $state->value('contact')?->value,
-            array_map(strval(...), $state->value('keptFor')),
-            $state->value('bookedByLink'),
+            $state->objectOrNull('contact', PersonId::class)?->value,
+            array_map(strval(...), $state->listOf('keptFor', OrganizationId::class)),
+            $state->bool('bookedByLink'),
         );
     }
 }

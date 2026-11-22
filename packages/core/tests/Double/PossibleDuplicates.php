@@ -19,6 +19,6 @@ final class PossibleDuplicates
      */
     public static function of(Organization $organization, InMemoryDatabase $database): array
     {
-        return array_map(static fn (OrganizationId $id): PossibleDuplicate => new PossibleDuplicate($id->value, $database->organization((string) $id)?->fullName() ?? $id->value), StateOf::the($organization)->value('possibleDuplicates'));
+        return array_map(static fn (OrganizationId $id): PossibleDuplicate => new PossibleDuplicate($id->value, $database->organization((string) $id)?->fullName() ?? $id->value), StateOf::the($organization)->listOf('possibleDuplicates', OrganizationId::class));
     }
 }

@@ -63,12 +63,12 @@ class BoundedContextsTest extends TestCase
         $root = dirname(__DIR__, 2).'/src/';
         $forbidden = [];
 
-        foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($root.$context, \FilesystemIterator::SKIP_DOTS)) as $file) {
-            preg_match_all(self::IMPORT, (string) file_get_contents($file->getPathname()), $uses, PREG_SET_ORDER);
+        foreach (FilesUnder::the($root.$context) as $path) {
+            preg_match_all(self::IMPORT, (string) file_get_contents($path), $uses, PREG_SET_ORDER);
 
             foreach ($uses as [, $usedContext, $class]) {
                 if (in_array($usedContext, self::FORBIDDEN[$context], true) && !str_starts_with($class, self::CONTRACT_EVENTS)) {
-                    $forbidden[] = sprintf('%s: %s\\%s', substr($file->getPathname(), strlen($root)), $usedContext, $class);
+                    $forbidden[] = sprintf('%s: %s\\%s', substr($path, strlen($root)), $usedContext, $class);
                 }
             }
         }

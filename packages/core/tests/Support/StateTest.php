@@ -70,6 +70,11 @@ final class StateTest extends TestCase
         new State(['text' => null])->string('text');
     }
 
+    public function testATextMayBeMissing(): void
+    {
+        $this->assertNull(new State(['text' => null])->stringOrNull('text'));
+    }
+
     public function testAnObjectMayBeMissing(): void
     {
         $this->assertNull(new State(['at' => null])->objectOrNull('at', \DateTimeImmutable::class));

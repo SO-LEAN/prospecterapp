@@ -255,7 +255,7 @@ final class ConnectionTest extends TestCase
             $connection->noteMailboxChange($historyId, new \DateTimeImmutable(self::AT));
         }
 
-        $this->assertSame($furthest, StateOf::the($connection)->value('notifiedHistoryId'));
+        $this->assertSame($furthest, StateOf::the($connection)->stringOrNull('notifiedHistoryId'));
     }
 
     /**

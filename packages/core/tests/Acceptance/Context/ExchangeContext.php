@@ -32,6 +32,7 @@ use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\Core\Acceptance\Expect;
@@ -234,7 +235,7 @@ final class ExchangeContext implements Context
         $this->expectPlanned();
         $planned = $this->application->database->exchange((string) $this->lastNoted);
 
-        Expect::same($this->application->signedIn(), null === $planned ? null : StateOf::the($planned)->value('createdBy')->value);
+        Expect::same($this->application->signedIn(), null === $planned ? null : StateOf::the($planned)->object('createdBy', MemberId::class)->value);
     }
 
     #[When('/^je regarde ce qui chevauche le (?<day>\S+) à (?<time>\S+) pour (?<duration>.+)$/')]
@@ -324,7 +325,7 @@ final class ExchangeContext implements Context
         preg_match_all('/"([^"]+)"/', $organizations, $names);
         $noted = array_find($this->storedTimelineOf($this->lastNotedWith), fn (Exchange $exchange): bool => $exchange->id()->value === $this->lastNoted);
 
-        Expect::same($names[1], array_map($this->scenario->nameOf(...), null === $noted ? [] : StateOf::the($noted)->value('keptFor')));
+        Expect::same($names[1], array_map($this->scenario->nameOf(...), null === $noted ? [] : StateOf::the($noted)->listOf('keptFor', OrganizationId::class)));
     }
 
     #[Then('l\'échange avec :contact n\'existe plus')]
@@ -365,7 +366,7 @@ final class ExchangeContext implements Context
     #[Then('l\'appel avec :contact est toujours dans sa timeline, gardé pour :organization')]
     public function theCallIsStillKeptFor(string $contact, string $organization): void
     {
-        $kept = array_map(fn (Exchange $exchange): array => [StateOf::the($exchange)->value('facts')->channel, array_map($this->scenario->nameOf(...), StateOf::the($exchange)->value('keptFor'))], $this->storedTimelineOf($contact));
+        $kept = array_map(fn (Exchange $exchange): array => [StateOf::the($exchange)->object('facts', ExchangeFacts::class)->channel, array_map($this->scenario->nameOf(...), StateOf::the($exchange)->listOf('keptFor', OrganizationId::class))], $this->storedTimelineOf($contact));
 
         Expect::same([[Channel::Call, [$organization]]], $kept);
     }
@@ -522,7 +523,7 @@ final class ExchangeContext implements Context
         $stored = $this->scenario->isAnOrganization($name)
             ? $this->application->exchanges->keptFor($this->scenario->organizationNamed($name)->id())
             : $this->application->exchanges->withContact(new PersonId($this->scenario->personIdOf($name)), $this->scenario->meAsProspector()->accountId);
-        usort($stored, static fn (Exchange $a, Exchange $b): int => [StateOf::the($b)->value('facts')->occurredAt, (string) $b->id()] <=> [StateOf::the($a)->value('facts')->occurredAt, (string) $a->id()]);
+        usort($stored, static fn (Exchange $a, Exchange $b): int => [StateOf::the($b)->object('facts', ExchangeFacts::class)->occurredAt, (string) $b->id()] <=> [StateOf::the($a)->object('facts', ExchangeFacts::class)->occurredAt, (string) $a->id()]);
 
         return $stored;
     }

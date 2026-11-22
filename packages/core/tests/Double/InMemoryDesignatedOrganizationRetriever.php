@@ -10,6 +10,7 @@ use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\ExternalReference;
+use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\Siret;
 
@@ -63,7 +64,7 @@ final readonly class InMemoryDesignatedOrganizationRetriever implements Designat
 
     private static function candidate(Organization $organization): Candidate
     {
-        $name = StateOf::the($organization)->value('legalIdentity')->fullName();
+        $name = StateOf::the($organization)->object('legalIdentity', LegalIdentity::class)->fullName();
 
         return new Candidate($organization->id()->value, '' === $name ? (string) $organization->contactDetails()->email : $name);
     }

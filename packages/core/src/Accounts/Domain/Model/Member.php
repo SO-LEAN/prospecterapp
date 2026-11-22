@@ -52,6 +52,7 @@ final class Member implements ReleasesEvents
     public static function registerBy(self $administrator, MemberId $id, PersonId $profile, \DateTimeImmutable $at, Role ...$roles): self
     {
         $administrator->ensureAdministrator();
+        $roles = array_values($roles);
         self::ensureAWorkingRoleAmong($roles);
 
         $member = new self($id, $administrator->accountId, $profile, ...self::signingInWith($roles));

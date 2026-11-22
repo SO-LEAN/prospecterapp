@@ -82,7 +82,7 @@ final class SynchronousEvents implements Events
             $this->undelivered[] = $event;
 
             foreach ($this->handlersOf($event, $this->translators) as $translator) {
-                Invocable::of($translator)($event);
+                Invocable::call($translator, $event);
             }
         }
     }
@@ -112,7 +112,7 @@ final class SynchronousEvents implements Events
     private function react(EventHandler $reaction, object $event): void
     {
         try {
-            $this->withoutWhatFails(static fn () => Invocable::of($reaction)($event));
+            $this->withoutWhatFails(static fn () => Invocable::call($reaction, $event));
         } catch (\Throwable $failure) {
             $this->failures[] = [$event, $failure];
         }

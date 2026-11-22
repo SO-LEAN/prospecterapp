@@ -33,8 +33,8 @@ class DomainClassesAreFinalTest extends TestCase
         $root = dirname(__DIR__, 2).'/src/';
 
         foreach (glob($root.'*/Domain', GLOB_ONLYDIR) ?: [] as $domain) {
-            foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($domain, \FilesystemIterator::SKIP_DOTS)) as $file) {
-                $class = 'Prospecter\Core\\'.str_replace(['/', '.php'], ['\\', ''], substr($file->getPathname(), strlen($root)));
+            foreach (FilesUnder::the($domain) as $path) {
+                $class = 'Prospecter\Core\\'.str_replace(['/', '.php'], ['\\', ''], substr($path, strlen($root)));
 
                 if (class_exists($class)) {
                     yield $class => [$class];

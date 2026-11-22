@@ -1,0 +1,19 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Prospecter\Core\SharedKernel\Domain;
+
+/**
+ * A text with its accented letters decomposed into a letter and its accent (Unicode NFD), so that the accent can be
+ * removed; empty when the text is no valid UTF-8.
+ */
+final class Decomposed
+{
+    public static function of(string $text): string
+    {
+        $decomposed = \Normalizer::normalize($text, \Normalizer::FORM_D);
+
+        return is_string($decomposed) ? $decomposed : '';
+    }
+}

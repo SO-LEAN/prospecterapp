@@ -881,7 +881,7 @@ final class Application
         $handler = $this->handlers[$command::class] ?? throw new \LogicException(sprintf('No handler for %s', $command::class));
         $wasOpen = $this->unitOfWork->isOpen();
         $this->attempt(function () use ($handler, $command): void {
-            $this->events->deliverAfter(static fn () => Invocable::of($handler)($command));
+            $this->events->deliverAfter(static fn () => Invocable::call($handler, $command));
         });
 
         if (!$wasOpen && $this->unitOfWork->isOpen()) {

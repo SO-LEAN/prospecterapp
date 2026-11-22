@@ -36,16 +36,16 @@ final readonly class InMemoryMyBookingPageRetriever implements MyBookingPageRetr
         }
         $state = StateOf::the($page);
         /** @var WeeklyWindows $windows */
-        $windows = $state->value('windows');
+        $windows = $state->object('windows', WeeklyWindows::class);
         /** @var ?HostTimeZone $timeZone */
-        $timeZone = $state->value('timeZone');
+        $timeZone = $state->objectOrNull('timeZone', HostTimeZone::class);
         /** @var array<string, InactivePeriod> $periods */
         $periods = $state->value('inactivePeriods');
         /** @var OfferedChannels $channels */
-        $channels = $state->value('channels');
+        $channels = $state->object('channels', OfferedChannels::class);
         /** @var ?BookingCode $code */
-        $code = $state->value('code');
-        $open = (bool) $state->value('open');
+        $code = $state->objectOrNull('code', BookingCode::class);
+        $open = $state->bool('open');
 
         return new MyBookingPage(
             $open,

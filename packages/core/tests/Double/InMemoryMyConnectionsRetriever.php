@@ -8,7 +8,11 @@ use Prospecter\Core\Connectors\Application\MyConnection;
 use Prospecter\Core\Connectors\Application\Port\MyConnectionsRetriever;
 use Prospecter\Core\Connectors\Domain\Model\CalendarEntry;
 use Prospecter\Core\Connectors\Domain\Model\Connection;
+use Prospecter\Core\Connectors\Domain\Model\ConnectionState;
+use Prospecter\Core\Connectors\Domain\Model\MailImport;
+use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Model\SyncState;
+use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
@@ -31,10 +35,10 @@ final readonly class InMemoryMyConnectionsRetriever implements MyConnectionsRetr
         $state = StateOf::the($connection);
         $upcoming = array_filter(
             $this->database->calendarEntriesOfMember($connection->member()->value),
-            static fn (CalendarEntry $entry): bool => StateOf::the($entry)->value('provider') === $state->value('provider') && StateOf::the($entry)->value('startsAt') >= $from,
+            static fn (CalendarEntry $entry): bool => StateOf::the($entry)->object('startsAt', \DateTimeImmutable::class) >= $from,
         );
 
-        return new MyConnection($state->value('provider')->value, $state->value('state')->value, $state->value('externalAccount')->value, $state->value('connectedAt'), self::countIn($upcoming, SyncState::Synced), self::countIn($upcoming, SyncState::Failed), $state->value('mailImport')->value, $state->value('lastNotifiedAt'));
+        return new MyConnection($state->object('provider', Provider::class)->value, $state->object('state', ConnectionState::class)->value, $state->object('externalAccount', Email::class)->value, $state->object('connectedAt', \DateTimeImmutable::class), self::countIn($upcoming, SyncState::Synced), self::countIn($upcoming, SyncState::Failed), $state->object('mailImport', MailImport::class)->value, $state->objectOrNull('lastNotifiedAt', \DateTimeImmutable::class));
     }
 
     /**
@@ -42,6 +46,6 @@ final readonly class InMemoryMyConnectionsRetriever implements MyConnectionsRetr
      */
     private static function countIn(array $entries, SyncState $state): int
     {
-        return count(array_filter($entries, static fn (CalendarEntry $entry): bool => StateOf::the($entry)->value('state') === $state));
+        return count(array_filter($entries, static fn (CalendarEntry $entry): bool => StateOf::the($entry)->object('state', SyncState::class) === $state));
     }
 }
