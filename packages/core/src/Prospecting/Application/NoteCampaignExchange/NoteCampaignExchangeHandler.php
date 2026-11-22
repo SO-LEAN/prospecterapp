@@ -11,6 +11,7 @@ use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\Prospecting\Domain\Model\MessageReference;
 use Prospecter\Core\Prospecting\Domain\Model\Noting;
 use Prospecter\Core\Prospecting\Domain\Model\RecipientCorrespondent;
+use Prospecter\Core\Prospecting\Domain\Model\RecipientInCampaign;
 use Prospecter\Core\Prospecting\Domain\Port\CampaignRecipients;
 use Prospecter\Core\Prospecting\Domain\Port\Prospectors;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
@@ -27,8 +28,9 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Campaigns processes the recipient once it reads the facts of the exchange, which name the campaign (ADR 0145). Noted
- * once, as an AI notes what it sent, the exchange noted before is recognized before the recipient is asked: processed by
- * it, they are no longer to handle, and noting it again is « already noted » (ADR 0166).
+ * once, as an AI notes what it sent, the exchange noted before is recognized before the recipient is asked: noted
+ * outside any campaign, by the import of a mailbox, it becomes the recipient's exchange; otherwise noting it again is
+ * « already noted » (ADR 0166, 0195).
  */
 final readonly class NoteCampaignExchangeHandler implements CommandHandler
 {
@@ -53,8 +55,12 @@ final readonly class NoteCampaignExchangeHandler implements CommandHandler
         $facts = $recipient->exchangeFacts($command->occurredAt, $command->text);
         $reference = MessageReference::of($facts->channel, $command->messageId, $command->linkedInConversation);
 
-        if ($command->noteOnce) {
-            $this->notedOnce->ensureFirstAs($prospector->accountId, $reference->fingerprintOf($facts, $contact));
+        $notedFirst = $command->noteOnce ? $this->notedOnce->keptUnder($prospector->accountId, $reference->fingerprintOf($facts, $contact)) : null;
+
+        if (null !== $notedFirst) {
+            $this->joinTheCampaign($this->exchanges->get($notedFirst), $recipient, $prospector->id, $command->executedAt);
+
+            return;
         }
 
         $exchange = Exchange::noted(
@@ -70,5 +76,12 @@ final readonly class NoteCampaignExchangeHandler implements CommandHandler
 
         $this->exchanges->save($exchange);
         $this->publishWhatHappenedTo($exchange);
+    }
+
+    private function joinTheCampaign(Exchange $notedFirst, RecipientInCampaign $recipient, MemberId $by, \DateTimeImmutable $at): void
+    {
+        $notedFirst->joinCampaign($recipient, $by, $at);
+        $this->exchanges->save($notedFirst);
+        $this->publishWhatHappenedTo($notedFirst);
     }
 }
