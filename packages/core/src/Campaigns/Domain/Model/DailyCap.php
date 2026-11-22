@@ -24,6 +24,12 @@ final readonly class DailyCap
         return $sends < 1 ? throw InvalidDailyCap::belowOne() : new self($sends);
     }
 
+    #[\NoDiscard]
+    public function isReachedBy(int $processed): bool
+    {
+        return $processed >= $this->sends;
+    }
+
     /**
      * None when the member set none.
      *

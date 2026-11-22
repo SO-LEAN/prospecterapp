@@ -18,6 +18,16 @@ final class DailyCapTest extends TestCase
         $this->assertSame(1, DailyCap::of(1)->sends);
     }
 
+    public function testTheCapIsReachedByAsManySends(): void
+    {
+        $this->assertTrue(DailyCap::of(30)->isReachedBy(30));
+    }
+
+    public function testTheCapIsNotReachedByFewerSends(): void
+    {
+        $this->assertFalse(DailyCap::of(30)->isReachedBy(29));
+    }
+
     public function testACapOfNoSendIsRefused(): void
     {
         $this->expectExceptionObject(InvalidDailyCap::belowOne());
