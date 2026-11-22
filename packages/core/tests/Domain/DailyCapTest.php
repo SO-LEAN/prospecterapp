@@ -32,6 +32,6 @@ final class DailyCapTest extends TestCase
     {
         $this->expectExceptionObject(InvalidDailyCap::belowOne());
 
-        (void) DailyCap::of(0);
+        DailyCap::of(0);
     }
 }

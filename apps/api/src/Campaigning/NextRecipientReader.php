@@ -73,7 +73,7 @@ final readonly class NextRecipientReader
     private function nextOf(string $reader, string $campaignId, string $timeZone): RecipientToHandle
     {
         $kept = new KeptRecipientToHandle();
-        $this->nextRecipient->__invoke(new NextRecipient($reader, $campaignId, $timeZone, $this->clock->now()), $kept);
+        $this->nextRecipient->__invoke(new NextRecipient(memberId: $reader, campaignId: $campaignId, timeZone: $timeZone, at: $this->clock->now()), $kept);
 
         return $kept->recipient ?? throw new \LogicException('The next recipient was not presented');
     }

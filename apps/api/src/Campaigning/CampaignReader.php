@@ -48,7 +48,7 @@ final readonly class CampaignReader
     public function read(string $reader, string $id, ?string $timeZone = null): CampaignResource
     {
         $kept = new KeptCampaign();
-        $this->consultCampaign->__invoke(new ConsultCampaign($reader, $id, $timeZone ?? self::NO_CLOCK, $this->clock->now()), $kept);
+        $this->consultCampaign->__invoke(new ConsultCampaign(memberId: $reader, campaignId: $id, timeZone: $timeZone ?? self::NO_CLOCK, at: $this->clock->now()), $kept);
         $campaign = $kept->campaign ?? throw new \LogicException('The campaign was not presented');
 
         return $this->campaignResourceFactory->of($campaign, $kept->targeted, $this->authorsOf($reader, [$campaign])[$campaign->authorId] ?? null);
