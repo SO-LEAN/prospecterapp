@@ -105,7 +105,7 @@ class CampaignToolsApiTest extends ApiTestCase
     {
         $started = $this->aStartedCampaign();
 
-        $campaign = $this->assertTheToolActsAsItsEndpoint('set-campaign-daily-cap', ['id' => $started, 'dailyCap' => 2], 'PUT', '/api/campaigns/'.$started.'/daily-cap', ['dailyCap' => 2], self::TEAM_WRITERS);
+        $campaign = $this->assertTheToolActsAsItsEndpoint('set-campaign-daily-cap', ['id' => $started, 'dailyCap' => 2], 'PATCH', '/api/campaigns/'.$started.'/daily-cap', ['dailyCap' => 2], self::TEAM_WRITERS);
 
         $this->assertSame(2, $campaign['dailyCap']);
     }
@@ -204,7 +204,7 @@ class CampaignToolsApiTest extends ApiTestCase
     public function testTheAiIsWarnedOnceTheDailyCapIsReachedAndStillGetsTheNextRecipient(): void
     {
         $started = $this->aStartedCampaign();
-        $this->requestJson('PUT', '/api/campaigns/'.$started.'/daily-cap', ['dailyCap' => 1]);
+        $this->requestJson('PATCH', '/api/campaigns/'.$started.'/daily-cap', ['dailyCap' => 1]);
         $this->requestJson('POST', '/api/campaigns/'.$started.'/recipients/'.$this->ada.'/exchanges', self::SENT_TO_ADA);
 
         $next = $this->callWithoutHandshake('get-next-recipient', ['id' => $started, 'timeZone' => 'Europe/Paris']);
@@ -222,7 +222,7 @@ class CampaignToolsApiTest extends ApiTestCase
     {
         $this->keepTheKernel();
         $started = $this->aStartedCampaign();
-        $this->requestJson('PUT', '/api/campaigns/'.$started.'/daily-cap', ['dailyCap' => 1]);
+        $this->requestJson('PATCH', '/api/campaigns/'.$started.'/daily-cap', ['dailyCap' => 1]);
         $this->requestJson('POST', '/api/campaigns/'.$started.'/recipients/'.$this->ada.'/exchanges', self::SENT_TO_ADA);
         $this->theClockShows(self::LATE_THAT_DAY);
 
@@ -237,7 +237,7 @@ class CampaignToolsApiTest extends ApiTestCase
     public function testBelowTheDailyCapTheAiIsNotWarned(): void
     {
         $started = $this->aStartedCampaign();
-        $this->requestJson('PUT', '/api/campaigns/'.$started.'/daily-cap', ['dailyCap' => 2]);
+        $this->requestJson('PATCH', '/api/campaigns/'.$started.'/daily-cap', ['dailyCap' => 2]);
         $this->requestJson('POST', '/api/campaigns/'.$started.'/recipients/'.$this->ada.'/exchanges', self::SENT_TO_ADA);
 
         $next = $this->callWithoutHandshake('get-next-recipient', ['id' => $started]);

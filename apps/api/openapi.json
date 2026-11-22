@@ -7616,12 +7616,12 @@
             }
         },
         "/api/campaigns/{id}/daily-cap": {
-            "put": {
+            "patch": {
                 "tags": [
                     "Campaigns"
                 ],
                 "summary": "Set the daily cap of a campaign, or take it off, until it is stopped or ended",
-                "operationId": "put_api_campaigns_set_daily_cap",
+                "operationId": "patch_api_campaigns_set_daily_cap",
                 "parameters": [
                     {
                         "name": "id",

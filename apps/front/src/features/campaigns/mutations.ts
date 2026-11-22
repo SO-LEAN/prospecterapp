@@ -162,7 +162,7 @@ export function useSetDailyCap() {
   const queryClient = useQueryClient()
   const { t } = useTranslation()
 
-  return api.useMutation('put', '/api/campaigns/{id}/daily-cap', {
+  return api.useMutation('patch', '/api/campaigns/{id}/daily-cap', {
     onSuccess: async (campaign) => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: campaignQuery(campaign.id).queryKey }),

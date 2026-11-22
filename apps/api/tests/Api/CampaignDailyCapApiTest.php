@@ -45,9 +45,9 @@ class CampaignDailyCapApiTest extends ApiTestCase
     {
         $id = $this->aStartedCampaign();
 
-        $capped = $this->requestJson('PUT', '/api/campaigns/'.$id.'/daily-cap', ['dailyCap' => 2]);
+        $capped = $this->requestJson('PATCH', '/api/campaigns/'.$id.'/daily-cap', ['dailyCap' => 2]);
         $this->assertResponseStatusCodeSame(200);
-        $uncapped = $this->requestJson('PUT', '/api/campaigns/'.$id.'/daily-cap', ['dailyCap' => null]);
+        $uncapped = $this->requestJson('PATCH', '/api/campaigns/'.$id.'/daily-cap', ['dailyCap' => null]);
 
         $this->assertSame([2, null], [$capped['dailyCap'], $uncapped['dailyCap']]);
     }
@@ -58,11 +58,11 @@ class CampaignDailyCapApiTest extends ApiTestCase
         $started = $this->requestJson('GET', '/api/campaigns/'.$id);
 
         $stopped = $this->requestJson('POST', '/api/campaigns/'.$id.'/stop');
-        $refusal = $this->requestJson('PUT', '/api/campaigns/'.$id.'/daily-cap', ['dailyCap' => 2]);
+        $refusal = $this->requestJson('PATCH', '/api/campaigns/'.$id.'/daily-cap', ['dailyCap' => 2]);
 
         $this->assertResponseStatusCodeSame(409);
         $this->assertSame(
-            [['href' => '/api/campaigns/'.$id.'/daily-cap', 'method' => 'PUT'], false, 'startedCampaign'],
+            [['href' => '/api/campaigns/'.$id.'/daily-cap', 'method' => 'PATCH'], false, 'startedCampaign'],
             [self::valueAt($started, '_links', 'setDailyCap'), array_key_exists('setDailyCap', self::record(self::valueAt($stopped, '_links'))), $refusal['reason']],
         );
     }
@@ -98,7 +98,7 @@ class CampaignDailyCapApiTest extends ApiTestCase
         $id = $this->aStartedCampaign();
         $this->login($this->aMemberOfTheFixtures('administrator', Role::Prospector, Role::Admin));
 
-        $this->requestJson('PUT', '/api/campaigns/'.$id.'/daily-cap', ['dailyCap' => 2]);
+        $this->requestJson('PATCH', '/api/campaigns/'.$id.'/daily-cap', ['dailyCap' => 2]);
 
         $this->assertResponseStatusCodeSame(200);
     }
@@ -108,7 +108,7 @@ class CampaignDailyCapApiTest extends ApiTestCase
         $id = $this->aStartedCampaign();
         $this->login($this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector));
 
-        $this->requestJson('PUT', '/api/campaigns/'.$id.'/daily-cap', ['dailyCap' => 2]);
+        $this->requestJson('PATCH', '/api/campaigns/'.$id.'/daily-cap', ['dailyCap' => 2]);
 
         $this->assertResponseStatusCodeSame(403);
     }
