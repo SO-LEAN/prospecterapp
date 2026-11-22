@@ -31,6 +31,7 @@ use Prospecter\Core\Prospecting\Application\StopProspecting\StopProspecting;
 use Prospecter\Core\Prospecting\Application\WriteObservations\WriteObservations;
 use Prospecter\Core\Prospecting\Domain\Event\DuplicateSuspicionLifted;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
+use Prospecter\Core\Prospecting\Domain\Model\WebPresence;
 use Prospecter\Core\Prospecting\Domain\Model\Website;
 use Prospecter\Core\SharedKernel\Domain\Address;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
@@ -473,7 +474,7 @@ final class OrganizationContext implements Context
         $values = Vocabulary::values(array_diff_key($details, ['logo' => true]));
         $manager = $this->scenario->managerOf($organization);
         $organization->reviseLegalIdentity(new LegalIdentity(StateOf::the($organization)->object('legalIdentity', LegalIdentity::class)->corporateName, $values['forme juridique'], siret: Siret::orNone($values['SIRET'])), by: $manager, at: $this->application->now());
-        $organization->changeContactDetails(Vocabulary::contactDetails($values), ExternalReferences::designating(Vocabulary::links($values), Designated::Organization), Website::orNone($values['site web']), by: $manager, at: $this->application->now());
+        $organization->changeContactDetails(Vocabulary::contactDetails($values), new WebPresence(ExternalReferences::designating(Vocabulary::links($values), Designated::Organization), Website::orNone($values['site web'])), $manager, $this->application->now());
         $address = Vocabulary::address($values);
         $organization->relocateTo($address, null === $address ? null : $this->application->geoLocation->find((string) $address), by: $manager, at: $this->application->now());
 

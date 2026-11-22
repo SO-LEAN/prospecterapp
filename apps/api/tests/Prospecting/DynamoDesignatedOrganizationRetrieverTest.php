@@ -6,6 +6,7 @@ use Prospecter\Core\Prospecting\Application\IdentifyOrganizations\Candidate;
 use Prospecter\Core\Prospecting\Application\Port\DesignatedOrganizationRetriever;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
+use Prospecter\Core\Prospecting\Domain\Model\WebPresence;
 use Prospecter\Core\Prospecting\Domain\Model\Website;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
@@ -102,7 +103,7 @@ class DynamoDesignatedOrganizationRetrieverTest extends ApiTestCase
 
     private function changeContactDetails(Organization $organization, Prospector $prospector, ExternalReferences $references, ?Website $website = null): void
     {
-        $organization->changeContactDetails(new ContactDetails(), $references, $website, $prospector->id, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        $organization->changeContactDetails(new ContactDetails(), new WebPresence($references, $website), $prospector->id, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         self::getContainer()->get(OrganizationRepository::class)->save($organization);
     }
 }

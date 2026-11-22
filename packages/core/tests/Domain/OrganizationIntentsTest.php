@@ -10,6 +10,7 @@ use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationIntent;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationSupplement;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
+use Prospecter\Core\Prospecting\Domain\Model\WebPresence;
 use Prospecter\Core\Prospecting\Domain\Policy\OrganizationPossibilities;
 use Prospecter\Core\Prospecting\Domain\Service\OrphanContacts;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
@@ -87,7 +88,7 @@ class OrganizationIntentsTest extends TestCase
     {
         match ($intent) {
             OrganizationIntent::ReviseLegalIdentity => $organization->reviseLegalIdentity(new LegalIdentity('ACME SAS'), $by, new \DateTimeImmutable(self::AT)),
-            OrganizationIntent::ChangeContactDetails => $organization->changeContactDetails(new ContactDetails(phoneNumber: PhoneNumber::of('03 88 00 00 00')), ExternalReferences::none(), null, $by, new \DateTimeImmutable(self::AT)),
+            OrganizationIntent::ChangeContactDetails => $organization->changeContactDetails(new ContactDetails(phoneNumber: PhoneNumber::of('03 88 00 00 00')), new WebPresence(ExternalReferences::none()), $by, new \DateTimeImmutable(self::AT)),
             OrganizationIntent::Relocate => $organization->relocateTo(new Address(city: 'Colmar'), null, $by, new \DateTimeImmutable(self::AT)),
             OrganizationIntent::WriteObservations => $organization->writeObservations('Rappeler lundi', $by, new \DateTimeImmutable(self::AT)),
             OrganizationIntent::AttachToHolding => $organization->attachToHolding($this->holding(), $by, new \DateTimeImmutable(self::AT)),

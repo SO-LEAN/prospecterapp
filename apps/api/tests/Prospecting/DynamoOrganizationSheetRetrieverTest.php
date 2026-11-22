@@ -8,6 +8,7 @@ use Prospecter\Core\Prospecting\Application\PossibleDuplicate;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationIntent;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
+use Prospecter\Core\Prospecting\Domain\Model\WebPresence;
 use Prospecter\Core\Prospecting\Domain\Model\Website;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 use Prospecter\Core\SharedKernel\Application\ExternalLink;
@@ -82,7 +83,7 @@ class DynamoOrganizationSheetRetrieverTest extends ApiTestCase
     {
         $prospector = $this->aProspector();
         $acme = $this->prospect($prospector, 'ACME');
-        $acme->changeContactDetails(new ContactDetails(), ExternalReferences::designating(['linkedin.com/company/ACME-Corp'], Designated::Organization), new Website('acme.fr'), $prospector->id, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        $acme->changeContactDetails(new ContactDetails(), new WebPresence(ExternalReferences::designating(['linkedin.com/company/ACME-Corp'], Designated::Organization), new Website('acme.fr')), $prospector->id, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         $this->organizations()->save($acme);
 
         $sheet = $this->sheetOf($acme);

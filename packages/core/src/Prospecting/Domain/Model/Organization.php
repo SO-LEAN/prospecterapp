@@ -281,13 +281,13 @@ final class Organization implements ReleasesEvents
         $this->recordThat(new LegalIdentityRevised($this->accountId, $by, $this->id, $at));
     }
 
-    public function changeContactDetails(ContactDetails $contactDetails, ExternalReferences $references, ?Website $website, MemberId $by, \DateTimeImmutable $at): void
+    public function changeContactDetails(ContactDetails $contactDetails, WebPresence $web, MemberId $by, \DateTimeImmutable $at): void
     {
         $this->ensurePossible(OrganizationIntent::ChangeContactDetails);
         self::ensureItCanBeNamed($this->legalIdentity, $contactDetails);
         $this->contactDetails = $contactDetails;
-        $this->references = $references;
-        $this->website = $website;
+        $this->references = $web->references;
+        $this->website = $web->website;
         $this->modifiedAt = $at;
         $this->recordThat(new ContactDetailsChanged($this->accountId, $by, $this->id, $at));
     }

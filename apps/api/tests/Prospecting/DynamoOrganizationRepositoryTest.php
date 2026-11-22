@@ -11,6 +11,7 @@ use Prospecter\Core\Prospecting\Domain\Exception\ReferenceAlreadyUsed;
 use Prospecter\Core\Prospecting\Domain\Exception\SiretAlreadyUsed;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
+use Prospecter\Core\Prospecting\Domain\Model\WebPresence;
 use Prospecter\Core\Prospecting\Domain\Model\Website;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 use Prospecter\Core\Prospecting\Domain\Service\OrphanContacts;
@@ -72,7 +73,7 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
         $acme = $this->organizationWithTheEmail($prospector, 'contact@acme.test');
         $organizations->save($acme);
 
-        $acme->changeContactDetails(new ContactDetails(new Email('hello@acme.test')), ExternalReferences::none(), null, by: $prospector->id, at: new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        $acme->changeContactDetails(new ContactDetails(new Email('hello@acme.test')), new WebPresence(ExternalReferences::none()), $prospector->id, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         $organizations->save($acme);
 
         $this->assertFalse($organizations->isEmailUsed($prospector->accountId, new Email('contact@acme.test'), except: new OrganizationId(self::newIdentity())));
@@ -237,7 +238,7 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
         $acme = $this->organizationOnTheWeb($prospector, self::A_PAGE, null);
         $organizations->save($acme);
 
-        $acme->changeContactDetails(new ContactDetails(), ExternalReferences::none(), null, by: $prospector->id, at: new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        $acme->changeContactDetails(new ContactDetails(), new WebPresence(ExternalReferences::none()), $prospector->id, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         $organizations->save($acme);
 
         $this->assertNull($organizations->withReference($prospector->accountId, self::reference(self::A_PAGE), except: new OrganizationId(self::newIdentity())));
@@ -271,7 +272,7 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
         $acme = $this->organizationOnTheWeb($prospector, null, self::A_SITE);
         $organizations->save($acme);
 
-        $acme->changeContactDetails(new ContactDetails(), ExternalReferences::none(), new Website('https://acme.com'), by: $prospector->id, at: new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        $acme->changeContactDetails(new ContactDetails(), new WebPresence(ExternalReferences::none(), new Website('https://acme.com')), $prospector->id, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         $organizations->save($acme);
 
         $this->assertNull($organizations->withWebsiteOfDomain($prospector->accountId, new Website(self::A_SITE), except: new OrganizationId(self::newIdentity())));
@@ -531,7 +532,7 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
     private function organizationOnTheWeb(Prospector $prospector, ?string $page, ?string $site): Organization
     {
         $organization = Organization::prospectedBy(new Gesture($prospector->accountId, $prospector->id, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)), new OrganizationId(self::newIdentity()), new LegalIdentity('ACME'), new ContactDetails());
-        $organization->changeContactDetails(new ContactDetails(), ExternalReferences::designating(array_filter([$page]), Designated::Organization), Website::orNone($site), by: $prospector->id, at: new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        $organization->changeContactDetails(new ContactDetails(), new WebPresence(ExternalReferences::designating(array_filter([$page]), Designated::Organization), Website::orNone($site)), $prospector->id, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
 
         return $organization;
     }
