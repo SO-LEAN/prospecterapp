@@ -41,7 +41,7 @@ class CampaignToolsApiTest extends ApiTestCase
         $this->aMemberOfTheFixtures('member-user', Role::User);
         $this->aMemberOfAnotherAccount('stranger');
         $this->login();
-        $acme = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];
+        $acme = self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']]), 'id');
         $this->requestJson('POST', '/api/organizations/'.$acme.'/tags', ['tags' => [self::TAG]]);
         $this->ada = $this->aContactOf($acme, 'Ada', 'Lovelace', 'ada@acme.test');
         $this->alan = $this->aContactOf($acme, 'Alan', 'Turing', 'alan@acme.test');
@@ -155,7 +155,7 @@ class CampaignToolsApiTest extends ApiTestCase
 
         $this->assertNotTrue($this->callWithoutHandshake('remove-campaign-recipient', ['id' => $frozen, 'contactId' => $this->alan])['isError'] ?? false);
 
-        $this->assertSame([$this->ada], array_column(array_column($this->requestJson('GET', '/api/campaigns/'.$frozen.'/recipients')['items'], 'contact'), 'id'));
+        $this->assertSame([$this->ada], array_column(array_column(self::recordsAt($this->requestJson('GET', '/api/campaigns/'.$frozen.'/recipients'), 'items'), 'contact'), 'id'));
         $this->assertTheToolAsksForAConfirmation('remove-campaign-recipient');
     }
 
@@ -168,7 +168,7 @@ class CampaignToolsApiTest extends ApiTestCase
 
         $this->assertNotTrue($this->callWithoutHandshake('dismiss-campaign-recipient', ['id' => $started, 'contactId' => $this->alan, ...$gone])['isError'] ?? false);
 
-        $alan = array_find($this->requestJson('GET', '/api/campaigns/'.$started.'/recipients')['items'], fn (array $recipient): bool => $this->alan === $recipient['contact']['id']);
+        $alan = $this->recipientOf($started, $this->alan);
         $this->assertSame(['dismissed', 'Parti de la société'], [$alan['status'] ?? null, $alan['reason'] ?? null]);
         $this->assertTheToolAsksForAConfirmation('dismiss-campaign-recipient');
     }
@@ -176,26 +176,26 @@ class CampaignToolsApiTest extends ApiTestCase
     public function testTheAiTakesTheNextRecipientTheirAddressAndTheMessageToSendAsIs(): void
     {
         $started = $this->aStartedCampaign();
-        $first = $this->requestJson('GET', '/api/campaigns/'.$started.'/recipients')['items'][0]['contact'];
+        $first = self::recordAt($this->requestJson('GET', '/api/campaigns/'.$started.'/recipients'), 'items', 0, 'contact');
 
-        $next = $this->callWithoutHandshake('get-next-recipient', ['id' => $started])['structuredContent'];
+        $next = self::recordAt($this->callWithoutHandshake('get-next-recipient', ['id' => $started]), 'structuredContent');
 
         $this->assertSame(
-            [$first['id'], $first['contactDetails']['email'], 'email', ['subject' => 'Une mission PHP ?', 'text' => 'Bonjour '.$first['name']['firstName']], 'asIs', 2],
-            [$next['contact']['id'], $next['contact']['contactDetails']['email'], $next['channel'], $next['message'], $next['messageMode'], $next['pending']],
+            [$first['id'], self::valueAt($first, 'contactDetails', 'email'), 'email', ['subject' => 'Une mission PHP ?', 'text' => 'Bonjour '.self::stringAt($first, 'name', 'firstName')], 'asIs', 2],
+            [self::valueAt($next, 'contact', 'id'), self::valueAt($next, 'contact', 'contactDetails', 'email'), $next['channel'], $next['message'], $next['messageMode'], $next['pending']],
         );
         $this->assertSame('Send the message as is, without changing a word, with your own tools: your member\'s mailbox for an e-mail, their LinkedIn for a LinkedIn message. Then log it with `log-sent-message` and the text you sent.', $next['instruction']);
-        $this->assertSame(['href' => '/api/campaigns/'.$started.'/recipients/'.$first['id'].'/exchanges', 'method' => 'POST'], $next['_links']['noteExchange']);
+        $this->assertSame(['href' => '/api/campaigns/'.$started.'/recipients/'.self::stringAt($first, 'id').'/exchanges', 'method' => 'POST'], self::valueAt($next, '_links', 'noteExchange'));
     }
 
     public function testTheAiMayAdaptTheMessageToTheNextRecipient(): void
     {
         $this->login();
-        $id = $this->requestJson('POST', '/api/campaigns', [...self::RELAUNCH, 'messageMode' => 'adapted'])['id'];
+        $id = self::stringAt($this->requestJson('POST', '/api/campaigns', [...self::RELAUNCH, 'messageMode' => 'adapted']), 'id');
         $this->requestJson('POST', '/api/campaigns/'.$id.'/freeze');
         $this->requestJson('POST', '/api/campaigns/'.$id.'/start');
 
-        $next = $this->callWithoutHandshake('get-next-recipient', ['id' => $id])['structuredContent'];
+        $next = self::recordAt($this->callWithoutHandshake('get-next-recipient', ['id' => $id]), 'structuredContent');
 
         $this->assertSame('adapted', $next['messageMode']);
         $this->assertSame('You may rewrite the message for this person, from what you know of them (their profile, your past exchanges), but always keep the message\'s idea. Send it with your own tools: your member\'s mailbox for an e-mail, their LinkedIn for a LinkedIn message. Then log it with `log-sent-message` and the text you actually sent.', $next['instruction']);
@@ -260,10 +260,10 @@ class CampaignToolsApiTest extends ApiTestCase
         $started = $this->aStartedCampaign();
         $this->login('admin-user');
 
-        $next = $this->callWithoutHandshake('get-next-recipient', ['id' => $started])['structuredContent'];
-        $noted = $this->callWithoutHandshake('log-sent-message', ['id' => $started, 'contactId' => $next['contact']['id'], ...self::SENT_TO_ADA]);
+        $next = self::recordAt($this->callWithoutHandshake('get-next-recipient', ['id' => $started]), 'structuredContent');
+        $noted = $this->callWithoutHandshake('log-sent-message', ['id' => $started, 'contactId' => self::valueAt($next, 'contact', 'id'), ...self::SENT_TO_ADA]);
 
-        $this->assertSame([2, 'noted'], [$next['pending'], $noted['structuredContent']['status']]);
+        $this->assertSame([2, 'noted'], [$next['pending'], self::valueAt($noted, 'structuredContent', 'status')]);
     }
 
     public function testASendingNotedByHandIsAnsweredAlreadyNotedToTheAi(): void
@@ -274,8 +274,8 @@ class CampaignToolsApiTest extends ApiTestCase
 
         $again = $this->callWithoutHandshake('log-sent-message', ['id' => $started, 'contactId' => $this->ada, ...self::SENT_TO_ADA]);
 
-        $this->assertSame('alreadyNoted', $again['structuredContent']['status']);
-        $this->assertCount(1, $this->requestJson('GET', '/api/contacts/'.$this->ada.'/exchanges')['items']);
+        $this->assertSame('alreadyNoted', self::valueAt($again, 'structuredContent', 'status'));
+        $this->assertCount(1, self::arrayAt($this->requestJson('GET', '/api/contacts/'.$this->ada.'/exchanges'), 'items'));
     }
 
     public function testACampaignStoppedGivesNoNextRecipient(): void
@@ -286,7 +286,7 @@ class CampaignToolsApiTest extends ApiTestCase
         $refusal = $this->callWithoutHandshake('get-next-recipient', ['id' => $started]);
 
         $this->assertTrue($refusal['isError'] ?? false);
-        $this->assertSame('campaignNotRunning', json_decode($refusal['content'][0]['text'], true, flags: JSON_THROW_ON_ERROR)['reason']);
+        $this->assertSame('campaignNotRunning', self::valueAt($this->answerOf($refusal), 'reason'));
     }
 
     public function testThePromptToLeadACampaignIsListedWithTheCampaignToRun(): void
@@ -297,7 +297,7 @@ class CampaignToolsApiTest extends ApiTestCase
 
         $this->assertSame(['Run a campaign', 'Send each recipient of a started campaign their message with your own tools, and log it in Prospecter.'], [$prompt['title'] ?? null, $prompt['description'] ?? null]);
         $this->assertSame([['campaign', true]], self::argumentsOf($prompt));
-        $this->assertSame(['the campaign\'s ID, or its name in quotes'], array_column($prompt['arguments'] ?? [], 'description'));
+        $this->assertSame(['the campaign\'s ID, or its name in quotes'], array_column(self::records($prompt['arguments'] ?? []), 'description'));
     }
 
     public function testThePromptToLeadACampaignGivesTheAiItsSteps(): void
@@ -306,8 +306,8 @@ class CampaignToolsApiTest extends ApiTestCase
 
         $prompt = $this->callWithHandshake('prompts/get', ['name' => 'run-campaign', 'arguments' => ['campaign' => 'Relance PHP']]);
 
-        $text = $prompt['messages'][0]['content']['text'];
-        $this->assertSame('user', $prompt['messages'][0]['role']);
+        $text = self::stringAt($prompt, 'messages', 0, 'content', 'text');
+        $this->assertSame('user', self::valueAt($prompt, 'messages', 0, 'role'));
         foreach (['"Relance PHP"', 'list-campaigns', 'get-next-recipient', 'log-sent-message', 'dismiss-campaign-recipient'] as $step) {
             $this->assertStringContainsString($step, $text);
         }
@@ -328,7 +328,7 @@ class CampaignToolsApiTest extends ApiTestCase
 
         $prompt = $this->callWithHandshake('prompts/get', ['name' => 'run-campaign', 'arguments' => ['campaign' => 'Relance PHP']]);
 
-        $this->assertStringContainsString('Never send a second message to a recipient: when `get-next-recipient` gives you a recipient you already wrote to, stop and tell me who.', $prompt['messages'][0]['content']['text']);
+        $this->assertStringContainsString('Never send a second message to a recipient: when `get-next-recipient` gives you a recipient you already wrote to, stop and tell me who.', self::stringAt($prompt, 'messages', 0, 'content', 'text'));
     }
 
     public function testThePromptToLeadACampaignStopsAtTheDailyCapToAskTheMember(): void
@@ -346,8 +346,9 @@ class CampaignToolsApiTest extends ApiTestCase
 
         $noted = $this->callWithoutHandshake('log-sent-message', ['id' => $started, 'contactId' => $this->ada, ...self::SENT_TO_ADA]);
 
-        $this->assertSame(['noted', 'email', 'outbound', 'Bonjour Ada', true], [$noted['structuredContent']['status'], $noted['structuredContent']['exchange']['channel'] ?? null, $noted['structuredContent']['exchange']['direction'] ?? null, $noted['structuredContent']['exchange']['text'] ?? null, $noted['structuredContent']['exchange']['createdByAnAI'] ?? null]);
-        $ada = array_find($this->requestJson('GET', '/api/campaigns/'.$started.'/recipients')['items'], fn (array $recipient): bool => $this->ada === $recipient['contact']['id']);
+        $exchange = self::recordAt($noted, 'structuredContent', 'exchange');
+        $this->assertSame(['noted', 'email', 'outbound', 'Bonjour Ada', true], [self::valueAt($noted, 'structuredContent', 'status'), $exchange['channel'] ?? null, $exchange['direction'] ?? null, $exchange['text'] ?? null, $exchange['createdByAnAI'] ?? null]);
+        $ada = $this->recipientOf($started, $this->ada);
         $this->assertSame('processed', $ada['status'] ?? null);
     }
 
@@ -359,7 +360,7 @@ class CampaignToolsApiTest extends ApiTestCase
         $noted = $this->callWithoutHandshake('log-sent-message', ['id' => $started, 'contactId' => $this->ada, ...self::SENT_TO_ADA]);
 
         $this->assertSame(['noted', self::stringAt($first, 'structuredContent', 'exchange', 'id')], [self::stringAt($noted, 'structuredContent', 'status'), self::stringAt($noted, 'structuredContent', 'exchange', 'id')]);
-        $ada = array_find(self::records($this->requestJson('GET', '/api/campaigns/'.$started.'/recipients')['items']), fn (array $recipient): bool => $this->ada === self::stringAt($recipient, 'contact', 'id'));
+        $ada = $this->recipientOf($started, $this->ada);
         $this->assertSame('processed', $ada['status'] ?? null);
     }
 
@@ -371,8 +372,8 @@ class CampaignToolsApiTest extends ApiTestCase
         $again = $this->callWithoutHandshake('log-sent-message', ['id' => $started, 'contactId' => $this->ada, ...self::SENT_TO_ADA]);
 
         $this->assertFalse($again['isError'] ?? false);
-        $this->assertSame(['alreadyNoted', $first['structuredContent']['exchange']['id']], [$again['structuredContent']['status'], $again['structuredContent']['exchange']['id'] ?? null]);
-        $this->assertCount(1, $this->requestJson('GET', '/api/contacts/'.$this->ada.'/exchanges')['items']);
+        $this->assertSame(['alreadyNoted', self::valueAt($first, 'structuredContent', 'exchange', 'id')], [self::valueAt($again, 'structuredContent', 'status'), self::valueAt($again, 'structuredContent', 'exchange', 'id')]);
+        $this->assertCount(1, self::arrayAt($this->requestJson('GET', '/api/contacts/'.$this->ada.'/exchanges'), 'items'));
     }
 
     public function testNotingTheSendingIsRefusedAsItsEndpointRefusesIt(): void
@@ -409,7 +410,7 @@ class CampaignToolsApiTest extends ApiTestCase
     {
         $this->login();
 
-        return $this->aContactOf($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'Initech']])['id'], 'Grace', 'Hopper', 'grace@initech.test');
+        return $this->aContactOf(self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'Initech']]), 'id'), 'Grace', 'Hopper', 'grace@initech.test');
     }
 
     /**
@@ -443,11 +444,19 @@ class CampaignToolsApiTest extends ApiTestCase
     {
         $this->login();
 
-        return $this->requestJson('POST', '/api/campaigns', self::RELAUNCH)['id'];
+        return self::stringAt($this->requestJson('POST', '/api/campaigns', self::RELAUNCH), 'id');
     }
 
     private function aContactOf(string $organization, string $firstName, string $lastName, string $email): string
     {
-        return $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => $firstName, 'lastName' => $lastName], 'contactDetails' => ['email' => $email], 'organizationIds' => [$organization]])['id'];
+        return self::stringAt($this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => $firstName, 'lastName' => $lastName], 'contactDetails' => ['email' => $email], 'organizationIds' => [$organization]]), 'id');
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function recipientOf(string $campaign, string $contact): ?array
+    {
+        return array_find(self::recordsAt($this->requestJson('GET', '/api/campaigns/'.$campaign.'/recipients'), 'items'), static fn (array $recipient): bool => $contact === self::valueAt($recipient, 'contact', 'id'));
     }
 }
