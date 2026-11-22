@@ -8,6 +8,7 @@ use Prospecter\Core\Campaigns\Application\Port\CampaignSheetRetriever;
 use Prospecter\Core\Campaigns\Application\RecipientInSheet;
 use Prospecter\Core\Campaigns\Domain\Exception\UnknownCampaign;
 use Prospecter\Core\Campaigns\Domain\Model\Campaign;
+use Prospecter\Core\Campaigns\Domain\Model\CampaignBrief;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignName;
 use Prospecter\Core\Campaigns\Domain\Model\Channel;
 use Prospecter\Core\Campaigns\Domain\Model\ContactTags;
@@ -20,6 +21,7 @@ use Prospecter\Core\Campaigns\Domain\Model\Targeting;
 use Prospecter\Core\Campaigns\Domain\Repository\CampaignRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\CampaignId;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\App\Base\ApiTestCase;
@@ -218,13 +220,9 @@ class DynamoCampaignRepositoryTest extends ApiTestCase
     private function aCampaign(string $name, ?AccountId $account = null, MessageMode $mode = MessageMode::AsIs): Campaign
     {
         return Campaign::prepare(
+            new Gesture($account ?? $this->account, new MemberId(self::newIdentity()), new \DateTimeImmutable('2026-11-17 10:00:00')),
             new CampaignId(self::newIdentity()),
-            $account ?? $this->account,
-            CampaignName::of($name),
-            Targeting::by(Channel::Email, ['#ESN']),
-            MessageTemplate::of('Bonjour {firstName}', 'Une question', Channel::Email, $mode),
-            new MemberId(self::newIdentity()),
-            new \DateTimeImmutable('2026-11-17 10:00:00'),
+            new CampaignBrief(CampaignName::of($name), Targeting::by(Channel::Email, ['#ESN']), MessageTemplate::of('Bonjour {firstName}', 'Une question', Channel::Email, $mode)),
         );
     }
 

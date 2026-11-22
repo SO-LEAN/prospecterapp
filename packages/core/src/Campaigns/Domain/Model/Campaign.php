@@ -29,6 +29,7 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
@@ -66,10 +67,10 @@ final class Campaign implements ReleasesEvents
         $this->modifiedAt = $createdAt;
     }
 
-    public static function prepare(CampaignId $id, AccountId $accountId, CampaignName $name, Targeting $targeting, MessageTemplate $message, MemberId $by, \DateTimeImmutable $at): self
+    public static function prepare(Gesture $gesture, CampaignId $id, CampaignBrief $brief): self
     {
-        $campaign = new self($id, $accountId, $by, $name, $targeting, $message, $at);
-        $campaign->recordThat(new CampaignPrepared($accountId, $by, $id, $at));
+        $campaign = new self($id, $gesture->accountId, $gesture->by, $brief->name, $brief->targeting, $brief->message, $gesture->at);
+        $campaign->recordThat(new CampaignPrepared($gesture->accountId, $gesture->by, $id, $gesture->at));
 
         return $campaign;
     }
@@ -90,17 +91,17 @@ final class Campaign implements ReleasesEvents
      * @throws NotPossibleInItsState
      * @throws FrozenSearch
      */
-    public function revise(CampaignName $name, Targeting $targeting, MessageTemplate $message, MemberId $by, \DateTimeImmutable $at): void
+    public function revise(CampaignBrief $brief, MemberId $by, \DateTimeImmutable $at): void
     {
         $this->ensurePossible(CampaignIntent::ReviseCampaign);
 
-        if (!$this->status->followsTheTags() && !$this->targeting->searchesAs($targeting)) {
+        if (!$this->status->followsTheTags() && !$this->targeting->searchesAs($brief->targeting)) {
             throw FrozenSearch::unchanged();
         }
 
-        $this->name = $name;
-        $this->targeting = $targeting;
-        $this->message = $message;
+        $this->name = $brief->name;
+        $this->targeting = $brief->targeting;
+        $this->message = $brief->message;
         $this->modifiedAt = $at;
         $this->recordThat(new CampaignRevised($this->accountId, $by, $this->id, $at));
     }
@@ -245,15 +246,15 @@ final class Campaign implements ReleasesEvents
      * @throws UnreachableContact    when the contact has not the means of its channel
      * @throws TooManyRecipients
      */
-    public function addRecipient(PersonId $contact, ContactTags $tags, Addressee $addressee, MemberId $by, \DateTimeImmutable $at): void
+    public function addRecipient(Candidate $candidate, MemberId $by, \DateTimeImmutable $at): void
     {
         $this->ensurePossible(CampaignIntent::AddRecipients);
 
-        if (!$this->targeting->reaches($tags)) {
-            throw UnreachableContact::by($addressee->name(), $this->targeting->channel);
+        if (!$this->targeting->reaches($candidate->tags)) {
+            throw UnreachableContact::by($candidate->addressee->name(), $this->targeting->channel);
         }
 
-        $this->changeRecipients($this->recipients->with([$contact]), $by, $at);
+        $this->changeRecipients($this->recipients->with([$candidate->contact]), $by, $at);
     }
 
     /**

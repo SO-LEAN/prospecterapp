@@ -35,6 +35,7 @@ use Prospecter\Core\Campaigns\Contract\Service\NameCampaigns\NameCampaigns;
 use Prospecter\Core\Campaigns\Contract\Service\WhichRecipientsArePending\PendingRecipientsResponse;
 use Prospecter\Core\Campaigns\Contract\Service\WhichRecipientsArePending\WhichRecipientsArePending;
 use Prospecter\Core\Campaigns\Domain\Model\Campaign;
+use Prospecter\Core\Campaigns\Domain\Model\CampaignBrief;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignName;
 use Prospecter\Core\Campaigns\Domain\Model\Channel;
 use Prospecter\Core\Campaigns\Domain\Model\MessageMode;
@@ -53,6 +54,7 @@ use Prospecter\Core\Prospecting\Application\NoteExchange\NoteExchange;
 use Prospecter\Core\Prospecting\Contract\Event\ExchangeFactsChanged;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\CampaignId;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
@@ -1063,13 +1065,9 @@ final class CampaignContext implements Context
         $this->campaignIds[$name] = $this->application->newIdentity();
         $channel = Channel::named(self::CHANNELS[$channel]);
         $this->application->campaigns->save(Campaign::prepare(
+            new Gesture($accountId ?? $this->scenario->me()->accountId(), $author ?? new MemberId($this->application->signedIn()), $this->application->now()),
             new CampaignId($this->campaignIds[$name]),
-            $accountId ?? $this->scenario->me()->accountId(),
-            CampaignName::of($name),
-            Targeting::by($channel, self::listed($tags)),
-            MessageTemplate::of($message, $subject, $channel, $mode),
-            by: $author ?? new MemberId($this->application->signedIn()),
-            at: $this->application->now(),
+            new CampaignBrief(CampaignName::of($name), Targeting::by($channel, self::listed($tags)), MessageTemplate::of($message, $subject, $channel, $mode)),
         ));
     }
 

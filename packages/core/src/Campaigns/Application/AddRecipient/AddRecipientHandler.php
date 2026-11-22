@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Campaigns\Application\AddRecipient;
 
 use Prospecter\Core\Campaigns\Application\Port\ContactTagsRetriever;
+use Prospecter\Core\Campaigns\Domain\Model\Candidate;
 use Prospecter\Core\Campaigns\Domain\Port\Addressees;
 use Prospecter\Core\Campaigns\Domain\Port\Campaigners;
 use Prospecter\Core\Campaigns\Domain\Repository\CampaignRepository;
@@ -40,7 +41,7 @@ final readonly class AddRecipientHandler implements CommandHandler
         $contact = new PersonId($command->contactId);
         $addressee = $this->addressees->addressee($accountId, $member, $contact);
         $tags = $this->contactTagsRetriever->sourcesOf($accountId, [$contact])[0]->tags();
-        $campaign->addRecipient($contact, $tags, $addressee, by: $member, at: $command->executedAt);
+        $campaign->addRecipient(new Candidate($contact, $tags, $addressee), $member, $command->executedAt);
         $this->campaigns->save($campaign);
         $this->publishWhatHappenedTo($campaign);
     }

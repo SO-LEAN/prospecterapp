@@ -7,6 +7,7 @@ use Prospecter\Core\Accounts\Domain\Model\Account;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\Accounts\Domain\Repository\AccountRepository;
 use Prospecter\Core\Campaigns\Domain\Model\Campaign;
+use Prospecter\Core\Campaigns\Domain\Model\CampaignBrief;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignName;
 use Prospecter\Core\Campaigns\Domain\Model\Channel;
 use Prospecter\Core\Campaigns\Domain\Model\MessageTemplate;
@@ -14,6 +15,7 @@ use Prospecter\Core\Campaigns\Domain\Model\Targeting;
 use Prospecter\Core\Campaigns\Domain\Repository\CampaignRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\CampaignId;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Tests\App\Base\ApiTestCase;
@@ -192,13 +194,9 @@ class RunCampaignApiTest extends ApiTestCase
         $competitor = Account::open(new AccountId(self::newIdentity()), new LegalIdentity('Competitor'), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         self::getContainer()->get(AccountRepository::class)->save($competitor);
         $campaign = Campaign::prepare(
+            new Gesture($competitor->id(), new MemberId(self::newIdentity()), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)),
             new CampaignId(self::newIdentity()),
-            $competitor->id(),
-            CampaignName::of('Leurs appels'),
-            Targeting::by(Channel::Call, [self::TAG]),
-            MessageTemplate::of('Bonjour', null, Channel::Call),
-            new MemberId(self::newIdentity()),
-            new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS),
+            new CampaignBrief(CampaignName::of('Leurs appels'), Targeting::by(Channel::Call, [self::TAG]), MessageTemplate::of('Bonjour', null, Channel::Call)),
         );
         self::getContainer()->get(CampaignRepository::class)->save($campaign);
 
