@@ -192,3 +192,4 @@ Why the project is shaped the way it is: one record per decision, in the order t
 | [0188](0188-the-repository-is-written-in-plain-technical-english.md) | The repository is written in plain technical English | architecture | Accepted | 2026-11-21 |
 | [0189](0189-mcp-tools-and-prompts-are-named-in-english-a-verb-then-its-object.md) | MCP tools and prompts are named in English, a verb then its object | architecture | Accepted | 2026-11-21 |
 | [0190](0190-stored-and-exposed-names-are-consistent-english.md) | Stored and exposed names are consistent English | architecture | Accepted | 2026-11-22 |
+| [0192](0192-phpstan-checks-the-core-at-its-highest-level.md) | PHPStan checks the core at its highest level | architecture | Accepted | 2026-11-22 |
