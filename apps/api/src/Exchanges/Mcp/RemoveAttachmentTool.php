@@ -31,10 +31,9 @@ final readonly class RemoveAttachmentTool
     #[McpTool(name: 'delete-attachment', description: 'Remove a file joined to an exchange, and forget it; needs the right to manage the personal data. Answers the exchange.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id, string $attachmentId): array
     {
-        return $this->writes->write(
+        return $this->writes->change(
             $id,
-            null,
-            static fn (null $input, ExchangeDetail $exchange, string $memberId, \DateTimeImmutable $now): RemoveAttachment => new RemoveAttachment(prospectorId: $memberId, exchangeId: $exchange->id, id: $attachmentId, executedAt: $now),
+            static fn (ExchangeDetail $exchange, string $memberId, \DateTimeImmutable $now): RemoveAttachment => new RemoveAttachment(prospectorId: $memberId, exchangeId: $exchange->id, id: $attachmentId, executedAt: $now),
             User::PERSONAL_DATA,
         );
     }

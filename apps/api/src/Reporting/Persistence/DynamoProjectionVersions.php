@@ -6,6 +6,7 @@ namespace App\Reporting\Persistence;
 
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\Reporting\Application\Port\ProjectionVersions;
 use Psr\Clock\ClockInterface;
 
@@ -31,7 +32,7 @@ final readonly class DynamoProjectionVersions implements ProjectionVersions
     public function live(): array
     {
         $items = $this->reportingTable->items([[ReportingKeys::PROJECTION, ReportingKeys::ACTIVE], [ReportingKeys::PROJECTION, ReportingKeys::BUILDING]]);
-        $versions = array_values(array_unique(array_map(static fn (array $item): int => (int) $item['version'], $items)));
+        $versions = array_values(array_unique(array_map(static fn (array $item): int => Typed::int($item['version']), $items)));
         sort($versions);
 
         return $versions;
@@ -66,14 +67,14 @@ final readonly class DynamoProjectionVersions implements ProjectionVersions
     {
         $item = $this->reportingTable->item(ReportingKeys::PROJECTION, $sortKey);
 
-        return null === $item ? null : (int) $item['version'];
+        return null === $item ? null : Typed::int($item['version']);
     }
 
     private function removeEveryVersionBut(?int $kept): void
     {
         foreach (ReportingKeys::partitionsOfEveryVersion() as $beginning) {
-            $removed = array_filter($this->reportingTable->scan($beginning), static fn (array $item): bool => ReportingKeys::versionOf($item['PK']) !== $kept);
-            $this->reportingTable->batch([], array_values(array_map(static fn (array $item): array => [$item['PK'], $item['SK']], $removed)));
+            $removed = array_filter($this->reportingTable->scan($beginning), static fn (array $item): bool => ReportingKeys::versionOf(Typed::string($item['PK'])) !== $kept);
+            $this->reportingTable->batch([], array_values(array_map(static fn (array $item): array => [Typed::string($item['PK']), Typed::string($item['SK'])], $removed)));
         }
     }
 
@@ -83,7 +84,7 @@ final readonly class DynamoProjectionVersions implements ProjectionVersions
     private function remove(int $version): void
     {
         foreach (ReportingKeys::partitionsOf($version) as $beginning) {
-            $this->reportingTable->batch([], array_map(static fn (array $item): array => [$item['PK'], $item['SK']], $this->reportingTable->scan($beginning)));
+            $this->reportingTable->batch([], array_map(static fn (array $item): array => [Typed::string($item['PK']), Typed::string($item['SK'])], $this->reportingTable->scan($beginning)));
         }
     }
 }

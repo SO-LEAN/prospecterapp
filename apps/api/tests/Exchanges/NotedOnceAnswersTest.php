@@ -6,6 +6,7 @@ namespace Tests\App\Exchanges;
 
 use App\Exchanges\NotedOnceAnswers;
 use App\Exchanges\Resource\NotingResource;
+use App\Shared\Typed;
 use Prospecter\Core\Prospecting\Domain\Exception\ExchangeNotedMeanwhile;
 use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -18,7 +19,7 @@ class NotedOnceAnswersTest extends KernelTestCase
 {
     public function testAnExchangeNotedMeanwhileIsAnsweredAlreadyNoted(): void
     {
-        $answers = self::getContainer()->get(NotedOnceAnswers::class);
+        $answers = Typed::object(self::getContainer()->get(NotedOnceAnswers::class), NotedOnceAnswers::class);
 
         $answer = $answers->of('01900000-0000-7000-8000-000000000001', '01900000-0000-7000-8000-0000000000e1', static function (): never {
             throw UseCaseRefused::because(ExchangeNotedMeanwhile::byAnother());

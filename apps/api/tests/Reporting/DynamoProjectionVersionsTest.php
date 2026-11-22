@@ -71,19 +71,16 @@ class DynamoProjectionVersionsTest extends ApiTestCase
 
     private function recordAnOrganization(): void
     {
-        self::getContainer()->get(FactRecorder::class)->record(new OrganizationFact(new AccountId(self::newIdentity()), new OrganizationId(self::newIdentity()), 1, true, false));
+        self::service(FactRecorder::class)->record(new OrganizationFact(new AccountId(self::newIdentity()), new OrganizationId(self::newIdentity()), 1, true, false));
     }
 
     private function versions(): ProjectionVersions
     {
-        return self::getContainer()->get(ProjectionVersions::class);
+        return self::service(ProjectionVersions::class);
     }
 
     private function reportingTable(): Table
     {
-        $table = self::getContainer()->get('app.table.reporting');
-        $this->assertInstanceOf(Table::class, $table);
-
-        return $table;
+        return self::tableOf('reporting');
     }
 }

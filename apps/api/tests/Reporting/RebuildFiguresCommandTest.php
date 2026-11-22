@@ -7,6 +7,7 @@ namespace Tests\App\Reporting;
 use App\Demo\DemoData;
 use App\Shared\Persistence\ConditionFailed;
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\Accounts\Domain\Model\Account;
 use Prospecter\Core\Accounts\Domain\Repository\AccountRepository;
 use Prospecter\Core\Reporting\Application\ConsultFigures\FiguresResponse;
@@ -52,7 +53,7 @@ class RebuildFiguresCommandTest extends ApiTestCase
 
     public function testARebuildCancelledByAConflictStartsAgain(): void
     {
-        self::getContainer()->get(ConflictingFactRepository::class)->conflict(times: 3);
+        self::service(ConflictingFactRepository::class)->conflict(times: 3);
 
         $this->rebuild();
 
@@ -62,7 +63,7 @@ class RebuildFiguresCommandTest extends ApiTestCase
 
     public function testARebuildCancelledBeyondThreeRetriesFails(): void
     {
-        self::getContainer()->get(ConflictingFactRepository::class)->conflict(times: 4);
+        self::service(ConflictingFactRepository::class)->conflict(times: 4);
 
         $this->expectException(ConditionFailed::class);
 
@@ -90,7 +91,7 @@ class RebuildFiguresCommandTest extends ApiTestCase
 
     public function testTheRebuildSaysHowManyAccountsItCounted(): void
     {
-        self::getContainer()->get(AccountRepository::class)->save(Account::open(new AccountId(self::newIdentity()), new LegalIdentity('Initech', 'SAS'), new \DateTimeImmutable('2026-10-14 09:00')));
+        self::service(AccountRepository::class)->save(Account::open(new AccountId(self::newIdentity()), new LegalIdentity('Initech', 'SAS'), new \DateTimeImmutable('2026-10-14 09:00')));
 
         $this->assertStringContainsString('counted again for 2 account(s)', $this->rebuild());
     }
@@ -104,16 +105,16 @@ class RebuildFiguresCommandTest extends ApiTestCase
 
     private function rebuild(): string
     {
-        $tester = new CommandTester(new Application(self::$kernel)->find('app:reporting:rebuild'));
+        $tester = new CommandTester(new Application(self::$kernel ?? self::bootKernel())->find('app:reporting:rebuild'));
         $tester->execute([]);
         $tester->assertCommandIsSuccessful();
 
-        return preg_replace('/\s+/', ' ', $tester->getDisplay());
+        return Typed::string(preg_replace('/\s+/', ' ', $tester->getDisplay()));
     }
 
     private function figuresOfTheDemonstration(): FiguresResponse
     {
-        return self::getContainer()->get(FiguresRetriever::class)->of((int) $this->versions()->active(), new AccountId(DemoData::SOLEAN_IT), $this->thisMonth());
+        return self::service(FiguresRetriever::class)->of((int) $this->versions()->active(), new AccountId(DemoData::SOLEAN_IT), $this->thisMonth());
     }
 
     private function thisMonth(): Month
@@ -123,7 +124,7 @@ class RebuildFiguresCommandTest extends ApiTestCase
 
     private function versions(): ProjectionVersions
     {
-        return self::getContainer()->get(ProjectionVersions::class);
+        return self::service(ProjectionVersions::class);
     }
 
     /**
@@ -134,7 +135,7 @@ class RebuildFiguresCommandTest extends ApiTestCase
         $items = [];
 
         foreach (['accounts', 'personal_data', 'prospecting'] as $context) {
-            $items[$context] = $this->table($context)->scan('');
+            $items[$context] = self::tableOf($context)->scan('');
         }
 
         return $items;
@@ -142,19 +143,11 @@ class RebuildFiguresCommandTest extends ApiTestCase
 
     private function reportingTable(): Table
     {
-        return $this->table('reporting');
+        return self::tableOf('reporting');
     }
 
     private function accountsTable(): Table
     {
-        return $this->table('accounts');
-    }
-
-    private function table(string $context): Table
-    {
-        $table = self::getContainer()->get('app.table.'.$context);
-        $this->assertInstanceOf(Table::class, $table);
-
-        return $table;
+        return self::tableOf('accounts');
     }
 }

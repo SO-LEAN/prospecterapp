@@ -28,10 +28,9 @@ final readonly class MarkExchangeMissedTool
     #[McpTool(name: 'mark-exchange-missed', description: 'Mark missed a planned exchange whose time has come: the contact did not come or answer; by its holder. It is no longer to process. Answers the exchange.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id): array
     {
-        return $this->writes->write(
+        return $this->writes->change(
             $id,
-            null,
-            static fn (null $input, ExchangeDetail $exchange, string $memberId, \DateTimeImmutable $now): MarkExchangeMissed => new MarkExchangeMissed($memberId, $exchange->id, $now),
+            static fn (ExchangeDetail $exchange, string $memberId, \DateTimeImmutable $now): MarkExchangeMissed => new MarkExchangeMissed($memberId, $exchange->id, $now),
         );
     }
 }

@@ -37,14 +37,26 @@ final readonly class ExchangeWrites
     /**
      * @template TInput of object
      *
-     * @param TInput|null                                                               $input   the input of the endpoint, none for an endpoint without
-     * @param \Closure(TInput|null, ExchangeDetail, string, \DateTimeImmutable): object $command the command of the endpoint, from its input, for the exchange, by the member, at this moment
+     * @param TInput                                                               $input   the input of the endpoint
+     * @param \Closure(TInput, ExchangeDetail, string, \DateTimeImmutable): object $command the command of the endpoint, from its input, for the exchange, by the member, at this moment
      *
      * @return array<string, mixed>
      */
-    public function write(string $id, ?object $input, \Closure $command, string ...$attributes): array
+    public function write(string $id, object $input, \Closure $command, string ...$attributes): array
     {
         return $this->answer($this->dispatched($id, $input, $command, ...$attributes)->id);
+    }
+
+    /**
+     * It does the same as write() for an endpoint without an input.
+     *
+     * @param \Closure(ExchangeDetail, string, \DateTimeImmutable): object $command the command of the endpoint, for the exchange, by the member, at this moment
+     *
+     * @return array<string, mixed>
+     */
+    public function change(string $id, \Closure $command, string ...$attributes): array
+    {
+        return $this->answer($this->changed($id, $command, ...$attributes)->id);
     }
 
     /**
@@ -80,15 +92,15 @@ final readonly class ExchangeWrites
      *
      * @template TInput of object
      *
-     * @param TInput|null                                                               $input
-     * @param \Closure(TInput|null, ExchangeDetail, string, \DateTimeImmutable): object $command
+     * @param TInput                                                               $input
+     * @param \Closure(TInput, ExchangeDetail, string, \DateTimeImmutable): object $command
      *
      * @return ExchangeDetail the exchange as it was before
      */
-    public function dispatched(string $id, ?object $input, \Closure $command, string ...$attributes): ExchangeDetail
+    public function dispatched(string $id, object $input, \Closure $command, string ...$attributes): ExchangeDetail
     {
         $exchange = $this->writable($id, ...$attributes);
-        $this->dispatch($exchange, $command(null === $input ? null : $this->inputs->valid($input), $exchange, $this->access->member()->memberId(), $this->clock->now()));
+        $this->dispatch($exchange, $command($this->inputs->valid($input), $exchange, $this->access->member()->memberId(), $this->clock->now()));
 
         return $exchange;
     }

@@ -161,7 +161,7 @@ The repository is public and written in English (ADR 0017). Agents write like wh
   - PHPStan checks the core, the API and the storage at its highest level, `max`, with no `@phpstan-ignore`. The only ignored identifier is `missingType.iterableValue`. An array gets an iterable docblock only where its values are read, never just because the tool asks (ADR 0192, after ADR 0022). A value that a library gives untyped is checked where it is taken (`State` in the core's tests, `Typed` in the storage and in the API, `App\Shared\Typed`).
   - The core and the storage have no baseline. The API has a temporary one, `apps/api/phpstan-baseline.neon`. It holds the errors of levels 7 to 10 that the API had when it moved to `max`, and new code may not add to it. An entry ignores a message in a file up to a count. So it can hide a new error of the same message in the same file. A change to a file in the baseline fixes the errors of the lines it touches, then regenerates the baseline smaller (`--generate-baseline`).
 
-  **Known debt**: the API's baseline, some 4300 errors, mostly services read from the test container as `object` and DynamoDB items and JSON read as `mixed` (backlog #259).
+  **Known debt**: the API's baseline, some 1700 errors, all in the endpoint tests (`apps/api/tests/Api`). They read services from the test container as `object`, and JSON answers and DynamoDB items as `mixed` (backlog #259).
 - PHP 8.4 and 8.5:
   - the pipe `|>` for a chain of one-argument steps (`SearchKey::of()`), not where every step needs a wrapping closure (`array_map`, `array_filter`: noise until partial application);
   - `array_find`, `array_any`, `array_all` instead of a loop searching an element;

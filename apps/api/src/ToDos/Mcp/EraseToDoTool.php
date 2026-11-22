@@ -26,10 +26,9 @@ final readonly class EraseToDoTool
     #[McpTool(name: 'delete-todo', description: 'Erase a to-do; needs the right to manage the personal data. Answers nothing.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id): void
     {
-        $this->writes->dispatched(
+        $this->writes->changed(
             $id,
-            null,
-            static fn (null $input, ToDoInList $toDo, string $memberId, \DateTimeImmutable $now): EraseToDo => new EraseToDo($memberId, $toDo->id, $now),
+            static fn (ToDoInList $toDo, string $memberId, \DateTimeImmutable $now): EraseToDo => new EraseToDo($memberId, $toDo->id, $now),
         );
     }
 }

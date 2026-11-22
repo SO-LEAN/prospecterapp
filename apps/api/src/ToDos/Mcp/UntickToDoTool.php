@@ -29,10 +29,9 @@ final readonly class UntickToDoTool
     #[McpTool(name: 'reopen-todo', description: 'Untick a to-do ticked off by mistake: it is to do again, the moment it was done forgotten; needs the right to manage the personal data. Answers the to-do.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id): array
     {
-        return $this->writes->write(
+        return $this->writes->change(
             $id,
-            null,
-            static fn (null $input, ToDoInList $toDo, string $memberId, \DateTimeImmutable $now): UntickToDo => new UntickToDo($memberId, $toDo->id, $now),
+            static fn (ToDoInList $toDo, string $memberId, \DateTimeImmutable $now): UntickToDo => new UntickToDo($memberId, $toDo->id, $now),
         );
     }
 }

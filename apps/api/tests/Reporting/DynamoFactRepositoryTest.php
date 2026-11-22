@@ -21,6 +21,7 @@ use Prospecter\Core\Reporting\Domain\Model\OrganizationFact;
 use Prospecter\Core\Reporting\Domain\Repository\FactRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
+use Psr\Clock\ClockInterface;
 use Tests\App\Base\ApiTestCase;
 
 /**
@@ -40,7 +41,7 @@ class DynamoFactRepositoryTest extends ApiTestCase
     {
         parent::setUp();
         $this->account = new AccountId(self::newIdentity());
-        $versions = self::getContainer()->get(ProjectionVersions::class);
+        $versions = self::service(ProjectionVersions::class);
         $versions->startBuilding(self::VERSION);
         $versions->activate(self::VERSION);
     }
@@ -64,7 +65,7 @@ class DynamoFactRepositoryTest extends ApiTestCase
         $this->recorder()->record(new OrganizationFact($this->account, $organization, 0, false, false));
         $this->recorder()->record($this->organization($organization, revision: 4, located: true));
 
-        $item = $this->reportingTable()->item(ReportingKeys::facts(self::VERSION, $this->account->value), 'ORGANIZATION#'.$organization->value);
+        $item = self::storedItem($this->reportingTable(), ReportingKeys::facts(self::VERSION, $this->account->value), 'ORGANIZATION#'.$organization->value);
         $this->assertFalse($item['present']);
         $this->assertSame(new \DateTimeImmutable('2100-01-16 00:00:00 UTC')->getTimestamp(), $item['expiresAt']);
         $this->assertSame([0, 0], [$this->figures()->activeOrganizations, $this->figures()->locatedOrganizations]);
@@ -72,7 +73,7 @@ class DynamoFactRepositoryTest extends ApiTestCase
 
     public function testTwoRecordingsOnTheSameAccountAtTheSameTimeBothCount(): void
     {
-        $unitOfWork = self::getContainer()->get(DynamoUnitOfWork::class);
+        $unitOfWork = self::service(DynamoUnitOfWork::class);
         $unitOfWork->begin();
         $this->recorder()->record($this->organization(new OrganizationId(self::newIdentity()), revision: 1));
         $this->factsOfAnotherRequest()->record(self::VERSION, $this->organization(new OrganizationId(self::newIdentity()), revision: 1), null, new FiguresChange(activeOrganizations: 1));
@@ -121,7 +122,7 @@ class DynamoFactRepositoryTest extends ApiTestCase
 
     public function testSeveralFactsOfAnAccountInOneUnitAllCount(): void
     {
-        $unitOfWork = self::getContainer()->get(DynamoUnitOfWork::class);
+        $unitOfWork = self::service(DynamoUnitOfWork::class);
         $unitOfWork->begin();
         $this->recorder()->record(new ExchangeFact($this->account, new ExchangeId(self::newIdentity()), 1, true, true, new \DateTimeImmutable(self::OCTOBER)));
         $this->recorder()->record(new ExchangeFact($this->account, new ExchangeId(self::newIdentity()), 1, true, true, new \DateTimeImmutable(self::OCTOBER)));
@@ -138,25 +139,22 @@ class DynamoFactRepositoryTest extends ApiTestCase
 
     private function figures(string $at = self::OCTOBER): FiguresResponse
     {
-        return self::getContainer()->get(FiguresRetriever::class)->of(self::VERSION, $this->account, Month::of(new \DateTimeImmutable($at)));
+        return self::service(FiguresRetriever::class)->of(self::VERSION, $this->account, Month::of(new \DateTimeImmutable($at)));
     }
 
     private function recorder(): FactRecorder
     {
-        return self::getContainer()->get(FactRecorder::class);
+        return self::service(FactRecorder::class);
     }
 
     private function repository(): FactRepository
     {
-        return self::getContainer()->get(FactRepository::class);
+        return self::service(FactRepository::class);
     }
 
     private function reportingTable(): Table
     {
-        $table = self::getContainer()->get('app.table.reporting');
-        $this->assertInstanceOf(Table::class, $table);
-
-        return $table;
+        return self::tableOf('reporting');
     }
 
     /**
@@ -164,6 +162,6 @@ class DynamoFactRepositoryTest extends ApiTestCase
      */
     private function factsOfAnotherRequest(): DynamoFactRepository
     {
-        return new DynamoFactRepository($this->asAnotherRequest($this->reportingTable()), self::getContainer()->get('app.commit_clock'));
+        return new DynamoFactRepository($this->asAnotherRequest($this->reportingTable()), self::service(ClockInterface::class, 'app.commit_clock'));
     }
 }

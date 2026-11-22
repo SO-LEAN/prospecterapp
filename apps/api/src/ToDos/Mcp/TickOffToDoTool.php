@@ -28,10 +28,9 @@ final readonly class TickOffToDoTool
     #[McpTool(name: 'complete-todo', description: 'Tick a to-do off, done now; needs the right to manage the personal data. Answers the to-do.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id): array
     {
-        return $this->writes->write(
+        return $this->writes->change(
             $id,
-            null,
-            static fn (null $input, ToDoInList $toDo, string $memberId, \DateTimeImmutable $now): TickOffToDo => new TickOffToDo($memberId, $toDo->id, $now),
+            static fn (ToDoInList $toDo, string $memberId, \DateTimeImmutable $now): TickOffToDo => new TickOffToDo($memberId, $toDo->id, $now),
         );
     }
 }
