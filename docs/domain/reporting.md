@@ -30,7 +30,7 @@ Each account's figures, kept from the facts the other contexts publish, and coun
 - A received fact is recorded in every live version (`FactRecorder`).
 - A member reads their account's figures in the active version, with the exchanges of the month in which they ask. Before the first rebuild, the figures are zeros.
 - A rebuild takes the next version (1 when there is no active one).
-  1. It first abandons what a previous rebuild left behind. The version being built is no longer live. The rebuild waits for the recordings in flight to end (60 s, longer than the worker), then removes every version but the active one, so that nothing records in a version while it is being emptied (ADR 0106).
+  1. It first abandons what a previous rebuild left behind. The version being built is no longer live. The rebuild waits 60 s for the recordings in flight to end, which is longer than the worker runs. Then it removes every version but the active one. So nothing records in a version while the rebuild empties it (ADR 0106).
   2. It then starts building its version and waits again for the recordings in flight.
   3. It records again every account's facts as the other contexts list them.
   4. It activates its version and removes the previous one.
