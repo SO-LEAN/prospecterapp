@@ -123,6 +123,6 @@ class DynamoAppointmentRepositoryTest extends ApiTestCase
 
     private function appointments(): AppointmentRepository
     {
-        return self::getContainer()->get(AppointmentRepository::class);
+        return self::service(AppointmentRepository::class);
     }
 }

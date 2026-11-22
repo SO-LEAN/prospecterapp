@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Campaigns\Persistence;
 
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\Campaigns\Application\Port\ContactTagSources;
 use Prospecter\Core\Campaigns\Application\Port\ContactTagsRetriever;
 use Prospecter\Core\Campaigns\Domain\Model\HolderKind;
@@ -53,7 +54,7 @@ final readonly class DynamoContactTagsRetriever implements ContactTagsRetriever
      */
     private static function organizationsLinked(array $items): array
     {
-        return array_column($items, 'organization');
+        return Typed::strings(array_column($items, 'organization'));
     }
 
     /**
@@ -87,9 +88,10 @@ final readonly class DynamoContactTagsRetriever implements ContactTagsRetriever
 
         foreach ($this->campaignsTable->items($keys) as $item) {
             if (isset($item['tagging'])) {
-                $tags[$item['tagging']['holder']][$item['tagging']['holderId']] = $item['tagging']['tags'];
+                $tagging = Typed::document($item['tagging']);
+                $tags[Typed::string($tagging['holder'])][Typed::string($tagging['holderId'])] = Typed::strings($tagging['tags']);
             } else {
-                $localities[CampaignsKeys::organizationOfFact($item['SK'])] = OrganizationFactItem::localityIn($item);
+                $localities[CampaignsKeys::organizationOfFact(Typed::string($item['SK']))] = OrganizationFactItem::localityIn($item);
             }
         }
 

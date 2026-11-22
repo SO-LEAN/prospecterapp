@@ -46,50 +46,52 @@ final class CampaignDocument
     public static function of(Campaign $campaign): array
     {
         $state = Hydrator::stateOf($campaign);
-        $targeting = $state['targeting'];
+        $targeting = Typed::object($state['targeting'], Targeting::class);
+        $message = Typed::object($state['message'], MessageTemplate::class);
 
         return [
-            'id' => (string) $state['id'],
-            'accountId' => (string) $state['accountId'],
-            'createdBy' => (string) $state['createdBy'],
-            'name' => $state['name']->value,
+            'id' => Typed::object($state['id'], CampaignId::class)->value,
+            'accountId' => Typed::object($state['accountId'], AccountId::class)->value,
+            'createdBy' => Typed::object($state['createdBy'], MemberId::class)->value,
+            'name' => Typed::object($state['name'], CampaignName::class)->value,
             'channel' => $targeting->channel->value,
             'tags' => array_map(static fn (Tag $tag): string => $tag->name, $targeting->chosen->tags),
-            'message' => $state['message']->text,
-            'subject' => $state['message']->subject,
-            'messageMode' => $state['message']->mode->value,
-            'status' => $state['status']->value,
-            'recipients' => array_map(self::recipientDocument(...), $state['recipients']->recipients),
-            'createdAt' => Documents::moment($state['createdAt']),
-            'modifiedAt' => Documents::moment($state['modifiedAt']),
-            'startedAt' => self::momentOrNone($state['startedAt']),
-            'stoppedAt' => self::momentOrNone($state['stoppedAt']),
-            'endedAt' => self::momentOrNone($state['endedAt']),
-            'dailyCap' => $state['dailyCap'] instanceof DailyCap ? $state['dailyCap']->sends : null,
+            'message' => $message->text,
+            'subject' => $message->subject,
+            'messageMode' => $message->mode->value,
+            'status' => Typed::object($state['status'], CampaignStatus::class)->value,
+            'recipients' => array_map(self::recipientDocument(...), Typed::object($state['recipients'], Recipients::class)->recipients),
+            'createdAt' => Documents::moment(Typed::object($state['createdAt'], \DateTimeImmutable::class)),
+            'modifiedAt' => Documents::moment(Typed::object($state['modifiedAt'], \DateTimeImmutable::class)),
+            'startedAt' => Documents::momentOrNone(Typed::objectOrNull($state['startedAt'], \DateTimeImmutable::class)),
+            'stoppedAt' => Documents::momentOrNone(Typed::objectOrNull($state['stoppedAt'], \DateTimeImmutable::class)),
+            'endedAt' => Documents::momentOrNone(Typed::objectOrNull($state['endedAt'], \DateTimeImmutable::class)),
+            'dailyCap' => Typed::objectOrNull($state['dailyCap'], DailyCap::class)?->sends,
         ];
     }
 
     /**
-     * @param array<string, mixed> $document
+     * Restores the campaign from its item's untyped document.
      */
-    public static function campaign(array $document): Campaign
+    public static function campaign(mixed $document): Campaign
     {
-        $channel = Channel::from($document['channel']);
+        $document = Typed::document($document);
+        $channel = Channel::from(Typed::string($document['channel']));
 
         return Hydrator::restore(Campaign::class, [
-            'id' => new CampaignId($document['id']),
-            'accountId' => new AccountId($document['accountId']),
-            'createdBy' => new MemberId($document['createdBy']),
-            'name' => CampaignName::of($document['name']),
+            'id' => new CampaignId(Typed::string($document['id'])),
+            'accountId' => new AccountId(Typed::string($document['accountId'])),
+            'createdBy' => new MemberId(Typed::string($document['createdBy'])),
+            'name' => CampaignName::of(Typed::string($document['name'])),
             'targeting' => self::targetingOf($document),
-            'message' => MessageTemplate::of($document['message'], $document['subject'], $channel, MessageMode::from(self::messageModeOf($document))),
-            'status' => CampaignStatus::from($document['status']),
+            'message' => MessageTemplate::of(Typed::string($document['message']), Typed::stringOrNull($document['subject']), $channel, MessageMode::from(self::messageModeOf($document))),
+            'status' => CampaignStatus::from(Typed::string($document['status'])),
             'recipients' => Hydrator::restore(Recipients::class, ['recipients' => array_map(
                 self::recipient(...),
                 self::recipientsOf($document),
             )]),
-            'createdAt' => Documents::momentOf($document['createdAt']),
-            'modifiedAt' => Documents::momentOf($document['modifiedAt']),
+            'createdAt' => Documents::momentOf(Typed::string($document['createdAt'])),
+            'modifiedAt' => Documents::momentOf(Typed::string($document['modifiedAt'])),
             'startedAt' => self::momentOfOrNone($document, 'startedAt'),
             'stoppedAt' => self::momentOfOrNone($document, 'stoppedAt'),
             'endedAt' => self::momentOfOrNone($document, 'endedAt'),
@@ -98,28 +100,27 @@ final class CampaignDocument
     }
 
     /**
-     * The read model, without restoring the campaign (ADR 0088).
-     *
-     * @param array<string, mixed> $document
+     * The read model from its item's untyped document, without restoring the campaign (ADR 0088).
      */
-    public static function sheet(array $document): CampaignSheet
+    public static function sheet(mixed $document): CampaignSheet
     {
+        $document = Typed::document($document);
         $targeting = self::targetingOf($document);
-        $status = CampaignStatus::from($document['status']);
+        $status = CampaignStatus::from(Typed::string($document['status']));
         $recipients = array_map(self::recipient(...), self::recipientsOf($document));
         $statuses = array_map(static fn (Recipient $recipient): RecipientStatus => $recipient->status, $recipients);
 
         return new CampaignSheet(
-            id: $document['id'],
-            accountId: $document['accountId'],
-            name: $document['name'],
-            channel: $document['channel'],
+            id: Typed::string($document['id']),
+            accountId: Typed::string($document['accountId']),
+            name: Typed::string($document['name']),
+            channel: Typed::string($document['channel']),
             tags: self::named($targeting->chosen),
             targetedTags: self::named($targeting->targeted()),
-            message: $document['message'],
-            subject: $document['subject'],
+            message: Typed::string($document['message']),
+            subject: Typed::stringOrNull($document['subject']),
             messageMode: self::messageModeOf($document),
-            status: $document['status'],
+            status: $status->value,
             followsTheTags: $status->followsTheTags(),
             running: $status->isRunning(),
             processed: CampaignProgress::processedAmong($statuses),
@@ -128,10 +129,10 @@ final class CampaignDocument
                 array_map(static fn (Recipient $recipient): string => $recipient->contact->value, $recipients),
                 array_map(static fn (Recipient $recipient): RecipientInSheet => new RecipientInSheet($recipient->status->value, $recipient->isPending(), $recipient->missed, $recipient->reason, $recipient->exchangeId, $recipient->erased, $recipient->processedAt), $recipients),
             ),
-            authorId: $document['createdBy'],
+            authorId: Typed::string($document['createdBy']),
             possibleIntents: array_map(static fn (CampaignIntent $intent): string => $intent->name, CampaignPossibilities::given($status, [] !== $recipients)),
-            createdAt: Documents::momentOf($document['createdAt']),
-            modifiedAt: Documents::momentOf($document['modifiedAt']),
+            createdAt: Documents::momentOf(Typed::string($document['createdAt'])),
+            modifiedAt: Documents::momentOf(Typed::string($document['modifiedAt'])),
             startedAt: self::momentOfOrNone($document, 'startedAt'),
             stoppedAt: self::momentOfOrNone($document, 'stoppedAt'),
             endedAt: self::momentOfOrNone($document, 'endedAt'),
@@ -142,11 +143,11 @@ final class CampaignDocument
     /**
      * @param array<string, mixed> $document
      *
-     * @return list<array{contactId: string, status: string, missed?: bool, reason?: ?string, exchangeId?: ?string, erased?: bool, processedAt?: ?string}> none for a campaign saved before it could be frozen
+     * @return list<array<string, mixed>> none for a campaign saved before it could be frozen
      */
     private static function recipientsOf(array $document): array
     {
-        return $document['recipients'] ?? [];
+        return Typed::documents($document['recipients'] ?? []);
     }
 
     /**
@@ -154,7 +155,7 @@ final class CampaignDocument
      */
     private static function recipientDocument(Recipient $recipient): array
     {
-        return ['contactId' => $recipient->contact->value, 'status' => $recipient->status->value, 'missed' => $recipient->missed, 'reason' => $recipient->reason, 'exchangeId' => $recipient->exchangeId, 'erased' => $recipient->erased, 'processedAt' => self::momentOrNone($recipient->processedAt)];
+        return ['contactId' => $recipient->contact->value, 'status' => $recipient->status->value, 'missed' => $recipient->missed, 'reason' => $recipient->reason, 'exchangeId' => $recipient->exchangeId, 'erased' => $recipient->erased, 'processedAt' => Documents::momentOrNone($recipient->processedAt)];
     }
 
     /**
@@ -162,11 +163,13 @@ final class CampaignDocument
      * when processed before the recipient kept it (ADR 0152); erased, by its status alone when saved before an erased
      * recipient kept what was done with them; without when it was processed when saved before a campaign had a daily cap.
      *
-     * @param array{contactId: string, status: string, missed?: bool, reason?: ?string, exchangeId?: ?string, erased?: bool, processedAt?: ?string} $document
+     * @param array<string, mixed> $document
      */
     private static function recipient(array $document): Recipient
     {
-        return new Recipient(new PersonId($document['contactId']), RecipientStatus::from($document['status']), $document['missed'] ?? false, $document['reason'] ?? null, $document['exchangeId'] ?? null, $document['erased'] ?? RecipientStatus::Erased->value === $document['status'], self::momentOfOrNone($document, 'processedAt'));
+        $status = RecipientStatus::from(Typed::string($document['status']));
+
+        return new Recipient(new PersonId(Typed::string($document['contactId'])), $status, Typed::bool($document['missed'] ?? false), Typed::stringOrNull($document['reason'] ?? null), Typed::stringOrNull($document['exchangeId'] ?? null), Typed::bool($document['erased'] ?? RecipientStatus::Erased === $status), self::momentOfOrNone($document, 'processedAt'));
     }
 
     /**
@@ -176,14 +179,7 @@ final class CampaignDocument
      */
     private static function dailyCapOf(array $document): ?int
     {
-        $dailyCap = $document['dailyCap'] ?? null;
-
-        return null === $dailyCap ? null : Typed::int($dailyCap);
-    }
-
-    private static function momentOrNone(?\DateTimeImmutable $moment): ?string
-    {
-        return null === $moment ? null : Documents::moment($moment);
+        return Typed::intOrNull($document['dailyCap'] ?? null);
     }
 
     /**
@@ -193,7 +189,7 @@ final class CampaignDocument
      */
     private static function messageModeOf(array $document): string
     {
-        return $document['messageMode'] ?? MessageMode::AsIs->value;
+        return Typed::string($document['messageMode'] ?? MessageMode::AsIs->value);
     }
 
     /**
@@ -203,9 +199,7 @@ final class CampaignDocument
      */
     private static function momentOfOrNone(array $document, string $field): ?\DateTimeImmutable
     {
-        $moment = $document[$field] ?? null;
-
-        return null === $moment ? null : Documents::momentOf($moment);
+        return Documents::momentOfOrNone(Typed::stringOrNull($document[$field] ?? null));
     }
 
     /**
@@ -213,7 +207,7 @@ final class CampaignDocument
      */
     private static function targetingOf(array $document): Targeting
     {
-        return Targeting::by(Channel::from($document['channel']), array_map(static fn (string $name): string => Tag::MARK.$name, $document['tags']));
+        return Targeting::by(Channel::from(Typed::string($document['channel'])), array_map(static fn (string $name): string => Tag::MARK.$name, Typed::strings($document['tags'])));
     }
 
     /**

@@ -27,9 +27,8 @@ final readonly class RemoveInactivePeriodTool
     #[McpTool(name: 'remove-inactive-period', description: 'Remove an inactive period from the booking page of the member: they may be booked in it again. Answers the booking page.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id): array
     {
-        return $this->writes->write(
-            null,
-            static fn (null $input, string $memberId, \DateTimeImmutable $now): RemoveInactivePeriod => new RemoveInactivePeriod(memberId: $memberId, periodId: $id, executedAt: $now),
+        return $this->writes->change(
+            static fn (string $memberId, \DateTimeImmutable $now): RemoveInactivePeriod => new RemoveInactivePeriod(memberId: $memberId, periodId: $id, executedAt: $now),
         );
     }
 }

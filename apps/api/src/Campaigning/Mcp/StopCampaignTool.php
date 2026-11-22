@@ -29,10 +29,9 @@ final readonly class StopCampaignTool
     #[McpTool(name: 'stop-campaign', description: 'Stop a started campaign for good, kept for the team to read; needs the right to manage the personal data. Answers the campaign.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id): array
     {
-        return $this->writes->write(
+        return $this->writes->change(
             $id,
-            null,
-            static fn (null $input, CampaignSheet $campaign, string $memberId, \DateTimeImmutable $now): StopCampaign => new StopCampaign($memberId, $campaign->id, $now),
+            static fn (CampaignSheet $campaign, string $memberId, \DateTimeImmutable $now): StopCampaign => new StopCampaign($memberId, $campaign->id, $now),
         );
     }
 }

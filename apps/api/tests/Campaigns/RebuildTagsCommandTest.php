@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\App\Campaigns;
 
 use App\Demo\DemoData;
-use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 use Tests\App\Base\ApiTestCase;
@@ -34,8 +34,9 @@ class RebuildTagsCommandTest extends ApiTestCase
         $this->assertStringContainsString('rebuilt for 1 account(s)', $this->rebuild());
 
         $tags = $this->requestJson('GET', '/api/contacts/'.$ada.'/tags');
-        $this->assertSame(['#68', '#COLMAR', '#ESN', '#GRAND_EST'], array_column($tags['inherited'], 'name'));
-        $this->assertSame([[$babbage]], array_values(array_unique(array_column($tags['inherited'], 'from'), SORT_REGULAR)));
+        $inherited = Typed::documents($tags['inherited']);
+        $this->assertSame(['#68', '#COLMAR', '#ESN', '#GRAND_EST'], array_column($inherited, 'name'));
+        $this->assertSame([[$babbage]], array_values(array_unique(array_column($inherited, 'from'), SORT_REGULAR)));
         $this->assertSame(['#EMAIL', '#LINKEDIN', '#PHONE'], $tags['automatic']);
     }
 
@@ -63,11 +64,11 @@ class RebuildTagsCommandTest extends ApiTestCase
      */
     private function rebuild(array $options = []): string
     {
-        $tester = new CommandTester(new Application(self::$kernel)->find('app:tags:rebuild'));
+        $tester = new CommandTester(new Application(self::$kernel ?? self::bootKernel())->find('app:tags:rebuild'));
         $tester->execute($options);
         $tester->assertCommandIsSuccessful();
 
-        return preg_replace('/\s+/', ' ', $tester->getDisplay());
+        return Typed::string(preg_replace('/\s+/', ' ', $tester->getDisplay()));
     }
 
     /**
@@ -75,17 +76,16 @@ class RebuildTagsCommandTest extends ApiTestCase
      */
     private function babbageAndAda(): array
     {
-        $ada = $this->requestJson('GET', '/api/contacts?q=Lovelace')['items'][0];
+        $ada = Typed::documents($this->requestJson('GET', '/api/contacts?q=Lovelace')['items'])[0];
 
-        return [$ada['organizations'][0]['id'], $ada['id']];
+        return [Typed::string(Typed::documents($ada['organizations'])[0]['id']), Typed::string($ada['id'])];
     }
 
     private function loseTheFacts(): void
     {
-        $table = self::getContainer()->get('app.table.campaigns');
-        $this->assertInstanceOf(Table::class, $table);
-        $facts = array_filter($table->scan('ACCOUNT#'), static fn (array $item): bool => str_starts_with($item['SK'], 'FACT#'));
-        $table->batch([], array_values(array_map(static fn (array $item): array => [$item['PK'], $item['SK']], $facts)));
+        $table = self::tableOf('campaigns');
+        $facts = array_filter($table->scan('ACCOUNT#'), static fn (array $item): bool => str_starts_with(Typed::string($item['SK']), 'FACT#'));
+        $table->batch([], array_values(array_map(static fn (array $item): array => [Typed::string($item['PK']), Typed::string($item['SK'])], $facts)));
     }
 
     /**
@@ -96,9 +96,7 @@ class RebuildTagsCommandTest extends ApiTestCase
         $items = [];
 
         foreach (['accounts', 'personal_data', 'prospecting', 'reporting'] as $context) {
-            $table = self::getContainer()->get('app.table.'.$context);
-            $this->assertInstanceOf(Table::class, $table);
-            $items[$context] = $table->scan('');
+            $items[$context] = self::tableOf($context)->scan('');
         }
 
         return $items;

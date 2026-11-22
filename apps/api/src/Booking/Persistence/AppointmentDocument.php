@@ -6,6 +6,7 @@ namespace App\Booking\Persistence;
 
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Hydrator;
+use App\Shared\Typed;
 use Prospecter\Core\Booking\Domain\Model\Appointment;
 use Prospecter\Core\Booking\Domain\Model\AppointmentId;
 use Prospecter\Core\Booking\Domain\Model\Booker;
@@ -43,30 +44,32 @@ final class AppointmentDocument
             'phone' => $booker->phone->value,
             'email' => $booker->email->value,
             'subject' => $appointment->subject(),
-            'createdAt' => Documents::moment($state['createdAt']),
+            'createdAt' => Documents::moment(Typed::object($state['createdAt'], \DateTimeImmutable::class)),
         ];
     }
 
     /**
-     * @param array<string, mixed> $document
+     * Restores the appointment from its item's untyped document.
      */
-    public static function appointment(array $document): Appointment
+    public static function appointment(mixed $document): Appointment
     {
+        $document = Typed::document($document);
+
         return Hydrator::restore(Appointment::class, [
-            'id' => new AppointmentId($document['id']),
-            'accountId' => new AccountId($document['accountId']),
-            'host' => new MemberId($document['host']),
-            'bookerId' => new PersonId($document['bookerId']),
-            'slot' => Documents::momentOf($document['slot'])->setTimezone(new \DateTimeZone($document['timeZone'])),
-            'channel' => Channel::from($document['channel']),
+            'id' => new AppointmentId(Typed::string($document['id'])),
+            'accountId' => new AccountId(Typed::string($document['accountId'])),
+            'host' => new MemberId(Typed::string($document['host'])),
+            'bookerId' => new PersonId(Typed::string($document['bookerId'])),
+            'slot' => Documents::momentOf(Typed::string($document['slot']))->setTimezone(new \DateTimeZone(Typed::string($document['timeZone']))),
+            'channel' => Channel::from(Typed::string($document['channel'])),
             'booker' => Hydrator::restore(Booker::class, [
-                'firstName' => $document['firstName'],
-                'lastName' => $document['lastName'],
-                'phone' => PhoneNumber::of($document['phone']),
-                'email' => new Email($document['email']),
+                'firstName' => Typed::string($document['firstName']),
+                'lastName' => Typed::string($document['lastName']),
+                'phone' => PhoneNumber::of(Typed::string($document['phone'])),
+                'email' => new Email(Typed::string($document['email'])),
             ]),
-            'subject' => $document['subject'],
-            'createdAt' => Documents::momentOf($document['createdAt']),
+            'subject' => Typed::stringOrNull($document['subject']),
+            'createdAt' => Documents::momentOf(Typed::string($document['createdAt'])),
         ]);
     }
 }

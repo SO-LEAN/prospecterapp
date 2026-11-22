@@ -7,6 +7,7 @@ namespace App\Campaigns\Persistence;
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Hydrator;
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\Campaigns\Domain\Model\Holder;
 use Prospecter\Core\Campaigns\Domain\Model\Tag;
 use Prospecter\Core\Campaigns\Domain\Model\Tagging;
@@ -25,14 +26,20 @@ final readonly class DynamoTaggingRepository implements TaggingRepository
 
     public function find(AccountId $accountId, Holder $holder): ?Tagging
     {
-        $document = $this->campaignsTable->item(CampaignsKeys::account($accountId->value), CampaignsKeys::tagging($holder->kind->value, $holder->id->value))['tagging'] ?? null;
+        $stored = $this->campaignsTable->item(CampaignsKeys::account($accountId->value), CampaignsKeys::tagging($holder->kind->value, $holder->id->value))['tagging'] ?? null;
 
-        return null === $document ? null : Hydrator::restore(Tagging::class, [
+        if (null === $stored) {
+            return null;
+        }
+
+        $document = Typed::document($stored);
+
+        return Hydrator::restore(Tagging::class, [
             'accountId' => $accountId,
             'holder' => $holder,
-            'tags' => array_map(Tag::written(...), $document['tags']),
-            'createdAt' => Documents::momentOf($document['createdAt']),
-            'modifiedAt' => Documents::momentOf($document['modifiedAt']),
+            'tags' => array_map(Tag::written(...), Typed::strings($document['tags'])),
+            'createdAt' => Documents::momentOf(Typed::string($document['createdAt'])),
+            'modifiedAt' => Documents::momentOf(Typed::string($document['modifiedAt'])),
         ]);
     }
 
@@ -48,9 +55,9 @@ final readonly class DynamoTaggingRepository implements TaggingRepository
                 'accountId' => $tagging->accountId()->value,
                 'holder' => $holder->kind->value,
                 'holderId' => $holder->id->value,
-                'tags' => array_map(static fn (Tag $tag): string => $tag->name, $state['tags']),
-                'createdAt' => Documents::moment($state['createdAt']),
-                'modifiedAt' => Documents::moment($state['modifiedAt']),
+                'tags' => array_map(static fn (Tag $tag): string => $tag->name, Typed::objects($state['tags'], Tag::class)),
+                'createdAt' => Documents::moment(Typed::object($state['createdAt'], \DateTimeImmutable::class)),
+                'modifiedAt' => Documents::moment(Typed::object($state['modifiedAt'], \DateTimeImmutable::class)),
             ],
         ])]);
     }

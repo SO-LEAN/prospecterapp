@@ -27,10 +27,9 @@ final readonly class RemoveRecipientTool
     #[McpTool(name: 'remove-campaign-recipient', description: 'Take a recipient off a frozen campaign, never the last one; needs the right to manage the personal data. Answers nothing.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id, string $contactId): void
     {
-        $this->writes->dispatched(
+        $this->writes->changed(
             $id,
-            null,
-            static fn (null $input, CampaignSheet $campaign, string $memberId, \DateTimeImmutable $now): RemoveRecipient => new RemoveRecipient(memberId: $memberId, campaignId: $campaign->id, contactId: $contactId, executedAt: $now),
+            static fn (CampaignSheet $campaign, string $memberId, \DateTimeImmutable $now): RemoveRecipient => new RemoveRecipient(memberId: $memberId, campaignId: $campaign->id, contactId: $contactId, executedAt: $now),
         );
     }
 }

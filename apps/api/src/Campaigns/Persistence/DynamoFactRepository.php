@@ -6,6 +6,7 @@ namespace App\Campaigns\Persistence;
 
 use App\Shared\Persistence\Table;
 use App\Shared\Persistence\Write;
+use App\Shared\Typed;
 use Prospecter\Core\Campaigns\Domain\Model\ContactFact;
 use Prospecter\Core\Campaigns\Domain\Model\Fact;
 use Prospecter\Core\Campaigns\Domain\Model\Locality;
@@ -105,7 +106,7 @@ final readonly class DynamoFactRepository implements FactRepository
     }
 
     /**
-     * @return array<string, mixed> what a fact of its kind carries beyond its revision and its presence
+     * @return array{contacts: list<string>, municipalityCode: ?string, country: ?string}|array{hasEmail: bool, hasPhone: bool, hasMobile: bool, hasLinkedIn: bool}|array{} what a fact of its kind carries beyond its revision and its presence
      */
     private static function attributesOf(Fact $fact): array
     {
@@ -121,12 +122,12 @@ final readonly class DynamoFactRepository implements FactRepository
      */
     private static function factOf(Fact $about, array $item): Fact
     {
-        $revision = (int) $item['revision'];
-        $present = (bool) $item['present'];
+        $revision = Typed::int($item['revision']);
+        $present = Typed::bool($item['present']);
 
         return match (true) {
-            $about instanceof OrganizationFact => new OrganizationFact($about->accountId, new OrganizationId($about->id->value), $revision, $present, array_map(static fn (string $contact): PersonId => new PersonId($contact), $item['contacts']), Locality::read(OrganizationFactItem::localityIn($item))),
-            $about instanceof ContactFact => new ContactFact($about->accountId, new PersonId($about->id->value), $revision, $present, new Reach((bool) $item['hasEmail'], (bool) $item['hasPhone'], (bool) $item['hasMobile'], (bool) $item['hasLinkedIn'])),
+            $about instanceof OrganizationFact => new OrganizationFact($about->accountId, new OrganizationId($about->id->value), $revision, $present, array_map(static fn (string $contact): PersonId => new PersonId($contact), Typed::strings($item['contacts'])), Locality::read(OrganizationFactItem::localityIn($item))),
+            $about instanceof ContactFact => new ContactFact($about->accountId, new PersonId($about->id->value), $revision, $present, new Reach(Typed::bool($item['hasEmail']), Typed::bool($item['hasPhone']), Typed::bool($item['hasMobile']), Typed::bool($item['hasLinkedIn']))),
             default => throw new \LogicException(sprintf('No item keeps a %s', $about::class)),
         };
     }

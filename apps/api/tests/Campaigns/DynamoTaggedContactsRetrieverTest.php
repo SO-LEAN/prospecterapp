@@ -95,16 +95,16 @@ class DynamoTaggedContactsRetrieverTest extends ApiTestCase
 
     private function recorder(): FactRecorder
     {
-        return self::getContainer()->get(FactRecorder::class);
+        return self::service(FactRecorder::class);
     }
 
     private function taggings(): TaggingRepository
     {
-        return self::getContainer()->get(TaggingRepository::class);
+        return self::service(TaggingRepository::class);
     }
 
     private function retriever(): TaggedContactsRetriever
     {
-        return self::getContainer()->get(TaggedContactsRetriever::class);
+        return self::service(TaggedContactsRetriever::class);
     }
 }

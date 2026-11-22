@@ -40,7 +40,7 @@ final readonly class PublicBookingRoutes
     public function __invoke(RequestEvent $event): void
     {
         $attributes = $event->getRequest()->attributes;
-        $code = (string) $attributes->get('code');
+        $code = $attributes->getString('code');
         if (true !== $attributes->get(self::LIMITED_BY_ITS_CODE) || self::isOversized($code)) {
             return;
         }

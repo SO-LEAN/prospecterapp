@@ -55,9 +55,9 @@ final readonly class DynamoAppointmentRepository implements AppointmentRepositor
         $expiresAt = $this->clock->now()->modify(self::KEPT_FOR)->getTimestamp();
 
         $this->bookingTable->transact([
-            $this->bookingTable->putting(['PK' => BookingKeys::appointment($document['id']), 'SK' => BookingKeys::APPOINTMENT, 'appointment' => $document, 'expiresAt' => $expiresAt]),
+            $this->bookingTable->putting(['PK' => BookingKeys::appointment($appointment->id()->value), 'SK' => BookingKeys::APPOINTMENT, 'appointment' => $document, 'expiresAt' => $expiresAt]),
             $this->bookingTable->putting(
-                ['PK' => BookingKeys::slotsOf($document['host']), 'SK' => BookingKeys::slot($document['slot']), 'appointment' => $document, 'expiresAt' => $expiresAt],
+                ['PK' => BookingKeys::slotsOf($appointment->host()->value), 'SK' => BookingKeys::slot(Documents::moment($appointment->slot())), 'appointment' => $document, 'expiresAt' => $expiresAt],
                 self::NO_APPOINTMENT_THERE_YET,
                 refusal: static fn (): SlotNotFree => SlotNotFree::refused(),
             ),
