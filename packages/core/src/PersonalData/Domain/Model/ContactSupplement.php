@@ -38,6 +38,7 @@ final readonly class ContactSupplement
      *
      * @throws InvalidTitle|InvalidEmail|InvalidPhoneNumber|NotAWebAddress|ReferenceOfAnotherKind|UnrecognizedPage
      */
+    // @phpstan-ignore prospecter.parameters (a value object listing its fields, as its constructor does)
     public static function given(string $civility, ?string $jobTitle, ?string $email, ?string $phoneNumber, array $links): self
     {
         return new self(

@@ -40,6 +40,7 @@ final readonly class OrganizationSupplement
      *
      * @throws InvalidSiret|NotAWebAddress|ReferenceOfAnotherKind|UnrecognizedPage|InvalidWebsite|InvalidEmail|InvalidPhoneNumber
      */
+    // @phpstan-ignore prospecter.parameters (a value object listing its fields, as its constructor does)
     public static function given(?string $siret, array $links, ?string $website, ?string $email, ?string $phoneNumber): self
     {
         return new self(
