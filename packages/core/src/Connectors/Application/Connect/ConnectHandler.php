@@ -23,6 +23,7 @@ use Prospecter\Core\Connectors\Domain\Repository\ProviderClientRepository;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 final readonly class ConnectHandler implements CommandHandler
@@ -70,7 +71,7 @@ final readonly class ConnectHandler implements CommandHandler
         $connection = $this->connections->find($me->id, $client->provider);
 
         if (null === $connection) {
-            return Connection::establish($me->id, $me->accountId, $client, $grant, $at);
+            return Connection::establish(new Gesture($me->accountId, $me->id, $at), $client, $grant);
         }
 
         $connection->renew($grant, $client, $this->providerAccess, $at);

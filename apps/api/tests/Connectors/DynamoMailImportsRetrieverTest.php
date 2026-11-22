@@ -16,6 +16,7 @@ use Prospecter\Core\Connectors\Domain\Port\ProviderMailbox;
 use Prospecter\Core\Connectors\Domain\Repository\ConnectionRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Tests\App\Base\ApiTestCase;
 use Tests\App\Double\EmptyMailbox;
@@ -53,7 +54,7 @@ class DynamoMailImportsRetrieverTest extends ApiTestCase
     {
         $grant = new Grant(new Email('michel@exemple.fr'), new RefreshToken('a-refresh-token'), Scope::Calendar, Scope::Mailbox);
 
-        return Connection::establish(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()), self::client(), $grant, new \DateTimeImmutable(self::AT));
+        return Connection::establish(new Gesture(new AccountId(self::newIdentity()), new MemberId(self::newIdentity()), new \DateTimeImmutable(self::AT)), self::client(), $grant);
     }
 
     private static function client(): ClientCredentials

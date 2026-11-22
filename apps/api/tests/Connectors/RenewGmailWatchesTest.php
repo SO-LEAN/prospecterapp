@@ -17,6 +17,7 @@ use Prospecter\Core\Connectors\Domain\Port\ProviderMailbox;
 use Prospecter\Core\Connectors\Domain\Repository\ConnectionRepository;
 use Prospecter\Core\Connectors\Domain\Repository\ProviderClientRepository;
 use Prospecter\Core\SharedKernel\Domain\Email;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -87,7 +88,7 @@ class RenewGmailWatchesTest extends ApiTestCase
     {
         $at = new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS);
         $grant = new Grant(new Email('michel@exemple.fr'), new RefreshToken('a-refresh-token'), Scope::Calendar, Scope::Mailbox);
-        $connection = Connection::establish(new MemberId($this->memberIdOf($member)), $this->accountOfTheFixtures(), self::credentials(), $grant, $at);
+        $connection = Connection::establish(new Gesture($this->accountOfTheFixtures(), new MemberId($this->memberIdOf($member)), $at), self::credentials(), $grant);
         $connection->importMail(self::credentials(), new MailboxNotifications(self::TOPIC, new Email('push@solean.iam.gserviceaccount.com')), self::aMailbox(), $at);
         self::getContainer()->get(ConnectionRepository::class)->save($connection);
     }
