@@ -9669,7 +9669,7 @@ parameters:
 		-
 			message: '#^Call to an undefined method object\:\:get\(\)\.$#'
 			identifier: method.notFound
-			count: 2
+			count: 1
 			path: tests/Api/ExchangesToProcessApiTest.php
 
 		-
@@ -9782,12 +9782,6 @@ parameters:
 
 		-
 			message: '#^Parameter \#1 \$organization of class Prospecter\\Core\\Prospecting\\Domain\\Model\\OrganizationCorrespondent constructor expects Prospecter\\Core\\SharedKernel\\Domain\\OrganizationId, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/ExchangesToProcessApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$organization of static method Prospecter\\Core\\Prospecting\\Domain\\Model\\ToDo\:\:forTheOrganization\(\) expects Prospecter\\Core\\Prospecting\\Domain\\Model\\Organization, mixed given\.$#'
 			identifier: argument.type
 			count: 1
 			path: tests/Api/ExchangesToProcessApiTest.php

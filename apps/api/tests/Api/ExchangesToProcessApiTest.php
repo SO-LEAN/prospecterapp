@@ -12,6 +12,7 @@ use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationCorrespondent;
+use Prospecter\Core\Prospecting\Domain\Model\Task;
 use Prospecter\Core\Prospecting\Domain\Model\ToDo;
 use Prospecter\Core\Prospecting\Domain\Model\ToDoId;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
@@ -165,7 +166,7 @@ class ExchangesToProcessApiTest extends ApiTestCase
     public function testAMemberWithoutTheRightToManagePersonalDataHasNoToDoToProcess(): void
     {
         $assistant = $this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector);
-        $toDo = ToDo::forTheOrganization(self::getContainer()->get(OrganizationRepository::class)->get(new OrganizationId($this->organization)), new MemberId($this->memberIdOf($assistant)), new ToDoId(self::newIdentity()), 'Envoyer mon CV', new Due('2026-10-14'), new \DateTimeImmutable('2026-10-13 09:00 UTC'));
+        $toDo = ToDo::noted(new Gesture($this->accountOfTheFixtures(), new MemberId($this->memberIdOf($assistant)), new \DateTimeImmutable('2026-10-13 09:00 UTC')), new ToDoId(self::newIdentity()), new OrganizationCorrespondent(new OrganizationId($this->organization)), new Task('Envoyer mon CV', new Due('2026-10-14')));
         self::getContainer()->get(ToDoRepository::class)->save($toDo);
         $this->login($assistant);
 

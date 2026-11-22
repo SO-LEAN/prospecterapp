@@ -8,7 +8,7 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * A contact, the exchange kept for the organizations they are part of.
+ * A contact, the exchange or the to-do kept for the organizations they are part of.
  */
 final readonly class ContactCorrespondent extends Correspondent
 {

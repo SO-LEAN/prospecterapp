@@ -15,13 +15,16 @@ use Prospecter\Core\Prospecting\Domain\Event\ToDoRevised;
 use Prospecter\Core\Prospecting\Domain\Event\ToDoTickedOff;
 use Prospecter\Core\Prospecting\Domain\Event\ToDoUnticked;
 use Prospecter\Core\Prospecting\Domain\Exception\ToDoWithoutText;
+use Prospecter\Core\Prospecting\Domain\Model\ContactCorrespondent;
 use Prospecter\Core\Prospecting\Domain\Model\Due;
+use Prospecter\Core\Prospecting\Domain\Model\Task;
 use Prospecter\Core\Prospecting\Domain\Model\ToDo;
 use Prospecter\Core\Prospecting\Domain\Model\ToDoId;
 use Prospecter\Core\Prospecting\Domain\Model\ToDoIntent;
 use Prospecter\Core\Prospecting\Domain\Policy\ToDoPossibilities;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
@@ -126,7 +129,7 @@ final class ToDoTest extends TestCase
 
     public function testItsContactToAttachAttachedItIsKeptForTheirOrganization(): void
     {
-        $toDo = ToDo::forAContact(new AccountId(self::ACCOUNT), new MemberId(self::ME), new ToDoId(self::TO_DO), new PersonId(self::CONTACT), [], 'Envoyer mon CV', new Due('2026-11-20'), $this->now());
+        $toDo = ToDo::noted(new Gesture(new AccountId(self::ACCOUNT), new MemberId(self::ME), $this->now()), new ToDoId(self::TO_DO), new ContactCorrespondent(new PersonId(self::CONTACT), []), new Task('Envoyer mon CV', new Due('2026-11-20')));
         $toDo->releaseEvents();
 
         $toDo->keepFor(new OrganizationId(self::ACME), new MemberId(self::ME), $this->now());
@@ -169,7 +172,7 @@ final class ToDoTest extends TestCase
 
     private function noted(string $text = 'Envoyer mon CV'): ToDo
     {
-        return ToDo::forAContact(new AccountId(self::ACCOUNT), new MemberId(self::ME), new ToDoId(self::TO_DO), new PersonId(self::CONTACT), [new OrganizationId(self::ACME), new OrganizationId(self::GROUP)], $text, new Due('2026-11-14'), $this->now());
+        return ToDo::noted(new Gesture(new AccountId(self::ACCOUNT), new MemberId(self::ME), $this->now()), new ToDoId(self::TO_DO), new ContactCorrespondent(new PersonId(self::CONTACT), [new OrganizationId(self::ACME), new OrganizationId(self::GROUP)]), new Task($text, new Due('2026-11-14')));
     }
 
     private function done(): ToDo

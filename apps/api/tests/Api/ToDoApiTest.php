@@ -8,13 +8,16 @@ use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\Accounts\Domain\Repository\AccountRepository;
 use Prospecter\Core\Prospecting\Domain\Model\Due;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
+use Prospecter\Core\Prospecting\Domain\Model\OrganizationCorrespondent;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
+use Prospecter\Core\Prospecting\Domain\Model\Task;
 use Prospecter\Core\Prospecting\Domain\Model\ToDo;
 use Prospecter\Core\Prospecting\Domain\Model\ToDoId;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 use Prospecter\Core\Prospecting\Domain\Repository\ToDoRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
@@ -189,7 +192,7 @@ class ToDoApiTest extends ApiTestCase
         self::getContainer()->get(AccountRepository::class)->save($competitor);
         $theirs = Organization::prospectedBy(new Prospector(new MemberId(self::newIdentity()), $competitor->id()), new OrganizationId(self::newIdentity()), new LegalIdentity('Their prospect'), new ContactDetails(), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         self::getContainer()->get(OrganizationRepository::class)->save($theirs);
-        $toDo = ToDo::forTheOrganization($theirs, new MemberId(self::newIdentity()), new ToDoId(self::newIdentity()), 'Leur proposition', new Due('2026-10-16'), new \DateTimeImmutable('2026-10-14'));
+        $toDo = ToDo::noted(new Gesture($competitor->id(), new MemberId(self::newIdentity()), new \DateTimeImmutable('2026-10-14')), new ToDoId(self::newIdentity()), new OrganizationCorrespondent($theirs->id()), new Task('Leur proposition', new Due('2026-10-16')));
         self::getContainer()->get(ToDoRepository::class)->save($toDo);
 
         return $toDo->id()->value;
