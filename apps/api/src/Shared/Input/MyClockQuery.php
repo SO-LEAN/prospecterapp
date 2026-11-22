@@ -2,13 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Booking\Input;
+namespace App\Shared\Input;
 
 use OpenApi\Attributes as OA;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * The clock of the host reading their page: the inactive periods ended before its day are no longer shown (ADR 0134).
+ * The clock of the member reading a resource whose figures follow their day: the inactive periods of their booking
+ * page ended before it are no longer shown (ADR 0134), the recipients of a campaign processed on it are counted.
  */
 final readonly class MyClockQuery
 {
