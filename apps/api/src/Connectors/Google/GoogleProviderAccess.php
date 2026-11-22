@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Connectors\Google;
 
 use App\Shared\ServiceUnavailable;
+use App\Shared\Typed;
 use Prospecter\Core\Connectors\Domain\Exception\AccessNotGranted;
 use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
 use Prospecter\Core\Connectors\Domain\Model\Grant;
@@ -66,7 +67,7 @@ final readonly class GoogleProviderAccess implements ProviderAccess
     private static function tokensIn(ResponseInterface $response): array
     {
         try {
-            return $response->toArray();
+            return Typed::document($response->toArray());
         } catch (TransportExceptionInterface $failure) {
             throw ServiceUnavailable::google($failure);
         }
@@ -82,9 +83,9 @@ final readonly class GoogleProviderAccess implements ProviderAccess
         }
 
         return new Grant(
-            new Email(self::emailIn($tokens['id_token'])),
-            new RefreshToken($tokens['refresh_token']),
-            ...self::scopesIn($tokens['scope'] ?? ''),
+            new Email(self::emailIn(Typed::string($tokens['id_token']))),
+            new RefreshToken(Typed::string($tokens['refresh_token'])),
+            ...self::scopesIn(Typed::string($tokens['scope'] ?? '')),
         );
     }
 

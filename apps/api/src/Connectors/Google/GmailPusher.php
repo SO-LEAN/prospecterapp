@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Connectors\Google;
 
+use App\Shared\Typed;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -25,6 +26,6 @@ final readonly class GmailPusher implements UserInterface
 
     public function getUserIdentifier(): string
     {
-        return $this->account;
+        return Typed::filledString($this->account);
     }
 }

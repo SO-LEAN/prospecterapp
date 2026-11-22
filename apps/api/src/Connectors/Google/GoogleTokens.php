@@ -35,7 +35,8 @@ final readonly class GoogleTokens
             'body' => ['grant_type' => 'refresh_token', 'refresh_token' => $refreshToken->value, 'client_id' => $client->id, 'client_secret' => $client->secret],
             'timeout' => self::TIMEOUT,
         ]);
-        $answer = json_decode($response->getContent(false), true);
+        $decoded = json_decode($response->getContent(false), true);
+        $answer = is_array($decoded) ? $decoded : [];
 
         if (self::OK === $response->getStatusCode() && is_string($answer['access_token'] ?? null)) {
             return $answer['access_token'];

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Connectors\Google;
 
+use App\Shared\Typed;
 use App\Shared\UploadForms;
 use App\Shared\UploadSender;
 use Monolog\Attribute\WithMonologChannel;
@@ -62,7 +63,7 @@ final readonly class GoogleMailbox implements ProviderMailbox
         $this->ensureGranted($response, $client);
         $watch = $response->toArray();
 
-        return new MailboxWatch((string) $watch['historyId'], self::momentOf((string) $watch['expiration']));
+        return new MailboxWatch(Typed::string($watch['historyId']), self::momentOf(Typed::string($watch['expiration'])));
     }
 
     /**
@@ -112,16 +113,16 @@ final readonly class GoogleMailbox implements ProviderMailbox
         $pageToken = null;
         do {
             $page = $this->historyPage($client, $refreshToken, $historyId, $atMost, $pageToken);
-            foreach ($page['history'] ?? [] as $record) {
-                $added = array_map(static fn (array $added): string => (string) $added['message']['id'], $record['messagesAdded'] ?? []);
+            foreach (Typed::documents($page['history'] ?? []) as $record) {
+                $added = self::idsOf(array_column(Typed::documents($record['messagesAdded'] ?? []), 'message'));
                 if ([] !== $listed && count($listed) + count($added) > $atMost) {
                     return $this->logged(new MailboxChanges($listed, $reached, false), $historyId);
                 }
 
                 $listed = [...$listed, ...$added];
-                $reached = (string) $record['id'];
+                $reached = Typed::string($record['id']);
             }
-            $pageToken = $page['nextPageToken'] ?? null;
+            $pageToken = Typed::stringOrNull($page['nextPageToken'] ?? null);
         } while (null !== $pageToken);
 
         return $this->logged(new MailboxChanges($listed, $reached, true), $historyId);
@@ -151,7 +152,7 @@ final readonly class GoogleMailbox implements ProviderMailbox
 
         $this->ensureGranted($response, $client);
 
-        return $response->toArray();
+        return Typed::document($response->toArray());
     }
 
     /**
@@ -175,14 +176,14 @@ final readonly class GoogleMailbox implements ProviderMailbox
      */
     public function messagesExchangedAfter(ClientCredentials $client, RefreshToken $refreshToken, \DateTimeImmutable $moment, int $atMost): MailboxChanges
     {
-        $historyId = (string) $this->answerOf($client, $this->read($client, $refreshToken, '/users/me/profile'))['historyId'];
+        $historyId = Typed::string($this->answerOf($client, $this->read($client, $refreshToken, '/users/me/profile'))['historyId']);
         $query = ['q' => sprintf('after:%d %s', $moment->getTimestamp(), self::NOT_EXCHANGED), 'maxResults' => self::PAGE];
         $newestFirst = [];
         $pageToken = null;
         do {
             $page = $this->answerOf($client, $this->read($client, $refreshToken, '/users/me/messages', [...$query, ...(null === $pageToken ? [] : ['pageToken' => $pageToken])]));
-            $newestFirst = [...$newestFirst, ...array_map(static fn (array $message): string => (string) $message['id'], $page['messages'] ?? [])];
-            $pageToken = $page['nextPageToken'] ?? null;
+            $newestFirst = [...$newestFirst, ...self::idsOf($page['messages'] ?? [])];
+            $pageToken = Typed::stringOrNull($page['nextPageToken'] ?? null);
         } while (null !== $pageToken);
 
         $this->warnOfTheLeftOut(count($newestFirst) - $atMost);
@@ -201,7 +202,17 @@ final readonly class GoogleMailbox implements ProviderMailbox
         $query = ['q' => sprintf('{from:%1$s to:%1$s} after:%2$d %3$s', $address->value, $moment->getTimestamp(), self::NOT_EXCHANGED), 'maxResults' => $atMost];
         $page = $this->answerOf($client, $this->read($client, $refreshToken, '/users/me/messages', $query));
 
-        return array_map(static fn (array $message): string => (string) $message['id'], $page['messages'] ?? []);
+        return self::idsOf($page['messages'] ?? []);
+    }
+
+    /**
+     * The listed messages' Gmail ids.
+     *
+     * @return list<string>
+     */
+    private static function idsOf(mixed $messages): array
+    {
+        return Typed::strings(array_column(Typed::documents($messages), 'id'));
     }
 
     private function warnOfTheLeftOut(int $leftOut): void
@@ -220,7 +231,7 @@ final readonly class GoogleMailbox implements ProviderMailbox
     {
         $this->ensureGranted($response, $client);
 
-        return $response->toArray();
+        return Typed::document($response->toArray());
     }
 
     /**
@@ -247,7 +258,7 @@ final readonly class GoogleMailbox implements ProviderMailbox
     private function fileOf(array $answer): File
     {
         $path = (string) tempnam(sys_get_temp_dir(), 'attachment');
-        file_put_contents($path, GmailMessage::decoded((string) ($answer['data'] ?? '')));
+        file_put_contents($path, GmailMessage::decoded(Typed::string($answer['data'] ?? '')));
 
         return new File($path);
     }
