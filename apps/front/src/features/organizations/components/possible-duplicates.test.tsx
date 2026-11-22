@@ -22,6 +22,7 @@ const DISMISS = `/api/organizations/${DUPLICATE}/possible-duplicates/${ACME}`
 
 const aDuplicate = (possibleDuplicates: Organization['possibleDuplicates']): Organization => ({
   id: DUPLICATE,
+  revision: 1,
   name: 'ACME s.a.s',
   legalIdentity: { corporateName: 'ACME s.a.s' },
   contactDetails: { links: [] },

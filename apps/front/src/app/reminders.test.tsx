@@ -93,6 +93,7 @@ const theVideoCallWithAcme: DayExchange = {
 
 const acme: Organization = {
   id: ACME,
+  revision: 1,
   name: 'ACME',
   legalIdentity: { corporateName: 'ACME' },
   contactDetails: { links: [] },

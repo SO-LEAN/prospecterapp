@@ -22,6 +22,7 @@ const ADA = '0190a1c0-0000-7000-8000-000000000002'
 
 const qaContacts: Organization = {
   id: QA_CONTACTS,
+  revision: 1,
   name: 'QA contacts',
   legalIdentity: { corporateName: 'QA contacts' },
   contactDetails: { links: [] },

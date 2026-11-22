@@ -2,6 +2,7 @@
 
 namespace App\Prospecting;
 
+use App\Prospecting\Persistence\OrganizationRevisions;
 use App\Prospecting\Presenter\OrganizationResourcePresenter;
 use App\Prospecting\Resource\OrganizationResource;
 use App\Security\IntentLinks;
@@ -23,12 +24,14 @@ final readonly class OrganizationReader
         private ImageResourceFactory $images,
         private Links $links,
         private IntentLinks $intents,
+        private OrganizationRevisions $revisions,
     ) {
     }
 
     public function read(string $id): OrganizationResource
     {
         $presenter = $this->presenter();
+        $this->revisions->watch($id);
         ($this->consultOrganization)(new ConsultOrganization($id), $presenter);
 
         return $presenter->resource;
@@ -44,6 +47,6 @@ final readonly class OrganizationReader
 
     private function presenter(): OrganizationResourcePresenter
     {
-        return new OrganizationResourcePresenter($this->images, $this->links, $this->intents);
+        return new OrganizationResourcePresenter($this->images, $this->links, $this->intents, $this->revisions);
     }
 }

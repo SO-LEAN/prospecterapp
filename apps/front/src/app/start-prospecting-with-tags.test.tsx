@@ -35,6 +35,7 @@ const me: Account = {
 
 const acme: Organization = {
   id: ACME,
+  revision: 1,
   name: 'QA campagnes',
   legalIdentity: { corporateName: 'QA campagnes' },
   contactDetails: { links: [] },

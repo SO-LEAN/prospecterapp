@@ -5,9 +5,11 @@ namespace App\Contacts;
 use App\Contacts\Resource\CallerResource;
 use App\Contacts\Resource\ContactInListResource;
 use App\Prospecting\OrganizationReader;
+use App\Prospecting\Resource\OrganizationResource;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\PersonalData\Application\RecognizeCallingContact\KeptCallingContacts;
 use Prospecter\Core\PersonalData\Application\RecognizeCallingContact\RecognizeCallingContact;
+use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\RecognizeCallingOrganization\KeptCallingOrganizations;
 use Prospecter\Core\Prospecting\Application\RecognizeCallingOrganization\RecognizeCallingOrganization;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
@@ -15,6 +17,7 @@ use Prospecter\Core\SharedKernel\Application\QueryHandler;
 /**
  * Who calls (ADR 0072), composed of three contexts: Prospecting tells the organizations having the number,
  * PersonalData the contacts, read in clear; Prospecting then the organizations of each contact, Campaigns its tags.
+ * Each organization is read again by its id, so that it is shown with its revision (ADR 0187).
  */
 final readonly class CallerReader
 {
@@ -40,7 +43,7 @@ final readonly class CallerReader
         $tagsOfContacts = $this->tagsOfContacts->read($memberId, $contactIds);
 
         return new CallerResource(
-            array_map($this->organizationReader->resourceOf(...), $organizations->organizations),
+            array_map(fn (OrganizationSheet $organization): OrganizationResource => $this->organizationReader->read($organization->id), $organizations->organizations),
             array_map(fn (PersonCard $contact): ContactInListResource => $this->contactInListResourceFactory->create($contact, $organizationsOfContacts[$contact->id] ?? [], $tagsOfContacts[$contact->id] ?? []), $contacts),
         );
     }

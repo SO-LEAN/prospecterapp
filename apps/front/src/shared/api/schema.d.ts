@@ -2602,6 +2602,8 @@ export interface components {
             possibleDuplicates: components["schemas"]["PossibleDuplicateResource"][];
             /** @description An AI created it, acting as its member through the MCP server, never named */
             createdByAnAI: boolean;
+            /** @description The record's revision as read. Send it back with a change to what was read: if the record changed since, the change is refused (409 changedMeanwhile). */
+            revision: number;
         };
         CampaignOfExchangeResource: {
             id: string;
@@ -4150,7 +4152,10 @@ export interface operations {
     };
     patch_api_organizations_change_contact_details: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description The record's revision as the client read it. If the record changed since, the change is refused (409 changedMeanwhile) instead of erasing the other change. Without it, the change holds to the record as the API reads it. */
+                revision?: number | null;
+            };
             header?: never;
             path: {
                 id: string;
@@ -4190,6 +4195,15 @@ export interface operations {
             };
             /** @description Unknown organization, or one that is neither mine nor prospected by mine */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Changed since the revision sent was read */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -4736,7 +4750,10 @@ export interface operations {
     };
     patch_api_organizations_relocate: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description The record's revision as the client read it. If the record changed since, the change is refused (409 changedMeanwhile) instead of erasing the other change. Without it, the change holds to the record as the API reads it. */
+                revision?: number | null;
+            };
             header?: never;
             path: {
                 id: string;
@@ -4776,6 +4793,15 @@ export interface operations {
             };
             /** @description Unknown organization, or one that is neither mine nor prospected by mine */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Changed since the revision sent was read */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -4853,7 +4879,10 @@ export interface operations {
     };
     patch_api_organizations_revise_legal_identity: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description The record's revision as the client read it. If the record changed since, the change is refused (409 changedMeanwhile) instead of erasing the other change. Without it, the change holds to the record as the API reads it. */
+                revision?: number | null;
+            };
             header?: never;
             path: {
                 id: string;
@@ -4893,6 +4922,15 @@ export interface operations {
             };
             /** @description Unknown organization, or one that is neither mine nor prospected by mine */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Changed since the revision sent was read */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -5158,7 +5196,10 @@ export interface operations {
     };
     patch_api_organizations_write_observations: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description The record's revision as the client read it. If the record changed since, the change is refused (409 changedMeanwhile) instead of erasing the other change. Without it, the change holds to the record as the API reads it. */
+                revision?: number | null;
+            };
             header?: never;
             path: {
                 id: string;
@@ -5198,6 +5239,15 @@ export interface operations {
             };
             /** @description Unknown organization, or one that is neither mine nor prospected by mine */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Changed since the revision sent was read */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

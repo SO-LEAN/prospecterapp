@@ -4,11 +4,13 @@ namespace App\Prospecting\Controller;
 
 use App\Prospecting\OrganizationReader;
 use App\Prospecting\OrganizationVoter;
+use App\Prospecting\Persistence\OrganizationRevisions;
 use App\Prospecting\Resource\OrganizationResource;
 use App\Security\User;
 use App\Shared\CommandBus;
 use App\Shared\Input\AddressInput;
 use App\Shared\Resource\ProblemResource;
+use App\Shared\Resource\RevisionDescription;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
@@ -16,6 +18,7 @@ use Prospecter\Core\Prospecting\Application\Relocate\Relocate;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
@@ -30,20 +33,23 @@ final class RelocateController extends AbstractController
         private readonly CommandBus $commandBus,
         private readonly ClockInterface $clock,
         private readonly OrganizationReader $organizationReader,
+        private readonly OrganizationRevisions $revisions,
     ) {
     }
 
     #[Route('/api/organizations/{id}/address', name: 'api_organizations_relocate', requirements: ['id' => Requirement::UUID], methods: ['PATCH'])]
     #[IsGranted(OrganizationVoter::ACCESS, subject: 'organization')]
     #[OA\Patch(summary: 'Move the organization to an address (located again); an empty address removes it')]
+    #[OA\Parameter(name: 'revision', in: 'query', description: RevisionDescription::OF_A_CHANGE)]
     #[OA\Response(response: 200, description: 'The organization at its new address', content: new Model(type: OrganizationResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'The signed-in user is not a prospector', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'Unknown organization, or one that is neither mine nor prospected by mine', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 409, description: 'Changed since the revision sent was read', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 422, description: 'Invalid address', content: new Model(type: ProblemResource::class))]
-    public function __invoke(OrganizationSheet $organization, #[MapRequestPayload] AddressInput $input, #[CurrentUser] User $user): JsonResponse
+    public function __invoke(OrganizationSheet $organization, #[MapRequestPayload] AddressInput $input, #[CurrentUser] User $user, #[MapQueryParameter(options: ['min_range' => 0], validationFailedStatusCode: 422)] ?int $revision = null): JsonResponse
     {
-        $this->commandBus->dispatch(new Relocate($user->memberId(), $organization->id, $input->street, $input->postalCode, $input->city, $input->country, $this->clock->now()));
+        $this->commandBus->dispatch(new Relocate($user->memberId(), $organization->id, $input->street, $input->postalCode, $input->city, $input->country, $this->clock->now()), $this->revisions->readAt($organization->id, $revision));
 
         return $this->json($this->organizationReader->read($organization->id));
     }
