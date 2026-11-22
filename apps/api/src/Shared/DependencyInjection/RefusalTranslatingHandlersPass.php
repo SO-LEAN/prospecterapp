@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Shared\DependencyInjection;
 
+use App\Shared\Typed;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingCommandHandler;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingEventHandler;
@@ -73,7 +74,7 @@ final class RefusalTranslatingHandlersPass implements CompilerPassInterface
 
     public static function classOf(ContainerBuilder $container, string $id): string
     {
-        return $container->getParameterBag()->resolveValue($container->getDefinition($id)->getClass() ?? $id);
+        return Typed::string($container->getParameterBag()->resolveValue($container->getDefinition($id)->getClass() ?? $id));
     }
 
     /**

@@ -4,14 +4,16 @@ declare(strict_types=1);
 
 namespace App\Shared\Messaging;
 
+use App\Shared\Typed;
+
 /**
  * The bus refused some events of a put, each with its reason: the whole batch is to be published again.
  */
 final class EventsNotPublished extends \RuntimeException
 {
     /**
-     * @param list<TransportedEvent>                                                   $events
-     * @param list<array{ErrorCode?: string, ErrorMessage?: string, EventId?: string}> $entries the answer of the bus for each event, in order
+     * @param list<TransportedEvent>     $events
+     * @param list<array<string, mixed>> $entries the answer of the bus for each event, in order: an ErrorCode and an ErrorMessage for one refused
      */
     public static function refusedBy(string $bus, int $refused, array $events, array $entries): self
     {
@@ -19,7 +21,7 @@ final class EventsNotPublished extends \RuntimeException
 
         foreach ($entries as $position => $entry) {
             if (isset($entry['ErrorCode'])) {
-                $reasons[] = sprintf('%s %s: %s %s', $events[$position]->detailType, $events[$position]->eventId, $entry['ErrorCode'], $entry['ErrorMessage'] ?? '');
+                $reasons[] = sprintf('%s %s: %s %s', $events[$position]->detailType, $events[$position]->eventId, Typed::string($entry['ErrorCode']), Typed::stringOrNull($entry['ErrorMessage'] ?? null) ?? '');
             }
         }
 

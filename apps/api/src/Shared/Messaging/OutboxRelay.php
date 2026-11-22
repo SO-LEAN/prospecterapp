@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Shared\Messaging;
 
 use App\Shared\Persistence\OutboxItem;
+use App\Shared\Typed;
 use Aws\DynamoDb\Marshaler;
 use Bref\Context\Context;
 use Bref\Event\DynamoDb\DynamoDbEvent;
@@ -34,6 +35,6 @@ final class OutboxRelay extends DynamoDbHandler
     {
         $item = $record->getNewImage();
 
-        return null === $item ? [] : OutboxItem::fromDocument($this->marshaler->unmarshalItem($item))->events;
+        return null === $item ? [] : OutboxItem::fromDocument(Typed::document($this->marshaler->unmarshalItem($item)))->events;
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Shared\Messaging;
 
+use App\Shared\Typed;
 use Aws\EventBridge\EventBridgeClient;
 use Monolog\Attribute\WithMonologChannel;
 use Psr\Log\LoggerInterface;
@@ -28,7 +29,7 @@ final readonly class IntegrationEventBus
      */
     public function publish(TransportedEvent ...$events): void
     {
-        foreach ($this->putsOf(array_map(fn (TransportedEvent $event): array => ['event' => $event, 'entry' => $this->entryOf($event)], $events)) as $put) {
+        foreach ($this->putsOf(array_map(fn (TransportedEvent $event): array => ['event' => $event, 'entry' => $this->entryOf($event)], array_values($events))) as $put) {
             $this->put($put);
         }
     }
@@ -76,8 +77,10 @@ final readonly class IntegrationEventBus
         $events = array_column($put, 'event');
         $result = $this->client->putEvents(['Entries' => array_column($put, 'entry')]);
 
-        if ($result['FailedEntryCount'] > 0) {
-            throw EventsNotPublished::refusedBy($this->name, $result['FailedEntryCount'], $events, $result['Entries']);
+        $refused = Typed::int($result['FailedEntryCount']);
+
+        if ($refused > 0) {
+            throw EventsNotPublished::refusedBy($this->name, $refused, $events, Typed::documents($result['Entries']));
         }
 
         foreach ($events as $event) {

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Shared\Messaging;
 
 use App\Shared\Persistence\Documents;
+use App\Shared\Typed;
 use Prospecter\Core\SharedKernel\Domain\Uuid;
 use Symfony\Component\TypeInfo\Type;
 use Symfony\Component\TypeInfo\Type\CollectionType;
@@ -94,7 +95,7 @@ final readonly class Payloads
         return match (true) {
             null === $value => null,
             $type instanceof NullableType => $this->typed($type->getWrappedType(), $value),
-            $type instanceof CollectionType => array_map(fn (mixed $element): mixed => $this->typed($type->getCollectionValueType(), $element), $value),
+            $type instanceof CollectionType => array_map(fn (mixed $element): mixed => $this->typed($type->getCollectionValueType(), $element), Typed::array($value)),
             $type instanceof ObjectType => $this->object($type->getClassName(), $value),
             default => $value,
         };
@@ -103,7 +104,7 @@ final readonly class Payloads
     private function object(string $class, mixed $value): object
     {
         return match (true) {
-            \DateTimeImmutable::class === $class => Documents::momentOf($value),
+            \DateTimeImmutable::class === $class => Documents::momentOf(Typed::string($value)),
             is_a($class, Uuid::class, true) => new $class($value),
             default => throw new \LogicException(sprintf('%s cannot be read from plain data', $class)),
         };

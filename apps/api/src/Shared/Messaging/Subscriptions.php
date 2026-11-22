@@ -42,7 +42,7 @@ final readonly class Subscriptions
             static fn (array $subscription): bool => in_array($event->source, $subscription['sources'], true) && in_array($event->detailType, $subscription['events'], true) && PayloadPattern::matches($event->payload, $subscription['payload'] ?? []),
         );
 
-        return array_map(fn (string $name): EventHandler => $this->reactions->get(self::reactionKey($name, $event->detailType)), array_keys($listening));
+        return array_map(fn (string $name): EventHandler => $this->reaction(self::reactionKey($name, $event->detailType)), array_keys($listening));
     }
 
     /**
@@ -64,6 +64,13 @@ final readonly class Subscriptions
     {
         $key = self::reactionKey($subscription->name, $event->detailType);
 
-        return $this->reactions->has($key) ? $this->reactions->get($key) : throw UnknownSubscription::notListeningTo($subscription->name, $event->detailType);
+        return $this->reactions->has($key) ? $this->reaction($key) : throw UnknownSubscription::notListeningTo($subscription->name, $event->detailType);
+    }
+
+    private function reaction(string $key): EventHandler
+    {
+        $reaction = $this->reactions->get($key);
+
+        return $reaction instanceof EventHandler ? $reaction : throw new \LogicException(sprintf('The reaction %s is no event handler', $key));
     }
 }
