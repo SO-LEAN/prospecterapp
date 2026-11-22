@@ -7,6 +7,7 @@ namespace Tests\App\Connectors;
 use App\Connectors\Google\GoogleEndpoints;
 use App\Connectors\Google\GoogleProviderAccess;
 use App\Shared\ServiceUnavailable;
+use App\Shared\Typed;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\TestCase;
@@ -36,7 +37,7 @@ class GoogleProviderAccessTest extends TestCase
     {
         $google = new MockHttpClient(function (string $method, string $url, array $options): JsonMockResponse {
             $this->assertSame(['POST', self::TOKEN_URL], [$method, $url]);
-            parse_str($options['body'], $form);
+            parse_str(Typed::string($options['body']), $form);
             $this->assertSame(['grant_type' => 'authorization_code', 'code' => 'a-code', 'code_verifier' => 'a-verifier', 'redirect_uri' => 'https://front.test/settings/connectors/google', 'client_id' => 'an-id', 'client_secret' => 'a-secret'], $form);
 
             return new JsonMockResponse(['refresh_token' => 'a-token', 'scope' => self::EVERY_SCOPE, 'id_token' => self::idToken(['email' => 'michel@exemple.fr', 'hd' => 'exemple.fr'])]);

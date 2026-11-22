@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Connectors\Google;
 
+use App\Shared\Typed;
 use Prospecter\Core\Connectors\Domain\Exception\AccessRevoked;
 use Prospecter\Core\Connectors\Domain\Exception\CalendarGone;
 use Prospecter\Core\Connectors\Domain\Exception\CalendarRefusedThePush;
@@ -65,7 +66,7 @@ final readonly class GoogleCalendar implements ProviderCalendar
         $response = $this->call($client, $refreshToken, 'POST', '/calendars', ['summary' => self::CALENDAR, 'timeZone' => self::TIME_ZONE]);
         $this->ensureDone($response, $client);
 
-        return $response->toArray()['id'];
+        return Typed::string($response->toArray()['id']);
     }
 
     public function put(ClientCredentials $client, RefreshToken $refreshToken, string $calendar, CalendarEvent $event): ?string
@@ -180,8 +181,10 @@ final readonly class GoogleCalendar implements ProviderCalendar
 
     private static function isARateLimit(ResponseInterface $response): bool
     {
-        $error = json_decode($response->getContent(false), true);
-        $reasons = is_array($error) ? array_column($error['error']['errors'] ?? [], 'reason') : [];
+        $answer = json_decode($response->getContent(false), true);
+        $error = is_array($answer) ? $answer['error'] ?? null : null;
+        $errors = is_array($error) && is_array($error['errors'] ?? null) ? $error['errors'] : [];
+        $reasons = array_filter(array_column(array_filter($errors, is_array(...)), 'reason'), is_string(...));
 
         return [] !== array_intersect(self::RATE_LIMITS, $reasons);
     }

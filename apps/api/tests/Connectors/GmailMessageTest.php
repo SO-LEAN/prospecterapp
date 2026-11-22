@@ -166,8 +166,7 @@ class GmailMessageTest extends TestCase
 
     public function testAMessageWithoutTheAddressOfItsSenderIsNoneToImport(): void
     {
-        $message = self::message(['mimeType' => 'text/plain', 'body' => ['data' => self::encoded('Bonjour')]]);
-        $message['payload']['headers'][0]['value'] = 'undisclosed-recipients:;';
+        $message = self::message(['mimeType' => 'text/plain', 'body' => ['data' => self::encoded('Bonjour')]], [['name' => 'From', 'value' => 'undisclosed-recipients:;']]);
 
         $this->assertNull(GmailMessage::read($message));
     }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Connectors\Google;
 
+use App\Shared\Typed;
 use App\SignIn\RsaPublicKey;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -58,9 +59,9 @@ final readonly class GoogleSigningKeys
     {
         $keys = [];
 
-        foreach ($this->httpClient->request('GET', $this->certsUrl)->toArray()['keys'] ?? [] as $key) {
+        foreach (Typed::documents($this->httpClient->request('GET', $this->certsUrl)->toArray()['keys'] ?? []) as $key) {
             if ('RSA' === ($key['kty'] ?? null)) {
-                $keys[$key['kid']] = RsaPublicKey::pemOf($key['n'], $key['e']);
+                $keys[Typed::string($key['kid'])] = RsaPublicKey::pemOf(Typed::string($key['n']), Typed::string($key['e']));
             }
         }
 

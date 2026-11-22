@@ -7,6 +7,7 @@ namespace Tests\App\Connectors;
 use App\Connectors\Google\GoogleEndpoints;
 use App\Connectors\Google\GoogleMailbox;
 use App\Connectors\Google\GoogleTokens;
+use App\Shared\Typed;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Connectors\Domain\Exception\AccessRevoked;
@@ -281,8 +282,8 @@ class GoogleMailboxTest extends TestCase
                 return new JsonMockResponse(['access_token' => 'an-access-token']);
             }
 
-            $this->assertContains('Authorization: Bearer an-access-token', $options['headers']);
-            $this->calls[] = [$method, $url, isset($options['body']) && '' !== $options['body'] ? json_decode($options['body'], true) : null];
+            $this->assertContains('Authorization: Bearer an-access-token', Typed::strings($options['headers']));
+            $this->calls[] = [$method, $url, isset($options['body']) && '' !== $options['body'] ? Typed::document(json_decode(Typed::string($options['body']), true)) : null];
 
             return array_shift($answers) ?? throw new \LogicException(sprintf('No answer left for %s %s', $method, $url));
         });

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Connectors\Google;
 
+use App\Shared\Typed;
 use EmailReplyParser\EmailReplyParser;
 use Prospecter\Core\Connectors\Domain\Model\MailboxAttachment;
 use Prospecter\Core\Connectors\Domain\Model\MailboxMail;
@@ -31,22 +32,23 @@ final readonly class GmailMessage
      */
     public static function read(array $message): ?MailboxMail
     {
-        $headers = self::headersOf($message['payload'] ?? []);
+        $payload = Typed::document($message['payload'] ?? []);
+        $headers = self::headersOf($payload);
         $sender = self::addressIn($headers['from'] ?? '');
         if (!self::isAnAddress($sender)) {
             return null;
         }
 
         return new MailboxMail(
-            (string) $message['id'],
+            Typed::string($message['id']),
             $headers['message-id'] ?? null,
             new Email($sender),
             self::recipientsIn($headers['to'] ?? ''),
-            array_values($message['labelIds'] ?? []),
-            new \DateTimeImmutable('@'.intdiv((int) $message['internalDate'], self::MILLISECONDS)),
+            Typed::strings($message['labelIds'] ?? []),
+            new \DateTimeImmutable('@'.intdiv((int) Typed::string($message['internalDate']), self::MILLISECONDS)),
             $headers['subject'] ?? '',
-            self::textOf($message['payload'] ?? []),
-            self::attachmentsIn($message['payload'] ?? []),
+            self::textOf($payload),
+            self::attachmentsIn($payload),
         );
     }
 
@@ -60,9 +62,10 @@ final readonly class GmailMessage
      */
     private static function attachmentsIn(array $part): array
     {
-        $attachments = self::isAttached($part) ? [new MailboxAttachment((string) ($part['body']['attachmentId'] ?? ''), $part['filename'], (int) ($part['body']['size'] ?? 0))] : [];
+        $body = self::bodyIn($part);
+        $attachments = self::isAttached($part) ? [new MailboxAttachment(Typed::string($body['attachmentId'] ?? ''), Typed::string($part['filename']), Typed::int($body['size'] ?? 0))] : [];
 
-        return array_merge($attachments, ...array_map(self::attachmentsIn(...), $part['parts'] ?? []));
+        return array_merge($attachments, ...array_map(self::attachmentsIn(...), self::partsIn($part)));
     }
 
     /**
@@ -87,8 +90,8 @@ final readonly class GmailMessage
     private static function headersOf(array $part): array
     {
         $headers = [];
-        foreach ($part['headers'] ?? [] as $header) {
-            $headers[mb_strtolower($header['name'])] = $header['value'];
+        foreach (Typed::documents($part['headers'] ?? []) as $header) {
+            $headers[mb_strtolower(Typed::string($header['name']))] = Typed::string($header['value']);
         }
 
         return $headers;
@@ -146,7 +149,27 @@ final readonly class GmailMessage
      */
     private static function bodyOf(array $part): string
     {
-        return (string) mb_convert_encoding(self::decoded((string) ($part['body']['data'] ?? '')), self::UTF8, self::charsetOf($part));
+        return (string) mb_convert_encoding(self::decoded(Typed::string(self::bodyIn($part)['data'] ?? '')), self::UTF8, self::charsetOf($part));
+    }
+
+    /**
+     * @param array<string, mixed> $part
+     *
+     * @return array<string, mixed>
+     */
+    private static function bodyIn(array $part): array
+    {
+        return Typed::document($part['body'] ?? []);
+    }
+
+    /**
+     * @param array<string, mixed> $part
+     *
+     * @return list<array<string, mixed>>
+     */
+    private static function partsIn(array $part): array
+    {
+        return Typed::documents($part['parts'] ?? []);
     }
 
     /**
@@ -174,7 +197,7 @@ final readonly class GmailMessage
             return $part;
         }
 
-        foreach ($part['parts'] ?? [] as $child) {
+        foreach (self::partsIn($part) as $child) {
             $found = self::firstPart($child, $mimeType);
             if (null !== $found) {
                 return $found;

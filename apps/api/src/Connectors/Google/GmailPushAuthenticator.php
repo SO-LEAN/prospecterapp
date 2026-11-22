@@ -6,6 +6,7 @@ namespace App\Connectors\Google;
 
 use App\Connectors\GmailNotificationEndpoint;
 use App\Security\Expires;
+use App\Shared\Typed;
 use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
@@ -59,7 +60,7 @@ final class GmailPushAuthenticator extends AbstractAuthenticator
 
     public function authenticate(Request $request): SelfValidatingPassport
     {
-        $account = (string) $request->attributes->get('account');
+        $account = $request->attributes->getString('account');
         $token = $this->tokenIn($request);
 
         if (!new Validator()->validate($token, ...$this->constraintsFor($token, $account))) {
@@ -74,7 +75,7 @@ final class GmailPushAuthenticator extends AbstractAuthenticator
         $authorization = (string) $request->headers->get('Authorization');
 
         try {
-            $token = new Parser(new JoseEncoder())->parse(substr($authorization, strlen(self::BEARER)));
+            $token = new Parser(new JoseEncoder())->parse(Typed::filledString(substr($authorization, strlen(self::BEARER))));
         } catch (\Throwable) {
             throw new BadCredentialsException('This notification has no token.');
         }
@@ -87,12 +88,13 @@ final class GmailPushAuthenticator extends AbstractAuthenticator
      */
     private function constraintsFor(UnencryptedToken $token, string $account): array
     {
-        $key = $this->keys->named((string) $token->headers()->get('kid')) ?? throw new BadCredentialsException('This notification was not signed by Google.');
+        $kid = $token->headers()->get('kid');
+        $key = (is_string($kid) ? $this->keys->named($kid) : null) ?? throw new BadCredentialsException('This notification was not signed by Google.');
 
         return [
-            new SignedWith(new Sha256(), InMemory::plainText($key)),
+            new SignedWith(new Sha256(), InMemory::plainText(Typed::filledString($key))),
             new IssuedBy(...self::ISSUERS),
-            new PermittedFor($this->endpoint->of($account)),
+            new PermittedFor(Typed::filledString($this->endpoint->of($account))),
             new HasClaimWithValue('email', $this->pushAccountOf($account)),
             new HasClaimWithValue('email_verified', true),
             new Expires(),
