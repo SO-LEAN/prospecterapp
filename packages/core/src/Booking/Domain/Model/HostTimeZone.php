@@ -18,4 +18,9 @@ final readonly class HostTimeZone
             throw UnknownTimeZone::named($name);
         }
     }
+
+    public function clock(): \DateTimeZone
+    {
+        return new \DateTimeZone($this->name);
+    }
 }
