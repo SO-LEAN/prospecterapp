@@ -75,4 +75,37 @@ trait ReadsResources
 
         return $value;
     }
+
+    /**
+     * @param array<array-key, mixed> $resource
+     *
+     * @return array<mixed>
+     */
+    protected static function arrayAt(array $resource, string|int ...$path): array
+    {
+        $value = self::valueAt($resource, ...$path);
+        \assert(is_array($value), sprintf('%s is no array', implode('.', $path)));
+
+        return $value;
+    }
+
+    /**
+     * @param array<array-key, mixed> $resource
+     *
+     * @return array<string, mixed>
+     */
+    protected static function recordAt(array $resource, string|int ...$path): array
+    {
+        return self::record(self::valueAt($resource, ...$path));
+    }
+
+    /**
+     * @param array<array-key, mixed> $resource
+     *
+     * @return list<array<string, mixed>>
+     */
+    protected static function recordsAt(array $resource, string|int ...$path): array
+    {
+        return self::records(self::valueAt($resource, ...$path));
+    }
 }

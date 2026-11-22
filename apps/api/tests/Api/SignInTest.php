@@ -11,6 +11,7 @@ use Aws\CognitoIdentityProvider\CognitoIdentityProviderClient;
 use Aws\CognitoIdentityProvider\Exception\CognitoIdentityProviderException;
 use PHPUnit\Framework\Attributes\Group;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Base\ReadsResources;
 
 /**
  * Where the members sign in, and what a member signs in with, changed with an access token of its own; the
@@ -19,13 +20,15 @@ use Tests\App\Base\ApiTestCase;
 #[Group('api')]
 class SignInTest extends ApiTestCase
 {
+    use ReadsResources;
+
     public function testTheSpaFindsWhereToSignInBeforeAnyoneIs(): void
     {
         $userPool = $this->requestJson('GET', '/api/user-pool');
 
         $this->assertResponseIsSuccessful();
-        $this->assertSame(self::getContainer()->get(UserPool::class)->id(), $userPool['userPoolId']);
-        $this->assertSame(self::getContainer()->get(UserPool::class)->clientId(), $userPool['clientId']);
+        $this->assertSame(self::service(UserPool::class)->id(), $userPool['userPoolId']);
+        $this->assertSame(self::service(UserPool::class)->clientId(), $userPool['clientId']);
         $this->assertSame('eu-west-3', $userPool['region']);
     }
 
@@ -36,17 +39,17 @@ class SignInTest extends ApiTestCase
         $signIn = $this->requestJson('GET', '/api/me/sign-in');
 
         $this->assertSame('prospector@solean-it.io', $signIn['loginEmail']);
-        $this->assertSame(['href' => '/api/me/sign-in/login-email', 'method' => 'PATCH'], $signIn['_links']['changeMyLoginEmail']);
-        $this->assertSame(['href' => '/api/me/sign-in/password', 'method' => 'PATCH'], $signIn['_links']['changeMyPassword']);
+        $this->assertSame(['href' => '/api/me/sign-in/login-email', 'method' => 'PATCH'], self::valueAt($signIn, '_links', 'changeMyLoginEmail'));
+        $this->assertSame(['href' => '/api/me/sign-in/password', 'method' => 'PATCH'], self::valueAt($signIn, '_links', 'changeMyPassword'));
     }
 
     public function testIChangeMyLoginEmailAndSignInWithIt(): void
     {
         $this->login();
 
-        $this->assertSame('ada@solean-it.io', $this->requestJson('PATCH', '/api/me/sign-in/login-email', ['email' => 'ada@solean-it.io'])['loginEmail']);
-        $this->assertSame(DemoData::PROSPECTOR, self::getContainer()->get(Credentials::class)->memberSigningInWith('ada@solean-it.io'));
-        $this->assertNull(self::getContainer()->get(Credentials::class)->memberSigningInWith('prospector@solean-it.io'));
+        $this->assertSame('ada@solean-it.io', self::valueAt($this->requestJson('PATCH', '/api/me/sign-in/login-email', ['email' => 'ada@solean-it.io']), 'loginEmail'));
+        $this->assertSame(DemoData::PROSPECTOR, self::service(Credentials::class)->memberSigningInWith('ada@solean-it.io'));
+        $this->assertNull(self::service(Credentials::class)->memberSigningInWith('prospector@solean-it.io'));
     }
 
     public function testALoginEmailIsAValidEmail(): void
@@ -56,7 +59,7 @@ class SignInTest extends ApiTestCase
         $problem = $this->requestJson('PATCH', '/api/me/sign-in/login-email', ['email' => 'not an email']);
 
         $this->assertResponseStatusCodeSame(422);
-        $this->assertSame('email', $problem['violations'][0]['propertyPath']);
+        $this->assertSame('email', self::valueAt($problem, 'violations', 0, 'propertyPath'));
     }
 
     public function testALoginEmailIsUniqueOnThePlatform(): void
@@ -66,7 +69,7 @@ class SignInTest extends ApiTestCase
         $problem = $this->requestJson('PATCH', '/api/me/sign-in/login-email', ['email' => 'assistant@solean-it.io']);
 
         $this->assertResponseStatusCodeSame(422);
-        $this->assertSame('email', $problem['violations'][0]['propertyPath']);
+        $this->assertSame('email', self::valueAt($problem, 'violations', 0, 'propertyPath'));
     }
 
     public function testIChangeMyPasswordAndSignInWithIt(): void
@@ -87,15 +90,15 @@ class SignInTest extends ApiTestCase
         $problem = $this->requestJson('PATCH', '/api/me/sign-in/password', ['password' => 'short']);
 
         $this->assertResponseStatusCodeSame(422);
-        $this->assertSame('password', $problem['violations'][0]['propertyPath']);
+        $this->assertSame('password', self::valueAt($problem, 'violations', 0, 'propertyPath'));
     }
 
     private function signsInWith(string $password): bool
     {
-        $pool = self::getContainer()->get(UserPool::class);
+        $pool = self::service(UserPool::class);
 
         try {
-            self::getContainer()->get(CognitoIdentityProviderClient::class)->adminInitiateAuth([
+            self::service(CognitoIdentityProviderClient::class)->adminInitiateAuth([
                 'UserPoolId' => $pool->id(),
                 'ClientId' => $pool->clientId(),
                 'AuthFlow' => 'ADMIN_USER_PASSWORD_AUTH',

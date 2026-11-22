@@ -7,6 +7,7 @@ namespace Tests\App\Api;
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Base\ReadsResources;
 use Tests\App\Double\ExchangeChangedMeanwhile;
 use Tests\App\Double\InMemoryPrivateStorage;
 use Tests\App\Double\OrganizationChangedMeanwhile;
@@ -20,6 +21,8 @@ use Tests\App\Double\OrganizationChangedMeanwhile;
 #[Group('api')]
 class ConcurrentWritesApiTest extends ApiTestCase
 {
+    use ReadsResources;
+
     private string $acme;
 
     protected function setUp(): void
@@ -37,7 +40,7 @@ class ConcurrentWritesApiTest extends ApiTestCase
 
         $ada = $this->collectedFor($this->acme, 'Ada');
 
-        $this->assertEqualsCanonicalizing([$grace, $ada], $this->requestJson('GET', '/api/organizations/'.$this->acme)['contactIds']);
+        $this->assertEqualsCanonicalizing([$grace, $ada], self::valueAt($this->requestJson('GET', '/api/organizations/'.$this->acme), 'contactIds'));
     }
 
     public function testAContactAttachedWhileAnotherIsAttachedMeanwhileIsAttachedToo(): void
@@ -54,10 +57,10 @@ class ConcurrentWritesApiTest extends ApiTestCase
 
     public function testAFileAttachedWhileTheExchangeIsCorrectedMeanwhileIsRefusedForTheStorageKeptItsUpload(): void
     {
-        $exchange = $this->requestJson('POST', '/api/contacts/'.$this->collectedFor($this->acme, 'Ada').'/exchanges', ['channel' => 'email', 'direction' => 'inbound'])['items'][0]['id'];
-        $upload = $this->requestJson('POST', '/api/uploads')['upload'];
-        self::getContainer()->get(InMemoryPrivateStorage::class)->send($upload, 2048, 'application/pdf');
-        self::getContainer()->get(ExchangeChangedMeanwhile::class)->correctTextMeanwhile('Rappeler lundi');
+        $exchange = self::stringAt($this->requestJson('POST', '/api/contacts/'.$this->collectedFor($this->acme, 'Ada').'/exchanges', ['channel' => 'email', 'direction' => 'inbound']), 'items', 0, 'id');
+        $upload = self::stringAt($this->requestJson('POST', '/api/uploads'), 'upload');
+        self::service(InMemoryPrivateStorage::class)->send($upload, 2048, 'application/pdf');
+        self::service(ExchangeChangedMeanwhile::class)->correctTextMeanwhile('Rappeler lundi');
 
         $problem = $this->requestJson('POST', '/api/exchanges/'.$exchange.'/attachments', ['upload' => $upload, 'name' => 'devis.pdf']);
 
@@ -77,7 +80,7 @@ class ConcurrentWritesApiTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(409);
         $this->assertSame('changedMeanwhile', $problem['reason']);
-        $this->assertNotContains($ada, $this->requestJson('GET', '/api/organizations/'.$this->acme)['contactIds']);
+        $this->assertNotContains($ada, self::arrayAt($this->requestJson('GET', '/api/organizations/'.$this->acme), 'contactIds'));
     }
 
     public function testStoppingToProspectErasesTheContactsCollectedAtOnce(): void
@@ -113,7 +116,7 @@ class ConcurrentWritesApiTest extends ApiTestCase
 
     private function prospect(string $corporateName): string
     {
-        return $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => $corporateName]])['id'];
+        return self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => $corporateName]]), 'id');
     }
 
     private function collectedFor(string $organization, string $firstName): string
@@ -121,11 +124,11 @@ class ConcurrentWritesApiTest extends ApiTestCase
         $contact = $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => $firstName], 'organizationIds' => [$organization]]);
         $this->assertResponseIsSuccessful();
 
-        return $contact['id'];
+        return self::stringAt($contact, 'id');
     }
 
     private function organizationChangedMeanwhile(): OrganizationChangedMeanwhile
     {
-        return self::getContainer()->get(OrganizationChangedMeanwhile::class);
+        return self::service(OrganizationChangedMeanwhile::class);
     }
 }

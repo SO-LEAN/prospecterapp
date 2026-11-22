@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace Tests\App\Api;
 
 use App\Demo\DemoData;
+use App\Shared\Typed;
 use App\SignIn\Credentials;
 use App\SignIn\UserPool;
 use Aws\CognitoIdentityProvider\CognitoIdentityProviderClient;
 use PHPUnit\Framework\Attributes\Group;
+use Symfony\Component\Clock\MockClock;
 use Tests\App\Base\ApiTestCase;
 
 /**
@@ -39,7 +41,7 @@ class AccessTokenTest extends ApiTestCase
     public function testAnExpiredTokenIsRefused(): void
     {
         $token = $this->tokensOf(DemoData::PROSPECTOR)['AccessToken'];
-        self::getContainer()->get('app.token_clock')->modify('+2 hours');
+        self::service(MockClock::class, 'app.token_clock')->modify('+2 hours');
 
         $this->withToken($token);
 
@@ -72,7 +74,7 @@ class AccessTokenTest extends ApiTestCase
     public function testATokenNamingNoMemberIsRefused(): void
     {
         $stranger = '01900000-0000-7000-8000-0000000000ff';
-        self::getContainer()->get(Credentials::class)->register($stranger, 'stranger@competitor.io', 'password');
+        self::service(Credentials::class)->register($stranger, 'stranger@competitor.io', 'password');
 
         $this->withToken($this->tokensOf($stranger)['AccessToken']);
 
@@ -87,10 +89,12 @@ class AccessTokenTest extends ApiTestCase
 
     private function anotherClient(): string
     {
-        return self::getContainer()->get(CognitoIdentityProviderClient::class)->createUserPoolClient([
-            'UserPoolId' => self::getContainer()->get(UserPool::class)->id(),
+        $created = self::service(CognitoIdentityProviderClient::class)->createUserPoolClient([
+            'UserPoolId' => self::service(UserPool::class)->id(),
             'ClientName' => 'another-client',
             'ExplicitAuthFlows' => ['ALLOW_ADMIN_USER_PASSWORD_AUTH'],
-        ])['UserPoolClient']['ClientId'];
+        ]);
+
+        return Typed::string(Typed::document($created['UserPoolClient'])['ClientId']);
     }
 }

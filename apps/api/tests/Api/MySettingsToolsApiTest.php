@@ -44,7 +44,7 @@ class MySettingsToolsApiTest extends ApiTestCase
 
         $account = $this->assertTheToolActsAsItsEndpoint('set-my-name', $name, 'PATCH', '/api/me/name', $name, self::WRITERS);
 
-        $this->assertSame(['Michel', 'Durand'], [$account['name']['firstName'], $account['name']['lastName']]);
+        $this->assertSame(['Michel', 'Durand'], [self::valueAt($account, 'name', 'firstName'), self::valueAt($account, 'name', 'lastName')]);
     }
 
     public function testTheAiChangesTheContactDetailsOfItsMember(): void
@@ -53,16 +53,16 @@ class MySettingsToolsApiTest extends ApiTestCase
 
         $account = $this->assertTheToolActsAsItsEndpoint('update-my-contact-details', $details, 'PATCH', '/api/me/contact-details', $details, self::WRITERS);
 
-        $this->assertSame('michel@solean.test', $account['contactDetails']['email']);
+        $this->assertSame('michel@solean.test', self::valueAt($account, 'contactDetails', 'email'));
     }
 
     public function testTheAiGivesThePictureOfItsMemberByItsAddressOnTheWeb(): void
     {
         $this->keepTheKernel();
-        self::getContainer()->get(TheWeb::class)->publish(self::PICTURE_ON_THE_WEB, (string) file_get_contents(__DIR__.'/../Fixtures/logo.png'));
+        self::service(TheWeb::class)->publish(self::PICTURE_ON_THE_WEB, (string) file_get_contents(__DIR__.'/../Fixtures/logo.png'));
 
         $account = $this->assertTheToolActsAsItsEndpoint('set-my-picture', ['url' => self::PICTURE_ON_THE_WEB], 'POST', '/api/me/picture', null, self::WRITERS);
 
-        $this->assertStringEndsWith('.png', $account['picture']['url']);
+        $this->assertStringEndsWith('.png', self::stringAt($account, 'picture', 'url'));
     }
 }

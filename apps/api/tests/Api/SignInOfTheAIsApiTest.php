@@ -6,6 +6,7 @@ namespace Tests\App\Api;
 
 use App\Demo\DemoCredentials;
 use App\Demo\DemoData;
+use App\Shared\Typed;
 use App\SignIn\UserPool;
 use Aws\CognitoIdentityProvider\CognitoIdentityProviderClient;
 use PHPUnit\Framework\Attributes\Group;
@@ -37,7 +38,7 @@ class SignInOfTheAIsApiTest extends ApiTestCase
         $this->assertStringStartsWith('http://ministack-test:4566/oauth2/authorize?', $signInPage);
         parse_str((string) parse_url($signInPage, PHP_URL_QUERY), $query);
         $this->assertSame('code', $query['response_type']);
-        $this->assertSame(self::getContainer()->get(UserPool::class)->mcpClientId(), $query['client_id']);
+        $this->assertSame(self::service(UserPool::class)->mcpClientId(), $query['client_id']);
         $this->assertSame(self::CALLBACK, $query['redirect_uri']);
         $this->assertSame('S256', $query['code_challenge_method']);
         $this->assertNotSame(self::challengeOf(self::VERIFIER_OF_THE_AI), $query['code_challenge']);
@@ -124,17 +125,17 @@ class SignInOfTheAIsApiTest extends ApiTestCase
     public function testTheAiCallsTheMcpServerOnBehalfOfItsMember(): void
     {
         $tokens = $this->exchange($this->codeOfTheFacade());
-        $this->client->setServerParameter('HTTP_AUTHORIZATION', 'Bearer '.$tokens['access_token']);
+        $this->client->setServerParameter('HTTP_AUTHORIZATION', 'Bearer '.self::stringAt($tokens, 'access_token'));
 
         $result = $this->callWithoutHandshake('get-me');
 
-        $this->assertSame('Camille Martin', $result['structuredContent']['member']);
+        $this->assertSame('Camille Martin', self::valueAt($result, 'structuredContent', 'member'));
     }
 
     public function testTheTokensOfAnAiDoNotOpenTheApiOfTheApp(): void
     {
         $tokens = $this->exchange($this->codeOfTheFacade());
-        $this->client->setServerParameter('HTTP_AUTHORIZATION', 'Bearer '.$tokens['access_token']);
+        $this->client->setServerParameter('HTTP_AUTHORIZATION', 'Bearer '.self::stringAt($tokens, 'access_token'));
 
         $this->requestJson('GET', '/api/me');
 
@@ -188,7 +189,7 @@ class SignInOfTheAIsApiTest extends ApiTestCase
     {
         $tokens = $this->exchange($this->codeOfTheFacade());
 
-        $renewed = $this->refresh($tokens['refresh_token']);
+        $renewed = $this->refresh(self::stringAt($tokens, 'refresh_token'));
 
         $this->assertResponseIsSuccessful();
         $this->assertNotEmpty($renewed['access_token']);
@@ -197,12 +198,12 @@ class SignInOfTheAIsApiTest extends ApiTestCase
     public function testSigningOutOfTheAppLeavesTheAiSignedIn(): void
     {
         $tokens = $this->exchange($this->codeOfTheFacade());
-        $pool = self::getContainer()->get(UserPool::class);
+        $pool = self::service(UserPool::class);
         $ofTheApp = $this->tokensOf(DemoData::PROSPECTOR);
 
-        self::getContainer()->get(CognitoIdentityProviderClient::class)->revokeToken(['ClientId' => $pool->clientId(), 'Token' => $ofTheApp['RefreshToken']]);
+        self::service(CognitoIdentityProviderClient::class)->revokeToken(['ClientId' => $pool->clientId(), 'Token' => $ofTheApp['RefreshToken']]);
 
-        $this->refresh($tokens['refresh_token']);
+        $this->refresh(self::stringAt($tokens, 'refresh_token'));
         $this->assertResponseIsSuccessful();
     }
 
@@ -211,9 +212,9 @@ class SignInOfTheAIsApiTest extends ApiTestCase
         $tokens = $this->exchange($this->codeOfTheFacade());
         self::waitForTheNextSecond();
 
-        self::getContainer()->get(CognitoIdentityProviderClient::class)->globalSignOut(['AccessToken' => $this->tokensOf(DemoData::PROSPECTOR)['AccessToken']]);
+        self::service(CognitoIdentityProviderClient::class)->globalSignOut(['AccessToken' => $this->tokensOf(DemoData::PROSPECTOR)['AccessToken']]);
 
-        $this->assertSame('invalid_grant', $this->refresh($tokens['refresh_token'])['error']);
+        $this->assertSame('invalid_grant', $this->refresh(self::stringAt($tokens, 'refresh_token'))['error']);
     }
 
     public function testAGrantTheFacadeDoesNotKnowIsRefused(): void
@@ -221,7 +222,7 @@ class SignInOfTheAIsApiTest extends ApiTestCase
         $this->client->request('POST', '/oauth/token', ['grant_type' => 'client_credentials']);
 
         $this->assertResponseStatusCodeSame(400);
-        $this->assertSame('unsupported_grant_type', $this->responseData()['error']);
+        $this->assertSame('unsupported_grant_type', self::valueAt($this->responseData(), 'error'));
     }
 
     /**
@@ -243,7 +244,7 @@ class SignInOfTheAIsApiTest extends ApiTestCase
         $this->client->request('GET', $this->signInOnCognito());
         parse_str((string) parse_url((string) $this->client->getResponse()->headers->get('Location'), PHP_URL_QUERY), $backToTheAi);
 
-        return $backToTheAi['code'];
+        return Typed::string($backToTheAi['code']);
     }
 
     /**
