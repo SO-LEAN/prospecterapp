@@ -14,7 +14,7 @@ use Mcp\Server\Exception\RegistryException;
 final readonly class SynchronizeLinkedInPrompt
 {
     private const string IDENTIFYING = <<<'STEP'
-        Before you create anything, ask Prospecter who it knows with `identify`, in batches of at most a hundred: each person with their first and last names and their LinkedIn profile URL among their links, and their company with its name and its LinkedIn page URL. For each person or company that is `toConfirm`, show me its candidates and ask me which one it is, or whether it is someone else. Show me the `new` persons and let me pick the ones I care about; ignore the others.
+        Before you create anything, ask Prospecter who it knows with `identify`, in batches of at most a hundred: each person with their first and last names and their LinkedIn profile URL among their links, and their company with its name and its LinkedIn page URL. Give each person's public profile address (`linkedin.com/in/<name>/`), never the member ID a conversation shows (`linkedin.com/in/ACoAA…`). When you only have that ID, open the profile and read the public address there. For each person or company that is `toConfirm`, show me its candidates and ask me which one it is, or whether it is someone else. Show me the `new` persons and let me pick the ones I care about; ignore the others.
         STEP;
 
     private const string RECORDING = <<<'STEP'

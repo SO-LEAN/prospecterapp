@@ -67,6 +67,15 @@ class SynchronizeLinkedInPromptApiTest extends ApiTestCase
         $this->assertStringContainsString('`toConfirm`', $text);
     }
 
+    public function testTheAiGivesThePublicProfileAddressAndOpensTheProfileWhenTheConversationHidesIt(): void
+    {
+        $this->login();
+
+        $text = $this->promptText('sync-linkedin', ['what' => 'messages', 'since' => '7 days']);
+
+        $this->assertStringContainsString("Give each person's public profile address (`linkedin.com/in/<name>/`), never the member ID a conversation shows (`linkedin.com/in/ACoAA…`). When you only have that ID, open the profile and read the public address there.", $text);
+    }
+
     public function testTheAiReadsLinkedInSinceTheMomentGiven(): void
     {
         $this->login();

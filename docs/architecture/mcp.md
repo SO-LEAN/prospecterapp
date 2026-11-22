@@ -200,6 +200,8 @@ AI (Claude)                         API (api.<domain>)                          
   - It answers one message with the `user` role: its steps.
 - `sync-linkedin` ("Sync LinkedIn", `SynchronizeLinkedInPrompt`; `what`, `contacts` or `messages`; `since`, optional):
   1. read LinkedIn back to then, each person with their profile, names, job title, company and company page;
+     - The profile is its public address (`linkedin.com/in/<name>/`). A conversation names its participants by their member ID (`linkedin.com/in/ACoAA…`). When the AI only has that ID, it opens the profile and reads the public address there.
+     - Prospecter accepts a member ID like any other link. Only the prompt keeps it out, so that `identify` and the duplicate checks compare the addresses a member types.
   2. `identify` them in batches of a hundred. Ask the member about each `toConfirm`, and let them choose the `new` ones that interest them;
   3. `record-contact`;
   4. for the messages, `log-contact-exchange` (`log-organization-exchange` for a company page), with `linkedInConversation` and `occurredAt` to the minute (the fingerprint of ADR 0166).
