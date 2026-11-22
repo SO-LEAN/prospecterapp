@@ -11,17 +11,20 @@ use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
 use Prospecter\Core\Prospecting\Application\Port\ContactsToAttachRetriever;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
 use Prospecter\Core\Prospecting\Domain\Model\ContactToAttach;
+use Prospecter\Core\Prospecting\Domain\Model\Correspondent;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
+use Prospecter\Core\Prospecting\Domain\Model\Noting;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Repository\ContactToAttachRepository;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Email;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
@@ -103,7 +106,7 @@ class EraseContactsLeftUnattachedTest extends ApiTestCase
         $person = Person::collectToAttach(new Reader($member, $account, new PersonId(self::newIdentity()), true), new PersonId(self::newIdentity()), new PersonName('Ada', 'Lovelace'), new ContactDetails(new Email(self::newIdentity().'@acme.test')), $at);
         self::getContainer()->get(PersonRepository::class)->save($person);
         self::getContainer()->get(ContactToAttachRepository::class)->save(ContactToAttach::metBy(new Prospector($member, $account, managesPersonalData: true), $person->id(), $at, $at));
-        self::getContainer()->get(ExchangeRepository::class)->save(Exchange::notedWithAContact($account, $member, new ExchangeId(self::newIdentity()), $person->id(), [], new ExchangeFacts(Channel::VideoCall, Direction::Outbound, $at), ExchangeStatus::Done, $at));
+        self::getContainer()->get(ExchangeRepository::class)->save(Exchange::noted(new Gesture($account, $member, $at), new ExchangeId(self::newIdentity()), Correspondent::contact($person->id(), []), Noting::of(new ExchangeFacts(Channel::VideoCall, Direction::Outbound, $at), ExchangeStatus::Done)));
 
         return $person->id()->value;
     }

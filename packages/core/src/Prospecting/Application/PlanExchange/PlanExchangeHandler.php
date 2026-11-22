@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\PlanExchange;
 
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
+use Prospecter\Core\Prospecting\Domain\Model\Correspondent;
 use Prospecter\Core\Prospecting\Domain\Model\Duration;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
@@ -16,6 +17,7 @@ use Prospecter\Core\Prospecting\Domain\Service\ContactOrganizations;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\Origin;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
@@ -36,15 +38,11 @@ final readonly class PlanExchangeHandler implements CommandHandler
     {
         $prospector = $this->prospectors->prospectorFrom(new MemberId($command->prospectorId));
         $contact = new PersonId($command->personId);
-        $exchange = Exchange::plannedWithAContact(
-            $prospector->accountId,
-            $prospector->id,
+        $exchange = Exchange::planned(
+            new Gesture($prospector->accountId, $prospector->id, $command->executedAt, Origin::byAnAI($command->byAnAI)),
             new ExchangeId($command->id),
-            $contact,
-            $this->contactOrganizations->keepersOf($contact, $prospector),
+            Correspondent::contact($contact, $this->contactOrganizations->keepersOf($contact, $prospector)),
             ExchangeFacts::planned(Channel::from($command->channel), $command->plannedAt, Duration::inMinutes($command->durationInMinutes), $command->agenda, $command->place, VideoCallLink::orNone($command->link), $command->linkRequested),
-            $command->executedAt,
-            Origin::byAnAI($command->byAnAI),
         );
         $this->exchanges->save($exchange);
         $this->publishWhatHappenedTo($exchange);

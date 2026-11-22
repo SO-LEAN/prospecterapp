@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\PlanOrganizationExchange;
 
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
+use Prospecter\Core\Prospecting\Domain\Model\Correspondent;
 use Prospecter\Core\Prospecting\Domain\Model\Duration;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
@@ -17,6 +18,7 @@ use Prospecter\Core\Prospecting\Domain\Service\ContactOrganizations;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\Origin;
@@ -39,7 +41,7 @@ final readonly class PlanOrganizationExchangeHandler implements CommandHandler
         $holder = new MemberId($command->prospectorId);
         $organization = $this->organizations->get(new OrganizationId($command->organizationId));
         $exchange = null === $command->personId
-            ? Exchange::plannedWithTheOrganization($organization, $holder, new ExchangeId($command->id), self::factsOf($command), $command->executedAt, Origin::byAnAI($command->byAnAI))
+            ? Exchange::planned(self::gestureOf($organization, $holder, $command), new ExchangeId($command->id), Correspondent::organization($organization->id()), self::factsOf($command))
             : $this->plannedWithAContact($organization, $holder, new PersonId($command->personId), $command);
         $this->exchanges->save($exchange);
         $this->publishWhatHappenedTo($exchange);
@@ -52,7 +54,15 @@ final readonly class PlanOrganizationExchangeHandler implements CommandHandler
     {
         $organization->ensureHasContact($contact);
 
-        return Exchange::plannedWithAContact($organization->accountId(), $holder, new ExchangeId($command->id), $contact, $this->contactOrganizations->of($contact, $organization->accountId()), self::factsOf($command), $command->executedAt, Origin::byAnAI($command->byAnAI));
+        return Exchange::planned(self::gestureOf($organization, $holder, $command), new ExchangeId($command->id), Correspondent::contact($contact, $this->contactOrganizations->of($contact, $organization->accountId())), self::factsOf($command));
+    }
+
+    /**
+     * In the account of the organization.
+     */
+    private static function gestureOf(Organization $organization, MemberId $holder, PlanOrganizationExchange $command): Gesture
+    {
+        return new Gesture($organization->accountId(), $holder, $command->executedAt, Origin::byAnAI($command->byAnAI));
     }
 
     private static function factsOf(PlanOrganizationExchange $command): ExchangeFacts

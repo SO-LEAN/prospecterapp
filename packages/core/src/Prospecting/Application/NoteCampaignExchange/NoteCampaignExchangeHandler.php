@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\NoteCampaignExchange;
 
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownCampaign;
+use Prospecter\Core\Prospecting\Domain\Model\Correspondent;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\Prospecting\Domain\Model\MessageReference;
+use Prospecter\Core\Prospecting\Domain\Model\Noting;
 use Prospecter\Core\Prospecting\Domain\Port\CampaignRecipients;
 use Prospecter\Core\Prospecting\Domain\Port\Prospectors;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
@@ -17,6 +20,7 @@ use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\CampaignId;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\Origin;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
@@ -53,17 +57,11 @@ final readonly class NoteCampaignExchangeHandler implements CommandHandler
             $this->notedOnce->ensureFirstAs($prospector->accountId, $reference->fingerprintOf($facts, $contact));
         }
 
-        $exchange = Exchange::notedInACampaign(
-            $prospector->accountId,
-            $prospector->id,
+        $exchange = Exchange::noted(
+            new Gesture($prospector->accountId, $prospector->id, $command->executedAt, Origin::byAnAI($command->byAnAI)),
             new ExchangeId($command->id),
-            $recipient,
-            $this->contactOrganizations->of($contact, $prospector->accountId),
-            $facts,
-            $command->missed,
-            $command->executedAt,
-            $reference,
-            Origin::byAnAI($command->byAnAI),
+            Correspondent::contact($recipient->contact, $this->contactOrganizations->of($contact, $prospector->accountId)),
+            Noting::inACampaign($recipient, $facts, ExchangeStatus::outcome($command->missed), $reference),
         );
 
         if (!$command->noteOnce) {

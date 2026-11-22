@@ -42,6 +42,7 @@ use Prospecter\Core\Prospecting\Domain\Model\Cancellation;
 use Prospecter\Core\Prospecting\Domain\Model\Canceller;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
 use Prospecter\Core\Prospecting\Domain\Model\Correction;
+use Prospecter\Core\Prospecting\Domain\Model\Correspondent;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\Duration;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
@@ -50,6 +51,7 @@ use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeIntent;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeSituation;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
+use Prospecter\Core\Prospecting\Domain\Model\Noting;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Model\RecipientInCampaign;
 use Prospecter\Core\Prospecting\Domain\Model\VideoCallLink;
@@ -59,6 +61,7 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 use Prospecter\Core\SharedKernel\Domain\Exception\PersonalDataManagersOnly;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
@@ -515,7 +518,7 @@ class ExchangeTest extends TestCase
 
     public function testItsContactToAttachAttachedItIsKeptForTheirOrganization(): void
     {
-        $exchange = Exchange::notedWithAContact(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new PersonId(self::CONTACT), [], new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable(self::NOW)), ExchangeStatus::Done, new \DateTimeImmutable(self::NOW));
+        $exchange = Exchange::noted(new Gesture(new AccountId(self::MINE), $this->me()->id, new \DateTimeImmutable(self::NOW)), new ExchangeId(self::EXCHANGE), Correspondent::contact(new PersonId(self::CONTACT), []), Noting::of(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable(self::NOW)), ExchangeStatus::Done));
         $exchange->releaseEvents();
         $this->assertEquals(new PersonId(self::CONTACT), $exchange->contactToAttach());
 
@@ -848,7 +851,9 @@ class ExchangeTest extends TestCase
 
     public function testErasingAnExchangeOfACampaignNamesItsCampaign(): void
     {
-        $exchange = Exchange::notedInACampaign(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new RecipientInCampaign(new CampaignId(self::CAMPAIGN), new PersonId(self::CONTACT), Channel::Email, running: true, recipient: true, pending: true), [new OrganizationId(self::ACME)], new ExchangeFacts(Channel::Email, Direction::Outbound, new \DateTimeImmutable(self::NOW)), missed: false, at: new \DateTimeImmutable(self::NOW));
+        $recipient = new RecipientInCampaign(new CampaignId(self::CAMPAIGN), new PersonId(self::CONTACT), Channel::Email, running: true, recipient: true, pending: true);
+        $noting = Noting::inACampaign($recipient, new ExchangeFacts(Channel::Email, Direction::Outbound, new \DateTimeImmutable(self::NOW)), ExchangeStatus::Done);
+        $exchange = Exchange::noted(new Gesture(new AccountId(self::MINE), $this->me()->id, new \DateTimeImmutable(self::NOW)), new ExchangeId(self::EXCHANGE), Correspondent::contact($recipient->contact, [new OrganizationId(self::ACME)]), $noting);
         $exchange->releaseEvents();
 
         $exchange->erase(by: $this->me()->id, at: new \DateTimeImmutable(self::NOW));
@@ -903,7 +908,7 @@ class ExchangeTest extends TestCase
         $now = new \DateTimeImmutable(self::NOW);
         $facts = ExchangeFacts::planned(Channel::Meeting, $now->modify($ahead), Duration::inMinutes(45), null);
 
-        return Exchange::plannedWithAContact(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new PersonId(self::CONTACT), [new OrganizationId(self::ACME)], $facts, $now);
+        return Exchange::planned(new Gesture(new AccountId(self::MINE), $this->me()->id, $now), new ExchangeId(self::EXCHANGE), Correspondent::contact(new PersonId(self::CONTACT), [new OrganizationId(self::ACME)]), $facts);
     }
 
     private function aVideoCallAskingItsLink(): Exchange
@@ -911,7 +916,7 @@ class ExchangeTest extends TestCase
         $now = new \DateTimeImmutable(self::NOW);
         $facts = ExchangeFacts::planned(Channel::VideoCall, $now->modify('+1 day'), Duration::inMinutes(30), null, linkRequested: true);
 
-        return Exchange::plannedWithAContact(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new PersonId(self::CONTACT), [new OrganizationId(self::ACME)], $facts, $now);
+        return Exchange::planned(new Gesture(new AccountId(self::MINE), $this->me()->id, $now), new ExchangeId(self::EXCHANGE), Correspondent::contact(new PersonId(self::CONTACT), [new OrganizationId(self::ACME)]), $facts);
     }
 
     private function plannedWithAnAttachment(): Exchange
@@ -929,7 +934,7 @@ class ExchangeTest extends TestCase
     {
         $now = new \DateTimeImmutable(self::NOW);
         $facts = ExchangeFacts::planned(Channel::Meeting, $now->modify('-1 hour'), Duration::inMinutes(45), 'Ordre du jour');
-        $exchange = Exchange::plannedWithAContact(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new PersonId(self::CONTACT), [new OrganizationId(self::ACME)], $facts, $now->modify('-1 day'));
+        $exchange = Exchange::planned(new Gesture(new AccountId(self::MINE), $this->me()->id, $now->modify('-1 day')), new ExchangeId(self::EXCHANGE), Correspondent::contact(new PersonId(self::CONTACT), [new OrganizationId(self::ACME)]), $facts);
         $exchange->attach($this->anAttachment(self::ATTACHMENT), by: $this->me()->id, at: $now);
 
         return $exchange;
@@ -950,7 +955,7 @@ class ExchangeTest extends TestCase
 
     private function noted(ExchangeFacts $facts, ExchangeStatus $outcome = ExchangeStatus::Done): Exchange
     {
-        return Exchange::notedWithAContact(new AccountId(self::MINE), $this->me()->id, new ExchangeId(self::EXCHANGE), new PersonId(self::CONTACT), [new OrganizationId(self::ACME), new OrganizationId(self::GROUP)], $facts, $outcome, new \DateTimeImmutable(self::NOW));
+        return Exchange::noted(new Gesture(new AccountId(self::MINE), $this->me()->id, new \DateTimeImmutable(self::NOW)), new ExchangeId(self::EXCHANGE), Correspondent::contact(new PersonId(self::CONTACT), [new OrganizationId(self::ACME), new OrganizationId(self::GROUP)]), Noting::of($facts, $outcome));
     }
 
     private function me(): Prospector

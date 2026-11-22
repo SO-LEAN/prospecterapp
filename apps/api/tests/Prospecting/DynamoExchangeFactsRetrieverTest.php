@@ -8,16 +8,19 @@ use App\Shared\Persistence\Table;
 use Prospecter\Core\Prospecting\Application\Port\ExchangeFactsRetriever;
 use Prospecter\Core\Prospecting\Contract\Service\ListExchangeFacts\ExchangeFactsResponse;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
+use Prospecter\Core\Prospecting\Domain\Model\Correspondent;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
+use Prospecter\Core\Prospecting\Domain\Model\Noting;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Model\RecipientInCampaign;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\CampaignId;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
@@ -55,7 +58,8 @@ class DynamoExchangeFactsRetrieverTest extends ApiTestCase
     {
         $campaign = new CampaignId(self::newIdentity());
         $recipient = new RecipientInCampaign($campaign, new PersonId(self::CONTACT), Channel::Call, running: true, recipient: true, pending: true);
-        $exchange = Exchange::notedInACampaign($this->prospector->accountId, $this->prospector->id, new ExchangeId(self::newIdentity()), $recipient, [new OrganizationId(self::newIdentity())], $recipient->exchangeFacts(new \DateTimeImmutable('2026-10-10 09:00 UTC'), null), true, new \DateTimeImmutable(self::NOW));
+        $noting = Noting::inACampaign($recipient, $recipient->exchangeFacts(new \DateTimeImmutable('2026-10-10 09:00 UTC'), null), ExchangeStatus::Missed);
+        $exchange = Exchange::noted(new Gesture($this->prospector->accountId, $this->prospector->id, new \DateTimeImmutable(self::NOW)), new ExchangeId(self::newIdentity()), Correspondent::contact($recipient->contact, [new OrganizationId(self::newIdentity())]), $noting);
 
         $this->exchanges()->save($exchange);
 
@@ -113,7 +117,7 @@ class DynamoExchangeFactsRetrieverTest extends ApiTestCase
 
     private function noted(string $occurredAt): Exchange
     {
-        return Exchange::notedWithAContact($this->prospector->accountId, $this->prospector->id, new ExchangeId(self::newIdentity()), new PersonId(self::CONTACT), [new OrganizationId(self::newIdentity())], new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable($occurredAt)), ExchangeStatus::Done, new \DateTimeImmutable(self::NOW));
+        return Exchange::noted(new Gesture($this->prospector->accountId, $this->prospector->id, new \DateTimeImmutable(self::NOW)), new ExchangeId(self::newIdentity()), Correspondent::contact(new PersonId(self::CONTACT), [new OrganizationId(self::newIdentity())]), Noting::of(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable($occurredAt)), ExchangeStatus::Done));
     }
 
     private function exchanges(): ExchangeRepository

@@ -44,6 +44,7 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 use Prospecter\Core\SharedKernel\Domain\Exception\PersonalDataManagersOnly;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\Origin;
@@ -98,148 +99,54 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * Done, or missed when the contact did not answer or come; fingerprinted by where it was read, if given
-     * (ADR 0166); by the hand of its member, or by an AI acting as them.
-     *
-     * @param list<OrganizationId> $organizationsOfTheContact
-     *
-     * @throws ExchangeInTheFuture|ChannelNotMissed
-     */
-    public static function notedWithAContact(AccountId $accountId, MemberId $by, ExchangeId $id, PersonId $contact, array $organizationsOfTheContact, ExchangeFacts $facts, ExchangeStatus $outcome, \DateTimeImmutable $at, ?MessageReference $reference = null, Origin $origin = Origin::Hand): self
-    {
-        $exchange = self::noted($accountId, $by, $id, $contact, $organizationsOfTheContact, $facts, $outcome, $at);
-        $exchange->fingerprint = ($reference ?? MessageReference::none())->fingerprintOf($facts, $contact);
-        $exchange->origin = $origin;
-
-        return $exchange;
-    }
-
-    /**
-     * For a recipient of a campaign still to handle, while it is led: outbound, by the channel of the campaign, done, or
-     * missed when the call did not go through; it keeps its campaign (ADR 0145), and is fingerprinted as any exchange
-     * noted (ADR 0166); by the hand of its member, or by an AI leading the campaign as them (ADR 0185, 0186).
-     *
-     * @param list<OrganizationId> $organizationsOfTheContact
+     * Done, or missed when the contact did not answer or come. It is kept for the organizations of its correspondent.
+     * Noted for a pending recipient of a running campaign, it keeps the campaign (ADR 0145); imported from the member's
+     * mailbox, it keeps the e-mail (ADR 0154). Its fingerprint comes from where it was read, when given (ADR 0166).
+     * The member notes it by hand, or an AI notes it for them (ADR 0185, 0186).
      *
      * @throws CampaignNotRunning|UnknownRecipient|RecipientAlreadyProcessed
      * @throws ExchangeInTheFuture|ChannelNotMissed
      */
-    public static function notedInACampaign(AccountId $accountId, MemberId $by, ExchangeId $id, RecipientInCampaign $recipient, array $organizationsOfTheContact, ExchangeFacts $facts, bool $missed, \DateTimeImmutable $at, ?MessageReference $reference = null, Origin $origin = Origin::Hand): self
+    public static function noted(Gesture $gesture, ExchangeId $id, Correspondent $correspondent, Noting $noting): self
     {
-        $recipient->ensureToHandle();
-        $exchange = self::noted($accountId, $by, $id, $recipient->contact, $organizationsOfTheContact, $facts, ExchangeStatus::outcome($missed), $at);
-        $exchange->campaign = $recipient->campaign;
-        $exchange->fingerprint = ($reference ?? MessageReference::none())->fingerprintOf($facts, $recipient->contact);
-        $exchange->origin = $origin;
+        $noting->ensureToHandle();
+        self::ensureHappenedBefore($noting->facts, $gesture->at);
+        self::ensureMissable($noting->facts->channel, $noting->outcome);
+        $exchange = new self($id, $gesture->accountId, $gesture->by, $correspondent->contact, $correspondent->keptFor, $noting->facts, $noting->outcome, $gesture->at);
+        $exchange->campaign = $noting->campaign();
+        $exchange->importedFrom = $noting->importedFrom;
+        $exchange->fingerprint = $noting->fingerprintWith($correspondent->identity);
+        $exchange->origin = $gesture->origin;
+        $exchange->recordThat(new ExchangeNoted($gesture->accountId, $gesture->by, $id, $gesture->at));
 
         return $exchange;
     }
 
     /**
-     * An e-mail of the mailbox of a member exchanged with a contact, noted by the import of their mailbox as by them
-     * (ADR 0154): kept, like any, for the organizations of the contact.
-     *
-     * @param list<OrganizationId> $organizationsOfTheContact
-     *
-     * @throws ExchangeInTheFuture
-     */
-    public static function importedWithAContact(AccountId $accountId, MemberId $by, ExchangeId $id, PersonId $contact, array $organizationsOfTheContact, ExchangeFacts $facts, ImportedEmail $email, \DateTimeImmutable $at): self
-    {
-        $exchange = self::noted($accountId, $by, $id, $contact, $organizationsOfTheContact, $facts, ExchangeStatus::Done, $at);
-        $exchange->importedFrom = $email;
-        $exchange->fingerprint = ExchangeFingerprint::ofEmail($email->identity, $contact);
-
-        return $exchange;
-    }
-
-    /**
-     * An e-mail of the mailbox of a member exchanged with the address of an organization itself, noted by the import
-     * of their mailbox as by them (ADR 0154): kept for the organization alone.
-     *
-     * @throws ExchangeInTheFuture
-     */
-    public static function importedWithTheOrganization(Organization $organization, MemberId $by, ExchangeId $id, ExchangeFacts $facts, ImportedEmail $email, \DateTimeImmutable $at): self
-    {
-        $exchange = self::notedWithTheOrganization($organization, $by, $id, $facts, ExchangeStatus::Done, $at);
-        $exchange->importedFrom = $email;
-        $exchange->fingerprint = ExchangeFingerprint::ofEmail($email->identity, $organization->id());
-
-        return $exchange;
-    }
-
-    /**
-     * With the organization itself (its switchboard, its generic email): kept for it alone, in the timeline
-     * of no contact; fingerprinted by where it was read, if given (ADR 0166); by the hand of its member, or by an AI
-     * acting as them.
-     *
-     * @throws ExchangeInTheFuture|ChannelNotMissed
-     */
-    public static function notedWithTheOrganization(Organization $organization, MemberId $by, ExchangeId $id, ExchangeFacts $facts, ExchangeStatus $outcome, \DateTimeImmutable $at, ?MessageReference $reference = null, Origin $origin = Origin::Hand): self
-    {
-        $exchange = self::noted($organization->accountId(), $by, $id, null, [$organization->id()], $facts, $outcome, $at);
-        $exchange->fingerprint = ($reference ?? MessageReference::none())->fingerprintOf($facts, $organization->id());
-        $exchange->origin = $origin;
-
-        return $exchange;
-    }
-
-    /**
-     * @param list<OrganizationId> $keptFor
-     */
-    private static function noted(AccountId $accountId, MemberId $by, ExchangeId $id, ?PersonId $contact, array $keptFor, ExchangeFacts $facts, ExchangeStatus $outcome, \DateTimeImmutable $at): self
-    {
-        self::ensureHappenedBefore($facts, $at);
-        self::ensureMissable($facts->channel, $outcome);
-        $exchange = new self($id, $accountId, $by, $contact, $keptFor, $facts, $outcome, $at);
-        $exchange->recordThat(new ExchangeNoted($accountId, $by, $id, $at));
-
-        return $exchange;
-    }
-
-    /**
-     * Kept, like an exchange noted, for the organizations the contact is part of now.
-     *
-     * @param list<OrganizationId> $organizationsOfTheContact
+     * Kept, like an exchange noted, for the organizations of its correspondent now.
      *
      * @throws PlannedExchangeInThePast
      */
-    public static function plannedWithAContact(AccountId $accountId, MemberId $by, ExchangeId $id, PersonId $contact, array $organizationsOfTheContact, ExchangeFacts $facts, \DateTimeImmutable $at, Origin $origin = Origin::Hand): self
+    public static function planned(Gesture $gesture, ExchangeId $id, Correspondent $correspondent, ExchangeFacts $facts): self
     {
-        return self::planned($accountId, $by, $id, $contact, $organizationsOfTheContact, $facts, $at, $origin);
+        self::ensureToCome($facts->occurredAt, $gesture->at);
+        $exchange = new self($id, $gesture->accountId, $gesture->by, $correspondent->contact, $correspondent->keptFor, $facts, ExchangeStatus::Planned, $gesture->at);
+        $exchange->origin = $gesture->origin;
+        $exchange->recordThat(new ExchangePlanned($gesture->accountId, $gesture->by, $id, $gesture->at));
+
+        return $exchange;
     }
 
     /**
-     * Booked by the contact by the public link of its holder, who planned nothing themselves (ADR 0164).
-     *
-     * @param list<OrganizationId> $organizationsOfTheContact
+     * Booked by the contact through the public link of its holder, the member of the gesture, who planned nothing
+     * themselves (ADR 0164).
      *
      * @throws PlannedExchangeInThePast
      */
-    public static function bookedByAContact(AccountId $accountId, MemberId $holder, ExchangeId $id, PersonId $contact, array $organizationsOfTheContact, ExchangeFacts $facts, \DateTimeImmutable $at): self
+    public static function bookedByAContact(Gesture $gesture, ExchangeId $id, Correspondent $contact, ExchangeFacts $facts): self
     {
-        $exchange = self::planned($accountId, $holder, $id, $contact, $organizationsOfTheContact, $facts, $at);
+        $exchange = self::planned($gesture, $id, $contact, $facts);
         $exchange->bookedByLink = true;
-
-        return $exchange;
-    }
-
-    /**
-     * @throws PlannedExchangeInThePast
-     */
-    public static function plannedWithTheOrganization(Organization $organization, MemberId $by, ExchangeId $id, ExchangeFacts $facts, \DateTimeImmutable $at, Origin $origin = Origin::Hand): self
-    {
-        return self::planned($organization->accountId(), $by, $id, null, [$organization->id()], $facts, $at, $origin);
-    }
-
-    /**
-     * @param list<OrganizationId> $keptFor
-     */
-    private static function planned(AccountId $accountId, MemberId $by, ExchangeId $id, ?PersonId $contact, array $keptFor, ExchangeFacts $facts, \DateTimeImmutable $at, Origin $origin = Origin::Hand): self
-    {
-        self::ensureToCome($facts->occurredAt, $at);
-        $exchange = new self($id, $accountId, $by, $contact, $keptFor, $facts, ExchangeStatus::Planned, $at);
-        $exchange->origin = $origin;
-        $exchange->recordThat(new ExchangePlanned($accountId, $by, $id, $at));
 
         return $exchange;
     }

@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
+use Prospecter\Core\Prospecting\Domain\Model\Correspondent;
 use Prospecter\Core\Prospecting\Domain\Model\Due;
 use Prospecter\Core\Prospecting\Domain\Model\Duration;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
@@ -16,6 +17,7 @@ use Prospecter\Core\Prospecting\Domain\Model\ToDoId;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 use Prospecter\Core\Prospecting\Domain\Repository\ToDoRepository;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
@@ -123,7 +125,7 @@ class CalendarApiTest extends ApiTestCase
         $organization = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];
         $ada = $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'], 'organizationIds' => [$organization]])['id'];
         $assistant = $this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector);
-        $planned = Exchange::plannedWithAContact($this->accountOfTheFixtures(), new MemberId($this->memberIdOf($assistant)), new ExchangeId(self::newIdentity()), new PersonId($ada), [new OrganizationId($organization)], ExchangeFacts::planned(Channel::Call, new \DateTimeImmutable('2026-10-20T12:00:00+00:00'), Duration::inMinutes(null), null), new \DateTimeImmutable('2026-10-15 09:00 UTC'));
+        $planned = Exchange::planned(new Gesture($this->accountOfTheFixtures(), new MemberId($this->memberIdOf($assistant)), new \DateTimeImmutable('2026-10-15 09:00 UTC')), new ExchangeId(self::newIdentity()), Correspondent::contact(new PersonId($ada), [new OrganizationId($organization)]), ExchangeFacts::planned(Channel::Call, new \DateTimeImmutable('2026-10-20T12:00:00+00:00'), Duration::inMinutes(null), null));
         self::getContainer()->get(ExchangeRepository::class)->save($planned);
         $this->login($assistant);
 
@@ -280,7 +282,9 @@ class CalendarApiTest extends ApiTestCase
     public function testAnExchangePlannedEndedAndNotProcessedIsLate(): void
     {
         $organization = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];
-        $passed = Exchange::plannedWithTheOrganization(self::getContainer()->get(OrganizationRepository::class)->get(new OrganizationId($organization)), new MemberId($this->memberIdOf('prospector-user')), new ExchangeId(self::newIdentity()), ExchangeFacts::planned(Channel::Call, new \DateTimeImmutable('2026-10-14T16:00:00+00:00'), Duration::inMinutes(null), null), new \DateTimeImmutable('2026-10-13 09:00 UTC'));
+        $prospect = self::getContainer()->get(OrganizationRepository::class)->get(new OrganizationId($organization));
+        $gesture = new Gesture($prospect->accountId(), new MemberId($this->memberIdOf('prospector-user')), new \DateTimeImmutable('2026-10-13 09:00 UTC'));
+        $passed = Exchange::planned($gesture, new ExchangeId(self::newIdentity()), Correspondent::organization($prospect->id()), ExchangeFacts::planned(Channel::Call, new \DateTimeImmutable('2026-10-14T16:00:00+00:00'), Duration::inMinutes(null), null));
         self::getContainer()->get(ExchangeRepository::class)->save($passed);
         $this->requestJson('POST', '/api/organizations/'.$organization.'/upcoming-exchanges', ['exchange' => ['channel' => 'meeting', 'occurredAt' => '2026-10-16T08:00:00+00:00']]);
 

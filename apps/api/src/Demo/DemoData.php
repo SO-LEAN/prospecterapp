@@ -20,12 +20,14 @@ use Prospecter\Core\PersonalData\Domain\Model\Reader;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
 use Prospecter\Core\Prospecting\Domain\Model\ContactToAttach;
+use Prospecter\Core\Prospecting\Domain\Model\Correspondent;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\Duration;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
+use Prospecter\Core\Prospecting\Domain\Model\Noting;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Repository\ContactToAttachRepository;
@@ -39,6 +41,7 @@ use Prospecter\Core\SharedKernel\Domain\Designated;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
 use Prospecter\Core\SharedKernel\Domain\GeoPoint;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\Location;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
@@ -170,14 +173,14 @@ final readonly class DemoData
         $toAttach = ContactToAttach::metBy($prospector, $grace->id(), $meeting, $now);
         $this->contactsToAttach->save($toAttach);
         $this->publish($toAttach);
-        $visio = Exchange::plannedWithAContact($account->id(), $prospector->id, new ExchangeId($this->identities->next()), $grace->id(), [], ExchangeFacts::planned(Channel::VideoCall, $meeting, Duration::inMinutes(null), 'Découverte'), $now);
+        $visio = Exchange::planned(new Gesture($account->id(), $prospector->id, $now), new ExchangeId($this->identities->next()), Correspondent::contact($grace->id(), []), ExchangeFacts::planned(Channel::VideoCall, $meeting, Duration::inMinutes(null), 'Découverte'));
         $this->exchanges->save($visio);
         $this->publish($visio);
     }
 
     private function anExchange(Prospector $prospector, Person $contact, Organization $organization, ExchangeFacts $facts): void
     {
-        $exchange = Exchange::notedWithAContact($prospector->accountId, $prospector->id, new ExchangeId($this->identities->next()), $contact->id(), [$organization->id()], $facts, ExchangeStatus::Done, $facts->occurredAt);
+        $exchange = Exchange::noted(new Gesture($prospector->accountId, $prospector->id, $facts->occurredAt), new ExchangeId($this->identities->next()), Correspondent::contact($contact->id(), [$organization->id()]), Noting::of($facts, ExchangeStatus::Done));
         $this->exchanges->save($exchange);
         $this->publish($exchange);
     }

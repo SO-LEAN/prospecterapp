@@ -6,11 +6,13 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
+use Prospecter\Core\Prospecting\Domain\Model\Correspondent;
 use Prospecter\Core\Prospecting\Domain\Model\Duration;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
@@ -197,7 +199,7 @@ class HandlePlannedExchangeApiTest extends ApiTestCase
     public function testAHolderWithoutTheRightToManagePersonalDataHandlesTheirExchange(): void
     {
         $assistant = $this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector);
-        $planned = Exchange::plannedWithAContact($this->accountOfTheFixtures(), new MemberId($this->memberIdOf($assistant)), new ExchangeId(self::newIdentity()), new PersonId($this->contact), [new OrganizationId($this->organization)], ExchangeFacts::planned(Channel::Call, new \DateTimeImmutable(self::NEXT_TUESDAY), Duration::inMinutes(null), null), new \DateTimeImmutable('2026-10-15 09:00 UTC'));
+        $planned = Exchange::planned(new Gesture($this->accountOfTheFixtures(), new MemberId($this->memberIdOf($assistant)), new \DateTimeImmutable('2026-10-15 09:00 UTC')), new ExchangeId(self::newIdentity()), Correspondent::contact(new PersonId($this->contact), [new OrganizationId($this->organization)]), ExchangeFacts::planned(Channel::Call, new \DateTimeImmutable(self::NEXT_TUESDAY), Duration::inMinutes(null), null));
         self::getContainer()->get(ExchangeRepository::class)->save($planned);
         $this->theTokensAreCheckedNow();
         $this->login($assistant);

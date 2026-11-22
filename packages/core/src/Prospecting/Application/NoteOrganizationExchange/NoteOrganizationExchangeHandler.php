@@ -6,12 +6,14 @@ namespace Prospecter\Core\Prospecting\Application\NoteOrganizationExchange;
 
 use Prospecter\Core\Prospecting\Domain\Exception\ReferenceNotOfTheChannel;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
+use Prospecter\Core\Prospecting\Domain\Model\Correspondent;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\Prospecting\Domain\Model\MessageReference;
+use Prospecter\Core\Prospecting\Domain\Model\Noting;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
@@ -20,6 +22,7 @@ use Prospecter\Core\Prospecting\Domain\Service\NotedOnce;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\Origin;
@@ -43,7 +46,7 @@ final readonly class NoteOrganizationExchangeHandler implements CommandHandler
         $author = new MemberId($command->prospectorId);
         $organization = $this->organizations->get(new OrganizationId($command->organizationId));
         $exchange = null === $command->personId
-            ? Exchange::notedWithTheOrganization($organization, $author, new ExchangeId($command->id), self::factsOf($command), ExchangeStatus::outcome($command->missed), $command->executedAt, self::referenceOf($command), Origin::byAnAI($command->byAnAI))
+            ? Exchange::noted(self::gestureOf($organization, $author, $command), new ExchangeId($command->id), Correspondent::organization($organization->id()), self::notingOf($command))
             : $this->notedWithAContact($organization, $author, new PersonId($command->personId), $command);
         if ($command->noteOnce) {
             $this->notedOnce->ensureFirst($exchange);
@@ -61,7 +64,23 @@ final readonly class NoteOrganizationExchangeHandler implements CommandHandler
     {
         $organization->ensureHasContact($contact);
 
-        return Exchange::notedWithAContact($organization->accountId(), $author, new ExchangeId($command->id), $contact, $this->contactOrganizations->of($contact, $organization->accountId()), self::factsOf($command), ExchangeStatus::outcome($command->missed), $command->executedAt, self::referenceOf($command), Origin::byAnAI($command->byAnAI));
+        return Exchange::noted(self::gestureOf($organization, $author, $command), new ExchangeId($command->id), Correspondent::contact($contact, $this->contactOrganizations->of($contact, $organization->accountId())), self::notingOf($command));
+    }
+
+    /**
+     * In the account of the organization.
+     */
+    private static function gestureOf(Organization $organization, MemberId $author, NoteOrganizationExchange $command): Gesture
+    {
+        return new Gesture($organization->accountId(), $author, $command->executedAt, Origin::byAnAI($command->byAnAI));
+    }
+
+    /**
+     * @throws ReferenceNotOfTheChannel
+     */
+    private static function notingOf(NoteOrganizationExchange $command): Noting
+    {
+        return Noting::of(self::factsOf($command), ExchangeStatus::outcome($command->missed), self::referenceOf($command));
     }
 
     /**

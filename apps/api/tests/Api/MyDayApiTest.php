@@ -6,12 +6,14 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
+use Prospecter\Core\Prospecting\Domain\Model\Correspondent;
 use Prospecter\Core\Prospecting\Domain\Model\Duration;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Tests\App\Base\ApiTestCase;
@@ -209,7 +211,8 @@ class MyDayApiTest extends ApiTestCase
     private function plannedBy(string $memberId, string $organization, string $at): string
     {
         $facts = ExchangeFacts::planned(Channel::Call, new \DateTimeImmutable($at), Duration::inMinutes(null), null);
-        $planned = Exchange::plannedWithTheOrganization(self::getContainer()->get(OrganizationRepository::class)->get(new OrganizationId($organization)), new MemberId($memberId), new ExchangeId(self::newIdentity()), $facts, new \DateTimeImmutable('2026-10-14 09:00 UTC'));
+        $prospect = self::getContainer()->get(OrganizationRepository::class)->get(new OrganizationId($organization));
+        $planned = Exchange::planned(new Gesture($prospect->accountId(), new MemberId($memberId), new \DateTimeImmutable('2026-10-14 09:00 UTC')), new ExchangeId(self::newIdentity()), Correspondent::organization($prospect->id()), $facts);
         self::getContainer()->get(ExchangeRepository::class)->save($planned);
 
         return $planned->id()->value;
