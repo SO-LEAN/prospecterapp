@@ -153,6 +153,7 @@ AI (Claude)                         API (api.<domain>)                          
       - It returns how PersonalData says the recipient is reached, the message rendered for them, and its mode. It returns its `instruction`, which `Campaigning\NextRecipientReader` words for the AI (send as is or adapt). It also returns how many recipients are left.
       - Its access is that of `get-campaign-message`.
       - It passes over the recipients that an exchange of the campaign was already logged with, before the worker processes them (ADR 0195).
+      - It takes the member's `timeZone` (UTC otherwise). It answers the campaign's `dailyCap`: its `sends`, the recipients `processedToday` on the member's day, and whether the cap is `reached`. Once it is reached, it still answers the recipient, with a `warning` that tells the AI to stop and ask its member.
       - Once the campaign is no longer being led, or nobody else is left, it is refused with `campaignNotRunning`.
   - The writes:
     - `log-contact-exchange`, `log-organization-exchange` and `log-sent-message` (`idempotentHint`), with the `Message-ID` of the e-mail or the LinkedIn conversation they were read in. The last one is for a campaign recipient, and takes the text that the AI actually sent (ADR 0186);
@@ -161,7 +162,7 @@ AI (Claude)                         API (api.<domain>)                          
     - on the exchanges: `schedule-contact-exchange`, `schedule-organization-exchange` (pushed to the member's Google calendar, as when planned on the screen), `mark-exchange-done` (with its report), `mark-exchange-missed`, `reschedule-exchange`, `update-exchange`, `set-exchange-text`, `set-exchange-venue`, `retry-google-sync`, `retry-failed-google-syncs` (every exchange of the member that Google refused), `attach-file` (above), and, destructive, `cancel-exchange`, `delete-exchange` (answering nothing), `delete-attachment`;
     - on the to-dos: `create-contact-todo`, `create-organization-todo`, `update-todo`, `complete-todo`, and, destructive, `reopen-todo`, `delete-todo` (answering nothing);
     - on the tags: `tag-contact`, `tag-organization`, and, destructive, `untag-contact`, `untag-organization`;
-    - on the campaigns: `create-campaign`, `update-campaign`, `freeze-campaign`, `add-campaign-recipient`, `add-recipients-by-tags`, `start-campaign`, and, destructive, `stop-campaign`, `dismiss-campaign-recipient`, `remove-campaign-recipient`, `delete-campaign` (the last three answering nothing);
+    - on the campaigns: `create-campaign`, `update-campaign`, `freeze-campaign`, `add-campaign-recipient`, `add-recipients-by-tags`, `start-campaign`, `set-campaign-daily-cap`, and, destructive, `stop-campaign`, `dismiss-campaign-recipient`, `remove-campaign-recipient`, `delete-campaign` (the last three answering nothing);
     - on the member's booking page: `set-booking-slots`, `set-booking-channels`, `open-booking`, `set-booking-link`, `add-inactive-period`, and, destructive, `close-booking`, `remove-inactive-period`;
     - on their settings: `update-my-reminders`, `set-my-name`, `update-my-contact-details`, `set-my-picture` (above), `check-my-connections`, `catch-up-contact-emails` and `catch-up-organization-emails` (answering nothing; the e-mails arrive afterwards);
     - and, destructive, `dismiss-possible-duplicate-contact`.
@@ -215,12 +216,13 @@ AI (Claude)                         API (api.<domain>)                          
   - restate the rules. Nothing `toConfirm` is created without the member's answer. Nothing is logged without its reference when the AI reads it. A refusal from Prospecter stops the AI, which asks its member.
 - `run-campaign` ("Run a campaign", `Campaigning\Mcp\LeadCampaignPrompt`, ADR 0186; `campaign`, its ID or its name in quotes, since a client may split the arguments at the spaces):
   1. find the campaign with `list-campaigns`. Ask the member which one to run when the argument is not the ID or the exact name of a single started campaign;
-  2. take `get-next-recipient`;
+  2. take `get-next-recipient`, with the member's time zone;
   3. send the message with the AI's own tools, as is or adapted as its instruction says;
   4. log it with `log-sent-message`, with the text actually sent and its reference. If the mailbox import logged it first, it joins the campaign (ADR 0195). Go on when it is already logged;
   5. dismiss whoever the AI cannot reach with `dismiss-campaign-recipient`, once the member has confirmed;
   6. never send a second message to a recipient given again, but stop and say who;
-  7. repeat until the campaign is no longer running, then report.
+  7. when `get-next-recipient` warns that today's cap is reached, stop and ask the member whether to go beyond it;
+  8. repeat until the campaign is no longer running, then report.
 - Their tests are `tests/Api/SynchronizeLinkedInPromptApiTest`, `tests/Api/SynchronizeMailboxPromptApiTest` and `tests/Api/CampaignToolsApiTest`. They list each prompt with its title and arguments, and get its steps for each argument. They refuse a `what` value outside its list. They check that every tool its text names is served: `identify`, and those in kebab-case between backquotes. `tests/Architecture/McpNamesTest` checks each tool and prompt name against the verb list.
 
 ## The AIs' sign-in
