@@ -41,7 +41,7 @@ final class CommandsAndQueriesAreBuiltByNameRule implements Rule
 
     public function processNode(Node $node, Scope $scope): array
     {
-        if (!$node->class instanceof Name || $this->isATest($scope) || !$this->isBuiltByPosition($node->getArgs())) {
+        if (!$node->class instanceof Name || $this->isATest($scope) || !$this->hasTooManyArgumentsByPosition($node->getArgs())) {
             return [];
         }
 
@@ -62,7 +62,7 @@ final class CommandsAndQueriesAreBuiltByNameRule implements Rule
     /**
      * @param list<Arg> $arguments
      */
-    private function isBuiltByPosition(array $arguments): bool
+    private function hasTooManyArgumentsByPosition(array $arguments): bool
     {
         return \count($arguments) > self::MAX_POSITIONAL_ARGUMENTS && array_any($arguments, static fn (Arg $argument): bool => null === $argument->name);
     }
