@@ -5,6 +5,7 @@ namespace App\Exchanges\Mcp;
 use App\Exchanges\ExchangeReader;
 use App\Exchanges\ExchangeResolver;
 use App\Exchanges\ExchangeVoter;
+use App\Prospecting\Persistence\ExchangeRevisions;
 use App\Security\ToolAccess;
 use App\Shared\CommandBus;
 use App\Shared\Mcp\ToolInputs;
@@ -27,6 +28,7 @@ final readonly class ExchangeWrites
         private ClockInterface $clock,
         private ExchangeReader $exchangeReader,
         private ToolResults $results,
+        private ExchangeRevisions $revisions,
     ) {
     }
 
@@ -40,7 +42,22 @@ final readonly class ExchangeWrites
      */
     public function write(string $id, ?object $input, \Closure $command, string ...$attributes): array
     {
-        return $this->answer($this->dispatched($id, $input, $command, ...$attributes)->id);
+        return $this->writeOnRevision($id, null, $input, $command, ...$attributes);
+    }
+
+    /**
+     * Like write(), with the correction held to the exchange's revision the AI read, when it gives one (ADR 0187).
+     *
+     * @template TInput of object
+     *
+     * @param TInput|null                                                               $input   the input of the endpoint, none for an endpoint without
+     * @param \Closure(TInput|null, ExchangeDetail, string, \DateTimeImmutable): object $command the command of the endpoint, from its input, for the exchange, by the member, at this moment
+     *
+     * @return array<string, mixed>
+     */
+    public function writeOnRevision(string $id, ?int $revision, ?object $input, \Closure $command, string ...$attributes): array
+    {
+        return $this->answer($this->dispatchedOnRevision($id, $revision, $input, $command, ...$attributes)->id);
     }
 
     /**
@@ -65,8 +82,21 @@ final readonly class ExchangeWrites
      */
     public function dispatched(string $id, ?object $input, \Closure $command, string ...$attributes): ExchangeDetail
     {
+        return $this->dispatchedOnRevision($id, null, $input, $command, ...$attributes);
+    }
+
+    /**
+     * @template TInput of object
+     *
+     * @param TInput|null                                                               $input
+     * @param \Closure(TInput|null, ExchangeDetail, string, \DateTimeImmutable): object $command
+     *
+     * @return ExchangeDetail the exchange as it was before
+     */
+    private function dispatchedOnRevision(string $id, ?int $revision, ?object $input, \Closure $command, string ...$attributes): ExchangeDetail
+    {
         $exchange = $this->writable($id, ...$attributes);
-        $this->commandBus->dispatch($command(null === $input ? null : $this->inputs->valid($input), $exchange, $this->access->member()->memberId(), $this->clock->now()));
+        $this->commandBus->dispatch($command(null === $input ? null : $this->inputs->valid($input), $exchange, $this->access->member()->memberId(), $this->clock->now()), $this->revisions->readAt($exchange->id, $revision));
 
         return $exchange;
     }

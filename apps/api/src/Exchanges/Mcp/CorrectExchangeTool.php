@@ -29,14 +29,16 @@ final readonly class CorrectExchangeTool
      * @param string|null $text       what was said or written
      * @param bool        $missed     the contact did not answer or come: a call, a meeting or a video call only
      * @param bool        $redacted   declares the exchange redacted, its contact forgotten; only while its link redact is offered
+     * @param ?int        $revision   the exchange's `revision` as you read it: if it changed since, the change is refused (changedMeanwhile) and you read it again
      *
      * @return array<string, mixed>
      */
     #[McpTool(name: 'update-exchange', description: 'Correct every fact of an exchange that took place, its channel, direction, moment, text and whether it was missed; its contact stays. Needs the right to manage the personal data. Answers the exchange.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
-    public function __invoke(string $id, string $channel, string $direction, string $occurredAt, ?string $text = null, bool $missed = false, bool $redacted = false): array
+    public function __invoke(string $id, string $channel, string $direction, string $occurredAt, ?string $text = null, bool $missed = false, bool $redacted = false, ?int $revision = null): array
     {
-        return $this->writes->write(
+        return $this->writes->writeOnRevision(
             $id,
+            $revision,
             $this->inputs->mapped(CorrectionInput::class, ['channel' => $channel, 'direction' => $direction, 'occurredAt' => $occurredAt, 'text' => $text, 'missed' => $missed, 'redacted' => $redacted]),
             static fn (CorrectionInput $input, ExchangeDetail $exchange, string $memberId, \DateTimeImmutable $now): CorrectExchange => new CorrectExchange(
                 prospectorId: $memberId,
