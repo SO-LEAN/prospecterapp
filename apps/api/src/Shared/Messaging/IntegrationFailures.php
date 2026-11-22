@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Shared\Messaging;
 
 use App\Shared\Persistence\Documents;
+use App\Shared\Typed;
 use Aws\Sqs\SqsClient;
 use Bref\Context\Context;
 use Psr\Clock\ClockInterface;
@@ -55,7 +56,7 @@ final readonly class IntegrationFailures
     {
         $received = $this->client->receiveMessage(['QueueUrl' => $this->url(), 'MaxNumberOfMessages' => self::MOST_MESSAGES_OF_A_RECEIVE, 'VisibilityTimeout' => self::HIDDEN_FOR_SECONDS, 'WaitTimeSeconds' => self::WAITED_FOR_SECONDS]);
 
-        return array_map(FailedInvocation::of(...), $received['Messages'] ?? []);
+        return array_values(array_map(FailedInvocation::of(...), Typed::array($received['Messages'] ?? [])));
     }
 
     public function forget(FailedInvocation $failed): void
@@ -65,6 +66,6 @@ final readonly class IntegrationFailures
 
     private function url(): string
     {
-        return $this->client->getQueueUrl(['QueueName' => $this->name])['QueueUrl'];
+        return Typed::string($this->client->getQueueUrl(['QueueName' => $this->name])['QueueUrl']);
     }
 }

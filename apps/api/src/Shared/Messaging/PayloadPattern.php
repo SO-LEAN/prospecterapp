@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Shared\Messaging;
 
+use App\Shared\Typed;
+
 /**
  * The payloads a subscription listens to (`payload` in `config/subscriptions.json`), a pattern of EventBridge on the
  * payload of the detail, which its rule of the bus puts under `detail.payload` (ADR 0127). The delivery `sync`
@@ -24,7 +26,7 @@ final class PayloadPattern
     {
         foreach ($pattern as $field => $expected) {
             $matched = self::OR === $field
-                ? array_any((array) $expected, static fn (mixed $alternative): bool => is_array($alternative) && self::matches($payload, $alternative))
+                ? array_any((array) $expected, static fn (mixed $alternative): bool => is_array($alternative) && self::matches($payload, Typed::document($alternative)))
                 : array_key_exists($field, $payload) && in_array($payload[$field], (array) $expected, true);
 
             if (!$matched) {

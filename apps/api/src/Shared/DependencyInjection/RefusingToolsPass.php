@@ -7,6 +7,7 @@ namespace App\Shared\DependencyInjection;
 use App\Security\AccessProblems;
 use App\Shared\Mcp\RefusingTools;
 use App\Shared\RefusalProblems;
+use App\Shared\Typed;
 use App\Shared\UnavailabilityProblems;
 use Mcp\Server\Capability\Registry\ReferenceHandler;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
@@ -38,9 +39,12 @@ final class RefusingToolsPass implements CompilerPassInterface
 
     private function toolsOf(Definition $builder): Reference
     {
-        foreach ($builder->getMethodCalls() as [$method, $arguments]) {
-            if ('setContainer' === $method) {
-                return $arguments[0];
+        foreach ($builder->getMethodCalls() as $call) {
+            [$method, $arguments] = Typed::array($call);
+            $tools = Typed::array($arguments)[0] ?? null;
+
+            if ('setContainer' === $method && $tools instanceof Reference) {
+                return $tools;
             }
         }
 

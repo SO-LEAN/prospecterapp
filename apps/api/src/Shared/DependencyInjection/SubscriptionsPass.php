@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Shared\DependencyInjection;
 
 use App\Shared\Messaging\Subscriptions;
+use App\Shared\Typed;
 use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\Compiler\ServiceLocatorTagPass;
@@ -84,8 +85,9 @@ final class SubscriptionsPass implements CompilerPassInterface
         foreach ($container->findTaggedServiceIds(self::DECLARED_BY_ITS_TAG) as $id => $tags) {
             $reaction = $this->asASubscription($container, $id);
 
-            foreach ($tags as $tag) {
-                $declared[$tag['subscription']] = [['context' => $tag['context'], 'sources' => [$tag['source']], 'events' => [$tag['event']], 'handlers' => [$tag['event'] => RefusalTranslatingHandlersPass::classOf($container, $id)], 'inbox' => $tag['inbox']], $reaction];
+            foreach (Typed::documents($tags) as $tag) {
+                $event = Typed::string($tag['event']);
+                $declared[Typed::string($tag['subscription'])] = [['context' => Typed::string($tag['context']), 'sources' => [Typed::string($tag['source'])], 'events' => [$event], 'handlers' => [$event => RefusalTranslatingHandlersPass::classOf($container, $id)], 'inbox' => Typed::bool($tag['inbox'])], $reaction];
             }
         }
 
@@ -109,10 +111,23 @@ final class SubscriptionsPass implements CompilerPassInterface
      */
     private function subscriptions(ContainerBuilder $container): array
     {
-        $file = $container->getParameter('kernel.project_dir').self::FILE;
+        $file = Typed::string($container->getParameter('kernel.project_dir')).self::FILE;
         $container->addResource(new FileResource($file));
 
-        return json_decode((string) file_get_contents($file), true, flags: \JSON_THROW_ON_ERROR);
+        return array_map(self::listed(...), Typed::document(json_decode((string) file_get_contents($file), true, flags: \JSON_THROW_ON_ERROR)));
+    }
+
+    /**
+     * @return Listed
+     */
+    private static function listed(mixed $subscription): array
+    {
+        $subscription = Typed::document($subscription);
+
+        return ['context' => Typed::string($subscription['context']), 'sources' => Typed::strings($subscription['sources']), 'events' => Typed::strings($subscription['events']), 'inbox' => Typed::bool($subscription['inbox'])]
+            + (isset($subscription['payload']) ? ['payload' => Typed::document($subscription['payload'])] : [])
+            + (isset($subscription['handler']) ? ['handler' => Typed::string($subscription['handler'])] : [])
+            + (isset($subscription['handlers']) ? ['handlers' => Typed::namedStrings($subscription['handlers'])] : []);
     }
 
     /**

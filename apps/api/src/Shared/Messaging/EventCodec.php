@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Shared\Messaging;
 
 use App\Shared\Identities;
+use App\Shared\Typed;
 
 /**
  * Encodes an event to travel, and decodes it back, the domain events and the integration events alike: only
@@ -27,7 +28,7 @@ final readonly class EventCodec
             ?? throw new \LogicException(sprintf('%s is listed neither in DomainEventTypes nor in IntegrationEventTypes', $event::class));
         $payload = $this->payloads->of($event);
 
-        return new TransportedEvent($source, $detailType, $this->identities->next(), $payload['occurredAt'], $cause->correlationId, $cause->causationId, $cause->depth, $payload);
+        return new TransportedEvent($source, $detailType, $this->identities->next(), Typed::string($payload['occurredAt']), $cause->correlationId, $cause->causationId, $cause->depth, $payload);
     }
 
     public function decode(TransportedEvent $event): object
