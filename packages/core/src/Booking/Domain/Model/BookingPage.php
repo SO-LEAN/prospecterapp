@@ -141,11 +141,12 @@ final class BookingPage implements ReleasesEvents
             throw ChannelNotOffered::refused();
         }
         $this->ensureNoAppointmentToComeWith($request->booker, $agenda);
-        if (!$this->offers($request->slot, $agenda->busyPeriods, $at)) {
+        $timeZone = $this->timeZone;
+        if (null === $timeZone || !$this->offers($request->slot, $agenda->busyPeriods, $timeZone, $at)) {
             throw SlotNotFree::refused();
         }
 
-        return Appointment::booked($this->accountId, $this->host, $request->onTheClockOf($this->onTheClockOfTheHost($request->slot)->getTimezone()), $at);
+        return Appointment::booked($this->accountId, $this->host, $request->onTheClockOf($timeZone->clock()), $at);
     }
 
     private function ensureNoAppointmentToComeWith(Booker $booker, HostAgenda $agenda): void
@@ -158,18 +159,15 @@ final class BookingPage implements ReleasesEvents
 
     private function onTheClockOfTheHost(\DateTimeImmutable $moment): \DateTimeImmutable
     {
-        return null === $this->timeZone ? $moment : $moment->setTimezone(new \DateTimeZone($this->timeZone->name));
+        return null === $this->timeZone ? $moment : $moment->setTimezone($this->timeZone->clock());
     }
 
     /**
      * @param list<BusyPeriod> $busyPeriods
      */
-    private function offers(\DateTimeImmutable $slot, array $busyPeriods, \DateTimeImmutable $at): bool
+    private function offers(\DateTimeImmutable $slot, array $busyPeriods, HostTimeZone $timeZone, \DateTimeImmutable $at): bool
     {
-        if (null === $this->timeZone) {
-            return false;
-        }
-        $days = FreeSlots::given(new Availability($this->windows, $this->timeZone, array_values($this->inactivePeriods)), $busyPeriods, $at);
+        $days = FreeSlots::given(new Availability($this->windows, $timeZone, array_values($this->inactivePeriods)), $busyPeriods, $at);
 
         return array_any($days, static fn (BookableDay $day): bool => array_any($day->slots, static fn (\DateTimeImmutable $free): bool => $free == $slot));
     }
