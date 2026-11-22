@@ -25,14 +25,16 @@ final readonly class RelocateTool
      * @param ?string $postalCode the postal code
      * @param ?string $city       the city
      * @param ?string $country    the country, its code (FR, BE…)
+     * @param ?int    $revision   the organization's `revision` as you read it: if it changed since, the change is refused (changedMeanwhile) and you read it again
      *
      * @return array<string, mixed>
      */
     #[McpTool(name: 'set-organization-address', description: 'Move an organization to an address, located again as on the screen; an address left empty removes it. Answers the organization.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
-    public function __invoke(string $id, ?string $street = null, ?string $postalCode = null, ?string $city = null, ?string $country = null): array
+    public function __invoke(string $id, ?string $street = null, ?string $postalCode = null, ?string $city = null, ?string $country = null, ?int $revision = null): array
     {
-        return $this->writes->write(
+        return $this->writes->writeOnRevision(
             $id,
+            $revision,
             new AddressInput($street, $postalCode, $city, $country),
             static fn (AddressInput $input, OrganizationSheet $organization, string $memberId, \DateTimeImmutable $now): Relocate => new Relocate($memberId, $organization->id, $input->street, $input->postalCode, $input->city, $input->country, $now),
         );

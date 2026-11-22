@@ -2,8 +2,10 @@
 
 namespace Tests\App\Api;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Base\CallsTheMcpServer;
 
 /**
  * An organization is read with its revision. A screen or an AI sends it back with its change: if another member
@@ -12,6 +14,8 @@ use Tests\App\Base\ApiTestCase;
 #[Group('api')]
 class OrganizationRevisionApiTest extends ApiTestCase
 {
+    use CallsTheMcpServer;
+
     private string $acme;
 
     protected function setUp(): void
@@ -97,6 +101,40 @@ class OrganizationRevisionApiTest extends ApiTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertSame([$ada], $organization['contactIds']);
+    }
+
+    public function testAnAIChangingAnOrganizationChangedSinceItReadItIsToldItChanged(): void
+    {
+        $read = $this->answerOf($this->callWithoutHandshake('get-organization', ['id' => $this->acme]))['revision'];
+        $this->requestJson('PATCH', '/api/organizations/'.$this->acme.'/contact-details', ['phoneNumber' => '03 88 11 22 33']);
+
+        $refusal = $this->callWithoutHandshake('update-organization-details', ['id' => $this->acme, 'phoneNumber' => '03 88 99 99 99', 'revision' => $read]);
+
+        $this->assertTrue($refusal['isError'] ?? false);
+        $this->assertSame('changedMeanwhile', $this->answerOf($refusal)['reason']);
+    }
+
+    /**
+     * @param array<string, mixed> $arguments
+     */
+    #[DataProvider('toolsChangingAnOrganization')]
+    public function testEachToolChangingAnOrganizationChangedSinceTheAIReadItIsRefused(string $tool, array $arguments): void
+    {
+        $read = $this->changedSinceRead();
+
+        $refusal = $this->callWithoutHandshake($tool, ['id' => $this->acme, ...$arguments, 'revision' => $read]);
+
+        $this->assertSame('changedMeanwhile', $this->answerOf($refusal)['reason'] ?? null);
+    }
+
+    /**
+     * @return iterable<string, array{string, array<string, mixed>}>
+     */
+    public static function toolsChangingAnOrganization(): iterable
+    {
+        yield 'identity' => ['update-organization-identity', ['corporateName' => 'Acme Industries']];
+        yield 'address' => ['set-organization-address', ['city' => 'Strasbourg']];
+        yield 'notes' => ['set-organization-notes', ['observations' => 'Rappeler lundi']];
     }
 
     /**
