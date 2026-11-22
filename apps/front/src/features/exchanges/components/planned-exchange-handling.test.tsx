@@ -46,6 +46,7 @@ const handling = {
 }
 
 const aPlannedExchange = (exchange: Partial<ExchangeDetail>): ExchangeDetail => ({
+  revision: 1,
   id: EXCHANGE,
   interlocutor: { kind: 'person', id: ADA, name: 'Ada Lovelace', presence: 'present' },
   channel: 'videoCall',

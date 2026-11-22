@@ -3948,6 +3948,18 @@
                 "operationId": "patch_api_exchanges_correct",
                 "parameters": [
                     {
+                        "name": "revision",
+                        "in": "query",
+                        "description": "The record's revision as the client read it. If the record changed since, the change is refused (409 changedMeanwhile) instead of erasing the other change. Without it, the change holds to the record as the API reads it.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "nullable": true,
+                            "default": null,
+                            "minimum": 0
+                        }
+                    },
+                    {
                         "name": "id",
                         "in": "path",
                         "required": true,
@@ -4002,7 +4014,7 @@
                         }
                     },
                     "409": {
-                        "description": "Declared redacted while nothing is to redact",
+                        "description": "Declared redacted while nothing is to redact, or changed since the revision sent was read",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -4032,6 +4044,18 @@
                 "summary": "Correct the text of an exchange only, to redact it, and declare it redacted once its contact was forgotten; open to every prospector of the account",
                 "operationId": "patch_api_exchanges_correct_text",
                 "parameters": [
+                    {
+                        "name": "revision",
+                        "in": "query",
+                        "description": "The record's revision as the client read it. If the record changed since, the change is refused (409 changedMeanwhile) instead of erasing the other change. Without it, the change holds to the record as the API reads it.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "nullable": true,
+                            "default": null,
+                            "minimum": 0
+                        }
+                    },
                     {
                         "name": "id",
                         "in": "path",
@@ -4087,7 +4111,7 @@
                         }
                     },
                     "409": {
-                        "description": "Declared redacted while nothing is to redact",
+                        "description": "Declared redacted while nothing is to redact, or changed since the revision sent was read",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -4117,6 +4141,18 @@
                 "summary": "Correct where a meeting is held, or the link of a video call, planned or done; open to every prospector of the account",
                 "operationId": "patch_api_exchanges_correct_venue",
                 "parameters": [
+                    {
+                        "name": "revision",
+                        "in": "query",
+                        "description": "The record's revision as the client read it. If the record changed since, the change is refused (409 changedMeanwhile) instead of erasing the other change. Without it, the change holds to the record as the API reads it.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "nullable": true,
+                            "default": null,
+                            "minimum": 0
+                        }
+                    },
                     {
                         "name": "id",
                         "in": "path",
@@ -4172,7 +4208,7 @@
                         }
                     },
                     "409": {
-                        "description": "Neither a meeting nor a video call",
+                        "description": "Neither a meeting nor a video call, or changed since the revision sent was read",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -11298,6 +11334,7 @@
                     "hiddenAttachments",
                     "bookedByLink",
                     "createdByAnAI",
+                    "revision",
                     "_links"
                 ],
                 "properties": {
@@ -11455,6 +11492,10 @@
                     "createdByAnAI": {
                         "description": "An AI created it, acting as its member through the MCP server, never named",
                         "type": "boolean"
+                    },
+                    "revision": {
+                        "description": "The record's revision as read. Send it back with a change to what was read: if the record changed since, the change is refused (409 changedMeanwhile).",
+                        "type": "integer"
                     },
                     "_links": {
                         "$ref": "#/components/schemas/ExchangeDetailLinksResource"

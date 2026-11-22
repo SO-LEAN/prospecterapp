@@ -84,6 +84,7 @@ const theDetail = (
   item: CalendarExchange,
   links: { moveBack?: typeof move } = { moveBack: move },
 ): ExchangeDetail => ({
+  revision: 1,
   ...item.exchange,
   interlocutor: item.interlocutor,
   canceller: null,

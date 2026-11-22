@@ -6,6 +6,7 @@ use App\Contacts\Resource\InterlocutorResource;
 use App\Prospecting\Input\ExchangeInput;
 use App\Prospecting\Resource\CampaignOfExchangeResource;
 use App\Prospecting\Resource\ExchangeResource;
+use App\Shared\Resource\RevisionDescription;
 use OpenApi\Attributes as OA;
 use Symfony\Component\Serializer\Attribute\Context;
 use Symfony\Component\Serializer\Attribute\SerializedName;
@@ -70,6 +71,8 @@ final readonly class ExchangeDetailResource
         public ?string $importedFrom,
         #[OA\Property(description: ExchangeResource::CREATED_BY_AN_AI_DESCRIPTION)]
         public bool $createdByAnAI,
+        #[OA\Property(description: RevisionDescription::OF_A_RECORD)]
+        public int $revision,
         #[SerializedName('_links')]
         #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]
         public ExchangeDetailLinksResource $links,

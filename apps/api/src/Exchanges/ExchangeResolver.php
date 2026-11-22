@@ -2,6 +2,7 @@
 
 namespace App\Exchanges;
 
+use App\Prospecting\Persistence\ExchangeRevisions;
 use App\Security\User;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ConsultExchange;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
@@ -19,7 +20,7 @@ use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
  */
 final readonly class ExchangeResolver implements ValueResolverInterface
 {
-    public function __construct(private QueryHandler $consultExchange, private Security $security, private ClockInterface $clock)
+    public function __construct(private QueryHandler $consultExchange, private Security $security, private ClockInterface $clock, private ExchangeRevisions $revisions)
     {
     }
 
@@ -44,6 +45,7 @@ final readonly class ExchangeResolver implements ValueResolverInterface
     public function read(User $reader, string $id): ExchangeDetail
     {
         $kept = new KeptExchange();
+        $this->revisions->watch($id);
         ($this->consultExchange)(new ConsultExchange($reader->memberId(), $id, $this->clock->now()), $kept);
 
         return $kept->exchange;

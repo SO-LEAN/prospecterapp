@@ -84,6 +84,7 @@ function ended(channel: ExchangeToProcess['exchange']['channel'], occurredAt: Da
 }
 
 const theDetail = (item: ExchangeToProcess): ExchangeDetail => ({
+  revision: 1,
   ...item.exchange,
   interlocutor: item.interlocutor,
   canceller: null,

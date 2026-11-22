@@ -86,6 +86,7 @@ function planned(
 }
 
 const theDetail = (item: DayExchange, detail: Partial<ExchangeDetail> = {}): ExchangeDetail => ({
+  revision: 1,
   ...item.exchange,
   interlocutor: item.interlocutor,
   canceller: null,

@@ -124,6 +124,7 @@ const suggested: SuggestedTags = {
 }
 
 const theExchangeOfAda: ExchangeDetail = {
+  revision: 1,
   id: EXCHANGE,
   interlocutor: { kind: 'person', id: ADA, name: 'Ada Lovelace', presence: 'present' },
   channel: 'email',

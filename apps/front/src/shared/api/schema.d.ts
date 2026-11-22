@@ -3086,6 +3086,8 @@ export interface components {
             importedFrom?: "google" | null;
             /** @description An AI created it, acting as its member through the MCP server, never named */
             createdByAnAI: boolean;
+            /** @description The record's revision as read. Send it back with a change to what was read: if the record changed since, the change is refused (409 changedMeanwhile). */
+            revision: number;
             _links: components["schemas"]["ExchangeDetailLinksResource"];
         };
         AttachmentDownloadResource: {
@@ -6656,7 +6658,10 @@ export interface operations {
     };
     patch_api_exchanges_correct: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description The record's revision as the client read it. If the record changed since, the change is refused (409 changedMeanwhile) instead of erasing the other change. Without it, the change holds to the record as the API reads it. */
+                revision?: number | null;
+            };
             header?: never;
             path: {
                 id: string;
@@ -6703,7 +6708,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Declared redacted while nothing is to redact */
+            /** @description Declared redacted while nothing is to redact, or changed since the revision sent was read */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -6725,7 +6730,10 @@ export interface operations {
     };
     patch_api_exchanges_correct_text: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description The record's revision as the client read it. If the record changed since, the change is refused (409 changedMeanwhile) instead of erasing the other change. Without it, the change holds to the record as the API reads it. */
+                revision?: number | null;
+            };
             header?: never;
             path: {
                 id: string;
@@ -6772,7 +6780,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Declared redacted while nothing is to redact */
+            /** @description Declared redacted while nothing is to redact, or changed since the revision sent was read */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -6794,7 +6802,10 @@ export interface operations {
     };
     patch_api_exchanges_correct_venue: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description The record's revision as the client read it. If the record changed since, the change is refused (409 changedMeanwhile) instead of erasing the other change. Without it, the change holds to the record as the API reads it. */
+                revision?: number | null;
+            };
             header?: never;
             path: {
                 id: string;
@@ -6841,7 +6852,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Neither a meeting nor a video call */
+            /** @description Neither a meeting nor a video call, or changed since the revision sent was read */
             409: {
                 headers: {
                     [name: string]: unknown;
