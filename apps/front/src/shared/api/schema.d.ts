@@ -3424,7 +3424,7 @@ export interface components {
             endedAt?: string | null;
             /** @description The most recipients processed a day, a guard an AI stops at and the member may go beyond; none without a cap */
             dailyCap?: number | null;
-            /** @description Its recipients processed today, on the clock of the reader, when the campaign is read alone; none in a list */
+            /** @description Its recipients processed today, on the reader's clock, when the campaign is read alone; none in a list */
             processedToday?: number | null;
             _links: components["schemas"]["CampaignLinksResource"];
         };

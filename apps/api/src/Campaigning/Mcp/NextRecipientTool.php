@@ -32,7 +32,7 @@ final readonly class NextRecipientTool
 
     /**
      * @param string  $id       the id of the campaign
-     * @param ?string $timeZone the time zone of the member, by its name (Europe/Paris), which the day of its daily cap is on; UTC otherwise
+     * @param ?string $timeZone the member's time zone, by its name (Europe/Paris). Its daily cap's day follows it. UTC otherwise
      *
      * @return array<string, mixed>
      */

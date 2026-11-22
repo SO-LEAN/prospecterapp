@@ -36,7 +36,7 @@ Members put tags on their organizations and contacts, to find later the ones tha
   - until it is stopped or ended, its daily cap is set (`SetDailyCap`);
   - a stopped or ended campaign allows nothing.
 
-  A campaign **has started** once it is started, stopped or ended: it no longer changes. It **is running** (`isRunning`) while started.
+  A campaign **has started** once it is started, stopped or ended: its name, its message and its recipients no longer change. Only a started campaign's daily cap still does. It **is running** (`isRunning`) while started.
 - **Recipients** (`Recipients`, `Recipient`, `RecipientStatus`): the contacts a frozen campaign keeps. They are kept by identity only (their names belong to PersonalData), each once, in the order added. Each one has a status saying where the team stands with them:
   - to handle (`pending`);
   - **processed** (`processed`) by the exchange logged for them in the campaign, done, or missed for a call that did not go through. The identity of that exchange is kept (ADR 0152);

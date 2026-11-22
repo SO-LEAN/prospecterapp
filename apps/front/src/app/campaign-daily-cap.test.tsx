@@ -103,7 +103,7 @@ describe('the daily cap of a campaign', () => {
     expect(await screen.findByText('12 / 30 aujourd’hui')).toBeInTheDocument()
   })
 
-  it('counts the recipients processed today on the clock of the reader', async () => {
+  it('counts the recipients processed today on the reader’s clock', async () => {
     const calls = theApiAnswers()
     await renderTheSpaAt(`/campaigns/${CAMPAIGN}`)
 

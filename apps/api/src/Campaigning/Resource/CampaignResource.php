@@ -49,7 +49,7 @@ final readonly class CampaignResource
         public ?string $endedAt,
         #[OA\Property(description: 'The most recipients processed a day, a guard an AI stops at and the member may go beyond; none without a cap')]
         public ?int $dailyCap,
-        #[OA\Property(description: 'Its recipients processed today, on the clock of the reader, when the campaign is read alone; none in a list')]
+        #[OA\Property(description: 'Its recipients processed today, on the reader\'s clock, when the campaign is read alone; none in a list')]
         public ?int $processedToday,
         #[SerializedName('_links')]
         #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]

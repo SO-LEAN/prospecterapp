@@ -33,7 +33,7 @@ final readonly class ShowCampaignTool
 
     /**
      * @param string  $id       the id of the campaign
-     * @param ?string $timeZone the time zone of the member, by its name (Europe/Paris), which its recipients processed today are counted on; UTC otherwise
+     * @param ?string $timeZone the member's time zone, by its name (Europe/Paris). The recipients processed today follow it. UTC otherwise
      *
      * @return array<string, mixed>
      */
