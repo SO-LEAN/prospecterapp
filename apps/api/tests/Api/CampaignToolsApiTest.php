@@ -248,6 +248,18 @@ class CampaignToolsApiTest extends ApiTestCase
         $this->assertSame('processed', $ada['status'] ?? null);
     }
 
+    public function testTheSendingNotedFirstOutsideTheCampaignJoinsItAndIsAnsweredNoted(): void
+    {
+        $started = $this->aStartedCampaign();
+        $first = $this->callWithoutHandshake('log-contact-exchange', ['id' => $this->ada, 'channel' => 'email', 'direction' => 'outbound', ...self::SENT_TO_ADA]);
+
+        $noted = $this->callWithoutHandshake('log-sent-message', ['id' => $started, 'contactId' => $this->ada, ...self::SENT_TO_ADA]);
+
+        $this->assertSame(['noted', self::stringAt($first, 'structuredContent', 'exchange', 'id')], [self::stringAt($noted, 'structuredContent', 'status'), self::stringAt($noted, 'structuredContent', 'exchange', 'id')]);
+        $ada = array_find(self::records($this->requestJson('GET', '/api/campaigns/'.$started.'/recipients')['items']), fn (array $recipient): bool => $this->ada === self::stringAt($recipient, 'contact', 'id'));
+        $this->assertSame('processed', $ada['status'] ?? null);
+    }
+
     public function testTheSendingNotedAgainIsAnsweredTheExchangeNotedFirstWithoutError(): void
     {
         $started = $this->aStartedCampaign();

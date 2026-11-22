@@ -26,13 +26,25 @@ final readonly class NotedOnceAnswers
      */
     public function of(string $member, string $exchange, \Closure $note): NotingResource
     {
+        return $this->ofNoted($member, static fn (): string => $exchange, $note);
+    }
+
+    /**
+     * As the noting of a sending to the recipient of a campaign, whose exchange may be the one noted first, joining
+     * the campaign (ADR 0195): it is known once the noting is done.
+     *
+     * @param \Closure(): string $exchange the exchange noted, asked once it is
+     * @param \Closure(): void   $note     the noting of the exchange by the member
+     */
+    public function ofNoted(string $member, \Closure $exchange, \Closure $note): NotingResource
+    {
         try {
             $note();
         } catch (UseCaseRefused $refusal) {
             return $this->notNotedAgain($member, $refusal);
         }
 
-        return NotingResource::noted($this->exchangeReader->read($member, $exchange));
+        return NotingResource::noted($this->exchangeReader->read($member, $exchange()));
     }
 
     private function notNotedAgain(string $member, UseCaseRefused $refusal): NotingResource

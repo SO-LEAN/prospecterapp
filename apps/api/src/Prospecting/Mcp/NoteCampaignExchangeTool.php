@@ -16,6 +16,10 @@ use App\Shared\Mcp\ToolResults;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
 use Prospecter\Core\Prospecting\Application\NoteCampaignExchange\NoteCampaignExchange;
+use Prospecter\Core\Prospecting\Application\SendingNoted\KeptSendingNoted;
+use Prospecter\Core\Prospecting\Application\SendingNoted\SendingNoted;
+use Prospecter\Core\Prospecting\Application\SendingNoted\SendingNotedOutput;
+use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Symfony\Component\Clock\ClockInterface;
 
 /**
@@ -25,6 +29,9 @@ use Symfony\Component\Clock\ClockInterface;
 #[Adapts('api_campaigns_note_exchange')]
 final readonly class NoteCampaignExchangeTool
 {
+    /**
+     * @param QueryHandler&callable(SendingNoted, SendingNotedOutput): void $sendingNoted
+     */
     public function __construct(
         private ToolAccess $access,
         private ToolInputs $inputs,
@@ -33,6 +40,7 @@ final readonly class NoteCampaignExchangeTool
         private ClockInterface $clock,
         private NotedOnceAnswers $answers,
         private ToolResults $results,
+        private QueryHandler $sendingNoted,
     ) {
     }
 
@@ -48,7 +56,7 @@ final readonly class NoteCampaignExchangeTool
      */
     #[McpTool(
         name: 'log-sent-message',
-        description: 'Note the message you sent yourself to a recipient of a campaign you lead, by the channel of the campaign: the recipient is processed, the campaign ended once nobody is left to handle. Give the text really sent and the Message-ID of the e-mail, or the conversation of the LinkedIn message. Each sending is noted once in the account: noted again, the answer is its status alreadyNoted with the exchange noted first, or erasedBefore with who erased it, and nothing is noted.',
+        description: 'Note the message you sent yourself to a recipient of a campaign you lead, by the channel of the campaign: the recipient is processed, the campaign ended once nobody is left to handle. Give the text really sent and the Message-ID of the e-mail, or the conversation of the LinkedIn message. Each sending is noted once in the account: noted first outside the campaign, by the import of your member\'s mailbox, it joins the campaign and is answered noted; noted again for the campaign, the answer is its status alreadyNoted with the exchange noted first, or erasedBefore with who erased it, and nothing is noted.',
         annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false),
     )]
     public function __invoke(string $id, string $contactId, ?string $text = null, ?string $occurredAt = null, ?string $messageId = null, ?string $linkedInConversation = null): array
@@ -58,13 +66,22 @@ final readonly class NoteCampaignExchangeTool
         $this->access->denyUnlessGranted(User::PERSONAL_DATA);
         $input = $this->inputs->mapped(CampaignExchangeInput::class, ['occurredAt' => $occurredAt, 'text' => $text, 'messageId' => $messageId, 'linkedInConversation' => $linkedInConversation]);
         $exchange = $this->identities->next();
+        $sending = new SendingNoted(
+            prospectorId: $member->memberId(),
+            campaignId: $id,
+            personId: $contactId,
+            occurredAt: $input->occurredAt ?? $this->clock->now(),
+            text: $input->text,
+            messageId: $input->messageId,
+            linkedInConversation: $input->linkedInConversation,
+        );
 
-        return $this->results->of($this->answers->of($member->memberId(), $exchange, fn () => $this->commandBus->dispatch(new NoteCampaignExchange(
+        return $this->results->of($this->answers->ofNoted($member->memberId(), fn (): string => $this->exchangeNotedFor($sending) ?? $exchange, fn () => $this->commandBus->dispatch(new NoteCampaignExchange(
             prospectorId: $member->memberId(),
             id: $exchange,
             campaignId: $id,
             personId: $contactId,
-            occurredAt: $input->occurredAt ?? $this->clock->now(),
+            occurredAt: $sending->occurredAt,
             text: $input->text,
             missed: false,
             executedAt: $this->clock->now(),
@@ -73,5 +90,17 @@ final readonly class NoteCampaignExchangeTool
             noteOnce: true,
             byAnAI: true,
         ))));
+    }
+
+    /**
+     * The exchange the sending was noted as: the one just noted, or the one noted first that joined the campaign
+     * (ADR 0195).
+     */
+    private function exchangeNotedFor(SendingNoted $sending): ?string
+    {
+        $kept = new KeptSendingNoted();
+        ($this->sendingNoted)($sending, $kept);
+
+        return $kept->exchangeId;
     }
 }
