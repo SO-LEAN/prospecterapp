@@ -29,6 +29,13 @@ Fonctionnalité: Ajouter une période inactive
     Alors on peut me réserver le 21/12/2026 et le 04/01/2027
     Et je n'ai aucune période inactive
 
+  Scénario: Je retire une période inactive, les autres restent
+    Soit j'ai ajouté une période inactive du 21/12/2026 au 04/01/2027
+    Et j'ai ajouté une période inactive du 10/02/2027 au 12/02/2027
+    Quand je retire la période inactive du 21/12/2026 au 04/01/2027
+    Alors on peut me réserver le 21/12/2026 et le 04/01/2027
+    Et on ne peut pas me réserver du 10/02/2027 au 12/02/2027 inclus
+
   Scénario: On ne retire pas une période inactive inconnue
     Quand je retire une période inactive que je n'ai pas
     Alors c'est introuvable
