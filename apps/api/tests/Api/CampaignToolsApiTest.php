@@ -212,7 +212,7 @@ class CampaignToolsApiTest extends ApiTestCase
 
         $this->assertSame(['Run a campaign', 'Send each recipient of a started campaign their message with your own tools, and log it in Prospecter.'], [$prompt['title'] ?? null, $prompt['description'] ?? null]);
         $this->assertSame([['campaign', true]], self::argumentsOf($prompt));
-        $this->assertSame(['the campaign\'s name or ID'], array_column($prompt['arguments'] ?? [], 'description'));
+        $this->assertSame(['the campaign\'s ID, or its name in quotes'], array_column($prompt['arguments'] ?? [], 'description'));
     }
 
     public function testThePromptToLeadACampaignGivesTheAiItsSteps(): void
@@ -226,6 +226,15 @@ class CampaignToolsApiTest extends ApiTestCase
         foreach (['"Relance PHP"', 'list-campaigns', 'get-next-recipient', 'log-sent-message', 'dismiss-campaign-recipient'] as $step) {
             $this->assertStringContainsString($step, $text);
         }
+    }
+
+    public function testThePromptToLeadACampaignAsksWhichOneWhenItsNameMatchesNoSingleStartedCampaign(): void
+    {
+        $this->login();
+
+        $text = $this->promptText('run-campaign', ['campaign' => 'Relance']);
+
+        $this->assertStringContainsString('When "Relance" is not the ID or the exact name of a single started campaign, ask me which one to run, and send nothing until I answer. Do not guess.', $text);
     }
 
     public function testThePromptToLeadACampaignNeverSendsTwiceToARecipient(): void
