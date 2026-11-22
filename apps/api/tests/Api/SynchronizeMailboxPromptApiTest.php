@@ -25,7 +25,7 @@ class SynchronizeMailboxPromptApiTest extends ApiTestCase
 
         $this->assertSame(['Sync my mailbox', 'Log the e-mails you exchanged with your contacts in Prospecter, without duplicates.'], [$prompt['title'] ?? null, $prompt['description'] ?? null]);
         $this->assertSame([['since', false]], self::argumentsOf($prompt));
-        $this->assertSame(['how far back to go ("7 days", "November 1"…), asked when not given'], array_column($prompt['arguments'] ?? [], 'description'));
+        $this->assertSame(['how far back to go, in quotes ("7 days", "November 1"…), asked when not given'], array_column($prompt['arguments'] ?? [], 'description'));
     }
 
     public function testOnlyTheCorrespondentsProspecterKnowsAreKeptUnlessTheMemberAsksToCreateThem(): void
@@ -110,6 +110,15 @@ class SynchronizeMailboxPromptApiTest extends ApiTestCase
         $text = $this->promptText('sync-mailbox', ['since' => 'November 1']);
 
         $this->assertStringContainsString('Sync my mailbox into Prospecter. How far back: November 1.', $text);
+    }
+
+    public function testTheAiAsksSinceWhenWhenTheMomentGivenIsUnclear(): void
+    {
+        $this->login();
+
+        $text = $this->promptText('sync-mailbox', ['since' => '7']);
+
+        $this->assertStringContainsString('How far back: 7. When this is not a clear moment, ask me how far back to go first. Do not guess.', $text);
     }
 
     public function testTheAiAsksSinceWhenWhenItIsNotGiven(): void
