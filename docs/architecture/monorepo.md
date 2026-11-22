@@ -14,7 +14,7 @@ make/            the fragments the Makefiles include (ADR 0080)
 docker/  docker-compose.yml  Makefile  docs/
 ```
 
-Whatever a project does is a recipe in its Makefile; whatever several projects share is a fragment in `make/` (ADR 0080, 0083). The only scripts left are files that a tool runs, each next to what uses it:
+Whatever a project does is a recipe in its Makefile. Whatever several projects share is a fragment in `make/` (ADR 0080, 0083). The only scripts left are files that a tool runs, each next to what uses it:
 
 | Script | Run by | Why not a recipe |
 |---|---|---|
@@ -32,11 +32,11 @@ The apps are independent projects with their own dependencies. They share only:
 
 Only the API uses the core.
 
-Each project has its own `Makefile`, which you run from its directory (`cd apps/api && make test`; `make` alone lists its commands) and which includes only the fragments of `make/`. The root `Makefile` is the façade: its targets run the projects' targets (`make test-api` runs `make -C apps/api test`) and hold only what spans several projects (`install`, `ci`, the stack, `api-doc`, the secrets). A project never runs another project's Makefile (ADR 0080).
+Each project has its own `Makefile`. You run it from the project's directory (`cd apps/api && make test`), and `make` alone lists its commands. It includes only the fragments of `make/`. The root `Makefile` is the façade: its targets run the projects' targets (`make test-api` runs `make -C apps/api test`) and hold only what spans several projects (`install`, `ci`, the stack, `api-doc`, the secrets). A project never runs another project's Makefile (ADR 0080).
 
 A PHP project's lint (`make/php.mk`: PHPStan, php-cs-fixer and Rector, each in its own container) keeps its caches in the project's ignored `var/cache/` (`tmpDir` in `phpstan.dist.neon`, `withCache` in `rector.php`, `setCacheFile` in `.php-cs-fixer.dist.php`). The caches last from one run to the next, and each checkout has its own: a container's `/tmp` disappears with it.
 
-- PHPStan analyses the whole project even with `FILTER` (a class reads its properties in traits it may not be given), using its result cache. It runs with its own memory limit, 1G for its main process and for each of its workers (`PHPSTAN_MEMORY_LIMIT`), above the command line's 256M (`docker/php/php.ini`): one of the API's workers outgrew that limit on a CI runner, depending on the files it was given (the whole API analysed in one process peaks at about 360M, the core at about 270M).
+- PHPStan analyses the whole project even with `FILTER`, because a class reads its properties in traits it may not be given. It uses its result cache. It runs with its own memory limit (`PHPSTAN_MEMORY_LIMIT`): 1G for its main process and for each of its workers. That is above the command line's 256M (`docker/php/php.ini`). One of the API's workers outgrew 256M on a CI runner, depending on the files it was given. Analysed in one process, the whole API peaks at about 360M, and the core at about 270M.
 - With `FILTER`, Rector runs in one process (`RECTOR_IN_ONE_PROCESS`, read by `rector.php`): a worker takes as long to start as it takes to check a few files. On the whole project, it runs as many workers as the container has processors.
 - `make lint` runs a project's three checks together, as `make ci` does: linting after changing one file takes about three seconds.
 
@@ -44,7 +44,7 @@ The Lambda package leaves out the `var/` of the app and of the core it copies in
 
 ## The AWS SDK services
 
-The API and the storage keep only the AWS SDK services listed in their `composer.json` (`extra.aws/aws-sdk-php`): the script `Aws\Script\Composer\Composer::removeUnusedServices` deletes the others from `vendor` at each autoload dump. `composer install` does not bring back a service added to the list, because the SDK is already installed at its version, and the app then fails at startup (`Service id "Aws\Sqs\SqsClient" looks like a FQCN but no corresponding class or interface exists`). These apps' `make vendor` (`make/composer.mk`, run by `make install` and `make ci`) first reinstalls the SDK when a listed service has no directory in `vendor/aws/aws-sdk-php/src`; when the list did not change, it reinstalls nothing. The Lambda package (`make/lambda.mk`) installs a fresh `vendor`, so it always has the listed services.
+The API and the storage keep only the AWS SDK services listed in their `composer.json` (`extra.aws/aws-sdk-php`). At each autoload dump, the script `Aws\Script\Composer\Composer::removeUnusedServices` deletes the others from `vendor`. `composer install` does not bring back a service added to the list, because the SDK is already installed at its version. The app then fails at startup (`Service id "Aws\Sqs\SqsClient" looks like a FQCN but no corresponding class or interface exists`). These apps' `make vendor` (`make/composer.mk`, run by `make install` and `make ci`) first reinstalls the SDK when a listed service has no directory in `vendor/aws/aws-sdk-php/src`. When the list did not change, it reinstalls nothing. The Lambda package (`make/lambda.mk`) installs a fresh `vendor`, so it always has the listed services.
 
 ## How the API uses the library
 
@@ -69,7 +69,7 @@ cd apps/api
 COMPOSER_MIRROR_PATH_REPOS=1 composer install --no-dev --classmap-authoritative
 ```
 
-Composer then copies the current content of `packages/core` into `vendor/` (even if `composer.lock` is behind), and `apps/api/` becomes self-contained: deploy it alone. `apps/storage/` does not use the core; `make package-storage` packages it the same way (`build/storage.zip`). This only works because the path repository does not force `"symlink": true`: keep it that way.
+Composer then copies the current content of `packages/core` into `vendor/` (even if `composer.lock` is behind), and `apps/api/` becomes self-contained: deploy it alone. `apps/storage/` does not use the core. `make package-storage` packages it the same way (`build/storage.zip`). This only works because the path repository does not force `"symlink": true`: keep it that way.
 
 The copy includes what the core needs for its own tests (`vendor/`, `tests/`, `features/`, tool configs): remove `vendor/prospecter/core/{vendor,tests,features,Makefile}` in the production image. `make package-api` / `make package-storage` do all of this for the Lambdas on AWS (`make/lambda.mk`, `build/<app>.zip`).
 
@@ -81,5 +81,5 @@ The library already is the hexagon. Its `composer.json` only requires `php`, `ex
 
 ## Decisions
 
-- 2026-10-13: the library is no longer published on Packagist. Nobody outside this repository installs it, so we removed the split workflow to `SO-LEAN/cleanprospecter`, the `1.x-dev` branch alias and the `^1.0@dev` constraint (now `*@dev`). We kept the package and the `path` repository on purpose: the library's own `composer.json` (PHP only) keeps the hexagon free of framework dependencies, and production builds can copy it into `apps/api/vendor` to ship `apps/api/` alone. To publish again, restore a split workflow (e.g. `symplify/monorepo-split-github-action`) that pushes `packages/core` to `SO-LEAN/cleanprospecter`, which Packagist already tracks.
+- 2026-10-13: the library is no longer published on Packagist. Nobody outside this repository installs it, so we removed the split workflow to `SO-LEAN/cleanprospecter`, the `1.x-dev` branch alias and the `^1.0@dev` constraint (now `*@dev`). We kept the package and the `path` repository on purpose. The library's own `composer.json` (PHP only) keeps the hexagon free of framework dependencies. Production builds can copy it into `apps/api/vendor` to ship `apps/api/` alone. To publish again, restore a split workflow (e.g. `symplify/monorepo-split-github-action`) that pushes `packages/core` to `SO-LEAN/cleanprospecter`, which Packagist already tracks.
 - 2026-10-14: `packages/cleanprospecter` was renamed to `packages/core` (Composer package `prospecter/core`, namespace `Prospecter\Core\`), and `webapp/` moved to `apps/api/`, next to the React SPA in `apps/front/`.
