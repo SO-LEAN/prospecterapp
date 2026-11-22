@@ -24,3 +24,8 @@ phpstan.neon
 # the keys of the former OAuth 2 server, if some are left: never committed
 /config/jwt/
 ###< auth keys ###
+
+###> symfony/framework-bundle: config reference ###
+# written by Symfony at each build of the debug container; the configuration is in YAML (ADR 0194)
+/config/reference.php
+###< symfony/framework-bundle: config reference ###

@@ -5,10 +5,7 @@ declare(strict_types=1);
 $finder = (new PhpCsFixer\Finder())
     ->in(__DIR__)
     ->exclude(['var', 'assets/vendor'])
-    ->notPath([
-        'config/bundles.php',
-        'config/reference.php',
-    ])
+    ->ignoreVCSIgnored(true)
     ->append([__DIR__.'/bin/console', __DIR__.'/bin/phpunit'])
 ;
 
