@@ -64,6 +64,13 @@ Fonctionnalité: Fixer un plafond d'envois par jour
     Et une IA demande le destinataire suivant de "Relance PHP"
     Alors elle reçoit "Grace Hopper", sans avertissement, 0 traité aujourd'hui sur 1
 
+  Scénario: La fiche de la campagne montre ses traités du jour sur son plafond
+    Soit la campagne "Relance PHP" démarrée par e-mail avec "Ada Lovelace" puis "Grace Hopper", son message pour une IA "tel quel"
+    Et je fixe le plafond de "Relance PHP" à 30 envois par jour
+    Et "Ada Lovelace" est traitée dans la campagne "Relance PHP"
+    Quand je consulte la campagne "Relance PHP"
+    Alors elle montre 1 traité aujourd'hui sur un plafond de 30
+
   Scénario: Dépasser le plafond du jour n'est pas refusé
     Soit la campagne "Relance PHP" démarrée par e-mail avec "Ada Lovelace" puis "Grace Hopper", son message pour une IA "tel quel"
     Et je fixe le plafond de "Relance PHP" à 1 envoi par jour

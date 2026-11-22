@@ -14,6 +14,7 @@ use Prospecter\Core\Campaigns\Application\AddRecipient\AddRecipient;
 use Prospecter\Core\Campaigns\Application\AddRecipientsByTags\AddRecipientsByTags;
 use Prospecter\Core\Campaigns\Application\CampaignSheet;
 use Prospecter\Core\Campaigns\Application\ConsultCampaign\ConsultCampaign;
+use Prospecter\Core\Campaigns\Application\ConsultCampaign\KeptCampaign;
 use Prospecter\Core\Campaigns\Application\DiscardCampaign\DiscardCampaign;
 use Prospecter\Core\Campaigns\Application\DismissRecipient\DismissRecipient;
 use Prospecter\Core\Campaigns\Application\EraseCampaign\EraseCampaign;
@@ -91,6 +92,7 @@ final class CampaignContext implements Context
     private array $campaignNames = [];
     private ?CampaignMessage $rendered = null;
     private ?RecipientToHandle $next = null;
+    private ?KeptCampaign $consulted = null;
     private ?SendingNoted $lastSending = null;
     /** @var list<CampaignSheet> */
     private array $listed = [];
@@ -919,7 +921,15 @@ final class CampaignContext implements Context
     public function iConsultTheCampaign(string $name): void
     {
         $this->current = $name;
-        $this->application->consultCampaign(new ConsultCampaign($this->application->signedIn(), $this->currentId()));
+        $this->consulted = $this->application->consultCampaign($this->consultation());
+    }
+
+    #[Then('elle montre :processed traité aujourd\'hui sur un plafond de :cap')]
+    public function itShowsTheProcessedTodayOutOfItsDailyCap(int $processed, int $cap): void
+    {
+        $consulted = Expect::present($this->consulted, sprintf('The campaign was refused: %s', $this->application->refusal()?->getMessage()));
+
+        Expect::same([$processed, $cap], [$consulted->processedToday, $consulted->campaign?->dailyCap]);
     }
 
     #[Then('la campagne :name est en brouillon')]
@@ -1157,8 +1167,16 @@ final class CampaignContext implements Context
 
     private function sheet(): CampaignSheet
     {
-        return $this->application->consultCampaign(new ConsultCampaign($this->application->signedIn(), $this->currentId()))->campaign
+        return $this->application->consultCampaign($this->consultation())?->campaign
             ?? throw new \LogicException(sprintf('The campaign was refused: %s', $this->application->refusal()?->getMessage()));
+    }
+
+    /**
+     * As the member reads it, on their clock.
+     */
+    private function consultation(): ConsultCampaign
+    {
+        return new ConsultCampaign($this->application->signedIn(), $this->currentId(), $this->application->readerClock()->getName(), $this->application->now());
     }
 
     private function renderedMessage(): CampaignMessage

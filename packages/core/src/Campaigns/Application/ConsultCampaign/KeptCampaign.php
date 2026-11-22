@@ -10,10 +10,12 @@ final class KeptCampaign implements ConsultCampaignOutput
 {
     public private(set) ?CampaignSheet $campaign = null;
     public private(set) int $targeted = 0;
+    public private(set) int $processedToday = 0;
 
-    public function present(CampaignSheet $campaign, int $targeted): void
+    public function present(CampaignSheet $campaign, int $targeted, int $processedToday): void
     {
         $this->campaign = $campaign;
         $this->targeted = $targeted;
+        $this->processedToday = $processedToday;
     }
 }
