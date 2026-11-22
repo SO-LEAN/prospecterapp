@@ -93,6 +93,21 @@ final readonly class ExchangeWrites
         return $exchange;
     }
 
+    /**
+     * It does the same as dispatched() for an endpoint without an input.
+     *
+     * @param \Closure(ExchangeDetail, string, \DateTimeImmutable): object $command the command of the endpoint, for the exchange, by the member, at this moment
+     *
+     * @return ExchangeDetail the exchange as it was before
+     */
+    public function changed(string $id, \Closure $command, string ...$attributes): ExchangeDetail
+    {
+        $exchange = $this->writable($id, ...$attributes);
+        $this->dispatch($exchange, $command($exchange, $this->access->member()->memberId(), $this->clock->now()));
+
+        return $exchange;
+    }
+
     private function dispatch(ExchangeDetail $exchange, object $command, ?int $revision = null): void
     {
         $this->commandBus->dispatch($command, $this->revisions->readAt($exchange->id, $revision));
