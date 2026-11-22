@@ -782,7 +782,7 @@ export const fr = {
     progressLabel: '{{handled}} traités sur {{targeted}} ciblés',
     dailyCap: {
       label: 'Plafond par jour',
-      hint: 'Le plus de destinataires traités par jour : l’IA s’y arrête et vous demande si elle le dépasse.',
+      hint: 'Le plus de destinataires traités par jour : l’IA s’y arrête et vous demande si elle le dépasse.',
       save: 'Enregistrer le plafond',
       saved: 'Plafond enregistré.',
       today: '{{processed}} / {{cap}} aujourd’hui',
