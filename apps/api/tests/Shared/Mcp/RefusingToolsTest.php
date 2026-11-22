@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\App\Shared\Mcp;
 
 use App\Security\AccessProblems;

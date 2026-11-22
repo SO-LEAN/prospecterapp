@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Prospecting\Resource;
 
 use OpenApi\Attributes as OA;

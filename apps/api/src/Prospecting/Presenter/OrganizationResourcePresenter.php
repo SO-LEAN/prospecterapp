@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Prospecting\Presenter;
 
 use App\Prospecting\Persistence\OrganizationRevisions;

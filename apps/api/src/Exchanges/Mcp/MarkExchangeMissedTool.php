@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Exchanges\Mcp;
 
 use App\Shared\Mcp\Adapts;

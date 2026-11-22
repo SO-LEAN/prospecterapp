@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Keys;
 
 use App\Accounts\Persistence\DynamoAccountRepository;

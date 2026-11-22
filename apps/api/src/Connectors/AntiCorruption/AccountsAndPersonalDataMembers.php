@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Connectors\AntiCorruption;
 
 use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\ConsultMembers;

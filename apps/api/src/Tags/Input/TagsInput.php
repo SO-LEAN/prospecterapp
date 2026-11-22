@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tags\Input;
 
 use OpenApi\Attributes as OA;

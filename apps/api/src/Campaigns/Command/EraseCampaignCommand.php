@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Campaigns\Command;
 
 use App\Shared\CommandBus;

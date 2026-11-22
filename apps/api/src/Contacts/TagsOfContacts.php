@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Contacts;
 
 use Prospecter\Core\Campaigns\Application\ConsultContactTags\ConsultContactTags;

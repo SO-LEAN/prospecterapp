@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\App\PersonalData;
 
 use Prospecter\Core\PersonalData\Application\Port\DesignatedContactRetriever;

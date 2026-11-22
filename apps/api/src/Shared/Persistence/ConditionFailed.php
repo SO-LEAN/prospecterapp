@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Shared\Persistence;
 
 use Aws\DynamoDb\Exception\DynamoDbException;

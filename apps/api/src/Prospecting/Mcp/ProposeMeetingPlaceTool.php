@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Prospecting\Mcp;
 
 use App\Prospecting\Presenter\MeetingPlacePresenter;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\App\Booking;
 
 use App\Booking\Persistence\DynamoRateLimiterStorage;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Prospecting\Controller;
 
 use App\Prospecting\OrganizationReader;

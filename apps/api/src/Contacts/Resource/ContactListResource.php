@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Contacts\Resource;
 
 use Symfony\Component\Serializer\Attribute\Context;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Me\Mcp;
 
 use App\PersonalData\Input\PersonNameInput;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\ToDos\Controller;
 
 use App\Security\User;

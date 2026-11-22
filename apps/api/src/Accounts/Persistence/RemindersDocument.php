@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Accounts\Persistence;
 
 use Prospecter\Core\Accounts\Domain\Model\ReminderDelay;

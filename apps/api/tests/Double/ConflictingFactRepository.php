@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\App\Double;
 
 use App\Shared\Persistence\ConditionFailed;

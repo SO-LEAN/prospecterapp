@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Identification;
 
 use App\Identification\Resource\CandidateResource;
