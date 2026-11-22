@@ -23,13 +23,16 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 - **Small**, then smaller. A function rarely needs more than a few lines; blocks inside `if`, `else`, `while`, `try` are one line, a call to a well-named function.
 - **Do one thing**: if a part can be extracted with a name that is not a restatement, the function did more than one thing. *Extract till you drop.*
 - **One level of abstraction per function**, and read top-down: each function is followed by those it calls (*stepdown rule*). `StartProspectingHandler::__invoke()` reads as a list of steps.
-- **Few arguments**: zero, one, two; three is suspicious; more needs an *argument object*. PHP named arguments make long lists readable at the call site, they do not make them acceptable.
+- **Few arguments**: zero, one, two; three is suspicious; more needs an *argument object*. PHP named arguments make long lists readable at the call site, they do not make them acceptable. A public method of the domain takes four parameters at most, constructors exempt (ADR 0191). An argument object groups values that go together, named in the domain's words: `Gesture` (who acts, in which account, when, by hand or through an AI), `Correspondent`, `Noting`.
 - **No flag arguments**: a `bool` parameter means the function does two things; write two functions, or pass an `enum` when it is a real variant.
 - **No output arguments**: return a value, never modify a parameter to give a result back. A query's output port is the exception: the use case presents its answer to it, as Robert C. Martin's use cases do (ADR 0085).
 - **No hidden side effects**: a function does what its name says, nothing else.
 - **Command-query separation**: a method either changes state (command, returns `void`) or answers a question (query, no change), never both. A presenter receives an answer (`present()`, `void`) and is read apart.
 - **Prefer exceptions to error codes**; extract the `try/catch` body into its own function; a function that handles an error does nothing else.
 - **`switch`/`match` on a type only once**, at a boundary or in a factory; elsewhere, polymorphism.
+
+**Known debt**
+- Outside `Exchange` and `ExchangeFacts`, some public methods of the core still take more than four parameters; they move to `Gesture` and their own argument objects when a branch touches them.
 
 ## 3. Comments
 

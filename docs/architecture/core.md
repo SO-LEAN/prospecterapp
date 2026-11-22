@@ -29,6 +29,7 @@ A folder exists only when it holds something. The shared kernel stays flat, sinc
   - `File`;
   - `MessageId`: an e-mail's `Message-ID` header, which Connectors and Prospecting identify the same way (ADR 0154, 0166);
   - `Origin`: how an organization, a contact or an exchange was created, by hand or by an AI through the MCP server (ADR 0185);
+  - `Gesture`: who acts, in which account, when, and the `Origin` of the act, the argument object of every aggregate's factories (ADR 0191);
   - `Completion`: what a client knows about a person or an organization compared with what is recorded: the fields it would fill, empty until then, and the fields where it gives something else (ADR 0177);
   - `Slice`: a list, newest first, with the cursor to what follows (ADR 0049);
   - `SearchKey` and `SearchKeys`: an aggregate is found by the start of its name or email, ignoring accents, case, spaces and punctuation (ADR 0071);
