@@ -69,19 +69,24 @@ final class BookingPage implements ReleasesEvents
 
     public function addInactivePeriod(InactivePeriod $period, \DateTimeImmutable $at): void
     {
-        $this->inactivePeriods[$period->id->value] = $period;
+        $this->inactivePeriods[self::keyOf($period->id)] = $period;
         $this->changedAt($at);
         $this->recordThat(new InactivePeriodAdded($this->accountId, $this->host, $period->id, $at));
     }
 
     public function removeInactivePeriod(InactivePeriodId $period, \DateTimeImmutable $at): void
     {
-        if (!isset($this->inactivePeriods[$period->value])) {
+        if (!isset($this->inactivePeriods[self::keyOf($period)])) {
             throw UnknownInactivePeriod::identifiedBy($period);
         }
-        unset($this->inactivePeriods[$period->value]);
+        unset($this->inactivePeriods[self::keyOf($period)]);
         $this->changedAt($at);
         $this->recordThat(new InactivePeriodRemoved($this->accountId, $this->host, $period, $at));
+    }
+
+    private static function keyOf(InactivePeriodId $period): string
+    {
+        return $period->value;
     }
 
     public function offer(OfferedChannels $channels, \DateTimeImmutable $at): void
