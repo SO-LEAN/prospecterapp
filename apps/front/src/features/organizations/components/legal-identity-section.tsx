@@ -30,9 +30,10 @@ export function LegalIdentitySection({ organization }: { organization: Organizat
           schema={organizationIdentitySchema}
           defaultValues={toOrganizationIdentityValues(identity)}
           fields={organizationIdentityFields}
-          save={(values) =>
+          revision={organization.revision}
+          save={(values, revision) =>
             revise.mutateAsync({
-              params: { path: { id: organization.id } },
+              params: { path: { id: organization.id }, query: { revision } },
               body: toOrganizationIdentity(values),
             })
           }

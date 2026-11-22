@@ -30,9 +30,10 @@ export function ContactDetailsSection({ organization }: { organization: Organiza
           schema={organizationContactDetailsSchema}
           defaultValues={toOrganizationContactDetailsValues(contact)}
           fields={organizationContactDetailsFields}
-          save={(values) =>
+          revision={organization.revision}
+          save={(values, revision) =>
             change.mutateAsync({
-              params: { path: { id: organization.id } },
+              params: { path: { id: organization.id }, query: { revision } },
               body: toOrganizationContactDetails(values),
             })
           }

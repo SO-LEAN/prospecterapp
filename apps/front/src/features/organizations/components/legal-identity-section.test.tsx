@@ -76,10 +76,13 @@ function renderTheSection(organization: Organization) {
   return userEvent.setup()
 }
 
-const sentTo = async (path: string) => {
-  const request = theApi.mock.calls.map(([sent]) => sent as Request).find((sent) => sent.url.endsWith(path))
-  return request?.json()
-}
+const requestTo = (path: string) =>
+  theApi.mock.calls.map(([sent]) => sent as Request).find((sent) => new URL(sent.url).pathname === path)
+
+const revisionSentTo = (path: string) =>
+  new URL(requestTo(path)?.url ?? 'http://none').searchParams.get('revision')
+
+const sentTo = async (path: string) => requestTo(path)?.json()
 
 async function openTheIdentity(user: ReturnType<typeof userEvent.setup>) {
   await user.click(screen.getByRole('button', { name: /^Modifier.*Identité$/ }))
@@ -113,6 +116,17 @@ describe('the legal identity of an organization', () => {
       type: null,
       siret: '552 100 554 00013',
     })
+  })
+
+  it('saves on the revision the organization was read at', async () => {
+    const user = renderTheSection(anOrganization({ revision: 7 }))
+    theApi.mockResolvedValue(Response.json(anOrganization({ revision: 8 })))
+
+    await openTheIdentity(user)
+    await user.click(screen.getByRole('button', { name: 'Enregistrer' }))
+
+    await screen.findByRole('button', { name: /^Modifier.*Identité$/ })
+    expect(revisionSentTo(`/api/organizations/${ACME}/legal-identity`)).toBe('7')
   })
 
   it('shows a SIRET another organization of the account has on its field, naming that organization', async () => {
