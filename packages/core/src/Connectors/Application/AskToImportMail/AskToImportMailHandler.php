@@ -6,6 +6,7 @@ namespace Prospecter\Core\Connectors\Application\AskToImportMail;
 
 use Prospecter\Core\Connectors\Domain\Exception\MailImportUnavailable;
 use Prospecter\Core\Connectors\Domain\Exception\ProviderUnavailable;
+use Prospecter\Core\Connectors\Domain\Model\AuthorizationRequest;
 use Prospecter\Core\Connectors\Domain\Model\PendingAuthorization;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Model\Scope;
@@ -31,6 +32,6 @@ final readonly class AskToImportMailHandler implements CommandHandler
         $client = $this->clients->find($this->members->get($me)->accountId, $provider) ?? throw ProviderUnavailable::withoutClient($provider);
         $client->mailboxNotifications() ?? throw MailImportUnavailable::withoutTopic();
 
-        $this->authorizations->keep(PendingAuthorization::askedBy($me, $provider, $command->state, $command->codeVerifier, $command->executedAt, Scope::Calendar, Scope::Mailbox));
+        $this->authorizations->keep(PendingAuthorization::askedBy($me, new AuthorizationRequest($provider, $command->state, $command->codeVerifier, [Scope::Calendar, Scope::Mailbox]), $command->executedAt));
     }
 }

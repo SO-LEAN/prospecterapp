@@ -4,6 +4,7 @@ namespace Tests\App\Connectors;
 
 use App\Connectors\Persistence\ConnectorsKeys;
 use App\Shared\Persistence\Table;
+use Prospecter\Core\Connectors\Domain\Model\AuthorizationRequest;
 use Prospecter\Core\Connectors\Domain\Model\PendingAuthorization;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Model\Scope;
@@ -23,7 +24,7 @@ class DynamoAuthorizationRepositoryTest extends ApiTestCase
 
     public function testTheTableForgetsAnAuthorizationAnHourAfterItWasKept(): void
     {
-        $asked = PendingAuthorization::askedBy(new MemberId(self::newIdentity()), Provider::Google, self::STATE, 'a-verifier', new \DateTimeImmutable('2026-10-15 09:00:00 UTC'));
+        $asked = PendingAuthorization::askedBy(new MemberId(self::newIdentity()), new AuthorizationRequest(Provider::Google, self::STATE, 'a-verifier'), new \DateTimeImmutable('2026-10-15 09:00:00 UTC'));
 
         self::getContainer()->get(AuthorizationRepository::class)->keep($asked);
 
@@ -34,7 +35,7 @@ class DynamoAuthorizationRepositoryTest extends ApiTestCase
 
     public function testAnAuthorizationKeepsTheScopesAsked(): void
     {
-        $asked = PendingAuthorization::askedBy(new MemberId(self::newIdentity()), Provider::Google, self::STATE, 'a-verifier', new \DateTimeImmutable('2026-10-15 09:00:00 UTC'), Scope::Calendar, Scope::Mailbox);
+        $asked = PendingAuthorization::askedBy(new MemberId(self::newIdentity()), new AuthorizationRequest(Provider::Google, self::STATE, 'a-verifier', [Scope::Calendar, Scope::Mailbox]), new \DateTimeImmutable('2026-10-15 09:00:00 UTC'));
 
         self::getContainer()->get(AuthorizationRepository::class)->keep($asked);
 
