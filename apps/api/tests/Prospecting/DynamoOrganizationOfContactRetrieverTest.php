@@ -34,7 +34,7 @@ class DynamoOrganizationOfContactRetrieverTest extends ApiTestCase
         $group = $this->prospect($prospector, 'Groupe ACME', $ada);
         $this->prospect(new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity())), 'Another account', $ada);
 
-        $organizations = self::getContainer()->get(OrganizationOfContactRetriever::class)->ofContacts([$ada, $grace, $alone], $prospector->accountId);
+        $organizations = self::service(OrganizationOfContactRetriever::class)->ofContacts([$ada, $grace, $alone], $prospector->accountId);
 
         $this->assertEqualsCanonicalizing([$acme->id()->value, $group->id()->value], self::idsOf($organizations[$ada->value]));
         $this->assertSame([$acme->id()->value], self::idsOf($organizations[$grace->value]));
@@ -50,7 +50,7 @@ class DynamoOrganizationOfContactRetrieverTest extends ApiTestCase
             $organization->addContact($contact, $prospector->id, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         }
 
-        self::getContainer()->get(OrganizationRepository::class)->save($organization);
+        self::service(OrganizationRepository::class)->save($organization);
 
         return $organization;
     }

@@ -9,7 +9,7 @@ use App\Prospecting\Persistence\ExchangeKeys;
 use App\Shared\Persistence\ConditionFailed;
 use App\Shared\Persistence\DynamoUnitOfWork;
 use App\Shared\Persistence\Hydrator;
-use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\Prospecting\Domain\Exception\ExchangeNotedMeanwhile;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownExchange;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
@@ -147,8 +147,8 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
         $exchange->declareConform(by: $this->prospector->id, at: new \DateTimeImmutable(self::NOW));
         $exchanges->save($exchange);
 
-        $item = $this->prospectingTable()->item(ExchangeKeys::exchange($exchange->id()->value), ExchangeKeys::EXCHANGE);
-        $this->assertSame($this->prospector->id->value, $item['exchange']['redacted']['by']);
+        $item = self::storedItem(self::tableOf('prospecting'), ExchangeKeys::exchange($exchange->id()->value), ExchangeKeys::EXCHANGE);
+        $this->assertSame($this->prospector->id->value, Typed::document(Typed::document($item['exchange'])['redacted'])['by']);
         $read = $exchanges->get($exchange->id());
         $this->assertEquals(new Correction($this->prospector->id, new \DateTimeImmutable(self::NOW)), Hydrator::stateOf($read)['madeConform']);
         $this->assertFalse($read->isToMakeConform());
@@ -185,7 +185,7 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
         $imported = $this->imported(new ImportedEmail('google', 'f00d', '18c2f4a9e0b1d3c7'));
         $exchanges->save($imported);
 
-        $this->assertSame('18c2f4a9e0b1d3c7', Hydrator::stateOf($exchanges->get($imported->id()))['importedFrom']->providerMessageId);
+        $this->assertSame('18c2f4a9e0b1d3c7', Typed::object(Hydrator::stateOf($exchanges->get($imported->id()))['importedFrom'], ImportedEmail::class)->providerMessageId);
     }
 
     public function testAnExchangeImportedBeforeTheIdOfItsMessageWasKeptHasNone(): void
@@ -193,11 +193,13 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
         $exchanges = $this->exchanges();
         $imported = $this->imported();
         $exchanges->save($imported);
-        $item = $this->prospectingTable()->item(ExchangeKeys::exchange($imported->id()->value), ExchangeKeys::EXCHANGE);
-        unset($item['exchange']['importedFrom']['providerMessageId']);
-        $this->prospectingTable()->batch([$item]);
+        $item = self::storedItem(self::tableOf('prospecting'), ExchangeKeys::exchange($imported->id()->value), ExchangeKeys::EXCHANGE);
+        $document = Typed::document($item['exchange']);
+        $importedFrom = Typed::document($document['importedFrom']);
+        unset($importedFrom['providerMessageId']);
+        self::tableOf('prospecting')->batch([['exchange' => ['importedFrom' => $importedFrom] + $document] + $item]);
 
-        $this->assertNull(Hydrator::stateOf($exchanges->get($imported->id()))['importedFrom']->providerMessageId);
+        $this->assertNull(Typed::object(Hydrator::stateOf($exchanges->get($imported->id()))['importedFrom'], ImportedEmail::class)->providerMessageId);
     }
 
     public function testANotedExchangeIsFoundByItsFingerprint(): void
@@ -283,9 +285,9 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
         $imported = $this->imported();
         $this->exchanges()->save($imported);
         $this->writtenBeforeTheFingerprints($imported);
-        $this->prospectingTable()->batch([], [[ExchangeKeys::fingerprint($imported->accountId()->value, self::fingerprintOf($imported)->value), ExchangeKeys::FINGERPRINT]]);
+        self::tableOf('prospecting')->batch([], [[ExchangeKeys::fingerprint($imported->accountId()->value, self::fingerprintOf($imported)->value), ExchangeKeys::FINGERPRINT]]);
 
-        self::getContainer()->get(DynamoExchangeRepository::class)->writeTheKeysAgain();
+        self::service(DynamoExchangeRepository::class)->writeTheKeysAgain();
 
         $this->assertEquals(new Fingerprinted($imported->id()), $this->exchanges()->fingerprinted($this->prospector->accountId, self::fingerprintOf($imported)));
     }
@@ -301,7 +303,7 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
     {
         $exchange = $this->noted('2026-10-10 09:00 UTC');
         $this->exchanges()->save($exchange);
-        $unitOfWork = self::getContainer()->get(DynamoUnitOfWork::class);
+        $unitOfWork = self::service(DynamoUnitOfWork::class);
         $unitOfWork->begin();
         $read = $this->exchanges()->get($exchange->id());
         $theirs = $this->anotherRequestCorrects($exchange->id(), 'Objet : mission');
@@ -322,7 +324,7 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
     {
         $exchange = $this->noted('2026-10-10 09:00 UTC');
         $this->exchanges()->save($exchange);
-        $unitOfWork = self::getContainer()->get(DynamoUnitOfWork::class);
+        $unitOfWork = self::service(DynamoUnitOfWork::class);
         $unitOfWork->begin();
         $read = $this->exchanges()->get($exchange->id());
         $theirs = $this->anotherRequestCorrects($exchange->id(), 'Objet : mission');
@@ -340,7 +342,7 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
 
     private function anotherRequestCorrects(ExchangeId $exchange, string $text): ExchangeFacts
     {
-        $exchanges = new DynamoExchangeRepository($this->asAnotherRequest($this->prospectingTable()));
+        $exchanges = new DynamoExchangeRepository($this->asAnotherRequest(self::tableOf('prospecting')));
         $correcting = $exchanges->get($exchange);
         $corrected = new ExchangeFacts(Channel::Email, Direction::Outbound, new \DateTimeImmutable('2026-10-12 10:00 UTC'), $text);
         $correcting->correct($corrected, ExchangeStatus::Done, by: $this->prospector->id, at: new \DateTimeImmutable(self::NOW));
@@ -367,17 +369,10 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
      */
     private function writtenBeforeTheFingerprints(Exchange $exchange): void
     {
-        $item = $this->prospectingTable()->item(ExchangeKeys::exchange($exchange->id()->value), ExchangeKeys::EXCHANGE);
-        unset($item['exchange']['fingerprint']);
-        $this->prospectingTable()->batch([$item]);
-    }
-
-    private function prospectingTable(): Table
-    {
-        $table = self::getContainer()->get('app.table.prospecting');
-        $this->assertInstanceOf(Table::class, $table);
-
-        return $table;
+        $item = self::storedItem(self::tableOf('prospecting'), ExchangeKeys::exchange($exchange->id()->value), ExchangeKeys::EXCHANGE);
+        $document = Typed::document($item['exchange']);
+        unset($document['fingerprint']);
+        self::tableOf('prospecting')->batch([['exchange' => $document] + $item]);
     }
 
     private static function fingerprintOf(Exchange $exchange): ExchangeFingerprint
@@ -387,6 +382,6 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
 
     private function exchanges(): ExchangeRepository
     {
-        return self::getContainer()->get(ExchangeRepository::class);
+        return self::service(ExchangeRepository::class);
     }
 }

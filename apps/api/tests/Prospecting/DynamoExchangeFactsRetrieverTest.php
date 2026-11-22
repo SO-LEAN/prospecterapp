@@ -6,7 +6,6 @@ namespace Tests\App\Prospecting;
 
 use App\Prospecting\Persistence\DynamoExchangeRepository;
 use App\Prospecting\Persistence\ExchangeKeys;
-use App\Shared\Persistence\Table;
 use Prospecter\Core\Prospecting\Application\Port\ExchangeFactsRetriever;
 use Prospecter\Core\Prospecting\Contract\Service\ListExchangeFacts\ExchangeFactsResponse;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
@@ -96,13 +95,12 @@ class DynamoExchangeFactsRetrieverTest extends ApiTestCase
     {
         $exchange = $this->noted('2026-10-10 09:00 UTC');
         $this->exchanges()->save($exchange);
-        $table = self::getContainer()->get('app.table.prospecting');
-        $this->assertInstanceOf(Table::class, $table);
-        $item = $table->item(ExchangeKeys::exchange($exchange->id()->value), ExchangeKeys::EXCHANGE);
+        $table = self::tableOf('prospecting');
+        $item = self::storedItem($table, ExchangeKeys::exchange($exchange->id()->value), ExchangeKeys::EXCHANGE);
         unset($item['GSI2PK'], $item['GSI2SK']);
         $table->batch([$item]);
 
-        self::getContainer()->get(DynamoExchangeRepository::class)->writeTheKeysAgain();
+        self::service(DynamoExchangeRepository::class)->writeTheKeysAgain();
 
         $this->assertSame([$exchange->id()->value], self::idsOf($this->retriever()->sliceOf($this->prospector->accountId, null, 10)->content));
         $this->assertSame(1, $this->retriever()->of($exchange->id())->revision);
@@ -125,11 +123,11 @@ class DynamoExchangeFactsRetrieverTest extends ApiTestCase
 
     private function exchanges(): ExchangeRepository
     {
-        return self::getContainer()->get(ExchangeRepository::class);
+        return self::service(ExchangeRepository::class);
     }
 
     private function retriever(): ExchangeFactsRetriever
     {
-        return self::getContainer()->get(ExchangeFactsRetriever::class);
+        return self::service(ExchangeFactsRetriever::class);
     }
 }

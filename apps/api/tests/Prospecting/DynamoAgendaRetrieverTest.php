@@ -58,7 +58,7 @@ class DynamoAgendaRetrieverTest extends ApiTestCase
         $this->plannedBy($this->me, '2026-11-18 00:00 UTC');
         $this->plannedBy($this->me, '2026-11-16 23:59 UTC');
 
-        $inTheDay = self::getContainer()->get(AgendaRetriever::class)->plannedIn($this->me, new CalendarPeriod(new \DateTimeImmutable('2026-11-17 00:00 UTC'), new \DateTimeImmutable('2026-11-18 00:00 UTC')));
+        $inTheDay = self::service(AgendaRetriever::class)->plannedIn($this->me, new CalendarPeriod(new \DateTimeImmutable('2026-11-17 00:00 UTC'), new \DateTimeImmutable('2026-11-18 00:00 UTC')));
 
         $this->assertSame([self::idOf($atMidnight), self::idOf($atNoon)], self::idsOf($inTheDay));
     }
@@ -71,7 +71,7 @@ class DynamoAgendaRetrieverTest extends ApiTestCase
         $second = $this->plannedBy($this->me, '2026-11-19 09:00 UTC');
         $this->plannedBy($this->me, '2026-11-21 09:00 UTC');
 
-        $next = self::getContainer()->get(AgendaRetriever::class)->firstPlannedFrom($this->me, new \DateTimeImmutable('2026-11-18 00:00 UTC'), 3);
+        $next = self::service(AgendaRetriever::class)->firstPlannedFrom($this->me, new \DateTimeImmutable('2026-11-18 00:00 UTC'), 3);
 
         $this->assertSame([self::idOf($first), self::idOf($second), self::idOf($third)], self::idsOf($next));
     }
@@ -82,7 +82,7 @@ class DynamoAgendaRetrieverTest extends ApiTestCase
         $recent = $this->plannedBy($this->me, '2026-11-17 13:59 UTC');
         $old = $this->plannedBy($this->me, '2026-11-14 09:00 UTC');
 
-        $started = self::getContainer()->get(AgendaRetriever::class)->plannedBefore($this->me, new \DateTimeImmutable('2026-11-17 14:00 UTC'));
+        $started = self::service(AgendaRetriever::class)->plannedBefore($this->me, new \DateTimeImmutable('2026-11-17 14:00 UTC'));
 
         $this->assertSame([self::idOf($old), self::idOf($recent)], self::idsOf($started));
     }
@@ -125,7 +125,7 @@ class DynamoAgendaRetrieverTest extends ApiTestCase
      */
     private function idsInMyAgendaBetween(string $from, string $until): array
     {
-        return self::idsOf(self::getContainer()->get(AgendaRetriever::class)->plannedBy($this->me, new \DateTimeImmutable($from), new \DateTimeImmutable($until)));
+        return self::idsOf(self::service(AgendaRetriever::class)->plannedBy($this->me, new \DateTimeImmutable($from), new \DateTimeImmutable($until)));
     }
 
     /**
@@ -145,6 +145,6 @@ class DynamoAgendaRetrieverTest extends ApiTestCase
 
     private function exchanges(): ExchangeRepository
     {
-        return self::getContainer()->get(ExchangeRepository::class);
+        return self::service(ExchangeRepository::class);
     }
 }

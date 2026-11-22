@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace Tests\App\Prospecting;
 
 use App\Prospecting\Persistence\DynamoOrganizationRepository;
-use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use PHPUnit\Framework\Attributes\Group;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Base\ReadsResources;
 
 /**
  * An organization is found by the beginning of its corporate name or of its email, read in the indexes of
@@ -16,6 +17,8 @@ use Tests\App\Base\ApiTestCase;
 #[Group('api')]
 class OrganizationSearchTest extends ApiTestCase
 {
+    use ReadsResources;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -39,15 +42,15 @@ class OrganizationSearchTest extends ApiTestCase
 
     public function testTheOrganizationsFoundComeNewestFirstAfterTheCursor(): void
     {
-        $ids = array_map(fn (string $name): string => $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => $name]])['id'], ['Acme 1', 'Acme 2', 'Acme 3']);
+        $ids = array_map(fn (string $name): string => self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => $name]]), 'id'), ['Acme 1', 'Acme 2', 'Acme 3']);
 
         $this->assertSame(['Acme 3', 'Acme 2', 'Acme 1'], $this->found('acme'));
-        $this->assertSame(['Acme 2', 'Acme 1'], array_column($this->requestJson('GET', '/api/organizations?q=acme&after='.$ids[2])['items'], 'name'));
+        $this->assertSame(['Acme 2', 'Acme 1'], self::namesOf($this->requestJson('GET', '/api/organizations?q=acme&after='.$ids[2])));
     }
 
     public function testARenamedOrganizationIsFoundByItsNewNameOnly(): void
     {
-        $id = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'Initech']])['id'];
+        $id = self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'Initech']]), 'id');
 
         $this->requestJson('PATCH', '/api/organizations/'.$id.'/legal-identity', ['corporateName' => 'Umbrella', 'form' => null, 'type' => null]);
 
@@ -57,7 +60,7 @@ class OrganizationSearchTest extends ApiTestCase
 
     public function testAnOrganizationNoLongerProspectedIsNotFound(): void
     {
-        $id = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'Initech']])['id'];
+        $id = self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'Initech']]), 'id');
 
         $this->requestJson('DELETE', '/api/organizations/'.$id);
 
@@ -66,11 +69,10 @@ class OrganizationSearchTest extends ApiTestCase
 
     public function testTheKeysAreWrittenAgainAndTheFormerSearchForgotten(): void
     {
-        $table = self::getContainer()->get('app.table.prospecting');
-        $this->assertInstanceOf(Table::class, $table);
+        $table = self::tableOf('prospecting');
         $table->batch([['PK' => 'TOKEN#former#b', 'SK' => 'subject'], ['PK' => 'TOKENS#subject', 'SK' => 'TOKENS']]);
 
-        $written = self::getContainer()->get(DynamoOrganizationRepository::class)->writeTheKeysAgain();
+        $written = self::service(DynamoOrganizationRepository::class)->writeTheKeysAgain();
 
         $this->assertSame(1, $written);
         $this->assertSame([], $table->scan('TOKEN'));
@@ -82,6 +84,16 @@ class OrganizationSearchTest extends ApiTestCase
      */
     private function found(string $search): array
     {
-        return array_column($this->requestJson('GET', '/api/organizations?q='.urlencode($search))['items'], 'name');
+        return self::namesOf($this->requestJson('GET', '/api/organizations?q='.urlencode($search)));
+    }
+
+    /**
+     * @param array<string, mixed> $page
+     *
+     * @return list<string>
+     */
+    private static function namesOf(array $page): array
+    {
+        return Typed::strings(array_column(self::records(self::valueAt($page, 'items')), 'name'));
     }
 }

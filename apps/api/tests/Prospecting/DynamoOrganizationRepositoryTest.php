@@ -8,11 +8,12 @@ use App\Prospecting\Persistence\DynamoOrganizationRepository;
 use App\Prospecting\Persistence\OrganizationKeys;
 use App\Shared\Persistence\ConditionFailed;
 use App\Shared\Persistence\DynamoUnitOfWork;
-use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\Prospecting\Domain\Exception\ReferenceAlreadyUsed;
 use Prospecter\Core\Prospecting\Domain\Exception\SiretAlreadyUsed;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
+use Prospecter\Core\Prospecting\Domain\Model\ResemblanceKey;
 use Prospecter\Core\Prospecting\Domain\Model\WebPresence;
 use Prospecter\Core\Prospecting\Domain\Model\Website;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
@@ -49,7 +50,7 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
 
     public function testTheReservationRefusesAnEmailTakenMeanwhile(): void
     {
-        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $organizations = self::service(OrganizationRepository::class);
         $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
         $organizations->save($this->organizationWithTheEmail($prospector, 'contact@acme.test'));
 
@@ -60,7 +61,7 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
 
     public function testAnotherAccountMayProspectTheSameOrganization(): void
     {
-        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $organizations = self::service(OrganizationRepository::class);
         $organizations->save($this->organizationWithTheEmail(new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity())), 'contact@acme.test'));
 
         $organizations->save($this->organizationWithTheEmail(new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity())), 'contact@acme.test'));
@@ -70,7 +71,7 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
 
     public function testANewEmailFreesTheFormerOne(): void
     {
-        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $organizations = self::service(OrganizationRepository::class);
         $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
         $acme = $this->organizationWithTheEmail($prospector, 'contact@acme.test');
         $organizations->save($acme);
@@ -84,7 +85,7 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
 
     public function testTheOrganizationsHavingEmailsAreFoundByTheirReservations(): void
     {
-        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $organizations = self::service(OrganizationRepository::class);
         $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
         $acme = $this->organizationWithTheEmail($prospector, 'contact@acme.test');
         $organizations->save($acme);
@@ -97,7 +98,7 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
 
     public function testTheOrganizationsNamingAContactAreFoundInItsAccount(): void
     {
-        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $organizations = self::service(OrganizationRepository::class);
         $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()), managesPersonalData: true);
         $ada = new PersonId(self::newIdentity());
         $acme = $this->organizationWithTheEmail($prospector, 'contact@acme.test');
@@ -116,7 +117,7 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
 
     public function testTheSubsidiariesOfAHoldingAreFound(): void
     {
-        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $organizations = self::service(OrganizationRepository::class);
         $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
         $holding = $this->organizationWithTheEmail($prospector, 'contact@group.test');
         $subsidiary = $this->organizationWithTheEmail($prospector, 'contact@subsidiary.test');
@@ -129,7 +130,7 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
 
     public function testTheOrganizationHoldingASiretIsFoundByIt(): void
     {
-        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $organizations = self::service(OrganizationRepository::class);
         $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
         $acme = $this->organizationWithTheSiret($prospector, self::A_SIRET);
         $organizations->save($acme);
@@ -139,7 +140,7 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
 
     public function testAnOrganizationIsNotFoundByItsOwnSiret(): void
     {
-        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $organizations = self::service(OrganizationRepository::class);
         $acme = $this->organizationWithTheSiret(new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity())), self::A_SIRET);
         $organizations->save($acme);
 
@@ -148,7 +149,7 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
 
     public function testTheReservationRefusesASiretTakenMeanwhile(): void
     {
-        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $organizations = self::service(OrganizationRepository::class);
         $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
         $organizations->save($this->organizationWithTheSiret($prospector, self::A_SIRET));
 
@@ -159,7 +160,7 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
 
     public function testANewSiretFreesTheFormerOne(): void
     {
-        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $organizations = self::service(OrganizationRepository::class);
         $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
         $acme = $this->organizationWithTheSiret($prospector, self::A_SIRET);
         $organizations->save($acme);
@@ -173,7 +174,7 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
 
     public function testAnOrganizationNoLongerProspectedFreesItsSiret(): void
     {
-        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $organizations = self::service(OrganizationRepository::class);
         $acme = $this->organizationWithTheSiret(new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity())), self::A_SIRET);
         $organizations->save($acme);
 
@@ -184,7 +185,7 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
 
     public function testAnOrganizationIsReadBackAsItWasSaved(): void
     {
-        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $organizations = self::service(OrganizationRepository::class);
         $acme = $this->organizationWithTheEmail(new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity())), 'contact@acme.test');
         $acme->releaseEvents();
         $organizations->save($acme);
@@ -194,7 +195,7 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
 
     public function testAnOrganizationAnAiStartedIsReadBackCreatedByAnAi(): void
     {
-        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $organizations = self::service(OrganizationRepository::class);
         $acme = Organization::prospectedBy(new Gesture(new AccountId(self::newIdentity()), new MemberId(self::newIdentity()), new \DateTimeImmutable('2026-10-18 19:00 UTC'), Origin::Ai), new OrganizationId(self::newIdentity()), new LegalIdentity('ACME'), new ContactDetails());
         $acme->releaseEvents();
         $organizations->save($acme);
@@ -204,7 +205,7 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
 
     public function testAnOrganizationIsReadBackWithItsSiret(): void
     {
-        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $organizations = self::service(OrganizationRepository::class);
         $acme = $this->organizationWithTheSiret(new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity())), self::A_SIRET);
         $acme->releaseEvents();
         $organizations->save($acme);
@@ -214,7 +215,7 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
 
     public function testTheOrganizationHoldingALinkIsFoundByAnotherAddressOfItsReference(): void
     {
-        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $organizations = self::service(OrganizationRepository::class);
         $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
         $acme = $this->organizationOnTheWeb($prospector, self::A_PAGE, null);
         $organizations->save($acme);
@@ -224,7 +225,7 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
 
     public function testTheReservationRefusesALinkTakenMeanwhile(): void
     {
-        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $organizations = self::service(OrganizationRepository::class);
         $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
         $organizations->save($this->organizationOnTheWeb($prospector, self::A_PAGE, null));
 
@@ -235,7 +236,7 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
 
     public function testALinkDroppedIsFreed(): void
     {
-        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $organizations = self::service(OrganizationRepository::class);
         $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
         $acme = $this->organizationOnTheWeb($prospector, self::A_PAGE, null);
         $organizations->save($acme);
@@ -248,7 +249,7 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
 
     public function testAnOrganizationNoLongerProspectedFreesItsLinks(): void
     {
-        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $organizations = self::service(OrganizationRepository::class);
         $acme = $this->organizationOnTheWeb(new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity())), self::A_PAGE, null);
         $organizations->save($acme);
 
@@ -259,7 +260,7 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
 
     public function testTheOrganizationHoldingAWebsiteIsFoundByAnotherAddressOfItsDomain(): void
     {
-        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $organizations = self::service(OrganizationRepository::class);
         $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
         $acme = $this->organizationOnTheWeb($prospector, null, self::A_SITE);
         $organizations->save($acme);
@@ -269,7 +270,7 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
 
     public function testANewWebsiteFreesTheDomainOfTheFormerOne(): void
     {
-        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $organizations = self::service(OrganizationRepository::class);
         $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
         $acme = $this->organizationOnTheWeb($prospector, null, self::A_SITE);
         $organizations->save($acme);
@@ -282,7 +283,7 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
 
     public function testAnOrganizationNoLongerProspectedFreesTheDomainOfItsWebsite(): void
     {
-        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $organizations = self::service(OrganizationRepository::class);
         $acme = $this->organizationOnTheWeb(new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity())), null, self::A_SITE);
         $organizations->save($acme);
 
@@ -295,30 +296,30 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
     {
         $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
         $acme = $this->organizationOnTheWeb($prospector, self::A_PAGE, null);
-        self::getContainer()->get(OrganizationRepository::class)->save($acme);
-        $this->prospectingTable()->batch([], [[sprintf('REFERENCE#%s#linkedInCompany#acme-corp', $prospector->accountId->value), 'REFERENCE']]);
+        self::service(OrganizationRepository::class)->save($acme);
+        self::tableOf('prospecting')->batch([], [[sprintf('REFERENCE#%s#linkedInCompany#acme-corp', $prospector->accountId->value), 'REFERENCE']]);
 
-        self::getContainer()->get(DynamoOrganizationRepository::class)->writeTheKeysAgain();
+        self::service(DynamoOrganizationRepository::class)->writeTheKeysAgain();
 
-        $this->assertEquals($acme->id(), self::getContainer()->get(OrganizationRepository::class)->withReference($prospector->accountId, self::reference(self::A_PAGE), except: new OrganizationId(self::newIdentity()))?->id());
+        $this->assertEquals($acme->id(), self::service(OrganizationRepository::class)->withReference($prospector->accountId, self::reference(self::A_PAGE), except: new OrganizationId(self::newIdentity()))?->id());
     }
 
     public function testTheKeysWrittenAgainTakeTheLinkedInPageOfAnOrganizationWrittenBeforeTheLinksAsOneOfThem(): void
     {
         $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
         $acme = $this->organizationOnTheWeb($prospector, self::A_PAGE, null);
-        self::getContainer()->get(OrganizationRepository::class)->save($acme);
+        self::service(OrganizationRepository::class)->save($acme);
         $this->writtenBeforeTheLinks($acme);
 
-        self::getContainer()->get(DynamoOrganizationRepository::class)->writeTheKeysAgain();
+        self::service(DynamoOrganizationRepository::class)->writeTheKeysAgain();
 
-        $this->assertEquals($acme->id(), self::getContainer()->get(OrganizationRepository::class)->withReference($prospector->accountId, self::reference(self::A_PAGE), except: new OrganizationId(self::newIdentity()))?->id());
-        $this->assertNull($this->prospectingTable()->item(sprintf('LINKEDIN_PAGE#%s#%s', $prospector->accountId->value, self::A_PAGE), 'LINKEDIN_PAGE'));
+        $this->assertEquals($acme->id(), self::service(OrganizationRepository::class)->withReference($prospector->accountId, self::reference(self::A_PAGE), except: new OrganizationId(self::newIdentity()))?->id());
+        $this->assertNull(self::tableOf('prospecting')->item(sprintf('LINKEDIN_PAGE#%s#%s', $prospector->accountId->value, self::A_PAGE), 'LINKEDIN_PAGE'));
     }
 
     public function testAnOrganizationWrittenBeforeTheLinksIsReadWithItsLinkedInPageAsOneOfThem(): void
     {
-        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $organizations = self::service(OrganizationRepository::class);
         $acme = $this->organizationOnTheWeb(new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity())), self::A_PAGE, null);
         $acme->releaseEvents();
         $organizations->save($acme);
@@ -331,53 +332,53 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
     {
         $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
         $acme = $this->organizationOnTheWeb($prospector, self::A_PAGE, null);
-        self::getContainer()->get(OrganizationRepository::class)->save($acme);
+        self::service(OrganizationRepository::class)->save($acme);
         $this->storedWithTheLink($acme, self::STORED_UNDER_ITS_HOST);
 
-        $this->assertSame([['linkedin.com', 'linkedin.com/company/acme-corp']], self::sourcesAndIdentifiersOf(self::getContainer()->get(OrganizationRepository::class)->get($acme->id())));
+        $this->assertSame([['linkedin.com', 'linkedin.com/company/acme-corp']], self::sourcesAndIdentifiersOf(self::service(OrganizationRepository::class)->get($acme->id())));
     }
 
     public function testTheKeysWrittenAgainRecognizeAgainALinkStoredUnderTheHostOfASourceKnownSince(): void
     {
         $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
         $acme = $this->organizationOnTheWeb($prospector, self::A_PAGE, null);
-        self::getContainer()->get(OrganizationRepository::class)->save($acme);
+        self::service(OrganizationRepository::class)->save($acme);
         $this->storedWithTheLink($acme, self::STORED_UNDER_ITS_HOST);
 
-        self::getContainer()->get(DynamoOrganizationRepository::class)->writeTheKeysAgain();
+        self::service(DynamoOrganizationRepository::class)->writeTheKeysAgain();
 
-        $this->assertSame([['linkedInCompany', 'acme-corp']], self::sourcesAndIdentifiersOf(self::getContainer()->get(OrganizationRepository::class)->get($acme->id())));
-        $this->assertEquals($acme->id(), self::getContainer()->get(OrganizationRepository::class)->withReference($prospector->accountId, self::reference(self::A_PAGE), except: new OrganizationId(self::newIdentity()))?->id());
-        $this->assertNull($this->prospectingTable()->item(sprintf('REFERENCE#%s#linkedin.com#linkedin.com/company/acme-corp', $prospector->accountId->value), 'REFERENCE'));
+        $this->assertSame([['linkedInCompany', 'acme-corp']], self::sourcesAndIdentifiersOf(self::service(OrganizationRepository::class)->get($acme->id())));
+        $this->assertEquals($acme->id(), self::service(OrganizationRepository::class)->withReference($prospector->accountId, self::reference(self::A_PAGE), except: new OrganizationId(self::newIdentity()))?->id());
+        $this->assertNull(self::tableOf('prospecting')->item(sprintf('REFERENCE#%s#linkedin.com#linkedin.com/company/acme-corp', $prospector->accountId->value), 'REFERENCE'));
     }
 
     public function testTheKeysWrittenAgainKeepAsItWasStoredALinkRefusedToday(): void
     {
         $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
         $acme = $this->organizationOnTheWeb($prospector, self::A_PAGE, null);
-        self::getContainer()->get(OrganizationRepository::class)->save($acme);
+        self::service(OrganizationRepository::class)->save($acme);
         $this->storedWithTheLink($acme, ['source' => 'linkedin.com', 'identifier' => 'linkedin.com/in/ada', 'address' => 'https://www.linkedin.com/in/ada']);
 
-        self::getContainer()->get(DynamoOrganizationRepository::class)->writeTheKeysAgain();
+        self::service(DynamoOrganizationRepository::class)->writeTheKeysAgain();
 
-        $this->assertSame([['linkedin.com', 'linkedin.com/in/ada']], self::sourcesAndIdentifiersOf(self::getContainer()->get(OrganizationRepository::class)->get($acme->id())));
+        $this->assertSame([['linkedin.com', 'linkedin.com/in/ada']], self::sourcesAndIdentifiersOf(self::service(OrganizationRepository::class)->get($acme->id())));
     }
 
     public function testTheKeysWrittenAgainReserveTheDomainOfTheWebsiteOfAnOrganization(): void
     {
         $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
         $acme = $this->organizationOnTheWeb($prospector, null, self::A_SITE);
-        self::getContainer()->get(OrganizationRepository::class)->save($acme);
-        $this->prospectingTable()->batch([], [[sprintf('WEBSITE#%s#acme.fr', $prospector->accountId->value), 'WEBSITE']]);
+        self::service(OrganizationRepository::class)->save($acme);
+        self::tableOf('prospecting')->batch([], [[sprintf('WEBSITE#%s#acme.fr', $prospector->accountId->value), 'WEBSITE']]);
 
-        self::getContainer()->get(DynamoOrganizationRepository::class)->writeTheKeysAgain();
+        self::service(DynamoOrganizationRepository::class)->writeTheKeysAgain();
 
-        $this->assertEquals($acme->id(), self::getContainer()->get(OrganizationRepository::class)->withWebsiteOfDomain($prospector->accountId, new Website(self::A_SITE), except: new OrganizationId(self::newIdentity()))?->id());
+        $this->assertEquals($acme->id(), self::service(OrganizationRepository::class)->withWebsiteOfDomain($prospector->accountId, new Website(self::A_SITE), except: new OrganizationId(self::newIdentity()))?->id());
     }
 
     public function testAnOrganizationIsReadBackWithItsLinksAndItsWebsite(): void
     {
-        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $organizations = self::service(OrganizationRepository::class);
         $acme = $this->organizationOnTheWeb(new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity())), self::A_PAGE, self::A_SITE);
         $acme->releaseEvents();
         $organizations->save($acme);
@@ -387,7 +388,7 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
 
     public function testTheOrganizationsThatExistAmongIdsAreReadInOneBatch(): void
     {
-        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $organizations = self::service(OrganizationRepository::class);
         $acme = $this->organizationWithTheEmail(new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity())), 'contact@acme.test');
         $organizations->save($acme);
 
@@ -398,33 +399,33 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
 
     public function testTheOrganizationsResemblingAnotherAreFoundByTheirKey(): void
     {
-        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $organizations = self::service(OrganizationRepository::class);
         $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
         $acme = $this->organizationIn($prospector, 'Acme SAS', 'Lyon');
         $organizations->save($acme);
 
-        $this->assertEquals([$acme->id()], $organizations->resembling($prospector->accountId, $this->organizationIn($prospector, 'ACME', 'Lyon')->resemblanceKey(), except: new OrganizationId(self::newIdentity())));
+        $this->assertEquals([$acme->id()], $organizations->resembling($prospector->accountId, self::resemblanceKeyOf($this->organizationIn($prospector, 'ACME', 'Lyon')), except: new OrganizationId(self::newIdentity())));
     }
 
     public function testAnOrganizationNoLongerProspectedResemblesNoOtherOne(): void
     {
-        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $organizations = self::service(OrganizationRepository::class);
         $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
         $acme = $this->organizationIn($prospector, 'Acme SAS', 'Lyon');
         $organizations->save($acme);
 
         $organizations->remove($acme);
 
-        $this->assertSame([], $organizations->resembling($prospector->accountId, $acme->resemblanceKey(), except: new OrganizationId(self::newIdentity())));
+        $this->assertSame([], $organizations->resembling($prospector->accountId, self::resemblanceKeyOf($acme), except: new OrganizationId(self::newIdentity())));
     }
 
     public function testAnOrganizationMovedNoLongerResemblesThoseOfItsFormerCity(): void
     {
-        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $organizations = self::service(OrganizationRepository::class);
         $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
         $acme = $this->organizationIn($prospector, 'Acme SAS', 'Lyon');
         $organizations->save($acme);
-        $formerKey = $acme->resemblanceKey();
+        $formerKey = self::resemblanceKeyOf($acme);
 
         $acme->relocateTo(new Address(city: 'Marseille'), null, by: $prospector->id, at: new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         $organizations->save($acme);
@@ -434,7 +435,7 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
 
     public function testAnOrganizationResemblingAnotherIsReadBackWithItsPossibleDuplicates(): void
     {
-        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $organizations = self::service(OrganizationRepository::class);
         $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
         $acme = $this->organizationIn($prospector, 'Acme SAS', 'Lyon');
         $acme->suspectDuplicateOf(new OrganizationId(self::newIdentity()), by: $prospector->id, at: new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
@@ -448,17 +449,17 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
     {
         $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
         $acme = $this->organizationIn($prospector, 'Acme SAS', 'Lyon');
-        self::getContainer()->get(OrganizationRepository::class)->save($acme);
-        $this->prospectingTable()->batch([], [[sprintf('RESEMBLANCE#%s#%s', $prospector->accountId->value, $acme->resemblanceKey()), 'ORGANIZATION#'.$acme->id()]]);
+        self::service(OrganizationRepository::class)->save($acme);
+        self::tableOf('prospecting')->batch([], [[sprintf('RESEMBLANCE#%s#%s', $prospector->accountId->value, $acme->resemblanceKey()), 'ORGANIZATION#'.$acme->id()]]);
 
-        self::getContainer()->get(DynamoOrganizationRepository::class)->writeTheKeysAgain();
+        self::service(DynamoOrganizationRepository::class)->writeTheKeysAgain();
 
-        $this->assertEquals([$acme->id()], self::getContainer()->get(OrganizationRepository::class)->resembling($prospector->accountId, $acme->resemblanceKey(), except: new OrganizationId(self::newIdentity())));
+        $this->assertEquals([$acme->id()], self::service(OrganizationRepository::class)->resembling($prospector->accountId, self::resemblanceKeyOf($acme), except: new OrganizationId(self::newIdentity())));
     }
 
     public function testAnOrganizationIsReadBackWithTheOrganizationsItIsNotADuplicateOf(): void
     {
-        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $organizations = self::service(OrganizationRepository::class);
         $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
         $acme = $this->organizationIn($prospector, 'Acme SAS', 'Lyon');
         $acme->knowItIsNoDuplicateOf(new OrganizationId(self::newIdentity()), by: $prospector->id, at: new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
@@ -470,12 +471,12 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
 
     public function testAnOrganizationChangedSinceItWasReadIsNotSavedOverTheChange(): void
     {
-        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $organizations = self::service(OrganizationRepository::class);
         $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()), managesPersonalData: true);
         $acme = $this->organizationWithTheEmail($prospector, 'contact@acme.test');
         $organizations->save($acme);
         $grace = new PersonId(self::newIdentity());
-        $unitOfWork = self::getContainer()->get(DynamoUnitOfWork::class);
+        $unitOfWork = self::service(DynamoUnitOfWork::class);
         $unitOfWork->begin();
         $read = $organizations->get($acme->id());
         $this->anotherRequestAttaches($grace, $acme->id(), $prospector);
@@ -494,12 +495,12 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
 
     public function testAnOrganizationChangedSinceItWasReadIsNotRemovedOverTheChange(): void
     {
-        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $organizations = self::service(OrganizationRepository::class);
         $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()), managesPersonalData: true);
         $acme = $this->organizationWithTheEmail($prospector, 'contact@acme.test');
         $organizations->save($acme);
         $grace = new PersonId(self::newIdentity());
-        $unitOfWork = self::getContainer()->get(DynamoUnitOfWork::class);
+        $unitOfWork = self::service(DynamoUnitOfWork::class);
         $unitOfWork->begin();
         $read = $organizations->get($acme->id());
         $this->anotherRequestAttaches($grace, $acme->id(), $prospector);
@@ -517,18 +518,10 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
 
     private function anotherRequestAttaches(PersonId $contact, OrganizationId $organization, Prospector $prospector): void
     {
-        $organizations = new DynamoOrganizationRepository($this->asAnotherRequest($this->prospectingTable()));
+        $organizations = new DynamoOrganizationRepository($this->asAnotherRequest(self::tableOf('prospecting')));
         $attaching = $organizations->get($organization);
         $attaching->addContact($contact, by: $prospector->id, at: new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         $organizations->save($attaching);
-    }
-
-    private function prospectingTable(): Table
-    {
-        $table = self::getContainer()->get('app.table.prospecting');
-        $this->assertInstanceOf(Table::class, $table);
-
-        return $table;
     }
 
     private function organizationOnTheWeb(Prospector $prospector, ?string $page, ?string $site): Organization
@@ -547,10 +540,10 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
      */
     private function storedWithTheLink(Organization $organization, array $link): void
     {
-        $item = $this->prospectingTable()->item(OrganizationKeys::organization($organization->id()->value), OrganizationKeys::ORGANIZATION);
-        $item['organization']['references'] = [$link];
+        $item = self::storedItem(self::tableOf('prospecting'), OrganizationKeys::organization($organization->id()->value), OrganizationKeys::ORGANIZATION);
+        $item['organization'] = ['references' => [$link]] + Typed::document($item['organization']);
         $reservation = sprintf('REFERENCE#%s#%s#%s', $organization->accountId()->value, $link['source'], $link['identifier']);
-        $this->prospectingTable()->batch([$item, ['PK' => $reservation, 'SK' => 'REFERENCE', 'ownerId' => $organization->id()->value]], [[sprintf('REFERENCE#%s#linkedInCompany#acme-corp', $organization->accountId()->value), 'REFERENCE']]);
+        self::tableOf('prospecting')->batch([$item, ['PK' => $reservation, 'SK' => 'REFERENCE', 'ownerId' => $organization->id()->value]], [[sprintf('REFERENCE#%s#linkedInCompany#acme-corp', $organization->accountId()->value), 'REFERENCE']]);
     }
 
     /**
@@ -559,6 +552,14 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
     private static function sourcesAndIdentifiersOf(Organization $organization): array
     {
         return array_map(static fn (ExternalReference $reference): array => [$reference->source, $reference->identifier], $organization->references()->all());
+    }
+
+    private static function resemblanceKeyOf(Organization $organization): ResemblanceKey
+    {
+        $key = $organization->resemblanceKey();
+        self::assertNotNull($key);
+
+        return $key;
     }
 
     private static function reference(string $address): ExternalReference
@@ -572,12 +573,13 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
     private function writtenBeforeTheLinks(Organization $organization): void
     {
         $key = OrganizationKeys::organization($organization->id()->value);
-        $item = $this->prospectingTable()->item($key, OrganizationKeys::ORGANIZATION);
-        $page = $item['organization']['references'][0]['address'];
-        unset($item['organization']['references']);
-        $item['organization']['linkedInPage'] = $page;
+        $item = self::storedItem(self::tableOf('prospecting'), $key, OrganizationKeys::ORGANIZATION);
+        $document = Typed::document($item['organization']);
+        $page = Typed::string(Typed::documents($document['references'])[0]['address']);
+        unset($document['references']);
+        $item['organization'] = ['linkedInPage' => $page] + $document;
         $reservation = sprintf('LINKEDIN_PAGE#%s#%s', $organization->accountId()->value, $page);
-        $this->prospectingTable()->batch([$item, ['PK' => $reservation, 'SK' => 'LINKEDIN_PAGE', 'ownerId' => $organization->id()->value]], [[sprintf('REFERENCE#%s#linkedInCompany#acme-corp', $organization->accountId()->value), 'REFERENCE']]);
+        self::tableOf('prospecting')->batch([$item, ['PK' => $reservation, 'SK' => 'LINKEDIN_PAGE', 'ownerId' => $organization->id()->value]], [[sprintf('REFERENCE#%s#linkedInCompany#acme-corp', $organization->accountId()->value), 'REFERENCE']]);
     }
 
     private function organizationIn(Prospector $prospector, string $corporateName, string $city): Organization

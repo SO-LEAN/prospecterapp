@@ -175,7 +175,7 @@ class DynamoTimelineRetrieverTest extends ApiTestCase
     {
         $this->noted('2026-10-10 09:00 UTC');
 
-        $this->acme->removeContact($this->contact, $this->prospector->id, new \DateTimeImmutable(self::NOW), self::getContainer()->get(OrphanContacts::class));
+        $this->acme->removeContact($this->contact, $this->prospector->id, new \DateTimeImmutable(self::NOW), self::service(OrphanContacts::class));
         $this->organizations()->save($this->acme);
 
         $this->assertSame('removed', $this->timelineOf($this->acme)->exchanges[0]->contactPresence);
@@ -286,7 +286,7 @@ class DynamoTimelineRetrieverTest extends ApiTestCase
 
     private function sheetOf(Organization $organization): OrganizationSheet
     {
-        return self::getContainer()->get(OrganizationSheetRetriever::class)->get($organization->id());
+        return self::service(OrganizationSheetRetriever::class)->get($organization->id());
     }
 
     /**
@@ -304,16 +304,16 @@ class DynamoTimelineRetrieverTest extends ApiTestCase
 
     private function timelines(): TimelineRetriever
     {
-        return self::getContainer()->get(TimelineRetriever::class);
+        return self::service(TimelineRetriever::class);
     }
 
     private function exchanges(): ExchangeRepository
     {
-        return self::getContainer()->get(ExchangeRepository::class);
+        return self::service(ExchangeRepository::class);
     }
 
     private function organizations(): OrganizationRepository
     {
-        return self::getContainer()->get(OrganizationRepository::class);
+        return self::service(OrganizationRepository::class);
     }
 }

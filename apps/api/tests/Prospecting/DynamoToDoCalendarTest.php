@@ -6,7 +6,6 @@ namespace Tests\App\Prospecting;
 
 use App\Prospecting\Persistence\DynamoToDoRepository;
 use App\Prospecting\Persistence\ToDoKeys;
-use App\Shared\Persistence\Table;
 use Prospecter\Core\Prospecting\Application\Port\ToDoListRetriever;
 use Prospecter\Core\Prospecting\Application\ToDoInList;
 use Prospecter\Core\Prospecting\Domain\Model\CalendarPeriod;
@@ -89,12 +88,11 @@ class DynamoToDoCalendarTest extends ApiTestCase
     {
         $toDo = $this->noted('Envoyer mon CV', new Due('2026-11-14'));
         $this->toDos()->save($toDo);
-        $table = self::getContainer()->get('app.table.prospecting');
-        $this->assertInstanceOf(Table::class, $table);
+        $table = self::tableOf('prospecting');
         $table->batch([], [[ToDoKeys::calendar($this->holder->value), ToDoKeys::toDo($toDo->id()->value)]]);
         $this->assertSame([], $this->calendarOf($this->holder, self::A_WEEK_IN_NEW_YORK, self::THE_WEEK_AFTER_IN_NEW_YORK));
 
-        $this->assertGreaterThanOrEqual(1, self::getContainer()->get(DynamoToDoRepository::class)->writeTheKeysAgain());
+        $this->assertGreaterThanOrEqual(1, self::service(DynamoToDoRepository::class)->writeTheKeysAgain());
 
         $this->assertSame(['Envoyer mon CV'], self::texts($this->calendarOf($this->holder, self::A_WEEK_IN_NEW_YORK, self::THE_WEEK_AFTER_IN_NEW_YORK)));
     }
@@ -104,7 +102,7 @@ class DynamoToDoCalendarTest extends ApiTestCase
      */
     private function calendarOf(MemberId $holder, string $from, string $until): array
     {
-        return self::getContainer()->get(ToDoListRetriever::class)->dueIn($holder, new CalendarPeriod(new \DateTimeImmutable($from), new \DateTimeImmutable($until)));
+        return self::service(ToDoListRetriever::class)->dueIn($holder, new CalendarPeriod(new \DateTimeImmutable($from), new \DateTimeImmutable($until)));
     }
 
     /**
@@ -124,6 +122,6 @@ class DynamoToDoCalendarTest extends ApiTestCase
 
     private function toDos(): ToDoRepository
     {
-        return self::getContainer()->get(ToDoRepository::class);
+        return self::service(ToDoRepository::class);
     }
 }

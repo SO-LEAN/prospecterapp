@@ -11,6 +11,7 @@ use App\Shared\Messaging\CommitOutbox;
 use App\Shared\Persistence\DynamoUnitOfWork;
 use App\Shared\Persistence\RevisionsRead;
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use App\SignIn\Credentials;
 use App\SignIn\UserPool;
 use Aws\CognitoIdentityProvider\CognitoIdentityProviderClient;
@@ -33,6 +34,7 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
@@ -55,8 +57,8 @@ abstract class ApiTestCase extends WebTestCase
     protected function setUp(): void
     {
         $this->client = static::createClient([], ['HTTP_HOST' => 'api.test.prospecter.io']);
-        self::getContainer()->get(DataOfTheDemonstration::class)->restore();
-        self::getContainer()->get(MembersOfTheDemonstration::class)->restore();
+        self::service(DataOfTheDemonstration::class)->restore();
+        self::service(MembersOfTheDemonstration::class)->restore();
     }
 
     /**
@@ -66,7 +68,7 @@ abstract class ApiTestCase extends WebTestCase
     protected function keepTheKernel(): void
     {
         $this->client->disableReboot();
-        self::getContainer()->get('app.token_clock')->modify('+1 minute');
+        self::service(MockClock::class, 'app.token_clock')->modify('+1 minute');
     }
 
     protected function login(string $reference = 'prospector-user'): void
@@ -89,11 +91,11 @@ abstract class ApiTestCase extends WebTestCase
     {
         $account = $this->accountOfTheFixtures();
         $profile = Person::collect(new Gesture($account, new MemberId(self::newIdentity()), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)), new PersonId(self::newIdentity()), Purpose::Membership);
-        self::getContainer()->get(PersonRepository::class)->save($profile);
+        self::service(PersonRepository::class)->save($profile);
         $member = Member::register(new MemberId(self::newIdentity()), $account, $profile->id(), ...$roles);
-        self::getContainer()->get(MemberRepository::class)->save($member);
+        self::service(MemberRepository::class)->save($member);
         $this->members[$reference] = $member->id()->value;
-        self::getContainer()->get(Credentials::class)->register($member->id()->value, $member->id()->value.'@solean-it.io', DemoCredentials::PASSWORD);
+        self::service(Credentials::class)->register($member->id()->value, $member->id()->value.'@solean-it.io', DemoCredentials::PASSWORD);
 
         return $reference;
     }
@@ -105,13 +107,13 @@ abstract class ApiTestCase extends WebTestCase
     protected function aMemberOfAnotherAccount(string $reference): string
     {
         $account = Account::open(new AccountId(self::newIdentity()), new LegalIdentity('Another account', 'SAS'), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
-        self::getContainer()->get(AccountRepository::class)->save($account);
+        self::service(AccountRepository::class)->save($account);
         $profile = Person::collect(new Gesture($account->id(), new MemberId(self::newIdentity()), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)), new PersonId(self::newIdentity()), Purpose::Membership);
-        self::getContainer()->get(PersonRepository::class)->save($profile);
+        self::service(PersonRepository::class)->save($profile);
         $member = Member::register(new MemberId(self::newIdentity()), $account->id(), $profile->id(), Role::User, Role::Prospector, Role::PersonalData);
-        self::getContainer()->get(MemberRepository::class)->save($member);
+        self::service(MemberRepository::class)->save($member);
         $this->members[$reference] = $member->id()->value;
-        self::getContainer()->get(Credentials::class)->register($member->id()->value, $member->id()->value.'@another.test', DemoCredentials::PASSWORD);
+        self::service(Credentials::class)->register($member->id()->value, $member->id()->value.'@another.test', DemoCredentials::PASSWORD);
 
         return $reference;
     }
@@ -132,14 +134,16 @@ abstract class ApiTestCase extends WebTestCase
      */
     protected function tokensOf(string $memberId, ?string $clientId = null): array
     {
-        $pool = self::getContainer()->get(UserPool::class);
+        $pool = self::service(UserPool::class);
 
-        return self::getContainer()->get(CognitoIdentityProviderClient::class)->adminInitiateAuth([
+        $result = Typed::document(self::service(CognitoIdentityProviderClient::class)->adminInitiateAuth([
             'UserPoolId' => $pool->id(),
             'ClientId' => $clientId ?? $pool->clientId(),
             'AuthFlow' => 'ADMIN_USER_PASSWORD_AUTH',
             'AuthParameters' => ['USERNAME' => $memberId, 'PASSWORD' => DemoCredentials::PASSWORD],
-        ])['AuthenticationResult'];
+        ])['AuthenticationResult']);
+
+        return ['AccessToken' => Typed::string($result['AccessToken']), 'IdToken' => Typed::string($result['IdToken']), 'RefreshToken' => Typed::string($result['RefreshToken'])];
     }
 
     /**
@@ -156,10 +160,10 @@ abstract class ApiTestCase extends WebTestCase
      */
     protected function asAnotherRequest(Table $table): Table
     {
-        $client = self::getContainer()->get(DynamoDbClient::class);
-        $marshaler = self::getContainer()->get(Marshaler::class);
+        $client = self::service(DynamoDbClient::class);
+        $marshaler = self::service(Marshaler::class);
 
-        return new Table($client, $marshaler, new DynamoUnitOfWork($client, new CommitOutbox([], $marshaler, new Identities(), self::getContainer()->get('app.commit_clock'))), new RevisionsRead(), $table->name);
+        return new Table($client, $marshaler, new DynamoUnitOfWork($client, new CommitOutbox([], $marshaler, new Identities(), self::service(MockClock::class, 'app.commit_clock'))), new RevisionsRead(), $table->name);
     }
 
     /**
@@ -194,7 +198,7 @@ abstract class ApiTestCase extends WebTestCase
     {
         $content = (string) $this->client->getResponse()->getContent();
 
-        return '' === $content ? [] : json_decode($content, true, flags: JSON_THROW_ON_ERROR);
+        return '' === $content ? [] : Typed::document(json_decode($content, true, flags: JSON_THROW_ON_ERROR));
     }
 
     /**
@@ -204,7 +208,45 @@ abstract class ApiTestCase extends WebTestCase
      */
     protected function violatedFields(array $problem): array
     {
-        return array_map(static fn (array $violation): string => $violation['propertyPath'], $problem['violations'] ?? []);
+        return array_map(static fn (array $violation): string => Typed::string($violation['propertyPath']), Typed::documents($problem['violations'] ?? []));
+    }
+
+    /**
+     * Gets the test container's service of this class, under its class name or under the given id.
+     *
+     * @template T of object
+     *
+     * @param class-string<T> $class
+     *
+     * @return T
+     */
+    protected static function service(string $class, ?string $id = null): object
+    {
+        $service = self::getContainer()->get($id ?? $class);
+        self::assertInstanceOf($class, $service);
+
+        return $service;
+    }
+
+    /**
+     * Gets a context's table as the test container wires it.
+     */
+    protected static function tableOf(string $context): Table
+    {
+        return self::service(Table::class, 'app.table.'.$context);
+    }
+
+    /**
+     * Gets the item stored under these keys. The test fails when there is none.
+     *
+     * @return array<string, mixed>
+     */
+    protected static function storedItem(Table $table, string $partitionKey, string $sortKey): array
+    {
+        $item = $table->item($partitionKey, $sortKey);
+        self::assertNotNull($item, sprintf('No item under %s and %s', $partitionKey, $sortKey));
+
+        return $item;
     }
 
     /**
@@ -212,7 +254,7 @@ abstract class ApiTestCase extends WebTestCase
      */
     protected function eraseBeforeItsExchanges(string $organization): void
     {
-        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $organizations = self::service(OrganizationRepository::class);
         $organizations->remove($organizations->get(new OrganizationId($organization)));
     }
 }
