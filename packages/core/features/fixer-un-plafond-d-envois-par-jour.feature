@@ -54,6 +54,12 @@ Fonctionnalité: Fixer un plafond d'envois par jour
     Quand une IA demande le destinataire suivant de "Relance PHP"
     Alors elle reçoit "Grace Hopper", sans avertissement, 1 traité aujourd'hui sur 2
 
+  Scénario: Sans plafond du jour, l'IA n'est jamais avertie
+    Soit la campagne "Relance PHP" démarrée par e-mail avec "Ada Lovelace" puis "Grace Hopper", son message pour une IA "tel quel"
+    Et "Ada Lovelace" est traitée dans la campagne "Relance PHP"
+    Quand une IA demande le destinataire suivant de "Relance PHP"
+    Alors elle reçoit "Grace Hopper", sans plafond ni avertissement
+
   Scénario: Le plafond du jour se compte au jour du membre
     Soit je lis l'heure de "Europe/Paris"
     Et nous sommes le "2026-11-16 22:30 UTC"

@@ -360,6 +360,14 @@ final class CampaignContext implements Context
         Expect::same([$this->scenario->personIdOf($contact), true, $cap], [$next->contactId, $next->dailyCapReached, $next->dailyCap]);
     }
 
+    #[Then('elle reçoit :contact, sans plafond ni avertissement')]
+    public function itGetsTheRecipientWithoutADailyCap(string $contact): void
+    {
+        $next = $this->nextRecipient();
+
+        Expect::same([$this->scenario->personIdOf($contact), null, false], [$next->contactId, $next->dailyCap, $next->dailyCapReached]);
+    }
+
     #[Then('elle reçoit :contact, sans avertissement, :processed traité aujourd\'hui sur :cap')]
     public function itGetsTheRecipientBelowTheDailyCap(string $contact, int $processed, int $cap): void
     {
