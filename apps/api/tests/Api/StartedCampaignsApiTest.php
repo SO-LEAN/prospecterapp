@@ -37,7 +37,7 @@ class StartedCampaignsApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(200);
         $this->assertSame(['started', null], [$started['status'], $started['stoppedAt']]);
         $this->assertNotNull($started['startedAt']);
-        $this->assertSame(['self', 'stop', 'recipients'], array_keys($started['_links']));
+        $this->assertSame(['self', 'stop', 'setDailyCap', 'recipients'], array_keys($started['_links']));
         $this->assertSame(['href' => '/api/campaigns/'.$id.'/stop', 'method' => 'POST'], $started['_links']['stop']);
         $this->assertSame([['noteExchange', 'dismiss']], array_map(static fn (array $recipient): array => array_keys($recipient['_links']), $this->requestJson('GET', '/api/campaigns/'.$id.'/recipients')['items']));
     }
