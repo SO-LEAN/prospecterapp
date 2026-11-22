@@ -55,7 +55,7 @@ final readonly class NoteCampaignExchangeHandler implements CommandHandler
         $facts = $recipient->exchangeFacts($command->occurredAt, $command->text);
         $reference = MessageReference::of($facts->channel, $command->messageId, $command->linkedInConversation);
 
-        $notedFirst = $command->noteOnce ? $this->notedOnce->keptUnder($prospector->accountId, $reference->fingerprintOf($facts, $contact)) : null;
+        $notedFirst = $command->noteOnce ? $this->notedOnce->keptUnder($prospector->accountId, $recipient->fingerprintOfSending($command->occurredAt, $command->text, $reference)) : null;
 
         if (null !== $notedFirst) {
             $this->joinTheCampaign($this->exchanges->get($notedFirst), $recipient, $prospector->id, $command->executedAt);

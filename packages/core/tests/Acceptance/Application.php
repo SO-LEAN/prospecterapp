@@ -371,6 +371,9 @@ use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\FoundO
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\KeptOrganizationPage;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\SearchProspectedOrganizations;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\SearchProspectedOrganizationsHandler;
+use Prospecter\Core\Prospecting\Application\SendingNoted\KeptSendingNoted;
+use Prospecter\Core\Prospecting\Application\SendingNoted\SendingNoted;
+use Prospecter\Core\Prospecting\Application\SendingNoted\SendingNotedHandler;
 use Prospecter\Core\Prospecting\Application\StartProspecting\StartProspectingHandler;
 use Prospecter\Core\Prospecting\Application\StopKeepingExchanges\StopKeepingExchangesHandler;
 use Prospecter\Core\Prospecting\Application\StopKeepingToDos\StopKeepingToDosHandler;
@@ -1036,6 +1039,13 @@ final class Application
         $kept = new KeptCampaignMessage();
 
         return $this->ask(new RenderCampaignMessageHandler($this->campaigns, $this->campaigners, $this->addressees), $query, $kept) ? $kept->message : null;
+    }
+
+    public function sendingNoted(SendingNoted $query): ?string
+    {
+        $kept = new KeptSendingNoted();
+
+        return $this->ask(new SendingNotedHandler($this->exchanges, $this->prospectors, $this->campaignRecipients), $query, $kept) ? $kept->exchangeId : null;
     }
 
     public function nextRecipient(NextRecipient $query): ?RecipientToHandle

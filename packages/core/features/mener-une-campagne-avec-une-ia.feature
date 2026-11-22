@@ -83,6 +83,7 @@ Fonctionnalité: Mener une campagne avec une IA
     Alors ce n'est pas refusé
     Et un seul échange est noté pour "Ada Lovelace"
     Et "Ada Lovelace" est traitée dans la campagne "Relance PHP"
+    Et l'envoi à "Ada Lovelace" se retrouve dans l'échange que l'import a noté
 
   Scénario: Un e-mail déjà noté dans une autre campagne reste refusé comme déjà noté
     Soit la campagne "Relance PHP" démarrée par e-mail avec "Ada Lovelace" puis "Grace Hopper", son message pour une IA "tel quel"
