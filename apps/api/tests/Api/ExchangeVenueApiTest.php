@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Base\ReadsResources;
 
 /**
  * The place of a meeting, the link of a video call: planned with them, read in the detail and in what is to come,
@@ -17,6 +18,8 @@ use Tests\App\Base\ApiTestCase;
 #[Group('api')]
 class ExchangeVenueApiTest extends ApiTestCase
 {
+    use ReadsResources;
+
     private const string NEXT_TUESDAY = '2026-10-20T14:00:00+00:00';
     private const string MEET = 'https://meet.google.com/abc-defg-hij';
 
@@ -33,13 +36,13 @@ class ExchangeVenueApiTest extends ApiTestCase
         $this->plan($ada, ['channel' => 'meeting', 'occurredAt' => self::NEXT_TUESDAY, 'place' => 'Café de Flore']);
         $this->planWith($organization, ['exchange' => ['channel' => 'videoCall', 'occurredAt' => '2026-10-21T09:00:00+00:00', 'link' => self::MEET]]);
 
-        $upcoming = $this->requestJson('GET', '/api/organizations/'.$organization.'/upcoming-exchanges')['items'];
+        $upcoming = self::recordsAt($this->requestJson('GET', '/api/organizations/'.$organization.'/upcoming-exchanges'), 'items');
 
-        $this->assertSame([['meeting', 'Café de Flore', null], ['videoCall', null, self::MEET]], array_map(static fn (array $item): array => [$item['exchange']['channel'], $item['exchange']['place'], $item['exchange']['link']], $upcoming));
-        $meeting = $this->requestJson('GET', '/api/exchanges/'.$upcoming[0]['exchange']['id']);
+        $this->assertSame([['meeting', 'Café de Flore', null], ['videoCall', null, self::MEET]], array_map(static fn (array $item): array => [self::valueAt($item, 'exchange', 'channel'), self::valueAt($item, 'exchange', 'place'), self::valueAt($item, 'exchange', 'link')], $upcoming));
+        $meeting = $this->requestJson('GET', '/api/exchanges/'.self::stringAt($upcoming, 0, 'exchange', 'id'));
         $this->assertSame(['Café de Flore', null], [$meeting['place'], $meeting['link']]);
-        $this->assertSame(['href' => '/api/exchanges/'.$meeting['id'].'/venue', 'method' => 'PATCH'], $meeting['_links']['correctVenue']);
-        $this->assertSame(self::MEET, $this->requestJson('GET', '/api/exchanges/'.$upcoming[1]['exchange']['id'])['link']);
+        $this->assertSame(['href' => '/api/exchanges/'.self::stringAt($meeting, 'id').'/venue', 'method' => 'PATCH'], self::valueAt($meeting, '_links', 'correctVenue'));
+        $this->assertSame(self::MEET, $this->requestJson('GET', '/api/exchanges/'.self::stringAt($upcoming, 1, 'exchange', 'id'))['link']);
     }
 
     public function testThePlaceAndTheLinkFollowTheRulesOfTheCore(): void
@@ -65,9 +68,9 @@ class ExchangeVenueApiTest extends ApiTestCase
     public function testEveryProspectorAddsTheLinkOfAVideoCall(string $reference, Role ...$roles): void
     {
         $ada = $this->aContactOf($this->anOrganization(['legalIdentity' => ['corporateName' => 'ACME']]));
-        $videoCall = $this->plan($ada, ['channel' => 'videoCall', 'occurredAt' => self::NEXT_TUESDAY])['items'][0]['id'];
+        $videoCall = self::stringAt($this->plan($ada, ['channel' => 'videoCall', 'occurredAt' => self::NEXT_TUESDAY]), 'items', 0, 'id');
         $this->login($this->aMemberOfTheFixtures($reference, ...$roles));
-        $this->assertArrayHasKey('correctVenue', $this->requestJson('GET', '/api/exchanges/'.$videoCall)['_links']);
+        $this->assertArrayHasKey('correctVenue', self::recordAt($this->requestJson('GET', '/api/exchanges/'.$videoCall), '_links'));
 
         $corrected = $this->requestJson('PATCH', '/api/exchanges/'.$videoCall.'/venue', ['link' => self::MEET]);
 
@@ -88,9 +91,9 @@ class ExchangeVenueApiTest extends ApiTestCase
     public function testOnlyAMeetingOrAVideoCallHasAVenueToCorrect(): void
     {
         $ada = $this->aContactOf($this->anOrganization(['legalIdentity' => ['corporateName' => 'ACME']]));
-        $call = $this->plan($ada, ['channel' => 'call', 'occurredAt' => self::NEXT_TUESDAY])['items'][0]['id'];
+        $call = self::stringAt($this->plan($ada, ['channel' => 'call', 'occurredAt' => self::NEXT_TUESDAY]), 'items', 0, 'id');
 
-        $this->assertArrayNotHasKey('correctVenue', $this->requestJson('GET', '/api/exchanges/'.$call)['_links']);
+        $this->assertArrayNotHasKey('correctVenue', self::recordAt($this->requestJson('GET', '/api/exchanges/'.$call), '_links'));
         $refused = $this->requestJson('PATCH', '/api/exchanges/'.$call.'/venue', ['place' => 'Café de Flore']);
         $this->assertResponseStatusCodeSame(409);
         $this->assertSame('Only a meeting or a video call takes place somewhere', $refused['detail']);
@@ -106,10 +109,10 @@ class ExchangeVenueApiTest extends ApiTestCase
     public function testACallIsMadeToTheNumberOfTheContactReadInClearOnly(): void
     {
         $organization = $this->anOrganization(['legalIdentity' => ['corporateName' => 'ACME'], 'contactDetails' => ['phoneNumber' => '03 88 11 22 33']]);
-        $ada = $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'], 'contactDetails' => ['phoneNumber' => '03 88 00 00 42'], 'organizationIds' => [$organization]])['id'];
-        $withAda = $this->plan($ada, ['channel' => 'call', 'occurredAt' => self::NEXT_TUESDAY])['items'][0]['id'];
+        $ada = self::stringAt($this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'], 'contactDetails' => ['phoneNumber' => '03 88 00 00 42'], 'organizationIds' => [$organization]]), 'id');
+        $withAda = self::stringAt($this->plan($ada, ['channel' => 'call', 'occurredAt' => self::NEXT_TUESDAY]), 'items', 0, 'id');
         $this->planWith($organization, ['exchange' => ['channel' => 'call', 'occurredAt' => '2026-10-21T09:00:00+00:00']]);
-        $withAcme = $this->requestJson('GET', '/api/organizations/'.$organization.'/upcoming-exchanges')['items'][1]['exchange']['id'];
+        $withAcme = self::stringAt($this->requestJson('GET', '/api/organizations/'.$organization.'/upcoming-exchanges'), 'items', 1, 'exchange', 'id');
 
         $this->assertSame('+33 3 88 00 00 42', $this->requestJson('GET', '/api/exchanges/'.$withAda)['phoneNumber']);
         $this->assertSame('+33 3 88 11 22 33', $this->requestJson('GET', '/api/exchanges/'.$withAcme)['phoneNumber']);
@@ -162,7 +165,7 @@ class ExchangeVenueApiTest extends ApiTestCase
 
     private function aContactOf(string $organization): string
     {
-        return $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'], 'organizationIds' => [$organization]])['id'];
+        return self::stringAt($this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'], 'organizationIds' => [$organization]]), 'id');
     }
 
     /**
@@ -170,6 +173,6 @@ class ExchangeVenueApiTest extends ApiTestCase
      */
     private function anOrganization(array $organization): string
     {
-        return $this->requestJson('POST', '/api/organizations', $organization)['id'];
+        return self::stringAt($this->requestJson('POST', '/api/organizations', $organization), 'id');
     }
 }

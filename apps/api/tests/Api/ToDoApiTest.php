@@ -23,6 +23,7 @@ use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Base\ReadsResources;
 
 /**
  * The to-dos for a contact or an organization (ADR 0113): the clock of the tests says it is 2026-10-15 09:00 UTC.
@@ -30,6 +31,8 @@ use Tests\App\Base\ApiTestCase;
 #[Group('api')]
 class ToDoApiTest extends ApiTestCase
 {
+    use ReadsResources;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -44,15 +47,16 @@ class ToDoApiTest extends ApiTestCase
         $toDo = $this->requestJson('POST', '/api/contacts/'.$ada.'/to-dos', ['text' => 'Envoyer mon CV', 'dueOn' => '2026-10-16', 'dueAt' => '08:30']);
 
         $this->assertResponseStatusCodeSame(201);
-        $this->assertResponseHeaderSame('Location', '/api/to-dos/'.$toDo['id']);
-        $this->assertSame(['Envoyer mon CV', '2026-10-16', '08:30', null, ['firstName' => 'Ada', 'lastName' => 'Lovelace']], [$toDo['text'], $toDo['dueOn'], $toDo['dueAt'], $toDo['doneAt'], $toDo['contact']['name']]);
-        $this->assertNotNull($toDo['heldBy']['email'] ?? $toDo['heldBy']['name']['firstName']);
-        $this->assertSame(['self', 'revise', 'tickOff', 'erase'], array_keys($toDo['_links']));
+        $this->assertResponseHeaderSame('Location', '/api/to-dos/'.self::stringAt($toDo, 'id'));
+        $this->assertSame(['Envoyer mon CV', '2026-10-16', '08:30', null, ['firstName' => 'Ada', 'lastName' => 'Lovelace']], [$toDo['text'], $toDo['dueOn'], $toDo['dueAt'], $toDo['doneAt'], self::valueAt($toDo, 'contact', 'name')]);
+        $heldBy = self::recordAt($toDo, 'heldBy');
+        $this->assertNotNull($heldBy['email'] ?? self::valueAt($heldBy, 'name', 'firstName'));
+        $this->assertSame(['self', 'revise', 'tickOff', 'erase'], array_keys(self::arrayAt($toDo, '_links')));
         $ofTheContact = $this->requestJson('GET', '/api/contacts/'.$ada.'/to-dos');
         $this->assertSame([$toDo], $ofTheContact['toDos']);
-        $this->assertSame(['href' => '/api/contacts/'.$ada.'/to-dos', 'method' => 'POST'], $ofTheContact['_links']['noteToDo']);
-        $this->assertSame([$toDo], $this->requestJson('GET', '/api/organizations/'.$organization.'/to-dos')['toDos']);
-        $this->assertSame([$toDo], $this->requestJson('GET', '/api/me/to-dos')['toDos']);
+        $this->assertSame(['href' => '/api/contacts/'.$ada.'/to-dos', 'method' => 'POST'], self::valueAt($ofTheContact, '_links', 'noteToDo'));
+        $this->assertSame([$toDo], self::valueAt($this->requestJson('GET', '/api/organizations/'.$organization.'/to-dos'), 'toDos'));
+        $this->assertSame([$toDo], self::valueAt($this->requestJson('GET', '/api/me/to-dos'), 'toDos'));
     }
 
     public function testTheCardsLeadToTheirToDos(): void
@@ -60,8 +64,8 @@ class ToDoApiTest extends ApiTestCase
         $organization = $this->anOrganization('ACME');
         $ada = $this->aContactOf($organization, 'Ada', 'Lovelace');
 
-        $this->assertSame(['href' => '/api/contacts/'.$ada.'/to-dos', 'method' => 'GET'], $this->requestJson('GET', '/api/contacts/'.$ada)['_links']['toDos']);
-        $this->assertSame(['href' => '/api/organizations/'.$organization.'/to-dos', 'method' => 'GET'], $this->requestJson('GET', '/api/organizations/'.$organization)['_links']['toDos']);
+        $this->assertSame(['href' => '/api/contacts/'.$ada.'/to-dos', 'method' => 'GET'], self::valueAt($this->requestJson('GET', '/api/contacts/'.$ada), '_links', 'toDos'));
+        $this->assertSame(['href' => '/api/organizations/'.$organization.'/to-dos', 'method' => 'GET'], self::valueAt($this->requestJson('GET', '/api/organizations/'.$organization), '_links', 'toDos'));
     }
 
     public function testAToDoIsTickedOffThenUnticked(): void
@@ -71,16 +75,16 @@ class ToDoApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(201);
         $this->assertNull($toDo['contact']);
 
-        $done = $this->requestJson('POST', '/api/to-dos/'.$toDo['id'].'/done');
+        $done = $this->requestJson('POST', '/api/to-dos/'.self::stringAt($toDo, 'id').'/done');
         $this->assertResponseStatusCodeSame(200);
-        $this->assertSame(['self', 'revise', 'untick', 'erase'], array_keys($done['_links']));
+        $this->assertSame(['self', 'revise', 'untick', 'erase'], array_keys(self::arrayAt($done, '_links')));
         $this->assertNotNull($done['doneAt']);
-        $this->assertSame([], $this->requestJson('GET', '/api/me/to-dos')['toDos']);
+        $this->assertSame([], self::valueAt($this->requestJson('GET', '/api/me/to-dos'), 'toDos'));
 
-        $this->requestJson('POST', '/api/to-dos/'.$toDo['id'].'/done');
+        $this->requestJson('POST', '/api/to-dos/'.self::stringAt($toDo, 'id').'/done');
         $this->assertResponseStatusCodeSame(409);
 
-        $this->assertNull($this->requestJson('DELETE', '/api/to-dos/'.$toDo['id'].'/done')['doneAt']);
+        $this->assertNull(self::valueAt($this->requestJson('DELETE', '/api/to-dos/'.self::stringAt($toDo, 'id').'/done'), 'doneAt'));
         $this->assertResponseStatusCodeSame(200);
     }
 
@@ -89,16 +93,16 @@ class ToDoApiTest extends ApiTestCase
         $organization = $this->anOrganization('ACME');
         $toDo = $this->requestJson('POST', '/api/organizations/'.$organization.'/to-dos', ['text' => 'Préparer la proposition', 'dueOn' => '2026-10-20']);
 
-        $revised = $this->requestJson('PATCH', '/api/to-dos/'.$toDo['id'], ['text' => 'Préparer la proposition chiffrée', 'dueOn' => '2026-10-21', 'dueAt' => '09:00']);
+        $revised = $this->requestJson('PATCH', '/api/to-dos/'.self::stringAt($toDo, 'id'), ['text' => 'Préparer la proposition chiffrée', 'dueOn' => '2026-10-21', 'dueAt' => '09:00']);
         $this->assertResponseStatusCodeSame(200);
         $this->assertSame(['Préparer la proposition chiffrée', '2026-10-21', '09:00'], [$revised['text'], $revised['dueOn'], $revised['dueAt']]);
-        $this->assertSame($revised, $this->requestJson('GET', '/api/to-dos/'.$toDo['id']));
+        $this->assertSame($revised, $this->requestJson('GET', '/api/to-dos/'.self::stringAt($toDo, 'id')));
         $this->assertResponseStatusCodeSame(200);
 
-        $this->client->request('DELETE', '/api/to-dos/'.$toDo['id']);
+        $this->client->request('DELETE', '/api/to-dos/'.self::stringAt($toDo, 'id'));
         $this->assertResponseStatusCodeSame(204);
-        $this->assertSame([], $this->requestJson('GET', '/api/organizations/'.$organization.'/to-dos')['toDos']);
-        $this->requestJson('GET', '/api/to-dos/'.$toDo['id']);
+        $this->assertSame([], self::valueAt($this->requestJson('GET', '/api/organizations/'.$organization.'/to-dos'), 'toDos'));
+        $this->requestJson('GET', '/api/to-dos/'.self::stringAt($toDo, 'id'));
         $this->assertResponseStatusCodeSame(404);
     }
 
@@ -125,7 +129,7 @@ class ToDoApiTest extends ApiTestCase
 
         $this->requestJson('DELETE', '/api/organizations/'.$organization);
 
-        $this->assertSame([], $this->requestJson('GET', '/api/me/to-dos')['toDos']);
+        $this->assertSame([], self::valueAt($this->requestJson('GET', '/api/me/to-dos'), 'toDos'));
     }
 
     public function testErasingAContactErasesItsToDos(): void
@@ -136,8 +140,8 @@ class ToDoApiTest extends ApiTestCase
 
         $this->requestJson('DELETE', '/api/contacts/'.$ada);
 
-        $this->assertSame([], $this->requestJson('GET', '/api/organizations/'.$organization.'/to-dos')['toDos']);
-        $this->assertSame([], $this->requestJson('GET', '/api/me/to-dos')['toDos']);
+        $this->assertSame([], self::valueAt($this->requestJson('GET', '/api/organizations/'.$organization.'/to-dos'), 'toDos'));
+        $this->assertSame([], self::valueAt($this->requestJson('GET', '/api/me/to-dos'), 'toDos'));
     }
 
     public function testAColleagueReadsMyToDosOnTheCardsButNotAmongTheirs(): void
@@ -146,9 +150,9 @@ class ToDoApiTest extends ApiTestCase
         $toDo = $this->requestJson('POST', '/api/organizations/'.$organization.'/to-dos', ['text' => 'Préparer la proposition', 'dueOn' => '2026-10-20']);
         $this->login($this->aMemberOfTheFixtures('administrator', Role::Prospector, Role::Admin));
 
-        $this->assertSame([$toDo['id']], array_column($this->requestJson('GET', '/api/organizations/'.$organization.'/to-dos')['toDos'], 'id'));
-        $this->assertSame([], $this->requestJson('GET', '/api/me/to-dos')['toDos']);
-        $this->requestJson('POST', '/api/to-dos/'.$toDo['id'].'/done');
+        $this->assertSame([$toDo['id']], array_column(self::recordsAt($this->requestJson('GET', '/api/organizations/'.$organization.'/to-dos'), 'toDos'), 'id'));
+        $this->assertSame([], self::valueAt($this->requestJson('GET', '/api/me/to-dos'), 'toDos'));
+        $this->requestJson('POST', '/api/to-dos/'.self::stringAt($toDo, 'id').'/done');
         $this->assertResponseStatusCodeSame(200);
     }
 
@@ -159,14 +163,14 @@ class ToDoApiTest extends ApiTestCase
         $toDo = $this->requestJson('POST', '/api/organizations/'.$organization.'/to-dos', ['text' => 'Préparer la proposition', 'dueOn' => '2026-10-20']);
         $this->login($this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector));
 
-        $this->assertArrayNotHasKey('toDos', $this->requestJson('GET', '/api/contacts/'.$ada)['_links']);
-        $this->assertArrayNotHasKey('toDos', $this->requestJson('GET', '/api/organizations/'.$organization)['_links']);
+        $this->assertArrayNotHasKey('toDos', self::arrayAt($this->requestJson('GET', '/api/contacts/'.$ada), '_links'));
+        $this->assertArrayNotHasKey('toDos', self::arrayAt($this->requestJson('GET', '/api/organizations/'.$organization), '_links'));
         $gestures = [
             ['GET', '/api/contacts/'.$ada.'/to-dos', null], ['POST', '/api/contacts/'.$ada.'/to-dos', ['text' => 'Appeler', 'dueOn' => '2026-10-16']],
             ['GET', '/api/organizations/'.$organization.'/to-dos', null], ['POST', '/api/organizations/'.$organization.'/to-dos', ['text' => 'Appeler', 'dueOn' => '2026-10-16']],
-            ['GET', '/api/me/to-dos', null], ['GET', '/api/to-dos/'.$toDo['id'], null],
-            ['PATCH', '/api/to-dos/'.$toDo['id'], ['text' => 'Appeler', 'dueOn' => '2026-10-16']],
-            ['POST', '/api/to-dos/'.$toDo['id'].'/done', null], ['DELETE', '/api/to-dos/'.$toDo['id'].'/done', null], ['DELETE', '/api/to-dos/'.$toDo['id'], null],
+            ['GET', '/api/me/to-dos', null], ['GET', '/api/to-dos/'.self::stringAt($toDo, 'id'), null],
+            ['PATCH', '/api/to-dos/'.self::stringAt($toDo, 'id'), ['text' => 'Appeler', 'dueOn' => '2026-10-16']],
+            ['POST', '/api/to-dos/'.self::stringAt($toDo, 'id').'/done', null], ['DELETE', '/api/to-dos/'.self::stringAt($toDo, 'id').'/done', null], ['DELETE', '/api/to-dos/'.self::stringAt($toDo, 'id'), null],
         ];
 
         foreach ($gestures as [$method, $path, $payload]) {
@@ -190,22 +194,22 @@ class ToDoApiTest extends ApiTestCase
     private function aToDoOfAnotherAccount(): string
     {
         $competitor = Account::open(new AccountId(self::newIdentity()), new LegalIdentity('Competitor'), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
-        self::getContainer()->get(AccountRepository::class)->save($competitor);
+        self::service(AccountRepository::class)->save($competitor);
         $theirs = Organization::prospectedBy(new Gesture($competitor->id(), new MemberId(self::newIdentity()), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)), new OrganizationId(self::newIdentity()), new LegalIdentity('Their prospect'), new ContactDetails());
-        self::getContainer()->get(OrganizationRepository::class)->save($theirs);
+        self::service(OrganizationRepository::class)->save($theirs);
         $toDo = ToDo::noted(new Gesture($competitor->id(), new MemberId(self::newIdentity()), new \DateTimeImmutable('2026-10-14')), new ToDoId(self::newIdentity()), new OrganizationCorrespondent($theirs->id()), new Task('Leur proposition', new Due('2026-10-16')));
-        self::getContainer()->get(ToDoRepository::class)->save($toDo);
+        self::service(ToDoRepository::class)->save($toDo);
 
         return $toDo->id()->value;
     }
 
     private function aContactOf(string $organization, string $firstName, string $lastName): string
     {
-        return $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => $firstName, 'lastName' => $lastName], 'organizationIds' => [$organization]])['id'];
+        return self::stringAt($this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => $firstName, 'lastName' => $lastName], 'organizationIds' => [$organization]]), 'id');
     }
 
     private function anOrganization(string $name): string
     {
-        return $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => $name]])['id'];
+        return self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => $name]]), 'id');
     }
 }

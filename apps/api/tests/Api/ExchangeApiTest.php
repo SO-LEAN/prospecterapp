@@ -31,6 +31,7 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Base\ReadsResources;
 
 /**
  * The exchanges with a contact, noted and read in its timeline (ADR 0074); the clock of the tests says it is
@@ -39,6 +40,8 @@ use Tests\App\Base\ApiTestCase;
 #[Group('api')]
 class ExchangeApiTest extends ApiTestCase
 {
+    use ReadsResources;
+
     private const string ATTACHMENT = '0190a1c0-0000-7000-8000-0000000000a1';
 
     protected function setUp(): void
@@ -55,11 +58,11 @@ class ExchangeApiTest extends ApiTestCase
         $timeline = $this->note($contact, ['channel' => 'linkedIn', 'direction' => 'inbound', 'occurredAt' => '2026-10-14T14:30:00+02:00', 'text' => 'Intéressée par une mission en mars']);
 
         $this->assertResponseStatusCodeSame(201);
-        $this->assertResponseHeaderSame('Location', '/api/exchanges/'.$timeline['items'][0]['id']);
-        $this->assertSame([['linkedIn', 'inbound', '2026-10-14T12:30:00+00:00', 'Intéressée par une mission en mars'], ['call', 'outbound', '2026-10-10T07:00:00+00:00', null]], array_map(static fn (array $exchange): array => [$exchange['channel'], $exchange['direction'], $exchange['occurredAt'], $exchange['text']], $timeline['items']));
-        $this->assertSame(['self', 'noteExchange', 'planExchange'], array_keys($timeline['_links']));
-        $this->assertSame(['href' => '/api/exchanges/'.$timeline['items'][0]['id'], 'method' => 'GET'], $timeline['items'][0]['_links']['self']);
-        $this->assertSame(['href' => '/api/contacts/'.$contact.'/exchanges', 'method' => 'POST'], $timeline['_links']['noteExchange']);
+        $this->assertResponseHeaderSame('Location', '/api/exchanges/'.self::stringAt($timeline, 'items', 0, 'id'));
+        $this->assertSame([['linkedIn', 'inbound', '2026-10-14T12:30:00+00:00', 'Intéressée par une mission en mars'], ['call', 'outbound', '2026-10-10T07:00:00+00:00', null]], array_map(static fn (array $exchange): array => [$exchange['channel'], $exchange['direction'], $exchange['occurredAt'], $exchange['text']], self::recordsAt($timeline, 'items')));
+        $this->assertSame(['self', 'noteExchange', 'planExchange'], array_keys(self::recordAt($timeline, '_links')));
+        $this->assertSame(['href' => '/api/exchanges/'.self::stringAt($timeline, 'items', 0, 'id'), 'method' => 'GET'], self::valueAt($timeline, 'items', 0, '_links', 'self'));
+        $this->assertSame(['href' => '/api/contacts/'.$contact.'/exchanges', 'method' => 'POST'], self::valueAt($timeline, '_links', 'noteExchange'));
         $this->assertSame($timeline, $this->requestJson('GET', '/api/contacts/'.$contact.'/exchanges'));
     }
 
@@ -67,8 +70,8 @@ class ExchangeApiTest extends ApiTestCase
     {
         $timeline = $this->note($this->aContactOf($this->anOrganization('ACME')), ['channel' => 'call', 'direction' => 'inbound', 'missed' => true]);
 
-        $this->assertSame('2026-10-15T09:00:00+00:00', $timeline['items'][0]['occurredAt']);
-        $this->assertSame('missed', $timeline['items'][0]['status']);
+        $this->assertSame('2026-10-15T09:00:00+00:00', self::valueAt($timeline, 'items', 0, 'occurredAt'));
+        $this->assertSame('missed', self::valueAt($timeline, 'items', 0, 'status'));
     }
 
     public function testTheExchangeIsKeptForTheOrganizationsOfTheContact(): void
@@ -80,7 +83,7 @@ class ExchangeApiTest extends ApiTestCase
 
         $timeline = $this->note($contact, ['channel' => 'sms', 'direction' => 'inbound']);
 
-        $this->assertEqualsCanonicalizing([$organization, $group], $timeline['items'][0]['organizationIds']);
+        $this->assertEqualsCanonicalizing([$organization, $group], self::valueAt($timeline, 'items', 0, 'organizationIds'));
     }
 
     public function testTheTimelineComesInSlices(): void
@@ -92,11 +95,11 @@ class ExchangeApiTest extends ApiTestCase
         }
 
         $first = $this->requestJson('GET', '/api/contacts/'.$contact.'/exchanges');
-        $this->assertCount(20, $first['items']);
-        $this->assertSame('2026-10-15T08:58:00+00:00', $first['items'][0]['occurredAt']);
-        $following = $this->requestJson('GET', $first['_links']['next']['href']);
-        $this->assertSame(['2026-10-15T08:38:00+00:00'], array_column($following['items'], 'occurredAt'));
-        $this->assertArrayNotHasKey('next', $following['_links']);
+        $this->assertCount(20, self::arrayAt($first, 'items'));
+        $this->assertSame('2026-10-15T08:58:00+00:00', self::valueAt($first, 'items', 0, 'occurredAt'));
+        $following = $this->requestJson('GET', self::stringAt($first, '_links', 'next', 'href'));
+        $this->assertSame(['2026-10-15T08:38:00+00:00'], array_column(self::recordsAt($following, 'items'), 'occurredAt'));
+        $this->assertArrayNotHasKey('next', self::recordAt($following, '_links'));
     }
 
     public function testOnlyACallIsMissed(): void
@@ -111,7 +114,7 @@ class ExchangeApiTest extends ApiTestCase
     public function testAMaltMessageIsNotedAndCorrectedLikeAnyMessageButNeverMissed(): void
     {
         $contact = $this->aContactOf($this->anOrganization('ACME'));
-        $id = $this->note($contact, ['channel' => 'malt', 'direction' => 'inbound', 'occurredAt' => '2026-10-14T14:30:00+00:00'])['items'][0]['id'];
+        $id = self::stringAt($this->note($contact, ['channel' => 'malt', 'direction' => 'inbound', 'occurredAt' => '2026-10-14T14:30:00+00:00']), 'items', 0, 'id');
         $this->assertResponseStatusCodeSame(201);
 
         $exchange = $this->correct($id, ['channel' => 'malt', 'direction' => 'outbound', 'occurredAt' => '2026-10-14T14:30:00+00:00']);
@@ -164,8 +167,8 @@ class ExchangeApiTest extends ApiTestCase
 
         $timeline = $this->requestJson('GET', '/api/contacts/'.$contact.'/exchanges');
         $this->assertResponseStatusCodeSame(200);
-        $this->assertSame([['Ada rappellera lundi', true]], array_map(static fn (array $exchange): array => [$exchange['text'], $exchange['textFlagged']], $timeline['items']));
-        $this->assertSame(['self', 'planExchange'], array_keys($timeline['_links']));
+        $this->assertSame([['Ada rappellera lundi', true]], array_map(static fn (array $exchange): array => [$exchange['text'], $exchange['textFlagged']], self::recordsAt($timeline, 'items')));
+        $this->assertSame(['self', 'planExchange'], array_keys(self::recordAt($timeline, '_links')));
         $this->note($contact, ['channel' => 'sms', 'direction' => 'inbound']);
         $this->assertResponseStatusCodeSame(403);
     }
@@ -177,14 +180,14 @@ class ExchangeApiTest extends ApiTestCase
         $alone = $this->aContactOf($organization);
         $shared = $this->aContactOf($organization, 'Grace');
         $this->requestJson('POST', '/api/organizations/'.$group.'/contacts', ['personId' => $shared]);
-        $erased = $this->note($alone, ['channel' => 'sms', 'direction' => 'inbound'])['items'][0]['id'];
+        $erased = self::stringAt($this->note($alone, ['channel' => 'sms', 'direction' => 'inbound']), 'items', 0, 'id');
         $this->note($shared, ['channel' => 'call', 'direction' => 'outbound']);
 
         $this->requestJson('DELETE', '/api/organizations/'.$organization);
         $this->assertResponseStatusCodeSame(204);
 
         $timeline = $this->requestJson('GET', '/api/contacts/'.$shared.'/exchanges');
-        $this->assertSame([[$group]], array_column($timeline['items'], 'organizationIds'));
+        $this->assertSame([[$group]], array_column(self::recordsAt($timeline, 'items'), 'organizationIds'));
         $this->requestJson('GET', '/api/exchanges/'.$erased);
         $this->assertResponseStatusCodeSame(404);
     }
@@ -194,7 +197,7 @@ class ExchangeApiTest extends ApiTestCase
         $contact = $this->aContactOf($this->anOrganization('ACME'));
         $timeline = $this->note($contact, ['channel' => 'sms', 'direction' => 'inbound', 'occurredAt' => '2026-10-14T14:30:00+00:00', 'text' => "Rappeler lundi\nAprès le salon"]);
 
-        $exchange = $this->requestJson('GET', $timeline['items'][0]['_links']['self']['href']);
+        $exchange = $this->requestJson('GET', self::stringAt($timeline, 'items', 0, '_links', 'self', 'href'));
 
         $this->assertResponseStatusCodeSame(200);
         $this->assertSame(['kind' => 'person', 'id' => $contact, 'name' => 'Ada', 'presence' => 'present'], $exchange['interlocutor']);
@@ -202,44 +205,44 @@ class ExchangeApiTest extends ApiTestCase
         $this->assertSame(['at' => '2026-10-15T09:00:00+00:00', 'by' => ['name' => ['firstName' => 'Camille', 'lastName' => 'Martin'], 'email' => 'prospector@solean-it.io']], $exchange['noted']);
         $this->assertNull($exchange['corrected']);
         $this->assertSame([], $exchange['attachments']);
-        $this->assertSame(['self', 'interlocutor', 'correctExchange', 'correctText', 'eraseExchange', 'attachFile'], array_keys($exchange['_links']));
-        $this->assertSame(['href' => '/api/contacts/'.$contact, 'method' => 'GET'], $exchange['_links']['interlocutor']);
-        $this->assertSame(['href' => '/api/exchanges/'.$exchange['id'].'/facts', 'method' => 'PATCH'], $exchange['_links']['correctExchange']);
-        $this->assertSame(['href' => '/api/exchanges/'.$exchange['id'].'/text', 'method' => 'PATCH'], $exchange['_links']['correctText']);
-        $this->assertSame(['href' => '/api/exchanges/'.$exchange['id'], 'method' => 'DELETE'], $exchange['_links']['eraseExchange']);
+        $this->assertSame(['self', 'interlocutor', 'correctExchange', 'correctText', 'eraseExchange', 'attachFile'], array_keys(self::recordAt($exchange, '_links')));
+        $this->assertSame(['href' => '/api/contacts/'.$contact, 'method' => 'GET'], self::valueAt($exchange, '_links', 'interlocutor'));
+        $this->assertSame(['href' => '/api/exchanges/'.self::stringAt($exchange, 'id').'/facts', 'method' => 'PATCH'], self::valueAt($exchange, '_links', 'correctExchange'));
+        $this->assertSame(['href' => '/api/exchanges/'.self::stringAt($exchange, 'id').'/text', 'method' => 'PATCH'], self::valueAt($exchange, '_links', 'correctText'));
+        $this->assertSame(['href' => '/api/exchanges/'.self::stringAt($exchange, 'id'), 'method' => 'DELETE'], self::valueAt($exchange, '_links', 'eraseExchange'));
     }
 
     public function testAnExchangeWithTheOrganizationItselfHasItForInterlocutor(): void
     {
         $organization = $this->anOrganization('ACME');
         $timeline = $this->requestJson('POST', '/api/organizations/'.$organization.'/exchanges', ['exchange' => ['channel' => 'call', 'direction' => 'inbound', 'occurredAt' => '2026-10-14T14:30:00+00:00'], 'personId' => null]);
-        $id = $timeline['items'][0]['exchange']['id'];
+        $id = self::stringAt($timeline, 'items', 0, 'exchange', 'id');
 
         $exchange = $this->correct($id, ['channel' => 'call', 'direction' => 'inbound', 'occurredAt' => '2026-10-14T14:30:00+00:00', 'text' => 'Le standard rappellera']);
 
         $this->assertResponseStatusCodeSame(200);
         $this->assertSame(['kind' => 'organization', 'id' => $organization, 'name' => 'ACME', 'presence' => null], $exchange['interlocutor']);
         $this->assertSame('Le standard rappellera', $exchange['text']);
-        $this->assertSame(['href' => '/api/organizations/'.$organization, 'method' => 'GET'], $exchange['_links']['interlocutor']);
+        $this->assertSame(['href' => '/api/organizations/'.$organization, 'method' => 'GET'], self::valueAt($exchange, '_links', 'interlocutor'));
     }
 
     public function testACorrectionIsShownWithWhoMadeIt(): void
     {
         $contact = $this->aContactOf($this->anOrganization('ACME'));
-        $id = $this->note($contact, ['channel' => 'linkedIn', 'direction' => 'inbound', 'occurredAt' => '2026-10-14T14:30:00+00:00', 'text' => 'Intéressée'])['items'][0]['id'];
+        $id = self::stringAt($this->note($contact, ['channel' => 'linkedIn', 'direction' => 'inbound', 'occurredAt' => '2026-10-14T14:30:00+00:00', 'text' => 'Intéressée']), 'items', 0, 'id');
 
         $exchange = $this->correct($id, ['channel' => 'email', 'direction' => 'inbound', 'occurredAt' => '2026-10-14T14:30:00+00:00', 'text' => 'Objet : mission. Intéressée']);
 
         $this->assertResponseStatusCodeSame(200);
         $this->assertSame(['email', 'Objet : mission. Intéressée'], [$exchange['channel'], $exchange['text']]);
-        $this->assertSame('2026-10-15T09:00:00+00:00', $exchange['corrected']['at']);
-        $this->assertSame('prospector@solean-it.io', $exchange['corrected']['by']['email']);
-        $this->assertSame([['email', 'Objet : mission. Intéressée']], array_map(static fn (array $item): array => [$item['channel'], $item['text']], $this->requestJson('GET', '/api/contacts/'.$contact.'/exchanges')['items']));
+        $this->assertSame('2026-10-15T09:00:00+00:00', self::valueAt($exchange, 'corrected', 'at'));
+        $this->assertSame('prospector@solean-it.io', self::valueAt($exchange, 'corrected', 'by', 'email'));
+        $this->assertSame([['email', 'Objet : mission. Intéressée']], array_map(static fn (array $item): array => [$item['channel'], $item['text']], self::recordsAt($this->requestJson('GET', '/api/contacts/'.$contact.'/exchanges'), 'items')));
     }
 
     public function testACorrectionIsNeverInTheFuture(): void
     {
-        $id = $this->note($this->aContactOf($this->anOrganization('ACME')), ['channel' => 'call', 'direction' => 'inbound'])['items'][0]['id'];
+        $id = self::stringAt($this->note($this->aContactOf($this->anOrganization('ACME')), ['channel' => 'call', 'direction' => 'inbound']), 'items', 0, 'id');
 
         $problem = $this->correct($id, ['channel' => 'call', 'direction' => 'inbound', 'occurredAt' => '2026-10-16T09:00:00+00:00']);
 
@@ -249,7 +252,7 @@ class ExchangeApiTest extends ApiTestCase
 
     public function testTheContactOfAnExchangeIsNotCorrected(): void
     {
-        $id = $this->note($this->aContactOf($this->anOrganization('ACME')), ['channel' => 'call', 'direction' => 'inbound'])['items'][0]['id'];
+        $id = self::stringAt($this->note($this->aContactOf($this->anOrganization('ACME')), ['channel' => 'call', 'direction' => 'inbound']), 'items', 0, 'id');
 
         $problem = $this->correct($id, ['channel' => 'call', 'direction' => 'inbound', 'occurredAt' => '2026-10-15T08:00:00+00:00', 'personId' => self::newIdentity()]);
 
@@ -261,7 +264,7 @@ class ExchangeApiTest extends ApiTestCase
     {
         $organization = $this->anOrganization('ACME');
         $contact = $this->aContactOf($organization);
-        $id = $this->note($contact, ['channel' => 'sms', 'direction' => 'inbound'])['items'][0]['id'];
+        $id = self::stringAt($this->note($contact, ['channel' => 'sms', 'direction' => 'inbound']), 'items', 0, 'id');
 
         $this->requestJson('DELETE', '/api/exchanges/'.$id);
 
@@ -273,14 +276,14 @@ class ExchangeApiTest extends ApiTestCase
 
     public function testWithoutTheRightAnExchangeIsReadNamedAndOnlyItsTextCorrected(): void
     {
-        $id = $this->note($this->aContactOf($this->anOrganization('ACME'), 'Grace'), ['channel' => 'sms', 'direction' => 'inbound', 'text' => 'Grace rappellera lundi'])['items'][0]['id'];
+        $id = self::stringAt($this->note($this->aContactOf($this->anOrganization('ACME'), 'Grace'), ['channel' => 'sms', 'direction' => 'inbound', 'text' => 'Grace rappellera lundi']), 'items', 0, 'id');
         $this->login($this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector));
 
         $exchange = $this->requestJson('GET', '/api/exchanges/'.$id);
         $this->assertResponseStatusCodeSame(200);
-        $this->assertSame('Grace', $exchange['interlocutor']['name']);
+        $this->assertSame('Grace', self::valueAt($exchange, 'interlocutor', 'name'));
         $this->assertSame(['Grace rappellera lundi', true], [$exchange['text'], $exchange['textFlagged']]);
-        $this->assertSame(['self', 'interlocutor', 'correctText'], array_keys($exchange['_links']));
+        $this->assertSame(['self', 'interlocutor', 'correctText'], array_keys(self::recordAt($exchange, '_links')));
         $this->correct($id, ['channel' => 'call', 'direction' => 'inbound', 'occurredAt' => '2026-10-15T08:00:00+00:00']);
         $this->assertResponseStatusCodeSame(403);
         $this->requestJson('DELETE', '/api/exchanges/'.$id);
@@ -289,20 +292,20 @@ class ExchangeApiTest extends ApiTestCase
 
     public function testTheTextCorrectedAloneIsShownWithWhoCorrectedIt(): void
     {
-        $id = $this->note($this->aContactOf($this->anOrganization('ACME')), ['channel' => 'sms', 'direction' => 'inbound', 'occurredAt' => '2026-10-14T14:30:00+00:00', 'text' => 'Ada rappellera lundi'])['items'][0]['id'];
+        $id = self::stringAt($this->note($this->aContactOf($this->anOrganization('ACME')), ['channel' => 'sms', 'direction' => 'inbound', 'occurredAt' => '2026-10-14T14:30:00+00:00', 'text' => 'Ada rappellera lundi']), 'items', 0, 'id');
         $this->login('assistant-user');
 
         $exchange = $this->requestJson('PATCH', '/api/exchanges/'.$id.'/text', ['text' => 'La contactée rappellera lundi']);
 
         $this->assertResponseStatusCodeSame(200);
         $this->assertSame(['sms', '2026-10-14T14:30:00+00:00', 'La contactée rappellera lundi'], [$exchange['channel'], $exchange['occurredAt'], $exchange['text']]);
-        $this->assertSame('2026-10-15T09:00:00+00:00', $exchange['corrected']['at']);
-        $this->assertSame('assistant@solean-it.io', $exchange['corrected']['by']['email']);
+        $this->assertSame('2026-10-15T09:00:00+00:00', self::valueAt($exchange, 'corrected', 'at'));
+        $this->assertSame('assistant@solean-it.io', self::valueAt($exchange, 'corrected', 'by', 'email'));
     }
 
     public function testOnlyTheTextIsCorrectedThere(): void
     {
-        $id = $this->note($this->aContactOf($this->anOrganization('ACME')), ['channel' => 'sms', 'direction' => 'inbound'])['items'][0]['id'];
+        $id = self::stringAt($this->note($this->aContactOf($this->anOrganization('ACME')), ['channel' => 'sms', 'direction' => 'inbound']), 'items', 0, 'id');
 
         $problem = $this->requestJson('PATCH', '/api/exchanges/'.$id.'/text', ['text' => 'Rien', 'channel' => 'call']);
 
@@ -319,7 +322,7 @@ class ExchangeApiTest extends ApiTestCase
 
         $timeline = $this->requestJson('GET', '/api/contacts/'.$contact.'/exchanges');
 
-        $this->assertSame(['google', null], array_column($timeline['items'], 'importedFrom'));
+        $this->assertSame(['google', null], array_column(self::recordsAt($timeline, 'items'), 'importedFrom'));
     }
 
     public function testTheTimelineOfAnOrganizationTellsTheExchangesImported(): void
@@ -329,7 +332,7 @@ class ExchangeApiTest extends ApiTestCase
 
         $timeline = $this->requestJson('GET', '/api/organizations/'.$organization.'/exchanges');
 
-        $this->assertSame(['google'], array_column(array_column($timeline['items'], 'exchange'), 'importedFrom'));
+        $this->assertSame(['google'], array_column(array_column(self::recordsAt($timeline, 'items'), 'exchange'), 'importedFrom'));
     }
 
     public function testTheDetailOfAnImportedExchangeSaysWhereItComesFromAndOpensItsMessageInGmail(): void
@@ -340,7 +343,7 @@ class ExchangeApiTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(200);
         $this->assertSame('google', $exchange['importedFrom']);
-        $this->assertSame(['href' => 'https://mail.google.com/mail/#all/18c2f4a9e0b1d3c7', 'method' => 'GET'], $exchange['_links']['openInMailbox']);
+        $this->assertSame(['href' => 'https://mail.google.com/mail/#all/18c2f4a9e0b1d3c7', 'method' => 'GET'], self::valueAt($exchange, '_links', 'openInMailbox'));
     }
 
     public function testTheDetailOfAnImportedExchangeReadWithoutTheRightSaysWhereItComesFromButOpensNothing(): void
@@ -352,7 +355,7 @@ class ExchangeApiTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(200);
         $this->assertSame(['google', true], [$exchange['importedFrom'], $exchange['textFlagged']]);
-        $this->assertArrayNotHasKey('openInMailbox', $exchange['_links']);
+        $this->assertArrayNotHasKey('openInMailbox', self::recordAt($exchange, '_links'));
     }
 
     public function testTheDetailOfAnImportedExchangeOpensItsMessageInGmailToAnAdministrator(): void
@@ -362,7 +365,7 @@ class ExchangeApiTest extends ApiTestCase
 
         $exchange = $this->requestJson('GET', '/api/exchanges/'.$id);
 
-        $this->assertSame('https://mail.google.com/mail/#all/18c2f4a9e0b1d3c7', $exchange['_links']['openInMailbox']['href'] ?? null);
+        $this->assertSame('https://mail.google.com/mail/#all/18c2f4a9e0b1d3c7', self::valueAt($exchange, '_links', 'openInMailbox', 'href'));
     }
 
     public function testTheDetailOfAnImportedExchangeWhoseMessageIdWasNotKeptOpensNothing(): void
@@ -372,7 +375,7 @@ class ExchangeApiTest extends ApiTestCase
         $exchange = $this->requestJson('GET', '/api/exchanges/'.$id);
 
         $this->assertSame('google', $exchange['importedFrom']);
-        $this->assertArrayNotHasKey('openInMailbox', $exchange['_links']);
+        $this->assertArrayNotHasKey('openInMailbox', self::recordAt($exchange, '_links'));
     }
 
     public function testAnExchangeNeverNotedIsNotFound(): void
@@ -420,12 +423,12 @@ class ExchangeApiTest extends ApiTestCase
 
     private function aContactOf(string $organization, string $firstName = 'Ada'): string
     {
-        return $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => $firstName], 'organizationIds' => [$organization]])['id'];
+        return self::stringAt($this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => $firstName], 'organizationIds' => [$organization]]), 'id');
     }
 
     private function anOrganization(string $name): string
     {
-        return $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => $name]])['id'];
+        return self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => $name]]), 'id');
     }
 
     /**
@@ -436,7 +439,7 @@ class ExchangeApiTest extends ApiTestCase
         $organization ??= $this->anOrganization('ACME');
         $contact ??= $this->aContactOf($organization);
         $exchange = Exchange::noted(new Gesture($this->accountOfTheFixtures(), new MemberId($this->memberIdOf('prospector-user')), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)), new ExchangeId(self::newIdentity()), new ContactCorrespondent(new PersonId($contact), [new OrganizationId($organization)]), Noting::imported(new ExchangeFacts(Channel::Email, Direction::Inbound, new \DateTimeImmutable('2026-10-14 09:00 UTC'), "Votre devis\n\nBonjour"), $email));
-        self::getContainer()->get(ExchangeRepository::class)->save($exchange);
+        self::service(ExchangeRepository::class)->save($exchange);
 
         return $exchange->id()->value;
     }
@@ -444,12 +447,12 @@ class ExchangeApiTest extends ApiTestCase
     private function anExchangeOfAnotherAccount(): string
     {
         $competitor = Account::open(new AccountId(self::newIdentity()), new LegalIdentity('Competitor'), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
-        self::getContainer()->get(AccountRepository::class)->save($competitor);
+        self::service(AccountRepository::class)->save($competitor);
         $theirs = Organization::prospectedBy(new Gesture($competitor->id(), new MemberId(self::newIdentity()), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)), new OrganizationId(self::newIdentity()), new LegalIdentity('Their prospect'), new ContactDetails());
-        self::getContainer()->get(OrganizationRepository::class)->save($theirs);
+        self::service(OrganizationRepository::class)->save($theirs);
         $exchange = Exchange::noted(new Gesture($theirs->accountId(), new MemberId(self::newIdentity()), new \DateTimeImmutable('2026-10-14')), new ExchangeId(self::newIdentity()), new OrganizationCorrespondent($theirs->id()), Noting::of(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable('2026-10-14')), ExchangeStatus::Done));
         $exchange->attach(new Attachment(new AttachmentId(self::ATTACHMENT), 'devis.pdf', 2048, 'application/pdf', 'their-file'), new MemberId(self::newIdentity()), new \DateTimeImmutable('2026-10-14'));
-        self::getContainer()->get(ExchangeRepository::class)->save($exchange);
+        self::service(ExchangeRepository::class)->save($exchange);
 
         return $exchange->id()->value;
     }

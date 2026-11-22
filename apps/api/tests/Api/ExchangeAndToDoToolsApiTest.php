@@ -54,7 +54,7 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
 
         $upcoming = $this->assertTheToolActsAsItsEndpoint('schedule-contact-exchange', ['id' => $ada, ...$tomorrow], 'POST', '/api/contacts/'.$ada.'/upcoming-exchanges', $tomorrow, self::PROSPECTORS);
 
-        $this->assertSame([['videoCall', '2026-10-16T08:00:00+00:00', 'planned']], array_map(static fn (array $exchange): array => [$exchange['channel'], $exchange['occurredAt'], $exchange['status']], array_slice($upcoming['items'], 0, 1)));
+        $this->assertSame([['videoCall', '2026-10-16T08:00:00+00:00', 'planned']], array_map(static fn (array $exchange): array => [$exchange['channel'], $exchange['occurredAt'], $exchange['status']], array_slice(self::recordsAt($upcoming, 'items'), 0, 1)));
     }
 
     public function testTheAiPlansAMeetingWithAContactOfAnOrganization(): void
@@ -65,7 +65,7 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
 
         $upcoming = $this->assertTheToolActsAsItsEndpoint('schedule-organization-exchange', ['id' => $babbage, 'personId' => $ada, ...$meeting], 'POST', '/api/organizations/'.$babbage.'/upcoming-exchanges', ['exchange' => $meeting, 'personId' => $ada], self::PROSPECTORS);
 
-        $this->assertSame(['meeting', '1 place Kléber, Strasbourg'], [$upcoming['items'][0]['exchange']['channel'], $upcoming['items'][0]['exchange']['place']]);
+        $this->assertSame(['meeting', '1 place Kléber, Strasbourg'], [self::valueAt($upcoming, 'items', 0, 'exchange', 'channel'), self::valueAt($upcoming, 'items', 0, 'exchange', 'place')]);
     }
 
     public function testAnExchangeTheAiPlansIsCreatedByAnAi(): void
@@ -75,7 +75,7 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
 
         $upcoming = $this->answerOf($this->callWithoutHandshake('schedule-contact-exchange', ['id' => $ada, 'channel' => 'call', 'occurredAt' => '2026-10-16T10:00:00+02:00']));
 
-        $this->assertTrue($upcoming['items'][0]['createdByAnAI'] ?? null);
+        $this->assertTrue(self::valueAt($upcoming, 'items', 0, 'createdByAnAI'));
     }
 
     public function testAnExchangeTheAiPlansWithAnOrganizationIsCreatedByAnAi(): void
@@ -85,7 +85,7 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
 
         $upcoming = $this->answerOf($this->callWithoutHandshake('schedule-organization-exchange', ['id' => $babbage, 'channel' => 'call', 'occurredAt' => '2026-10-16T10:00:00+02:00']));
 
-        $this->assertTrue($upcoming['items'][0]['exchange']['createdByAnAI'] ?? null);
+        $this->assertTrue(self::valueAt($upcoming, 'items', 0, 'exchange', 'createdByAnAI'));
     }
 
     public function testTheAiMarksDoneACallToProcessWithItsReport(): void
@@ -96,7 +96,7 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
         $done = $this->assertTheToolActsAsItsEndpoint('mark-exchange-done', ['id' => $call, ...$report], 'POST', '/api/exchanges/'.$call.'/done', $report, self::HOLDER);
 
         $this->assertSame(['done', 'Intéressée, rappeler en janvier'], [$done['status'], $done['text']]);
-        $this->assertSame([], $this->requestJson('GET', '/api/me/exchanges-to-process')['items']);
+        $this->assertSame([], self::valueAt($this->requestJson('GET', '/api/me/exchanges-to-process'), 'items'));
     }
 
     public function testTheAiMarksMissedACallToProcess(): void
@@ -118,9 +118,10 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
         $moved = $this->answerOf($this->callWithoutHandshake('reschedule-exchange', ['id' => $call, ...$wednesday]));
 
         $this->assertSame(['planned', '2026-10-21T09:00:00+00:00', 45], [$moved['status'], $moved['occurredAt'], $moved['durationInMinutes']]);
-        $this->assertSame(['href' => '/api/exchanges/'.$call.'/moment', 'method' => 'PATCH'], $moved['_links']['moveBack']);
-        unset($moved['_links']['moveBack']);
-        $this->assertSame($this->requestJson('GET', '/api/exchanges/'.$call), $moved);
+        $this->assertSame(['href' => '/api/exchanges/'.$call.'/moment', 'method' => 'PATCH'], self::valueAt($moved, '_links', 'moveBack'));
+        $linksOfTheExchange = self::recordAt($moved, '_links');
+        unset($linksOfTheExchange['moveBack']);
+        $this->assertSame($this->requestJson('GET', '/api/exchanges/'.$call), [...$moved, '_links' => $linksOfTheExchange]);
     }
 
     public function testTheAiCancelsAPlannedExchangeOnceItsMemberConfirmed(): void
@@ -168,7 +169,7 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
     public function testTheAiCorrectsWhereAMeetingIsHeld(): void
     {
         $ada = $this->ada();
-        $meeting = $this->requestJson('POST', '/api/contacts/'.$ada.'/upcoming-exchanges', ['channel' => 'meeting', 'occurredAt' => '2026-10-20T14:00:00+00:00', 'place' => 'Café de Flore'])['items'][0]['id'];
+        $meeting = self::stringAt($this->requestJson('POST', '/api/contacts/'.$ada.'/upcoming-exchanges', ['channel' => 'meeting', 'occurredAt' => '2026-10-20T14:00:00+00:00', 'place' => 'Café de Flore']), 'items', 0, 'id');
 
         $corrected = $this->assertTheToolActsAsItsEndpoint('set-exchange-venue', ['id' => $meeting, 'place' => 'Les Deux Magots'], 'PATCH', '/api/exchanges/'.$meeting.'/venue', ['place' => 'Les Deux Magots'], self::PROSPECTORS);
 
@@ -188,7 +189,7 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
 
         $sync = $this->answerOf($this->callWithoutHandshake('retry-google-sync', ['id' => $call]));
 
-        $this->assertSame('synced', $sync['sync']['state']);
+        $this->assertSame('synced', self::valueAt($sync, 'sync', 'state'));
         $this->assertSame($this->requestJson('GET', '/api/exchanges/'.$call.'/google-sync'), $sync);
         $this->assertCount(1, $this->google()->events());
     }
@@ -197,7 +198,7 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
     {
         $call = $this->aCallWithAdaNotedYesterday();
         $this->keepTheKernel();
-        self::getContainer()->get(TheWeb::class)->publish(self::QUOTE_ON_THE_WEB, (string) file_get_contents(__DIR__.'/../Fixtures/logo.png'));
+        self::service(TheWeb::class)->publish(self::QUOTE_ON_THE_WEB, (string) file_get_contents(__DIR__.'/../Fixtures/logo.png'));
         $quote = ['id' => $call, 'url' => self::QUOTE_ON_THE_WEB, 'name' => 'devis.png'];
         foreach (['assistant-user', 'member-user', 'stranger'] as $refused) {
             $this->login($refused);
@@ -209,7 +210,7 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
 
         $joined = $this->answerOf($this->callWithoutHandshake('attach-file', $quote));
 
-        $this->assertSame([['devis.png', filesize(__DIR__.'/../Fixtures/logo.png'), 'image/png']], array_map(static fn (array $attachment): array => [$attachment['name'], $attachment['size'], $attachment['mediaType']], $joined['attachments']));
+        $this->assertSame([['devis.png', filesize(__DIR__.'/../Fixtures/logo.png'), 'image/png']], array_map(static fn (array $attachment): array => [$attachment['name'], $attachment['size'], $attachment['mediaType']], self::recordsAt($joined, 'attachments')));
         $this->assertSame($this->requestJson('GET', '/api/exchanges/'.$call), $joined);
     }
 
@@ -217,27 +218,27 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
     {
         $call = $this->aCallWithAdaNotedYesterday();
         $this->keepTheKernel();
-        self::getContainer()->get(TheWeb::class)->keepBehindASignIn(self::QUOTE_ON_THE_WEB);
+        self::service(TheWeb::class)->keepBehindASignIn(self::QUOTE_ON_THE_WEB);
         $this->login();
 
         $refusal = $this->answerOf($this->callWithoutHandshake('attach-file', ['id' => $call, 'url' => self::QUOTE_ON_THE_WEB, 'name' => 'devis.png']));
 
-        $this->assertSame([422, 'url'], [$refusal['status'], $refusal['violations'][0]['propertyPath']]);
-        $this->assertStringContainsString('behind a sign-in', $refusal['violations'][0]['title']);
-        $this->assertSame([], $this->requestJson('GET', '/api/exchanges/'.$call)['attachments']);
+        $this->assertSame([422, 'url'], [$refusal['status'], self::valueAt($refusal, 'violations', 0, 'propertyPath')]);
+        $this->assertStringContainsString('behind a sign-in', self::stringAt($refusal, 'violations', 0, 'title'));
+        $this->assertSame([], self::valueAt($this->requestJson('GET', '/api/exchanges/'.$call), 'attachments'));
     }
 
     public function testAFileForbiddenToWhoeverIsNotSignedInIsRefusedSayingItIsBehindASignIn(): void
     {
         $call = $this->aCallWithAdaNotedYesterday();
         $this->keepTheKernel();
-        self::getContainer()->get(TheWeb::class)->keepBehindASignIn(self::QUOTE_ON_THE_WEB, 403);
+        self::service(TheWeb::class)->keepBehindASignIn(self::QUOTE_ON_THE_WEB, 403);
         $this->login();
 
         $refusal = $this->answerOf($this->callWithoutHandshake('attach-file', ['id' => $call, 'url' => self::QUOTE_ON_THE_WEB, 'name' => 'devis.png']));
 
-        $this->assertSame([422, 'url'], [$refusal['status'], $refusal['violations'][0]['propertyPath']]);
-        $this->assertStringContainsString('behind a sign-in', $refusal['violations'][0]['title']);
+        $this->assertSame([422, 'url'], [$refusal['status'], self::valueAt($refusal, 'violations', 0, 'propertyPath')]);
+        $this->assertStringContainsString('behind a sign-in', self::stringAt($refusal, 'violations', 0, 'title'));
     }
 
     /**
@@ -247,27 +248,27 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
     {
         $call = $this->aCallWithAdaNotedYesterday();
         $this->keepTheKernel();
-        self::getContainer()->get(TheWeb::class)->redirect(self::QUOTE_ON_THE_WEB, TheWeb::HOST.'/sign-in');
+        self::service(TheWeb::class)->redirect(self::QUOTE_ON_THE_WEB, TheWeb::HOST.'/sign-in');
         $this->login();
 
         $refusal = $this->answerOf($this->callWithoutHandshake('attach-file', ['id' => $call, 'url' => self::QUOTE_ON_THE_WEB, 'name' => 'devis.png']));
 
-        $this->assertSame([422, 'url'], [$refusal['status'], $refusal['violations'][0]['propertyPath']]);
-        $this->assertStringContainsString('redirects', $refusal['violations'][0]['title']);
-        $this->assertStringContainsString('sign-in', $refusal['violations'][0]['title']);
+        $this->assertSame([422, 'url'], [$refusal['status'], self::valueAt($refusal, 'violations', 0, 'propertyPath')]);
+        $this->assertStringContainsString('redirects', self::stringAt($refusal, 'violations', 0, 'title'));
+        $this->assertStringContainsString('sign-in', self::stringAt($refusal, 'violations', 0, 'title'));
     }
 
     public function testTheAiRemovesAFileJoinedToAnExchangeOnceItsMemberConfirmed(): void
     {
         $call = $this->aCallWithAdaNotedYesterday();
-        $upload = $this->requestJson('POST', '/api/uploads')['upload'];
-        self::getContainer()->get(InMemoryPrivateStorage::class)->send($upload, 2048, 'application/pdf');
-        $attachment = $this->requestJson('POST', '/api/exchanges/'.$call.'/attachments', ['upload' => $upload, 'name' => 'devis.pdf'])['attachments'][0]['id'];
+        $upload = self::stringAt($this->requestJson('POST', '/api/uploads'), 'upload');
+        self::service(InMemoryPrivateStorage::class)->send($upload, 2048, 'application/pdf');
+        $attachment = self::stringAt($this->requestJson('POST', '/api/exchanges/'.$call.'/attachments', ['upload' => $upload, 'name' => 'devis.pdf']), 'attachments', 0, 'id');
 
         $removed = $this->assertTheToolActsAsItsEndpoint('delete-attachment', ['id' => $call, 'attachmentId' => $attachment], 'DELETE', '/api/exchanges/'.$call.'/attachments/'.$attachment, null, self::PERSONAL_DATA_MANAGERS);
 
         $this->assertSame([], $removed['attachments']);
-        $this->assertFalse(self::getContainer()->get(InMemoryPrivateStorage::class)->holds($upload));
+        $this->assertFalse(self::service(InMemoryPrivateStorage::class)->holds($upload));
         $this->assertTheToolAsksForAConfirmation('delete-attachment');
     }
 
@@ -282,7 +283,7 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
 
         $connections = $this->answerOf($this->callWithoutHandshake('retry-failed-google-syncs'));
 
-        $this->assertSame(['synced' => 1, 'failed' => 0], array_intersect_key($connections['connections'][0], ['synced' => true, 'failed' => true]));
+        $this->assertSame(['synced' => 1, 'failed' => 0], array_intersect_key(self::arrayAt($connections, 'connections', 0), ['synced' => true, 'failed' => true]));
         $this->assertSame($this->requestJson('GET', '/api/me/connections'), $connections);
         $this->assertCount(1, $this->google()->events());
     }
@@ -307,7 +308,7 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
 
         $noted = $this->assertTheToolActsAsItsEndpoint('create-contact-todo', ['id' => $ada, ...self::FRIDAY], 'POST', '/api/contacts/'.$ada.'/to-dos', self::FRIDAY, self::PERSONAL_DATA_MANAGERS);
 
-        $this->assertSame(['Envoyer le CV', '2026-10-16', $ada], [$noted['text'], $noted['dueOn'], $noted['contact']['id']]);
+        $this->assertSame(['Envoyer le CV', '2026-10-16', $ada], [$noted['text'], $noted['dueOn'], self::valueAt($noted, 'contact', 'id')]);
     }
 
     public function testTheAiNotesAToDoForAnOrganization(): void
@@ -318,7 +319,7 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
 
         $this->assertSame(['Envoyer le CV', null], [$noted['text'], $noted['contact']]);
         $this->login();
-        $this->assertContains($noted['id'], array_column($this->requestJson('GET', '/api/organizations/'.$babbage.'/to-dos')['toDos'], 'id'));
+        $this->assertContains($noted['id'], array_column(self::recordsAt($this->requestJson('GET', '/api/organizations/'.$babbage.'/to-dos'), 'toDos'), 'id'));
     }
 
     public function testTheAiTicksOffTheToDoItNoted(): void
@@ -370,7 +371,7 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
     {
         $ada = $this->ada();
 
-        return $this->answerOf($this->callWithoutHandshake('create-contact-todo', ['id' => $ada, ...self::FRIDAY]))['id'];
+        return self::stringAt($this->answerOf($this->callWithoutHandshake('create-contact-todo', ['id' => $ada, ...self::FRIDAY])), 'id');
     }
 
     /**
@@ -380,7 +381,7 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
     {
         $this->login();
 
-        return $this->requestJson('GET', '/api/contacts?q=Lovelace')['items'][0]['id'];
+        return self::stringAt($this->requestJson('GET', '/api/contacts?q=Lovelace'), 'items', 0, 'id');
     }
 
     /**
@@ -390,7 +391,7 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
     {
         $ada = $this->ada();
 
-        return $this->requestJson('POST', '/api/contacts/'.$ada.'/upcoming-exchanges', ['channel' => 'call', 'occurredAt' => '2026-10-20T14:00:00+00:00'])['items'][0]['id'];
+        return self::stringAt($this->requestJson('POST', '/api/contacts/'.$ada.'/upcoming-exchanges', ['channel' => 'call', 'occurredAt' => '2026-10-20T14:00:00+00:00']), 'items', 0, 'id');
     }
 
     /**
@@ -410,7 +411,7 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
     private function aCallWithAdaPlannedYesterday(): string
     {
         $call = Exchange::planned(new Gesture($this->accountOfTheFixtures(), new MemberId($this->memberIdOf('prospector-user')), new \DateTimeImmutable('2026-10-13 09:00 UTC')), new ExchangeId(self::newIdentity()), new ContactCorrespondent(new PersonId($this->ada()), [new OrganizationId($this->babbage())]), ExchangeFacts::planned(Channel::Call, new \DateTimeImmutable('2026-10-14 09:00 UTC'), Duration::inMinutes(null), null));
-        self::getContainer()->get(ExchangeRepository::class)->save($call);
+        self::service(ExchangeRepository::class)->save($call);
 
         return $call->id()->value;
     }
@@ -420,15 +421,15 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
      */
     private function connectGoogle(): void
     {
-        parse_str((string) parse_url($this->requestJson('POST', '/api/me/connections/google/authorizations')['address'], \PHP_URL_QUERY), $query);
-        $this->google()->grants('a-code-of-google', 'michel@exemple.fr', 'a-refresh-token-'.$query['state']);
+        parse_str((string) parse_url(self::stringAt($this->requestJson('POST', '/api/me/connections/google/authorizations'), 'address'), \PHP_URL_QUERY), $query);
+        $this->google()->grants('a-code-of-google', 'michel@exemple.fr', 'a-refresh-token-'.self::stringAt($query, 'state'));
         $this->requestJson('POST', '/api/me/connections/google', ['code' => 'a-code-of-google', 'state' => $query['state']]);
         $this->assertResponseStatusCodeSame(201);
     }
 
     private function google(): GoogleDouble
     {
-        return self::getContainer()->get(GoogleDouble::class);
+        return self::service(GoogleDouble::class);
     }
 
     /**
@@ -438,6 +439,6 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
     {
         $this->login();
 
-        return $this->requestJson('GET', '/api/organizations?q=Babbage')['items'][0]['id'];
+        return self::stringAt($this->requestJson('GET', '/api/organizations?q=Babbage'), 'items', 0, 'id');
     }
 }

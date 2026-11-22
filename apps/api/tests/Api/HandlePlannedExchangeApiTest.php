@@ -20,6 +20,7 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Symfony\Component\Clock\MockClock;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Base\ReadsResources;
 
 /**
  * A planned exchange marked done or missed once its time has come, moved or cancelled, by its holder only; the clock
@@ -28,6 +29,8 @@ use Tests\App\Base\ApiTestCase;
 #[Group('api')]
 class HandlePlannedExchangeApiTest extends ApiTestCase
 {
+    use ReadsResources;
+
     private const string NEXT_TUESDAY = '2026-10-20T14:00:00+00:00';
 
     private string $contact;
@@ -39,20 +42,20 @@ class HandlePlannedExchangeApiTest extends ApiTestCase
         parent::setUp();
         $this->client->disableReboot();
         $this->login();
-        $this->organization = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];
-        $this->contact = $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'], 'organizationIds' => [$this->organization]])['id'];
+        $this->organization = self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']]), 'id');
+        $this->contact = self::stringAt($this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'], 'organizationIds' => [$this->organization]]), 'id');
         $upcoming = $this->requestJson('POST', '/api/contacts/'.$this->contact.'/upcoming-exchanges', ['channel' => 'videoCall', 'occurredAt' => self::NEXT_TUESDAY, 'durationInMinutes' => 45, 'text' => 'Démonstration']);
-        $this->planned = $upcoming['items'][0]['id'];
+        $this->planned = self::stringAt($upcoming, 'items', 0, 'id');
     }
 
     public function testBeforeItsTimeItsHolderMovesOrCancelsIt(): void
     {
         $detail = $this->requestJson('GET', '/api/exchanges/'.$this->planned);
 
-        $this->assertSame(['href' => '/api/exchanges/'.$this->planned.'/moment', 'method' => 'PATCH'], $detail['_links']['move']);
-        $this->assertSame(['href' => '/api/exchanges/'.$this->planned.'/cancellation', 'method' => 'POST'], $detail['_links']['cancel']);
-        $this->assertArrayNotHasKey('markDone', $detail['_links']);
-        $this->assertArrayNotHasKey('markMissed', $detail['_links']);
+        $this->assertSame(['href' => '/api/exchanges/'.$this->planned.'/moment', 'method' => 'PATCH'], self::valueAt($detail, '_links', 'move'));
+        $this->assertSame(['href' => '/api/exchanges/'.$this->planned.'/cancellation', 'method' => 'POST'], self::valueAt($detail, '_links', 'cancel'));
+        $this->assertArrayNotHasKey('markDone', self::recordAt($detail, '_links'));
+        $this->assertArrayNotHasKey('markMissed', self::recordAt($detail, '_links'));
         $tooSoon = $this->requestJson('POST', '/api/exchanges/'.$this->planned.'/done', []);
         $this->assertResponseStatusCodeSame(409);
         $this->assertSame('notYetDue', $tooSoon['reason']);
@@ -61,15 +64,15 @@ class HandlePlannedExchangeApiTest extends ApiTestCase
     public function testOnceItsTimeHasComeItsHolderMarksItDoneWithItsReport(): void
     {
         $this->theClockShows('2026-10-20 15:00 UTC');
-        $this->assertSame(['markDone', 'markMissed'], array_values(array_intersect(['markDone', 'markMissed'], array_keys($this->requestJson('GET', '/api/exchanges/'.$this->planned)['_links']))));
+        $this->assertSame(['markDone', 'markMissed'], array_values(array_intersect(['markDone', 'markMissed'], array_keys(self::recordAt($this->requestJson('GET', '/api/exchanges/'.$this->planned), '_links')))));
 
         $done = $this->requestJson('POST', '/api/exchanges/'.$this->planned.'/done', ['occurredAt' => '2026-10-20T14:10:00+00:00', 'text' => 'Mission de 3 mois en mars']);
 
         $this->assertResponseStatusCodeSame(200);
         $this->assertSame(['done', '2026-10-20T14:10:00+00:00', 'Mission de 3 mois en mars', 45], [$done['status'], $done['occurredAt'], $done['text'], $done['durationInMinutes']]);
-        $this->assertArrayHasKey('correctExchange', $done['_links']);
+        $this->assertArrayHasKey('correctExchange', self::recordAt($done, '_links'));
         $this->assertSame([], $this->requestJson('GET', '/api/contacts/'.$this->contact.'/upcoming-exchanges')['items']);
-        $this->assertSame([[$this->planned, 'done']], array_map(static fn (array $exchange): array => [$exchange['id'], $exchange['status']], $this->requestJson('GET', '/api/contacts/'.$this->contact.'/exchanges')['items']));
+        $this->assertSame([[$this->planned, 'done']], array_map(static fn (array $exchange): array => [$exchange['id'], $exchange['status']], self::recordsAt($this->requestJson('GET', '/api/contacts/'.$this->contact.'/exchanges'), 'items')));
     }
 
     public function testMarkedDoneItsPlannedMomentStaysWhenNoneIsGiven(): void
@@ -107,16 +110,16 @@ class HandlePlannedExchangeApiTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(200);
         $this->assertSame(['planned', '2026-10-21T09:00:00+00:00', 45], [$moved['status'], $moved['occurredAt'], $moved['durationInMinutes']]);
-        $this->assertSame(['2026-10-21T09:00:00+00:00'], array_column($this->requestJson('GET', '/api/contacts/'.$this->contact.'/upcoming-exchanges')['items'], 'occurredAt'));
-        $this->assertSame(['2026-10-21T09:00:00+00:00'], array_column(array_column($this->requestJson('GET', '/api/me/planned-exchanges?startsAt='.urlencode('2026-10-21T09:15:00+00:00'))['items'], 'exchange'), 'occurredAt'));
+        $this->assertSame(['2026-10-21T09:00:00+00:00'], array_column(self::recordsAt($this->requestJson('GET', '/api/contacts/'.$this->contact.'/upcoming-exchanges'), 'items'), 'occurredAt'));
+        $this->assertSame(['2026-10-21T09:00:00+00:00'], array_column(array_column(self::recordsAt($this->requestJson('GET', '/api/me/planned-exchanges?startsAt='.urlencode('2026-10-21T09:15:00+00:00')), 'items'), 'exchange'), 'occurredAt'));
     }
 
     public function testMovedItIsMovedBackWhileItsFormerMomentIsToCome(): void
     {
         $moved = $this->requestJson('PATCH', '/api/exchanges/'.$this->planned.'/moment', ['occurredAt' => '2026-10-21T09:00:00+00:00']);
 
-        $this->assertSame(['href' => '/api/exchanges/'.$this->planned.'/moment', 'method' => 'PATCH'], $moved['_links']['moveBack']);
-        $this->assertArrayNotHasKey('moveBack', $this->requestJson('GET', '/api/exchanges/'.$this->planned)['_links']);
+        $this->assertSame(['href' => '/api/exchanges/'.$this->planned.'/moment', 'method' => 'PATCH'], self::valueAt($moved, '_links', 'moveBack'));
+        $this->assertArrayNotHasKey('moveBack', self::recordAt($this->requestJson('GET', '/api/exchanges/'.$this->planned), '_links'));
         $movedBack = $this->requestJson('PATCH', '/api/exchanges/'.$this->planned.'/moment', ['occurredAt' => self::NEXT_TUESDAY, 'durationInMinutes' => 45]);
         $this->assertResponseStatusCodeSame(200);
         $this->assertSame(self::NEXT_TUESDAY, $movedBack['occurredAt']);
@@ -129,8 +132,8 @@ class HandlePlannedExchangeApiTest extends ApiTestCase
         $moved = $this->requestJson('PATCH', '/api/exchanges/'.$this->planned.'/moment', ['occurredAt' => '2026-10-21T09:00:00+00:00']);
 
         $this->assertResponseStatusCodeSame(200);
-        $this->assertArrayHasKey('move', $moved['_links']);
-        $this->assertArrayNotHasKey('moveBack', $moved['_links']);
+        $this->assertArrayHasKey('move', self::recordAt($moved, '_links'));
+        $this->assertArrayNotHasKey('moveBack', self::recordAt($moved, '_links'));
         $this->requestJson('PATCH', '/api/exchanges/'.$this->planned.'/moment', ['occurredAt' => self::NEXT_TUESDAY]);
         $this->assertResponseStatusCodeSame(422);
     }
@@ -141,7 +144,7 @@ class HandlePlannedExchangeApiTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(200);
         $this->assertSame(['2026-10-21T09:00:00+00:00', 90], [$stretched['occurredAt'], $stretched['durationInMinutes']]);
-        $this->assertSame(['2026-10-21T09:00:00+00:00'], array_column(array_column($this->requestJson('GET', '/api/me/planned-exchanges?startsAt='.urlencode('2026-10-21T10:15:00+00:00'))['items'], 'exchange'), 'occurredAt'));
+        $this->assertSame(['2026-10-21T09:00:00+00:00'], array_column(array_column(self::recordsAt($this->requestJson('GET', '/api/me/planned-exchanges?startsAt='.urlencode('2026-10-21T10:15:00+00:00')), 'items'), 'exchange'), 'occurredAt'));
         $tooLong = $this->requestJson('PATCH', '/api/exchanges/'.$this->planned.'/moment', ['occurredAt' => '2026-10-21T09:00:00+00:00', 'durationInMinutes' => 481]);
         $this->assertResponseStatusCodeSame(422);
         $this->assertSame([['duration'], 'durationOutOfRange'], [$this->violatedFields($tooLong), $tooLong['reason']]);
@@ -162,9 +165,9 @@ class HandlePlannedExchangeApiTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(200);
         $this->assertSame(['cancelled', 'contact', self::NEXT_TUESDAY], [$cancelled['status'], $cancelled['canceller'], $cancelled['occurredAt']]);
-        $this->assertSame([], array_intersect(['move', 'cancel', 'markDone', 'markMissed', 'correctExchange'], array_keys($cancelled['_links'])));
+        $this->assertSame([], array_intersect(['move', 'cancel', 'markDone', 'markMissed', 'correctExchange'], array_keys(self::recordAt($cancelled, '_links'))));
         $this->assertSame([], $this->requestJson('GET', '/api/contacts/'.$this->contact.'/upcoming-exchanges')['items']);
-        $this->assertSame([[$this->planned, 'cancelled', 'contact']], array_map(static fn (array $exchange): array => [$exchange['id'], $exchange['status'], $exchange['canceller']], $this->requestJson('GET', '/api/contacts/'.$this->contact.'/exchanges')['items']));
+        $this->assertSame([[$this->planned, 'cancelled', 'contact']], array_map(static fn (array $exchange): array => [$exchange['id'], $exchange['status'], $exchange['canceller']], self::recordsAt($this->requestJson('GET', '/api/contacts/'.$this->contact.'/exchanges'), 'items')));
         $this->assertSame([], $this->requestJson('GET', '/api/me/planned-exchanges?startsAt='.urlencode(self::NEXT_TUESDAY))['items']);
     }
 
@@ -190,7 +193,7 @@ class HandlePlannedExchangeApiTest extends ApiTestCase
         $administrator = $this->aMemberOfTheFixtures('administrator', Role::Prospector, Role::Admin);
         $this->theTokensAreCheckedNow();
         $this->login($administrator);
-        $planned = $this->requestJson('POST', '/api/contacts/'.$this->contact.'/upcoming-exchanges', ['channel' => 'call', 'occurredAt' => '2026-10-19T09:00:00+00:00'])['items'][0]['id'];
+        $planned = self::stringAt($this->requestJson('POST', '/api/contacts/'.$this->contact.'/upcoming-exchanges', ['channel' => 'call', 'occurredAt' => '2026-10-19T09:00:00+00:00']), 'items', 0, 'id');
 
         $this->theHolderHandles($planned);
     }
@@ -202,7 +205,7 @@ class HandlePlannedExchangeApiTest extends ApiTestCase
     {
         $assistant = $this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector);
         $planned = Exchange::planned(new Gesture($this->accountOfTheFixtures(), new MemberId($this->memberIdOf($assistant)), new \DateTimeImmutable('2026-10-15 09:00 UTC')), new ExchangeId(self::newIdentity()), new ContactCorrespondent(new PersonId($this->contact), [new OrganizationId($this->organization)]), ExchangeFacts::planned(Channel::Call, new \DateTimeImmutable(self::NEXT_TUESDAY), Duration::inMinutes(null), null));
-        self::getContainer()->get(ExchangeRepository::class)->save($planned);
+        self::service(ExchangeRepository::class)->save($planned);
         $this->theTokensAreCheckedNow();
         $this->login($assistant);
 
@@ -214,12 +217,12 @@ class HandlePlannedExchangeApiTest extends ApiTestCase
      */
     private function theHolderHandles(string $planned): void
     {
-        $this->assertSame(['move', 'cancel'], array_values(array_intersect(['markDone', 'markMissed', 'move', 'cancel'], array_keys($this->requestJson('GET', '/api/exchanges/'.$planned)['_links']))));
+        $this->assertSame(['move', 'cancel'], array_values(array_intersect(['markDone', 'markMissed', 'move', 'cancel'], array_keys(self::recordAt($this->requestJson('GET', '/api/exchanges/'.$planned), '_links')))));
         $moved = $this->requestJson('PATCH', '/api/exchanges/'.$planned.'/moment', ['occurredAt' => '2026-10-21T09:00:00+00:00']);
         $this->assertResponseStatusCodeSame(200);
-        $this->assertArrayHasKey('moveBack', $moved['_links']);
+        $this->assertArrayHasKey('moveBack', self::recordAt($moved, '_links'));
         $this->theClockShows('2026-10-21 10:00 UTC');
-        $this->assertSame(['markDone', 'markMissed', 'move', 'cancel'], array_values(array_intersect(['markDone', 'markMissed', 'move', 'cancel'], array_keys($this->requestJson('GET', '/api/exchanges/'.$planned)['_links']))));
+        $this->assertSame(['markDone', 'markMissed', 'move', 'cancel'], array_values(array_intersect(['markDone', 'markMissed', 'move', 'cancel'], array_keys(self::recordAt($this->requestJson('GET', '/api/exchanges/'.$planned), '_links')))));
         $this->assertSame('missed', $this->requestJson('POST', '/api/exchanges/'.$planned.'/missed')['status']);
         $this->assertResponseStatusCodeSame(200);
     }
@@ -239,7 +242,7 @@ class HandlePlannedExchangeApiTest extends ApiTestCase
         $detail = $this->requestJson('GET', '/api/exchanges/'.$this->planned);
 
         $this->assertResponseStatusCodeSame(200);
-        $this->assertSame([], array_intersect(['move', 'cancel', 'markDone', 'markMissed'], array_keys($detail['_links'])));
+        $this->assertSame([], array_intersect(['move', 'cancel', 'markDone', 'markMissed'], array_keys(self::recordAt($detail, '_links'))));
         foreach ([['POST', 'done', []], ['POST', 'missed', null], ['PATCH', 'moment', ['occurredAt' => '2026-10-21T09:00:00+00:00']], ['POST', 'cancellation', []]] as [$method, $gesture, $payload]) {
             $refused = $this->requestJson($method, '/api/exchanges/'.$this->planned.'/'.$gesture, $payload);
             $this->assertResponseStatusCodeSame(403, $gesture);
