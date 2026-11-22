@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\StartProspecting;
 
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
+use Prospecter\Core\Prospecting\Domain\Model\WebPresence;
 use Prospecter\Core\Prospecting\Domain\Model\Website;
 use Prospecter\Core\Prospecting\Domain\Port\Prospectors;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
@@ -74,7 +75,7 @@ final readonly class StartProspectingHandler implements CommandHandler
         $website = Website::orNone($command->website);
 
         if ([] !== $references->all() || null !== $website) {
-            $organization->changeContactDetails($organization->contactDetails(), $references, $website, by: $author, at: $command->executedAt);
+            $organization->changeContactDetails($organization->contactDetails(), new WebPresence($references, $website), $author, $command->executedAt);
         }
     }
 

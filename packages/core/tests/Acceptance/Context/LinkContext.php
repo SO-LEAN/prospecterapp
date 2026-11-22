@@ -11,6 +11,7 @@ use Behat\Step\When;
 use Prospecter\Core\PersonalData\Application\ChangePersonContactDetails\ChangePersonContactDetails;
 use Prospecter\Core\Prospecting\Application\ChangeContactDetails\ChangeContactDetails;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
+use Prospecter\Core\Prospecting\Domain\Model\WebPresence;
 use Prospecter\Core\Prospecting\Domain\Model\Website;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Designated;
@@ -33,7 +34,7 @@ final class LinkContext implements Context
     public function anOrganizationOfMineWithTheLink(string $name, string $address): void
     {
         $organization = $this->scenario->isAnOrganization($name) ? $this->scenario->organizationNamed($name) : $this->anOrganizationOfMine($name);
-        $organization->changeContactDetails($organization->contactDetails(), ExternalReferences::designating([$address], Designated::Organization), StateOf::the($organization)->objectOrNull('website', Website::class), by: $this->scenario->managerOf($organization), at: $this->application->now());
+        $organization->changeContactDetails($organization->contactDetails(), new WebPresence(ExternalReferences::designating([$address], Designated::Organization), StateOf::the($organization)->objectOrNull('website', Website::class)), $this->scenario->managerOf($organization), $this->application->now());
         $this->application->organizations->save($organization);
     }
 
