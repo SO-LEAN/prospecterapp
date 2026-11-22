@@ -53,7 +53,7 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 
 - **Objects hide their data and expose behaviour; data structures expose data and have no behaviour.** Do not mix both halves in one class.
 - **Tell, don't ask**: ask an object to do something rather than reading its state to decide for it (`$organization->removeLogo()` refuses when there is no logo).
-- **Law of Demeter**: a method talks to its own fields, its parameters and the objects it creates, not to objects returned by them. No train wrecks: `$user->getOrganization()->getId()` became `$member->accountId()` (aggregates reference each other by identity, ADR 0023).
+- **Law of Demeter**: a method talks to its own fields, its parameters and the objects it creates, not to objects returned by them. No train wrecks: `$user->getOrganization()->getId()` became `$member->accountId()` (aggregates reference each other by identity, ADR 0023). An argument object is a parameter too: the aggregate reads its fields, never the fields of the objects it holds. It offers what the aggregate needs instead (`Candidate::name()` rather than `$candidate->addressee->name()`), or the aggregate hands the inner object to a method of its own (`Person` builds itself from the `ContactCard` of a `NewContact`).
 - **Requests, responses and value objects are data structures**: `final readonly` with public properties, no behaviour except their invariants (`File` validates its URL). A response is built by a named constructor from what it answers (`FileResponse::orNone()`), an exception too (`UnknownOrganization::identifiedBy()`).
 - **Prefer immutability**: `readonly` classes and properties; a change produces a new value object.
 
