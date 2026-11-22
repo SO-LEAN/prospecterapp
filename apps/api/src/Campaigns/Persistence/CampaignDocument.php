@@ -13,6 +13,7 @@ use Prospecter\Core\Campaigns\Domain\Model\CampaignIntent;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignName;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignStatus;
 use Prospecter\Core\Campaigns\Domain\Model\Channel;
+use Prospecter\Core\Campaigns\Domain\Model\DailyCap;
 use Prospecter\Core\Campaigns\Domain\Model\MessageMode;
 use Prospecter\Core\Campaigns\Domain\Model\MessageTemplate;
 use Prospecter\Core\Campaigns\Domain\Model\Recipient;
@@ -33,7 +34,8 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
  * derived from them and from its channel, never kept; frozen, its recipients by their identities and their statuses,
  * whether the call of one processed did not go through and the exchange that processed it (ADR 0145, 0152), why one
  * was dismissed, in the order they were added, none in a draft; the moments it was started, stopped and ended, none before;
- * how an AI treats its message, as is for an item written before it was kept.
+ * how an AI treats its message, as is for an item written before it was kept; its daily cap, and when each recipient
+ * was processed.
  */
 final class CampaignDocument
 {
@@ -62,6 +64,7 @@ final class CampaignDocument
             'startedAt' => self::momentOrNone($state['startedAt']),
             'stoppedAt' => self::momentOrNone($state['stoppedAt']),
             'endedAt' => self::momentOrNone($state['endedAt']),
+            'dailyCap' => $state['dailyCap']?->sends,
         ];
     }
 
@@ -89,6 +92,7 @@ final class CampaignDocument
             'startedAt' => self::momentOfOrNone($document, 'startedAt'),
             'stoppedAt' => self::momentOfOrNone($document, 'stoppedAt'),
             'endedAt' => self::momentOfOrNone($document, 'endedAt'),
+            'dailyCap' => DailyCap::orNone(self::dailyCapOf($document)),
         ]);
     }
 
@@ -121,7 +125,7 @@ final class CampaignDocument
             dismissed: CampaignProgress::dismissedAmong($statuses),
             recipients: array_combine(
                 array_map(static fn (Recipient $recipient): string => $recipient->contact->value, $recipients),
-                array_map(static fn (Recipient $recipient): RecipientInSheet => new RecipientInSheet($recipient->status->value, $recipient->isPending(), $recipient->missed, $recipient->reason, $recipient->exchangeId, $recipient->erased), $recipients),
+                array_map(static fn (Recipient $recipient): RecipientInSheet => new RecipientInSheet($recipient->status->value, $recipient->isPending(), $recipient->missed, $recipient->reason, $recipient->exchangeId, $recipient->erased, $recipient->processedAt), $recipients),
             ),
             authorId: $document['createdBy'],
             possibleIntents: array_map(static fn (CampaignIntent $intent): string => $intent->name, CampaignPossibilities::given($status, [] !== $recipients)),
@@ -130,13 +134,14 @@ final class CampaignDocument
             startedAt: self::momentOfOrNone($document, 'startedAt'),
             stoppedAt: self::momentOfOrNone($document, 'stoppedAt'),
             endedAt: self::momentOfOrNone($document, 'endedAt'),
+            dailyCap: self::dailyCapOf($document),
         );
     }
 
     /**
      * @param array<string, mixed> $document
      *
-     * @return list<array{contactId: string, status: string, missed?: bool, reason?: ?string, exchangeId?: ?string, erased?: bool}> none for a campaign saved before it could be frozen
+     * @return list<array{contactId: string, status: string, missed?: bool, reason?: ?string, exchangeId?: ?string, erased?: bool, processedAt?: ?string}> none for a campaign saved before it could be frozen
      */
     private static function recipientsOf(array $document): array
     {
@@ -144,23 +149,33 @@ final class CampaignDocument
     }
 
     /**
-     * @return array{contactId: string, status: string, missed: bool, reason: ?string, exchangeId: ?string, erased: bool}
+     * @return array{contactId: string, status: string, missed: bool, reason: ?string, exchangeId: ?string, erased: bool, processedAt: ?string}
      */
     private static function recipientDocument(Recipient $recipient): array
     {
-        return ['contactId' => $recipient->contact->value, 'status' => $recipient->status->value, 'missed' => $recipient->missed, 'reason' => $recipient->reason, 'exchangeId' => $recipient->exchangeId, 'erased' => $recipient->erased];
+        return ['contactId' => $recipient->contact->value, 'status' => $recipient->status->value, 'missed' => $recipient->missed, 'reason' => $recipient->reason, 'exchangeId' => $recipient->exchangeId, 'erased' => $recipient->erased, 'processedAt' => self::momentOrNone($recipient->processedAt)];
     }
 
     /**
      * Without whether it was missed nor why it was dismissed when saved before a campaign was led, without its exchange
      * when processed before the recipient kept it (ADR 0152); erased, by its status alone when saved before an erased
-     * recipient kept what was done with them.
+     * recipient kept what was done with them; without when it was processed when saved before a campaign had a daily cap.
      *
-     * @param array{contactId: string, status: string, missed?: bool, reason?: ?string, exchangeId?: ?string, erased?: bool} $document
+     * @param array{contactId: string, status: string, missed?: bool, reason?: ?string, exchangeId?: ?string, erased?: bool, processedAt?: ?string} $document
      */
     private static function recipient(array $document): Recipient
     {
-        return new Recipient(new PersonId($document['contactId']), RecipientStatus::from($document['status']), $document['missed'] ?? false, $document['reason'] ?? null, $document['exchangeId'] ?? null, $document['erased'] ?? RecipientStatus::Erased->value === $document['status']);
+        return new Recipient(new PersonId($document['contactId']), RecipientStatus::from($document['status']), $document['missed'] ?? false, $document['reason'] ?? null, $document['exchangeId'] ?? null, $document['erased'] ?? RecipientStatus::Erased->value === $document['status'], self::momentOfOrNone($document, 'processedAt'));
+    }
+
+    /**
+     * None for a campaign saved before it could have a daily cap.
+     *
+     * @param array<string, mixed> $document
+     */
+    private static function dailyCapOf(array $document): ?int
+    {
+        return $document['dailyCap'] ?? null;
     }
 
     private static function momentOrNone(?\DateTimeImmutable $moment): ?string
