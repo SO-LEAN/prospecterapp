@@ -3,8 +3,8 @@
 namespace App\Shared\Persistence;
 
 /**
- * The revision of an item as its client read it, before sending the change it makes on what it read: the revision
- * its save holds to instead of the one its command reads (ADR 0187).
+ * An item's revision as a client read it before sending its change. The item's save holds to this revision instead
+ * of the one its command reads (ADR 0187).
  */
 final readonly class RevisionRead
 {

@@ -189,6 +189,7 @@ Why the project is shaped the way it is: one record per decision, in the order t
 | [0184](0184-a-fact-rebuilt-by-campaigns-replaces-the-kept-one-at-the-same-revision.md) | A fact rebuilt by Campaigns replaces the kept one at the same revision | architecture | Accepted | 2026-11-21 |
 | [0185](0185-what-an-ai-creates-through-the-mcp-server-keeps-its-origin-set-by-its-tools.md) | What an AI creates through the MCP server keeps its origin, set by its tools, the AI never named | domain | Accepted | 2026-11-21 |
 | [0186](0186-an-ai-leads-a-campaign-sending-each-message-itself-prospecter-notes-it-once.md) | An AI leads a campaign, sending each message itself, Prospecter noting it once | architecture | Accepted | 2026-11-21 |
+| [0187](0187-a-change-holds-to-the-revision-its-client-read.md) | A change holds to the revision its client read | architecture | Accepted | 2026-11-22 |
 | [0188](0188-the-repository-is-written-in-plain-technical-english.md) | The repository is written in plain technical English | architecture | Accepted | 2026-11-21 |
 | [0189](0189-mcp-tools-and-prompts-are-named-in-english-a-verb-then-its-object.md) | MCP tools and prompts are named in English, a verb then its object | architecture | Accepted | 2026-11-21 |
 | [0190](0190-stored-and-exposed-names-are-consistent-english.md) | Stored and exposed names are consistent English | architecture | Accepted | 2026-11-22 |
