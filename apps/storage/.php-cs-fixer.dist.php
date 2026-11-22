@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 $finder = (new PhpCsFixer\Finder())
     ->in(__DIR__)
     ->exclude(['var', 'assets/vendor'])
@@ -7,6 +9,7 @@ $finder = (new PhpCsFixer\Finder())
         'config/bundles.php',
         'config/reference.php',
     ])
+    ->append([__DIR__.'/bin/console', __DIR__.'/bin/phpunit'])
 ;
 
 return (new PhpCsFixer\Config())
@@ -19,7 +22,7 @@ return (new PhpCsFixer\Config())
         'phpdoc_trim' => true,
         'phpdoc_no_empty_return' => true,
         'phpdoc_to_comment' => false,
-        'declare_strict_types' => false,
+        'declare_strict_types' => true,
     ])
     ->setRiskyAllowed(true)
     ->setCacheFile(__DIR__.'/var/cache/php-cs-fixer.cache')
