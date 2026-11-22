@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\PlanBookedAppointment;
 
 use Prospecter\Core\PersonalData\Contract\Event\BookerIdentified;
+use Prospecter\Core\Prospecting\Domain\Model\ContactCorrespondent;
 use Prospecter\Core\Prospecting\Domain\Model\ContactToAttach;
-use Prospecter\Core\Prospecting\Domain\Model\Correspondent;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
@@ -63,7 +63,7 @@ final readonly class PlanBookedAppointmentHandler implements EventHandler
             $this->handOver($toAttach, $host, $appointment->startsAt, $event->occurredAt);
         }
         $keepers = $known && null === $toAttach ? $this->contactOrganizations->keepersOf($contact, $host) : self::NO_KEEPER_OF_A_CONTACT_TO_ATTACH;
-        $exchange = Exchange::bookedByAContact(new Gesture($host->accountId, $host->id, $event->occurredAt), new ExchangeId($event->appointmentId), Correspondent::contact($contact, $keepers), $appointment->facts());
+        $exchange = Exchange::bookedByAContact(new Gesture($host->accountId, $host->id, $event->occurredAt), new ExchangeId($event->appointmentId), new ContactCorrespondent($contact, $keepers), $appointment->facts());
         $this->exchanges->save($exchange);
         $this->publishWhatHappenedTo($exchange);
     }

@@ -6,7 +6,7 @@ namespace Prospecter\Core\Prospecting\Application\NoteOrganizationExchange;
 
 use Prospecter\Core\Prospecting\Domain\Exception\ReferenceNotOfTheChannel;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
-use Prospecter\Core\Prospecting\Domain\Model\Correspondent;
+use Prospecter\Core\Prospecting\Domain\Model\ContactCorrespondent;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
@@ -15,6 +15,7 @@ use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\Prospecting\Domain\Model\MessageReference;
 use Prospecter\Core\Prospecting\Domain\Model\Noting;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
+use Prospecter\Core\Prospecting\Domain\Model\OrganizationCorrespondent;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 use Prospecter\Core\Prospecting\Domain\Service\ContactOrganizations;
@@ -46,7 +47,7 @@ final readonly class NoteOrganizationExchangeHandler implements CommandHandler
         $author = new MemberId($command->prospectorId);
         $organization = $this->organizations->get(new OrganizationId($command->organizationId));
         $exchange = null === $command->personId
-            ? Exchange::noted(self::gestureOf($organization, $author, $command), new ExchangeId($command->id), Correspondent::organization($organization->id()), self::notingOf($command))
+            ? Exchange::noted(self::gestureOf($organization, $author, $command), new ExchangeId($command->id), new OrganizationCorrespondent($organization->id()), self::notingOf($command))
             : $this->notedWithAContact($organization, $author, new PersonId($command->personId), $command);
         if ($command->noteOnce) {
             $this->notedOnce->ensureFirst($exchange);
@@ -64,12 +65,9 @@ final readonly class NoteOrganizationExchangeHandler implements CommandHandler
     {
         $organization->ensureHasContact($contact);
 
-        return Exchange::noted(self::gestureOf($organization, $author, $command), new ExchangeId($command->id), Correspondent::contact($contact, $this->contactOrganizations->of($contact, $organization->accountId())), self::notingOf($command));
+        return Exchange::noted(self::gestureOf($organization, $author, $command), new ExchangeId($command->id), new ContactCorrespondent($contact, $this->contactOrganizations->of($contact, $organization->accountId())), self::notingOf($command));
     }
 
-    /**
-     * In the account of the organization.
-     */
     private static function gestureOf(Organization $organization, MemberId $author, NoteOrganizationExchange $command): Gesture
     {
         return new Gesture($organization->accountId(), $author, $command->executedAt, Origin::byAnAI($command->byAnAI));

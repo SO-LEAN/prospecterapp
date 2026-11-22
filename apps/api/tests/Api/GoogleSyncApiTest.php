@@ -13,11 +13,11 @@ use Prospecter\Core\Connectors\Domain\Model\HeldExchange;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Repository\CalendarEntryRepository;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
-use Prospecter\Core\Prospecting\Domain\Model\Correspondent;
 use Prospecter\Core\Prospecting\Domain\Model\Duration;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
+use Prospecter\Core\Prospecting\Domain\Model\OrganizationCorrespondent;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 use Prospecter\Core\SharedKernel\Domain\Gesture;
@@ -262,7 +262,7 @@ class GoogleSyncApiTest extends ApiTestCase
         $facts = ExchangeFacts::planned(Channel::Call, new \DateTimeImmutable($moment), Duration::inMinutes(null), null);
         $prospect = self::getContainer()->get(OrganizationRepository::class)->get(new OrganizationId($organization));
         $gesture = new Gesture($prospect->accountId(), new MemberId($this->memberIdOf('prospector-user')), new \DateTimeImmutable('2026-10-13 09:00 UTC'));
-        $planned = Exchange::planned($gesture, new ExchangeId(self::newIdentity()), Correspondent::organization($prospect->id()), $facts);
+        $planned = Exchange::planned($gesture, new ExchangeId(self::newIdentity()), new OrganizationCorrespondent($prospect->id()), $facts);
         self::getContainer()->get(ExchangeRepository::class)->save($planned);
     }
 

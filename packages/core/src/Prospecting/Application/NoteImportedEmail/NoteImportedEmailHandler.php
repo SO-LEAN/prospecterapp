@@ -14,13 +14,14 @@ use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
 use Prospecter\Core\Prospecting\Domain\Model\Attachment;
 use Prospecter\Core\Prospecting\Domain\Model\AttachmentId;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
-use Prospecter\Core\Prospecting\Domain\Model\Correspondent;
+use Prospecter\Core\Prospecting\Domain\Model\ContactCorrespondent;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\ImportedEmail;
 use Prospecter\Core\Prospecting\Domain\Model\Noting;
+use Prospecter\Core\Prospecting\Domain\Model\OrganizationCorrespondent;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Policy\AttachmentLeftOut;
 use Prospecter\Core\Prospecting\Domain\Port\Prospectors;
@@ -148,7 +149,7 @@ final readonly class NoteImportedEmailHandler implements EventHandler
         return Exchange::noted(
             new Gesture($prospector->accountId, $prospector->id, $email->occurredAt),
             $id,
-            Correspondent::contact($contact, $this->contactOrganizations->keepersOf($contact, $prospector)),
+            new ContactCorrespondent($contact, $this->contactOrganizations->keepersOf($contact, $prospector)),
             Noting::imported($facts, self::importedFrom($email)),
         );
     }
@@ -160,7 +161,7 @@ final readonly class NoteImportedEmailHandler implements EventHandler
         return Exchange::noted(
             new Gesture($organization->accountId(), $prospector->id, $email->occurredAt),
             $id,
-            Correspondent::organization($organization->id()),
+            new OrganizationCorrespondent($organization->id()),
             Noting::imported($facts, self::importedFrom($email)),
         );
     }

@@ -8,7 +8,7 @@ use Prospecter\Core\Prospecting\Application\Port\OrganizationSheetRetriever;
 use Prospecter\Core\Prospecting\Application\Port\TimelineRetriever;
 use Prospecter\Core\Prospecting\Application\Timeline;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
-use Prospecter\Core\Prospecting\Domain\Model\Correspondent;
+use Prospecter\Core\Prospecting\Domain\Model\ContactCorrespondent;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\Duration;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
@@ -17,6 +17,7 @@ use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\Prospecting\Domain\Model\Noting;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
+use Prospecter\Core\Prospecting\Domain\Model\OrganizationCorrespondent;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
@@ -110,7 +111,7 @@ class DynamoTimelineRetrieverTest extends ApiTestCase
     {
         $this->noted('2026-10-10 09:00 UTC');
         $withTheContact = $this->planned('2026-10-20 09:00 UTC');
-        $withTheOrganization = Exchange::planned(new Gesture($this->acme->accountId(), $this->prospector->id, new \DateTimeImmutable(self::NOW)), new ExchangeId(self::newIdentity()), Correspondent::organization($this->acme->id()), self::plannedFacts('2026-10-19 09:00 UTC'));
+        $withTheOrganization = Exchange::planned(new Gesture($this->acme->accountId(), $this->prospector->id, new \DateTimeImmutable(self::NOW)), new ExchangeId(self::newIdentity()), new OrganizationCorrespondent($this->acme->id()), self::plannedFacts('2026-10-19 09:00 UTC'));
         $this->exchanges()->save($withTheOrganization);
 
         $this->assertSame([self::idOf($withTheOrganization), self::idOf($withTheContact)], self::idsIn($this->timelines()->upcomingInOrganization($this->sheetOf($this->acme), $this->prospector, $this->asOf(), null, 20)));
@@ -244,7 +245,7 @@ class DynamoTimelineRetrieverTest extends ApiTestCase
 
     private function noted(string $occurredAt): Exchange
     {
-        $exchange = Exchange::noted(new Gesture($this->prospector->accountId, $this->prospector->id, new \DateTimeImmutable(self::NOW)), new ExchangeId(self::newIdentity()), Correspondent::contact($this->contact, [$this->acme->id(), $this->group->id()]), Noting::of(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable($occurredAt), 'Rappeler lundi'), ExchangeStatus::Done));
+        $exchange = Exchange::noted(new Gesture($this->prospector->accountId, $this->prospector->id, new \DateTimeImmutable(self::NOW)), new ExchangeId(self::newIdentity()), new ContactCorrespondent($this->contact, [$this->acme->id(), $this->group->id()]), Noting::of(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable($occurredAt), 'Rappeler lundi'), ExchangeStatus::Done));
         $this->exchanges()->save($exchange);
 
         return $exchange;
@@ -252,7 +253,7 @@ class DynamoTimelineRetrieverTest extends ApiTestCase
 
     private function planned(string $at): Exchange
     {
-        $exchange = Exchange::planned(new Gesture($this->prospector->accountId, $this->prospector->id, new \DateTimeImmutable(self::NOW)), new ExchangeId(self::newIdentity()), Correspondent::contact($this->contact, [$this->acme->id(), $this->group->id()]), self::plannedFacts($at));
+        $exchange = Exchange::planned(new Gesture($this->prospector->accountId, $this->prospector->id, new \DateTimeImmutable(self::NOW)), new ExchangeId(self::newIdentity()), new ContactCorrespondent($this->contact, [$this->acme->id(), $this->group->id()]), self::plannedFacts($at));
         $this->exchanges()->save($exchange);
 
         return $exchange;
@@ -270,7 +271,7 @@ class DynamoTimelineRetrieverTest extends ApiTestCase
 
     private function notedWithTheOrganization(string $occurredAt): Exchange
     {
-        $exchange = Exchange::noted(new Gesture($this->acme->accountId(), $this->prospector->id, new \DateTimeImmutable(self::NOW)), new ExchangeId(self::newIdentity()), Correspondent::organization($this->acme->id()), Noting::of(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable($occurredAt)), ExchangeStatus::Done));
+        $exchange = Exchange::noted(new Gesture($this->acme->accountId(), $this->prospector->id, new \DateTimeImmutable(self::NOW)), new ExchangeId(self::newIdentity()), new OrganizationCorrespondent($this->acme->id()), Noting::of(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable($occurredAt)), ExchangeStatus::Done));
         $this->exchanges()->save($exchange);
 
         return $exchange;
