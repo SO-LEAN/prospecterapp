@@ -58,6 +58,7 @@ final readonly class CampaignResourceFactory
             startedAt: $campaign->startedAt?->format(\DateTimeInterface::ATOM),
             stoppedAt: $campaign->stoppedAt?->format(\DateTimeInterface::ATOM),
             endedAt: $campaign->endedAt?->format(\DateTimeInterface::ATOM),
+            dailyCap: $campaign->dailyCap,
             links: $this->linksOf($campaign),
         );
     }

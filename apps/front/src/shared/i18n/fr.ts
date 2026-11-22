@@ -1032,6 +1032,7 @@ export const fr = {
     campaignNotFrozen: 'Seule une campagne figée démarre.',
     campaignNotRunning: 'Seule une campagne démarrée se mène.',
     recipientAlreadyProcessed: 'Ce destinataire est déjà traité.',
+    invalidDailyCap: 'Un plafond par jour est d’au moins 1 envoi.',
     startedCampaign: 'Une campagne démarrée ne change plus.',
     startedCampaignNotDiscarded: 'Une campagne démarrée s’arrête : elle ne se supprime pas.',
     unreachableContact: '{{contact}} n’a pas le moyen de contact qu’exige le canal de la campagne.',

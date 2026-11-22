@@ -34,6 +34,8 @@ final readonly class CampaignInput
         public ?string $subject = null,
         #[OA\Property(description: 'How an AI leading it treats the message for each person: sent as rendered, or adapted to them, its idea kept; as is when left out', enum: ['asIs', 'adapted'])]
         public ?string $messageMode = null,
+        #[OA\Property(description: 'The most recipients processed a day, a guard only; none when left out. Read as it is prepared: it changes then by its own endpoint')]
+        public ?int $dailyCap = null,
     ) {
     }
 
@@ -49,6 +51,7 @@ final readonly class CampaignInput
             subject: $this->subject,
             executedAt: $executedAt,
             messageMode: $this->messageMode,
+            dailyCap: $this->dailyCap,
         );
     }
 

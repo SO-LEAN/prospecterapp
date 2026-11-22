@@ -2291,6 +2291,11 @@ export interface components {
              * @enum {string|null}
              */
             messageMode: "asIs" | "adapted" | null;
+            /**
+             * @description The most recipients processed a day, a guard only; none when left out. Read as it is prepared: it changes then by its own endpoint
+             * @default null
+             */
+            dailyCap: number | null;
         };
         InactivePeriodInput: {
             /**
@@ -3392,6 +3397,8 @@ export interface components {
              * @description When it ended, nobody left to handle, none before
              */
             endedAt?: string | null;
+            /** @description The most recipients processed a day, a guard an AI stops at and the member may go beyond; none without a cap */
+            dailyCap?: number | null;
             _links: components["schemas"]["CampaignLinksResource"];
         };
         CampaignListLinksResource: {
