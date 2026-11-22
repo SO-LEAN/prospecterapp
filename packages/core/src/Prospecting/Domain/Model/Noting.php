@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Domain\Model;
 
+use Prospecter\Core\Prospecting\Domain\Exception\ChannelNotMissed;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
@@ -35,6 +36,14 @@ final readonly class Noting
     public static function imported(ExchangeFacts $facts, ImportedEmail $email): self
     {
         return new self($facts, ExchangeStatus::Done, MessageReference::none(), $email);
+    }
+
+    /**
+     * @throws ChannelNotMissed
+     */
+    public function ensureMissable(): void
+    {
+        $this->facts->ensureMissable($this->outcome);
     }
 
     /**

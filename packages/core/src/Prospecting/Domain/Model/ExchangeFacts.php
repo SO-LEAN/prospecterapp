@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Domain\Model;
 
+use Prospecter\Core\Prospecting\Domain\Exception\ChannelNotMissed;
 use Prospecter\Core\Prospecting\Domain\Exception\ChannelNotPlanned;
 use Prospecter\Core\Prospecting\Domain\Exception\LinkOnlyForAVideoCall;
 use Prospecter\Core\Prospecting\Domain\Exception\PlaceOnlyForAMeeting;
@@ -37,6 +38,18 @@ final readonly class ExchangeFacts
         $this->place = self::orNone($place);
         self::ensureTheVenueFits($channel, $this->place, $link, $linkRequested);
         $this->linkRequested = $linkRequested && null === $link;
+    }
+
+    /**
+     * Only a call, a meeting or a video call may be missed.
+     *
+     * @throws ChannelNotMissed
+     */
+    public function ensureMissable(ExchangeStatus $outcome): void
+    {
+        if (ExchangeStatus::Missed === $outcome && !$this->channel->mayBePlanned()) {
+            throw ChannelNotMissed::because('Only a call, a meeting or a video call may be missed', 'missed', context: ['channel' => $this->channel->value]);
+        }
     }
 
     private static function orNone(?string $written): ?string
