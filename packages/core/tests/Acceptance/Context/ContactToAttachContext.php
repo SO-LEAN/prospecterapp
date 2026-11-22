@@ -8,6 +8,7 @@ use Behat\Behat\Context\Context;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use Prospecter\Core\PersonalData\Domain\Model\ContactCard;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\Prospecting\Application\ConsultContactToAttach\ConsultContactToAttach;
@@ -50,7 +51,7 @@ final class ContactToAttachContext implements Context
         $meeting = Vocabulary::frenchMoment(sprintf('%s à %s', $day, $time));
         $holder = $this->scenario->meAsProspector();
         [$firstName, $lastName] = array_pad(explode(' ', $name, 2), 2, null);
-        $person = Person::collectToAttach($this->application->readers->readerFrom($holder->id), new PersonId($this->application->newIdentity()), new PersonName($firstName, $lastName), new ContactDetails(new Email($email)), $this->application->now());
+        $person = Person::collectToAttach($this->application->readers->readerFrom($holder->id), new PersonId($this->application->newIdentity()), new ContactCard(new PersonName($firstName, $lastName), new ContactDetails(new Email($email))), $this->application->now());
         $this->application->persons->save($person);
         $this->scenario->rememberPerson($name, $person->id());
         $this->application->contactsToAttach->save(ContactToAttach::metBy($holder, $person->id(), $meeting, $this->application->now()));

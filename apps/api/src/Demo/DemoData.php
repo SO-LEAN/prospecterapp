@@ -13,6 +13,8 @@ use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Model\ProviderClient;
 use Prospecter\Core\Connectors\Domain\Repository\ProviderClientRepository;
 use Prospecter\Core\PersonalData\Domain\Model\Civility;
+use Prospecter\Core\PersonalData\Domain\Model\ContactCard;
+use Prospecter\Core\PersonalData\Domain\Model\NewContact;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
@@ -111,12 +113,12 @@ final readonly class DemoData
 
     private function aProfileIn(Account $account, PersonName $name, string $email): Person
     {
-        return $this->collected(Person::collect(new PersonId($this->identities->next()), $account->id(), Purpose::Membership, new \DateTimeImmutable(self::OPENED_AT), $name, new ContactDetails(new Email($email), language: 'FR')));
+        return $this->collected(Person::collect(new Gesture($account->id(), new MemberId(self::PROSPECTOR), new \DateTimeImmutable(self::OPENED_AT)), new PersonId($this->identities->next()), Purpose::Membership, new ContactCard($name, new ContactDetails(new Email($email), language: 'FR'))));
     }
 
     private function anEmptyProfileIn(Account $account): Person
     {
-        return $this->collected(Person::collect(new PersonId($this->identities->next()), $account->id(), Purpose::Membership, new \DateTimeImmutable(self::OPENED_AT)));
+        return $this->collected(Person::collect(new Gesture($account->id(), new MemberId(self::PROSPECTOR), new \DateTimeImmutable(self::OPENED_AT)), new PersonId($this->identities->next()), Purpose::Membership));
     }
 
     private function collected(Person $profile): Person
@@ -146,7 +148,7 @@ final readonly class DemoData
         $babbage = Organization::prospectedBy(new Gesture($prospector->accountId, $prospector->id, $openedAt), new OrganizationId($this->identities->next()), new LegalIdentity('Babbage & Co', 'SAS'), new ContactDetails(new Email('contact@babbage.test')));
         $babbage->relocateTo(new Address('2 rue des Clefs', '68000', 'Colmar', 'FR'), new Location(new GeoPoint(7.3585, 48.0794), self::COLMAR), $prospector->id, $openedAt);
         $manager = new Reader($prospector->id, $account->id(), new PersonId($this->identities->next()), true);
-        $ada = Person::collectAsContact($manager, new PersonId($this->identities->next()), new PersonName('Ada', 'Lovelace'), Civility::Ms, 'Directrice commerciale', new ContactDetails(new Email('ada@babbage.test'), PhoneNumber::of('03 88 00 00 42'), 'FR'), ExternalReferences::designating(['https://www.linkedin.com/in/ada-lovelace'], Designated::Person), [$babbage->id()], $openedAt);
+        $ada = Person::collectAsContact($manager, new NewContact(new PersonId($this->identities->next()), new ContactCard(new PersonName('Ada', 'Lovelace'), new ContactDetails(new Email('ada@babbage.test'), PhoneNumber::of('03 88 00 00 42'), 'FR'), Civility::Ms, 'Directrice commerciale', ExternalReferences::designating(['https://www.linkedin.com/in/ada-lovelace'], Designated::Person)), [$babbage->id()]), $openedAt);
         $this->organizations->save($babbage);
         $this->publish($babbage);
         $this->persons->save($ada);
@@ -167,7 +169,7 @@ final readonly class DemoData
         $meeting = $now->setTimezone(new \DateTimeZone('Europe/Paris'))->modify('+2 days')->setTime(10, 0);
         $prospector = new Prospector(new MemberId(self::PROSPECTOR), $account->id(), managesPersonalData: true);
         $manager = new Reader($prospector->id, $account->id(), new PersonId($this->identities->next()), true);
-        $grace = Person::collectToAttach($manager, new PersonId($this->identities->next()), new PersonName('Grace', 'Hopper'), new ContactDetails(new Email('grace@babbage.test'), language: 'FR'), $now);
+        $grace = Person::collectToAttach($manager, new PersonId($this->identities->next()), new ContactCard(new PersonName('Grace', 'Hopper'), new ContactDetails(new Email('grace@babbage.test'), language: 'FR')), $now);
         $this->persons->save($grace);
         $this->publish($grace);
         $toAttach = ContactToAttach::metBy($prospector, $grace->id(), $meeting, $now);

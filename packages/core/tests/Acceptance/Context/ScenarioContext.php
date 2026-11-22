@@ -121,7 +121,7 @@ final class ScenarioContext implements Context
      */
     public function aMemberOf(string $name, string $account, Role ...$roles): Member
     {
-        $person = Person::collect(new PersonId($this->application->newIdentity()), $this->accountIdOf($account), Purpose::Membership, $this->application->now());
+        $person = Person::collect(new Gesture($this->accountIdOf($account), new MemberId($this->application->newIdentity()), $this->application->now()), new PersonId($this->application->newIdentity()), Purpose::Membership);
         $this->application->persons->save($person);
         $this->personIds[$name] = $person->id();
         $member = Member::register(new MemberId($this->application->newIdentity()), $this->accountIdOf($account), $person->id(), ...$roles);

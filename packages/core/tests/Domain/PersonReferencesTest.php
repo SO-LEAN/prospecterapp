@@ -13,6 +13,7 @@ use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Designated;
 use Prospecter\Core\SharedKernel\Domain\ExternalReference;
 use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
@@ -25,6 +26,7 @@ class PersonReferencesTest extends TestCase
     private const string AT = '2026-11-18 09:00 UTC';
     private const string ACCOUNT = '0190a1c0-0000-7000-8000-000000000001';
     private const string PERSON = '0190a1c0-0000-7000-8000-000000000003';
+    private const string ADMINISTRATOR = '0190a1c0-0000-7000-8000-000000000004';
 
     public function testAPersonStillHoldsTheProfileTheyHadBeforeChangingIt(): void
     {
@@ -96,7 +98,7 @@ class PersonReferencesTest extends TestCase
 
     private function personWithTheProfile(string $identifier): Person
     {
-        $person = Person::collect(new PersonId(self::PERSON), new AccountId(self::ACCOUNT), Purpose::Prospecting, new \DateTimeImmutable(self::AT));
+        $person = Person::collect(new Gesture(new AccountId(self::ACCOUNT), new MemberId(self::ADMINISTRATOR), new \DateTimeImmutable(self::AT)), new PersonId(self::PERSON), Purpose::Prospecting);
         $this->noteTheProfile($person, $identifier);
 
         return $person;

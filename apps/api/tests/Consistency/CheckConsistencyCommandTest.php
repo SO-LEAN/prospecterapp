@@ -13,6 +13,7 @@ use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Model\RefreshToken;
 use Prospecter\Core\Connectors\Domain\Model\Scope;
 use Prospecter\Core\Connectors\Domain\Repository\ConnectionRepository;
+use Prospecter\Core\PersonalData\Domain\Model\ContactCard;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
@@ -359,7 +360,7 @@ class CheckConsistencyCommandTest extends ApiTestCase
      */
     private function aContactNotingTheProfilesOfAda(string ...$profiles): string
     {
-        $grace = Person::collect(new PersonId(self::newIdentity()), new AccountId(DemoData::SOLEAN_IT), Purpose::Prospecting, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        $grace = Person::collect(new Gesture(new AccountId(DemoData::SOLEAN_IT), new MemberId(self::newIdentity()), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)), new PersonId(self::newIdentity()), Purpose::Prospecting);
 
         foreach ($profiles as $profile) {
             $grace->changeContactDetails(new ContactDetails(), ExternalReferences::designating([$profile], Designated::Person), by: new Reader(new MemberId(DemoData::PROSPECTOR), new AccountId(DemoData::SOLEAN_IT), $grace->id(), false), at: new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
@@ -375,7 +376,7 @@ class CheckConsistencyCommandTest extends ApiTestCase
         $member = new MemberId(DemoData::PROSPECTOR);
         $account = new AccountId(DemoData::SOLEAN_IT);
         $met = new \DateTimeImmutable($moment);
-        $person = Person::collectToAttach(new Reader($member, $account, new PersonId(self::newIdentity()), true), new PersonId(self::newIdentity()), new PersonName('Grace', 'Hopper'), new ContactDetails(), $met);
+        $person = Person::collectToAttach(new Reader($member, $account, new PersonId(self::newIdentity()), true), new PersonId(self::newIdentity()), new ContactCard(new PersonName('Grace', 'Hopper'), new ContactDetails()), $met);
         self::getContainer()->get(PersonRepository::class)->save($person);
         self::getContainer()->get(ContactToAttachRepository::class)->save(ContactToAttach::metBy(new Prospector($member, $account, managesPersonalData: true), $person->id(), $met, $met));
         $meeting = Exchange::noted(new Gesture($account, $member, $met), new ExchangeId(self::newIdentity()), new ContactCorrespondent($person->id(), []), Noting::of(new ExchangeFacts(Channel::VideoCall, Direction::Outbound, $met), ExchangeStatus::Done));

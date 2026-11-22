@@ -15,6 +15,7 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Designated;
 use Prospecter\Core\SharedKernel\Domain\ExternalReference;
 use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\App\Base\ApiTestCase;
@@ -286,7 +287,7 @@ class DynamoPersonReferencesTest extends ApiTestCase
 
     private function personWithTheProfiles(AccountId $account, Purpose $purpose, string ...$profiles): Person
     {
-        $person = Person::collect(new PersonId(self::newIdentity()), $account, $purpose, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        $person = Person::collect(new Gesture($account, new MemberId(self::newIdentity()), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)), new PersonId(self::newIdentity()), $purpose);
         $this->noteTheProfiles($person, ...$profiles);
 
         return $person;

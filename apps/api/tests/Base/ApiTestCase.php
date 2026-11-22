@@ -24,6 +24,7 @@ use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
@@ -85,7 +86,7 @@ abstract class ApiTestCase extends WebTestCase
     protected function aMemberOfTheFixtures(string $reference, Role ...$roles): string
     {
         $account = $this->accountOfTheFixtures();
-        $profile = Person::collect(new PersonId(self::newIdentity()), $account, Purpose::Membership, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        $profile = Person::collect(new Gesture($account, new MemberId(self::newIdentity()), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)), new PersonId(self::newIdentity()), Purpose::Membership);
         self::getContainer()->get(PersonRepository::class)->save($profile);
         $member = Member::register(new MemberId(self::newIdentity()), $account, $profile->id(), ...$roles);
         self::getContainer()->get(MemberRepository::class)->save($member);
@@ -103,7 +104,7 @@ abstract class ApiTestCase extends WebTestCase
     {
         $account = Account::open(new AccountId(self::newIdentity()), new LegalIdentity('Another account', 'SAS'), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         self::getContainer()->get(AccountRepository::class)->save($account);
-        $profile = Person::collect(new PersonId(self::newIdentity()), $account->id(), Purpose::Membership, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        $profile = Person::collect(new Gesture($account->id(), new MemberId(self::newIdentity()), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)), new PersonId(self::newIdentity()), Purpose::Membership);
         self::getContainer()->get(PersonRepository::class)->save($profile);
         $member = Member::register(new MemberId(self::newIdentity()), $account->id(), $profile->id(), Role::User, Role::Prospector, Role::PersonalData);
         self::getContainer()->get(MemberRepository::class)->save($member);

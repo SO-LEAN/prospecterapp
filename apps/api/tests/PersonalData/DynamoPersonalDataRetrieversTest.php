@@ -9,6 +9,7 @@ use Prospecter\Core\PersonalData\Application\Port\MemberPresentationRetriever;
 use Prospecter\Core\PersonalData\Application\Port\PersonCardRetriever;
 use Prospecter\Core\PersonalData\Application\PresentMembers\MemberPresentation;
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
+use Prospecter\Core\PersonalData\Domain\Model\ContactCard;
 use Prospecter\Core\PersonalData\Domain\Model\ContactsIntent;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\PersonIntent;
@@ -20,6 +21,7 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\File;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
@@ -77,7 +79,7 @@ class DynamoPersonalDataRetrieversTest extends ApiTestCase
 
     public function testThePersonReadsThemselfInClearAndChangesTheirDataButIsNotForgotten(): void
     {
-        $me = Person::collect(new PersonId(self::newIdentity()), $this->account, Purpose::Membership, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS), new PersonName('Grace', 'Hopper'));
+        $me = Person::collect(new Gesture($this->account, new MemberId(self::newIdentity()), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)), new PersonId(self::newIdentity()), Purpose::Membership, new ContactCard(new PersonName('Grace', 'Hopper')));
         $this->persons()->save($me);
 
         $card = $this->cardOf($me, new Reader(new MemberId(self::newIdentity()), $this->account, $me->id(), false));
@@ -88,7 +90,7 @@ class DynamoPersonalDataRetrieversTest extends ApiTestCase
 
     public function testAPersonIsReadWithTheirNameAndPictureInClearAndTheirPurpose(): void
     {
-        $me = Person::collect(new PersonId(self::newIdentity()), $this->account, Purpose::Membership, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS), new PersonName('Grace', 'Hopper'));
+        $me = Person::collect(new Gesture($this->account, new MemberId(self::newIdentity()), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)), new PersonId(self::newIdentity()), Purpose::Membership, new ContactCard(new PersonName('Grace', 'Hopper')));
         $me->changePicture(new File('https://static.test/grace.png', 'png', 1024), new Reader(new MemberId(self::newIdentity()), $this->account, $me->id(), false), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         $this->persons()->save($me);
         $ada = $this->aContact('Ada', 'Lovelace');
@@ -202,7 +204,7 @@ class DynamoPersonalDataRetrieversTest extends ApiTestCase
 
     private function aContactWithoutAnEmail(string $firstName, string $lastName): Person
     {
-        $contact = Person::collect(new PersonId(self::newIdentity()), $this->account, Purpose::Prospecting, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS), new PersonName($firstName, $lastName), new ContactDetails());
+        $contact = Person::collect(new Gesture($this->account, new MemberId(self::newIdentity()), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)), new PersonId(self::newIdentity()), Purpose::Prospecting, new ContactCard(new PersonName($firstName, $lastName), new ContactDetails()));
         $this->persons()->save($contact);
 
         return $contact;
@@ -211,7 +213,7 @@ class DynamoPersonalDataRetrieversTest extends ApiTestCase
     private function aContact(string $firstName, string $lastName): Person
     {
         $email = new Email(strtolower($firstName).'@'.strtolower($lastName).'.test');
-        $contact = Person::collect(new PersonId(self::newIdentity()), $this->account, Purpose::Prospecting, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS), new PersonName($firstName, $lastName), new ContactDetails($email, PhoneNumber::of('03 88 00 00 00')));
+        $contact = Person::collect(new Gesture($this->account, new MemberId(self::newIdentity()), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)), new PersonId(self::newIdentity()), Purpose::Prospecting, new ContactCard(new PersonName($firstName, $lastName), new ContactDetails($email, PhoneNumber::of('03 88 00 00 00'))));
         $contact->changePicture(new File('https://static.test/'.$lastName.'.png', 'png', 1024), $this->readerWithTheRight(), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         $this->persons()->save($contact);
 

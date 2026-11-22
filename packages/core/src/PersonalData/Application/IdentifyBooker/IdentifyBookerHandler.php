@@ -6,6 +6,7 @@ namespace Prospecter\Core\PersonalData\Application\IdentifyBooker;
 
 use Prospecter\Core\Booking\Contract\Event\SlotBooked;
 use Prospecter\Core\PersonalData\Domain\Model\Booker;
+use Prospecter\Core\PersonalData\Domain\Model\ContactCard;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Port\Bookers;
 use Prospecter\Core\PersonalData\Domain\Port\Readers;
@@ -58,7 +59,7 @@ final readonly class IdentifyBookerHandler implements EventHandler
 
     private function collect(Booker $booker, MemberId $host, PersonId $id, \DateTimeImmutable $at): Person
     {
-        $contact = Person::collectToAttach($this->readers->readerFrom($host), $id, $booker->name, $booker->contactDetails(), $at);
+        $contact = Person::collectToAttach($this->readers->readerFrom($host), $id, new ContactCard($booker->name, $booker->contactDetails()), $at);
         $this->persons->save($contact);
 
         return $contact;
