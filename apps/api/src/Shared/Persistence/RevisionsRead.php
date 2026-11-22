@@ -5,9 +5,9 @@ namespace App\Shared\Persistence;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
- * The revision of the last read of each item a reader watches, to expose it with the resource it reads from that
- * very item (ADR 0187): the state of a request, emptied at its end; an item no reader watches is not kept, nor any
- * read of the console or of the worker.
+ * Keeps the revision each watched item had when last read, so that a resource can expose the revision of the item it
+ * was read from (ADR 0187). It holds one request's state and is emptied at the end; unwatched items, and the reads of
+ * the console and the worker, are not kept.
  */
 final class RevisionsRead implements ResetInterface
 {
