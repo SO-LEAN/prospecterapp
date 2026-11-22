@@ -6,6 +6,7 @@ use App\Contacts\Resource\InterlocutorResource;
 use App\Exchanges\Resource\AuthorResource;
 use App\Exchanges\Resource\ExchangeDetailResource;
 use App\PersonalData\Resource\PersonNameResource;
+use App\Prospecting\Persistence\ExchangeRevisions;
 use App\Security\IntentLinks;
 use App\Shared\Links;
 use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\ConsultMembers;
@@ -41,12 +42,14 @@ final readonly class ExchangeReader
         private Links $links,
         private IntentLinks $intents,
         private ClockInterface $clock,
+        private ExchangeRevisions $revisions,
     ) {
     }
 
     public function read(string $prospector, string $id, ?\DateTimeImmutable $movedFrom = null): ExchangeDetailResource
     {
         $kept = new KeptExchange();
+        $this->revisions->watch($id);
         ($this->consultExchange)(new ConsultExchange($prospector, $id, $this->clock->now(), $movedFrom), $kept);
 
         return $this->resourceOf($prospector, $kept->exchange);
@@ -57,7 +60,7 @@ final readonly class ExchangeReader
      */
     public function resourceOf(string $prospector, ExchangeDetail $exchange): ExchangeDetailResource
     {
-        $presenter = new ExchangeDetailPresenter($this->participantsOf($prospector, $exchange), $this->links, $this->intents);
+        $presenter = new ExchangeDetailPresenter($this->participantsOf($prospector, $exchange), $this->links, $this->intents, $this->revisions);
         $presenter->present($exchange);
 
         return $presenter->resource;

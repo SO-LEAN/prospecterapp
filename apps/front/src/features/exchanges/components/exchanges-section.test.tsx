@@ -252,6 +252,7 @@ describe('ExchangesSection', () => {
     await renderTheSection(
       { items: [anExchange({ text })], _links: { self: timelineLink } },
       {
+        revision: 1,
         id: EXCHANGE,
         interlocutor: { kind: 'person', id: ADA, name: 'Ada Lovelace', presence: 'present' },
         channel: 'sms',

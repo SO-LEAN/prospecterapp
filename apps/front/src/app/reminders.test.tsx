@@ -75,6 +75,7 @@ const theVideoCall: DayExchange = {
 }
 
 const itsDetail: ExchangeDetail = {
+  revision: 1,
   ...theVideoCall.exchange,
   interlocutor: theVideoCall.interlocutor,
   canceller: null,

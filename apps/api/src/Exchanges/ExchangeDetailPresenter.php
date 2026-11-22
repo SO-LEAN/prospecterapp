@@ -10,6 +10,7 @@ use App\Exchanges\Resource\ExchangeDetailLinksResource;
 use App\Exchanges\Resource\ExchangeDetailResource;
 use App\Exchanges\Resource\StampResource;
 use App\PersonalData\Resource\PersonNameResource;
+use App\Prospecting\Persistence\ExchangeRevisions;
 use App\Prospecting\Resource\CampaignOfExchangeResource;
 use App\Security\IntentLinks;
 use App\Security\User;
@@ -52,7 +53,7 @@ final class ExchangeDetailPresenter implements ConsultExchangeOutput
 
     public private(set) ExchangeDetailResource $resource;
 
-    public function __construct(private readonly ExchangeParticipants $participants, private readonly Links $links, private readonly IntentLinks $intentLinks)
+    public function __construct(private readonly ExchangeParticipants $participants, private readonly Links $links, private readonly IntentLinks $intentLinks, private readonly ExchangeRevisions $revisions)
     {
     }
 
@@ -90,6 +91,7 @@ final class ExchangeDetailPresenter implements ConsultExchangeOutput
             bookedByLink: $exchange->bookedByLink,
             importedFrom: $exchange->importedFrom,
             createdByAnAI: $exchange->createdByAnAI,
+            revision: $this->revisions->lastRead($exchange->id),
             links: $this->linksOf($exchange),
         );
     }

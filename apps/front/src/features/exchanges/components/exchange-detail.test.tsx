@@ -23,6 +23,7 @@ const CAMPAIGN = '0190a1c0-0000-7000-8000-00000000ca00'
 const self = { href: `/api/exchanges/${EXCHANGE}`, method: 'GET' }
 
 const anExchange = (exchange: Partial<ExchangeDetail>): ExchangeDetail => ({
+  revision: 1,
   id: EXCHANGE,
   interlocutor: { kind: 'person', id: ADA, name: 'Ada Lovelace', presence: 'present' },
   channel: 'linkedIn',
