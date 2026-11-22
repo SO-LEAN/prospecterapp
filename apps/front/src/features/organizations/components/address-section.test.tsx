@@ -71,6 +71,12 @@ function renderTheSection(organization: Organization) {
   return userEvent.setup()
 }
 
+const requestTo = (path: string) =>
+  theApi.mock.calls.map(([sent]) => sent as Request).find((sent) => new URL(sent.url).pathname === path)
+
+const revisionSentTo = (path: string) =>
+  new URL(requestTo(path)?.url ?? 'http://none').searchParams.get('revision')
+
 function givenTheApiRelocatesItTo(relocated: Organization) {
   theApi.mockResolvedValue(Response.json(relocated))
 }
@@ -91,6 +97,16 @@ afterEach(() => {
 })
 
 describe('AddressSection', () => {
+  it('saves on the revision the organization was read at', async () => {
+    const user = renderTheSection(anOrganization({ revision: 7, address: null, location: null }))
+    givenTheApiRelocatesItTo(anOrganization({ revision: 8, address: strasbourg, location: kleber }))
+
+    await relocateTo(user, strasbourg)
+
+    await screen.findByRole('button', { name: 'Modifier : Adresse' })
+    expect(revisionSentTo(`/api/organizations/${BABBAGE}/address`)).toBe('7')
+  })
+
   it('marks an address the geocoder did not recognize, and says why', async () => {
     const user = renderTheSection(anOrganization({ address: unknownAddress, location: null }))
 

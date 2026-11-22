@@ -66,10 +66,13 @@ function renderTheSection(organization: Organization) {
   return userEvent.setup()
 }
 
-const sentTo = async (path: string) => {
-  const request = theApi.mock.calls.map(([sent]) => sent as Request).find((sent) => sent.url.endsWith(path))
-  return request?.json()
-}
+const requestTo = (path: string) =>
+  theApi.mock.calls.map(([sent]) => sent as Request).find((sent) => new URL(sent.url).pathname === path)
+
+const sentTo = async (path: string) => requestTo(path)?.json()
+
+const revisionSentTo = (path: string) =>
+  new URL(requestTo(path)?.url ?? 'http://none').searchParams.get('revision')
 
 async function openTheContactDetails(user: ReturnType<typeof userEvent.setup>) {
   await user.click(screen.getByRole('button', { name: /^Modifier.*Coordonnées$/ }))
@@ -115,6 +118,34 @@ describe('the contact details of an organization', () => {
       links: ['linkedin.com/company/acme-corp'],
       website: 'acme.fr',
     })
+  })
+
+  it('saves on the revision the organization was read at, sent as the query parameter', async () => {
+    const user = renderTheSection(anOrganization({ revision: 7 }))
+    theApi.mockResolvedValue(Response.json(anOrganization({ revision: 8 })))
+
+    await openTheContactDetails(user)
+    await user.type(screen.getByLabelText(/^Site web/), 'acme.fr')
+    await user.click(screen.getByRole('button', { name: 'Enregistrer' }))
+
+    await screen.findByRole('button', { name: /^Modifier.*Coordonnées$/ })
+    expect(revisionSentTo(`/api/organizations/${ACME}/contact-details`)).toBe('7')
+    expect(await sentTo(`/api/organizations/${ACME}/contact-details`)).not.toHaveProperty('revision')
+  })
+
+  it('tells the member the organization changed since they opened it, to reload it', async () => {
+    const user = renderTheSection(anOrganization())
+    theApi.mockResolvedValue(
+      Response.json(
+        { title: 'Changed meanwhile', status: 409, reason: 'changedMeanwhile' },
+        { status: 409, headers: { 'Content-Type': 'application/problem+json' } },
+      ),
+    )
+
+    await openTheContactDetails(user)
+    await user.click(screen.getByRole('button', { name: 'Enregistrer' }))
+
+    expect(await screen.findByText(/rechargez-la, puis recommencez/)).toBeInTheDocument()
   })
 
   it('shows a link another organization of the account has on the links, naming that organization', async () => {

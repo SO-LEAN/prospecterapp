@@ -40,8 +40,12 @@ export function AddressSection({
           schema={addressSchema}
           defaultValues={toAddressValues(address)}
           fields={addressFields}
-          save={(values) =>
-            relocate.mutateAsync({ params: { path: { id: organization.id } }, body: toAddress(values) })
+          revision={organization.revision}
+          save={(values, revision) =>
+            relocate.mutateAsync({
+              params: { path: { id: organization.id }, query: { revision } },
+              body: toAddress(values),
+            })
           }
           onDone={close}
         >

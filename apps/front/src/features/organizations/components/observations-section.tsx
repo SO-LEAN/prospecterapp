@@ -23,9 +23,10 @@ export function ObservationsSection({ organization }: { organization: Organizati
           schema={observationsSchema}
           defaultValues={{ observations: organization.observations ?? '' }}
           fields={['observations']}
-          save={(values) =>
+          revision={organization.revision}
+          save={(values, revision) =>
             write.mutateAsync({
-              params: { path: { id: organization.id } },
+              params: { path: { id: organization.id }, query: { revision } },
               body: { observations: orNull(values.observations) },
             })
           }
