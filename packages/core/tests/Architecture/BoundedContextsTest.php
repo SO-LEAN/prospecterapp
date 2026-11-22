@@ -23,16 +23,7 @@ class BoundedContextsTest extends TestCase
      */
     private const string IMPORT = '/^use Prospecter\\\\Core\\\\(\w+)\\\\([\w\\\\]+)(?: as \w+)?;/m';
 
-    private const array FORBIDDEN = [
-        'Accounts' => ['Booking', 'Campaigns', 'Connectors', 'PersonalData', 'Prospecting', 'Reporting'],
-        'Booking' => ['Accounts', 'Campaigns', 'Connectors', 'PersonalData', 'Prospecting', 'Reporting'],
-        'Campaigns' => ['Accounts', 'Booking', 'Connectors', 'PersonalData', 'Prospecting', 'Reporting'],
-        'Connectors' => ['Accounts', 'Booking', 'Campaigns', 'PersonalData', 'Prospecting', 'Reporting'],
-        'PersonalData' => ['Accounts', 'Booking', 'Campaigns', 'Connectors', 'Prospecting', 'Reporting'],
-        'Prospecting' => ['Accounts', 'Booking', 'Campaigns', 'Connectors', 'PersonalData', 'Reporting'],
-        'Reporting' => ['Accounts', 'Booking', 'Campaigns', 'Connectors', 'PersonalData', 'Prospecting'],
-        'SharedKernel' => ['Accounts', 'Booking', 'Campaigns', 'Connectors', 'PersonalData', 'Prospecting', 'Reporting'],
-    ];
+    private const string SHARED_KERNEL = 'SharedKernel';
 
     public function testADoubleOfAPortSeesOfTheOtherContextsOnlyWhatTheyPublish(): void
     {
@@ -50,9 +41,27 @@ class BoundedContextsTest extends TestCase
      */
     public static function contexts(): iterable
     {
-        foreach (array_keys(self::FORBIDDEN) as $context) {
+        foreach (self::all() as $context) {
             yield $context => [$context];
         }
+    }
+
+    /**
+     * The folders of src: a new context is checked as soon as it is added.
+     *
+     * @return list<string>
+     */
+    private static function all(): array
+    {
+        return array_map(basename(...), glob(dirname(__DIR__, 2).'/src/*', GLOB_ONLYDIR) ?: []);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private static function forbiddenTo(string $context): array
+    {
+        return array_values(array_diff(self::all(), [$context, self::SHARED_KERNEL]));
     }
 
     /**
@@ -67,7 +76,7 @@ class BoundedContextsTest extends TestCase
             preg_match_all(self::IMPORT, (string) file_get_contents($path), $uses, PREG_SET_ORDER);
 
             foreach ($uses as [, $usedContext, $class]) {
-                if (in_array($usedContext, self::FORBIDDEN[$context], true) && !str_starts_with($class, self::CONTRACT_EVENTS)) {
+                if (in_array($usedContext, self::forbiddenTo($context), true) && !str_starts_with($class, self::CONTRACT_EVENTS)) {
                     $forbidden[] = sprintf('%s: %s\\%s', substr($path, strlen($root)), $usedContext, $class);
                 }
             }
@@ -94,7 +103,7 @@ class BoundedContextsTest extends TestCase
             preg_match_all(self::IMPORT, $source, $uses, PREG_SET_ORDER);
 
             foreach ($uses as [, $usedContext, $class]) {
-                if (in_array($usedContext, self::FORBIDDEN[$port], true) && !str_starts_with($class, self::CONTRACT)) {
+                if (in_array($usedContext, self::forbiddenTo($port), true) && !str_starts_with($class, self::CONTRACT)) {
                     $forbidden[] = sprintf('%s: %s\\%s', basename($file), $usedContext, $class);
                 }
             }
@@ -113,6 +122,6 @@ class BoundedContextsTest extends TestCase
             return null;
         }
 
-        return 'SharedKernel' === $port[1] ? null : $port[1];
+        return self::SHARED_KERNEL === $port[1] ? null : $port[1];
     }
 }
