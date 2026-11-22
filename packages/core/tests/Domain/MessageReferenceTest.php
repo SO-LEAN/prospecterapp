@@ -59,14 +59,14 @@ class MessageReferenceTest extends TestCase
     {
         $reference = MessageReference::of(Channel::Email, messageId: ' <> ', linkedInConversation: null);
 
-        $this->assertEquals(ExchangeFingerprint::ofMessage(Channel::Email, self::ada(), Direction::Inbound, new \DateTimeImmutable(self::AT), 'Bonjour'), $reference->fingerprintOf(self::facts(Channel::Email), self::ada()));
+        $this->assertEquals(ExchangeFingerprint::ofMessage(self::facts(Channel::Email), self::ada()), $reference->fingerprintOf(self::facts(Channel::Email), self::ada()));
     }
 
     public function testALinkedInMessageWithoutConversationIsFingerprintedAsAnyMessage(): void
     {
         $reference = MessageReference::of(Channel::LinkedIn, messageId: null, linkedInConversation: ' ');
 
-        $this->assertEquals(ExchangeFingerprint::ofMessage(Channel::LinkedIn, self::ada(), Direction::Inbound, new \DateTimeImmutable(self::AT), 'Bonjour'), $reference->fingerprintOf(self::facts(Channel::LinkedIn), self::ada()));
+        $this->assertEquals(ExchangeFingerprint::ofMessage(self::facts(Channel::LinkedIn), self::ada()), $reference->fingerprintOf(self::facts(Channel::LinkedIn), self::ada()));
     }
 
     private static function facts(Channel $channel, string $text = 'Bonjour'): ExchangeFacts

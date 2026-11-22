@@ -80,6 +80,6 @@ final readonly class MessageReference
             return ExchangeFingerprint::ofLinkedInMessage($this->linkedInConversation, $facts->direction, $facts->occurredAt, $facts->text);
         }
 
-        return ExchangeFingerprint::ofMessage($facts->channel, $correspondent, $facts->direction, $facts->occurredAt, $facts->text);
+        return ExchangeFingerprint::ofMessage($facts, $correspondent);
     }
 }

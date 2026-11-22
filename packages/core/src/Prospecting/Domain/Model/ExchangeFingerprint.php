@@ -42,9 +42,9 @@ final readonly class ExchangeFingerprint
     /**
      * Any other message, call or meeting, and an e-mail or a LinkedIn message noted without its reference.
      */
-    public static function ofMessage(Channel $channel, PersonId|OrganizationId $correspondent, Direction $direction, \DateTimeImmutable $at, ?string $text): self
+    public static function ofMessage(ExchangeFacts $facts, PersonId|OrganizationId $correspondent): self
     {
-        return self::of($channel->value, $correspondent->value, $direction->value, self::minuteOf($at), self::normalized($text));
+        return self::of($facts->channel->value, $correspondent->value, $facts->direction->value, self::minuteOf($facts->occurredAt), self::normalized($facts->text));
     }
 
     private static function of(string ...$parts): self
