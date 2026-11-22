@@ -3,6 +3,7 @@
 namespace Tests\App\Shared;
 
 use App\Shared\Persistence\Table;
+use Symfony\Contracts\Service\ResetInterface;
 use Tests\App\Base\ApiTestCase;
 
 /**
@@ -58,7 +59,9 @@ class RevisionsReadTest extends ApiTestCase
         $this->table->watchRevision('TEST#ada', 'TEST');
         $this->table->item('TEST#ada', 'TEST');
 
-        self::getContainer()->get('services_resetter')->reset();
+        $resetter = self::getContainer()->get('services_resetter');
+        $this->assertInstanceOf(ResetInterface::class, $resetter);
+        $resetter->reset();
 
         $this->expectException(\LogicException::class);
         $this->table->revisionRead('TEST#ada', 'TEST');

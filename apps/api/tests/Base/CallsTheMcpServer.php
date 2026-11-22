@@ -7,6 +7,8 @@ namespace Tests\App\Base;
  */
 trait CallsTheMcpServer
 {
+    use ReadsResources;
+
     private const string REVISION_WITHOUT_HANDSHAKE = '2026-07-28';
 
     private const string REVISION_OF_THE_HANDSHAKE = '2025-11-25';
@@ -91,7 +93,7 @@ trait CallsTheMcpServer
      */
     protected function promptListed(string $name): array
     {
-        $prompts = $this->callWithHandshake('prompts/list', [])['prompts'];
+        $prompts = self::records(self::valueAt($this->callWithHandshake('prompts/list', []), 'prompts'));
 
         return array_find($prompts, static fn (array $prompt): bool => $name === $prompt['name']) ?? throw new \LogicException(sprintf('No prompt "%s" is listed.', $name));
     }
@@ -103,7 +105,7 @@ trait CallsTheMcpServer
      */
     protected static function argumentsOf(array $prompt): array
     {
-        return array_map(static fn (array $argument): array => [$argument['name'], $argument['required'] ?? false], $prompt['arguments'] ?? []);
+        return array_map(static fn (array $argument): array => [self::stringAt($argument, 'name'), true === ($argument['required'] ?? false)], self::records($prompt['arguments'] ?? []));
     }
 
     /**
@@ -113,9 +115,9 @@ trait CallsTheMcpServer
      */
     protected function promptText(string $name, array $arguments = []): string
     {
-        $messages = $this->callWithHandshake('prompts/get', ['name' => $name, 'arguments' => (object) $arguments])['messages'];
+        $messages = self::records(self::valueAt($this->callWithHandshake('prompts/get', ['name' => $name, 'arguments' => (object) $arguments]), 'messages'));
 
-        return implode("\n", array_map(static fn (array $message): string => $message['content']['text'], $messages));
+        return implode("\n", array_map(static fn (array $message): string => self::stringAt($message, 'content', 'text'), $messages));
     }
 
     /**
@@ -137,7 +139,7 @@ trait CallsTheMcpServer
     {
         $this->assertResponseIsSuccessful();
 
-        return $this->responseData()['result'] ?? throw new \LogicException((string) $this->client->getResponse()->getContent());
+        return self::record($this->responseData()['result'] ?? throw new \LogicException((string) $this->client->getResponse()->getContent()));
     }
 
     /**
@@ -150,8 +152,8 @@ trait CallsTheMcpServer
     protected function answerOf(array $result): array
     {
         return true === ($result['isError'] ?? false)
-            ? json_decode($result['content'][0]['text'], true, flags: JSON_THROW_ON_ERROR)
-            : $result['structuredContent'];
+            ? self::record(json_decode(self::stringAt($result, 'content', 0, 'text'), true, flags: JSON_THROW_ON_ERROR))
+            : self::record($result['structuredContent']);
     }
 
     /**
@@ -165,7 +167,7 @@ trait CallsTheMcpServer
         $cursor = [];
         do {
             $page = $this->callWithHandshake('tools/list', $cursor);
-            $tools = [...$tools, ...$page['tools']];
+            $tools = [...$tools, ...self::records($page['tools'])];
             $cursor = isset($page['nextCursor']) ? ['cursor' => $page['nextCursor']] : null;
         } while (null !== $cursor);
 

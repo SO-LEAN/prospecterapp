@@ -42,7 +42,9 @@ final readonly class OrganizationWrites
      */
     public function write(string $id, ?object $input, \Closure $command, string ...$attributes): array
     {
-        return $this->writeOnRevision($id, null, $input, $command, ...$attributes);
+        $organization = $this->writable($id, ...$attributes);
+
+        return $this->written($organization, $command(null === $input ? null : $this->inputs->valid($input), $organization, $this->access->member()->memberId(), $this->clock->now()));
     }
 
     /**
@@ -50,15 +52,24 @@ final readonly class OrganizationWrites
      *
      * @template TInput of object
      *
-     * @param TInput|null                                                                  $input   the input of the endpoint, none for an endpoint without
-     * @param \Closure(TInput|null, OrganizationSheet, string, \DateTimeImmutable): object $command the command of the endpoint, from its input, for the organization, by the member, at this moment
+     * @param TInput                                                                  $input   the input of the endpoint
+     * @param \Closure(TInput, OrganizationSheet, string, \DateTimeImmutable): object $command the command of the endpoint, from its input, for the organization, by the member, at this moment
      *
      * @return array<string, mixed>
      */
-    public function writeOnRevision(string $id, ?int $revision, ?object $input, \Closure $command, string ...$attributes): array
+    public function writeOnRevision(string $id, ?int $revision, object $input, \Closure $command, string ...$attributes): array
     {
         $organization = $this->writable($id, ...$attributes);
-        $this->commandBus->dispatch($command(null === $input ? null : $this->inputs->valid($input), $organization, $this->access->member()->memberId(), $this->clock->now()), $this->revisions->readAt($organization->id, $revision));
+
+        return $this->written($organization, $command($this->inputs->valid($input), $organization, $this->access->member()->memberId(), $this->clock->now()), $revision);
+    }
+
+    /**
+     * @return array<string, mixed> the organization as the screen then reads it
+     */
+    private function written(OrganizationSheet $organization, object $command, ?int $revision = null): array
+    {
+        $this->commandBus->dispatch($command, $this->revisions->readAt($organization->id, $revision));
 
         return $this->results->of($this->organizationReader->read($organization->id));
     }
