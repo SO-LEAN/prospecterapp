@@ -36,6 +36,16 @@ final readonly class RecipientInCampaign
     }
 
     /**
+     * What tells a sending to them in the account, the same when an AI notes it and when it asks how it was noted
+     * (ADR 0166, 0195).
+     */
+    #[\NoDiscard]
+    public function fingerprintOfSending(\DateTimeImmutable $occurredAt, ?string $text, MessageReference $reference): ExchangeFingerprint
+    {
+        return $reference->fingerprintOf($this->exchangeFacts($occurredAt, $text), $this->contact);
+    }
+
+    /**
      * @throws CampaignNotRunning
      * @throws UnknownRecipient
      * @throws RecipientAlreadyProcessed

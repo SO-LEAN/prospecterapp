@@ -51,6 +51,7 @@ use Prospecter\Core\Prospecting\Application\EraseExchange\EraseExchange;
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\NoteCampaignExchange\NoteCampaignExchange;
 use Prospecter\Core\Prospecting\Application\NoteExchange\NoteExchange;
+use Prospecter\Core\Prospecting\Application\SendingNoted\SendingNoted;
 use Prospecter\Core\Prospecting\Contract\Event\ExchangeFactsChanged;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\CampaignId;
@@ -89,6 +90,7 @@ final class CampaignContext implements Context
     private array $campaignNames = [];
     private ?CampaignMessage $rendered = null;
     private ?RecipientToHandle $next = null;
+    private ?SendingNoted $lastSending = null;
     /** @var list<CampaignSheet> */
     private array $listed = [];
     /** @var array<string, int> */
@@ -319,6 +321,7 @@ final class CampaignContext implements Context
     {
         $this->current = $name;
         $id = $this->application->newIdentity();
+        $this->lastSending = new SendingNoted($this->application->signedIn(), $this->currentId(), $this->scenario->personIdOf($contact), $this->application->now(), $text, $messageId);
         $this->application->dispatch(new NoteCampaignExchange(
             $this->application->signedIn(),
             $id,
@@ -351,6 +354,15 @@ final class CampaignContext implements Context
         $this->notedWith = $contact;
 
         Expect::same(true, $this->notedExchange()->createdByAnAI);
+    }
+
+    #[Then('l\'envoi à :contact se retrouve dans l\'échange que l\'import a noté')]
+    public function theSendingIsFoundInTheExchangeTheImportNoted(string $contact): void
+    {
+        $timeline = $this->application->consultTimeline(new ConsultTimeline($this->application->signedIn(), $this->scenario->personIdOf($contact), $this->application->now()));
+        $imported = Expect::present($timeline->exchanges[0] ?? null, sprintf('No exchange is noted for %s', $contact));
+
+        Expect::same($imported->id, $this->application->sendingNoted(Expect::present($this->lastSending, 'No sending was noted')));
     }
 
     #[Then('un seul échange est noté pour :contact')]
