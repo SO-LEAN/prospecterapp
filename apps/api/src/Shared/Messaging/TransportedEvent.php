@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Shared\Messaging;
 
+use App\Shared\Typed;
+
 /**
  * An event as it travels, in the shape of an event of EventBridge: from `prospecter.<context>` for an integration
  * event, `prospecter.<context>.internal` for a domain event; its detail-type the short name of its class and the
@@ -30,11 +32,13 @@ final readonly class TransportedEvent
     }
 
     /**
-     * @param array{source: string, detail-type: string, detail: Detail} $event
+     * An event of EventBridge, as JSON gives it untyped.
      */
-    public static function fromEventBridge(array $event): self
+    public static function fromEventBridge(mixed $event): self
     {
-        return self::of($event['source'], $event['detail-type'], $event['detail']);
+        $event = Typed::document($event);
+
+        return self::of($event['source'] ?? null, $event['detail-type'] ?? null, $event['detail'] ?? null);
     }
 
     /**
@@ -46,11 +50,13 @@ final readonly class TransportedEvent
     }
 
     /**
-     * @param array{source: string, detailType: string, detail: Detail} $entry
+     * An entry of an item of outbox, as JSON gives it untyped.
      */
-    public static function fromOutbox(array $entry): self
+    public static function fromOutbox(mixed $entry): self
     {
-        return self::of($entry['source'], $entry['detailType'], $entry['detail']);
+        $entry = Typed::document($entry);
+
+        return self::of($entry['source'] ?? null, $entry['detailType'] ?? null, $entry['detail'] ?? null);
     }
 
     /**
@@ -88,11 +94,22 @@ final readonly class TransportedEvent
     }
 
     /**
-     * @param Detail $detail
+     * @throws \UnexpectedValueException when a field is missing or of another type
      */
-    private static function of(string $source, string $detailType, array $detail): self
+    private static function of(mixed $source, mixed $detailType, mixed $detail): self
     {
-        return new self($source, $detailType, $detail['eventId'], $detail['occurredAt'], $detail['correlationId'], $detail['causationId'], $detail['depth'], $detail['payload']);
+        $detail = Typed::document($detail);
+
+        return new self(
+            Typed::string($source),
+            Typed::string($detailType),
+            Typed::string($detail['eventId'] ?? null),
+            Typed::string($detail['occurredAt'] ?? null),
+            Typed::string($detail['correlationId'] ?? null),
+            Typed::stringOrNull($detail['causationId'] ?? null),
+            Typed::int($detail['depth'] ?? null),
+            Typed::document($detail['payload'] ?? null),
+        );
     }
 
     /**

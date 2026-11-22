@@ -243,6 +243,7 @@ class IntegrationEventConsumerTest extends ApiTestCase
         yield 'an unknown subscription' => [['subscription' => 'prospecting-unknown', 'source' => 'prospecter.prospecting.internal', 'detailType' => 'ObservationsWritten.v1', 'detail' => $detail]];
         yield 'an unknown version' => [['subscription' => 'prospecting-failing-reaction', 'source' => 'prospecter.prospecting.internal', 'detailType' => 'ObservationsWritten.v9', 'detail' => $detail]];
         yield 'a detail missing' => [['subscription' => 'prospecting-failing-reaction', 'source' => 'prospecter.prospecting.internal', 'detailType' => 'ObservationsWritten.v1']];
+        yield 'a depth that is no integer' => [['subscription' => 'prospecting-failing-reaction', 'source' => 'prospecter.prospecting.internal', 'detailType' => 'ObservationsWritten.v1', 'detail' => [...$detail, 'depth' => '0']]];
     }
 
     /**

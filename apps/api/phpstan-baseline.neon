@@ -5959,54 +5959,6 @@ parameters:
 			path: src/Shared/Messaging/IntegrationFailures.php
 
 		-
-			message: '#^Cannot access offset ''correlationId'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: src/Shared/Messaging/Invocation.php
-
-		-
-			message: '#^Cannot access offset ''detail'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 4
-			path: src/Shared/Messaging/Invocation.php
-
-		-
-			message: '#^Cannot access offset ''detailType'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: src/Shared/Messaging/Invocation.php
-
-		-
-			message: '#^Cannot access offset ''eventId'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: src/Shared/Messaging/Invocation.php
-
-		-
-			message: '#^Cannot access offset ''source'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: src/Shared/Messaging/Invocation.php
-
-		-
-			message: '#^Cannot access offset ''subscription'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
-			path: src/Shared/Messaging/Invocation.php
-
-		-
-			message: '#^Parameter \#1 \$event of static method App\\Shared\\Messaging\\TransportedEvent\:\:fromEventBridge\(\) expects array\{source\: string, detail\-type\: string, detail\: array\{eventId\: string, occurredAt\: string, correlationId\: string, causationId\: string\|null, depth\: int, payload\: array\<string, mixed\>\}\}, array\{source\: mixed, detail\-type\: mixed, detail\: mixed\} given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Shared/Messaging/Invocation.php
-
-		-
-			message: '#^Parameter \#1 \$subscription of class App\\Shared\\Messaging\\Invocation constructor expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Shared/Messaging/Invocation.php
-
-		-
 			message: '#^Parameter \#1 \$document of static method App\\Shared\\Persistence\\OutboxItem\:\:fromDocument\(\) expects array\<string, mixed\>, array\|stdClass given\.$#'
 			identifier: argument.type
 			count: 1
@@ -6041,12 +5993,6 @@ parameters:
 			identifier: return.type
 			count: 1
 			path: src/Shared/Messaging/Subscriptions.php
-
-		-
-			message: '#^Parameter \#1 \$event of static method App\\Shared\\Messaging\\TransportedEvent\:\:fromEventBridge\(\) expects array\{source\: string, detail\-type\: string, detail\: array\{eventId\: string, occurredAt\: string, correlationId\: string, causationId\: string\|null, depth\: int, payload\: array\<string, mixed\>\}\}, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Shared/Messaging/SynchronousDelivery.php
 
 		-
 			message: '#^Cannot access offset ''Value'' on mixed\.$#'
@@ -6202,12 +6148,6 @@ parameters:
 			message: '#^Cannot cast mixed to string\.$#'
 			identifier: cast.string
 			count: 3
-			path: src/Shared/Persistence/OutboxItem.php
-
-		-
-			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, Closure\(array\{source\: string, detailType\: string, detail\: array\{eventId\: string, occurredAt\: string, correlationId\: string, causationId\: string\|null, depth\: int, payload\: array\<string, mixed\>\}\}\)\: App\\Shared\\Messaging\\TransportedEvent given\.$#'
-			identifier: argument.type
-			count: 1
 			path: src/Shared/Persistence/OutboxItem.php
 
 		-
@@ -14547,12 +14487,6 @@ parameters:
 		-
 			message: '#^Generator expects value type array\{class\-string\}, array\{non\-falsy\-string\} given\.$#'
 			identifier: generator.valueType
-			count: 1
-			path: tests/Shared/Messaging/EventCodecTest.php
-
-		-
-			message: '#^Parameter \#1 \$event of static method App\\Shared\\Messaging\\TransportedEvent\:\:fromEventBridge\(\) expects array\{source\: string, detail\-type\: string, detail\: array\{eventId\: string, occurredAt\: string, correlationId\: string, causationId\: string\|null, depth\: int, payload\: array\<string, mixed\>\}\}, mixed given\.$#'
-			identifier: argument.type
 			count: 1
 			path: tests/Shared/Messaging/EventCodecTest.php
 
