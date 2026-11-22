@@ -11,6 +11,7 @@ use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\Fingerprinted;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
@@ -54,5 +55,15 @@ final readonly class InMemoryExchangeRepository implements ExchangeRepository
     public function withContact(PersonId $contact, AccountId $accountId): array
     {
         return array_values(array_filter($this->database->exchanges(), static fn (Exchange $exchange): bool => true === StateOf::the($exchange)->objectOrNull('contact', PersonId::class)?->equals($contact) && $exchange->accountId()->equals($accountId)));
+    }
+
+    /**
+     * @param list<PersonId> $contacts
+     *
+     * @return list<PersonId>
+     */
+    public function contactsWithAnExchangeOf(AccountId $accountId, CampaignId $campaign, array $contacts): array
+    {
+        return array_values(array_filter($contacts, fn (PersonId $contact): bool => array_any($this->withContact($contact, $accountId), static fn (Exchange $exchange): bool => true === StateOf::the($exchange)->objectOrNull('campaign', CampaignId::class)?->equals($campaign))));
     }
 }

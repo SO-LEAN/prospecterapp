@@ -10,6 +10,7 @@ use Prospecter\Core\Prospecting\Domain\Model\ExchangeFingerprint;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\Fingerprinted;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
@@ -47,4 +48,13 @@ interface ExchangeRepository
      * @return list<Exchange>
      */
     public function withContact(PersonId $contact, AccountId $accountId): array;
+
+    /**
+     * Those of these contacts the account has an exchange of the campaign with (ADR 0195).
+     *
+     * @param list<PersonId> $contacts
+     *
+     * @return list<PersonId>
+     */
+    public function contactsWithAnExchangeOf(AccountId $accountId, CampaignId $campaign, array $contacts): array;
 }

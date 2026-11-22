@@ -26,6 +26,7 @@ final class SynchronousEvents implements Events
     private array $published = [];
     /** @var list<object> published, not delivered to the reactions yet */
     private array $undelivered = [];
+    private bool $reactionsHeld = false;
     /** @var list<array{object, \Throwable}> each event a reaction failed on, with its failure */
     private array $failures = [];
 
@@ -95,7 +96,18 @@ final class SynchronousEvents implements Events
     public function deliverAfter(\Closure $command): void
     {
         $this->withoutWhatFails($command);
-        $this->deliverWhatWasPublished();
+
+        if (!$this->reactionsHeld) {
+            $this->deliverWhatWasPublished();
+        }
+    }
+
+    /**
+     * From now on, what the commands publish waits for its reactions, as it waits for the worker on the stack.
+     */
+    public function holdTheReactions(): void
+    {
+        $this->reactionsHeld = true;
     }
 
     private function deliverWhatWasPublished(): void

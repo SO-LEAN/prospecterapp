@@ -382,6 +382,7 @@ use Prospecter\Core\Prospecting\Application\ToDoInList;
 use Prospecter\Core\Prospecting\Application\ToDoList;
 use Prospecter\Core\Prospecting\Application\UntickToDo\UntickToDoHandler;
 use Prospecter\Core\Prospecting\Application\WhichAreProspected\WhichAreProspectedHandler;
+use Prospecter\Core\Prospecting\Application\WhichContactsHaveExchangesOfCampaign\WhichContactsHaveExchangesOfCampaignHandler;
 use Prospecter\Core\Prospecting\Application\WhichEmailsHaveTheseOrganizations\WhichEmailsHaveTheseOrganizationsHandler;
 use Prospecter\Core\Prospecting\Application\WhichOrganizationsHaveTheseEmails\WhichOrganizationsHaveTheseEmailsHandler;
 use Prospecter\Core\Prospecting\Application\WhichOrganizationsNameTheseContacts\WhichOrganizationsNameTheseContactsHandler;
@@ -525,6 +526,7 @@ use Tests\Core\Double\PersonalDataContactsReach;
 use Tests\Core\Double\PersonalDataFactsFromPersonalData;
 use Tests\Core\Double\PersonalDataKnownContacts;
 use Tests\Core\Double\PersonalDataTaggableContacts;
+use Tests\Core\Double\ProspectingCampaignExchanges;
 use Tests\Core\Double\ProspectingFactsFromProspecting;
 use Tests\Core\Double\ProspectingHeldExchanges;
 use Tests\Core\Double\ProspectingHostAgendas;
@@ -644,6 +646,7 @@ final class Application
     private readonly CampaignsCampaignNames $campaignNames;
     private readonly AccountsCampaigners $campaigners;
     private readonly PersonalDataAndProspectingAddressees $addressees;
+    private readonly ProspectingCampaignExchanges $campaignExchanges;
     private readonly TagsOfEveryContact $tagsOfEveryContact;
     private readonly CampaignTargets $campaignTargets;
     public readonly InMemoryBookingPageRepository $bookingPages;
@@ -770,6 +773,7 @@ final class Application
         $this->campaignsOfTimeline = new CampaignsOfTimeline($this->campaignNames);
         $this->campaigners = new AccountsCampaigners($this->consultMembersService);
         $this->addressees = new PersonalDataAndProspectingAddressees($this->nameContactsService, $this->nameOrganizationsOfContactsService);
+        $this->campaignExchanges = new ProspectingCampaignExchanges(new WhichContactsHaveExchangesOfCampaignHandler($this->exchanges));
         $this->tagsOfEveryContact = new TagsOfEveryContact($this->taggedContactsRetriever);
         $this->campaignTargets = new CampaignTargets($this->tagsOfEveryContact);
 
@@ -1038,7 +1042,7 @@ final class Application
     {
         $kept = new KeptRecipientToHandle();
 
-        return $this->ask(new NextRecipientHandler($this->campaigns, $this->campaigners, $this->addressees), $query, $kept) ? $kept->recipient : null;
+        return $this->ask(new NextRecipientHandler($this->campaigns, $this->campaigners, $this->addressees, $this->campaignExchanges), $query, $kept) ? $kept->recipient : null;
     }
 
     public function searchContactsByTags(SearchContactsByTags $query): ?TaggedContactPage
