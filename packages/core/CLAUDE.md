@@ -11,7 +11,7 @@ Read before working on the core: `docs/architecture/core.md` (the hexagon's layo
 Run them from the repository root (the core has its own `vendor/`, installed by `make vendor`):
 
 - `make test-core`: the Behat scenarios (`features/`, one feature per intent or close to it: a feature may hold a sibling intent, as `rattacher-a-une-holding` holds the detachment), then PHPUnit (`tests/Domain`, `tests/Application`, `tests/Architecture`, `tests/Support`: the helpers of the tests, such as `State`, and `tests/PHPStan`: the rules of `packages/phpstan-rules`, on their fixtures in `packages/phpstan-rules/fixtures`).
-- `make mutation`: mutates the lines the branch adds in `src`, kills the mutants with the unit tests and with the scenarios PHPUnit runs (`tests/Mutation`, ADR 0091), and lists the survivors.
+- `make mutation`: mutates the lines the branch adds in `src`, kills the mutants with the unit tests and with the scenarios PHPUnit runs (`tests/Mutation`, ADR 0091), and lists the survivors; it fails when it skips a mutant (ADR 0196).
 - `make lint` / `make fix` cover the core too (PHPStan at level `max` with no baseline, php-cs-fixer with strict types, Rector; ADR 0192). A test reads an aggregate's private state through `StateOf::the()`, typed by its `State`, and reads what a scenario expects through `Expect::present()`. PHPStan refuses a test that reads the real clock (ADR 0150): a test names its moment.
 - `make test-core CLOCK_SHIFT=+365d`: the same, one year later.
 - A single command: `docker compose run --rm --no-deps -w /var/www/src/packages/core php vendor/bin/behat features/demenager.feature`.

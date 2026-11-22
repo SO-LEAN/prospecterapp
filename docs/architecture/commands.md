@@ -35,7 +35,7 @@ Run these from the repository root. `make` alone lists the commands; a new targe
   - `FAILED=1` reruns what failed last; `FAIL_FAST=1` stops at the first failure. Both also work with `make e2e`.
   - `CLOCK_SHIFT=+365d` runs the core, the storage and the front on a clock one year ahead; the API stays on the real clock (ADR 0150).
 - `make e2e`: Playwright on the checkout's running stack, once every part of it answers and its functions are warm, using doubles of the services outside the stack (ADR 0092).
-- `make mutation`: mutates the lines a branch adds since `origin/dev` in the core and the front, and lists the mutants its tests let survive (ADR 0091). `make mutation-api` does the same for the API, on demand only: it takes minutes per mutant.
+- `make mutation`: mutates the lines a branch adds since `origin/dev` in the core and the front, and lists the mutants its tests let survive (ADR 0091). It prints the number of mutants the core skipped, and fails before the front runs when there is one (ADR 0196). `make mutation-api` does the same for the API, on demand only: it takes minutes per mutant.
 - `make lint`: `FILTER=<paths from the root>` lints only those paths, each with its project's tools. The PHP lint caches live in each project's `var/cache/` and take a few seconds once warm (`docs/architecture/monorepo.md`).
 - `make fix`: fixes what the linters can fix.
 

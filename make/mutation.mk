@@ -20,3 +20,12 @@ INFECTION = $(DC) --progress quiet run --rm --no-deps -e XDEBUG_MODE=coverage -v
 define infection-on-added-lines
 	@if $(call ADDS_LINES,'src/*.php'); then $(INFECTION); else $(call NO_ADDED_LINE,src); fi
 endef
+
+# the mutants Infection skipped, their covering tests slower than its timeout in its first run, counted from its summary
+# (logs.summaryJson) when it ran: their lines are judged by no test, so the target fails when there is one
+SKIPPED_MUTANTS = grep -o '"skippedCount":[0-9]*' $(1) 2>/dev/null | cut -d: -f2
+define fail-on-skipped-mutants
+	@skipped=$$($(call SKIPPED_MUTANTS,$(1))); \
+	if [ -n "$$skipped" ]; then echo "Skipped mutants: $$skipped"; fi; \
+	if [ "$${skipped:-0}" -gt 0 ]; then echo "Their lines are judged by no test: see docs/architecture/tests.md, Mutation testing"; exit 1; fi
+endef
