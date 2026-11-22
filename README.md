@@ -8,8 +8,8 @@ Prospecter is a B2B prospecting application for small teams. An account's member
 
 ## What it does
 
-- **Organizations**: the companies an account prospects, shared by the whole team. Each one is geocoded and placed on a map, its SIRET found in the public directory of French companies. Two organizations that look alike are flagged as possible duplicates.
-- **Contacts**: the people who work there. Their personal data live in a context of their own, which decides who reads them in clear: a member without the right to manage personal data sees their details masked.
+- **Organizations**: the companies an account prospects, shared by the whole team. Prospecter geocodes each one and places it on a map. It finds the organization's SIRET in the public directory of French companies. Two organizations that look alike are flagged as possible duplicates.
+- **Contacts**: the people who work there. Their personal data live in a context of their own. That context decides who reads them unmasked. A member without the right to manage personal data sees their details masked.
 - **Exchanges**: calls, e-mails, messages, meetings and video calls, gathered in each organization's timeline. A planned exchange appears in its holder's calendar, with the to-dos.
 - **Connectors**: a member connects Google. Prospecter pushes their planned exchanges into Google Calendar and imports the e-mails Gmail exchanged with their contacts.
 - **Campaigns**: tags on organizations and contacts, some derived automatically (location, how a contact is reached), to target the recipients of a campaign.
@@ -59,7 +59,7 @@ flowchart LR
 ```
 
 - **Clean architecture.** The business rules live in `packages/core`, a pure PHP library with no framework. The API adapts it to HTTP, DynamoDB and Cognito; the front only presents.
-- **Bounded contexts.** Seven contexts, each with its own language and table, most of them publishing the questions the others ask. A context never reads another's tables: it asks the services the other publishes, through an anticorruption layer, and reacts to its integration events.
+- **Bounded contexts.** Prospecter has seven contexts. Each one has its own language and its own table. Most of them publish the questions the others ask. A context never reads another's tables. It asks the services the other context publishes, through an anticorruption layer. It also reacts to the other context's integration events.
 - **Asynchronous reactions.** A command writes its aggregate and its events in one transaction (an outbox). A relay publishes the events on an EventBridge bus, and a worker runs each reaction in its own transaction.
 - **Serverless.** The API and the storage run in Lambdas, locally too: MiniStack emulates the AWS services in Docker.
 
@@ -98,7 +98,7 @@ Everything runs in Docker: you only need Docker (with the Compose plugin) and ma
 
 - `make install` builds the images, installs the dependencies, and creates the tables, the user pool and the bucket in MiniStack, with the demonstration data and members.
 - `make ca` creates, once per machine, the local authority that signs the local hosts' certificate. Import it once in your browser and no stack shows a certificate warning: see [Trusting the local authority](docs/architecture/local-stack.md#trusting-the-local-authority).
-- The hosts are `.localhost` names, which Chrome, Firefox and curl resolve to the loopback themselves: nothing goes in `/etc/hosts`. A stack whose data date from the old hosts (`local.prospecter.io`) keeps them in its files' addresses: `make db` restores the demonstration's, and those hosts' lines can leave `/etc/hosts`.
+- The hosts are `.localhost` names, which Chrome, Firefox and curl resolve to the loopback themselves: nothing goes in `/etc/hosts`.
 
 Then open:
 
