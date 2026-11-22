@@ -49,14 +49,13 @@ final class Member implements ReleasesEvents
      * @throws AdministratorsOnly
      * @throws MemberWithoutRole
      */
-    public static function registerBy(self $administrator, MemberId $id, PersonId $profile, \DateTimeImmutable $at, Role ...$roles): self
+    public static function registerBy(self $administrator, Newcomer $newcomer, \DateTimeImmutable $at): self
     {
         $administrator->ensureAdministrator();
-        $roles = array_values($roles);
-        self::ensureAWorkingRoleAmong($roles);
+        self::ensureAWorkingRoleAmong($newcomer->roles);
 
-        $member = new self($id, $administrator->accountId, $profile, ...self::signingInWith($roles));
-        $member->recordThat(new MemberRegistered($administrator->accountId, $administrator->id, $id, $profile, $at));
+        $member = new self($newcomer->id, $administrator->accountId, $newcomer->profile, ...self::signingInWith($newcomer->roles));
+        $member->recordThat(new MemberRegistered($administrator->accountId, $administrator->id, $newcomer->id, $newcomer->profile, $at));
 
         return $member;
     }
