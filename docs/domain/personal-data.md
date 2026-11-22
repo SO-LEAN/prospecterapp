@@ -92,7 +92,7 @@ Natural persons' personal data, and who reads it. Code: `packages/core/src/Perso
 
 ## In the code
 
-- `src/PersonalData/{Domain,Application}`: natural persons' personal data (`Person`: account, `Purpose`, `PersonName`, `Civility`, job title, contact details, their links (`ExternalReferences`) and former links, picture). It is read in clear or masked (`PersonReading`, `Masking`) by a `Reader`, obtained through the port `Readers` (`readerFrom()`).
+- `src/PersonalData/{Domain,Application}`: natural persons' personal data (`Person`: account, `Purpose`, `PersonName`, `Civility`, job title, contact details, their links (`ExternalReferences`) and former links, picture). It is read in clear or masked (`PersonReading`, `Masking`) by a `Reader`, obtained through the port `Readers` (`readerFrom()`). A profile is collected by the `Gesture` of the member who opens the account or registers the newcomer (`Person::collect()`); a contact by a `Reader` with the right, from a `NewContact` (the person, their `ContactCard` and their organizations; `collectAsContact()`), a contact to attach from their `ContactCard` (`collectToAttach()`). The `Reader` stands for the `Gesture` of the other contexts (ADR 0193).
 - Queries:
   - `ConsultPerson`, `ConsultPersons` (batch);
   - `SearchContacts` (by name, and by email with the right to manage personal data);
