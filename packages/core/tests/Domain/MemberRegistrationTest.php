@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Accounts\Domain\Event\MemberRegistered;
 use Prospecter\Core\Accounts\Domain\Exception\AdministratorsOnly;
 use Prospecter\Core\Accounts\Domain\Model\Member;
+use Prospecter\Core\Accounts\Domain\Model\Newcomer;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
@@ -60,6 +61,6 @@ class MemberRegistrationTest extends TestCase
 
     private function registerBy(Member $administrator): Member
     {
-        return Member::registerBy($administrator, new MemberId(self::NEW_MEMBER), new PersonId(self::NEW_PROFILE), new \DateTimeImmutable('2026-10-20 14:00'), Role::Prospector);
+        return Member::registerBy($administrator, new Newcomer(new MemberId(self::NEW_MEMBER), new PersonId(self::NEW_PROFILE), [Role::Prospector]), new \DateTimeImmutable('2026-10-20 14:00'));
     }
 }

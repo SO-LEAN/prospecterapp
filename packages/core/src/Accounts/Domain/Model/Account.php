@@ -16,8 +16,8 @@ use Prospecter\Core\SharedKernel\Domain\Address;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\GeoPoint;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
@@ -49,18 +49,19 @@ final class Account implements ReleasesEvents
     }
 
     /**
-     * An organization opens its account with its founder, who becomes its first member under the profile given.
+     * An organization opens its account with its founder, who becomes its first member under the profile given: the
+     * gesture names the account opened and its founder.
      *
      * @throws AccountWithoutCorporateName
      */
-    public static function openBy(MemberId $founder, PersonId $founderProfile, AccountId $id, LegalIdentity $legalIdentity, \DateTimeImmutable $at): self
+    public static function openBy(Gesture $gesture, PersonId $founderProfile, LegalIdentity $legalIdentity): self
     {
         if (!$legalIdentity->hasCorporateName()) {
             throw AccountWithoutCorporateName::because('An account needs the corporate name of its organization', 'corporateName');
         }
 
-        $account = new self($id, $legalIdentity, new ContactDetails(), $at);
-        $account->recordThat(new AccountOpened($id, $founder, $founderProfile, $at));
+        $account = new self($gesture->accountId, $legalIdentity, new ContactDetails(), $gesture->at);
+        $account->recordThat(new AccountOpened($gesture->accountId, $gesture->by, $founderProfile, $gesture->at));
 
         return $account;
     }

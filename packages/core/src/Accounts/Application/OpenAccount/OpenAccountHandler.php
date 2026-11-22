@@ -10,6 +10,7 @@ use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
@@ -25,11 +26,9 @@ final readonly class OpenAccountHandler implements CommandHandler
     public function __invoke(OpenAccount $command): void
     {
         $account = Account::openBy(
-            new MemberId($command->founderId),
+            new Gesture(new AccountId($command->id), new MemberId($command->founderId), $command->executedAt),
             new PersonId($command->founderProfileId),
-            new AccountId($command->id),
             new LegalIdentity($command->corporateName, $command->form),
-            $command->executedAt,
         );
         $this->accounts->save($account);
         $this->publishWhatHappenedTo($account);

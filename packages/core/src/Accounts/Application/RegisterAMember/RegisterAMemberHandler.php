@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Accounts\Application\RegisterAMember;
 
 use Prospecter\Core\Accounts\Domain\Model\Member;
+use Prospecter\Core\Accounts\Domain\Model\Newcomer;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\Accounts\Domain\Repository\MemberRepository;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
@@ -26,10 +27,8 @@ final readonly class RegisterAMemberHandler implements CommandHandler
         $administrator = $this->members->get(new MemberId($command->administratorId));
         $member = Member::registerBy(
             $administrator,
-            new MemberId($command->id),
-            new PersonId($command->profileId),
+            new Newcomer(new MemberId($command->id), new PersonId($command->profileId), array_map(Role::from(...), $command->roles)),
             $command->executedAt,
-            ...array_map(Role::from(...), $command->roles),
         );
         $this->members->save($member);
         $this->publishWhatHappenedTo($member);
