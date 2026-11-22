@@ -53,6 +53,7 @@ final class Campaign implements ReleasesEvents
     private ?\DateTimeImmutable $startedAt = null;
     private ?\DateTimeImmutable $stoppedAt = null;
     private ?\DateTimeImmutable $endedAt = null;
+    private ?DailyCap $dailyCap = null;
 
     private function __construct(
         private readonly CampaignId $id,
@@ -67,9 +68,10 @@ final class Campaign implements ReleasesEvents
         $this->modifiedAt = $createdAt;
     }
 
-    public static function prepare(Gesture $gesture, CampaignId $id, CampaignBrief $brief): self
+    public static function prepare(Gesture $gesture, CampaignId $id, CampaignBrief $brief, ?DailyCap $dailyCap = null): self
     {
         $campaign = new self($id, $gesture->accountId, $gesture->by, $brief->name, $brief->targeting, $brief->message, $gesture->at);
+        $campaign->dailyCap = $dailyCap;
         $campaign->recordThat(new CampaignPrepared($gesture->accountId, $gesture->by, $id, $gesture->at));
 
         return $campaign;
