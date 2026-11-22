@@ -14,6 +14,7 @@ use Prospecter\Core\Campaigns\Domain\Model\CampaignBrief;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignName;
 use Prospecter\Core\Campaigns\Domain\Model\Channel;
 use Prospecter\Core\Campaigns\Domain\Model\ContactTags;
+use Prospecter\Core\Campaigns\Domain\Model\DailyCap;
 use Prospecter\Core\Campaigns\Domain\Model\MessageMode;
 use Prospecter\Core\Campaigns\Domain\Model\MessageTemplate;
 use Prospecter\Core\Campaigns\Domain\Model\Reach;
@@ -68,6 +69,17 @@ class DynamoCampaignRepositoryTest extends ApiTestCase
         );
     }
 
+    public function testItsDailyCapIsRestoredAndRead(): void
+    {
+        $campaign = $this->aCampaign('Relance ESN');
+        $campaign->setDailyCap(DailyCap::of(30), new MemberId(self::newIdentity()), new \DateTimeImmutable('2026-11-17 11:00:00'));
+        $this->repository()->save($campaign);
+        $campaign->releaseEvents();
+
+        $this->assertEquals($campaign, $this->repository()->get($this->account, $campaign->id()));
+        $this->assertSame(30, $this->retriever()->get($this->account, $campaign->id())->dailyCap);
+    }
+
     public function testTheMessageAdaptedByAnAIIsRestoredAndReadSo(): void
     {
         $campaign = $this->aCampaign('Relance ESN', mode: MessageMode::Adapted);
@@ -117,7 +129,7 @@ class DynamoCampaignRepositoryTest extends ApiTestCase
         $this->assertEquals($campaign, $this->repository()->get($this->account, $campaign->id()));
         $sheet = $this->retriever()->get($this->account, $campaign->id());
         $this->assertEquals(
-            ['ended', [self::ADA => new RecipientInSheet('processed', false, true, null, self::EXCHANGE), self::ALAN => new RecipientInSheet('dismissed', false, false, 'Parti')], 1, 1, new \DateTimeImmutable('2026-11-17 13:00:00'), false],
+            ['ended', [self::ADA => new RecipientInSheet('processed', false, true, null, self::EXCHANGE, processedAt: new \DateTimeImmutable('2026-11-17 12:30:00')), self::ALAN => new RecipientInSheet('dismissed', false, false, 'Parti')], 1, 1, new \DateTimeImmutable('2026-11-17 13:00:00'), false],
             [$sheet->status, $sheet->recipients, $sheet->processed, $sheet->dismissed, $sheet->endedAt, $sheet->running],
         );
     }
@@ -134,7 +146,7 @@ class DynamoCampaignRepositoryTest extends ApiTestCase
         $this->assertEquals($campaign, $this->repository()->get($this->account, $campaign->id()));
         $sheet = $this->retriever()->get($this->account, $campaign->id());
         $this->assertEquals(
-            [new RecipientInSheet('processed', false, true, null, erased: true), 1],
+            [new RecipientInSheet('processed', false, true, null, erased: true, processedAt: new \DateTimeImmutable('2026-11-17 12:30:00')), 1],
             [$sheet->recipients[self::ADA], $sheet->processed],
         );
     }
