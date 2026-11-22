@@ -34,4 +34,9 @@ final readonly class Booker
 
         return new self(trim($firstName), trim($lastName), PhoneNumber::of($phone), new Email(trim($email)));
     }
+
+    public function hasEmail(Email $email): bool
+    {
+        return $this->email->equals($email);
+    }
 }

@@ -95,7 +95,7 @@ final class Appointment implements ReleasesEvents
 
     public function isBookedBy(Email $email): bool
     {
-        return $this->booker->email->equals($email);
+        return $this->booker->hasEmail($email);
     }
 
     public function busyPeriod(): BusyPeriod
