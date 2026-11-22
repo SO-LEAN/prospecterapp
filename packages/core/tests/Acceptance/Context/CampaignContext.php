@@ -1167,7 +1167,7 @@ final class CampaignContext implements Context
 
     private function sheet(): CampaignSheet
     {
-        return $this->application->consultCampaign($this->consultation())?->campaign
+        return $this->application->consultCampaign($this->consultation())->campaign
             ?? throw new \LogicException(sprintf('The campaign was refused: %s', $this->application->refusal()?->getMessage()));
     }
 
