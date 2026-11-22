@@ -103,6 +103,21 @@ export function ExchangePanel({ exchangeId, onErased, startWith }: PanelProps) {
  */
 type Correcting = 'facts' | 'text' | 'venue' | 'report' | 'followUp' | 'move' | null
 
+/**
+ * The revision of the exchange when what is being done of it began, kept while it goes on: a correction is sent on it,
+ * not on a revision read since, so that a change made meanwhile is refused instead of erased (ADR 0187).
+ */
+function useRevisionWhenOpened(correcting: Correcting, revision: number): number {
+  const [opened, setOpened] = useState({ correcting, revision })
+
+  if (opened.correcting !== correcting) {
+    setOpened({ correcting, revision })
+    return revision
+  }
+
+  return opened.revision
+}
+
 function Exchange({
   exchange,
   onErased,
@@ -117,6 +132,10 @@ function Exchange({
   const attach = useAttachFiles()
   const correctVenue = useCorrectExchangeVenue()
   const params = { path: { id: exchange.id } }
+  const onTheRevisionRead = {
+    ...params,
+    query: { revision: useRevisionWhenOpened(correcting, exchange.revision) },
+  }
   const mayDeclareConform = Boolean(exchange._links.redact)
 
   if (correcting === 'facts') {
@@ -127,7 +146,7 @@ function Exchange({
           mayDeclareConform={mayDeclareConform}
           onCancel={() => setCorrecting(null)}
           onSubmit={async (body) => {
-            await correct.mutateAsync({ params, body: { redacted: false, ...body } })
+            await correct.mutateAsync({ params: onTheRevisionRead, body: { redacted: false, ...body } })
             setCorrecting(null)
           }}
         />
@@ -143,7 +162,7 @@ function Exchange({
           mayDeclareConform={mayDeclareConform}
           onCancel={() => setCorrecting(null)}
           onSubmit={async (body) => {
-            await correctText.mutateAsync({ params, body })
+            await correctText.mutateAsync({ params: onTheRevisionRead, body })
             setCorrecting(null)
           }}
         />
@@ -197,7 +216,7 @@ function Exchange({
           exchange={exchange}
           onCancel={() => setCorrecting(null)}
           onSubmit={async (body) => {
-            await correctVenue.mutateAsync({ params, body })
+            await correctVenue.mutateAsync({ params: onTheRevisionRead, body })
             setCorrecting(null)
           }}
         />
