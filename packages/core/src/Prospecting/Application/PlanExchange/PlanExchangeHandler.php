@@ -42,9 +42,17 @@ final readonly class PlanExchangeHandler implements CommandHandler
             new Gesture($prospector->accountId, $prospector->id, $command->executedAt, Origin::byAnAI($command->byAnAI)),
             new ExchangeId($command->id),
             Correspondent::contact($contact, $this->contactOrganizations->keepersOf($contact, $prospector)),
-            ExchangeFacts::planned(Channel::from($command->channel), $command->plannedAt, Duration::inMinutes($command->durationInMinutes), $command->agenda, $command->place, VideoCallLink::orNone($command->link), $command->linkRequested),
+            self::factsOf($command),
         );
         $this->exchanges->save($exchange);
         $this->publishWhatHappenedTo($exchange);
+    }
+
+    private static function factsOf(PlanExchange $command): ExchangeFacts
+    {
+        $facts = ExchangeFacts::planned(Channel::from($command->channel), $command->plannedAt, Duration::inMinutes($command->durationInMinutes), $command->agenda)
+            ->withVenue($command->place, VideoCallLink::orNone($command->link));
+
+        return $command->linkRequested ? $facts->askingALink() : $facts;
     }
 }

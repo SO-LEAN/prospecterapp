@@ -59,17 +59,28 @@ final readonly class ExchangeFacts
     }
 
     /**
-     * Agreed upon with the contact, at the initiative of the prospector; the text is the agenda.
+     * Agreed upon with the contact, at the prospector's initiative; the text is the agenda. withVenue() gives the place
+     * or the link, askingALink() the request of a link.
      *
-     * @throws ChannelNotPlanned|PlaceOnlyForAMeeting|LinkOnlyForAVideoCall
+     * @throws ChannelNotPlanned
      */
-    public static function planned(Channel $channel, \DateTimeImmutable $at, Duration $duration, ?string $agenda, ?string $place = null, ?VideoCallLink $link = null, bool $linkRequested = false): self
+    public static function planned(Channel $channel, \DateTimeImmutable $at, Duration $duration, ?string $agenda): self
     {
         if (!$channel->mayBePlanned()) {
             throw ChannelNotPlanned::because('Only a call, a meeting or a video call may be planned', 'channel', context: ['channel' => $channel->value]);
         }
 
-        return new self($channel, Direction::Outbound, $at, $agenda, $duration, $place, $link, $linkRequested);
+        return new self($channel, Direction::Outbound, $at, $agenda, $duration);
+    }
+
+    /**
+     * A video call asking its link of the calendar of its holder, while it has none (ADR 0137).
+     *
+     * @throws LinkOnlyForAVideoCall
+     */
+    public function askingALink(): self
+    {
+        return new self($this->channel, $this->direction, $this->occurredAt, $this->text, $this->duration, $this->place, $this->link, linkRequested: true);
     }
 
     public function withText(?string $text): self

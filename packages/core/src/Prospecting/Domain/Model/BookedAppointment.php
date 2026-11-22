@@ -22,6 +22,8 @@ final readonly class BookedAppointment
      */
     public function facts(): ExchangeFacts
     {
-        return ExchangeFacts::planned($this->channel, $this->startsAt, $this->duration, $this->subject, linkRequested: Channel::VideoCall === $this->channel);
+        $facts = ExchangeFacts::planned($this->channel, $this->startsAt, $this->duration, $this->subject);
+
+        return Channel::VideoCall === $this->channel ? $facts->askingALink() : $facts;
     }
 }

@@ -374,8 +374,8 @@ class ExchangeTest extends TestCase
 
     public function testAMeetingKeepsItsPlaceAndAVideoCallItsLink(): void
     {
-        $this->assertSame('Café de Flore', ExchangeFacts::planned(Channel::Meeting, new \DateTimeImmutable(self::NOW), Duration::inMinutes(null), null, 'Café de Flore')->place);
-        $this->assertEquals(new VideoCallLink(self::MEET), ExchangeFacts::planned(Channel::VideoCall, new \DateTimeImmutable(self::NOW), Duration::inMinutes(null), null, link: new VideoCallLink(self::MEET))->link);
+        $this->assertSame('Café de Flore', ExchangeFacts::planned(Channel::Meeting, new \DateTimeImmutable(self::NOW), Duration::inMinutes(null), null)->withVenue('Café de Flore', null)->place);
+        $this->assertEquals(new VideoCallLink(self::MEET), ExchangeFacts::planned(Channel::VideoCall, new \DateTimeImmutable(self::NOW), Duration::inMinutes(null), null)->withVenue(null, new VideoCallLink(self::MEET))->link);
     }
 
     #[DataProvider('notWebAddresses')]
@@ -416,7 +416,7 @@ class ExchangeTest extends TestCase
 
         $exchange->correctVenue('Les Deux Magots', null, by: $this->colleagueWithoutTheRight()->id, at: $later);
 
-        $this->assertEquals(ExchangeFacts::planned(Channel::Meeting, new \DateTimeImmutable(self::NOW)->modify('+1 day'), Duration::inMinutes(45), null, 'Les Deux Magots'), StateOf::the($exchange)->object('facts', ExchangeFacts::class));
+        $this->assertEquals(ExchangeFacts::planned(Channel::Meeting, new \DateTimeImmutable(self::NOW)->modify('+1 day'), Duration::inMinutes(45), null)->withVenue('Les Deux Magots', null), StateOf::the($exchange)->object('facts', ExchangeFacts::class));
         $this->assertEquals(new Correction($this->colleagueWithoutTheRight()->id, $later), StateOf::the($exchange)->objectOrNull('lastCorrection', Correction::class));
         $this->assertEquals([new ExchangeVenueCorrected(new AccountId(self::MINE), $this->colleagueWithoutTheRight()->id, new ExchangeId(self::EXCHANGE), $later)], $exchange->releaseEvents());
     }
@@ -450,7 +450,7 @@ class ExchangeTest extends TestCase
 
     public function testALinkGivenEndsTheRequestOfOne(): void
     {
-        $this->assertFalse(ExchangeFacts::planned(Channel::VideoCall, new \DateTimeImmutable(self::NOW), Duration::inMinutes(null), null, link: new VideoCallLink(self::MEET), linkRequested: true)->linkRequested);
+        $this->assertFalse(ExchangeFacts::planned(Channel::VideoCall, new \DateTimeImmutable(self::NOW), Duration::inMinutes(null), null)->withVenue(null, new VideoCallLink(self::MEET))->askingALink()->linkRequested);
     }
 
     public function testCorrectingItsTextKeepsTheRequestOfALink(): void
@@ -914,7 +914,7 @@ class ExchangeTest extends TestCase
     private function aVideoCallAskingItsLink(): Exchange
     {
         $now = new \DateTimeImmutable(self::NOW);
-        $facts = ExchangeFacts::planned(Channel::VideoCall, $now->modify('+1 day'), Duration::inMinutes(30), null, linkRequested: true);
+        $facts = ExchangeFacts::planned(Channel::VideoCall, $now->modify('+1 day'), Duration::inMinutes(30), null)->askingALink();
 
         return Exchange::planned(new Gesture(new AccountId(self::MINE), $this->me()->id, $now), new ExchangeId(self::EXCHANGE), Correspondent::contact(new PersonId(self::CONTACT), [new OrganizationId(self::ACME)]), $facts);
     }
