@@ -4,8 +4,10 @@
     "source": {"directories": ["src"]},
     "phpUnit": {"configDir": "tests/Mutation"},
     "mutators": {"@default": true},
-    // the coverage under Xdebug makes the first run slow, and a mutant whose tests took longer is skipped
-    "timeout": 120,
+    // Infection skips a mutant whose covering tests took longer than this in its first run, under Xdebug: above that
+    // whole run, none is skipped, and a mutant's own run, without Xdebug, stops at its first failing test
+    "timeout": 600,
     "tmpDir": "var/infection",
-    "logs": {"text": "var/mutation.log"}
+    // the summary counts the skipped mutants, and make mutation fails when there is one
+    "logs": {"text": "var/mutation.log", "summaryJson": "var/mutation-summary.json"}
 }

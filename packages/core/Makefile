@@ -20,8 +20,13 @@ test: ## Run the business rules (Behat) and the unit tests of the core; FILTER= 
 	@mkdir -p var
 	@$(PHP) sh -c '{ $(UNLESS_NO_SCENARIO_MATCHES) $(BEHAT); } && $(PHPUNIT)'
 
-mutation: ## Mutate the lines the branch adds in src since BASE (origin/dev), killed by the unit tests and the scenarios; list the survivors
+# the summary Infection writes (infection.json5), removed before each run: a run mutating nothing reads no former one
+MUTATION_SUMMARY = var/mutation-summary.json
+
+mutation: ## Mutate the lines the branch adds in src since BASE (origin/dev), killed by the unit tests and the scenarios; list the survivors, count the skipped mutants and fail when there is one
+	@rm -f $(MUTATION_SUMMARY)
 	$(infection-on-added-lines)
+	$(call fail-on-skipped-mutants,$(MUTATION_SUMMARY))
 
 lint: lint-phpstan lint-style lint-rector ## Check the code of the core: PHPStan, php-cs-fixer, Rector; FILTER= paths of the project, for php-cs-fixer and Rector
 
