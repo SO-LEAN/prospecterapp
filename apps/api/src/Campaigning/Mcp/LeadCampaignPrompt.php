@@ -13,9 +13,9 @@ use Mcp\Server\Capability\Attribute\McpPrompt;
 final readonly class LeadCampaignPrompt
 {
     private const string STEPS = <<<'STEPS'
-        Run the Prospecter campaign "%s" for me, one recipient after another. Prospecter sends nothing: you send each message yourself.
+        Run the Prospecter campaign "%1$s" for me, one recipient after another. Prospecter sends nothing: you send each message yourself.
 
-        1. Find it with `list-campaigns`: it must be started.
+        1. Find it with `list-campaigns`: it must be started. When "%1$s" is not the ID or the exact name of a single started campaign, ask me which one to run, and send nothing until I answer. Do not guess.
         2. Ask for its next recipient with `get-next-recipient`: how to reach them, the message rendered for them, and its instruction.
         3. Send the message yourself on its channel: from my mailbox for an e-mail (Claude's Gmail connector), from my LinkedIn for a LinkedIn message (Claude's Chrome extension). Follow its instruction. As is: send it without changing a word. Adapted: you may rewrite it for this person, from their profile and our past exchanges, but always keep the message's idea.
         4. Log what you sent with `log-sent-message`: the text you actually sent, and the e-mail's Message-ID or the LinkedIn conversation. Logged first by my mailbox import, it joins the campaign; already logged for the campaign, go on.
@@ -27,7 +27,7 @@ final readonly class LeadCampaignPrompt
         STEPS;
 
     /**
-     * @param string $campaign the campaign's name or ID
+     * @param string $campaign the campaign's ID, or its name in quotes
      *
      * @return list<array{role: string, content: string}>
      */
