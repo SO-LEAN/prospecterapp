@@ -28,8 +28,11 @@ use Prospecter\Core\Prospecting\Domain\Model\Noting;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationCorrespondent;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
+use Prospecter\Core\Prospecting\Domain\Model\RecipientCorrespondent;
+use Prospecter\Core\Prospecting\Domain\Model\RecipientInCampaign;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
@@ -120,6 +123,18 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
         $found = $exchanges->withContact($this->contact, $this->prospector->accountId);
 
         $this->assertEquals([$second->id(), $first->id()], array_map(static fn (Exchange $exchange): ExchangeId => $exchange->id(), $found));
+    }
+
+    public function testTheContactsWithAnExchangeOfACampaignAreThoseOneOfWhoseExchangesIsOfIt(): void
+    {
+        $exchanges = $this->exchanges();
+        $campaign = new CampaignId(self::newIdentity());
+        $other = new PersonId(self::newIdentity());
+        $recipient = new RecipientInCampaign($campaign, $this->contact, Channel::Email, running: true, recipient: true, pending: true);
+        $exchanges->save($this->noted('2026-10-10 09:00 UTC'));
+        $exchanges->save(Exchange::noted(new Gesture($this->prospector->accountId, $this->prospector->id, new \DateTimeImmutable(self::NOW)), new ExchangeId(self::newIdentity()), new RecipientCorrespondent($recipient, [$this->acme]), Noting::of($recipient->exchangeFacts(new \DateTimeImmutable('2026-10-11 09:00 UTC'), 'Bonjour'), ExchangeStatus::Done)));
+
+        $this->assertEquals([$this->contact], $exchanges->contactsWithAnExchangeOf($this->prospector->accountId, $campaign, [$other, $this->contact]));
     }
 
     public function testARedactedExchangeIsReadWithWhoDeclaredIt(): void

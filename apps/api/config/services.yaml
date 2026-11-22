@@ -135,6 +135,7 @@ services:
     Prospecter\Core\PersonalData\Contract\Service\WhichContactsHaveTheseEmails\WhichContactsHaveTheseEmailsService: '@Prospecter\Core\PersonalData\Application\WhichContactsHaveTheseEmails\WhichContactsHaveTheseEmailsHandler'
     Prospecter\Core\PersonalData\Contract\Service\WhichEmailsHaveTheseContacts\WhichEmailsHaveTheseContactsService: '@Prospecter\Core\PersonalData\Application\WhichEmailsHaveTheseContacts\WhichEmailsHaveTheseContactsHandler'
     Prospecter\Core\Prospecting\Contract\Service\WhichAreProspected\WhichAreProspectedService: '@Prospecter\Core\Prospecting\Application\WhichAreProspected\WhichAreProspectedHandler'
+    Prospecter\Core\Prospecting\Contract\Service\WhichContactsHaveExchangesOfCampaign\WhichContactsHaveExchangesOfCampaignService: '@Prospecter\Core\Prospecting\Application\WhichContactsHaveExchangesOfCampaign\WhichContactsHaveExchangesOfCampaignHandler'
     Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsHaveTheseEmails\WhichOrganizationsHaveTheseEmailsService: '@Prospecter\Core\Prospecting\Application\WhichOrganizationsHaveTheseEmails\WhichOrganizationsHaveTheseEmailsHandler'
     Prospecter\Core\Prospecting\Contract\Service\WhichEmailsHaveTheseOrganizations\WhichEmailsHaveTheseOrganizationsService: '@Prospecter\Core\Prospecting\Application\WhichEmailsHaveTheseOrganizations\WhichEmailsHaveTheseOrganizationsHandler'
     Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\ListOrganizationFactsService: '@Prospecter\Core\Prospecting\Application\ListOrganizationFacts\ListOrganizationFactsHandler'
@@ -231,6 +232,7 @@ services:
     Prospecter\Core\Campaigns\Application\Port\CampaignSheetRetriever: '@App\Campaigns\Persistence\DynamoCampaignSheetRetriever'
     Prospecter\Core\Campaigns\Domain\Port\Campaigners: '@App\Campaigns\AntiCorruption\AccountsCampaigners'
     Prospecter\Core\Campaigns\Domain\Port\Addressees: '@App\Campaigns\AntiCorruption\PersonalDataAndProspectingAddressees'
+    Prospecter\Core\Campaigns\Domain\Port\CampaignExchanges: '@App\Campaigns\AntiCorruption\ProspectingCampaignExchanges'
     # the moment a terminal fact is forgotten at counted from now, the real one
     App\Campaigns\Persistence\DynamoFactRepository:
         arguments: { $clock: '@app.commit_clock' }
