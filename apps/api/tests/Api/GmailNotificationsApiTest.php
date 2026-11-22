@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\App\Api;
 
 use App\Shared\CommandBus;
+use App\Shared\Typed;
 use Lcobucci\JWT\Encoding\ChainedFormatter;
 use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Signer\Key\InMemory;
@@ -17,6 +18,7 @@ use Prospecter\Core\Connectors\Application\AskToImportMail\AskToImportMail;
 use Prospecter\Core\Connectors\Application\ConfigureMailboxNotifications\ConfigureMailboxNotifications;
 use Prospecter\Core\Connectors\Application\Connect\Connect;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Base\ReadsResources;
 use Tests\App\Double\GoogleDouble;
 
 /**
@@ -27,6 +29,8 @@ use Tests\App\Double\GoogleDouble;
 #[Group('api')]
 class GmailNotificationsApiTest extends ApiTestCase
 {
+    use ReadsResources;
+
     private const string PUSH_ACCOUNT = 'push@solean.iam.gserviceaccount.com';
     private const string MAILBOX = 'michel@exemple.fr';
     private string $privateKey = '';
@@ -39,10 +43,11 @@ class GmailNotificationsApiTest extends ApiTestCase
         $this->client->disableReboot();
         $this->aMemberOfTheFixtures('client-administrator', Role::User, Role::Admin);
         $key = openssl_pkey_new(['private_key_bits' => 2048, 'private_key_type' => \OPENSSL_KEYTYPE_RSA]) ?: throw new \RuntimeException('No key drawn');
-        openssl_pkey_export($key, $this->privateKey);
+        $this->privateKey = self::pemOf($key);
         $details = openssl_pkey_get_details($key) ?: throw new \RuntimeException('A key without its details');
+        $rsa = Typed::document($details['rsa']);
         $this->keyId = self::newIdentity();
-        $this->google()->publishesTheKey($this->keyId, self::base64Url($details['rsa']['n']), self::base64Url($details['rsa']['e']));
+        $this->google()->publishesTheKey($this->keyId, self::base64Url(Typed::string($rsa['n'])), self::base64Url(Typed::string($rsa['e'])));
     }
 
     public function testANotificationOfAMailboxImportedIsNotedAndDated(): void
@@ -53,14 +58,14 @@ class GmailNotificationsApiTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(204);
         $this->login();
-        $this->assertSame('2026-10-15T09:00:00+00:00', $this->requestJson('GET', '/api/me/connections')['connections'][0]['lastGmailNotificationAt']);
+        $this->assertSame('2026-10-15T09:00:00+00:00', self::valueAt($this->requestJson('GET', '/api/me/connections'), 'connections', 0, 'lastGmailNotificationAt'));
     }
 
     public function testAnEMailOfAContactNotifiedIsImportedAsAnExchangeReceivedWithoutItsQuote(): void
     {
         $this->login();
-        $acme = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];
-        $ada = $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'], 'contactDetails' => ['email' => 'ada@acme.test'], 'organizationIds' => [$acme]])['id'];
+        $acme = self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']]), 'id');
+        $ada = self::stringAt($this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'], 'contactDetails' => ['email' => 'ada@acme.test'], 'organizationIds' => [$acme]]), 'id');
         $this->assertResponseStatusCodeSame(201, 'The contact was expected to be collected');
         $this->aMemberImportingTheMailOf(self::MAILBOX);
         $this->google()->receives('m1', 'Ada Lovelace <Ada@ACME.test>', 'Votre devis', "Bonjour Michel, c'est validé.\n\nLe mer. 14 oct. 2026 à 18:02, Michel <michel@exemple.fr> a écrit :\n> Voici le devis.\n");
@@ -72,21 +77,21 @@ class GmailNotificationsApiTest extends ApiTestCase
         // issued since in its future
         $timeline = $this->requestJson('GET', '/api/contacts/'.$ada.'/exchanges');
         $this->assertResponseIsSuccessful();
-        $this->assertSame([['email', 'inbound', "Votre devis\n\nBonjour Michel, c'est validé."]], array_map(static fn (array $exchange): array => [$exchange['channel'], $exchange['direction'], $exchange['text']], $timeline['items']));
+        $this->assertSame([['email', 'inbound', "Votre devis\n\nBonjour Michel, c'est validé."]], array_map(static fn (array $exchange): array => [$exchange['channel'], $exchange['direction'], $exchange['text']], self::recordsAt($timeline, 'items')));
     }
 
     public function testAnEMailImportedOpensInGmailByTheIdOfItsMessageInTheMailbox(): void
     {
         $this->login();
-        $acme = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];
-        $ada = $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'], 'contactDetails' => ['email' => 'ada@acme.test'], 'organizationIds' => [$acme]])['id'];
+        $acme = self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']]), 'id');
+        $ada = self::stringAt($this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'], 'contactDetails' => ['email' => 'ada@acme.test'], 'organizationIds' => [$acme]]), 'id');
         $this->aMemberImportingTheMailOf(self::MAILBOX);
         $this->google()->receives('m1', 'ada@acme.test', 'Votre devis', 'Bonjour Michel');
 
         $this->notify($this->tokenOf(), self::MAILBOX, 1010);
 
-        $imported = $this->requestJson('GET', '/api/contacts/'.$ada.'/exchanges')['items'][0]['id'];
-        $this->assertSame('https://mail.google.com/mail/#all/m1', $this->requestJson('GET', '/api/exchanges/'.$imported)['_links']['openInMailbox']['href'] ?? null);
+        $imported = self::stringAt($this->requestJson('GET', '/api/contacts/'.$ada.'/exchanges'), 'items', 0, 'id');
+        $this->assertSame('https://mail.google.com/mail/#all/m1', self::valueAt($this->requestJson('GET', '/api/exchanges/'.$imported), '_links', 'openInMailbox', 'href'));
     }
 
     public function testANotificationOfAMailboxNobodyImportsIsAnsweredAndIgnored(): void
@@ -97,7 +102,7 @@ class GmailNotificationsApiTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(204);
         $this->login();
-        $this->assertNull($this->requestJson('GET', '/api/me/connections')['connections'][0]['lastGmailNotificationAt']);
+        $this->assertNull(self::valueAt($this->requestJson('GET', '/api/me/connections'), 'connections', 0, 'lastGmailNotificationAt'));
     }
 
     /**
@@ -112,7 +117,7 @@ class GmailNotificationsApiTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(401);
         $this->login();
-        $this->assertNull($this->requestJson('GET', '/api/me/connections')['connections'][0]['lastGmailNotificationAt']);
+        $this->assertNull(self::valueAt($this->requestJson('GET', '/api/me/connections'), 'connections', 0, 'lastGmailNotificationAt'));
     }
 
     /**
@@ -156,7 +161,7 @@ class GmailNotificationsApiTest extends ApiTestCase
     private function aMemberImportingTheMailOf(string $mailbox): void
     {
         $at = new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS);
-        $commands = self::getContainer()->get(CommandBus::class);
+        $commands = self::service(CommandBus::class);
         $commands->dispatch(new ConfigureMailboxNotifications($this->memberIdOf('client-administrator'), 'google', 'projects/solean/topics/gmail', self::PUSH_ACCOUNT, $at));
         $member = $this->memberIdOf('prospector-user');
         $commands->dispatch(new AskToImportMail($member, 'google', 'a-state', 'a-verifier', $at));
@@ -188,7 +193,7 @@ class GmailNotificationsApiTest extends ApiTestCase
     {
         $claims = [
             'iss' => 'https://accounts.google.com',
-            'aud' => $_SERVER['DEFAULT_URI'].$this->endpointPath(),
+            'aud' => Typed::string($_SERVER['DEFAULT_URI']).$this->endpointPath(),
             'email' => self::PUSH_ACCOUNT,
             'email_verified' => true,
             'exp' => '2026-10-15 10:00 UTC',
@@ -196,22 +201,28 @@ class GmailNotificationsApiTest extends ApiTestCase
         ];
         $builder = Builder::new(new JoseEncoder(), ChainedFormatter::default())
             ->withHeader('kid', $this->keyId)
-            ->issuedBy($claims['iss'])
-            ->permittedFor($claims['aud'])
+            ->issuedBy(Typed::filledString($claims['iss']))
+            ->permittedFor(Typed::filledString($claims['aud']))
             ->issuedAt(new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS))
-            ->expiresAt(new \DateTimeImmutable($claims['exp']))
+            ->expiresAt(new \DateTimeImmutable(Typed::string($claims['exp'])))
             ->withClaim('email', $claims['email'])
             ->withClaim('email_verified', $claims['email_verified']);
 
-        return $builder->getToken(new Sha256(), InMemory::plainText($signedByGoogle ? $this->privateKey : self::anotherKey()))->toString();
+        return $builder->getToken(new Sha256(), InMemory::plainText(Typed::filledString($signedByGoogle ? $this->privateKey : self::anotherKey())))->toString();
     }
 
     private static function anotherKey(): string
     {
         $key = openssl_pkey_new(['private_key_bits' => 2048, 'private_key_type' => \OPENSSL_KEYTYPE_RSA]) ?: throw new \RuntimeException('No key drawn');
+
+        return self::pemOf($key);
+    }
+
+    private static function pemOf(\OpenSSLAsymmetricKey $key): string
+    {
         openssl_pkey_export($key, $pem);
 
-        return $pem;
+        return Typed::string($pem);
     }
 
     private static function base64Url(string $bytes): string
@@ -221,6 +232,6 @@ class GmailNotificationsApiTest extends ApiTestCase
 
     private function google(): GoogleDouble
     {
-        return self::getContainer()->get(GoogleDouble::class);
+        return self::service(GoogleDouble::class);
     }
 }

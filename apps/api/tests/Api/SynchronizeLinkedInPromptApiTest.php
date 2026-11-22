@@ -33,7 +33,7 @@ class SynchronizeLinkedInPromptApiTest extends ApiTestCase
 
         $prompt = $this->promptListed('sync-linkedin');
 
-        $this->assertSame(['contacts or messages', 'how far back to go, in quotes ("7 days", "November 1"…), asked when not given'], array_column($prompt['arguments'] ?? [], 'description'));
+        $this->assertSame(['contacts or messages', 'how far back to go, in quotes ("7 days", "November 1"…), asked when not given'], array_column(self::records($prompt['arguments'] ?? []), 'description'));
     }
 
     public function testEachMessageIsNotedWithItsConversationAndItsMinute(): void
@@ -173,7 +173,7 @@ class SynchronizeLinkedInPromptApiTest extends ApiTestCase
 
         $text = $this->promptText('sync-linkedin', ['what' => 'messages', 'since' => '7 days']);
 
-        $this->assertSame([], array_diff(self::toolsNamedIn($text), array_column($this->everyToolListed(), 'name')));
+        $this->assertSame([], array_diff(self::toolsNamedIn($text), array_map(static fn (array $tool): string => self::stringAt($tool, 'name'), $this->everyToolListed())));
     }
 
     public function testNeitherContactsNorMessagesIsRefusedAsAWrongArgument(): void
@@ -182,6 +182,6 @@ class SynchronizeLinkedInPromptApiTest extends ApiTestCase
 
         $this->sendWithHandshake('prompts/get', ['name' => 'sync-linkedin', 'arguments' => ['what' => 'posts']]);
 
-        $this->assertSame(-32602, $this->responseData()['error']['code'] ?? null);
+        $this->assertSame(-32602, self::valueAt($this->responseData(), 'error', 'code'));
     }
 }

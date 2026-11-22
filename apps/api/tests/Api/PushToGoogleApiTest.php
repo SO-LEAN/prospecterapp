@@ -6,6 +6,7 @@ namespace Tests\App\Api;
 
 use PHPUnit\Framework\Attributes\Group;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Base\ReadsResources;
 use Tests\App\Double\GoogleDouble;
 
 /**
@@ -16,6 +17,8 @@ use Tests\App\Double\GoogleDouble;
 #[Group('api')]
 class PushToGoogleApiTest extends ApiTestCase
 {
+    use ReadsResources;
+
     private const string NEXT_TUESDAY = '2026-10-20T14:00:00+00:00';
     private const string CODE = 'a-code-of-google';
 
@@ -32,7 +35,7 @@ class PushToGoogleApiTest extends ApiTestCase
         $organization = $this->anOrganization('ACME');
         $ada = $this->aContactOf($organization, 'Ada', 'Lovelace');
 
-        $planned = $this->plan($ada, ['channel' => 'videoCall', 'occurredAt' => self::NEXT_TUESDAY, 'link' => 'https://meet.google.com/abc-defg-hij'])['items'][0]['id'];
+        $planned = self::stringAt($this->plan($ada, ['channel' => 'videoCall', 'occurredAt' => self::NEXT_TUESDAY, 'link' => 'https://meet.google.com/abc-defg-hij']), 'items', 0, 'id');
 
         $this->assertResponseStatusCodeSame(201);
         $this->assertSame([self::eventIdOf($planned) => [
@@ -49,11 +52,11 @@ class PushToGoogleApiTest extends ApiTestCase
     {
         $this->connectGoogle();
 
-        $planned = $this->plan($this->aContactOf($this->anOrganization('ACME'), 'Ada', 'Lovelace'), ['channel' => 'videoCall', 'occurredAt' => self::NEXT_TUESDAY, 'linkRequested' => true])['items'][0]['id'];
+        $planned = self::stringAt($this->plan($this->aContactOf($this->anOrganization('ACME'), 'Ada', 'Lovelace'), ['channel' => 'videoCall', 'occurredAt' => self::NEXT_TUESDAY, 'linkRequested' => true]), 'items', 0, 'id');
 
         $this->assertResponseStatusCodeSame(201);
         $event = $this->google()->events()[self::eventIdOf($planned)] ?? [];
-        $this->assertStringStartsWith('https://meet.google.com/', $event['hangoutLink'] ?? '');
+        $this->assertStringStartsWith('https://meet.google.com/', self::stringAt($event, 'hangoutLink'));
         $this->assertSame($event['hangoutLink'], $event['location'] ?? null);
         $exchange = $this->requestJson('GET', '/api/exchanges/'.$planned);
         $this->assertSame([$event['hangoutLink'], false], [$exchange['link'], $exchange['linkAwaited']]);
@@ -66,12 +69,12 @@ class PushToGoogleApiTest extends ApiTestCase
 
         $this->planWith($organization, ['exchange' => ['channel' => 'videoCall', 'occurredAt' => self::NEXT_TUESDAY, 'linkRequested' => true]]);
 
-        $this->assertStringStartsWith('https://meet.google.com/', array_first($this->google()->events())['location'] ?? '');
+        $this->assertStringStartsWith('https://meet.google.com/', self::stringAt(array_first($this->google()->events()) ?? [], 'location'));
     }
 
     public function testAVideoCallAskingForALinkAwaitsItWithoutAConnection(): void
     {
-        $planned = $this->plan($this->aContactOf($this->anOrganization('ACME'), 'Ada', 'Lovelace'), ['channel' => 'videoCall', 'occurredAt' => self::NEXT_TUESDAY, 'linkRequested' => true])['items'][0]['id'];
+        $planned = self::stringAt($this->plan($this->aContactOf($this->anOrganization('ACME'), 'Ada', 'Lovelace'), ['channel' => 'videoCall', 'occurredAt' => self::NEXT_TUESDAY, 'linkRequested' => true]), 'items', 0, 'id');
 
         $exchange = $this->requestJson('GET', '/api/exchanges/'.$planned);
         $this->assertSame([null, true], [$exchange['link'], $exchange['linkAwaited']]);
@@ -79,7 +82,7 @@ class PushToGoogleApiTest extends ApiTestCase
 
     public function testAVideoCallCancelledAwaitsNoLink(): void
     {
-        $planned = $this->plan($this->aContactOf($this->anOrganization('ACME'), 'Ada', 'Lovelace'), ['channel' => 'videoCall', 'occurredAt' => self::NEXT_TUESDAY, 'linkRequested' => true])['items'][0]['id'];
+        $planned = self::stringAt($this->plan($this->aContactOf($this->anOrganization('ACME'), 'Ada', 'Lovelace'), ['channel' => 'videoCall', 'occurredAt' => self::NEXT_TUESDAY, 'linkRequested' => true]), 'items', 0, 'id');
 
         $this->requestJson('POST', '/api/exchanges/'.$planned.'/cancellation', []);
 
@@ -97,12 +100,12 @@ class PushToGoogleApiTest extends ApiTestCase
     public function testAnExchangeMovedIsMovedThenCancelledLeavesTheCalendar(): void
     {
         $this->connectGoogle();
-        $planned = $this->plan($this->aContactOf($this->anOrganization('ACME'), 'Ada', 'Lovelace'), ['channel' => 'call', 'occurredAt' => self::NEXT_TUESDAY])['items'][0]['id'];
+        $planned = self::stringAt($this->plan($this->aContactOf($this->anOrganization('ACME'), 'Ada', 'Lovelace'), ['channel' => 'call', 'occurredAt' => self::NEXT_TUESDAY]), 'items', 0, 'id');
 
         $this->requestJson('PATCH', '/api/exchanges/'.$planned.'/moment', ['occurredAt' => '2026-10-21T07:00:00+00:00']);
 
         $this->assertResponseIsSuccessful();
-        $this->assertSame(['2026-10-21T09:00:00+02:00'], array_map(static fn (array $event): string => $event['start']['dateTime'], array_values($this->google()->events())));
+        $this->assertSame(['2026-10-21T09:00:00+02:00'], array_map(static fn (array $event): string => self::stringAt($event, 'start', 'dateTime'), array_values($this->google()->events())));
 
         $this->requestJson('POST', '/api/exchanges/'.$planned.'/cancellation', []);
 
@@ -115,7 +118,7 @@ class PushToGoogleApiTest extends ApiTestCase
         $this->connectGoogle();
         $organization = $this->anOrganization('ACME');
         $this->planWith($organization, ['exchange' => ['channel' => 'meeting', 'occurredAt' => self::NEXT_TUESDAY, 'place' => 'Café de Flore']]);
-        $this->assertSame(['Rendez-vous · ACME'], array_map(static fn (array $event): string => $event['summary'], array_values($this->google()->events())));
+        $this->assertSame(['Rendez-vous · ACME'], array_map(static fn (array $event): string => self::stringAt($event, 'summary'), array_values($this->google()->events())));
 
         $this->requestJson('DELETE', '/api/organizations/'.$organization);
 
@@ -132,7 +135,7 @@ class PushToGoogleApiTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(201);
         $this->assertSame([], $this->google()->events());
-        $this->assertSame(['toReconnect'], array_column($this->requestJson('GET', '/api/me/connections')['connections'], 'state'));
+        $this->assertSame(['toReconnect'], array_column(self::recordsAt($this->requestJson('GET', '/api/me/connections'), 'connections'), 'state'));
     }
 
     public function testWithoutAConnectionNothingIsPushed(): void
@@ -145,7 +148,7 @@ class PushToGoogleApiTest extends ApiTestCase
 
     private function connectGoogle(): void
     {
-        parse_str((string) parse_url($this->requestJson('POST', '/api/me/connections/google/authorizations')['address'], \PHP_URL_QUERY), $query);
+        parse_str((string) parse_url(self::stringAt($this->requestJson('POST', '/api/me/connections/google/authorizations'), 'address'), \PHP_URL_QUERY), $query);
         $this->google()->grants(self::CODE, 'michel@exemple.fr', 'a-refresh-token');
         $this->requestJson('POST', '/api/me/connections/google', ['code' => self::CODE, 'state' => $query['state']]);
         $this->assertResponseStatusCodeSame(201);
@@ -187,16 +190,16 @@ class PushToGoogleApiTest extends ApiTestCase
 
     private function aContactOf(string $organization, string $firstName, string $lastName): string
     {
-        return $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => $firstName, 'lastName' => $lastName], 'organizationIds' => [$organization]])['id'];
+        return self::stringAt($this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => $firstName, 'lastName' => $lastName], 'organizationIds' => [$organization]]), 'id');
     }
 
     private function anOrganization(string $name): string
     {
-        return $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => $name]])['id'];
+        return self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => $name]]), 'id');
     }
 
     private function google(): GoogleDouble
     {
-        return self::getContainer()->get(GoogleDouble::class);
+        return self::service(GoogleDouble::class);
     }
 }

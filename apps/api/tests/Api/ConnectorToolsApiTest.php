@@ -41,14 +41,14 @@ class ConnectorToolsApiTest extends ApiTestCase
     public function testTheAiCatchesUpTheEMailsExchangedWithAContact(): void
     {
         $this->theProspectorImportsTheirMail();
-        $ada = $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'], 'contactDetails' => ['email' => 'ada@acme.test'], 'organizationIds' => [$this->acme(null)]])['id'];
+        $ada = self::stringAt($this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'], 'contactDetails' => ['email' => 'ada@acme.test'], 'organizationIds' => [$this->acme(null)]]), 'id');
         $this->google()->receives('m1', 'Ada Lovelace <ada@acme.test>', 'Votre devis', 'Bonjour Michel.');
         $this->assertTheToolIsRefusedAsItsEndpoint('catch-up-contact-emails', ['id' => $ada], 'POST', '/api/contacts/'.$ada.'/gmail-reimports', null, ['assistant-user', 'admin-user', 'member-user', 'stranger']);
         $this->login();
 
         $this->assertNotTrue($this->callWithoutHandshake('catch-up-contact-emails', ['id' => $ada])['isError'] ?? false);
 
-        $this->assertSame(["Votre devis\n\nBonjour Michel."], array_column($this->requestJson('GET', '/api/contacts/'.$ada.'/exchanges')['items'], 'text'));
+        $this->assertSame(["Votre devis\n\nBonjour Michel."], array_column(self::recordsAt($this->requestJson('GET', '/api/contacts/'.$ada.'/exchanges'), 'items'), 'text'));
     }
 
     public function testTheAiCatchesUpTheEMailsExchangedWithAnOrganizationItself(): void
@@ -61,7 +61,7 @@ class ConnectorToolsApiTest extends ApiTestCase
 
         $this->assertNotTrue($this->callWithoutHandshake('catch-up-organization-emails', ['id' => $acme])['isError'] ?? false);
 
-        $this->assertSame(["Appel d’offres\n\nBonjour Michel."], array_map(static fn (array $item): string => $item['exchange']['text'], $this->requestJson('GET', '/api/organizations/'.$acme.'/exchanges')['items']));
+        $this->assertSame(["Appel d’offres\n\nBonjour Michel."], array_map(static fn (array $item): string => self::stringAt($item, 'exchange', 'text'), self::recordsAt($this->requestJson('GET', '/api/organizations/'.$acme.'/exchanges'), 'items')));
     }
 
     /**
@@ -72,7 +72,7 @@ class ConnectorToolsApiTest extends ApiTestCase
     {
         $this->keepTheKernel();
         $at = new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS);
-        $commands = self::getContainer()->get(CommandBus::class);
+        $commands = self::service(CommandBus::class);
         $commands->dispatch(new ConfigureMailboxNotifications($this->memberIdOf('admin-user'), 'google', 'projects/solean/topics/gmail', 'push@solean.iam.gserviceaccount.com', $at));
         $prospector = $this->memberIdOf('prospector-user');
         $commands->dispatch(new AskToImportMail($prospector, 'google', 'a-state', 'a-verifier', $at));
@@ -86,11 +86,11 @@ class ConnectorToolsApiTest extends ApiTestCase
      */
     private function acme(?string $email): string
     {
-        return $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME'], 'contactDetails' => ['email' => $email]])['id'];
+        return self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME'], 'contactDetails' => ['email' => $email]]), 'id');
     }
 
     private function google(): GoogleDouble
     {
-        return self::getContainer()->get(GoogleDouble::class);
+        return self::service(GoogleDouble::class);
     }
 }

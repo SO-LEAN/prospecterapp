@@ -25,7 +25,7 @@ class SynchronizeMailboxPromptApiTest extends ApiTestCase
 
         $this->assertSame(['Sync my mailbox', 'Log the e-mails you exchanged with your contacts in Prospecter, without duplicates.'], [$prompt['title'] ?? null, $prompt['description'] ?? null]);
         $this->assertSame([['since', false]], self::argumentsOf($prompt));
-        $this->assertSame(['how far back to go, in quotes ("7 days", "November 1"…), asked when not given'], array_column($prompt['arguments'] ?? [], 'description'));
+        $this->assertSame(['how far back to go, in quotes ("7 days", "November 1"…), asked when not given'], array_column(self::records($prompt['arguments'] ?? []), 'description'));
     }
 
     public function testOnlyTheCorrespondentsProspecterKnowsAreKeptUnlessTheMemberAsksToCreateThem(): void
@@ -100,7 +100,7 @@ class SynchronizeMailboxPromptApiTest extends ApiTestCase
 
         $text = $this->promptText('sync-mailbox', ['since' => '7 days']);
 
-        $this->assertSame([], array_diff(self::toolsNamedIn($text), array_column($this->everyToolListed(), 'name')));
+        $this->assertSame([], array_diff(self::toolsNamedIn($text), array_map(static fn (array $tool): string => self::stringAt($tool, 'name'), $this->everyToolListed())));
     }
 
     public function testTheAiReadsTheMailboxSinceTheMomentGiven(): void

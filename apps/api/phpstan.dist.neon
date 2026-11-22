@@ -1,7 +1,5 @@
 includes:
     - ../../packages/phpstan-rules/rules.neon
-    # the errors of levels 7 to 10 the API had when it moved to max, until #259 removes them
-    - phpstan-baseline.neon
 
 parameters:
     level: max
