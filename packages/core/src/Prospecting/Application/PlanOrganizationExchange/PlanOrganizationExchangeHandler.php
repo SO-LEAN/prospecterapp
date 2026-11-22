@@ -67,6 +67,9 @@ final readonly class PlanOrganizationExchangeHandler implements CommandHandler
 
     private static function factsOf(PlanOrganizationExchange $command): ExchangeFacts
     {
-        return ExchangeFacts::planned(Channel::from($command->channel), $command->plannedAt, Duration::inMinutes($command->durationInMinutes), $command->agenda, $command->place, VideoCallLink::orNone($command->link), $command->linkRequested);
+        $facts = ExchangeFacts::planned(Channel::from($command->channel), $command->plannedAt, Duration::inMinutes($command->durationInMinutes), $command->agenda)
+            ->withVenue($command->place, VideoCallLink::orNone($command->link));
+
+        return $command->linkRequested ? $facts->askingALink() : $facts;
     }
 }
