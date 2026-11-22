@@ -22,6 +22,7 @@ const DISMISS = `/api/contacts/${DUPLICATE}/possible-duplicates/${ADA}`
 
 const aDuplicate = (possibleDuplicates: Contact['possibleDuplicates']): Contact => ({
   id: DUPLICATE,
+  revision: 1,
   name: { firstName: 'ada', lastName: 'LOVELACE' },
   possibleDuplicates,
   createdByAnAI: false,

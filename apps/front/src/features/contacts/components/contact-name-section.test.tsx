@@ -19,6 +19,7 @@ const CAMILLE = '0190a1c0-0000-7000-8000-000000000001'
 
 const camille = (links: Partial<Contact['_links']>, civility: Contact['title'] = 'x'): Contact => ({
   id: CAMILLE,
+  revision: 1,
   name: { firstName: 'Camille', lastName: 'Martin' },
   possibleDuplicates: [],
   createdByAnAI: false,

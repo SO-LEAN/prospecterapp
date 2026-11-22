@@ -26,6 +26,7 @@ const HER_PROFILE = {
 
 const ada: Contact = {
   id: ADA,
+  revision: 1,
   name: { firstName: 'Ada', lastName: 'Lovelace' },
   possibleDuplicates: [],
   createdByAnAI: false,

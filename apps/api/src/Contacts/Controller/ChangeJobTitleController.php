@@ -5,15 +5,18 @@ namespace App\Contacts\Controller;
 use App\Contacts\ContactReader;
 use App\Contacts\Resource\ContactResource;
 use App\PersonalData\Input\JobTitleInput;
+use App\PersonalData\Persistence\PersonRevisions;
 use App\Security\User;
 use App\Shared\CommandBus;
 use App\Shared\Resource\ProblemResource;
+use App\Shared\Resource\RevisionDescription;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\PersonalData\Application\ChangeJobTitle\ChangeJobTitle;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
@@ -28,19 +31,22 @@ final class ChangeJobTitleController extends AbstractController
         private readonly CommandBus $commandBus,
         private readonly ClockInterface $clock,
         private readonly ContactReader $contactReader,
+        private readonly PersonRevisions $revisions,
     ) {
     }
 
     #[Route('/api/contacts/{id}/job-title', name: 'api_contacts_change_job_title', requirements: ['id' => Requirement::UUID], methods: ['PATCH'])]
     #[OA\Patch(summary: 'Change what a contact does in their organization')]
+    #[OA\Parameter(name: 'revision', in: 'query', description: RevisionDescription::OF_A_CHANGE)]
     #[OA\Response(response: 200, description: 'The contact', content: new Model(type: ContactResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'Unknown contact, or one of another account', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 409, description: 'Changed since the revision sent was read', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 422, description: 'Invalid job title', content: new Model(type: ProblemResource::class))]
-    public function __invoke(string $id, #[MapRequestPayload] JobTitleInput $input, #[CurrentUser] User $user): JsonResponse
+    public function __invoke(string $id, #[MapRequestPayload] JobTitleInput $input, #[CurrentUser] User $user, #[MapQueryParameter(options: ['min_range' => 0], validationFailedStatusCode: 422)] ?int $revision = null): JsonResponse
     {
-        $this->commandBus->dispatch(new ChangeJobTitle($user->memberId(), $id, $input->jobTitle, $this->clock->now()));
+        $this->commandBus->dispatch(new ChangeJobTitle($user->memberId(), $id, $input->jobTitle, $this->clock->now()), $this->revisions->readAt($id, $revision));
 
         return $this->json($this->contactReader->read($user->memberId(), $id));
     }

@@ -36,6 +36,7 @@ const me: Account = {
 
 const theContact = (contact: Partial<Contact>): Contact => ({
   id: ADA,
+  revision: 1,
   name: { firstName: 'Ada', lastName: 'Lovelace' },
   possibleDuplicates: [],
   createdByAnAI: false,
