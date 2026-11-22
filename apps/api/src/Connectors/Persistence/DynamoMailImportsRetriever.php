@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Connectors\Persistence;
 
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\Connectors\Application\Port\MailImportsRetriever;
 
 /**
@@ -19,6 +20,6 @@ final readonly class DynamoMailImportsRetriever implements MailImportsRetriever
 
     public function active(): array
     {
-        return array_map(static fn (array $item): string => $item['connection']['member'], $this->connectorsTable->query(ConnectorsKeys::MAIL_IMPORTS, Table::BY_GSI1));
+        return array_map(static fn (array $connection): string => Typed::string($connection['member']), Typed::documents(array_column($this->connectorsTable->query(ConnectorsKeys::MAIL_IMPORTS, Table::BY_GSI1), 'connection')));
     }
 }

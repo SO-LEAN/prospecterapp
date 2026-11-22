@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\App\Connectors;
 
 use App\Connectors\Persistence\DynamoMailImportsRetriever;
-use App\Shared\Persistence\Table;
 use Prospecter\Core\Connectors\Application\Port\MailImportsRetriever;
 use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
 use Prospecter\Core\Connectors\Domain\Model\Connection;
@@ -38,7 +37,7 @@ class DynamoMailImportsRetrieverTest extends ApiTestCase
         $stopped->importMail(self::client(), self::notifications(), self::aMailbox(), new \DateTimeImmutable(self::AT));
         $stopped->stopMailImport(null, self::aMailbox(), new \DateTimeImmutable(self::AT));
         foreach ([$importing, $stopped, self::aConnection()] as $connection) {
-            self::getContainer()->get(ConnectionRepository::class)->save($connection);
+            self::service(ConnectionRepository::class)->save($connection);
         }
 
         $this->assertSame([$importing->member()->value], $this->retriever()->active());
@@ -46,10 +45,7 @@ class DynamoMailImportsRetrieverTest extends ApiTestCase
 
     private function retriever(): MailImportsRetriever
     {
-        $table = self::getContainer()->get('app.table.connectors');
-        $this->assertInstanceOf(Table::class, $table);
-
-        return new DynamoMailImportsRetriever($table);
+        return new DynamoMailImportsRetriever(self::tableOf('connectors'));
     }
 
     private static function aConnection(): Connection

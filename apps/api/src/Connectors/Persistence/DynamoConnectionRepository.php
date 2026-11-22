@@ -7,6 +7,7 @@ namespace App\Connectors\Persistence;
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Hydrator;
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\Connectors\Domain\Exception\NoConnection;
 use Prospecter\Core\Connectors\Domain\Model\Connection;
 use Prospecter\Core\Connectors\Domain\Model\ConnectionState;
@@ -58,34 +59,33 @@ final readonly class DynamoConnectionRepository implements ConnectionRepository
         return null === $item ? null : self::restore($item['connection']);
     }
 
-    /**
-     * @param array<string, mixed> $document
-     */
-    private static function restore(array $document): Connection
+    private static function restore(mixed $document): Connection
     {
+        $document = Typed::document($document);
+
         return Hydrator::restore(Connection::class, [
-            'member' => new MemberId($document['member']),
-            'accountId' => new AccountId($document['accountId']),
-            'provider' => Provider::from($document['provider']),
-            'externalAccount' => new Email($document['externalAccount']),
-            'refreshToken' => new RefreshToken($document['refreshToken']),
-            'clientId' => $document['clientId'] ?? self::CLIENT_OF_THE_INSTANCE,
-            'state' => ConnectionState::from($document['state']),
-            'calendar' => $document['calendar'] ?? null,
-            'mailImport' => MailImport::from($document['mailImport'] ?? MailImport::Off->value),
-            'historyId' => $document['historyId'] ?? null,
-            'watchExpiresAt' => Documents::momentOfOrNone($document['watchExpiresAt'] ?? null),
-            'notifiedHistoryId' => $document['notifiedHistoryId'] ?? null,
-            'lastNotifiedAt' => Documents::momentOfOrNone($document['lastNotifiedAt'] ?? null),
-            'historyReadAt' => Documents::momentOfOrNone($document['historyReadAt'] ?? null),
-            'connectedAt' => Documents::momentOf($document['connectedAt']),
-            'modifiedAt' => Documents::momentOf($document['modifiedAt']),
+            'member' => new MemberId(Typed::string($document['member'])),
+            'accountId' => new AccountId(Typed::string($document['accountId'])),
+            'provider' => Provider::from(Typed::string($document['provider'])),
+            'externalAccount' => new Email(Typed::string($document['externalAccount'])),
+            'refreshToken' => new RefreshToken(Typed::string($document['refreshToken'])),
+            'clientId' => Typed::stringOrNull($document['clientId'] ?? null) ?? self::CLIENT_OF_THE_INSTANCE,
+            'state' => ConnectionState::from(Typed::string($document['state'])),
+            'calendar' => Typed::stringOrNull($document['calendar'] ?? null),
+            'mailImport' => MailImport::from(Typed::stringOrNull($document['mailImport'] ?? null) ?? MailImport::Off->value),
+            'historyId' => Typed::stringOrNull($document['historyId'] ?? null),
+            'watchExpiresAt' => Documents::momentOfOrNone(Typed::stringOrNull($document['watchExpiresAt'] ?? null)),
+            'notifiedHistoryId' => Typed::stringOrNull($document['notifiedHistoryId'] ?? null),
+            'lastNotifiedAt' => Documents::momentOfOrNone(Typed::stringOrNull($document['lastNotifiedAt'] ?? null)),
+            'historyReadAt' => Documents::momentOfOrNone(Typed::stringOrNull($document['historyReadAt'] ?? null)),
+            'connectedAt' => Documents::momentOf(Typed::string($document['connectedAt'])),
+            'modifiedAt' => Documents::momentOf(Typed::string($document['modifiedAt'])),
         ]);
     }
 
     public function save(Connection $connection): void
     {
-        $this->connectorsTable->transact([$this->connectorsTable->putting(self::itemOf($connection))]);
+        $this->connectorsTable->transact([$this->connectorsTable->putting(self::itemOf(self::documentOf($connection)))]);
     }
 
     /**
@@ -94,40 +94,49 @@ final readonly class DynamoConnectionRepository implements ConnectionRepository
      */
     public function replace(Connection $connection): void
     {
-        $item = self::itemOf($connection);
+        $document = self::documentOf($connection);
 
-        $this->connectorsTable->transact([$this->connectorsTable->replacing($item, self::STILL_THE_SAME, [':connectedAt' => Documents::moment(Hydrator::stateOf($connection)['connectedAt'])], ['#connection' => 'connection'])]);
+        $this->connectorsTable->transact([$this->connectorsTable->replacing(self::itemOf($document), self::STILL_THE_SAME, [':connectedAt' => $document['connectedAt']], ['#connection' => 'connection'])]);
     }
 
     /**
-     * @return array<string, mixed>
+     * @param array{member: string, accountId: string, provider: string, externalAccount: string, mailImport: string, ...} $document
+     *
+     * @return array{PK: string, SK: string, ...}
      */
-    private static function itemOf(Connection $connection): array
+    private static function itemOf(array $document): array
+    {
+        return [
+            'PK' => ConnectorsKeys::member($document['member']),
+            'SK' => ConnectorsKeys::connection($document['provider']),
+            'connection' => $document,
+        ] + self::keysOfTheImport($document);
+    }
+
+    /**
+     * @return array{member: string, accountId: string, provider: string, externalAccount: string, refreshToken: string, clientId: string, state: string, calendar: ?string, mailImport: string, historyId: ?string, watchExpiresAt: ?string, notifiedHistoryId: ?string, lastNotifiedAt: ?string, historyReadAt: ?string, connectedAt: string, modifiedAt: string}
+     */
+    private static function documentOf(Connection $connection): array
     {
         $state = Hydrator::stateOf($connection);
 
         return [
-            'PK' => ConnectorsKeys::member($connection->member()->value),
-            'SK' => ConnectorsKeys::connection($connection->provider()->value),
-            ...self::keysOfTheImport($state),
-            'connection' => [
-                'member' => (string) $state['member'],
-                'accountId' => (string) $state['accountId'],
-                'provider' => $state['provider']->value,
-                'externalAccount' => (string) $state['externalAccount'],
-                'refreshToken' => (string) $state['refreshToken'],
-                'clientId' => $state['clientId'],
-                'state' => $state['state']->value,
-                'calendar' => $state['calendar'],
-                'mailImport' => $state['mailImport']->value,
-                'historyId' => $state['historyId'],
-                'watchExpiresAt' => Documents::momentOrNone($state['watchExpiresAt']),
-                'notifiedHistoryId' => $state['notifiedHistoryId'],
-                'lastNotifiedAt' => Documents::momentOrNone($state['lastNotifiedAt']),
-                'historyReadAt' => Documents::momentOrNone($state['historyReadAt']),
-                'connectedAt' => Documents::moment($state['connectedAt']),
-                'modifiedAt' => Documents::moment($state['modifiedAt']),
-            ],
+            'member' => Typed::object($state['member'], MemberId::class)->value,
+            'accountId' => Typed::object($state['accountId'], AccountId::class)->value,
+            'provider' => Typed::object($state['provider'], Provider::class)->value,
+            'externalAccount' => Typed::object($state['externalAccount'], Email::class)->value,
+            'refreshToken' => Typed::object($state['refreshToken'], RefreshToken::class)->value,
+            'clientId' => Typed::string($state['clientId']),
+            'state' => Typed::object($state['state'], ConnectionState::class)->value,
+            'calendar' => Typed::stringOrNull($state['calendar']),
+            'mailImport' => Typed::object($state['mailImport'], MailImport::class)->value,
+            'historyId' => Typed::stringOrNull($state['historyId']),
+            'watchExpiresAt' => Documents::momentOrNone(Typed::objectOrNull($state['watchExpiresAt'], \DateTimeImmutable::class)),
+            'notifiedHistoryId' => Typed::stringOrNull($state['notifiedHistoryId']),
+            'lastNotifiedAt' => Documents::momentOrNone(Typed::objectOrNull($state['lastNotifiedAt'], \DateTimeImmutable::class)),
+            'historyReadAt' => Documents::momentOrNone(Typed::objectOrNull($state['historyReadAt'], \DateTimeImmutable::class)),
+            'connectedAt' => Documents::moment(Typed::object($state['connectedAt'], \DateTimeImmutable::class)),
+            'modifiedAt' => Documents::moment(Typed::object($state['modifiedAt'], \DateTimeImmutable::class)),
         ];
     }
 
@@ -136,21 +145,21 @@ final readonly class DynamoConnectionRepository implements ConnectionRepository
      * notifications of the mailbox naming only its address; while it is active, it is listed for the daily renewal
      * of its watch, under `GSI1` (ADR 0154).
      *
-     * @param array<string, mixed> $state
+     * @param array{member: string, accountId: string, provider: string, externalAccount: string, mailImport: string, ...} $document
      *
      * @return array<string, string>
      */
-    private static function keysOfTheImport(array $state): array
+    private static function keysOfTheImport(array $document): array
     {
-        if (MailImport::Off === $state['mailImport']) {
+        if (MailImport::Off->value === $document['mailImport']) {
             return [];
         }
 
-        $member = ConnectorsKeys::member((string) $state['member']);
-        $renewed = MailImport::Active === $state['mailImport'] ? ['GSI1PK' => ConnectorsKeys::MAIL_IMPORTS, 'GSI1SK' => $member.'#'.$state['provider']->value] : [];
+        $member = ConnectorsKeys::member($document['member']);
+        $renewed = MailImport::Active->value === $document['mailImport'] ? ['GSI1PK' => ConnectorsKeys::MAIL_IMPORTS, 'GSI1SK' => $member.'#'.$document['provider']] : [];
 
         return [
-            'GSI2PK' => ConnectorsKeys::mailbox((string) $state['accountId'], $state['provider']->value, (string) $state['externalAccount']),
+            'GSI2PK' => ConnectorsKeys::mailbox($document['accountId'], $document['provider'], $document['externalAccount']),
             'GSI2SK' => $member,
             ...$renewed,
         ];

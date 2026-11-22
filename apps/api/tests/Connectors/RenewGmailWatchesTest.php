@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\App\Connectors;
 
 use App\Shared\ScheduledTasksFunction;
+use App\Shared\Typed;
 use Bref\Context\Context;
 use Prospecter\Core\Connectors\Application\Port\MailImportsRetriever;
 use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
@@ -43,7 +44,7 @@ class RenewGmailWatchesTest extends ApiTestCase
 
         $this->assertStringContainsString('1 watch(es) of Gmail renewed, 0 failed', $this->renew());
 
-        $this->assertSame([self::TOPIC], self::getContainer()->get(GoogleDouble::class)->watches());
+        $this->assertSame([self::TOPIC], self::service(GoogleDouble::class)->watches());
     }
 
     public function testAWatchGmailFailsToRenewLeavesTheOthersRenewedAndItsImportActive(): void
@@ -51,12 +52,12 @@ class RenewGmailWatchesTest extends ApiTestCase
         $this->aClientNotifyingTheMailboxes();
         $this->aMemberImportingTheMail('prospector-user');
         $this->aMemberImportingTheMail('assistant-user');
-        self::getContainer()->get(GoogleDouble::class)->failsTheNextWatch();
+        self::service(GoogleDouble::class)->failsTheNextWatch();
 
         $this->assertStringContainsString('1 watch(es) of Gmail renewed, 1 failed', $this->renew());
 
-        $this->assertSame([self::TOPIC], self::getContainer()->get(GoogleDouble::class)->watches());
-        $this->assertCount(2, self::getContainer()->get(MailImportsRetriever::class)->active(), 'A renewal failing keeps its import active, to renew the next day');
+        $this->assertSame([self::TOPIC], self::service(GoogleDouble::class)->watches());
+        $this->assertCount(2, self::service(MailImportsRetriever::class)->active(), 'A renewal failing keeps its import active, to renew the next day');
     }
 
     public function testTheDailyFunctionOfTheScheduleRenewsThemToo(): void
@@ -64,10 +65,10 @@ class RenewGmailWatchesTest extends ApiTestCase
         $this->aClientNotifyingTheMailboxes();
         $this->aMemberImportingTheMail('prospector-user');
 
-        $answer = self::getContainer()->get(ScheduledTasksFunction::class)->handle([], new Context('request', 0, 'function', 'trace'));
+        $answer = self::service(ScheduledTasksFunction::class)->handle([], new Context('request', 0, 'function', 'trace'));
 
-        $this->assertSame(['renewed' => 1, 'failed' => 0], $answer['ran']['renew-gmail-watches']);
-        $this->assertSame([self::TOPIC], self::getContainer()->get(GoogleDouble::class)->watches());
+        $this->assertSame(['renewed' => 1, 'failed' => 0], Typed::document(Typed::document($answer)['ran'])['renew-gmail-watches']);
+        $this->assertSame([self::TOPIC], self::service(GoogleDouble::class)->watches());
     }
 
     private function renew(): string
@@ -83,7 +84,7 @@ class RenewGmailWatchesTest extends ApiTestCase
         $at = new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS);
         $client = ProviderClient::configure($this->accountOfTheFixtures(), self::credentials(), new MemberId(self::newIdentity()), $at);
         $client->notifyMailboxesThrough(new MailboxNotifications(self::TOPIC, new Email('push@solean.iam.gserviceaccount.com')), new MemberId(self::newIdentity()), $at);
-        self::getContainer()->get(ProviderClientRepository::class)->save($client);
+        self::service(ProviderClientRepository::class)->save($client);
     }
 
     private function aMemberImportingTheMail(string $member): void
@@ -92,7 +93,7 @@ class RenewGmailWatchesTest extends ApiTestCase
         $grant = new Grant(new Email('michel@exemple.fr'), new RefreshToken('a-refresh-token'), Scope::Calendar, Scope::Mailbox);
         $connection = Connection::establish(new Gesture($this->accountOfTheFixtures(), new MemberId($this->memberIdOf($member)), $at), self::credentials(), $grant);
         $connection->importMail(self::credentials(), new MailboxNotifications(self::TOPIC, new Email('push@solean.iam.gserviceaccount.com')), self::aMailbox(), $at);
-        self::getContainer()->get(ConnectionRepository::class)->save($connection);
+        self::service(ConnectionRepository::class)->save($connection);
     }
 
     private static function credentials(): ClientCredentials

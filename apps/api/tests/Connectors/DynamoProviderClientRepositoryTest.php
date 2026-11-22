@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\App\Connectors;
 
 use App\Connectors\Persistence\ConnectorsKeys;
-use App\Shared\Persistence\Table;
 use App\Shared\Persistence\Tables;
+use App\Shared\Typed;
 use Aws\Ssm\Exception\SsmException;
 use Aws\Ssm\SsmClient;
 use Prospecter\Core\Connectors\Application\AccountClient;
@@ -36,10 +36,10 @@ class DynamoProviderClientRepositoryTest extends ApiTestCase
 
         $this->clients()->save($this->clientOf($account, 'the-client', 'its-secret'));
 
-        $item = $this->connectorsTable()->item(ConnectorsKeys::account($account->value), ConnectorsKeys::client(Provider::Google->value));
-        $this->assertSame('the-client', $item['client']['clientId']);
+        $item = self::storedItem(self::tableOf('connectors'), ConnectorsKeys::account($account->value), ConnectorsKeys::client(Provider::Google->value));
+        $this->assertSame('the-client', Typed::document($item['client'])['clientId']);
         $this->assertStringNotContainsString('its-secret', (string) json_encode($item));
-        $parameter = $this->ssm()->getParameter(['Name' => $this->secretOf($account), 'WithDecryption' => true])['Parameter'];
+        $parameter = Typed::document($this->ssm()->getParameter(['Name' => $this->secretOf($account), 'WithDecryption' => true])['Parameter']);
         $this->assertSame(['SecureString', 'its-secret'], [$parameter['Type'], $parameter['Value']]);
         $this->assertEquals(new ClientCredentials(Provider::Google, 'the-client', 'its-secret'), $this->clients()->get($account, Provider::Google)->credentials());
     }
@@ -97,7 +97,7 @@ class DynamoProviderClientRepositoryTest extends ApiTestCase
         $account = $this->anAccount();
         $this->clients()->save($this->clientOf($account, 'the-client', 'its-secret'));
 
-        self::getContainer()->get(Tables::class)->recreate();
+        self::service(Tables::class)->recreate();
 
         $this->assertFalse($this->hasItsSecret($account));
     }
@@ -112,7 +112,7 @@ class DynamoProviderClientRepositoryTest extends ApiTestCase
         $this->clients()->save($client);
 
         $this->assertEquals($notifications, $this->clients()->get($account, Provider::Google)->mailboxNotifications());
-        $this->assertEquals([new AccountClient('google', 'the-client', 'projects/solean/topics/gmail', 'push@solean.iam.gserviceaccount.com')], self::getContainer()->get(AccountClientsRetriever::class)->of($account));
+        $this->assertEquals([new AccountClient('google', 'the-client', 'projects/solean/topics/gmail', 'push@solean.iam.gserviceaccount.com')], self::service(AccountClientsRetriever::class)->of($account));
     }
 
     private function anAccount(): AccountId
@@ -127,7 +127,7 @@ class DynamoProviderClientRepositoryTest extends ApiTestCase
 
     private function secretOf(AccountId $account): string
     {
-        return sprintf('%s/%s/google-client-secret', $_SERVER['ACCOUNT_SECRETS_PATH'], $account->value);
+        return sprintf('%s/%s/google-client-secret', Typed::string($_SERVER['ACCOUNT_SECRETS_PATH']), $account->value);
     }
 
     private function hasItsSecret(AccountId $account): bool
@@ -143,24 +143,16 @@ class DynamoProviderClientRepositoryTest extends ApiTestCase
 
     private function clients(): ProviderClientRepository
     {
-        return self::getContainer()->get(ProviderClientRepository::class);
+        return self::service(ProviderClientRepository::class);
     }
 
     private function unitOfWork(): UnitOfWork
     {
-        return self::getContainer()->get(UnitOfWork::class);
+        return self::service(UnitOfWork::class);
     }
 
     private function ssm(): SsmClient
     {
-        return self::getContainer()->get(SsmClient::class);
-    }
-
-    private function connectorsTable(): Table
-    {
-        $table = self::getContainer()->get('app.table.connectors');
-        $this->assertInstanceOf(Table::class, $table);
-
-        return $table;
+        return self::service(SsmClient::class);
     }
 }

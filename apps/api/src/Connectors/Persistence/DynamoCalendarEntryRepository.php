@@ -7,6 +7,7 @@ namespace App\Connectors\Persistence;
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Hydrator;
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\Connectors\Domain\Model\CalendarEntry;
 use Prospecter\Core\Connectors\Domain\Model\ExchangeId;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
@@ -47,24 +48,23 @@ final readonly class DynamoCalendarEntryRepository implements CalendarEntryRepos
         return array_map(static fn (array $item): CalendarEntry => self::restore($item['entry']), $this->connectorsTable->query(ConnectorsKeys::entriesOf($member->value), Table::BY_GSI1));
     }
 
-    /**
-     * @param array<string, mixed> $document
-     */
-    private static function restore(array $document): CalendarEntry
+    private static function restore(mixed $document): CalendarEntry
     {
-        $startsAt = isset($document['startsAt']) ? Documents::momentOf($document['startsAt']) : new \DateTimeImmutable('@0');
+        $document = Typed::document($document);
+        $startsAt = isset($document['startsAt']) ? Documents::momentOf(Typed::string($document['startsAt'])) : new \DateTimeImmutable('@0');
+        $contact = Typed::stringOrNull($document['contact'] ?? null);
 
         return Hydrator::restore(CalendarEntry::class, [
-            'exchange' => new ExchangeId($document['exchange']),
-            'accountId' => new AccountId($document['accountId']),
-            'member' => new MemberId($document['member']),
-            'provider' => Provider::from($document['provider']),
-            'contact' => null === ($document['contact'] ?? null) ? null : new PersonId($document['contact']),
+            'exchange' => new ExchangeId(Typed::string($document['exchange'])),
+            'accountId' => new AccountId(Typed::string($document['accountId'])),
+            'member' => new MemberId(Typed::string($document['member'])),
+            'provider' => Provider::from(Typed::string($document['provider'])),
+            'contact' => null === $contact ? null : new PersonId($contact),
             'startsAt' => $startsAt,
-            'state' => SyncState::from($document['state'] ?? SyncState::Synced->value),
-            'reason' => $document['reason'] ?? null,
-            'since' => isset($document['since']) ? Documents::momentOf($document['since']) : $startsAt,
-            'invitesAGuest' => $document['invitesAGuest'] ?? false,
+            'state' => SyncState::from(Typed::stringOrNull($document['state'] ?? null) ?? SyncState::Synced->value),
+            'reason' => Typed::stringOrNull($document['reason'] ?? null),
+            'since' => isset($document['since']) ? Documents::momentOf(Typed::string($document['since'])) : $startsAt,
+            'invitesAGuest' => Typed::bool($document['invitesAGuest'] ?? false),
         ]);
     }
 
@@ -106,16 +106,16 @@ final readonly class DynamoCalendarEntryRepository implements CalendarEntryRepos
         $state = Hydrator::stateOf($entry);
 
         return [
-            'exchange' => (string) $state['exchange'],
-            'accountId' => (string) $state['accountId'],
-            'member' => (string) $state['member'],
-            'provider' => $state['provider']->value,
-            'contact' => $state['contact']?->value,
-            'startsAt' => Documents::moment($state['startsAt']),
-            'state' => $state['state']->value,
-            'reason' => $state['reason'],
-            'since' => Documents::moment($state['since']),
-            'invitesAGuest' => $state['invitesAGuest'],
+            'exchange' => Typed::object($state['exchange'], ExchangeId::class)->value,
+            'accountId' => Typed::object($state['accountId'], AccountId::class)->value,
+            'member' => Typed::object($state['member'], MemberId::class)->value,
+            'provider' => Typed::object($state['provider'], Provider::class)->value,
+            'contact' => Typed::objectOrNull($state['contact'], PersonId::class)?->value,
+            'startsAt' => Documents::moment(Typed::object($state['startsAt'], \DateTimeImmutable::class)),
+            'state' => Typed::object($state['state'], SyncState::class)->value,
+            'reason' => Typed::stringOrNull($state['reason']),
+            'since' => Documents::moment(Typed::object($state['since'], \DateTimeImmutable::class)),
+            'invitesAGuest' => Typed::bool($state['invitesAGuest']),
         ];
     }
 }
