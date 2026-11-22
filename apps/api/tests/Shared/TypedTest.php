@@ -45,6 +45,11 @@ final class TypedTest extends TestCase
         $this->assertFalse(Typed::bool(false));
     }
 
+    public function testNullIsNoIntegerButNone(): void
+    {
+        $this->assertNull(Typed::intOrNull(null));
+    }
+
     public function testAWholeNumberIsTakenAsAFloat(): void
     {
         $this->assertSame(2.0, Typed::float(2));
@@ -93,5 +98,31 @@ final class TypedTest extends TestCase
         $this->expectException(\UnexpectedValueException::class);
 
         Typed::namedStrings(['size' => 12]);
+    }
+
+    public function testAnObjectOfAnotherClassIsRefused(): void
+    {
+        $this->expectException(\UnexpectedValueException::class);
+
+        Typed::object(new \stdClass(), \DateTimeImmutable::class);
+    }
+
+    public function testNullIsNoObjectButNone(): void
+    {
+        $this->assertNull(Typed::objectOrNull(null, \DateTimeImmutable::class));
+    }
+
+    public function testAnObjectOfItsClassIsTakenAsItIs(): void
+    {
+        $moment = new \DateTimeImmutable('2026-11-22');
+
+        $this->assertSame($moment, Typed::object($moment, \DateTimeImmutable::class));
+    }
+
+    public function testTheObjectsOfAMapAreAList(): void
+    {
+        $moment = new \DateTimeImmutable('2026-11-22');
+
+        $this->assertSame([$moment], Typed::objects([3 => $moment], \DateTimeImmutable::class));
     }
 }
