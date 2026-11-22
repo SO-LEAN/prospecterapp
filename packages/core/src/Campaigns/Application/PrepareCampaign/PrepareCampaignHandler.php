@@ -44,7 +44,7 @@ final readonly class PrepareCampaignHandler implements CommandHandler
             new Gesture($this->campaigners->accountOf($member), $member, $command->executedAt),
             new CampaignId($command->campaignId),
             new CampaignBrief($name, Targeting::by($channel, $command->tags), MessageTemplate::of($command->message, $command->subject, $channel, MessageMode::named($command->messageMode))),
-            null === $command->dailyCap ? null : DailyCap::of($command->dailyCap),
+            DailyCap::orNone($command->dailyCap),
         );
         $this->campaigns->save($campaign);
         $this->publishWhatHappenedTo($campaign);
