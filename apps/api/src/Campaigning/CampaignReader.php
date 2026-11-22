@@ -21,6 +21,7 @@ use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersons;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\KeptPersons;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Symfony\Component\Clock\ClockInterface;
 
 /**
  * The campaigns of the team composed of three contexts: Campaigns keeps them and counts their targets, Accounts gives
@@ -28,6 +29,8 @@ use Prospecter\Core\SharedKernel\Application\QueryHandler;
  */
 final readonly class CampaignReader
 {
+    private const string NO_CLOCK = 'UTC';
+
     public function __construct(
         private QueryHandler $consultCampaign,
         private QueryHandler $listCampaigns,
@@ -35,13 +38,17 @@ final readonly class CampaignReader
         private QueryHandler $consultPersons,
         private CampaignResourceFactory $campaignResourceFactory,
         private Links $links,
+        private ClockInterface $clock,
     ) {
     }
 
-    public function read(string $reader, string $id): CampaignResource
+    /**
+     * @param ?string $timeZone the reader's clock, which the recipients processed today are counted on; UTC otherwise
+     */
+    public function read(string $reader, string $id, ?string $timeZone = null): CampaignResource
     {
         $kept = new KeptCampaign();
-        $this->consultCampaign->__invoke(new ConsultCampaign($reader, $id), $kept);
+        $this->consultCampaign->__invoke(new ConsultCampaign($reader, $id, $timeZone ?? self::NO_CLOCK, $this->clock->now()), $kept);
         $campaign = $kept->campaign ?? throw new \LogicException('The campaign was not presented');
 
         return $this->campaignResourceFactory->of($campaign, $kept->targeted, $this->authorsOf($reader, [$campaign])[$campaign->authorId] ?? null);

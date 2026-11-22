@@ -10,17 +10,20 @@ use Prospecter\Core\Campaigns\Application\ConsultCampaign\ConsultCampaign;
 use Prospecter\Core\Campaigns\Application\ConsultCampaign\KeptCampaign;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 
 /**
  * The campaign of the route, read in the account of the signed-in member, for its voter (ADR 0081): one of another
- * account is unknown there.
+ * account is unknown there. Its voter reads no figure of the day: any clock does.
  */
 final readonly class CampaignResolver implements ValueResolverInterface
 {
-    public function __construct(private QueryHandler $consultCampaign, private Security $security)
+    private const string ANY_CLOCK = 'UTC';
+
+    public function __construct(private QueryHandler $consultCampaign, private Security $security, private ClockInterface $clock)
     {
     }
 
@@ -44,7 +47,7 @@ final readonly class CampaignResolver implements ValueResolverInterface
     public function read(User $member, string $id): CampaignSheet
     {
         $kept = new KeptCampaign();
-        $this->consultCampaign->__invoke(new ConsultCampaign($member->memberId(), $id), $kept);
+        $this->consultCampaign->__invoke(new ConsultCampaign($member->memberId(), $id, self::ANY_CLOCK, $this->clock->now()), $kept);
 
         return $kept->campaign ?? throw new \LogicException('The campaign was not presented');
     }
