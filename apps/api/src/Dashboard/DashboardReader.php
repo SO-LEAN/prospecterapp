@@ -49,7 +49,7 @@ final readonly class DashboardReader
     private function figuresOf(string $memberId): DashboardStatsResource
     {
         $presenter = new FiguresPresenter();
-        ($this->consultFigures)(new ConsultFigures($memberId, $this->clock->now()), $presenter);
+        $this->consultFigures->__invoke(new ConsultFigures($memberId, $this->clock->now()), $presenter);
 
         return $presenter->resource;
     }
@@ -60,7 +60,7 @@ final readonly class DashboardReader
     private function markersOf(string $memberId): array
     {
         $presenter = new OrganizationPagePresenter($this->imageResourceFactory, $this->links);
-        ($this->searchProspectedOrganizations)(new SearchProspectedOrganizations($memberId, max: self::MAX_MARKERS), $presenter);
+        $this->searchProspectedOrganizations->__invoke(new SearchProspectedOrganizations($memberId, max: self::MAX_MARKERS), $presenter);
 
         return array_values(array_filter($presenter->resource->items, static fn (OrganizationSummaryResource $item): bool => null !== $item->location));
     }

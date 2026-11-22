@@ -31,7 +31,7 @@ final readonly class ShowSuggestedTagsTool
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');
         $presenter = new SuggestedTagsPresenter();
-        ($this->consultSuggestedTags)(new ConsultSuggestedTags($this->access->member()->memberId()), $presenter);
+        $this->consultSuggestedTags->__invoke(new ConsultSuggestedTags($this->access->member()->memberId()), $presenter);
 
         return $this->results->of($presenter->resource);
     }

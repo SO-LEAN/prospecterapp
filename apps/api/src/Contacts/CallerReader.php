@@ -36,9 +36,9 @@ final readonly class CallerReader
     public function recognize(string $memberId, string $phoneNumber): CallerResource
     {
         $organizations = new KeptCallingOrganizations();
-        ($this->recognizeCallingOrganization)(new RecognizeCallingOrganization($memberId, $phoneNumber), $organizations);
+        $this->recognizeCallingOrganization->__invoke(new RecognizeCallingOrganization($memberId, $phoneNumber), $organizations);
         $callingContacts = new KeptCallingContacts();
-        ($this->recognizeCallingContact)(new RecognizeCallingContact($memberId, $phoneNumber), $callingContacts);
+        $this->recognizeCallingContact->__invoke(new RecognizeCallingContact($memberId, $phoneNumber), $callingContacts);
         $contacts = $callingContacts->contacts;
         $contactIds = array_map(static fn (PersonCard $contact): string => $contact->id, $contacts);
         $organizationsOfContacts = $this->organizationsOfContacts->read($memberId, $contactIds);

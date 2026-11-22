@@ -27,7 +27,7 @@ final readonly class OrganizationSearchReader
     public function search(string $memberId, string $query, ?string $after): OrganizationPageResource
     {
         $presenter = new OrganizationPagePresenter($this->imageResourceFactory, $this->links, $query);
-        ($this->searchProspectedOrganizations)(new SearchProspectedOrganizations($memberId, $query, $after), $presenter);
+        $this->searchProspectedOrganizations->__invoke(new SearchProspectedOrganizations($memberId, $query, $after), $presenter);
 
         return $presenter->resource;
     }

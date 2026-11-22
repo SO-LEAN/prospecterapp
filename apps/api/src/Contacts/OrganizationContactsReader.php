@@ -34,7 +34,7 @@ final readonly class OrganizationContactsReader
     public function read(string $memberId, OrganizationSheet $organization): OrganizationContactsResource
     {
         $persons = new KeptPersons();
-        ($this->consultPersons)(new ConsultPersons($memberId, $organization->contactIds), $persons);
+        $this->consultPersons->__invoke(new ConsultPersons($memberId, $organization->contactIds), $persons);
         $contacts = array_values(array_filter(array_map(static fn (string $contactId): ?PersonCard => $persons->persons[$contactId] ?? null, $organization->contactIds)));
 
         return new OrganizationContactsResource(array_map(fn (PersonCard $contact): OrganizationContactResource => $this->present($contact, $organization), $contacts));

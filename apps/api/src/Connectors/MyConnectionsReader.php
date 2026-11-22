@@ -28,7 +28,7 @@ final readonly class MyConnectionsReader
     public function read(string $me): ConnectionsResource
     {
         $presenter = new ConnectionsResourcePresenter($this->links, $this->intentLinks);
-        ($this->consultMyConnections)(new ConsultMyConnections($me, $this->clock->now()), $presenter);
+        $this->consultMyConnections->__invoke(new ConsultMyConnections($me, $this->clock->now()), $presenter);
 
         return $presenter->resource;
     }

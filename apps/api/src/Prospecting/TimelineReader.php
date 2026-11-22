@@ -29,7 +29,7 @@ final readonly class TimelineReader
     public function read(string $prospector, string $contactId, ?string $after = null): TimelineResource
     {
         $presenter = TimelinePresenter::ofThePast($contactId, $this->timelines);
-        ($this->consultTimeline)(new ConsultTimeline(prospectorId: $prospector, personId: $contactId, asOf: $this->clock->now(), after: $after), $presenter);
+        $this->consultTimeline->__invoke(new ConsultTimeline(prospectorId: $prospector, personId: $contactId, asOf: $this->clock->now(), after: $after), $presenter);
 
         return $presenter->resource;
     }
@@ -37,7 +37,7 @@ final readonly class TimelineReader
     public function readUpcoming(string $prospector, string $contactId, ?string $after = null): TimelineResource
     {
         $presenter = TimelinePresenter::ofWhatIsToCome($contactId, $this->timelines);
-        ($this->consultUpcomingExchanges)(new ConsultUpcomingExchanges(prospectorId: $prospector, personId: $contactId, asOf: $this->clock->now(), after: $after), $presenter);
+        $this->consultUpcomingExchanges->__invoke(new ConsultUpcomingExchanges(prospectorId: $prospector, personId: $contactId, asOf: $this->clock->now(), after: $after), $presenter);
 
         return $presenter->resource;
     }

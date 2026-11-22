@@ -39,7 +39,7 @@ final class SearchEstablishmentsController extends AbstractController
     public function __invoke(OrganizationSheet $organization): JsonResponse
     {
         $presenter = new EstablishmentsPresenter();
-        ($this->searchEstablishments)(new SearchEstablishments($organization->id), $presenter);
+        $this->searchEstablishments->__invoke(new SearchEstablishments($organization->id), $presenter);
 
         return $this->json($presenter->resource);
     }

@@ -156,7 +156,7 @@ final readonly class ContactRecorder
         }
 
         $identified = new KeptOrganizationIdentifications();
-        ($this->identifyOrganizations)(new IdentifyOrganizations($memberId, [self::organizationClues($organization)]), $identified);
+        $this->identifyOrganizations->__invoke(new IdentifyOrganizations($memberId, [self::organizationClues($organization)]), $identified);
 
         return self::read($identified->identifications[0]);
     }
@@ -177,7 +177,7 @@ final readonly class ContactRecorder
         }
 
         $identified = new KeptPersonIdentifications();
-        ($this->identifyPersons)(new IdentifyPersons($memberId, [self::personClues($person, $organizationId)]), $identified);
+        $this->identifyPersons->__invoke(new IdentifyPersons($memberId, [self::personClues($person, $organizationId)]), $identified);
 
         return self::read($identified->identifications[0]);
     }
@@ -200,7 +200,7 @@ final readonly class ContactRecorder
     private function completedOrganization(string $memberId, string $organizationId, array $organization): RecordedResource
     {
         $compared = new KeptOrganizationComparison();
-        ($this->compareWithOrganization)(new CompareWithOrganization(id: $organizationId, siret: $organization['siret'] ?? null, links: $organization['links'] ?? [], website: $organization['website'] ?? null, email: $organization['email'] ?? null, phoneNumber: $organization['phoneNumber'] ?? null), $compared);
+        $this->compareWithOrganization->__invoke(new CompareWithOrganization(id: $organizationId, siret: $organization['siret'] ?? null, links: $organization['links'] ?? [], website: $organization['website'] ?? null, email: $organization['email'] ?? null, phoneNumber: $organization['phoneNumber'] ?? null), $compared);
         $comparison = $compared->comparison;
 
         if ([] !== $comparison->completed) {
@@ -216,7 +216,7 @@ final readonly class ContactRecorder
     private function contactComparison(string $memberId, string $personId, array $person): Comparison
     {
         $compared = new KeptContactComparison();
-        ($this->compareWithContact)(new CompareWithContact(readerId: $memberId, id: $personId, civility: $person['title'] ?? self::UNKNOWN_CIVILITY, jobTitle: $person['jobTitle'] ?? null, email: $person['email'] ?? null, phoneNumber: $person['phoneNumber'] ?? null, links: $person['links'] ?? []), $compared);
+        $this->compareWithContact->__invoke(new CompareWithContact(readerId: $memberId, id: $personId, civility: $person['title'] ?? self::UNKNOWN_CIVILITY, jobTitle: $person['jobTitle'] ?? null, email: $person['email'] ?? null, phoneNumber: $person['phoneNumber'] ?? null, links: $person['links'] ?? []), $compared);
 
         return $compared->comparison;
     }

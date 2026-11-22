@@ -24,7 +24,7 @@ final readonly class GoogleClientReader
     public function read(User $me): GoogleClientResource
     {
         $presenter = new GoogleClientResourcePresenter($this->links, $this->googleEndpoints->redirectUri, $this->gmailNotificationEndpoint->of($me->accountId()));
-        ($this->consultMyAccountClients)(new ConsultMyAccountClients($me->memberId()), $presenter);
+        $this->consultMyAccountClients->__invoke(new ConsultMyAccountClients($me->memberId()), $presenter);
 
         return $presenter->resource;
     }

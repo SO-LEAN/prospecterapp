@@ -66,7 +66,7 @@ final readonly class NextRecipientReader
     private function nextOf(string $reader, string $campaignId): RecipientToHandle
     {
         $kept = new KeptRecipientToHandle();
-        ($this->nextRecipient)(new NextRecipient($reader, $campaignId), $kept);
+        $this->nextRecipient->__invoke(new NextRecipient($reader, $campaignId), $kept);
 
         return $kept->recipient ?? throw new \LogicException('The next recipient was not presented');
     }
@@ -88,7 +88,7 @@ final readonly class NextRecipientReader
     private function personOf(string $reader, string $contactId): PersonCard
     {
         $kept = new KeptPersons();
-        ($this->consultPersons)(new ConsultPersons($reader, [$contactId]), $kept);
+        $this->consultPersons->__invoke(new ConsultPersons($reader, [$contactId]), $kept);
 
         return $kept->persons[$contactId] ?? throw new \LogicException('The next recipient is not read');
     }

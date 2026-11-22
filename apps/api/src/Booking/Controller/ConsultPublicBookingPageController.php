@@ -47,7 +47,7 @@ final class ConsultPublicBookingPageController extends AbstractController
         if (PublicBookingRoutes::isOversized($code)) {
             $presenter->present(PublicBookingPage::unavailable());
         } else {
-            ($this->consultPublicBookingPage)(new ConsultPublicBookingPage($code, $this->clock->now()), $presenter);
+            $this->consultPublicBookingPage->__invoke(new ConsultPublicBookingPage($code, $this->clock->now()), $presenter);
         }
 
         return $this->json($presenter->resource)->setPublic()->setMaxAge(self::KEPT_SECONDS);

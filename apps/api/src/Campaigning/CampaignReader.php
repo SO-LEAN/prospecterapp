@@ -41,7 +41,7 @@ final readonly class CampaignReader
     public function read(string $reader, string $id): CampaignResource
     {
         $kept = new KeptCampaign();
-        ($this->consultCampaign)(new ConsultCampaign($reader, $id), $kept);
+        $this->consultCampaign->__invoke(new ConsultCampaign($reader, $id), $kept);
         $campaign = $kept->campaign ?? throw new \LogicException('The campaign was not presented');
 
         return $this->campaignResourceFactory->of($campaign, $kept->targeted, $this->authorsOf($reader, [$campaign])[$campaign->authorId] ?? null);
@@ -50,7 +50,7 @@ final readonly class CampaignReader
     public function list(string $reader): CampaignListResource
     {
         $kept = new KeptCampaigns();
-        ($this->listCampaigns)(new ListCampaigns($reader), $kept);
+        $this->listCampaigns->__invoke(new ListCampaigns($reader), $kept);
         $authors = $this->authorsOf($reader, $kept->campaigns);
 
         return new CampaignListResource(
@@ -70,7 +70,7 @@ final readonly class CampaignReader
         ($this->consultMembersService)(new ConsultMembers(array_values(array_unique(array_map(static fn (CampaignSheet $campaign): string => $campaign->authorId, $campaigns)))), $members);
         $personOfMember = array_map(static fn (MemberResponse $member): string => $member->personId, $members->members);
         $persons = new KeptPersons();
-        ($this->consultPersons)(new ConsultPersons($reader, array_values($personOfMember)), $persons);
+        $this->consultPersons->__invoke(new ConsultPersons($reader, array_values($personOfMember)), $persons);
 
         return array_filter(array_map(static fn (string $personId): ?PersonCard => $persons->persons[$personId] ?? null, $personOfMember));
     }

@@ -31,7 +31,7 @@ final readonly class OrganizationsOfContacts
     public function read(string $reader, array $contactIds): array
     {
         $kept = new KeptOrganizationsOfContacts();
-        ($this->consultOrganizationsOfContacts)(new ConsultOrganizationsOfContacts($reader, $contactIds), $kept);
+        $this->consultOrganizationsOfContacts->__invoke(new ConsultOrganizationsOfContacts($reader, $contactIds), $kept);
 
         return array_map(fn (array $organizations): array => array_map($this->resourceOf(...), $organizations), $kept->organizations);
     }

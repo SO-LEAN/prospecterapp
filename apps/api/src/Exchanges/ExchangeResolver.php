@@ -48,7 +48,7 @@ final readonly class ExchangeResolver implements ValueResolverInterface
     {
         $kept = new KeptExchange();
         $this->revisions->watch($id);
-        ($this->consultExchange)(new ConsultExchange($reader->memberId(), $id, $this->clock->now()), $kept);
+        $this->consultExchange->__invoke(new ConsultExchange($reader->memberId(), $id, $this->clock->now()), $kept);
 
         return $kept->exchange;
     }

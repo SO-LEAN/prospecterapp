@@ -103,7 +103,7 @@ final class GmailPushAuthenticator extends AbstractAuthenticator
     private function pushAccountOf(string $account): string
     {
         $pusher = new KeptMailboxPusher();
-        ($this->consultMailboxPusher)(new ConsultMailboxPusher($account, self::GOOGLE), $pusher);
+        $this->consultMailboxPusher->__invoke(new ConsultMailboxPusher($account, self::GOOGLE), $pusher);
 
         return $pusher->pushAccount ?? throw new BadCredentialsException('This account has no topic of Gmail.');
     }

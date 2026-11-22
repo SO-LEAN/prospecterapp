@@ -33,9 +33,9 @@ final readonly class MyAccountReader
     public function read(string $me): AccountResource
     {
         $account = new KeptAccount();
-        ($this->consultMyAccount)(new ConsultMyAccount($me), $account);
+        $this->consultMyAccount->__invoke(new ConsultMyAccount($me), $account);
         $presenter = new AccountResourcePresenter($account->account, $this->images, $this->links, $this->intentLinks);
-        ($this->consultPerson)(new ConsultPerson($me, $account->account->personId), $presenter);
+        $this->consultPerson->__invoke(new ConsultPerson($me, $account->account->personId), $presenter);
 
         return $presenter->resource;
     }

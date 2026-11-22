@@ -24,7 +24,7 @@ final readonly class MyRemindersReader
     public function read(string $me): RemindersResource
     {
         $presenter = new RemindersResourcePresenter($this->links);
-        ($this->consultMyReminders)(new ConsultMyReminders($me), $presenter);
+        $this->consultMyReminders->__invoke(new ConsultMyReminders($me), $presenter);
 
         return $presenter->resource;
     }

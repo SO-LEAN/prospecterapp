@@ -28,7 +28,7 @@ final readonly class MyBookingPageReader
     public function read(string $me, ?string $timeZone = null): BookingPageResource
     {
         $presenter = new BookingPageResourcePresenter($this->links);
-        ($this->consultMyBookingPage)(new ConsultMyBookingPage($me, $timeZone ?? self::UTC, $this->clock->now()), $presenter);
+        $this->consultMyBookingPage->__invoke(new ConsultMyBookingPage($me, $timeZone ?? self::UTC, $this->clock->now()), $presenter);
 
         return $presenter->resource;
     }

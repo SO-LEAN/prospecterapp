@@ -21,7 +21,7 @@ final readonly class CampaignMessages
     public function renderedFor(string $memberId, string $campaignId, string $contactId): CampaignMessageResource
     {
         $kept = new KeptCampaignMessage();
-        ($this->renderCampaignMessage)(new RenderCampaignMessage($memberId, $campaignId, $contactId), $kept);
+        $this->renderCampaignMessage->__invoke(new RenderCampaignMessage($memberId, $campaignId, $contactId), $kept);
         $message = $kept->message ?? throw new \LogicException('The message was not presented');
 
         return new CampaignMessageResource($message->subject, $message->text);

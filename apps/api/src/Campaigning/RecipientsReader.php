@@ -90,7 +90,7 @@ final readonly class RecipientsReader
     private function personsOf(string $reader, array $contactIds): array
     {
         $kept = new KeptPersons();
-        ($this->consultPersons)(new ConsultPersons($reader, $contactIds), $kept);
+        $this->consultPersons->__invoke(new ConsultPersons($reader, $contactIds), $kept);
 
         return $kept->persons;
     }

@@ -59,7 +59,7 @@ final class AskToImportGmailController extends AbstractController
     private function myConnections(User $user): KeptConnections
     {
         $kept = new KeptConnections();
-        ($this->consultMyConnections)(new ConsultMyConnections($user->memberId(), $this->clock->now()), $kept);
+        $this->consultMyConnections->__invoke(new ConsultMyConnections($user->memberId(), $this->clock->now()), $kept);
 
         return $kept;
     }

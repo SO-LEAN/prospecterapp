@@ -28,7 +28,7 @@ final readonly class ProposedOrganizationReader
     public function read(string $reader, string $contact): ProposedOrganizationResource
     {
         $person = new KeptPerson();
-        ($this->consultPerson)(new ConsultPerson($reader, $contact), $person);
+        $this->consultPerson->__invoke(new ConsultPerson($reader, $contact), $person);
         $email = $person->person->email;
 
         return new ProposedOrganizationResource(null === $email ? null : $this->proposedFor($reader, $email));
@@ -37,7 +37,7 @@ final readonly class ProposedOrganizationReader
     private function proposedFor(string $reader, string $email): ?OrganizationProposedResource
     {
         $proposed = new KeptProposedOrganization();
-        ($this->proposeOrganizationToAttach)(new ProposeOrganizationToAttach($reader, $email), $proposed);
+        $this->proposeOrganizationToAttach->__invoke(new ProposeOrganizationToAttach($reader, $email), $proposed);
 
         return null === $proposed->organization ? null : new OrganizationProposedResource($proposed->organization->id, $proposed->organization->name);
     }

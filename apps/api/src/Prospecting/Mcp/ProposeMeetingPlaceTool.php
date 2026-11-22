@@ -33,7 +33,7 @@ final readonly class ProposeMeetingPlaceTool
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');
         $presenter = new MeetingPlacePresenter();
-        ($this->proposeMeetingPlace)(new ProposeMeetingPlace($this->access->member()->memberId(), $id), $presenter);
+        $this->proposeMeetingPlace->__invoke(new ProposeMeetingPlace($this->access->member()->memberId(), $id), $presenter);
 
         return $this->results->of($presenter->resource);
     }

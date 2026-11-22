@@ -34,7 +34,7 @@ final readonly class OrganizationReader
     {
         $presenter = $this->presenter();
         $this->revisions->watch($id);
-        ($this->consultOrganization)(new ConsultOrganization($id), $presenter);
+        $this->consultOrganization->__invoke(new ConsultOrganization($id), $presenter);
 
         return $presenter->resource;
     }

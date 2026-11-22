@@ -42,7 +42,7 @@ final readonly class OrganizationResolver implements ValueResolverInterface
     {
         $kept = new KeptOrganization();
         $this->revisions->watch($id);
-        ($this->consultOrganization)(new ConsultOrganization($id), $kept);
+        $this->consultOrganization->__invoke(new ConsultOrganization($id), $kept);
 
         return $kept->organization;
     }

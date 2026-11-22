@@ -34,7 +34,7 @@ final class ShowSuggestedTagsController extends AbstractController
     public function __invoke(#[CurrentUser] User $user): JsonResponse
     {
         $presenter = new SuggestedTagsPresenter();
-        ($this->consultSuggestedTags)(new ConsultSuggestedTags($user->memberId()), $presenter);
+        $this->consultSuggestedTags->__invoke(new ConsultSuggestedTags($user->memberId()), $presenter);
 
         return $this->json($presenter->resource);
     }

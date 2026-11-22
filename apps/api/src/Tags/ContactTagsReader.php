@@ -23,7 +23,7 @@ final readonly class ContactTagsReader
     public function read(string $me, string $contactId): ContactTagsResource
     {
         $presenter = new ContactTagsResourcePresenter($this->tags, $contactId);
-        ($this->consultContactTags)(new ConsultContactTags($me, [$contactId]), $presenter);
+        $this->consultContactTags->__invoke(new ConsultContactTags($me, [$contactId]), $presenter);
 
         return $presenter->resource;
     }
