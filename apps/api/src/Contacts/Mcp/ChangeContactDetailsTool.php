@@ -4,6 +4,7 @@ namespace App\Contacts\Mcp;
 
 use App\Contacts\ContactReader;
 use App\PersonalData\Input\PersonContactDetailsInput;
+use App\PersonalData\Persistence\PersonRevisions;
 use App\Security\ToolAccess;
 use App\Shared\CommandBus;
 use App\Shared\Mcp\Adapts;
@@ -27,6 +28,7 @@ final readonly class ChangeContactDetailsTool
         private ClockInterface $clock,
         private ContactReader $contactReader,
         private ToolResults $results,
+        private PersonRevisions $revisions,
     ) {
     }
 
@@ -36,16 +38,17 @@ final readonly class ChangeContactDetailsTool
      * @param ?string      $phoneNumber their phone number, international (+33 3 88 11 22 33) or national in France (03 88 11 22 33)
      * @param ?string      $language    the country of the language spoken with them (FR, GB…)
      * @param list<string> $links       the addresses of their pages on the tools outside (their profile on LinkedIn or Malt, any other site), five at most
+     * @param ?int         $revision    the contact's `revision` as you read it: if it changed since, the change is refused (changedMeanwhile) and you read it again
      *
      * @return array<string, mixed>
      */
     #[McpTool(name: 'update-contact-details', description: 'Change the e-mail, phone number, language and links (their profile on LinkedIn among them) of a contact; what is left out is removed. Needs the right to manage the personal data. Answers the contact.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
-    public function __invoke(string $id, ?string $email = null, ?string $phoneNumber = null, ?string $language = null, array $links = []): array
+    public function __invoke(string $id, ?string $email = null, ?string $phoneNumber = null, ?string $language = null, array $links = [], ?int $revision = null): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');
         $input = $this->inputs->valid(new PersonContactDetailsInput($email, $phoneNumber, $language, $links));
         $memberId = $this->access->member()->memberId();
-        $this->commandBus->dispatch(new ChangePersonContactDetails($memberId, $id, $input->email, $input->phoneNumber, $input->language, $input->links, $this->clock->now()));
+        $this->commandBus->dispatch(new ChangePersonContactDetails($memberId, $id, $input->email, $input->phoneNumber, $input->language, $input->links, $this->clock->now()), $this->revisions->readAt($id, $revision));
 
         return $this->results->of($this->contactReader->read($memberId, $id));
     }

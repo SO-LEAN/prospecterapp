@@ -4,6 +4,7 @@ namespace App\Contacts\Mcp;
 
 use App\Contacts\ContactReader;
 use App\PersonalData\Input\JobTitleInput;
+use App\PersonalData\Persistence\PersonRevisions;
 use App\Security\ToolAccess;
 use App\Shared\CommandBus;
 use App\Shared\Mcp\Adapts;
@@ -27,22 +28,24 @@ final readonly class ChangeJobTitleTool
         private ClockInterface $clock,
         private ContactReader $contactReader,
         private ToolResults $results,
+        private PersonRevisions $revisions,
     ) {
     }
 
     /**
      * @param string  $id       the id of the contact
      * @param ?string $jobTitle what the contact does in their organization; none when empty
+     * @param ?int    $revision the contact's `revision` as you read it: if it changed since, the change is refused (changedMeanwhile) and you read it again
      *
      * @return array<string, mixed>
      */
     #[McpTool(name: 'set-contact-job-title', description: 'Change what a contact does in their organization (their job title); needs the right to manage the personal data. Answers the contact.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
-    public function __invoke(string $id, ?string $jobTitle = null): array
+    public function __invoke(string $id, ?string $jobTitle = null, ?int $revision = null): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');
         $input = $this->inputs->valid(new JobTitleInput($jobTitle));
         $memberId = $this->access->member()->memberId();
-        $this->commandBus->dispatch(new ChangeJobTitle($memberId, $id, $input->jobTitle, $this->clock->now()));
+        $this->commandBus->dispatch(new ChangeJobTitle($memberId, $id, $input->jobTitle, $this->clock->now()), $this->revisions->readAt($id, $revision));
 
         return $this->results->of($this->contactReader->read($memberId, $id));
     }
