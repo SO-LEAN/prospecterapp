@@ -14,7 +14,16 @@ final readonly class Candidate
     public function __construct(
         public PersonId $contact,
         public ContactTags $tags,
-        public Addressee $addressee,
+        private Addressee $addressee,
     ) {
+    }
+
+    /**
+     * What a refusal names them by: their first name and their last name, those known.
+     */
+    #[\NoDiscard]
+    public function name(): string
+    {
+        return $this->addressee->name();
     }
 }

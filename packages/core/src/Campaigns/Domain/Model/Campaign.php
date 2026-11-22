@@ -251,7 +251,7 @@ final class Campaign implements ReleasesEvents
         $this->ensurePossible(CampaignIntent::AddRecipients);
 
         if (!$this->targeting->reaches($candidate->tags)) {
-            throw UnreachableContact::by($candidate->addressee->name(), $this->targeting->channel);
+            throw UnreachableContact::by($candidate->name(), $this->targeting->channel);
         }
 
         $this->changeRecipients($this->recipients->with([$candidate->contact]), $by, $at);
