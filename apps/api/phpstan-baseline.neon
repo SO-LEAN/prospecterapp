@@ -1291,12 +1291,6 @@ parameters:
 			path: src/Campaigns/Persistence/OrganizationFactItem.php
 
 		-
-			message: '#^Parameter \#3 \$command of method App\\Exchanges\\Mcp\\ExchangeWrites\:\:dispatched\(\) expects Closure\(object\|null, Prospecter\\Core\\Prospecting\\Application\\ConsultExchange\\ExchangeDetail, string, DateTimeImmutable\)\: object, Closure\(null, Prospecter\\Core\\Prospecting\\Application\\ConsultExchange\\ExchangeDetail, string, DateTimeImmutable\)\: Prospecter\\Core\\Connectors\\Application\\RetryPush\\RetryPush given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Connectors/Mcp/RetryPushTool.php
-
-		-
 			message: '#^Cannot access offset ''clientId'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 1

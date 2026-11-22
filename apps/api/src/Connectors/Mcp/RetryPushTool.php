@@ -37,10 +37,9 @@ final readonly class RetryPushTool
     #[McpTool(name: 'retry-google-sync', description: 'Push an exchange into the calendar of its holder at Google again, as it is now, once Google refused it; by its holder. Answers where its push stands.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true))]
     public function __invoke(string $id): array
     {
-        $exchange = $this->writes->dispatched(
+        $exchange = $this->writes->changed(
             $id,
-            null,
-            static fn (null $input, ExchangeDetail $exchange, string $memberId, \DateTimeImmutable $now): RetryPush => new RetryPush($memberId, $exchange->id, $now),
+            static fn (ExchangeDetail $exchange, string $memberId, \DateTimeImmutable $now): RetryPush => new RetryPush($memberId, $exchange->id, $now),
         );
 
         return $this->results->of($this->exchangeSyncReader->read($this->access->member()->memberId(), $exchange->id));
