@@ -111,7 +111,7 @@ final class Exchange implements ReleasesEvents
     {
         $correspondent->ensureToHandle();
         self::ensureHappenedBefore($noting->facts, $gesture->at);
-        self::ensureMissable($noting->facts->channel, $noting->outcome);
+        self::ensureMissable($noting->facts, $noting->outcome);
         $exchange = new self($id, $gesture->accountId, $gesture->by, $correspondent->contact, $correspondent->keptFor, $noting->facts, $noting->outcome, $gesture->at);
         $exchange->campaign = $correspondent->campaign();
         $exchange->importedFrom = $noting->importedFrom;
@@ -164,10 +164,10 @@ final class Exchange implements ReleasesEvents
     /**
      * @throws ChannelNotMissed
      */
-    private static function ensureMissable(Channel $channel, ExchangeStatus $outcome): void
+    private static function ensureMissable(ExchangeFacts $facts, ExchangeStatus $outcome): void
     {
-        if (ExchangeStatus::Missed === $outcome && !$channel->mayBePlanned()) {
-            throw ChannelNotMissed::because('Only a call, a meeting or a video call may be missed', 'missed', context: ['channel' => $channel->value]);
+        if (ExchangeStatus::Missed === $outcome && !$facts->channel->mayBePlanned()) {
+            throw ChannelNotMissed::because('Only a call, a meeting or a video call may be missed', 'missed', context: ['channel' => $facts->channel->value]);
         }
     }
 
@@ -294,7 +294,7 @@ final class Exchange implements ReleasesEvents
     {
         $this->ensurePossible(ExchangeIntent::CorrectExchange, $by, $at);
         self::ensureHappenedBefore($facts, $at);
-        self::ensureMissable($facts->channel, $outcome);
+        self::ensureMissable($facts, $outcome);
         $this->facts = $facts->keepingTheVenueOf($this->facts);
         $this->status = $outcome;
         $this->correctedBy($by, $at);
