@@ -11,7 +11,7 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
  * the identity of the exchange of Prospecting noted for them (ADR 0152), whether the call did not go through;
  * dismissed, why, when said. Erased by PersonalData from a started campaign, kept without its name (ADR 0145): what
  * the team did with them stays, processed, missed or dismissed, and one still to handle is no longer; neither the
- * exchange nor the reason, which may tell of the person, are kept.
+ * exchange nor the reason, which may tell of the person, are kept. Processed, when, for the daily cap of its campaign.
  */
 final readonly class Recipient
 {
@@ -22,6 +22,7 @@ final readonly class Recipient
         public ?string $reason = null,
         public ?string $exchangeId = null,
         public bool $erased = false,
+        public ?\DateTimeImmutable $processedAt = null,
     ) {
     }
 
@@ -31,9 +32,9 @@ final readonly class Recipient
     }
 
     #[\NoDiscard]
-    public function processed(string $exchangeId, RecipientOutcome $outcome): self
+    public function processed(string $exchangeId, RecipientOutcome $outcome, \DateTimeImmutable $at): self
     {
-        return new self($this->contact, RecipientStatus::Processed, RecipientOutcome::Missed === $outcome, exchangeId: $exchangeId);
+        return new self($this->contact, RecipientStatus::Processed, RecipientOutcome::Missed === $outcome, exchangeId: $exchangeId, processedAt: $at);
     }
 
     #[\NoDiscard]
@@ -48,7 +49,7 @@ final readonly class Recipient
     #[\NoDiscard]
     public function erased(): self
     {
-        return new self($this->contact, $this->isPending() ? RecipientStatus::Erased : $this->status, $this->missed, erased: true);
+        return new self($this->contact, $this->isPending() ? RecipientStatus::Erased : $this->status, $this->missed, erased: true, processedAt: $this->processedAt);
     }
 
     /**
@@ -58,7 +59,7 @@ final readonly class Recipient
     #[\NoDiscard]
     public function withoutItsExchange(): self
     {
-        return new self($this->contact, $this->status, $this->missed, $this->reason, erased: $this->erased);
+        return new self($this->contact, $this->status, $this->missed, $this->reason, erased: $this->erased, processedAt: $this->processedAt);
     }
 
     #[\NoDiscard]
