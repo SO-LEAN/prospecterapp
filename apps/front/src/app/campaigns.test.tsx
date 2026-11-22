@@ -50,6 +50,7 @@ const relance: Campaign = {
   startedAt: null,
   stoppedAt: null,
   endedAt: null,
+  dailyCap: null,
   _links: {
     self: { href: `/api/campaigns/${CAMPAIGN}`, method: 'GET' },
     revise: { href: `/api/campaigns/${CAMPAIGN}`, method: 'PATCH' },
@@ -308,6 +309,7 @@ describe('the campaigns of the team', () => {
             message: 'Bonjour',
             subject: 'Une question',
             messageMode: 'asIs',
+            dailyCap: null,
           },
         }),
       ),

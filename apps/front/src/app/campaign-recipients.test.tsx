@@ -56,6 +56,7 @@ const draft: Campaign = {
   startedAt: null,
   stoppedAt: null,
   endedAt: null,
+  dailyCap: null,
   _links: {
     self,
     revise: { href: `/api/campaigns/${CAMPAIGN}`, method: 'PATCH' },

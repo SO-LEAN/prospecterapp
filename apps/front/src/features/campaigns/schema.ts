@@ -54,6 +54,7 @@ export const toCampaignInput = (values: CampaignValues): CampaignInput => ({
   message: values.message,
   subject: values.channel === 'email' && values.subject.trim() !== '' ? values.subject.trim() : null,
   messageMode: values.messageMode,
+  dailyCap: null,
 })
 
 /** The automatic tag a contact carries when the channel reaches them (ADR 0144), as the api names them. */

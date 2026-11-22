@@ -139,6 +139,7 @@ class CampaignsApiTest extends ApiTestCase
         yield 'a name too long' => [['name' => str_repeat('a', 101)], 'name', 'campaignNameTooLong'];
         yield 'an unknown channel' => [['channel' => 'fax'], 'channel', 'unknownChannel'];
         yield 'no tag' => [['tags' => []], 'tags', 'invalidTagSelection'];
+        yield 'a daily cap below one send' => [['dailyCap' => 0], 'dailyCap', 'invalidDailyCap'];
         yield 'the tag of the channel a sixth' => [['tags' => ['#A', '#B', '#C', '#D', '#E']], 'tags', 'invalidTagSelection'];
         yield 'a message too long' => [['message' => str_repeat('a', 5001)], 'message', 'messageTooLong'];
         yield 'a subject for a call' => [['channel' => 'call'], 'subject', 'subjectOnlyForAnEmail'];

@@ -47,6 +47,8 @@ final readonly class CampaignResource
         public ?string $stoppedAt,
         #[OA\Property(description: 'When it ended, nobody left to handle, none before', format: 'date-time')]
         public ?string $endedAt,
+        #[OA\Property(description: 'The most recipients processed a day, a guard an AI stops at and the member may go beyond; none without a cap')]
+        public ?int $dailyCap,
         #[SerializedName('_links')]
         #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]
         public CampaignLinksResource $links,

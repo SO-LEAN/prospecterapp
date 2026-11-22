@@ -50,6 +50,15 @@ class CampaignToolsApiTest extends ApiTestCase
         $this->assertSame(['Relance PHP', 'email', 'draft'], [$campaign['name'], $campaign['channel'], $campaign['status']]);
     }
 
+    public function testTheAiPreparesACampaignWithItsDailyCap(): void
+    {
+        $this->login();
+
+        $campaign = $this->callWithoutHandshake('create-campaign', [...self::RELAUNCH, 'dailyCap' => 30])['structuredContent'];
+
+        $this->assertSame(30, $campaign['dailyCap']);
+    }
+
     public function testTheAiRevisesADraft(): void
     {
         $draft = $this->aDraft();
