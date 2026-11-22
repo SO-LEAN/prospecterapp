@@ -24,6 +24,7 @@ use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Base\ReadsResources;
 
 /**
  * The exchanges the signed-in member planned whose end has passed and that they have not handled yet, on their
@@ -32,6 +33,8 @@ use Tests\App\Base\ApiTestCase;
 #[Group('api')]
 class ExchangesToProcessApiTest extends ApiTestCase
 {
+    use ReadsResources;
+
     private const string TO_PROCESS = '/api/me/exchanges-to-process';
 
     private string $organization;
@@ -40,7 +43,7 @@ class ExchangesToProcessApiTest extends ApiTestCase
     {
         parent::setUp();
         $this->login();
-        $this->organization = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];
+        $this->organization = self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']]), 'id');
     }
 
     public function testTheExchangesIPlannedWhoseEndHasPassedAreToProcessTheOldestFirst(): void
@@ -54,8 +57,8 @@ class ExchangesToProcessApiTest extends ApiTestCase
         $toProcess = $this->requestJson('GET', self::TO_PROCESS);
 
         $this->assertResponseStatusCodeSame(200);
-        $this->assertSame([[$yesterday, 'ACME'], [$thisMorning, 'ACME']], array_map(static fn (array $item): array => [$item['exchange']['id'], $item['interlocutor']['name']], $toProcess['items']));
-        $this->assertSame(['href' => self::TO_PROCESS, 'method' => 'GET'], $toProcess['_links']['self']);
+        $this->assertSame([[$yesterday, 'ACME'], [$thisMorning, 'ACME']], array_map(static fn (array $item): array => [self::valueAt($item, 'exchange', 'id'), self::valueAt($item, 'interlocutor', 'name')], self::recordsAt($toProcess, 'items')));
+        $this->assertSame(['href' => self::TO_PROCESS, 'method' => 'GET'], self::valueAt($toProcess, '_links', 'self'));
     }
 
     /**
@@ -67,7 +70,7 @@ class ExchangesToProcessApiTest extends ApiTestCase
         $this->plannedBy($this->memberIdOf('prospector-user'), '2026-10-14T16:00:00+00:00');
         $this->eraseBeforeItsExchanges($this->organization);
 
-        $this->assertSame([], $this->requestJson('GET', self::TO_PROCESS)['items']);
+        $this->assertSame([], self::valueAt($this->requestJson('GET', self::TO_PROCESS), 'items'));
         $this->assertResponseStatusCodeSame(200);
     }
 
@@ -75,7 +78,7 @@ class ExchangesToProcessApiTest extends ApiTestCase
     {
         $passed = $this->plannedBy($this->memberIdOf('prospector-user'), '2026-10-15T08:00:00+00:00');
 
-        $links = $this->requestJson('GET', self::TO_PROCESS)['items'][0]['exchange']['_links'];
+        $links = self::recordAt($this->requestJson('GET', self::TO_PROCESS), 'items', 0, 'exchange', '_links');
 
         $this->assertSame([
             'move' => ['href' => '/api/exchanges/'.$passed.'/moment', 'method' => 'PATCH'],
@@ -93,7 +96,7 @@ class ExchangesToProcessApiTest extends ApiTestCase
         $this->requestJson('POST', '/api/exchanges/'.$done.'/done', ['text' => 'Mission de 3 mois']);
         $this->requestJson('POST', '/api/exchanges/'.$missed.'/missed', []);
 
-        $this->assertSame([], $this->requestJson('GET', self::TO_PROCESS)['items']);
+        $this->assertSame([], self::valueAt($this->requestJson('GET', self::TO_PROCESS), 'items'));
     }
 
     /**
@@ -105,10 +108,10 @@ class ExchangesToProcessApiTest extends ApiTestCase
         $passed = $this->plannedBy($this->memberIdOf($assistant), '2026-10-15T08:00:00+00:00');
         $this->login($assistant);
 
-        $items = $this->requestJson('GET', self::TO_PROCESS)['items'];
+        $items = self::recordsAt($this->requestJson('GET', self::TO_PROCESS), 'items');
 
-        $this->assertSame([$passed], array_column(array_column($items, 'exchange'), 'id'));
-        $this->assertArrayHasKey('markDone', $items[0]['exchange']['_links']);
+        $this->assertSame([$passed], array_column(array_map(static fn (array $item): array => self::recordAt($item, 'exchange'), $items), 'id'));
+        $this->assertArrayHasKey('markDone', self::arrayAt($items, 0, 'exchange', '_links'));
     }
 
     /**
@@ -120,7 +123,7 @@ class ExchangesToProcessApiTest extends ApiTestCase
         $this->plannedBy($this->memberIdOf('prospector-user'), '2026-10-15T08:00:00+00:00');
         $this->login($this->aMemberOfTheFixtures($reference, ...$roles));
 
-        $this->assertSame([], $this->requestJson('GET', self::TO_PROCESS)['items']);
+        $this->assertSame([], self::valueAt($this->requestJson('GET', self::TO_PROCESS), 'items'));
         $this->assertResponseStatusCodeSame(200);
     }
 
@@ -147,10 +150,10 @@ class ExchangesToProcessApiTest extends ApiTestCase
         $this->requestJson('POST', '/api/to-dos/'.$done.'/done', []);
         $this->noteToDo($ada, 'Rappeler', '2026-10-16');
 
-        $toDos = $this->requestJson('GET', self::TO_PROCESS)['toDos'];
+        $toDos = self::recordsAt($this->requestJson('GET', self::TO_PROCESS), 'toDos');
 
-        $this->assertSame([[$late, 'Envoyer mon CV', 2], [$today, 'Appeler la RH', 0]], array_map(static fn (array $item): array => [$item['toDo']['id'], $item['toDo']['text'], $item['daysOverdue']], $toDos));
-        $this->assertArrayHasKey('tickOff', $toDos[0]['toDo']['_links']);
+        $this->assertSame([[$late, 'Envoyer mon CV', 2], [$today, 'Appeler la RH', 0]], array_map(static fn (array $item): array => [self::valueAt($item, 'toDo', 'id'), self::valueAt($item, 'toDo', 'text'), $item['daysOverdue']], $toDos));
+        $this->assertArrayHasKey('tickOff', self::arrayAt($toDos, 0, 'toDo', '_links'));
     }
 
     /**
@@ -169,10 +172,10 @@ class ExchangesToProcessApiTest extends ApiTestCase
     {
         $assistant = $this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector);
         $toDo = ToDo::noted(new Gesture($this->accountOfTheFixtures(), new MemberId($this->memberIdOf($assistant)), new \DateTimeImmutable('2026-10-13 09:00 UTC')), new ToDoId(self::newIdentity()), new OrganizationCorrespondent(new OrganizationId($this->organization)), new Task('Envoyer mon CV', new Due('2026-10-14')));
-        self::getContainer()->get(ToDoRepository::class)->save($toDo);
+        self::service(ToDoRepository::class)->save($toDo);
         $this->login($assistant);
 
-        $this->assertSame([], $this->requestJson('GET', self::TO_PROCESS)['toDos']);
+        $this->assertSame([], self::valueAt($this->requestJson('GET', self::TO_PROCESS), 'toDos'));
         $this->assertResponseStatusCodeSame(200);
     }
 
@@ -183,8 +186,8 @@ class ExchangesToProcessApiTest extends ApiTestCase
     {
         $this->noteToDo($this->ada(), 'Envoyer mon CV', '2026-10-15');
 
-        $this->assertCount(1, $this->requestJson('GET', self::TO_PROCESS.'?timeZone=Europe/Paris')['toDos']);
-        $this->assertSame([], $this->requestJson('GET', self::TO_PROCESS.'?timeZone=Pacific/Honolulu')['toDos']);
+        $this->assertCount(1, self::arrayAt($this->requestJson('GET', self::TO_PROCESS.'?timeZone=Europe/Paris'), 'toDos'));
+        $this->assertSame([], self::valueAt($this->requestJson('GET', self::TO_PROCESS.'?timeZone=Pacific/Honolulu'), 'toDos'));
     }
 
     public function testTheTimeZoneOfTheReaderIsOneOfTheWorld(): void
@@ -197,12 +200,12 @@ class ExchangesToProcessApiTest extends ApiTestCase
 
     private function ada(): string
     {
-        return $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'], 'organizationIds' => [$this->organization]])['id'];
+        return self::stringAt($this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'], 'organizationIds' => [$this->organization]]), 'id');
     }
 
     private function noteToDo(string $contact, string $text, string $dueOn, ?string $dueAt = null): string
     {
-        return $this->requestJson('POST', '/api/contacts/'.$contact.'/to-dos', ['text' => $text, 'dueOn' => $dueOn, 'dueAt' => $dueAt])['id'];
+        return self::stringAt($this->requestJson('POST', '/api/contacts/'.$contact.'/to-dos', ['text' => $text, 'dueOn' => $dueOn, 'dueAt' => $dueAt]), 'id');
     }
 
     public function testAMemberWhoIsNotAProspectorHasNoExchangeToProcess(): void
@@ -220,9 +223,9 @@ class ExchangesToProcessApiTest extends ApiTestCase
     private function plannedBy(string $memberId, string $at): string
     {
         $facts = ExchangeFacts::planned(Channel::Call, new \DateTimeImmutable($at), Duration::inMinutes(null), null);
-        $prospect = self::getContainer()->get(OrganizationRepository::class)->get(new OrganizationId($this->organization));
+        $prospect = self::service(OrganizationRepository::class)->get(new OrganizationId($this->organization));
         $planned = Exchange::planned(new Gesture($prospect->accountId(), new MemberId($memberId), new \DateTimeImmutable('2026-10-13 09:00 UTC')), new ExchangeId(self::newIdentity()), new OrganizationCorrespondent($prospect->id()), $facts);
-        self::getContainer()->get(ExchangeRepository::class)->save($planned);
+        self::service(ExchangeRepository::class)->save($planned);
 
         return $planned->id()->value;
     }

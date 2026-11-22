@@ -32,9 +32,9 @@ class NotingToolsApiTest extends ApiTestCase
 
         $noted = $this->callWithoutHandshake('log-contact-exchange', ['id' => $contact] + self::AN_EMAIL);
 
-        $this->assertSame('noted', $noted['structuredContent']['status']);
+        $this->assertSame('noted', self::valueAt($noted, 'structuredContent', 'status'));
         $timeline = $this->requestJson('GET', '/api/contacts/'.$contact.'/exchanges');
-        $this->assertSame([$noted['structuredContent']['exchange']['id']], array_column($timeline['items'], 'id'));
+        $this->assertSame([self::valueAt($noted, 'structuredContent', 'exchange', 'id')], array_column(self::recordsAt($timeline, 'items'), 'id'));
     }
 
     public function testAnExchangeTheAiNotesIsCreatedByAnAiInTheTimeline(): void
@@ -44,7 +44,7 @@ class NotingToolsApiTest extends ApiTestCase
         $this->callWithoutHandshake('log-contact-exchange', ['id' => $contact] + self::AN_EMAIL);
 
         $timeline = $this->requestJson('GET', '/api/contacts/'.$contact.'/exchanges');
-        $this->assertTrue($timeline['items'][0]['createdByAnAI'] ?? null);
+        $this->assertTrue(self::valueAt($timeline, 'items', 0, 'createdByAnAI'));
     }
 
     public function testAnExchangeTheAiNotesIsCreatedByAnAiInItsDetail(): void
@@ -53,8 +53,8 @@ class NotingToolsApiTest extends ApiTestCase
 
         $noted = $this->callWithoutHandshake('log-contact-exchange', ['id' => $contact] + self::AN_EMAIL);
 
-        $this->assertTrue($noted['structuredContent']['exchange']['createdByAnAI'] ?? null);
-        $this->assertTrue($this->requestJson('GET', '/api/exchanges/'.$noted['structuredContent']['exchange']['id'])['createdByAnAI'] ?? null);
+        $this->assertTrue(self::valueAt($noted, 'structuredContent', 'exchange', 'createdByAnAI'));
+        $this->assertTrue(self::valueAt($this->requestJson('GET', '/api/exchanges/'.self::stringAt($noted, 'structuredContent', 'exchange', 'id')), 'createdByAnAI'));
     }
 
     public function testAnExchangeTheAiNotesWithAnOrganizationIsCreatedByAnAi(): void
@@ -63,7 +63,7 @@ class NotingToolsApiTest extends ApiTestCase
 
         $noted = $this->callWithoutHandshake('log-organization-exchange', ['id' => $organization, 'channel' => 'call', 'direction' => 'inbound']);
 
-        $this->assertTrue($noted['structuredContent']['exchange']['createdByAnAI'] ?? null);
+        $this->assertTrue(self::valueAt($noted, 'structuredContent', 'exchange', 'createdByAnAI'));
     }
 
     public function testAnEMailNotedAgainIsAnsweredTheExchangeNotedFirstWithoutError(): void
@@ -74,23 +74,23 @@ class NotingToolsApiTest extends ApiTestCase
         $again = $this->callWithoutHandshake('log-contact-exchange', ['id' => $contact, 'messageId' => '<ABC@acme.fr>'] + self::AN_EMAIL);
 
         $this->assertFalse($again['isError'] ?? false);
-        $this->assertSame('alreadyNoted', $again['structuredContent']['status']);
-        $this->assertSame($first['structuredContent']['exchange']['id'], $again['structuredContent']['exchange']['id']);
-        $this->assertCount(1, $this->requestJson('GET', '/api/contacts/'.$contact.'/exchanges')['items']);
+        $this->assertSame('alreadyNoted', self::valueAt($again, 'structuredContent', 'status'));
+        $this->assertSame(self::valueAt($first, 'structuredContent', 'exchange', 'id'), self::valueAt($again, 'structuredContent', 'exchange', 'id'));
+        $this->assertCount(1, self::arrayAt($this->requestJson('GET', '/api/contacts/'.$contact.'/exchanges'), 'items'));
     }
 
     public function testAnEMailErasedIsAnsweredWhoErasedItWithoutError(): void
     {
         $contact = $this->aContactOf($this->anOrganization('ACME'));
         $first = $this->callWithoutHandshake('log-contact-exchange', ['id' => $contact] + self::AN_EMAIL);
-        $this->requestJson('DELETE', '/api/exchanges/'.$first['structuredContent']['exchange']['id']);
+        $this->requestJson('DELETE', '/api/exchanges/'.self::stringAt($first, 'structuredContent', 'exchange', 'id'));
 
         $again = $this->callWithoutHandshake('log-contact-exchange', ['id' => $contact] + self::AN_EMAIL);
 
         $this->assertFalse($again['isError'] ?? false);
-        $this->assertSame('erasedBefore', $again['structuredContent']['status']);
-        $this->assertSame(['firstName' => 'Camille', 'lastName' => 'Martin'], $again['structuredContent']['erasedBy']['name']);
-        $this->assertSame('2026-10-15T09:00:00+00:00', $again['structuredContent']['erasedAt']);
+        $this->assertSame('erasedBefore', self::valueAt($again, 'structuredContent', 'status'));
+        $this->assertSame(['firstName' => 'Camille', 'lastName' => 'Martin'], self::valueAt($again, 'structuredContent', 'erasedBy', 'name'));
+        $this->assertSame('2026-10-15T09:00:00+00:00', self::valueAt($again, 'structuredContent', 'erasedAt'));
         $this->assertSame([], $this->requestJson('GET', '/api/contacts/'.$contact.'/exchanges')['items']);
     }
 
@@ -107,7 +107,7 @@ class NotingToolsApiTest extends ApiTestCase
             $refusal = $this->callWithoutHandshake('log-contact-exchange', ['id' => $contact] + self::AN_EMAIL);
 
             $this->assertTrue($refusal['isError'] ?? false, $member);
-            $this->assertSame($problem, json_decode($refusal['content'][0]['text'], true, flags: JSON_THROW_ON_ERROR), $member);
+            $this->assertSame($problem, $this->answerOf($refusal), $member);
         }
     }
 
@@ -118,7 +118,7 @@ class NotingToolsApiTest extends ApiTestCase
 
         $noted = $this->callWithoutHandshake('log-contact-exchange', ['id' => $contact] + self::AN_EMAIL);
 
-        $this->assertSame('noted', $noted['structuredContent']['status']);
+        $this->assertSame('noted', self::valueAt($noted, 'structuredContent', 'status'));
     }
 
     public function testAMessageWithAnOrganizationItselfNotedAgainIsAnsweredTheExchangeNotedFirst(): void
@@ -129,8 +129,8 @@ class NotingToolsApiTest extends ApiTestCase
 
         $again = $this->callWithoutHandshake('log-organization-exchange', ['text' => 'bonjour !'] + $message);
 
-        $this->assertSame('alreadyNoted', $again['structuredContent']['status']);
-        $this->assertSame($first['structuredContent']['exchange']['id'], $again['structuredContent']['exchange']['id']);
+        $this->assertSame('alreadyNoted', self::valueAt($again, 'structuredContent', 'status'));
+        $this->assertSame(self::valueAt($first, 'structuredContent', 'exchange', 'id'), self::valueAt($again, 'structuredContent', 'exchange', 'id'));
     }
 
     public function testAMemberRefusedTheEndpointOfAnOrganizationIsRefusedItsToolAlike(): void
@@ -146,7 +146,7 @@ class NotingToolsApiTest extends ApiTestCase
             $refusal = $this->callWithoutHandshake('log-organization-exchange', ['id' => $organization, 'channel' => 'call', 'direction' => 'inbound']);
 
             $this->assertTrue($refusal['isError'] ?? false, $member);
-            $this->assertSame($problem, json_decode($refusal['content'][0]['text'], true, flags: JSON_THROW_ON_ERROR), $member);
+            $this->assertSame($problem, $this->answerOf($refusal), $member);
         }
     }
 
@@ -157,16 +157,16 @@ class NotingToolsApiTest extends ApiTestCase
 
         $noted = $this->callWithoutHandshake('log-organization-exchange', ['id' => $organization, 'channel' => 'call', 'direction' => 'inbound']);
 
-        $this->assertSame('noted', $noted['structuredContent']['status']);
+        $this->assertSame('noted', self::valueAt($noted, 'structuredContent', 'status'));
     }
 
     private function aContactOf(string $organization): string
     {
-        return $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada'], 'organizationIds' => [$organization]])['id'];
+        return self::stringAt($this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada'], 'organizationIds' => [$organization]]), 'id');
     }
 
     private function anOrganization(string $name): string
     {
-        return $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => $name]])['id'];
+        return self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => $name]]), 'id');
     }
 }
