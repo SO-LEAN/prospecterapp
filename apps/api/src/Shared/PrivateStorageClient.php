@@ -25,14 +25,14 @@ final readonly class PrivateStorageClient implements PrivateStorage, UploadForms
     {
         $upload = $this->entry->send('POST', '/uploads')->toArray();
 
-        return new UploadResource($upload['upload'], $upload['url'], $upload['fields'], $upload['heaviest']);
+        return new UploadResource(Typed::string($upload['upload']), Typed::string($upload['url']), Typed::namedStrings($upload['fields']), Typed::int($upload['heaviest']));
     }
 
     public function uploaded(string $upload): Upload
     {
         $uploaded = $this->ofAnUpload($upload, $this->entry->send('GET', '/uploads/'.$this->nameOf($upload)))->toArray();
 
-        return new Upload($uploaded['size'], $uploaded['mediaType']);
+        return new Upload(Typed::int($uploaded['size']), Typed::string($uploaded['mediaType']));
     }
 
     public function keep(string $upload): void
@@ -47,7 +47,7 @@ final readonly class PrivateStorageClient implements PrivateStorage, UploadForms
 
     public function downloadLinkOf(string $file, string $name): string
     {
-        return $this->entry->send('GET', sprintf('/private-files/%s/download-link?%s', $file, http_build_query(['name' => $name])))->toArray()['url'];
+        return Typed::string($this->entry->send('GET', sprintf('/private-files/%s/download-link?%s', $file, http_build_query(['name' => $name])))->toArray()['url'] ?? null);
     }
 
     /**

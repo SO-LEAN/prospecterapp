@@ -32,7 +32,7 @@ final readonly class SigV4StorageAuthentication implements StorageAuthentication
     {
         $signed = new SignatureV4(self::FUNCTION_URL_SERVICE, $this->region)->signRequest(new Request($method, $url, $headers, $body), $this->roleCredentials());
 
-        return array_map(static fn (array $values): string => implode(', ', $values), $signed->getHeaders());
+        return Typed::namedStrings(array_map(static fn (array $values): string => implode(', ', $values), $signed->getHeaders()));
     }
 
     private function roleCredentials(): Credentials

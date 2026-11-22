@@ -34,27 +34,37 @@ final readonly class GeoplateformeGeoLocation implements GeoLocation
     {
         $bestMatch = $this->bestMatch($address);
 
-        if (null === $bestMatch || ($bestMatch['properties']['score'] ?? 0) < self::MIN_SCORE || !isset($bestMatch['properties']['citycode'])) {
+        if (null === $bestMatch) {
             return null;
         }
 
-        [$longitude, $latitude] = $bestMatch['geometry']['coordinates'];
+        $properties = Typed::document($bestMatch['properties'] ?? []);
 
-        return new Location(new GeoPoint((float) $longitude, (float) $latitude), $bestMatch['properties']['citycode']);
+        if (Typed::float($properties['score'] ?? 0) < self::MIN_SCORE || !isset($properties['citycode'])) {
+            return null;
+        }
+
+        [$longitude, $latitude] = Typed::array(Typed::document($bestMatch['geometry'] ?? null)['coordinates'] ?? null);
+
+        return new Location(new GeoPoint(Typed::float($longitude), Typed::float($latitude)), Typed::string($properties['citycode']));
     }
 
     /**
-     * @return array{geometry: array{coordinates: array{float, float}}, properties: array{score?: float, citycode?: string}}|null
+     * @return array<string, mixed>|null the first feature the service answers, its geometry and its properties
      */
     private function bestMatch(string $address): ?array
     {
         try {
-            return $this->httpClient->request('GET', $this->searchUrl, [
+            $features = $this->httpClient->request('GET', $this->searchUrl, [
                 'query' => ['q' => $address, 'limit' => 1],
                 'timeout' => 5,
-            ])->toArray()['features'][0] ?? null;
+            ])->toArray()['features'] ?? [];
         } catch (ExceptionInterface) {
             return null;
         }
+
+        $first = Typed::array($features)[0] ?? null;
+
+        return null === $first ? null : Typed::document($first);
     }
 }
