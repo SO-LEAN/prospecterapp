@@ -7,6 +7,7 @@ namespace Tests\App\Shared;
 use App\Shared\StorageClient;
 use App\Shared\StorageEntry;
 use App\Shared\TokenOnlyStorageAuthentication;
+use App\Shared\Typed;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpClient\MockHttpClient;
@@ -58,12 +59,12 @@ class StorageClientTest extends TestCase
     private static function bodyOf(mixed $body): string
     {
         if (!$body instanceof \Closure) {
-            return (string) $body;
+            return Typed::string($body);
         }
 
         $read = '';
         while ('' !== $chunk = $body(8192)) {
-            $read .= $chunk;
+            $read .= Typed::string($chunk);
         }
 
         return $read;

@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\App\Shared\Messaging;
 
+use App\Shared\DependencyInjection\SubscriptionsPass;
 use App\Shared\Messaging\Subscriptions;
 use App\Shared\Messaging\TransportedEvent;
+use App\Shared\Typed;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
@@ -60,7 +62,7 @@ class SubscriptionsTest extends TestCase
      */
     private function subscriptionsReactingTo(string $source, string $detailType, array $payload): array
     {
-        $declared = json_decode((string) file_get_contents(dirname(__DIR__, 3).'/config/subscriptions.json'), true, flags: \JSON_THROW_ON_ERROR);
+        $declared = SubscriptionsPass::listedIn(dirname(__DIR__, 3).SubscriptionsPass::FILE);
         $reactions = [];
 
         foreach ($declared as $name => $subscription) {
@@ -71,7 +73,7 @@ class SubscriptionsTest extends TestCase
 
         $reacting = new Subscriptions(new ServiceLocator($reactions), $declared)->reactingTo(new TransportedEvent($source, $detailType, 'an-event', '2026-11-16T09:00:00.000000Z', 'a-correlation', null, 0, $payload));
 
-        return array_map(static fn (EventHandler $reaction): string => property_exists($reaction, 'name') ? $reaction->name : '', $reacting);
+        return array_map(static fn (EventHandler $reaction): string => property_exists($reaction, 'name') ? Typed::string($reaction->name) : '', $reacting);
     }
 
     /**

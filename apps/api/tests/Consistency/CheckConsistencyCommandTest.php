@@ -6,6 +6,7 @@ namespace Tests\App\Consistency;
 
 use App\Demo\DemoData;
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\Accounts\Domain\Model\Account;
 use Prospecter\Core\Accounts\Domain\Repository\AccountRepository;
 use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
@@ -74,7 +75,7 @@ class CheckConsistencyCommandTest extends ApiTestCase
         parent::setUp();
         $this->rebuildTheFigures();
         $this->rebuildTheTags();
-        $this->tester = new CommandTester(new Application(self::$kernel)->find('app:consistency:check'));
+        $this->tester = new CommandTester(new Application(self::$kernel ?? self::bootKernel())->find('app:consistency:check'));
     }
 
     public function testConsistentDataShowNoDiscrepancy(): void
@@ -108,7 +109,7 @@ class CheckConsistencyCommandTest extends ApiTestCase
     public function testACollectedContactNotAttachedToItsOrganizationsIsShown(): void
     {
         $babbage = $this->babbage();
-        $this->prospectingTable()->batch([['organization' => ['contacts' => []] + $babbage['organization']] + $babbage]);
+        $this->prospectingTable()->batch([['organization' => ['contacts' => []] + Typed::document($babbage['organization'])] + $babbage]);
 
         $this->assertDiscrepancy(DemoData::SOLEAN_IT, $this->ada(), 'contact attached to no organization', 'app:integration:redrive');
     }
@@ -140,12 +141,12 @@ class CheckConsistencyCommandTest extends ApiTestCase
         $ada = $this->ada();
         $this->personalDataTable()->batch([], [['PERSON#'.$ada, 'PERSON']]);
 
-        $this->assertDiscrepancy(DemoData::SOLEAN_IT, $ada, 'forgotten contact still attached to '.$this->babbage()['organization']['id'], 'app:integration:redrive');
+        $this->assertDiscrepancy(DemoData::SOLEAN_IT, $ada, 'forgotten contact still attached to '.$this->babbageId(), 'app:integration:redrive');
     }
 
     public function testAMemberWithoutProfileIsShown(): void
     {
-        $profile = $this->accountsTable()->item('MEMBER#'.DemoData::NEWCOMER, 'MEMBER')['member']['personId'];
+        $profile = Typed::string(Typed::document(self::storedItem($this->accountsTable(), 'MEMBER#'.DemoData::NEWCOMER, 'MEMBER')['member'])['personId']);
         $this->personalDataTable()->batch([], [['PERSON#'.$profile, 'PERSON']]);
 
         $this->assertDiscrepancy(DemoData::SOLEAN_IT, DemoData::NEWCOMER, 'member without their profile '.$profile, 'app:integration:redrive');
@@ -160,7 +161,7 @@ class CheckConsistencyCommandTest extends ApiTestCase
 
     public function testAnExchangeKeptForAnOrganizationNoLongerProspectedIsShown(): void
     {
-        $babbage = $this->babbage()['organization']['id'];
+        $babbage = $this->babbageId();
         $this->prospectingTable()->batch([], [['ORGANIZATION#'.$babbage, 'ORGANIZATION']]);
 
         $this->assertDiscrepancy(DemoData::SOLEAN_IT, $this->anExchange(), 'exchange kept for '.$babbage.', no longer prospected', 'app:integration:redrive');
@@ -207,14 +208,14 @@ class CheckConsistencyCommandTest extends ApiTestCase
 
     public function testTheTagsOfWhatTheAccountKeepsAreNoDiscrepancy(): void
     {
-        $this->campaignsTable()->batch([$this->taggingItem('organization', $this->babbage()['organization']['id']), $this->taggingItem('contact', $this->ada())]);
+        $this->campaignsTable()->batch([$this->taggingItem('organization', $this->babbageId()), $this->taggingItem('contact', $this->ada())]);
 
         $this->assertSame(Command::SUCCESS, $this->tester->execute([]));
     }
 
     public function testAnOrganizationWhoseContactsCampaignsKeepsOutOfDateIsShown(): void
     {
-        $babbage = $this->babbage()['organization']['id'];
+        $babbage = $this->babbageId();
         $this->campaignsTable()->batch([$this->organizationFactItem($babbage, [])]);
 
         $this->assertDiscrepancy(DemoData::SOLEAN_IT, $babbage, 'contacts of the organization out of date in Campaigns', 'app:tags:rebuild --account=<account>');
@@ -222,10 +223,10 @@ class CheckConsistencyCommandTest extends ApiTestCase
 
     public function testAnOrganizationWhoseLocalityCampaignsKeepsOutOfDateIsShown(): void
     {
-        $babbage = $this->babbage()['organization'];
-        $this->campaignsTable()->batch([$this->organizationFactItem($babbage['id'], $babbage['contacts'], null)]);
+        $babbage = Typed::document($this->babbage()['organization']);
+        $this->campaignsTable()->batch([$this->organizationFactItem(Typed::string($babbage['id']), Typed::strings($babbage['contacts']), null)]);
 
-        $this->assertDiscrepancy(DemoData::SOLEAN_IT, $babbage['id'], 'locality of the organization out of date in Campaigns', 'app:tags:rebuild --account=<account>');
+        $this->assertDiscrepancy(DemoData::SOLEAN_IT, Typed::string($babbage['id']), 'locality of the organization out of date in Campaigns', 'app:tags:rebuild --account=<account>');
     }
 
     public function testAContactWhoseReachCampaignsLacksIsShown(): void
@@ -254,7 +255,7 @@ class CheckConsistencyCommandTest extends ApiTestCase
 
     public function testAnAccountOutOfTheListOfTheAccountsIsShown(): void
     {
-        $soleanIt = $this->accountsTable()->item('ACCOUNT#'.DemoData::SOLEAN_IT, 'ACCOUNT');
+        $soleanIt = self::storedItem($this->accountsTable(), 'ACCOUNT#'.DemoData::SOLEAN_IT, 'ACCOUNT');
         unset($soleanIt['GSI1PK'], $soleanIt['GSI1SK']);
         $this->accountsTable()->batch([$soleanIt]);
 
@@ -264,8 +265,8 @@ class CheckConsistencyCommandTest extends ApiTestCase
     public function testOnlyTheExchangesThatTookPlaceAreCounted(): void
     {
         $exchanges = $this->prospectingTable()->query('ACCOUNT_EXCHANGES#'.DemoData::SOLEAN_IT, Table::BY_GSI2);
-        $exchanges[0]['exchange']['status'] = 'planned';
-        $exchanges[1]['exchange']['status'] = 'cancelled';
+        $exchanges[0]['exchange'] = ['status' => 'planned'] + Typed::document($exchanges[0]['exchange']);
+        $exchanges[1]['exchange'] = ['status' => 'cancelled'] + Typed::document($exchanges[1]['exchange']);
         $this->prospectingTable()->batch($exchanges);
         $this->rebuildTheFigures();
 
@@ -275,7 +276,7 @@ class CheckConsistencyCommandTest extends ApiTestCase
     public function testAnExchangeOutOfTheListOfItsAccountIsShown(): void
     {
         $exchange = $this->anExchange();
-        $item = $this->prospectingTable()->item('EXCHANGE#'.$exchange, 'EXCHANGE');
+        $item = self::storedItem($this->prospectingTable(), 'EXCHANGE#'.$exchange, 'EXCHANGE');
         unset($item['GSI2PK'], $item['GSI2SK']);
         $this->prospectingTable()->batch([$item]);
 
@@ -353,7 +354,7 @@ class CheckConsistencyCommandTest extends ApiTestCase
     {
         $this->assertSame(Command::FAILURE, $this->tester->execute([]));
 
-        $display = preg_replace('/\s+/', ' ', $this->tester->getDisplay());
+        $display = (string) preg_replace('/\s+/', ' ', $this->tester->getDisplay());
         $this->assertMatchesRegularExpression(sprintf('/%s %s %s .*%s/', preg_quote($account, '/'), preg_quote($concerns, '/'), preg_quote($discrepancy, '/'), preg_quote($correction, '/')), $display);
     }
 
@@ -368,7 +369,7 @@ class CheckConsistencyCommandTest extends ApiTestCase
             $grace->changeContactDetails(new ContactDetails(), ExternalReferences::designating([$profile], Designated::Person), by: new Reader(new MemberId(DemoData::PROSPECTOR), new AccountId(DemoData::SOLEAN_IT), $grace->id(), false), at: new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         }
         $this->personalDataTable()->batch([], [[sprintf('REFERENCE#%s#linkedInProfile#ada-lovelace', DemoData::SOLEAN_IT), 'REFERENCE']]);
-        self::getContainer()->get(PersonRepository::class)->save($grace);
+        self::service(PersonRepository::class)->save($grace);
 
         return $grace->id()->value;
     }
@@ -379,10 +380,10 @@ class CheckConsistencyCommandTest extends ApiTestCase
         $account = new AccountId(DemoData::SOLEAN_IT);
         $met = new \DateTimeImmutable($moment);
         $person = Person::collectToAttach(new Reader($member, $account, new PersonId(self::newIdentity()), true), new PersonId(self::newIdentity()), new ContactCard(new PersonName('Grace', 'Hopper'), new ContactDetails()), $met);
-        self::getContainer()->get(PersonRepository::class)->save($person);
-        self::getContainer()->get(ContactToAttachRepository::class)->save(ContactToAttach::metBy(new Prospector($member, $account, managesPersonalData: true), $person->id(), $met, $met));
+        self::service(PersonRepository::class)->save($person);
+        self::service(ContactToAttachRepository::class)->save(ContactToAttach::metBy(new Prospector($member, $account, managesPersonalData: true), $person->id(), $met, $met));
         $meeting = Exchange::noted(new Gesture($account, $member, $met), new ExchangeId(self::newIdentity()), new ContactCorrespondent($person->id(), []), Noting::of(new ExchangeFacts(Channel::VideoCall, Direction::Outbound, $met), ExchangeStatus::Done));
-        self::getContainer()->get(ExchangeRepository::class)->save($meeting);
+        self::service(ExchangeRepository::class)->save($meeting);
 
         return $person->id()->value;
     }
@@ -391,14 +392,14 @@ class CheckConsistencyCommandTest extends ApiTestCase
     {
         $grant = new Grant(new Email('prospector@exemple.fr'), new RefreshToken('a-refresh-token'), Scope::Calendar);
         $connection = Connection::establish(new Gesture(new AccountId(DemoData::SOLEAN_IT), new MemberId(DemoData::PROSPECTOR), new \DateTimeImmutable('2026-10-14 09:00 UTC')), new ClientCredentials(Provider::Google, 'client-of-the-double', 'secret-of-the-double'), $grant);
-        self::getContainer()->get(ConnectionRepository::class)->save($connection);
+        self::service(ConnectionRepository::class)->save($connection);
     }
 
     private function anExchangePlannedByTheProspectorOn(string $moment): string
     {
-        $babbage = self::getContainer()->get(OrganizationRepository::class)->get(new OrganizationId($this->babbage()['organization']['id']));
+        $babbage = self::service(OrganizationRepository::class)->get(new OrganizationId($this->babbageId()));
         $planned = Exchange::planned(new Gesture($babbage->accountId(), new MemberId(DemoData::PROSPECTOR), new \DateTimeImmutable('2026-10-13 09:00 UTC')), new ExchangeId(self::newIdentity()), new OrganizationCorrespondent($babbage->id()), ExchangeFacts::planned(Channel::Call, new \DateTimeImmutable($moment), Duration::inMinutes(null), null));
-        self::getContainer()->get(ExchangeRepository::class)->save($planned);
+        self::service(ExchangeRepository::class)->save($planned);
 
         return $planned->id()->value;
     }
@@ -424,7 +425,7 @@ class CheckConsistencyCommandTest extends ApiTestCase
     private function startedCampaignItem(string $id, string $erased, array $recipient = ['status' => 'erased']): array
     {
         $item = $this->frozenCampaignItem($id, $erased);
-        $item['campaign'] = [...$item['campaign'], 'status' => 'started', 'recipients' => [['contactId' => $erased, ...$recipient]], 'startedAt' => '2026-10-15T09:00:00.000000Z'];
+        $item['campaign'] = [...Typed::document($item['campaign']), 'status' => 'started', 'recipients' => [['contactId' => $erased, ...$recipient]], 'startedAt' => '2026-10-15T09:00:00.000000Z'];
 
         return $item;
     }
@@ -449,14 +450,14 @@ class CheckConsistencyCommandTest extends ApiTestCase
 
     private function rebuildTheFigures(): void
     {
-        $tester = new CommandTester(new Application(self::$kernel)->find('app:reporting:rebuild'));
+        $tester = new CommandTester(new Application(self::$kernel ?? self::bootKernel())->find('app:reporting:rebuild'));
         $tester->execute([]);
         $tester->assertCommandIsSuccessful();
     }
 
     private function rebuildTheTags(): void
     {
-        $tester = new CommandTester(new Application(self::$kernel)->find('app:tags:rebuild'));
+        $tester = new CommandTester(new Application(self::$kernel ?? self::bootKernel())->find('app:tags:rebuild'));
         $tester->execute([]);
         $tester->assertCommandIsSuccessful();
     }
@@ -464,9 +465,14 @@ class CheckConsistencyCommandTest extends ApiTestCase
     private function anAccountWithoutMember(): string
     {
         $initech = self::newIdentity();
-        self::getContainer()->get(AccountRepository::class)->save(Account::open(new AccountId($initech), new LegalIdentity('Initech', 'SAS'), new \DateTimeImmutable('2026-10-14 09:00')));
+        self::service(AccountRepository::class)->save(Account::open(new AccountId($initech), new LegalIdentity('Initech', 'SAS'), new \DateTimeImmutable('2026-10-14 09:00')));
 
         return $initech;
+    }
+
+    private function babbageId(): string
+    {
+        return Typed::string(Typed::document($this->babbage()['organization'])['id']);
     }
 
     /**
@@ -479,17 +485,17 @@ class CheckConsistencyCommandTest extends ApiTestCase
 
     private function ada(): string
     {
-        return $this->personalDataTable()->query('ACCOUNT#'.DemoData::SOLEAN_IT.'#prospecting', Table::BY_GSI1)[0]['person']['id'];
+        return Typed::string(Typed::document($this->personalDataTable()->query('ACCOUNT#'.DemoData::SOLEAN_IT.'#prospecting', Table::BY_GSI1)[0]['person'])['id']);
     }
 
     private function anExchange(): string
     {
-        return $this->prospectingTable()->query('ACCOUNT_EXCHANGES#'.DemoData::SOLEAN_IT, Table::BY_GSI2)[0]['exchange']['id'];
+        return Typed::string(Typed::document($this->prospectingTable()->query('ACCOUNT_EXCHANGES#'.DemoData::SOLEAN_IT, Table::BY_GSI2)[0]['exchange'])['id']);
     }
 
     private function queue(): InMemorySqs
     {
-        return self::getContainer()->get(InMemorySqs::class);
+        return self::service(InMemorySqs::class);
     }
 
     /**
@@ -534,9 +540,6 @@ class CheckConsistencyCommandTest extends ApiTestCase
 
     private function table(string $context): Table
     {
-        $table = self::getContainer()->get('app.table.'.$context);
-        $this->assertInstanceOf(Table::class, $table);
-
-        return $table;
+        return self::tableOf($context);
     }
 }

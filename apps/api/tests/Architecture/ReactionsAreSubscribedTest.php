@@ -119,7 +119,7 @@ class ReactionsAreSubscribedTest extends TestCase
      */
     private function subscriptions(): array
     {
-        return json_decode((string) file_get_contents(dirname(__DIR__, 2).'/config/subscriptions.json'), true, flags: \JSON_THROW_ON_ERROR);
+        return SubscriptionsPass::listedIn(dirname(__DIR__, 2).SubscriptionsPass::FILE);
     }
 
     /**

@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Tests\App\Architecture;
 
 use App\Shared\Mcp\Adapts;
+use App\Shared\Typed;
 use Mcp\Server\Capability\Attribute\McpPrompt;
 use Mcp\Server\Capability\Attribute\McpTool;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
@@ -37,7 +39,7 @@ class McpNamesTest extends KernelTestCase
 
     public function testEveryToolOfAReadingIsNamedByAReadingVerb(): void
     {
-        $routes = self::getContainer()->get(RouterInterface::class)->getRouteCollection();
+        $routes = self::routes();
         $readings = array_filter($this->toolsByRoute(), static fn (string $route): bool => ['GET'] === $routes->get($route)?->getMethods(), ARRAY_FILTER_USE_KEY);
 
         $this->assertSame([], array_values(array_filter($readings, static fn (string $name): bool => !in_array(self::verbOf($name), self::READING_VERBS, true))), 'Tools of a reading not named by get, list or search');
@@ -104,6 +106,11 @@ class McpNamesTest extends KernelTestCase
         return $class->getMethod('__invoke')->getAttributes($attribute)[0]->newInstance();
     }
 
+    private static function routes(): RouteCollection
+    {
+        return Typed::object(self::getContainer()->get(RouterInterface::class), RouterInterface::class)->getRouteCollection();
+    }
+
     /**
      * @param class-string $attribute
      *
@@ -111,10 +118,11 @@ class McpNamesTest extends KernelTestCase
      */
     private function classesOf(string $suffix, string $attribute): array
     {
-        $source = self::$kernel->getProjectDir().'/src/';
+        $source = (self::$kernel ?? self::bootKernel())->getProjectDir().'/src/';
         $classes = [];
         foreach (glob($source.'*/Mcp/*'.$suffix.'.php') ?: [] as $file) {
-            $class = new \ReflectionClass('App\\'.str_replace(['/', '.php'], ['\\', ''], substr($file, strlen($source))));
+            $name = 'App\\'.str_replace(['/', '.php'], ['\\', ''], substr($file, strlen($source)));
+            $class = class_exists($name) ? new \ReflectionClass($name) : throw new \LogicException(sprintf('No class in %s', $file));
             if ([] !== $class->getMethod('__invoke')->getAttributes($attribute)) {
                 $classes[] = $class;
             }

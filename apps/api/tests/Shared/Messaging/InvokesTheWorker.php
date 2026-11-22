@@ -6,6 +6,7 @@ namespace Tests\App\Shared\Messaging;
 
 use App\Shared\Messaging\Cause;
 use App\Shared\Messaging\EventCodec;
+use App\Shared\Typed;
 use Tests\App\Double\FailingReaction;
 use Tests\App\Double\InMemorySqs;
 
@@ -26,10 +27,10 @@ trait InvokesTheWorker
      */
     private function invocationOf(string $subscription, object $event, int $depth = 0): array
     {
-        $transported = self::getContainer()->get(EventCodec::class)->encode($event, new Cause(self::CORRELATION, self::CAUSE, $depth));
-        $carried = json_decode(json_encode($transported->toEventBridge(), \JSON_THROW_ON_ERROR), true, flags: \JSON_THROW_ON_ERROR);
+        $transported = self::service(EventCodec::class)->encode($event, new Cause(self::CORRELATION, self::CAUSE, $depth));
+        $carried = Typed::document(json_decode(json_encode($transported->toEventBridge(), \JSON_THROW_ON_ERROR), true, flags: \JSON_THROW_ON_ERROR));
 
-        return ['subscription' => $subscription, 'source' => $carried['source'], 'detailType' => $carried['detail-type'], 'detail' => $carried['detail']];
+        return ['subscription' => $subscription, 'source' => Typed::string($carried['source']), 'detailType' => Typed::string($carried['detail-type']), 'detail' => Typed::document($carried['detail'])];
     }
 
     /**
@@ -37,7 +38,7 @@ trait InvokesTheWorker
      */
     private function inboxOf(string $table, string $subscription): array
     {
-        return self::getContainer()->get('app.table.'.$table)->query('INBOX#'.$subscription);
+        return self::tableOf($table)->query('INBOX#'.$subscription);
     }
 
     /**
@@ -45,11 +46,11 @@ trait InvokesTheWorker
      */
     private function failures(): array
     {
-        return self::getContainer()->get(InMemorySqs::class)->messagesOf(self::FAILURES);
+        return self::service(InMemorySqs::class)->messagesOf(self::FAILURES);
     }
 
     private function reaction(): FailingReaction
     {
-        return self::getContainer()->get(FailingReaction::class);
+        return self::service(FailingReaction::class);
     }
 }

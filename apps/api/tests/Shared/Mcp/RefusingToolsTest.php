@@ -8,6 +8,7 @@ use App\Security\AccessProblems;
 use App\Shared\Mcp\RefusingTools;
 use App\Shared\RefusalProblems;
 use App\Shared\ServiceUnavailable;
+use App\Shared\Typed;
 use App\Shared\UnavailabilityProblems;
 use Mcp\Server\Capability\Registry\ElementReference;
 use Mcp\Server\Capability\Registry\ReferenceHandlerInterface;
@@ -34,7 +35,7 @@ class RefusingToolsTest extends TestCase
             $this->tools(ServiceUnavailable::privateFiles($cause), $logger)->handle(new ElementReference(static fn (): null => null), []);
             $this->fail('The tool answered');
         } catch (ToolCallException) {
-            $this->assertSame([[LogLevel::ERROR, $cause]], array_map(static fn (array $record): array => [$record['level'], $record['context']['exception']->getPrevious()], $logger->records));
+            $this->assertSame([[LogLevel::ERROR, $cause]], array_map(static fn (array $record): array => [$record['level'], Typed::object($record['context']['exception'], \Throwable::class)->getPrevious()], $logger->records));
         }
     }
 

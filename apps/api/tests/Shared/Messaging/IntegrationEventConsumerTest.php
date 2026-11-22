@@ -10,6 +10,7 @@ use App\Shared\Messaging\IntegrationEventConsumer;
 use App\Shared\Messaging\IntegrationFailures;
 use App\Shared\Messaging\UnknownSubscription;
 use App\Shared\Persistence\ConditionFailed;
+use App\Shared\Typed;
 use Aws\Command;
 use Aws\DynamoDb\Exception\DynamoDbException;
 use Bref\Context\Context;
@@ -51,8 +52,8 @@ class IntegrationEventConsumerTest extends ApiTestCase
     {
         parent::setUp();
         $this->login();
-        $this->organization = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];
-        $this->contact = $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada'], 'organizationIds' => [$this->organization]])['id'];
+        $this->organization = Typed::string($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id']);
+        $this->contact = Typed::string($this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada'], 'organizationIds' => [$this->organization]])['id']);
         $this->requestJson('POST', '/api/contacts/'.$this->contact.'/exchanges', ['channel' => 'call', 'direction' => 'inbound', 'occurredAt' => '2026-10-10T09:00:00+00:00']);
         $this->deliverThroughTheOutbox();
     }
@@ -71,11 +72,11 @@ class IntegrationEventConsumerTest extends ApiTestCase
 
         $items = $this->outboxOf('prospecting');
         $this->assertCount(1, $items);
-        $events = json_decode($items[0]['events'], true, flags: \JSON_THROW_ON_ERROR);
+        $events = Typed::documents(json_decode(Typed::string($items[0]['events']), true, flags: \JSON_THROW_ON_ERROR));
         $this->assertContains('ExchangeLeftWithoutOrganization.v1', array_column($events, 'detailType'));
-        $this->assertSame([[3, self::CORRELATION]], array_values(array_unique(array_map(static fn (array $event): array => [$event['detail']['depth'], $event['detail']['correlationId']], $events), \SORT_REGULAR)));
+        $this->assertSame([[3, self::CORRELATION]], array_values(array_unique(array_map(static fn (array $event): array => [Typed::document($event['detail'])['depth'], Typed::document($event['detail'])['correlationId']], $events), \SORT_REGULAR)));
         $published = array_filter($events, static fn (array $event): bool => 'prospecter.prospecting.internal' === $event['source']);
-        $this->assertSame([$invocation['detail']['eventId']], array_values(array_unique(array_map(static fn (array $event): string => $event['detail']['causationId'], $published))));
+        $this->assertSame([$invocation['detail']['eventId']], array_values(array_unique(array_map(static fn (array $event): string => Typed::string(Typed::document($event['detail'])['causationId']), $published))));
     }
 
     public function testAnEventDeliveredTwiceIsAppliedOnce(): void
@@ -121,8 +122,8 @@ class IntegrationEventConsumerTest extends ApiTestCase
         $failures = $this->failures();
         $this->assertCount(1, $failures);
         $this->assertSame($invocation, $failures[0]['requestPayload']);
-        $this->assertSame(IntegrationFailures::REFUSED, $failures[0]['requestContext']['condition']);
-        $this->assertSame('Refused by the reaction', $failures[0]['responsePayload']['errorMessage']);
+        $this->assertSame(IntegrationFailures::REFUSED, Typed::document($failures[0]['requestContext'])['condition']);
+        $this->assertSame('Refused by the reaction', Typed::document($failures[0]['responsePayload'])['errorMessage']);
         $this->assertSame([], $this->inboxOf('prospecting', 'prospecting-failing-reaction'));
     }
 
@@ -133,7 +134,7 @@ class IntegrationEventConsumerTest extends ApiTestCase
 
         $this->consume($invocation);
 
-        $logged = array_values(array_filter(self::getContainer()->get(InMemoryLogger::class)->records, static fn (array $record): bool => LogLevel::ERROR === $record['level']));
+        $logged = array_values(array_filter(self::service(InMemoryLogger::class)->records, static fn (array $record): bool => LogLevel::ERROR === $record['level']));
         $this->assertCount(1, $logged);
         $this->assertSame(
             ['subscription' => 'prospecting-failing-reaction', 'eventId' => $invocation['detail']['eventId'], 'correlationId' => self::CORRELATION, 'reason' => 'notPossibleInItsState', 'field' => ''],
@@ -251,7 +252,7 @@ class IntegrationEventConsumerTest extends ApiTestCase
      */
     private function consume(array $invocation): void
     {
-        self::getContainer()->get(IntegrationEventConsumer::class)->handle($invocation, Context::fake());
+        self::service(IntegrationEventConsumer::class)->handle($invocation, Context::fake());
     }
 
     /**
@@ -264,14 +265,14 @@ class IntegrationEventConsumerTest extends ApiTestCase
 
     private function rebuildTheFigures(): void
     {
-        self::getContainer()->get(RebuildFiguresHandler::class)(new RebuildFigures());
+        self::service(RebuildFiguresHandler::class)(new RebuildFigures());
     }
 
     private function figures(): FiguresResponse
     {
-        $versions = self::getContainer()->get(ProjectionVersions::class);
+        $versions = self::service(ProjectionVersions::class);
 
-        return self::getContainer()->get(FiguresRetriever::class)->of((int) $versions->active(), new AccountId(DemoData::SOLEAN_IT), Month::of(new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)));
+        return self::service(FiguresRetriever::class)->of((int) $versions->active(), new AccountId(DemoData::SOLEAN_IT), Month::of(new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)));
     }
 
     private function prospectingStopped(): ProspectingStopped

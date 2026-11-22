@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\App\Base;
 
 use App\Demo\DemoCredentials;
+use App\Shared\Typed;
 use App\SignIn\Credentials;
 use App\SignIn\UserPool;
 use Aws\CognitoIdentityProvider\CognitoIdentityProviderClient;
@@ -70,14 +71,16 @@ final class MembersOfTheDemonstration
         $loginEmails = [];
 
         foreach ($this->cognito->getPaginator('ListUsers', ['UserPoolId' => $this->pool->id(), 'Limit' => self::LIST_SIZE]) as $page) {
-            foreach ($page['Users'] ?? [] as $user) {
-                if (!array_key_exists($user['Username'], DemoCredentials::LOGIN_EMAILS)) {
-                    $this->cognito->adminDeleteUser(['UserPoolId' => $this->pool->id(), 'Username' => $user['Username']]);
+            foreach (Typed::documents($page['Users'] ?? []) as $user) {
+                $username = Typed::string($user['Username']);
+
+                if (!array_key_exists($username, DemoCredentials::LOGIN_EMAILS)) {
+                    $this->cognito->adminDeleteUser(['UserPoolId' => $this->pool->id(), 'Username' => $username]);
 
                     continue;
                 }
 
-                $loginEmails[$user['Username']] = (string) array_column($user['Attributes'] ?? [], 'Value', 'Name')['email'];
+                $loginEmails[$username] = Typed::string(array_column(Typed::documents($user['Attributes'] ?? []), 'Value', 'Name')['email']);
             }
         }
 
@@ -88,9 +91,9 @@ final class MembersOfTheDemonstration
     {
         $clients = $this->cognito->listUserPoolClients(['UserPoolId' => $this->pool->id(), 'MaxResults' => self::LIST_SIZE])['UserPoolClients'] ?? [];
 
-        foreach ($clients as $client) {
+        foreach (Typed::documents($clients) as $client) {
             if (!in_array($client['ClientName'], UserPool::CLIENT_NAMES_OF_THE_MCP_SERVER, true)) {
-                $this->cognito->deleteUserPoolClient(['UserPoolId' => $this->pool->id(), 'ClientId' => $client['ClientId']]);
+                $this->cognito->deleteUserPoolClient(['UserPoolId' => $this->pool->id(), 'ClientId' => Typed::string($client['ClientId'])]);
             }
         }
     }

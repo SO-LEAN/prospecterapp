@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Double;
 
+use App\Shared\Typed;
 use Aws\CommandInterface;
 use Aws\Result;
 use GuzzleHttp\Promise\Create;
@@ -23,7 +24,7 @@ final class InMemoryLambda
             throw new \LogicException(sprintf('The Lambda of the tests does not answer %s', $command->getName()));
         }
 
-        $this->invocations[] = ['function' => $command['FunctionName'], 'type' => $command['InvocationType'], 'payload' => json_decode($command['Payload'], true, flags: \JSON_THROW_ON_ERROR)];
+        $this->invocations[] = ['function' => Typed::string($command['FunctionName']), 'type' => Typed::string($command['InvocationType']), 'payload' => Typed::document(json_decode(Typed::string($command['Payload']), true, flags: \JSON_THROW_ON_ERROR))];
 
         return Create::promiseFor(new Result(['StatusCode' => 202]));
     }

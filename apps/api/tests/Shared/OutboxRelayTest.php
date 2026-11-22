@@ -7,6 +7,7 @@ namespace Tests\App\Shared;
 use App\Shared\Messaging\OutboxRelay;
 use App\Shared\Messaging\TransportedEvent;
 use App\Shared\Persistence\OutboxItem;
+use App\Shared\Typed;
 use Aws\DynamoDb\Marshaler;
 use Bref\Context\Context;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -27,8 +28,8 @@ class OutboxRelayTest extends KernelTestCase
 
     protected function setUp(): void
     {
-        $this->relay = self::getContainer()->get(OutboxRelay::class);
-        $this->bus = self::getContainer()->get(InMemoryEventBridge::class);
+        $this->relay = Typed::object(self::getContainer()->get(OutboxRelay::class), OutboxRelay::class);
+        $this->bus = Typed::object(self::getContainer()->get(InMemoryEventBridge::class), InMemoryEventBridge::class);
     }
 
     /**

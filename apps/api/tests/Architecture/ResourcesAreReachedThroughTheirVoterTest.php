@@ -6,6 +6,7 @@ namespace Tests\App\Architecture;
 
 use App\Exchanges\ExchangeVoter;
 use App\Prospecting\OrganizationVoter;
+use App\Shared\Typed;
 use App\ToDos\ToDoVoter;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Routing\Route;
@@ -27,7 +28,7 @@ class ResourcesAreReachedThroughTheirVoterTest extends KernelTestCase
 
     public function testEveryEndpointOfAResourceIsGrantedByItsVoter(): void
     {
-        $routes = self::getContainer()->get(RouterInterface::class)->getRouteCollection()->all();
+        $routes = Typed::object(self::getContainer()->get(RouterInterface::class), RouterInterface::class)->getRouteCollection()->all();
         $ofAResource = array_filter($routes, static fn (Route $route): bool => null !== self::voterOf($route));
 
         $this->assertNotEmpty($ofAResource);
@@ -36,7 +37,7 @@ class ResourcesAreReachedThroughTheirVoterTest extends KernelTestCase
 
     private static function isGrantedByItsVoter(Route $route): bool
     {
-        $controller = new \ReflectionMethod((string) $route->getDefault('_controller'), '__invoke');
+        $controller = new \ReflectionMethod(Typed::string($route->getDefault('_controller')), '__invoke');
         $granted = array_map(static fn (\ReflectionAttribute $attribute): mixed => $attribute->newInstance()->attribute, $controller->getAttributes(IsGranted::class));
 
         return in_array(self::voterOf($route), $granted, true);

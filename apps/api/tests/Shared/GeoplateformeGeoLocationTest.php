@@ -32,8 +32,7 @@ class GeoplateformeGeoLocationTest extends TestCase
 
     public function testAMatchWithoutItsMunicipalityIsNotFound(): void
     {
-        $collection = $this->featureCollection(0.96);
-        unset($collection['features'][0]['properties']['citycode']);
+        $collection = $this->featureCollection(0.96, cityCode: null);
 
         $this->assertNull(new GeoplateformeGeoLocation(new MockHttpClient(new JsonMockResponse($collection)), self::URL)->find('1 rue de la Paix 75002 Paris'));
     }
@@ -56,14 +55,14 @@ class GeoplateformeGeoLocationTest extends TestCase
     /**
      * @return array<string, mixed>
      */
-    private function featureCollection(float $score): array
+    private function featureCollection(float $score, ?string $cityCode = '75102'): array
     {
         return [
             'type' => 'FeatureCollection',
             'features' => [[
                 'type' => 'Feature',
                 'geometry' => ['type' => 'Point', 'coordinates' => [2.33031, 48.868546]],
-                'properties' => ['label' => '1 Rue de la Paix 75002 Paris', 'score' => $score, 'citycode' => '75102'],
+                'properties' => ['label' => '1 Rue de la Paix 75002 Paris', 'score' => $score, ...(null === $cityCode ? [] : ['citycode' => $cityCode])],
             ]],
         ];
     }

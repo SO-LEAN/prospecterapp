@@ -17,7 +17,7 @@ class RebuildKeysCommandTest extends ApiTestCase
 {
     public function testTheKeysOfEveryAggregateAreWrittenAgain(): void
     {
-        $tester = new CommandTester(new Application(self::$kernel)->find('app:keys:rebuild'));
+        $tester = new CommandTester(new Application(self::$kernel ?? self::bootKernel())->find('app:keys:rebuild'));
 
         $this->assertSame(Command::SUCCESS, $tester->execute([]));
         $this->assertMatchesRegularExpression('/Wrote the keys of \d+ organizations, \d+ persons, \d+ exchanges, \d+ accounts and \d+ to-dos\./', (string) preg_replace('/\s+/', ' ', $tester->getDisplay()));
@@ -26,6 +26,6 @@ class RebuildKeysCommandTest extends ApiTestCase
 
     public function testTheFormerNameIsGone(): void
     {
-        $this->assertFalse(new Application(self::$kernel)->has('app:search:rebuild'));
+        $this->assertFalse(new Application(self::$kernel ?? self::bootKernel())->has('app:search:rebuild'));
     }
 }

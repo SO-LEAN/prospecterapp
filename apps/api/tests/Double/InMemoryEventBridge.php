@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Double;
 
+use App\Shared\Typed;
 use Aws\CommandInterface;
 use Aws\Result;
 use GuzzleHttp\Promise\Create;
@@ -26,7 +27,7 @@ final class InMemoryEventBridge
 
     public function __invoke(CommandInterface $command): PromiseInterface
     {
-        $entries = $command['Entries'];
+        $entries = array_map(Typed::namedStrings(...), Typed::documents($command['Entries']));
         $failed = min($this->failingEntries, count($entries));
         $this->failingEntries = 0;
         $this->puts[] = $entries;

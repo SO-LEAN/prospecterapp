@@ -11,6 +11,7 @@ use App\Shared\Persistence\DynamoUnitOfWork;
 use App\Shared\Persistence\Hydrator;
 use App\Shared\Persistence\RevisionsRead;
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Aws\DynamoDb\DynamoDbClient;
 use Aws\DynamoDb\Marshaler;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
@@ -20,6 +21,7 @@ use Prospecter\Core\Prospecting\Domain\Model\Fingerprinted;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\CampaignId;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Symfony\Component\Clock\ClockInterface;
@@ -105,7 +107,7 @@ final class ExchangeChangedMeanwhile implements ExchangeRepository
 
         $exchanges = $this->anotherRequest();
         $exchange = $exchanges->get($id);
-        $exchange->correctText($text, by: Hydrator::stateOf($exchange)['createdBy'], at: $this->commitClock->now());
+        $exchange->correctText($text, by: Typed::object(Hydrator::stateOf($exchange)['createdBy'], MemberId::class), at: $this->commitClock->now());
         $exchanges->save($exchange);
     }
 

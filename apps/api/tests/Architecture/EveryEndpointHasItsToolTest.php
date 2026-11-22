@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Tests\App\Architecture;
 
 use App\Shared\Mcp\Adapts;
+use App\Shared\Typed;
 use Mcp\Server\Capability\Attribute\McpTool;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Routing\Route;
+use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -64,7 +66,7 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
 
     public function testEveryToolOfAReadingSaysItChangesNothing(): void
     {
-        $routes = self::getContainer()->get(RouterInterface::class)->getRouteCollection();
+        $routes = self::routes();
         $readings = array_filter($this->adaptedByATool(), static fn (string $tool, string $route): bool => ['GET'] === $routes->get($route)?->getMethods(), ARRAY_FILTER_USE_BOTH);
 
         $this->assertSame([], array_values(array_filter($readings, static fn (string $tool): bool => true !== self::toolOf($tool)->annotations?->readOnlyHint)), 'Tools of a reading without the annotation readOnlyHint');
@@ -72,7 +74,7 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
 
     public function testEveryToolOfAWriteSaysWhetherItsAiAsksItsMemberFirst(): void
     {
-        $routes = self::getContainer()->get(RouterInterface::class)->getRouteCollection();
+        $routes = self::routes();
         $writes = array_filter($this->adaptedByATool(), static fn (string $tool, string $route): bool => ['GET'] !== $routes->get($route)?->getMethods(), ARRAY_FILTER_USE_BOTH);
         $removesOrErases = static fn (string $route): bool => ['DELETE'] === $routes->get($route)?->getMethods() || in_array($route, self::NEVER_TAKEN_BACK, true);
 
@@ -81,7 +83,7 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
 
     public function testEveryToolOfAWriteSaysWhetherItReachesOutsideProspecter(): void
     {
-        $routes = self::getContainer()->get(RouterInterface::class)->getRouteCollection();
+        $routes = self::routes();
         $writes = array_filter($this->adaptedByATool(), static fn (string $tool, string $route): bool => ['GET'] !== $routes->get($route)?->getMethods(), ARRAY_FILTER_USE_BOTH);
 
         $this->assertSame([], array_keys(array_filter($writes, static fn (string $tool): bool => null === self::toolOf($tool)->annotations?->openWorldHint)), 'Tools of a write not saying openWorldHint');
@@ -96,7 +98,7 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
 
     public function testEveryEndpointNamedApartExists(): void
     {
-        $routes = self::getContainer()->get(RouterInterface::class)->getRouteCollection();
+        $routes = self::routes();
 
         $this->assertSame([], array_values(array_filter([...array_keys($this->adaptedByATool()), ...self::NEVER, ...self::NEVER_TAKEN_BACK], static fn (string $route): bool => null === $routes->get($route))), 'Routes named by #[Adapts], NEVER or NEVER_TAKEN_BACK that no longer exist');
     }
@@ -114,9 +116,9 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
      */
     private function endpointsOfTheMembers(): array
     {
-        $routes = self::getContainer()->get(RouterInterface::class)->getRouteCollection()->all();
+        $routes = self::routes()->all();
 
-        return array_filter($routes, static fn (Route $route): bool => self::isGranted((string) $route->getDefault('_controller')));
+        return array_filter($routes, static fn (Route $route): bool => self::isGranted(Typed::string($route->getDefault('_controller'))));
     }
 
     private static function isGranted(string $controller): bool
@@ -125,7 +127,8 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
             return false;
         }
 
-        $class = new \ReflectionClass(explode('::', $controller)[0]);
+        $name = explode('::', $controller)[0];
+        $class = class_exists($name) ? new \ReflectionClass($name) : throw new \LogicException(sprintf('No controller class %s', $name));
 
         return [] !== $class->getAttributes(IsGranted::class) || [] !== $class->getMethod('__invoke')->getAttributes(IsGranted::class);
     }
@@ -151,8 +154,10 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
     private function tools(): array
     {
         $tools = [];
-        foreach (glob(self::$kernel->getProjectDir().'/src/*/Mcp/*Tool.php') ?: [] as $file) {
-            $class = new \ReflectionClass('App\\'.str_replace(['/', '.php'], ['\\', ''], substr($file, strlen(self::$kernel->getProjectDir().'/src/'))));
+        $source = (self::$kernel ?? self::bootKernel())->getProjectDir().'/src/';
+        foreach (glob($source.'*/Mcp/*Tool.php') ?: [] as $file) {
+            $name = 'App\\'.str_replace(['/', '.php'], ['\\', ''], substr($file, strlen($source)));
+            $class = class_exists($name) ? new \ReflectionClass($name) : throw new \LogicException(sprintf('No class in %s', $file));
             if ([] !== $class->getMethod('__invoke')->getAttributes(McpTool::class)) {
                 $tools[] = $class;
             }
@@ -161,9 +166,14 @@ class EveryEndpointHasItsToolTest extends KernelTestCase
         return $tools;
     }
 
+    private static function routes(): RouteCollection
+    {
+        return Typed::object(self::getContainer()->get(RouterInterface::class), RouterInterface::class)->getRouteCollection();
+    }
+
     private function named(string $routeName): string
     {
-        $route = self::getContainer()->get(RouterInterface::class)->getRouteCollection()->get($routeName);
+        $route = self::routes()->get($routeName);
 
         return sprintf('%s %s (%s)', implode('|', $route?->getMethods() ?? []), $route?->getPath(), $routeName);
     }

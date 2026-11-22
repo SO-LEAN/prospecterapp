@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Double;
 
+use App\Shared\Typed;
 use Aws\CommandInterface;
 use Aws\Ssm\Exception\SsmException;
 use Aws\Ssm\SsmClient;
@@ -28,6 +29,6 @@ final class RefusingSsm
     {
         $ssm->getHandlerList()->appendInit(fn (callable $handler): callable => fn (CommandInterface $command): PromiseInterface => in_array($command->getName(), $this->refused, true)
             ? Create::rejectionFor(new SsmException(sprintf('Not authorized to perform: ssm:%s', $command->getName()), $command, ['code' => 'AccessDeniedException']))
-            : $handler($command), 'refusals');
+            : Typed::object($handler($command), PromiseInterface::class), 'refusals');
     }
 }

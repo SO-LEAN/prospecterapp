@@ -18,7 +18,7 @@ class RevisionsReadTest extends ApiTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $table = self::getContainer()->get('app.table.accounts');
+        $table = self::tableOf('accounts');
         $this->assertInstanceOf(Table::class, $table);
         $this->table = $table;
     }

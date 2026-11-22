@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\App\Architecture;
 
 use App\Security\AccessProblems;
+use App\Shared\Typed;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessException;
@@ -38,7 +39,7 @@ class RefusalsAreWordedTest extends TestCase
         $reasons = self::REFUSED_BY_THE_API;
 
         foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($root, \FilesystemIterator::SKIP_DOTS)) as $file) {
-            $class = 'Prospecter\Core\\'.str_replace(['/', '.php'], ['\\', ''], substr($file->getPathname(), strlen($root)));
+            $class = 'Prospecter\Core\\'.str_replace(['/', '.php'], ['\\', ''], substr(Typed::object($file, \SplFileInfo::class)->getPathname(), strlen($root)));
 
             if (class_exists($class) && is_subclass_of($class, BusinessException::class) && !new \ReflectionClass($class)->isAbstract() && !in_array($class, self::NEVER_THROWN_AS_THEY_ARE, true)) {
                 $reasons[] = lcfirst(new \ReflectionClass($class)->getShortName());

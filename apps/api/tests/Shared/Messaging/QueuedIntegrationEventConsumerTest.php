@@ -7,6 +7,7 @@ namespace Tests\App\Shared\Messaging;
 use App\Demo\DemoData;
 use App\Shared\Messaging\IntegrationFailures;
 use App\Shared\Messaging\QueuedIntegrationEventConsumer;
+use App\Shared\Typed;
 use Bref\Context\Context;
 use Prospecter\Core\Prospecting\Domain\Event\ObservationsWritten;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
@@ -71,8 +72,8 @@ class QueuedIntegrationEventConsumerTest extends ApiTestCase
         $failures = $this->failures();
         $this->assertCount(1, $failures);
         $this->assertSame($invocation, $failures[0]['requestPayload']);
-        $this->assertSame(IntegrationFailures::RETRIES_EXHAUSTED, $failures[0]['requestContext']['condition']);
-        $this->assertSame('The table does not answer', $failures[0]['responsePayload']['errorMessage']);
+        $this->assertSame(IntegrationFailures::RETRIES_EXHAUSTED, Typed::document($failures[0]['requestContext'])['condition']);
+        $this->assertSame('The table does not answer', Typed::document($failures[0]['responsePayload'])['errorMessage']);
     }
 
     public function testARefusalIsKeptOnceWithoutARetry(): void
@@ -86,7 +87,7 @@ class QueuedIntegrationEventConsumerTest extends ApiTestCase
 
     private function consume(mixed $event): void
     {
-        self::getContainer()->get(QueuedIntegrationEventConsumer::class)->handle($event, Context::fake());
+        self::service(QueuedIntegrationEventConsumer::class)->handle($event, Context::fake());
     }
 
     /**

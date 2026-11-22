@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\App\Base;
 
+use App\Shared\Typed;
+
 /**
  * A test of the delivery outbox (ADR 0098), the tests delivering synchronously otherwise: what a command publishes is
  * left in the outbox of its commit, which no relay publishes here.
@@ -16,7 +18,7 @@ trait DeliversThroughTheOutbox
 
     private function deliverThroughTheOutbox(): void
     {
-        $this->deliveryOfTheTests = $_SERVER[self::DELIVERY];
+        $this->deliveryOfTheTests = Typed::string($_SERVER[self::DELIVERY]);
         $_SERVER[self::DELIVERY] = $_ENV[self::DELIVERY] = 'outbox';
         $this->rebuildTheServicesReadingTheDelivery();
     }
@@ -27,8 +29,9 @@ trait DeliversThroughTheOutbox
      */
     private function rebuildTheServicesReadingTheDelivery(): void
     {
-        self::$kernel->shutdown();
-        self::$kernel->boot();
+        $kernel = self::$kernel ?? self::bootKernel();
+        $kernel->shutdown();
+        $kernel->boot();
     }
 
     /**
@@ -46,6 +49,6 @@ trait DeliversThroughTheOutbox
      */
     private function outboxOf(string $table): array
     {
-        return self::getContainer()->get('app.table.'.$table)->scan('OUTBOX#');
+        return self::tableOf($table)->scan('OUTBOX#');
     }
 }

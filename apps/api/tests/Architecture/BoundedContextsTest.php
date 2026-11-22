@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Architecture;
 
+use App\Shared\Typed;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -62,13 +63,14 @@ class BoundedContextsTest extends TestCase
         $forbidden = [];
 
         foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($root.$context, \FilesystemIterator::SKIP_DOTS)) as $file) {
-            $path = substr($file->getPathname(), strlen($root));
+            $pathname = Typed::object($file, \SplFileInfo::class)->getPathname();
+            $path = substr($pathname, strlen($root));
 
             if (in_array($path, self::CROSSING_ON_PURPOSE, true)) {
                 continue;
             }
 
-            preg_match_all('/^use ([\w\\\\]+)(?: as \w+)?;/m', (string) file_get_contents($file->getPathname()), $uses);
+            preg_match_all('/^use ([\w\\\\]+)(?: as \w+)?;/m', (string) file_get_contents($pathname), $uses);
 
             foreach ($uses[1] as $class) {
                 foreach (self::FORBIDDEN[$context] as $prefix) {
