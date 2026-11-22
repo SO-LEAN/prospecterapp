@@ -16,6 +16,7 @@ use Prospecter\Core\Prospecting\Domain\Exception\ToDoWithoutText;
 use Prospecter\Core\Prospecting\Domain\Policy\ToDoPossibilities;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
@@ -56,28 +57,15 @@ final class ToDo implements ReleasesEvents
     }
 
     /**
-     * Kept, like an exchange, for the organizations the contact is part of now.
-     *
-     * @param list<OrganizationId> $organizationsOfTheContact
+     * Kept, like an exchange, for the organizations of its correspondent now: those the contact is part of, or the
+     * organization itself.
      *
      * @throws ToDoWithoutText
      */
-    public static function forAContact(AccountId $accountId, MemberId $by, ToDoId $id, PersonId $contact, array $organizationsOfTheContact, string $text, Due $due, \DateTimeImmutable $at): self
+    public static function noted(Gesture $gesture, ToDoId $id, ContactCorrespondent|OrganizationCorrespondent $correspondent, Task $task): self
     {
-        return self::noted(new self($id, $accountId, $by, $contact, $organizationsOfTheContact, $text, $due, $at));
-    }
-
-    /**
-     * @throws ToDoWithoutText
-     */
-    public static function forTheOrganization(Organization $organization, MemberId $by, ToDoId $id, string $text, Due $due, \DateTimeImmutable $at): self
-    {
-        return self::noted(new self($id, $organization->accountId(), $by, null, [$organization->id()], $text, $due, $at));
-    }
-
-    private static function noted(self $toDo): self
-    {
-        $toDo->recordThat(new ToDoNoted($toDo->accountId, $toDo->createdBy, $toDo->id, $toDo->createdAt));
+        $toDo = new self($id, $gesture->accountId, $gesture->by, $correspondent->contact, $correspondent->keptFor, $task->text, $task->due, $gesture->at);
+        $toDo->recordThat(new ToDoNoted($gesture->accountId, $gesture->by, $id, $gesture->at));
 
         return $toDo;
     }

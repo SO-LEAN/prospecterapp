@@ -8,11 +8,14 @@ use App\Shared\Persistence\Table;
 use Prospecter\Core\Prospecting\Application\Port\ToDoListRetriever;
 use Prospecter\Core\Prospecting\Application\ToDoInList;
 use Prospecter\Core\Prospecting\Domain\Model\CalendarPeriod;
+use Prospecter\Core\Prospecting\Domain\Model\ContactCorrespondent;
 use Prospecter\Core\Prospecting\Domain\Model\Due;
+use Prospecter\Core\Prospecting\Domain\Model\Task;
 use Prospecter\Core\Prospecting\Domain\Model\ToDo;
 use Prospecter\Core\Prospecting\Domain\Model\ToDoId;
 use Prospecter\Core\Prospecting\Domain\Repository\ToDoRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
@@ -114,7 +117,7 @@ class DynamoToDoCalendarTest extends ApiTestCase
 
     private function noted(string $text, Due $due): ToDo
     {
-        return ToDo::forAContact($this->accountId, $this->holder, new ToDoId(self::newIdentity()), new PersonId(self::newIdentity()), [new OrganizationId(self::newIdentity())], $text, $due, new \DateTimeImmutable(self::NOW));
+        return ToDo::noted(new Gesture($this->accountId, $this->holder, new \DateTimeImmutable(self::NOW)), new ToDoId(self::newIdentity()), new ContactCorrespondent(new PersonId(self::newIdentity()), [new OrganizationId(self::newIdentity())]), new Task($text, $due));
     }
 
     private function toDos(): ToDoRepository

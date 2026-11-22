@@ -9,8 +9,9 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Who an exchange is with, and the organizations that keep it: a contact (`ContactCorrespondent`), a recipient of a
- * campaign (`RecipientCorrespondent`), or the organization itself (`OrganizationCorrespondent`).
+ * Who an exchange or a to-do is with, and the organizations that keep it: a contact (`ContactCorrespondent`), a
+ * recipient of a campaign (`RecipientCorrespondent`, an exchange only), or the organization itself
+ * (`OrganizationCorrespondent`).
  */
 abstract readonly class Correspondent
 {

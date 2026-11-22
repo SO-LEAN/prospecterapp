@@ -179,7 +179,7 @@ The organizations an account prospects, their contacts, the exchanges with them,
 - A forgotten contact's exchanges stay, to redact (`KeepExchangesOfForgottenContact` reacts to `ContactForgotten`: `Exchange::forgetItsContact()`, ADR 0079, cancelling one still to come, ADR 0112):
   - their text until a correction declares it redacted (`madeConform` of `CorrectExchangeText` and `CorrectExchange`, the intent `MakeConform`), their files until removed;
   - in an organization's timeline, an exchange's contact is present, removed from it or forgotten (`ContactPresence`), and the timeline counts those to redact; `ConsultExchangesToMakeConform` lists them alone.
-- To-dos (`ToDo`, `Due`, ADR 0113):
+- To-dos (`ToDo`, `Due`, ADR 0113), created by `ToDo::noted()` from the member's `Gesture`, a contact or organization correspondent and a `Task` (its text and when it is due):
   - `NoteToDo` for a contact, kept for its organizations; `NoteOrganizationToDo` for the organization itself; `ReviseToDo`, `TickOffToDo`, `UntickToDo`, `EraseToDo`;
   - `ConsultToDo`, `ConsultToDos` (a contact), `ConsultOrganizationToDos` (an organization and its contacts), `ConsultMyToDos` (those a member still has to do), ordered by `ToDoList`, read through the `ToDoListRetriever` port;
   - erased with their last organization (`StopKeepingToDos`, `ToDoLeftWithoutOrganization`, `EraseToDoLeftWithoutOrganization`) or with their contact (`EraseToDosOfForgottenContact` reacts to `ContactForgotten`).

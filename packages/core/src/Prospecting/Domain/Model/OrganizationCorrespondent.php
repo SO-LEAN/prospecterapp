@@ -7,7 +7,7 @@ namespace Prospecter\Core\Prospecting\Domain\Model;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
- * The organization itself (its switchboard, its generic e-mail), the exchange kept for it alone.
+ * The organization itself (its switchboard, its generic e-mail), the exchange or the to-do kept for it alone.
  */
 final readonly class OrganizationCorrespondent extends Correspondent
 {
