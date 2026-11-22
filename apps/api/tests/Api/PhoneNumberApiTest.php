@@ -6,6 +6,7 @@ namespace Tests\App\Api;
 
 use PHPUnit\Framework\Attributes\Group;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Base\ReadsResources;
 
 /**
  * A number calling is recognized among the organizations prospected and the contacts, however it is typed
@@ -14,17 +15,19 @@ use Tests\App\Base\ApiTestCase;
 #[Group('api')]
 class PhoneNumberApiTest extends ApiTestCase
 {
+    use ReadsResources;
+
     public function testAnOrganizationIsRecognizedByItsNumberHoweverItIsTyped(): void
     {
         $this->login();
-        $id = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME'], 'contactDetails' => ['phoneNumber' => '03 88 11 22 33']])['id'];
+        $id = self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME'], 'contactDetails' => ['phoneNumber' => '03 88 11 22 33']]), 'id');
 
         foreach (['0388112233', '+33388112233', '+33 3 88 11 22 33'] as $calling) {
             $caller = $this->requestJson('GET', '/api/phone-numbers/'.rawurlencode($calling));
 
             $this->assertResponseIsSuccessful();
-            $this->assertSame([$id], array_column($caller['organizations'], 'id'), $calling);
-            $this->assertSame('/api/organizations/'.$id, $caller['organizations'][0]['_links']['self']['href']);
+            $this->assertSame([$id], array_column(self::recordsAt($caller, 'organizations'), 'id'), $calling);
+            $this->assertSame('/api/organizations/'.$id, self::valueAt($caller, 'organizations', 0, '_links', 'self', 'href'));
             $this->assertSame([], $caller['contacts']);
         }
     }
@@ -36,9 +39,9 @@ class PhoneNumberApiTest extends ApiTestCase
         $caller = $this->requestJson('GET', '/api/phone-numbers/'.rawurlencode('+33 3 88 00 00 42'));
 
         $this->assertSame([], $caller['organizations']);
-        $this->assertSame(['Ada'], array_column(array_column($caller['contacts'], 'name'), 'firstName'));
-        $this->assertSame('+33 3 88 00 00 42', $caller['contacts'][0]['contactDetails']['phoneNumber']);
-        $this->assertSame(['Babbage & Co SAS'], array_column($caller['contacts'][0]['organizations'], 'name'));
+        $this->assertSame(['Ada'], array_column(self::records(array_column(self::recordsAt($caller, 'contacts'), 'name')), 'firstName'));
+        $this->assertSame('+33 3 88 00 00 42', self::valueAt($caller, 'contacts', 0, 'contactDetails', 'phoneNumber'));
+        $this->assertSame(['Babbage & Co SAS'], array_column(self::recordsAt($caller, 'contacts', 0, 'organizations'), 'name'));
     }
 
     public function testAnUnknownNumberRecognizesNobody(): void
@@ -72,7 +75,7 @@ class PhoneNumberApiTest extends ApiTestCase
     public function testAnInvalidNumberIsRefusedOnTheContactDetails(): void
     {
         $this->login();
-        $id = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];
+        $id = self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']]), 'id');
 
         $problem = $this->requestJson('PATCH', '/api/organizations/'.$id.'/contact-details', ['email' => null, 'phoneNumber' => 'call me', 'language' => null]);
 

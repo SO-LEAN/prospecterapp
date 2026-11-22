@@ -37,11 +37,11 @@ class RecordContactToolApiTest extends ApiTestCase
 
         $recorded = $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => self::GLOBEX]));
 
-        $this->assertSame(['created', 'created'], [$recorded['organization']['status'], $recorded['contact']['status']]);
-        $organization = $this->requestJson('GET', '/api/organizations/'.$recorded['organization']['id']);
-        $this->assertSame(['Globex', ['https://www.linkedin.com/company/globex'], [$recorded['contact']['id']]], [$organization['name'], array_column($organization['contactDetails']['links'], 'address'), $organization['contactIds']]);
-        $contact = $this->requestJson('GET', '/api/contacts/'.$recorded['contact']['id']);
-        $this->assertSame(['CTO', ['https://www.linkedin.com/in/margaret-hamilton']], [$contact['jobTitle'], array_column($contact['contactDetails']['links'], 'address')]);
+        $this->assertSame(['created', 'created'], [self::valueAt($recorded, 'organization', 'status'), self::valueAt($recorded, 'contact', 'status')]);
+        $organization = $this->requestJson('GET', '/api/organizations/'.self::stringAt($recorded, 'organization', 'id'));
+        $this->assertSame(['Globex', ['https://www.linkedin.com/company/globex'], [self::valueAt($recorded, 'contact', 'id')]], [$organization['name'], self::addressesOf($organization), $organization['contactIds']]);
+        $contact = $this->requestJson('GET', '/api/contacts/'.self::stringAt($recorded, 'contact', 'id'));
+        $this->assertSame(['CTO', ['https://www.linkedin.com/in/margaret-hamilton']], [$contact['jobTitle'], self::addressesOf($contact)]);
     }
 
     public function testAnOrganizationTheAiStartsProspectingIsCreatedByAnAi(): void
@@ -59,7 +59,7 @@ class RecordContactToolApiTest extends ApiTestCase
 
         $recorded = $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => self::GLOBEX]));
 
-        $this->assertTrue($this->requestJson('GET', '/api/organizations/'.$recorded['organization']['id'])['createdByAnAI']);
+        $this->assertTrue($this->requestJson('GET', '/api/organizations/'.self::stringAt($recorded, 'organization', 'id'))['createdByAnAI']);
     }
 
     public function testAContactTheAiRecordsIsCreatedByAnAi(): void
@@ -68,7 +68,7 @@ class RecordContactToolApiTest extends ApiTestCase
 
         $recorded = $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => self::GLOBEX]));
 
-        $this->assertTrue($this->requestJson('GET', '/api/contacts/'.$recorded['contact']['id'])['createdByAnAI']);
+        $this->assertTrue($this->requestJson('GET', '/api/contacts/'.self::stringAt($recorded, 'contact', 'id'))['createdByAnAI']);
     }
 
     public function testAContactTheAiOnlyCompletesIsNotCreatedByAnAi(): void
@@ -77,7 +77,7 @@ class RecordContactToolApiTest extends ApiTestCase
 
         $recorded = $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => ['firstName' => 'Ada', 'lastName' => 'Lovelace', 'email' => 'ada@babbage.test', 'jobTitle' => 'CTO'], 'organization' => self::BABBAGE]));
 
-        $this->assertSame(['known', false], [$recorded['contact']['status'], $this->requestJson('GET', '/api/contacts/'.$recorded['contact']['id'])['createdByAnAI']]);
+        $this->assertSame(['known', false], [self::valueAt($recorded, 'contact', 'status'), $this->requestJson('GET', '/api/contacts/'.self::stringAt($recorded, 'contact', 'id'))['createdByAnAI']]);
     }
 
     public function testAContactTheAiCollectsIsCreatedByAnAi(): void
@@ -93,12 +93,12 @@ class RecordContactToolApiTest extends ApiTestCase
     public function testAnOrganizationFoundByItsPageIsNotCreatedAgain(): void
     {
         $this->login();
-        $globex = $this->callWithoutHandshake('start-prospecting', ['corporateName' => 'Globex', 'links' => ['https://www.linkedin.com/company/globex']])['structuredContent']['id'];
+        $globex = self::stringAt($this->callWithoutHandshake('start-prospecting', ['corporateName' => 'Globex', 'links' => ['https://www.linkedin.com/company/globex']]), 'structuredContent', 'id');
 
         $recorded = $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => ['firstName' => 'Margaret', 'lastName' => 'Hamilton'], 'organization' => ['links' => ['https://www.linkedin.com/company/globex/']]]));
 
-        $this->assertSame(['known', $globex, 'created'], [$recorded['organization']['status'], $recorded['organization']['id'], $recorded['contact']['status']]);
-        $this->assertSame([$recorded['contact']['id']], $this->requestJson('GET', '/api/organizations/'.$globex)['contactIds']);
+        $this->assertSame(['known', $globex, 'created'], [self::valueAt($recorded, 'organization', 'status'), self::valueAt($recorded, 'organization', 'id'), self::valueAt($recorded, 'contact', 'status')]);
+        $this->assertSame([self::valueAt($recorded, 'contact', 'id')], $this->contactIdsOf($globex));
     }
 
     public function testAContactFoundIsCompletedWithoutChangingWhatIsNoted(): void
@@ -110,9 +110,10 @@ class RecordContactToolApiTest extends ApiTestCase
             'organization' => ['email' => 'contact@babbage.test'],
         ]));
 
-        $this->assertSame(['known', ['links'], ['jobTitle']], [$recorded['contact']['status'], $recorded['contact']['completed'], $recorded['contact']['differing']]);
-        $contact = $this->requestJson('GET', '/api/contacts/'.$recorded['contact']['id']);
-        $this->assertSame(['Directrice commerciale', ['https://www.linkedin.com/in/ada-lovelace', 'https://www.malt.fr/profile/adalovelace']], [$contact['jobTitle'], array_column($contact['contactDetails']['links'], 'address')]);
+        $contact = self::recordAt($recorded, 'contact');
+        $this->assertSame(['known', ['links'], ['jobTitle']], [$contact['status'], $contact['completed'], $contact['differing']]);
+        $read = $this->requestJson('GET', '/api/contacts/'.self::stringAt($contact, 'id'));
+        $this->assertSame(['Directrice commerciale', ['https://www.linkedin.com/in/ada-lovelace', 'https://www.malt.fr/profile/adalovelace']], [$read['jobTitle'], self::addressesOf($read)]);
     }
 
     public function testTheSameCallTwiceCreatesNothingMore(): void
@@ -122,11 +123,13 @@ class RecordContactToolApiTest extends ApiTestCase
 
         $second = $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => self::GLOBEX]));
 
+        $firstContact = self::recordAt($first, 'contact');
+        $secondContact = self::recordAt($second, 'contact');
         $this->assertSame(
-            [['known', $first['organization']['id']], ['known', $first['contact']['id'], [], []]],
-            [[$second['organization']['status'], $second['organization']['id']], [$second['contact']['status'], $second['contact']['id'], $second['contact']['completed'], $second['contact']['differing']]],
+            [['known', self::valueAt($first, 'organization', 'id')], ['known', $firstContact['id'], [], []]],
+            [[self::valueAt($second, 'organization', 'status'), self::valueAt($second, 'organization', 'id')], [$secondContact['status'], $secondContact['id'], $secondContact['completed'], $secondContact['differing']]],
         );
-        $this->assertSame([$first['contact']['id']], $this->requestJson('GET', '/api/organizations/'.$first['organization']['id'])['contactIds']);
+        $this->assertSame([$firstContact['id']], $this->contactIdsOf(self::stringAt($first, 'organization', 'id')));
     }
 
     public function testAContactOfAnotherOrganizationStaysThere(): void
@@ -135,8 +138,7 @@ class RecordContactToolApiTest extends ApiTestCase
 
         $recorded = $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => ['email' => 'ada@babbage.test'], 'organization' => self::GLOBEX]));
 
-        $organizations = $this->requestJson('GET', '/api/contacts/'.$recorded['contact']['id'].'/organizations')['items'];
-        $this->assertEqualsCanonicalizing(['Babbage & Co SAS', 'Globex'], array_column($organizations, 'name'));
+        $this->assertEqualsCanonicalizing(['Babbage & Co SAS', 'Globex'], $this->organizationNamesOf(self::stringAt($recorded, 'contact', 'id')));
     }
 
     public function testAPersonToConfirmIsNotCreatedWithoutConfirmation(): void
@@ -145,42 +147,45 @@ class RecordContactToolApiTest extends ApiTestCase
 
         $recorded = $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => self::ADA_LOVELACE_HOMONYM, 'organization' => self::BABBAGE]));
 
-        $this->assertSame(['toConfirm', null, ['Ada Lovelace']], [$recorded['contact']['status'], $recorded['contact']['id'] ?? null, array_column($recorded['contact']['candidates'], 'name')]);
-        $this->assertSame('new', $this->answerOf($this->callWithoutHandshake('identify', ['persons' => [['links' => self::ADA_LOVELACE_HOMONYM['links']]]]))['persons'][0]['status']);
+        $contact = self::recordAt($recorded, 'contact');
+        $this->assertSame(['toConfirm', null, ['Ada Lovelace']], [$contact['status'], $contact['id'] ?? null, array_column(self::recordsAt($contact, 'candidates'), 'name')]);
+        $this->assertSame('new', $this->statusOfThePersonIdentified(['links' => self::ADA_LOVELACE_HOMONYM['links']]));
     }
 
     public function testTheCandidateRetainedIsCompleted(): void
     {
         $this->login();
-        $candidate = $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => self::ADA_LOVELACE_HOMONYM, 'organization' => self::BABBAGE]))['contact']['candidates'][0]['id'];
+        $candidate = $this->theCandidateOfTheHomonym();
 
         $recorded = $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => self::ADA_LOVELACE_HOMONYM, 'organization' => self::BABBAGE, 'personId' => $candidate]));
 
-        $this->assertSame(['known', $candidate, ['links']], [$recorded['contact']['status'], $recorded['contact']['id'], $recorded['contact']['completed']]);
+        $contact = self::recordAt($recorded, 'contact');
+        $this->assertSame(['known', $candidate, ['links']], [$contact['status'], $contact['id'], $contact['completed']]);
     }
 
     public function testAnotherPersonThanThoseToConfirmIsCreated(): void
     {
         $this->login();
-        $candidate = $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => self::ADA_LOVELACE_HOMONYM, 'organization' => self::BABBAGE]))['contact']['candidates'][0]['id'];
+        $candidate = $this->theCandidateOfTheHomonym();
 
         $recorded = $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => self::ADA_LOVELACE_HOMONYM, 'organization' => self::BABBAGE, 'newPerson' => true]));
 
-        $this->assertSame('created', $recorded['contact']['status']);
-        $this->assertNotSame($candidate, $recorded['contact']['id']);
-        $this->assertContains($recorded['contact']['id'], $this->requestJson('GET', '/api/organizations/'.$recorded['organization']['id'])['contactIds']);
+        $this->assertSame('created', self::valueAt($recorded, 'contact', 'status'));
+        $this->assertNotSame($candidate, self::valueAt($recorded, 'contact', 'id'));
+        $this->assertContains(self::valueAt($recorded, 'contact', 'id'), $this->contactIdsOf(self::stringAt($recorded, 'organization', 'id')));
     }
 
     public function testAnOrganizationToConfirmIsRetainedByItsId(): void
     {
         $this->login();
         $toConfirm = $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => ['name' => 'Babbage & Co']]));
-        $this->assertSame(['toConfirm', ['Babbage & Co SAS'], 'new'], [$toConfirm['organization']['status'], array_column($toConfirm['organization']['candidates'], 'name'), $toConfirm['contact']['status']]);
+        $this->assertSame(['toConfirm', ['Babbage & Co SAS'], 'new'], [self::valueAt($toConfirm, 'organization', 'status'), array_column(self::recordsAt($toConfirm, 'organization', 'candidates'), 'name'), self::valueAt($toConfirm, 'contact', 'status')]);
+        $candidate = self::stringAt($toConfirm, 'organization', 'candidates', 0, 'id');
 
-        $recorded = $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => ['name' => 'Babbage & Co'], 'organizationId' => $toConfirm['organization']['candidates'][0]['id']]));
+        $recorded = $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => ['name' => 'Babbage & Co'], 'organizationId' => $candidate]));
 
-        $this->assertSame(['known', 'created'], [$recorded['organization']['status'], $recorded['contact']['status']]);
-        $this->assertContains($recorded['contact']['id'], $this->requestJson('GET', '/api/organizations/'.$toConfirm['organization']['candidates'][0]['id'])['contactIds']);
+        $this->assertSame(['known', 'created'], [self::valueAt($recorded, 'organization', 'status'), self::valueAt($recorded, 'contact', 'status')]);
+        $this->assertContains(self::valueAt($recorded, 'contact', 'id'), $this->contactIdsOf($candidate));
     }
 
     public function testAnAssistantWithoutTheRightToManageThePersonalDataIsRefusedAsOnTheScreen(): void
@@ -190,7 +195,7 @@ class RecordContactToolApiTest extends ApiTestCase
         $refused = $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => self::GLOBEX]));
 
         $this->assertSame([403, 'roleNotAllowed'], [$refused['status'], $refused['reason']]);
-        $this->assertSame('new', $this->answerOf($this->callWithoutHandshake('identify', ['organizations' => [self::GLOBEX]]))['organizations'][0]['status']);
+        $this->assertSame('new', $this->statusOfTheOrganizationIdentified(self::GLOBEX));
     }
 
     public function testAMemberWhoIsNoProspectorIsRefused(): void
@@ -210,32 +215,32 @@ class RecordContactToolApiTest extends ApiTestCase
 
         $recorded = $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => self::GLOBEX]));
 
-        $this->assertSame(['created', 'created'], [$recorded['organization']['status'], $recorded['contact']['status']]);
+        $this->assertSame(['created', 'created'], [self::valueAt($recorded, 'organization', 'status'), self::valueAt($recorded, 'contact', 'status')]);
     }
 
     public function testAnOrganizationOfAnotherAccountIsUnknown(): void
     {
         $this->login();
-        $babbage = $this->answerOf($this->callWithoutHandshake('identify', ['organizations' => [['emails' => ['contact@babbage.test']]]]))['organizations'][0]['candidates'][0]['id'];
+        $babbage = self::stringAt($this->answerOf($this->callWithoutHandshake('identify', ['organizations' => [['emails' => ['contact@babbage.test']]]])), 'organizations', 0, 'candidates', 0, 'id');
         $this->login($this->aMemberOfAnotherAccount('another-user'));
 
         $refused = $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => ['email' => 'ada@another.test'], 'organization' => ['siret' => '55210055400013'], 'organizationId' => $babbage]));
 
         $this->assertSame([404, 'unknownOrganization'], [$refused['status'], $refused['reason']]);
         $this->login();
-        $this->assertNull($this->requestJson('GET', '/api/organizations/'.$babbage)['legalIdentity']['siret']);
+        $this->assertNull($this->siretOf($babbage));
     }
 
     public function testAContactOfAnotherAccountIsUnknown(): void
     {
         $this->login();
-        $ada = $this->answerOf($this->callWithoutHandshake('identify', ['persons' => [['emails' => ['ada@babbage.test']]]]))['persons'][0]['candidates'][0]['id'];
+        $ada = $this->adaOfBabbage();
         $this->login($this->aMemberOfAnotherAccount('another-user'));
 
         $refused = $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => ['email' => 'ada@babbage.test'], 'organization' => self::GLOBEX, 'personId' => $ada]));
 
         $this->assertSame([404, 'unknownPerson'], [$refused['status'], $refused['reason']]);
-        $this->assertSame('new', $this->answerOf($this->callWithoutHandshake('identify', ['organizations' => [self::GLOBEX]]))['organizations'][0]['status']);
+        $this->assertSame('new', $this->statusOfTheOrganizationIdentified(self::GLOBEX));
     }
 
     public function testAnOrganizationFoundIsCompletedWithoutChangingWhatIsNoted(): void
@@ -247,9 +252,10 @@ class RecordContactToolApiTest extends ApiTestCase
             'organization' => ['email' => 'contact@babbage.test', 'name' => 'Babbage & Co', 'siret' => '55210055400013', 'phoneNumber' => '03 88 11 22 33'],
         ]));
 
-        $this->assertSame(['known', ['siret', 'phoneNumber'], []], [$recorded['organization']['status'], $recorded['organization']['completed'], $recorded['organization']['differing']]);
-        $organization = $this->requestJson('GET', '/api/organizations/'.$recorded['organization']['id']);
-        $this->assertSame(['55210055400013', '+33 3 88 11 22 33'], [$organization['legalIdentity']['siret'], $organization['contactDetails']['phoneNumber']]);
+        $found = self::recordAt($recorded, 'organization');
+        $this->assertSame(['known', ['siret', 'phoneNumber'], []], [$found['status'], $found['completed'], $found['differing']]);
+        $organization = $this->requestJson('GET', '/api/organizations/'.self::stringAt($found, 'id'));
+        $this->assertSame(['55210055400013', '+33 3 88 11 22 33'], [self::valueAt($organization, 'legalIdentity', 'siret'), self::valueAt($organization, 'contactDetails', 'phoneNumber')]);
     }
 
     public function testAnOrganizationCreatedKeepsItsSiret(): void
@@ -258,7 +264,7 @@ class RecordContactToolApiTest extends ApiTestCase
 
         $recorded = $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => self::GLOBEX + ['siret' => '35600000049837']]));
 
-        $this->assertSame('35600000049837', $this->requestJson('GET', '/api/organizations/'.$recorded['organization']['id'])['legalIdentity']['siret']);
+        $this->assertSame('35600000049837', $this->siretOf(self::stringAt($recorded, 'organization', 'id')));
     }
 
     public function testAFailedCollectionUndoesTheOrganizationTheCallCreated(): void
@@ -295,9 +301,9 @@ class RecordContactToolApiTest extends ApiTestCase
 
         $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => self::BABBAGE + ['siret' => '55210055400013']]));
 
-        $babbage = $this->answerOf($this->callWithoutHandshake('identify', ['organizations' => [['emails' => ['contact@babbage.test']]]]))['organizations'][0];
+        $babbage = self::recordAt($this->answerOf($this->callWithoutHandshake('identify', ['organizations' => [['emails' => ['contact@babbage.test']]]])), 'organizations', 0);
         $this->assertSame('known', $babbage['status']);
-        $this->assertNull($this->requestJson('GET', '/api/organizations/'.$babbage['candidates'][0]['id'])['legalIdentity']['siret']);
+        $this->assertNull($this->siretOf(self::stringAt($babbage, 'candidates', 0, 'id')));
         $this->assertNothingRemainsOfGlobexNorMargaret();
     }
 
@@ -349,19 +355,78 @@ class RecordContactToolApiTest extends ApiTestCase
     {
         $this->keepTheKernel();
         $this->login();
-        self::getContainer()->get(FailingCommands::class)->failTheNext($command, $failure ?? UseCaseRefused::because(BusinessRuleViolation::because('Refused as the test asks')));
+        self::service(FailingCommands::class)->failTheNext($command, $failure ?? UseCaseRefused::because(BusinessRuleViolation::because('Refused as the test asks')));
     }
 
     private function assertNothingRemainsOfGlobexNorMargaret(): void
     {
         $identified = $this->answerOf($this->callWithoutHandshake('identify', ['organizations' => [self::GLOBEX], 'persons' => [['links' => self::MARGARET_HAMILTON['links']]]]));
-        $this->assertSame(['new', 'new'], [$identified['organizations'][0]['status'], $identified['persons'][0]['status']]);
+        $this->assertSame(['new', 'new'], [self::valueAt($identified, 'organizations', 0, 'status'), self::valueAt($identified, 'persons', 0, 'status')]);
     }
 
     private function assertAdaIsAsShewas(): void
     {
-        $ada = $this->answerOf($this->callWithoutHandshake('identify', ['persons' => [['emails' => ['ada@babbage.test']]]]))['persons'][0]['candidates'][0]['id'];
-        $this->assertSame(['https://www.linkedin.com/in/ada-lovelace'], array_column($this->requestJson('GET', '/api/contacts/'.$ada)['contactDetails']['links'], 'address'));
-        $this->assertSame(['Babbage & Co SAS'], array_column($this->requestJson('GET', '/api/contacts/'.$ada.'/organizations')['items'], 'name'));
+        $ada = $this->adaOfBabbage();
+        $this->assertSame(['https://www.linkedin.com/in/ada-lovelace'], self::addressesOf($this->requestJson('GET', '/api/contacts/'.$ada)));
+        $this->assertSame(['Babbage & Co SAS'], $this->organizationNamesOf($ada));
+    }
+
+    private function adaOfBabbage(): string
+    {
+        return self::stringAt($this->answerOf($this->callWithoutHandshake('identify', ['persons' => [['emails' => ['ada@babbage.test']]]])), 'persons', 0, 'candidates', 0, 'id');
+    }
+
+    private function theCandidateOfTheHomonym(): string
+    {
+        return self::stringAt($this->answerOf($this->callWithoutHandshake('record-contact', ['person' => self::ADA_LOVELACE_HOMONYM, 'organization' => self::BABBAGE])), 'contact', 'candidates', 0, 'id');
+    }
+
+    /**
+     * @param array<string, mixed> $person
+     */
+    private function statusOfThePersonIdentified(array $person): mixed
+    {
+        return self::valueAt($this->answerOf($this->callWithoutHandshake('identify', ['persons' => [$person]])), 'persons', 0, 'status');
+    }
+
+    /**
+     * @param array<string, mixed> $organization
+     */
+    private function statusOfTheOrganizationIdentified(array $organization): mixed
+    {
+        return self::valueAt($this->answerOf($this->callWithoutHandshake('identify', ['organizations' => [$organization]])), 'organizations', 0, 'status');
+    }
+
+    private function siretOf(string $organization): mixed
+    {
+        return self::valueAt($this->requestJson('GET', '/api/organizations/'.$organization), 'legalIdentity', 'siret');
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    private function contactIdsOf(string $organization): array
+    {
+        return self::arrayAt($this->requestJson('GET', '/api/organizations/'.$organization), 'contactIds');
+    }
+
+    /**
+     * @return list<mixed>
+     */
+    private function organizationNamesOf(string $contact): array
+    {
+        return array_column(self::recordsAt($this->requestJson('GET', '/api/contacts/'.$contact.'/organizations'), 'items'), 'name');
+    }
+
+    /**
+     * The addresses of the links of an organization or a contact.
+     *
+     * @param array<string, mixed> $resource
+     *
+     * @return list<mixed>
+     */
+    private static function addressesOf(array $resource): array
+    {
+        return array_column(self::recordsAt($resource, 'contactDetails', 'links'), 'address');
     }
 }
