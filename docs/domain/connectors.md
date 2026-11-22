@@ -17,7 +17,7 @@ Code: `packages/core/src/Connectors`.
   One per account and provider, configured by an administrator of the account.
 - **Connection** (`Connection`): the account a member connected at a provider (`externalAccount`), the lasting access it gave (`RefreshToken`), and the id of the account's client it was granted to. Its **state** (`ConnectionState`) is **connected**, or **to reconnect** once the provider refused the access. One per member and provider, and only theirs.
 - **Provider** (`Provider`): the outside service. So far, `google` is the only one.
-- **Authorization** (`PendingAuthorization`): what a member asked a provider, waiting for its answer: the `state` the provider gives back, the code verifier (PKCE) and the scopes asked. It is bound to the member for ten minutes.
+- **Authorization** (`PendingAuthorization`): what a member asked a provider (`AuthorizationRequest`), waiting for its answer: the `state` the provider gives back, the code verifier (PKCE) and the scopes asked. It is bound to the member for ten minutes.
 - **Scope** (`Scope`): what Prospecter asks the provider for: the calendar, for every connection; the mailbox, for the e-mail import (ADR 0154).
 - **Grant** (`Grant`): what the provider granted for a code: the external account, its token, and the scopes it granted among those asked. The member may untick one on the consent screen.
 - **E-mail import** (`MailImport`): its state on a connection:
