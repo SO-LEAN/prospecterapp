@@ -14,11 +14,13 @@ use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
 use Prospecter\Core\Prospecting\Domain\Model\Attachment;
 use Prospecter\Core\Prospecting\Domain\Model\AttachmentId;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
+use Prospecter\Core\Prospecting\Domain\Model\Correspondent;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\ImportedEmail;
+use Prospecter\Core\Prospecting\Domain\Model\Noting;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Policy\AttachmentLeftOut;
 use Prospecter\Core\Prospecting\Domain\Port\Prospectors;
@@ -31,6 +33,7 @@ use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\Port\PrivateStorage;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\Exception\UnknownUpload;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
@@ -142,27 +145,23 @@ final readonly class NoteImportedEmailHandler implements EventHandler
 
     private function withAContact(ExchangeId $id, PersonId $contact, Prospector $prospector, EmailExchanged $email, ExchangeFacts $facts): Exchange
     {
-        return Exchange::importedWithAContact(
-            $prospector->accountId,
-            $prospector->id,
+        return Exchange::noted(
+            new Gesture($prospector->accountId, $prospector->id, $email->occurredAt),
             $id,
-            $contact,
-            $this->contactOrganizations->keepersOf($contact, $prospector),
-            $facts,
-            self::importedFrom($email),
-            $email->occurredAt,
+            Correspondent::contact($contact, $this->contactOrganizations->keepersOf($contact, $prospector)),
+            Noting::imported($facts, self::importedFrom($email)),
         );
     }
 
-    private function withTheOrganization(ExchangeId $id, OrganizationId $organization, Prospector $prospector, EmailExchanged $email, ExchangeFacts $facts): Exchange
+    private function withTheOrganization(ExchangeId $id, OrganizationId $organizationId, Prospector $prospector, EmailExchanged $email, ExchangeFacts $facts): Exchange
     {
-        return Exchange::importedWithTheOrganization(
-            $this->organizations->get($organization),
-            $prospector->id,
+        $organization = $this->organizations->get($organizationId);
+
+        return Exchange::noted(
+            new Gesture($organization->accountId(), $prospector->id, $email->occurredAt),
             $id,
-            $facts,
-            self::importedFrom($email),
-            $email->occurredAt,
+            Correspondent::organization($organization->id()),
+            Noting::imported($facts, self::importedFrom($email)),
         );
     }
 

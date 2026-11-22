@@ -20,12 +20,14 @@ use Prospecter\Core\PersonalData\Domain\Model\Reader;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
 use Prospecter\Core\Prospecting\Domain\Model\ContactToAttach;
+use Prospecter\Core\Prospecting\Domain\Model\Correspondent;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\Duration;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
+use Prospecter\Core\Prospecting\Domain\Model\Noting;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Repository\ContactToAttachRepository;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
@@ -35,6 +37,7 @@ use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Designated;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
@@ -374,7 +377,7 @@ class CheckConsistencyCommandTest extends ApiTestCase
         $person = Person::collectToAttach(new Reader($member, $account, new PersonId(self::newIdentity()), true), new PersonId(self::newIdentity()), new PersonName('Grace', 'Hopper'), new ContactDetails(), $met);
         self::getContainer()->get(PersonRepository::class)->save($person);
         self::getContainer()->get(ContactToAttachRepository::class)->save(ContactToAttach::metBy(new Prospector($member, $account, managesPersonalData: true), $person->id(), $met, $met));
-        $meeting = Exchange::notedWithAContact($account, $member, new ExchangeId(self::newIdentity()), $person->id(), [], new ExchangeFacts(Channel::VideoCall, Direction::Outbound, $met), ExchangeStatus::Done, $met);
+        $meeting = Exchange::noted(new Gesture($account, $member, $met), new ExchangeId(self::newIdentity()), Correspondent::contact($person->id(), []), Noting::of(new ExchangeFacts(Channel::VideoCall, Direction::Outbound, $met), ExchangeStatus::Done));
         self::getContainer()->get(ExchangeRepository::class)->save($meeting);
 
         return $person->id()->value;
@@ -390,7 +393,7 @@ class CheckConsistencyCommandTest extends ApiTestCase
     private function anExchangePlannedByTheProspectorOn(string $moment): string
     {
         $babbage = self::getContainer()->get(OrganizationRepository::class)->get(new OrganizationId($this->babbage()['organization']['id']));
-        $planned = Exchange::plannedWithTheOrganization($babbage, new MemberId(DemoData::PROSPECTOR), new ExchangeId(self::newIdentity()), ExchangeFacts::planned(Channel::Call, new \DateTimeImmutable($moment), Duration::inMinutes(null), null), new \DateTimeImmutable('2026-10-13 09:00 UTC'));
+        $planned = Exchange::planned(new Gesture($babbage->accountId(), new MemberId(DemoData::PROSPECTOR), new \DateTimeImmutable('2026-10-13 09:00 UTC')), new ExchangeId(self::newIdentity()), Correspondent::organization($babbage->id()), ExchangeFacts::planned(Channel::Call, new \DateTimeImmutable($moment), Duration::inMinutes(null), null));
         self::getContainer()->get(ExchangeRepository::class)->save($planned);
 
         return $planned->id()->value;

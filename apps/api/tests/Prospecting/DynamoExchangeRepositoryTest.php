@@ -12,6 +12,7 @@ use Prospecter\Core\Prospecting\Domain\Exception\ExchangeNotedMeanwhile;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownExchange;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
 use Prospecter\Core\Prospecting\Domain\Model\Correction;
+use Prospecter\Core\Prospecting\Domain\Model\Correspondent;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\Erasure;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
@@ -21,11 +22,13 @@ use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\Prospecting\Domain\Model\Fingerprinted;
 use Prospecter\Core\Prospecting\Domain\Model\ImportedEmail;
+use Prospecter\Core\Prospecting\Domain\Model\Noting;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
@@ -86,7 +89,7 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
     {
         $organization = Organization::prospectedBy($this->prospector, $this->acme, new LegalIdentity('ACME'), new ContactDetails(), new \DateTimeImmutable(self::NOW));
 
-        return Exchange::notedWithTheOrganization($organization, $this->prospector->id, new ExchangeId(self::newIdentity()), new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable($occurredAt)), ExchangeStatus::Done, new \DateTimeImmutable(self::NOW));
+        return Exchange::noted(new Gesture($organization->accountId(), $this->prospector->id, new \DateTimeImmutable(self::NOW)), new ExchangeId(self::newIdentity()), Correspondent::organization($organization->id()), Noting::of(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable($occurredAt)), ExchangeStatus::Done));
     }
 
     public function testACorrectedExchangeIsReadWithItsCorrection(): void
@@ -136,7 +139,7 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
     public function testAnImportedExchangeIsReadWithWhereItComesFromAndItsFingerprintOutlivesIt(): void
     {
         $exchanges = $this->exchanges();
-        $imported = Exchange::importedWithAContact($this->prospector->accountId, $this->prospector->id, new ExchangeId(self::newIdentity()), $this->contact, [$this->acme], new ExchangeFacts(Channel::Email, Direction::Inbound, new \DateTimeImmutable('2026-10-10 09:00 UTC'), "Votre devis\n\nBonjour"), new ImportedEmail('google', 'f00d'), new \DateTimeImmutable(self::NOW));
+        $imported = Exchange::noted(new Gesture($this->prospector->accountId, $this->prospector->id, new \DateTimeImmutable(self::NOW)), new ExchangeId(self::newIdentity()), Correspondent::contact($this->contact, [$this->acme]), Noting::imported(new ExchangeFacts(Channel::Email, Direction::Inbound, new \DateTimeImmutable('2026-10-10 09:00 UTC'), "Votre devis\n\nBonjour"), new ImportedEmail('google', 'f00d')));
         $imported->releaseEvents();
         $exchanges->save($imported);
 
@@ -151,7 +154,8 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
     public function testAnExchangeAnAiNotedIsReadCreatedByAnAi(): void
     {
         $exchanges = $this->exchanges();
-        $noted = Exchange::notedWithAContact($this->prospector->accountId, $this->prospector->id, new ExchangeId(self::newIdentity()), $this->contact, [$this->acme], new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable('2026-10-10 09:00 UTC')), ExchangeStatus::Done, new \DateTimeImmutable(self::NOW), origin: Origin::Ai);
+        $byAnAI = new Gesture($this->prospector->accountId, $this->prospector->id, new \DateTimeImmutable(self::NOW), Origin::Ai);
+        $noted = Exchange::noted($byAnAI, new ExchangeId(self::newIdentity()), Correspondent::contact($this->contact, [$this->acme]), Noting::of(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable('2026-10-10 09:00 UTC')), ExchangeStatus::Done));
         $exchanges->save($noted);
 
         $this->assertSame(Origin::Ai, Hydrator::stateOf($exchanges->get($noted->id()))['origin']);
@@ -329,12 +333,12 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
 
     private function noted(string $occurredAt): Exchange
     {
-        return Exchange::notedWithAContact($this->prospector->accountId, $this->prospector->id, new ExchangeId(self::newIdentity()), $this->contact, [$this->acme, $this->group], new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable($occurredAt), 'Rappeler lundi'), ExchangeStatus::Done, new \DateTimeImmutable(self::NOW));
+        return Exchange::noted(new Gesture($this->prospector->accountId, $this->prospector->id, new \DateTimeImmutable(self::NOW)), new ExchangeId(self::newIdentity()), Correspondent::contact($this->contact, [$this->acme, $this->group]), Noting::of(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable($occurredAt), 'Rappeler lundi'), ExchangeStatus::Done));
     }
 
     private function imported(ImportedEmail $email = new ImportedEmail('google', 'f00d')): Exchange
     {
-        $imported = Exchange::importedWithAContact($this->prospector->accountId, $this->prospector->id, new ExchangeId(self::newIdentity()), $this->contact, [$this->acme], new ExchangeFacts(Channel::Email, Direction::Inbound, new \DateTimeImmutable('2026-10-10 09:00 UTC'), "Votre devis\n\nBonjour"), $email, new \DateTimeImmutable(self::NOW));
+        $imported = Exchange::noted(new Gesture($this->prospector->accountId, $this->prospector->id, new \DateTimeImmutable(self::NOW)), new ExchangeId(self::newIdentity()), Correspondent::contact($this->contact, [$this->acme]), Noting::imported(new ExchangeFacts(Channel::Email, Direction::Inbound, new \DateTimeImmutable('2026-10-10 09:00 UTC'), "Votre devis\n\nBonjour"), $email));
         $imported->releaseEvents();
 
         return $imported;

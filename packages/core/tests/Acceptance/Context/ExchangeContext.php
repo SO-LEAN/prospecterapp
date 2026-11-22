@@ -26,12 +26,15 @@ use Prospecter\Core\Prospecting\Application\ProposeMeetingPlace\ProposeMeetingPl
 use Prospecter\Core\Prospecting\Application\Timeline;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeLeftWithoutOrganization;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
+use Prospecter\Core\Prospecting\Domain\Model\Correspondent;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
+use Prospecter\Core\Prospecting\Domain\Model\Noting;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
@@ -122,7 +125,8 @@ final class ExchangeContext implements Context
         foreach (range(1, $count) as $minutesAgo) {
             $facts = new ExchangeFacts(Channel::Call, Direction::Inbound, $this->application->now()->modify(sprintf('-%d minutes', $minutesAgo)));
             $id = $this->application->newIdentity();
-            $this->application->exchanges->save(Exchange::notedWithTheOrganization($prospect, $this->scenario->meAsProspector()->id, new ExchangeId($id), $facts, ExchangeStatus::Done, $this->application->now()));
+            $gesture = new Gesture($prospect->accountId(), $this->scenario->meAsProspector()->id, $this->application->now());
+            $this->application->exchanges->save(Exchange::noted($gesture, new ExchangeId($id), Correspondent::organization($prospect->id()), Noting::of($facts, ExchangeStatus::Done)));
             $this->notedWithTheOrganization[] = $id;
         }
     }
@@ -489,7 +493,8 @@ final class ExchangeContext implements Context
     private function arrange(string $contact, array $keptFor, ExchangeFacts $facts): void
     {
         $me = $this->scenario->meAsProspector();
-        $exchange = Exchange::notedWithAContact($me->accountId, $me->id, new ExchangeId($this->application->newIdentity()), $this->scenario->personNamed($contact)->id(), $keptFor, $facts, ExchangeStatus::Done, $this->application->now());
+        $correspondent = Correspondent::contact($this->scenario->personNamed($contact)->id(), $keptFor);
+        $exchange = Exchange::noted(new Gesture($me->accountId, $me->id, $this->application->now()), new ExchangeId($this->application->newIdentity()), $correspondent, Noting::of($facts, ExchangeStatus::Done));
         $this->application->exchanges->save($exchange);
     }
 

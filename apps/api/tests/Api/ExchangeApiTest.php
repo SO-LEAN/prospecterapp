@@ -9,18 +9,21 @@ use Prospecter\Core\Accounts\Domain\Repository\AccountRepository;
 use Prospecter\Core\Prospecting\Domain\Model\Attachment;
 use Prospecter\Core\Prospecting\Domain\Model\AttachmentId;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
+use Prospecter\Core\Prospecting\Domain\Model\Correspondent;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\Prospecting\Domain\Model\ImportedEmail;
+use Prospecter\Core\Prospecting\Domain\Model\Noting;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
@@ -430,7 +433,7 @@ class ExchangeApiTest extends ApiTestCase
     {
         $organization ??= $this->anOrganization('ACME');
         $contact ??= $this->aContactOf($organization);
-        $exchange = Exchange::importedWithAContact($this->accountOfTheFixtures(), new MemberId($this->memberIdOf('prospector-user')), new ExchangeId(self::newIdentity()), new PersonId($contact), [new OrganizationId($organization)], new ExchangeFacts(Channel::Email, Direction::Inbound, new \DateTimeImmutable('2026-10-14 09:00 UTC'), "Votre devis\n\nBonjour"), $email, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        $exchange = Exchange::noted(new Gesture($this->accountOfTheFixtures(), new MemberId($this->memberIdOf('prospector-user')), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)), new ExchangeId(self::newIdentity()), Correspondent::contact(new PersonId($contact), [new OrganizationId($organization)]), Noting::imported(new ExchangeFacts(Channel::Email, Direction::Inbound, new \DateTimeImmutable('2026-10-14 09:00 UTC'), "Votre devis\n\nBonjour"), $email));
         self::getContainer()->get(ExchangeRepository::class)->save($exchange);
 
         return $exchange->id()->value;
@@ -442,7 +445,7 @@ class ExchangeApiTest extends ApiTestCase
         self::getContainer()->get(AccountRepository::class)->save($competitor);
         $theirs = Organization::prospectedBy(new Prospector(new MemberId(self::newIdentity()), $competitor->id()), new OrganizationId(self::newIdentity()), new LegalIdentity('Their prospect'), new ContactDetails(), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         self::getContainer()->get(OrganizationRepository::class)->save($theirs);
-        $exchange = Exchange::notedWithTheOrganization($theirs, new MemberId(self::newIdentity()), new ExchangeId(self::newIdentity()), new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable('2026-10-14')), ExchangeStatus::Done, new \DateTimeImmutable('2026-10-14'));
+        $exchange = Exchange::noted(new Gesture($theirs->accountId(), new MemberId(self::newIdentity()), new \DateTimeImmutable('2026-10-14')), new ExchangeId(self::newIdentity()), Correspondent::organization($theirs->id()), Noting::of(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable('2026-10-14')), ExchangeStatus::Done));
         $exchange->attach(new Attachment(new AttachmentId(self::ATTACHMENT), 'devis.pdf', 2048, 'application/pdf', 'their-file'), new MemberId(self::newIdentity()), new \DateTimeImmutable('2026-10-14'));
         self::getContainer()->get(ExchangeRepository::class)->save($exchange);
 
