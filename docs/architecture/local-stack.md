@@ -13,6 +13,8 @@ Everything runs in Docker, driven by make (ADR 0015, 0080). MiniStack emulates t
 
   Chrome, Firefox and curl resolve these names to the loopback themselves, so nothing goes in `/etc/hosts`. nginx knows them through `NGINX_HOST` (`docker-compose.yml`). The journeys run in the stack's network and resolve these names to its nginx (`apps/front/Makefile`). Node does so through its container's `/etc/hosts` (`--add-host`). Chromium resolves a `.localhost` name to its own loopback whatever that file says. So it uses a resolver rule instead (`--host-resolver-rules`, with nginx's address in `STACK_ADDRESS`, `playwright.config.ts`). MiniStack is told that it is reached as `ministack` (`MINISTACK_HOST`). With its default, `localhost`, it took the first label of a `.localhost` host for a virtual-hosted bucket, because the static host passes it the private files under their own host.
 
+  A stack created with the old hostnames (`local.prospecter.io`) still has them in its files' addresses. `make db` restores the demonstration data with the new ones. Then you can remove the old hosts' lines from `/etc/hosts`.
+
 - Each checkout runs its own stack (ADR 0116). Its Compose project is named after its directory: `prospecterapp` for the main checkout, a number for a worktree. Each stack has its own network, its own `ministack-data` volume and its own Lambdas, which mount its code. No container has a fixed name.
   - In the main checkout, make adds `docker-compose.host.yml`. This file publishes the host's ports 80, 443 and 4566: https://prospecter.localhost, and MiniStack for the IDE.
   - In a worktree, make adds `docker-compose.agents.yml`. This file publishes the worktree's hosts on the worktree's own port. It publishes no port for MiniStack.
