@@ -7,9 +7,8 @@ namespace Prospecter\Core\Connectors\Domain\Model;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * An authorization a member asked a provider for, waiting for its answer: the `state` the provider gives back with
- * it, the verifier of the code it will give (PKCE), and the scopes asked, bound to the member for ten minutes
- * (ADR 0120, 0154).
+ * An authorization a member asked a provider for, waiting for its answer: what they asked, bound to the member for
+ * ten minutes (ADR 0120, 0154).
  */
 final readonly class PendingAuthorization
 {
@@ -28,9 +27,9 @@ final readonly class PendingAuthorization
     ) {
     }
 
-    public static function askedBy(MemberId $member, Provider $provider, string $state, string $codeVerifier, \DateTimeImmutable $at, Scope ...$scopes): self
+    public static function askedBy(MemberId $member, AuthorizationRequest $request, \DateTimeImmutable $at): self
     {
-        return new self($state, $member, $provider, $codeVerifier, $at->modify(self::LIFETIME), array_values($scopes));
+        return new self($request->state, $member, $request->provider, $request->codeVerifier, $at->modify(self::LIFETIME), $request->scopes);
     }
 
     public function asks(Scope $scope): bool

@@ -14,6 +14,7 @@ use Prospecter\Core\Connectors\Domain\Event\MailImportLost;
 use Prospecter\Core\Connectors\Domain\Event\MailImportStarted;
 use Prospecter\Core\Connectors\Domain\Event\MailImportStopped;
 use Prospecter\Core\Connectors\Domain\Event\MailWatchRenewed;
+use Prospecter\Core\Connectors\Domain\Model\AuthorizationRequest;
 use Prospecter\Core\Connectors\Domain\Model\CalendarEvent;
 use Prospecter\Core\Connectors\Domain\Model\Channel;
 use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
@@ -294,7 +295,7 @@ final class ConnectionTest extends TestCase
 
     public function testAnAuthorizationWaitsTenMinutes(): void
     {
-        $authorization = PendingAuthorization::askedBy(new MemberId(self::MEMBER), Provider::Google, 'a-state', 'a-verifier', new \DateTimeImmutable(self::AT));
+        $authorization = PendingAuthorization::askedBy(new MemberId(self::MEMBER), new AuthorizationRequest(Provider::Google, 'a-state', 'a-verifier'), new \DateTimeImmutable(self::AT));
 
         $this->assertTrue($authorization->awaits(new MemberId(self::MEMBER), new \DateTimeImmutable('2026-11-14 10:09:59')));
         $this->assertFalse($authorization->awaits(new MemberId(self::MEMBER), new \DateTimeImmutable('2026-11-14 10:10:00')));
