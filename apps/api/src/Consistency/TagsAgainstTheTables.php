@@ -6,6 +6,7 @@ namespace App\Consistency;
 
 use App\PersonalData\Persistence\PersonDocument;
 use App\Shared\Persistence\Documents;
+use App\Shared\Typed;
 
 /**
  * The facts the tags of the contacts derive from, kept by Campaigns, against the tables of Prospecting and PersonalData
@@ -35,10 +36,11 @@ final readonly class TagsAgainstTheTables
     private function discrepanciesOf(string $accountId): array
     {
         $organizationDocuments = $this->tables->organizationsOf($accountId);
-        $organizations = array_column($organizationDocuments, 'contacts', 'id');
-        $localities = array_combine(array_column($organizationDocuments, 'id'), array_map(self::localityOf(...), $organizationDocuments));
+        $organizationIds = Typed::strings(array_column($organizationDocuments, 'id'));
+        $organizations = array_combine($organizationIds, array_map(static fn (array $organization): array => Typed::strings($organization['contacts']), $organizationDocuments));
+        $localities = array_combine($organizationIds, array_map(self::localityOf(...), $organizationDocuments));
         $persons = $this->tables->contactDocumentsOf($accountId);
-        $contacts = array_combine(array_column($persons, 'id'), array_map(self::reachOf(...), $persons));
+        $contacts = array_combine(Typed::strings(array_column($persons, 'id')), array_map(self::reachOf(...), $persons));
         $organizationFacts = $this->tables->organizationFactsOf($accountId);
         $contactFacts = $this->tables->contactFactsOf($accountId);
 
@@ -52,9 +54,11 @@ final readonly class TagsAgainstTheTables
     }
 
     /**
-     * @param array<string, array<mixed>>          $state    what the table of the context keeps, by id
-     * @param array<string, array<mixed>>          $facts    what Campaigns keeps, by id
-     * @param \Closure(array<mixed>): array<mixed> $compared
+     * @template T of array
+     *
+     * @param array<string, T>          $state    what the table of the context keeps, by id
+     * @param array<string, T>          $facts    what Campaigns keeps, by id
+     * @param \Closure(T): array<mixed> $compared
      *
      * @return list<Discrepancy>
      */
@@ -83,7 +87,9 @@ final readonly class TagsAgainstTheTables
      */
     private static function localityOf(array $organization): array
     {
-        return ['municipalityCode' => $organization['municipalityCode'] ?? null, 'country' => $organization['address']['country'] ?? null];
+        $address = $organization['address'] ?? null;
+
+        return ['municipalityCode' => Typed::stringOrNull($organization['municipalityCode'] ?? null), 'country' => null === $address ? null : Typed::stringOrNull(Typed::document($address)['country'] ?? null)];
     }
 
     /**
@@ -93,7 +99,7 @@ final readonly class TagsAgainstTheTables
      */
     private static function reachOf(array $person): array
     {
-        $contactDetails = Documents::contactDetailsOf($person['contactDetails']);
+        $contactDetails = Documents::contactDetailsOf(Typed::document($person['contactDetails']));
 
         return [
             'hasEmail' => null !== $contactDetails->email,

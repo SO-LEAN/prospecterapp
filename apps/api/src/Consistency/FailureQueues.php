@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Consistency;
 
+use App\Shared\Typed;
 use Aws\Sqs\SqsClient;
 
 /**
@@ -39,8 +40,8 @@ final readonly class FailureQueues
 
     private function waitingIn(string $queue): int
     {
-        $url = $this->client->getQueueUrl(['QueueName' => $queue])['QueueUrl'];
-        $attributes = $this->client->getQueueAttributes(['QueueUrl' => $url, 'AttributeNames' => self::WAITING])['Attributes'];
+        $url = Typed::string($this->client->getQueueUrl(['QueueName' => $queue])['QueueUrl']);
+        $attributes = Typed::namedStrings($this->client->getQueueAttributes(['QueueUrl' => $url, 'AttributeNames' => self::WAITING])['Attributes']);
 
         return array_sum(array_map(intval(...), $attributes));
     }

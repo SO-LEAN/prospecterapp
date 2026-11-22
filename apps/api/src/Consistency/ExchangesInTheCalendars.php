@@ -6,6 +6,7 @@ namespace App\Consistency;
 
 use App\Prospecting\Persistence\ExchangeDocument;
 use App\Shared\Persistence\Documents;
+use App\Shared\Typed;
 use Symfony\Component\Clock\ClockInterface;
 
 /**
@@ -43,10 +44,11 @@ final readonly class ExchangesInTheCalendars
 
         $discrepancies = [];
         foreach ($this->tables->exchangesOf($accountId) as $exchange) {
-            $provider = $connected[$exchange['createdBy']] ?? null;
+            $provider = $connected[Typed::string($exchange['createdBy'])] ?? null;
+            $id = Typed::string($exchange['id']);
 
-            if (null !== $provider && $this->isToCome($exchange) && !$this->tables->isSynced($exchange['id'], $provider)) {
-                $discrepancies[] = new Discrepancy($accountId, $exchange['id'], 'exchange to come not synced in the calendar of its holder at '.$provider, Correction::PushTheExchangeAgain);
+            if (null !== $provider && $this->isToCome($exchange) && !$this->tables->isSynced($id, $provider)) {
+                $discrepancies[] = new Discrepancy($accountId, $id, 'exchange to come not synced in the calendar of its holder at '.$provider, Correction::PushTheExchangeAgain);
             }
         }
 
@@ -58,6 +60,6 @@ final readonly class ExchangesInTheCalendars
      */
     private function isToCome(array $exchange): bool
     {
-        return ExchangeDocument::isPlanned($exchange) && Documents::momentOf($exchange['facts']['occurredAt']) >= $this->clock->now();
+        return ExchangeDocument::isPlanned($exchange) && Documents::momentOf(Typed::string(Typed::document($exchange['facts'])['occurredAt'])) >= $this->clock->now();
     }
 }

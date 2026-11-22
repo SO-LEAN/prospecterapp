@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Consistency;
 
 use App\PersonalData\Persistence\PersonDocument;
+use App\Shared\Typed;
 
 /**
  * A link designates one contact of an account, by their links or their former ones: two contacts noting the same,
@@ -36,7 +37,7 @@ final readonly class ReferencesOfTheContacts
 
         foreach ($this->tables->contactDocumentsOf($accountId) as $contact) {
             foreach (self::referencesHeldBy($contact) as $reference) {
-                $holders[$reference][] = $contact['id'];
+                $holders[$reference][] = Typed::string($contact['id']);
             }
         }
         $shared = array_filter($holders, static fn (array $contacts): bool => count($contacts) > 1);

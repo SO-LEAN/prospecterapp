@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Consistency;
 
+use App\Shared\Typed;
+
 /**
  * The keys listing each account among the accounts and each exchange in its account, by which the figures are counted
  * again: an item written before them lacks them until app:keys:rebuild writes them, and nothing counts it meanwhile.
@@ -48,6 +50,6 @@ final readonly class KeysListingTheItems
     {
         $outOfTheList = array_filter($this->tables->exchangesOutOfTheListOfTheirAccount(), static fn (array $exchange): bool => in_array($exchange['accountId'], $accountIds, true));
 
-        return array_values(array_map(static fn (array $exchange): Discrepancy => new Discrepancy($exchange['accountId'], $exchange['id'], 'exchange out of the list of its account', Correction::WriteTheKeysAgain), $outOfTheList));
+        return array_values(array_map(static fn (array $exchange): Discrepancy => new Discrepancy(Typed::string($exchange['accountId']), Typed::string($exchange['id']), 'exchange out of the list of its account', Correction::WriteTheKeysAgain), $outOfTheList));
     }
 }
