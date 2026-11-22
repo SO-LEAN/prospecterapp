@@ -76,6 +76,38 @@ describe('an editable section', () => {
     expect(screen.getByText('contact@acme.test')).toBeInTheDocument()
   })
 
+  it('saves on the revision of the record read when it opened, not on one read since', async () => {
+    const save = vi.fn().mockResolvedValue(undefined)
+    const theSection = (revision: number) => (
+      <EditableSection
+        title="Coordonnées"
+        editable
+        editor={(close) => (
+          <SectionForm
+            schema={contactDetailsSchema}
+            defaultValues={{ email: 'contact@acme.test', phoneNumber: '', language: null }}
+            fields={contactDetailsFields}
+            revision={revision}
+            save={(values, readRevision) => save(toContactDetails(values), readRevision)}
+            onDone={close}
+          >
+            {(form) => <ContactDetailsFields form={form} />}
+          </SectionForm>
+        )}
+      >
+        contact@acme.test
+      </EditableSection>
+    )
+    const { rerender } = render(theSection(1))
+    const user = userEvent.setup()
+
+    await user.click(screen.getByRole('button', { name: 'Modifier : Coordonnées' }))
+    rerender(theSection(2))
+    await user.click(screen.getByRole('button', { name: 'Enregistrer' }))
+
+    expect(save).toHaveBeenCalledWith(expect.anything(), 1)
+  })
+
   it('cannot be changed when the API does not offer it', () => {
     renderSection(vi.fn(), false)
 

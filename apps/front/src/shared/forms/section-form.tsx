@@ -11,24 +11,29 @@ type Props<Values extends FieldValues> = {
   schema: z.ZodType<Values, Values>
   defaultValues: DefaultValues<Values>
   fields: readonly Path<Values>[]
-  save: (values: Values) => Promise<unknown>
+  /** The revision of the record read, sent back with the change (ADR 0187). */
+  revision?: number
+  save: (values: Values, revision: number | undefined) => Promise<unknown>
   onDone: () => void
   children: (form: UseFormReturn<Values>) => ReactNode
 }
 
 /**
  * The small form of one intention: validated like the API, sent alone, closed when saved; the API
- * violations land on their fields, the others above the form.
+ * violations land on their fields, the others above the form. It saves on the revision of the record it opened on,
+ * not on one read since, so that a change made meanwhile is refused instead of erased.
  */
 export function SectionForm<Values extends FieldValues>({
   schema,
   defaultValues,
   fields,
+  revision,
   save,
   onDone,
   children,
 }: Props<Values>) {
   const { t } = useTranslation()
+  const [readRevision] = useState(revision)
   const [globalErrors, setGlobalErrors] = useState<string[]>([])
   const form = useForm<Values>({ resolver: zodResolver(schema), defaultValues })
   const { isSubmitting } = form.formState
@@ -36,7 +41,7 @@ export function SectionForm<Values extends FieldValues>({
   const submit = form.handleSubmit(async (values) => {
     setGlobalErrors([])
     try {
-      await save(values)
+      await save(values, readRevision)
       onDone()
     } catch (error) {
       setGlobalErrors(applyViolations(error, form.setError, fields))
