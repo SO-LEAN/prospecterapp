@@ -3,7 +3,7 @@
 # the core copied in when it requires it (docs/architecture/monorepo.md) and the cache of the prod environment warmed
 LAMBDA_APP := $(notdir $(CURDIR))
 LAMBDA_BUILD = $(ROOT)/build/$(LAMBDA_APP)
-LAMBDA_LEFT_OUT = vendor var tests infra .env.* phpunit.xml.dist phpunit.dist.xml phpstan.dist.neon rector.php AGENTS.md \
+LAMBDA_LEFT_OUT = vendor var tests infra .env.* phpunit.xml.dist phpunit.dist.xml phpstan.dist.neon phpstan-baseline.neon rector.php AGENTS.md \
 	CLAUDE.md Makefile
 # what the core needs for its own tests, and the caches of its lint and of its mutations (its var/); the doc of the
 # api loads Swagger UI from its CDN (assets_mode of nelmio_api_doc): its copies are of no use

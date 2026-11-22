@@ -1,8 +1,14 @@
 includes:
     - ../../packages/phpstan-rules/rules.neon
+    # the errors of levels 7 to 10 the API had when it moved to max, until #259 removes them
+    - phpstan-baseline.neon
 
 parameters:
-    level: 5
+    level: max
+    ignoreErrors:
+        # an array is typed where its values are read, never by a docblock the tool alone asks for (ADR 0022)
+        - identifier: missingType.iterableValue
+          reportUnmatched: false
     # its result cache in the checkout, kept from one run to the next (the /tmp of the container goes with it)
     tmpDir: var/cache/phpstan
     paths:
