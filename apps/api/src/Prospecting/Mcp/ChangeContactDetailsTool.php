@@ -26,14 +26,16 @@ final readonly class ChangeContactDetailsTool
      * @param ?string      $language    the country of the language spoken with it (FR, GB…)
      * @param list<string> $links       the addresses of its pages on the tools outside (a company on LinkedIn or Welcome to the Jungle, any other site), five at most
      * @param ?string      $website     the address of its site, with or without its scheme
+     * @param ?int         $revision    the organization's `revision` as you read it: if it changed since, the change is refused (changedMeanwhile) and you read it again
      *
      * @return array<string, mixed>
      */
     #[McpTool(name: 'update-organization-details', description: 'Change the e-mail, phone number, language, links and website of an organization, nothing else changes; what is left out is removed. Answers the organization.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
-    public function __invoke(string $id, ?string $email = null, ?string $phoneNumber = null, ?string $language = null, array $links = [], ?string $website = null): array
+    public function __invoke(string $id, ?string $email = null, ?string $phoneNumber = null, ?string $language = null, array $links = [], ?string $website = null, ?int $revision = null): array
     {
-        return $this->writes->write(
+        return $this->writes->writeOnRevision(
             $id,
+            $revision,
             new OrganizationContactDetailsInput($email, $phoneNumber, $language, $links, $website),
             static fn (OrganizationContactDetailsInput $input, OrganizationSheet $organization, string $memberId, \DateTimeImmutable $now): ChangeContactDetails => new ChangeContactDetails($memberId, $organization->id, $input->email, $input->phoneNumber, $input->language, $now, $input->links, $input->website),
         );

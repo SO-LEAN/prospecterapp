@@ -25,14 +25,16 @@ final readonly class ReviseLegalIdentityTool
      * @param ?string $form          its legal form (SAS, SARL…)
      * @param ?string $type          its type
      * @param ?string $siret         its SIRET, 14 digits
+     * @param ?int    $revision      the organization's `revision` as you read it: if it changed since, the change is refused (changedMeanwhile) and you read it again
      *
      * @return array<string, mixed>
      */
     #[McpTool(name: 'update-organization-identity', description: 'Revise the legal identity of an organization (corporate name, form, type, SIRET), nothing else changes; what is left out is removed. Answers the organization.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
-    public function __invoke(string $id, ?string $corporateName = null, ?string $form = null, ?string $type = null, ?string $siret = null): array
+    public function __invoke(string $id, ?string $corporateName = null, ?string $form = null, ?string $type = null, ?string $siret = null, ?int $revision = null): array
     {
-        return $this->writes->write(
+        return $this->writes->writeOnRevision(
             $id,
+            $revision,
             new ReviseLegalIdentityInput($corporateName, $form, $type, $siret),
             static fn (ReviseLegalIdentityInput $input, OrganizationSheet $organization, string $memberId, \DateTimeImmutable $now): ReviseLegalIdentity => new ReviseLegalIdentity($memberId, $organization->id, $input->corporateName, $input->form, $input->type, $now, $input->siret),
         );
