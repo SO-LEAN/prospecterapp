@@ -4,7 +4,7 @@ No Symfony CLI: run commands through `docker compose run --rm php ...` (see `doc
 
 ## Role
 
-Keeps the files uploaded through the API in S3 buckets and serves them, with images in named sizes generated on first request. It also keeps the exchanges' private files, uploaded and read through signed requests. No business rules, no database.
+The storage keeps the files uploaded through the API in S3 buckets and serves them. It generates images in named sizes on first request. It also keeps the exchanges' private files, which are uploaded and read through signed requests. It has no business rules and no database.
 
 ## What is in force
 
@@ -12,4 +12,4 @@ Read before working on the storage: `docs/architecture/storage.md` (buckets, hos
 
 ## Commands
 
-From the repository root: `make test-storage` (starts MiniStack); `make lint` and `make fix` cover it too (PHPStan at level `max` with no baseline, ignoring only `missingType.iterableValue`, ADR 0192: what the AWS SDK gives untyped is read through `Typed`). Every PHP file declares `declare(strict_types=1)`, `bin/console` included; `make lint` refuses one without it, `config/bundles.php` included (`make fix` puts it back after Flex); `config/reference.php`, which Symfony writes at each build of the debug container, is not committed (ADR 0194). To run a single command: `docker compose run --rm --no-deps -w /var/www/src/apps/storage php <cmd>`.
+Run them from the repository root. `make test-storage` runs the tests and starts MiniStack. `make lint` and `make fix` cover the storage too. PHPStan runs at level `max` with no baseline and ignores only `missingType.iterableValue` (ADR 0192). What the AWS SDK gives untyped is read through `Typed`. Every PHP file declares `declare(strict_types=1)`, `bin/console` included. `make lint` refuses a file without it, `config/bundles.php` included. `make fix` puts the declaration back after Flex removes it. Symfony writes `config/reference.php` at each build of the debug container. That file is not committed (ADR 0194). To run a single command: `docker compose run --rm --no-deps -w /var/www/src/apps/storage php <cmd>`.
