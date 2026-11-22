@@ -131,7 +131,7 @@ Code: `packages/core/src/Connectors`.
   The import follows these rules:
   - The exchange is told to Prospecting with its subject, its text and its direction, received or sent. It is told once for each correspondent recognized among its recipients (`EmailExchanged`). The reaction itself publishes the event. No domain event carries the text.
   - Each imported attachment is read once from the provider. It is sent to the private storage as an upload for each correspondent, and the event names its upload. The event names the attachments left out by their name and size (`ProviderMailbox::depositAttachment()`, ADR 0182).
-  - Some e-mails import nothing: one in the spam, the trash or the drafts, one received from an unknown sender, and one sent to unknown recipients only. A person in copy gets nothing either. No contact is ever created.
+  - Some e-mails import nothing: one in the spam, the trash or the drafts, one received from an unknown sender, and one sent to unknown recipients only. Nothing is imported for a person in copy. No contact is ever created.
   - An e-mail that the member sends to themselves or to a member of the account has no correspondent.
   - A message gone in the meantime imports nothing. Neither does an import that is no longer active.
 - A member reimports the e-mails that their mailbox already exchanged with a contact or an organization. They do it from the contact's or the organization's card (`CatchUpMailHistory`, ADR 0176).
