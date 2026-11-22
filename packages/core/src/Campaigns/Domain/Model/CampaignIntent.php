@@ -25,4 +25,6 @@ enum CampaignIntent
     case StopCampaign;
     /** Lead it: note the exchange of a recipient, or dismiss them. */
     case RunCampaign;
+    /** Set the most recipients processed a day, or take that cap off. */
+    case SetDailyCap;
 }
