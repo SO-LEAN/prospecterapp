@@ -140,7 +140,7 @@ AI (Claude)                         API (api.<domain>)                          
   - `record-contact` (`Identification\Mcp\RecordContactTool`, no endpoint, `idempotentHint`, ADR 0177) records a person and the organization they work for, in one call. `Identification\ContactRecorder` composes it.
     - Both are identified first, by their keys. Or the member picks them among those to confirm (`organizationId`, through `OrganizationResolver` and the voter; `personId`). Or the member declares another one (`newOrganization`, `newPerson`).
     - When one is left to confirm, the tool writes nothing and answers its candidates.
-    - Otherwise the organization is started (its SIRET noted after) or completed. Then, last, the contact is completed and attached (`AddContact`), unless the organization already names them. Otherwise the contact is collected for the organization.
+    - Otherwise the organization is started (its SIRET noted after) or completed. Then, last, the contact is written. A known contact is completed, and attached (`AddContact`) unless the organization already names them. A new contact is collected for the organization.
     - Each one is answered:
       - `created`;
       - `known`, with the names of the fields completed and of those given differently from what was noted (`CompareWithOrganization`, `CompareWithContact`, read before the commands);
