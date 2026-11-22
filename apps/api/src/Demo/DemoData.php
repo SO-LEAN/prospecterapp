@@ -19,8 +19,8 @@ use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\PersonalData\Domain\Model\Reader;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
+use Prospecter\Core\Prospecting\Domain\Model\ContactCorrespondent;
 use Prospecter\Core\Prospecting\Domain\Model\ContactToAttach;
-use Prospecter\Core\Prospecting\Domain\Model\Correspondent;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\Duration;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
@@ -173,14 +173,14 @@ final readonly class DemoData
         $toAttach = ContactToAttach::metBy($prospector, $grace->id(), $meeting, $now);
         $this->contactsToAttach->save($toAttach);
         $this->publish($toAttach);
-        $visio = Exchange::planned(new Gesture($account->id(), $prospector->id, $now), new ExchangeId($this->identities->next()), Correspondent::contact($grace->id(), []), ExchangeFacts::planned(Channel::VideoCall, $meeting, Duration::inMinutes(null), 'Découverte'));
+        $visio = Exchange::planned(new Gesture($account->id(), $prospector->id, $now), new ExchangeId($this->identities->next()), new ContactCorrespondent($grace->id(), []), ExchangeFacts::planned(Channel::VideoCall, $meeting, Duration::inMinutes(null), 'Découverte'));
         $this->exchanges->save($visio);
         $this->publish($visio);
     }
 
     private function anExchange(Prospector $prospector, Person $contact, Organization $organization, ExchangeFacts $facts): void
     {
-        $exchange = Exchange::noted(new Gesture($prospector->accountId, $prospector->id, $facts->occurredAt), new ExchangeId($this->identities->next()), Correspondent::contact($contact->id(), [$organization->id()]), Noting::of($facts, ExchangeStatus::Done));
+        $exchange = Exchange::noted(new Gesture($prospector->accountId, $prospector->id, $facts->occurredAt), new ExchangeId($this->identities->next()), new ContactCorrespondent($contact->id(), [$organization->id()]), Noting::of($facts, ExchangeStatus::Done));
         $this->exchanges->save($exchange);
         $this->publish($exchange);
     }

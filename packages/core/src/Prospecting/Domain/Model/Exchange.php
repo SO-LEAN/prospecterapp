@@ -109,11 +109,11 @@ final class Exchange implements ReleasesEvents
      */
     public static function noted(Gesture $gesture, ExchangeId $id, Correspondent $correspondent, Noting $noting): self
     {
-        $noting->ensureToHandle();
+        $correspondent->ensureToHandle();
         self::ensureHappenedBefore($noting->facts, $gesture->at);
         self::ensureMissable($noting->facts->channel, $noting->outcome);
         $exchange = new self($id, $gesture->accountId, $gesture->by, $correspondent->contact, $correspondent->keptFor, $noting->facts, $noting->outcome, $gesture->at);
-        $exchange->campaign = $noting->campaign();
+        $exchange->campaign = $correspondent->campaign();
         $exchange->importedFrom = $noting->importedFrom;
         $exchange->fingerprint = $noting->fingerprintWith($correspondent->identity);
         $exchange->origin = $gesture->origin;
@@ -127,7 +127,7 @@ final class Exchange implements ReleasesEvents
      *
      * @throws PlannedExchangeInThePast
      */
-    public static function planned(Gesture $gesture, ExchangeId $id, Correspondent $correspondent, ExchangeFacts $facts): self
+    public static function planned(Gesture $gesture, ExchangeId $id, ContactCorrespondent|OrganizationCorrespondent $correspondent, ExchangeFacts $facts): self
     {
         self::ensureToCome($facts->occurredAt, $gesture->at);
         $exchange = new self($id, $gesture->accountId, $gesture->by, $correspondent->contact, $correspondent->keptFor, $facts, ExchangeStatus::Planned, $gesture->at);
@@ -143,7 +143,7 @@ final class Exchange implements ReleasesEvents
      *
      * @throws PlannedExchangeInThePast
      */
-    public static function bookedByAContact(Gesture $gesture, ExchangeId $id, Correspondent $contact, ExchangeFacts $facts): self
+    public static function bookedByAContact(Gesture $gesture, ExchangeId $id, ContactCorrespondent $contact, ExchangeFacts $facts): self
     {
         $exchange = self::planned($gesture, $id, $contact, $facts);
         $exchange->bookedByLink = true;

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\PlanExchange;
 
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
-use Prospecter\Core\Prospecting\Domain\Model\Correspondent;
+use Prospecter\Core\Prospecting\Domain\Model\ContactCorrespondent;
 use Prospecter\Core\Prospecting\Domain\Model\Duration;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
@@ -41,7 +41,7 @@ final readonly class PlanExchangeHandler implements CommandHandler
         $exchange = Exchange::planned(
             new Gesture($prospector->accountId, $prospector->id, $command->executedAt, Origin::byAnAI($command->byAnAI)),
             new ExchangeId($command->id),
-            Correspondent::contact($contact, $this->contactOrganizations->keepersOf($contact, $prospector)),
+            new ContactCorrespondent($contact, $this->contactOrganizations->keepersOf($contact, $prospector)),
             self::factsOf($command),
         );
         $this->exchanges->save($exchange);

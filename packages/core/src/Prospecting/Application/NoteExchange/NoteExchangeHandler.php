@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\NoteExchange;
 
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
-use Prospecter\Core\Prospecting\Domain\Model\Correspondent;
+use Prospecter\Core\Prospecting\Domain\Model\ContactCorrespondent;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
@@ -46,7 +46,7 @@ final readonly class NoteExchangeHandler implements CommandHandler
         $exchange = Exchange::noted(
             new Gesture($prospector->accountId, $prospector->id, $command->executedAt, Origin::byAnAI($command->byAnAI)),
             new ExchangeId($command->id),
-            Correspondent::contact($contact, $this->contactOrganizations->keepersOf($contact, $prospector)),
+            new ContactCorrespondent($contact, $this->contactOrganizations->keepersOf($contact, $prospector)),
             Noting::of($facts, ExchangeStatus::outcome($command->missed), MessageReference::of($facts->channel, $command->messageId, $command->linkedInConversation)),
         );
         if ($command->noteOnce) {

@@ -6,12 +6,12 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
-use Prospecter\Core\Prospecting\Domain\Model\Correspondent;
 use Prospecter\Core\Prospecting\Domain\Model\Due;
 use Prospecter\Core\Prospecting\Domain\Model\Duration;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
+use Prospecter\Core\Prospecting\Domain\Model\OrganizationCorrespondent;
 use Prospecter\Core\Prospecting\Domain\Model\ToDo;
 use Prospecter\Core\Prospecting\Domain\Model\ToDoId;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
@@ -218,7 +218,7 @@ class ExchangesToProcessApiTest extends ApiTestCase
     {
         $facts = ExchangeFacts::planned(Channel::Call, new \DateTimeImmutable($at), Duration::inMinutes(null), null);
         $prospect = self::getContainer()->get(OrganizationRepository::class)->get(new OrganizationId($this->organization));
-        $planned = Exchange::planned(new Gesture($prospect->accountId(), new MemberId($memberId), new \DateTimeImmutable('2026-10-13 09:00 UTC')), new ExchangeId(self::newIdentity()), Correspondent::organization($prospect->id()), $facts);
+        $planned = Exchange::planned(new Gesture($prospect->accountId(), new MemberId($memberId), new \DateTimeImmutable('2026-10-13 09:00 UTC')), new ExchangeId(self::newIdentity()), new OrganizationCorrespondent($prospect->id()), $facts);
         self::getContainer()->get(ExchangeRepository::class)->save($planned);
 
         return $planned->id()->value;

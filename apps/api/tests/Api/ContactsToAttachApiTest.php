@@ -11,8 +11,8 @@ use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\PersonalData\Domain\Model\Reader;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
+use Prospecter\Core\Prospecting\Domain\Model\ContactCorrespondent;
 use Prospecter\Core\Prospecting\Domain\Model\ContactToAttach;
-use Prospecter\Core\Prospecting\Domain\Model\Correspondent;
 use Prospecter\Core\Prospecting\Domain\Model\Duration;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
@@ -256,7 +256,7 @@ class ContactsToAttachApiTest extends ApiTestCase
         $prospector = new Prospector($member, $this->accountOfTheFixtures(), managesPersonalData: true);
         self::getContainer()->get(ContactToAttachRepository::class)->save(ContactToAttach::metBy($prospector, $person->id(), new \DateTimeImmutable($meeting), $at));
         $facts = ExchangeFacts::planned(Channel::VideoCall, new \DateTimeImmutable($meeting), Duration::inMinutes(null), null);
-        self::getContainer()->get(ExchangeRepository::class)->save(Exchange::planned(new Gesture($this->accountOfTheFixtures(), $member, $at), new ExchangeId(self::newIdentity()), Correspondent::contact($person->id(), []), $facts));
+        self::getContainer()->get(ExchangeRepository::class)->save(Exchange::planned(new Gesture($this->accountOfTheFixtures(), $member, $at), new ExchangeId(self::newIdentity()), new ContactCorrespondent($person->id(), []), $facts));
 
         return $person->id()->value;
     }

@@ -5,7 +5,7 @@ namespace Tests\App\Api;
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
-use Prospecter\Core\Prospecting\Domain\Model\Correspondent;
+use Prospecter\Core\Prospecting\Domain\Model\ContactCorrespondent;
 use Prospecter\Core\Prospecting\Domain\Model\Duration;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
@@ -407,7 +407,7 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
      */
     private function aCallWithAdaPlannedYesterday(): string
     {
-        $call = Exchange::planned(new Gesture($this->accountOfTheFixtures(), new MemberId($this->memberIdOf('prospector-user')), new \DateTimeImmutable('2026-10-13 09:00 UTC')), new ExchangeId(self::newIdentity()), Correspondent::contact(new PersonId($this->ada()), [new OrganizationId($this->babbage())]), ExchangeFacts::planned(Channel::Call, new \DateTimeImmutable('2026-10-14 09:00 UTC'), Duration::inMinutes(null), null));
+        $call = Exchange::planned(new Gesture($this->accountOfTheFixtures(), new MemberId($this->memberIdOf('prospector-user')), new \DateTimeImmutable('2026-10-13 09:00 UTC')), new ExchangeId(self::newIdentity()), new ContactCorrespondent(new PersonId($this->ada()), [new OrganizationId($this->babbage())]), ExchangeFacts::planned(Channel::Call, new \DateTimeImmutable('2026-10-14 09:00 UTC'), Duration::inMinutes(null), null));
         self::getContainer()->get(ExchangeRepository::class)->save($call);
 
         return $call->id()->value;

@@ -9,7 +9,7 @@ use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\Port\CalendarRetriever;
 use Prospecter\Core\Prospecting\Domain\Model\CalendarPeriod;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
-use Prospecter\Core\Prospecting\Domain\Model\Correspondent;
+use Prospecter\Core\Prospecting\Domain\Model\ContactCorrespondent;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\Duration;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
@@ -117,12 +117,12 @@ class DynamoCalendarRetrieverTest extends ApiTestCase
 
     private function noted(string $occurredAt): Exchange
     {
-        return Exchange::noted(new Gesture($this->prospector->accountId, $this->prospector->id, new \DateTimeImmutable(self::NOW)), new ExchangeId(self::newIdentity()), Correspondent::contact(new PersonId(self::newIdentity()), [new OrganizationId(self::newIdentity())]), Noting::of(new ExchangeFacts(Channel::Call, Direction::Outbound, new \DateTimeImmutable($occurredAt)), ExchangeStatus::Done));
+        return Exchange::noted(new Gesture($this->prospector->accountId, $this->prospector->id, new \DateTimeImmutable(self::NOW)), new ExchangeId(self::newIdentity()), new ContactCorrespondent(new PersonId(self::newIdentity()), [new OrganizationId(self::newIdentity())]), Noting::of(new ExchangeFacts(Channel::Call, Direction::Outbound, new \DateTimeImmutable($occurredAt)), ExchangeStatus::Done));
     }
 
     private function planned(string $plannedAt): Exchange
     {
-        return Exchange::planned(new Gesture($this->prospector->accountId, $this->prospector->id, new \DateTimeImmutable(self::NOW)), new ExchangeId(self::newIdentity()), Correspondent::contact(new PersonId(self::newIdentity()), [new OrganizationId(self::newIdentity())]), ExchangeFacts::planned(Channel::Meeting, new \DateTimeImmutable($plannedAt), Duration::inMinutes(null), null));
+        return Exchange::planned(new Gesture($this->prospector->accountId, $this->prospector->id, new \DateTimeImmutable(self::NOW)), new ExchangeId(self::newIdentity()), new ContactCorrespondent(new PersonId(self::newIdentity()), [new OrganizationId(self::newIdentity())]), ExchangeFacts::planned(Channel::Meeting, new \DateTimeImmutable($plannedAt), Duration::inMinutes(null), null));
     }
 
     private function exchanges(): ExchangeRepository

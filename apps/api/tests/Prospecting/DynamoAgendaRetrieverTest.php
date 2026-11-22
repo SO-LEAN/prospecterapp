@@ -6,7 +6,7 @@ use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\Port\AgendaRetriever;
 use Prospecter\Core\Prospecting\Domain\Model\CalendarPeriod;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
-use Prospecter\Core\Prospecting\Domain\Model\Correspondent;
+use Prospecter\Core\Prospecting\Domain\Model\ContactCorrespondent;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\Duration;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
@@ -94,7 +94,7 @@ class DynamoAgendaRetrieverTest extends ApiTestCase
 
     public function testANotedExchangeIsInNoAgenda(): void
     {
-        $noted = Exchange::noted(new Gesture($this->me->accountId, $this->me->id, new \DateTimeImmutable(self::NOW)), new ExchangeId(self::newIdentity()), Correspondent::contact(new PersonId(self::newIdentity()), [new OrganizationId(self::newIdentity())]), Noting::of(new ExchangeFacts(Channel::Call, Direction::Outbound, new \DateTimeImmutable('2026-11-13 09:00 UTC')), ExchangeStatus::Done));
+        $noted = Exchange::noted(new Gesture($this->me->accountId, $this->me->id, new \DateTimeImmutable(self::NOW)), new ExchangeId(self::newIdentity()), new ContactCorrespondent(new PersonId(self::newIdentity()), [new OrganizationId(self::newIdentity())]), Noting::of(new ExchangeFacts(Channel::Call, Direction::Outbound, new \DateTimeImmutable('2026-11-13 09:00 UTC')), ExchangeStatus::Done));
         $this->exchanges()->save($noted);
 
         $this->assertSame([], $this->idsInMyAgendaBetween('2026-11-13 08:00 UTC', '2026-11-13 16:00 UTC'));
@@ -112,7 +112,7 @@ class DynamoAgendaRetrieverTest extends ApiTestCase
     private function plannedBy(Prospector $holder, string $at): Exchange
     {
         $facts = ExchangeFacts::planned(Channel::Meeting, new \DateTimeImmutable($at), Duration::inMinutes(30), null);
-        $exchange = Exchange::planned(new Gesture($holder->accountId, $holder->id, new \DateTimeImmutable(self::NOW)), new ExchangeId(self::newIdentity()), Correspondent::contact(new PersonId(self::newIdentity()), [new OrganizationId(self::newIdentity())]), $facts);
+        $exchange = Exchange::planned(new Gesture($holder->accountId, $holder->id, new \DateTimeImmutable(self::NOW)), new ExchangeId(self::newIdentity()), new ContactCorrespondent(new PersonId(self::newIdentity()), [new OrganizationId(self::newIdentity())]), $facts);
         $this->exchanges()->save($exchange);
 
         return $exchange;

@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\NoteCampaignExchange;
 
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownCampaign;
-use Prospecter\Core\Prospecting\Domain\Model\Correspondent;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\Prospecting\Domain\Model\MessageReference;
 use Prospecter\Core\Prospecting\Domain\Model\Noting;
+use Prospecter\Core\Prospecting\Domain\Model\RecipientCorrespondent;
 use Prospecter\Core\Prospecting\Domain\Port\CampaignRecipients;
 use Prospecter\Core\Prospecting\Domain\Port\Prospectors;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
@@ -60,8 +60,8 @@ final readonly class NoteCampaignExchangeHandler implements CommandHandler
         $exchange = Exchange::noted(
             new Gesture($prospector->accountId, $prospector->id, $command->executedAt, Origin::byAnAI($command->byAnAI)),
             new ExchangeId($command->id),
-            Correspondent::contact($recipient->contact, $this->contactOrganizations->of($contact, $prospector->accountId)),
-            Noting::inACampaign($recipient, $facts, ExchangeStatus::outcome($command->missed), $reference),
+            new RecipientCorrespondent($recipient, $this->contactOrganizations->of($contact, $prospector->accountId)),
+            Noting::of($facts, ExchangeStatus::outcome($command->missed), $reference),
         );
 
         if (!$command->noteOnce) {
