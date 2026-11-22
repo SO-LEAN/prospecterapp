@@ -85,7 +85,7 @@ final class Person implements ReleasesEvents
      */
     public static function collect(Gesture $gesture, PersonId $id, Purpose $purpose, ContactCard $card = new ContactCard()): self
     {
-        return self::describedBy(new self($id, $gesture->accountId, $purpose, $card->name, $card->contactDetails, $gesture->at), $card);
+        return self::carded($id, $gesture->accountId, $purpose, $card, $gesture->at);
     }
 
     /**
@@ -104,7 +104,7 @@ final class Person implements ReleasesEvents
             throw ContactWithoutOrganization::because('A contact belongs to at least one organization', 'organizationIds');
         }
 
-        $collected = self::describedBy(new self($contact->id, $by->accountId, Purpose::Prospecting, $contact->card->name, $contact->card->contactDetails, $at), $contact->card);
+        $collected = self::carded($contact->id, $by->accountId, Purpose::Prospecting, $contact->card, $at);
         $collected->origin = $origin;
         $collected->recordThat(new ContactCollected($by->accountId, $by->id, $contact->id, $contact->organizations, $at));
 
@@ -121,14 +121,15 @@ final class Person implements ReleasesEvents
     public static function collectToAttach(Reader $by, PersonId $id, ContactCard $card, \DateTimeImmutable $at): self
     {
         self::ensureCollectedByAManager($by);
-        $contact = self::describedBy(new self($id, $by->accountId, Purpose::Prospecting, $card->name, $card->contactDetails, $at), $card);
+        $contact = self::carded($id, $by->accountId, Purpose::Prospecting, $card, $at);
         $contact->recordThat(new ContactCollected($by->accountId, $by->id, $id, [], $at));
 
         return $contact;
     }
 
-    private static function describedBy(self $person, ContactCard $card): self
+    private static function carded(PersonId $id, AccountId $accountId, Purpose $purpose, ContactCard $card, \DateTimeImmutable $at): self
     {
+        $person = new self($id, $accountId, $purpose, $card->name, $card->contactDetails, $at);
         $person->civility = $card->civility;
         $person->jobTitle = $card->jobTitle;
         $person->references = $card->references;
