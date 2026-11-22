@@ -16,10 +16,12 @@ use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 final readonly class NextRecipientResource
 {
     /**
-     * @param string $channel     `email`, `call`, `sms` or `linkedIn`
-     * @param string $messageMode `asIs` or `adapted`
-     * @param string $instruction what the AI does with the message, worded for it
-     * @param int    $pending     the recipients still to handle, this one included
+     * @param string            $channel     `email`, `call`, `sms` or `linkedIn`
+     * @param string            $messageMode `asIs` or `adapted`
+     * @param string            $instruction what the AI does with the message, worded for it
+     * @param int               $pending     the recipients still to handle, this one included
+     * @param ?DailyCapResource $dailyCap    the daily cap of the campaign, none without one
+     * @param ?string           $warning     what the AI does once the daily cap is reached, worded for it; none before
      */
     public function __construct(
         public string $campaignId,
@@ -29,6 +31,8 @@ final readonly class NextRecipientResource
         public string $messageMode,
         public string $instruction,
         public int $pending,
+        public ?DailyCapResource $dailyCap,
+        public ?string $warning,
         #[SerializedName('_links')]
         #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]
         public RecipientLinksResource $links,

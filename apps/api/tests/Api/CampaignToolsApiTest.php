@@ -191,6 +191,34 @@ class CampaignToolsApiTest extends ApiTestCase
         $this->assertSame('You may rewrite the message for this person, from what you know of them (their profile, your past exchanges), but always keep the message\'s idea. Send it with your own tools: your member\'s mailbox for an e-mail, their LinkedIn for a LinkedIn message. Then log it with `log-sent-message` and the text you actually sent.', $next['instruction']);
     }
 
+    public function testTheAiIsWarnedOnceTheDailyCapIsReachedAndStillGetsTheNextRecipient(): void
+    {
+        $started = $this->aStartedCampaign();
+        $this->requestJson('PUT', '/api/campaigns/'.$started.'/daily-cap', ['dailyCap' => 1]);
+        $this->requestJson('POST', '/api/campaigns/'.$started.'/recipients/'.$this->ada.'/exchanges', self::SENT_TO_ADA);
+
+        $next = $this->callWithoutHandshake('get-next-recipient', ['id' => $started, 'timeZone' => 'Europe/Paris']);
+
+        $this->assertSame(
+            [$this->alan, ['sends' => 1, 'processedToday' => 1, 'reached' => true], 'Today\'s cap is reached (1). Stop, and ask your member whether to go beyond it before you send this message.'],
+            [self::valueAt($next, 'structuredContent', 'contact', 'id'), self::valueAt($next, 'structuredContent', 'dailyCap'), self::valueAt($next, 'structuredContent', 'warning')],
+        );
+    }
+
+    public function testBelowTheDailyCapTheAiIsNotWarned(): void
+    {
+        $started = $this->aStartedCampaign();
+        $this->requestJson('PUT', '/api/campaigns/'.$started.'/daily-cap', ['dailyCap' => 2]);
+        $this->requestJson('POST', '/api/campaigns/'.$started.'/recipients/'.$this->ada.'/exchanges', self::SENT_TO_ADA);
+
+        $next = $this->callWithoutHandshake('get-next-recipient', ['id' => $started]);
+
+        $this->assertSame(
+            [['sends' => 2, 'processedToday' => 1, 'reached' => false], null],
+            [self::valueAt($next, 'structuredContent', 'dailyCap'), self::valueAt($next, 'structuredContent', 'warning')],
+        );
+    }
+
     public function testTheNextRecipientIsRefusedAsTheMessageOfTheCampaign(): void
     {
         $started = $this->aStartedCampaign();
@@ -272,6 +300,15 @@ class CampaignToolsApiTest extends ApiTestCase
         $prompt = $this->callWithHandshake('prompts/get', ['name' => 'run-campaign', 'arguments' => ['campaign' => 'Relance PHP']]);
 
         $this->assertStringContainsString('Never send a second message to a recipient: when `get-next-recipient` gives you a recipient you already wrote to, stop and tell me who.', $prompt['messages'][0]['content']['text']);
+    }
+
+    public function testThePromptToLeadACampaignStopsAtTheDailyCapToAskTheMember(): void
+    {
+        $this->login();
+
+        $prompt = $this->callWithHandshake('prompts/get', ['name' => 'run-campaign', 'arguments' => ['campaign' => 'Relance PHP']]);
+
+        $this->assertStringContainsString('When `get-next-recipient` warns you that today\'s cap is reached, stop and ask me whether to go beyond it. Send nothing more until I answer.', self::stringAt($prompt, 'messages', 0, 'content', 'text'));
     }
 
     public function testTheAiNotesTheEmailItSentToARecipientWhoIsProcessed(): void

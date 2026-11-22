@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Campaigning;
 
 use App\Campaigning\Resource\CampaignMessageResource;
+use App\Campaigning\Resource\DailyCapResource;
 use App\Campaigning\Resource\NextRecipientResource;
 use App\Campaigning\Resource\RecipientLinksResource;
 use App\Contacts\ContactInListResourceFactory;
@@ -35,6 +36,7 @@ final readonly class NextRecipientReader
     ];
 
     private const string NO_CLOCK = 'UTC';
+    private const string DAILY_CAP_REACHED = 'Today\'s cap is reached (%d). Stop, and ask your member whether to go beyond it before you send this message.';
 
     public function __construct(
         private QueryHandler $nextRecipient,
@@ -63,6 +65,8 @@ final readonly class NextRecipientReader
             messageMode: $next->messageMode,
             instruction: self::INSTRUCTIONS[$next->messageMode],
             pending: $next->pending,
+            dailyCap: null === $next->dailyCap ? null : new DailyCapResource($next->dailyCap, $next->processedToday, $next->dailyCapReached),
+            warning: $next->dailyCapReached ? sprintf(self::DAILY_CAP_REACHED, $next->dailyCap) : null,
             links: new RecipientLinksResource(
                 noteExchange: $this->links->to('api_campaigns_note_exchange', $recipient),
                 dismiss: $this->links->to('api_campaigns_dismiss_recipient', $recipient),
