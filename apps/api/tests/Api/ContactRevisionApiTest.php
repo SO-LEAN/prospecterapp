@@ -22,8 +22,8 @@ class ContactRevisionApiTest extends ApiTestCase
     {
         parent::setUp();
         $this->login();
-        $acme = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'Acme']])['id'];
-        $this->ada = $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada'], 'organizationIds' => [$acme]])['id'];
+        $acme = self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'Acme']]), 'id');
+        $this->ada = self::stringAt($this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada'], 'organizationIds' => [$acme]]), 'id');
     }
 
     public function testAContactIsReadWithItsRevision(): void
@@ -41,7 +41,7 @@ class ContactRevisionApiTest extends ApiTestCase
 
         $this->assertChangedMeanwhile($problem);
         $contact = $this->requestJson('GET', '/api/contacts/'.$this->ada);
-        $this->assertSame('Ada', $contact['name']['firstName']);
+        $this->assertSame('Ada', self::valueAt($contact, 'name', 'firstName'));
         $this->assertSame('CTO', $contact['jobTitle']);
     }
 
@@ -72,7 +72,7 @@ class ContactRevisionApiTest extends ApiTestCase
         $problem = $this->requestJson('PATCH', '/api/contacts/'.$this->ada.'/contact-details?revision='.$read, ['phoneNumber' => '03 88 11 22 33']);
 
         $this->assertChangedMeanwhile($problem);
-        $this->assertNull($this->requestJson('GET', '/api/contacts/'.$this->ada)['contactDetails']['phoneNumber']);
+        $this->assertNull(self::valueAt($this->requestJson('GET', '/api/contacts/'.$this->ada), 'contactDetails', 'phoneNumber'));
     }
 
     /**
@@ -104,7 +104,7 @@ class ContactRevisionApiTest extends ApiTestCase
      */
     private function changedSinceRead(): int
     {
-        $read = $this->requestJson('GET', '/api/contacts/'.$this->ada)['revision'];
+        $read = self::intAt($this->requestJson('GET', '/api/contacts/'.$this->ada), 'revision');
         $this->requestJson('PATCH', '/api/contacts/'.$this->ada.'/job-title', ['jobTitle' => 'CTO']);
 
         return $read;

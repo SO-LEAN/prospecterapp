@@ -22,7 +22,7 @@ class OrganizationRevisionApiTest extends ApiTestCase
     {
         parent::setUp();
         $this->login();
-        $this->acme = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'Acme']])['id'];
+        $this->acme = self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'Acme']]), 'id');
     }
 
     public function testAnOrganizationIsReadWithItsRevision(): void
@@ -34,24 +34,24 @@ class OrganizationRevisionApiTest extends ApiTestCase
 
     public function testContactDetailsSavedOnAnOrganizationChangedSinceTheyWereReadAreRefusedAndTheOtherChangeKept(): void
     {
-        $read = $this->requestJson('GET', '/api/organizations/'.$this->acme)['revision'];
+        $read = self::intAt($this->requestJson('GET', '/api/organizations/'.$this->acme), 'revision');
         $this->requestJson('PATCH', '/api/organizations/'.$this->acme.'/contact-details', ['phoneNumber' => '03 88 11 22 33']);
 
         $problem = $this->requestJson('PATCH', '/api/organizations/'.$this->acme.'/contact-details?revision='.$read, ['phoneNumber' => '03 88 99 99 99']);
 
         $this->assertChangedMeanwhile($problem);
-        $this->assertSame('+33 3 88 11 22 33', $this->requestJson('GET', '/api/organizations/'.$this->acme)['contactDetails']['phoneNumber']);
+        $this->assertSame('+33 3 88 11 22 33', self::valueAt($this->requestJson('GET', '/api/organizations/'.$this->acme), 'contactDetails', 'phoneNumber'));
     }
 
     public function testContactDetailsSavedOnTheRevisionReadAreSavedAndAnsweredWithTheNextRevision(): void
     {
-        $read = $this->requestJson('GET', '/api/organizations/'.$this->acme)['revision'];
+        $read = self::intAt($this->requestJson('GET', '/api/organizations/'.$this->acme), 'revision');
 
         $organization = $this->requestJson('PATCH', '/api/organizations/'.$this->acme.'/contact-details?revision='.$read, ['phoneNumber' => '03 88 11 22 33']);
 
         $this->assertResponseIsSuccessful();
-        $this->assertSame('+33 3 88 11 22 33', $organization['contactDetails']['phoneNumber']);
-        $this->assertSame($read + 1, $organization['revision']);
+        $this->assertSame('+33 3 88 11 22 33', self::valueAt($organization, 'contactDetails', 'phoneNumber'));
+        $this->assertSame($read + 1, self::intAt($organization, 'revision'));
     }
 
     public function testARevisionThatIsNoNaturalNumberIsRefused(): void
@@ -68,7 +68,7 @@ class OrganizationRevisionApiTest extends ApiTestCase
         $problem = $this->requestJson('PATCH', '/api/organizations/'.$this->acme.'/legal-identity?revision='.$read, ['corporateName' => 'Acme Industries']);
 
         $this->assertChangedMeanwhile($problem);
-        $this->assertSame('Acme', $this->requestJson('GET', '/api/organizations/'.$this->acme)['legalIdentity']['corporateName']);
+        $this->assertSame('Acme', self::valueAt($this->requestJson('GET', '/api/organizations/'.$this->acme), 'legalIdentity', 'corporateName'));
     }
 
     public function testObservationsWrittenOnAnOrganizationChangedSinceItWasReadAreRefused(): void
@@ -93,8 +93,8 @@ class OrganizationRevisionApiTest extends ApiTestCase
 
     public function testAContactAttachedFromAScreenReadBeforeAChangeIsAttached(): void
     {
-        $globex = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'Globex']])['id'];
-        $ada = $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada'], 'organizationIds' => [$globex]])['id'];
+        $globex = self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'Globex']]), 'id');
+        $ada = self::stringAt($this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada'], 'organizationIds' => [$globex]]), 'id');
         $this->changedSinceRead();
 
         $organization = $this->requestJson('POST', '/api/organizations/'.$this->acme.'/contacts', ['personId' => $ada]);
@@ -105,7 +105,7 @@ class OrganizationRevisionApiTest extends ApiTestCase
 
     public function testAnAIChangingAnOrganizationChangedSinceItReadItIsToldItChanged(): void
     {
-        $read = $this->answerOf($this->callWithoutHandshake('get-organization', ['id' => $this->acme]))['revision'];
+        $read = self::intAt($this->answerOf($this->callWithoutHandshake('get-organization', ['id' => $this->acme])), 'revision');
         $this->requestJson('PATCH', '/api/organizations/'.$this->acme.'/contact-details', ['phoneNumber' => '03 88 11 22 33']);
 
         $refusal = $this->callWithoutHandshake('update-organization-details', ['id' => $this->acme, 'phoneNumber' => '03 88 99 99 99', 'revision' => $read]);
@@ -142,7 +142,7 @@ class OrganizationRevisionApiTest extends ApiTestCase
      */
     private function changedSinceRead(): int
     {
-        $read = $this->requestJson('GET', '/api/organizations/'.$this->acme)['revision'];
+        $read = self::intAt($this->requestJson('GET', '/api/organizations/'.$this->acme), 'revision');
         $this->requestJson('PATCH', '/api/organizations/'.$this->acme.'/contact-details', ['phoneNumber' => '03 88 11 22 33']);
 
         return $read;

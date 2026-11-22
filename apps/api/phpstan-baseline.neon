@@ -2821,24 +2821,6 @@ parameters:
 			path: src/Exchanges/Mcp/CancelExchangeTool.php
 
 		-
-			message: '#^Parameter \#3 \$command of method App\\Exchanges\\Mcp\\ExchangeWrites\:\:write\(\) expects Closure\(App\\Exchanges\\Input\\TextCorrectionInput\|null, Prospecter\\Core\\Prospecting\\Application\\ConsultExchange\\ExchangeDetail, string, DateTimeImmutable\)\: object, Closure\(App\\Exchanges\\Input\\TextCorrectionInput, Prospecter\\Core\\Prospecting\\Application\\ConsultExchange\\ExchangeDetail, string, DateTimeImmutable\)\: Prospecter\\Core\\Prospecting\\Application\\CorrectExchangeText\\CorrectExchangeText given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Exchanges/Mcp/CorrectExchangeTextTool.php
-
-		-
-			message: '#^Parameter \#3 \$command of method App\\Exchanges\\Mcp\\ExchangeWrites\:\:write\(\) expects Closure\(App\\Exchanges\\Input\\CorrectionInput\|null, Prospecter\\Core\\Prospecting\\Application\\ConsultExchange\\ExchangeDetail, string, DateTimeImmutable\)\: object, Closure\(App\\Exchanges\\Input\\CorrectionInput, Prospecter\\Core\\Prospecting\\Application\\ConsultExchange\\ExchangeDetail, string, DateTimeImmutable\)\: Prospecter\\Core\\Prospecting\\Application\\CorrectExchange\\CorrectExchange given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Exchanges/Mcp/CorrectExchangeTool.php
-
-		-
-			message: '#^Parameter \#3 \$command of method App\\Exchanges\\Mcp\\ExchangeWrites\:\:write\(\) expects Closure\(App\\Exchanges\\Input\\VenueCorrectionInput\|null, Prospecter\\Core\\Prospecting\\Application\\ConsultExchange\\ExchangeDetail, string, DateTimeImmutable\)\: object, Closure\(App\\Exchanges\\Input\\VenueCorrectionInput, Prospecter\\Core\\Prospecting\\Application\\ConsultExchange\\ExchangeDetail, string, DateTimeImmutable\)\: Prospecter\\Core\\Prospecting\\Application\\CorrectExchangeVenue\\CorrectExchangeVenue given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Exchanges/Mcp/CorrectExchangeVenueTool.php
-
-		-
 			message: '#^Parameter \#3 \$command of method App\\Exchanges\\Mcp\\ExchangeWrites\:\:dispatched\(\) expects Closure\(object\|null, Prospecter\\Core\\Prospecting\\Application\\ConsultExchange\\ExchangeDetail, string, DateTimeImmutable\)\: object, Closure\(null, Prospecter\\Core\\Prospecting\\Application\\ConsultExchange\\ExchangeDetail, string, DateTimeImmutable\)\: Prospecter\\Core\\Prospecting\\Application\\EraseExchange\\EraseExchange given\.$#'
 			identifier: argument.type
 			count: 1
@@ -3481,12 +3463,6 @@ parameters:
 			path: src/Prospecting/Mcp/AttachToHoldingTool.php
 
 		-
-			message: '#^Parameter \#3 \$command of method App\\Prospecting\\Mcp\\OrganizationWrites\:\:write\(\) expects Closure\(App\\Prospecting\\Input\\OrganizationContactDetailsInput\|null, Prospecter\\Core\\Prospecting\\Application\\OrganizationSheet, string, DateTimeImmutable\)\: object, Closure\(App\\Prospecting\\Input\\OrganizationContactDetailsInput, Prospecter\\Core\\Prospecting\\Application\\OrganizationSheet, string, DateTimeImmutable\)\: Prospecter\\Core\\Prospecting\\Application\\ChangeContactDetails\\ChangeContactDetails given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Prospecting/Mcp/ChangeContactDetailsTool.php
-
-		-
 			message: '#^Parameter \#3 \$command of method App\\Prospecting\\Mcp\\OrganizationWrites\:\:write\(\) expects Closure\(object\|null, Prospecter\\Core\\Prospecting\\Application\\OrganizationSheet, string, DateTimeImmutable\)\: object, Closure\(null, Prospecter\\Core\\Prospecting\\Application\\OrganizationSheet, string, DateTimeImmutable\)\: Prospecter\\Core\\Prospecting\\Application\\ChangeLogo\\ChangeLogo given\.$#'
 			identifier: argument.type
 			count: 1
@@ -3511,12 +3487,6 @@ parameters:
 			path: src/Prospecting/Mcp/ProposeMeetingPlaceTool.php
 
 		-
-			message: '#^Parameter \#3 \$command of method App\\Prospecting\\Mcp\\OrganizationWrites\:\:write\(\) expects Closure\(App\\Shared\\Input\\AddressInput\|null, Prospecter\\Core\\Prospecting\\Application\\OrganizationSheet, string, DateTimeImmutable\)\: object, Closure\(App\\Shared\\Input\\AddressInput, Prospecter\\Core\\Prospecting\\Application\\OrganizationSheet, string, DateTimeImmutable\)\: Prospecter\\Core\\Prospecting\\Application\\Relocate\\Relocate given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Prospecting/Mcp/RelocateTool.php
-
-		-
 			message: '#^Parameter \#3 \$command of method App\\Prospecting\\Mcp\\OrganizationWrites\:\:write\(\) expects Closure\(object\|null, Prospecter\\Core\\Prospecting\\Application\\OrganizationSheet, string, DateTimeImmutable\)\: object, Closure\(null, Prospecter\\Core\\Prospecting\\Application\\OrganizationSheet, string, DateTimeImmutable\)\: Prospecter\\Core\\Prospecting\\Application\\RemoveContact\\RemoveContact given\.$#'
 			identifier: argument.type
 			count: 1
@@ -3529,22 +3499,10 @@ parameters:
 			path: src/Prospecting/Mcp/RemoveLogoTool.php
 
 		-
-			message: '#^Parameter \#3 \$command of method App\\Prospecting\\Mcp\\OrganizationWrites\:\:write\(\) expects Closure\(App\\Prospecting\\Input\\ReviseLegalIdentityInput\|null, Prospecter\\Core\\Prospecting\\Application\\OrganizationSheet, string, DateTimeImmutable\)\: object, Closure\(App\\Prospecting\\Input\\ReviseLegalIdentityInput, Prospecter\\Core\\Prospecting\\Application\\OrganizationSheet, string, DateTimeImmutable\)\: Prospecter\\Core\\Prospecting\\Application\\ReviseLegalIdentity\\ReviseLegalIdentity given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Prospecting/Mcp/ReviseLegalIdentityTool.php
-
-		-
 			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
 			identifier: callable.nonCallable
 			count: 1
 			path: src/Prospecting/Mcp/SearchEstablishmentsTool.php
-
-		-
-			message: '#^Parameter \#3 \$command of method App\\Prospecting\\Mcp\\OrganizationWrites\:\:write\(\) expects Closure\(App\\Prospecting\\Input\\ObservationsInput\|null, Prospecter\\Core\\Prospecting\\Application\\OrganizationSheet, string, DateTimeImmutable\)\: object, Closure\(App\\Prospecting\\Input\\ObservationsInput, Prospecter\\Core\\Prospecting\\Application\\OrganizationSheet, string, DateTimeImmutable\)\: Prospecter\\Core\\Prospecting\\Application\\WriteObservations\\WriteObservations given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Prospecting/Mcp/WriteObservationsTool.php
 
 		-
 			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
@@ -7663,12 +7621,6 @@ parameters:
 			path: tests/Api/BookingApiTest.php
 
 		-
-			message: '#^Anonymous function should return string but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/BookingPageToolsApiTest.php
-
-		-
 			message: '#^Binary operation "\." between ''/api/me/booking…'' and mixed results in an error\.$#'
 			identifier: binaryOp.invalid
 			count: 1
@@ -7705,15 +7657,9 @@ parameters:
 			path: tests/Api/BookingPageToolsApiTest.php
 
 		-
-			message: '#^Cannot access offset ''text'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
-			path: tests/Api/BookingPageToolsApiTest.php
-
-		-
 			message: '#^Cannot access offset 0 on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
+			count: 1
 			path: tests/Api/BookingPageToolsApiTest.php
 
 		-
@@ -7723,50 +7669,8 @@ parameters:
 			path: tests/Api/BookingPageToolsApiTest.php
 
 		-
-			message: '#^Method Tests\\App\\Api\\BookingPageToolsApiTest\:\:answerOf\(\) should return array\<string, mixed\> but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/BookingPageToolsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\BookingPageToolsApiTest\:\:argumentsOf\(\) should return list\<array\{string, bool\}\> but returns array\<array\{mixed, mixed\}\>\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/BookingPageToolsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\BookingPageToolsApiTest\:\:everyToolListed\(\) should return list\<array\<string, mixed\>\> but returns array\<mixed\>\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/BookingPageToolsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\BookingPageToolsApiTest\:\:promptListed\(\) should return array\<string, mixed\> but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/BookingPageToolsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\BookingPageToolsApiTest\:\:resultOfTheCall\(\) should return array\<string, mixed\> but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/BookingPageToolsApiTest.php
-
-		-
 			message: '#^Offset 0 might not exist on array\{\}\|list\{0\: array\<string, mixed\>, 1\?\: array\<string, mixed\>, 2\?\: array\<string, mixed\>, 3\?\: array\<string, mixed\>, 4\?\: array\<string, mixed\>\}\.$#'
 			identifier: offsetAccess.notFound
-			count: 1
-			path: tests/Api/BookingPageToolsApiTest.php
-
-		-
-			message: '#^Only iterables can be unpacked, mixed given\.$#'
-			identifier: arrayUnpacking.nonIterable
-			count: 1
-			path: tests/Api/BookingPageToolsApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$array of function array_find expects array, mixed given\.$#'
-			identifier: argument.type
 			count: 1
 			path: tests/Api/BookingPageToolsApiTest.php
 
@@ -7779,18 +7683,6 @@ parameters:
 		-
 			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, Closure\(array\)\: array\{mixed, mixed\} given\.$#'
 			identifier: argument.type
-			count: 2
-			path: tests/Api/BookingPageToolsApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, Closure\(array\)\: string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/BookingPageToolsApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$json of function json_decode expects string, mixed given\.$#'
-			identifier: argument.type
 			count: 1
 			path: tests/Api/BookingPageToolsApiTest.php
 
@@ -7802,12 +7694,6 @@ parameters:
 
 		-
 			message: '#^Parameter \#2 \$array of function array_map expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 3
-			path: tests/Api/BookingPageToolsApiTest.php
-
-		-
-			message: '#^Parameter \#2 \$callback of function array_find expects callable\(mixed, mixed\)\: bool, Closure\(array\)\: bool given\.$#'
 			identifier: argument.type
 			count: 1
 			path: tests/Api/BookingPageToolsApiTest.php
@@ -8287,12 +8173,6 @@ parameters:
 			path: tests/Api/CampaignRecipientsApiTest.php
 
 		-
-			message: '#^Anonymous function should return string but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/CampaignToolsApiTest.php
-
-		-
 			message: '#^Binary operation "\." between ''/api/campaigns/'' and mixed results in an error\.$#'
 			identifier: binaryOp.invalid
 			count: 2
@@ -8451,13 +8331,13 @@ parameters:
 		-
 			message: '#^Cannot access offset ''text'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
-			count: 6
+			count: 4
 			path: tests/Api/CampaignToolsApiTest.php
 
 		-
 			message: '#^Cannot access offset 0 on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
-			count: 6
+			count: 5
 			path: tests/Api/CampaignToolsApiTest.php
 
 		-
@@ -8473,44 +8353,8 @@ parameters:
 			path: tests/Api/CampaignToolsApiTest.php
 
 		-
-			message: '#^Method Tests\\App\\Api\\CampaignToolsApiTest\:\:answerOf\(\) should return array\<string, mixed\> but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/CampaignToolsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\CampaignToolsApiTest\:\:argumentsOf\(\) should return list\<array\{string, bool\}\> but returns array\<array\{mixed, mixed\}\>\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/CampaignToolsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\CampaignToolsApiTest\:\:everyToolListed\(\) should return list\<array\<string, mixed\>\> but returns array\<mixed\>\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/CampaignToolsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\CampaignToolsApiTest\:\:promptListed\(\) should return array\<string, mixed\> but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/CampaignToolsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\CampaignToolsApiTest\:\:resultOfTheCall\(\) should return array\<string, mixed\> but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/CampaignToolsApiTest.php
-
-		-
 			message: '#^Offset 0 might not exist on array\{\}\|list\{0\: array\<string, mixed\>, 1\?\: array\<string, mixed\>, 2\?\: array\<string, mixed\>, 3\?\: array\<string, mixed\>, 4\?\: array\<string, mixed\>\}\.$#'
 			identifier: offsetAccess.notFound
-			count: 1
-			path: tests/Api/CampaignToolsApiTest.php
-
-		-
-			message: '#^Only iterables can be unpacked, mixed given\.$#'
-			identifier: arrayUnpacking.nonIterable
 			count: 1
 			path: tests/Api/CampaignToolsApiTest.php
 
@@ -8523,7 +8367,7 @@ parameters:
 		-
 			message: '#^Parameter \#1 \$array of function array_find expects array, mixed given\.$#'
 			identifier: argument.type
-			count: 3
+			count: 2
 			path: tests/Api/CampaignToolsApiTest.php
 
 		-
@@ -8533,21 +8377,9 @@ parameters:
 			path: tests/Api/CampaignToolsApiTest.php
 
 		-
-			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, Closure\(array\)\: array\{mixed, mixed\} given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/CampaignToolsApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, Closure\(array\)\: string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/CampaignToolsApiTest.php
-
-		-
 			message: '#^Parameter \#1 \$json of function json_decode expects string, mixed given\.$#'
 			identifier: argument.type
-			count: 2
+			count: 1
 			path: tests/Api/CampaignToolsApiTest.php
 
 		-
@@ -8557,15 +8389,9 @@ parameters:
 			path: tests/Api/CampaignToolsApiTest.php
 
 		-
-			message: '#^Parameter \#2 \$array of function array_map expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 2
-			path: tests/Api/CampaignToolsApiTest.php
-
-		-
 			message: '#^Parameter \#2 \$callback of function array_find expects callable\(mixed, mixed\)\: bool, Closure\(array\)\: bool given\.$#'
 			identifier: argument.type
-			count: 3
+			count: 2
 			path: tests/Api/CampaignToolsApiTest.php
 
 		-
@@ -8865,7 +8691,7 @@ parameters:
 		-
 			message: '#^Anonymous function should return string but returns mixed\.$#'
 			identifier: return.type
-			count: 2
+			count: 1
 			path: tests/Api/ConnectorToolsApiTest.php
 
 		-
@@ -8895,35 +8721,11 @@ parameters:
 		-
 			message: '#^Cannot access offset ''text'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
-			count: 3
-			path: tests/Api/ConnectorToolsApiTest.php
-
-		-
-			message: '#^Cannot access offset 0 on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
 			count: 1
 			path: tests/Api/ConnectorToolsApiTest.php
 
 		-
 			message: '#^Method Tests\\App\\Api\\ConnectorToolsApiTest\:\:acme\(\) should return string but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/ConnectorToolsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\ConnectorToolsApiTest\:\:answerOf\(\) should return array\<string, mixed\> but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/ConnectorToolsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\ConnectorToolsApiTest\:\:argumentsOf\(\) should return list\<array\{string, bool\}\> but returns array\<array\{mixed, mixed\}\>\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/ConnectorToolsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\ConnectorToolsApiTest\:\:everyToolListed\(\) should return list\<array\<string, mixed\>\> but returns array\<mixed\>\.$#'
 			identifier: return.type
 			count: 1
 			path: tests/Api/ConnectorToolsApiTest.php
@@ -8935,37 +8737,13 @@ parameters:
 			path: tests/Api/ConnectorToolsApiTest.php
 
 		-
-			message: '#^Method Tests\\App\\Api\\ConnectorToolsApiTest\:\:promptListed\(\) should return array\<string, mixed\> but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/ConnectorToolsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\ConnectorToolsApiTest\:\:resultOfTheCall\(\) should return array\<string, mixed\> but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/ConnectorToolsApiTest.php
-
-		-
 			message: '#^Offset 0 might not exist on array\{\}\|list\{0\: array\<string, mixed\>, 1\?\: array\<string, mixed\>, 2\?\: array\<string, mixed\>, 3\?\: array\<string, mixed\>, 4\?\: array\<string, mixed\>\}\.$#'
 			identifier: offsetAccess.notFound
 			count: 1
 			path: tests/Api/ConnectorToolsApiTest.php
 
 		-
-			message: '#^Only iterables can be unpacked, mixed given\.$#'
-			identifier: arrayUnpacking.nonIterable
-			count: 1
-			path: tests/Api/ConnectorToolsApiTest.php
-
-		-
 			message: '#^Parameter \#1 \$array of function array_column expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/ConnectorToolsApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$array of function array_find expects array, mixed given\.$#'
 			identifier: argument.type
 			count: 1
 			path: tests/Api/ConnectorToolsApiTest.php
@@ -8977,31 +8755,13 @@ parameters:
 			path: tests/Api/ConnectorToolsApiTest.php
 
 		-
-			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, Closure\(array\)\: array\{mixed, mixed\} given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/ConnectorToolsApiTest.php
-
-		-
 			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, Closure\(array\)\: string given\.$#'
-			identifier: argument.type
-			count: 2
-			path: tests/Api/ConnectorToolsApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$json of function json_decode expects string, mixed given\.$#'
 			identifier: argument.type
 			count: 1
 			path: tests/Api/ConnectorToolsApiTest.php
 
 		-
 			message: '#^Parameter \#2 \$array of function array_map expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 3
-			path: tests/Api/ConnectorToolsApiTest.php
-
-		-
-			message: '#^Parameter \#2 \$callback of function array_find expects callable\(mixed, mixed\)\: bool, Closure\(array\)\: bool given\.$#'
 			identifier: argument.type
 			count: 1
 			path: tests/Api/ConnectorToolsApiTest.php
@@ -9397,12 +9157,6 @@ parameters:
 			path: tests/Api/EstablishmentsApiTest.php
 
 		-
-			message: '#^Anonymous function should return string but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/ExchangeAndToDoToolsApiTest.php
-
-		-
 			message: '#^Binary operation "\." between ''/api/exchanges/'' and mixed results in an error\.$#'
 			identifier: binaryOp.invalid
 			count: 1
@@ -9517,12 +9271,6 @@ parameters:
 			path: tests/Api/ExchangeAndToDoToolsApiTest.php
 
 		-
-			message: '#^Cannot access offset ''text'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
-			path: tests/Api/ExchangeAndToDoToolsApiTest.php
-
-		-
 			message: '#^Cannot access offset ''title'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 4
@@ -9531,7 +9279,7 @@ parameters:
 		-
 			message: '#^Cannot access offset 0 on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
-			count: 18
+			count: 17
 			path: tests/Api/ExchangeAndToDoToolsApiTest.php
 
 		-
@@ -9553,25 +9301,7 @@ parameters:
 			path: tests/Api/ExchangeAndToDoToolsApiTest.php
 
 		-
-			message: '#^Method Tests\\App\\Api\\ExchangeAndToDoToolsApiTest\:\:answerOf\(\) should return array\<string, mixed\> but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/ExchangeAndToDoToolsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\ExchangeAndToDoToolsApiTest\:\:argumentsOf\(\) should return list\<array\{string, bool\}\> but returns array\<array\{mixed, mixed\}\>\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/ExchangeAndToDoToolsApiTest.php
-
-		-
 			message: '#^Method Tests\\App\\Api\\ExchangeAndToDoToolsApiTest\:\:babbage\(\) should return string but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/ExchangeAndToDoToolsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\ExchangeAndToDoToolsApiTest\:\:everyToolListed\(\) should return list\<array\<string, mixed\>\> but returns array\<mixed\>\.$#'
 			identifier: return.type
 			count: 1
 			path: tests/Api/ExchangeAndToDoToolsApiTest.php
@@ -9583,37 +9313,13 @@ parameters:
 			path: tests/Api/ExchangeAndToDoToolsApiTest.php
 
 		-
-			message: '#^Method Tests\\App\\Api\\ExchangeAndToDoToolsApiTest\:\:promptListed\(\) should return array\<string, mixed\> but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/ExchangeAndToDoToolsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\ExchangeAndToDoToolsApiTest\:\:resultOfTheCall\(\) should return array\<string, mixed\> but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/ExchangeAndToDoToolsApiTest.php
-
-		-
 			message: '#^Offset 0 might not exist on array\{\}\|list\{0\: array\<string, mixed\>, 1\?\: array\<string, mixed\>, 2\?\: array\<string, mixed\>, 3\?\: array\<string, mixed\>, 4\?\: array\<string, mixed\>\}\.$#'
 			identifier: offsetAccess.notFound
 			count: 1
 			path: tests/Api/ExchangeAndToDoToolsApiTest.php
 
 		-
-			message: '#^Only iterables can be unpacked, mixed given\.$#'
-			identifier: arrayUnpacking.nonIterable
-			count: 1
-			path: tests/Api/ExchangeAndToDoToolsApiTest.php
-
-		-
 			message: '#^Parameter \#1 \$array of function array_column expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/ExchangeAndToDoToolsApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$array of function array_find expects array, mixed given\.$#'
 			identifier: argument.type
 			count: 1
 			path: tests/Api/ExchangeAndToDoToolsApiTest.php
@@ -9637,24 +9343,6 @@ parameters:
 			path: tests/Api/ExchangeAndToDoToolsApiTest.php
 
 		-
-			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, Closure\(array\)\: array\{mixed, mixed\} given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/ExchangeAndToDoToolsApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, Closure\(array\)\: string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/ExchangeAndToDoToolsApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$json of function json_decode expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/ExchangeAndToDoToolsApiTest.php
-
-		-
 			message: '#^Parameter \#1 \$url of function parse_url expects string, mixed given\.$#'
 			identifier: argument.type
 			count: 1
@@ -9662,12 +9350,6 @@ parameters:
 
 		-
 			message: '#^Parameter \#2 \$array of function array_map expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 3
-			path: tests/Api/ExchangeAndToDoToolsApiTest.php
-
-		-
-			message: '#^Parameter \#2 \$callback of function array_find expects callable\(mixed, mixed\)\: bool, Closure\(array\)\: bool given\.$#'
 			identifier: argument.type
 			count: 1
 			path: tests/Api/ExchangeAndToDoToolsApiTest.php
@@ -10681,80 +10363,8 @@ parameters:
 			path: tests/Api/HandlePlannedExchangeApiTest.php
 
 		-
-			message: '#^Anonymous function should return string but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/IdentifyToolApiTest.php
-
-		-
 			message: '#^Cannot access offset ''code'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/IdentifyToolApiTest.php
-
-		-
-			message: '#^Cannot access offset ''text'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
-			path: tests/Api/IdentifyToolApiTest.php
-
-		-
-			message: '#^Cannot access offset 0 on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/IdentifyToolApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\IdentifyToolApiTest\:\:answerOf\(\) should return array\<string, mixed\> but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/IdentifyToolApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\IdentifyToolApiTest\:\:argumentsOf\(\) should return list\<array\{string, bool\}\> but returns array\<array\{mixed, mixed\}\>\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/IdentifyToolApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\IdentifyToolApiTest\:\:everyToolListed\(\) should return list\<array\<string, mixed\>\> but returns array\<mixed\>\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/IdentifyToolApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\IdentifyToolApiTest\:\:promptListed\(\) should return array\<string, mixed\> but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/IdentifyToolApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\IdentifyToolApiTest\:\:resultOfTheCall\(\) should return array\<string, mixed\> but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/IdentifyToolApiTest.php
-
-		-
-			message: '#^Only iterables can be unpacked, mixed given\.$#'
-			identifier: arrayUnpacking.nonIterable
-			count: 1
-			path: tests/Api/IdentifyToolApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$array of function array_find expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/IdentifyToolApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, Closure\(array\)\: array\{mixed, mixed\} given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/IdentifyToolApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, Closure\(array\)\: string given\.$#'
-			identifier: argument.type
 			count: 1
 			path: tests/Api/IdentifyToolApiTest.php
 
@@ -10763,30 +10373,6 @@ parameters:
 			identifier: argument.type
 			count: 4
 			path: tests/Api/IdentifyToolApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$json of function json_decode expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/IdentifyToolApiTest.php
-
-		-
-			message: '#^Parameter \#2 \$array of function array_map expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 2
-			path: tests/Api/IdentifyToolApiTest.php
-
-		-
-			message: '#^Parameter \#2 \$callback of function array_find expects callable\(mixed, mixed\)\: bool, Closure\(array\)\: bool given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/IdentifyToolApiTest.php
-
-		-
-			message: '#^Anonymous function should return string but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/McpApiTest.php
 
 		-
 			message: '#^Call to an undefined method object\:\:modify\(\)\.$#'
@@ -10804,90 +10390,6 @@ parameters:
 			message: '#^Cannot access offset ''readsPersonalData'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 2
-			path: tests/Api/McpApiTest.php
-
-		-
-			message: '#^Cannot access offset ''text'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
-			path: tests/Api/McpApiTest.php
-
-		-
-			message: '#^Cannot access offset 0 on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/McpApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\McpApiTest\:\:answerOf\(\) should return array\<string, mixed\> but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/McpApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\McpApiTest\:\:argumentsOf\(\) should return list\<array\{string, bool\}\> but returns array\<array\{mixed, mixed\}\>\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/McpApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\McpApiTest\:\:everyToolListed\(\) should return list\<array\<string, mixed\>\> but returns array\<mixed\>\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/McpApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\McpApiTest\:\:promptListed\(\) should return array\<string, mixed\> but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/McpApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\McpApiTest\:\:resultOfTheCall\(\) should return array\<string, mixed\> but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/McpApiTest.php
-
-		-
-			message: '#^Only iterables can be unpacked, mixed given\.$#'
-			identifier: arrayUnpacking.nonIterable
-			count: 1
-			path: tests/Api/McpApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$array of function array_find expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/McpApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, Closure\(array\)\: array\{mixed, mixed\} given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/McpApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, Closure\(array\)\: string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/McpApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$json of function json_decode expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/McpApiTest.php
-
-		-
-			message: '#^Parameter \#2 \$array of function array_map expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 2
-			path: tests/Api/McpApiTest.php
-
-		-
-			message: '#^Parameter \#2 \$callback of function array_find expects callable\(mixed, mixed\)\: bool, Closure\(array\)\: bool given\.$#'
-			identifier: argument.type
-			count: 1
 			path: tests/Api/McpApiTest.php
 
 		-
@@ -11059,12 +10561,6 @@ parameters:
 			path: tests/Api/MyDayApiTest.php
 
 		-
-			message: '#^Anonymous function should return string but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/MySettingsToolsApiTest.php
-
-		-
 			message: '#^Call to an undefined method object\:\:publish\(\)\.$#'
 			identifier: method.notFound
 			count: 1
@@ -11101,50 +10597,8 @@ parameters:
 			path: tests/Api/MySettingsToolsApiTest.php
 
 		-
-			message: '#^Cannot access offset ''text'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
-			path: tests/Api/MySettingsToolsApiTest.php
-
-		-
 			message: '#^Cannot access offset ''url'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/MySettingsToolsApiTest.php
-
-		-
-			message: '#^Cannot access offset 0 on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/MySettingsToolsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\MySettingsToolsApiTest\:\:answerOf\(\) should return array\<string, mixed\> but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/MySettingsToolsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\MySettingsToolsApiTest\:\:argumentsOf\(\) should return list\<array\{string, bool\}\> but returns array\<array\{mixed, mixed\}\>\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/MySettingsToolsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\MySettingsToolsApiTest\:\:everyToolListed\(\) should return list\<array\<string, mixed\>\> but returns array\<mixed\>\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/MySettingsToolsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\MySettingsToolsApiTest\:\:promptListed\(\) should return array\<string, mixed\> but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/MySettingsToolsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\MySettingsToolsApiTest\:\:resultOfTheCall\(\) should return array\<string, mixed\> but returns mixed\.$#'
-			identifier: return.type
 			count: 1
 			path: tests/Api/MySettingsToolsApiTest.php
 
@@ -11155,49 +10609,7 @@ parameters:
 			path: tests/Api/MySettingsToolsApiTest.php
 
 		-
-			message: '#^Only iterables can be unpacked, mixed given\.$#'
-			identifier: arrayUnpacking.nonIterable
-			count: 1
-			path: tests/Api/MySettingsToolsApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$array of function array_find expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/MySettingsToolsApiTest.php
-
-		-
 			message: '#^Parameter \#1 \$array of function array_intersect_key expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/MySettingsToolsApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, Closure\(array\)\: array\{mixed, mixed\} given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/MySettingsToolsApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, Closure\(array\)\: string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/MySettingsToolsApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$json of function json_decode expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/MySettingsToolsApiTest.php
-
-		-
-			message: '#^Parameter \#2 \$array of function array_map expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 2
-			path: tests/Api/MySettingsToolsApiTest.php
-
-		-
-			message: '#^Parameter \#2 \$callback of function array_find expects callable\(mixed, mixed\)\: bool, Closure\(array\)\: bool given\.$#'
 			identifier: argument.type
 			count: 1
 			path: tests/Api/MySettingsToolsApiTest.php
@@ -11225,12 +10637,6 @@ parameters:
 			identifier: method.notFound
 			count: 1
 			path: tests/Api/NoActivityJournalTest.php
-
-		-
-			message: '#^Anonymous function should return string but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/NotingToolsApiTest.php
 
 		-
 			message: '#^Binary operation "\." between ''/api/exchanges/'' and mixed results in an error\.$#'
@@ -11283,13 +10689,13 @@ parameters:
 		-
 			message: '#^Cannot access offset ''text'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
-			count: 4
+			count: 2
 			path: tests/Api/NotingToolsApiTest.php
 
 		-
 			message: '#^Cannot access offset 0 on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
-			count: 4
+			count: 3
 			path: tests/Api/NotingToolsApiTest.php
 
 		-
@@ -11305,61 +10711,7 @@ parameters:
 			path: tests/Api/NotingToolsApiTest.php
 
 		-
-			message: '#^Method Tests\\App\\Api\\NotingToolsApiTest\:\:answerOf\(\) should return array\<string, mixed\> but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/NotingToolsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\NotingToolsApiTest\:\:argumentsOf\(\) should return list\<array\{string, bool\}\> but returns array\<array\{mixed, mixed\}\>\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/NotingToolsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\NotingToolsApiTest\:\:everyToolListed\(\) should return list\<array\<string, mixed\>\> but returns array\<mixed\>\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/NotingToolsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\NotingToolsApiTest\:\:promptListed\(\) should return array\<string, mixed\> but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/NotingToolsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\NotingToolsApiTest\:\:resultOfTheCall\(\) should return array\<string, mixed\> but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/NotingToolsApiTest.php
-
-		-
-			message: '#^Only iterables can be unpacked, mixed given\.$#'
-			identifier: arrayUnpacking.nonIterable
-			count: 1
-			path: tests/Api/NotingToolsApiTest.php
-
-		-
 			message: '#^Parameter \#1 \$array of function array_column expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/NotingToolsApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$array of function array_find expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/NotingToolsApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, Closure\(array\)\: array\{mixed, mixed\} given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/NotingToolsApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, Closure\(array\)\: string given\.$#'
 			identifier: argument.type
 			count: 1
 			path: tests/Api/NotingToolsApiTest.php
@@ -11367,19 +10719,7 @@ parameters:
 		-
 			message: '#^Parameter \#1 \$json of function json_decode expects string, mixed given\.$#'
 			identifier: argument.type
-			count: 3
-			path: tests/Api/NotingToolsApiTest.php
-
-		-
-			message: '#^Parameter \#2 \$array of function array_map expects array, mixed given\.$#'
-			identifier: argument.type
 			count: 2
-			path: tests/Api/NotingToolsApiTest.php
-
-		-
-			message: '#^Parameter \#2 \$callback of function array_find expects callable\(mixed, mixed\)\: bool, Closure\(array\)\: bool given\.$#'
-			identifier: argument.type
-			count: 1
 			path: tests/Api/NotingToolsApiTest.php
 
 		-
@@ -11399,12 +10739,6 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: tests/Api/OpenApiContractTest.php
-
-		-
-			message: '#^Anonymous function should return string but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/OrganizationAndContactToolsApiTest.php
 
 		-
 			message: '#^Binary operation "\." between ''/api/contacts/'' and mixed results in an error\.$#'
@@ -11491,12 +10825,6 @@ parameters:
 			path: tests/Api/OrganizationAndContactToolsApiTest.php
 
 		-
-			message: '#^Cannot access offset ''text'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
-			path: tests/Api/OrganizationAndContactToolsApiTest.php
-
-		-
 			message: '#^Cannot access offset ''url'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 1
@@ -11511,7 +10839,7 @@ parameters:
 		-
 			message: '#^Cannot access offset 0 on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
-			count: 8
+			count: 7
 			path: tests/Api/OrganizationAndContactToolsApiTest.php
 
 		-
@@ -11527,37 +10855,7 @@ parameters:
 			path: tests/Api/OrganizationAndContactToolsApiTest.php
 
 		-
-			message: '#^Method Tests\\App\\Api\\OrganizationAndContactToolsApiTest\:\:answerOf\(\) should return array\<string, mixed\> but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/OrganizationAndContactToolsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\OrganizationAndContactToolsApiTest\:\:argumentsOf\(\) should return list\<array\{string, bool\}\> but returns array\<array\{mixed, mixed\}\>\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/OrganizationAndContactToolsApiTest.php
-
-		-
 			message: '#^Method Tests\\App\\Api\\OrganizationAndContactToolsApiTest\:\:babbage\(\) should return string but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/OrganizationAndContactToolsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\OrganizationAndContactToolsApiTest\:\:everyToolListed\(\) should return list\<array\<string, mixed\>\> but returns array\<mixed\>\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/OrganizationAndContactToolsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\OrganizationAndContactToolsApiTest\:\:promptListed\(\) should return array\<string, mixed\> but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/OrganizationAndContactToolsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\OrganizationAndContactToolsApiTest\:\:resultOfTheCall\(\) should return array\<string, mixed\> but returns mixed\.$#'
 			identifier: return.type
 			count: 1
 			path: tests/Api/OrganizationAndContactToolsApiTest.php
@@ -11569,49 +10867,7 @@ parameters:
 			path: tests/Api/OrganizationAndContactToolsApiTest.php
 
 		-
-			message: '#^Only iterables can be unpacked, mixed given\.$#'
-			identifier: arrayUnpacking.nonIterable
-			count: 1
-			path: tests/Api/OrganizationAndContactToolsApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$array of function array_find expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/OrganizationAndContactToolsApiTest.php
-
-		-
 			message: '#^Parameter \#1 \$array of function array_intersect_key expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/OrganizationAndContactToolsApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, Closure\(array\)\: array\{mixed, mixed\} given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/OrganizationAndContactToolsApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, Closure\(array\)\: string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/OrganizationAndContactToolsApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$json of function json_decode expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/OrganizationAndContactToolsApiTest.php
-
-		-
-			message: '#^Parameter \#2 \$array of function array_map expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 2
-			path: tests/Api/OrganizationAndContactToolsApiTest.php
-
-		-
-			message: '#^Parameter \#2 \$callback of function array_find expects callable\(mixed, mixed\)\: bool, Closure\(array\)\: bool given\.$#'
 			identifier: argument.type
 			count: 1
 			path: tests/Api/OrganizationAndContactToolsApiTest.php
@@ -12289,12 +11545,6 @@ parameters:
 			path: tests/Api/PushToGoogleApiTest.php
 
 		-
-			message: '#^Anonymous function should return string but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/ReadingToolsApiTest.php
-
-		-
 			message: '#^Binary operation "\." between ''/api/campaigns/'' and mixed results in an error\.$#'
 			identifier: binaryOp.invalid
 			count: 1
@@ -12337,15 +11587,9 @@ parameters:
 			path: tests/Api/ReadingToolsApiTest.php
 
 		-
-			message: '#^Cannot access offset ''text'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
-			path: tests/Api/ReadingToolsApiTest.php
-
-		-
 			message: '#^Cannot access offset 0 on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
-			count: 5
+			count: 4
 			path: tests/Api/ReadingToolsApiTest.php
 
 		-
@@ -12373,88 +11617,10 @@ parameters:
 			path: tests/Api/ReadingToolsApiTest.php
 
 		-
-			message: '#^Method Tests\\App\\Api\\ReadingToolsApiTest\:\:answerOf\(\) should return array\<string, mixed\> but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/ReadingToolsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\ReadingToolsApiTest\:\:argumentsOf\(\) should return list\<array\{string, bool\}\> but returns array\<array\{mixed, mixed\}\>\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/ReadingToolsApiTest.php
-
-		-
 			message: '#^Method Tests\\App\\Api\\ReadingToolsApiTest\:\:babbage\(\) should return string but returns mixed\.$#'
 			identifier: return.type
 			count: 1
 			path: tests/Api/ReadingToolsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\ReadingToolsApiTest\:\:everyToolListed\(\) should return list\<array\<string, mixed\>\> but returns array\<mixed\>\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/ReadingToolsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\ReadingToolsApiTest\:\:promptListed\(\) should return array\<string, mixed\> but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/ReadingToolsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\ReadingToolsApiTest\:\:resultOfTheCall\(\) should return array\<string, mixed\> but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/ReadingToolsApiTest.php
-
-		-
-			message: '#^Only iterables can be unpacked, mixed given\.$#'
-			identifier: arrayUnpacking.nonIterable
-			count: 1
-			path: tests/Api/ReadingToolsApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$array of function array_find expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/ReadingToolsApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, Closure\(array\)\: array\{mixed, mixed\} given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/ReadingToolsApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, Closure\(array\)\: string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/ReadingToolsApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$json of function json_decode expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/ReadingToolsApiTest.php
-
-		-
-			message: '#^Parameter \#2 \$array of function array_map expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 2
-			path: tests/Api/ReadingToolsApiTest.php
-
-		-
-			message: '#^Parameter \#2 \$callback of function array_find expects callable\(mixed, mixed\)\: bool, Closure\(array\)\: bool given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/ReadingToolsApiTest.php
-
-		-
-			message: '#^Anonymous function should return string but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/RecordContactToolApiTest.php
 
 		-
 			message: '#^Binary operation "\." between ''/api/contacts/'' and mixed results in an error\.$#'
@@ -12523,93 +11689,15 @@ parameters:
 			path: tests/Api/RecordContactToolApiTest.php
 
 		-
-			message: '#^Cannot access offset ''text'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
-			path: tests/Api/RecordContactToolApiTest.php
-
-		-
 			message: '#^Cannot access offset 0 on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
-			count: 18
-			path: tests/Api/RecordContactToolApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\RecordContactToolApiTest\:\:answerOf\(\) should return array\<string, mixed\> but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/RecordContactToolApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\RecordContactToolApiTest\:\:argumentsOf\(\) should return list\<array\{string, bool\}\> but returns array\<array\{mixed, mixed\}\>\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/RecordContactToolApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\RecordContactToolApiTest\:\:everyToolListed\(\) should return list\<array\<string, mixed\>\> but returns array\<mixed\>\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/RecordContactToolApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\RecordContactToolApiTest\:\:promptListed\(\) should return array\<string, mixed\> but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/RecordContactToolApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\RecordContactToolApiTest\:\:resultOfTheCall\(\) should return array\<string, mixed\> but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/RecordContactToolApiTest.php
-
-		-
-			message: '#^Only iterables can be unpacked, mixed given\.$#'
-			identifier: arrayUnpacking.nonIterable
-			count: 1
+			count: 17
 			path: tests/Api/RecordContactToolApiTest.php
 
 		-
 			message: '#^Parameter \#1 \$array of function array_column expects array, mixed given\.$#'
 			identifier: argument.type
 			count: 8
-			path: tests/Api/RecordContactToolApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$array of function array_find expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/RecordContactToolApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, Closure\(array\)\: array\{mixed, mixed\} given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/RecordContactToolApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, Closure\(array\)\: string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/RecordContactToolApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$json of function json_decode expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/RecordContactToolApiTest.php
-
-		-
-			message: '#^Parameter \#2 \$array of function array_map expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 2
-			path: tests/Api/RecordContactToolApiTest.php
-
-		-
-			message: '#^Parameter \#2 \$callback of function array_find expects callable\(mixed, mixed\)\: bool, Closure\(array\)\: bool given\.$#'
-			identifier: argument.type
-			count: 1
 			path: tests/Api/RecordContactToolApiTest.php
 
 		-
@@ -12763,12 +11851,6 @@ parameters:
 			path: tests/Api/RunCampaignApiTest.php
 
 		-
-			message: '#^Anonymous function should return string but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/SignInOfTheAIsApiTest.php
-
-		-
 			message: '#^Binary operation "\." between ''Bearer '' and mixed results in an error\.$#'
 			identifier: binaryOp.invalid
 			count: 2
@@ -12805,80 +11887,8 @@ parameters:
 			path: tests/Api/SignInOfTheAIsApiTest.php
 
 		-
-			message: '#^Cannot access offset ''text'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
-			path: tests/Api/SignInOfTheAIsApiTest.php
-
-		-
-			message: '#^Cannot access offset 0 on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/SignInOfTheAIsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\SignInOfTheAIsApiTest\:\:answerOf\(\) should return array\<string, mixed\> but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/SignInOfTheAIsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\SignInOfTheAIsApiTest\:\:argumentsOf\(\) should return list\<array\{string, bool\}\> but returns array\<array\{mixed, mixed\}\>\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/SignInOfTheAIsApiTest.php
-
-		-
 			message: '#^Method Tests\\App\\Api\\SignInOfTheAIsApiTest\:\:codeOfTheFacade\(\) should return string but returns array\<mixed\>\|string\.$#'
 			identifier: return.type
-			count: 1
-			path: tests/Api/SignInOfTheAIsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\SignInOfTheAIsApiTest\:\:everyToolListed\(\) should return list\<array\<string, mixed\>\> but returns array\<mixed\>\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/SignInOfTheAIsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\SignInOfTheAIsApiTest\:\:promptListed\(\) should return array\<string, mixed\> but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/SignInOfTheAIsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\SignInOfTheAIsApiTest\:\:resultOfTheCall\(\) should return array\<string, mixed\> but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/SignInOfTheAIsApiTest.php
-
-		-
-			message: '#^Only iterables can be unpacked, mixed given\.$#'
-			identifier: arrayUnpacking.nonIterable
-			count: 1
-			path: tests/Api/SignInOfTheAIsApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$array of function array_find expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/SignInOfTheAIsApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, Closure\(array\)\: array\{mixed, mixed\} given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/SignInOfTheAIsApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, Closure\(array\)\: string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/SignInOfTheAIsApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$json of function json_decode expects string, mixed given\.$#'
-			identifier: argument.type
 			count: 1
 			path: tests/Api/SignInOfTheAIsApiTest.php
 
@@ -12886,18 +11896,6 @@ parameters:
 			message: '#^Parameter \#1 \$refreshToken of method Tests\\App\\Api\\SignInOfTheAIsApiTest\:\:refresh\(\) expects string, mixed given\.$#'
 			identifier: argument.type
 			count: 3
-			path: tests/Api/SignInOfTheAIsApiTest.php
-
-		-
-			message: '#^Parameter \#2 \$array of function array_map expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 2
-			path: tests/Api/SignInOfTheAIsApiTest.php
-
-		-
-			message: '#^Parameter \#2 \$callback of function array_find expects callable\(mixed, mixed\)\: bool, Closure\(array\)\: bool given\.$#'
-			identifier: argument.type
-			count: 1
 			path: tests/Api/SignInOfTheAIsApiTest.php
 
 		-
@@ -13033,99 +12031,15 @@ parameters:
 			path: tests/Api/StartedCampaignsApiTest.php
 
 		-
-			message: '#^Anonymous function should return string but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/SynchronizeLinkedInPromptApiTest.php
-
-		-
 			message: '#^Cannot access offset ''code'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 1
 			path: tests/Api/SynchronizeLinkedInPromptApiTest.php
 
 		-
-			message: '#^Cannot access offset ''text'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
-			path: tests/Api/SynchronizeLinkedInPromptApiTest.php
-
-		-
-			message: '#^Cannot access offset 0 on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/SynchronizeLinkedInPromptApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\SynchronizeLinkedInPromptApiTest\:\:answerOf\(\) should return array\<string, mixed\> but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/SynchronizeLinkedInPromptApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\SynchronizeLinkedInPromptApiTest\:\:argumentsOf\(\) should return list\<array\{string, bool\}\> but returns array\<array\{mixed, mixed\}\>\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/SynchronizeLinkedInPromptApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\SynchronizeLinkedInPromptApiTest\:\:everyToolListed\(\) should return list\<array\<string, mixed\>\> but returns array\<mixed\>\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/SynchronizeLinkedInPromptApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\SynchronizeLinkedInPromptApiTest\:\:promptListed\(\) should return array\<string, mixed\> but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/SynchronizeLinkedInPromptApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\SynchronizeLinkedInPromptApiTest\:\:resultOfTheCall\(\) should return array\<string, mixed\> but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/SynchronizeLinkedInPromptApiTest.php
-
-		-
-			message: '#^Only iterables can be unpacked, mixed given\.$#'
-			identifier: arrayUnpacking.nonIterable
-			count: 1
-			path: tests/Api/SynchronizeLinkedInPromptApiTest.php
-
-		-
 			message: '#^Parameter \#1 \$array of function array_column expects array, mixed given\.$#'
 			identifier: argument.type
 			count: 1
-			path: tests/Api/SynchronizeLinkedInPromptApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$array of function array_find expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/SynchronizeLinkedInPromptApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, Closure\(array\)\: array\{mixed, mixed\} given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/SynchronizeLinkedInPromptApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, Closure\(array\)\: string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/SynchronizeLinkedInPromptApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$json of function json_decode expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/SynchronizeLinkedInPromptApiTest.php
-
-		-
-			message: '#^Parameter \#2 \$array of function array_map expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 2
 			path: tests/Api/SynchronizeLinkedInPromptApiTest.php
 
 		-
@@ -13135,99 +12049,9 @@ parameters:
 			path: tests/Api/SynchronizeLinkedInPromptApiTest.php
 
 		-
-			message: '#^Parameter \#2 \$callback of function array_find expects callable\(mixed, mixed\)\: bool, Closure\(array\)\: bool given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/SynchronizeLinkedInPromptApiTest.php
-
-		-
-			message: '#^Anonymous function should return string but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/SynchronizeMailboxPromptApiTest.php
-
-		-
-			message: '#^Cannot access offset ''text'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
-			path: tests/Api/SynchronizeMailboxPromptApiTest.php
-
-		-
-			message: '#^Cannot access offset 0 on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: tests/Api/SynchronizeMailboxPromptApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\SynchronizeMailboxPromptApiTest\:\:answerOf\(\) should return array\<string, mixed\> but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/SynchronizeMailboxPromptApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\SynchronizeMailboxPromptApiTest\:\:argumentsOf\(\) should return list\<array\{string, bool\}\> but returns array\<array\{mixed, mixed\}\>\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/SynchronizeMailboxPromptApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\SynchronizeMailboxPromptApiTest\:\:everyToolListed\(\) should return list\<array\<string, mixed\>\> but returns array\<mixed\>\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/SynchronizeMailboxPromptApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\SynchronizeMailboxPromptApiTest\:\:promptListed\(\) should return array\<string, mixed\> but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/SynchronizeMailboxPromptApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\SynchronizeMailboxPromptApiTest\:\:resultOfTheCall\(\) should return array\<string, mixed\> but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/SynchronizeMailboxPromptApiTest.php
-
-		-
-			message: '#^Only iterables can be unpacked, mixed given\.$#'
-			identifier: arrayUnpacking.nonIterable
-			count: 1
-			path: tests/Api/SynchronizeMailboxPromptApiTest.php
-
-		-
 			message: '#^Parameter \#1 \$array of function array_column expects array, mixed given\.$#'
 			identifier: argument.type
 			count: 1
-			path: tests/Api/SynchronizeMailboxPromptApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$array of function array_find expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/SynchronizeMailboxPromptApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, Closure\(array\)\: array\{mixed, mixed\} given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/SynchronizeMailboxPromptApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, Closure\(array\)\: string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/SynchronizeMailboxPromptApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$json of function json_decode expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/SynchronizeMailboxPromptApiTest.php
-
-		-
-			message: '#^Parameter \#2 \$array of function array_map expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 2
 			path: tests/Api/SynchronizeMailboxPromptApiTest.php
 
 		-
@@ -13235,18 +12059,6 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: tests/Api/SynchronizeMailboxPromptApiTest.php
-
-		-
-			message: '#^Parameter \#2 \$callback of function array_find expects callable\(mixed, mixed\)\: bool, Closure\(array\)\: bool given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/SynchronizeMailboxPromptApiTest.php
-
-		-
-			message: '#^Anonymous function should return string but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/TagToolsApiTest.php
 
 		-
 			message: '#^Cannot access offset ''href'' on mixed\.$#'
@@ -13267,31 +12079,13 @@ parameters:
 			path: tests/Api/TagToolsApiTest.php
 
 		-
-			message: '#^Cannot access offset ''text'' on mixed\.$#'
+			message: '#^Cannot access offset 0 on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 2
 			path: tests/Api/TagToolsApiTest.php
 
 		-
-			message: '#^Cannot access offset 0 on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 3
-			path: tests/Api/TagToolsApiTest.php
-
-		-
 			message: '#^Method Tests\\App\\Api\\TagToolsApiTest\:\:ada\(\) should return string but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/TagToolsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\TagToolsApiTest\:\:answerOf\(\) should return array\<string, mixed\> but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/TagToolsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\TagToolsApiTest\:\:argumentsOf\(\) should return list\<array\{string, bool\}\> but returns array\<array\{mixed, mixed\}\>\.$#'
 			identifier: return.type
 			count: 1
 			path: tests/Api/TagToolsApiTest.php
@@ -13303,32 +12097,8 @@ parameters:
 			path: tests/Api/TagToolsApiTest.php
 
 		-
-			message: '#^Method Tests\\App\\Api\\TagToolsApiTest\:\:everyToolListed\(\) should return list\<array\<string, mixed\>\> but returns array\<mixed\>\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/TagToolsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\TagToolsApiTest\:\:promptListed\(\) should return array\<string, mixed\> but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/TagToolsApiTest.php
-
-		-
-			message: '#^Method Tests\\App\\Api\\TagToolsApiTest\:\:resultOfTheCall\(\) should return array\<string, mixed\> but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Api/TagToolsApiTest.php
-
-		-
 			message: '#^Offset 0 might not exist on array\{\}\|list\{0\: array\<string, mixed\>, 1\?\: array\<string, mixed\>, 2\?\: array\<string, mixed\>, 3\?\: array\<string, mixed\>, 4\?\: array\<string, mixed\>\}\.$#'
 			identifier: offsetAccess.notFound
-			count: 1
-			path: tests/Api/TagToolsApiTest.php
-
-		-
-			message: '#^Only iterables can be unpacked, mixed given\.$#'
-			identifier: arrayUnpacking.nonIterable
 			count: 1
 			path: tests/Api/TagToolsApiTest.php
 
@@ -13339,43 +12109,7 @@ parameters:
 			path: tests/Api/TagToolsApiTest.php
 
 		-
-			message: '#^Parameter \#1 \$array of function array_find expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/TagToolsApiTest.php
-
-		-
 			message: '#^Parameter \#1 \$array of function array_intersect_key expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/TagToolsApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, Closure\(array\)\: array\{mixed, mixed\} given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/TagToolsApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, Closure\(array\)\: string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/TagToolsApiTest.php
-
-		-
-			message: '#^Parameter \#1 \$json of function json_decode expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/Api/TagToolsApiTest.php
-
-		-
-			message: '#^Parameter \#2 \$array of function array_map expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 2
-			path: tests/Api/TagToolsApiTest.php
-
-		-
-			message: '#^Parameter \#2 \$callback of function array_find expects callable\(mixed, mixed\)\: bool, Closure\(array\)\: bool given\.$#'
 			identifier: argument.type
 			count: 1
 			path: tests/Api/TagToolsApiTest.php

@@ -22,8 +22,8 @@ class ExchangeRevisionApiTest extends ApiTestCase
     {
         parent::setUp();
         $this->login();
-        $acme = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'Acme']])['id'];
-        $this->ada = $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada'], 'organizationIds' => [$acme]])['id'];
+        $acme = self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'Acme']]), 'id');
+        $this->ada = self::stringAt($this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada'], 'organizationIds' => [$acme]]), 'id');
     }
 
     public function testAnExchangeIsReadWithItsRevision(): void
@@ -102,7 +102,7 @@ class ExchangeRevisionApiTest extends ApiTestCase
 
     private function aMeeting(): string
     {
-        return $this->requestJson('POST', '/api/contacts/'.$this->ada.'/upcoming-exchanges', ['channel' => 'meeting', 'occurredAt' => '2026-10-20T09:00:00+00:00', 'place' => 'Café de Flore'])['items'][0]['id'];
+        return self::stringAt($this->requestJson('POST', '/api/contacts/'.$this->ada.'/upcoming-exchanges', ['channel' => 'meeting', 'occurredAt' => '2026-10-20T09:00:00+00:00', 'place' => 'Café de Flore']), 'items', 0, 'id');
     }
 
     /**
@@ -110,7 +110,7 @@ class ExchangeRevisionApiTest extends ApiTestCase
      */
     private function changedSinceRead(string $exchange): int
     {
-        $read = $this->requestJson('GET', '/api/exchanges/'.$exchange)['revision'];
+        $read = self::intAt($this->requestJson('GET', '/api/exchanges/'.$exchange), 'revision');
         $this->requestJson('PATCH', '/api/exchanges/'.$exchange.'/text', ['text' => 'Rappeler jeudi']);
 
         return $read;
@@ -127,6 +127,6 @@ class ExchangeRevisionApiTest extends ApiTestCase
 
     private function aCall(): string
     {
-        return $this->requestJson('POST', '/api/contacts/'.$this->ada.'/exchanges', ['channel' => 'call', 'direction' => 'outbound', 'occurredAt' => '2026-10-14T08:00:00+00:00', 'text' => 'Rappeler lundi'])['items'][0]['id'];
+        return self::stringAt($this->requestJson('POST', '/api/contacts/'.$this->ada.'/exchanges', ['channel' => 'call', 'direction' => 'outbound', 'occurredAt' => '2026-10-14T08:00:00+00:00', 'text' => 'Rappeler lundi']), 'items', 0, 'id');
     }
 }
