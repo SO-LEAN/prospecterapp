@@ -21,6 +21,7 @@ use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Base\ReadsResources;
 
 /**
  * A started campaign led recipient after recipient (ADR 0145): the exchange noted for one in the campaign processes
@@ -30,6 +31,8 @@ use Tests\App\Base\ApiTestCase;
 #[Group('api')]
 class RunCampaignApiTest extends ApiTestCase
 {
+    use ReadsResources;
+
     private const string TAG = '#CAMPAIGN_154';
 
     private string $ada;
@@ -39,7 +42,7 @@ class RunCampaignApiTest extends ApiTestCase
     {
         parent::setUp();
         $this->login();
-        $organization = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];
+        $organization = self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']]), 'id');
         $this->requestJson('POST', '/api/organizations/'.$organization.'/tags', ['tags' => [self::TAG]]);
         $this->ada = $this->aContactOf($organization, 'Ada', 'Lovelace', '+33612345678');
         $this->alan = $this->aContactOf($organization, 'Alan', 'Turing', '+33698765432');
@@ -52,8 +55,8 @@ class RunCampaignApiTest extends ApiTestCase
         $recipient = $this->recipient($id, $this->ada);
 
         $this->assertSame('pending', $recipient['status']);
-        $this->assertSame(['href' => '/api/campaigns/'.$id.'/recipients/'.$this->ada.'/exchanges', 'method' => 'POST'], $recipient['_links']['noteExchange']);
-        $this->assertSame(['href' => '/api/campaigns/'.$id.'/recipients/'.$this->ada.'/dismissal', 'method' => 'POST'], $recipient['_links']['dismiss']);
+        $this->assertSame(['href' => '/api/campaigns/'.$id.'/recipients/'.$this->ada.'/exchanges', 'method' => 'POST'], self::valueAt($recipient, '_links', 'noteExchange'));
+        $this->assertSame(['href' => '/api/campaigns/'.$id.'/recipients/'.$this->ada.'/dismissal', 'method' => 'POST'], self::valueAt($recipient, '_links', 'dismiss'));
         $this->assertSame(['processed' => 0, 'dismissed' => 0], $this->requestJson('GET', '/api/campaigns/'.$id)['progress']);
     }
 
@@ -64,11 +67,11 @@ class RunCampaignApiTest extends ApiTestCase
         $this->requestJson('POST', '/api/campaigns/'.$id.'/recipients/'.$this->ada.'/exchanges', ['occurredAt' => '2026-10-10T09:00:00+00:00', 'text' => 'Intéressée', 'missed' => true]);
 
         $this->assertResponseStatusCodeSame(201);
-        $this->assertMatchesRegularExpression('#^/api/exchanges/[0-9a-f-]{36}$#', (string) self::getClient()->getResponse()->headers->get('Location'));
+        $this->assertMatchesRegularExpression('#^/api/exchanges/[0-9a-f-]{36}$#', (string) $this->client->getResponse()->headers->get('Location'));
         $recipient = $this->recipient($id, $this->ada);
-        $this->assertSame(['processed', true, null, ['exchange']], [$recipient['status'], $recipient['missed'], $recipient['reason'], array_keys($recipient['_links'])]);
+        $this->assertSame(['processed', true, null, ['exchange']], [$recipient['status'], $recipient['missed'], $recipient['reason'], array_keys(self::recordAt($recipient, '_links'))]);
         $this->assertSame(['processed' => 1, 'dismissed' => 0], $this->requestJson('GET', '/api/campaigns/'.$id)['progress']);
-        $exchange = $this->requestJson('GET', '/api/contacts/'.$this->ada.'/exchanges')['items'][0];
+        $exchange = self::recordAt($this->requestJson('GET', '/api/contacts/'.$this->ada.'/exchanges'), 'items', 0);
         $this->assertSame(['call', 'outbound', 'missed', ['id' => $id, 'name' => 'Appels ESN']], [$exchange['channel'], $exchange['direction'], $exchange['status'], $exchange['campaign']]);
     }
 
@@ -92,7 +95,7 @@ class RunCampaignApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(204);
         $this->assertSame(['dismissed', 'Parti de la société'], [$this->recipient($id, $this->alan)['status'], $this->recipient($id, $this->alan)['reason']]);
         $campaign = $this->requestJson('GET', '/api/campaigns/'.$id);
-        $this->assertSame(['ended', ['processed' => 1, 'dismissed' => 1], ['self', 'recipients']], [$campaign['status'], $campaign['progress'], array_keys($campaign['_links'])]);
+        $this->assertSame(['ended', ['processed' => 1, 'dismissed' => 1], ['self', 'recipients']], [$campaign['status'], $campaign['progress'], array_keys(self::recordAt($campaign, '_links'))]);
         $this->assertNotNull($campaign['endedAt']);
     }
 
@@ -121,7 +124,8 @@ class RunCampaignApiTest extends ApiTestCase
     public function testAContactWhoIsNoRecipientIsNotFound(): void
     {
         $id = $this->aStartedCampaign();
-        $grace = $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Grace', 'lastName' => 'Hopper'], 'organizationIds' => [$this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'Initech']])['id']]])['id'];
+        $initech = self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'Initech']]), 'id');
+        $grace = self::stringAt($this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Grace', 'lastName' => 'Hopper'], 'organizationIds' => [$initech]]), 'id');
 
         $this->assertSame('unknownRecipient', $this->requestJson('POST', '/api/campaigns/'.$id.'/recipients/'.$grace.'/exchanges', [])['reason']);
         $this->assertResponseStatusCodeSame(404);
@@ -175,14 +179,14 @@ class RunCampaignApiTest extends ApiTestCase
      */
     private function recipient(string $campaign, string $contact): array
     {
-        $recipients = $this->requestJson('GET', '/api/campaigns/'.$campaign.'/recipients')['items'];
+        $recipients = self::recordsAt($this->requestJson('GET', '/api/campaigns/'.$campaign.'/recipients'), 'items');
 
-        return array_find($recipients, static fn (array $recipient): bool => $contact === $recipient['contact']['id']) ?? throw new \LogicException('No such recipient');
+        return array_find($recipients, static fn (array $recipient): bool => $contact === self::valueAt($recipient, 'contact', 'id')) ?? throw new \LogicException('No such recipient');
     }
 
     private function aStartedCampaign(): string
     {
-        $id = $this->requestJson('POST', '/api/campaigns', ['name' => 'Appels ESN', 'channel' => 'call', 'tags' => [self::TAG], 'message' => 'Bonjour {firstName}', 'subject' => null])['id'];
+        $id = self::stringAt($this->requestJson('POST', '/api/campaigns', ['name' => 'Appels ESN', 'channel' => 'call', 'tags' => [self::TAG], 'message' => 'Bonjour {firstName}', 'subject' => null]), 'id');
         $this->requestJson('POST', '/api/campaigns/'.$id.'/freeze');
         $this->assertResponseStatusCodeSame(200);
         $this->requestJson('POST', '/api/campaigns/'.$id.'/start');
@@ -194,19 +198,19 @@ class RunCampaignApiTest extends ApiTestCase
     private function aCampaignOfAnotherAccount(): string
     {
         $competitor = Account::open(new AccountId(self::newIdentity()), new LegalIdentity('Competitor'), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
-        self::getContainer()->get(AccountRepository::class)->save($competitor);
+        self::service(AccountRepository::class)->save($competitor);
         $campaign = Campaign::prepare(
             new Gesture($competitor->id(), new MemberId(self::newIdentity()), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)),
             new CampaignId(self::newIdentity()),
             new CampaignBrief(CampaignName::of('Leurs appels'), Targeting::by(Channel::Call, [self::TAG]), MessageTemplate::of('Bonjour', null, Channel::Call)),
         );
-        self::getContainer()->get(CampaignRepository::class)->save($campaign);
+        self::service(CampaignRepository::class)->save($campaign);
 
         return $campaign->id()->value;
     }
 
     private function aContactOf(string $organization, string $firstName, string $lastName, string $phone): string
     {
-        return $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => $firstName, 'lastName' => $lastName], 'contactDetails' => ['phoneNumber' => $phone], 'organizationIds' => [$organization]])['id'];
+        return self::stringAt($this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => $firstName, 'lastName' => $lastName], 'contactDetails' => ['phoneNumber' => $phone], 'organizationIds' => [$organization]]), 'id');
     }
 }

@@ -7,6 +7,7 @@ namespace Tests\App\Api;
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Base\ReadsResources;
 
 /**
  * The recipients of a frozen campaign: the contacts its search found once, then changed by hand only, with the right
@@ -15,6 +16,8 @@ use Tests\App\Base\ApiTestCase;
 #[Group('api')]
 class CampaignRecipientsApiTest extends ApiTestCase
 {
+    use ReadsResources;
+
     private const string TAG = '#CAMPAIGN_152';
     private const string OTHER_TAG = '#CAMPAIGN_152_GLOBEX';
 
@@ -26,9 +29,9 @@ class CampaignRecipientsApiTest extends ApiTestCase
     {
         parent::setUp();
         $this->login();
-        $acme = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];
+        $acme = $this->anOrganization('ACME');
         $this->requestJson('POST', '/api/organizations/'.$acme.'/tags', ['tags' => [self::TAG]]);
-        $globex = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'Globex']])['id'];
+        $globex = $this->anOrganization('Globex');
         $this->requestJson('POST', '/api/organizations/'.$globex.'/tags', ['tags' => [self::OTHER_TAG]]);
         $this->ada = $this->aContact('Ada', 'Lovelace', $acme, 'ada@acme.test');
         $this->alan = $this->aContact('Alan', 'Turing', $globex, 'alan@globex.test');
@@ -38,17 +41,18 @@ class CampaignRecipientsApiTest extends ApiTestCase
     public function testAFrozenCampaignKeepsTheContactsItsSearchFoundToHandle(): void
     {
         $draft = $this->requestJson('POST', '/api/campaigns', $this->aCampaign());
-        $this->assertSame(['href' => '/api/campaigns/'.$draft['id'].'/freeze', 'method' => 'POST'], $draft['_links']['freeze']);
+        $id = self::stringAt($draft, 'id');
+        $this->assertSame(['href' => '/api/campaigns/'.$id.'/freeze', 'method' => 'POST'], self::valueAt($draft, '_links', 'freeze'));
 
-        $frozen = $this->requestJson('POST', '/api/campaigns/'.$draft['id'].'/freeze');
+        $frozen = $this->requestJson('POST', '/api/campaigns/'.$id.'/freeze');
 
         $this->assertResponseStatusCodeSame(200);
         $this->assertSame(['frozen', 1], [$frozen['status'], $frozen['targeted']]);
-        $this->assertSame(['self', 'revise', 'discard', 'addRecipient', 'addRecipientsByTags', 'start', 'setDailyCap', 'recipients'], array_keys($frozen['_links']));
-        $recipients = $this->requestJson('GET', $frozen['_links']['recipients']['href']);
+        $this->assertSame(['self', 'revise', 'discard', 'addRecipient', 'addRecipientsByTags', 'start', 'setDailyCap', 'recipients'], array_keys(self::recordAt($frozen, '_links')));
+        $recipients = $this->requestJson('GET', self::stringAt($frozen, '_links', 'recipients', 'href'));
         $this->assertResponseStatusCodeSame(200);
-        $this->assertSame([[$this->ada, 'Ada', 'pending']], array_map(static fn (array $recipient): array => [$recipient['contact']['id'], $recipient['contact']['name']['firstName'], $recipient['status']], $recipients['items']));
-        $this->assertSame(['href' => '/api/campaigns/'.$draft['id'].'/recipients/'.$this->ada, 'method' => 'DELETE'], $recipients['items'][0]['_links']['remove']);
+        $this->assertSame([[$this->ada, 'Ada', 'pending']], array_map(static fn (array $recipient): array => [self::valueAt($recipient, 'contact', 'id'), self::valueAt($recipient, 'contact', 'name', 'firstName'), $recipient['status']], self::recordsAt($recipients, 'items')));
+        $this->assertSame(['href' => '/api/campaigns/'.$id.'/recipients/'.$this->ada, 'method' => 'DELETE'], self::valueAt($recipients, 'items', 0, '_links', 'remove'));
     }
 
     public function testFrozenItNoLongerFollowsTheTags(): void
@@ -97,7 +101,7 @@ class CampaignRecipientsApiTest extends ApiTestCase
         $problem = $this->requestJson('POST', '/api/campaigns/'.$id.'/recipients', ['contactId' => $this->grace]);
 
         $this->assertResponseStatusCodeSame(422);
-        $this->assertSame(['unreachableContact', ['contact' => 'Grace Hopper', 'channel' => 'email']], [$problem['reason'], $problem['violations'][0]['context']]);
+        $this->assertSame(['unreachableContact', ['contact' => 'Grace Hopper', 'channel' => 'email']], [$problem['reason'], self::valueAt($problem, 'violations', 0, 'context')]);
     }
 
     public function testAPersonWhoIsNoContactOfTheAccountIsNotAdded(): void
@@ -135,7 +139,7 @@ class CampaignRecipientsApiTest extends ApiTestCase
 
     public function testACampaignTargetingNobodyIsNotFrozen(): void
     {
-        $id = $this->requestJson('POST', '/api/campaigns', [...$this->aCampaign(), 'tags' => ['#PERSONNE']])['id'];
+        $id = self::stringAt($this->requestJson('POST', '/api/campaigns', [...$this->aCampaign(), 'tags' => ['#PERSONNE']]), 'id');
 
         $problem = $this->requestJson('POST', '/api/campaigns/'.$id.'/freeze');
 
@@ -146,9 +150,9 @@ class CampaignRecipientsApiTest extends ApiTestCase
     public function testTheRecipientsOfADraftDoNotChangeByHand(): void
     {
         $draft = $this->requestJson('POST', '/api/campaigns', $this->aCampaign());
-        $this->assertArrayNotHasKey('addRecipient', $draft['_links']);
+        $this->assertArrayNotHasKey('addRecipient', self::recordAt($draft, '_links'));
 
-        $this->requestJson('POST', '/api/campaigns/'.$draft['id'].'/recipients', ['contactId' => $this->alan]);
+        $this->requestJson('POST', '/api/campaigns/'.self::stringAt($draft, 'id').'/recipients', ['contactId' => $this->alan]);
 
         $this->assertResponseStatusCodeSame(409);
     }
@@ -156,9 +160,9 @@ class CampaignRecipientsApiTest extends ApiTestCase
     public function testAnAdministratorChangesTheRecipients(): void
     {
         $this->login($this->aMemberOfTheFixtures('administrator', Role::Prospector, Role::Admin));
-        $ada = $this->aContact('Ada', 'Byron', $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'Initech']])['id'], 'ada@initech.test');
+        $ada = $this->aContact('Ada', 'Byron', $this->anOrganization('Initech'), 'ada@initech.test');
         $this->requestJson('POST', '/api/contacts/'.$ada.'/tags', ['tags' => [self::TAG]]);
-        $id = $this->requestJson('POST', '/api/campaigns', $this->aCampaign())['id'];
+        $id = self::stringAt($this->requestJson('POST', '/api/campaigns', $this->aCampaign()), 'id');
 
         foreach ($this->gesturesOn($id, $ada) as [$method, $path, $payload, $status]) {
             $this->requestJson($method, $path, $payload);
@@ -195,7 +199,7 @@ class CampaignRecipientsApiTest extends ApiTestCase
 
     private function aFrozenCampaign(): string
     {
-        $id = $this->requestJson('POST', '/api/campaigns', $this->aCampaign())['id'];
+        $id = self::stringAt($this->requestJson('POST', '/api/campaigns', $this->aCampaign()), 'id');
         $this->requestJson('POST', '/api/campaigns/'.$id.'/freeze');
         $this->assertResponseStatusCodeSame(200);
 
@@ -207,12 +211,17 @@ class CampaignRecipientsApiTest extends ApiTestCase
      */
     private function recipientsOf(string $id): array
     {
-        return array_map(static fn (array $recipient): string => $recipient['contact']['id'], $this->requestJson('GET', '/api/campaigns/'.$id.'/recipients')['items']);
+        return array_map(static fn (array $recipient): string => self::stringAt($recipient, 'contact', 'id'), self::recordsAt($this->requestJson('GET', '/api/campaigns/'.$id.'/recipients'), 'items'));
     }
 
     private function aContact(string $firstName, string $lastName, string $organization, ?string $email = null): string
     {
-        return $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => $firstName, 'lastName' => $lastName], 'contactDetails' => ['email' => $email], 'organizationIds' => [$organization]])['id'];
+        return self::stringAt($this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => $firstName, 'lastName' => $lastName], 'contactDetails' => ['email' => $email], 'organizationIds' => [$organization]]), 'id');
+    }
+
+    private function anOrganization(string $corporateName): string
+    {
+        return self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => $corporateName]]), 'id');
     }
 
     /**
