@@ -73,7 +73,8 @@ tests/Application/              PHPUnit: the handlers' decorators: translating t
                                 RefusalTranslating…Handler), and the unit of work they begin and commit (Transactional…Handler)
 tests/Architecture/             PHPUnit: no bounded context uses another one except through its Contract, a Contract
                                 imports nothing, no domain class in a request or a response, every handler is a
-                                CommandHandler, a QueryHandler or an EventHandler, every event handler is subscribed in the scenarios
+                                CommandHandler, a QueryHandler or an EventHandler, every event handler is subscribed in the scenarios,
+                                only a publication of facts subscribes to a parent event (ParentEventsFeedOnlyFactsTest)
 tests/Mutation/                 each feature's scenarios as a PHPUnit test, for mutation testing only
 ```
 
