@@ -86,6 +86,6 @@ final readonly class RegisterMemberCommand
 
     private function registerInTheAccountOf(string $administrator, string $memberId, MemberToRegister $member): void
     {
-        $this->commands->dispatch(new RegisterAMember($administrator, $memberId, $this->identities->next(), $member->roles, $this->clock->now()));
+        $this->commands->dispatch(new RegisterAMember(administratorId: $administrator, id: $memberId, profileId: $this->identities->next(), roles: $member->roles, executedAt: $this->clock->now()));
     }
 }

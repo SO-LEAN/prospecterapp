@@ -75,7 +75,7 @@ final readonly class AgendaReader
     public function readCalendar(string $holder, \DateTimeImmutable $from, \DateTimeImmutable $until, \DateTimeImmutable $at): CalendarResource
     {
         $calendar = new KeptCalendar();
-        ($this->consultCalendar)(new ConsultCalendar($holder, $from, $until, $at), $calendar);
+        ($this->consultCalendar)(new ConsultCalendar(prospectorId: $holder, from: $from, until: $until, at: $at), $calendar);
         $exchanges = $calendar->calendar->exchanges;
         $presenter = new CalendarPresenter($this->personsOf($holder, $exchanges), $this->organizationsPlannedWithAlone($exchanges), $this->timelines, $this->calendarLinks($from, $until), $this->toDosReadBy($holder, $calendar->calendar->toDos));
         $presenter->present($calendar->calendar);
@@ -86,7 +86,7 @@ final readonly class AgendaReader
     public function readMyDay(string $holder, \DateTimeImmutable $from, \DateTimeImmutable $until, \DateTimeImmutable $at): MyDayResource
     {
         $myDay = new KeptMyDay();
-        ($this->consultMyDay)(new ConsultMyDay($holder, $from, $until, $at), $myDay);
+        ($this->consultMyDay)(new ConsultMyDay(prospectorId: $holder, from: $from, until: $until, at: $at), $myDay);
         $exchanges = [...$myDay->myDay->today, ...$myDay->myDay->next];
         $links = new MyDayLinksResource($this->links->to('api_me_day', self::period($from, $until)), $this->searchContacts());
         $presenter = new MyDayPresenter($this->personsOf($holder, $exchanges), $this->organizationsPlannedWithAlone($exchanges), $this->timelines, $links, $this->organizationsOfContacts->read($holder, self::contactsOf($exchanges)));

@@ -44,7 +44,7 @@ final readonly class TakeOrganizationTagOffTool
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');
         $this->access->denyUnlessGranted(OrganizationVoter::ACCESS, $organization);
         $memberId = $this->access->member()->memberId();
-        $this->commandBus->dispatch(new TakeOffTag($memberId, TagRoutes::Organization->value, $organization->id, $tag, $this->clock->now()));
+        $this->commandBus->dispatch(new TakeOffTag(memberId: $memberId, holder: TagRoutes::Organization->value, holderId: $organization->id, tag: $tag, executedAt: $this->clock->now()));
 
         return $this->results->of($this->tagsReader->read($memberId, $organization->id));
     }

@@ -41,7 +41,7 @@ final class RemoveAttachmentController extends AbstractController
     #[OA\Response(response: 404, description: 'Unknown exchange or attachment, or one of another account', content: new Model(type: ProblemResource::class))]
     public function __invoke(ExchangeDetail $exchange, string $attachmentId, #[CurrentUser] User $user): JsonResponse
     {
-        $this->commandBus->dispatch(new RemoveAttachment($user->memberId(), $exchange->id, $attachmentId, $this->clock->now()));
+        $this->commandBus->dispatch(new RemoveAttachment(prospectorId: $user->memberId(), exchangeId: $exchange->id, id: $attachmentId, executedAt: $this->clock->now()));
 
         return $this->json($this->exchangeReader->read($user->memberId(), $exchange->id));
     }

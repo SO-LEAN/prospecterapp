@@ -44,7 +44,7 @@ final class MarkExchangeDoneController extends AbstractController
     #[OA\Response(response: 422, description: 'Invalid report: too long, or a moment in the future', content: new Model(type: ProblemResource::class))]
     public function __invoke(ExchangeDetail $exchange, #[MapRequestPayload] ReportInput $input, #[CurrentUser] User $user): JsonResponse
     {
-        $this->commandBus->dispatch(new MarkExchangeDone($user->memberId(), $exchange->id, $input->occurredAt ?? $exchange->occurredAt, $input->text, $this->clock->now()));
+        $this->commandBus->dispatch(new MarkExchangeDone(prospectorId: $user->memberId(), id: $exchange->id, occurredAt: $input->occurredAt ?? $exchange->occurredAt, report: $input->text, executedAt: $this->clock->now()));
 
         return $this->json($this->exchangeReader->read($user->memberId(), $exchange->id));
     }

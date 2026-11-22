@@ -33,7 +33,7 @@ final readonly class WriteObservationsTool
             $id,
             $revision,
             new ObservationsInput($observations),
-            static fn (ObservationsInput $input, OrganizationSheet $organization, string $memberId, \DateTimeImmutable $now): WriteObservations => new WriteObservations($memberId, $organization->id, $input->observations, $now),
+            static fn (ObservationsInput $input, OrganizationSheet $organization, string $memberId, \DateTimeImmutable $now): WriteObservations => new WriteObservations(prospectorId: $memberId, id: $organization->id, observations: $input->observations, executedAt: $now),
         );
     }
 }

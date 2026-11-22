@@ -46,7 +46,7 @@ final class ChangeJobTitleController extends AbstractController
     #[OA\Response(response: 422, description: 'Invalid job title', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $id, #[MapRequestPayload] JobTitleInput $input, #[CurrentUser] User $user, #[MapQueryParameter(options: ['min_range' => 0], validationFailedStatusCode: 422)] ?int $revision = null): JsonResponse
     {
-        $this->commandBus->dispatch(new ChangeJobTitle($user->memberId(), $id, $input->jobTitle, $this->clock->now()), $this->revisions->readAt($id, $revision));
+        $this->commandBus->dispatch(new ChangeJobTitle(readerId: $user->memberId(), id: $id, jobTitle: $input->jobTitle, executedAt: $this->clock->now()), $this->revisions->readAt($id, $revision));
 
         return $this->json($this->contactReader->read($user->memberId(), $id));
     }

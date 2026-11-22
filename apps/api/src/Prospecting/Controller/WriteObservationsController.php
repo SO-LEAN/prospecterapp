@@ -49,7 +49,7 @@ final class WriteObservationsController extends AbstractController
     #[OA\Response(response: 422, description: 'Observations too long', content: new Model(type: ProblemResource::class))]
     public function __invoke(OrganizationSheet $organization, #[MapRequestPayload] ObservationsInput $input, #[CurrentUser] User $user, #[MapQueryParameter(options: ['min_range' => 0], validationFailedStatusCode: 422)] ?int $revision = null): JsonResponse
     {
-        $this->commandBus->dispatch(new WriteObservations($user->memberId(), $organization->id, $input->observations, $this->clock->now()), $this->revisions->readAt($organization->id, $revision));
+        $this->commandBus->dispatch(new WriteObservations(prospectorId: $user->memberId(), id: $organization->id, observations: $input->observations, executedAt: $this->clock->now()), $this->revisions->readAt($organization->id, $revision));
 
         return $this->json($this->organizationReader->read($organization->id));
     }

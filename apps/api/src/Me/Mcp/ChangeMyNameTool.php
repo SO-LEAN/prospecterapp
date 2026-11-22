@@ -29,7 +29,7 @@ final readonly class ChangeMyNameTool
     {
         return $this->writes->write(
             new PersonNameInput($firstName, $lastName),
-            static fn (PersonNameInput $input, string $memberId, string $personId, \DateTimeImmutable $now): RenamePerson => new RenamePerson($memberId, $personId, $input->firstName, $input->lastName, $now),
+            static fn (PersonNameInput $input, string $memberId, string $personId, \DateTimeImmutable $now): RenamePerson => new RenamePerson(readerId: $memberId, id: $personId, firstName: $input->firstName, lastName: $input->lastName, executedAt: $now),
         );
     }
 }

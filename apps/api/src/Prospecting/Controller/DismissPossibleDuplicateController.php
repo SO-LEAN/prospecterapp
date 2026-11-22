@@ -41,7 +41,7 @@ final class DismissPossibleDuplicateController extends AbstractController
     #[OA\Response(response: 409, description: 'The organization is not suspected of being a duplicate of this one', content: new Model(type: ProblemResource::class))]
     public function __invoke(OrganizationSheet $organization, string $duplicateId, #[CurrentUser] User $user): JsonResponse
     {
-        $this->commandBus->dispatch(new DismissPossibleDuplicate($user->memberId(), $organization->id, $duplicateId, $this->clock->now()));
+        $this->commandBus->dispatch(new DismissPossibleDuplicate(prospectorId: $user->memberId(), id: $organization->id, duplicateId: $duplicateId, executedAt: $this->clock->now()));
 
         return $this->json($this->organizationReader->read($organization->id));
     }

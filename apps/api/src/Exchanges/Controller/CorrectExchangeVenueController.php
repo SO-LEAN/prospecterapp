@@ -49,7 +49,7 @@ final class CorrectExchangeVenueController extends AbstractController
     #[OA\Response(response: 422, description: 'A link that is no web address, a place for a video call, a link for a meeting', content: new Model(type: ProblemResource::class))]
     public function __invoke(ExchangeDetail $exchange, #[MapRequestPayload] VenueCorrectionInput $input, #[CurrentUser] User $user, #[MapQueryParameter(options: ['min_range' => 0], validationFailedStatusCode: 422)] ?int $revision = null): JsonResponse
     {
-        $this->commandBus->dispatch(new CorrectExchangeVenue($user->memberId(), $exchange->id, $input->place, $input->link, $this->clock->now()), $this->revisions->readAt($exchange->id, $revision));
+        $this->commandBus->dispatch(new CorrectExchangeVenue(prospectorId: $user->memberId(), id: $exchange->id, place: $input->place, link: $input->link, executedAt: $this->clock->now()), $this->revisions->readAt($exchange->id, $revision));
 
         return $this->json($this->exchangeReader->read($user->memberId(), $exchange->id));
     }

@@ -39,7 +39,7 @@ final readonly class ChangeLogoTool
             fn (File $logo): array => $this->writes->write(
                 $id,
                 null,
-                static fn (null $input, OrganizationSheet $organization, string $memberId, \DateTimeImmutable $now): ChangeLogo => new ChangeLogo($memberId, $organization->id, $logo, $now),
+                static fn (null $input, OrganizationSheet $organization, string $memberId, \DateTimeImmutable $now): ChangeLogo => new ChangeLogo(prospectorId: $memberId, id: $organization->id, logo: $logo, executedAt: $now),
             ),
         );
     }

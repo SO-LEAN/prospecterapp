@@ -38,7 +38,7 @@ final class ReviseMyOrganizationIdentityController extends AbstractController
     #[OA\Response(response: 422, description: 'Invalid identity', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[MapRequestPayload] LegalIdentityInput $input, #[CurrentUser] User $user): JsonResponse
     {
-        $this->commandBus->dispatch(new ReviseMyOrganizationIdentity($user->memberId(), $input->corporateName, $input->form, $input->type, $this->clock->now()));
+        $this->commandBus->dispatch(new ReviseMyOrganizationIdentity(memberId: $user->memberId(), corporateName: $input->corporateName, form: $input->form, type: $input->type, executedAt: $this->clock->now()));
 
         return $this->json($this->myAccountReader->read($user->memberId()));
     }

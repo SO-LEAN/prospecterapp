@@ -41,7 +41,7 @@ final class DismissRecipientController extends AbstractController
     #[OA\Response(response: 409, description: 'The campaign is not started, or the recipient is handled already', content: new Model(type: ProblemResource::class))]
     public function __invoke(CampaignSheet $campaign, string $contactId, #[MapRequestPayload] DismissalInput $input, #[CurrentUser] User $user): Response
     {
-        $this->commandBus->dispatch(new DismissRecipient($user->memberId(), $campaign->id, $contactId, $input->reason, $this->clock->now()));
+        $this->commandBus->dispatch(new DismissRecipient(memberId: $user->memberId(), campaignId: $campaign->id, contactId: $contactId, reason: $input->reason, executedAt: $this->clock->now()));
 
         return new Response(status: Response::HTTP_NO_CONTENT);
     }

@@ -49,7 +49,7 @@ final class ReviseLegalIdentityController extends AbstractController
     #[OA\Response(response: 422, description: 'Invalid identity or SIRET, a SIRET another organization of the account has, or neither corporate name nor email left', content: new Model(type: ProblemResource::class))]
     public function __invoke(OrganizationSheet $organization, #[MapRequestPayload] ReviseLegalIdentityInput $input, #[CurrentUser] User $user, #[MapQueryParameter(options: ['min_range' => 0], validationFailedStatusCode: 422)] ?int $revision = null): JsonResponse
     {
-        $this->commandBus->dispatch(new ReviseLegalIdentity($user->memberId(), $organization->id, $input->corporateName, $input->form, $input->type, $this->clock->now(), $input->siret), $this->revisions->readAt($organization->id, $revision));
+        $this->commandBus->dispatch(new ReviseLegalIdentity(prospectorId: $user->memberId(), id: $organization->id, corporateName: $input->corporateName, form: $input->form, type: $input->type, executedAt: $this->clock->now(), siret: $input->siret), $this->revisions->readAt($organization->id, $revision));
 
         return $this->json($this->organizationReader->read($organization->id));
     }

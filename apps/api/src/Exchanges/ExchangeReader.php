@@ -50,7 +50,7 @@ final readonly class ExchangeReader
     {
         $kept = new KeptExchange();
         $this->revisions->watch($id);
-        ($this->consultExchange)(new ConsultExchange($prospector, $id, $this->clock->now(), $movedFrom), $kept);
+        ($this->consultExchange)(new ConsultExchange(prospectorId: $prospector, id: $id, asOf: $this->clock->now(), movedFrom: $movedFrom), $kept);
 
         return $this->resourceOf($prospector, $kept->exchange);
     }

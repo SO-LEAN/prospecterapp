@@ -34,7 +34,7 @@ final readonly class CorrectExchangeVenueTool
             $id,
             $revision,
             new VenueCorrectionInput($place, $link),
-            static fn (VenueCorrectionInput $input, ExchangeDetail $exchange, string $memberId, \DateTimeImmutable $now): CorrectExchangeVenue => new CorrectExchangeVenue($memberId, $exchange->id, $input->place, $input->link, $now),
+            static fn (VenueCorrectionInput $input, ExchangeDetail $exchange, string $memberId, \DateTimeImmutable $now): CorrectExchangeVenue => new CorrectExchangeVenue(prospectorId: $memberId, id: $exchange->id, place: $input->place, link: $input->link, executedAt: $now),
         );
     }
 }

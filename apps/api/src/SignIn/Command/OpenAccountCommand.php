@@ -64,6 +64,6 @@ final readonly class OpenAccountCommand
 
     private function openWith(string $founder, string $corporateName, ?string $form): void
     {
-        $this->commands->dispatch(new OpenAccount($this->identities->next(), $corporateName, $form, $founder, $this->identities->next(), $this->clock->now()));
+        $this->commands->dispatch(new OpenAccount(id: $this->identities->next(), corporateName: $corporateName, form: $form, founderId: $founder, founderProfileId: $this->identities->next(), executedAt: $this->clock->now()));
     }
 }

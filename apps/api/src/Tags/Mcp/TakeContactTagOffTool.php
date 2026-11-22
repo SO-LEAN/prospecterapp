@@ -39,7 +39,7 @@ final readonly class TakeContactTagOffTool
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');
         $memberId = $this->access->member()->memberId();
-        $this->commandBus->dispatch(new TakeOffTag($memberId, TagRoutes::Contact->value, $id, $tag, $this->clock->now()));
+        $this->commandBus->dispatch(new TakeOffTag(memberId: $memberId, holder: TagRoutes::Contact->value, holderId: $id, tag: $tag, executedAt: $this->clock->now()));
 
         return $this->results->of($this->contactTagsReader->read($memberId, $id));
     }

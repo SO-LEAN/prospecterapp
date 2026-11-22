@@ -32,7 +32,7 @@ final readonly class RemoveAttachmentTool
         return $this->writes->write(
             $id,
             null,
-            static fn (null $input, ExchangeDetail $exchange, string $memberId, \DateTimeImmutable $now): RemoveAttachment => new RemoveAttachment($memberId, $exchange->id, $attachmentId, $now),
+            static fn (null $input, ExchangeDetail $exchange, string $memberId, \DateTimeImmutable $now): RemoveAttachment => new RemoveAttachment(prospectorId: $memberId, exchangeId: $exchange->id, id: $attachmentId, executedAt: $now),
             User::PERSONAL_DATA,
         );
     }

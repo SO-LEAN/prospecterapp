@@ -33,7 +33,7 @@ final readonly class MarkExchangeDoneTool
         return $this->writes->write(
             $id,
             $this->inputs->mapped(ReportInput::class, ['text' => $text, 'occurredAt' => $occurredAt]),
-            static fn (ReportInput $input, ExchangeDetail $exchange, string $memberId, \DateTimeImmutable $now): MarkExchangeDone => new MarkExchangeDone($memberId, $exchange->id, $input->occurredAt ?? $exchange->occurredAt, $input->text, $now),
+            static fn (ReportInput $input, ExchangeDetail $exchange, string $memberId, \DateTimeImmutable $now): MarkExchangeDone => new MarkExchangeDone(prospectorId: $memberId, id: $exchange->id, occurredAt: $input->occurredAt ?? $exchange->occurredAt, report: $input->text, executedAt: $now),
         );
     }
 }

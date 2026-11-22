@@ -40,7 +40,7 @@ final class RemoveRecipientController extends AbstractController
     #[OA\Response(response: 422, description: 'Its last recipient', content: new Model(type: ProblemResource::class))]
     public function __invoke(CampaignSheet $campaign, string $contactId, #[CurrentUser] User $user): Response
     {
-        $this->commandBus->dispatch(new RemoveRecipient($user->memberId(), $campaign->id, $contactId, $this->clock->now()));
+        $this->commandBus->dispatch(new RemoveRecipient(memberId: $user->memberId(), campaignId: $campaign->id, contactId: $contactId, executedAt: $this->clock->now()));
 
         return new Response(status: Response::HTTP_NO_CONTENT);
     }

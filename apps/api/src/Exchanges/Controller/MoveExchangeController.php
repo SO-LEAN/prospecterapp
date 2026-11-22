@@ -44,7 +44,7 @@ final class MoveExchangeController extends AbstractController
     #[OA\Response(response: 422, description: 'A moment missing, or in the past; a duration out of range', content: new Model(type: ProblemResource::class))]
     public function __invoke(ExchangeDetail $exchange, #[MapRequestPayload] MomentInput $input, #[CurrentUser] User $user): JsonResponse
     {
-        $this->commandBus->dispatch(new MoveExchange($user->memberId(), $exchange->id, $input->occurredAt ?? throw new \LogicException('The moment is validated'), $this->clock->now(), $input->durationInMinutes));
+        $this->commandBus->dispatch(new MoveExchange(prospectorId: $user->memberId(), id: $exchange->id, plannedAt: $input->occurredAt ?? throw new \LogicException('The moment is validated'), executedAt: $this->clock->now(), durationInMinutes: $input->durationInMinutes));
 
         return $this->json($this->exchangeReader->read($user->memberId(), $exchange->id, movedFrom: $exchange->occurredAt));
     }

@@ -198,11 +198,11 @@ final readonly class ContactRecorder
     private function completedOrganization(string $memberId, string $organizationId, array $organization): RecordedResource
     {
         $compared = new KeptOrganizationComparison();
-        ($this->compareWithOrganization)(new CompareWithOrganization($organizationId, $organization['siret'] ?? null, $organization['links'] ?? [], $organization['website'] ?? null, $organization['email'] ?? null, $organization['phoneNumber'] ?? null), $compared);
+        ($this->compareWithOrganization)(new CompareWithOrganization(id: $organizationId, siret: $organization['siret'] ?? null, links: $organization['links'] ?? [], website: $organization['website'] ?? null, email: $organization['email'] ?? null, phoneNumber: $organization['phoneNumber'] ?? null), $compared);
         $comparison = $compared->comparison;
 
         if ([] !== $comparison->completed) {
-            $this->commandBus->dispatch(new CompleteOrganization($memberId, $organizationId, $organization['siret'] ?? null, $organization['links'] ?? [], $organization['website'] ?? null, $organization['email'] ?? null, $organization['phoneNumber'] ?? null, $this->clock->now()));
+            $this->commandBus->dispatch(new CompleteOrganization(prospectorId: $memberId, id: $organizationId, siret: $organization['siret'] ?? null, links: $organization['links'] ?? [], website: $organization['website'] ?? null, email: $organization['email'] ?? null, phoneNumber: $organization['phoneNumber'] ?? null, executedAt: $this->clock->now()));
         }
 
         return new RecordedResource(RecordedResource::KNOWN, $organizationId, completed: $comparison->completed, differing: $comparison->differing);
@@ -214,7 +214,7 @@ final readonly class ContactRecorder
     private function contactComparison(string $memberId, string $personId, array $person): Comparison
     {
         $compared = new KeptContactComparison();
-        ($this->compareWithContact)(new CompareWithContact($memberId, $personId, $person['title'] ?? self::UNKNOWN_CIVILITY, $person['jobTitle'] ?? null, $person['email'] ?? null, $person['phoneNumber'] ?? null, $person['links'] ?? []), $compared);
+        ($this->compareWithContact)(new CompareWithContact(readerId: $memberId, id: $personId, civility: $person['title'] ?? self::UNKNOWN_CIVILITY, jobTitle: $person['jobTitle'] ?? null, email: $person['email'] ?? null, phoneNumber: $person['phoneNumber'] ?? null, links: $person['links'] ?? []), $compared);
 
         return $compared->comparison;
     }
@@ -227,7 +227,7 @@ final readonly class ContactRecorder
     private function noteTheSiretOf(string $memberId, string $organizationId, array $organization): void
     {
         if (isset($organization['siret'])) {
-            $this->commandBus->dispatch(new CompleteOrganization($memberId, $organizationId, $organization['siret'], [], null, null, null, $this->clock->now()));
+            $this->commandBus->dispatch(new CompleteOrganization(prospectorId: $memberId, id: $organizationId, siret: $organization['siret'], links: [], website: null, email: null, phoneNumber: null, executedAt: $this->clock->now()));
         }
     }
 
@@ -248,11 +248,11 @@ final readonly class ContactRecorder
     private function completedContact(string $memberId, string $personId, array $person, Comparison $comparison, string $organizationId): RecordedResource
     {
         if ([] !== $comparison->completed) {
-            $this->commandBus->dispatch(new CompleteContact($memberId, $personId, $person['title'] ?? self::UNKNOWN_CIVILITY, $person['jobTitle'] ?? null, $person['email'] ?? null, $person['phoneNumber'] ?? null, $person['links'] ?? [], $this->clock->now()));
+            $this->commandBus->dispatch(new CompleteContact(readerId: $memberId, id: $personId, civility: $person['title'] ?? self::UNKNOWN_CIVILITY, jobTitle: $person['jobTitle'] ?? null, email: $person['email'] ?? null, phoneNumber: $person['phoneNumber'] ?? null, links: $person['links'] ?? [], executedAt: $this->clock->now()));
         }
 
         if (!in_array($personId, $this->organizations->read($organizationId)->contactIds, true)) {
-            $this->commandBus->dispatch(new AddContact($memberId, $organizationId, $personId, $this->clock->now()));
+            $this->commandBus->dispatch(new AddContact(prospectorId: $memberId, id: $organizationId, personId: $personId, executedAt: $this->clock->now()));
         }
 
         return new RecordedResource(RecordedResource::KNOWN, $personId, completed: $comparison->completed, differing: $comparison->differing);

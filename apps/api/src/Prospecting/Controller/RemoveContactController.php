@@ -42,7 +42,7 @@ final class RemoveContactController extends AbstractController
     #[OA\Response(response: 409, description: 'The person is no contact of the organization', content: new Model(type: ProblemResource::class))]
     public function __invoke(OrganizationSheet $organization, string $personId, #[CurrentUser] User $user): JsonResponse
     {
-        $this->commandBus->dispatch(new RemoveContact($user->memberId(), $organization->id, $personId, $this->clock->now()));
+        $this->commandBus->dispatch(new RemoveContact(prospectorId: $user->memberId(), id: $organization->id, personId: $personId, executedAt: $this->clock->now()));
 
         return $this->json($this->organizationReader->read($organization->id));
     }

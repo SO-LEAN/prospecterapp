@@ -36,7 +36,7 @@ final readonly class RelocateTool
             $id,
             $revision,
             new AddressInput($street, $postalCode, $city, $country),
-            static fn (AddressInput $input, OrganizationSheet $organization, string $memberId, \DateTimeImmutable $now): Relocate => new Relocate($memberId, $organization->id, $input->street, $input->postalCode, $input->city, $input->country, $now),
+            static fn (AddressInput $input, OrganizationSheet $organization, string $memberId, \DateTimeImmutable $now): Relocate => new Relocate(prospectorId: $memberId, id: $organization->id, street: $input->street, postalCode: $input->postalCode, city: $input->city, country: $input->country, executedAt: $now),
         );
     }
 }

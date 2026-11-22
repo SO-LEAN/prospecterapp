@@ -48,7 +48,7 @@ final readonly class TagOrganizationTool
         $this->access->denyUnlessGranted(OrganizationVoter::ACCESS, $organization);
         $input = $this->inputs->valid(new TagsInput($tags));
         $memberId = $this->access->member()->memberId();
-        $this->commandBus->dispatch(new PutTags($memberId, TagRoutes::Organization->value, $organization->id, $input->tags, $this->clock->now()));
+        $this->commandBus->dispatch(new PutTags(memberId: $memberId, holder: TagRoutes::Organization->value, holderId: $organization->id, tags: $input->tags, executedAt: $this->clock->now()));
 
         return $this->results->of($this->tagsReader->read($memberId, $organization->id));
     }

@@ -43,7 +43,7 @@ final readonly class TagContactTool
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');
         $input = $this->inputs->valid(new TagsInput($tags));
         $memberId = $this->access->member()->memberId();
-        $this->commandBus->dispatch(new PutTags($memberId, TagRoutes::Contact->value, $id, $input->tags, $this->clock->now()));
+        $this->commandBus->dispatch(new PutTags(memberId: $memberId, holder: TagRoutes::Contact->value, holderId: $id, tags: $input->tags, executedAt: $this->clock->now()));
 
         return $this->results->of($this->contactTagsReader->read($memberId, $id));
     }

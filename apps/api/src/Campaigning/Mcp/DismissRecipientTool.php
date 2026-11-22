@@ -31,7 +31,7 @@ final readonly class DismissRecipientTool
         $this->writes->dispatched(
             $id,
             new DismissalInput($reason),
-            static fn (DismissalInput $input, CampaignSheet $campaign, string $memberId, \DateTimeImmutable $now): DismissRecipient => new DismissRecipient($memberId, $campaign->id, $contactId, $input->reason, $now),
+            static fn (DismissalInput $input, CampaignSheet $campaign, string $memberId, \DateTimeImmutable $now): DismissRecipient => new DismissRecipient(memberId: $memberId, campaignId: $campaign->id, contactId: $contactId, reason: $input->reason, executedAt: $now),
         );
     }
 }

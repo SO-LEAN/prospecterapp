@@ -37,7 +37,7 @@ final readonly class ChangeContactDetailsTool
             $id,
             $revision,
             new OrganizationContactDetailsInput($email, $phoneNumber, $language, $links, $website),
-            static fn (OrganizationContactDetailsInput $input, OrganizationSheet $organization, string $memberId, \DateTimeImmutable $now): ChangeContactDetails => new ChangeContactDetails($memberId, $organization->id, $input->email, $input->phoneNumber, $input->language, $now, $input->links, $input->website),
+            static fn (OrganizationContactDetailsInput $input, OrganizationSheet $organization, string $memberId, \DateTimeImmutable $now): ChangeContactDetails => new ChangeContactDetails(prospectorId: $memberId, id: $organization->id, email: $input->email, phoneNumber: $input->phoneNumber, language: $input->language, executedAt: $now, links: $input->links, website: $input->website),
         );
     }
 }
