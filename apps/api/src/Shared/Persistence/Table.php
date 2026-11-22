@@ -99,6 +99,25 @@ final readonly class Table
     }
 
     /**
+     * Reads the items under one sort key in the given partitions. It returns them in the partitions' order and leaves
+     * out a partition without one.
+     *
+     * @param list<string> $partitions
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function itemsInTheOrderOf(array $partitions, string $sortKey): array
+    {
+        $byPartition = [];
+
+        foreach ($this->items(array_map(static fn (string $partition): array => [$partition, $sortKey], $partitions)) as $item) {
+            $byPartition[self::pkAndSkOf($item)[0]] = $item;
+        }
+
+        return array_values(array_filter(array_map(static fn (string $partition): ?array => $byPartition[$partition] ?? null, $partitions)));
+    }
+
+    /**
      * @param list<array{string, string}> $keys
      *
      * @return list<array<string, mixed>>
