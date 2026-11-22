@@ -26,6 +26,7 @@ use Prospecter\Core\Connectors\Domain\Port\ProviderCalendar;
 use Prospecter\Core\Connectors\Domain\Port\ProviderMailbox;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
@@ -70,11 +71,11 @@ final class Connection implements ReleasesEvents
     /**
      * @throws IncompleteGrant
      */
-    public static function establish(MemberId $member, AccountId $accountId, ClientCredentials $client, Grant $grant, \DateTimeImmutable $at): self
+    public static function establish(Gesture $gesture, ClientCredentials $client, Grant $grant): self
     {
         self::ensureComplete($grant);
-        $connection = new self($member, $accountId, $client->provider, $grant->account, $grant->refreshToken, $client->id, $at);
-        $connection->recordThat(new Connected($accountId, $member, $at));
+        $connection = new self($gesture->by, $gesture->accountId, $client->provider, $grant->account, $grant->refreshToken, $client->id, $gesture->at);
+        $connection->recordThat(new Connected($gesture->accountId, $gesture->by, $gesture->at));
 
         return $connection;
     }

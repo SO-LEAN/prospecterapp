@@ -15,6 +15,7 @@ use Prospecter\Core\Connectors\Domain\Port\ProviderMailbox;
 use Prospecter\Core\Connectors\Domain\Repository\ConnectionRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Tests\App\Base\ApiTestCase;
 use Tests\App\Double\EmptyMailbox;
@@ -131,7 +132,7 @@ class DynamoConnectionRepositoryTest extends ApiTestCase
     {
         $grant = new Grant(new Email('michel@exemple.fr'), $token, Scope::Calendar, Scope::Mailbox);
 
-        return Connection::establish($member ?? new MemberId(self::newIdentity()), new AccountId(self::newIdentity()), new ClientCredentials(Provider::Google, 'a-client', 'a-secret'), $grant, new \DateTimeImmutable($at));
+        return Connection::establish(new Gesture(new AccountId(self::newIdentity()), $member ?? new MemberId(self::newIdentity()), new \DateTimeImmutable($at)), new ClientCredentials(Provider::Google, 'a-client', 'a-secret'), $grant);
     }
 
     private function connections(): ConnectionRepository

@@ -28,6 +28,7 @@ use Prospecter\Core\Connectors\Domain\Model\RefreshToken;
 use Prospecter\Core\Connectors\Domain\Model\Scope;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Tests\Core\Double\InMemoryPrivateStorage;
@@ -90,7 +91,7 @@ final class ConnectionTest extends TestCase
     {
         $google = new InMemoryProviderAccess();
         $grant = $google->exchange(self::client(), $google->grant('michel@exemple.fr', Scope::Calendar), 'a-verifier');
-        $connection = Connection::establish(new MemberId(self::MEMBER), new AccountId(self::ACCOUNT), self::client(), $grant, new \DateTimeImmutable(self::AT));
+        $connection = Connection::establish(new Gesture(new AccountId(self::ACCOUNT), new MemberId(self::MEMBER), new \DateTimeImmutable(self::AT)), self::client(), $grant);
         $connection->releaseEvents();
         $google->refuseEveryToken();
 
@@ -176,12 +177,12 @@ final class ConnectionTest extends TestCase
         $renewed->renew(self::grant(), self::client(), new InMemoryProviderAccess(), new \DateTimeImmutable('2026-11-14 10:05'));
 
         $this->assertFalse($read->isTheSameAs($renewed));
-        $this->assertFalse($read->isTheSameAs(Connection::establish(new MemberId(self::MEMBER), new AccountId(self::ACCOUNT), self::client(), self::grant(), new \DateTimeImmutable('2026-11-14 10:05'))));
+        $this->assertFalse($read->isTheSameAs(Connection::establish(new Gesture(new AccountId(self::ACCOUNT), new MemberId(self::MEMBER), new \DateTimeImmutable('2026-11-14 10:05')), self::client(), self::grant())));
     }
 
     public function testTheConnectionOfAnotherMemberIsAnother(): void
     {
-        $another = Connection::establish(new MemberId('0190a1c0-0000-7000-8000-0000000000bb'), new AccountId(self::ACCOUNT), self::client(), self::grant(), new \DateTimeImmutable(self::AT));
+        $another = Connection::establish(new Gesture(new AccountId(self::ACCOUNT), new MemberId('0190a1c0-0000-7000-8000-0000000000bb'), new \DateTimeImmutable(self::AT)), self::client(), self::grant());
 
         $this->assertFalse($this->establish()->isTheSameAs($another));
     }
@@ -190,7 +191,7 @@ final class ConnectionTest extends TestCase
     {
         $google = new InMemoryProviderAccess();
         $grant = $google->exchange(self::client(), $google->grant('michel@exemple.fr', Scope::Calendar, Scope::Mailbox), 'a-verifier');
-        $connection = Connection::establish(new MemberId(self::MEMBER), new AccountId(self::ACCOUNT), self::client(), $grant, new \DateTimeImmutable(self::AT));
+        $connection = Connection::establish(new Gesture(new AccountId(self::ACCOUNT), new MemberId(self::MEMBER), new \DateTimeImmutable(self::AT)), self::client(), $grant);
         $connection->releaseEvents();
 
         $connection->importMail(self::client(), self::notifications(), new InMemoryProviderMailbox($google, new InMemoryPrivateStorage(), static fn (): \DateTimeImmutable => new \DateTimeImmutable(self::AT)), new \DateTimeImmutable(self::AT));
@@ -203,7 +204,7 @@ final class ConnectionTest extends TestCase
         $google = new InMemoryProviderAccess();
         $mailbox = new InMemoryProviderMailbox($google, new InMemoryPrivateStorage(), static fn (): \DateTimeImmutable => new \DateTimeImmutable(self::AT));
         $grant = $google->exchange(self::client(), $google->grant('michel@exemple.fr', Scope::Calendar, Scope::Mailbox), 'a-verifier');
-        $connection = Connection::establish(new MemberId(self::MEMBER), new AccountId(self::ACCOUNT), self::client(), $grant, new \DateTimeImmutable(self::AT));
+        $connection = Connection::establish(new Gesture(new AccountId(self::ACCOUNT), new MemberId(self::MEMBER), new \DateTimeImmutable(self::AT)), self::client(), $grant);
         $connection->importMail(self::client(), self::notifications(), $mailbox, new \DateTimeImmutable(self::AT));
         $connection->releaseEvents();
 
@@ -276,7 +277,7 @@ final class ConnectionTest extends TestCase
     {
         $mailbox = new InMemoryProviderMailbox($google, new InMemoryPrivateStorage(), static fn (): \DateTimeImmutable => new \DateTimeImmutable(self::AT));
         $grant = $google->exchange(self::client(), $google->grant('michel@exemple.fr', Scope::Calendar, Scope::Mailbox), 'a-verifier');
-        $connection = Connection::establish(new MemberId(self::MEMBER), new AccountId(self::ACCOUNT), self::client(), $grant, new \DateTimeImmutable(self::AT));
+        $connection = Connection::establish(new Gesture(new AccountId(self::ACCOUNT), new MemberId(self::MEMBER), new \DateTimeImmutable(self::AT)), self::client(), $grant);
         $connection->importMail(self::client(), self::notifications(), $mailbox, new \DateTimeImmutable(self::AT));
         $connection->releaseEvents();
 
@@ -301,7 +302,7 @@ final class ConnectionTest extends TestCase
 
     private function establish(): Connection
     {
-        return Connection::establish(new MemberId(self::MEMBER), new AccountId(self::ACCOUNT), self::client(), self::grant(), new \DateTimeImmutable(self::AT));
+        return Connection::establish(new Gesture(new AccountId(self::ACCOUNT), new MemberId(self::MEMBER), new \DateTimeImmutable(self::AT)), self::client(), self::grant());
     }
 
     private static function client(): ClientCredentials

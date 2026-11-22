@@ -387,7 +387,7 @@ class CheckConsistencyCommandTest extends ApiTestCase
     private function connectTheProspectorToGoogle(): void
     {
         $grant = new Grant(new Email('prospector@exemple.fr'), new RefreshToken('a-refresh-token'), Scope::Calendar);
-        $connection = Connection::establish(new MemberId(DemoData::PROSPECTOR), new AccountId(DemoData::SOLEAN_IT), new ClientCredentials(Provider::Google, 'client-of-the-double', 'secret-of-the-double'), $grant, new \DateTimeImmutable('2026-10-14 09:00 UTC'));
+        $connection = Connection::establish(new Gesture(new AccountId(DemoData::SOLEAN_IT), new MemberId(DemoData::PROSPECTOR), new \DateTimeImmutable('2026-10-14 09:00 UTC')), new ClientCredentials(Provider::Google, 'client-of-the-double', 'secret-of-the-double'), $grant);
         self::getContainer()->get(ConnectionRepository::class)->save($connection);
     }
 
