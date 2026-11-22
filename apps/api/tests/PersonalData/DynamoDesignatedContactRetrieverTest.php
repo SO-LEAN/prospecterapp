@@ -3,6 +3,7 @@
 namespace Tests\App\PersonalData;
 
 use Prospecter\Core\PersonalData\Application\Port\DesignatedContactRetriever;
+use Prospecter\Core\PersonalData\Domain\Model\ContactCard;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\PersonalData\Domain\Model\PersonResemblanceKey;
@@ -15,6 +16,7 @@ use Prospecter\Core\SharedKernel\Domain\Designated;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\ExternalReference;
 use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
@@ -100,7 +102,7 @@ class DynamoDesignatedContactRetrieverTest extends ApiTestCase
 
     private function aContact(string $firstName, string $lastName, ContactDetails $contactDetails, ?ExternalReferences $references = null): Person
     {
-        $contact = Person::collect(new PersonId(self::newIdentity()), $this->account, Purpose::Prospecting, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS), new PersonName($firstName, $lastName), $contactDetails);
+        $contact = Person::collect(new Gesture($this->account, new MemberId(self::newIdentity()), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)), new PersonId(self::newIdentity()), Purpose::Prospecting, new ContactCard(new PersonName($firstName, $lastName), $contactDetails));
         $contact->changeContactDetails($contactDetails, $references ?? ExternalReferences::none(), $this->readerWithTheRight(), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         self::getContainer()->get(PersonRepository::class)->save($contact);
 

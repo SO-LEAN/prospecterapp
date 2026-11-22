@@ -4,6 +4,7 @@ namespace Tests\App\Prospecting;
 
 use App\Shared\ScheduledTasksFunction;
 use Bref\Context\Context;
+use Prospecter\Core\PersonalData\Domain\Model\ContactCard;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\PersonalData\Domain\Model\Reader;
@@ -103,7 +104,7 @@ class EraseContactsLeftUnattachedTest extends ApiTestCase
         $account = new AccountId($this->accountOfTheFixtures()->value);
         $member = new MemberId($this->memberIdOf('prospector-user'));
         $at = new \DateTimeImmutable($meeting);
-        $person = Person::collectToAttach(new Reader($member, $account, new PersonId(self::newIdentity()), true), new PersonId(self::newIdentity()), new PersonName('Ada', 'Lovelace'), new ContactDetails(new Email(self::newIdentity().'@acme.test')), $at);
+        $person = Person::collectToAttach(new Reader($member, $account, new PersonId(self::newIdentity()), true), new PersonId(self::newIdentity()), new ContactCard(new PersonName('Ada', 'Lovelace'), new ContactDetails(new Email(self::newIdentity().'@acme.test'))), $at);
         self::getContainer()->get(PersonRepository::class)->save($person);
         self::getContainer()->get(ContactToAttachRepository::class)->save(ContactToAttach::metBy(new Prospector($member, $account, managesPersonalData: true), $person->id(), $at, $at));
         self::getContainer()->get(ExchangeRepository::class)->save(Exchange::noted(new Gesture($account, $member, $at), new ExchangeId(self::newIdentity()), new ContactCorrespondent($person->id(), []), Noting::of(new ExchangeFacts(Channel::VideoCall, Direction::Outbound, $at), ExchangeStatus::Done)));

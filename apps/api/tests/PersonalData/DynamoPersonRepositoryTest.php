@@ -9,6 +9,8 @@ use App\Shared\Persistence\DynamoUnitOfWork;
 use App\Shared\Persistence\Hydrator;
 use App\Shared\Persistence\Table;
 use Prospecter\Core\PersonalData\Domain\Model\Civility;
+use Prospecter\Core\PersonalData\Domain\Model\ContactCard;
+use Prospecter\Core\PersonalData\Domain\Model\NewContact;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
@@ -20,6 +22,7 @@ use Prospecter\Core\SharedKernel\Domain\Designated;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
 use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\Origin;
@@ -125,7 +128,7 @@ class DynamoPersonRepositoryTest extends ApiTestCase
         $persons = self::getContainer()->get(PersonRepository::class);
         $accountId = new AccountId(self::newIdentity());
         $collector = new Reader(new MemberId(self::newIdentity()), $accountId, new PersonId(self::newIdentity()), readsPersonalData: true);
-        $grace = Person::collectAsContact($collector, new PersonId(self::newIdentity()), new PersonName('Grace', 'Hopper'), Civility::X, null, new ContactDetails(), ExternalReferences::none(), [new OrganizationId(self::newIdentity())], new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS), Origin::Ai);
+        $grace = Person::collectAsContact($collector, new NewContact(new PersonId(self::newIdentity()), new ContactCard(new PersonName('Grace', 'Hopper'), new ContactDetails(), Civility::X, null, ExternalReferences::none()), [new OrganizationId(self::newIdentity())]), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS), Origin::Ai);
         $grace->releaseEvents();
         $persons->save($grace);
 
@@ -204,7 +207,7 @@ class DynamoPersonRepositoryTest extends ApiTestCase
     public function testTheProfileOfAMemberNamedLikeAContactResemblesNoContact(): void
     {
         $account = new AccountId(self::newIdentity());
-        $this->persons()->save(Person::collect(new PersonId(self::newIdentity()), $account, Purpose::Membership, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS), new PersonName('Ada', 'Lovelace')));
+        $this->persons()->save(Person::collect(new Gesture($account, new MemberId(self::newIdentity()), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)), new PersonId(self::newIdentity()), Purpose::Membership, new ContactCard(new PersonName('Ada', 'Lovelace'))));
 
         $this->assertSame([], $this->persons()->resembling($account, $this->contactNamed($account, 'Ada', 'Lovelace')->resemblanceKey(), except: new PersonId(self::newIdentity())));
     }
@@ -323,7 +326,7 @@ class DynamoPersonRepositoryTest extends ApiTestCase
 
     private function contactNamed(AccountId $account, string $firstName, string $lastName): Person
     {
-        return Person::collect(new PersonId(self::newIdentity()), $account, Purpose::Prospecting, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS), new PersonName($firstName, $lastName));
+        return Person::collect(new Gesture($account, new MemberId(self::newIdentity()), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)), new PersonId(self::newIdentity()), Purpose::Prospecting, new ContactCard(new PersonName($firstName, $lastName)));
     }
 
     private function persons(): PersonRepository
@@ -333,7 +336,7 @@ class DynamoPersonRepositoryTest extends ApiTestCase
 
     private function personWithThePhoneNumber(AccountId $account, string $phoneNumber): Person
     {
-        return Person::collect(new PersonId(self::newIdentity()), $account, Purpose::Prospecting, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS), contactDetails: new ContactDetails(phoneNumber: PhoneNumber::of($phoneNumber)));
+        return Person::collect(new Gesture($account, new MemberId(self::newIdentity()), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)), new PersonId(self::newIdentity()), Purpose::Prospecting, new ContactCard(contactDetails: new ContactDetails(phoneNumber: PhoneNumber::of($phoneNumber))));
     }
 
     private function personalDataTable(): Table
@@ -346,6 +349,6 @@ class DynamoPersonRepositoryTest extends ApiTestCase
 
     private function personWithTheEmail(AccountId $account, string $email): Person
     {
-        return Person::collect(new PersonId(self::newIdentity()), $account, Purpose::Prospecting, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS), contactDetails: new ContactDetails(new Email($email)));
+        return Person::collect(new Gesture($account, new MemberId(self::newIdentity()), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)), new PersonId(self::newIdentity()), Purpose::Prospecting, new ContactCard(contactDetails: new ContactDetails(new Email($email))));
     }
 }

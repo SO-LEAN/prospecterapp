@@ -26,6 +26,8 @@ use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContacts;
 use Prospecter\Core\PersonalData\Contract\Event\ContactCollected;
 use Prospecter\Core\PersonalData\Domain\Event\DuplicateSuspicionLifted;
 use Prospecter\Core\PersonalData\Domain\Model\Civility;
+use Prospecter\Core\PersonalData\Domain\Model\ContactCard;
+use Prospecter\Core\PersonalData\Domain\Model\NewContact;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
@@ -126,13 +128,7 @@ final class PersonalDataContext implements Context
         $prospect = $this->scenario->organizationNamed($organization);
         $contact = Person::collectAsContact(
             $this->scenario->managerOfPersonalDataOf($prospect->accountId()),
-            new PersonId($this->application->newIdentity()),
-            new PersonName($firstName, $lastName),
-            Civility::X,
-            null,
-            $contactDetails,
-            ExternalReferences::none(),
-            [$prospect->id()],
+            new NewContact(new PersonId($this->application->newIdentity()), new ContactCard(new PersonName($firstName, $lastName), $contactDetails), [$prospect->id()]),
             $this->application->now(),
         );
         $this->application->persons->save($contact);

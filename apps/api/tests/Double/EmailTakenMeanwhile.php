@@ -11,10 +11,13 @@ use App\Shared\Persistence\Table;
 use Aws\DynamoDb\DynamoDbClient;
 use Aws\DynamoDb\Marshaler;
 use Prospecter\Core\PersonalData\Domain\Event\PersonContactDetailsChanged;
+use Prospecter\Core\PersonalData\Domain\Model\ContactCard;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Symfony\Component\Clock\ClockInterface;
 
@@ -48,7 +51,7 @@ final class EmailTakenMeanwhile implements EventHandler
         }
 
         $changed = $this->persons->get($event->person);
-        $this->anotherRequest()->save(Person::collect(new PersonId($this->identities->next()), $changed->accountId(), $changed->purpose(), $event->occurredAt, contactDetails: new ContactDetails($changed->contactDetails()->email)));
+        $this->anotherRequest()->save(Person::collect(new Gesture($changed->accountId(), new MemberId($this->identities->next()), $event->occurredAt), new PersonId($this->identities->next()), $changed->purpose(), new ContactCard(contactDetails: new ContactDetails($changed->contactDetails()->email))));
     }
 
     private function anotherRequest(): DynamoPersonRepository

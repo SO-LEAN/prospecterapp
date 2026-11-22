@@ -7201,12 +7201,6 @@ parameters:
 			path: tests/Api/AccessTokenTest.php
 
 		-
-			message: '#^Call to an undefined method object\:\:save\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: tests/Api/AccountApiTest.php
-
-		-
 			message: '#^Cannot access offset ''address'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 2

@@ -5,6 +5,7 @@ namespace Tests\App\PersonalData;
 use App\Shared\Persistence\DynamoUnitOfWork;
 use Prospecter\Core\PersonalData\Application\Port\ContactFactsRetriever;
 use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\ContactFactsResponse;
+use Prospecter\Core\PersonalData\Domain\Model\ContactCard;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
@@ -12,6 +13,8 @@ use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Email;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 use Tests\App\Base\ApiTestCase;
@@ -56,7 +59,7 @@ class DynamoContactFactsRetrieverTest extends ApiTestCase
 
     public function testTheFactsSayHowTheContactIsReachedNeverItsDetails(): void
     {
-        $contact = Person::collect(new PersonId(self::newIdentity()), $this->account, Purpose::Prospecting, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS), new PersonName(lastName: 'Lovelace'), new ContactDetails(new Email('ada@acme.test'), PhoneNumber::of('06 12 34 56 78')));
+        $contact = Person::collect(new Gesture($this->account, new MemberId(self::newIdentity()), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)), new PersonId(self::newIdentity()), Purpose::Prospecting, new ContactCard(new PersonName(lastName: 'Lovelace'), new ContactDetails(new Email('ada@acme.test'), PhoneNumber::of('06 12 34 56 78'))));
         $this->persons()->save($contact);
 
         $this->assertEquals(new ContactFactsResponse($contact->id()->value, 1, true, true, true, true, false), $this->retriever()->of($contact->id()));
@@ -106,7 +109,7 @@ class DynamoContactFactsRetrieverTest extends ApiTestCase
 
     private function kept(Purpose $purpose, string $lastName): Person
     {
-        return Person::collect(new PersonId(self::newIdentity()), $this->account, $purpose, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS), new PersonName(lastName: $lastName));
+        return Person::collect(new Gesture($this->account, new MemberId(self::newIdentity()), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)), new PersonId(self::newIdentity()), $purpose, new ContactCard(new PersonName(lastName: $lastName)));
     }
 
     private function persons(): PersonRepository

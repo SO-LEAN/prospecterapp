@@ -20,6 +20,7 @@ use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotFound;
 use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
 use Prospecter\Core\SharedKernel\Domain\File;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
@@ -41,7 +42,7 @@ class PersonIntentsTest extends TestCase
     #[DataProvider('situations')]
     public function testAnIntentionIsRefusedExactlyWhenItIsNotOffered(PersonIntent $intent, Purpose $purpose, Reader $reader): void
     {
-        $person = Person::collect(new PersonId(self::PERSON), new AccountId(self::ACCOUNT), $purpose, new \DateTimeImmutable(self::AT));
+        $person = Person::collect(new Gesture(new AccountId(self::ACCOUNT), new MemberId(self::COLLEAGUE), new \DateTimeImmutable(self::AT)), new PersonId(self::PERSON), $purpose);
         $offered = in_array($intent, PersonPossibilities::given($reader, new PersonId(self::PERSON), new AccountId(self::ACCOUNT), $purpose), true);
 
         $accepted = $this->isAccepted($intent, $person, $reader);

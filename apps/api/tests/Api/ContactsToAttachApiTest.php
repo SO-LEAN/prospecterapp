@@ -6,6 +6,7 @@ use App\Demo\DemoData;
 use App\Shared\Persistence\Table;
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Model\Role;
+use Prospecter\Core\PersonalData\Domain\Model\ContactCard;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\PersonalData\Domain\Model\Reader;
@@ -251,7 +252,7 @@ class ContactsToAttachApiTest extends ApiTestCase
     {
         $member = new MemberId($this->memberIdOf($holder));
         $at = new \DateTimeImmutable('2026-10-15 09:00 UTC');
-        $person = Person::collectToAttach(new Reader($member, $this->accountOfTheFixtures(), new PersonId(self::newIdentity()), true), new PersonId(self::newIdentity()), new PersonName($firstName, $lastName), new ContactDetails(new Email($email)), $at);
+        $person = Person::collectToAttach(new Reader($member, $this->accountOfTheFixtures(), new PersonId(self::newIdentity()), true), new PersonId(self::newIdentity()), new ContactCard(new PersonName($firstName, $lastName), new ContactDetails(new Email($email))), $at);
         self::getContainer()->get(PersonRepository::class)->save($person);
         $prospector = new Prospector($member, $this->accountOfTheFixtures(), managesPersonalData: true);
         self::getContainer()->get(ContactToAttachRepository::class)->save(ContactToAttach::metBy($prospector, $person->id(), new \DateTimeImmutable($meeting), $at));

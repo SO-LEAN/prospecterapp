@@ -22,6 +22,7 @@ use Prospecter\Core\Connectors\Domain\Model\MailboxAttachment;
 use Prospecter\Core\Connectors\Domain\Model\MailboxMail;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Model\Scope;
+use Prospecter\Core\PersonalData\Domain\Model\ContactCard;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ConsultExchange;
@@ -329,7 +330,7 @@ final class MailboxMailContext implements Context
     {
         $other = $this->scenario->aMemberOf('un autre membre', $this->accountNameOfMine(), Role::User, Role::Prospector, Role::PersonalData);
         [$firstName, $lastName] = array_pad(explode(' ', $name, 2), 2, null);
-        $person = Person::collectToAttach($this->application->readers->readerFrom($other->id()), new PersonId($this->application->newIdentity()), new PersonName($firstName, $lastName), new ContactDetails(new Email($email)), $this->application->now());
+        $person = Person::collectToAttach($this->application->readers->readerFrom($other->id()), new PersonId($this->application->newIdentity()), new ContactCard(new PersonName($firstName, $lastName), new ContactDetails(new Email($email))), $this->application->now());
         $this->application->persons->save($person);
         $this->scenario->rememberPerson($name, $person->id());
         $this->application->contactsToAttach->save(ContactToAttach::metBy($this->application->prospectors->prospectorFrom($other->id()), $person->id(), $this->application->now(), $this->application->now()));

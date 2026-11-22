@@ -3,12 +3,15 @@
 namespace Tests\App\Api;
 
 use PHPUnit\Framework\Attributes\Group;
+use Prospecter\Core\PersonalData\Domain\Model\ContactCard;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Email;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\App\Base\ApiTestCase;
 
@@ -87,6 +90,7 @@ class AccountApiTest extends ApiTestCase
     private function aPersonWithTheEmail(string $email, AccountId $account): void
     {
         $persons = self::getContainer()->get(PersonRepository::class);
-        $persons->save(Person::collect(new PersonId(self::newIdentity()), $account, Purpose::Membership, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS), contactDetails: new ContactDetails(new Email($email))));
+        \assert($persons instanceof PersonRepository);
+        $persons->save(Person::collect(new Gesture($account, new MemberId(self::newIdentity()), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)), new PersonId(self::newIdentity()), Purpose::Membership, new ContactCard(contactDetails: new ContactDetails(new Email($email)))));
     }
 }

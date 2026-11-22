@@ -30,8 +30,8 @@ use Prospecter\Core\SharedKernel\Domain\Exception\PersonalDataManagersOnly;
 use Prospecter\Core\SharedKernel\Domain\ExternalReference;
 use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
 use Prospecter\Core\SharedKernel\Domain\File;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\Origin;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
@@ -79,9 +79,13 @@ final class Person implements ReleasesEvents
         $this->modifiedAt = $createdAt;
     }
 
-    public static function collect(PersonId $id, AccountId $accountId, Purpose $purpose, \DateTimeImmutable $at, PersonName $name = new PersonName(), ContactDetails $contactDetails = new ContactDetails()): self
+    /**
+     * The gesture names the account keeping the person and the member who brought them in: the administrator who
+     * registers a newcomer, the founder who opens the account.
+     */
+    public static function collect(Gesture $gesture, PersonId $id, Purpose $purpose, ContactCard $card = new ContactCard()): self
     {
-        return new self($id, $accountId, $purpose, $name, $contactDetails, $at);
+        return self::describedBy(new self($id, $gesture->accountId, $purpose, $card->name, $card->contactDetails, $gesture->at), $card);
     }
 
     /**
@@ -89,27 +93,22 @@ final class Person implements ReleasesEvents
      * data, for at least one of the organizations it prospects: a contact is never alone (ADR 0042); by the hand of the
      * member, or by an AI acting as them.
      *
-     * @param list<OrganizationId> $organizations where the person works, prospected by the account
-     *
      * @throws PersonalDataManagersOnly
      * @throws ContactWithoutOrganization
      */
-    public static function collectAsContact(Reader $by, PersonId $id, PersonName $name, Civility $civility, ?string $jobTitle, ContactDetails $contactDetails, ExternalReferences $references, array $organizations, \DateTimeImmutable $at, Origin $origin = Origin::Hand): self
+    public static function collectAsContact(Reader $by, NewContact $contact, \DateTimeImmutable $at, Origin $origin = Origin::Hand): self
     {
         self::ensureCollectedByAManager($by);
 
-        if ([] === $organizations) {
+        if ([] === $contact->organizations) {
             throw ContactWithoutOrganization::because('A contact belongs to at least one organization', 'organizationIds');
         }
 
-        $contact = new self($id, $by->accountId, Purpose::Prospecting, $name, $contactDetails, $at);
-        $contact->civility = $civility;
-        $contact->jobTitle = $jobTitle;
-        $contact->references = $references;
-        $contact->origin = $origin;
-        $contact->recordThat(new ContactCollected($by->accountId, $by->id, $id, $organizations, $at));
+        $collected = self::describedBy(new self($contact->id, $by->accountId, Purpose::Prospecting, $contact->card->name, $contact->card->contactDetails, $at), $contact->card);
+        $collected->origin = $origin;
+        $collected->recordThat(new ContactCollected($by->accountId, $by->id, $contact->id, $contact->organizations, $at));
 
-        return $contact;
+        return $collected;
     }
 
     /**
@@ -119,13 +118,22 @@ final class Person implements ReleasesEvents
      *
      * @throws PersonalDataManagersOnly
      */
-    public static function collectToAttach(Reader $by, PersonId $id, PersonName $name, ContactDetails $contactDetails, \DateTimeImmutable $at): self
+    public static function collectToAttach(Reader $by, PersonId $id, ContactCard $card, \DateTimeImmutable $at): self
     {
         self::ensureCollectedByAManager($by);
-        $contact = new self($id, $by->accountId, Purpose::Prospecting, $name, $contactDetails, $at);
+        $contact = self::describedBy(new self($id, $by->accountId, Purpose::Prospecting, $card->name, $card->contactDetails, $at), $card);
         $contact->recordThat(new ContactCollected($by->accountId, $by->id, $id, [], $at));
 
         return $contact;
+    }
+
+    private static function describedBy(self $person, ContactCard $card): self
+    {
+        $person->civility = $card->civility;
+        $person->jobTitle = $card->jobTitle;
+        $person->references = $card->references;
+
+        return $person;
     }
 
     /**

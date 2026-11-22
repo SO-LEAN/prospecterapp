@@ -6,6 +6,8 @@ namespace Prospecter\Core\PersonalData\Application\CollectContact;
 
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownOrganization;
 use Prospecter\Core\PersonalData\Domain\Model\Civility;
+use Prospecter\Core\PersonalData\Domain\Model\ContactCard;
+use Prospecter\Core\PersonalData\Domain\Model\NewContact;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\PersonalData\Domain\Model\Reader;
@@ -52,18 +54,14 @@ final readonly class CollectContactHandler implements CommandHandler
         $collector = $this->readers->readerFrom(new MemberId($command->readerId));
         $organizations = array_map(static fn (string $id): OrganizationId => new OrganizationId($id), $command->organizationIds);
         $this->ensureProspected($organizations, $collector);
-        $contact = Person::collectAsContact(
-            by: $collector,
-            id: new PersonId($command->id),
+        $card = new ContactCard(
             name: new PersonName($command->firstName, $command->lastName),
+            contactDetails: new ContactDetails(Email::orNone($command->email), PhoneNumber::orNone($command->phoneNumber), $command->language),
             civility: Civility::of($command->civility),
             jobTitle: $command->jobTitle,
-            contactDetails: new ContactDetails(Email::orNone($command->email), PhoneNumber::orNone($command->phoneNumber), $command->language),
             references: ExternalReferences::designating($command->links, Designated::Person),
-            organizations: $organizations,
-            at: $command->executedAt,
-            origin: Origin::byAnAI($command->byAnAI),
         );
+        $contact = Person::collectAsContact($collector, new NewContact(new PersonId($command->id), $card, $organizations), $command->executedAt, Origin::byAnAI($command->byAnAI));
         $this->emails->ensureAvailableFor($contact);
         $this->references->ensureAvailableFor($contact);
         $contact->reconsiderDuplicates($this->duplicateSuspicion->resemblingTo($contact, $organizations), by: $collector->id, at: $command->executedAt);
