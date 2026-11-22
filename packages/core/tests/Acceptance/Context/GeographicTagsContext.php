@@ -78,11 +78,10 @@ final class GeographicTagsContext implements Context
     public function anOrganizationLocatedIn(string $name, string $owner, string $place): void
     {
         $this->scenario->save($name, Organization::prospectedBy(
-            $this->scenario->prospectorOf($this->scenario->accountIdOf($owner)),
+            $this->scenario->aGestureIn($this->scenario->accountIdOf($owner)),
             new OrganizationId($this->application->newIdentity()),
             new LegalIdentity($name),
             new ContactDetails(),
-            $this->application->now(),
         ));
         $this->isLocatedIn($name, $place);
     }

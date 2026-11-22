@@ -70,14 +70,14 @@ final class OrganizationContext implements Context
     #[Given('l\'organisation sans raison sociale :email fait partie de mes organisations')]
     public function anOrganizationOfMineWithoutCorporateName(string $email): void
     {
-        $organization = Organization::prospectedBy($this->scenario->meAsProspector(), new OrganizationId($this->application->newIdentity()), new LegalIdentity(), new ContactDetails(new Email($email)), $this->application->now());
+        $organization = Organization::prospectedBy($this->scenario->myGesture(), new OrganizationId($this->application->newIdentity()), new LegalIdentity(), new ContactDetails(new Email($email)));
         $this->scenario->save($email, $organization);
     }
 
     #[Given('l\'organisation :name appartient à :owner')]
     public function anOrganizationProspectedBy(string $name, string $owner): Organization
     {
-        $organization = Organization::prospectedBy($this->scenario->prospectorOf($this->scenario->accountIdOf($owner)), new OrganizationId($this->application->newIdentity()), new LegalIdentity($name), new ContactDetails(), $this->application->now());
+        $organization = Organization::prospectedBy($this->scenario->aGestureIn($this->scenario->accountIdOf($owner)), new OrganizationId($this->application->newIdentity()), new LegalIdentity($name), new ContactDetails());
 
         return $this->scenario->save($name, $organization);
     }
@@ -85,7 +85,7 @@ final class OrganizationContext implements Context
     #[Given('l\'organisation :name d\'e-mail :email appartient à :owner')]
     public function anOrganizationWithAnEmailProspectedBy(string $name, string $email, string $owner): void
     {
-        $organization = Organization::prospectedBy($this->scenario->prospectorOf($this->scenario->accountIdOf($owner)), new OrganizationId($this->application->newIdentity()), new LegalIdentity($name), new ContactDetails(new Email($email)), $this->application->now());
+        $organization = Organization::prospectedBy($this->scenario->aGestureIn($this->scenario->accountIdOf($owner)), new OrganizationId($this->application->newIdentity()), new LegalIdentity($name), new ContactDetails(new Email($email)));
         $this->scenario->save($name, $organization);
     }
 

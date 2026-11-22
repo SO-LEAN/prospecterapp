@@ -9,10 +9,10 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use Prospecter\Core\Accounts\Contract\Event\AccountOpened;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
-use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
@@ -42,8 +42,8 @@ final class AllOrNothingContext implements Context
     {
         $this->prospectedByTheReaction = $id = new OrganizationId($this->application->newIdentity());
         $this->application->alsoReactWith(new FailingReaction(new \RuntimeException('The reaction failed'), function (AccountOpened $event) use ($id, $name): void {
-            $founder = new Prospector(new MemberId($event->founderId), new AccountId($event->accountId));
-            $this->application->organizations->save(Organization::prospectedBy($founder, $id, new LegalIdentity($name), new ContactDetails(), $event->occurredAt));
+            $founder = new Gesture(new AccountId($event->accountId), new MemberId($event->founderId), $event->occurredAt);
+            $this->application->organizations->save(Organization::prospectedBy($founder, $id, new LegalIdentity($name), new ContactDetails()));
         }));
     }
 

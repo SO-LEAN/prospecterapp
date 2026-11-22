@@ -20,6 +20,7 @@ use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotFound;
 use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
 use Prospecter\Core\SharedKernel\Domain\File;
+use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
@@ -103,7 +104,7 @@ class OrganizationIntentsTest extends TestCase
 
     private function prospect(string $state): Organization
     {
-        $prospect = Organization::prospectedBy($this->prospector(), new OrganizationId(self::PROSPECT), new LegalIdentity('ACME'), new ContactDetails(), new \DateTimeImmutable(self::AT));
+        $prospect = Organization::prospectedBy($this->gesture(), new OrganizationId(self::PROSPECT), new LegalIdentity('ACME'), new ContactDetails());
 
         if (self::FULL === $state) {
             $prospect->changeLogo($this->logo(), $this->prospector()->id, new \DateTimeImmutable(self::AT));
@@ -125,7 +126,7 @@ class OrganizationIntentsTest extends TestCase
 
     private function holding(): Organization
     {
-        return Organization::prospectedBy($this->prospector(), new OrganizationId(self::HOLDING), new LegalIdentity('Groupe ACME'), new ContactDetails(), new \DateTimeImmutable(self::AT));
+        return Organization::prospectedBy($this->gesture(), new OrganizationId(self::HOLDING), new LegalIdentity('Groupe ACME'), new ContactDetails());
     }
 
     private function logo(): File
@@ -136,5 +137,10 @@ class OrganizationIntentsTest extends TestCase
     private function prospector(): Prospector
     {
         return new Prospector(new MemberId(self::AUTHOR), new AccountId(self::MINE));
+    }
+
+    private function gesture(): Gesture
+    {
+        return new Gesture(new AccountId(self::MINE), new MemberId(self::AUTHOR), new \DateTimeImmutable(self::AT));
     }
 }

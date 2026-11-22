@@ -66,7 +66,7 @@ final class TagContext implements Context
     public function aProspectorOfCreatedTheTag(string $account, string $tag): void
     {
         $accountId = $this->scenario->accountIdOf($account);
-        $organization = Organization::prospectedBy($this->scenario->prospectorOf($accountId), new OrganizationId($this->application->newIdentity()), new LegalIdentity('Organisation de '.$account), new ContactDetails(), $this->application->now());
+        $organization = Organization::prospectedBy($this->scenario->aGestureIn($accountId), new OrganizationId($this->application->newIdentity()), new LegalIdentity('Organisation de '.$account), new ContactDetails());
         $this->application->organizations->save($organization);
         $this->tag($accountId, Holder::organization($organization->id()), $tag);
     }
@@ -75,7 +75,7 @@ final class TagContext implements Context
     public function aTaggedOrganizationProspectedBy(string $name, string $owner, string $tags): void
     {
         $accountId = $this->scenario->accountIdOf($owner);
-        $organization = Organization::prospectedBy($this->scenario->prospectorOf($accountId), new OrganizationId($this->application->newIdentity()), new LegalIdentity($name), new ContactDetails(), $this->application->now());
+        $organization = Organization::prospectedBy($this->scenario->aGestureIn($accountId), new OrganizationId($this->application->newIdentity()), new LegalIdentity($name), new ContactDetails());
         $this->scenario->save($name, $organization);
 
         foreach (explode(' ', $tags) as $tag) {
