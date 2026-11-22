@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Api;
 
+use App\Shared\Typed;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Model\Role;
@@ -26,6 +27,7 @@ use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Base\ReadsResources;
 use Tests\App\Double\GoogleDouble;
 
 /**
@@ -36,6 +38,8 @@ use Tests\App\Double\GoogleDouble;
 #[Group('api')]
 class GoogleSyncApiTest extends ApiTestCase
 {
+    use ReadsResources;
+
     private const string NEXT_TUESDAY = '2026-10-20T14:00:00+00:00';
     private const string NEXT_WEDNESDAY = '2026-10-21T07:00:00+00:00';
     private const string CODE = 'a-code-of-google';
@@ -57,7 +61,7 @@ class GoogleSyncApiTest extends ApiTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertSame(['provider' => 'google', 'state' => 'synced', 'at' => '2026-10-15T09:00:00+00:00', 'reason' => null], $sync['sync']);
-        $this->assertSame(['self'], array_keys($sync['_links']));
+        $this->assertSame(['self'], array_keys(self::recordAt($sync, '_links')));
     }
 
     /**
@@ -82,7 +86,7 @@ class GoogleSyncApiTest extends ApiTestCase
         $sync = $this->requestJson('POST', '/api/exchanges/'.$planned.'/google-sync/retries');
 
         $this->assertResponseIsSuccessful();
-        $this->assertSame('synced', $sync['sync']['state']);
+        $this->assertSame('synced', self::valueAt($sync, 'sync', 'state'));
     }
 
     #[DataProvider('members')]
@@ -91,7 +95,7 @@ class GoogleSyncApiTest extends ApiTestCase
         $this->login([] === $roles ? $member : $this->aMemberOfTheFixtures($member, ...$roles));
         $this->connectGoogle();
 
-        $google = $this->requestJson('POST', '/api/me/connections/google/retries')['connections'][0];
+        $google = self::recordAt($this->requestJson('POST', '/api/me/connections/google/retries'), 'connections', 0);
 
         $this->assertResponseIsSuccessful();
         $this->assertSame(['synced' => 0, 'failed' => 0], ['synced' => $google['synced'], 'failed' => $google['failed']]);
@@ -130,13 +134,13 @@ class GoogleSyncApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(201);
         $sync = $this->requestJson('GET', '/api/exchanges/'.$planned.'/google-sync');
         $this->assertSame(['provider' => 'google', 'state' => 'failed', 'at' => '2026-10-15T09:00:00+00:00', 'reason' => 'calendarRefusedThePush'], $sync['sync']);
-        $this->assertSame(['href' => '/api/exchanges/'.$planned.'/google-sync/retries', 'method' => 'POST'], $sync['_links']['retry']);
+        $this->assertSame(['href' => '/api/exchanges/'.$planned.'/google-sync/retries', 'method' => 'POST'], self::valueAt($sync, '_links', 'retry'));
 
         $this->google()->acceptsTheEvents();
         $sync = $this->requestJson('POST', '/api/exchanges/'.$planned.'/google-sync/retries');
 
         $this->assertResponseIsSuccessful();
-        $this->assertSame('synced', $sync['sync']['state']);
+        $this->assertSame('synced', self::valueAt($sync, 'sync', 'state'));
         $this->assertCount(1, $this->google()->events());
     }
 
@@ -149,17 +153,17 @@ class GoogleSyncApiTest extends ApiTestCase
         $this->google()->refusesTheEvents();
         $this->plan(self::NEXT_WEDNESDAY);
 
-        $google = $this->requestJson('GET', '/api/me/connections')['connections'][0];
+        $google = self::recordAt($this->requestJson('GET', '/api/me/connections'), 'connections', 0);
 
         $this->assertSame(['synced' => 1, 'failed' => 1], ['synced' => $google['synced'], 'failed' => $google['failed']]);
-        $this->assertSame(['href' => '/api/me/connections/google/retries', 'method' => 'POST'], $google['_links']['retryFailed']);
+        $this->assertSame(['href' => '/api/me/connections/google/retries', 'method' => 'POST'], self::valueAt($google, '_links', 'retryFailed'));
 
         $this->google()->acceptsTheEvents();
-        $google = $this->requestJson('POST', '/api/me/connections/google/retries')['connections'][0];
+        $google = self::recordAt($this->requestJson('POST', '/api/me/connections/google/retries'), 'connections', 0);
 
         $this->assertResponseIsSuccessful();
         $this->assertSame(['synced' => 2, 'failed' => 0], ['synced' => $google['synced'], 'failed' => $google['failed']]);
-        $this->assertArrayNotHasKey('retryFailed', $google['_links']);
+        $this->assertArrayNotHasKey('retryFailed', self::recordAt($google, '_links'));
         $this->assertCount(2, $this->google()->events());
     }
 
@@ -172,8 +176,8 @@ class GoogleSyncApiTest extends ApiTestCase
 
         $this->connectGoogle();
 
-        $this->assertSame(['2026-10-20T16:00:00+02:00'], array_values(array_map(static fn (array $event): string => $event['start']['dateTime'], $this->google()->events())));
-        $this->assertSame('synced', $this->requestJson('GET', '/api/exchanges/'.$planned.'/google-sync')['sync']['state']);
+        $this->assertSame(['2026-10-20T16:00:00+02:00'], array_values(array_map(static fn (array $event): string => self::stringAt($event, 'start', 'dateTime'), $this->google()->events())));
+        $this->assertSame('synced', self::valueAt($this->requestJson('GET', '/api/exchanges/'.$planned.'/google-sync'), 'sync', 'state'));
     }
 
     public function testAnExchangePlannedWhileTheConnectionIsToReconnectIsPending(): void
@@ -240,19 +244,20 @@ class GoogleSyncApiTest extends ApiTestCase
 
     private function connectGoogle(): void
     {
-        parse_str((string) parse_url($this->requestJson('POST', '/api/me/connections/google/authorizations')['address'], \PHP_URL_QUERY), $query);
-        $this->google()->grants(self::CODE, 'michel@exemple.fr', 'a-refresh-token-'.$query['state']);
-        $this->requestJson('POST', '/api/me/connections/google', ['code' => self::CODE, 'state' => $query['state']]);
+        parse_str((string) parse_url(self::stringAt($this->requestJson('POST', '/api/me/connections/google/authorizations'), 'address'), \PHP_URL_QUERY), $query);
+        $state = Typed::string($query['state']);
+        $this->google()->grants(self::CODE, 'michel@exemple.fr', 'a-refresh-token-'.$state);
+        $this->requestJson('POST', '/api/me/connections/google', ['code' => self::CODE, 'state' => $state]);
         $this->assertResponseStatusCodeSame(201);
     }
 
     private function plan(string $occurredAt): string
     {
-        $organization = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];
+        $organization = self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']]), 'id');
         $exchange = $this->requestJson('POST', '/api/organizations/'.$organization.'/upcoming-exchanges', ['exchange' => ['channel' => 'call', 'occurredAt' => $occurredAt]]);
         $this->assertResponseStatusCodeSame(201);
 
-        return $exchange['items'][0]['exchange']['id'];
+        return self::stringAt($exchange, 'items', 0, 'exchange', 'id');
     }
 
     /**
@@ -260,12 +265,12 @@ class GoogleSyncApiTest extends ApiTestCase
      */
     private function anExchangeOfMinePlannedOn(string $moment): void
     {
-        $organization = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'Globex']])['id'];
+        $organization = self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'Globex']]), 'id');
         $facts = ExchangeFacts::planned(Channel::Call, new \DateTimeImmutable($moment), Duration::inMinutes(null), null);
-        $prospect = self::getContainer()->get(OrganizationRepository::class)->get(new OrganizationId($organization));
+        $prospect = self::service(OrganizationRepository::class)->get(new OrganizationId($organization));
         $gesture = new Gesture($prospect->accountId(), new MemberId($this->memberIdOf('prospector-user')), new \DateTimeImmutable('2026-10-13 09:00 UTC'));
         $planned = Exchange::planned($gesture, new ExchangeId(self::newIdentity()), new OrganizationCorrespondent($prospect->id()), $facts);
-        self::getContainer()->get(ExchangeRepository::class)->save($planned);
+        self::service(ExchangeRepository::class)->save($planned);
     }
 
     private function anEntryOfMinePushedOn(string $moment): void
@@ -273,11 +278,11 @@ class GoogleSyncApiTest extends ApiTestCase
         $exchange = new HeldExchange(new ConnectorsExchangeId(self::newIdentity()), $this->accountOfTheFixtures(), new MemberId($this->memberIdOf('prospector-user')), ConnectorsExchangeStatus::Done, ConnectorsChannel::Call, new \DateTimeImmutable($moment), 30, null, null, new OrganizationId(self::newIdentity()), 'Globex');
         $entry = CalendarEntry::of($exchange, Provider::Google, new \DateTimeImmutable($moment));
         $entry->pushed($exchange, new \DateTimeImmutable($moment));
-        self::getContainer()->get(CalendarEntryRepository::class)->save($entry);
+        self::service(CalendarEntryRepository::class)->save($entry);
     }
 
     private function google(): GoogleDouble
     {
-        return self::getContainer()->get(GoogleDouble::class);
+        return self::service(GoogleDouble::class);
     }
 }

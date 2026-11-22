@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Tests\App\Api;
 
+use App\Shared\Typed;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Base\ReadsResources;
 use Tests\App\Double\GoogleDouble;
 
 /**
@@ -18,6 +20,8 @@ use Tests\App\Double\GoogleDouble;
 #[Group('api')]
 class BookingApiTest extends ApiTestCase
 {
+    use ReadsResources;
+
     private const string CODE_OF_GOOGLE = 'a-code-of-google';
     private const string BASE62_OF_22 = '/^[0-9A-Za-z]{22}$/';
     private const int OPENINGS_OF_A_LINK_A_MINUTE = 30;
@@ -46,8 +50,8 @@ class BookingApiTest extends ApiTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertSame([false, [], null, [], [], null, false], [$page['open'], $page['windows'], $page['timeZone'], $page['inactivePeriods'], $page['channels'], $page['code'], $page['calendarConnected']]);
-        $this->assertSame(['self', 'setWindows', 'addInactivePeriod', 'offerChannels', 'open'], array_keys($page['_links']));
-        $this->assertSame(['href' => '/api/me/booking-page/opening', 'method' => 'POST'], $page['_links']['open']);
+        $this->assertSame(['self', 'setWindows', 'addInactivePeriod', 'offerChannels', 'open'], array_keys(self::recordAt($page, '_links')));
+        $this->assertSame(['href' => '/api/me/booking-page/opening', 'method' => 'POST'], self::valueAt($page, '_links', 'open'));
     }
 
     /**
@@ -78,8 +82,8 @@ class BookingApiTest extends ApiTestCase
         $this->assertSame([['weekday' => 'monday', 'from' => '14:00', 'to' => '17:00'], ['weekday' => 'thursday', 'from' => '09:00', 'to' => '12:00']], $page['windows']);
         $this->assertSame('Europe/Paris', $page['timeZone']);
         $this->assertSame(['call', 'videoCall'], $page['channels']);
-        $this->assertMatchesRegularExpression(self::BASE62_OF_22, (string) $page['code']);
-        $this->assertSame(['self', 'setWindows', 'addInactivePeriod', 'offerChannels', 'close', 'changeLink'], array_keys($page['_links']));
+        $this->assertMatchesRegularExpression(self::BASE62_OF_22, self::stringAt($page, 'code'));
+        $this->assertSame(['self', 'setWindows', 'addInactivePeriod', 'offerChannels', 'close', 'changeLink'], array_keys(self::recordAt($page, '_links')));
     }
 
     #[DataProvider('members')]
@@ -88,19 +92,19 @@ class BookingApiTest extends ApiTestCase
         $this->login([] === $roles ? $member : $this->aMemberOfTheFixtures($member, ...$roles));
         $this->connectGoogle();
         $this->requestJson('PATCH', '/api/me/booking-page/channels', ['channels' => ['videoCall']]);
-        $former = $this->requestJson('POST', '/api/me/booking-page/opening')['code'];
+        $former = self::stringAt($this->requestJson('POST', '/api/me/booking-page/opening'), 'code');
 
-        $period = $this->requestJson('POST', '/api/me/booking-page/inactive-periods', ['firstDay' => '2026-12-21', 'lastDay' => '2027-01-04'])['inactivePeriods'][0];
+        $period = self::recordAt($this->requestJson('POST', '/api/me/booking-page/inactive-periods', ['firstDay' => '2026-12-21', 'lastDay' => '2027-01-04']), 'inactivePeriods', 0);
         $this->assertResponseStatusCodeSame(201);
-        $this->assertSame([], $this->requestJson('DELETE', $period['_links']['remove']['href'])['inactivePeriods']);
+        $this->assertSame([], self::valueAt($this->requestJson('DELETE', self::stringAt($period, '_links', 'remove', 'href')), 'inactivePeriods'));
         $this->assertResponseIsSuccessful();
-        $this->assertFalse($this->requestJson('DELETE', '/api/me/booking-page/opening')['open']);
+        $this->assertFalse(self::valueAt($this->requestJson('DELETE', '/api/me/booking-page/opening'), 'open'));
         $this->assertResponseIsSuccessful();
         $changed = $this->requestJson('POST', '/api/me/booking-page/link');
 
         $this->assertResponseIsSuccessful();
         $this->assertNotSame($former, $changed['code']);
-        $this->assertSame(['self', 'setWindows', 'addInactivePeriod', 'offerChannels', 'open', 'changeLink'], array_keys($changed['_links']));
+        $this->assertSame(['self', 'setWindows', 'addInactivePeriod', 'offerChannels', 'open', 'changeLink'], array_keys(self::recordAt($changed, '_links')));
     }
 
     #[DataProvider('gesturesOnMyPage')]
@@ -155,8 +159,8 @@ class BookingApiTest extends ApiTestCase
         $this->signOut();
         $page = $this->requestJson('GET', '/api/booking-pages/'.$code);
 
-        $this->assertCount(14, $page['days']);
-        $this->assertSame(['day' => '2026-10-16', 'slots' => ['2026-10-16T09:00:00+02:00', '2026-10-16T09:15:00+02:00']], $page['days'][0]);
+        $this->assertCount(14, self::arrayAt($page, 'days'));
+        $this->assertSame(['day' => '2026-10-16', 'slots' => ['2026-10-16T09:00:00+02:00', '2026-10-16T09:15:00+02:00']], self::valueAt($page, 'days', 0));
     }
 
     public function testAPublicPageSaysWhoItsHostIsAndOnWhichClock(): void
@@ -175,14 +179,14 @@ class BookingApiTest extends ApiTestCase
     {
         $code = $this->anOpenPage();
         $this->requestJson('PATCH', '/api/me/booking-page/windows', ['timeZone' => 'Europe/Paris', 'windows' => [['weekday' => 'friday', 'from' => '09:00', 'to' => '09:30']]]);
-        $organization = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];
+        $organization = self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']]), 'id');
         $this->requestJson('POST', '/api/organizations/'.$organization.'/upcoming-exchanges', ['exchange' => ['channel' => 'call', 'occurredAt' => '2026-10-16T07:00:00+00:00', 'durationInMinutes' => 15]]);
         $this->assertResponseIsSuccessful();
 
         $this->signOut();
         $page = $this->requestJson('GET', '/api/booking-pages/'.$code);
 
-        $this->assertSame(['2026-10-16T09:15:00+02:00'], $page['days'][0]['slots']);
+        $this->assertSame(['2026-10-16T09:15:00+02:00'], self::valueAt($page, 'days', 0, 'slots'));
     }
 
     public function testMyPageIsMineOnly(): void
@@ -224,11 +228,11 @@ class BookingApiTest extends ApiTestCase
 
         $added = $this->requestJson('POST', '/api/me/booking-page/inactive-periods', ['firstDay' => '2026-12-21', 'lastDay' => '2027-01-04']);
         $this->assertResponseStatusCodeSame(201);
-        $period = $added['inactivePeriods'][0];
+        $period = self::recordAt($added, 'inactivePeriods', 0);
         $this->assertSame(['2026-12-21', '2027-01-04'], [$period['firstDay'], $period['lastDay']]);
-        $this->assertSame('DELETE', $period['_links']['remove']['method']);
+        $this->assertSame('DELETE', self::valueAt($period, '_links', 'remove', 'method'));
 
-        $removed = $this->requestJson($period['_links']['remove']['method'], $period['_links']['remove']['href']);
+        $removed = $this->requestJson(self::stringAt($period, '_links', 'remove', 'method'), self::stringAt($period, '_links', 'remove', 'href'));
 
         $this->assertResponseIsSuccessful();
         $this->assertSame([], $removed['inactivePeriods']);
@@ -257,7 +261,7 @@ class BookingApiTest extends ApiTestCase
     public function testMyOpenPageIsReadWithoutSigningInAndOffersNothingOnceClosed(): void
     {
         $code = $this->anOpenPage();
-        $me = $this->client->getServerParameter('HTTP_AUTHORIZATION');
+        $me = $this->currentBearer();
 
         $this->signOut();
         $public = $this->requestJson('GET', '/api/booking-pages/'.$code);
@@ -285,7 +289,7 @@ class BookingApiTest extends ApiTestCase
         $this->signOut();
         $this->assertSame(self::NOTHING_SHOWN, $this->requestJson('GET', '/api/booking-pages/'.$former));
         $this->assertResponseIsSuccessful();
-        $this->requestJson('GET', '/api/booking-pages/'.$changed['code']);
+        $this->requestJson('GET', '/api/booking-pages/'.self::stringAt($changed, 'code'));
         $this->assertResponseIsSuccessful();
     }
 
@@ -341,11 +345,11 @@ class BookingApiTest extends ApiTestCase
     public function testMyOpenPageIsSuspendedOnceGoogleIsDisconnected(): void
     {
         $this->anOpenPage();
-        $this->assertFalse($this->requestJson('GET', '/api/me/booking-page')['suspended']);
+        $this->assertFalse(self::valueAt($this->requestJson('GET', '/api/me/booking-page'), 'suspended'));
 
         $this->requestJson('DELETE', '/api/me/connections/google');
 
-        $this->assertTrue($this->requestJson('GET', '/api/me/booking-page')['suspended']);
+        $this->assertTrue(self::valueAt($this->requestJson('GET', '/api/me/booking-page'), 'suspended'));
     }
 
     public function testWithoutGoogleConnectedAPublicPageShowsNothing(): void
@@ -384,21 +388,22 @@ class BookingApiTest extends ApiTestCase
     public function testAnyoneBooksAFreeSlotWithoutSigningInAndItsHostHasItPlannedWithAContactToAttach(): void
     {
         $code = $this->anOpenPageOnFridayMorning();
-        $me = $this->client->getServerParameter('HTTP_AUTHORIZATION');
+        $me = $this->currentBearer();
 
         $this->signOut();
         $booked = $this->requestJson('POST', '/api/booking-pages/'.$code.'/appointments', $this->booking(['subject' => 'Mission data en mars']));
         $this->assertResponseStatusCodeSame(201);
         $this->assertSame(['slot' => self::FRIDAY_MORNING, 'channel' => 'videoCall', 'email' => 'ada@acme.fr'], $booked);
-        $this->assertSame(['2026-10-16T09:15:00+02:00'], $this->requestJson('GET', '/api/booking-pages/'.$code)['days'][0]['slots']);
+        $this->assertSame(['2026-10-16T09:15:00+02:00'], self::valueAt($this->requestJson('GET', '/api/booking-pages/'.$code), 'days', 0, 'slots'));
 
         $this->signInWith($me);
-        $exchange = $this->requestJson('GET', '/api/me/calendar?from=2026-10-16T00:00:00%2B02:00&to=2026-10-17T00:00:00%2B02:00')['items'][0];
+        $exchange = self::recordAt($this->requestJson('GET', '/api/me/calendar?from=2026-10-16T00:00:00%2B02:00&to=2026-10-17T00:00:00%2B02:00'), 'items', 0);
+        $planned = self::recordAt($exchange, 'exchange');
         $this->assertSame(
             ['videoCall', '2026-10-16T07:00:00+00:00', 15, 'Mission data en mars', true, true, 'Ada Lovelace'],
-            [$exchange['exchange']['channel'], $exchange['exchange']['occurredAt'], $exchange['exchange']['durationInMinutes'], $exchange['exchange']['text'], $exchange['exchange']['contactToAttach'], $exchange['exchange']['bookedByLink'], $exchange['interlocutor']['name']],
+            [$planned['channel'], $planned['occurredAt'], $planned['durationInMinutes'], $planned['text'], $planned['contactToAttach'], $planned['bookedByLink'], self::valueAt($exchange, 'interlocutor', 'name')],
         );
-        $this->assertTrue($this->requestJson('GET', '/api/exchanges/'.$exchange['exchange']['id'])['bookedByLink']);
+        $this->assertTrue(self::valueAt($this->requestJson('GET', '/api/exchanges/'.self::stringAt($exchange, 'exchange', 'id')), 'bookedByLink'));
     }
 
     public function testTheLinkOfAMemberWithoutThePersonalDataRightShowsNothing(): void
@@ -407,7 +412,7 @@ class BookingApiTest extends ApiTestCase
         $this->connectGoogle();
         $this->requestJson('PATCH', '/api/me/booking-page/channels', ['channels' => ['call']]);
         $this->requestJson('PATCH', '/api/me/booking-page/windows', ['timeZone' => 'Europe/Paris', 'windows' => [['weekday' => 'friday', 'from' => '09:00', 'to' => '09:30']]]);
-        $code = (string) $this->requestJson('POST', '/api/me/booking-page/opening')['code'];
+        $code = self::stringAt($this->requestJson('POST', '/api/me/booking-page/opening'), 'code');
 
         $this->signOut();
 
@@ -420,7 +425,7 @@ class BookingApiTest extends ApiTestCase
         $this->connectGoogle();
         $this->requestJson('PATCH', '/api/me/booking-page/channels', ['channels' => ['videoCall']]);
         $this->requestJson('PATCH', '/api/me/booking-page/windows', ['timeZone' => 'Europe/Paris', 'windows' => [['weekday' => 'friday', 'from' => '09:00', 'to' => '09:30']]]);
-        $code = (string) $this->requestJson('POST', '/api/me/booking-page/opening')['code'];
+        $code = self::stringAt($this->requestJson('POST', '/api/me/booking-page/opening'), 'code');
 
         $this->signOut();
         $problem = $this->requestJson('POST', '/api/booking-pages/'.$code.'/appointments', $this->booking());
@@ -450,7 +455,7 @@ class BookingApiTest extends ApiTestCase
         $problem = $this->requestJson('POST', '/api/booking-pages/'.$code.'/appointments', $this->booking(['slot' => '2026-10-16T09:15:00+02:00', 'email' => 'ADA@acme.fr']));
 
         $this->assertResponseStatusCodeSame(422);
-        $this->assertSame(['alreadyBooked', ['appointment' => self::FRIDAY_MORNING]], [$problem['reason'], $problem['violations'][0]['context']]);
+        $this->assertSame(['alreadyBooked', ['appointment' => self::FRIDAY_MORNING]], [$problem['reason'], self::valueAt($problem, 'violations', 0, 'context')]);
     }
 
     public function testABookerLeavingOutTheirPhoneIsRefused(): void
@@ -464,6 +469,9 @@ class BookingApiTest extends ApiTestCase
         $this->assertSame('incompleteBooker', $problem['reason']);
     }
 
+    /**
+     * @param array<string, string> $robot
+     */
     #[DataProvider('robots')]
     public function testAFormARobotFilledBooksNothingWithoutSayingSo(array $robot): void
     {
@@ -473,7 +481,7 @@ class BookingApiTest extends ApiTestCase
         $this->requestJson('POST', '/api/booking-pages/'.$code.'/appointments', $this->booking($robot));
 
         $this->assertResponseStatusCodeSame(201);
-        $this->assertSame(['2026-10-16T09:00:00+02:00', '2026-10-16T09:15:00+02:00'], $this->requestJson('GET', '/api/booking-pages/'.$code)['days'][0]['slots']);
+        $this->assertSame(['2026-10-16T09:00:00+02:00', '2026-10-16T09:15:00+02:00'], self::valueAt($this->requestJson('GET', '/api/booking-pages/'.$code), 'days', 0, 'slots'));
     }
 
     /**
@@ -493,7 +501,7 @@ class BookingApiTest extends ApiTestCase
         $this->requestJson('POST', '/api/booking-pages/'.$code.'/appointments', $this->booking(['formShownAt' => '2026-10-15T08:58:00.000Z']));
 
         $this->assertResponseStatusCodeSame(201);
-        $this->assertSame(['2026-10-16T09:15:00+02:00'], $this->requestJson('GET', '/api/booking-pages/'.$code)['days'][0]['slots']);
+        $this->assertSame(['2026-10-16T09:15:00+02:00'], self::valueAt($this->requestJson('GET', '/api/booking-pages/'.$code), 'days', 0, 'slots'));
     }
 
     public function testABookingCountsAmongTheRequestsOfItsLink(): void
@@ -520,7 +528,7 @@ class BookingApiTest extends ApiTestCase
         $this->connectGoogle();
         $this->requestJson('PATCH', '/api/me/booking-page/channels', ['channels' => ['call', 'videoCall']]);
 
-        return (string) $this->requestJson('POST', '/api/me/booking-page/opening')['code'];
+        return self::stringAt($this->requestJson('POST', '/api/me/booking-page/opening'), 'code');
     }
 
     private function anOpenPageOnFridayMorning(): string
@@ -572,13 +580,18 @@ class BookingApiTest extends ApiTestCase
     {
         $this->login($reference);
 
-        return (string) $this->client->getServerParameter('HTTP_AUTHORIZATION');
+        return $this->currentBearer();
+    }
+
+    private function currentBearer(): string
+    {
+        return Typed::string($this->client->getServerParameter('HTTP_AUTHORIZATION'));
     }
 
     private function connectGoogle(): void
     {
-        parse_str((string) parse_url($this->requestJson('POST', '/api/me/connections/google/authorizations')['address'], \PHP_URL_QUERY), $query);
-        self::getContainer()->get(GoogleDouble::class)->grants(self::CODE_OF_GOOGLE, 'michel@exemple.fr', 'a-refresh-token-'.$query['state']);
+        parse_str((string) parse_url(self::stringAt($this->requestJson('POST', '/api/me/connections/google/authorizations'), 'address'), \PHP_URL_QUERY), $query);
+        self::service(GoogleDouble::class)->grants(self::CODE_OF_GOOGLE, 'michel@exemple.fr', 'a-refresh-token-'.Typed::string($query['state']));
         $this->requestJson('POST', '/api/me/connections/google', ['code' => self::CODE_OF_GOOGLE, 'state' => $query['state']]);
         $this->assertResponseStatusCodeSame(201);
     }

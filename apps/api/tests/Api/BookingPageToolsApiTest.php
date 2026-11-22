@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Api;
 
+use App\Shared\Typed;
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Tests\App\Base\ActsAsItsEndpoint;
@@ -78,13 +79,13 @@ class BookingPageToolsApiTest extends ApiTestCase
     {
         $page = $this->assertTheToolActsAsItsEndpoint('add-inactive-period', self::HOLIDAYS, 'POST', '/api/me/booking-page/inactive-periods', self::HOLIDAYS, self::WRITERS);
 
-        $this->assertSame([['2026-12-21', '2027-01-04']], array_map(static fn (array $period): array => [$period['firstDay'], $period['lastDay']], $page['inactivePeriods']));
+        $this->assertSame([['2026-12-21', '2027-01-04']], array_map(static fn (array $period): array => [$period['firstDay'], $period['lastDay']], self::recordsAt($page, 'inactivePeriods')));
     }
 
     public function testTheAiRemovesAnInactivePeriodOnceItsMemberConfirmed(): void
     {
         $this->login();
-        $period = $this->requestJson('POST', '/api/me/booking-page/inactive-periods', self::HOLIDAYS)['inactivePeriods'][0]['id'];
+        $period = self::stringAt($this->requestJson('POST', '/api/me/booking-page/inactive-periods', self::HOLIDAYS), 'inactivePeriods', 0, 'id');
 
         $page = $this->assertTheToolActsAsItsEndpoint('remove-inactive-period', ['id' => $period], 'DELETE', '/api/me/booking-page/inactive-periods/'.$period, null, ['prospector-user']);
 
@@ -103,7 +104,7 @@ class BookingPageToolsApiTest extends ApiTestCase
         $page = $this->requestJson('POST', '/api/me/booking-page/opening');
         $this->assertResponseIsSuccessful();
 
-        return $page['code'];
+        return self::stringAt($page, 'code');
     }
 
     /**
@@ -122,8 +123,8 @@ class BookingPageToolsApiTest extends ApiTestCase
      */
     private function connectGoogle(): void
     {
-        parse_str((string) parse_url($this->requestJson('POST', '/api/me/connections/google/authorizations')['address'], \PHP_URL_QUERY), $query);
-        self::getContainer()->get(GoogleDouble::class)->grants('a-code-of-google', 'michel@exemple.fr', 'a-refresh-token-'.$query['state']);
+        parse_str((string) parse_url(self::stringAt($this->requestJson('POST', '/api/me/connections/google/authorizations'), 'address'), \PHP_URL_QUERY), $query);
+        self::service(GoogleDouble::class)->grants('a-code-of-google', 'michel@exemple.fr', 'a-refresh-token-'.Typed::string($query['state']));
         $this->requestJson('POST', '/api/me/connections/google', ['code' => 'a-code-of-google', 'state' => $query['state']]);
         $this->assertResponseStatusCodeSame(201);
     }

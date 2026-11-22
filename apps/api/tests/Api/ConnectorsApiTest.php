@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\App\Api;
 
 use App\Shared\CommandBus;
+use App\Shared\Typed;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Model\Role;
@@ -12,6 +13,7 @@ use Prospecter\Core\Connectors\Application\ConfigureClient\ConfigureClient;
 use Prospecter\Core\Connectors\Application\ConfigureMailboxNotifications\ConfigureMailboxNotifications;
 use Prospecter\Core\Connectors\Application\RemoveClient\RemoveClient;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Base\ReadsResources;
 use Tests\App\Double\GoogleDouble;
 
 /**
@@ -22,6 +24,8 @@ use Tests\App\Double\GoogleDouble;
 #[Group('api')]
 class ConnectorsApiTest extends ApiTestCase
 {
+    use ReadsResources;
+
     private const string CODE = 'a-code-of-google';
     private const string TOPIC = 'projects/solean/topics/gmail';
     private const string GMAIL_IMPORT = '/api/me/connections/google/gmail-import';
@@ -41,7 +45,7 @@ class ConnectorsApiTest extends ApiTestCase
         $authorization = $this->requestJson('POST', '/api/me/connections/google/authorizations');
 
         $this->assertResponseStatusCodeSame(201);
-        $this->assertStringStartsWith('https://accounts.google.test/o/oauth2/v2/auth?', $authorization['address']);
+        $this->assertStringStartsWith('https://accounts.google.test/o/oauth2/v2/auth?', self::stringAt($authorization, 'address'));
         $query = $this->addressQueryOf($authorization);
         $this->assertSame([
             'client_id' => 'client-of-the-double',
@@ -52,8 +56,8 @@ class ConnectorsApiTest extends ApiTestCase
             'prompt' => 'consent',
             'code_challenge_method' => 'S256',
         ], array_diff_key($query, ['state' => true, 'code_challenge' => true]));
-        $this->assertMatchesRegularExpression('/^[0-9a-f]{32}$/', $query['state']);
-        $this->assertMatchesRegularExpression('/^[A-Za-z0-9_-]{43}$/', $query['code_challenge']);
+        $this->assertMatchesRegularExpression('/^[0-9a-f]{32}$/', Typed::string($query['state']));
+        $this->assertMatchesRegularExpression('/^[A-Za-z0-9_-]{43}$/', Typed::string($query['code_challenge']));
     }
 
     #[DataProvider('members')]
@@ -65,10 +69,10 @@ class ConnectorsApiTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(201);
         $this->assertSame([['google', 'connected', 'michel@exemple.fr']], $this->seen($connections));
-        $this->assertSame(['href' => '/api/me/connections/google', 'method' => 'DELETE'], $connections['connections'][0]['_links']['disconnect']);
+        $this->assertSame(['href' => '/api/me/connections/google', 'method' => 'DELETE'], self::valueAt($connections, 'connections', 0, '_links', 'disconnect'));
         $this->assertSame([['google', 'connected', 'michel@exemple.fr']], $this->seen($this->requestJson('GET', '/api/me/connections')));
         $this->assertSame([['google', 'connected', 'michel@exemple.fr']], $this->seen($this->requestJson('POST', '/api/me/connections/checks')));
-        $this->assertSame([], $this->requestJson('DELETE', '/api/me/connections/google')['connections']);
+        $this->assertSame([], self::valueAt($this->requestJson('DELETE', '/api/me/connections/google'), 'connections'));
         $this->assertResponseIsSuccessful();
     }
 
@@ -212,7 +216,7 @@ class ConnectorsApiTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(503);
         $this->assertSame('googleUnreachable', $problem['reason']);
-        $this->assertSame([], $this->requestJson('GET', '/api/me/connections')['connections']);
+        $this->assertSame([], self::valueAt($this->requestJson('GET', '/api/me/connections'), 'connections'));
     }
 
     public function testWhileGoogleDoesNotAnswerTheMemberDisconnects(): void
@@ -225,7 +229,7 @@ class ConnectorsApiTest extends ApiTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertSame([], $connections['connections']);
-        $this->assertSame([], $this->requestJson('GET', '/api/me/connections')['connections']);
+        $this->assertSame([], self::valueAt($this->requestJson('GET', '/api/me/connections'), 'connections'));
     }
 
     public function testNoConnectionToDisconnect(): void
@@ -247,7 +251,7 @@ class ConnectorsApiTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(403);
         $this->assertSame('accessNotGranted', $problem['reason']);
-        $this->assertSame([], $this->requestJson('GET', '/api/me/connections')['connections']);
+        $this->assertSame([], self::valueAt($this->requestJson('GET', '/api/me/connections'), 'connections'));
     }
 
     public function testAnAccessWithoutTheCalendarConnectsNothing(): void
@@ -260,7 +264,7 @@ class ConnectorsApiTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(422);
         $this->assertSame('incompleteGrant', $problem['reason']);
-        $this->assertSame([], $this->requestJson('GET', '/api/me/connections')['connections']);
+        $this->assertSame([], self::valueAt($this->requestJson('GET', '/api/me/connections'), 'connections'));
     }
 
     public function testTheAnswerToTheAuthorizationOfAnotherMemberIsRefused(): void
@@ -303,7 +307,7 @@ class ConnectorsApiTest extends ApiTestCase
 
         $connections = $this->requestJson('GET', '/api/me/connections');
 
-        $this->assertSame(['href' => '/api/me/connections/google/authorizations', 'method' => 'POST'], $connections['_links']['connectGoogle']);
+        $this->assertSame(['href' => '/api/me/connections/google/authorizations', 'method' => 'POST'], self::valueAt($connections, '_links', 'connectGoogle'));
     }
 
     public function testWithoutAGoogleClientGoogleIsNotOffered(): void
@@ -314,7 +318,7 @@ class ConnectorsApiTest extends ApiTestCase
         $connections = $this->requestJson('GET', '/api/me/connections');
 
         $this->assertResponseIsSuccessful();
-        $this->assertArrayNotHasKey('connectGoogle', $connections['_links']);
+        $this->assertArrayNotHasKey('connectGoogle', self::recordAt($connections, '_links'));
     }
 
     public function testWithoutAGoogleClientAnAuthorizationIsRefused(): void
@@ -339,7 +343,7 @@ class ConnectorsApiTest extends ApiTestCase
         $connections = $this->requestJson('GET', '/api/me/connections');
 
         $this->assertSame([['google', 'connected', 'michel@exemple.fr']], $this->seen($connections));
-        $this->assertSame(['disconnect'], array_keys($connections['connections'][0]['_links']));
+        $this->assertSame(['disconnect'], array_keys(self::recordAt($connections, 'connections', 0, '_links')));
         $this->assertSame([['google', 'connected', 'michel@exemple.fr']], $this->seen($this->requestJson('POST', '/api/me/connections/checks')));
         $this->assertResponseIsSuccessful();
     }
@@ -375,13 +379,13 @@ class ConnectorsApiTest extends ApiTestCase
         $connections = $this->connectImportingGmail('michel@exemple.fr', 'a-refresh-token');
 
         $this->assertResponseStatusCodeSame(201);
-        $this->assertSame(['active', null], [$connections['connections'][0]['gmailImport'], $connections['connections'][0]['lastGmailNotificationAt']]);
-        $this->assertSame(['href' => self::GMAIL_IMPORT, 'method' => 'DELETE'], $connections['connections'][0]['_links']['stopGmailImport']);
+        $this->assertSame(['active', null], [self::valueAt($connections, 'connections', 0, 'gmailImport'), self::valueAt($connections, 'connections', 0, 'lastGmailNotificationAt')]);
+        $this->assertSame(['href' => self::GMAIL_IMPORT, 'method' => 'DELETE'], self::valueAt($connections, 'connections', 0, '_links', 'stopGmailImport'));
         $this->assertSame([self::TOPIC], $this->google()->watches());
         $stopped = $this->requestJson('DELETE', self::GMAIL_IMPORT);
         $this->assertResponseIsSuccessful();
         $this->assertSame([['google', 'connected', 'michel@exemple.fr']], $this->seen($stopped));
-        $this->assertSame('off', $stopped['connections'][0]['gmailImport']);
+        $this->assertSame('off', self::valueAt($stopped, 'connections', 0, 'gmailImport'));
         $this->assertSame(1, $this->google()->stops());
     }
 
@@ -395,7 +399,7 @@ class ConnectorsApiTest extends ApiTestCase
         $connections = $this->requestJson('POST', '/api/me/connections/google', ['code' => self::CODE, 'state' => $state]);
 
         $this->assertSame([['google', 'connected', 'michel@exemple.fr']], $this->seen($connections));
-        $this->assertSame('off', $connections['connections'][0]['gmailImport']);
+        $this->assertSame('off', self::valueAt($connections, 'connections', 0, 'gmailImport'));
         $this->assertSame([], $this->google()->watches());
     }
 
@@ -403,11 +407,11 @@ class ConnectorsApiTest extends ApiTestCase
     {
         $this->login();
         $this->connect('michel@exemple.fr', 'a-refresh-token');
-        $this->assertArrayNotHasKey('importGmail', $this->requestJson('GET', '/api/me/connections')['connections'][0]['_links']);
+        $this->assertArrayNotHasKey('importGmail', self::recordAt($this->requestJson('GET', '/api/me/connections'), 'connections', 0, '_links'));
 
         $this->withATopicOfGmail();
 
-        $this->assertSame(['href' => self::GMAIL_IMPORT_AUTHORIZATIONS, 'method' => 'POST'], $this->requestJson('GET', '/api/me/connections')['connections'][0]['_links']['importGmail']);
+        $this->assertSame(['href' => self::GMAIL_IMPORT_AUTHORIZATIONS, 'method' => 'POST'], self::valueAt($this->requestJson('GET', '/api/me/connections'), 'connections', 0, '_links', 'importGmail'));
     }
 
     public function testWithoutATopicTheImportOfGmailIsRefused(): void
@@ -426,7 +430,7 @@ class ConnectorsApiTest extends ApiTestCase
         $this->login('assistant-user');
         $this->connect('michel@exemple.fr', 'a-refresh-token');
 
-        $this->assertArrayNotHasKey('importGmail', $this->requestJson('GET', '/api/me/connections')['connections'][0]['_links']);
+        $this->assertArrayNotHasKey('importGmail', self::recordAt($this->requestJson('GET', '/api/me/connections'), 'connections', 0, '_links'));
         $this->requestJson('POST', self::GMAIL_IMPORT_AUTHORIZATIONS);
         $this->assertResponseStatusCodeSame(403);
     }
@@ -452,7 +456,7 @@ class ConnectorsApiTest extends ApiTestCase
      */
     private function theAdministrator(object $gesture): void
     {
-        self::getContainer()->get(CommandBus::class)->dispatch($gesture);
+        self::service(CommandBus::class)->dispatch($gesture);
     }
 
     /**
@@ -529,11 +533,11 @@ class ConnectorsApiTest extends ApiTestCase
      */
     private function seen(array $connections): array
     {
-        return array_map(static fn (array $connection): array => [$connection['provider'], $connection['state'], $connection['account']], $connections['connections']);
+        return array_map(static fn (array $connection): array => [self::stringAt($connection, 'provider'), self::stringAt($connection, 'state'), self::stringAt($connection, 'account')], self::recordsAt($connections, 'connections'));
     }
 
     private function google(): GoogleDouble
     {
-        return self::getContainer()->get(GoogleDouble::class);
+        return self::service(GoogleDouble::class);
     }
 }

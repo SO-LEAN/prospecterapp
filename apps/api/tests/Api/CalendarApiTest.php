@@ -26,6 +26,7 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Base\ReadsResources;
 
 /**
  * The calendar of the signed-in member, a period at a time; the clock of the tests says it is 2026-10-15 09:00 UTC,
@@ -34,6 +35,8 @@ use Tests\App\Base\ApiTestCase;
 #[Group('api')]
 class CalendarApiTest extends ApiTestCase
 {
+    use ReadsResources;
+
     private const string WEEK_OF_THE_DEMONSTRATION = '/api/me/calendar?from=2026-10-12T00:00:00%2B02:00&to=2026-10-19T00:00:00%2B02:00';
     private const string NEXT_WEEK = '/api/me/calendar?from=2026-10-19T00:00:00%2B02:00&to=2026-10-26T00:00:00%2B01:00';
 
@@ -45,10 +48,10 @@ class CalendarApiTest extends ApiTestCase
 
     public function testThePeriodShowsTheExchangesINotedPlannedOrCancelledWithWhoTheyAreWith(): void
     {
-        $organization = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];
-        $ada = $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'], 'organizationIds' => [$organization]])['id'];
+        $organization = self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']]), 'id');
+        $ada = self::stringAt($this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'], 'organizationIds' => [$organization]]), 'id');
         $this->requestJson('POST', '/api/contacts/'.$ada.'/upcoming-exchanges', ['channel' => 'videoCall', 'occurredAt' => '2026-10-20T12:00:00+00:00']);
-        $cancelled = $this->requestJson('POST', '/api/organizations/'.$organization.'/upcoming-exchanges', ['exchange' => ['channel' => 'meeting', 'occurredAt' => '2026-10-19T08:00:00+00:00']])['items'][0]['exchange']['id'];
+        $cancelled = self::stringAt($this->requestJson('POST', '/api/organizations/'.$organization.'/upcoming-exchanges', ['exchange' => ['channel' => 'meeting', 'occurredAt' => '2026-10-19T08:00:00+00:00']]), 'items', 0, 'exchange', 'id');
         $this->requestJson('POST', '/api/exchanges/'.$cancelled.'/cancellation', []);
         $this->requestJson('POST', '/api/contacts/'.$ada.'/upcoming-exchanges', ['channel' => 'call', 'occurredAt' => '2026-10-26T08:00:00+00:00']);
 
@@ -58,20 +61,20 @@ class CalendarApiTest extends ApiTestCase
         $this->assertSame([
             ['ACME', 'meeting', '2026-10-19T08:00:00+00:00', 'cancelled', 30],
             ['Ada Lovelace', 'videoCall', '2026-10-20T12:00:00+00:00', 'planned', 30],
-        ], array_map(self::described(...), $calendar['items']));
+        ], array_map(self::described(...), self::recordsAt($calendar, 'items')));
     }
 
     public function testTheExchangesOfAnOrganizationNoLongerProspectedLeaveTheCalendar(): void
     {
-        $organization = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];
-        $ada = $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'], 'organizationIds' => [$organization]])['id'];
+        $organization = self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']]), 'id');
+        $ada = self::stringAt($this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'], 'organizationIds' => [$organization]]), 'id');
         $this->requestJson('POST', '/api/contacts/'.$ada.'/upcoming-exchanges', ['channel' => 'videoCall', 'occurredAt' => '2026-10-20T12:00:00+00:00']);
         $this->requestJson('POST', '/api/organizations/'.$organization.'/upcoming-exchanges', ['exchange' => ['channel' => 'meeting', 'occurredAt' => '2026-10-21T08:00:00+00:00']]);
 
         $this->requestJson('DELETE', '/api/organizations/'.$organization);
         $this->assertResponseStatusCodeSame(204);
 
-        $this->assertSame([], $this->requestJson('GET', self::NEXT_WEEK)['items']);
+        $this->assertSame([], self::valueAt($this->requestJson('GET', self::NEXT_WEEK), 'items'));
     }
 
     /**
@@ -80,17 +83,17 @@ class CalendarApiTest extends ApiTestCase
      */
     public function testAnExchangeWithAnOrganizationErasedBeforeItLeavesTheCalendarReadable(): void
     {
-        $organization = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];
-        $ada = $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'], 'organizationIds' => [$organization]])['id'];
+        $organization = self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']]), 'id');
+        $ada = self::stringAt($this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'], 'organizationIds' => [$organization]]), 'id');
         $this->requestJson('POST', '/api/contacts/'.$ada.'/upcoming-exchanges', ['channel' => 'videoCall', 'occurredAt' => '2026-10-20T12:00:00+00:00']);
-        $erased = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'QA rendez-vous']])['id'];
+        $erased = self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'QA rendez-vous']]), 'id');
         $this->requestJson('POST', '/api/organizations/'.$erased.'/upcoming-exchanges', ['exchange' => ['channel' => 'meeting', 'occurredAt' => '2026-10-21T08:00:00+00:00']]);
         $this->eraseBeforeItsExchanges($erased);
 
         $calendar = $this->requestJson('GET', self::NEXT_WEEK);
 
         $this->assertResponseStatusCodeSame(200);
-        $this->assertSame([['Ada Lovelace', 'videoCall', '2026-10-20T12:00:00+00:00', 'planned', 30]], array_map(self::described(...), $calendar['items']));
+        $this->assertSame([['Ada Lovelace', 'videoCall', '2026-10-20T12:00:00+00:00', 'planned', 30]], array_map(self::described(...), self::recordsAt($calendar, 'items')));
     }
 
     /**
@@ -101,15 +104,15 @@ class CalendarApiTest extends ApiTestCase
     public function testOnlyAnExchangeToComeIsMovedFromTheCalendar(string $reference, Role ...$roles): void
     {
         $this->login($this->aMemberOfTheFixtures($reference, ...$roles));
-        $organization = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];
-        $planned = $this->requestJson('POST', '/api/organizations/'.$organization.'/upcoming-exchanges', ['exchange' => ['channel' => 'call', 'occurredAt' => '2026-10-20T12:00:00+00:00']])['items'][0]['exchange']['id'];
-        $cancelled = $this->requestJson('POST', '/api/organizations/'.$organization.'/upcoming-exchanges', ['exchange' => ['channel' => 'meeting', 'occurredAt' => '2026-10-19T08:00:00+00:00']])['items'][0]['exchange']['id'];
+        $organization = self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']]), 'id');
+        $planned = self::stringAt($this->requestJson('POST', '/api/organizations/'.$organization.'/upcoming-exchanges', ['exchange' => ['channel' => 'call', 'occurredAt' => '2026-10-20T12:00:00+00:00']]), 'items', 0, 'exchange', 'id');
+        $cancelled = self::stringAt($this->requestJson('POST', '/api/organizations/'.$organization.'/upcoming-exchanges', ['exchange' => ['channel' => 'meeting', 'occurredAt' => '2026-10-19T08:00:00+00:00']]), 'items', 0, 'exchange', 'id');
         $this->requestJson('POST', '/api/exchanges/'.$cancelled.'/cancellation', []);
 
         $links = $this->linksOfTheExchanges($this->requestJson('GET', self::NEXT_WEEK));
 
-        $this->assertSame(['href' => '/api/exchanges/'.$planned.'/moment', 'method' => 'PATCH'], $links[$planned]['move'] ?? null);
-        $this->assertArrayNotHasKey('move', $links[$cancelled]);
+        $this->assertSame(['href' => '/api/exchanges/'.$planned.'/moment', 'method' => 'PATCH'], self::record($links[$planned])['move'] ?? null);
+        $this->assertArrayNotHasKey('move', self::record($links[$cancelled]));
     }
 
     /**
@@ -126,16 +129,16 @@ class CalendarApiTest extends ApiTestCase
      */
     public function testAHolderWithoutTheRightToManagePersonalDataMovesTheirExchangeFromTheCalendar(): void
     {
-        $organization = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];
-        $ada = $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'], 'organizationIds' => [$organization]])['id'];
+        $organization = self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']]), 'id');
+        $ada = self::stringAt($this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'], 'organizationIds' => [$organization]]), 'id');
         $assistant = $this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector);
         $planned = Exchange::planned(new Gesture($this->accountOfTheFixtures(), new MemberId($this->memberIdOf($assistant)), new \DateTimeImmutable('2026-10-15 09:00 UTC')), new ExchangeId(self::newIdentity()), new ContactCorrespondent(new PersonId($ada), [new OrganizationId($organization)]), ExchangeFacts::planned(Channel::Call, new \DateTimeImmutable('2026-10-20T12:00:00+00:00'), Duration::inMinutes(null), null));
-        self::getContainer()->get(ExchangeRepository::class)->save($planned);
+        self::service(ExchangeRepository::class)->save($planned);
         $this->login($assistant);
 
         $links = $this->linksOfTheExchanges($this->requestJson('GET', self::NEXT_WEEK));
 
-        $this->assertSame(['href' => '/api/exchanges/'.$planned->id()->value.'/moment', 'method' => 'PATCH'], $links[$planned->id()->value]['move'] ?? null);
+        $this->assertSame(['href' => '/api/exchanges/'.$planned->id()->value.'/moment', 'method' => 'PATCH'], self::record($links[$planned->id()->value])['move'] ?? null);
     }
 
     public function testADoneExchangeIsNotMovedFromTheCalendar(): void
@@ -153,29 +156,35 @@ class CalendarApiTest extends ApiTestCase
     {
         $this->login($this->aMemberOfTheFixtures($reference, ...$roles));
 
-        $this->assertSame(['href' => '/api/contacts', 'method' => 'GET'], $this->requestJson('GET', self::NEXT_WEEK)['_links']['searchContacts'] ?? null);
+        $this->assertSame(['href' => '/api/contacts', 'method' => 'GET'], self::recordAt($this->requestJson('GET', self::NEXT_WEEK), '_links')['searchContacts'] ?? null);
     }
 
     public function testAMemberWithoutTheRightToManagePersonalDataIsOfferedTheSearchOfTheContacts(): void
     {
         $this->login($this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector));
 
-        $this->assertSame(['href' => '/api/contacts', 'method' => 'GET'], $this->requestJson('GET', self::NEXT_WEEK)['_links']['searchContacts'] ?? null);
+        $this->assertSame(['href' => '/api/contacts', 'method' => 'GET'], self::recordAt($this->requestJson('GET', self::NEXT_WEEK), '_links')['searchContacts'] ?? null);
     }
 
     /**
-     * @param array{items: list<array{exchange: array{id: string, _links: array<string, mixed>}}>} $calendar
+     * @param array<string, mixed> $calendar
      *
      * @return array<string, array<string, mixed>> the links of each exchange, by its id
      */
     private function linksOfTheExchanges(array $calendar): array
     {
-        return array_column(array_column($calendar['items'], 'exchange'), '_links', 'id');
+        $links = [];
+
+        foreach (self::recordsAt($calendar, 'items') as $item) {
+            $links[self::stringAt($item, 'exchange', 'id')] = self::recordAt($item, 'exchange', '_links');
+        }
+
+        return $links;
     }
 
     public function testTheExchangesNotedAreInTheCalendarOfTheirAuthor(): void
     {
-        $this->assertSame(['done', 'done'], array_column(array_column($this->requestJson('GET', self::WEEK_OF_THE_DEMONSTRATION)['items'], 'exchange'), 'status'));
+        $this->assertSame(['done', 'done'], array_column(array_column(self::recordsAt($this->requestJson('GET', self::WEEK_OF_THE_DEMONSTRATION), 'items'), 'exchange'), 'status'));
     }
 
     /**
@@ -186,7 +195,7 @@ class CalendarApiTest extends ApiTestCase
     {
         $this->login($this->aMemberOfTheFixtures($reference, ...$roles));
 
-        $this->assertSame([], $this->requestJson('GET', self::WEEK_OF_THE_DEMONSTRATION)['items']);
+        $this->assertSame([], self::valueAt($this->requestJson('GET', self::WEEK_OF_THE_DEMONSTRATION), 'items'));
         $this->assertResponseStatusCodeSame(200);
     }
 
@@ -229,11 +238,11 @@ class CalendarApiTest extends ApiTestCase
             [$done, 'Relancer', '2026-10-13', null, ['firstName' => 'Ada', 'lastName' => 'Lovelace'], true],
             [$late, 'Envoyer mon CV', '2026-10-14', null, ['firstName' => 'Ada', 'lastName' => 'Lovelace'], false],
             [$atEight, 'Appeler la RH', '2026-10-15', '08:00', ['firstName' => 'Ada', 'lastName' => 'Lovelace'], false],
-        ], array_map(static fn (array $toDo): array => [$toDo['id'], $toDo['text'], $toDo['dueOn'], $toDo['dueAt'], $toDo['contact']['name'], null !== $toDo['doneAt']], $calendar['toDos']));
+        ], array_map(static fn (array $toDo): array => [$toDo['id'], $toDo['text'], $toDo['dueOn'], $toDo['dueAt'], self::valueAt($toDo, 'contact', 'name'), null !== $toDo['doneAt']], self::recordsAt($calendar, 'toDos')));
         $this->assertSame([$late, $atEight], $calendar['late']);
-        $this->assertArrayHasKey('tickOff', $calendar['toDos'][1]['_links']);
-        $this->assertArrayHasKey('revise', $calendar['toDos'][1]['_links']);
-        $this->assertArrayHasKey('untick', $calendar['toDos'][0]['_links']);
+        $this->assertArrayHasKey('tickOff', self::recordAt($calendar, 'toDos', 1, '_links'));
+        $this->assertArrayHasKey('revise', self::recordAt($calendar, 'toDos', 1, '_links'));
+        $this->assertArrayHasKey('untick', self::recordAt($calendar, 'toDos', 0, '_links'));
     }
 
     /**
@@ -252,7 +261,7 @@ class CalendarApiTest extends ApiTestCase
     {
         $assistant = $this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector);
         $toDo = ToDo::noted(new Gesture($this->accountOfTheFixtures(), new MemberId($this->memberIdOf($assistant)), new \DateTimeImmutable('2026-10-13 09:00 UTC')), new ToDoId(self::newIdentity()), new ContactCorrespondent(new PersonId(self::newIdentity()), [new OrganizationId(self::newIdentity())]), new Task('Envoyer mon CV', new Due('2026-10-14')));
-        self::getContainer()->get(ToDoRepository::class)->save($toDo);
+        self::service(ToDoRepository::class)->save($toDo);
         $this->login($assistant);
 
         $calendar = $this->requestJson('GET', self::WEEK_OF_THE_DEMONSTRATION);
@@ -268,8 +277,8 @@ class CalendarApiTest extends ApiTestCase
     {
         $this->noteToDo($this->ada(), 'Appeler la RH', '2026-10-15', '08:00');
 
-        $this->assertCount(1, $this->requestJson('GET', self::WEEK_OF_THE_DEMONSTRATION.'&timeZone=Europe/Paris')['late']);
-        $this->assertSame([], $this->requestJson('GET', '/api/me/calendar?from=2026-10-12T00:00:00-07:00&to=2026-10-19T00:00:00-07:00&timeZone=America/Los_Angeles')['late']);
+        $this->assertCount(1, self::arrayAt($this->requestJson('GET', self::WEEK_OF_THE_DEMONSTRATION.'&timeZone=Europe/Paris'), 'late'));
+        $this->assertSame([], self::valueAt($this->requestJson('GET', '/api/me/calendar?from=2026-10-12T00:00:00-07:00&to=2026-10-19T00:00:00-07:00&timeZone=America/Los_Angeles'), 'late'));
     }
 
     public function testTheTimeZoneOfTheReaderIsOneOfTheWorld(): void
@@ -285,26 +294,26 @@ class CalendarApiTest extends ApiTestCase
      */
     public function testAnExchangePlannedEndedAndNotProcessedIsLate(): void
     {
-        $organization = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];
-        $prospect = self::getContainer()->get(OrganizationRepository::class)->get(new OrganizationId($organization));
+        $organization = self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']]), 'id');
+        $prospect = self::service(OrganizationRepository::class)->get(new OrganizationId($organization));
         $gesture = new Gesture($prospect->accountId(), new MemberId($this->memberIdOf('prospector-user')), new \DateTimeImmutable('2026-10-13 09:00 UTC'));
         $passed = Exchange::planned($gesture, new ExchangeId(self::newIdentity()), new OrganizationCorrespondent($prospect->id()), ExchangeFacts::planned(Channel::Call, new \DateTimeImmutable('2026-10-14T16:00:00+00:00'), Duration::inMinutes(null), null));
-        self::getContainer()->get(ExchangeRepository::class)->save($passed);
+        self::service(ExchangeRepository::class)->save($passed);
         $this->requestJson('POST', '/api/organizations/'.$organization.'/upcoming-exchanges', ['exchange' => ['channel' => 'meeting', 'occurredAt' => '2026-10-16T08:00:00+00:00']]);
 
-        $this->assertSame([$passed->id()->value], $this->requestJson('GET', self::WEEK_OF_THE_DEMONSTRATION)['late']);
+        $this->assertSame([$passed->id()->value], self::valueAt($this->requestJson('GET', self::WEEK_OF_THE_DEMONSTRATION), 'late'));
     }
 
     private function ada(): string
     {
-        $organization = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];
+        $organization = self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']]), 'id');
 
-        return $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'], 'organizationIds' => [$organization]])['id'];
+        return self::stringAt($this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'], 'organizationIds' => [$organization]]), 'id');
     }
 
     private function noteToDo(string $contact, string $text, string $dueOn, ?string $dueAt = null): string
     {
-        return $this->requestJson('POST', '/api/contacts/'.$contact.'/to-dos', ['text' => $text, 'dueOn' => $dueOn, 'dueAt' => $dueAt])['id'];
+        return self::stringAt($this->requestJson('POST', '/api/contacts/'.$contact.'/to-dos', ['text' => $text, 'dueOn' => $dueOn, 'dueAt' => $dueAt]), 'id');
     }
 
     public function testAPeriodLastsSixWeeksAtMost(): void
@@ -338,6 +347,8 @@ class CalendarApiTest extends ApiTestCase
      */
     private static function described(array $item): array
     {
-        return [$item['interlocutor']['name'], $item['exchange']['channel'], $item['exchange']['occurredAt'], $item['exchange']['status'], $item['exchange']['durationInMinutes']];
+        $exchange = self::recordAt($item, 'exchange');
+
+        return [self::valueAt($item, 'interlocutor', 'name'), $exchange['channel'], $exchange['occurredAt'], $exchange['status'], $exchange['durationInMinutes']];
     }
 }
