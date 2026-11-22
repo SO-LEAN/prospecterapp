@@ -126,6 +126,18 @@ final class CampaignTest extends TestCase
         $this->assertSame(1, $campaign->processedOnTheDayOf($this->later(), new \DateTimeZone('UTC')));
     }
 
+    public function testSettingTheDailyCapTellsWhoSetItAndWhen(): void
+    {
+        $campaign = $this->in(CampaignStatus::Started);
+        $campaign->releaseEvents();
+
+        $campaign->setDailyCap(DailyCap::of(30), new MemberId(self::ME), $this->later());
+
+        $set = $campaign->releaseEvents()[0] ?? null;
+        $this->assertInstanceOf(DailyCapSet::class, $set);
+        $this->assertEquals([new MemberId(self::ME), $this->later()], [$set->by, $set->occurredAt]);
+    }
+
     public function testDismissingTheLastRecipientToHandleEndsTheCampaign(): void
     {
         $campaign = $this->in(CampaignStatus::Started);
