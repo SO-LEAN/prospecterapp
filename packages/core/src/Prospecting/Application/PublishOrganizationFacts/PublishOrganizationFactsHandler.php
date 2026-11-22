@@ -6,9 +6,9 @@ namespace Prospecter\Core\Prospecting\Application\PublishOrganizationFacts;
 
 use Prospecter\Core\Prospecting\Application\Port\OrganizationFactsRetriever;
 use Prospecter\Core\Prospecting\Contract\Event\OrganizationFactsChanged;
+use Prospecter\Core\Prospecting\Domain\Event\OrganizationEvent;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
-use Prospecter\Core\SharedKernel\Domain\Event\OrganizationEvent;
 
 /**
  * Tells the other contexts the facts of an organization each time something happens to it, read as its service
