@@ -32,6 +32,8 @@ type Props = {
   onTargetingChange?: (tags: string[], channel: Channel) => void
   /** Frozen, its channel and its tags are shown without being changed. */
   searchFrozen?: boolean
+  /** As it is prepared, its daily cap; set on its sheet afterwards. */
+  withDailyCap?: boolean
 }
 
 /**
@@ -47,6 +49,7 @@ export function CampaignForm({
   onChanged,
   onTargetingChange,
   searchFrozen = false,
+  withDailyCap = false,
 }: Props) {
   const { t } = useTranslation()
   const [globalErrors, setGlobalErrors] = useState<string[]>([])
@@ -143,6 +146,17 @@ export function CampaignForm({
           </FormField>
         )}
       />
+      {withDailyCap && (
+        <FormField
+          form={form}
+          name="dailyCap"
+          label={t('campaigns.dailyCap.label')}
+          hint={t('campaigns.dailyCap.hint')}
+          optional={t('common.optional')}
+        >
+          <Input type="number" min={1} inputMode="numeric" className="w-32" {...form.register('dailyCap')} />
+        </FormField>
+      )}
       <div className="flex justify-end gap-2">
         {onCancel && (
           <Button type="button" variant="ghost" onClick={onCancel}>

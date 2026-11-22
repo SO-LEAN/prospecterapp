@@ -21,11 +21,20 @@ export const campaignSchema = z.object({
   message: z.string().max(MAX_MESSAGE, { error: () => i18n.t('validation.max', { max: MAX_MESSAGE }) }),
   subject: z.string(),
   messageMode: z.enum(MESSAGE_MODES),
+  dailyCap: z.string(),
 })
 
 export type CampaignValues = z.input<typeof campaignSchema>
 
-export const campaignFields = ['name', 'channel', 'tags', 'message', 'subject', 'messageMode'] as const
+export const campaignFields = [
+  'name',
+  'channel',
+  'tags',
+  'message',
+  'subject',
+  'messageMode',
+  'dailyCap',
+] as const
 
 export const newCampaign = (): CampaignValues => ({
   name: '',
@@ -34,6 +43,7 @@ export const newCampaign = (): CampaignValues => ({
   message: '',
   subject: '',
   messageMode: 'asIs',
+  dailyCap: '',
 })
 
 /** The campaign as saved, to revise it. */
@@ -44,9 +54,13 @@ export const revisionOf = (campaign: Campaign): CampaignValues => ({
   message: campaign.message,
   subject: campaign.subject ?? '',
   messageMode: campaign.messageMode,
+  dailyCap: campaign.dailyCap?.toString() ?? '',
 })
 
-/** Only an e-mail has a subject: one typed before choosing another channel is not sent. */
+/**
+ * Only an e-mail has a subject: one typed before choosing another channel is not sent. A daily cap left empty is
+ * none.
+ */
 export const toCampaignInput = (values: CampaignValues): CampaignInput => ({
   name: values.name.trim(),
   channel: values.channel,
@@ -54,7 +68,7 @@ export const toCampaignInput = (values: CampaignValues): CampaignInput => ({
   message: values.message,
   subject: values.channel === 'email' && values.subject.trim() !== '' ? values.subject.trim() : null,
   messageMode: values.messageMode,
-  dailyCap: null,
+  dailyCap: values.dailyCap.trim() === '' ? null : Number(values.dailyCap),
 })
 
 /** The automatic tag a contact carries when the channel reaches them (ADR 0144), as the api names them. */
