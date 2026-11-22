@@ -23,4 +23,14 @@ final readonly class DailyCap
     {
         return $sends < 1 ? throw InvalidDailyCap::belowOne() : new self($sends);
     }
+
+    /**
+     * None when the member set none.
+     *
+     * @throws InvalidDailyCap
+     */
+    public static function orNone(?int $sends): ?self
+    {
+        return null === $sends ? null : self::of($sends);
+    }
 }

@@ -104,6 +104,7 @@ use Prospecter\Core\Campaigns\Application\SearchContactsByTags\SearchContactsByT
 use Prospecter\Core\Campaigns\Application\SearchContactsByTags\SearchContactsByTagsHandler;
 use Prospecter\Core\Campaigns\Application\SearchContactsByTags\TaggedContactPage;
 use Prospecter\Core\Campaigns\Application\StartCampaign\StartCampaignHandler;
+use Prospecter\Core\Campaigns\Application\SetDailyCap\SetDailyCapHandler;
 use Prospecter\Core\Campaigns\Application\StopCampaign\StopCampaignHandler;
 use Prospecter\Core\Campaigns\Application\SuggestedTags;
 use Prospecter\Core\Campaigns\Application\TagsOfEveryContact;
@@ -1433,6 +1434,7 @@ final class Application
             new RemoveRecipientHandler($this->campaigns, $this->campaigners, $this->events),
             new StartCampaignHandler($this->campaigns, $this->campaigners, $this->events),
             new StopCampaignHandler($this->campaigns, $this->campaigners, $this->events),
+            new SetDailyCapHandler($this->campaigns, $this->campaigners, $this->events),
             new DismissRecipientHandler($this->campaigns, $this->campaigners, $this->events),
             new EraseCampaignHandler($this->campaigns, new AccountsTaggedAccounts($this->listAccountsService)),
             new SetWeeklyWindowsHandler($this->hostedPages, $this->bookingPages, $this->events),

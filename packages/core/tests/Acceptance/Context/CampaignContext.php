@@ -29,6 +29,7 @@ use Prospecter\Core\Campaigns\Application\RenderCampaignMessage\CampaignMessage;
 use Prospecter\Core\Campaigns\Application\RenderCampaignMessage\RenderCampaignMessage;
 use Prospecter\Core\Campaigns\Application\ReviseCampaign\ReviseCampaign;
 use Prospecter\Core\Campaigns\Application\SearchContactsByTags\SearchContactsByTags;
+use Prospecter\Core\Campaigns\Application\SetDailyCap\SetDailyCap;
 use Prospecter\Core\Campaigns\Application\StartCampaign\StartCampaign;
 use Prospecter\Core\Campaigns\Application\StopCampaign\StopCampaign;
 use Prospecter\Core\Campaigns\Contract\Service\NameCampaigns\NameCampaigns;
@@ -150,6 +151,19 @@ final class CampaignContext implements Context
     public function iPrepareTheCampaignWithADailyCap(string $name, int $cap): void
     {
         $this->prepare($name, 'E-mail', self::SOME_TAGS, self::A_MESSAGE, dailyCap: $cap);
+    }
+
+    #[When('je fixe le plafond de :name à :cap envois par jour')]
+    #[When('je fixe le plafond de :name à :cap envoi par jour')]
+    public function iSetTheDailyCapOf(string $name, int $cap): void
+    {
+        $this->setDailyCap($name, $cap);
+    }
+
+    #[When('je retire le plafond de :name')]
+    public function iTakeTheDailyCapOff(string $name): void
+    {
+        $this->setDailyCap($name, null);
     }
 
     #[Then('la campagne :name a un plafond de :cap envois par jour')]
@@ -1012,6 +1026,12 @@ final class CampaignContext implements Context
         ));
         $this->noted = null === $this->application->refusal() ? $id : null;
         $this->notedWith = $contact;
+    }
+
+    private function setDailyCap(string $name, ?int $cap): void
+    {
+        $this->current = $name;
+        $this->application->dispatch(new SetDailyCap($this->application->signedIn(), $this->currentId(), $cap, $this->application->now()));
     }
 
     private function dismiss(string $contact, string $name, ?string $reason): void
