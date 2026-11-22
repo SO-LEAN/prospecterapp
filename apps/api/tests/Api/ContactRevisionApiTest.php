@@ -2,8 +2,10 @@
 
 namespace Tests\App\Api;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Base\CallsTheMcpServer;
 
 /**
  * A contact is read with its revision. A screen or an AI sends it back with its change: if another member changed
@@ -12,6 +14,8 @@ use Tests\App\Base\ApiTestCase;
 #[Group('api')]
 class ContactRevisionApiTest extends ApiTestCase
 {
+    use CallsTheMcpServer;
+
     private string $ada;
 
     protected function setUp(): void
@@ -69,6 +73,30 @@ class ContactRevisionApiTest extends ApiTestCase
 
         $this->assertChangedMeanwhile($problem);
         $this->assertNull($this->requestJson('GET', '/api/contacts/'.$this->ada)['contactDetails']['phoneNumber']);
+    }
+
+    /**
+     * @param array<string, mixed> $arguments
+     */
+    #[DataProvider('toolsChangingAContact')]
+    public function testEachToolChangingAContactChangedSinceTheAIReadItIsRefused(string $tool, array $arguments): void
+    {
+        $read = $this->changedSinceRead();
+
+        $refusal = $this->callWithoutHandshake($tool, ['id' => $this->ada, ...$arguments, 'revision' => $read]);
+
+        $this->assertSame('changedMeanwhile', $this->answerOf($refusal)['reason'] ?? null);
+    }
+
+    /**
+     * @return iterable<string, array{string, array<string, mixed>}>
+     */
+    public static function toolsChangingAContact(): iterable
+    {
+        yield 'name' => ['set-contact-name', ['firstName' => 'Grace']];
+        yield 'title' => ['set-contact-title', ['title' => 'ms']];
+        yield 'job title' => ['set-contact-job-title', ['jobTitle' => 'CEO']];
+        yield 'details' => ['update-contact-details', ['phoneNumber' => '03 88 11 22 33']];
     }
 
     /**
