@@ -117,6 +117,15 @@ final class CampaignTest extends TestCase
         $this->assertEquals(DailyCap::of(30), StateOf::the($campaign)->objectOrNull('dailyCap', DailyCap::class));
     }
 
+    public function testARecipientProcessedTodayCountsAmongThoseProcessedToday(): void
+    {
+        $campaign = $this->in(CampaignStatus::Started);
+
+        $campaign->process(new PersonId(self::ADA), self::EXCHANGE, RecipientOutcome::Done, at: $this->now());
+
+        $this->assertSame(1, $campaign->processedOnTheDayOf($this->later(), new \DateTimeZone('UTC')));
+    }
+
     public function testDismissingTheLastRecipientToHandleEndsTheCampaign(): void
     {
         $campaign = $this->in(CampaignStatus::Started);
@@ -232,7 +241,7 @@ final class CampaignTest extends TestCase
 
         $campaign->reopenAfterErasureOf(self::EXCHANGE, $this->later());
 
-        $this->assertEquals(new Recipient(new PersonId(self::ADA), RecipientStatus::Processed, erased: true), StateOf::the($campaign)->object('recipients', Recipients::class)->recipients[0]);
+        $this->assertEquals(new Recipient(new PersonId(self::ADA), RecipientStatus::Processed, erased: true, processedAt: $this->now()), StateOf::the($campaign)->object('recipients', Recipients::class)->recipients[0]);
     }
 
     public function testAnExchangeGoneWithItsOrganizationLeavesItsRecipientProcessedWithoutIt(): void
@@ -243,7 +252,7 @@ final class CampaignTest extends TestCase
         $campaign->forgetExchangeGoneWithItsOrganization(self::EXCHANGE);
 
         $state = StateOf::the($campaign);
-        $this->assertEquals([CampaignStatus::Started, new Recipient(new PersonId(self::ADA), RecipientStatus::Processed, missed: true)], [$state->object('status', CampaignStatus::class), $state->object('recipients', Recipients::class)->recipients[0]]);
+        $this->assertEquals([CampaignStatus::Started, new Recipient(new PersonId(self::ADA), RecipientStatus::Processed, missed: true, processedAt: $this->now())], [$state->object('status', CampaignStatus::class), $state->object('recipients', Recipients::class)->recipients[0]]);
     }
 
     public function testAStoppedCampaignStaysStoppedWhenItsRecipientIsToHandleAgain(): void

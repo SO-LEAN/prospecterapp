@@ -17,17 +17,18 @@ final class RecipientTest extends TestCase
 {
     private const string ADA = '0190a1c0-0000-7000-8000-000000000004';
     private const string EXCHANGE = '0190a1c0-0000-7000-8000-000000000006';
+    private const string NOW = '2026-11-17 10:00';
 
     public function testAProcessedRecipientErasedStaysProcessed(): void
     {
-        $recipient = self::ada()->processed(self::EXCHANGE, RecipientOutcome::Done)->erased();
+        $recipient = self::ada()->processed(self::EXCHANGE, RecipientOutcome::Done, self::now())->erased();
 
         $this->assertEquals([RecipientStatus::Processed, true], [$recipient->status, $recipient->erased]);
     }
 
     public function testAMissedCallErasedStaysMissed(): void
     {
-        $this->assertTrue(self::ada()->processed(self::EXCHANGE, RecipientOutcome::Missed)->erased()->missed);
+        $this->assertTrue(self::ada()->processed(self::EXCHANGE, RecipientOutcome::Missed, self::now())->erased()->missed);
     }
 
     public function testADismissedRecipientErasedStaysDismissed(): void
@@ -42,16 +43,26 @@ final class RecipientTest extends TestCase
 
     public function testAnErasedRecipientLeadsToNoExchangeAnyMore(): void
     {
-        $this->assertFalse(self::ada()->processed(self::EXCHANGE, RecipientOutcome::Done)->erased()->isProcessedBy(self::EXCHANGE));
+        $this->assertFalse(self::ada()->processed(self::EXCHANGE, RecipientOutcome::Done, self::now())->erased()->isProcessedBy(self::EXCHANGE));
     }
 
     public function testARecipientWhoseExchangeWentWithItsOrganizationStaysProcessedWithoutIt(): void
     {
-        $this->assertEquals(new Recipient(new PersonId(self::ADA), RecipientStatus::Processed, missed: true), self::ada()->processed(self::EXCHANGE, RecipientOutcome::Missed)->withoutItsExchange());
+        $this->assertEquals(new Recipient(new PersonId(self::ADA), RecipientStatus::Processed, missed: true, processedAt: self::now()), self::ada()->processed(self::EXCHANGE, RecipientOutcome::Missed, self::now())->withoutItsExchange());
+    }
+
+    public function testAProcessedRecipientErasedKeepsWhenItWasProcessed(): void
+    {
+        $this->assertEquals(self::now(), self::ada()->processed(self::EXCHANGE, RecipientOutcome::Done, self::now())->erased()->processedAt);
     }
 
     private static function ada(): Recipient
     {
         return Recipient::pending(new PersonId(self::ADA));
+    }
+
+    private static function now(): \DateTimeImmutable
+    {
+        return new \DateTimeImmutable(self::NOW);
     }
 }

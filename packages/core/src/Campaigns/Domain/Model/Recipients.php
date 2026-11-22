@@ -102,9 +102,18 @@ final readonly class Recipients
      * the first exchange winning.
      */
     #[\NoDiscard]
-    public function processing(PersonId $contact, string $exchangeId, RecipientOutcome $outcome): self
+    public function processing(PersonId $contact, string $exchangeId, RecipientOutcome $outcome, \DateTimeImmutable $at): self
     {
-        return $this->handling($contact, static fn (Recipient $recipient): Recipient => $recipient->isPending() ? $recipient->processed($exchangeId, $outcome) : $recipient);
+        return $this->handling($contact, static fn (Recipient $recipient): Recipient => $recipient->isPending() ? $recipient->processed($exchangeId, $outcome, $at) : $recipient);
+    }
+
+    /**
+     * @return list<?\DateTimeImmutable>
+     */
+    #[\NoDiscard]
+    public function processedAt(): array
+    {
+        return array_map(static fn (Recipient $recipient): ?\DateTimeImmutable => $recipient->processedAt, $this->recipients);
     }
 
     /**

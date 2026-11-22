@@ -26,6 +26,7 @@ use Prospecter\Core\Campaigns\Domain\Exception\TooManyRecipients;
 use Prospecter\Core\Campaigns\Domain\Exception\UnknownRecipient;
 use Prospecter\Core\Campaigns\Domain\Exception\UnreachableContact;
 use Prospecter\Core\Campaigns\Domain\Policy\CampaignPossibilities;
+use Prospecter\Core\Campaigns\Domain\Policy\CampaignProgress;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
@@ -178,7 +179,7 @@ final class Campaign implements ReleasesEvents
             return;
         }
 
-        $this->recipients = $this->recipients->processing($contact, $exchangeId, $outcome);
+        $this->recipients = $this->recipients->processing($contact, $exchangeId, $outcome, $at);
         $this->endOnceNobodyIsPending($at);
     }
 
@@ -347,6 +348,12 @@ final class Campaign implements ReleasesEvents
     public function stillToHandle(array $exchangedWith): int
     {
         return $this->recipients->pendingCount($exchangedWith);
+    }
+
+    #[\NoDiscard]
+    public function processedOnTheDayOf(\DateTimeImmutable $at, \DateTimeZone $clock): int
+    {
+        return CampaignProgress::processedOnTheDayOf($at, $clock, $this->recipients->processedAt());
     }
 
     #[\NoDiscard]
