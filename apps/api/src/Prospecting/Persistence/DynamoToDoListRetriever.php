@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Prospecting\Persistence;
 
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\Prospecting\Application\Port\ToDoListRetriever;
 use Prospecter\Core\Prospecting\Application\ToDoInList;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownToDo;
@@ -53,9 +54,8 @@ final readonly class DynamoToDoListRetriever implements ToDoListRetriever
     public function dueIn(MemberId $holder, CalendarPeriod $period): array
     {
         $links = $this->prospectingTable->queryBetween(ToDoKeys::calendar($holder->value), Table::BY_GSI1, ToDoKeys::dayStart($period->firstDay()), ToDoKeys::dayEnd($period->lastDay()));
-        $items = array_column($this->prospectingTable->items(array_map(static fn (array $link): array => [$link['SK'], ToDoKeys::TO_DO], $links)), null, 'PK');
 
-        return self::inList(array_values(array_filter(array_map(static fn (array $link): ?array => $items[$link['SK']] ?? null, $links))));
+        return self::inList($this->prospectingTable->itemsInTheOrderOf(Typed::strings(array_column($links, 'SK')), ToDoKeys::TO_DO));
     }
 
     /**

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Prospecting\Persistence;
 
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\Port\CalendarRetriever;
 use Prospecter\Core\Prospecting\Domain\Model\CalendarPeriod;
@@ -24,12 +25,9 @@ final readonly class DynamoCalendarRetriever implements CalendarRetriever
     public function heldBy(Prospector $holder, CalendarPeriod $period): array
     {
         $links = $this->prospectingTable->queryBetween(ExchangeKeys::calendar($holder->id->value), Table::BY_GSI1, ExchangeKeys::positionBefore($period->from), ExchangeKeys::positionBefore($period->until));
-        $items = array_column($this->prospectingTable->items(array_map(static fn (array $link): array => [$link['SK'], ExchangeKeys::EXCHANGE], $links)), null, 'PK');
+        $items = $this->prospectingTable->itemsInTheOrderOf(Typed::strings(array_column($links, 'SK')), ExchangeKeys::EXCHANGE);
 
-        return array_values(array_map(
-            static fn (array $link): ExchangeInTimeline => self::inTheCalendar($items[$link['SK']]['exchange'], $holder),
-            array_filter($links, static fn (array $link): bool => isset($items[$link['SK']])),
-        ));
+        return array_map(static fn (array $item): ExchangeInTimeline => self::inTheCalendar(Typed::document($item['exchange']), $holder), $items);
     }
 
     /**
@@ -37,6 +35,6 @@ final readonly class DynamoCalendarRetriever implements CalendarRetriever
      */
     private static function inTheCalendar(array $document, Prospector $holder): ExchangeInTimeline
     {
-        return DynamoTimelineRetriever::inTimeline($document, ContactPresence::ofTheContact(null !== $document['contact'], $document['contactForgotten'] ?? false), $holder);
+        return DynamoTimelineRetriever::inTimeline($document, ContactPresence::ofTheContact(null !== $document['contact'], Typed::bool($document['contactForgotten'] ?? false)), $holder);
     }
 }

@@ -66,11 +66,10 @@ final class Documents
         return ['corporateName' => $legalIdentity->corporateName, 'form' => $legalIdentity->form, 'type' => $legalIdentity->type, 'siret' => $legalIdentity->siret?->value];
     }
 
-    /**
-     * @param array<string, mixed> $document
-     */
-    public static function legalIdentityOf(array $document): LegalIdentity
+    public static function legalIdentityOf(mixed $document): LegalIdentity
     {
+        $document = Typed::document($document);
+
         return new LegalIdentity(Typed::stringOrNull($document['corporateName'] ?? null), Typed::stringOrNull($document['form'] ?? null), Typed::stringOrNull($document['type'] ?? null), Siret::orNone(Typed::stringOrNull($document['siret'] ?? null)));
     }
 
@@ -82,11 +81,10 @@ final class Documents
         return ['email' => $contactDetails->email?->value, 'phoneNumber' => $contactDetails->phoneNumber?->value, 'language' => $contactDetails->language];
     }
 
-    /**
-     * @param array<string, mixed> $document
-     */
-    public static function contactDetailsOf(array $document): ContactDetails
+    public static function contactDetailsOf(mixed $document): ContactDetails
     {
+        $document = Typed::document($document);
+
         return new ContactDetails(Email::orNone(Typed::stringOrNull($document['email'] ?? null)), self::phoneNumberOf(Typed::stringOrNull($document['phoneNumber'] ?? null)), Typed::stringOrNull($document['language'] ?? null));
     }
 
@@ -111,11 +109,10 @@ final class Documents
         return null === $address ? null : ['street' => $address->street, 'postalCode' => $address->postalCode, 'city' => $address->city, 'country' => $address->country];
     }
 
-    /**
-     * @param array<string, mixed>|null $document
-     */
-    public static function addressOf(?array $document): ?Address
+    public static function addressOf(mixed $document): ?Address
     {
+        $document = null === $document ? null : Typed::document($document);
+
         return null === $document ? null : new Address(Typed::stringOrNull($document['street']), Typed::stringOrNull($document['postalCode']), Typed::stringOrNull($document['city']), Typed::stringOrNull($document['country']));
     }
 
@@ -127,11 +124,10 @@ final class Documents
         return null === $geoPoint ? null : ['longitude' => $geoPoint->longitude, 'latitude' => $geoPoint->latitude];
     }
 
-    /**
-     * @param array<string, mixed>|null $document
-     */
-    public static function geoPointOf(?array $document): ?GeoPoint
+    public static function geoPointOf(mixed $document): ?GeoPoint
     {
+        $document = null === $document ? null : Typed::document($document);
+
         return null === $document ? null : new GeoPoint(Typed::float($document['longitude']), Typed::float($document['latitude']));
     }
 
@@ -143,11 +139,10 @@ final class Documents
         return null === $file ? null : ['url' => $file->url, 'extension' => $file->extension, 'size' => $file->size];
     }
 
-    /**
-     * @param array<string, mixed>|null $document
-     */
-    public static function fileOf(?array $document): ?File
+    public static function fileOf(mixed $document): ?File
     {
+        $document = null === $document ? null : Typed::document($document);
+
         return null === $document ? null : new File(Typed::string($document['url']), Typed::string($document['extension']), Typed::int($document['size']));
     }
 
@@ -163,13 +158,12 @@ final class Documents
     }
 
     /**
-     * The links as they were recognized when they were noted.
-     *
-     * @param list<array{source: string, identifier: string, address: string}> $documents
+     * Restores the links as they were recognized when they were logged. Each link is a document with its source,
+     * identifier and address.
      */
-    public static function referencesOf(array $documents): ExternalReferences
+    public static function referencesOf(mixed $documents): ExternalReferences
     {
-        return ExternalReferences::of(array_map(static fn (array $reference): ExternalReference => ExternalReference::restored($reference['source'], $reference['identifier'], $reference['address']), $documents));
+        return ExternalReferences::of(array_map(static fn (array $reference): ExternalReference => ExternalReference::restored(Typed::string($reference['source']), Typed::string($reference['identifier']), Typed::string($reference['address'])), Typed::documents($documents)));
     }
 
     /**

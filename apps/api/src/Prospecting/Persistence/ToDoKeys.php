@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Prospecting\Persistence;
 
+use App\Shared\Typed;
+
 final class ToDoKeys
 {
     public const string TO_DO = 'TODO';
@@ -50,7 +52,9 @@ final class ToDoKeys
      */
     public static function calendarPositionOf(array $document): string
     {
-        return sprintf('%s#%s#%s', $document['due']['day'], $document['due']['time'] ?? '', $document['id']);
+        $due = Typed::document($document['due']);
+
+        return sprintf('%s#%s#%s', Typed::string($due['day']), Typed::stringOrNull($due['time'] ?? null) ?? '', Typed::string($document['id']));
     }
 
     /**

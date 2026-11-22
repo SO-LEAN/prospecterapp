@@ -6,6 +6,7 @@ namespace App\Prospecting\Persistence;
 
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\Prospecting\Application\ConsultHeldExchanges\HeldExchange;
 use Prospecter\Core\Prospecting\Application\Port\HeldExchangeRetriever;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
@@ -29,21 +30,28 @@ final readonly class DynamoHeldExchangeRetriever implements HeldExchangeRetrieve
     public function ofIds(AccountId $accountId, array $ids): array
     {
         $items = $this->prospectingTable->items(array_map(static fn (ExchangeId $id): array => [ExchangeKeys::exchange($id->value), ExchangeKeys::EXCHANGE], $ids));
-        $ofTheAccount = array_filter($items, static fn (array $item): bool => $accountId->value === $item['exchange']['accountId']);
 
-        return array_values(array_map(static fn (array $item): HeldExchange => self::heldExchangeOf($item['exchange']), $ofTheAccount));
+        return self::heldOf($accountId, array_map(static fn (array $item): array => Typed::document($item['exchange']), $items));
     }
 
     public function plannedBy(AccountId $accountId, MemberId $holder, \DateTimeImmutable $from): array
     {
         $links = $this->prospectingTable->queryAfter(ExchangeKeys::agenda($holder->value), Table::BY_GSI1, ExchangeKeys::positionBefore($from));
-        $items = array_column($this->prospectingTable->items(array_map(static fn (array $link): array => [$link['SK'], ExchangeKeys::EXCHANGE], $links)), null, 'PK');
-        $planned = array_filter(
-            array_map(static fn (array $link): ?array => $items[$link['SK']]['exchange'] ?? null, $links),
-            static fn (?array $document): bool => null !== $document && $accountId->value === $document['accountId'],
-        );
+        $items = $this->prospectingTable->itemsInTheOrderOf(Typed::strings(array_column($links, 'SK')), ExchangeKeys::EXCHANGE);
 
-        return array_values(array_map(self::heldExchangeOf(...), $planned));
+        return self::heldOf($accountId, array_map(static fn (array $item): array => Typed::document($item['exchange']), $items));
+    }
+
+    /**
+     * @param list<array<string, mixed>> $documents
+     *
+     * @return list<HeldExchange> those of the account
+     */
+    private static function heldOf(AccountId $accountId, array $documents): array
+    {
+        $ofTheAccount = array_filter($documents, static fn (array $document): bool => $accountId->value === $document['accountId']);
+
+        return array_values(array_map(self::heldExchangeOf(...), $ofTheAccount));
     }
 
     /**
@@ -51,21 +59,21 @@ final readonly class DynamoHeldExchangeRetriever implements HeldExchangeRetrieve
      */
     private static function heldExchangeOf(array $document): HeldExchange
     {
-        $facts = $document['facts'];
+        $facts = Typed::document($document['facts']);
 
         return new HeldExchange(
-            $document['id'],
-            $document['createdBy'],
+            Typed::string($document['id']),
+            Typed::string($document['createdBy']),
             ExchangeDocument::statusOf($document)->value,
-            $facts['channel'],
-            Documents::momentOf($facts['occurredAt']),
-            isset($facts['durationInMinutes']) ? (int) $facts['durationInMinutes'] : null,
-            $facts['place'] ?? null,
-            $facts['link'] ?? null,
+            Typed::string($facts['channel']),
+            Documents::momentOf(Typed::string($facts['occurredAt'])),
+            ExchangeDocument::durationInMinutesOf($facts),
+            Typed::stringOrNull($facts['place'] ?? null),
+            Typed::stringOrNull($facts['link'] ?? null),
             ExchangeDocument::linkRequestedOf($document),
-            $document['contact'],
-            $document['keptFor'],
-            $document['bookedByLink'] ?? false,
+            Typed::stringOrNull($document['contact']),
+            Typed::strings($document['keptFor']),
+            Typed::bool($document['bookedByLink'] ?? false),
         );
     }
 }

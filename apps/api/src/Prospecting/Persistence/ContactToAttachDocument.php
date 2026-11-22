@@ -6,6 +6,7 @@ namespace App\Prospecting\Persistence;
 
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Hydrator;
+use App\Shared\Typed;
 use Prospecter\Core\Prospecting\Application\ContactToAttachInList;
 use Prospecter\Core\Prospecting\Domain\Model\ContactToAttach;
 use Prospecter\Core\Prospecting\Domain\Policy\UnattachedErasure;
@@ -27,42 +28,42 @@ final class ContactToAttachDocument
         $state = Hydrator::stateOf($contactToAttach);
 
         return [
-            'id' => (string) $state['id'],
-            'accountId' => (string) $state['accountId'],
-            'holder' => (string) $state['holder'],
-            'lastMeetingAt' => Documents::moment($state['lastMeetingAt']),
-            'clock' => $state['clock']->getName(),
-            'createdAt' => Documents::moment($state['createdAt']),
-            'modifiedAt' => Documents::moment($state['modifiedAt']),
+            'id' => Typed::object($state['id'], PersonId::class)->value,
+            'accountId' => Typed::object($state['accountId'], AccountId::class)->value,
+            'holder' => Typed::object($state['holder'], MemberId::class)->value,
+            'lastMeetingAt' => Documents::moment(Typed::object($state['lastMeetingAt'], \DateTimeImmutable::class)),
+            'clock' => Typed::object($state['clock'], \DateTimeZone::class)->getName(),
+            'createdAt' => Documents::moment(Typed::object($state['createdAt'], \DateTimeImmutable::class)),
+            'modifiedAt' => Documents::moment(Typed::object($state['modifiedAt'], \DateTimeImmutable::class)),
         ];
     }
 
     /**
-     * @param array<string, mixed> $document
+     * Restores the contact to attach from its item's untyped document.
      */
-    public static function contactToAttach(array $document): ContactToAttach
+    public static function contactToAttach(mixed $document): ContactToAttach
     {
+        $document = Typed::document($document);
+
         return Hydrator::restore(ContactToAttach::class, [
-            'id' => new PersonId($document['id']),
-            'accountId' => new AccountId($document['accountId']),
-            'holder' => new MemberId($document['holder']),
-            'lastMeetingAt' => Documents::momentOf($document['lastMeetingAt']),
-            'clock' => new \DateTimeZone($document['clock']),
-            'createdAt' => Documents::momentOf($document['createdAt']),
-            'modifiedAt' => Documents::momentOf($document['modifiedAt']),
+            'id' => new PersonId(Typed::string($document['id'])),
+            'accountId' => new AccountId(Typed::string($document['accountId'])),
+            'holder' => new MemberId(Typed::string($document['holder'])),
+            'lastMeetingAt' => Documents::momentOf(Typed::string($document['lastMeetingAt'])),
+            'clock' => self::clockOf($document),
+            'createdAt' => Documents::momentOf(Typed::string($document['createdAt'])),
+            'modifiedAt' => Documents::momentOf(Typed::string($document['modifiedAt'])),
         ]);
     }
 
     /**
-     * The read model, without restoring the contact to attach (ADR 0088).
-     *
-     * @param array<string, mixed> $document
+     * Builds the read model from its item's untyped document, without restoring the contact to attach (ADR 0088).
      */
-    public static function inList(array $document): ContactToAttachInList
+    public static function inList(mixed $document): ContactToAttachInList
     {
-        $lastMeetingAt = Documents::momentOf($document['lastMeetingAt']);
+        $document = Typed::document($document);
 
-        return new ContactToAttachInList($document['id'], $lastMeetingAt, self::erasableFrom($document));
+        return new ContactToAttachInList(Typed::string($document['id']), self::lastMeetingAtOf($document), self::erasableFrom($document));
     }
 
     /**
@@ -70,6 +71,22 @@ final class ContactToAttachDocument
      */
     public static function erasableFrom(array $document): \DateTimeImmutable
     {
-        return UnattachedErasure::from(Documents::momentOf($document['lastMeetingAt']), new \DateTimeZone($document['clock']))->setTimezone(new \DateTimeZone('UTC'));
+        return UnattachedErasure::from(self::lastMeetingAtOf($document), self::clockOf($document))->setTimezone(new \DateTimeZone('UTC'));
+    }
+
+    /**
+     * @param array<string, mixed> $document
+     */
+    private static function lastMeetingAtOf(array $document): \DateTimeImmutable
+    {
+        return Documents::momentOf(Typed::string($document['lastMeetingAt']));
+    }
+
+    /**
+     * @param array<string, mixed> $document
+     */
+    private static function clockOf(array $document): \DateTimeZone
+    {
+        return new \DateTimeZone(Typed::string($document['clock']));
     }
 }

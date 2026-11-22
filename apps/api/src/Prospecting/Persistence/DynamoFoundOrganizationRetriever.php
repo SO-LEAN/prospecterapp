@@ -7,6 +7,7 @@ namespace App\Prospecting\Persistence;
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\SearchIndexes;
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\Prospecting\Application\Port\FoundOrganizationRetriever;
 use Prospecter\Core\Prospecting\Application\PossibleDuplicate;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\FoundOrganization;
@@ -30,28 +31,12 @@ final readonly class DynamoFoundOrganizationRetriever implements FoundOrganizati
     {
         $items = null === $search
             ? $this->prospectingTable->query(OrganizationKeys::ofAccount($accountId->value), Table::BY_GSI1, $after, $max + 1)
-            : $this->inTheOrderOf(SearchIndexes::found($this->prospectingTable, $accountId->value, $search, null === $after ? null : OrganizationKeys::organization($after), $max + 1));
-        $documents = array_column($items, 'organization');
+            : $this->prospectingTable->itemsInTheOrderOf(SearchIndexes::found($this->prospectingTable, $accountId->value, $search, null === $after ? null : OrganizationKeys::organization($after), $max + 1), OrganizationKeys::ORGANIZATION);
+        $documents = Typed::documents(array_column($items, 'organization'));
         $possibleDuplicates = PossibleDuplicates::of($this->prospectingTable, $documents);
-        $found = array_map(static fn (array $document): FoundOrganization => self::found($document, $possibleDuplicates[$document['id']]), $documents);
+        $found = array_map(static fn (array $document): FoundOrganization => self::found($document, $possibleDuplicates[Typed::string($document['id'])] ?? []), $documents);
 
         return FoundOrganizationPage::of(Documents::slice($found, $max, static fn (FoundOrganization $organization): string => $organization->id));
-    }
-
-    /**
-     * @param list<string> $keys partition keys of organizations
-     *
-     * @return list<array<string, mixed>>
-     */
-    private function inTheOrderOf(array $keys): array
-    {
-        $items = [];
-
-        foreach ($this->prospectingTable->items(array_map(static fn (string $key): array => [$key, OrganizationKeys::ORGANIZATION], $keys)) as $item) {
-            $items[$item['PK']] = $item;
-        }
-
-        return array_values(array_filter(array_map(static fn (string $key): ?array => $items[$key] ?? null, $keys)));
     }
 
     /**
@@ -64,7 +49,7 @@ final readonly class DynamoFoundOrganizationRetriever implements FoundOrganizati
         $geoPoint = Documents::geoPointOf($document['geoPoint']);
 
         return new FoundOrganization(
-            id: $document['id'],
+            id: Typed::string($document['id']),
             fullName: Documents::legalIdentityOf($document['legalIdentity'])->fullName(),
             postalCode: $address?->postalCode,
             city: $address?->city,

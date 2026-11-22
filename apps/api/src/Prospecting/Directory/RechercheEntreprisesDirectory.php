@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Prospecting\Directory;
 
 use App\Shared\ServiceUnavailable;
+use App\Shared\Typed;
 use Prospecter\Core\Prospecting\Domain\Model\Establishment;
 use Prospecter\Core\Prospecting\Domain\Port\EstablishmentDirectory;
 use Prospecter\Core\SharedKernel\Domain\Exception\InvalidSiret;
@@ -85,7 +86,7 @@ final readonly class RechercheEntreprisesDirectory implements EstablishmentDirec
     /**
      * @param array<string, mixed> $query
      *
-     * @return list<array{nom_complet: string, matching_etablissements: list<array<string, mixed>>}>
+     * @return list<array<string, mixed>>
      */
     private function companies(array $query): array
     {
@@ -100,12 +101,13 @@ final readonly class RechercheEntreprisesDirectory implements EstablishmentDirec
     }
 
     /**
-     * @return list<array{nom_complet: string, matching_etablissements: list<array<string, mixed>>}>
+     * @return list<array<string, mixed>> the companies found. Each company has its name (`nom_complet`) and the
+     *                                    establishments that match the search (`matching_etablissements`).
      */
     private static function resultsOf(ResponseInterface $response): array
     {
         try {
-            return $response->toArray()['results'];
+            return Typed::documents($response->toArray()['results']);
         } catch (DecodingExceptionInterface|TransportExceptionInterface $failure) {
             throw ServiceUnavailable::directory($failure);
         }
@@ -134,15 +136,17 @@ final readonly class RechercheEntreprisesDirectory implements EstablishmentDirec
     }
 
     /**
-     * @param array{nom_complet: string, matching_etablissements: list<array<string, mixed>>} $company
+     * @param array<string, mixed> $company
      *
      * @return list<Establishment>
      */
     private static function establishmentsOf(array $company): array
     {
+        $name = Typed::string($company['nom_complet']);
+
         return array_values(array_filter(array_map(
-            static fn (array $establishment): ?Establishment => self::establishmentOf($company['nom_complet'], $establishment),
-            $company['matching_etablissements'],
+            static fn (array $establishment): ?Establishment => self::establishmentOf($name, $establishment),
+            Typed::documents($company['matching_etablissements']),
         )));
     }
 
@@ -154,11 +158,11 @@ final readonly class RechercheEntreprisesDirectory implements EstablishmentDirec
     private static function establishmentOf(string $name, array $establishment): ?Establishment
     {
         try {
-            $siret = new Siret($establishment['siret']);
+            $siret = new Siret(Typed::string($establishment['siret']));
         } catch (InvalidSiret) {
             return null;
         }
 
-        return new Establishment($siret, $name, $establishment['adresse'], $establishment['activite_principale'], self::CLOSED === $establishment['etat_administratif'], $establishment['commune']);
+        return new Establishment($siret, $name, Typed::string($establishment['adresse']), Typed::stringOrNull($establishment['activite_principale']), self::CLOSED === $establishment['etat_administratif'], Typed::stringOrNull($establishment['commune']));
     }
 }

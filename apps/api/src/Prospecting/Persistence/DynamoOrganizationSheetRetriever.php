@@ -7,6 +7,7 @@ namespace App\Prospecting\Persistence;
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\SearchIndexes;
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\Port\OrganizationSheetRetriever;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
@@ -34,19 +35,15 @@ final readonly class DynamoOrganizationSheetRetriever implements OrganizationShe
     {
         $item = $this->prospectingTable->item(OrganizationKeys::organization($id->value), OrganizationKeys::ORGANIZATION) ?? throw UnknownOrganization::identifiedBy($id);
 
-        return $this->sheetOf($item['organization']);
+        return $this->sheetOf(Typed::document($item['organization']));
     }
 
     public function withPhoneNumber(AccountId $accountId, PhoneNumber $phoneNumber): array
     {
         $keys = SearchIndexes::withPhoneNumber($this->prospectingTable, $accountId->value, $phoneNumber);
-        $sheets = [];
+        $items = $this->prospectingTable->itemsInTheOrderOf($keys, OrganizationKeys::ORGANIZATION);
 
-        foreach ($this->prospectingTable->items(array_map(static fn (string $key): array => [$key, OrganizationKeys::ORGANIZATION], $keys)) as $item) {
-            $sheets[$item['PK']] = $this->sheetOf($item['organization']);
-        }
-
-        return array_values(array_filter(array_map(static fn (string $key): ?OrganizationSheet => $sheets[$key] ?? null, $keys)));
+        return array_map(fn (array $item): OrganizationSheet => $this->sheetOf(Typed::document($item['organization'])), $items);
     }
 
     /**
@@ -58,12 +55,16 @@ final readonly class DynamoOrganizationSheetRetriever implements OrganizationShe
         $contact = Documents::contactDetailsOf($document['contactDetails']);
         $address = Documents::addressOf($document['address']);
         $geoPoint = Documents::geoPointOf($document['geoPoint']);
-        $possibleDuplicates = PossibleDuplicates::of($this->prospectingTable, [$document])[$document['id']];
+        $id = Typed::string($document['id']);
+        $possibleDuplicates = PossibleDuplicates::of($this->prospectingTable, [$document])[$id] ?? [];
+        $logo = Documents::fileOf($document['logo']);
+        $holdingId = Typed::stringOrNull($document['holdingId']);
+        $contactIds = Typed::strings($document['contacts']);
 
         return new OrganizationSheet(
-            id: $document['id'],
-            accountId: $document['accountId'],
-            createdBy: $document['createdBy'],
+            id: $id,
+            accountId: Typed::string($document['accountId']),
+            createdBy: Typed::string($document['createdBy']),
             corporateName: $identity->corporateName,
             form: $identity->form,
             type: $identity->type,
@@ -73,21 +74,21 @@ final readonly class DynamoOrganizationSheetRetriever implements OrganizationShe
             phoneNumber: $contact->phoneNumber?->international(),
             language: $contact->language,
             links: ExternalLink::allOf(OrganizationDocument::referencesOf($document)),
-            website: $document['website'] ?? null,
+            website: Typed::stringOrNull($document['website'] ?? null),
             street: $address?->street,
             postalCode: $address?->postalCode,
             city: $address?->city,
             country: $address?->country,
             longitude: $geoPoint?->longitude,
             latitude: $geoPoint?->latitude,
-            municipalityCode: $document['municipalityCode'] ?? null,
-            observations: $document['observations'],
-            logo: FileResponse::orNone(Documents::fileOf($document['logo'])),
-            holdingId: $document['holdingId'],
-            contactIds: $document['contacts'],
-            createdAt: Documents::momentOf($document['createdAt']),
-            modifiedAt: Documents::momentOf($document['modifiedAt']),
-            possibleIntents: array_map(static fn (OrganizationIntent $intent): string => $intent->name, OrganizationPossibilities::given(hasLogo: null !== $document['logo'], hasHolding: null !== $document['holdingId'], hasContacts: [] !== $document['contacts'], hasPossibleDuplicates: [] !== $possibleDuplicates)),
+            municipalityCode: Typed::stringOrNull($document['municipalityCode'] ?? null),
+            observations: Typed::stringOrNull($document['observations']),
+            logo: FileResponse::orNone($logo),
+            holdingId: $holdingId,
+            contactIds: $contactIds,
+            createdAt: Documents::momentOf(Typed::string($document['createdAt'])),
+            modifiedAt: Documents::momentOf(Typed::string($document['modifiedAt'])),
+            possibleIntents: array_map(static fn (OrganizationIntent $intent): string => $intent->name, OrganizationPossibilities::given(hasLogo: null !== $logo, hasHolding: null !== $holdingId, hasContacts: [] !== $contactIds, hasPossibleDuplicates: [] !== $possibleDuplicates)),
             possibleDuplicates: $possibleDuplicates,
             createdByAnAI: Origin::Ai === Documents::originOf($document),
         );

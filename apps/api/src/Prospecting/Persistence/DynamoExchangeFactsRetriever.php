@@ -7,6 +7,7 @@ namespace App\Prospecting\Persistence;
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Revision;
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\Prospecting\Application\Port\ExchangeFactsRetriever;
 use Prospecter\Core\Prospecting\Contract\Service\ListExchangeFacts\ExchangeFactsResponse;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
@@ -43,6 +44,9 @@ final readonly class DynamoExchangeFactsRetriever implements ExchangeFactsRetrie
      */
     private static function factsOf(array $item): ExchangeFactsResponse
     {
-        return new ExchangeFactsResponse($item['exchange']['id'], Revision::of($item), true, ExchangeDocument::statusOf($item['exchange'])->value, Documents::momentOf($item['exchange']['facts']['occurredAt']), $item['exchange']['contact'], $item['exchange']['campaignId'] ?? null);
+        $exchange = Typed::document($item['exchange']);
+        $facts = Typed::document($exchange['facts']);
+
+        return new ExchangeFactsResponse(Typed::string($exchange['id']), Revision::of($item), true, ExchangeDocument::statusOf($exchange)->value, Documents::momentOf(Typed::string($facts['occurredAt'])), Typed::stringOrNull($exchange['contact']), Typed::stringOrNull($exchange['campaignId'] ?? null));
     }
 }

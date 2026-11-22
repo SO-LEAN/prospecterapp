@@ -6,6 +6,7 @@ namespace App\Prospecting\Persistence;
 
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Table;
+use App\Shared\Typed;
 use Prospecter\Core\Prospecting\Application\PossibleDuplicate;
 
 /**
@@ -25,11 +26,13 @@ final class PossibleDuplicates
         $named = [];
 
         foreach ($prospectingTable->items(array_map(static fn (string $id): array => [OrganizationKeys::organization($id), OrganizationKeys::ORGANIZATION], $ids)) as $item) {
-            $named[$item['organization']['id']] = new PossibleDuplicate($item['organization']['id'], Documents::legalIdentityOf($item['organization']['legalIdentity'])->fullName());
+            $organization = Typed::document($item['organization']);
+            $id = Typed::string($organization['id']);
+            $named[$id] = new PossibleDuplicate($id, Documents::legalIdentityOf($organization['legalIdentity'])->fullName());
         }
 
         return array_combine(
-            array_column($documents, 'id'),
+            Typed::strings(array_column($documents, 'id')),
             array_map(static fn (array $document): array => array_values(array_filter(array_map(static fn (string $id): ?PossibleDuplicate => $named[$id] ?? null, self::idsOf($document)))), $documents),
         );
     }
@@ -41,6 +44,6 @@ final class PossibleDuplicates
      */
     private static function idsOf(array $document): array
     {
-        return $document['possibleDuplicates'] ?? [];
+        return Typed::strings($document['possibleDuplicates'] ?? []);
     }
 }
