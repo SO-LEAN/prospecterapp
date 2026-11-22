@@ -12,7 +12,7 @@ use Prospecter\Core\Campaigns\Application\CampaignSheet;
 use Prospecter\Core\Campaigns\Application\SetDailyCap\SetDailyCap;
 
 /**
- * `PUT /api/campaigns/{id}/daily-cap`, for an AI (ADR 0163).
+ * `PATCH /api/campaigns/{id}/daily-cap`, for an AI (ADR 0163).
  */
 #[Adapts('api_campaigns_set_daily_cap')]
 final readonly class SetDailyCapTool

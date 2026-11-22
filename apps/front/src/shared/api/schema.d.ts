@@ -1571,13 +1571,13 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        /** Set the daily cap of a campaign, or take it off, until it is stopped or ended */
-        put: operations["put_api_campaigns_set_daily_cap"];
+        put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
-        patch?: never;
+        /** Set the daily cap of a campaign, or take it off, until it is stopped or ended */
+        patch: operations["patch_api_campaigns_set_daily_cap"];
         trace?: never;
     };
     "/api/campaigns/{id}/start": {
@@ -9900,7 +9900,7 @@ export interface operations {
             };
         };
     };
-    put_api_campaigns_set_daily_cap: {
+    patch_api_campaigns_set_daily_cap: {
         parameters: {
             query?: never;
             header?: never;

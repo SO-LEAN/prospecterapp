@@ -53,7 +53,7 @@ const started: Campaign = {
   _links: {
     self: { href: `/api/campaigns/${CAMPAIGN}`, method: 'GET' },
     stop: { href: `/api/campaigns/${CAMPAIGN}/stop`, method: 'POST' },
-    setDailyCap: { href: `/api/campaigns/${CAMPAIGN}/daily-cap`, method: 'PUT' },
+    setDailyCap: { href: `/api/campaigns/${CAMPAIGN}/daily-cap`, method: 'PATCH' },
     recipients: { href: `/api/campaigns/${CAMPAIGN}/recipients`, method: 'GET' },
   },
 }
@@ -67,7 +67,7 @@ function theApiAnswers(campaign: Campaign = started) {
     const url = new URL(request.url)
     const body = request.method === 'GET' ? null : await request.text()
     calls.push({ method: request.method, url, body: body ? JSON.parse(body) : null })
-    if (request.method === 'PUT') {
+    if (request.method === 'PATCH') {
       return Response.json(campaign)
     }
     const answers: Record<string, unknown> = {
@@ -125,7 +125,7 @@ describe('the daily cap of a campaign', () => {
     await user.click(screen.getByRole('button', { name: 'Enregistrer le plafond' }))
 
     await waitFor(() =>
-      expect(calls).toContainEqual(expect.objectContaining({ method: 'PUT', body: { dailyCap: 20 } })),
+      expect(calls).toContainEqual(expect.objectContaining({ method: 'PATCH', body: { dailyCap: 20 } })),
     )
   })
 
@@ -138,7 +138,7 @@ describe('the daily cap of a campaign', () => {
     await user.click(screen.getByRole('button', { name: 'Enregistrer le plafond' }))
 
     await waitFor(() =>
-      expect(calls).toContainEqual(expect.objectContaining({ method: 'PUT', body: { dailyCap: null } })),
+      expect(calls).toContainEqual(expect.objectContaining({ method: 'PATCH', body: { dailyCap: null } })),
     )
   })
 
