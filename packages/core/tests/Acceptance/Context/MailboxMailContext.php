@@ -178,6 +178,13 @@ final class MailboxMailContext implements Context
         $this->fileAndNotify([self::MY_MAILBOX], new MailboxMail($id, $messageId, new Email($sender), [], [self::INBOX], $this->aMinuteLater(), self::SUBJECT, self::TEXT));
     }
 
+    #[Given('l\'import de ma boîte a noté l\'e-mail envoyé à :recipient de Message-ID :messageId')]
+    public function theImportNotedTheEMailSentOfMessageId(string $recipient, string $messageId): void
+    {
+        $id = sprintf('message-%d', ++$this->messages);
+        $this->fileAndNotify([self::MY_MAILBOX], new MailboxMail($id, $messageId, new Email(self::MY_MAILBOX), [new Email($recipient)], [self::SENT], $this->aMinuteLater(), self::SUBJECT, self::TEXT));
+    }
+
     #[When('je reçois un e-mail de :sender avec :copied en copie')]
     public function iReceiveAnEMailWithACopy(string $sender, string $copied): void
     {

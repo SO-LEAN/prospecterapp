@@ -8,6 +8,7 @@ use Prospecter\Core\Prospecting\Domain\Exception\ExchangeAlreadyNoted;
 use Prospecter\Core\Prospecting\Domain\Exception\ExchangeErasedBefore;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFingerprint;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\Fingerprinted;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
@@ -30,19 +31,20 @@ final readonly class NotedOnce
     public function ensureFirst(Exchange $exchange): void
     {
         $fingerprint = $exchange->fingerprint();
+        $noted = null === $fingerprint ? null : $this->keptUnder($exchange->accountId(), $fingerprint);
 
-        if (null !== $fingerprint) {
-            $this->ensureFirstAs($exchange->accountId(), $fingerprint);
+        if (null !== $noted) {
+            throw ExchangeAlreadyNoted::because('Exchange already noted', context: ['exchange' => $noted->value]);
         }
     }
 
     /**
-     * Before the exchange is noted, when noting it checks first what noting it again would refuse otherwise: the
-     * recipient of a campaign, processed by the exchange noted first, is no longer to handle (ADR 0145).
+     * The exchange noted first under this fingerprint, checked before the recipient of a campaign is asked, as an AI
+     * notes its sending: it may become the recipient's exchange (ADR 0195). Erased, it is never noted again.
      *
-     * @throws ExchangeAlreadyNoted|ExchangeErasedBefore
+     * @throws ExchangeErasedBefore
      */
-    public function ensureFirstAs(AccountId $accountId, ExchangeFingerprint $fingerprint): void
+    public function keptUnder(AccountId $accountId, ExchangeFingerprint $fingerprint): ?ExchangeId
     {
         $noted = $this->exchanges->fingerprinted($accountId, $fingerprint);
 
@@ -50,9 +52,7 @@ final readonly class NotedOnce
             throw ExchangeErasedBefore::because('Exchange erased before, not noted again', context: ['erasedBy' => $noted->erasure->by->value, 'erasedAt' => $noted->erasure->at->format(\DATE_ATOM)]);
         }
 
-        if (null !== $noted) {
-            throw ExchangeAlreadyNoted::because('Exchange already noted', context: ['exchange' => $noted->exchange->value]);
-        }
+        return $noted?->exchange;
     }
 
     /**

@@ -50,6 +50,26 @@ Fonctionnalité: Mener une campagne avec une IA
     Alors c'est refusé : "Exchange already noted"
     Et un seul échange est noté pour "Ada Lovelace"
 
+  Scénario: L'e-mail que l'import a noté avant l'IA rejoint la campagne et traite le destinataire
+    Soit la campagne "Relance PHP" démarrée par e-mail avec "Ada Lovelace" puis "Grace Hopper", son message pour une IA "tel quel"
+    Et le client Google "client-solean" de secret "secret-solean" sert "SOLEAN IT"
+    Et le client Google de "SOLEAN IT" a le topic Pub/Sub "projects/solean/topics/gmail"
+    Et mon compte Google "michel@exemple.fr" est connecté
+    Et j'ai activé l'import de mes e-mails Gmail
+    Et l'import de ma boîte a noté l'e-mail envoyé à "ada@acme.test" de Message-ID "<relance-ada@solean-it.test>"
+    Quand une IA note l'e-mail envoyé à "Ada Lovelace" pour "Relance PHP", son Message-ID "<relance-ada@solean-it.test>" et le texte "Bonjour Ada"
+    Alors ce n'est pas refusé
+    Et un seul échange est noté pour "Ada Lovelace"
+    Et "Ada Lovelace" est traitée dans la campagne "Relance PHP"
+
+  Scénario: Un e-mail déjà noté dans une autre campagne reste refusé comme déjà noté
+    Soit la campagne "Relance PHP" démarrée par e-mail avec "Ada Lovelace" puis "Grace Hopper", son message pour une IA "tel quel"
+    Et la campagne "Relance Java" démarrée par e-mail avec "Ada Lovelace" puis "Grace Hopper", son message pour une IA "tel quel"
+    Et une IA a noté l'e-mail envoyé à "Ada Lovelace" pour "Relance Java", son Message-ID "<relance-ada@solean-it.test>" et le texte "Bonjour Ada"
+    Quand une IA note l'e-mail envoyé à "Ada Lovelace" pour "Relance PHP", son Message-ID "<relance-ada@solean-it.test>" et le texte "Bonjour Ada"
+    Alors c'est refusé : "Exchange already noted"
+    Et un seul échange est noté pour "Ada Lovelace"
+
   Scénario: L'envoi noté garde le texte que l'IA a réellement envoyé
     Soit la campagne "Relance PHP" démarrée par e-mail avec "Ada Lovelace" puis "Grace Hopper", son message pour une IA "adapté"
     Quand une IA note l'e-mail envoyé à "Ada Lovelace" pour "Relance PHP", son Message-ID "<relance-ada@solean-it.test>" et le texte "Bonjour Ada, j'ai lu votre article sur PHP 8.5"
