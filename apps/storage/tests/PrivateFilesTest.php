@@ -3,6 +3,7 @@
 namespace App\Tests;
 
 use App\Bucket;
+use App\Typed;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
@@ -104,8 +105,9 @@ class PrivateFilesTest extends WebTestCase
     {
         $this->client->request('POST', '/uploads', server: $this->asTheApi());
         $this->assertResponseStatusCodeSame(201);
+        $upload = $this->answer();
 
-        return json_decode((string) $this->client->getResponse()->getContent(), true);
+        return ['upload' => Typed::string($upload['upload']), 'url' => Typed::string($upload['url']), 'fields' => Typed::namedStrings($upload['fields']), 'heaviest' => Typed::int($upload['heaviest'])];
     }
 
     /**
@@ -131,8 +133,9 @@ class PrivateFilesTest extends WebTestCase
     {
         $this->client->request('GET', '/uploads/'.$upload, server: $this->asTheApi());
         $this->assertResponseIsSuccessful();
+        $uploaded = $this->answer();
 
-        return json_decode((string) $this->client->getResponse()->getContent(), true);
+        return ['size' => Typed::int($uploaded['size']), 'mediaType' => Typed::string($uploaded['mediaType'])];
     }
 
     private function keptFile(): string
@@ -150,7 +153,7 @@ class PrivateFilesTest extends WebTestCase
         $this->client->request('GET', '/private-files/'.$file.'/download-link', ['name' => $name], server: $this->asTheApi());
         $this->assertResponseIsSuccessful();
 
-        return json_decode((string) $this->client->getResponse()->getContent(), true)['url'];
+        return Typed::string($this->answer()['url']);
     }
 
     /**
@@ -176,6 +179,17 @@ class PrivateFilesTest extends WebTestCase
 
     private function privateBucket(): Bucket
     {
-        return self::getContainer()->get('app.private_bucket');
+        $bucket = self::getContainer()->get('app.private_bucket');
+        $this->assertInstanceOf(Bucket::class, $bucket);
+
+        return $bucket;
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    private function answer(): array
+    {
+        return Typed::array(json_decode((string) $this->client->getResponse()->getContent(), true));
     }
 }

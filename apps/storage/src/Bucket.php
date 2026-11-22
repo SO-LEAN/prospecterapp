@@ -38,7 +38,7 @@ final readonly class Bucket
             return 'NoSuchKey' === $failure->getAwsErrorCode() ? null : throw $failure;
         }
 
-        return new StoredFile((string) $object['Body'], (string) $object['ContentType']);
+        return new StoredFile(Typed::string($object['Body']), Typed::string($object['ContentType']));
     }
 
     /**
@@ -52,7 +52,7 @@ final readonly class Bucket
             return in_array($failure->getStatusCode(), [403, 404], true) ? null : throw $failure;
         }
 
-        return new ObjectDescription((int) $object['ContentLength'], (string) ($object['ContentType'] ?? 'application/octet-stream'));
+        return new ObjectDescription(Typed::int($object['ContentLength']), Typed::string($object['ContentType'] ?? 'application/octet-stream'));
     }
 
     /**
@@ -100,7 +100,7 @@ final readonly class Bucket
         $keys = [];
 
         foreach ($this->client->getPaginator('ListObjectsV2', ['Bucket' => $this->name]) as $page) {
-            $keys = [...$keys, ...array_column($page['Contents'] ?? [], 'Key')];
+            $keys = [...$keys, ...Typed::strings(array_column(Typed::array($page['Contents'] ?? []), 'Key'))];
         }
 
         return $keys;

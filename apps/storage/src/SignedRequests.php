@@ -32,7 +32,7 @@ final readonly class SignedRequests
             ['content-length-range', 1, $heaviest],
         ], $lasting);
 
-        return ['url' => (string) $form->getFormAttributes()['action'], 'fields' => $form->getFormInputs()];
+        return ['url' => Typed::string($form->getFormAttributes()['action']), 'fields' => Typed::namedStrings($form->getFormInputs())];
     }
 
     /**

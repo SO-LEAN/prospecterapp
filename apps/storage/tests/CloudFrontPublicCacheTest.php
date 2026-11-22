@@ -29,6 +29,8 @@ class CloudFrontPublicCacheTest extends TestCase
 
         $this->assertSame('CreateInvalidation', $commands[0]->getName());
         $this->assertSame('E2DISTRIBUTION', $commands[0]['DistributionId']);
-        $this->assertSame(['Quantity' => 2, 'Items' => ['/2026/10/a/a.png', '/small/2026/10/a/a.png']], $commands[0]['InvalidationBatch']['Paths']);
+        $batch = $commands[0]['InvalidationBatch'];
+        $this->assertIsArray($batch);
+        $this->assertSame(['Quantity' => 2, 'Items' => ['/2026/10/a/a.png', '/small/2026/10/a/a.png']], $batch['Paths']);
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Tests;
 
 use App\Bucket;
+use App\Typed;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -85,7 +86,7 @@ class StorageTest extends WebTestCase
     {
         $this->client->request('POST', '/files', files: ['file' => $this->upload()], server: $this->asTheApi());
 
-        return json_decode((string) $this->client->getResponse()->getContent(), true)['url'];
+        return Typed::string(Typed::array(json_decode((string) $this->client->getResponse()->getContent(), true))['url']);
     }
 
     private function upload(): UploadedFile
@@ -114,11 +115,17 @@ class StorageTest extends WebTestCase
         $this->client->request('GET', '/storage/'.$size.'/'.$this->keyOf($url));
         $this->assertResponseIsSuccessful((string) $this->client->getResponse()->getContent());
 
-        return (int) getimagesizefromstring((string) $this->client->getResponse()->getContent())[0];
+        $size = getimagesizefromstring((string) $this->client->getResponse()->getContent());
+        $this->assertIsArray($size);
+
+        return $size[0];
     }
 
     private function bucket(): Bucket
     {
-        return self::getContainer()->get(Bucket::class);
+        $bucket = self::getContainer()->get(Bucket::class);
+        $this->assertInstanceOf(Bucket::class, $bucket);
+
+        return $bucket;
     }
 }
