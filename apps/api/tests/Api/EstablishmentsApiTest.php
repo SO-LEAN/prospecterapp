@@ -17,6 +17,7 @@ use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Base\ReadsResources;
 use Tests\App\Double\OutsideServices;
 
 /**
@@ -25,6 +26,8 @@ use Tests\App\Double\OutsideServices;
 #[Group('api')]
 class EstablishmentsApiTest extends ApiTestCase
 {
+    use ReadsResources;
+
     private const array ACME_COMPANY = [
         'siren' => '552100554',
         'nom_complet' => 'ACME',
@@ -84,9 +87,9 @@ class EstablishmentsApiTest extends ApiTestCase
     {
         $id = $this->anOrganizationOfTheAccount('ACME');
 
-        $links = $this->requestJson('GET', '/api/organizations/'.$id)['_links'];
+        $organization = $this->requestJson('GET', '/api/organizations/'.$id);
 
-        $this->assertSame('/api/organizations/'.$id.'/establishments', $links['searchEstablishments']['href'] ?? null);
+        $this->assertSame('/api/organizations/'.$id.'/establishments', self::valueAt($organization, '_links', 'searchEstablishments', 'href'));
     }
 
     public function testTheDirectoryOutOfReachIsToTryAgainLater(): void
@@ -121,7 +124,7 @@ class EstablishmentsApiTest extends ApiTestCase
     {
         $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
         $organization = Organization::prospectedBy(new Gesture($prospector->accountId, $prospector->id, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)), new OrganizationId(self::newIdentity()), new LegalIdentity('ACME'), new ContactDetails());
-        self::getContainer()->get(OrganizationRepository::class)->save($organization);
+        self::service(OrganizationRepository::class)->save($organization);
 
         return $organization->id()->value;
     }
@@ -134,13 +137,13 @@ class EstablishmentsApiTest extends ApiTestCase
     {
         $prospector = new Prospector(new MemberId($this->memberIdOf('prospector-user')), $this->accountOfTheFixtures());
         $organization = Organization::prospectedBy(new Gesture($prospector->accountId, $prospector->id, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)), new OrganizationId(self::newIdentity()), new LegalIdentity($corporateName), new ContactDetails());
-        self::getContainer()->get(OrganizationRepository::class)->save($organization);
+        self::service(OrganizationRepository::class)->save($organization);
 
         return $organization->id()->value;
     }
 
     private function outsideServices(): OutsideServices
     {
-        return self::getContainer()->get(OutsideServices::class);
+        return self::service(OutsideServices::class);
     }
 }

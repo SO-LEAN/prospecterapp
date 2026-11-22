@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Api;
 
+use App\Shared\Typed;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Model\Role;
@@ -20,6 +21,7 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Base\ReadsResources;
 use Tests\App\Double\OutsideServices;
 
 /**
@@ -29,6 +31,8 @@ use Tests\App\Double\OutsideServices;
 #[Group('api')]
 class TagsApiTest extends ApiTestCase
 {
+    use ReadsResources;
+
     private const string ILLKIRCH = '67218';
     private const string NANTES = '44109';
 
@@ -45,15 +49,15 @@ class TagsApiTest extends ApiTestCase
         $tagged = $this->requestJson('POST', '/api/organizations/'.$organization.'/tags', ['tags' => ['#ESN', 'apporteur']]);
 
         $this->assertResponseStatusCodeSame(200);
-        $this->assertSame(['#APPORTEUR', '#ESN'], array_column($tagged['tags'], 'name'));
-        $this->assertSame(['href' => '/api/organizations/'.$organization.'/tags/ESN', 'method' => 'DELETE'], $tagged['tags'][1]['_links']['takeOff']);
-        $this->assertSame(['href' => '/api/organizations/'.$organization.'/tags', 'method' => 'POST'], $tagged['_links']['tag']);
+        $this->assertSame(['#APPORTEUR', '#ESN'], array_column(self::recordsAt($tagged, 'tags'), 'name'));
+        $this->assertSame(['href' => '/api/organizations/'.$organization.'/tags/ESN', 'method' => 'DELETE'], self::valueAt($tagged, 'tags', 1, '_links', 'takeOff'));
+        $this->assertSame(['href' => '/api/organizations/'.$organization.'/tags', 'method' => 'POST'], self::valueAt($tagged, '_links', 'tag'));
         $this->assertSame($tagged, $this->requestJson('GET', '/api/organizations/'.$organization.'/tags'));
 
         $takenOff = $this->requestJson('DELETE', '/api/organizations/'.$organization.'/tags/ESN');
 
         $this->assertResponseStatusCodeSame(200);
-        $this->assertSame(['#APPORTEUR'], array_column($takenOff['tags'], 'name'));
+        $this->assertSame(['#APPORTEUR'], array_column(self::recordsAt($takenOff, 'tags'), 'name'));
     }
 
     public function testAContactIsTagged(): void
@@ -63,8 +67,8 @@ class TagsApiTest extends ApiTestCase
         $tagged = $this->requestJson('POST', '/api/contacts/'.$ada.'/tags', ['tags' => ['#CLIENT']]);
 
         $this->assertResponseStatusCodeSame(200);
-        $this->assertSame(['#CLIENT'], array_column($tagged['tags'], 'name'));
-        $this->assertSame(['href' => '/api/contacts/'.$ada.'/tags/CLIENT', 'method' => 'DELETE'], $tagged['tags'][0]['_links']['takeOff']);
+        $this->assertSame(['#CLIENT'], array_column(self::recordsAt($tagged, 'tags'), 'name'));
+        $this->assertSame(['href' => '/api/contacts/'.$ada.'/tags/CLIENT', 'method' => 'DELETE'], self::valueAt($tagged, 'tags', 0, '_links', 'takeOff'));
         $this->assertSame($tagged, $this->requestJson('GET', '/api/contacts/'.$ada.'/tags'));
     }
 
@@ -77,7 +81,7 @@ class TagsApiTest extends ApiTestCase
         $tagged = $this->requestJson('POST', '/api/contacts/'.$ada.'/tags', ['tags' => ['#PHP']]);
 
         $this->assertResponseStatusCodeSame(200);
-        $this->assertSame(['#PHP'], array_column($tagged['tags'], 'name'));
+        $this->assertSame(['#PHP'], array_column(self::recordsAt($tagged, 'tags'), 'name'));
         $this->assertSame([['name' => '#ESN', 'from' => [$organization]]], $tagged['inherited']);
         $this->assertSame(['#EMAIL', '#LINKEDIN', '#PHONE', '#SMS'], $tagged['automatic']);
         $this->assertSame($tagged, $this->requestJson('GET', '/api/contacts/'.$ada.'/tags'));
@@ -96,8 +100,8 @@ class TagsApiTest extends ApiTestCase
         $ada = $this->aContactOf($organization, 'Ada', 'Lovelace');
 
         $this->assertSame(['#STRASBOURG', '#67', '#GRAND_EST'], $this->requestJson('GET', '/api/organizations/'.$organization.'/tags')['automatic']);
-        $this->assertContains(['name' => '#STRASBOURG', 'from' => [$organization]], $this->requestJson('GET', '/api/contacts/'.$ada.'/tags')['inherited']);
-        $this->assertSame(['#67', '#GRAND_EST', '#STRASBOURG'], array_values(array_intersect($this->requestJson('GET', '/api/tags')['automatic'], ['#67', '#GRAND_EST', '#STRASBOURG'])));
+        $this->assertContains(['name' => '#STRASBOURG', 'from' => [$organization]], self::arrayAt($this->requestJson('GET', '/api/contacts/'.$ada.'/tags'), 'inherited'));
+        $this->assertSame(['#67', '#GRAND_EST', '#STRASBOURG'], array_values(array_intersect(Typed::strings(self::valueAt($this->requestJson('GET', '/api/tags'), 'automatic')), ['#67', '#GRAND_EST', '#STRASBOURG'])));
     }
 
     public function testAnAddressAbroadGivesNoGeographicTag(): void
@@ -116,7 +120,7 @@ class TagsApiTest extends ApiTestCase
         $list = $this->requestJson('GET', '/api/contacts?q=Lovelace');
 
         $this->assertResponseStatusCodeSame(200);
-        $this->assertSame(['#EMAIL', '#ESN', '#LINKEDIN', '#PHONE', '#SMS'], array_find($list['items'], static fn (array $contact): bool => $contact['id'] === $ada)['tags'] ?? null);
+        $this->assertSame(['#EMAIL', '#ESN', '#LINKEDIN', '#PHONE', '#SMS'], array_find(self::recordsAt($list, 'items'), static fn (array $contact): bool => $contact['id'] === $ada)['tags'] ?? null);
     }
 
     public function testTheTagsOfAContactRequireAnAccessToken(): void
@@ -134,8 +138,8 @@ class TagsApiTest extends ApiTestCase
         $organization = $this->anOrganization('ACME');
         $ada = $this->aContactOf($organization, 'Ada', 'Lovelace');
 
-        $this->assertSame(['href' => '/api/organizations/'.$organization.'/tags', 'method' => 'GET'], $this->requestJson('GET', '/api/organizations/'.$organization)['_links']['tags']);
-        $this->assertSame(['href' => '/api/contacts/'.$ada.'/tags', 'method' => 'GET'], $this->requestJson('GET', '/api/contacts/'.$ada)['_links']['tags']);
+        $this->assertSame(['href' => '/api/organizations/'.$organization.'/tags', 'method' => 'GET'], self::valueAt($this->requestJson('GET', '/api/organizations/'.$organization), '_links', 'tags'));
+        $this->assertSame(['href' => '/api/contacts/'.$ada.'/tags', 'method' => 'GET'], self::valueAt($this->requestJson('GET', '/api/contacts/'.$ada), '_links', 'tags'));
     }
 
     public function testTheTagsProposedAreThePredefinedOnesThenThoseOfTheAccount(): void
@@ -146,8 +150,8 @@ class TagsApiTest extends ApiTestCase
         $proposed = $this->requestJson('GET', '/api/tags');
 
         $this->assertResponseStatusCodeSame(200);
-        $this->assertSame(['organizationType', 'relationship', 'technology'], array_column($proposed['families'], 'family'));
-        $this->assertContains('#ESN', $proposed['families'][0]['tags']);
+        $this->assertSame(['organizationType', 'relationship', 'technology'], array_column(self::recordsAt($proposed, 'families'), 'family'));
+        $this->assertContains('#ESN', self::arrayAt($proposed, 'families', 0, 'tags'));
         $this->assertSame(['#SALON_2026'], $proposed['own']);
     }
 
@@ -209,7 +213,7 @@ class TagsApiTest extends ApiTestCase
         $this->assertSame('unknownContact', $unknown['reason']);
 
         $ofAnotherAccount = Person::collect(new Gesture(new AccountId(self::newIdentity()), new MemberId(self::newIdentity()), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)), new PersonId(self::newIdentity()), Purpose::Prospecting, new ContactCard(new PersonName('Linus', 'Torvalds')));
-        self::getContainer()->get(PersonRepository::class)->save($ofAnotherAccount);
+        self::service(PersonRepository::class)->save($ofAnotherAccount);
         $theirs = $this->requestJson('GET', '/api/contacts/'.$ofAnotherAccount->id()->value.'/tags');
 
         $this->assertResponseStatusCodeSame(404);
@@ -271,7 +275,7 @@ class TagsApiTest extends ApiTestCase
         $this->requestJson('DELETE', '/api/organizations/'.$organization);
         $this->assertResponseStatusCodeSame(204);
 
-        $taggings = self::getContainer()->get(TaggingRepository::class);
+        $taggings = self::service(TaggingRepository::class);
         $this->assertNull($taggings->find($this->accountOfTheFixtures(), Holder::organization(new OrganizationId($organization))));
         $this->assertNull($taggings->find($this->accountOfTheFixtures(), Holder::contact(new PersonId($ada))));
         $this->assertSame([], $this->requestJson('GET', '/api/tags')['own']);
@@ -279,16 +283,16 @@ class TagsApiTest extends ApiTestCase
 
     private function aContactOf(string $organization, string $firstName, string $lastName): string
     {
-        return $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => $firstName, 'lastName' => $lastName], 'organizationIds' => [$organization]])['id'];
+        return self::stringAt($this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => $firstName, 'lastName' => $lastName], 'organizationIds' => [$organization]]), 'id');
     }
 
     private function aReachedContactOf(string $organization): string
     {
-        return $this->requestJson('POST', '/api/contacts', [
+        return self::stringAt($this->requestJson('POST', '/api/contacts', [
             'name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'],
             'contactDetails' => ['email' => 'ada@acme.test', 'phoneNumber' => '06 12 34 56 78', 'links' => ['https://www.linkedin.com/in/countess-of-lovelace']],
             'organizationIds' => [$organization],
-        ])['id'];
+        ]), 'id');
     }
 
     /**
@@ -298,13 +302,13 @@ class TagsApiTest extends ApiTestCase
      */
     private function anOrganizationTheGeocoderPlacesIn(string $municipalityCode, array $address): string
     {
-        self::getContainer()->get(OutsideServices::class)->geocoderPlaces(7.7337, 48.5297, $municipalityCode);
+        self::service(OutsideServices::class)->geocoderPlaces(7.7337, 48.5297, $municipalityCode);
 
-        return $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME'], 'address' => $address])['id'];
+        return self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME'], 'address' => $address]), 'id');
     }
 
     private function anOrganization(string $name): string
     {
-        return $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => $name]])['id'];
+        return self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => $name]]), 'id');
     }
 }

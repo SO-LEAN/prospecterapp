@@ -32,7 +32,7 @@ class TagToolsApiTest extends ApiTestCase
 
         $tags = $this->assertTheToolActsAsItsEndpoint('tag-contact', ['id' => $ada, 'tags' => ['#PHP']], 'POST', '/api/contacts/'.$ada.'/tags', ['tags' => ['#PHP']], self::PROSPECTORS);
 
-        $this->assertContains('#PHP', array_column($tags['tags'], 'name'));
+        $this->assertContains('#PHP', array_column(self::recordsAt($tags, 'tags'), 'name'));
     }
 
     public function testTheAiTakesATagOffAContactOnceItsMemberConfirmed(): void
@@ -41,7 +41,7 @@ class TagToolsApiTest extends ApiTestCase
 
         $tags = $this->assertTheToolActsAsItsEndpoint('untag-contact', ['id' => $ada, 'tag' => 'PHP'], 'DELETE', '/api/contacts/'.$ada.'/tags/PHP', null, ['prospector-user']);
 
-        $this->assertNotContains('#PHP', array_column($tags['tags'], 'name'));
+        $this->assertNotContains('#PHP', array_column(self::recordsAt($tags, 'tags'), 'name'));
         $this->assertTheToolAsksForAConfirmation('untag-contact');
     }
 
@@ -51,7 +51,7 @@ class TagToolsApiTest extends ApiTestCase
 
         $tags = $this->assertTheToolActsAsItsEndpoint('tag-organization', ['id' => $babbage, 'tags' => ['#ESN']], 'POST', '/api/organizations/'.$babbage.'/tags', ['tags' => ['#ESN']], self::PROSPECTORS);
 
-        $this->assertContains('#ESN', array_column($tags['tags'], 'name'));
+        $this->assertContains('#ESN', array_column(self::recordsAt($tags, 'tags'), 'name'));
     }
 
     public function testTheAiTakesATagOffAnOrganizationOnceItsMemberConfirmed(): void
@@ -61,7 +61,7 @@ class TagToolsApiTest extends ApiTestCase
 
         $tags = $this->assertTheToolActsAsItsEndpoint('untag-organization', ['id' => $babbage, 'tag' => 'ESN'], 'DELETE', '/api/organizations/'.$babbage.'/tags/ESN', null, ['prospector-user']);
 
-        $this->assertNotContains('#ESN', array_column($tags['tags'], 'name'));
+        $this->assertNotContains('#ESN', array_column(self::recordsAt($tags, 'tags'), 'name'));
         $this->assertTheToolAsksForAConfirmation('untag-organization');
     }
 
@@ -83,7 +83,7 @@ class TagToolsApiTest extends ApiTestCase
     {
         $this->login();
 
-        return $this->requestJson('GET', '/api/contacts?q=Lovelace')['items'][0]['id'];
+        return self::stringAt($this->requestJson('GET', '/api/contacts?q=Lovelace'), 'items', 0, 'id');
     }
 
     /**
@@ -93,6 +93,6 @@ class TagToolsApiTest extends ApiTestCase
     {
         $this->login();
 
-        return $this->requestJson('GET', '/api/organizations?q=Babbage')['items'][0]['id'];
+        return self::stringAt($this->requestJson('GET', '/api/organizations?q=Babbage'), 'items', 0, 'id');
     }
 }

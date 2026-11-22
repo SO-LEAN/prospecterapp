@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Base\ReadsResources;
 
 /**
  * The contacts carrying every tag chosen, their own, inherited and automatic alike, newest first and counted
@@ -16,6 +17,8 @@ use Tests\App\Base\ApiTestCase;
 #[Group('api')]
 class TaggedContactsApiTest extends ApiTestCase
 {
+    use ReadsResources;
+
     private string $organization;
     private string $ada;
     private string $grace;
@@ -24,7 +27,7 @@ class TaggedContactsApiTest extends ApiTestCase
     {
         parent::setUp();
         $this->login();
-        $this->organization = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];
+        $this->organization = self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']]), 'id');
         $this->requestJson('POST', '/api/organizations/'.$this->organization.'/tags', ['tags' => ['#CAMPAIGN_149']]);
         $this->ada = $this->aContact('Ada', 'Lovelace', ['email' => 'ada@acme.test']);
         $this->grace = $this->aContact('Grace', 'Hopper', []);
@@ -35,17 +38,17 @@ class TaggedContactsApiTest extends ApiTestCase
         $found = $this->requestJson('GET', '/api/tagged-contacts?tags=CAMPAIGN_149');
 
         $this->assertResponseStatusCodeSame(200);
-        $this->assertSame([$this->grace, $this->ada], array_column($found['items'], 'id'));
+        $this->assertSame([$this->grace, $this->ada], array_column(self::recordsAt($found, 'items'), 'id'));
         $this->assertSame(2, $found['found']);
-        $this->assertSame(['firstName' => 'Grace', 'lastName' => 'Hopper'], $found['items'][0]['name']);
-        $this->assertSame(['ACME'], array_column($found['items'][0]['organizations'], 'name'));
-        $this->assertSame(['#CAMPAIGN_149'], $found['items'][0]['tags']);
-        $this->assertSame(['href' => '/api/tagged-contacts?tags=CAMPAIGN_149', 'method' => 'GET'], $found['_links']['self']);
-        $this->assertArrayNotHasKey('next', $found['_links']);
+        $this->assertSame(['firstName' => 'Grace', 'lastName' => 'Hopper'], self::valueAt($found, 'items', 0, 'name'));
+        $this->assertSame(['ACME'], array_column(self::recordsAt($found, 'items', 0, 'organizations'), 'name'));
+        $this->assertSame(['#CAMPAIGN_149'], self::valueAt($found, 'items', 0, 'tags'));
+        $this->assertSame(['href' => '/api/tagged-contacts?tags=CAMPAIGN_149', 'method' => 'GET'], self::valueAt($found, '_links', 'self'));
+        $this->assertArrayNotHasKey('next', self::recordAt($found, '_links'));
 
         $both = $this->requestJson('GET', '/api/tagged-contacts?tags=CAMPAIGN_149,EMAIL');
 
-        $this->assertSame([$this->ada], array_column($both['items'], 'id'));
+        $this->assertSame([$this->ada], array_column(self::recordsAt($both, 'items'), 'id'));
         $this->assertSame(1, $both['found']);
     }
 
@@ -54,7 +57,7 @@ class TaggedContactsApiTest extends ApiTestCase
         $after = $this->requestJson('GET', '/api/tagged-contacts?tags=CAMPAIGN_149&after='.$this->grace);
 
         $this->assertResponseStatusCodeSame(200);
-        $this->assertSame([$this->ada], array_column($after['items'], 'id'));
+        $this->assertSame([$this->ada], array_column(self::recordsAt($after, 'items'), 'id'));
         $this->assertSame(2, $after['found']);
     }
 
@@ -62,7 +65,7 @@ class TaggedContactsApiTest extends ApiTestCase
     {
         $this->requestJson('DELETE', '/api/contacts/'.$this->ada);
 
-        $this->assertSame([$this->grace], array_column($this->requestJson('GET', '/api/tagged-contacts?tags=CAMPAIGN_149')['items'], 'id'));
+        $this->assertSame([$this->grace], array_column(self::recordsAt($this->requestJson('GET', '/api/tagged-contacts?tags=CAMPAIGN_149'), 'items'), 'id'));
     }
 
     #[DataProvider('refusedSelections')]
@@ -93,7 +96,7 @@ class TaggedContactsApiTest extends ApiTestCase
 
     public function testTheListOfTheContactsLeadsToTheSearchByTagsAndTheTagsProposedNameTheAutomaticOnes(): void
     {
-        $this->assertSame(['href' => '/api/tagged-contacts', 'method' => 'GET'], $this->requestJson('GET', '/api/contacts')['_links']['searchByTags']);
+        $this->assertSame(['href' => '/api/tagged-contacts', 'method' => 'GET'], self::valueAt($this->requestJson('GET', '/api/contacts'), '_links', 'searchByTags'));
         $this->assertSame(['#EMAIL', '#PHONE', '#SMS', '#LINKEDIN', '#68', '#COLMAR', '#GRAND_EST'], $this->requestJson('GET', '/api/tags')['automatic'], 'those of a reach, then those of where Babbage & Co is, in Colmar');
     }
 
@@ -111,9 +114,9 @@ class TaggedContactsApiTest extends ApiTestCase
         $found = $this->requestJson('GET', '/api/tagged-contacts?tags=CAMPAIGN_149,EMAIL');
 
         $this->assertResponseStatusCodeSame(200);
-        $this->assertSame(['firstName' => 'Ada', 'lastName' => 'Lovelace'], $found['items'][0]['name']);
-        $this->assertSame($masked, $found['items'][0]['masked']);
-        $this->assertSame($masked ? 'a***@***' : 'ada@acme.test', $found['items'][0]['contactDetails']['email']);
+        $this->assertSame(['firstName' => 'Ada', 'lastName' => 'Lovelace'], self::valueAt($found, 'items', 0, 'name'));
+        $this->assertSame($masked, self::valueAt($found, 'items', 0, 'masked'));
+        $this->assertSame($masked ? 'a***@***' : 'ada@acme.test', self::valueAt($found, 'items', 0, 'contactDetails', 'email'));
     }
 
     /**
@@ -149,6 +152,6 @@ class TaggedContactsApiTest extends ApiTestCase
      */
     private function aContact(string $firstName, string $lastName, array $contactDetails): string
     {
-        return $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => $firstName, 'lastName' => $lastName], 'contactDetails' => $contactDetails, 'organizationIds' => [$this->organization]])['id'];
+        return self::stringAt($this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => $firstName, 'lastName' => $lastName], 'contactDetails' => $contactDetails, 'organizationIds' => [$this->organization]]), 'id');
     }
 }

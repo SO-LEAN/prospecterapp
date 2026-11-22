@@ -7,6 +7,7 @@ namespace Tests\App\Api;
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Base\ReadsResources;
 use Tests\App\Double\InMemoryPrivateStorage;
 
 /**
@@ -16,6 +17,8 @@ use Tests\App\Double\InMemoryPrivateStorage;
 #[Group('api')]
 class AttachmentApiTest extends ApiTestCase
 {
+    use ReadsResources;
+
     private const int MEGABYTE = 1024 * 1024;
 
     protected function setUp(): void
@@ -42,23 +45,23 @@ class AttachmentApiTest extends ApiTestCase
         $detail = $this->attach($exchange, $this->sent(2048, 'application/pdf'), 'Cahier des charges.pdf');
 
         $this->assertResponseStatusCodeSame(201);
-        $attachment = $detail['attachments'][0];
+        $attachment = self::recordAt($detail, 'attachments', 0);
         $this->assertSame(['Cahier des charges.pdf', 2048, 'application/pdf'], [$attachment['name'], $attachment['size'], $attachment['mediaType']]);
-        $this->assertSame(['href' => '/api/exchanges/'.$exchange.'/attachments/'.$attachment['id'], 'method' => 'GET'], $attachment['_links']['download']);
-        $this->assertSame(['href' => '/api/exchanges/'.$exchange.'/attachments/'.$attachment['id'], 'method' => 'DELETE'], $attachment['_links']['removeAttachment']);
-        $this->assertSame(1, $this->requestJson('GET', '/api/contacts/'.$contact.'/exchanges')['items'][0]['attachmentCount']);
+        $this->assertSame(['href' => '/api/exchanges/'.$exchange.'/attachments/'.self::stringAt($attachment, 'id'), 'method' => 'GET'], self::valueAt($attachment, '_links', 'download'));
+        $this->assertSame(['href' => '/api/exchanges/'.$exchange.'/attachments/'.self::stringAt($attachment, 'id'), 'method' => 'DELETE'], self::valueAt($attachment, '_links', 'removeAttachment'));
+        $this->assertSame(1, self::valueAt($this->requestJson('GET', '/api/contacts/'.$contact.'/exchanges'), 'items', 0, 'attachmentCount'));
     }
 
     public function testAJoinedFileIsReadByALinkSignedForAMoment(): void
     {
         $exchange = $this->anExchangeWith($this->aContact());
-        $attachment = $this->attach($exchange, $this->sent(2048, 'application/pdf'), 'devis.pdf')['attachments'][0];
+        $attachment = self::recordAt($this->attach($exchange, $this->sent(2048, 'application/pdf'), 'devis.pdf'), 'attachments', 0);
 
-        $download = $this->requestJson('GET', $attachment['_links']['download']['href']);
+        $download = $this->requestJson('GET', self::stringAt($attachment, '_links', 'download', 'href'));
 
         $this->assertResponseIsSuccessful();
         $this->assertSame('devis.pdf', $download['name']);
-        $this->assertStringStartsWith('https://private.test/', $download['url']);
+        $this->assertStringStartsWith('https://private.test/', self::stringAt($download, 'url'));
     }
 
     public function testAFileOverTenMegabytesIsRefused(): void
@@ -81,14 +84,14 @@ class AttachmentApiTest extends ApiTestCase
     {
         $exchange = $this->anExchangeWith($this->aContact());
         $upload = $this->sent(2048, 'application/pdf');
-        $attachment = $this->attach($exchange, $upload, 'devis.pdf')['attachments'][0];
+        $attachment = self::recordAt($this->attach($exchange, $upload, 'devis.pdf'), 'attachments', 0);
 
-        $detail = $this->requestJson('DELETE', $attachment['_links']['removeAttachment']['href']);
+        $detail = $this->requestJson('DELETE', self::stringAt($attachment, '_links', 'removeAttachment', 'href'));
 
         $this->assertResponseIsSuccessful();
         $this->assertSame([], $detail['attachments']);
         $this->assertFalse($this->privateStorage()->holds($upload), 'removed from the storage');
-        $this->requestJson('GET', $attachment['_links']['download']['href']);
+        $this->requestJson('GET', self::stringAt($attachment, '_links', 'download', 'href'));
         $this->assertResponseStatusCodeSame(404);
     }
 
@@ -106,7 +109,7 @@ class AttachmentApiTest extends ApiTestCase
     public function testWithoutTheRightNoFileIsJoinedReadNorRemoved(): void
     {
         $exchange = $this->anExchangeWith($this->aContact());
-        $file = $this->attach($exchange, $this->sent(2048, 'application/pdf'), 'devis.pdf')['attachments'][0]['_links']['download']['href'];
+        $file = self::stringAt($this->attach($exchange, $this->sent(2048, 'application/pdf'), 'devis.pdf'), 'attachments', 0, '_links', 'download', 'href');
         $this->login($this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector));
 
         $this->attach($exchange, $this->sent(2048, 'application/pdf'), 'devis.pdf');
@@ -136,9 +139,9 @@ class AttachmentApiTest extends ApiTestCase
 
         $this->requestJson('DELETE', '/api/contacts/'.$contact);
 
-        $attachment = $this->requestJson('GET', '/api/exchanges/'.$exchange)['attachments'][0];
+        $attachment = self::recordAt($this->requestJson('GET', '/api/exchanges/'.$exchange), 'attachments', 0);
         $this->assertTrue($attachment['toRedact']);
-        $this->assertSame([], $this->requestJson('DELETE', $attachment['_links']['removeAttachment']['href'])['attachments']);
+        $this->assertSame([], self::valueAt($this->requestJson('DELETE', self::stringAt($attachment, '_links', 'removeAttachment', 'href')), 'attachments'));
     }
 
     /**
@@ -146,7 +149,7 @@ class AttachmentApiTest extends ApiTestCase
      */
     private function sent(int $size, string $mediaType): string
     {
-        $upload = $this->requestJson('POST', '/api/uploads')['upload'];
+        $upload = self::stringAt($this->requestJson('POST', '/api/uploads'), 'upload');
         $this->privateStorage()->send($upload, $size, $mediaType);
 
         return $upload;
@@ -162,18 +165,18 @@ class AttachmentApiTest extends ApiTestCase
 
     private function anExchangeWith(string $contact): string
     {
-        return $this->requestJson('POST', '/api/contacts/'.$contact.'/exchanges', ['channel' => 'email', 'direction' => 'inbound'])['items'][0]['id'];
+        return self::stringAt($this->requestJson('POST', '/api/contacts/'.$contact.'/exchanges', ['channel' => 'email', 'direction' => 'inbound']), 'items', 0, 'id');
     }
 
     private function aContact(): string
     {
-        $organization = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']])['id'];
+        $organization = self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']]), 'id');
 
-        return $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada'], 'organizationIds' => [$organization]])['id'];
+        return self::stringAt($this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada'], 'organizationIds' => [$organization]]), 'id');
     }
 
     private function privateStorage(): InMemoryPrivateStorage
     {
-        return self::getContainer()->get(InMemoryPrivateStorage::class);
+        return self::service(InMemoryPrivateStorage::class);
     }
 }

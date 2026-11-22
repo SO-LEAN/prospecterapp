@@ -19,11 +19,14 @@ use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Base\ReadsResources;
 use Tests\App\Double\InMemoryStorage;
 
 #[Group('api')]
 class OrganizationApiTest extends ApiTestCase
 {
+    use ReadsResources;
+
     private const array ACME = [
         'legalIdentity' => ['corporateName' => 'ACME', 'form' => 'SAS', 'type' => null],
         'contactDetails' => ['email' => 'contact@acme.test', 'phoneNumber' => null, 'language' => null, 'links' => [], 'website' => null],
@@ -41,18 +44,19 @@ class OrganizationApiTest extends ApiTestCase
         $started = $this->requestJson('POST', '/api/organizations', self::ACME);
 
         $this->assertResponseStatusCodeSame(201);
-        $this->assertResponseHeaderSame('Location', '/api/organizations/'.$started['id']);
-        $this->assertMatchesRegularExpression('/^[0-9a-f-]{36}$/', $started['id']);
+        $id = self::stringAt($started, 'id');
+        $this->assertResponseHeaderSame('Location', '/api/organizations/'.$id);
+        $this->assertMatchesRegularExpression('/^[0-9a-f-]{36}$/', $id);
         $this->assertSame('ACME SAS', $started['name']);
         $this->assertSame([...self::ACME['legalIdentity'], 'siret' => null], $started['legalIdentity']);
         $this->assertSame(self::ACME['contactDetails'], $started['contactDetails']);
         $this->assertSame(self::ACME['address'], $started['address']);
-        $this->assertSame($started, $this->requestJson('GET', '/api/organizations/'.$started['id']));
+        $this->assertSame($started, $this->requestJson('GET', '/api/organizations/'.$id));
     }
 
     public function testTheOrganizationKeepsWhenItWasCreatedAndLastChanged(): void
     {
-        $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+        $id = $this->started(self::ACME);
         $relocated = $this->requestJson('PATCH', '/api/organizations/'.$id.'/address', ['city' => 'Colmar']);
 
         $this->assertSame('2026-10-15T09:00:00+00:00', $relocated['createdAt']);
@@ -67,10 +71,10 @@ class OrganizationApiTest extends ApiTestCase
         $page = $this->requestJson('GET', '/api/organizations?q=acm');
 
         $this->assertResponseIsSuccessful();
-        $this->assertCount(1, $page['items']);
-        $this->assertSame('ACME SAS', $page['items'][0]['name']);
-        $this->assertSame('Paris', $page['items'][0]['city']);
-        $this->assertArrayNotHasKey('next', $page['_links']);
+        $this->assertCount(1, self::arrayAt($page, 'items'));
+        $this->assertSame('ACME SAS', self::valueAt($page, 'items', 0, 'name'));
+        $this->assertSame('Paris', self::valueAt($page, 'items', 0, 'city'));
+        $this->assertArrayNotHasKey('next', self::recordAt($page, '_links'));
     }
 
     public function testTheNextSliceIsReachedByTheLinkNext(): void
@@ -82,12 +86,12 @@ class OrganizationApiTest extends ApiTestCase
         }
 
         $slice = $this->requestJson('GET', '/api/organizations?q=prospect');
-        $names = array_column($slice['items'], 'name');
-        $this->assertArrayHasKey('next', $slice['_links']);
+        $names = array_column(self::recordsAt($slice, 'items'), 'name');
+        $this->assertArrayHasKey('next', self::recordAt($slice, '_links'));
 
-        while (isset($slice['_links']['next'])) {
-            $slice = $this->requestJson('GET', $slice['_links']['next']['href']);
-            $names = [...$names, ...array_column($slice['items'], 'name')];
+        while (array_key_exists('next', self::recordAt($slice, '_links'))) {
+            $slice = $this->requestJson('GET', self::stringAt($slice, '_links', 'next', 'href'));
+            $names = [...$names, ...array_column(self::recordsAt($slice, 'items'), 'name')];
         }
 
         $this->assertSame(array_reverse($created), $names);
@@ -95,17 +99,17 @@ class OrganizationApiTest extends ApiTestCase
 
     public function testEachIntentionChangesOnlyItsPart(): void
     {
-        $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+        $id = $this->started(self::ACME);
 
         $revised = $this->requestJson('PATCH', '/api/organizations/'.$id.'/legal-identity', ['corporateName' => 'ACME Corp', 'form' => 'SA', 'type' => null]);
         $this->assertResponseIsSuccessful();
-        $this->assertSame('ACME Corp', $revised['legalIdentity']['corporateName']);
+        $this->assertSame('ACME Corp', self::valueAt($revised, 'legalIdentity', 'corporateName'));
         $this->assertSame(self::ACME['contactDetails'], $revised['contactDetails']);
 
         $contacted = $this->requestJson('PATCH', '/api/organizations/'.$id.'/contact-details', ['email' => 'hello@acme.test', 'phoneNumber' => '0388000000', 'language' => 'FR']);
-        $this->assertSame('hello@acme.test', $contacted['contactDetails']['email']);
-        $this->assertSame('+33 3 88 00 00 00', $contacted['contactDetails']['phoneNumber']);
-        $this->assertSame('ACME Corp', $contacted['legalIdentity']['corporateName']);
+        $this->assertSame('hello@acme.test', self::valueAt($contacted, 'contactDetails', 'email'));
+        $this->assertSame('+33 3 88 00 00 00', self::valueAt($contacted, 'contactDetails', 'phoneNumber'));
+        $this->assertSame('ACME Corp', self::valueAt($contacted, 'legalIdentity', 'corporateName'));
 
         $relocated = $this->requestJson('PATCH', '/api/organizations/'.$id.'/address', []);
         $this->assertNull($relocated['address']);
@@ -116,12 +120,12 @@ class OrganizationApiTest extends ApiTestCase
 
     public function testTheSiretIsNotedWithTheLegalIdentity(): void
     {
-        $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+        $id = $this->started(self::ACME);
 
         $revised = $this->requestJson('PATCH', '/api/organizations/'.$id.'/legal-identity', ['corporateName' => 'ACME', 'form' => 'SAS', 'type' => null, 'siret' => '552 100 554 00013']);
 
         $this->assertResponseIsSuccessful();
-        $this->assertSame('55210055400013', $revised['legalIdentity']['siret']);
+        $this->assertSame('55210055400013', self::valueAt($revised, 'legalIdentity', 'siret'));
     }
 
     /**
@@ -130,9 +134,9 @@ class OrganizationApiTest extends ApiTestCase
     #[DataProvider('everyProspector')]
     public function testEveryProspectorNotesASiretWithOrWithoutTheRight(string $member, array $roles): void
     {
-        $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+        $id = $this->started(self::ACME);
         $this->login($this->aMemberOfTheFixtures($member, ...$roles));
-        $this->assertArrayHasKey('reviseLegalIdentity', $this->requestJson('GET', '/api/organizations/'.$id)['_links']);
+        $this->assertArrayHasKey('reviseLegalIdentity', $this->linksOf($id));
 
         $this->requestJson('PATCH', '/api/organizations/'.$id.'/legal-identity', ['corporateName' => 'ACME', 'siret' => '55210055400013']);
 
@@ -150,7 +154,7 @@ class OrganizationApiTest extends ApiTestCase
 
     public function testAnInvalidSiretIsRefusedOnItsField(): void
     {
-        $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+        $id = $this->started(self::ACME);
 
         $problem = $this->requestJson('PATCH', '/api/organizations/'.$id.'/legal-identity', ['corporateName' => 'ACME', 'siret' => '55210055400014']);
 
@@ -160,41 +164,41 @@ class OrganizationApiTest extends ApiTestCase
 
     public function testASiretOfAnotherOrganizationOfTheAccountIsRefusedNamingIt(): void
     {
-        $globex = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'Globex']])['id'];
+        $globex = $this->started(['legalIdentity' => ['corporateName' => 'Globex']]);
         $this->requestJson('PATCH', '/api/organizations/'.$globex.'/legal-identity', ['corporateName' => 'Globex', 'siret' => '55210055400013']);
-        $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+        $id = $this->started(self::ACME);
 
         $problem = $this->requestJson('PATCH', '/api/organizations/'.$id.'/legal-identity', ['corporateName' => 'ACME', 'siret' => '55210055400013']);
 
         $this->assertResponseStatusCodeSame(422);
-        $this->assertSame([['siret'], 'siretAlreadyUsed', ['organization' => 'Globex']], [$this->violatedFields($problem), $problem['reason'], $problem['violations'][0]['context']]);
+        $this->assertSame([['siret'], 'siretAlreadyUsed', ['organization' => 'Globex']], [$this->violatedFields($problem), $problem['reason'], self::valueAt($problem, 'violations', 0, 'context')]);
     }
 
     public function testTheLinksAndTheWebsiteAreNotedWithTheContactDetails(): void
     {
-        $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+        $id = $this->started(self::ACME);
 
         $changed = $this->requestJson('PATCH', '/api/organizations/'.$id.'/contact-details', ['links' => ['HTTPS://www.Welcometothejungle.com/fr/companies/ACME/jobs'], 'website' => 'HTTPS://www.Acme.fr/contact']);
 
         $this->assertResponseIsSuccessful();
-        $this->assertSame([[['source' => 'welcomeToTheJungle', 'identifier' => 'acme', 'address' => 'HTTPS://www.Welcometothejungle.com/fr/companies/ACME/jobs']], 'https://www.acme.fr'], [$changed['contactDetails']['links'], $changed['contactDetails']['website']]);
+        $this->assertSame([[['source' => 'welcomeToTheJungle', 'identifier' => 'acme', 'address' => 'HTTPS://www.Welcometothejungle.com/fr/companies/ACME/jobs']], 'https://www.acme.fr'], [self::valueAt($changed, 'contactDetails', 'links'), self::valueAt($changed, 'contactDetails', 'website')]);
     }
 
     public function testALinkOfAnotherOrganizationOfTheAccountIsRefusedNamingIt(): void
     {
-        $globex = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'Globex']])['id'];
+        $globex = $this->started(['legalIdentity' => ['corporateName' => 'Globex']]);
         $this->requestJson('PATCH', '/api/organizations/'.$globex.'/contact-details', ['links' => ['linkedin.com/company/acme-corp']]);
-        $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+        $id = $this->started(self::ACME);
 
         $problem = $this->requestJson('PATCH', '/api/organizations/'.$id.'/contact-details', ['links' => ['https://www.linkedin.com/company/ACME-Corp/']]);
 
         $this->assertResponseStatusCodeSame(422);
-        $this->assertSame([['links'], 'referenceAlreadyUsed', ['holder' => 'Globex']], [$this->violatedFields($problem), $problem['reason'], $problem['violations'][0]['context']]);
+        $this->assertSame([['links'], 'referenceAlreadyUsed', ['holder' => 'Globex']], [$this->violatedFields($problem), $problem['reason'], self::valueAt($problem, 'violations', 0, 'context')]);
     }
 
     public function testMoreThanFiveLinksAreRefusedOnTheirField(): void
     {
-        $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+        $id = $this->started(self::ACME);
 
         $problem = $this->requestJson('PATCH', '/api/organizations/'.$id.'/contact-details', ['links' => array_map(static fn (int $site): string => sprintf('https://site%d.test/acme', $site), range(1, 6))]);
 
@@ -204,14 +208,14 @@ class OrganizationApiTest extends ApiTestCase
 
     public function testAWebsiteOfTheDomainOfAnotherOrganizationOfTheAccountIsRefusedNamingIt(): void
     {
-        $globex = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'Globex']])['id'];
+        $globex = $this->started(['legalIdentity' => ['corporateName' => 'Globex']]);
         $this->requestJson('PATCH', '/api/organizations/'.$globex.'/contact-details', ['website' => 'https://www.acme.fr']);
-        $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+        $id = $this->started(self::ACME);
 
         $problem = $this->requestJson('PATCH', '/api/organizations/'.$id.'/contact-details', ['website' => 'https://acme.fr/blog']);
 
         $this->assertResponseStatusCodeSame(422);
-        $this->assertSame([['website'], 'websiteAlreadyUsed', ['organization' => 'Globex']], [$this->violatedFields($problem), $problem['reason'], $problem['violations'][0]['context']]);
+        $this->assertSame([['website'], 'websiteAlreadyUsed', ['organization' => 'Globex']], [$this->violatedFields($problem), $problem['reason'], self::valueAt($problem, 'violations', 0, 'context')]);
     }
 
     /**
@@ -220,9 +224,9 @@ class OrganizationApiTest extends ApiTestCase
     #[DataProvider('everyProspector')]
     public function testEveryProspectorNotesALinkAndAWebsiteWithOrWithoutTheRight(string $member, array $roles): void
     {
-        $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+        $id = $this->started(self::ACME);
         $this->login($this->aMemberOfTheFixtures($member, ...$roles));
-        $this->assertArrayHasKey('changeContactDetails', $this->requestJson('GET', '/api/organizations/'.$id)['_links']);
+        $this->assertArrayHasKey('changeContactDetails', $this->linksOf($id));
 
         $this->requestJson('PATCH', '/api/organizations/'.$id.'/contact-details', ['links' => ['linkedin.com/company/acme-corp'], 'website' => 'acme.fr']);
 
@@ -240,7 +244,7 @@ class OrganizationApiTest extends ApiTestCase
         $started = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME'], 'contactDetails' => ['links' => ['linkedin.com/company/acme-corp'], 'website' => 'acme.fr']]);
 
         $this->assertResponseStatusCodeSame(201);
-        $this->assertSame([[['source' => 'linkedInCompany', 'identifier' => 'acme-corp', 'address' => 'https://linkedin.com/company/acme-corp']], 'https://acme.fr'], [$started['contactDetails']['links'], $started['contactDetails']['website']]);
+        $this->assertSame([[['source' => 'linkedInCompany', 'identifier' => 'acme-corp', 'address' => 'https://linkedin.com/company/acme-corp']], 'https://acme.fr'], [self::valueAt($started, 'contactDetails', 'links'), self::valueAt($started, 'contactDetails', 'website')]);
     }
 
     public function testAnOrganizationStartedWithTheLinkOfAnotherIsRefusedNamingIt(): void
@@ -250,22 +254,22 @@ class OrganizationApiTest extends ApiTestCase
         $problem = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME'], 'contactDetails' => ['links' => ['linkedin.com/company/acme-corp']]]);
 
         $this->assertResponseStatusCodeSame(422);
-        $this->assertSame([['links'], 'referenceAlreadyUsed', ['holder' => 'Globex']], [$this->violatedFields($problem), $problem['reason'], $problem['violations'][0]['context']]);
+        $this->assertSame([['links'], 'referenceAlreadyUsed', ['holder' => 'Globex']], [$this->violatedFields($problem), $problem['reason'], self::valueAt($problem, 'violations', 0, 'context')]);
     }
 
     public function testAPageOfAPersonIsRefusedOnTheLinks(): void
     {
-        $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+        $id = $this->started(self::ACME);
 
         $problem = $this->requestJson('PATCH', '/api/organizations/'.$id.'/contact-details', ['links' => ['https://www.malt.fr/profile/adalovelace']]);
 
         $this->assertResponseStatusCodeSame(422);
-        $this->assertSame([['links'], 'referenceOfAnotherKind', ['source' => 'malt', 'designates' => 'person']], [$this->violatedFields($problem), $problem['reason'], $problem['violations'][0]['context']]);
+        $this->assertSame([['links'], 'referenceOfAnotherKind', ['source' => 'malt', 'designates' => 'person']], [$this->violatedFields($problem), $problem['reason'], self::valueAt($problem, 'violations', 0, 'context')]);
     }
 
     public function testWhatIsNoAddressIsRefusedOnTheLinks(): void
     {
-        $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+        $id = $this->started(self::ACME);
 
         $problem = $this->requestJson('PATCH', '/api/organizations/'.$id.'/contact-details', ['links' => ['ACME sur LinkedIn']]);
 
@@ -275,17 +279,17 @@ class OrganizationApiTest extends ApiTestCase
 
     public function testAPageOfAKnownSourceItDoesNotRecognizeIsRefusedOnTheLinks(): void
     {
-        $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+        $id = $this->started(self::ACME);
 
         $problem = $this->requestJson('PATCH', '/api/organizations/'.$id.'/contact-details', ['links' => ['https://www.linkedin.com/school/acme']]);
 
         $this->assertResponseStatusCodeSame(422);
-        $this->assertSame([['links'], 'unrecognizedPage', ['host' => 'linkedin.com']], [$this->violatedFields($problem), $problem['reason'], $problem['violations'][0]['context']]);
+        $this->assertSame([['links'], 'unrecognizedPage', ['host' => 'linkedin.com']], [$this->violatedFields($problem), $problem['reason'], self::valueAt($problem, 'violations', 0, 'context')]);
     }
 
     public function testAnAddressThatIsNoSiteIsRefusedOnItsField(): void
     {
-        $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+        $id = $this->started(self::ACME);
 
         $problem = $this->requestJson('PATCH', '/api/organizations/'.$id.'/contact-details', ['website' => 'acme']);
 
@@ -295,7 +299,7 @@ class OrganizationApiTest extends ApiTestCase
 
     public function testAnOrganizationResemblingAnotherNamesItsPossibleDuplicate(): void
     {
-        $acme = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+        $acme = $this->started(self::ACME);
 
         $duplicate = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME s.a.s'], 'address' => ['city' => 'Paris']]);
 
@@ -304,29 +308,29 @@ class OrganizationApiTest extends ApiTestCase
             'name' => 'ACME SAS',
             '_links' => [
                 'self' => ['href' => '/api/organizations/'.$acme, 'method' => 'GET'],
-                'dismiss' => ['href' => '/api/organizations/'.$duplicate['id'].'/possible-duplicates/'.$acme, 'method' => 'DELETE'],
+                'dismiss' => ['href' => '/api/organizations/'.self::stringAt($duplicate, 'id').'/possible-duplicates/'.$acme, 'method' => 'DELETE'],
             ],
         ]], $duplicate['possibleDuplicates']);
     }
 
     public function testTheListNamesThePossibleDuplicateOfAnOrganization(): void
     {
-        $acme = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+        $acme = $this->started(self::ACME);
         $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME s.a.s'], 'address' => ['city' => 'Paris']]);
 
-        $found = $this->requestJson('GET', '/api/organizations?q='.urlencode('ACME s.a.s'))['items'];
+        $found = $this->requestJson('GET', '/api/organizations?q='.urlencode('ACME s.a.s'));
 
         $this->assertSame([[
             'id' => $acme,
             'name' => 'ACME SAS',
             '_links' => ['self' => ['href' => '/api/organizations/'.$acme, 'method' => 'GET']],
-        ]], $found[0]['possibleDuplicates']);
+        ]], self::valueAt($found, 'items', 0, 'possibleDuplicates'));
     }
 
     public function testAProspectorSaysAPossibleDuplicateIsNone(): void
     {
-        $acme = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
-        $duplicate = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME s.a.s'], 'address' => ['city' => 'Paris']])['id'];
+        $acme = $this->started(self::ACME);
+        $duplicate = $this->started(['legalIdentity' => ['corporateName' => 'ACME s.a.s'], 'address' => ['city' => 'Paris']]);
 
         $dismissed = $this->requestJson('DELETE', '/api/organizations/'.$duplicate.'/possible-duplicates/'.$acme);
 
@@ -340,10 +344,10 @@ class OrganizationApiTest extends ApiTestCase
     #[DataProvider('everyProspector')]
     public function testEveryProspectorSaysAPossibleDuplicateIsNoneWithOrWithoutTheRight(string $member, array $roles): void
     {
-        $acme = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
-        $duplicate = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME s.a.s'], 'address' => ['city' => 'Paris']])['id'];
+        $acme = $this->started(self::ACME);
+        $duplicate = $this->started(['legalIdentity' => ['corporateName' => 'ACME s.a.s'], 'address' => ['city' => 'Paris']]);
         $this->login($this->aMemberOfTheFixtures($member, ...$roles));
-        $this->assertArrayHasKey('dismiss', $this->requestJson('GET', '/api/organizations/'.$duplicate)['possibleDuplicates'][0]['_links']);
+        $this->assertArrayHasKey('dismiss', self::recordAt($this->requestJson('GET', '/api/organizations/'.$duplicate), 'possibleDuplicates', 0, '_links'));
 
         $this->requestJson('DELETE', '/api/organizations/'.$duplicate.'/possible-duplicates/'.$acme);
 
@@ -352,8 +356,8 @@ class OrganizationApiTest extends ApiTestCase
 
     public function testAPossibleDuplicateDismissedMeanwhileIsAConflict(): void
     {
-        $acme = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
-        $globex = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'Globex'], 'address' => ['city' => 'Paris']])['id'];
+        $acme = $this->started(self::ACME);
+        $globex = $this->started(['legalIdentity' => ['corporateName' => 'Globex'], 'address' => ['city' => 'Paris']]);
 
         $problem = $this->requestJson('DELETE', '/api/organizations/'.$globex.'/possible-duplicates/'.$acme);
 
@@ -363,8 +367,8 @@ class OrganizationApiTest extends ApiTestCase
 
     public function testAttachToAndDetachFromAHolding(): void
     {
-        $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
-        $holdingId = $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'Group']])['id'];
+        $id = $this->started(self::ACME);
+        $holdingId = $this->started(['legalIdentity' => ['corporateName' => 'Group']]);
 
         $this->assertSame($holdingId, $this->requestJson('PATCH', '/api/organizations/'.$id.'/holding', ['holdingId' => $holdingId])['holdingId']);
         $this->assertNull($this->requestJson('DELETE', '/api/organizations/'.$id.'/holding')['holdingId']);
@@ -372,36 +376,38 @@ class OrganizationApiTest extends ApiTestCase
 
     public function testChangeAndRemoveTheLogo(): void
     {
-        $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+        $id = $this->started(self::ACME);
 
         $withLogo = $this->uploadImage('/api/organizations/'.$id.'/logo');
 
         $this->assertResponseIsSuccessful();
-        $this->assertStringEndsWith('.png', $withLogo['logo']['url']);
-        $this->assertTrue($this->storage()->has($withLogo['logo']['url']), 'sent to the storage');
+        $logo = self::stringAt($withLogo, 'logo', 'url');
+        $this->assertStringEndsWith('.png', $logo);
+        $this->assertTrue($this->storage()->has($logo), 'sent to the storage');
 
         $this->assertNull($this->requestJson('DELETE', '/api/organizations/'.$id.'/logo')['logo']);
-        $this->assertFalse($this->storage()->has($withLogo['logo']['url']), 'removed from the storage');
+        $this->assertFalse($this->storage()->has($logo), 'removed from the storage');
     }
 
     public function testTheLinksOfferWhatTheStateOfTheOrganizationAllows(): void
     {
         $started = $this->requestJson('POST', '/api/organizations', self::ACME);
-        $id = $started['id'];
+        $id = self::stringAt($started, 'id');
+        $links = self::recordAt($started, '_links');
 
-        $this->assertSame(['href' => '/api/organizations/'.$id, 'method' => 'GET'], $started['_links']['self']);
-        $this->assertSame(['href' => '/api/organizations/'.$id.'/address', 'method' => 'PATCH'], $started['_links']['relocate']);
-        $this->assertSame(['href' => '/api/organizations/'.$id.'/logo', 'method' => 'POST'], $started['_links']['changeLogo']);
-        $this->assertArrayNotHasKey('removeLogo', $started['_links'], 'no logo to remove');
-        $this->assertArrayNotHasKey('detachFromHolding', $started['_links'], 'no holding to detach from');
+        $this->assertSame(['href' => '/api/organizations/'.$id, 'method' => 'GET'], $links['self']);
+        $this->assertSame(['href' => '/api/organizations/'.$id.'/address', 'method' => 'PATCH'], $links['relocate']);
+        $this->assertSame(['href' => '/api/organizations/'.$id.'/logo', 'method' => 'POST'], $links['changeLogo']);
+        $this->assertArrayNotHasKey('removeLogo', $links, 'no logo to remove');
+        $this->assertArrayNotHasKey('detachFromHolding', $links, 'no holding to detach from');
 
         $withLogo = $this->uploadImage('/api/organizations/'.$id.'/logo');
-        $this->assertSame(['href' => '/api/organizations/'.$id.'/logo', 'method' => 'DELETE'], $withLogo['_links']['removeLogo']);
+        $this->assertSame(['href' => '/api/organizations/'.$id.'/logo', 'method' => 'DELETE'], self::valueAt($withLogo, '_links', 'removeLogo'));
     }
 
     public function testAnIntentionWithoutItsLinkIsAConflict(): void
     {
-        $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+        $id = $this->started(self::ACME);
 
         foreach ([['DELETE', '/logo', 'logo'], ['DELETE', '/holding', 'holdingId']] as [$method, $path, $field]) {
             $problem = $this->requestJson($method, '/api/organizations/'.$id.$path);
@@ -431,7 +437,7 @@ class OrganizationApiTest extends ApiTestCase
 
     public function testUnknownFieldsAreRejectedInsteadOfIgnored(): void
     {
-        $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+        $id = $this->started(self::ACME);
 
         $problem = $this->requestJson('PATCH', '/api/organizations/'.$id.'/address', ['street' => '2 rue de la Paix', 'town' => 'Paris']);
 
@@ -451,7 +457,7 @@ class OrganizationApiTest extends ApiTestCase
     public function testAnOrganizationOfAnotherOrganizationIsNotFoundForEveryIntention(): void
     {
         $id = $this->anOrganizationOfAnotherOrganization();
-        $mine = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+        $mine = $this->started(self::ACME);
         $intentions = [
             ['GET', '', null], ['PATCH', '/legal-identity', []], ['PATCH', '/contact-details', []], ['PATCH', '/address', []],
             ['PATCH', '/observations', []], ['PATCH', '/holding', ['holdingId' => $mine]], ['DELETE', '/holding', null], ['DELETE', '/logo', null],
@@ -482,7 +488,7 @@ class OrganizationApiTest extends ApiTestCase
 
     public function testAHoldingOfAnotherOrganizationIsNotFound(): void
     {
-        $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+        $id = $this->started(self::ACME);
 
         $this->requestJson('PATCH', '/api/organizations/'.$id.'/holding', ['holdingId' => $this->anOrganizationOfAnotherOrganization()]);
 
@@ -491,11 +497,11 @@ class OrganizationApiTest extends ApiTestCase
 
     public function testWithoutTheRightTheContactsAreNotManaged(): void
     {
-        $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
-        $contact = $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada'], 'organizationIds' => [$id]])['id'];
+        $id = $this->started(self::ACME);
+        $contact = self::stringAt($this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada'], 'organizationIds' => [$id]]), 'id');
         $this->login($this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector));
 
-        $links = $this->requestJson('GET', '/api/organizations/'.$id)['_links'];
+        $links = $this->linksOf($id);
         $this->assertSame([], array_values(array_intersect(['addContact', 'stopProspecting', 'noteExchange', 'toDos'], array_keys($links))));
         $this->assertArrayHasKey('exchanges', $links, 'its timeline is read without the right');
 
@@ -507,11 +513,11 @@ class OrganizationApiTest extends ApiTestCase
 
     public function testAnAdministratorManagesThePersonalDataWithoutTheirRole(): void
     {
-        $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
-        $contact = $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada'], 'organizationIds' => [$id]])['id'];
+        $id = $this->started(self::ACME);
+        $contact = self::stringAt($this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada'], 'organizationIds' => [$id]]), 'id');
         $this->login($this->aMemberOfTheFixtures('administrator', Role::Prospector, Role::Admin));
 
-        $links = $this->requestJson('GET', '/api/organizations/'.$id)['_links'];
+        $links = $this->linksOf($id);
         $this->assertSame(['addContact', 'stopProspecting', 'noteExchange', 'toDos'], array_values(array_intersect(['addContact', 'stopProspecting', 'noteExchange', 'toDos'], array_keys($links))));
 
         $this->requestJson('POST', '/api/organizations/'.$id.'/exchanges', ['exchange' => ['channel' => 'call', 'direction' => 'inbound'], 'personId' => $contact]);
@@ -524,10 +530,10 @@ class OrganizationApiTest extends ApiTestCase
 
     public function testWithoutTheRightAnOrganizationWithoutContactsIsStillLeft(): void
     {
-        $id = $this->requestJson('POST', '/api/organizations', self::ACME)['id'];
+        $id = $this->started(self::ACME);
         $this->login($this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector));
 
-        $this->assertArrayHasKey('stopProspecting', $this->requestJson('GET', '/api/organizations/'.$id)['_links']);
+        $this->assertArrayHasKey('stopProspecting', $this->linksOf($id));
         $this->requestJson('DELETE', '/api/organizations/'.$id);
         $this->assertResponseStatusCodeSame(204);
     }
@@ -550,8 +556,8 @@ class OrganizationApiTest extends ApiTestCase
 
     private function anOrganizationOfAnotherOrganization(): string
     {
-        $accounts = self::getContainer()->get(AccountRepository::class);
-        $organizations = self::getContainer()->get(OrganizationRepository::class);
+        $accounts = self::service(AccountRepository::class);
+        $organizations = self::service(OrganizationRepository::class);
         $competitor = Account::open(new AccountId(self::newIdentity()), new LegalIdentity('Competitor'), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         $accounts->save($competitor);
         $theirProspector = new Prospector(new MemberId(self::newIdentity()), $competitor->id());
@@ -568,6 +574,22 @@ class OrganizationApiTest extends ApiTestCase
 
     private function storage(): InMemoryStorage
     {
-        return self::getContainer()->get(InMemoryStorage::class);
+        return self::service(InMemoryStorage::class);
+    }
+
+    /**
+     * @param array<string, mixed> $organization
+     */
+    private function started(array $organization): string
+    {
+        return self::stringAt($this->requestJson('POST', '/api/organizations', $organization), 'id');
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function linksOf(string $organization): array
+    {
+        return self::recordAt($this->requestJson('GET', '/api/organizations/'.$organization), '_links');
     }
 }
