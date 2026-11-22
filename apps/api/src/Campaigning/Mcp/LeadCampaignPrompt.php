@@ -18,7 +18,7 @@ final readonly class LeadCampaignPrompt
         1. Find it with `list-campaigns`: it must be started.
         2. Ask for its next recipient with `get-next-recipient`: how to reach them, the message rendered for them, and its instruction.
         3. Send the message yourself on its channel: from my mailbox for an e-mail (Claude's Gmail connector), from my LinkedIn for a LinkedIn message (Claude's Chrome extension). Follow its instruction. As is: send it without changing a word. Adapted: you may rewrite it for this person, from their profile and our past exchanges, but always keep the message's idea.
-        4. Log what you sent with `log-sent-message`: the text you actually sent, and the e-mail's Message-ID or the LinkedIn conversation. If it is already logged (my mailbox import may have logged it before you), go on.
+        4. Log what you sent with `log-sent-message`: the text you actually sent, and the e-mail's Message-ID or the LinkedIn conversation. Logged first by my mailbox import, it joins the campaign; already logged for the campaign, go on.
         5. A recipient you cannot reach (no address, a LinkedIn profile that is gone): once I confirm, dismiss them with `dismiss-campaign-recipient` and say why.
         6. Never send a second message to a recipient: when `get-next-recipient` gives you a recipient you already wrote to, stop and tell me who.
         7. Go back to step 2 until `get-next-recipient` answers that the campaign is no longer running (`campaignNotRunning`), or until I tell you to stop. End with a report: sent, dismissed.
