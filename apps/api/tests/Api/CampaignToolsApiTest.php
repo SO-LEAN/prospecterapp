@@ -97,6 +97,15 @@ class CampaignToolsApiTest extends ApiTestCase
         $this->assertTheToolAsksForAConfirmation('stop-campaign');
     }
 
+    public function testTheAiSetsTheDailyCapOfAStartedCampaign(): void
+    {
+        $started = $this->aStartedCampaign();
+
+        $campaign = $this->assertTheToolActsAsItsEndpoint('set-campaign-daily-cap', ['id' => $started, 'dailyCap' => 2], 'PUT', '/api/campaigns/'.$started.'/daily-cap', ['dailyCap' => 2], self::TEAM_WRITERS);
+
+        $this->assertSame(2, $campaign['dailyCap']);
+    }
+
     public function testTheAiAddsAContactChosenToAFrozenCampaign(): void
     {
         $frozen = $this->aFrozenCampaign();

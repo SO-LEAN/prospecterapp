@@ -1563,6 +1563,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/campaigns/{id}/daily-cap": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Set the daily cap of a campaign, or take it off, until it is stopped or ended */
+        put: operations["put_api_campaigns_set_daily_cap"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/campaigns/{id}/start": {
         parameters: {
             query?: never;
@@ -2293,6 +2310,13 @@ export interface components {
             messageMode: "asIs" | "adapted" | null;
             /**
              * @description The most recipients processed a day, a guard only; none when left out. Read as it is prepared: it changes then by its own endpoint
+             * @default null
+             */
+            dailyCap: number | null;
+        };
+        DailyCapInput: {
+            /**
+             * @description The most recipients processed a day, a guard an AI stops at and the member may go beyond; none takes the cap off
              * @default null
              */
             dailyCap: number | null;
@@ -3355,6 +3379,7 @@ export interface components {
             addRecipientsByTags?: components["schemas"]["LinkResource"];
             start?: components["schemas"]["LinkResource"];
             stop?: components["schemas"]["LinkResource"];
+            setDailyCap?: components["schemas"]["LinkResource"];
             target?: components["schemas"]["LinkResource"];
             recipients?: components["schemas"]["LinkResource"];
         };
@@ -9849,6 +9874,75 @@ export interface operations {
             };
             /** @description Unknown campaign or contact, or one of another account */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+        };
+    };
+    put_api_campaigns_set_daily_cap: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DailyCapInput"];
+            };
+        };
+        responses: {
+            /** @description The campaign with its daily cap */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CampaignResource"];
+                };
+            };
+            /** @description Missing or invalid access token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a prospector, or no right to manage personal data */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Unknown campaign, or one of another account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description Stopped or ended */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResource"];
+                };
+            };
+            /** @description A cap below one send */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };

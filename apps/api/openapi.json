@@ -7591,6 +7591,91 @@
                 }
             }
         },
+        "/api/campaigns/{id}/daily-cap": {
+            "put": {
+                "tags": [
+                    "Campaigns"
+                ],
+                "summary": "Set the daily cap of a campaign, or take it off, until it is stopped or ended",
+                "operationId": "put_api_campaigns_set_daily_cap",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[13-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DailyCapInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The campaign with its daily cap",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CampaignResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid access token"
+                    },
+                    "403": {
+                        "description": "Not a prospector, or no right to manage personal data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown campaign, or one of another account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Stopped or ended",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "A cap below one send",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/campaigns/{id}/start": {
             "post": {
                 "tags": [
@@ -9172,6 +9257,17 @@
                     },
                     "dailyCap": {
                         "description": "The most recipients processed a day, a guard only; none when left out. Read as it is prepared: it changes then by its own endpoint",
+                        "type": "integer",
+                        "nullable": true,
+                        "default": null
+                    }
+                },
+                "type": "object"
+            },
+            "DailyCapInput": {
+                "properties": {
+                    "dailyCap": {
+                        "description": "The most recipients processed a day, a guard an AI stops at and the member may go beyond; none takes the cap off",
                         "type": "integer",
                         "nullable": true,
                         "default": null
@@ -12258,6 +12354,9 @@
                         "$ref": "#/components/schemas/LinkResource"
                     },
                     "stop": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
+                    "setDailyCap": {
                         "$ref": "#/components/schemas/LinkResource"
                     },
                     "target": {

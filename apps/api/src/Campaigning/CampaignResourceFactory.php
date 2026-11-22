@@ -33,6 +33,7 @@ final readonly class CampaignResourceFactory
         'addRecipientsByTags' => ['intent' => 'AddRecipients', 'route' => 'api_campaigns_add_recipients_by_tags'],
         'start' => ['intent' => 'StartCampaign', 'route' => 'api_campaigns_start'],
         'stop' => ['intent' => 'StopCampaign', 'route' => 'api_campaigns_stop'],
+        'setDailyCap' => ['intent' => 'SetDailyCap', 'route' => 'api_campaigns_set_daily_cap'],
     ];
     private const string TAG_MARK = '#';
 

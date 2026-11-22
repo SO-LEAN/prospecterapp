@@ -25,6 +25,8 @@ final readonly class CampaignLinksResource
         public ?LinkResource $start = null,
         #[OA\Property(description: 'Stop it, once started: kept, never discarded', nullable: false)]
         public ?LinkResource $stop = null,
+        #[OA\Property(description: 'Set its daily cap, or take it off, until it is stopped or ended', nullable: false)]
+        public ?LinkResource $setDailyCap = null,
         #[OA\Property(description: 'The contacts it targets while a draft: the search by its targeted tags', nullable: false)]
         public ?LinkResource $target = null,
         #[OA\Property(description: 'The contacts it keeps once frozen, started and stopped', nullable: false)]

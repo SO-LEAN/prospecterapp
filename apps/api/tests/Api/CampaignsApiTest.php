@@ -55,7 +55,7 @@ class CampaignsApiTest extends ApiTestCase
             [$campaign['name'], $campaign['channel'], $campaign['status'], $campaign['tags'], $campaign['targetedTags'], $campaign['message'], $campaign['subject'], $campaign['messageMode'] ?? null, $campaign['targeted']],
         );
         $this->assertSame(['href' => '/api/tagged-contacts?tags=CAMPAIGN_151,EMAIL', 'method' => 'GET'], $campaign['_links']['target']);
-        $this->assertSame(['self', 'revise', 'discard', 'freeze', 'target'], array_keys($campaign['_links']));
+        $this->assertSame(['self', 'revise', 'discard', 'freeze', 'setDailyCap', 'target'], array_keys($campaign['_links']));
         $this->assertSame($campaign, $this->requestJson('GET', '/api/campaigns/'.$campaign['id']));
     }
 
