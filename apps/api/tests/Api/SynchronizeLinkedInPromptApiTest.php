@@ -76,6 +76,15 @@ class SynchronizeLinkedInPromptApiTest extends ApiTestCase
         $this->assertStringContainsString('Sync my LinkedIn messages into Prospecter. How far back: November 1.', $text);
     }
 
+    public function testTheAiAsksSinceWhenWhenTheMomentGivenIsUnclear(): void
+    {
+        $this->login();
+
+        $text = $this->promptText('sync-linkedin', ['what' => 'messages', 'since' => '7']);
+
+        $this->assertStringContainsString('How far back: 7. When this is not a clear moment, ask me how far back to go first. Do not guess.', $text);
+    }
+
     public function testTheAiAsksSinceWhenWhenItIsNotGiven(): void
     {
         $this->login();
