@@ -8,6 +8,8 @@ use Prospecter\Core\Prospecting\Application\Port\OrganizationFactsRetriever;
 use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\OrganizationFactsResponse;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Address;
+use Prospecter\Core\SharedKernel\Domain\GeoPoint;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\SearchKeys;
@@ -46,10 +48,10 @@ final readonly class InMemoryOrganizationFactsRetriever implements OrganizationF
             (string) $organization->id(),
             $this->database->revisionOf((string) $organization->id()),
             true,
-            null !== $state->value('geoPoint'),
-            array_map(static fn (PersonId $contact): string => (string) $contact, $state->value('contacts')),
-            $state->value('municipalityCode'),
-            $state->value('address')?->country,
+            null !== $state->objectOrNull('geoPoint', GeoPoint::class),
+            array_map(static fn (PersonId $contact): string => (string) $contact, $state->listOf('contacts', PersonId::class)),
+            $state->stringOrNull('municipalityCode'),
+            $state->objectOrNull('address', Address::class)?->country,
         );
     }
 }

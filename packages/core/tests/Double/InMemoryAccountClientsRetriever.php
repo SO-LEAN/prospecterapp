@@ -6,6 +6,8 @@ namespace Tests\Core\Double;
 
 use Prospecter\Core\Connectors\Application\AccountClient;
 use Prospecter\Core\Connectors\Application\Port\AccountClientsRetriever;
+use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
+use Prospecter\Core\Connectors\Domain\Model\MailboxNotifications;
 use Prospecter\Core\Connectors\Domain\Model\ProviderClient;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 
@@ -27,6 +29,6 @@ final readonly class InMemoryAccountClientsRetriever implements AccountClientsRe
     {
         $state = StateOf::the($client);
 
-        return new AccountClient($state->value('credentials')->provider->value, $state->value('credentials')->id, $state->value('mailboxNotifications')?->topic, $state->value('mailboxNotifications')?->pushAccount->value);
+        return new AccountClient($state->object('credentials', ClientCredentials::class)->provider->value, $state->object('credentials', ClientCredentials::class)->id, $state->objectOrNull('mailboxNotifications', MailboxNotifications::class)?->topic, $state->objectOrNull('mailboxNotifications', MailboxNotifications::class)?->pushAccount->value);
     }
 }

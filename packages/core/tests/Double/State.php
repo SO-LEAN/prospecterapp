@@ -10,7 +10,7 @@ namespace Tests\Core\Double;
 final readonly class State
 {
     /**
-     * @param array<string, mixed> $properties
+     * @param array<mixed> $properties by their names
      */
     public function __construct(private array $properties)
     {
@@ -53,7 +53,11 @@ final readonly class State
     {
         $items = $this->valueOf($property);
 
-        return is_array($items) && array_all($items, static fn (mixed $item): bool => $item instanceof $class) ? array_values($items) : throw $this->notA(sprintf('list of %s', $class), $property, $items);
+        if (!is_array($items)) {
+            throw $this->notA(sprintf('list of %s', $class), $property, $items);
+        }
+
+        return array_values(array_map(fn (mixed $item): object => $item instanceof $class ? $item : throw $this->notA(sprintf('list of %s', $class), $property, $items), $items));
     }
 
     public function bool(string $property): bool
@@ -68,6 +72,11 @@ final readonly class State
         $value = $this->valueOf($property);
 
         return is_string($value) ? $value : throw $this->notA('string', $property, $value);
+    }
+
+    public function stringOrNull(string $property): ?string
+    {
+        return null === $this->valueOf($property) ? null : $this->string($property);
     }
 
     /**

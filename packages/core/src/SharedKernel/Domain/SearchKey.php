@@ -24,7 +24,7 @@ final readonly class SearchKey implements \Stringable
     {
         $value = (string) $text
             |> mb_strtolower(...)
-            |> (static fn (string $lower): string => (string) \Normalizer::normalize($lower, \Normalizer::FORM_D))
+            |> Decomposed::of(...)
             |> (static fn (string $decomposed): string => (string) preg_replace(self::IGNORED_BY_THE_SEARCH, '', $decomposed));
 
         return '' === $value ? null : new self($value);

@@ -100,8 +100,8 @@ class ApplicationBoundaryTest extends TestCase
         $classes = [];
 
         foreach (glob($root.'*/Application', GLOB_ONLYDIR) ?: [] as $application) {
-            foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($application, \FilesystemIterator::SKIP_DOTS)) as $file) {
-                $class = self::NAMESPACE.str_replace(['/', '.php'], ['\\', ''], substr($file->getPathname(), strlen($root)));
+            foreach (FilesUnder::the($application) as $path) {
+                $class = self::NAMESPACE.str_replace(['/', '.php'], ['\\', ''], substr($path, strlen($root)));
 
                 if (class_exists($class)) {
                     $classes[] = $class;

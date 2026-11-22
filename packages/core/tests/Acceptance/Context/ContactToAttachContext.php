@@ -23,6 +23,7 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
@@ -76,7 +77,7 @@ final class ContactToAttachContext implements Context
     #[Then('la visio avec :contact est gardée pour :organization')]
     public function theVideoCallIsKeptFor(string $contact, string $organization): void
     {
-        $kept = array_map(static fn (Exchange $exchange): array => StateOf::the($exchange)->value('keptFor'), $this->exchangesWith($contact));
+        $kept = array_map(static fn (Exchange $exchange): array => StateOf::the($exchange)->listOf('keptFor', OrganizationId::class), $this->exchangesWith($contact));
 
         Expect::same([[$this->scenario->organizationNamed($organization)->id()]], $kept);
     }

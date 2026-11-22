@@ -205,7 +205,7 @@ final class MailImportContext implements Context
     #[Then('l\'import part de l\'historique :historyId')]
     public function theImportStartsFrom(string $historyId): void
     {
-        Expect::same($historyId, StateOf::the($this->myConnection())->value('historyId'));
+        Expect::same($historyId, StateOf::the($this->myConnection())->stringOrNull('historyId'));
     }
 
     private function myConnection(): Connection

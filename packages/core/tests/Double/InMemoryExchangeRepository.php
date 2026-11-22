@@ -48,11 +48,11 @@ final readonly class InMemoryExchangeRepository implements ExchangeRepository
 
     public function keptFor(OrganizationId $organization): array
     {
-        return array_values(array_filter($this->database->exchanges(), static fn (Exchange $exchange): bool => array_any(StateOf::the($exchange)->value('keptFor'), $organization->equals(...))));
+        return array_values(array_filter($this->database->exchanges(), static fn (Exchange $exchange): bool => array_any(StateOf::the($exchange)->listOf('keptFor', OrganizationId::class), $organization->equals(...))));
     }
 
     public function withContact(PersonId $contact, AccountId $accountId): array
     {
-        return array_values(array_filter($this->database->exchanges(), static fn (Exchange $exchange): bool => true === StateOf::the($exchange)->value('contact')?->equals($contact) && $exchange->accountId()->equals($accountId)));
+        return array_values(array_filter($this->database->exchanges(), static fn (Exchange $exchange): bool => true === StateOf::the($exchange)->objectOrNull('contact', PersonId::class)?->equals($contact) && $exchange->accountId()->equals($accountId)));
     }
 }

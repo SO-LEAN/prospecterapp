@@ -8,6 +8,7 @@ use Prospecter\Core\Prospecting\Application\Port\ProposedOrganizationRetriever;
 use Prospecter\Core\Prospecting\Application\ProposeOrganizationToAttach\ProposedOrganization;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 
 /**
  * Reads the organizations the in-memory repository saved by the domain of their email, as the adapter reads the
@@ -36,7 +37,7 @@ final readonly class InMemoryProposedOrganizationRetriever implements ProposedOr
 
     private static function proposed(Organization $organization): ProposedOrganization
     {
-        $name = StateOf::the($organization)->value('legalIdentity')->fullName();
+        $name = StateOf::the($organization)->object('legalIdentity', LegalIdentity::class)->fullName();
 
         return new ProposedOrganization($organization->id()->value, '' === $name ? (string) $organization->contactDetails()->email : $name);
     }

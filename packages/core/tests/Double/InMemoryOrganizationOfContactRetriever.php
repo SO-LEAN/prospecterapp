@@ -8,6 +8,7 @@ use Prospecter\Core\Prospecting\Application\ConsultOrganizationsOfContacts\Organ
 use Prospecter\Core\Prospecting\Application\Port\OrganizationOfContactRetriever;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
@@ -36,11 +37,11 @@ final readonly class InMemoryOrganizationOfContactRetriever implements Organizat
 
     private static function names(Organization $organization, PersonId $contact): bool
     {
-        return array_any(StateOf::the($organization)->value('contacts'), $contact->equals(...));
+        return array_any(StateOf::the($organization)->listOf('contacts', PersonId::class), $contact->equals(...));
     }
 
     private static function organizationOfContact(Organization $organization): OrganizationOfContact
     {
-        return new OrganizationOfContact($organization->id()->value, StateOf::the($organization)->value('legalIdentity')->fullName());
+        return new OrganizationOfContact($organization->id()->value, StateOf::the($organization)->object('legalIdentity', LegalIdentity::class)->fullName());
     }
 }

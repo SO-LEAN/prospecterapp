@@ -38,7 +38,7 @@ final readonly class ExternalReference
             throw NotAWebAddress::of($address);
         }
         $opened = 1 === preg_match(self::SCHEME, $pasted) ? $pasted : self::WITHOUT_SCHEME.$pasted;
-        $bare = preg_replace(self::SCHEME_AND_WWW, '', mb_strtolower($pasted));
+        $bare = (string) preg_replace(self::SCHEME_AND_WWW, '', mb_strtolower($pasted));
 
         foreach (KnownSource::cases() as $source) {
             $identifier = $source->identifierIn($bare);
@@ -97,13 +97,13 @@ final readonly class ExternalReference
      */
     private static function ofAnUnknownSource(string $bare, string $address): self
     {
-        $identifier = rtrim(preg_replace(self::QUERY_FRAGMENT_AND_FINAL_SLASH, '', $bare), '/');
-        preg_match(self::HOST, $identifier, $host);
+        $identifier = rtrim((string) preg_replace(self::QUERY_FRAGMENT_AND_FINAL_SLASH, '', $bare), '/');
+        $host = 1 === preg_match(self::HOST, $identifier, $match) ? $match[0] : $identifier;
 
         if (array_any(KnownSource::cases(), static fn (KnownSource $source): bool => $source->hosts($bare))) {
-            throw UnrecognizedPage::on($host[0]);
+            throw UnrecognizedPage::on($host);
         }
 
-        return new self($host[0], $identifier, $address);
+        return new self($host, $identifier, $address);
     }
 }

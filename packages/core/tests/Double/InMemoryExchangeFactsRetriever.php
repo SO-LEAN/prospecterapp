@@ -7,8 +7,12 @@ namespace Tests\Core\Double;
 use Prospecter\Core\Prospecting\Application\Port\ExchangeFactsRetriever;
 use Prospecter\Core\Prospecting\Contract\Service\ListExchangeFacts\ExchangeFactsResponse;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\CampaignId;
+use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\SearchKeys;
 use Prospecter\Core\SharedKernel\Domain\Slice;
 
@@ -41,6 +45,6 @@ final readonly class InMemoryExchangeFactsRetriever implements ExchangeFactsRetr
     {
         $state = StateOf::the($exchange);
 
-        return new ExchangeFactsResponse((string) $exchange->id(), $this->database->revisionOf((string) $exchange->id()), true, $state->value('status')->value, $state->value('facts')->occurredAt, $state->value('contact')?->value, $state->value('campaign')?->value);
+        return new ExchangeFactsResponse((string) $exchange->id(), $this->database->revisionOf((string) $exchange->id()), true, $state->object('status', ExchangeStatus::class)->value, $state->object('facts', ExchangeFacts::class)->occurredAt, $state->objectOrNull('contact', PersonId::class)?->value, $state->objectOrNull('campaign', CampaignId::class)?->value);
     }
 }

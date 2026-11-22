@@ -38,7 +38,7 @@ final readonly class Website implements \Stringable
 
     public function domain(): string
     {
-        return preg_replace(self::WWW, '', $this->host);
+        return (string) preg_replace(self::WWW, '', $this->host);
     }
 
     public function __toString(): string

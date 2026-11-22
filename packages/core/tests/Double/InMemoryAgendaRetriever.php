@@ -9,8 +9,11 @@ use Prospecter\Core\Prospecting\Application\Port\AgendaRetriever;
 use Prospecter\Core\Prospecting\Domain\Model\CalendarPeriod;
 use Prospecter\Core\Prospecting\Domain\Model\ContactPresence;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Reads the exchanges the in-memory repository saved, as the adapter reads the agenda of a prospector: those they
@@ -52,10 +55,10 @@ final readonly class InMemoryAgendaRetriever implements AgendaRetriever
         $planned = array_values(array_filter($this->database->exchanges(), static function (Exchange $exchange) use ($holder, $happensWhenAsked): bool {
             $state = StateOf::the($exchange);
 
-            return ExchangeStatus::Planned === $state->value('status') && $state->value('createdBy')->equals($holder->id) && $happensWhenAsked($state->value('facts')->occurredAt);
+            return ExchangeStatus::Planned === $state->object('status', ExchangeStatus::class) && $state->object('createdBy', MemberId::class)->equals($holder->id) && $happensWhenAsked($state->object('facts', ExchangeFacts::class)->occurredAt);
         }));
-        usort($planned, static fn (Exchange $a, Exchange $b): int => [StateOf::the($a)->value('facts')->occurredAt, (string) $a->id()] <=> [StateOf::the($b)->value('facts')->occurredAt, (string) $b->id()]);
+        usort($planned, static fn (Exchange $a, Exchange $b): int => [StateOf::the($a)->object('facts', ExchangeFacts::class)->occurredAt, (string) $a->id()] <=> [StateOf::the($b)->object('facts', ExchangeFacts::class)->occurredAt, (string) $b->id()]);
 
-        return array_map(static fn (Exchange $exchange): ExchangeInTimeline => InMemoryTimelineRetriever::inTimeline($exchange, ContactPresence::ofTheContact(null !== StateOf::the($exchange)->value('contact'), StateOf::the($exchange)->value('contactForgotten')), $holder), $planned);
+        return array_map(static fn (Exchange $exchange): ExchangeInTimeline => InMemoryTimelineRetriever::inTimeline($exchange, ContactPresence::ofTheContact(null !== StateOf::the($exchange)->objectOrNull('contact', PersonId::class), StateOf::the($exchange)->bool('contactForgotten')), $holder), $planned);
     }
 }

@@ -9,10 +9,17 @@ use Prospecter\Core\Prospecting\Application\Port\OrganizationSheetRetriever;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationIntent;
+use Prospecter\Core\Prospecting\Domain\Model\Website;
 use Prospecter\Core\Prospecting\Domain\Policy\OrganizationPossibilities;
 use Prospecter\Core\SharedKernel\Application\ExternalLink;
 use Prospecter\Core\SharedKernel\Application\FileResponse;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Address;
+use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
+use Prospecter\Core\SharedKernel\Domain\File;
+use Prospecter\Core\SharedKernel\Domain\GeoPoint;
+use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
+use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\Origin;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
@@ -44,16 +51,16 @@ final readonly class InMemoryOrganizationSheetRetriever implements OrganizationS
     private function sheetOf(Organization $organization): OrganizationSheet
     {
         $state = StateOf::the($organization);
-        $identity = $state->value('legalIdentity');
+        $identity = $state->object('legalIdentity', LegalIdentity::class);
         $contact = $organization->contactDetails();
-        $address = $state->value('address');
-        $geoPoint = $state->value('geoPoint');
+        $address = $state->objectOrNull('address', Address::class);
+        $geoPoint = $state->objectOrNull('geoPoint', GeoPoint::class);
         $possibleDuplicates = PossibleDuplicates::of($organization, $this->database);
 
         return new OrganizationSheet(
             id: $organization->id()->value,
             accountId: $organization->accountId()->value,
-            createdBy: $state->value('createdBy')->value,
+            createdBy: $state->object('createdBy', MemberId::class)->value,
             corporateName: $identity->corporateName,
             form: $identity->form,
             type: $identity->type,
@@ -62,24 +69,24 @@ final readonly class InMemoryOrganizationSheetRetriever implements OrganizationS
             email: $contact->email?->value,
             phoneNumber: $contact->phoneNumber?->international(),
             language: $contact->language,
-            links: ExternalLink::allOf($state->value('references')),
-            website: $state->value('website')?->value,
+            links: ExternalLink::allOf($state->object('references', ExternalReferences::class)),
+            website: $state->objectOrNull('website', Website::class)?->value,
             street: $address?->street,
             postalCode: $address?->postalCode,
             city: $address?->city,
             country: $address?->country,
             longitude: $geoPoint?->longitude,
             latitude: $geoPoint?->latitude,
-            municipalityCode: $state->value('municipalityCode'),
-            observations: $state->value('observations'),
-            logo: FileResponse::orNone($state->value('logo')),
-            holdingId: $state->value('holdingId')?->value,
-            contactIds: array_map(static fn (PersonId $contact): string => $contact->value, $state->value('contacts')),
-            createdAt: $state->value('createdAt'),
-            modifiedAt: $state->value('modifiedAt'),
-            possibleIntents: array_map(static fn (OrganizationIntent $intent): string => $intent->name, OrganizationPossibilities::given(hasLogo: null !== $state->value('logo'), hasHolding: null !== $state->value('holdingId'), hasContacts: [] !== $state->value('contacts'), hasPossibleDuplicates: [] !== $possibleDuplicates)),
+            municipalityCode: $state->stringOrNull('municipalityCode'),
+            observations: $state->stringOrNull('observations'),
+            logo: FileResponse::orNone($state->objectOrNull('logo', File::class)),
+            holdingId: $state->objectOrNull('holdingId', OrganizationId::class)?->value,
+            contactIds: array_map(static fn (PersonId $contact): string => $contact->value, $state->listOf('contacts', PersonId::class)),
+            createdAt: $state->object('createdAt', \DateTimeImmutable::class),
+            modifiedAt: $state->object('modifiedAt', \DateTimeImmutable::class),
+            possibleIntents: array_map(static fn (OrganizationIntent $intent): string => $intent->name, OrganizationPossibilities::given(hasLogo: null !== $state->objectOrNull('logo', File::class), hasHolding: null !== $state->objectOrNull('holdingId', OrganizationId::class), hasContacts: [] !== $state->listOf('contacts', PersonId::class), hasPossibleDuplicates: [] !== $possibleDuplicates)),
             possibleDuplicates: $possibleDuplicates,
-            createdByAnAI: Origin::Ai === $state->value('origin'),
+            createdByAnAI: Origin::Ai === $state->object('origin', Origin::class),
         );
     }
 }

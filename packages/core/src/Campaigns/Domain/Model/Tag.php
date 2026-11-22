@@ -6,6 +6,7 @@ namespace Prospecter\Core\Campaigns\Domain\Model;
 
 use Prospecter\Core\Campaigns\Domain\Exception\InvalidTag;
 use Prospecter\Core\Campaigns\Domain\Policy\AutomaticTags;
+use Prospecter\Core\SharedKernel\Domain\Decomposed;
 
 /**
  * A tag, written one way whatever a member typed (ADR 0138): a `#` then 1 to 30 capital letters without accents,
@@ -29,7 +30,7 @@ final readonly class Tag implements \Stringable
     public static function written(string $typed): self
     {
         $name = $typed
-            |> (static fn (string $text): string => (string) \Normalizer::normalize($text, \Normalizer::FORM_D))
+            |> Decomposed::of(...)
             |> (static fn (string $decomposed): string => (string) preg_replace(self::ACCENTS, '', $decomposed))
             |> mb_strtoupper(...)
             |> (static fn (string $upper): string => (string) preg_replace(self::SEPARATORS, '_', $upper))

@@ -29,8 +29,8 @@ class ContractTest extends TestCase
         $root = dirname(__DIR__, 2).'/src/';
 
         foreach (glob($root.'*/Contract', GLOB_ONLYDIR) ?: [] as $contract) {
-            foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($contract, \FilesystemIterator::SKIP_DOTS)) as $file) {
-                yield substr($file->getPathname(), strlen($root)) => [$file->getPathname()];
+            foreach (FilesUnder::the($contract) as $path) {
+                yield substr($path, strlen($root)) => [$path];
             }
         }
     }

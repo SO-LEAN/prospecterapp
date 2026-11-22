@@ -9,6 +9,8 @@ use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\ContactFactsR
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
 use Prospecter\Core\SharedKernel\Domain\KnownSource;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\SearchKeys;
@@ -46,7 +48,7 @@ final readonly class InMemoryContactFactsRetriever implements ContactFactsRetrie
     private function factsOf(Person $person): ContactFactsResponse
     {
         $state = StateOf::the($person);
-        $contactDetails = $state->value('contactDetails');
+        $contactDetails = $state->object('contactDetails', ContactDetails::class);
 
         return new ContactFactsResponse(
             (string) $person->id(),
@@ -55,7 +57,7 @@ final readonly class InMemoryContactFactsRetriever implements ContactFactsRetrie
             null !== $contactDetails->email,
             null !== $contactDetails->phoneNumber,
             true === $contactDetails->phoneNumber?->isMobile(),
-            $state->value('references')->hasOneOf(KnownSource::LinkedInProfile),
+            $state->object('references', ExternalReferences::class)->hasOneOf(KnownSource::LinkedInProfile),
         );
     }
 }

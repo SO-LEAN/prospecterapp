@@ -47,7 +47,7 @@ final class ToDoTest extends TestCase
 
     public function testItsTextIsWhatIsSaid(): void
     {
-        $this->assertSame('Envoyer mon CV', StateOf::the($this->noted(text: '  Envoyer mon CV '))->value('text'));
+        $this->assertSame('Envoyer mon CV', StateOf::the($this->noted(text: '  Envoyer mon CV '))->string('text'));
     }
 
     public function testItIsNeverNotedWithoutAText(): void
@@ -86,7 +86,7 @@ final class ToDoTest extends TestCase
     public function testATickedOffToDoIsDoneAtThatMoment(): void
     {
         $this->assertEquals([new ToDoTickedOff(new AccountId(self::ACCOUNT), new MemberId(self::ME), new ToDoId(self::TO_DO), $this->now())], $this->done()->releaseEvents());
-        $this->assertEquals($this->now(), StateOf::the($this->done())->value('doneAt'));
+        $this->assertEquals($this->now(), StateOf::the($this->done())->objectOrNull('doneAt', \DateTimeImmutable::class));
     }
 
     public function testAnUntickedToDoIsToDoAgain(): void
@@ -94,7 +94,7 @@ final class ToDoTest extends TestCase
         $toDo = $this->done();
         $toDo->untick(new MemberId(self::ME), $this->now());
 
-        $this->assertNull(StateOf::the($toDo)->value('doneAt'));
+        $this->assertNull(StateOf::the($toDo)->objectOrNull('doneAt', \DateTimeImmutable::class));
         $this->assertContainsOnlyInstancesOf(ToDoUnticked::class, array_slice($toDo->releaseEvents(), -1));
     }
 
@@ -103,7 +103,7 @@ final class ToDoTest extends TestCase
         $toDo = $this->noted();
         $toDo->revise('Relancer pour le devis', new Due('2026-11-20', '09:00'), new MemberId(self::ME), $this->now());
 
-        $this->assertEquals(['Relancer pour le devis', new Due('2026-11-20', '09:00')], [StateOf::the($toDo)->value('text'), StateOf::the($toDo)->value('due')]);
+        $this->assertEquals(['Relancer pour le devis', new Due('2026-11-20', '09:00')], [StateOf::the($toDo)->string('text'), StateOf::the($toDo)->object('due', Due::class)]);
         $this->assertContainsOnlyInstancesOf(ToDoRevised::class, array_slice($toDo->releaseEvents(), -1));
     }
 

@@ -11,6 +11,7 @@ use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\Prospecting\Domain\Model\ContactPresence;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
+use Prospecter\Core\Prospecting\Domain\Model\Website;
 use Prospecter\Core\SharedKernel\Application\ExternalLink;
 use Prospecter\Core\SharedKernel\Domain\Address;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
@@ -22,6 +23,7 @@ use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\GeoPoint;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 use Prospecter\Core\SharedKernel\Domain\Uuid;
 use Tests\Core\Double\StateOf;
@@ -294,9 +296,9 @@ final class Vocabulary
      */
     public static function describeOrganization(Organization $organization, \Closure $nameOf, MemberId $me): array
     {
-        $identity = StateOf::the($organization)->value('legalIdentity');
+        $identity = StateOf::the($organization)->object('legalIdentity', LegalIdentity::class);
         $contact = $organization->contactDetails();
-        $address = StateOf::the($organization)->value('address');
+        $address = StateOf::the($organization)->objectOrNull('address', Address::class);
 
         return [
             'raison sociale' => (string) $identity->corporateName,
@@ -306,21 +308,21 @@ final class Vocabulary
             'e-mail' => (string) $contact->email,
             'téléphone' => (string) $contact->phoneNumber?->international(),
             'langue' => (string) $contact->language,
-            'liens' => implode(' ', array_map(static fn (ExternalReference $reference): string => $reference->address, StateOf::the($organization)->value('references')->all())),
-            'site web' => (string) StateOf::the($organization)->value('website'),
-            'domaine du site' => (string) StateOf::the($organization)->value('website')?->domain(),
+            'liens' => implode(' ', array_map(static fn (ExternalReference $reference): string => $reference->address, StateOf::the($organization)->object('references', ExternalReferences::class)->all())),
+            'site web' => (string) StateOf::the($organization)->objectOrNull('website', Website::class),
+            'domaine du site' => (string) StateOf::the($organization)->objectOrNull('website', Website::class)?->domain(),
             'rue' => (string) $address?->street,
             'code postal' => (string) $address?->postalCode,
             'ville' => (string) $address?->city,
             'pays' => (string) $address?->country,
-            'observations' => (string) StateOf::the($organization)->value('observations'),
-            'position' => self::describeGeoPoint(StateOf::the($organization)->value('geoPoint')),
-            'logo' => self::describeFile(StateOf::the($organization)->value('logo')),
-            'holding' => null === StateOf::the($organization)->value('holdingId') ? '' : $nameOf(StateOf::the($organization)->value('holdingId')),
+            'observations' => (string) StateOf::the($organization)->stringOrNull('observations'),
+            'position' => self::describeGeoPoint(StateOf::the($organization)->objectOrNull('geoPoint', GeoPoint::class)),
+            'logo' => self::describeFile(StateOf::the($organization)->objectOrNull('logo', File::class)),
+            'holding' => null === StateOf::the($organization)->objectOrNull('holdingId', OrganizationId::class) ? '' : $nameOf(StateOf::the($organization)->objectOrNull('holdingId', OrganizationId::class)),
             'compte' => $nameOf($organization->accountId()),
-            'saisie par' => StateOf::the($organization)->value('createdBy')->equals($me) ? 'moi' : 'un autre membre',
-            'créée le' => self::describeMoment(StateOf::the($organization)->value('createdAt')),
-            'modifiée le' => self::describeMoment(StateOf::the($organization)->value('modifiedAt')),
+            'saisie par' => StateOf::the($organization)->object('createdBy', MemberId::class)->equals($me) ? 'moi' : 'un autre membre',
+            'créée le' => self::describeMoment(StateOf::the($organization)->object('createdAt', \DateTimeImmutable::class)),
+            'modifiée le' => self::describeMoment(StateOf::the($organization)->object('modifiedAt', \DateTimeImmutable::class)),
         ];
     }
 
@@ -330,22 +332,22 @@ final class Vocabulary
     public static function describeAccount(Member $me, Account $account, Person $myPerson): array
     {
         return [
-            'prénom' => (string) StateOf::the($myPerson)->value('name')->firstName,
-            'nom' => (string) StateOf::the($myPerson)->value('name')->lastName,
+            'prénom' => (string) StateOf::the($myPerson)->object('name', PersonName::class)->firstName,
+            'nom' => (string) StateOf::the($myPerson)->object('name', PersonName::class)->lastName,
             'e-mail' => (string) $myPerson->contactDetails()->email,
             'téléphone' => (string) $myPerson->contactDetails()->phoneNumber?->international(),
             'langue' => (string) $myPerson->contactDetails()->language,
             'liens' => self::describeLinks(ExternalLink::allOf($myPerson->references())),
-            'photo' => self::describeFile(StateOf::the($myPerson)->value('picture')),
-            'raison sociale de mon organisation' => (string) StateOf::the($account)->value('legalIdentity')->corporateName,
-            'forme juridique de mon organisation' => (string) StateOf::the($account)->value('legalIdentity')->form,
-            'langue de mon organisation' => (string) StateOf::the($account)->value('contactDetails')->language,
-            'rue de mon organisation' => (string) StateOf::the($account)->value('address')?->street,
-            'ville de mon organisation' => (string) StateOf::the($account)->value('address')?->city,
-            'position de mon organisation' => self::describeGeoPoint(StateOf::the($account)->value('geoPoint')),
-            'logo de mon organisation' => self::describeFile(StateOf::the($account)->value('logo')),
-            'mon profil modifié le' => self::describeMoment(StateOf::the($myPerson)->value('modifiedAt')),
-            'mon organisation modifiée le' => self::describeMoment(StateOf::the($account)->value('modifiedAt')),
+            'photo' => self::describeFile(StateOf::the($myPerson)->objectOrNull('picture', File::class)),
+            'raison sociale de mon organisation' => (string) StateOf::the($account)->object('legalIdentity', LegalIdentity::class)->corporateName,
+            'forme juridique de mon organisation' => (string) StateOf::the($account)->object('legalIdentity', LegalIdentity::class)->form,
+            'langue de mon organisation' => (string) StateOf::the($account)->object('contactDetails', ContactDetails::class)->language,
+            'rue de mon organisation' => (string) StateOf::the($account)->objectOrNull('address', Address::class)?->street,
+            'ville de mon organisation' => (string) StateOf::the($account)->objectOrNull('address', Address::class)?->city,
+            'position de mon organisation' => self::describeGeoPoint(StateOf::the($account)->objectOrNull('geoPoint', GeoPoint::class)),
+            'logo de mon organisation' => self::describeFile(StateOf::the($account)->objectOrNull('logo', File::class)),
+            'mon profil modifié le' => self::describeMoment(StateOf::the($myPerson)->object('modifiedAt', \DateTimeImmutable::class)),
+            'mon organisation modifiée le' => self::describeMoment(StateOf::the($account)->object('modifiedAt', \DateTimeImmutable::class)),
         ];
     }
 

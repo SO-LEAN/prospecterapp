@@ -6,6 +6,7 @@ namespace Tests\Core\Double;
 
 use Prospecter\Core\Prospecting\Application\Port\OrganizationsToLocateAgainRetriever;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
+use Prospecter\Core\SharedKernel\Domain\GeoPoint;
 
 /**
  * The organizations the in-memory repository saved with a position and without their municipality, as the adapter
@@ -30,6 +31,6 @@ final readonly class InMemoryOrganizationsToLocateAgainRetriever implements Orga
     {
         $state = StateOf::the($organization);
 
-        return null !== $state->value('geoPoint') && null === $state->value('municipalityCode');
+        return null !== $state->objectOrNull('geoPoint', GeoPoint::class) && null === $state->stringOrNull('municipalityCode');
     }
 }

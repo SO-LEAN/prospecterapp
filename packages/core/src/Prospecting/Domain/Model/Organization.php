@@ -410,7 +410,7 @@ final class Organization implements ReleasesEvents
     public function removeLogo(MemberId $by, \DateTimeImmutable $at): void
     {
         $this->ensurePossible(OrganizationIntent::RemoveLogo);
-        $removed = $this->logo;
+        $removed = $this->logo ?? throw new \LogicException(sprintf('The organization %s has no logo to remove', $this->id));
         $this->logo = null;
         $this->modifiedAt = $at;
         $this->recordThat(new LogoRemoved($this->accountId, $by, $this->id, $removed->url, $at));

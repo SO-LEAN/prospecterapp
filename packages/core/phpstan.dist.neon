@@ -2,7 +2,7 @@ includes:
     - ../../packages/phpstan-rules/rules.neon
 
 parameters:
-    level: 6
+    level: max
     ignoreErrors:
         # an array is typed where its values are read, never by a docblock the tool alone asks for (ADR 0022)
         - identifier: missingType.iterableValue
