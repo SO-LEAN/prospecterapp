@@ -21,7 +21,7 @@ final readonly class SynchronousDelivery implements Delivery
         $received = $this->carried($event);
 
         foreach ($this->subscriptions->reactingTo($received) as $reaction) {
-            $this->causation->within($received->causeOfAReaction(), fn () => $reaction($this->codec->decode($received)));
+            $this->causation->within($received->causeOfAReaction(), fn () => $reaction->__invoke($this->codec->decode($received)));
         }
     }
 

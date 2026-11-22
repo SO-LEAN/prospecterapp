@@ -47,7 +47,7 @@ final readonly class ToDoReader
     public function read(string $reader, string $id): ToDoResource
     {
         $kept = new KeptToDo();
-        ($this->consultToDo)(new ConsultToDo($id), $kept);
+        $this->consultToDo->__invoke(new ConsultToDo($id), $kept);
 
         return $this->resourcesOf($reader, [$kept->toDo])[0];
     }
@@ -55,7 +55,7 @@ final readonly class ToDoReader
     public function ofContact(string $reader, string $personId): ToDoListResource
     {
         $kept = new KeptToDoList();
-        ($this->consultToDos)(new ConsultToDos($reader, $personId), $kept);
+        $this->consultToDos->__invoke(new ConsultToDos($reader, $personId), $kept);
 
         return $this->listOf($reader, $kept, 'api_contacts_to_dos', 'api_contacts_note_to_do', ['id' => $personId]);
     }
@@ -63,7 +63,7 @@ final readonly class ToDoReader
     public function ofOrganization(string $reader, string $organizationId): ToDoListResource
     {
         $kept = new KeptToDoList();
-        ($this->consultOrganizationToDos)(new ConsultOrganizationToDos($organizationId), $kept);
+        $this->consultOrganizationToDos->__invoke(new ConsultOrganizationToDos($organizationId), $kept);
 
         return $this->listOf($reader, $kept, 'api_organizations_to_dos', 'api_organizations_note_to_do', ['id' => $organizationId]);
     }
@@ -71,7 +71,7 @@ final readonly class ToDoReader
     public function mine(string $reader): ToDoListResource
     {
         $kept = new KeptToDoList();
-        ($this->consultMyToDos)(new ConsultMyToDos($reader), $kept);
+        $this->consultMyToDos->__invoke(new ConsultMyToDos($reader), $kept);
 
         return new ToDoListResource($this->resourcesOf($reader, $kept->toDos->toDos), new ToDoListLinksResource($this->links->to('api_me_to_dos')));
     }
@@ -97,7 +97,7 @@ final readonly class ToDoReader
         $personOfMember = $this->personsOfMembers(array_map(static fn (ToDoInList $toDo): string => $toDo->heldBy, $toDos));
         $persons = new KeptPersons();
         $personIds = [...array_values($personOfMember), ...array_filter(array_map(static fn (ToDoInList $toDo): ?string => $toDo->personId, $toDos))];
-        ($this->consultPersons)(new ConsultPersons($reader, array_values(array_unique($personIds))), $persons);
+        $this->consultPersons->__invoke(new ConsultPersons($reader, array_values(array_unique($personIds))), $persons);
 
         return array_map(fn (ToDoInList $toDo): ToDoResource => $this->factory->of($toDo, $persons->persons, $personOfMember), $toDos);
     }

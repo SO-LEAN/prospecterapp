@@ -41,7 +41,7 @@ final readonly class SearchEstablishmentsTool
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');
         $this->access->denyUnlessGranted(OrganizationVoter::ACCESS, $organization);
         $presenter = new EstablishmentsPresenter();
-        ($this->searchEstablishments)(new SearchEstablishments($organization->id), $presenter);
+        $this->searchEstablishments->__invoke(new SearchEstablishments($organization->id), $presenter);
 
         return $this->results->of($presenter->resource);
     }

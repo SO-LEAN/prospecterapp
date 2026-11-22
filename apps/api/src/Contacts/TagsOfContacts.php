@@ -26,7 +26,7 @@ final readonly class TagsOfContacts
     public function read(string $reader, array $contactIds): array
     {
         $kept = new KeptContactTags();
-        ($this->consultContactTags)(new ConsultContactTags($reader, $contactIds), $kept);
+        $this->consultContactTags->__invoke(new ConsultContactTags($reader, $contactIds), $kept);
 
         return array_column(array_map(static fn (ContactTagsResponse $contact): array => [$contact->contactId, $contact->carried()], $kept->contacts), 1, 0);
     }

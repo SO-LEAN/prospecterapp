@@ -47,9 +47,9 @@ final readonly class OrganizationTimelineReader
     public function read(string $reader, OrganizationSheet $organization, ?string $after = null): OrganizationTimelineResource
     {
         $timeline = new KeptTimeline();
-        ($this->consultOrganizationTimeline)(new ConsultOrganizationTimeline(prospectorId: $reader, organizationId: $organization->id, asOf: $this->clock->now(), after: $after), $timeline);
+        $this->consultOrganizationTimeline->__invoke(new ConsultOrganizationTimeline(prospectorId: $reader, organizationId: $organization->id, asOf: $this->clock->now(), after: $after), $timeline);
         $catchUp = new KeptMailCatchUpIntents();
-        ($this->consultMailCatchUpIntents)(ConsultMailCatchUpIntents::ofOrganization($reader, $organization->id), $catchUp);
+        $this->consultMailCatchUpIntents->__invoke(ConsultMailCatchUpIntents::ofOrganization($reader, $organization->id), $catchUp);
         $presenter = OrganizationTimelinePresenter::ofTheTimeline($organization, $this->personsOf($reader, $timeline->timeline), $catchUp->possibleIntents, $this->timelines, $this->links, $this->intentLinks);
         $presenter->present($timeline->timeline);
 
@@ -62,7 +62,7 @@ final readonly class OrganizationTimelineReader
     public function readUpcoming(string $reader, OrganizationSheet $organization, ?string $after = null): OrganizationTimelineResource
     {
         $timeline = new KeptTimeline();
-        ($this->consultOrganizationUpcomingExchanges)(new ConsultOrganizationUpcomingExchanges(prospectorId: $reader, organizationId: $organization->id, asOf: $this->clock->now(), after: $after), $timeline);
+        $this->consultOrganizationUpcomingExchanges->__invoke(new ConsultOrganizationUpcomingExchanges(prospectorId: $reader, organizationId: $organization->id, asOf: $this->clock->now(), after: $after), $timeline);
         $presenter = OrganizationTimelinePresenter::ofWhatIsToCome($organization, $this->personsOf($reader, $timeline->timeline), $this->timelines, $this->links);
         $presenter->present($timeline->timeline);
 
@@ -75,7 +75,7 @@ final readonly class OrganizationTimelineReader
     public function readToMakeConform(string $reader, OrganizationSheet $organization, ?string $after = null): OrganizationTimelineResource
     {
         $timeline = new KeptTimeline();
-        ($this->consultExchangesToMakeConform)(new ConsultExchangesToMakeConform($reader, $organization->id, $after), $timeline);
+        $this->consultExchangesToMakeConform->__invoke(new ConsultExchangesToMakeConform($reader, $organization->id, $after), $timeline);
         $presenter = OrganizationTimelinePresenter::ofTheExchangesToMakeConform($organization, $this->personsOf($reader, $timeline->timeline), $this->timelines, $this->links);
         $presenter->present($timeline->timeline);
 
@@ -88,7 +88,7 @@ final readonly class OrganizationTimelineReader
     private function personsOf(string $reader, Timeline $timeline): array
     {
         $persons = new KeptPersons();
-        ($this->consultPersons)(new ConsultPersons($reader, self::personIdsOf($timeline)), $persons);
+        $this->consultPersons->__invoke(new ConsultPersons($reader, self::personIdsOf($timeline)), $persons);
 
         return $persons->persons;
     }

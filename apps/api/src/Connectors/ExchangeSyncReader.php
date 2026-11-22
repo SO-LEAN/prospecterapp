@@ -26,7 +26,7 @@ final readonly class ExchangeSyncReader
     public function read(string $me, string $exchangeId): ExchangeSyncResource
     {
         $presenter = new ExchangeSyncResourcePresenter($this->links, $exchangeId);
-        ($this->consultExchangeSync)(new ConsultExchangeSync($me, $exchangeId, $this->clock->now()), $presenter);
+        $this->consultExchangeSync->__invoke(new ConsultExchangeSync($me, $exchangeId, $this->clock->now()), $presenter);
 
         return $presenter->resource;
     }

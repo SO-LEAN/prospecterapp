@@ -475,12 +475,6 @@ parameters:
 			path: src/Accounts/Persistence/DynamoMyRemindersRetriever.php
 
 		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 1
-			path: src/Booking/Controller/ConsultPublicBookingPageController.php
-
-		-
 			message: '#^Parameter \#2 \$command of method App\\Booking\\Mcp\\BookingPageWrites\:\:write\(\) expects Closure\(App\\Booking\\Input\\InactivePeriodInput\|null, string, DateTimeImmutable\)\: object, Closure\(App\\Booking\\Input\\InactivePeriodInput, string, DateTimeImmutable\)\: Prospecter\\Core\\Booking\\Application\\AddInactivePeriod\\AddInactivePeriod given\.$#'
 			identifier: argument.type
 			count: 1
@@ -521,12 +515,6 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: src/Booking/Mcp/SetWeeklyWindowsTool.php
-
-		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 1
-			path: src/Booking/MyBookingPageReader.php
 
 		-
 			message: '#^Parameter \#1 \$moment of static method App\\Shared\\Persistence\\Documents\:\:moment\(\) expects DateTimeImmutable, mixed given\.$#'
@@ -895,24 +883,6 @@ parameters:
 			path: src/Booking/PublicBookingRoutes.php
 
 		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 1
-			path: src/Campaigning/CampaignMessages.php
-
-		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 3
-			path: src/Campaigning/CampaignReader.php
-
-		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 1
-			path: src/Campaigning/CampaignResolver.php
-
-		-
 			message: '#^Parameter \#3 \$command of method App\\Campaigning\\Mcp\\CampaignWrites\:\:write\(\) expects Closure\(App\\Campaigning\\Input\\RecipientInput\|null, Prospecter\\Core\\Campaigns\\Application\\CampaignSheet, string, DateTimeImmutable\)\: object, Closure\(App\\Campaigning\\Input\\RecipientInput, Prospecter\\Core\\Campaigns\\Application\\CampaignSheet, string, DateTimeImmutable\)\: Prospecter\\Core\\Campaigns\\Application\\AddRecipient\\AddRecipient given\.$#'
 			identifier: argument.type
 			count: 1
@@ -965,18 +935,6 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: src/Campaigning/Mcp/StopCampaignTool.php
-
-		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 2
-			path: src/Campaigning/NextRecipientReader.php
-
-		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 1
-			path: src/Campaigning/RecipientsReader.php
 
 		-
 			message: '#^Cannot access property \$channel on mixed\.$#'
@@ -1393,24 +1351,6 @@ parameters:
 			path: src/Campaigns/Persistence/OrganizationFactItem.php
 
 		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 1
-			path: src/Connectors/Controller/AskForGoogleAuthorizationController.php
-
-		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 1
-			path: src/Connectors/Controller/AskToImportGmailController.php
-
-		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 1
-			path: src/Connectors/ExchangeSyncReader.php
-
-		-
 			message: '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\.$#'
 			identifier: foreach.nonIterable
 			count: 2
@@ -1545,12 +1485,6 @@ parameters:
 		-
 			message: '#^Parameter \#1 \$jwt of method Lcobucci\\JWT\\Token\\Parser\:\:parse\(\) expects non\-empty\-string, string given\.$#'
 			identifier: argument.type
-			count: 1
-			path: src/Connectors/Google/GmailPushAuthenticator.php
-
-		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
 			count: 1
 			path: src/Connectors/Google/GmailPushAuthenticator.php
 
@@ -1753,22 +1687,10 @@ parameters:
 			path: src/Connectors/Google/GoogleTokens.php
 
 		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 1
-			path: src/Connectors/GoogleClientReader.php
-
-		-
 			message: '#^Parameter \#3 \$command of method App\\Exchanges\\Mcp\\ExchangeWrites\:\:dispatched\(\) expects Closure\(object\|null, Prospecter\\Core\\Prospecting\\Application\\ConsultExchange\\ExchangeDetail, string, DateTimeImmutable\)\: object, Closure\(null, Prospecter\\Core\\Prospecting\\Application\\ConsultExchange\\ExchangeDetail, string, DateTimeImmutable\)\: Prospecter\\Core\\Connectors\\Application\\RetryPush\\RetryPush given\.$#'
 			identifier: argument.type
 			count: 1
 			path: src/Connectors/Mcp/RetryPushTool.php
-
-		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 1
-			path: src/Connectors/MyConnectionsReader.php
 
 		-
 			message: '#^Cannot access offset ''clientId'' on mixed\.$#'
@@ -2677,30 +2599,6 @@ parameters:
 			path: src/Consistency/TagsAgainstTheTables.php
 
 		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 6
-			path: src/Contacts/AgendaReader.php
-
-		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 2
-			path: src/Contacts/CallerReader.php
-
-		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 4
-			path: src/Contacts/ContactReader.php
-
-		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 1
-			path: src/Contacts/ContactSearchReader.php
-
-		-
 			message: '#^Parameter \#2 \$from of method App\\Contacts\\AgendaReader\:\:readCalendar\(\) expects DateTimeImmutable, DateTimeImmutable\|null given\.$#'
 			identifier: argument.type
 			count: 1
@@ -2747,66 +2645,6 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: src/Contacts/Mcp/ShowMyDayTool.php
-
-		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 1
-			path: src/Contacts/OrganizationContactsReader.php
-
-		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 5
-			path: src/Contacts/OrganizationTimelineReader.php
-
-		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 1
-			path: src/Contacts/OrganizationsOfContacts.php
-
-		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 2
-			path: src/Contacts/ProposedOrganizationReader.php
-
-		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 2
-			path: src/Contacts/TaggedContactsReader.php
-
-		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 1
-			path: src/Contacts/TagsOfContacts.php
-
-		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 2
-			path: src/Dashboard/DashboardReader.php
-
-		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 1
-			path: src/Exchanges/AttachmentDownloads.php
-
-		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 4
-			path: src/Exchanges/ExchangeReader.php
-
-		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 1
-			path: src/Exchanges/ExchangeResolver.php
 
 		-
 			message: '#^Parameter \#3 \$command of method App\\Exchanges\\Mcp\\ExchangeWrites\:\:write\(\) expects Closure\(App\\Exchanges\\Input\\AttachmentInput\|null, Prospecter\\Core\\Prospecting\\Application\\ConsultExchange\\ExchangeDetail, string, DateTimeImmutable\)\: object, Closure\(App\\Exchanges\\Input\\AttachmentInput, Prospecter\\Core\\Prospecting\\Application\\ConsultExchange\\ExchangeDetail, string, DateTimeImmutable\)\: Prospecter\\Core\\Prospecting\\Application\\AttachFile\\AttachFile given\.$#'
@@ -2851,18 +2689,6 @@ parameters:
 			path: src/Exchanges/Mcp/RemoveAttachmentTool.php
 
 		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 4
-			path: src/Identification/ContactRecorder.php
-
-		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 2
-			path: src/Identification/IdentificationReader.php
-
-		-
 			message: '#^Parameter \#2 \$command of method App\\Me\\Mcp\\MyProfileWrites\:\:write\(\) expects Closure\(App\\PersonalData\\Input\\PersonContactDetailsInput\|null, string, string, DateTimeImmutable\)\: object, Closure\(App\\PersonalData\\Input\\PersonContactDetailsInput, string, string, DateTimeImmutable\)\: Prospecter\\Core\\PersonalData\\Application\\ChangePersonContactDetails\\ChangePersonContactDetails given\.$#'
 			identifier: argument.type
 			count: 1
@@ -2879,18 +2705,6 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: src/Me/Mcp/ChangeMyPictureTool.php
-
-		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 2
-			path: src/Me/MyAccountReader.php
-
-		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 1
-			path: src/Me/MyRemindersReader.php
 
 		-
 			message: '#^Cannot access offset ''contactDetails'' on mixed\.$#'
@@ -3409,18 +3223,6 @@ parameters:
 			path: src/PersonalData/Persistence/PersonDocument.php
 
 		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 1
-			path: src/Prospecting/Controller/ProposeMeetingPlaceController.php
-
-		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 1
-			path: src/Prospecting/Controller/SearchEstablishmentsController.php
-
-		-
 			message: '#^Method App\\Prospecting\\Directory\\RechercheEntreprisesDirectory\:\:resultsOf\(\) should return list\<array\{nom_complet\: string, matching_etablissements\: list\<array\<string, mixed\>\>\}\> but returns mixed\.$#'
 			identifier: return.type
 			count: 1
@@ -3481,12 +3283,6 @@ parameters:
 			path: src/Prospecting/Mcp/DismissPossibleDuplicateTool.php
 
 		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 1
-			path: src/Prospecting/Mcp/ProposeMeetingPlaceTool.php
-
-		-
 			message: '#^Parameter \#3 \$command of method App\\Prospecting\\Mcp\\OrganizationWrites\:\:write\(\) expects Closure\(object\|null, Prospecter\\Core\\Prospecting\\Application\\OrganizationSheet, string, DateTimeImmutable\)\: object, Closure\(null, Prospecter\\Core\\Prospecting\\Application\\OrganizationSheet, string, DateTimeImmutable\)\: Prospecter\\Core\\Prospecting\\Application\\RemoveContact\\RemoveContact given\.$#'
 			identifier: argument.type
 			count: 1
@@ -3497,30 +3293,6 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: src/Prospecting/Mcp/RemoveLogoTool.php
-
-		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 1
-			path: src/Prospecting/Mcp/SearchEstablishmentsTool.php
-
-		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 1
-			path: src/Prospecting/OrganizationReader.php
-
-		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 1
-			path: src/Prospecting/OrganizationResolver.php
-
-		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 1
-			path: src/Prospecting/OrganizationSearchReader.php
 
 		-
 			message: '#^Cannot call method getName\(\) on mixed\.$#'
@@ -5905,12 +5677,6 @@ parameters:
 			path: src/Prospecting/Persistence/ToDoKeys.php
 
 		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 2
-			path: src/Prospecting/TimelineReader.php
-
-		-
 			message: '#^Binary operation "\." between mixed and ''\-01T00\:00\:00Z'' results in an error\.$#'
 			identifier: binaryOp.invalid
 			count: 1
@@ -5981,12 +5747,6 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: src/Security/AccessTokenHandler.php
-
-		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 1
-			path: src/Security/MemberProvider.php
 
 		-
 			message: '#^Method App\\Security\\User\:\:getUserIdentifier\(\) should return non\-empty\-string but returns string\.$#'
@@ -6175,12 +5935,6 @@ parameters:
 			path: src/Shared/Messaging/IntegrationEventBus.php
 
 		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\EventHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 1
-			path: src/Shared/Messaging/IntegrationEventConsumer.php
-
-		-
 			message: '#^Method App\\Shared\\Messaging\\IntegrationFailures\:\:next\(\) should return list\<App\\Shared\\Messaging\\FailedInvocation\> but returns array\<App\\Shared\\Messaging\\FailedInvocation\>\.$#'
 			identifier: return.type
 			count: 1
@@ -6291,12 +6045,6 @@ parameters:
 		-
 			message: '#^Parameter \#1 \$event of static method App\\Shared\\Messaging\\TransportedEvent\:\:fromEventBridge\(\) expects array\{source\: string, detail\-type\: string, detail\: array\{eventId\: string, occurredAt\: string, correlationId\: string, causationId\: string\|null, depth\: int, payload\: array\<string, mixed\>\}\}, mixed given\.$#'
 			identifier: argument.type
-			count: 1
-			path: src/Shared/Messaging/SynchronousDelivery.php
-
-		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\EventHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
 			count: 1
 			path: src/Shared/Messaging/SynchronousDelivery.php
 
@@ -6943,30 +6691,6 @@ parameters:
 			path: src/SignIn/UserPool.php
 
 		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 1
-			path: src/Tags/ContactTagsReader.php
-
-		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 1
-			path: src/Tags/Controller/ShowSuggestedTagsController.php
-
-		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 1
-			path: src/Tags/Mcp/ShowSuggestedTagsTool.php
-
-		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 1
-			path: src/Tags/TagsReader.php
-
-		-
 			message: '#^Parameter \#3 \$command of method App\\ToDos\\Mcp\\ToDoWrites\:\:dispatched\(\) expects Closure\(object\|null, Prospecter\\Core\\Prospecting\\Application\\ToDoInList, string, DateTimeImmutable\)\: object, Closure\(null, Prospecter\\Core\\Prospecting\\Application\\ToDoInList, string, DateTimeImmutable\)\: Prospecter\\Core\\Prospecting\\Application\\EraseToDo\\EraseToDo given\.$#'
 			identifier: argument.type
 			count: 1
@@ -6989,18 +6713,6 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: src/ToDos/Mcp/UntickToDoTool.php
-
-		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 5
-			path: src/ToDos/ToDoReader.php
-
-		-
-			message: '#^Trying to invoke Prospecter\\Core\\SharedKernel\\Application\\QueryHandler but it might not be a callable\.$#'
-			identifier: callable.nonCallable
-			count: 1
-			path: src/ToDos/ToDoResolver.php
 
 		-
 			message: '#^Call to an undefined method object\:\:save\(\)\.$#'

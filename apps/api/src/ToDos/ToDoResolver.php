@@ -39,7 +39,7 @@ final readonly class ToDoResolver implements ValueResolverInterface
     public function read(string $id): ToDoInList
     {
         $kept = new KeptToDo();
-        ($this->consultToDo)(new ConsultToDo($id), $kept);
+        $this->consultToDo->__invoke(new ConsultToDo($id), $kept);
 
         return $kept->toDo;
     }

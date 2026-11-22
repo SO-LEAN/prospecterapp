@@ -44,7 +44,7 @@ final readonly class CampaignResolver implements ValueResolverInterface
     public function read(User $member, string $id): CampaignSheet
     {
         $kept = new KeptCampaign();
-        ($this->consultCampaign)(new ConsultCampaign($member->memberId(), $id), $kept);
+        $this->consultCampaign->__invoke(new ConsultCampaign($member->memberId(), $id), $kept);
 
         return $kept->campaign ?? throw new \LogicException('The campaign was not presented');
     }

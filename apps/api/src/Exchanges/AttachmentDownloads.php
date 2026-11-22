@@ -21,7 +21,7 @@ final readonly class AttachmentDownloads
     public function of(string $memberId, string $exchangeId, string $attachmentId): AttachmentDownloadResource
     {
         $kept = new KeptDownload();
-        ($this->downloadAttachment)(new DownloadAttachment($memberId, $exchangeId, $attachmentId), $kept);
+        $this->downloadAttachment->__invoke(new DownloadAttachment($memberId, $exchangeId, $attachmentId), $kept);
 
         return new AttachmentDownloadResource($kept->download->name, $kept->download->url);
     }

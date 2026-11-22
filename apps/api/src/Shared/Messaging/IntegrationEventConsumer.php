@@ -98,7 +98,7 @@ final readonly class IntegrationEventConsumer implements Handler
 
         $decoded = $this->decode($event);
         $reaction = $this->subscriptions->reactionOf($subscription, $event);
-        $this->causation->within($event->causeOfAReaction(), static fn () => $reaction($decoded));
+        $this->causation->within($event->causeOfAReaction(), static fn () => $reaction->__invoke($decoded));
     }
 
     /**

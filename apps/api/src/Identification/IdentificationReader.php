@@ -43,7 +43,7 @@ final readonly class IdentificationReader
     {
         $identifiedOrganizations = $this->identifiedOrganizations($reader, $organizations);
         $identifiedPersons = new KeptPersonIdentifications();
-        ($this->identifyPersons)(new IdentifyPersons($reader, array_map(static fn (array $person): PersonClues => self::personClues($person, $identifiedOrganizations), $persons)), $identifiedPersons);
+        $this->identifyPersons->__invoke(new IdentifyPersons($reader, array_map(static fn (array $person): PersonClues => self::personClues($person, $identifiedOrganizations), $persons)), $identifiedPersons);
 
         return new IdentificationsResource(
             array_map(self::resource(...), $identifiedPersons->identifications),
@@ -59,7 +59,7 @@ final readonly class IdentificationReader
     private function identifiedOrganizations(string $reader, array $organizations): array
     {
         $identified = new KeptOrganizationIdentifications();
-        ($this->identifyOrganizations)(new IdentifyOrganizations($reader, array_map(self::organizationClues(...), $organizations)), $identified);
+        $this->identifyOrganizations->__invoke(new IdentifyOrganizations($reader, array_map(self::organizationClues(...), $organizations)), $identified);
 
         return $identified->identifications;
     }

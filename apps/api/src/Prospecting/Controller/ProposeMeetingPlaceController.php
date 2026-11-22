@@ -37,7 +37,7 @@ final class ProposeMeetingPlaceController extends AbstractController
     public function __invoke(string $id, #[CurrentUser] User $user): JsonResponse
     {
         $presenter = new MeetingPlacePresenter();
-        ($this->proposeMeetingPlace)(new ProposeMeetingPlace($user->memberId(), $id), $presenter);
+        $this->proposeMeetingPlace->__invoke(new ProposeMeetingPlace($user->memberId(), $id), $presenter);
 
         return $this->json($presenter->resource);
     }

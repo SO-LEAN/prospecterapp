@@ -52,7 +52,7 @@ final readonly class ExchangeReader
     {
         $kept = new KeptExchange();
         $this->revisions->watch($id);
-        ($this->consultExchange)(new ConsultExchange(prospectorId: $prospector, id: $id, asOf: $this->clock->now(), movedFrom: $movedFrom), $kept);
+        $this->consultExchange->__invoke(new ConsultExchange(prospectorId: $prospector, id: $id, asOf: $this->clock->now(), movedFrom: $movedFrom), $kept);
 
         return $this->resourceOf($prospector, $kept->exchange);
     }
@@ -75,7 +75,7 @@ final readonly class ExchangeReader
     {
         $personOfMember = $this->personsOfMembers([$member]);
         $persons = new KeptPersons();
-        ($this->consultPersons)(new ConsultPersons($prospector, array_values($personOfMember)), $persons);
+        $this->consultPersons->__invoke(new ConsultPersons($prospector, array_values($personOfMember)), $persons);
         $person = $persons->persons[$personOfMember[$member] ?? ''] ?? null;
 
         return new AuthorResource(new PersonNameResource($person?->firstName, $person?->lastName), $person?->email);
@@ -85,7 +85,7 @@ final readonly class ExchangeReader
     {
         $personOfMember = $this->personsOfMembers(array_filter([$exchange->createdBy, $exchange->correctedBy, $exchange->madeConformBy]));
         $persons = new KeptPersons();
-        ($this->consultPersons)(new ConsultPersons($prospector, array_values(array_unique(array_filter([$exchange->personId, ...array_values($personOfMember)])))), $persons);
+        $this->consultPersons->__invoke(new ConsultPersons($prospector, array_values(array_unique(array_filter([$exchange->personId, ...array_values($personOfMember)])))), $persons);
 
         if (null === $exchange->personId) {
             $organization = $this->organizationOf($exchange->organizationIds[0]);
@@ -112,7 +112,7 @@ final readonly class ExchangeReader
     private function organizationOf(string $id): OrganizationSheet
     {
         $kept = new KeptOrganization();
-        ($this->consultOrganization)(new ConsultOrganization($id), $kept);
+        $this->consultOrganization->__invoke(new ConsultOrganization($id), $kept);
 
         return $kept->organization;
     }

@@ -33,7 +33,7 @@ final readonly class ContactSearchReader
     public function search(string $memberId, string $query, ?string $after): ContactListResource
     {
         $kept = new KeptContactPage();
-        ($this->searchContacts)(new SearchContacts($memberId, $query, $after), $kept);
+        $this->searchContacts->__invoke(new SearchContacts($memberId, $query, $after), $kept);
         $page = $kept->page;
         $contactIds = array_map(static fn (PersonCard $contact): string => $contact->id, $page->contacts);
         $organizations = $this->organizationsOfContacts->read($memberId, $contactIds);

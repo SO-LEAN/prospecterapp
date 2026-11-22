@@ -59,7 +59,7 @@ final class AskForGoogleAuthorizationController extends AbstractController
     private function clientOfMyAccount(User $user): string
     {
         $kept = new KeptConnections();
-        ($this->consultMyConnections)(new ConsultMyConnections($user->memberId(), $this->clock->now()), $kept);
+        $this->consultMyConnections->__invoke(new ConsultMyConnections($user->memberId(), $this->clock->now()), $kept);
         $google = array_find($kept->offered, static fn (AccountClient $client): bool => self::GOOGLE === $client->provider);
 
         return $google->clientId ?? throw new \LogicException('The client of Google of the account was removed while the authorization was asked');

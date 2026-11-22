@@ -66,7 +66,7 @@ final readonly class AgendaReader
     public function readOverlapping(string $holder, \DateTimeImmutable $startsAt, ?int $durationInMinutes): PlannedExchangesResource
     {
         $overlapping = new KeptOverlappingExchanges();
-        ($this->consultOverlappingExchanges)(new ConsultOverlappingExchanges($holder, $startsAt, $durationInMinutes), $overlapping);
+        $this->consultOverlappingExchanges->__invoke(new ConsultOverlappingExchanges($holder, $startsAt, $durationInMinutes), $overlapping);
         $exchanges = $overlapping->overlapping->exchanges;
         $presenter = new OverlappingExchangesPresenter($this->personsOf($holder, $exchanges), $this->organizationsPlannedWithAlone($exchanges), $this->timelines);
         $presenter->present($overlapping->overlapping);
@@ -77,7 +77,7 @@ final readonly class AgendaReader
     public function readCalendar(string $holder, \DateTimeImmutable $from, \DateTimeImmutable $until, \DateTimeImmutable $at): CalendarResource
     {
         $calendar = new KeptCalendar();
-        ($this->consultCalendar)(new ConsultCalendar(prospectorId: $holder, from: $from, until: $until, at: $at), $calendar);
+        $this->consultCalendar->__invoke(new ConsultCalendar(prospectorId: $holder, from: $from, until: $until, at: $at), $calendar);
         $exchanges = $calendar->calendar->exchanges;
         $presenter = new CalendarPresenter($this->personsOf($holder, $exchanges), $this->organizationsPlannedWithAlone($exchanges), $this->timelines, $this->calendarLinks($from, $until), $this->toDosReadBy($holder, $calendar->calendar->toDos));
         $presenter->present($calendar->calendar);
@@ -88,7 +88,7 @@ final readonly class AgendaReader
     public function readMyDay(string $holder, \DateTimeImmutable $from, \DateTimeImmutable $until, \DateTimeImmutable $at): MyDayResource
     {
         $myDay = new KeptMyDay();
-        ($this->consultMyDay)(new ConsultMyDay(prospectorId: $holder, from: $from, until: $until, at: $at), $myDay);
+        $this->consultMyDay->__invoke(new ConsultMyDay(prospectorId: $holder, from: $from, until: $until, at: $at), $myDay);
         $exchanges = [...$myDay->myDay->today, ...$myDay->myDay->next];
         $links = new MyDayLinksResource($this->links->to('api_me_day', self::period($from, $until)), $this->searchContacts());
         $presenter = new MyDayPresenter($this->personsOf($holder, $exchanges), $this->organizationsPlannedWithAlone($exchanges), $this->timelines, $links, $this->organizationsOfContacts->read($holder, self::contactsOf($exchanges)));
@@ -100,7 +100,7 @@ final readonly class AgendaReader
     public function readExchangesToProcess(string $holder, \DateTimeImmutable $at): ExchangesToProcessResource
     {
         $toProcess = new KeptWhatIsToProcess();
-        ($this->consultWhatIsToProcess)(new ConsultWhatIsToProcess($holder, $at), $toProcess);
+        $this->consultWhatIsToProcess->__invoke(new ConsultWhatIsToProcess($holder, $at), $toProcess);
         $exchanges = $toProcess->toProcess->exchanges;
         $links = new ExchangesToProcessLinksResource($this->links->to('api_me_exchanges_to_process'));
         $persons = $this->personsAmong($holder, [...self::contactsOf($exchanges), ...array_map(static fn (ContactToAttachInList $contact): string => $contact->personId, $toProcess->toProcess->contactsToAttach)]);
@@ -163,7 +163,7 @@ final readonly class AgendaReader
     private function personsAmong(string $reader, array $ids): array
     {
         $persons = new KeptPersons();
-        ($this->consultPersons)(new ConsultPersons($reader, array_values(array_unique($ids))), $persons);
+        $this->consultPersons->__invoke(new ConsultPersons($reader, array_values(array_unique($ids))), $persons);
 
         return $persons->persons;
     }
@@ -199,7 +199,7 @@ final readonly class AgendaReader
         $kept = new KeptOrganization();
 
         try {
-            ($this->consultOrganization)(new ConsultOrganization($id), $kept);
+            $this->consultOrganization->__invoke(new ConsultOrganization($id), $kept);
         } catch (UseCaseRefused $refusal) {
             return ErrorType::NotFound === $refusal->type ? null : throw $refusal;
         }

@@ -39,14 +39,14 @@ final readonly class ContactReader
     public function read(string $reader, string $id): ContactResource
     {
         $timeline = new KeptTimelineIntents();
-        ($this->consultTimelineIntents)(new ConsultTimelineIntents($reader, $id), $timeline);
+        $this->consultTimelineIntents->__invoke(new ConsultTimelineIntents($reader, $id), $timeline);
         $toAttach = new KeptContactToAttach();
-        ($this->consultContactToAttach)(new ConsultContactToAttach($reader, $id), $toAttach);
+        $this->consultContactToAttach->__invoke(new ConsultContactToAttach($reader, $id), $toAttach);
         $catchUp = new KeptMailCatchUpIntents();
-        ($this->consultMailCatchUpIntents)(ConsultMailCatchUpIntents::ofContact($reader, $id), $catchUp);
+        $this->consultMailCatchUpIntents->__invoke(ConsultMailCatchUpIntents::ofContact($reader, $id), $catchUp);
         $presenter = new ContactResourcePresenter($timeline->intents, $toAttach->contactToAttach, $catchUp->possibleIntents, $this->links, $this->intentLinks, $this->revisions);
         $this->revisions->watch($id);
-        ($this->consultPerson)(new ConsultPerson($reader, $id), $presenter);
+        $this->consultPerson->__invoke(new ConsultPerson($reader, $id), $presenter);
 
         return $presenter->resource;
     }

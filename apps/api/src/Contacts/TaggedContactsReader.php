@@ -40,7 +40,7 @@ final readonly class TaggedContactsReader
     public function search(string $memberId, array $chosen, string $tags, ?string $after): TaggedContactListResource
     {
         $kept = new KeptTaggedContactPage();
-        ($this->searchContactsByTags)(new SearchContactsByTags($memberId, $chosen, $after), $kept);
+        $this->searchContactsByTags->__invoke(new SearchContactsByTags($memberId, $chosen, $after), $kept);
         $page = $kept->page ?? throw new \LogicException('The search presented no page');
         $contacts = $this->read($memberId, $page->contactIds);
         $organizations = $this->organizationsOfContacts->read($memberId, $page->contactIds);
@@ -61,7 +61,7 @@ final readonly class TaggedContactsReader
     private function read(string $reader, array $contactIds): array
     {
         $kept = new KeptPersons();
-        ($this->consultPersons)(new ConsultPersons($reader, $contactIds), $kept);
+        $this->consultPersons->__invoke(new ConsultPersons($reader, $contactIds), $kept);
 
         return array_values(array_filter(array_map(static fn (string $id): ?PersonCard => $kept->persons[$id] ?? null, $contactIds)));
     }

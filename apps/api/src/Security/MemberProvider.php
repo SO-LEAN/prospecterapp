@@ -36,7 +36,7 @@ final readonly class MemberProvider implements UserProviderInterface
         $kept = new KeptAccount();
 
         try {
-            ($this->consultMyAccount)(new ConsultMyAccount($identifier), $kept);
+            $this->consultMyAccount->__invoke(new ConsultMyAccount($identifier), $kept);
         } catch (UseCaseRefused $refusal) {
             throw ErrorType::NotFound === $refusal->type ? new UserNotFoundException('Unknown member', previous: $refusal) : $refusal;
         }
