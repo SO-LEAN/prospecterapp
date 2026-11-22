@@ -25,6 +25,11 @@ final class Typed
         return is_int($value) ? $value : throw self::unexpected('an integer', $value);
     }
 
+    public static function intOrNull(mixed $value): ?int
+    {
+        return null === $value ? null : self::int($value);
+    }
+
     public static function float(mixed $value): float
     {
         return is_int($value) || is_float($value) ? (float) $value : throw self::unexpected('a number', $value);
@@ -81,6 +86,42 @@ final class Typed
     public static function namedStrings(mixed $value): array
     {
         return array_map(self::string(...), self::document($value));
+    }
+
+    /**
+     * @template T of object
+     *
+     * @param class-string<T> $class
+     *
+     * @return T
+     */
+    public static function object(mixed $value, string $class): object
+    {
+        return $value instanceof $class ? $value : throw self::unexpected($class, $value);
+    }
+
+    /**
+     * @template T of object
+     *
+     * @param class-string<T> $class
+     *
+     * @return T|null
+     */
+    public static function objectOrNull(mixed $value, string $class): ?object
+    {
+        return null === $value ? null : self::object($value, $class);
+    }
+
+    /**
+     * @template T of object
+     *
+     * @param class-string<T> $class
+     *
+     * @return list<T>
+     */
+    public static function objects(mixed $value, string $class): array
+    {
+        return array_values(array_map(static fn (mixed $element): object => self::object($element, $class), self::array($value)));
     }
 
     private static function unexpected(string $expected, mixed $value): \UnexpectedValueException
