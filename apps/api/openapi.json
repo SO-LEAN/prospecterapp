@@ -12498,7 +12498,7 @@
                         "nullable": true
                     },
                     "processedToday": {
-                        "description": "Its recipients processed today, on the clock of the reader, when the campaign is read alone; none in a list",
+                        "description": "Its recipients processed today, on the reader's clock, when the campaign is read alone; none in a list",
                         "type": "integer",
                         "nullable": true
                     },

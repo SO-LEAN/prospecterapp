@@ -157,7 +157,7 @@ export function useNoteCampaignExchange(campaignId: string) {
   })
 }
 
-/** The cap answered with the campaign: it is read again on the clock of the reader, with the list. */
+/** The cap answered with the campaign: it is read again on the reader's clock, with the list. */
 export function useSetDailyCap() {
   const queryClient = useQueryClient()
   const { t } = useTranslation()

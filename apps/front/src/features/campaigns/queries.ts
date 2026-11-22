@@ -15,7 +15,7 @@ export type Recipient = components['schemas']['RecipientResource']
 /** The campaigns of the team, read whole, each with its target counted (ADR 0144). */
 export const campaignsQuery = () => api.queryOptions('get', '/api/campaigns')
 
-/** Read on the clock of the reader, which its recipients processed today are counted on. */
+/** Read on the reader's clock. Its recipients processed today follow it. */
 export const campaignQuery = (campaignId: string) =>
   api.queryOptions('get', '/api/campaigns/{id}', {
     params: { path: { id: campaignId }, query: { timeZone: readerTimeZone() } },
