@@ -125,9 +125,19 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
 
 The repository is public and written in English (ADR 0017). Agents write like what they read, so the text follows the same rule as the code (ADR 0188).
 
-- **Prose** (docs, docblocks, new ADRs): plain, idiomatic technical English. Write short sentences in the active voice. Prefer possessives and compound nouns to chains of `of`: "each account's figures", not "the figures of each account".
+- **Plain English**: short sentences in subject-verb-object order. One idea per sentence. No ellipsis and no inversion: write the subject and the verb of each clause, in that order.
+
+  Not this (a docblock of Booking):
+
+  > Books a slot of the page a public link leads to, by anyone holding it, without signing in: who they are, how they meet the host, and what about. The client gives the identity of the appointment and the one the booker gets should nobody of the account be them.
+
+  But this:
+
+  > Books a slot on a booking page. Anyone with the page's public link can book without signing in. The booker gives their name and contact details, how they want to meet the host, and the subject. The client sends the appointment's id. It also sends the id the booker gets when nobody in the account matches them.
+- **Prose** (docs, docblocks, new ADRs, MCP descriptions, messages): plain, idiomatic technical English in the active voice. Prefer possessives and compound nouns to chains of `of`: "each account's figures", not "the figures of each account".
 - **Commits**: conventional format, an imperative subject (`add`, `fix`, `remove`) of 72 characters at most, the why in the body. `feat: flag exchanges logged by an AI`, not `feat: the exchange an AI notes keeps that an AI created it`.
 - **Names in code**: the words an English-speaking developer would use, in English word order.
+- **What stays in French**: the backlog's tickets, the Gherkin scenarios (`packages/core/features`) and the interface's labels (`apps/front/src/shared/i18n/fr.ts`).
 - **Leave it cleaner**: the boy scout rule covers text too. A branch that touches a doc, a docblock or a name moves it to this style. Rename code only when a branch touches it, never in a global pass.
 - **False friends**: the list grows with the reviews.
 
