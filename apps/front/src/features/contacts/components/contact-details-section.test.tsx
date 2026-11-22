@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { renderInARouter } from '@/test/render-in-a-router'
 import type { Contact } from '../queries'
-import { ContactDetailsSection } from './contact-sections'
+import { ContactDetailsSection, JobTitleSection } from './contact-sections'
 
 const theApi = vi.hoisted(() => {
   const fetch = vi.fn<typeof globalThis.fetch>()
@@ -92,7 +92,30 @@ async function edit(user: ReturnType<typeof userEvent.setup>) {
 
 afterEach(() => theApi.mockReset())
 
+function revisionsSent(revisions: Array<string | null>, answer: Contact) {
+  return async (input: RequestInfo | URL) => {
+    revisions.push(new URL((input as Request).url).searchParams.get('revision'))
+    return Response.json(answer)
+  }
+}
+
 describe('the contact details of a contact', () => {
+  it('are saved on the revision the contact was read at', async () => {
+    const user = userEvent.setup()
+    const revisions: Array<string | null> = []
+    theApi.mockImplementation(revisionsSent(revisions, { ...ada, revision: 8 }))
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <ContactDetailsSection contact={{ ...ada, revision: 7 }} />
+      </QueryClientProvider>,
+    )
+
+    await edit(user)
+    await user.click(screen.getByRole('button', { name: 'Enregistrer' }))
+
+    await vi.waitFor(() => expect(revisions).toEqual(['7']))
+  })
+
   it('show each link with the mark of its source', () => {
     render(
       <QueryClientProvider client={new QueryClient()}>
@@ -183,5 +206,29 @@ describe('the contact details of a contact', () => {
       'href',
       `/contacts/${ADA}`,
     )
+  })
+})
+
+describe('the job title of a contact', () => {
+  it('is saved on the revision the contact was read at', async () => {
+    const user = userEvent.setup()
+    const revisions: Array<string | null> = []
+    theApi.mockImplementation(revisionsSent(revisions, { ...ada, revision: 8 }))
+    const withItsJobTitle: Contact = {
+      ...ada,
+      revision: 7,
+      _links: { ...ada._links, changeJobTitle: { href: `/api/contacts/${ADA}/job-title`, method: 'PATCH' } },
+    }
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <JobTitleSection contact={withItsJobTitle} />
+      </QueryClientProvider>,
+    )
+
+    await user.click(screen.getByRole('button', { name: /^Modifier\s:\sFonction$/ }))
+    await user.type(screen.getByLabelText('Fonction'), 'CTO')
+    await user.click(screen.getByRole('button', { name: 'Enregistrer' }))
+
+    await vi.waitFor(() => expect(revisions).toEqual(['7']))
   })
 })

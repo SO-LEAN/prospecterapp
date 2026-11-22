@@ -71,6 +71,28 @@ describe('the name of a contact', () => {
     )
   })
 
+  it('renames on the revision the contact was read at, then notes the title on the one the rename answered', async () => {
+    const revisions: Array<{ url: string; revision: string | null }> = []
+    theApi.mockImplementation(async (input) => {
+      const url = new URL((input as Request).url)
+      revisions.push({ url: url.pathname, revision: url.searchParams.get('revision') })
+      return Response.json({ ...camille(theRightToChangeIt, 'ms'), revision: 8 })
+    })
+    const user = renderTheSection({ ...camille(theRightToChangeIt), revision: 7 })
+
+    await user.click(screen.getByRole('button', { name: /^Modifier\s:\sNom$/ }))
+    await user.click(screen.getByRole('combobox', { name: /^Civilité/ }))
+    await user.click(screen.getByRole('option', { name: 'Madame' }))
+    await user.click(screen.getByRole('button', { name: 'Enregistrer' }))
+
+    await vi.waitFor(() =>
+      expect(revisions).toEqual([
+        { url: `/api/contacts/${CAMILLE}/name`, revision: '7' },
+        { url: `/api/contacts/${CAMILLE}/title`, revision: '8' },
+      ]),
+    )
+  })
+
   it('removes the civility when none is chosen again', async () => {
     const sent: Array<{ url: string; body: unknown }> = []
     theApi.mockImplementation(async (input) => {
