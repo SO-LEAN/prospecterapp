@@ -9,8 +9,8 @@ use Prospecter\Core\Campaigns\Domain\Repository\FactRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 
 /**
- * The facts Campaigns keeps over the InMemoryDatabase, by account then by aggregate, as its table keeps them; a
- * scenario may lose those of an account, as a table emptied (ADR 0141).
+ * The facts that Campaigns keeps in the InMemoryDatabase, by account then by aggregate, as its table keeps them. A
+ * scenario may lose an account's facts, like an emptied table (ADR 0141).
  */
 final readonly class InMemoryCampaignsFactRepository implements FactRepository
 {
@@ -24,7 +24,7 @@ final readonly class InMemoryCampaignsFactRepository implements FactRepository
     }
 
     /**
-     * @throws \RuntimeException when the kept fact is no longer the replaced one, as the condition of the adapter
+     * @throws \RuntimeException when the kept fact is no longer the replaced one, like the adapter's condition
      */
     public function record(Fact $fact, ?Fact $replaced): void
     {

@@ -11,9 +11,7 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
-/**
- * The DynamoDB repository in the scenarios: the campaigns kept in the partition of their account.
- */
+/** The DynamoDB repository in the scenarios: the campaigns kept in their account's partition. */
 final readonly class InMemoryCampaignRepository implements CampaignRepository
 {
     public function __construct(private InMemoryDatabase $database)

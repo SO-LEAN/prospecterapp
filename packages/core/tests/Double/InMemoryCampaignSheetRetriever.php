@@ -26,7 +26,7 @@ use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * The DynamoDB retriever in the scenarios: the campaigns the repository saved, read without their getters, the newest
+ * The DynamoDB retriever in the scenarios: the campaigns that the repository saved, read without their getters, newest
  * first.
  */
 final readonly class InMemoryCampaignSheetRetriever implements CampaignSheetRetriever

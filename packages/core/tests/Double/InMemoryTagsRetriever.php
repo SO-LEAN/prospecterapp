@@ -12,9 +12,7 @@ use Prospecter\Core\Campaigns\Domain\Model\Tagging;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
-/**
- * The DynamoDB retriever in the scenarios: the tags of what the repository saved, read without its getters.
- */
+/** The DynamoDB retriever in the scenarios: the tags in what the repository saved, read without its getters. */
 final readonly class InMemoryTagsRetriever implements TagsRetriever
 {
     public function __construct(private InMemoryDatabase $database)

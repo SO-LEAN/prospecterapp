@@ -13,8 +13,8 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * Anticorruption layer of the API, in the scenarios (ADR 0045, 0089): Campaigns knows the account of a member who
- * tags from Accounts, asked about a set of one.
+ * The API's anticorruption layer in the scenarios (ADR 0045, 0089). Campaigns learns from Accounts the account of a
+ * member who tags. It asks about a set of one.
  */
 final readonly class AccountsTaggers implements Taggers
 {

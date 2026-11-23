@@ -11,8 +11,8 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * The DynamoDB retriever in the scenarios: every contact of the account its fact says kept, with what its tags derive
- * from, read as for one contact.
+ * The DynamoDB retriever in the scenarios. It reads every contact of the account whose fact says it is kept, with what
+ * its tags are derived from, as it reads one contact.
  */
 final readonly class InMemoryTaggedContactsRetriever implements TaggedContactsRetriever
 {
