@@ -7,7 +7,7 @@ namespace Prospecter\Core\Connectors\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
 /**
- * A client of Prospecter at a provider is its id and its secret, both given by the provider.
+ * A Prospecter client at a provider needs its id and its secret. The provider gives both.
  */
 final class IncompleteClient extends BusinessRuleViolation
 {

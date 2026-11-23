@@ -8,7 +8,7 @@ use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotAllowed;
 
 /**
- * The provider refused the code of authorization it was given: already used, expired, or not its own.
+ * The provider refused the authorization code it was given. The code was already used, expired, or not its own.
  */
 final class AccessNotGranted extends NotAllowed
 {

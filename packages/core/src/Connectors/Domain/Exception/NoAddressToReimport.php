@@ -7,7 +7,7 @@ namespace Prospecter\Core\Connectors\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 
 /**
- * A contact, or an organization, without an e-mail: the mailbox has nothing to search them by.
+ * The contact or the organization has no e-mail. The mailbox has nothing to search for.
  */
 final class NoAddressToReimport extends NotPossibleInItsState
 {

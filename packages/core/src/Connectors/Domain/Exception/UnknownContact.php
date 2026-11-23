@@ -8,7 +8,8 @@ use Prospecter\Core\SharedKernel\Domain\Exception\NotFound;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * No contact the member reads in clear, of another account or none: they do not even learn that it exists.
+ * The member does not read this contact unmasked. The contact may belong to another account, or not exist. The
+ * member does not even learn whether it exists.
  */
 final class UnknownContact extends NotFound
 {

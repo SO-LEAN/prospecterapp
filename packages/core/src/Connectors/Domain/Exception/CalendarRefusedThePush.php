@@ -8,7 +8,7 @@ use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
 /**
- * The provider refused a push for good: trying it again would be refused again (ADR 0127).
+ * The provider refused a push for good. The provider would refuse it again if it were tried again (ADR 0127).
  */
 final class CalendarRefusedThePush extends BusinessRuleViolation
 {

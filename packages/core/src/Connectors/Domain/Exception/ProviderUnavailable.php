@@ -8,7 +8,7 @@ use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 
 /**
- * No client of Prospecter at the provider is configured: it cannot be asked for an access.
+ * No Prospecter client is configured at the provider. So Prospecter cannot ask the provider for an access.
  */
 final class ProviderUnavailable extends NotPossibleInItsState
 {

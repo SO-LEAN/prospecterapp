@@ -7,7 +7,7 @@ namespace Prospecter\Core\Connectors\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotFound;
 
 /**
- * The calendar « Prospecter » is no longer at the provider: its member deleted it.
+ * The calendar « Prospecter » is no longer at the provider. Its member deleted it.
  */
 final class CalendarGone extends NotFound
 {
