@@ -20,7 +20,7 @@ final readonly class ProblemResource
         public string $detail,
         public array $violations = [],
         public string $type = 'about:blank',
-        #[OA\Property(description: 'The refusal of the business named, for a client to word it in its language (ADR 0073)', example: 'unknownOrganization')]
+        #[OA\Property(description: 'The business refusal\'s name, for the client to word in its language (ADR 0073)', example: 'unknownOrganization')]
         public ?string $reason = null,
     ) {
     }
