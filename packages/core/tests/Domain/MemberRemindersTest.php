@@ -56,6 +56,16 @@ final class MemberRemindersTest extends TestCase
         ReminderDelay::ofMinutes($minutes);
     }
 
+    public function testARefusedDelayNamesTheMinutesAsked(): void
+    {
+        try {
+            ReminderDelay::ofMinutes(7);
+            $this->fail('The delay should have been refused');
+        } catch (ReminderDelayNotOffered $refusal) {
+            $this->assertSame(['minutesBefore' => '7'], $refusal->context);
+        }
+    }
+
     /**
      * @return iterable<string, array{int}>
      */
