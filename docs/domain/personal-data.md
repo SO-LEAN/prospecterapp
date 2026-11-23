@@ -64,7 +64,7 @@ Natural persons' personal data, and who reads it. Code: `packages/core/src/Perso
 - A contact can be suspected of being a duplicate when they are collected or renamed. They are suspected of each account contact that shares their resemblance key, in an organization that names both. The resemblance key is their first and last names, ignoring case, accents and spaces. Prospecting tells which organizations name them (`DuplicateSuspicion`, the port `OrganizationsOfContacts`, the events `DuplicateSuspected` and `DuplicateSuspicionLifted`).
   - The suspicion is lifted for the contacts they no longer resemble.
   - There is no suspicion without both names, nor for a member's profile.
-  - A reaction suspects or lifts the other contact in return (`SuspectDuplicateInReturn`, `LiftSuspicionInReturn`).
+  - A policy makes the other contact suspect or lift in return (`SuspectDuplicateInReturn`, `LiftSuspicionInReturn`).
   - Being suspected or lifted does not change a contact's modification time.
   - Forgetting a contact lifts their suspicions.
   - Only a member with the right to manage personal data reads who is suspected (`PersonReading::showsPossibleDuplicatesTo()`). After checking, that member says that a contact is not a duplicate of one they are suspected of (`DismissPossibleDuplicate`). Any other contact is refused (`NotASuspectedDuplicateContact`). The two are never suspected of each other again (`DismissSuspicionInReturn`, ADR 0170).
@@ -101,5 +101,9 @@ Natural persons' personal data, and who reads it. Code: `packages/core/src/Perso
   - `RecognizeCallingContact` (which contact has a number, with the right to manage personal data);
   - `IdentifyPersons` (which contacts the clues designate, read through the port `DesignatedContactRetriever`, ADR 0173).
 - Commands that change a person (`ChangeCivility` for a contact only). Two commands concern the persons an account prospects, the contacts (ADR 0041, 0042). They need the right to manage personal data (ADR 0031). `CollectContact` collects a contact for at least one organization, checked through the port `ProspectedOrganizations`. `ForgetContact` forgets one.
-- Reactions: `ForgetContactsLeftWithoutOrganization` reacts to Prospecting. `CollectTheFounderProfile` reacts to an account's opening, and `CollectTheMemberProfile` to a member's registration. Each one collects the member's own empty profile (ADR 0064, 0075). `IdentifyBooker` reacts to Booking (ADR 0164).
+- Policies, in `Application/Policy`, turn the other contexts' events and PersonalData's own into commands (ADR 0203):
+  - Prospecting's: `ForgetContactsLeftWithoutOrganization` and `ForgetContactLeftUnattached`.
+  - An account's opening sends `CollectTheFounderProfile`, and a member's registration `CollectTheMemberProfile`. Each one collects the member's own empty profile (ADR 0064, 0075).
+  - A booked slot sends `IdentifyBooker` (ADR 0164).
+  - A suspicion, lifted or dismissed, sends `SuspectDuplicateInReturn`, `LiftSuspicionInReturn` or `DismissSuspicionInReturn` to the other contact.
 - No other context keeps personal data, only an identity of its own for the person (ADR 0197). There are three exceptions. The first is the text of Prospecting's exchanges (ADR 0074), which is to be redacted (ADR 0079), and their attachments (ADR 0077). The second is the address of a Connectors connection's external account (ADR 0120). The third is the booker of a Booking appointment (ADR 0164).
