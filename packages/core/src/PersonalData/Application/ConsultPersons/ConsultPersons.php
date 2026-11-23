@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\PersonalData\Application\ConsultPersons;
 
 /**
- * The persons of a list at once, for a screen showing many of them: the unknown ones are left out.
+ * Gets the persons of a list at once, for a screen that shows many of them. It leaves out the unknown ones.
  */
 final readonly class ConsultPersons
 {

@@ -10,19 +10,19 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\Slice;
 
 /**
- * Reads the facts of the contacts as the other contexts count them, without restoring them (ADR 0088): the one
- * reading of them, for their event and for their service.
+ * Reads the contacts' facts as the other contexts count them, without restoring the contacts (ADR 0088). It is the
+ * only reading of these facts, for their event and for their service.
  */
 interface ContactFactsRetriever
 {
     /**
-     * The facts of the person as the command is about to write them, absent once it is forgotten; null for a
-     * person kept for another purpose than prospecting, the profile of a member, which is no contact.
+     * Returns the person's facts as the command is about to write them. Once the person is forgotten, their facts are
+     * absent. Returns null for a person kept for a purpose other than prospecting: a member's profile is not a contact.
      */
     public function of(PersonId $id): ?ContactFactsResponse;
 
     /**
-     * The facts of the contacts of the account newest first, after the cursor (ADR 0049).
+     * Returns the facts of the account's contacts, newest first, after the cursor (ADR 0049).
      *
      * @return Slice<ContactFactsResponse>
      */

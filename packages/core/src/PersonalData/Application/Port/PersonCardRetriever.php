@@ -11,18 +11,18 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 /**
- * Reads the cards of the persons without restoring them (ADR 0088), as their reader may read them: in clear or
- * masked (`PersonReading`, `Masking`), with what the reader may do of them (`PersonPossibilities`).
+ * Reads persons' cards without restoring the persons (ADR 0088). Each card is read as its reader may read it, unmasked
+ * or masked (`PersonReading`, `Masking`). It tells what the reader may do with the person (`PersonPossibilities`).
  */
 interface PersonCardRetriever
 {
     /**
-     * @throws UnknownPerson for a person of another account, who does not even learn that they exist
+     * @throws UnknownPerson when the person belongs to another account: the reader must not even learn that they exist
      */
     public function get(PersonId $id, Reader $reader): PersonCard;
 
     /**
-     * The persons that exist among these ids and the reader reaches, in no particular order.
+     * Returns the persons who exist among these ids and whom the reader reaches, in no particular order.
      *
      * @param list<PersonId> $ids
      *
@@ -31,7 +31,7 @@ interface PersonCardRetriever
     public function ofIds(array $ids, Reader $reader): array;
 
     /**
-     * The contacts of the account of the reader who have this phone number.
+     * Returns the contacts of the reader's account who have this phone number.
      *
      * @return list<PersonCard>
      */

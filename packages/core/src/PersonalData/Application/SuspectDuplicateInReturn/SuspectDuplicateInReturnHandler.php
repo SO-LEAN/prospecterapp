@@ -12,8 +12,9 @@ use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 
 /**
- * The contact a newcomer resembles is suspected of being their duplicate in return. Forgotten meanwhile, the reaction
- * has nothing left to do; suspecting them already, the contact records nothing.
+ * A newcomer resembles a contact. In return, that contact is suspected of being the newcomer's duplicate. When the
+ * contact was forgotten meanwhile, the reaction has nothing left to do. When the contact suspects them already, it
+ * records nothing.
  */
 final readonly class SuspectDuplicateInReturnHandler implements EventHandler
 {

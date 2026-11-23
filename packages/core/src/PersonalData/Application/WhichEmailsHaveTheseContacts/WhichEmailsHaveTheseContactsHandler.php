@@ -16,8 +16,8 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * The address of a contact leaves PersonalData only for a member reading them in clear, allowed to manage the
- * personal data of their account (ADR 0031); who reads it keeps it not.
+ * A contact's address leaves PersonalData only for a member who reads the contact unmasked and may manage their
+ * account's personal data (ADR 0031). Whoever reads the address does not keep it.
  */
 final readonly class WhichEmailsHaveTheseContactsHandler implements QueryHandler, WhichEmailsHaveTheseContactsService
 {
@@ -28,7 +28,7 @@ final readonly class WhichEmailsHaveTheseContactsHandler implements QueryHandler
     }
 
     /**
-     * A reader nobody knows reads nobody: the service refuses nothing.
+     * An unknown reader reads nobody. The service refuses nothing.
      */
     public function __invoke(WhichEmailsHaveTheseContacts $query, WhichEmailsHaveTheseContactsOutput $output): void
     {

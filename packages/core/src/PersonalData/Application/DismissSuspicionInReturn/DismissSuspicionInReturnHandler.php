@@ -12,8 +12,9 @@ use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 
 /**
- * The contact another was checked to be no duplicate of is no duplicate of them in return. Forgotten meanwhile, the
- * reaction has nothing left to do; knowing it already, the contact records nothing.
+ * A member checked that a contact is not a duplicate of another one. In return, the other contact is not a duplicate
+ * of the first one either. When the contact was forgotten meanwhile, the reaction has nothing left to do. When the
+ * contact knows it already, it records nothing.
  */
 final readonly class DismissSuspicionInReturnHandler implements EventHandler
 {

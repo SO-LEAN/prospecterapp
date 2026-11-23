@@ -13,7 +13,7 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Erases the person; the event it records detaches it from its organizations (ContactForgotten).
+ * Erases the person. The event it records detaches the person from their organizations (ContactForgotten).
  */
 final readonly class ForgetContactHandler implements CommandHandler
 {

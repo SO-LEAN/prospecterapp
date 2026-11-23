@@ -63,7 +63,7 @@ final readonly class IdentifyPersonsHandler implements QueryHandler
      * @param list<PersonId> $contacts
      * @param list<string>   $organizationIds
      *
-     * @return list<PersonId> those of these organizations first
+     * @return list<PersonId> the contacts of these organizations first
      */
     private function ofTheirOrganizationsFirst(array $contacts, array $organizationIds, AccountId $accountId): array
     {
@@ -75,7 +75,7 @@ final readonly class IdentifyPersonsHandler implements QueryHandler
     }
 
     /**
-     * The contacts the keys designate, each once, by the surest key first.
+     * Lists the contacts the keys designate, each one once, the surest key first.
      *
      * @return list<PersonId>
      */
@@ -103,7 +103,7 @@ final readonly class IdentifyPersonsHandler implements QueryHandler
     /**
      * @param list<PersonId> $contacts
      *
-     * @return list<Candidate> in the order of the contacts
+     * @return list<Candidate> in the contacts' order
      */
     private function named(array $contacts, Reader $reader): array
     {

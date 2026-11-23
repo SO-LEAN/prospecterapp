@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\PersonalData\Application\DismissPossibleDuplicate;
 
 /**
- * Says, once checked, that the contact is no duplicate of the one they resemble: neither is suspected of being the
- * other's again.
+ * Says that a member checked the contact, and that they are not a duplicate of the contact they resemble. Neither
+ * contact is suspected of being the other's duplicate again.
  */
 final readonly class DismissPossibleDuplicate
 {
