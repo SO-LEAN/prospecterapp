@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Tests\Core\Architecture;
 
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
 
 /**
  * A parent event's handler also receives every child event added later. That suits a handler that publishes
- * facts, because the facts must follow anything that happens to their subject. A business reaction subscribes to
- * its events one by one, so that a new event never reaches it unless someone decides so.
+ * facts, because the facts must follow anything that happens to their subject. A business reaction, a policy or an
+ * event handler not moved yet, names its events one by one, so that a new event never reaches it unless someone
+ * decides so (ADR 0203).
  */
 class ParentEventsFeedOnlyFactsTest extends TestCase
 {
@@ -18,35 +18,45 @@ class ParentEventsFeedOnlyFactsTest extends TestCase
 
     public function testOnlyAPublicationOfFactsSubscribesToAParentEvent(): void
     {
-        $this->assertSame([], $this->reactionsToAParentEvent());
+        $this->assertSame([], $this->reactionsToAParentEvent(array_filter(EventHandlersOfTheCore::all(), fn (string $handler): bool => !$this->publishesFacts($handler))));
+    }
+
+    public function testAPolicyTakesNoParentEvent(): void
+    {
+        $this->assertSame([], $this->reactionsToAParentEvent(PoliciesOfTheCore::all()));
     }
 
     /**
-     * @return list<string> "handler: parent event" for every handler that subscribes to an abstract event and publishes no facts
+     * @param array<class-string> $reactions
+     *
+     * @return list<string> "reaction: parent event" for every reaction that takes an abstract event
      */
-    private function reactionsToAParentEvent(): array
+    private function reactionsToAParentEvent(array $reactions): array
     {
-        $reactions = [];
+        $parents = [];
 
-        foreach (EventHandlersOfTheCore::all() as $handler) {
-            $event = $this->eventOf($handler);
-
-            if ($this->isAParent($event) && !$this->publishesFacts($handler)) {
-                $reactions[] = sprintf('%s: %s', $handler, $event);
+        foreach ($reactions as $reaction) {
+            foreach ($this->eventsOf($reaction) as $event) {
+                if ($this->isAParent($event)) {
+                    $parents[] = sprintf('%s: %s', $reaction, $event);
+                }
             }
         }
 
-        return $reactions;
+        return $parents;
     }
 
     /**
-     * @param class-string<EventHandler> $handler
+     * @param class-string $reaction
+     *
+     * @return list<string> the events its __invoke() takes, one or a union
      */
-    private function eventOf(string $handler): string
+    private function eventsOf(string $reaction): array
     {
-        $type = new \ReflectionMethod($handler, '__invoke')->getParameters()[0]->getType();
+        $type = new \ReflectionMethod($reaction, '__invoke')->getParameters()[0]->getType();
+        $types = $type instanceof \ReflectionUnionType ? $type->getTypes() : [$type];
 
-        return $type instanceof \ReflectionNamedType ? $type->getName() : '';
+        return array_values(array_map(static fn (?\ReflectionType $type): string => $type instanceof \ReflectionNamedType ? $type->getName() : '', $types));
     }
 
     private function publishesFacts(string $handler): bool
