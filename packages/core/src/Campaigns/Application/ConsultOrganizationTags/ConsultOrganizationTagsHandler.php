@@ -14,8 +14,8 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
- * The tags of an organization the account of the member prospects: those put by hand, and the automatic ones of where
- * it is (ADR 0142); those of the contacts are `ConsultContactTags`.
+ * The tags of an organization that the member's account prospects: the tags put by hand, and the automatic tags for
+ * where it is (ADR 0142). `ConsultContactTags` gives the contacts' tags.
  */
 final readonly class ConsultOrganizationTagsHandler implements QueryHandler
 {
