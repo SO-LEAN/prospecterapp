@@ -45,7 +45,7 @@
     "context": "personal-data",
     "sources": ["prospecter.personal-data.internal"],
     "events": ["DuplicateSuspected.v1"],
-    "handler": "Prospecter\\Core\\PersonalData\\Application\\SuspectDuplicateInReturn\\SuspectDuplicateInReturnHandler",
+    "policy": "Prospecter\\Core\\PersonalData\\Application\\Policy\\SuspectDuplicateInReturnPolicy",
     "inbox": true
   },
   "personal-data-lift-suspicion-in-return": {
