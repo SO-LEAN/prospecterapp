@@ -206,6 +206,7 @@ use Prospecter\Core\PersonalData\Application\Policy\CollectTheFounderProfilePoli
 use Prospecter\Core\PersonalData\Application\Policy\CollectTheMemberProfilePolicy;
 use Prospecter\Core\PersonalData\Application\Policy\ForgetContactLeftUnattachedPolicy;
 use Prospecter\Core\PersonalData\Application\Policy\ForgetContactsLeftWithoutOrganizationPolicy;
+use Prospecter\Core\PersonalData\Application\Policy\IdentifyBookerPolicy;
 use Prospecter\Core\PersonalData\Application\PresentMembers\PresentMembersHandler;
 use Prospecter\Core\PersonalData\Application\PublishBookerIdentified\PublishBookerIdentifiedHandler;
 use Prospecter\Core\PersonalData\Application\PublishContactCollected\PublishContactCollectedHandler;
@@ -1382,6 +1383,7 @@ final class Application
     private function commandHandlers(): array
     {
         return [
+            new IdentifyBookerHandler($this->persons, new BookingBookers($this->consultAppointmentsService), $this->readers, $this->events),
             new ForgetContactLeftUnattachedHandler($this->persons, $this->readers, $this->events),
             new ForgetContactsLeftWithoutOrganizationHandler($this->persons, $this->readers, $this->events),
             new CollectTheMemberProfileHandler($this->persons),
@@ -1798,7 +1800,7 @@ final class Application
             new KeepExchangesOfAttachedContactHandler($this->exchanges, $this->events),
             new KeepToDosOfAttachedContactHandler($this->toDos, $this->events),
             new PushBackErasureOfContactToAttachHandler($this->exchanges, $this->contactsToAttach, $this->events),
-            new IdentifyBookerHandler($this->persons, new BookingBookers($this->consultAppointmentsService), $this->readers, $this->events),
+            new IdentifyBookerPolicy(),
             new PlanBookedAppointmentHandler($this->exchanges, $this->contactsToAttach, $this->contactOrganizations, new BookingBookedAppointments($this->consultAppointmentsService), $this->prospectors, $this->events),
             new RegisterTheFounderPolicy(),
             new CollectTheFounderProfilePolicy(),
