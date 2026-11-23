@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\NoteToDo;
 
 /**
- * Notes a to-do for a contact, kept for the organizations the contact is part of now, due on a day (`Y-m-d`), at an
- * hour of it (`H:i`) when said.
+ * Logs a to-do for a contact. The to-do is kept for the organizations the contact is part of now. It is due on a day
+ * (`Y-m-d`), and at an hour of that day (`H:i`) when one is given.
  */
 final readonly class NoteToDo
 {
