@@ -3,13 +3,13 @@ import type { ToDo } from './queries'
 const MONDAY = 1
 const WEEK = 7
 
-/** "2026-11-13", the day of a moment in the time of the browser, as the API reads a due day. */
+/** "2026-11-13": a moment's day in the browser's time zone, in the format the API reads for a due day. */
 export const dayOf = (moment: Date) =>
   [moment.getFullYear(), moment.getMonth() + 1, moment.getDate()]
     .map((part) => String(part).padStart(2, '0'))
     .join('-')
 
-/** "08:30", the hour of a moment in the time of the browser. */
+/** "08:30": a moment's hour in the browser's time zone. */
 const hourOf = (moment: Date) =>
   [moment.getHours(), moment.getMinutes()].map((part) => String(part).padStart(2, '0')).join(':')
 
@@ -26,7 +26,7 @@ export const DUE_SHORTCUTS = {
 
 export type DueShortcut = keyof typeof DUE_SHORTCUTS
 
-/** Still to do past its day, or past its hour on its day. */
+/** Still to do after its day, or after its hour on its day. */
 export const isOverdue = (toDo: Pick<ToDo, 'dueOn' | 'dueAt' | 'doneAt'>, now: Date) => {
   if (toDo.doneAt) {
     return false
@@ -39,7 +39,7 @@ export const isOverdue = (toDo: Pick<ToDo, 'dueOn' | 'dueAt' | 'doneAt'>, now: D
 
 const dayFormat = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'medium' })
 
-/** "2026-11-14" and "08:30" -> "14 nov. 2026, 8h30": a day of the calendar, as the prospector wrote it. */
+/** "2026-11-14" and "08:30" -> "14 nov. 2026, 8h30": a calendar day, as the prospector wrote it. */
 export const formatDue = ({ dueOn, dueAt }: Pick<ToDo, 'dueOn' | 'dueAt'>) => {
   const [year = 0, month = 1, day = 1] = dueOn.split('-').map(Number)
   const shownDay = dayFormat.format(new Date(year, month - 1, day))
@@ -50,7 +50,7 @@ export const formatDue = ({ dueOn, dueAt }: Pick<ToDo, 'dueOn' | 'dueAt'>) => {
   return `${shownDay}, ${hours}h${String(minutes).padStart(2, '0')}`
 }
 
-/** The API orders them, those to do first: the list splits them, those done folded. */
+/** The API orders the to-dos, those to do first. The list splits them and folds the done ones. */
 export const split = (toDos: ToDo[]) => ({
   toDo: toDos.filter((toDo) => !toDo.doneAt),
   done: toDos.filter((toDo) => Boolean(toDo.doneAt)),

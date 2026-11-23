@@ -26,12 +26,12 @@ import { revisionOf } from '../schema'
 import { useToggle } from '../use-toggle'
 import { ToDoForm } from './to-do-form'
 
-/** Told once a to-do is ticked off: the page may propose to note the exchange it led to. */
+/** Called once a to-do is ticked off. The page may then propose to log the exchange it led to. */
 export type OnTickedOff = (toDo: ToDo) => void
 
 type SectionProps = { onTickedOff?: OnTickedOff; className?: string }
 
-/** The to-dos for the contact, noted on its card. */
+/** The contact's to-dos, logged on its card. */
 export function ContactToDosSection({ contactId, ...props }: SectionProps & { contactId: string }) {
   const { data } = useQuery(contactToDosQuery(contactId))
   const note = useNoteToDo()
@@ -47,7 +47,7 @@ export function ContactToDosSection({ contactId, ...props }: SectionProps & { co
   )
 }
 
-/** The to-dos kept for the organization, for it or for its contacts, each of these named. */
+/** The to-dos kept for the organization: those for the organization itself and those for its contacts, each contact named. */
 export function OrganizationToDosSection({
   organizationId,
   ...props
@@ -76,9 +76,9 @@ type CardProps = SectionProps & {
 type AddProps = Pick<CardProps, 'onNote'> & { open: boolean; onOpenChange: (open: boolean) => void }
 
 /**
- * A new to-do, in a dialog closed once it is added, or kept open for another: a new form then, empty, due tomorrow, its
- * text focused: emptying the same form in place would count on a render registering its fields again, which the React
- * Compiler skips (`docs/architecture/front.md`, Forms).
+ * Adds a new to-do in a dialog. The dialog closes once the to-do is added, or stays open for another one. It then shows
+ * a new, empty form, due tomorrow, with its text focused. Emptying the same form in place would count on a render that
+ * registers its fields again, and the React Compiler skips that render (`docs/architecture/front.md`, Forms).
  */
 function AddToDoDialog({ onNote, open, onOpenChange }: AddProps) {
   const { t } = useTranslation()
@@ -119,7 +119,7 @@ function AddButton({ onClick }: { onClick: () => void }) {
   )
 }
 
-/** What is to do, the soonest due first, those overdue in red; those done folded beneath. */
+/** What there is to do, the soonest due first and the overdue ones in red. The done ones are folded beneath. */
 export function ToDosCard({ list, onNote, onTickedOff, withTheirContact = false, className }: CardProps) {
   const { t } = useTranslation()
   const { toDo, done } = split(list.toDos)
@@ -195,7 +195,7 @@ function ToDoLines({ label, toDos, ...props }: LinesProps) {
 
 type LineProps = Omit<LinesProps, 'label' | 'toDos'> & { toDo: ToDo }
 
-/** Ticked off or unticked in one click, revised or erased from its menu, as its links allow. */
+/** One click ticks it off or unticks it. Its menu revises or erases it. Its links decide which gestures it allows. */
 export function ToDoLine({ toDo, now, withTheirContact, onTickedOff }: LineProps) {
   const { t } = useTranslation()
   const toggle = useToggle(toDo, onTickedOff)

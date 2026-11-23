@@ -6,8 +6,8 @@ import type { ToDo } from './queries'
 type Toggled = Pick<ToDo, 'id' | 'text' | 'doneAt' | '_links'>
 
 /**
- * The box of a to-do, ticked off or unticked in one click as its links allow: it shows the click at once, until the
- * lists read again tell the new state, or the refusal the former one.
+ * A to-do's box, ticked off or unticked in one click when its links allow it. It shows the click at once. It keeps
+ * showing it until the lists, read again, show the new state, or until a refusal brings back the former one.
  */
 export function useToggle<Item extends Toggled>(toDo: Item, onTickedOff?: (toDo: Item) => void) {
   const { t } = useTranslation()
