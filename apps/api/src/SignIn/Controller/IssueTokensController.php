@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\SignIn\Controller;
 
+use App\Shared\JsonResponses;
 use App\SignIn\OAuth\BrokenSeal;
 use App\SignIn\OAuth\CognitoTokens;
 use App\SignIn\OAuth\GrantRefused;
@@ -24,6 +25,7 @@ final readonly class IssueTokensController
     public function __construct(
         private Seal $seal,
         private CognitoTokens $cognito,
+        private JsonResponses $jsonResponses,
     ) {
     }
 
@@ -37,7 +39,7 @@ final readonly class IssueTokensController
             default => throw GrantRefused::ofTheType($form->getString('grant_type')),
         };
 
-        return new JsonResponse($tokens, headers: ['Cache-Control' => 'no-store']);
+        return $this->jsonResponses->of($tokens, headers: ['Cache-Control' => 'no-store']);
     }
 
     /**
