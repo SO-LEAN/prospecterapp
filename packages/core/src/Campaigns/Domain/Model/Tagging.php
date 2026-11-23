@@ -7,7 +7,7 @@ namespace Prospecter\Core\Campaigns\Domain\Model;
 use Prospecter\Core\Campaigns\Domain\Event\ContactTagsChanged;
 use Prospecter\Core\Campaigns\Domain\Event\OrganizationTagsChanged;
 use Prospecter\Core\Campaigns\Domain\Exception\AutomaticTag;
-use Prospecter\Core\Campaigns\Domain\Exception\TagNotCarried;
+use Prospecter\Core\Campaigns\Domain\Exception\TagAbsent;
 use Prospecter\Core\SharedKernel\Domain\Event\DomainEvent;
 use Prospecter\Core\SharedKernel\Domain\Event\RecordsEvents;
 use Prospecter\Core\SharedKernel\Domain\Event\ReleasesEvents;
@@ -59,12 +59,12 @@ final class Tagging implements ReleasesEvents
     }
 
     /**
-     * @throws TagNotCarried
+     * @throws TagAbsent
      */
     public function takeOff(Tag $tag, MemberId $by, \DateTimeImmutable $at): void
     {
         if (!$this->carries($tag)) {
-            throw TagNotCarried::named($tag);
+            throw TagAbsent::named($tag);
         }
 
         $this->tags = array_values(array_filter($this->tags, static fn (Tag $carried): bool => !$carried->equals($tag)));

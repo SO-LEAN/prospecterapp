@@ -56,7 +56,7 @@ Members put tags on their organizations and contacts. Later, they find the ones 
 
 - A member tags an organization their account prospects, or a contact of their account (`PutTags`). Prospecting and PersonalData tell which ones these are (`TaggableHolders`). Anything else is unknown (`UnknownOrganization`, `UnknownContact`). Every prospector tags, with or without the right to manage personal data.
 - A tag already carried is carried once. An automatic tag is never put by hand (`AutomaticTag`, « The tag #EMAIL is set automatically »). Such a tag refuses the whole action.
-- A member takes a tag off (`TakeOffTag`). This is refused when the tag is not carried (`TagNotCarried`).
+- A member takes a tag off (`TakeOffTag`). This is refused when the organization or contact does not have the tag (`TagAbsent`).
 - The suggested tags (`ConsultSuggestedTags`) are derived from the tags carried. A tag that nothing carries any more is no longer suggested. Another account's tag is never suggested.
 - An organization's tagging is forgotten once Prospecting says the account no longer prospects it. `ForgetTagsOfUnprospectedOrganizationPolicy` sends `ForgetTagsOfUnprospectedOrganization` for its terminal `OrganizationFactsChanged`. A contact's tagging is forgotten once PersonalData says the contact is forgotten. `ForgetTagsOfForgottenContactPolicy` sends `ForgetTagsOfForgottenContact` for `ContactForgotten`. So when the account stops prospecting an organization, its tags go with it. The tags of the contacts it erases go too.
 
