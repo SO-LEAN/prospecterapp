@@ -207,6 +207,7 @@ use Prospecter\Core\PersonalData\Application\Policy\CollectTheMemberProfilePolic
 use Prospecter\Core\PersonalData\Application\Policy\ForgetContactLeftUnattachedPolicy;
 use Prospecter\Core\PersonalData\Application\Policy\ForgetContactsLeftWithoutOrganizationPolicy;
 use Prospecter\Core\PersonalData\Application\Policy\IdentifyBookerPolicy;
+use Prospecter\Core\PersonalData\Application\Policy\LiftSuspicionInReturnPolicy as LiftContactSuspicionInReturnPolicy;
 use Prospecter\Core\PersonalData\Application\Policy\SuspectDuplicateInReturnPolicy as SuspectContactDuplicateInReturnPolicy;
 use Prospecter\Core\PersonalData\Application\PresentMembers\PresentMembersHandler;
 use Prospecter\Core\PersonalData\Application\PublishBookerIdentified\PublishBookerIdentifiedHandler;
@@ -1384,6 +1385,7 @@ final class Application
     private function commandHandlers(): array
     {
         return [
+            new LiftContactSuspicionInReturnHandler($this->persons, $this->events),
             new SuspectContactDuplicateInReturnHandler($this->persons, $this->events),
             new IdentifyBookerHandler($this->persons, new BookingBookers($this->consultAppointmentsService), $this->readers, $this->events),
             new ForgetContactLeftUnattachedHandler($this->persons, $this->readers, $this->events),
@@ -1791,7 +1793,7 @@ final class Application
             new SuspectDuplicateInReturnHandler($this->organizations, $this->events),
             new LiftSuspicionInReturnHandler($this->organizations, $this->events),
             new SuspectContactDuplicateInReturnPolicy(),
-            new LiftContactSuspicionInReturnHandler($this->persons, $this->events),
+            new LiftContactSuspicionInReturnPolicy(),
             new DismissContactSuspicionInReturnHandler($this->persons, $this->events),
             new DismissSuspicionInReturnHandler($this->organizations, $this->events),
             new NoteImportedEmailHandler($this->exchanges, $this->organizations, $this->prospectors, $this->contactOrganizations, new NotedOnce($this->exchanges), $this->privateStorage, $this->events),
