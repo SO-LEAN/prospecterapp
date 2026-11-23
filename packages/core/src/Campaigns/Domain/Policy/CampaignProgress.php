@@ -7,13 +7,14 @@ namespace Prospecter\Core\Campaigns\Domain\Policy;
 use Prospecter\Core\Campaigns\Domain\Model\RecipientStatus;
 
 /**
- * How far a campaign went (ADR 0144, 0145): its recipients processed by an exchange, and those dismissed; nobody before
- * it is started. Its recipients processed today are counted on the member's clock, for its daily cap.
+ * How far a campaign has gone (ADR 0144, 0145). It counts the recipients that an exchange processed and those
+ * dismissed. Before the campaign starts, it counts nobody. It counts the recipients processed today on the member's
+ * clock, for the daily cap.
  */
 final class CampaignProgress
 {
     /**
-     * @param list<RecipientStatus> $statuses of its recipients
+     * @param list<RecipientStatus> $statuses its recipients' statuses
      */
     #[\NoDiscard]
     public static function processedAmong(array $statuses): int
@@ -22,7 +23,7 @@ final class CampaignProgress
     }
 
     /**
-     * @param list<RecipientStatus> $statuses of its recipients
+     * @param list<RecipientStatus> $statuses its recipients' statuses
      */
     #[\NoDiscard]
     public static function dismissedAmong(array $statuses): int
@@ -31,7 +32,7 @@ final class CampaignProgress
     }
 
     /**
-     * @param list<?\DateTimeImmutable> $processedAt the moment each of its recipients was processed, none for one not processed
+     * @param list<?\DateTimeImmutable> $processedAt when each recipient was processed, null for one not processed
      */
     #[\NoDiscard]
     public static function processedOnTheDayOf(\DateTimeImmutable $at, \DateTimeZone $clock, array $processedAt): int

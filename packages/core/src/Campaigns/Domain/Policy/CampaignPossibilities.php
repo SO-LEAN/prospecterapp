@@ -8,10 +8,14 @@ use Prospecter\Core\Campaigns\Domain\Model\CampaignIntent;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignStatus;
 
 /**
- * What a campaign offers in its state (ADR 0144): a draft is revised, discarded and frozen; frozen, its recipients
- * change by hand, its name and its message are still revised, it is still discarded, and it is started while it keeps
- * someone to contact; started, it is led and stopped; until then, its daily cap changes; stopped or ended, it offers
- * nothing.
+ * What a campaign allows in each state (ADR 0144):
+ *
+ * - a draft is revised, discarded and frozen;
+ * - a frozen campaign's recipients change by hand. Its name and message are still revised, and it can still be
+ *   discarded. It is started while it keeps someone to contact;
+ * - a started campaign is run and stopped;
+ * - until a campaign is stopped or ended, its daily cap changes;
+ * - a stopped or ended campaign allows nothing.
  */
 final class CampaignPossibilities
 {

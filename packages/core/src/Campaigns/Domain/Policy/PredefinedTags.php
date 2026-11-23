@@ -8,8 +8,8 @@ use Prospecter\Core\Campaigns\Domain\Model\Tag;
 use Prospecter\Core\Campaigns\Domain\Model\TagFamily;
 
 /**
- * The tags Prospecter proposes to every account, by family, in the order they are proposed: suggestions only, a tag
- * of the account having the same value (ADR 0138).
+ * The tags that Prospecter proposes to every account, by family, in the order proposed. They are only suggestions: an
+ * account's tag may have the same value (ADR 0138).
  */
 final readonly class PredefinedTags
 {
@@ -23,7 +23,7 @@ final readonly class PredefinedTags
     ];
 
     /**
-     * @return array<string, list<string>> the tags of each family, written with their mark
+     * @return array<string, list<string>> each family's tags, written with their `#`
      */
     #[\NoDiscard]
     public static function byFamily(): array
