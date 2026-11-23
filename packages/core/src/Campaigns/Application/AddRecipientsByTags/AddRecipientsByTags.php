@@ -7,7 +7,7 @@ namespace Prospecter\Core\Campaigns\Application\AddRecipientsByTags;
 final readonly class AddRecipientsByTags
 {
     /**
-     * @param list<string> $tags the tags of the search, as the member typed them, that of the channel added
+     * @param list<string> $tags the search's tags as the member typed them; the channel's tag is added to them
      */
     public function __construct(
         public string $memberId,
