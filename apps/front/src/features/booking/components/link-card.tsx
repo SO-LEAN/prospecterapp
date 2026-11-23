@@ -22,7 +22,7 @@ import { publicLinkOf } from '../public-link'
 
 type Props = { page: BookingPage }
 
-/** My public link: copied, previewed, shown as a QR code to download, changed once confirmed; none before the first opening. */
+/** My public link: I can copy it, preview it, download it as a QR code, and change it after a confirmation. There is no link before the first opening. */
 export function LinkCard({ page }: Props) {
   const { t } = useTranslation()
 
@@ -71,7 +71,7 @@ function TheLink({ address }: { address: string }) {
   )
 }
 
-/** The QR code of the link, drawn in the browser as a PNG, the image downloaded as is. */
+/** The link's QR code, drawn in the browser as a PNG. The download is that image as it is. */
 function QrCodeButton({ address }: { address: string }) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)

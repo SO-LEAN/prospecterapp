@@ -2,13 +2,13 @@ import { z } from 'zod'
 import { text } from '@/shared/forms/text'
 import { i18n } from '@/shared/i18n'
 
-/** What looks like a phone number, as the forms of the contacts check it: the API checks the number itself. */
+/** What looks like a phone number, as the contact forms check it. The API checks the number itself. */
 const PHONE_NUMBER = /^\+?[\d\s.()-]{6,}$/
 const MAX_SUBJECT = 1000
 
 const required = text(255).min(1, { error: () => i18n.t('validation.required') })
 
-/** Mirrors `BookingInput` of the API: who books, as they say it, the subject only may be left out. */
+/** Mirrors the API's `BookingInput`: who books, as they describe themselves. Only the subject is optional. */
 export const bookingSchema = z.object({
   firstName: required,
   lastName: required,

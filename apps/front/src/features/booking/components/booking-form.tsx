@@ -16,7 +16,7 @@ import { useBookSlot } from '../mutations'
 type Channel = components['schemas']['BookingInput']['channel']
 type Violation = components['schemas']['ViolationResource']
 
-/** How a booking ended: booked, or refused for what the page tells in place of its form. */
+/** How a booking ended: booked, or refused for a reason that the page shows in place of its form. */
 export type BookingOutcome =
   | { kind: 'booked'; email: string; phone: string }
   | { kind: 'alreadyBooked'; appointment: string }
@@ -36,8 +36,8 @@ const refusalOf = (error: unknown): Violation | undefined =>
     : undefined
 
 /**
- * Who books the slot chosen (ADR 0164): the trap no person fills is hidden from them and from the screen readers, and
- * the page says when it showed the form, for the API to leave aside a form filled by a robot.
+ * Who books the chosen slot (ADR 0164). The trap that no person fills is hidden from people and from screen readers.
+ * The page also says when it showed the form, so that the API can ignore a form that a robot filled.
  */
 export function BookingForm({ code, channel, slot, recap, onDone }: Props) {
   const { t } = useTranslation()

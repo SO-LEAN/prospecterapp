@@ -16,7 +16,7 @@ import { WindowsCard } from './windows-card'
 
 type Props = { page: BookingPage }
 
-/** My booking page in the configuration (ADR 0148): its switch, its windows, its inactive periods, its channels, its link. */
+/** My booking page in the settings (ADR 0148): its switch, its windows, its inactive periods, its channels and its link. */
 export function BookingSection({ page }: Props) {
   return (
     <div className="space-y-6">
@@ -49,7 +49,7 @@ function NoCalendar() {
   )
 }
 
-/** Opened or closed at once, as the page offers it. */
+/** Opens or closes the page at once, as the page allows. */
 function OpenSwitch({ page }: Props) {
   const { t } = useTranslation()
   const switchId = useId()

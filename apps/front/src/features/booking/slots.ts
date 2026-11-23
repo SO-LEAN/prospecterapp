@@ -1,9 +1,9 @@
-/** "Europe/Paris" -> "Paris", "America/New_York" -> "New York": the city a time zone is named after. */
+/** "Europe/Paris" -> "Paris", "America/New_York" -> "New York": the city that a time zone is named after. */
 export function cityOf(timeZone: string): string {
   return (timeZone.split('/').pop() ?? timeZone).replaceAll('_', ' ')
 }
 
-/** "2026-11-24T09:00:00+01:00" -> "09:00", on the clock of the given time zone. */
+/** "2026-11-24T09:00:00+01:00" -> "09:00", on the given time zone's clock. */
 export function slotTime(slot: string, timeZone: string): string {
   return new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit', timeZone }).format(
     new Date(slot),
@@ -17,12 +17,12 @@ const dayFormat = new Intl.DateTimeFormat('fr-FR', {
   timeZone: 'UTC',
 })
 
-/** "2026-11-24" -> "mar. 24 nov.": a day of the calendar, whatever the clock it is read on. */
+/** "2026-11-24" -> "mar. 24 nov.": a calendar day, whatever clock it is read on. */
 export function dayLabel(day: string): string {
   return dayFormat.format(new Date(`${day}T00:00:00Z`))
 }
 
-/** "2026-11-24T09:00:00+01:00" -> "mardi 24 novembre à 9h00": the moment of an appointment, on the clock given. */
+/** "2026-11-24T09:00:00+01:00" -> "mardi 24 novembre à 9h00": an appointment's time, on the given clock. */
 export function appointmentMoment(slot: string, timeZone: string): string {
   const parts = new Intl.DateTimeFormat('fr-FR', {
     weekday: 'long',

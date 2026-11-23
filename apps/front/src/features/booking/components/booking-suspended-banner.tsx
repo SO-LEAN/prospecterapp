@@ -4,7 +4,7 @@ import { CircleAlert } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { myBookingPageQuery } from '../queries'
 
-/** A discreet line above every page while my open booking link offers nothing, my calendar to reconnect (ADR 0153). */
+/** A discreet line above every page while my open booking link offers nothing. It asks me to reconnect my calendar (ADR 0153). */
 export function BookingSuspendedBanner() {
   const { t } = useTranslation()
   const { data: myPage } = useQuery(myBookingPageQuery())
