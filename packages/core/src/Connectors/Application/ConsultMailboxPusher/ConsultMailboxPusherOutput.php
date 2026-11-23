@@ -9,7 +9,7 @@ use Prospecter\Core\SharedKernel\Application\OutputPort;
 interface ConsultMailboxPusherOutput extends OutputPort
 {
     /**
-     * @param string|null $pushAccount the account of service, none while the account has no topic
+     * @param string|null $pushAccount the service account, null while the account has no topic
      */
     public function present(?string $pushAccount): void;
 }
