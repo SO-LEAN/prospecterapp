@@ -36,19 +36,19 @@ Fonctionnalité: Planifier un échange
 
   Scénario: Un échange planifié dure de 5 minutes à 8 heures
     Quand je planifie un rendez-vous avec "Ada Lovelace" le 17/11/2026 à 9h00 pour 9 heures
-    Alors c'est refusé : "A planned exchange lasts from 5 minutes to 8 hours"
+    Alors c'est refusé : "A planned exchange must last from 5 minutes to 8 hours"
 
   Scénario: Un échange planifié est dans le futur
     Quand je planifie un appel avec "Ada Lovelace" le 12/11/2026 à 9h00
-    Alors c'est refusé : "A planned exchange is in the future"
+    Alors c'est refusé : "A planned exchange must be in the future"
 
   Scénario: Seuls un appel, un rendez-vous ou une visio se planifient
     Quand je planifie un SMS avec "Ada Lovelace" le 17/11/2026 à 9h00
-    Alors c'est refusé : "Only a call, a meeting or a video call may be planned"
+    Alors c'est refusé : "Only a call, a meeting or a video call can be planned"
 
   Scénario: Un message Malt ne se planifie pas
     Quand je planifie un message Malt avec "Ada Lovelace" le 17/11/2026 à 9h00
-    Alors c'est refusé : "Only a call, a meeting or a video call may be planned"
+    Alors c'est refusé : "Only a call, a meeting or a video call can be planned"
 
   Scénario: Le lieu d'un rendez-vous est proposé à l'adresse de l'organisation du contact
     Quand je commence à planifier un rendez-vous avec "Ada Lovelace"
@@ -71,15 +71,15 @@ Fonctionnalité: Planifier un échange
 
   Scénario: Le lien d'une visio est une adresse web
     Quand je planifie une visio avec "Ada Lovelace" le 17/11/2026 à 14h00 au lien "réunion de mardi"
-    Alors c'est refusé : "A video call link is a web address"
+    Alors c'est refusé : "A video call link must be a web address"
 
   Scénario: Seul un rendez-vous a un lieu
     Quand je planifie un appel avec "Ada Lovelace" le 17/11/2026 à 14h00 au lieu "Café de Flore"
-    Alors c'est refusé : "Only a meeting has a place"
+    Alors c'est refusé : "Only a meeting can have a place"
 
   Scénario: Seule une visio a un lien
     Quand je planifie un rendez-vous avec "Ada Lovelace" le 17/11/2026 à 14h00 au lien "https://meet.google.com/abc-defg-hij"
-    Alors c'est refusé : "Only a video call has a link"
+    Alors c'est refusé : "Only a video call can have a link"
 
   Scénario: L'échange planifié est à moi
     Quand je planifie un appel avec "Ada Lovelace" le 17/11/2026 à 9h00

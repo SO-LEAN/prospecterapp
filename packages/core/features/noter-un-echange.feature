@@ -78,18 +78,18 @@ Fonctionnalité: Noter un échange avec un contact
   Scénario: Seuls un appel, un rendez-vous ou une visio sont manqués
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
     Quand je note un SMS envoyé à "Ada Lovelace" qui n'a pas abouti
-    Alors c'est refusé : "Only a call, a meeting or a video call may be missed"
+    Alors c'est refusé : "Only a call, a meeting or a video call can be missed"
 
   Scénario: Un message Malt n'est jamais manqué
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
     Quand je note un message Malt reçu de "Ada Lovelace" qui n'a pas abouti
-    Alors c'est refusé : "Only a call, a meeting or a video call may be missed"
+    Alors c'est refusé : "Only a call, a meeting or a video call can be missed"
 
   Scénario: Un échange n'est jamais dans le futur
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
     Et nous sommes le 18/10/2026 à 19h00
     Quand je note un e-mail reçu de "Ada Lovelace" le 19/10/2026 à 9h00
-    Alors c'est refusé : "An exchange is never in the future"
+    Alors c'est refusé : "A logged exchange cannot be in the future"
 
   Scénario: L'échange est gardé pour les organisations dont le contact fait partie quand je le note
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT"

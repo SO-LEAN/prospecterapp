@@ -39,17 +39,17 @@ Fonctionnalité: Traiter un échange planifié
   Scénario: Un échange marqué fait n'est jamais dans le futur
     Soit nous sommes le 17/11/2026 à 15h00
     Quand je marque cette visio faite le 17/11/2026 à 16h00
-    Alors c'est refusé : "An exchange is never in the future"
+    Alors c'est refusé : "A logged exchange cannot be in the future"
 
   Scénario: Un échange n'est fait qu'une fois son heure venue
     Soit nous sommes le 17/11/2026 à 10h00
     Quand je marque cette visio faite
-    Alors c'est refusé : "A planned exchange is done or missed once its time has come"
+    Alors c'est refusé : "A planned exchange can be marked done or missed only once its time has come"
 
   Scénario: Un échange n'est manqué qu'une fois son heure venue
     Soit nous sommes le 17/11/2026 à 10h00
     Quand je marque cette visio manquée
-    Alors c'est refusé : "A planned exchange is done or missed once its time has come"
+    Alors c'est refusé : "A planned exchange can be marked done or missed only once its time has come"
 
   Scénario: Un échange où le contact n'est pas venu est manqué
     Soit nous sommes le 17/11/2026 à 15h00
@@ -100,7 +100,7 @@ Fonctionnalité: Traiter un échange planifié
 
   Scénario: Un échange déplacé dure de 5 minutes à 8 heures
     Quand je déplace cette visio au 18/11/2026 à 9h00 pour 9 heures
-    Alors c'est refusé : "A planned exchange lasts from 5 minutes to 8 hours"
+    Alors c'est refusé : "A planned exchange must last from 5 minutes to 8 hours"
 
   Scénario: Un échange déplacé change de place dans mon agenda
     Quand je déplace cette visio au 18/11/2026 à 9h00
@@ -112,7 +112,7 @@ Fonctionnalité: Traiter un échange planifié
   Scénario: On ne déplace un échange que dans le futur
     Soit nous sommes le 13/11/2026 à 10h00
     Quand je déplace cette visio au 10/11/2026 à 9h00
-    Alors c'est refusé : "A planned exchange is in the future"
+    Alors c'est refusé : "A planned exchange must be in the future"
 
   Scénario: Un échange déplacé se remet à son ancien moment tant qu'il est à venir
     Soit nous sommes le 17/11/2026 à 10h00
@@ -131,18 +131,18 @@ Fonctionnalité: Traiter un échange planifié
   Scénario: Seul un échange à venir se déplace, s'annule, se marque fait ou manqué
     Soit j'ai annulé cette visio
     Quand je la déplace au 18/11/2026 à 9h00
-    Alors c'est refusé : "Only an upcoming exchange may change"
+    Alors c'est refusé : "Only an upcoming exchange can change"
 
   Scénario: Un échange fait ne s'annule plus
     Soit nous sommes le 17/11/2026 à 15h00
     Et j'ai marqué cette visio faite
     Quand j'annule cette visio
-    Alors c'est refusé : "Only an upcoming exchange may change"
+    Alors c'est refusé : "Only an upcoming exchange can change"
 
   Scénario: Seul son titulaire traite un échange planifié
     Soit je suis connecté en tant qu'un autre prospecteur de "SOLEAN IT"
     Quand j'annule cette visio
-    Alors c'est refusé : "Only its holder handles a planned exchange"
+    Alors c'est refusé : "Only its holder can handle a planned exchange"
 
   Scénario: Ce que son titulaire peut faire d'un échange à venir, avant son heure
     Soit nous sommes le 17/11/2026 à 10h00

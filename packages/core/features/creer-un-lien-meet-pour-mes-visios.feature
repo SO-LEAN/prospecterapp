@@ -62,4 +62,4 @@ Fonctionnalité: Créer un lien Meet pour mes visios
 
   Scénario: Seule une visio demande un lien
     Quand je planifie un appel avec "Ada Lovelace" le 17/11/2026 à 14h00, sans lien, en demandant un lien Meet
-    Alors c'est refusé : "Only a video call has a link"
+    Alors c'est refusé : "Only a video call can have a link"

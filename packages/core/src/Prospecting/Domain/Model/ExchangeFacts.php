@@ -41,14 +41,14 @@ final readonly class ExchangeFacts
     }
 
     /**
-     * Only a call, a meeting or a video call may be missed.
+     * Only a call, a meeting or a video call can be missed.
      *
      * @throws ChannelNotMissed
      */
     public function ensureMissable(ExchangeStatus $outcome): void
     {
         if (ExchangeStatus::Missed === $outcome && !$this->channel->mayBePlanned()) {
-            throw ChannelNotMissed::because('Only a call, a meeting or a video call may be missed', 'missed', context: ['channel' => $this->channel->value]);
+            throw ChannelNotMissed::because('Only a call, a meeting or a video call can be missed', 'missed', context: ['channel' => $this->channel->value]);
         }
     }
 
@@ -63,11 +63,11 @@ final readonly class ExchangeFacts
     private static function ensureTheVenueFits(Channel $channel, ?string $place, ?VideoCallLink $link, bool $linkRequested): void
     {
         if (null !== $place && !$channel->isHeldSomewhere()) {
-            throw PlaceOnlyForAMeeting::because('Only a meeting has a place', 'place', context: ['channel' => $channel->value]);
+            throw PlaceOnlyForAMeeting::because('Only a meeting can have a place', 'place', context: ['channel' => $channel->value]);
         }
 
         if ((null !== $link || $linkRequested) && !$channel->isJoinedByALink()) {
-            throw LinkOnlyForAVideoCall::because('Only a video call has a link', 'link', context: ['channel' => $channel->value]);
+            throw LinkOnlyForAVideoCall::because('Only a video call can have a link', 'link', context: ['channel' => $channel->value]);
         }
     }
 
@@ -80,7 +80,7 @@ final readonly class ExchangeFacts
     public static function planned(Channel $channel, \DateTimeImmutable $at, Duration $duration, ?string $agenda): self
     {
         if (!$channel->mayBePlanned()) {
-            throw ChannelNotPlanned::because('Only a call, a meeting or a video call may be planned', 'channel', context: ['channel' => $channel->value]);
+            throw ChannelNotPlanned::because('Only a call, a meeting or a video call can be planned', 'channel', context: ['channel' => $channel->value]);
         }
 
         return new self($channel, Direction::Outbound, $at, $agenda, $duration);

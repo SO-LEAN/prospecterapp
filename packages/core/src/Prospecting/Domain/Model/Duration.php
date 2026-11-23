@@ -21,7 +21,7 @@ final readonly class Duration
     private function __construct(public int $minutes)
     {
         if ($minutes < self::SHORTEST || $minutes > self::LONGEST) {
-            throw DurationOutOfRange::because('A planned exchange lasts from 5 minutes to 8 hours', 'duration');
+            throw DurationOutOfRange::because('A planned exchange must last from 5 minutes to 8 hours', 'duration');
         }
     }
 

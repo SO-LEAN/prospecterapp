@@ -340,12 +340,12 @@ describe('handling a planned exchange', () => {
       Response.json(
         {
           type: 'about:blank',
-          title: 'An exchange is never in the future',
+          title: 'A logged exchange cannot be in the future',
           status: 422,
           violations: [
             {
               propertyPath: 'occurredAt',
-              title: 'An exchange is never in the future',
+              title: 'A logged exchange cannot be in the future',
               reason: 'exchangeInTheFuture',
             },
           ],
@@ -422,7 +422,7 @@ describe('handling a planned exchange', () => {
       Response.json(
         {
           type: 'about:blank',
-          title: 'Only an upcoming exchange may change',
+          title: 'Only an upcoming exchange can change',
           status: 409,
           reason: 'notUpcoming',
         },

@@ -24,7 +24,7 @@ Fonctionnalité: Corriger le lieu d'un rendez-vous ou le lien d'une visio
   Scénario: Le lien corrigé reste une adresse web
     Soit j'ai planifié une visio avec "Ada Lovelace" le 17/11/2026 à 14h00
     Quand je corrige le lien de cet échange en "réunion de mardi"
-    Alors c'est refusé : "A video call link is a web address"
+    Alors c'est refusé : "A video call link must be a web address"
 
   Scénario: Seuls un rendez-vous et une visio ont un lieu ou un lien à corriger
     Soit j'ai planifié un appel avec "Ada Lovelace" le 17/11/2026 à 14h00
@@ -37,7 +37,7 @@ Fonctionnalité: Corriger le lieu d'un rendez-vous ou le lien d'une visio
       | déplacer                 |
       | annuler                  |
     Quand je corrige le lieu de cet échange en "Café de Flore"
-    Alors c'est refusé : "Only a meeting or a video call takes place somewhere"
+    Alors c'est refusé : "Only a meeting or a video call can have a venue"
 
   Scénario: Un collègue sans le droit aux données personnelles corrige le lien aussi
     Soit j'ai planifié une visio avec "Ada Lovelace" le 17/11/2026 à 14h00
