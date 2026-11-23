@@ -13,9 +13,9 @@ use Prospecter\Core\Prospecting\Application\ProposeOrganizationToAttach\ProposeO
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 
 /**
- * The organization proposed to attach a contact to, composed of two contexts (ADR 0146): PersonalData reads their
- * email in clear to the member with the right to manage personal data, Prospecting proposes the organization of its
- * domain, keeping no email; a contact without email has none proposed.
+ * Reads the organization proposed to attach a contact to, from two contexts (ADR 0146). PersonalData reads the
+ * contact's email unmasked for a member with the right to manage personal data. Prospecting proposes the organization
+ * of the email's domain and keeps no email. A contact without an email gets no proposal.
  */
 final readonly class ProposedOrganizationReader
 {

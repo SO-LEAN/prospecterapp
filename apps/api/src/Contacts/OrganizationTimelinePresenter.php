@@ -18,9 +18,9 @@ use Prospecter\Core\Prospecting\Application\Timeline;
 use Prospecter\Core\Prospecting\Application\TimelineOutput;
 
 /**
- * A slice of the timeline of an organization, or of its exchanges to redact, each exchange with who
- * communicated: the person, still its contact, removed or forgotten, or the organization itself. Built for one call
- * with the persons of the slice, it keeps the resource (ADR 0085).
+ * Presents a slice of an organization's timeline, or of its exchanges to redact. Each exchange names who took part:
+ * the person, or the organization itself. The person may still be its contact, or may be removed or forgotten. One
+ * presenter serves one call. It gets the slice's persons and keeps the resource (ADR 0085).
  */
 final class OrganizationTimelinePresenter implements TimelineOutput
 {
@@ -34,9 +34,9 @@ final class OrganizationTimelinePresenter implements TimelineOutput
     public private(set) OrganizationTimelineResource $resource;
 
     /**
-     * @param array{string, string, string} $routes         the route of the list, the route noting an exchange and the route planning one
-     * @param array<string, PersonCard>     $persons        the persons of the slice, by id
-     * @param list<string>                  $catchUpIntents what Connectors offers of the e-mails exchanged with the organization itself, on its timeline only
+     * @param array{string, string, string} $routes         the list's route, the route that logs an exchange and the route that plans one
+     * @param array<string, PersonCard>     $persons        the slice's persons, by id
+     * @param list<string>                  $catchUpIntents what Connectors offers to do with the e-mails exchanged with the organization itself, on its timeline only
      */
     private function __construct(
         private readonly array $routes,
@@ -50,8 +50,8 @@ final class OrganizationTimelinePresenter implements TimelineOutput
     }
 
     /**
-     * @param array<string, PersonCard> $persons        the persons of the slice, by id
-     * @param list<string>              $catchUpIntents what Connectors offers of the e-mails exchanged with the organization itself
+     * @param array<string, PersonCard> $persons        the slice's persons, by id
+     * @param list<string>              $catchUpIntents what Connectors offers to do with the e-mails exchanged with the organization itself
      */
     public static function ofTheTimeline(OrganizationSheet $organization, array $persons, array $catchUpIntents, TimelineResourceFactory $timelines, Links $links, IntentLinks $intentLinks): self
     {
@@ -88,8 +88,8 @@ final class OrganizationTimelinePresenter implements TimelineOutput
     }
 
     /**
-     * The e-mails exchanged with the organization itself are caught up with the right to manage personal data, as they
-     * are imported (ADR 0081, 0176).
+     * Catching up the e-mails exchanged with the organization itself takes the right to manage personal data, because
+     * it imports them (ADR 0081, 0176).
      */
     private function offersTheCatchUp(): bool
     {

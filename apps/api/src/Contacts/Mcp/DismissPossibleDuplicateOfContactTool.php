@@ -15,8 +15,8 @@ use Prospecter\Core\PersonalData\Application\DismissPossibleDuplicate\DismissPos
 use Symfony\Component\Clock\ClockInterface;
 
 /**
- * `DELETE /api/contacts/{id}/possible-duplicates/{duplicateId}`, for an AI (ADR 0163), which asks its member before
- * calling it.
+ * `DELETE /api/contacts/{id}/possible-duplicates/{duplicateId}`, for an AI (ADR 0163). The AI asks its member before
+ * it calls this tool.
  */
 #[Adapts('api_contacts_dismiss_possible_duplicate')]
 final readonly class DismissPossibleDuplicateOfContactTool
@@ -31,12 +31,12 @@ final readonly class DismissPossibleDuplicateOfContactTool
     }
 
     /**
-     * @param string $id          the id of the contact
-     * @param string $duplicateId the id of the contact they resemble, named among their possible duplicates
+     * @param string $id          the contact's id
+     * @param string $duplicateId the id of the contact they resemble, as named among their possible duplicates
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'dismiss-possible-duplicate-contact', description: 'Say, once checked, that a contact is no duplicate of the one they resemble; neither is flagged for the other any more. Needs the right to manage the personal data. Answers the contact.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'dismiss-possible-duplicate-contact', description: 'Says, once checked, that a contact is not a duplicate of the one they resemble. Neither of them is flagged for the other any more. It needs the right to manage personal data. It returns the contact.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id, string $duplicateId): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');

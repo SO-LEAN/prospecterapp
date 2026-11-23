@@ -10,7 +10,7 @@ use App\Shared\Resource\LinkResource;
 use OpenApi\Attributes as OA;
 
 /**
- * A contact in the list, with the organizations it works for and the tags it carries.
+ * A contact in the list, with the organizations they work for and the tags they carry.
  */
 final readonly class ContactInListResource
 {
@@ -21,13 +21,13 @@ final readonly class ContactInListResource
     public function __construct(
         public string $id,
         public PersonNameResource $name,
-        #[OA\Property(description: 'How one addresses the contact, x when unknown, read in clear like their name', enum: ['ms', 'mr', 'x'])]
+        #[OA\Property(description: 'How to address the contact, x when unknown. It is read unmasked, like their name', enum: ['ms', 'mr', 'x'])]
         public string $title,
         public ?string $jobTitle,
         public PersonContactDetailsResource $contactDetails,
         public bool $masked,
         public array $organizations,
-        #[OA\Property(description: 'Every tag it carries, its own, inherited and automatic, in the order of their names', items: new OA\Items(type: 'string', example: '#ESN'))]
+        #[OA\Property(description: 'Every tag the contact carries, their own, inherited and automatic ones, ordered by name', items: new OA\Items(type: 'string', example: '#ESN'))]
         public array $tags,
         #[OA\Property(description: 'The contact, GET /api/contacts/{id}')]
         public LinkResource $contact,

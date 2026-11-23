@@ -14,7 +14,7 @@ final readonly class ToDoToProcessResource
 {
     public function __construct(
         public ToDoResource $toDo,
-        #[OA\Property(description: 'The days since its day, on the clock of the reader: 0 for a to-do of the day', minimum: 0)]
+        #[OA\Property(description: 'The days since its due day, on the reader\'s clock. A to-do due today has 0', minimum: 0)]
         public int $daysOverdue,
     ) {
     }

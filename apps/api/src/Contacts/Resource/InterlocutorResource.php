@@ -10,8 +10,8 @@ use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 
 /**
- * Who communicated in an exchange of the timeline of an organization: one of its contacts, still, removed from it
- * or forgotten, or the organization itself.
+ * Who took part in an exchange on an organization's timeline: the organization itself, or one of its contacts. The
+ * contact may still be one, or may be removed from it or forgotten.
  */
 final readonly class InterlocutorResource
 {
@@ -24,18 +24,18 @@ final readonly class InterlocutorResource
         #[OA\Property(enum: [self::ORGANIZATION, self::PERSON])]
         public string $kind,
         public string $id,
-        #[OA\Property(description: 'Its name; none for a person no longer known')]
+        #[OA\Property(description: 'Its name. A person who is no longer known has none')]
         public ?string $name,
-        #[OA\Property(enum: self::PRESENCES, description: 'A person still a contact of the organization, removed from it, or forgotten; none for the organization itself')]
+        #[OA\Property(enum: self::PRESENCES, description: 'Whether the person is still a contact of the organization, removed from it, or forgotten. The organization itself has none')]
         public ?string $presence = null,
     ) {
     }
 
     /**
-     * Who an exchange is with: the person, or the organization itself.
+     * Gives who an exchange is with: the person, or the organization itself.
      *
-     * @param array<string, PersonCard>        $persons       the persons of the exchanges, by id
-     * @param array<string, OrganizationSheet> $organizations the organizations of the exchanges with them alone, by id
+     * @param array<string, PersonCard>        $persons       the exchanges' persons, by id
+     * @param array<string, OrganizationSheet> $organizations the organizations that exchanges are held with directly, with no contact, by id
      */
     public static function of(ExchangeInTimeline $exchange, array $persons, array $organizations): self
     {
@@ -45,11 +45,11 @@ final readonly class InterlocutorResource
     }
 
     /**
-     * The exchanges whose interlocutor is still known: a person always is, by their id; an organization erased before
-     * its exchanges is not.
+     * Keeps the exchanges whose interlocutor is still known. A person always is, by their id. An organization erased
+     * before its exchanges is not.
      *
      * @param list<ExchangeInTimeline>         $exchanges
-     * @param array<string, OrganizationSheet> $organizations the organizations of the exchanges with them alone, by id
+     * @param array<string, OrganizationSheet> $organizations the organizations that exchanges are held with directly, with no contact, by id
      *
      * @return list<ExchangeInTimeline>
      */
@@ -64,7 +64,7 @@ final readonly class InterlocutorResource
     }
 
     /**
-     * @param ?PersonCard $person   none for a person no longer known
+     * @param ?PersonCard $person   none for a person who is no longer known
      * @param ?string     $presence by the values of `ContactPresence`
      */
     public static function ofPerson(string $personId, ?PersonCard $person, ?string $presence): self

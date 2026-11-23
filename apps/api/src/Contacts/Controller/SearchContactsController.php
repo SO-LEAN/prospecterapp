@@ -19,7 +19,7 @@ use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
- * The contacts of my organization, composed by `ContactSearchReader`.
+ * Searches my organization's contacts. `ContactSearchReader` reads the answer.
  */
 #[OA\Tag('Contacts')]
 #[IsGranted('ROLE_PROSPECTOR')]
@@ -30,7 +30,7 @@ final class SearchContactsController extends AbstractController
     }
 
     #[Route('/api/contacts', name: 'api_contacts_search', methods: ['GET'])]
-    #[OA\Get(summary: 'Search the persons my organization prospects, by name, or by email with the right to manage personal data, with their organizations')]
+    #[OA\Get(summary: 'Search the persons my organization prospects, with their organizations. Search by name, or by email with the right to manage personal data')]
     #[OA\Response(response: 200, description: 'A slice of contacts, most recent first, the next one at the link next', content: new Model(type: ContactListResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector', content: new Model(type: ProblemResource::class))]

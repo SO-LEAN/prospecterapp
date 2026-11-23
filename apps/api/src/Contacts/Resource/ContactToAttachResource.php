@@ -11,7 +11,7 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
 /**
- * A contact waiting for the signed-in member, who met them, to attach them to an organization (ADR 0146).
+ * A contact the signed-in member met, who waits for the member to attach them to an organization (ADR 0146).
  */
 final readonly class ContactToAttachResource
 {
@@ -22,7 +22,7 @@ final readonly class ContactToAttachResource
         public ?string $email,
         #[OA\Property(description: 'Their last meeting with the member, past or to come')]
         public \DateTimeImmutable $lastMeetingAt,
-        #[OA\Property(description: 'The moment they are erased from if nobody attaches them: the start of the 30th day after their last meeting, on the clock of that meeting')]
+        #[OA\Property(description: 'The moment from which they are erased if nobody attaches them: the start of the 30th day after their last meeting, on that meeting\'s clock')]
         public \DateTimeImmutable $erasableFrom,
         #[SerializedName('_links')]
         #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]

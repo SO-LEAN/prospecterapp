@@ -35,13 +35,13 @@ final readonly class ChangeJobTitleTool
     }
 
     /**
-     * @param string  $id       the id of the contact
-     * @param ?string $jobTitle what the contact does in their organization; none when empty
-     * @param ?int    $revision the contact's `revision` as you read it: if it changed since, the change is refused (changedMeanwhile) and you read it again
+     * @param string  $id       the contact's id
+     * @param ?string $jobTitle the contact's job in their organization. An empty value removes it
+     * @param ?int    $revision the contact's `revision` as you read it. If it changed since, the change is refused (changedMeanwhile) and you read the contact again
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'set-contact-job-title', description: 'Change what a contact does in their organization (their job title); needs the right to manage the personal data. Answers the contact.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
+    #[McpTool(name: 'set-contact-job-title', description: 'Changes a contact\'s job title in their organization. It needs the right to manage personal data. It returns the contact.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
     public function __invoke(string $id, ?string $jobTitle = null, ?int $revision = null): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');

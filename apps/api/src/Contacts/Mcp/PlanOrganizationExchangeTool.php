@@ -19,8 +19,8 @@ use Prospecter\Core\Prospecting\Application\PlanOrganizationExchange\PlanOrganiz
 use Symfony\Component\Clock\ClockInterface;
 
 /**
- * `POST /api/organizations/{id}/upcoming-exchanges`, for an AI (ADR 0163): pushed into the calendar of its member at
- * Google as one planned on the screen.
+ * `POST /api/organizations/{id}/upcoming-exchanges`, for an AI (ADR 0163). The exchange is pushed into the member's
+ * Google calendar, like one planned on the screen.
  */
 #[Adapts('api_organizations_plan_exchange')]
 final readonly class PlanOrganizationExchangeTool
@@ -38,19 +38,19 @@ final readonly class PlanOrganizationExchangeTool
     }
 
     /**
-     * @param string      $id                the id of the organization
+     * @param string      $id                the organization's id
      * @param string      $channel           call, meeting or videoCall
      * @param string      $occurredAt        when it is to happen (ISO 8601), in the future
-     * @param string|null $personId          the contact of the organization it is planned with; left out, with the organization itself
-     * @param int|null    $durationInMinutes how long it lasts, from 5 minutes to 8 hours; 30 when left out
+     * @param string|null $personId          the organization's contact it is planned with. Leave it out to plan it with the organization itself
+     * @param int|null    $durationInMinutes how long it lasts, from 5 minutes to 8 hours. It is 30 when left out
      * @param string|null $text              its agenda
-     * @param string|null $place             where a meeting is held, written freely; a meeting only
-     * @param string|null $link              the web address a video call is joined by; a video call only
-     * @param bool        $linkRequested     a video call without a link asks a Google Meet link of the calendar of the member
+     * @param string|null $place             where a meeting is held, in free text. Only for a meeting
+     * @param string|null $link              the web address to join a video call. Only for a video call
+     * @param bool        $linkRequested     asks the member's calendar for a Google Meet link, for a video call without a link
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'schedule-organization-exchange', description: 'Plan a call, a meeting or a video call with an organization itself, or with one of its contacts, held by the member, and pushed into their calendar at Google when connected. Answers the exchanges to come with the organization.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'schedule-organization-exchange', description: 'Plans a call, a meeting or a video call with an organization itself, or with one of its contacts. The member holds the exchange. When the member is connected, the exchange is pushed into their Google calendar. It returns the exchanges to come with the organization.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id, string $channel, string $occurredAt, ?string $personId = null, ?int $durationInMinutes = null, ?string $text = null, ?string $place = null, ?string $link = null, bool $linkRequested = false): array
     {
         $organization = $this->writes->writable($id);
@@ -66,7 +66,7 @@ final readonly class PlanOrganizationExchangeTool
             organizationId: $organization->id,
             personId: $input->personId,
             channel: $exchange->channel,
-            plannedAt: $exchange->occurredAt ?? throw new \LogicException('A planned exchange validated has its moment'),
+            plannedAt: $exchange->occurredAt ?? throw new \LogicException('A validated planned exchange has its moment'),
             durationInMinutes: $exchange->durationInMinutes,
             agenda: $exchange->text,
             place: $exchange->place,

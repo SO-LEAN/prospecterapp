@@ -26,8 +26,8 @@ final class ShowOrganizationsOfContactController extends AbstractController
     }
 
     #[Route('/api/contacts/{id}/organizations', name: 'api_contacts_organizations', requirements: ['id' => Requirement::UUID], methods: ['GET'])]
-    #[OA\Get(summary: 'The organizations of my organization the contact works for')]
-    #[OA\Response(response: 200, description: 'The organizations of the contact', content: new Model(type: OrganizationsOfContactResource::class))]
+    #[OA\Get(summary: 'List the organizations of my organization that the contact works for')]
+    #[OA\Response(response: 200, description: 'The contact\'s organizations', content: new Model(type: OrganizationsOfContactResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'The signed-in user is not a prospector', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $id, #[CurrentUser] User $user): JsonResponse

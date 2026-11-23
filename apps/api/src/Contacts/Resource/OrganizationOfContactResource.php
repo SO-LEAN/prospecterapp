@@ -19,8 +19,8 @@ final readonly class OrganizationOfContactResource
     }
 
     /**
-     * The organization of the contact an exchange is kept for: none with the organization itself, or for a contact
-     * no longer part of it.
+     * Gives the organization of the contact an exchange is kept for. An exchange with the organization itself has
+     * none, and so does a contact who is no longer part of it.
      *
      * @param array<string, list<self>> $organizationsOfContacts by contact id
      */

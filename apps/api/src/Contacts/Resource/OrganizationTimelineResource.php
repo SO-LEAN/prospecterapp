@@ -12,7 +12,7 @@ use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
 /**
  * A slice of the exchanges with an organization and with its contacts, the most recent moment first (ADR 0049,
- * 0076): the next one is reached by the link next.
+ * 0076). The link next leads to the next slice.
  */
 final readonly class OrganizationTimelineResource
 {
@@ -21,7 +21,7 @@ final readonly class OrganizationTimelineResource
      */
     public function __construct(
         public array $items,
-        #[OA\Property(description: 'How many exchanges of the organization are to redact, their contact forgotten')]
+        #[OA\Property(description: 'How many of the organization\'s exchanges are to redact because their contact was forgotten')]
         public int $toRedact,
         #[SerializedName('_links')]
         #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]

@@ -22,11 +22,11 @@ final readonly class RecognizeCallerTool
     }
 
     /**
-     * @param string $phoneNumber the number calling, in E.164 or in the national format of France
+     * @param string $phoneNumber the calling number, in E.164 or in the French national format
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'get-caller', description: 'Who calls: the organizations of the account and its contacts having this number, with the right to manage the personal data.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'get-caller', description: 'Tells who calls: the account\'s organizations and contacts that have this number. It needs the right to manage personal data.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $phoneNumber): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');

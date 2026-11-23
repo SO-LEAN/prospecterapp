@@ -40,11 +40,12 @@ use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 
 /**
- * The agenda, the calendar, the day and the exchanges to process of the signed-in member, composed of two contexts: Prospecting knows the exchanges they
- * planned or noted, PersonalData names the persons they are with in one batch, Prospecting the organizations they
- * are with alone, and in the day those of the contacts, in one batch; the to-dos of the calendar and those to process
- * shown as the to-dos are, to a member with the right to manage personal data only, their text possibly holding some;
- * the answer kept, then presented with them (ADR 0085).
+ * Reads the signed-in member's agenda, calendar, day and exchanges to process from two contexts. Prospecting knows
+ * the exchanges the member planned or logged. PersonalData names the persons they are with, in one batch. Prospecting
+ * gives the organizations the exchanges are held with alone and, for the day, the contacts' organizations, in one
+ * batch. The calendar's to-dos and the to-dos to process are shown as the to-dos are. Only a member with the right to
+ * manage personal data gets them, because their text may hold some. The reader keeps the answer, then presents it
+ * with them (ADR 0085).
  */
 final readonly class AgendaReader
 {
@@ -138,7 +139,7 @@ final readonly class AgendaReader
     }
 
     /**
-     * One plans with a contact searched by their name, as every prospector may (ADR 0129).
+     * A member plans an exchange with a contact they search by name. Every prospector may do so (ADR 0129).
      */
     private function searchContacts(): LinkResource
     {
@@ -171,7 +172,7 @@ final readonly class AgendaReader
     /**
      * @param list<ExchangeInTimeline> $exchanges
      *
-     * @return list<string> the ids of the persons they are with, once each
+     * @return list<string> the ids of the persons the exchanges are with, once each
      */
     private static function contactsOf(array $exchanges): array
     {
@@ -179,9 +180,9 @@ final readonly class AgendaReader
     }
 
     /**
-     * One reading per organization: few in a slot or a period, most exchanges being with a contact. Stopping
-     * prospecting erases the organization at once, its exchanges by a reaction after it: one no longer known is left
-     * out, and its exchanges with it.
+     * Reads each organization alone. A slot or a period holds few of them, because most exchanges are with a contact.
+     * Stopping prospecting erases the organization at once, and a later reaction erases its exchanges. So an
+     * organization that is no longer known is left out, with its exchanges.
      *
      * @param list<ExchangeInTimeline> $exchanges
      *

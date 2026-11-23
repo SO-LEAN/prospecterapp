@@ -29,11 +29,11 @@ final readonly class ShowOverlappingExchangesTool
 
     /**
      * @param string $startsAt          when the slot starts, with its offset (2026-10-13T10:00:00+02:00)
-     * @param ?int   $durationInMinutes how long it lasts, from 5 minutes to 8 hours; 30 when left out
+     * @param ?int   $durationInMinutes how long it lasts, from 5 minutes to 8 hours. It is 30 when left out
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'list-overlapping-exchanges', description: 'The planned exchanges of the agenda of the member a slot overlaps, before planning one.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'list-overlapping-exchanges', description: 'Lists the planned exchanges in the member\'s agenda that overlap a slot, before you plan one in it.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $startsAt, ?int $durationInMinutes = null): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');

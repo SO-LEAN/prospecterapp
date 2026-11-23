@@ -31,11 +31,11 @@ final class ShowCalendarController extends AbstractController
     }
 
     #[Route('/api/me/calendar', name: 'api_me_calendar', methods: ['GET'])]
-    #[OA\Get(summary: 'The calendar of the signed-in member over a period: the exchanges they planned or noted, whatever their status, and their to-dos due in it, done or not; what is late, on their clock, at the offset of the period unless their time zone is given')]
-    #[OA\Response(response: 200, description: 'The exchanges of the period, by their moment', content: new Model(type: CalendarResource::class))]
+    #[OA\Get(summary: 'Get the signed-in member\'s calendar over a period. It holds the exchanges they planned or logged, whatever their status, and their to-dos due in the period, done or not. It says what is late on the member\'s clock. That clock uses the period\'s offset unless the request gives their time zone')]
+    #[OA\Response(response: 200, description: 'The period\'s exchanges, by their moment', content: new Model(type: CalendarResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 422, description: 'Invalid period: a bound missing, an end before the start, longer than six weeks; or a time zone unknown', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 422, description: 'Invalid period: a missing bound, an end before the start, or more than six weeks. Or an unknown time zone', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[CurrentUser] User $user, #[MapQueryString(validationFailedStatusCode: Response::HTTP_UNPROCESSABLE_ENTITY, mapWhenEmpty: true)] CalendarQuery $period): JsonResponse
     {
         return $this->json($this->agendaReader->readCalendar($user->memberId(), $period->start(), $period->end(), $period->read($this->clock->now())));

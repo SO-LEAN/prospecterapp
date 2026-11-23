@@ -26,11 +26,11 @@ final class ShowContactController extends AbstractController
     }
 
     #[Route('/api/contacts/{id}', name: 'api_contacts_show', requirements: ['id' => Requirement::UUID], methods: ['GET'])]
-    #[OA\Get(summary: 'Consult a person my organization keeps, in clear or masked')]
+    #[OA\Get(summary: 'Get a person my organization keeps, unmasked or masked')]
     #[OA\Response(response: 200, description: 'The contact', content: new Model(type: ContactResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'The signed-in user is not a prospector', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 404, description: 'Unknown contact, or one of another account', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 404, description: 'The contact is unknown or belongs to another account', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $id, #[CurrentUser] User $user): JsonResponse
     {
         return $this->json($this->contactReader->read($user->memberId(), $id));

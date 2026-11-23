@@ -28,11 +28,11 @@ final readonly class ShowOrganizationContactsTool
     }
 
     /**
-     * @param string $id the id of the organization
+     * @param string $id the organization's id
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'list-organization-contacts', description: 'The contacts of an organization, in clear or masked as the member reads them.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'list-organization-contacts', description: 'Lists an organization\'s contacts, unmasked or masked as the member reads them.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $id): array
     {
         $organization = $this->organizations->read($id);

@@ -18,10 +18,11 @@ use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\KeptTimelineI
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 
 /**
- * A contact as the API shows it: read in PersonalData, what may be done with its timeline in Prospecting, whether
- * they wait for the reader to attach them, and whether the e-mails exchanged with them may be caught up in Connectors,
- * then presented to the presenter it builds for the call (ADR 0085). A controller calls it after a command, which
- * returns nothing, to answer with the fresh resource.
+ * Reads a contact as the API shows it. PersonalData reads the person. Prospecting says what the reader may do with
+ * the contact's timeline, and whether the contact waits for the reader to attach them. Connectors says whether the
+ * e-mails exchanged with the contact may be caught up. The reader then hands all of it to the presenter it builds for
+ * the call (ADR 0085). A command returns nothing, so a controller calls this reader after it to answer with the fresh
+ * resource.
  */
 final readonly class ContactReader
 {

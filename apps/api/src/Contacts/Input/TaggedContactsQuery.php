@@ -14,7 +14,7 @@ final readonly class TaggedContactsQuery
     public function __construct(
         #[Assert\NotBlank]
         #[Assert\Length(max: 200)]
-        #[OA\Property(description: 'The tags chosen, 1 to 5, by their names without their mark, separated by commas', example: 'ESN,EMAIL')]
+        #[OA\Property(description: 'The chosen tags, 1 to 5. Give their names without their mark, separated by commas', example: 'ESN,EMAIL')]
         public string $tags = '',
         #[Assert\Length(max: 200)]
         public ?string $after = null,

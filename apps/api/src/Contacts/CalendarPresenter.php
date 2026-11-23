@@ -18,18 +18,18 @@ use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\ToDoInList;
 
 /**
- * The calendar of the signed-in member over a period, each exchange with who it is with: the person, or the
- * organization itself, and its links; the to-dos they may read, and what is late among what it shows. Built for one
- * call with the persons and the organizations they are with and the to-dos as the API shows them, it keeps the
- * resource (ADR 0085).
+ * Presents the signed-in member's calendar over a period. Each exchange names who it is with: the person, or the
+ * organization itself. Each exchange also gets its links. The calendar holds the to-dos the member may read, and says
+ * what is late among what it shows. One presenter serves one call. It gets the persons, the organizations and the
+ * to-dos as the API shows them, and keeps the resource (ADR 0085).
  */
 final class CalendarPresenter implements ConsultCalendarOutput
 {
     public private(set) CalendarResource $resource;
 
     /**
-     * @param array<string, PersonCard>        $persons       the persons of the exchanges, by id
-     * @param array<string, OrganizationSheet> $organizations the organizations of the exchanges with them alone, by id
+     * @param array<string, PersonCard>        $persons       the exchanges' persons, by id
+     * @param array<string, OrganizationSheet> $organizations the organizations that exchanges are held with directly, with no contact, by id
      * @param array<string, ToDoResource>      $toDos         the to-dos the member may read, by id
      */
     public function __construct(

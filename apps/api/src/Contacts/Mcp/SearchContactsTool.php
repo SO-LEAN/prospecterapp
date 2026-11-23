@@ -28,12 +28,12 @@ final readonly class SearchContactsTool
     }
 
     /**
-     * @param string  $q     the start of the name of the contacts searched, or their email with the right to manage the personal data; all when empty
-     * @param ?string $after the cursor of the next slice, read in the link `next` of the slice before
+     * @param string  $q     the start of the searched contacts' name, or their email with the right to manage personal data. An empty value finds them all
+     * @param ?string $after the next slice's cursor, read in the previous slice's link `next`
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'search-contacts', description: 'The contacts of the account, by the start of their name (or their e-mail, with the right to manage the personal data), with their organizations and tags, the most recent first, by slices.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'search-contacts', description: 'Searches the account\'s contacts by the start of their name, with their organizations and tags, the most recent first, by slices. With the right to manage personal data, it also searches by e-mail.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $q = '', ?string $after = null): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');

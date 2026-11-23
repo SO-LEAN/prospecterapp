@@ -12,7 +12,7 @@ use App\Shared\Links;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 
 /**
- * A contact in a list, with the organizations naming them and the link to their card.
+ * Builds a contact in a list, with the organizations that name them and the link to their card.
  */
 final readonly class ContactInListResourceFactory
 {

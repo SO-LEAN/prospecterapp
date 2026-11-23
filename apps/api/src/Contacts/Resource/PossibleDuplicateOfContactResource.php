@@ -10,7 +10,7 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
 /**
- * A contact of the same organization the contact resembles, by their names: perhaps the same person.
+ * A contact in the same organization whose names the contact resembles. They may be the same person.
  */
 final readonly class PossibleDuplicateOfContactResource
 {

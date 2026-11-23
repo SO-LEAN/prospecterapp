@@ -24,10 +24,10 @@ use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Symfony\Component\Clock\ClockInterface;
 
 /**
- * The timeline of an organization, composed of the contexts (ADR 0076): Prospecting knows its exchanges and the
- * person of each, PersonalData names the persons of the slice in one batch, Connectors says whether the e-mails
- * exchanged with the organization itself may be caught up; the slice kept, then presented with them (ADR 0085). A
- * controller calls it after a command, which returns nothing, to answer with the fresh resource.
+ * Reads an organization's timeline from the contexts (ADR 0076). Prospecting knows its exchanges and each exchange's
+ * person. PersonalData names the slice's persons in one batch. Connectors says whether the e-mails exchanged with the
+ * organization itself may be caught up. The reader keeps the slice, then presents it with them (ADR 0085). A command
+ * returns nothing, so a controller calls this reader after it to answer with the fresh resource.
  */
 final readonly class OrganizationTimelineReader
 {
@@ -57,7 +57,7 @@ final readonly class OrganizationTimelineReader
     }
 
     /**
-     * What is to come, the soonest first.
+     * Reads the exchanges to come, the soonest first.
      */
     public function readUpcoming(string $reader, OrganizationSheet $organization, ?string $after = null): OrganizationTimelineResource
     {
@@ -70,7 +70,7 @@ final readonly class OrganizationTimelineReader
     }
 
     /**
-     * Only its exchanges to redact, their contact forgotten (ADR 0079).
+     * Reads only the exchanges to redact, whose contact was forgotten (ADR 0079).
      */
     public function readToMakeConform(string $reader, OrganizationSheet $organization, ?string $after = null): OrganizationTimelineResource
     {
@@ -83,7 +83,7 @@ final readonly class OrganizationTimelineReader
     }
 
     /**
-     * @return array<string, PersonCard> the persons the exchanges of the slice were with, by id
+     * @return array<string, PersonCard> the persons the slice's exchanges were with, by id
      */
     private function personsOf(string $reader, Timeline $timeline): array
     {
@@ -94,7 +94,7 @@ final readonly class OrganizationTimelineReader
     }
 
     /**
-     * @return list<string> the persons the exchanges of the slice were with, each once
+     * @return list<string> the persons the slice's exchanges were with, each once
      */
     private static function personIdsOf(Timeline $timeline): array
     {

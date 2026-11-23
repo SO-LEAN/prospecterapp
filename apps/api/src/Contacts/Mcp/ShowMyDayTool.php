@@ -30,12 +30,12 @@ final readonly class ShowMyDayTool
     }
 
     /**
-     * @param string $from the start of the day, with the offset of the member (2026-10-15T00:00:00+02:00)
+     * @param string $from the start of the day, with the member's offset (2026-10-15T00:00:00+02:00)
      * @param string $to   the start of the day after, excluded
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'get-my-day', description: 'The day of the member: what they still have planned in the day, then the next five exchanges.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'get-my-day', description: 'Gets the member\'s day: what they still have planned that day, then the next five exchanges.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $from, string $to): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');
