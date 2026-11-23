@@ -10,10 +10,10 @@ use Aws\Ssm\Exception\SsmException;
 use Aws\Ssm\SsmClient;
 
 /**
- * The secrets the accounts give the api, each a `SecureString` of SSM under the path of the instance, encrypted by
- * the key `aws/ssm` (ADR 0125). SSM is out of the unit of work: a secret is put at a new version, which the item
- * of its aggregate names, and read at that version only, so that a commit failing after the put keeps the former one.
- * SSM refusing or failing, a role whose permissions do not allow it for instance, leaves the secrets out of reach.
+ * The secrets that the accounts give the API. Each one is an SSM `SecureString` under the instance's path, encrypted
+ * by the `aws/ssm` key (ADR 0125). SSM is outside the unit of work. A secret is put at a new version, which its
+ * aggregate's item names, and it is read at that version only. So a commit that fails after the put keeps the former
+ * version. When SSM refuses or fails, for instance because a role lacks the permission, the secrets are out of reach.
  */
 final readonly class AccountSecrets
 {
@@ -25,7 +25,7 @@ final readonly class AccountSecrets
     }
 
     /**
-     * @return int the version it is kept at
+     * @return int the version at which the secret is kept
      */
     public function put(string $account, string $name, #[\SensitiveParameter] string $secret): int
     {
@@ -46,7 +46,7 @@ final readonly class AccountSecrets
     }
 
     /**
-     * Every version of it, at once.
+     * Every version of the secret, at once.
      */
     public function forget(string $account, string $name): void
     {
@@ -60,7 +60,7 @@ final readonly class AccountSecrets
     }
 
     /**
-     * The secrets of every account, as the tables are recreated.
+     * Every account's secrets, when the tables are recreated.
      */
     public function forgetEvery(): void
     {

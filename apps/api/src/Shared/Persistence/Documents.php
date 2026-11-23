@@ -21,11 +21,11 @@ use Prospecter\Core\SharedKernel\Domain\Siret;
 use Prospecter\Core\SharedKernel\Domain\Slice;
 
 /**
- * The value objects of the shared kernel as plain documents of a DynamoDB item, and back (ADR 0048).
+ * Turns the shared kernel's value objects into plain documents of a DynamoDB item, and back (ADR 0048).
  */
 final class Documents
 {
-    /** A moment is kept in UTC, to the microsecond: sorting the strings sorts the moments. */
+    /** A time is kept in UTC, to the microsecond, so that sorting the strings sorts the times. */
     private const string MOMENT = 'Y-m-d\TH:i:s.u\Z';
 
     public static function moment(\DateTimeImmutable $moment): string
@@ -49,7 +49,7 @@ final class Documents
     }
 
     /**
-     * How an aggregate was created; written before it was kept, by hand.
+     * How an aggregate was created. An item written before the origin was kept counts as created by hand.
      *
      * @param array<string, mixed> $document
      */
@@ -89,8 +89,8 @@ final class Documents
     }
 
     /**
-     * A number kept before the numbers were checked (ADR 0072) is restored as it was typed when it is no valid
-     * number: reading an aggregate never fails, saving it again keeps its number in E.164 when it is one.
+     * A number kept before the numbers were checked (ADR 0072) may not be a valid number. It is then restored as it
+     * was typed, so that reading an aggregate never fails. Saving the aggregate again keeps a valid number in E.164.
      */
     private static function phoneNumberOf(?string $stored): ?PhoneNumber
     {
@@ -147,8 +147,8 @@ final class Documents
     }
 
     /**
-     * The links of a person or an organization: what recognizes each, its source and its identifier, beside the address
-     * that opens it.
+     * A person's or an organization's links. Each link has what recognizes it, its source and its identifier, beside
+     * the address that opens it.
      *
      * @return list<array{source: string, identifier: string, address: string}>
      */
@@ -167,7 +167,7 @@ final class Documents
     }
 
     /**
-     * The links of a document written before the links were, recognized by their addresses (a LinkedIn profile, a
+     * The links of a document written before links existed, recognized by their addresses (a LinkedIn profile, a
      * LinkedIn page).
      *
      * @param list<string> $addresses
@@ -178,8 +178,8 @@ final class Documents
     }
 
     /**
-     * The links recognized again by their addresses, a source known since taking over the links of its host, each
-     * today's rules refuse kept as it was noted.
+     * The links recognized again by their addresses: a source may have become known since then and taken over its
+     * host's links. Each link that today's rules refuse stays as it was logged.
      *
      * @param list<array{source: string, identifier: string, address: string}> $documents
      *
@@ -191,11 +191,11 @@ final class Documents
     }
 
     /**
-     * The first `max` of what was found, newest first, and the cursor of what follows (ADR 0049).
+     * The first `max` items found, newest first, and the cursor of the items that follow (ADR 0049).
      *
      * @template T
      *
-     * @param list<T>             $found newest first, one more than a slice tells whether another follows
+     * @param list<T>             $found newest first, with one more than a slice to tell whether another slice follows
      * @param \Closure(T): string $idOf
      *
      * @return Slice<T>

@@ -11,12 +11,14 @@ use Aws\ResultInterface;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessException;
 
 /**
- * The DynamoDB table of one bounded context (ADR 0038, 0048), in single-table design: every item is a plain
- * document (strings, numbers, booleans, null, lists and maps) keyed by `PK` and `SK`; the two secondary
- * indexes `GSI1` and `GSI2` list items by `GSI1PK`/`GSI1SK` and `GSI2PK`/`GSI2SK`, each repository giving
- * them their meaning; `NAME`, `EMAIL` and `PHONE` keep only the keys of what finds an aggregate (`SearchIndexes`).
- * Its writes wait in the open unit of work, sent at once without one; a read by key and the query of a partition see
- * what the unit is about to write there, a count, the keys of the search and a scan read the table as it was.
+ * One bounded context's DynamoDB table (ADR 0038, 0048), in single-table design. Every item is a plain document
+ * (strings, numbers, booleans, null, lists and maps) keyed by `PK` and `SK`. The two secondary indexes, `GSI1` and
+ * `GSI2`, list items by `GSI1PK`/`GSI1SK` and `GSI2PK`/`GSI2SK`. Each repository gives them their meaning. `NAME`,
+ * `EMAIL` and `PHONE` keep only the keys of what finds an aggregate (`SearchIndexes`).
+ *
+ * The table's writes wait in the open unit of work, or are sent at once when no unit is open. A read by key and a
+ * partition query see what the unit is about to write there. A count, the search keys and a scan read the table as
+ * it was.
  */
 final readonly class Table
 {
@@ -49,7 +51,7 @@ final readonly class Table
     }
 
     /**
-     * @return array<string, mixed>|null the item as the table keeps it, its revision noted by the open unit
+     * @return array<string, mixed>|null the item as the table keeps it, with its revision recorded by the open unit
      */
     private function storedItem(string $pk, string $sk): ?array
     {
@@ -61,7 +63,7 @@ final readonly class Table
     }
 
     /**
-     * Keeps the revision of the next reads of an item, to expose it with what is read from it (ADR 0187).
+     * Keeps the revision of an item's next reads, to expose it with what is read from the item (ADR 0187).
      */
     public function watchRevision(string $pk, string $sk): void
     {
@@ -69,7 +71,7 @@ final readonly class Table
     }
 
     /**
-     * The revision of the last read of an item watched.
+     * The revision at a watched item's last read.
      */
     public function revisionRead(string $pk, string $sk): int
     {
@@ -77,7 +79,7 @@ final readonly class Table
     }
 
     /**
-     * The revision its client read of an item of the table, that the save of what it read holds to (ADR 0187).
+     * The revision of a table item that its client read. The save of what the client read holds to it (ADR 0187).
      */
     public function readAt(string $pk, string $sk, int $revision): RevisionRead
     {
@@ -140,7 +142,7 @@ final readonly class Table
     }
 
     /**
-     * @return list<array{string, string}> PK and SK of each item the batch left to read again
+     * @return list<array{string, string}> PK and SK of each item that the batch left to read again
      */
     private function unprocessedKeysOf(ResultInterface $result): array
     {
@@ -160,7 +162,7 @@ final readonly class Table
     }
 
     /**
-     * Notes the items read by key from the table in the open unit, those absent too, and the revisions watched.
+     * Records in the open unit the items read by key from the table, the absent ones too, and the watched revisions.
      *
      * @param list<array{string, string}> $keys
      * @param list<array<string, mixed>>  $found
@@ -181,8 +183,8 @@ final readonly class Table
     }
 
     /**
-     * The items of a partition, by sort key descending (the newest first for UUID v7 keys), below `before`
-     * when given, at most `limit`.
+     * A partition's items by sort key, descending (the newest first for UUID v7 keys): those below `before` when
+     * given, at most `limit`.
      *
      * @return list<array<string, mixed>>
      */
@@ -192,8 +194,8 @@ final readonly class Table
     }
 
     /**
-     * The items of a partition, by sort key ascending (the soonest first for keys beginning with a moment),
-     * above `after`, at most `limit`.
+     * A partition's items by sort key, ascending (the soonest first for keys that begin with a time): those above
+     * `after`, at most `limit`.
      *
      * @return list<array<string, mixed>>
      */
@@ -203,7 +205,7 @@ final readonly class Table
     }
 
     /**
-     * The items of a partition, by sort key ascending, from `lower` to `upper`, both included.
+     * A partition's items by sort key, ascending, from `lower` to `upper`, both included.
      *
      * @return list<array<string, mixed>>
      */
@@ -229,7 +231,7 @@ final readonly class Table
     }
 
     /**
-     * The items of a partition as the open unit is about to write them, in the order of the range.
+     * A partition's items as the open unit is about to write them, in the range's order.
      *
      * @param list<Write>                $pending
      * @param list<array<string, mixed>> $stored
@@ -249,7 +251,7 @@ final readonly class Table
      * @param list<array<string, mixed>> $stored
      * @param list<Write>                $pending
      *
-     * @return list<array<string, mixed>> the items stored that no pending write changes
+     * @return list<array<string, mixed>> the stored items that no pending write changes
      */
     private function notRewritten(array $stored, array $pending): array
     {
@@ -298,7 +300,7 @@ final readonly class Table
     }
 
     /**
-     * @return array{string, string} the names of the partition key and of the sort key of the table or of the index
+     * @return array{string, string} the names of the table's or the index's partition key and sort key
      */
     private static function keyNamesOf(?string $index): array
     {
@@ -306,7 +308,7 @@ final readonly class Table
     }
 
     /**
-     * How many items an index lists in a partition, counted by DynamoDB without reading them.
+     * How many items an index lists in a partition. DynamoDB counts them without reading them.
      */
     public function count(string $partition, string $index): int
     {
@@ -331,8 +333,8 @@ final readonly class Table
     }
 
     /**
-     * The partition keys of the items an index lists in a partition with a sort key beginning with
-     * `beginning`, every one of them.
+     * The partition keys of all the items that an index lists in a partition with a sort key beginning with
+     * `beginning`.
      *
      * @return list<string>
      */
@@ -342,7 +344,7 @@ final readonly class Table
     }
 
     /**
-     * The partition keys of the items an index lists in a partition with exactly this sort key.
+     * The partition keys of the items that an index lists in a partition with exactly this sort key.
      *
      * @return list<string>
      */
@@ -378,7 +380,7 @@ final readonly class Table
     }
 
     /**
-     * A put of a transaction, written only when the condition holds, the refusal thrown otherwise.
+     * A put in a transaction. It is written only when the condition holds, and the refusal is thrown otherwise.
      *
      * @param array{PK: string, SK: string, ...}                  $item
      * @param array<string, mixed>                                $values  the values the condition names
@@ -402,12 +404,12 @@ final readonly class Table
     }
 
     /**
-     * A put of a transaction whose condition is about the item as stored: put again in the same unit, it keeps the
-     * condition of the first put, the item as stored being the same.
+     * A put in a transaction whose condition is about the item as stored. When the same unit puts the item again, the
+     * new put keeps the first put's condition, since the stored item is the same.
      *
      * @param array{PK: string, SK: string, ...} $item
      * @param array<string, mixed>               $values the values the condition names
-     * @param array<string, string>              $names  the attributes the condition names by a placeholder, a reserved word among them
+     * @param array<string, string>              $names  the attributes that the condition names by a placeholder, such as a reserved word
      */
     public function replacing(array $item, string $condition, array $values = [], array $names = []): Write
     {
@@ -416,7 +418,7 @@ final readonly class Table
 
     /**
      * @param array{PK: string, SK: string, ...} $item
-     * @param array<string, mixed>               $condition the condition of the put, as DynamoDB takes it
+     * @param array<string, mixed>               $condition the put's condition, as DynamoDB takes it
      */
     private function replacingUnder(array $item, array $condition): Write
     {
@@ -430,7 +432,7 @@ final readonly class Table
     }
 
     /**
-     * @return array<string, mixed> the condition of a write, as DynamoDB takes it
+     * @return array<string, mixed> a write's condition, as DynamoDB takes it
      */
     private static function conditionOfTheOperation(Write $write): array
     {
@@ -440,10 +442,11 @@ final readonly class Table
     }
 
     /**
-     * An addition to numbers of an item, created with them when it is not there: what a transaction adds is added to
-     * what another one added meanwhile, and two additions to the item in the same unit are one, their sum.
+     * An addition to an item's numbers. The item is created with them when it does not exist. What a transaction adds
+     * is added to what another one added in the meantime. Two additions to the item in the same unit become one, their
+     * sum.
      *
-     * @param non-empty-array<string, int> $increments by the name of the number
+     * @param non-empty-array<string, int> $increments keyed by the number's name
      */
     public function adding(string $pk, string $sk, array $increments): Write
     {
@@ -460,7 +463,7 @@ final readonly class Table
     }
 
     /**
-     * @return array<string, int> what an addition adds, by the name of the number
+     * @return array<string, int> what an addition adds, keyed by the number's name
      */
     private function incrementsOf(Write $addition): array
     {
@@ -493,7 +496,7 @@ final readonly class Table
     }
 
     /**
-     * A delete of a transaction, written only when the condition holds when there is one.
+     * A delete in a transaction. When it has a condition, it is written only when the condition holds.
      *
      * @param array<string, mixed> $values the values the condition names
      */
@@ -513,11 +516,11 @@ final readonly class Table
     }
 
     /**
-     * Writes all or nothing, with what the open unit of work writes.
+     * Writes all or nothing, together with what the open unit of work writes.
      *
      * @param list<Write> $writes made by putting(), replacing(), adding() and deleting()
      *
-     * @throws ConditionFailed when the condition of a write carrying no refusal did not hold
+     * @throws ConditionFailed when the condition of a write without a refusal did not hold
      */
     public function transact(array $writes): void
     {
@@ -590,7 +593,7 @@ final readonly class Table
     /**
      * @param array<string, array{S: string}>|null $last
      *
-     * @return array{ExclusiveStartKey?: array<string, array{S: string}>} where a page of a query or a scan starts
+     * @return array{ExclusiveStartKey?: array<string, array{S: string}>} where a query's or a scan's page starts
      */
     private static function startingAfter(?array $last): array
     {
@@ -598,7 +601,8 @@ final readonly class Table
     }
 
     /**
-     * The key of the last item a page of a query or a scan read, to read the next page from; none after the last one.
+     * The key of the last item that a query's or a scan's page read, to read the next page from. None after the last
+     * page.
      *
      * @return array<string, array{S: string}>|null
      */

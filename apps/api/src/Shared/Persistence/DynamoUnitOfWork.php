@@ -12,15 +12,16 @@ use Prospecter\Core\SharedKernel\Application\Port\UnitOfWork;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessException;
 
 /**
- * What a use case writes in the tables, kept until the outermost commit sends it in one TransactWriteItems,
- * all or nothing, with the items of outbox of what it published (CommitOutbox). While a unit is open, the writes of
- * the tables wait in it, one per item, the last one winning unless it combines with the one before (Write::after());
- * without one, a write is sent at once. A write whose
- * condition does not hold throws the refusal it carries. A unit discarded at one level is abandoned until its
- * outermost level ends: what is written meanwhile, by the other reactions the event bus still calls, is thrown away
- * too, and what it published with it. It remembers each item it first read by key, for the lock of its revision
- * (ADR 0181), until its outermost level ends; held to the revision a client read of an item, it locks that one
- * instead (ADR 0187).
+ * What a use case writes in the tables. The unit keeps it until the outermost commit sends it in one
+ * TransactWriteItems, all or nothing, with the outbox items of what the use case published (CommitOutbox). While a
+ * unit is open, the table writes wait in it, one per item. The last write wins, unless it combines with the one
+ * before (Write::after()). Without an open unit, a write is sent at once. A write whose condition does not hold
+ * throws the refusal it carries.
+ *
+ * A unit discarded at one level is abandoned until its outermost level ends. What is written in the meantime, by the
+ * other reactions that the event bus still calls, is thrown away too, with what they published. The unit remembers
+ * each item it first read, by key, for the lock of its revision (ADR 0181), until its outermost level ends. When it
+ * is held to the revision that a client read for an item, it locks that revision instead (ADR 0187).
  */
 final class DynamoUnitOfWork implements UnitOfWork
 {
@@ -28,10 +29,10 @@ final class DynamoUnitOfWork implements UnitOfWork
 
     /** @var list<bool> whether each open level is committed, the outermost first */
     private array $levels = [];
-    /** @var array<string, Write> by item */
+    /** @var array<string, Write> keyed by item */
     private array $pending = [];
     private bool $abandoned = false;
-    /** @var array<string, RevisionLock> by item, the lock of the revision the unit first read */
+    /** @var array<string, RevisionLock> keyed by item, the lock on the revision the unit first read */
     private array $locks = [];
     private ?RevisionRead $heldTo = null;
 
@@ -46,8 +47,8 @@ final class DynamoUnitOfWork implements UnitOfWork
 
     /**
      * @throws BusinessException the refusal a write carries, when its condition did not hold
-     * @throws AlreadyApplied    when the item of inbox it writes is there already: the event was applied
-     * @throws ConditionFailed   when the condition of a write carrying no refusal did not hold
+     * @throws AlreadyApplied    when the inbox item it writes already exists: the event was applied
+     * @throws ConditionFailed   when the condition of a write without a refusal did not hold
      */
     public function commit(): void
     {
@@ -79,7 +80,7 @@ final class DynamoUnitOfWork implements UnitOfWork
     }
 
     /**
-     * Outside a unit, what is published is a commit of its own, its outbox written at once.
+     * Outside a unit, a publication counts as a commit of its own, and its outbox is written at once.
      */
     public function sendTheOutboxOutsideAUnit(): void
     {
@@ -89,7 +90,7 @@ final class DynamoUnitOfWork implements UnitOfWork
     }
 
     /**
-     * Keeps the writes in the open unit, or sends them at once when none is.
+     * Keeps the writes in the open unit, or sends them at once when no unit is open.
      */
     public function write(Write ...$writes): void
     {
@@ -115,7 +116,7 @@ final class DynamoUnitOfWork implements UnitOfWork
     }
 
     /**
-     * What the open unit is about to put or delete on an item, that a read sees before it is sent.
+     * What the open unit is about to put or delete on an item. A read sees it before it is sent.
      */
     public function pendingWriteOn(string $table, string $pk, string $sk): ?Write
     {
@@ -125,8 +126,8 @@ final class DynamoUnitOfWork implements UnitOfWork
     }
 
     /**
-     * Holds the save of an item to the revision its client read, until released: the first read of that item by a
-     * unit locks this revision instead of the one it reads (ADR 0187).
+     * Holds an item's save to the revision that its client read, until released. A unit's first read of that item then
+     * locks this revision instead of the one it reads (ADR 0187).
      */
     public function holdTo(RevisionRead $read): void
     {
@@ -139,10 +140,10 @@ final class DynamoUnitOfWork implements UnitOfWork
     }
 
     /**
-     * Notes, while a unit is open, an item read from its table, the first read winning: what the lock of its revision
-     * holds to (ADR 0181).
+     * While a unit is open, records an item read from its table. The first read wins: the lock of its revision holds to
+     * it (ADR 0181).
      *
-     * @param array<string, mixed>|null $item null when it is absent
+     * @param array<string, mixed>|null $item null when the item is absent
      */
     public function noteRead(string $table, string $pk, string $sk, ?array $item): void
     {
@@ -162,7 +163,7 @@ final class DynamoUnitOfWork implements UnitOfWork
     }
 
     /**
-     * The lock on the revision of an item the open unit read, null when it read none.
+     * The lock on the revision of an item that the open unit read, or null when it read none.
      */
     public function lockOn(string $table, string $pk, string $sk): ?RevisionLock
     {

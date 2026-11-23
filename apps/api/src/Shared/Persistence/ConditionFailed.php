@@ -9,8 +9,8 @@ use Aws\DynamoDb\Exception\DynamoDbException;
 use Prospecter\Core\SharedKernel\Domain\Exception\ChangedMeanwhile;
 
 /**
- * A transaction was cancelled, nothing written: the condition of some of its writes did not hold, none of them
- * carrying the refusal to throw instead.
+ * A transaction was cancelled, and nothing was written. The condition of some of its writes did not hold, and none
+ * of those writes carries a refusal to throw instead.
  */
 final class ConditionFailed extends \RuntimeException
 {
@@ -30,8 +30,8 @@ final class ConditionFailed extends \RuntimeException
     }
 
     /**
-     * The refusal of the domain this cancellation is, for a command not run again: what it read changed meanwhile
-     * (ADR 0181).
+     * The domain refusal that this cancellation stands for, when the command does not run again: what the command read
+     * changed in the meantime (ADR 0181).
      */
     public function asRefusal(): ChangedMeanwhile
     {
