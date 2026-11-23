@@ -6,8 +6,8 @@
 # service of the IGN of apps/api/.env with no url; then as many functions of the API warmed as asked.
 # deploy relay: only the bus, the relay of the outbox and the mappings of the streams of the tables, which make db
 # recreates, and the worker with the rules of the subscriptions.
-# deploy apps: only the functions of the API and the storage, the relay and the worker kept and recycled, before the
-# journeys of a branch on a stack that runs (make check-e2e).
+# deploy apps: deploys only the API's and the storage's functions, and keeps and recycles the relay and the worker.
+# make check-e2e runs it before a branch's journeys on a running stack.
 # deploy warm: only a first call to the relay and to the worker, before the journeys.
 # deploy purge: only the messages of the queues of the failures emptied, which make db does before recreating the
 # tables their messages are about.
@@ -210,9 +210,8 @@ deploy_apps() {
     echo "Lambdas prospecter-dev-api and prospecter-dev-storage with $php and $imagick, behind their HTTP APIs (stage local)"
 }
 
-# recycle_reactions: the relay and the worker kept, with their mappings and the rules of the bus, their containers
-# started again on their next call: they load the code of the checkout once per container. MiniStack recycles the
-# containers of a function whose environment changes
+# recycle_reactions: keeps the relay and the worker, their mappings and the bus rules. They load the checkout's code
+# once per container. A changed environment makes MiniStack start their containers again on the next call
 recycle_reactions() {
     for function in prospecter-dev-relay prospecter-dev-worker; do
         variables=$(aws lambda get-function-configuration --function-name "$function" --query Environment.Variables --output json)

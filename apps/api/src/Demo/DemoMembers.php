@@ -10,9 +10,9 @@ use App\SignIn\UserPool;
 use Aws\CognitoIdentityProvider\CognitoIdentityProviderClient;
 
 /**
- * The members of the demonstration on a user pool that is kept (ADR 0052): the users and the clients added since are
- * deleted, and each member of the demonstration gets their login email and their password back. A sign-out everywhere
- * needs nothing: MiniStack revokes only the tokens issued before its second.
+ * Gives a kept user pool the demonstration's members back (ADR 0052). It deletes the users and the clients added since,
+ * and gives each demonstration member their login email and password back. A sign-out everywhere needs nothing:
+ * MiniStack revokes only the tokens issued before its second.
  */
 final readonly class DemoMembers
 {

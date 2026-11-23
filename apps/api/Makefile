@@ -11,10 +11,10 @@ vendor: ## Install the Composer dependencies of the API
 	@echo "API/Installing Composer dependencies..."
 	@$(PHP) make composer-install
 
-# what db and restore both do: the queues of the failures emptied first, their messages being about the data made
-# again; the tags of the contacts rebuilt and the figures counted (FIGURES=later: by whoever asked, beside the journeys)
-# once the demonstration is there
-PURGE_FAILURES = echo "API/Emptying the queues of the failures, whose messages are about the data made again..." \
+# db and restore both empty the failure queues first, because their messages are about the data made again. Once the
+# demonstration is loaded, both rebuild the contacts' tags and count the figures (FIGURES=later: the caller counts
+# them, beside the journeys)
+PURGE_FAILURES = echo "API/Emptying the failure queues, whose messages are about the data made again..." \
 	&& $(call timed,API/queues of the failures emptied,$(DC) --progress quiet run --rm --build lambda-deploy purge)
 REBUILD_TAGS_AND_FIGURES = echo "API/Rebuilding the tags of the contacts of the demonstration..." \
 	&& $(call timed,API/tags rebuilt,$(PHP) bin/console app:tags:rebuild) \
@@ -30,8 +30,8 @@ db: ministack ## Recreate in MiniStack the tables and the user pool, with the de
 	@$(call timed,API/relay on the new streams,$(DC) --progress quiet run --rm --build lambda-deploy relay)
 	@$(REBUILD_TAGS_AND_FIGURES)
 
-# the relay already reads the streams of the tables kept: it publishes the demonstration loaded again
-restore: ministack ## Give the tables and the user pool the demo data back without recreating them (destroys local data), the queues of the failures emptied, the tags of the contacts rebuilt, the figures counted; FIGURES=later
+# the relay already reads the streams of the tables kept, so it publishes the demonstration loaded again
+restore: ministack ## Give the tables and the user pool the demo data back without recreating them (destroys local data). It empties the failure queues, rebuilds the contacts' tags and counts the figures (FIGURES=later: counted by the caller)
 	@$(PURGE_FAILURES)
 	@echo "API/Giving the tables and the user pool the demonstration back..."
 	@$(call timed,API/demonstration restored,$(PHP) bin/console app:demo:restore)
