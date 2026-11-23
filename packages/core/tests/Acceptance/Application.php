@@ -204,6 +204,7 @@ use Prospecter\Core\PersonalData\Application\NameContacts\NameContactsHandler;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\PersonalData\Application\Policy\CollectTheFounderProfilePolicy;
 use Prospecter\Core\PersonalData\Application\Policy\CollectTheMemberProfilePolicy;
+use Prospecter\Core\PersonalData\Application\Policy\ForgetContactsLeftWithoutOrganizationPolicy;
 use Prospecter\Core\PersonalData\Application\PresentMembers\PresentMembersHandler;
 use Prospecter\Core\PersonalData\Application\PublishBookerIdentified\PublishBookerIdentifiedHandler;
 use Prospecter\Core\PersonalData\Application\PublishContactCollected\PublishContactCollectedHandler;
@@ -1380,6 +1381,7 @@ final class Application
     private function commandHandlers(): array
     {
         return [
+            new ForgetContactsLeftWithoutOrganizationHandler($this->persons, $this->readers, $this->events),
             new CollectTheMemberProfileHandler($this->persons),
             new CollectTheFounderProfileHandler($this->persons),
             new ReadMailboxHistoryHandler($this->connections, $this->clients, $this->mailboxes, $this->connectingMembers, $this->events),
@@ -1787,7 +1789,7 @@ final class Application
             new DismissContactSuspicionInReturnHandler($this->persons, $this->events),
             new DismissSuspicionInReturnHandler($this->organizations, $this->events),
             new NoteImportedEmailHandler($this->exchanges, $this->organizations, $this->prospectors, $this->contactOrganizations, new NotedOnce($this->exchanges), $this->privateStorage, $this->events),
-            new ForgetContactsLeftWithoutOrganizationHandler($this->persons, $this->readers, $this->events),
+            new ForgetContactsLeftWithoutOrganizationPolicy(),
             new ForgetContactLeftUnattachedHandler($this->persons, $this->readers, $this->events),
             new EraseExchangesOfContactLeftUnattachedHandler($this->exchanges, $this->events),
             new AttachContactToAttachHandler($this->contactsToAttach, $this->events),

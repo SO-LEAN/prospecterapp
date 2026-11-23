@@ -7,18 +7,16 @@ namespace Prospecter\Core\PersonalData\Application\ForgetContactsLeftWithoutOrga
 use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\PersonalData\Domain\Port\Readers;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
-use Prospecter\Core\Prospecting\Contract\Event\ContactsLeftWithoutOrganization;
-use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Handler\PublishesEvents;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * A contact is never alone (ADR 0042). So the handler erases the persons that no organization names any more. The
- * member whose gesture left them alone erases them. The handler reacts to the integration event Prospecting
- * publishes, translated into PersonalData's words (ADR 0046).
+ * member whose gesture left them alone erases them.
  */
-final readonly class ForgetContactsLeftWithoutOrganizationHandler implements EventHandler
+final readonly class ForgetContactsLeftWithoutOrganizationHandler implements CommandHandler
 {
     use PublishesEvents;
 
@@ -26,13 +24,13 @@ final readonly class ForgetContactsLeftWithoutOrganizationHandler implements Eve
     {
     }
 
-    public function __invoke(ContactsLeftWithoutOrganization $event): void
+    public function __invoke(ForgetContactsLeftWithoutOrganization $command): void
     {
-        $reader = $this->readers->readerFrom(new MemberId($event->memberId));
-        $alone = $this->persons->ofIds(array_map(static fn (string $contact): PersonId => new PersonId($contact), $event->contactIds));
+        $reader = $this->readers->readerFrom(new MemberId($command->readerId));
+        $alone = $this->persons->ofIds(array_map(static fn (string $contact): PersonId => new PersonId($contact), $command->contactIds));
 
         foreach ($alone as $contact) {
-            $contact->forget(by: $reader, at: $event->occurredAt);
+            $contact->forget(by: $reader, at: $command->executedAt);
         }
 
         foreach ($alone as $contact) {
