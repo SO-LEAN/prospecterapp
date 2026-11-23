@@ -15,8 +15,7 @@ use Prospecter\Core\Connectors\Application\RetryPush\RetryPush;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
 
 /**
- * `POST /api/exchanges/{id}/google-sync/retries`, for an AI (ADR 0163): it reaches the calendar of its member at
- * Google.
+ * `POST /api/exchanges/{id}/google-sync/retries`, for an AI (ADR 0163). It reaches its member's calendar at Google.
  */
 #[Adapts('api_exchanges_google_sync_retry')]
 final readonly class RetryPushTool
@@ -30,11 +29,11 @@ final readonly class RetryPushTool
     }
 
     /**
-     * @param string $id the id of the exchange
+     * @param string $id the exchange's id
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'retry-google-sync', description: 'Push an exchange into the calendar of its holder at Google again, as it is now, once Google refused it; by its holder. Answers where its push stands.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true))]
+    #[McpTool(name: 'retry-google-sync', description: 'Push an exchange again, as it is now, into its holder\'s Google calendar after Google refused it. Only its holder can use this tool. Returns its push state.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true))]
     public function __invoke(string $id): array
     {
         $exchange = $this->writes->changed(

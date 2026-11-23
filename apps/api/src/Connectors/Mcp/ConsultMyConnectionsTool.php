@@ -24,7 +24,7 @@ final readonly class ConsultMyConnectionsTool
     /**
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'list-my-connections', description: 'The connections of the member to the services outside (Google Calendar, the import of the e-mails of Gmail), in the state last seen.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'list-my-connections', description: 'Get the member\'s connections to outside services (Google Calendar, the Gmail e-mail import). Returns each connection in the state last seen.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(): array
     {
         $this->access->denyUnlessGranted('ROLE_USER');
