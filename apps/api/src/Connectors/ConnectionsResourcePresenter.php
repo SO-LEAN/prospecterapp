@@ -17,14 +17,14 @@ use Prospecter\Core\Connectors\Application\ConsultMyConnections\ConsultMyConnect
 use Prospecter\Core\Connectors\Application\MyConnection;
 
 /**
- * Presents my connections as the API shows them, an object of the call (ADR 0085): Google connected or reconnected
- * only while it is offered; the import of my e-mails offered while the account has a topic of Gmail and I may manage
- * the personal data, the role its controller requires (ADR 0081, 0154).
+ * Presents my connections as the API shows them. It is built for each call (ADR 0085). Google is connected or
+ * reconnected only while it is offered. My e-mail import is offered while the account has a Gmail topic and I may
+ * manage personal data. That is the role that the import's controller requires (ADR 0081, 0154).
  */
 final class ConnectionsResourcePresenter implements ConsultMyConnectionsOutput
 {
     private const string GOOGLE = 'google';
-    /** the role the controller of the client of the account requires (ADR 0081, 0125) */
+    /** the role that the controller of the account's client requires (ADR 0081, 0125) */
     private const string CLIENT_OF_THE_ACCOUNT_ROLE = 'ROLE_ADMIN';
     private const string ACTIVE = 'active';
     private const string OFF = 'off';

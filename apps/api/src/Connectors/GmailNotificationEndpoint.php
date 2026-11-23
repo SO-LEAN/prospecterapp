@@ -7,8 +7,8 @@ namespace App\Connectors;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
- * Where the subscription an account made at Google pushes the notifications of the mailboxes of its members: the
- * address of the API followed by that of the account, the audience the tokens of Google are issued for (ADR 0154).
+ * The endpoint that an account's Google subscription pushes its members' mailbox notifications to. It is the API's
+ * address followed by the account's address. It is also the audience that Google issues the tokens for (ADR 0154).
  */
 final readonly class GmailNotificationEndpoint
 {
