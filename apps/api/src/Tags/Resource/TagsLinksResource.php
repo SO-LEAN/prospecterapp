@@ -11,7 +11,7 @@ final readonly class TagsLinksResource
 {
     public function __construct(
         public LinkResource $self,
-        #[OA\Property(description: 'Put tags, as typed: each written one way, an automatic one refused')]
+        #[OA\Property(description: 'Put tags, as typed. Each tag is written one way, and an automatic tag is refused')]
         public LinkResource $tag,
     ) {
     }

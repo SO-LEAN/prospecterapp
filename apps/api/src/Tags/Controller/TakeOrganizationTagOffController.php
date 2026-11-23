@@ -37,10 +37,10 @@ final class TakeOrganizationTagOffController extends AbstractController
     #[Route('/api/organizations/{id}/tags/{tag}', name: 'api_organizations_take_off_tag', requirements: ['id' => Requirement::UUID], methods: ['DELETE'])]
     #[IsGranted(OrganizationVoter::ACCESS, subject: 'organization')]
     #[OA\Delete(summary: 'Take a tag off the organization, named without its mark')]
-    #[OA\Response(response: 200, description: 'Its tags now', content: new Model(type: TagsResource::class))]
+    #[OA\Response(response: 200, description: 'The organization\'s tags now', content: new Model(type: TagsResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 404, description: 'Unknown organization, one of another account, or a tag it does not carry', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 404, description: 'Unknown organization, an organization of another account, or a tag the organization does not carry', content: new Model(type: ProblemResource::class))]
     public function __invoke(OrganizationSheet $organization, string $tag, #[CurrentUser] User $user): JsonResponse
     {
         $this->commandBus->dispatch(new TakeOffTag(memberId: $user->memberId(), holder: TagRoutes::Organization->value, holderId: $organization->id, tag: $tag, executedAt: $this->clock->now()));
