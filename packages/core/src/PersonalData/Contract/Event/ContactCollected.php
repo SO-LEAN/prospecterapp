@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\PersonalData\Contract\Event;
 
 /**
- * Integration event published to the other contexts (ADR 0046, 0047): a person the account prospects was
- * collected, as a contact of these organizations, by this member.
+ * Integration event published to the other contexts (ADR 0046, 0047). This member collected a person the account
+ * prospects, as a contact of these organizations.
  */
 final readonly class ContactCollected
 {

@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Prospecter\Core\PersonalData\Contract\Service\ListContactFacts;
 
 /**
- * The facts of a contact, what another context counts of it: whether the account keeps it, how it is reached (an
- * e-mail, a phone, a mobile among them, a LinkedIn profile; never the details themselves, personal data), and the
- * revision of its state, incremented at each change.
+ * A contact's facts, which other contexts count. They say whether the account keeps the contact and how it is reached:
+ * an e-mail, a phone, a mobile among the phones, a LinkedIn profile. They never give the details themselves, which are
+ * personal data. The revision of the contact's state goes up at each change.
  */
 final readonly class ContactFactsResponse
 {
@@ -25,7 +25,7 @@ final readonly class ContactFactsResponse
     }
 
     /**
-     * A forgotten contact: the last of its facts.
+     * A forgotten contact's last facts.
      */
     public static function absent(string $personId): self
     {

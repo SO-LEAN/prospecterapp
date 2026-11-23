@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Prospecter\Core\PersonalData\Contract\Event;
 
 /**
- * Integration event published to the other contexts (ADR 0046, 0047, 0099): the state of a contact once it
- * changed, as its facts count it. The highest revision is the latest; a forgotten contact is absent, at the
- * revision 0, reached by no means. How it is reached is published from its second version, null in a fact of the
- * first; never its contact details, personal data.
+ * Integration event published to the other contexts (ADR 0046, 0047, 0099). It carries a contact's state after a
+ * change, as its facts count it. The highest revision is the latest. A forgotten contact is absent, at revision 0, with
+ * no means to reach it. How the contact is reached is published from the event's second version, and is null in a
+ * first-version fact. The event never carries the contact details, which are personal data.
  */
 final readonly class ContactFactsChanged
 {

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\PersonalData\Contract\Service\PresentMembers;
 
 /**
- * The service PersonalData offers the other contexts (ADR 0045, 0089, 0153): it checks no caller and refuses nothing,
- * a person unknown, forgotten or prospected by the account is absent from its answer.
+ * The service PersonalData offers the other contexts (ADR 0045, 0089, 0153). It checks no caller and refuses nothing.
+ * Its answer leaves out a person who is unknown, forgotten or prospected by the account.
  */
 interface PresentMembersService
 {

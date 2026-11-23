@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\PersonalData\Contract\Event;
 
 /**
- * Integration event published to the other contexts (ADR 0046, 0047): a contact was erased by this member; no
- * organization may name it any more.
+ * Integration event published to the other contexts (ADR 0046, 0047). This member erased a contact. No organization may
+ * name it any more.
  */
 final readonly class ContactForgotten
 {
