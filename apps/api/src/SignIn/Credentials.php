@@ -9,8 +9,9 @@ use Aws\CognitoIdentityProvider\CognitoIdentityProviderClient;
 use Aws\CognitoIdentityProvider\Exception\CognitoIdentityProviderException;
 
 /**
- * What a member signs in with, kept by Cognito (ADR 0032, 0052): a login email, unique on the platform and
- * distinct from the contact email of its profile, and a password. The user is named by the member id.
+ * What a member signs in with, which Cognito keeps (ADR 0032, 0052): a login email and a password. The login email is
+ * unique on the platform, and distinct from the contact email in the member's profile. The Cognito user's name is the
+ * member id.
  */
 final readonly class Credentials
 {
@@ -62,7 +63,7 @@ final readonly class Credentials
     }
 
     /**
-     * Checked before writing, Cognito refusing a second holder of a verified alias as a safety net.
+     * Checks the email before writing. As a safety net, Cognito also refuses a second holder of a verified alias.
      *
      * @throws LoginEmailTaken
      */

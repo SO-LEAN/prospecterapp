@@ -12,7 +12,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * Recreates the user pool empty, with the members of the demonstration if asked (`make db`).
+ * Recreates the user pool empty, or with the demonstration members on request (`make db`).
  */
 #[AsCommand(name: 'app:user-pool:recreate', description: 'Drop and create the Cognito user pool and its client (destroys the users)')]
 final readonly class RecreateUserPoolCommand
@@ -21,7 +21,7 @@ final readonly class RecreateUserPoolCommand
     {
     }
 
-    public function __invoke(SymfonyStyle $io, #[Option(description: 'Register the members of the demonstration')] bool $demo = false): int
+    public function __invoke(SymfonyStyle $io, #[Option(description: 'Register the demonstration members')] bool $demo = false): int
     {
         $this->pool->recreate();
 
@@ -29,7 +29,7 @@ final readonly class RecreateUserPoolCommand
             $this->demoCredentials->register();
         }
 
-        $io->success(sprintf('User pool %s (%s) recreated%s.', $this->pool->name, $this->pool->id(), $demo ? ' with the members of the demonstration' : ''));
+        $io->success(sprintf('User pool %s (%s) recreated%s.', $this->pool->name, $this->pool->id(), $demo ? ' with the demonstration members' : ''));
 
         return Command::SUCCESS;
     }

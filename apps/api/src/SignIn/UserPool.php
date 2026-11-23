@@ -10,10 +10,11 @@ use Aws\CognitoIdentityProvider\CognitoIdentityProviderClient;
 use Symfony\Contracts\Cache\CacheInterface;
 
 /**
- * The Cognito user pool the members sign in with (ADR 0052), and its clients: the SPA, and the AIs signing their
- * member in through the facade of the API (ADR 0157), its secret known to the API alone. They are known by name:
- * their ids and the secret are made by Cognito when they are created, then cached. A member is a user named by its
- * member id, who signs in with the email of its alias.
+ * The Cognito user pool that the members sign in with (ADR 0052), and its clients. One client is the SPA. The other
+ * one is for the AIs, which sign their member in through the API's facade (ADR 0157). Only the API knows that
+ * client's secret. The API finds the pool and its clients by name. Cognito makes their ids and the secret when it
+ * creates them, and the API caches them. A member is a user named after their member id, who signs in with their
+ * alias's email.
  */
 final readonly class UserPool
 {
@@ -59,7 +60,7 @@ final readonly class UserPool
     }
 
     /**
-     * What the tokens of the pool name as their issuer, the same locally as on AWS.
+     * The issuer that the pool's tokens name. It is the same locally and on AWS.
      */
     public function issuer(): string
     {
@@ -67,7 +68,7 @@ final readonly class UserPool
     }
 
     /**
-     * Where the public keys the tokens are signed with are published (JWKS).
+     * Where the public keys that sign the tokens are published (JWKS).
      */
     public function keysUrl(): string
     {
@@ -108,7 +109,7 @@ final readonly class UserPool
         ]);
         $id = Typed::string(Typed::document($created['UserPool'])['Id']);
 
-        // the SPA signs in by SRP and refreshes its tokens; the API alone, with its credentials, signs in by password (commands, tests)
+        // The SPA signs in by SRP and refreshes its tokens. Only the API, with its credentials, signs in by password (commands, tests).
         $this->cognito->createUserPoolClient([
             'UserPoolId' => $id,
             'ClientName' => self::CLIENT_NAME,
@@ -116,7 +117,7 @@ final readonly class UserPool
             'PreventUserExistenceErrors' => 'ENABLED',
         ]);
 
-        // the AIs sign in on the sign-in page of Cognito, by the code with PKCE, through the facade of the API
+        // The AIs sign in on Cognito's sign-in page, with the authorization code and PKCE, through the API's facade.
         $this->cognito->createUserPoolClient([
             'UserPoolId' => $id,
             'ClientName' => self::MCP_CLIENT_NAME,

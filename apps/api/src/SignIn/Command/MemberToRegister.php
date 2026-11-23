@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\SignIn\Command;
 
 /**
- * The member an administrator registers from the console, as its arguments and options give them.
+ * The member that an administrator registers from the console, as the command's arguments and options describe them.
  */
 final readonly class MemberToRegister
 {

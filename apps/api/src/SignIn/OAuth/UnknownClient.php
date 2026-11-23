@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\SignIn\OAuth;
 
 /**
- * An AI whose Client ID Metadata Document cannot be read, or does not declare what it asks: the facade sends nobody
- * anywhere for it (ADR 0157).
+ * An AI whose Client ID Metadata Document cannot be read, or does not declare what the AI asks for. The facade sends
+ * nobody anywhere for it (ADR 0157).
  */
 final class UnknownClient extends \RuntimeException
 {

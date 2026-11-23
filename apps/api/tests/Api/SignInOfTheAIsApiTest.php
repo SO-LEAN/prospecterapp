@@ -71,14 +71,14 @@ class SignInOfTheAIsApiTest extends ApiTestCase
     {
         $this->authorize(['response_type' => 'token']);
 
-        $this->assertResponseRedirects(ClientsOfTheAIs::CLAUDE_WEB_CALLBACK.'?'.http_build_query(['error' => 'unsupported_response_type', 'error_description' => 'Only a code is given.', 'state' => 'the state of the AI']));
+        $this->assertResponseRedirects(ClientsOfTheAIs::CLAUDE_WEB_CALLBACK.'?'.http_build_query(['error' => 'unsupported_response_type', 'error_description' => 'Only the code response type is supported.', 'state' => 'the state of the AI']));
     }
 
     public function testAnAiAskingAnotherResourceThanTheMcpServerIsSentBackRefused(): void
     {
         $this->authorize(['resource' => 'https://elsewhere.example/mcp']);
 
-        $this->assertResponseRedirects(ClientsOfTheAIs::CLAUDE_WEB_CALLBACK.'?'.http_build_query(['error' => 'invalid_target', 'error_description' => 'The resource is the MCP server of Prospecter.', 'state' => 'the state of the AI']));
+        $this->assertResponseRedirects(ClientsOfTheAIs::CLAUDE_WEB_CALLBACK.'?'.http_build_query(['error' => 'invalid_target', 'error_description' => 'The only resource is the Prospecter MCP server.', 'state' => 'the state of the AI']));
     }
 
     public function testCognitoSendsTheMemberBackToTheAiWithACodeOfTheFacade(): void

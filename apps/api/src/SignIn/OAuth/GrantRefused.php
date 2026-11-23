@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\SignIn\OAuth;
 
 /**
- * The token endpoint of the facade refuses what the AI asks, by an error of RFC 6749 (5.2).
+ * The facade's token endpoint refuses the AI's request with an RFC 6749 error (5.2).
  */
 final class GrantRefused extends \RuntimeException
 {
@@ -21,6 +21,6 @@ final class GrantRefused extends \RuntimeException
 
     public static function ofTheType(string $grantType): self
     {
-        return new self('unsupported_grant_type', sprintf('The grant %s is not given.', $grantType));
+        return new self('unsupported_grant_type', sprintf('The grant type %s is not supported.', $grantType));
     }
 }

@@ -11,7 +11,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * Public, outside the API and its contract: how an AI signs its member in with the facade over Cognito (RFC 8414).
+ * Public, outside the API and its contract. It tells how an AI signs its member in through the facade over Cognito
+ * (RFC 8414).
  */
 final class ShowAuthorizationServerController extends AbstractController
 {

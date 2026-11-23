@@ -16,9 +16,10 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * Public, outside the API and its contract: Cognito sends the member back once signed in (ADR 0157). Only redirects:
- * to the AI, its state given back and, as its code, its request and the code of Cognito sealed together; or, the
- * member not signed in, with the error of Cognito. A state the facade did not seal leads nowhere.
+ * Public, outside the API and its contract. Cognito sends the member back here once they are signed in (ADR 0157).
+ * It only redirects to the AI, and gives back the AI's state. When the member signed in, the code it gives is the
+ * AI's request and Cognito's code sealed together. Otherwise, it gives Cognito's error. A state that the facade did
+ * not seal leads nowhere.
  */
 final class ComeBackFromCognitoController extends AbstractController
 {

@@ -9,8 +9,8 @@ use App\SignIn\UserPool;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * What a new member signs in with, as the commands of the console take it: a login email nobody signs in with,
- * and a password long enough, asked without echo when not given.
+ * What a new member signs in with, as the console commands take it: a login email that nobody else signs in with,
+ * and a long enough password. The command asks for the password without echo when it is not given.
  */
 final readonly class NewCredentials
 {
@@ -24,7 +24,7 @@ final readonly class NewCredentials
     public function passwordFor(string $email, ?string $password, SymfonyStyle $io): string
     {
         $this->ensureNobodySignsInWith($email);
-        $password ??= $io->askHidden(sprintf('Password of "%s"', $email));
+        $password ??= $io->askHidden(sprintf('Password for "%s"', $email));
 
         if (!is_string($password) || mb_strlen($password) < UserPool::PASSWORD_MINIMUM_LENGTH) {
             throw CredentialsRefused::becauseTooShort(UserPool::PASSWORD_MINIMUM_LENGTH);

@@ -977,7 +977,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** The email I sign in with */
+        /** Get the email I sign in with */
         get: operations["get_api_me_sign_in"];
         put?: never;
         post?: never;
@@ -994,7 +994,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Where the members sign in: the Cognito user pool and the client of the SPA */
+        /** Get where the members sign in: the Cognito user pool and the SPA's client */
         get: operations["get_api_user_pool"];
         put?: never;
         post?: never;
@@ -7351,7 +7351,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Missing or invalid email, or one another member signs in with */
+            /** @description Missing or invalid email, or an email that another member signs in with */
             422: {
                 headers: {
                     [name: string]: unknown;

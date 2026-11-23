@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 
 /**
- * A grant the facade refuses is answered as RFC 6749 says (5.2), the shape every client of OAuth reads.
+ * Answers a grant that the facade refuses as RFC 6749 says (5.2), in the shape that every OAuth client reads.
  */
 #[AsEventListener]
 final readonly class GrantRefusedListener

@@ -9,7 +9,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * A command of the console that registers somebody tells why it was refused, and exits accordingly.
+ * A console command that registers someone tells why it was refused, and exits with the matching status.
  */
 trait TellsTheRefusal
 {

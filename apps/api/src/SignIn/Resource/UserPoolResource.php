@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\SignIn\Resource;
 
 /**
- * Where the SPA signs its members in: the user pool and its client, public by nature, and the endpoint of
- * Cognito when it is not the one of AWS (MiniStack, through nginx locally).
+ * Where the SPA signs its members in: the user pool and its client, which are public by nature. It also gives the
+ * Cognito endpoint when it is not the AWS one (MiniStack through nginx, locally).
  */
 final readonly class UserPoolResource
 {

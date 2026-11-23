@@ -8,8 +8,8 @@ use App\SignIn\UserPool;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
- * The sign-in page of Cognito (its managed login, on the domain of the pool; MiniStack locally) for the client of the
- * AIs, by the code with a PKCE of the API (ADR 0157).
+ * Cognito's sign-in page (its managed login, on the pool's domain; MiniStack locally) for the AIs' client. It uses the
+ * authorization code with the API's own PKCE (ADR 0157).
  */
 final readonly class CognitoSignIn
 {
@@ -22,7 +22,7 @@ final readonly class CognitoSignIn
     }
 
     /**
-     * The page the browser of the member is sent to, Cognito giving back the state with its code.
+     * The page that the member's browser goes to. Cognito gives back the state with its code.
      */
     public function pageFor(string $state, string $codeChallenge): string
     {

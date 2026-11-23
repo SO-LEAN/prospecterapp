@@ -17,8 +17,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * Public, outside the API and its contract: an AI exchanges its code of the facade for the tokens of Cognito
- * (RFC 6749, ADR 0157), once its verifier answers the challenge it gave.
+ * Public, outside the API and its contract. An AI exchanges the facade's code for Cognito's tokens (RFC 6749,
+ * ADR 0157), once its verifier answers the challenge it gave.
  */
 final class IssueTokensController extends AbstractController
 {
@@ -63,7 +63,7 @@ final class IssueTokensController extends AbstractController
         $authorization = $this->authorizationSealedIn($form->getString('code'));
 
         if (!self::isAskedBy($form, $authorization)) {
-            throw GrantRefused::because('The code was given to another request.');
+            throw GrantRefused::because('The code was issued for another request.');
         }
 
         return $authorization;
@@ -77,12 +77,13 @@ final class IssueTokensController extends AbstractController
         try {
             return $this->seal->open($code, SealPurpose::AuthorizationCode);
         } catch (BrokenSeal $broken) {
-            throw GrantRefused::because('The facade did not give this code, or no longer accepts it.', $broken);
+            throw GrantRefused::because('The facade did not issue this code, or no longer accepts it.', $broken);
         }
     }
 
     /**
-     * The client the code was given to, for the redirect it was given for, proving the challenge it gave.
+     * Whether the request comes from the client that the code was issued to, for the same redirect, and proves the
+     * challenge that the client gave.
      *
      * @param InputBag<string>      $form
      * @param array<string, string> $authorization

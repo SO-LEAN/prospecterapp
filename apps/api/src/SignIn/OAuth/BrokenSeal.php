@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\SignIn\OAuth;
 
 /**
- * What the facade was given back is not what it sealed, for this purpose, still in time.
+ * The facade got back something it did not seal for this purpose, or the seal has expired.
  */
 final class BrokenSeal extends \RuntimeException
 {

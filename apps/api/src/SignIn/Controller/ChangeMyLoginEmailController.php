@@ -31,7 +31,7 @@ final class ChangeMyLoginEmailController extends AbstractController
     #[OA\Patch(summary: 'Change the email I sign in with, unique on the platform')]
     #[OA\Response(response: 200, description: 'What I sign in with', content: new Model(type: SignInResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
-    #[OA\Response(response: 422, description: 'Missing or invalid email, or one another member signs in with', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 422, description: 'Missing or invalid email, or an email that another member signs in with', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[MapRequestPayload] LoginEmailInput $input, #[CurrentUser] User $user): JsonResponse
     {
         $this->credentials->changeLoginEmail($user->memberId(), $input->email);

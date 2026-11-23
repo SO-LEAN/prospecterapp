@@ -7,9 +7,9 @@ namespace App\SignIn\OAuth;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
- * The MCP server as the AIs know it (RFC 9728): its address, exactly as the member types it in their AI, the server
- * signing them in, the API itself, and where its metadata say so; named by the host of the API, without the port a
- * worktree serves its stack on.
+ * The MCP server as the AIs know it (RFC 9728). It gives the server's address exactly as the member types it in their
+ * AI, the server that signs them in (the API itself), and where its metadata are. The addresses use the API's host,
+ * without the port that a worktree serves its stack on.
  */
 final readonly class ProtectedResource
 {

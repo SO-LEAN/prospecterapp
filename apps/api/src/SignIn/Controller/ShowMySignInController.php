@@ -24,7 +24,7 @@ final class ShowMySignInController extends AbstractController
     }
 
     #[Route('/api/me/sign-in', name: 'api_me_sign_in', methods: ['GET'])]
-    #[OA\Get(summary: 'The email I sign in with')]
+    #[OA\Get(summary: 'Get the email I sign in with')]
     #[OA\Response(response: 200, description: 'What I sign in with', content: new Model(type: SignInResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     public function __invoke(#[CurrentUser] User $user): JsonResponse

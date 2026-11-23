@@ -7,8 +7,9 @@ namespace App\SignIn\Resource;
 use Symfony\Component\Serializer\Attribute\SerializedName;
 
 /**
- * The metadata of the facade as an authorization server (RFC 8414), in its names: the authorization code with PKCE
- * S256, the AIs known by their Client ID Metadata Document and no secret of theirs, no registration (ADR 0157).
+ * The facade's metadata as an authorization server (RFC 8414), with the RFC's field names. The facade offers the
+ * authorization code with PKCE S256. It knows the AIs by their Client ID Metadata Document, without any secret of
+ * theirs and without registration (ADR 0157).
  */
 final readonly class AuthorizationServerMetadataResource
 {

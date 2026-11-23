@@ -7,7 +7,7 @@ namespace App\SignIn\Command;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * What a new member would sign in with is refused, and the exit status of the command says how.
+ * Refuses the credentials of a new member. The command's exit status tells how they were refused.
  */
 final class CredentialsRefused extends \RuntimeException
 {
@@ -18,7 +18,7 @@ final class CredentialsRefused extends \RuntimeException
 
     public static function becauseTaken(string $email): self
     {
-        return new self(sprintf('Somebody signs in with "%s" already.', $email), Command::FAILURE);
+        return new self(sprintf('Someone already signs in with "%s".', $email), Command::FAILURE);
     }
 
     public static function becauseNobodySignsInWith(string $email): self
@@ -28,6 +28,6 @@ final class CredentialsRefused extends \RuntimeException
 
     public static function becauseTooShort(int $minimumLength): self
     {
-        return new self(sprintf('The password needs %d characters at least.', $minimumLength), Command::INVALID);
+        return new self(sprintf('The password needs at least %d characters.', $minimumLength), Command::INVALID);
     }
 }
