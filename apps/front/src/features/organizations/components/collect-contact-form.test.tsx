@@ -75,8 +75,8 @@ describe('CollectContactForm', () => {
       vi.fn().mockRejectedValue({
         title: 'Validation Failed',
         status: 422,
-        detail: 'Email already used',
-        violations: [{ propertyPath: 'email', title: 'Email already used' }],
+        detail: 'This e-mail address is already in use',
+        violations: [{ propertyPath: 'email', title: 'This e-mail address is already in use' }],
         type: 'about:blank',
       }),
     )
@@ -84,6 +84,6 @@ describe('CollectContactForm', () => {
     await user.type(screen.getByLabelText('E-mail'), 'ada@acme.test')
     await user.click(screen.getByRole('button', { name: 'Enregistrer le contact' }))
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('Email already used')
+    expect(await screen.findByRole('alert')).toHaveTextContent('This e-mail address is already in use')
   })
 })

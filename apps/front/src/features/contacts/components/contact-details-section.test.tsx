@@ -45,7 +45,7 @@ const aPageOfAnotherKind = {
   violations: [
     {
       propertyPath: 'links',
-      title: 'A page of linkedInCompany designates an organization',
+      title: 'A linkedInCompany page designates an organization',
       reason: 'referenceOfAnotherKind',
       context: { source: 'linkedInCompany', designates: 'organization' },
     },

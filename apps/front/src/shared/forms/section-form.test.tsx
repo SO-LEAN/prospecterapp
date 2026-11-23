@@ -54,15 +54,15 @@ describe('an editable section', () => {
       vi.fn().mockRejectedValue({
         title: 'Validation Failed',
         status: 422,
-        detail: 'Email already used',
-        violations: [{ propertyPath: 'email', title: 'Email already used' }],
+        detail: 'This e-mail address is already in use',
+        violations: [{ propertyPath: 'email', title: 'This e-mail address is already in use' }],
       }),
     )
 
     await user.click(screen.getByRole('button', { name: 'Modifier : Coordonnées' }))
     await user.click(screen.getByRole('button', { name: 'Enregistrer' }))
 
-    expect(await screen.findByText('Email already used')).toBeInTheDocument()
+    expect(await screen.findByText('This e-mail address is already in use')).toBeInTheDocument()
     expect(screen.getByLabelText('E-mail')).toHaveAttribute('aria-invalid', 'true')
   })
 

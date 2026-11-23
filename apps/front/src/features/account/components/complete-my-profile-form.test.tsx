@@ -33,10 +33,12 @@ const completed = (firstName: string, lastName: string, email: string): Account 
 
 const emailAlreadyUsed = {
   type: 'about:blank',
-  title: 'Email already used',
+  title: 'This e-mail address is already in use',
   status: 409,
   reason: 'emailAlreadyUsed',
-  violations: [{ propertyPath: 'email', title: 'Email already used', reason: 'emailAlreadyUsed' }],
+  violations: [
+    { propertyPath: 'email', title: 'This e-mail address is already in use', reason: 'emailAlreadyUsed' },
+  ],
 }
 
 function renderTheForm() {

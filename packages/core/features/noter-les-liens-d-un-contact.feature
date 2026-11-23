@@ -30,7 +30,7 @@ Fonctionnalité: Noter les liens d'un contact
 
   Scénario: La page d'une entreprise ne désigne pas une personne
     Quand j'ajoute à "Ada Lovelace" le lien "https://www.linkedin.com/company/acme-corp"
-    Alors c'est refusé : "A page of linkedInCompany designates an organization"
+    Alors c'est refusé : "A linkedInCompany page designates an organization"
 
   Scénario: J'enregistre un contact avec ses liens
     Quand j'enregistre le contact "Grace Hopper" pour "ACME" :
@@ -41,7 +41,7 @@ Fonctionnalité: Noter les liens d'un contact
   Scénario: Un contact a cinq liens au plus
     Quand je change les coordonnées de "Ada Lovelace" :
       | liens | https://a.test/ada https://b.test/ada https://c.test/ada https://d.test/ada https://e.test/ada https://f.test/ada |
-    Alors c'est refusé : "5 links at most"
+    Alors c'est refusé : "There can be at most 5 links"
 
   Scénario: Sans le droit, les liens d'un contact sont masqués
     Soit "Ada Lovelace" a noté le lien "https://www.linkedin.com/in/ada-lovelace"

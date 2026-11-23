@@ -90,7 +90,7 @@ Fonctionnalité: Compléter un contact sans rien écraser
     Soit le contact "Grace Hopper" de "ACME" a l'adresse e-mail "grace@acme.fr"
     Quand je complète le contact "Ada Lovelace" :
       | e-mail | grace@acme.fr |
-    Alors c'est refusé : "Email already used"
+    Alors c'est refusé : "This e-mail address is already in use"
 
   Scénario: Un lien d'un autre contact est refusé
     Soit le contact "Grace Hopper" de "ACME"
