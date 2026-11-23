@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Booking\Domain\Model;
 
 /**
- * A time the host is already taken, by an exchange they planned: from its start, for its minutes.
+ * A time when the host is already busy with an exchange they planned. It starts at the exchange's start and lasts its
+ * minutes.
  */
 final readonly class BusyPeriod
 {
@@ -16,7 +17,7 @@ final readonly class BusyPeriod
     }
 
     /**
-     * Both are half open: a period ending when another starts leaves it free.
+     * Both periods are half-open: a period that ends when another starts does not overlap it.
      */
     public function overlaps(\DateTimeImmutable $from, \DateTimeImmutable $until): bool
     {

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Booking\Domain\Model;
 
 /**
- * The channels the host offers the bookers, each once, in the order of `Channel`.
+ * The channels the host offers to bookers, each one once, in the order of `Channel`.
  */
 final readonly class OfferedChannels
 {

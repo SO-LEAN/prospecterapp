@@ -7,8 +7,8 @@ namespace Prospecter\Core\Booking\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
 /**
- * A booking is put in the calendar of the host, which invites the booker: a page opens only while that calendar is
- * connected.
+ * A booking goes into the host's calendar, and the calendar invites the booker. So a page opens only while that
+ * calendar is connected.
  */
 final class NoConnectedCalendar extends BusinessRuleViolation
 {

@@ -7,7 +7,7 @@ namespace Prospecter\Core\Booking\Domain\Model;
 use Prospecter\Core\SharedKernel\Domain\Uuid;
 
 /**
- * The identity of an inactive period of a booking page, given by the client that adds it.
+ * A booking page's inactive period's id. The client that adds the period gives it.
  */
 final readonly class InactivePeriodId extends Uuid
 {

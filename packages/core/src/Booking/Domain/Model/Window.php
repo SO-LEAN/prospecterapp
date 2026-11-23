@@ -8,8 +8,8 @@ use Prospecter\Core\Booking\Domain\Exception\WindowOffTheQuarterHour;
 use Prospecter\Core\Booking\Domain\Exception\WindowTooShort;
 
 /**
- * When the host may be booked on a day of the week: from a time to a later one, both on the quarter hour, long
- * enough for one slot of 15 minutes at least.
+ * When the host is bookable on a weekday: from one time to a later one. Both times fall on a quarter hour. The window
+ * holds at least one 15-minute slot.
  */
 final readonly class Window
 {

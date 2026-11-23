@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Booking\Domain\Model;
 
 /**
- * When a host may be booked: the windows of their week on their clock, but on the days of their inactive periods.
+ * When a host is bookable: their weekly windows on their clock, except on the days of their inactive periods.
  */
 final readonly class Availability
 {
@@ -20,7 +20,7 @@ final readonly class Availability
     }
 
     /**
-     * @param string $day YYYY-MM-DD, on the clock of the host
+     * @param string $day YYYY-MM-DD, on the host's clock
      */
     public function isInactiveOn(string $day): bool
     {

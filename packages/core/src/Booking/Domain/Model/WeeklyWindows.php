@@ -7,7 +7,8 @@ namespace Prospecter\Core\Booking\Domain\Model;
 use Prospecter\Core\Booking\Domain\Exception\TwoWindowsOnADay;
 
 /**
- * The windows of the week of the host, one a day at most (several a day are out of scope, #177), Monday first.
+ * The host's weekly windows, Monday first. A day holds one window at most (several windows a day are out of scope,
+ * #177).
  */
 final readonly class WeeklyWindows
 {

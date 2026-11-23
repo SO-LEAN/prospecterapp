@@ -7,8 +7,8 @@ namespace Prospecter\Core\Booking\Domain\Port;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * Port: whether the calendar of a host is connected, the one that will invite the bookers, translated from the
- * context that connects it (Connectors), through its published service `WhichHaveAConnectedCalendarService`.
+ * Port: whether a host's calendar is connected. That calendar invites the bookers. The adapter translates the answer of
+ * Connectors, the context that connects calendars, through its published service `WhichHaveAConnectedCalendarService`.
  */
 interface ConnectedCalendars
 {

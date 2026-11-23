@@ -7,12 +7,12 @@ namespace Prospecter\Core\Booking\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
 /**
- * The code of a public link is 22 random characters of base 62: a client drawing anything else is refused.
+ * A public link's code has 22 random base-62 characters. The core refuses a code of any other shape from a client.
  */
 final class InvalidBookingCode extends BusinessRuleViolation
 {
     public static function refused(): self
     {
-        return self::because('A booking code is 22 random characters of base 62', 'code');
+        return self::because('A booking code has 22 random base-62 characters', 'code');
     }
 }

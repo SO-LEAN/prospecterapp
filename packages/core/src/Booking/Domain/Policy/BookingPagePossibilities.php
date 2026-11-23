@@ -7,7 +7,8 @@ namespace Prospecter\Core\Booking\Domain\Policy;
 use Prospecter\Core\Booking\Domain\Model\BookingPageIntent;
 
 /**
- * What a booking page offers in its state: closed, it opens; open, it closes; once it has a link, its link changes.
+ * What a host can do with a booking page in its state. A closed page opens. An open page closes. A page with a link can
+ * change its link.
  */
 final class BookingPagePossibilities
 {

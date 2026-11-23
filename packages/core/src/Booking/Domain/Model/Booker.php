@@ -11,7 +11,8 @@ use Prospecter\Core\SharedKernel\Domain\Exception\InvalidPhoneNumber;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 /**
- * Who books a slot, as they say it: the host meets them by phone or by the invitation sent to their e-mail.
+ * The person who books a slot, as they describe themselves. The host meets them by phone, or through the invitation
+ * sent to their e-mail.
  */
 final readonly class Booker
 {

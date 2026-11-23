@@ -7,7 +7,8 @@ namespace Prospecter\Core\Booking\Domain\Model;
 use Prospecter\Core\SharedKernel\Domain\Uuid;
 
 /**
- * The identity of an appointment, given by the client that books it; the exchange it becomes takes it too (ADR 0164).
+ * An appointment's id. The client that books the appointment gives it. The exchange that the appointment becomes takes
+ * the same id (ADR 0164).
  */
 final readonly class AppointmentId extends Uuid
 {

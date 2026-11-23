@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Booking\Domain\Model;
 
 /**
- * How a booker may meet the host: a call, or a video call whose link the calendar of the host creates.
+ * How a booker can meet the host: a call, or a video call. The host's calendar creates the video call's link.
  */
 enum Channel: string
 {

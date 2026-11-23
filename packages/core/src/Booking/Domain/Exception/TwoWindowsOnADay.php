@@ -7,7 +7,7 @@ namespace Prospecter\Core\Booking\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
 /**
- * A day of the week holds one window at most.
+ * A weekday holds one window at most.
  */
 final class TwoWindowsOnADay extends BusinessRuleViolation
 {

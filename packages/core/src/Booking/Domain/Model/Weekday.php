@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Booking\Domain\Model;
 
 /**
- * A day of the week, Monday first, on the clock of the host.
+ * A day of the week on the host's clock. Monday comes first.
  */
 enum Weekday: string
 {

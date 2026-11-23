@@ -7,7 +7,7 @@ namespace Prospecter\Core\Booking\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
 /**
- * An inactive period lasts one day at least: its last day is its first one, or after it.
+ * An inactive period lasts at least one day. Its last day is its first day or a later one.
  */
 final class PeriodEndsBeforeItStarts extends BusinessRuleViolation
 {

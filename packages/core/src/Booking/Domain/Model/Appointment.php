@@ -13,9 +13,9 @@ use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 
 /**
- * Aggregate root: a slot of a host a booker booked by their public link (ADR 0164). It holds the slot until it ends or
- * the exchange it became is erased (ADR 0171), the booker's only appointment to come with the host, and who they are
- * until the contexts that plan it read them.
+ * Aggregate root: a host's slot that a booker booked through the public link (ADR 0164). It holds the slot until the
+ * slot ends, or until the exchange it became is erased (ADR 0171). It is the booker's only upcoming appointment with
+ * the host. It keeps who the booker is until the contexts that plan the appointment read it.
  */
 final class Appointment implements ReleasesEvents
 {
@@ -37,8 +37,8 @@ final class Appointment implements ReleasesEvents
     }
 
     /**
-     * By the booking page of the host, which checks the slot may be booked; the slot on the clock of the host. The
-     * booker takes the identity given should nobody of the account be them.
+     * The host's booking page calls it after it checks that the slot is bookable. The slot is on the host's clock. The
+     * booker takes the given id when nobody in the account matches them.
      */
     public static function booked(AccountId $accountId, MemberId $host, AppointmentRequest $request, \DateTimeImmutable $at): self
     {

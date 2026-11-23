@@ -7,7 +7,8 @@ namespace Prospecter\Core\Booking\Domain\Model;
 use Prospecter\Core\SharedKernel\Domain\Email;
 
 /**
- * When a host is already taken from a moment on, and the appointments booked by their link still to come.
+ * When a host is already busy from a given moment, and the upcoming appointments that bookers made through the host's
+ * link.
  */
 final readonly class HostAgenda
 {

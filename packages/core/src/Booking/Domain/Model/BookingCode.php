@@ -7,8 +7,8 @@ namespace Prospecter\Core\Booking\Domain\Model;
 use Prospecter\Core\Booking\Domain\Exception\InvalidBookingCode;
 
 /**
- * The code of the public link of a booking page: 22 random characters of base 62, 128 bits at least, drawn by the API
- * like an identity, never derived from the host; the core checks its shape only.
+ * The code in a booking page's public link: 22 random base-62 characters, at least 128 bits. The API draws it like an
+ * id. It never derives it from the host. The core checks only its shape.
  */
 final readonly class BookingCode
 {

@@ -11,7 +11,8 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * A booker booked a slot of the host, by their public link: no member acted, the appointment is the host's.
+ * A booker booked one of the host's slots through the public link. No member acted. The appointment belongs to the
+ * host.
  */
 final readonly class SlotBooked extends DomainEvent
 {

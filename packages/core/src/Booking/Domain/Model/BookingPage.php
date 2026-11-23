@@ -27,8 +27,8 @@ use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 
 /**
- * Aggregate root: the booking page of a member, the host, one each: the windows of their week, the days they are
- * inactive, the channels they offer, whether it is open, and the code of its public link (ADR 0148).
+ * Aggregate root: a member's booking page. The member is its host and has one page. It holds the host's weekly windows,
+ * the days they are inactive, the channels they offer, whether the page is open, and its public link's code (ADR 0148).
  */
 final class BookingPage implements ReleasesEvents
 {
@@ -52,7 +52,7 @@ final class BookingPage implements ReleasesEvents
     }
 
     /**
-     * Closed, without windows, channels nor link: set up by the first gesture of its host on it.
+     * A closed page, without windows, channels or link. The host's first action on it sets it up.
      */
     public static function setUpFor(MemberId $host, AccountId $accountId, \DateTimeImmutable $at): self
     {
@@ -100,8 +100,8 @@ final class BookingPage implements ReleasesEvents
     }
 
     /**
-     * The calendar of the host invites the booker: without one connected, nobody books. The code drawn serves only
-     * the first opening; opened again, the page keeps its link.
+     * The host's calendar invites the booker, so nobody can book without a connected calendar. Only the first opening
+     * uses the drawn code. When the page opens again, it keeps its link.
      */
     public function open(BookingCode $drawn, bool $calendarConnected, \DateTimeImmutable $at): void
     {
@@ -135,8 +135,8 @@ final class BookingPage implements ReleasesEvents
     }
 
     /**
-     * A booker books one of the free slots its link offers, by a channel it offers, when they have no other
-     * appointment to come with the host.
+     * A booker books one of the free slots that the link offers, through an offered channel. They must have no other
+     * upcoming appointment with the host.
      *
      * @throws ChannelNotOffered|AlreadyBooked|SlotNotFree
      */
@@ -198,7 +198,7 @@ final class BookingPage implements ReleasesEvents
     }
 
     /**
-     * @param string $day YYYY-MM-DD, on the clock of the host
+     * @param string $day YYYY-MM-DD, on the host's clock
      */
     public function isUnavailableOn(string $day): bool
     {
@@ -221,8 +221,8 @@ final class BookingPage implements ReleasesEvents
     {
         return match ($intent) {
             BookingPageIntent::ChangeBookingLink => BookingPageWithoutLink::doesNotChangeIt(),
-            BookingPageIntent::OpenBooking => NotPossibleInItsState::because('An open booking page does not open again'),
-            BookingPageIntent::CloseBooking => NotPossibleInItsState::because('A closed booking page does not close again'),
+            BookingPageIntent::OpenBooking => NotPossibleInItsState::because('An open booking page cannot open again'),
+            BookingPageIntent::CloseBooking => NotPossibleInItsState::because('A closed booking page cannot close again'),
         };
     }
 }

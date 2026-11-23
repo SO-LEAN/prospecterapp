@@ -7,7 +7,7 @@ namespace Prospecter\Core\Booking\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
 /**
- * The slots are cut on the quarter hour: a window starts and ends on one.
+ * Slots start on the quarter hour, so a window starts and ends on a quarter hour.
  */
 final class WindowOffTheQuarterHour extends BusinessRuleViolation
 {

@@ -7,8 +7,8 @@ namespace Prospecter\Core\Booking\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
 /**
- * One appointment to come by e-mail with a host: another is asked of the host by e-mail or by phone. The refusal says
- * when the one booked is, on the clock of the host.
+ * A booker has at most one upcoming appointment with a host, matched by e-mail. For another one, the booker asks the
+ * host by e-mail or by phone. The refusal gives the booked appointment's time on the host's clock.
  */
 final class AlreadyBooked extends BusinessRuleViolation
 {
