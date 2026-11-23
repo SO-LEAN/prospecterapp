@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\ConsultOrganizationUpcomingExchanges;
 
 /**
- * The exchanges with an organization and with its contacts after the moment, the soonest first, a slice after the
- * other.
+ * Reads the exchanges with an organization and its contacts after the given moment. The soonest come first, one
+ * slice at a time.
  */
 final readonly class ConsultOrganizationUpcomingExchanges
 {
