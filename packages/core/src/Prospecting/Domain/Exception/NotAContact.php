@@ -7,7 +7,7 @@ namespace Prospecter\Core\Prospecting\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 
 /**
- * The person is no contact of the organization.
+ * The person is not a contact of the organization.
  */
 final class NotAContact extends NotPossibleInItsState
 {
