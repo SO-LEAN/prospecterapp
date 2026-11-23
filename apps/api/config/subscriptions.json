@@ -221,7 +221,7 @@
     "context": "connectors",
     "sources": ["prospecter.connectors.internal"],
     "events": ["Connected.v1", "CalendarRecreated.v1"],
-    "handler": "Prospecter\\Core\\Connectors\\Application\\PushUpcomingExchanges\\PushUpcomingExchangesHandler",
+    "policy": "Prospecter\\Core\\Connectors\\Application\\Policy\\PushUpcomingExchangesPolicy",
     "inbox": true
   },
   "connectors-unname-forgotten-contact": {

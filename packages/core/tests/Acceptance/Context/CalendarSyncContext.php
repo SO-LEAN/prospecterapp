@@ -12,7 +12,9 @@ use Prospecter\Core\Connectors\Application\ExchangeSync;
 use Prospecter\Core\Connectors\Application\MyConnection;
 use Prospecter\Core\Connectors\Application\RetryFailedPushes\RetryFailedPushes;
 use Prospecter\Core\Connectors\Application\RetryPush\RetryPush;
-use Prospecter\Core\Connectors\Domain\Event\CalendarToFill;
+use Prospecter\Core\Connectors\Domain\Event\CalendarRecreated;
+use Prospecter\Core\Connectors\Domain\Event\Connected;
+use Prospecter\Core\Connectors\Domain\Event\ConnectionEvent;
 use Prospecter\Core\Connectors\Domain\Model\CalendarEvent;
 use Prospecter\Core\Connectors\Domain\Model\Connection;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
@@ -31,13 +33,16 @@ final class CalendarSyncContext implements Context
 
     private const array STATES = ['en attente' => 'pending', 'synchronisée' => 'synced', 'en échec' => 'failed'];
 
-    /** @var array{CalendarToFill, Connection}|null the current push of my upcoming exchanges: what it fills, and the connection it read */
+    /** @var array{ConnectionEvent, Connection}|null the current push of my upcoming exchanges: the event that started it, and the connection it read */
     private ?array $pushUnderWay = null;
 
     #[Given('mes échanges à venir sont en cours de poussée')]
     public function myUpcomingExchangesAreBeingPushed(): void
     {
-        $filled = $this->application->events->published(CalendarToFill::class);
+        $filled = array_values(array_filter(
+            $this->application->events->published(ConnectionEvent::class),
+            static fn (ConnectionEvent $event): bool => $event instanceof Connected || $event instanceof CalendarRecreated,
+        ));
         $connection = $this->application->connections->find(new MemberId($this->application->signedIn()), Provider::Google);
         $this->pushUnderWay = [Expect::present(array_last($filled), 'A calendar to fill was expected'), Expect::present($connection, 'A connection to Google was expected')];
     }

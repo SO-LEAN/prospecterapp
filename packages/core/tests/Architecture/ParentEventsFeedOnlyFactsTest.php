@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Core\Architecture;
 
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\Connectors\Application\PushUpcomingExchanges\PushUpcomingExchangesHandler;
 use Prospecter\Core\Connectors\Application\ReadMailboxHistory\ReadMailboxHistoryHandler;
 use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
 
@@ -24,8 +23,6 @@ class ParentEventsFeedOnlyFactsTest extends TestCase
      * command, and removes these parents with this list.
      */
     private const array REACTIONS_TO_A_CONDITION = [
-        // ADR 0133: the calendar lacks the exchanges to come
-        PushUpcomingExchangesHandler::class,
         // ADR 0154: the mailbox may hold messages not read yet
         ReadMailboxHistoryHandler::class,
     ];
