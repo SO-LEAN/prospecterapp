@@ -193,7 +193,7 @@
     "sources": ["prospecter.prospecting"],
     "events": ["ExchangeFactsChanged.v2", "ExchangeFactsChanged.v3", "ExchangeFactsChanged.v4"],
     "payload": {"$or": [{"status": ["planned", "cancelled"]}, {"present": [false]}]},
-    "handler": "Prospecter\\Core\\Connectors\\Application\\PushExchange\\PushExchangeHandler",
+    "policy": "Prospecter\\Core\\Connectors\\Application\\Policy\\PushExchangePolicy",
     "inbox": true
   },
   "connectors-read-mailbox-history": {
