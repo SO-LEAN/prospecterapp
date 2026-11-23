@@ -12,8 +12,8 @@ use Prospecter\Core\Connectors\Application\ConsultExchangeSync\ConsultExchangeSy
 use Prospecter\Core\Connectors\Application\ExchangeSync;
 
 /**
- * Presents where the push of an exchange stands as the API shows it, an object of the call (ADR 0085): pushed again
- * only once the provider refused it.
+ * Presents an exchange's push state as the API shows it. It is built for each call (ADR 0085). The exchange can be
+ * pushed again only once the provider refused it.
  */
 final class ExchangeSyncResourcePresenter implements ConsultExchangeSyncOutput
 {

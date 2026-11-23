@@ -11,8 +11,8 @@ use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Symfony\Component\Clock\ClockInterface;
 
 /**
- * Where the push of an exchange into my calendar stands, as the API shows it; a controller calls it after a command,
- * which returns nothing, to answer with the fresh resource.
+ * Reads an exchange's push state in my calendar, as the API shows it. A command returns nothing, so a controller
+ * calls this reader after the command to answer with the fresh resource.
  */
 final readonly class ExchangeSyncReader
 {

@@ -12,8 +12,9 @@ use Prospecter\Core\Connectors\Application\AccountClient;
 use Prospecter\Core\Connectors\Application\ConsultMyAccountClients\ConsultMyAccountClientsOutput;
 
 /**
- * The client of Google among the clients of my account, its secret said set, never given (ADR 0125), the topic its
- * mailboxes notify Prospecter through and where the subscription of the account pushes them (ADR 0154).
+ * Presents the Google client among my account's clients. It says whether the secret is set, but never gives it
+ * (ADR 0125). It also gives the topic that the mailboxes notify Prospecter through, and the endpoint that the account's
+ * subscription pushes the notifications to (ADR 0154).
  */
 final class GoogleClientResourcePresenter implements ConsultMyAccountClientsOutput
 {

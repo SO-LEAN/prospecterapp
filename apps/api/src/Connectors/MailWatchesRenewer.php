@@ -13,9 +13,9 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Clock\ClockInterface;
 
 /**
- * Gives each import of the e-mails active, in every account, the renewal of the watch of its mailbox (ADR 0154): what
- * the daily schedule of an instance runs, and the console. Each is a command of its own, a renewal the provider
- * refuses leaving its import to reconnect.
+ * Renews the mailbox watch of each active e-mail import, in every account (ADR 0154). An instance's daily schedule
+ * runs it, and so does the console. Each renewal is a command of its own. When the provider refuses a renewal, its
+ * import becomes to reconnect.
  */
 #[WithMonologChannel('mailbox')]
 final readonly class MailWatchesRenewer implements ScheduledTask
@@ -41,8 +41,9 @@ final readonly class MailWatchesRenewer implements ScheduledTask
     }
 
     /**
-     * A renewal failing, Google failing or the topic of its account refusing Gmail, is logged and the others go on: no
-     * schedule retries, and the failing import stays active, renewed the next day before its week ends.
+     * A failing renewal is logged, and the others go on. It may fail because Google fails, or because its account's
+     * topic refuses Gmail. No schedule retries it. The import stays active and is renewed the next day, before its week
+     * ends.
      *
      * @return array{renewed: int, failed: int}
      */
@@ -62,7 +63,7 @@ final readonly class MailWatchesRenewer implements ScheduledTask
 
             return true;
         } catch (\Exception $failure) {
-            $this->logger->error('The watch of the mailbox of a member could not be renewed', ['member' => $member, 'exception' => $failure]);
+            $this->logger->error('A member\'s mailbox watch could not be renewed', ['member' => $member, 'exception' => $failure]);
 
             return false;
         }
