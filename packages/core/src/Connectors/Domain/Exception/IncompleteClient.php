@@ -13,11 +13,11 @@ final class IncompleteClient extends BusinessRuleViolation
 {
     public static function withoutItsId(): self
     {
-        return self::because('A client needs its id', 'clientId');
+        return self::because('The client id is required', 'clientId');
     }
 
     public static function withoutItsSecret(): self
     {
-        return self::because('A client needs its secret', 'clientSecret');
+        return self::because('The client secret is required', 'clientSecret');
     }
 }

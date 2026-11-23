@@ -26,31 +26,31 @@ Fonctionnalité: Configurer le client Google de mon compte
 
   Scénario: Un client a son id
     Quand je configure le client Google "" de secret "secret-solean"
-    Alors c'est refusé : "A client needs its id"
+    Alors c'est refusé : "The client id is required"
     Et mon compte n'a pas de client Google
 
   Scénario: Un client a son secret
     Quand je configure le client Google "client-solean" de secret ""
-    Alors c'est refusé : "A client needs its secret"
+    Alors c'est refusé : "The client secret is required"
     Et mon compte n'a pas de client Google
 
   Scénario: Un membre qui n'est pas administrateur ne configure pas le client
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
     Quand je configure le client Google "client-solean" de secret "secret-solean"
-    Alors c'est refusé : "Only an administrator of the account configures its clients"
+    Alors c'est refusé : "Only the account's administrators can configure its clients"
     Et Google n'est pas proposé à un prospecteur de "SOLEAN IT"
 
   Scénario: Un membre qui n'est pas administrateur ne voit pas le client
     Soit le client Google "client-solean" de secret "secret-solean" sert "SOLEAN IT"
     Et je suis connecté en tant que prospecteur de "SOLEAN IT"
     Quand je consulte le client Google de mon compte
-    Alors c'est refusé : "Only an administrator of the account configures its clients"
+    Alors c'est refusé : "Only the account's administrators can configure its clients"
 
   Scénario: Un membre qui n'est pas administrateur ne retire pas le client
     Soit le client Google "client-solean" de secret "secret-solean" sert "SOLEAN IT"
     Et je suis connecté en tant que prospecteur de "SOLEAN IT"
     Quand je retire le client Google de mon compte
-    Alors c'est refusé : "Only an administrator of the account configures its clients"
+    Alors c'est refusé : "Only the account's administrators can configure its clients"
     Et Google est proposé à un prospecteur de "SOLEAN IT"
 
   Scénario: Le client d'un compte ne sert qu'à lui
@@ -95,7 +95,7 @@ Fonctionnalité: Configurer le client Google de mon compte
 
   Scénario: Je ne retire pas un client absent
     Quand je retire le client Google de mon compte
-    Alors c'est refusé : "No client at Google"
+    Alors c'est refusé : "The account has no Google client"
 
   Scénario: Je renseigne le topic par lequel Gmail prévient Prospecter
     Soit le client Google "client-solean" de secret "secret-solean" sert "SOLEAN IT"
@@ -117,14 +117,14 @@ Fonctionnalité: Configurer le client Google de mon compte
   Scénario: Un topic a son nom complet
     Soit le client Google "client-solean" de secret "secret-solean" sert "SOLEAN IT"
     Quand je renseigne le topic Pub/Sub "gmail" poussé par "push@solean.iam.gserviceaccount.com"
-    Alors c'est refusé : "A topic is named projects/<project>/topics/<topic>"
+    Alors c'est refusé : "A topic name must look like projects/<project>/topics/<topic>"
     Et le client Google de mon compte n'a pas de topic Pub/Sub
 
   Scénario: Seul un administrateur renseigne le topic
     Soit le client Google "client-solean" de secret "secret-solean" sert "SOLEAN IT"
     Et je suis connecté en tant que prospecteur de "SOLEAN IT"
     Quand je renseigne le topic Pub/Sub "projects/solean/topics/gmail" poussé par "push@solean.iam.gserviceaccount.com"
-    Alors c'est refusé : "Only an administrator of the account configures its clients"
+    Alors c'est refusé : "Only the account's administrators can configure its clients"
 
   Scénario: Je retire le topic Pub/Sub
     Soit le client Google "client-solean" de secret "secret-solean" sert "SOLEAN IT"

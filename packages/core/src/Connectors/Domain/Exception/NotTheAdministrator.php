@@ -13,6 +13,6 @@ final class NotTheAdministrator extends NotAllowed
 {
     public static function ofTheClients(): self
     {
-        return self::because('Only an administrator of the account configures its clients');
+        return self::because('Only the account\'s administrators can configure its clients');
     }
 }

@@ -242,7 +242,7 @@ describe('GoogleClientCard, the topic of Gmail', () => {
           violations: [
             {
               propertyPath: '',
-              title: 'A topic is named projects/<project>/topics/<topic>',
+              title: 'A topic name must look like projects/<project>/topics/<topic>',
               reason: 'invalidTopic',
             },
           ],

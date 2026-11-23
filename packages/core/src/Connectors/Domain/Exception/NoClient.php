@@ -11,6 +11,6 @@ final class NoClient extends NotFound
 {
     public static function at(Provider $provider): self
     {
-        return new self(sprintf('No client at %s', ucfirst($provider->value)));
+        return new self(sprintf('The account has no %s client', ucfirst($provider->value)));
     }
 }

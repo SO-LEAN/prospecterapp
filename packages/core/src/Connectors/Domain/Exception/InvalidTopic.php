@@ -13,6 +13,6 @@ final class InvalidTopic extends BusinessRuleViolation
 {
     public static function inFull(): self
     {
-        return self::because('A topic is named projects/<project>/topics/<topic>', 'topic');
+        return self::because('A topic name must look like projects/<project>/topics/<topic>', 'topic');
     }
 }
