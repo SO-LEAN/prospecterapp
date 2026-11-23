@@ -28,12 +28,12 @@ final class NoteGmailNotificationController extends AbstractController
     }
 
     #[Route('/api/accounts/{account}/gmail-notifications', name: 'api_gmail_notifications', requirements: ['account' => Requirement::UUID], methods: ['POST'])]
-    #[OA\Post(summary: 'A change of a mailbox Gmail notified through the topic of the account, pushed by its subscription at Pub/Sub with a token Google signed for its account of service, not with a token of a member (ADR 0154): noted and dated, nothing read from Gmail during the request', security: [])]
+    #[OA\Post(summary: 'Record a change that a Gmail mailbox notified through the account\'s topic. The topic\'s Pub/Sub subscription pushes it with a token that Google signed for the account\'s service account, not with a member\'s token (ADR 0154). The change is recorded and dated. Nothing is read from Gmail during the request', security: [])]
     #[OA\RequestBody(content: new Model(type: PubSubPushInput::class))]
-    #[OA\Response(response: 204, description: 'Noted, or ignored for a mailbox no member of the account imports')]
-    #[OA\Response(response: 400, description: 'A message whose data is no notification of Gmail')]
-    #[OA\Response(response: 422, description: 'A message without data')]
-    #[OA\Response(response: 401, description: 'A token missing, not signed by Google, not issued for this endpoint, not for the account of service of the account, or an account without topic of Gmail')]
+    #[OA\Response(response: 204, description: 'Recorded, or ignored when no member of the account imports the mailbox')]
+    #[OA\Response(response: 400, description: 'The message\'s data is not a Gmail notification')]
+    #[OA\Response(response: 422, description: 'The message has no data')]
+    #[OA\Response(response: 401, description: 'The token is missing, not signed by Google, not issued for this endpoint, or not issued for the account\'s service account. Or the account has no Gmail topic')]
     public function __invoke(string $account, #[MapRequestPayload] PubSubPushInput $input): Response
     {
         $notification = $input->notification();

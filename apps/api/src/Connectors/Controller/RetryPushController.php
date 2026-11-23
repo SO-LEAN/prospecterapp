@@ -35,8 +35,8 @@ final class RetryPushController extends AbstractController
 
     #[Route('/api/exchanges/{id}/google-sync/retries', name: 'api_exchanges_google_sync_retry', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
     #[IsGranted(ExchangeVoter::ACCESS, subject: 'exchange')]
-    #[OA\Post(summary: 'Push an exchange into my calendar at Google again, as it is now; by its holder')]
-    #[OA\Response(response: 200, description: 'Where its push stands now', content: new Model(type: ExchangeSyncResource::class))]
+    #[OA\Post(summary: 'Push an exchange again, as it is now, into my Google calendar. Only its holder can do it')]
+    #[OA\Response(response: 200, description: 'Its current push state', content: new Model(type: ExchangeSyncResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or not the holder of the exchange', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'Unknown exchange, or one of another account', content: new Model(type: ProblemResource::class))]

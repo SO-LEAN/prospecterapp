@@ -34,19 +34,19 @@ final class ConnectGoogleController extends AbstractController
     }
 
     #[Route('/api/me/connections/google', name: 'api_me_connections_google_connect', methods: ['POST'])]
-    #[OA\Post(summary: 'Connect my Google account with the code Google brought the SPA back with, replacing the account connected before')]
-    #[OA\Response(response: 201, description: 'My connections, Google connected', content: new Model(type: ConnectionsResource::class))]
+    #[OA\Post(summary: 'Connect my Google account with the code that Google gave back to the SPA. It replaces the account connected before')]
+    #[OA\Response(response: 201, description: 'My connections, with Google connected', content: new Model(type: ConnectionsResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
-    #[OA\Response(response: 403, description: 'Google did not grant the access for this code', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 404, description: 'No authorization of mine waits for this state: unknown, expired, or asked by another member', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 422, description: 'The access to the calendar was not granted, or the answer is incomplete', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 503, description: 'The secret of the client cannot be kept nor read for now (`secretsUnavailable`), or Google does not answer, fails or limits the requests: nothing is connected, the member goes through Google again (`googleUnreachable`)', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 403, description: 'Google did not grant access for this code', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 404, description: 'None of my authorizations waits for this state. It is unknown, expired, or requested by another member', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 422, description: 'Access to the calendar was not granted, or the answer is incomplete', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 503, description: 'The client\'s secret cannot be stored or read right now (`secretsUnavailable`). Or Google does not answer, fails or limits the requests (`googleUnreachable`). Nothing is connected, and the member goes through Google again', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[MapRequestPayload] GoogleAnswerInput $input, #[CurrentUser] User $user): JsonResponse
     {
         $this->commandBus->dispatch(new Connect(
             memberId: $user->memberId(),
-            state: $input->state ?? throw new \LogicException('An answer validated has its state'),
-            code: $input->code ?? throw new \LogicException('An answer validated has its code'),
+            state: $input->state ?? throw new \LogicException('A validated answer has a state'),
+            code: $input->code ?? throw new \LogicException('A validated answer has a code'),
             executedAt: $this->clock->now(),
         ));
 

@@ -26,7 +26,7 @@ final class ConsultMyConnectionsController extends AbstractController
     }
 
     #[Route('/api/me/connections', name: 'api_me_connections', methods: ['GET'])]
-    #[OA\Get(summary: 'Consult my connections to the services outside, in the state last seen, without asking them')]
+    #[OA\Get(summary: 'Get my connections to outside services in the state last seen, without asking the services')]
     #[OA\Response(response: 200, description: 'My connections', content: new Model(type: ConnectionsResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'The signed-in user is not a user', content: new Model(type: ProblemResource::class))]

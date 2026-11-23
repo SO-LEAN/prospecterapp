@@ -5459,11 +5459,11 @@
                 "tags": [
                     "Connectors"
                 ],
-                "summary": "Ask Google for the access to my calendar: the browser goes to the address answered, Google brings it back to the SPA with a code to give to POST /api/me/connections/google within ten minutes",
+                "summary": "Ask Google for access to my calendar. The browser goes to the returned address. Google brings it back to the SPA with a code. The SPA gives the code to POST /api/me/connections/google within ten minutes",
                 "operationId": "post_api_me_connections_google_authorize",
                 "responses": {
                     "201": {
-                        "description": "The authorization asked",
+                        "description": "The requested authorization",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5486,7 +5486,7 @@
                         }
                     },
                     "409": {
-                        "description": "No client of Prospecter at Google serves the account (`providerUnavailable`): the link `connectGoogle` is missing",
+                        "description": "No Prospecter client at Google serves the account (`providerUnavailable`). The `connectGoogle` link is missing",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5496,7 +5496,7 @@
                         }
                     },
                     "503": {
-                        "description": "The secret of the client cannot be kept nor read for now (`secretsUnavailable`)",
+                        "description": "The client's secret cannot be stored or read right now (`secretsUnavailable`)",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5513,11 +5513,11 @@
                 "tags": [
                     "Connectors"
                 ],
-                "summary": "Ask Google for the reading of my mailbox with my calendar, to import my e-mails of Gmail (ADR 0154): the browser goes to the address answered, Google brings it back to the SPA with a code to give to POST /api/me/connections/google within ten minutes",
+                "summary": "Ask Google to read my mailbox along with my calendar, to import my Gmail e-mails (ADR 0154). The browser goes to the returned address. Google brings it back to the SPA with a code. The SPA gives the code to POST /api/me/connections/google within ten minutes",
                 "operationId": "post_api_me_connections_google_import_gmail",
                 "responses": {
                     "201": {
-                        "description": "The authorization asked",
+                        "description": "The requested authorization",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5530,7 +5530,7 @@
                         "description": "Missing or invalid access token"
                     },
                     "403": {
-                        "description": "The signed-in user has no right to manage the personal data",
+                        "description": "The signed-in user is not allowed to manage personal data",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5540,7 +5540,7 @@
                         }
                     },
                     "409": {
-                        "description": "No client of Prospecter at Google serves the account (`providerUnavailable`), or it has no topic of Gmail (`mailImportUnavailable`): the link `importGmail` is missing",
+                        "description": "No Prospecter client at Google serves the account (`providerUnavailable`), or the client has no Gmail topic (`mailImportUnavailable`). The `importGmail` link is missing",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5550,7 +5550,7 @@
                         }
                     },
                     "503": {
-                        "description": "The secret of the client cannot be kept nor read for now (`secretsUnavailable`)",
+                        "description": "The client's secret cannot be stored or read right now (`secretsUnavailable`)",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5567,11 +5567,11 @@
                 "tags": [
                     "Connectors"
                 ],
-                "summary": "Check my connections with their providers: one whose access the provider refuses is to reconnect",
+                "summary": "Check my connections with their providers. A connection whose access the provider refuses is then to reconnect",
                 "operationId": "post_api_me_connections_check",
                 "responses": {
                     "200": {
-                        "description": "My connections, as their providers see them now",
+                        "description": "My connections, as their providers currently see them",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5594,7 +5594,7 @@
                         }
                     },
                     "503": {
-                        "description": "The secret of the client cannot be kept nor read for now (`secretsUnavailable`), or Google does not answer, fails or limits the requests: the connections stay as last seen (`googleUnreachable`)",
+                        "description": "The client's secret cannot be stored or read right now (`secretsUnavailable`). Or Google does not answer, fails or limits the requests (`googleUnreachable`). The connections stay as last seen",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5611,11 +5611,11 @@
                 "tags": [
                     "Connectors"
                 ],
-                "summary": "Remove the topic of my account: the import of the e-mails of Gmail is no longer offered, the watches of the mailboxes expiring within their week",
+                "summary": "Remove my account's topic. The Gmail e-mail import is no longer offered. The mailboxes' watches expire within their week",
                 "operationId": "delete_api_me_remove_gmail_notifications",
                 "responses": {
                     "200": {
-                        "description": "The client of Google of my account, without its topic",
+                        "description": "My account's Google client, without its topic",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5628,7 +5628,7 @@
                         "description": "Missing or invalid access token"
                     },
                     "403": {
-                        "description": "The signed-in user is no administrator of the account",
+                        "description": "The signed-in user is not the account's administrator",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5638,7 +5638,7 @@
                         }
                     },
                     "404": {
-                        "description": "My account has no client of Google",
+                        "description": "My account has no Google client",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5648,7 +5648,7 @@
                         }
                     },
                     "503": {
-                        "description": "The secret of the client cannot be kept nor read for now (`secretsUnavailable`)",
+                        "description": "The client's secret cannot be stored or read right now (`secretsUnavailable`)",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5663,7 +5663,7 @@
                 "tags": [
                     "Connectors"
                 ],
-                "summary": "Name the topic of the Google Cloud of my account the mailboxes of its members notify Prospecter through, and the account of service pushing them: the import of the e-mails of Gmail is offered from now on",
+                "summary": "Name the topic in my account's Google Cloud that its members' mailboxes notify Prospecter through. Also name the service account that pushes the notifications. From then on, the Gmail e-mail import is offered",
                 "operationId": "patch_api_me_configure_gmail_notifications",
                 "requestBody": {
                     "required": true,
@@ -5677,7 +5677,7 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "The client of Google of my account",
+                        "description": "My account's Google client",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5690,7 +5690,7 @@
                         "description": "Missing or invalid access token"
                     },
                     "403": {
-                        "description": "The signed-in user is no administrator of the account",
+                        "description": "The signed-in user is not the account's administrator",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5700,7 +5700,7 @@
                         }
                     },
                     "404": {
-                        "description": "My account has no client of Google",
+                        "description": "My account has no Google client",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5710,7 +5710,7 @@
                         }
                     },
                     "422": {
-                        "description": "A topic not named in full (`invalidTopic`), or an account of service that is no address",
+                        "description": "The topic is not named in full (`invalidTopic`), or the service account is not an address",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5720,7 +5720,7 @@
                         }
                     },
                     "503": {
-                        "description": "The secret of the client cannot be kept nor read for now (`secretsUnavailable`)",
+                        "description": "The client's secret cannot be stored or read right now (`secretsUnavailable`)",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5737,11 +5737,11 @@
                 "tags": [
                     "Connectors"
                 ],
-                "summary": "Consult the client of Google of my account, its secret never answered, and the redirect URI to declare in it",
+                "summary": "Get my account's Google client and the redirect URI to declare in it. The client's secret is never returned",
                 "operationId": "get_api_me_google_client",
                 "responses": {
                     "200": {
-                        "description": "The client of Google of my account",
+                        "description": "My account's Google client",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5754,7 +5754,7 @@
                         "description": "Missing or invalid access token"
                     },
                     "403": {
-                        "description": "The signed-in user is no administrator of the account",
+                        "description": "The signed-in user is not the account's administrator",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5769,11 +5769,11 @@
                 "tags": [
                     "Connectors"
                 ],
-                "summary": "Remove the client of Google of my account: Google is no longer offered to its members",
+                "summary": "Remove my account's Google client. Google is no longer offered to its members",
                 "operationId": "delete_api_me_remove_google_client",
                 "responses": {
                     "200": {
-                        "description": "My account without its client of Google",
+                        "description": "My account, without its Google client",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5786,7 +5786,7 @@
                         "description": "Missing or invalid access token"
                     },
                     "403": {
-                        "description": "The signed-in user is no administrator of the account",
+                        "description": "The signed-in user is not the account's administrator",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5796,7 +5796,7 @@
                         }
                     },
                     "404": {
-                        "description": "My account has no client of Google",
+                        "description": "My account has no Google client",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5806,7 +5806,7 @@
                         }
                     },
                     "503": {
-                        "description": "The secret of the client cannot be kept nor read for now (`secretsUnavailable`)",
+                        "description": "The client's secret cannot be stored or read right now (`secretsUnavailable`)",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5821,7 +5821,7 @@
                 "tags": [
                     "Connectors"
                 ],
-                "summary": "Configure the client of Google of my account, or another one: the members connect through it from now on, those connected through another client reconnect",
+                "summary": "Configure my account's Google client, or replace it with another one. From then on, the members connect through it. Members connected through another client reconnect",
                 "operationId": "patch_api_me_configure_google_client",
                 "requestBody": {
                     "required": true,
@@ -5835,7 +5835,7 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "The client of Google of my account",
+                        "description": "My account's Google client",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5848,7 +5848,7 @@
                         "description": "Missing or invalid access token"
                     },
                     "403": {
-                        "description": "The signed-in user is no administrator of the account",
+                        "description": "The signed-in user is not the account's administrator",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5858,7 +5858,7 @@
                         }
                     },
                     "422": {
-                        "description": "A client without its id or its secret",
+                        "description": "The client has no id or no secret",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5868,7 +5868,7 @@
                         }
                     },
                     "503": {
-                        "description": "The secret of the client cannot be kept nor read for now (`secretsUnavailable`)",
+                        "description": "The client's secret cannot be stored or read right now (`secretsUnavailable`)",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5885,7 +5885,7 @@
                 "tags": [
                     "Connectors"
                 ],
-                "summary": "Connect my Google account with the code Google brought the SPA back with, replacing the account connected before",
+                "summary": "Connect my Google account with the code that Google gave back to the SPA. It replaces the account connected before",
                 "operationId": "post_api_me_connections_google_connect",
                 "requestBody": {
                     "required": true,
@@ -5899,7 +5899,7 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "My connections, Google connected",
+                        "description": "My connections, with Google connected",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5912,7 +5912,7 @@
                         "description": "Missing or invalid access token"
                     },
                     "403": {
-                        "description": "Google did not grant the access for this code",
+                        "description": "Google did not grant access for this code",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5922,7 +5922,7 @@
                         }
                     },
                     "404": {
-                        "description": "No authorization of mine waits for this state: unknown, expired, or asked by another member",
+                        "description": "None of my authorizations waits for this state. It is unknown, expired, or requested by another member",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5932,7 +5932,7 @@
                         }
                     },
                     "422": {
-                        "description": "The access to the calendar was not granted, or the answer is incomplete",
+                        "description": "Access to the calendar was not granted, or the answer is incomplete",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5942,7 +5942,7 @@
                         }
                     },
                     "503": {
-                        "description": "The secret of the client cannot be kept nor read for now (`secretsUnavailable`), or Google does not answer, fails or limits the requests: nothing is connected, the member goes through Google again (`googleUnreachable`)",
+                        "description": "The client's secret cannot be stored or read right now (`secretsUnavailable`). Or Google does not answer, fails or limits the requests (`googleUnreachable`). Nothing is connected, and the member goes through Google again",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5957,11 +5957,11 @@
                 "tags": [
                     "Connectors"
                 ],
-                "summary": "Disconnect my Google account: the access is revoked at Google, then forgotten",
+                "summary": "Disconnect my Google account. The access is revoked at Google, then forgotten",
                 "operationId": "delete_api_me_connections_google_disconnect",
                 "responses": {
                     "200": {
-                        "description": "My connections, Google no longer among them",
+                        "description": "My connections, without Google",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -6001,7 +6001,7 @@
                 "tags": [
                     "Connectors"
                 ],
-                "summary": "Consult where the push of an exchange into my calendar at Google stands: pending, synced or failed; none while it is not pushed into mine",
+                "summary": "Get the state of an exchange's push into my Google calendar: pending, synced or failed. There is none while the exchange is not pushed into my calendar",
                 "operationId": "get_api_exchanges_google_sync",
                 "parameters": [
                     {
@@ -6016,7 +6016,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Where its push stands",
+                        "description": "Its push state",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -6056,7 +6056,7 @@
                 "tags": [
                     "Connectors"
                 ],
-                "summary": "Consult my connections to the services outside, in the state last seen, without asking them",
+                "summary": "Get my connections to outside services in the state last seen, without asking the services",
                 "operationId": "get_api_me_connections",
                 "responses": {
                     "200": {
@@ -6090,7 +6090,7 @@
                 "tags": [
                     "Connectors"
                 ],
-                "summary": "A change of a mailbox Gmail notified through the topic of the account, pushed by its subscription at Pub/Sub with a token Google signed for its account of service, not with a token of a member (ADR 0154): noted and dated, nothing read from Gmail during the request",
+                "summary": "Record a change that a Gmail mailbox notified through the account's topic. The topic's Pub/Sub subscription pushes it with a token that Google signed for the account's service account, not with a member's token (ADR 0154). The change is recorded and dated. Nothing is read from Gmail during the request",
                 "operationId": "post_api_gmail_notifications",
                 "parameters": [
                     {
@@ -6115,16 +6115,16 @@
                 },
                 "responses": {
                     "204": {
-                        "description": "Noted, or ignored for a mailbox no member of the account imports"
+                        "description": "Recorded, or ignored when no member of the account imports the mailbox"
                     },
                     "400": {
-                        "description": "A message whose data is no notification of Gmail"
+                        "description": "The message's data is not a Gmail notification"
                     },
                     "422": {
-                        "description": "A message without data"
+                        "description": "The message has no data"
                     },
                     "401": {
-                        "description": "A token missing, not signed by Google, not issued for this endpoint, not for the account of service of the account, or an account without topic of Gmail"
+                        "description": "The token is missing, not signed by Google, not issued for this endpoint, or not issued for the account's service account. Or the account has no Gmail topic"
                     }
                 },
                 "security": []
@@ -6135,7 +6135,7 @@
                 "tags": [
                     "Connectors"
                 ],
-                "summary": "Reimport the e-mails my mailbox of Gmail exchanged with the contact over the 12 months before, the 200 newest: imported as the import of my e-mails imports them, asynchronously",
+                "summary": "Reimport the e-mails that my Gmail mailbox exchanged with the contact over the past 12 months, the 200 newest. They are imported asynchronously, by the same rules as my e-mail import",
                 "operationId": "post_api_contacts_reimport_gmail",
                 "parameters": [
                     {
@@ -6150,13 +6150,13 @@
                 ],
                 "responses": {
                     "202": {
-                        "description": "The reimport started: the e-mails arrive in the timeline of the contact"
+                        "description": "The reimport started. The e-mails reach the contact's timeline"
                     },
                     "401": {
                         "description": "Missing or invalid access token"
                     },
                     "403": {
-                        "description": "No right to manage personal data",
+                        "description": "The signed-in user is not allowed to manage personal data",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -6166,7 +6166,7 @@
                         }
                     },
                     "404": {
-                        "description": "No connection to Google, or an unknown contact, or one of another account",
+                        "description": "No connection to Google, an unknown contact, or another account's contact",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -6176,7 +6176,7 @@
                         }
                     },
                     "409": {
-                        "description": "The import of my e-mails is not active, or the contact has no e-mail",
+                        "description": "My e-mail import is not active, or the contact has no e-mail",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -6193,7 +6193,7 @@
                 "tags": [
                     "Connectors"
                 ],
-                "summary": "Reimport the e-mails my mailbox of Gmail exchanged with the address of the organization itself over the 12 months before, the 200 newest: imported as the import of my e-mails imports them, asynchronously",
+                "summary": "Reimport the e-mails that my Gmail mailbox exchanged with the organization's own address over the past 12 months, the 200 newest. They are imported asynchronously, by the same rules as my e-mail import",
                 "operationId": "post_api_organizations_reimport_gmail",
                 "parameters": [
                     {
@@ -6208,13 +6208,13 @@
                 ],
                 "responses": {
                     "202": {
-                        "description": "The reimport started: the e-mails arrive in the timeline of the organization"
+                        "description": "The reimport started. The e-mails reach the organization's timeline"
                     },
                     "401": {
                         "description": "Missing or invalid access token"
                     },
                     "403": {
-                        "description": "No right to manage personal data",
+                        "description": "The signed-in user is not allowed to manage personal data",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -6234,7 +6234,7 @@
                         }
                     },
                     "409": {
-                        "description": "The import of my e-mails is not active, or the organization has no e-mail",
+                        "description": "My e-mail import is not active, or the organization has no e-mail",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -6251,11 +6251,11 @@
                 "tags": [
                     "Connectors"
                 ],
-                "summary": "Push again into my calendar at Google every exchange of mine Google refused",
+                "summary": "Push again into my Google calendar each of my exchanges that Google refused",
                 "operationId": "post_api_me_connections_google_retry_failed",
                 "responses": {
                     "200": {
-                        "description": "My connections, counting my exchanges to come synced and failed now",
+                        "description": "My connections, with the current count of my upcoming exchanges that are synced and of those that failed",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -6285,7 +6285,7 @@
                 "tags": [
                     "Connectors"
                 ],
-                "summary": "Push an exchange into my calendar at Google again, as it is now; by its holder",
+                "summary": "Push an exchange again, as it is now, into my Google calendar. Only its holder can do it",
                 "operationId": "post_api_exchanges_google_sync_retry",
                 "parameters": [
                     {
@@ -6300,7 +6300,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Where its push stands now",
+                        "description": "Its current push state",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -6340,11 +6340,11 @@
                 "tags": [
                     "Connectors"
                 ],
-                "summary": "Stop the import of my e-mails of Gmail: my mailbox no longer notifies Prospecter, the exchanges already imported stay, my calendar stays connected (ADR 0154)",
+                "summary": "Stop importing my Gmail e-mails. My mailbox no longer notifies Prospecter. The exchanges already imported stay, and my calendar stays connected (ADR 0154)",
                 "operationId": "delete_api_me_connections_google_stop_gmail_import",
                 "responses": {
                     "200": {
-                        "description": "My connections, the import of Gmail off",
+                        "description": "My connections, with the Gmail import off",
                         "content": {
                             "application/json": {
                                 "schema": {

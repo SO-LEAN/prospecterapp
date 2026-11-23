@@ -31,11 +31,11 @@ final class CheckMyConnectionsController extends AbstractController
     }
 
     #[Route('/api/me/connections/checks', name: 'api_me_connections_check', methods: ['POST'])]
-    #[OA\Post(summary: 'Check my connections with their providers: one whose access the provider refuses is to reconnect')]
-    #[OA\Response(response: 200, description: 'My connections, as their providers see them now', content: new Model(type: ConnectionsResource::class))]
+    #[OA\Post(summary: 'Check my connections with their providers. A connection whose access the provider refuses is then to reconnect')]
+    #[OA\Response(response: 200, description: 'My connections, as their providers currently see them', content: new Model(type: ConnectionsResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'The signed-in user is not a user', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 503, description: 'The secret of the client cannot be kept nor read for now (`secretsUnavailable`), or Google does not answer, fails or limits the requests: the connections stay as last seen (`googleUnreachable`)', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 503, description: 'The client\'s secret cannot be stored or read right now (`secretsUnavailable`). Or Google does not answer, fails or limits the requests (`googleUnreachable`). The connections stay as last seen', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[CurrentUser] User $user): JsonResponse
     {
         $this->commandBus->dispatch(new CheckMyConnections($user->memberId(), $this->clock->now()));

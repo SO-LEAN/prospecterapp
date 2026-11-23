@@ -33,12 +33,12 @@ final class ReimportOrganizationGmailController extends AbstractController
     #[Route('/api/organizations/{id}/gmail-reimports', name: 'api_organizations_reimport_gmail', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
     #[IsGranted(OrganizationVoter::ACCESS, subject: 'organization')]
     #[IsGranted(User::PERSONAL_DATA)]
-    #[OA\Post(summary: 'Reimport the e-mails my mailbox of Gmail exchanged with the address of the organization itself over the 12 months before, the 200 newest: imported as the import of my e-mails imports them, asynchronously')]
-    #[OA\Response(response: 202, description: 'The reimport started: the e-mails arrive in the timeline of the organization')]
+    #[OA\Post(summary: 'Reimport the e-mails that my Gmail mailbox exchanged with the organization\'s own address over the past 12 months, the 200 newest. They are imported asynchronously, by the same rules as my e-mail import')]
+    #[OA\Response(response: 202, description: 'The reimport started. The e-mails reach the organization\'s timeline')]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
-    #[OA\Response(response: 403, description: 'No right to manage personal data', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 403, description: 'The signed-in user is not allowed to manage personal data', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'Unknown organization, or one of another account, or no connection to Google', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 409, description: 'The import of my e-mails is not active, or the organization has no e-mail', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 409, description: 'My e-mail import is not active, or the organization has no e-mail', content: new Model(type: ProblemResource::class))]
     public function __invoke(OrganizationSheet $organization, #[CurrentUser] User $user): Response
     {
         $this->commandBus->dispatch(CatchUpMailHistory::ofOrganization($user->memberId(), $organization->id, $this->clock->now()));
