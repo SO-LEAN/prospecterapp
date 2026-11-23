@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Domain\Policy;
 
 /**
- * A file of an imported e-mail its exchange does not hold, told in its text for the member to open it in Gmail
- * (ADR 0182).
+ * A file of an imported e-mail that its exchange does not hold. The exchange's text names it, so that the member opens
+ * it in Gmail (ADR 0182).
  */
 final readonly class AttachmentLeftOut
 {
@@ -19,8 +19,8 @@ final readonly class AttachmentLeftOut
     }
 
     /**
-     * In megabytes from one of them, in kilobytes under it, rounded; under a kilobyte, said so rather than rounded to
-     * nothing.
+     * Rounds the size in megabytes from one megabyte, and in kilobytes below. A size under a kilobyte says so instead
+     * of rounding to nothing.
      */
     private static function sizeOf(int $bytes): string
     {

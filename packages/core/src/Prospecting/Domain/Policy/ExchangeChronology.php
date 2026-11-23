@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Domain\Policy;
 
 /**
- * Where an exchange stands in a timeline: at its moment, but a planned exchange cancelled before it, listed among
- * the past from its cancellation, still showing its moment (ADR 0112).
+ * Where an exchange stands in a timeline. An exchange stands at its moment. A planned exchange cancelled before its
+ * moment is listed among the past from its cancellation, and it still shows its moment (ADR 0112).
  */
 final class ExchangeChronology
 {

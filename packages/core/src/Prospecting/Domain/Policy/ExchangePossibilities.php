@@ -10,9 +10,9 @@ use Prospecter\Core\Prospecting\Domain\Model\ExchangeSituation;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 
 /**
- * What the state of an exchange offers now (ADR 0088): the exchange refuses the rest, the reading of an exchange
- * tells it. A planned exchange is handled by its holder: moved or cancelled while it is to come, marked done or
- * missed once its time has come; just moved, moved back while its former moment is to come.
+ * What an exchange's state offers now (ADR 0088). The exchange refuses the rest, and the exchange's reading tells it.
+ * Only its holder handles a planned exchange. The holder moves or cancels it while it is to come, and marks it done or
+ * missed once its time has come. The holder moves a just moved exchange back while its former moment is still to come.
  */
 final class ExchangePossibilities
 {

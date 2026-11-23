@@ -7,7 +7,7 @@ namespace Prospecter\Core\Prospecting\Domain\Policy;
 use Prospecter\Core\Prospecting\Domain\Model\ToDoIntent;
 
 /**
- * What the state of a to-do offers now (ADR 0088): the to-do refuses the rest, the reading of a to-do tells it.
+ * What a to-do's state offers now (ADR 0088). The to-do refuses the rest, and the to-do's reading tells it.
  */
 final class ToDoPossibilities
 {

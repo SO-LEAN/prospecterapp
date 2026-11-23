@@ -7,8 +7,9 @@ namespace Prospecter\Core\Prospecting\Domain\Policy;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 
 /**
- * What a prospector reads of an exchange (ADR 0078): every prospector of the account reads the text, flagged
- * without the right to manage personal data, for it may hold some; the files joined to it only with that right.
+ * What a prospector reads of an exchange (ADR 0078). Every prospector of the account reads the text. The text may hold
+ * personal data, so it is flagged for a prospector without the right to manage them. Only a prospector with that right
+ * reads the attached files.
  */
 final class ExchangeReading
 {

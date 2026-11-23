@@ -7,8 +7,8 @@ namespace Prospecter\Core\Prospecting\Domain\Policy;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationIntent;
 
 /**
- * What the state of an organization offers now (ADR 0088): the organization refuses the rest, the reading of an
- * organization tells it.
+ * What an organization's state offers now (ADR 0088). The organization refuses the rest, and the organization's reading
+ * tells it.
  */
 final class OrganizationPossibilities
 {
