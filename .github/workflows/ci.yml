@@ -86,6 +86,8 @@ jobs:
       - name: Check ${{ matrix.check }}
         run: make -j check-${{ matrix.check }}
         env:
+          # a push runs every test, the API tests re-testing a core rule too (the core-rule group)
+          ALL: ${{ github.event_name == 'push' && '1' || '' }}
           # tflint downloads its AWS ruleset from GitHub, beyond the anonymous rate limit of the shared runners
           GITHUB_TOKEN: ${{ matrix.check == 'infra' && github.token || '' }}
 

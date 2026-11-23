@@ -28,8 +28,11 @@ db: ministack ## Recreate in MiniStack the tables and the user pool, with the de
 # members of the demonstration back (ADR 0180): shared among a few processes, each with its own on MiniStack
 # (TEST_TOKEN, .env.test), the cache of the kernel warmed once before they start it together
 TEST_PROCESSES ?= 4
-test: ministack-test ## Run the tests of the API (on MiniStack: tables, user pool), in TEST_PROCESSES processes; FILTER= a test by name; FAILED=1, FAIL_FAST=1
-	@$(PHP) sh -c 'bin/console cache:warmup --env=test >/dev/null && vendor/bin/paratest --processes=$(TEST_PROCESSES) $(if $(FILTER),--filter="$(FILTER)") $(PHPUNIT_FAILED_FAST)'
+# the tests re-testing a rule the core proves (the core-rule group) run after each push to dev and main, where the CI
+# gives ALL=1, and not in a branch's check; a test named by FILTER runs whatever its group
+EXCLUDED_GROUPS = $(if $(or $(ALL),$(FILTER)),,--exclude-group=core-rule)
+test: ministack-test ## Run the tests of the API (on MiniStack: tables, user pool), in TEST_PROCESSES processes, but those re-testing a core rule (ALL=1 runs them); FILTER= a test by name; FAILED=1, FAIL_FAST=1
+	@$(PHP) sh -c 'bin/console cache:warmup --env=test >/dev/null && vendor/bin/paratest --processes=$(TEST_PROCESSES) $(if $(FILTER),--filter="$(FILTER)") $(EXCLUDED_GROUPS) $(PHPUNIT_FAILED_FAST)'
 
 # a few processes only, each with its own tables and user pool on MiniStack (TEST_TOKEN, .env.test)
 mutation: INFECTION_THREADS = 4

@@ -165,7 +165,7 @@ check-e2e-locked:
 check-core: ## Lint and test the core
 	@$(MAKE) -C packages/core lint test
 
-check-api: ## Lint and test the API
+check-api: ## Lint and test the API, but the tests re-testing a core rule (ALL=1 runs them)
 	@$(MAKE) -C apps/api lint test
 
 check-storage: ## Lint and test the storage
@@ -189,7 +189,7 @@ test: test-core test-api test-storage test-front ## Run every test suite: core, 
 test-core: ## Run the business rules (Behat) and the unit tests of the core; FILTER= a scenario or a test by name; FAILED=1 those that failed last first, FAIL_FAST=1 stops at the first failure
 	@$(MAKE) -C packages/core test
 
-test-api: ## Run the tests of the API (on MiniStack: tables, user pool); FILTER= a test by name; FAILED=1 those that failed last first, FAIL_FAST=1 stops at the first failure
+test-api: ## Run the tests of the API (on MiniStack: tables, user pool), but those re-testing a core rule (ALL=1 runs them); FILTER= a test by name; FAILED=1 those that failed last first, FAIL_FAST=1 stops at the first failure
 	@$(MAKE) -C apps/api test
 
 test-storage: ## Run the tests of the storage (on MiniStack); FILTER= a test by name; FAILED=1 those that failed last first, FAIL_FAST=1 stops at the first failure
