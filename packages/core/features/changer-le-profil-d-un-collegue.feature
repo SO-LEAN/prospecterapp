@@ -15,7 +15,7 @@ Fonctionnalité: Le profil d'un collègue n'appartient qu'à lui
     Quand je change le nom de "Grace" :
       | prénom | Amazing |
       | nom    | Grace   |
-    Alors c'est refusé : "Only the person or a member allowed to manage personal data may change them"
+    Alors c'est refusé : "Only the person or a member allowed to manage personal data can change this person's data"
 
   Scénario: Le profil d'une personne d'un autre compte est introuvable
     Soit l'organisation "Concurrent" qui utilise Prospecter

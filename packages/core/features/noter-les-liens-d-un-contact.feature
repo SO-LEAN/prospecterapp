@@ -53,27 +53,27 @@ Fonctionnalité: Noter les liens d'un contact
     Soit le contact "Grace Hopper" de "ACME"
     Et "Grace Hopper" a noté le lien "https://www.malt.fr/profile/adalovelace"
     Quand j'ajoute à "Ada Lovelace" le lien "https://www.malt.fr/profile/adalovelace"
-    Alors c'est refusé : "Link already held by Grace Hopper"
+    Alors c'est refusé : "Grace Hopper already has this link"
 
   Scénario: Sans le droit, je n'apprends pas qui a un lien
     Soit "Ada Lovelace" a noté le lien "https://www.linkedin.com/in/ada-lovelace"
     Et le contact "Grace Hopper" de "ACME"
     Et je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
     Quand j'ajoute à "Grace Hopper" le lien "https://www.linkedin.com/in/ada-lovelace"
-    Alors c'est refusé : "Only the person or a member allowed to manage personal data may change them"
+    Alors c'est refusé : "Only the person or a member allowed to manage personal data can change this person's data"
 
   Scénario: J'enregistre un contact avec le lien d'un autre contact
     Soit "Ada Lovelace" a noté le lien "https://www.linkedin.com/in/ada-lovelace"
     Quand j'enregistre le contact "Grace Hopper" pour "ACME" :
       | liens | https://fr.linkedin.com/in/ada-lovelace |
-    Alors c'est refusé : "Link already held by Ada Lovelace"
+    Alors c'est refusé : "Ada Lovelace already has this link"
 
   Scénario: Une ancienne référence reconnaît toujours
     Soit "Ada Lovelace" a noté le lien "https://www.malt.fr/profile/adalovelace"
     Et le contact "Grace Hopper" de "ACME"
     Et je retire de "Ada Lovelace" le lien "https://www.malt.fr/profile/adalovelace"
     Quand j'ajoute à "Grace Hopper" le lien "https://www.malt.fr/profile/adalovelace"
-    Alors c'est refusé : "Link already held by Ada Lovelace"
+    Alors c'est refusé : "Ada Lovelace already has this link"
 
   Scénario: Un contact reprend une ancienne référence
     Soit "Ada Lovelace" a noté le lien "https://www.linkedin.com/in/ada-lovelace"

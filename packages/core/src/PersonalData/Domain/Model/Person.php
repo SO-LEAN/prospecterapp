@@ -460,8 +460,8 @@ final class Person implements ReleasesEvents
                 PersonIntent::Forget => PersonalDataManagersOnly::because('Only a member allowed to manage personal data may forget a prospected person'),
                 PersonIntent::ChangeCivility => PersonalDataManagersOnly::because('Only a member allowed to manage personal data may change the civility of a contact'),
                 PersonIntent::DismissPossibleDuplicate => PersonalDataManagersOnly::because('Only a member allowed to manage personal data may say a contact is no duplicate'),
-                PersonIntent::Complete => PersonalDataManagersOnly::because('Only a member allowed to manage personal data may complete a contact'),
-                default => ThePersonOrAPersonalDataManagerOnly::because('Only the person or a member allowed to manage personal data may change them'),
+                PersonIntent::Complete => PersonalDataManagersOnly::because('Only a member allowed to manage personal data can complete a contact'),
+                default => ThePersonOrAPersonalDataManagerOnly::because('Only the person or a member allowed to manage personal data can change this person\'s data'),
             };
         }
     }

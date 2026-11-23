@@ -14,6 +14,6 @@ final class ReferenceTakenMeanwhile extends BusinessRuleViolation
 {
     public static function byAnother(?\Throwable $detectedBy = null): self
     {
-        return self::because('Another contact got the link meanwhile', 'links', $detectedBy);
+        return self::because('Another contact took this link in the meantime', 'links', $detectedBy);
     }
 }
