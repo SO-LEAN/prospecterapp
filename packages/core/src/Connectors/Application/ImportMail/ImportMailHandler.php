@@ -21,9 +21,9 @@ use Prospecter\Core\SharedKernel\Domain\Email;
 
 /**
  * A message was added to a member's mailbox. It may be received from a contact or from the address of an
- * organization of their account. It may be sent to them in « To ». Then the other contexts are told of it once per
- * correspondent, with its subject and its text (ADR 0154). This reaction publishes it, and no domain event carries
- * the text. Any other message imports nothing, and so does an unknown correspondent.
+ * organization of their account. Or the member may have sent it to them in « To ». Then the other contexts are told
+ * of it once per correspondent, with its subject and its text (ADR 0154). This reaction publishes it, and no domain
+ * event carries the text. Any other message imports nothing, and so does an unknown correspondent.
  */
 final readonly class ImportMailHandler implements EventHandler
 {

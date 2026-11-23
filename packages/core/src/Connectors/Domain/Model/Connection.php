@@ -157,7 +157,7 @@ final class Connection implements ReleasesEvents
     /**
      * Puts a planned exchange's event into the calendar « Prospecter ». The first push creates the calendar. A push
      * creates it again once its member deleted it (ADR 0127), and the upcoming exchanges are then pushed into it again
-     * (ADR 0133). A video call may ask for a link. Then the link that the provider created is told to its exchange
+     * (ADR 0133). A video call may ask for a link. Then the link that the provider created is given to its exchange
      * (ADR 0137).
      *
      * @throws CalendarRefusedThePush
@@ -290,7 +290,7 @@ final class Connection implements ReleasesEvents
 
     /**
      * Renews an active import's watch for another week, through the account's current topic. A token that the
-     * provider refuses makes the import to reconnect. So does a token that no longer grants the mailbox. An account
+     * provider refuses leaves the import to reconnect. So does a token that no longer grants the mailbox. An account
      * that no longer has a topic renews nothing, and the watch expires within its week.
      */
     public function renewMailWatch(ProviderClient $client, ProviderMailbox $mailbox, \DateTimeImmutable $at): void
@@ -386,7 +386,7 @@ final class Connection implements ReleasesEvents
     /**
      * Lists the messages that the mailbox exchanged with an address over the previous 12 months. It takes the 200
      * newest. Each one is imported as an added message is. This works only while the import is active. A token that
-     * the provider refuses makes the import to reconnect.
+     * the provider refuses leaves the import to reconnect.
      *
      * @throws MailImportNotActive
      */
@@ -411,7 +411,7 @@ final class Connection implements ReleasesEvents
 
     /**
      * Gets a mailbox message to import. It returns none once the import is no longer active. It returns none either
-     * once the provider refuses the access: the next history reading then makes the import to reconnect.
+     * once the provider refuses the access: the next history reading then leaves the import to reconnect.
      */
     public function mailOf(string $messageId, ClientCredentials $client, ProviderMailbox $mailbox): ?MailboxMail
     {

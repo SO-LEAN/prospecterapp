@@ -12,7 +12,7 @@ use Prospecter\Core\Connectors\Domain\Model\RefreshToken;
 
 /**
  * Port: what Connectors asks a provider about the access that a member gives (OAuth 2, ADR 0120). Connectors asks
- * through the member's account's client (ADR 0125). The API implements this port.
+ * through the client of the member's account (ADR 0125). The API implements this port.
  */
 interface ProviderAccess
 {

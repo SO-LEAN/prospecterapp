@@ -11,7 +11,7 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * The party in the account that an e-mail was exchanged with. Its address finds it. It is a contact, or else an
+ * The party in the account that an e-mail was exchanged with. It is found by its address. It is a contact, or else an
  * organization itself (ADR 0154).
  */
 final readonly class Correspondent
