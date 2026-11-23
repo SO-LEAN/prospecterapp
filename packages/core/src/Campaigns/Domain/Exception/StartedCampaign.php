@@ -6,9 +6,7 @@ namespace Prospecter\Core\Campaigns\Domain\Exception;
 
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 
-/**
- * Once started, a campaign is led as it was frozen: neither its recipients, nor its message, nor its channel change.
- */
+/** A started campaign runs as it was frozen. Its recipients, message and channel no longer change. */
 final class StartedCampaign extends NotPossibleInItsState
 {
     public static function unchanged(): self

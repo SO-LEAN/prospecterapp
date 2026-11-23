@@ -6,9 +6,7 @@ namespace Prospecter\Core\Campaigns\Domain\Exception;
 
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
-/**
- * The contacts are searched by 1 to 5 tags at once, never none nor more.
- */
+/** A contact search takes 1 to 5 tags at once, never none and never more. */
 final class InvalidTagSelection extends BusinessRuleViolation
 {
     public static function ofSize(int $size, int $max): self

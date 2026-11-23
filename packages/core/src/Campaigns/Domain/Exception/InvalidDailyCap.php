@@ -6,9 +6,7 @@ namespace Prospecter\Core\Campaigns\Domain\Exception;
 
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
-/**
- * A daily cap lets at least one send through a day.
- */
+/** A daily cap allows at least one send a day. */
 final class InvalidDailyCap extends BusinessRuleViolation
 {
     public static function belowOne(): self

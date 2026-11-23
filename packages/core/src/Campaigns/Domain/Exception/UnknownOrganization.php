@@ -7,9 +7,7 @@ namespace Prospecter\Core\Campaigns\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotFound;
 use Prospecter\Core\SharedKernel\Domain\Uuid;
 
-/**
- * The account does not prospect this organization: nobody of it tags it.
- */
+/** The account does not prospect this organization, so none of its members tags it. */
 final class UnknownOrganization extends NotFound
 {
     public static function identifiedBy(Uuid $id): self
