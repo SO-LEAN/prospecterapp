@@ -11,7 +11,7 @@ use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Tells the other contexts, in the published language, that contacts were left in no organization (ADR 0046).
+ * Tells the other contexts in the published language that no organization names some contacts any more (ADR 0046).
  */
 final readonly class PublishContactsLeftWithoutOrganizationHandler implements EventHandler
 {
