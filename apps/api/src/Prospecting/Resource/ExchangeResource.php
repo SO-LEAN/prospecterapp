@@ -29,7 +29,7 @@ final readonly class ExchangeResource
         public string $id,
         #[OA\Property(enum: ExchangeInput::CHANNELS)]
         public string $channel,
-        #[OA\Property(enum: ExchangeInput::DIRECTIONS, description: 'inbound: the contact or the organization reached out; outbound: the member reached out')]
+        #[OA\Property(enum: ExchangeInput::DIRECTIONS, description: 'inbound: the contact or the organization reached out. outbound: the account reached out')]
         public string $direction,
         #[OA\Property(format: 'date-time', description: 'When it happened, or when it is to happen if it is planned')]
         public string $occurredAt,
@@ -42,7 +42,7 @@ final readonly class ExchangeResource
         public ?string $text,
         #[OA\Property(description: 'Where a meeting is held, written freely. Null for any other channel')]
         public ?string $place,
-        #[OA\Property(description: 'The web address that joins a video call. Null for any other channel, or until it is known')]
+        #[OA\Property(description: 'The web address to join a video call. Null for any other channel, or until it is known')]
         public ?string $link,
         #[OA\Property(description: 'Its text may hold personal data. A prospector without the right to manage personal data reads it flagged')]
         public bool $textFlagged,

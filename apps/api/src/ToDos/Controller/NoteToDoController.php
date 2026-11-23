@@ -43,7 +43,7 @@ final class NoteToDoController extends AbstractController
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'Unknown contact, or one of another account', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 422, description: 'Invalid to-do: no text, or an invalid due day or hour', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 422, description: 'Invalid to-do: no text, a missing or invalid due day, or an invalid hour', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $id, #[MapRequestPayload] ToDoInput $input, #[CurrentUser] User $user): JsonResponse
     {
         $toDo = $this->identities->next();

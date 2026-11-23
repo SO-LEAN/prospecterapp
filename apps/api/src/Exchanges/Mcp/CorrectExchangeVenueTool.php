@@ -24,7 +24,7 @@ final readonly class CorrectExchangeVenueTool
     /**
      * @param string      $id       the exchange's id
      * @param string|null $place    where a meeting is held, written freely. Only a meeting has one. Left out, it is removed
-     * @param string|null $link     the web address that joins a video call. Only a video call has one. Left out, it is removed
+     * @param string|null $link     the web address to join a video call. Only a video call has one. Left out, it is removed
      * @param ?int        $revision the exchange's `revision` as you read it. If the exchange changed since, the change is refused (changedMeanwhile): read it again
      *
      * @return array<string, mixed>

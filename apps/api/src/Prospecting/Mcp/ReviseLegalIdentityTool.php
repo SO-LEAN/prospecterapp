@@ -22,10 +22,12 @@ final readonly class ReviseLegalIdentityTool
     }
 
     /**
-     * @param string  $id       the id of the organization
-     * @param ?string $form     its legal form (SAS, SARL…)
-     * @param ?string $siret    its SIRET, 14 digits
-     * @param ?int    $revision the organization's `revision` as you read it. If it has changed since, the change is refused (changedMeanwhile): read the organization again
+     * @param string  $id            the id of the organization
+     * @param ?string $corporateName its corporate name
+     * @param ?string $form          its legal form (SAS, SARL…)
+     * @param ?string $type          its organization type
+     * @param ?string $siret         its SIRET, 14 digits
+     * @param ?int    $revision      the organization's `revision` as you read it. If it has changed since, the change is refused (changedMeanwhile): read the organization again
      *
      * @return array<string, mixed>
      */

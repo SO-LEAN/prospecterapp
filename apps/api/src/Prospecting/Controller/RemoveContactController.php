@@ -41,7 +41,7 @@ final class RemoveContactController extends AbstractController
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'Unknown organization, or one in another account', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 409, description: 'The person is not the organization\'s contact', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 409, description: 'The person is not one of the organization\'s contacts', content: new Model(type: ProblemResource::class))]
     public function __invoke(OrganizationSheet $organization, string $personId, #[CurrentUser] User $user): JsonResponse
     {
         $this->commandBus->dispatch(new RemoveContact(prospectorId: $user->memberId(), id: $organization->id, personId: $personId, executedAt: $this->clock->now()));

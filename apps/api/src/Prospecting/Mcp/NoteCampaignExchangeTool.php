@@ -57,7 +57,7 @@ final readonly class NoteCampaignExchangeTool
      */
     #[McpTool(
         name: 'log-sent-message',
-        description: 'Log a message that you sent yourself to a recipient of a campaign you lead, through the campaign\'s channel. The recipient is then processed. The campaign ends once nobody is left to handle. Give the exact text sent, and the e-mail\'s Message-ID or the LinkedIn message\'s conversation. Each sending is logged once in the account. When the import of your member\'s mailbox logged it first, outside the campaign, it joins the campaign and the answer\'s status is noted. When it is already logged for the campaign, nothing is logged: the answer\'s status is alreadyNoted with the exchange logged first, or erasedBefore with who erased it.',
+        description: 'Log a message that you sent yourself to a recipient of a campaign you lead, through the campaign\'s channel. The recipient is then processed. The campaign ends once nobody is left to handle. Give the exact text sent, and the e-mail\'s Message-ID or the LinkedIn message\'s conversation. Each sending is logged once in the account. When the import of your member\'s mailbox logged it first, outside the campaign, it joins the campaign and the answer\'s status is `noted`. When it is already logged for the campaign, nothing is logged: the answer\'s status is `alreadyNoted` with the exchange logged first, or `erasedBefore` with who erased it.',
         annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false),
     )]
     public function __invoke(string $id, string $contactId, ?string $text = null, ?string $occurredAt = null, ?string $messageId = null, ?string $linkedInConversation = null): array
