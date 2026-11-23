@@ -12,7 +12,7 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Counts the contacts of an account from the facts PersonalData publishes (ADR 0099).
+ * Counts an account's contacts from the facts that PersonalData publishes (ADR 0099).
  */
 final readonly class RecordContactFactsHandler implements EventHandler
 {

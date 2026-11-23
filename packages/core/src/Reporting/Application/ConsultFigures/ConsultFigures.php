@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Reporting\Application\ConsultFigures;
 
 /**
- * The figures of the account of the member, its exchanges of the month of the moment given.
+ * Asks for the member's account figures, with the exchanges in the given moment's month.
  */
 final readonly class ConsultFigures
 {

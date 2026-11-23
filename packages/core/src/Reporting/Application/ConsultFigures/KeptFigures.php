@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Reporting\Application\ConsultFigures;
 
 /**
- * Keeps the answer as it is, for a client that reads it rather than shows it (ADR 0085).
+ * Keeps the response unchanged, for a client that reads it instead of displaying it (ADR 0085).
  */
 final class KeptFigures implements ConsultFiguresOutput
 {

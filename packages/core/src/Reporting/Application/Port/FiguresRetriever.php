@@ -9,12 +9,12 @@ use Prospecter\Core\Reporting\Domain\Model\Month;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 
 /**
- * Reads the figures the facts of a version made (ADR 0088).
+ * Reads the figures that a version's facts made (ADR 0088).
  */
 interface FiguresRetriever
 {
     /**
-     * The figures of the account, its exchanges of the month; zeros for an account without facts.
+     * Returns the account's figures, with its exchanges in the given month. An account without facts gets zeros.
      */
     public function of(int $version, AccountId $accountId, Month $month): FiguresResponse;
 }

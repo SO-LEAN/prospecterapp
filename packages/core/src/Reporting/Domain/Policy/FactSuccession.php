@@ -7,8 +7,8 @@ namespace Prospecter\Core\Reporting\Domain\Policy;
 use Prospecter\Core\Reporting\Domain\Model\Fact;
 
 /**
- * Which fact of an aggregate Reporting keeps, the facts arriving in any order and maybe more than once (ADR 0099):
- * the terminal fact ends the aggregate for good, otherwise the highest revision is the latest.
+ * Decides which of an aggregate's facts Reporting keeps (ADR 0099). The facts arrive in any order, possibly more than
+ * once. The terminal fact ends the aggregate for good. Otherwise the highest revision is the latest.
  */
 final class FactSuccession
 {

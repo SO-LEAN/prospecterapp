@@ -12,7 +12,7 @@ use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 
 /**
- * Counts the exchanges of an account, and those of each month, from the facts Prospecting publishes (ADR 0099).
+ * Counts an account's exchanges, in total and by month, from the facts that Prospecting publishes (ADR 0099).
  */
 final readonly class RecordExchangeFactsHandler implements EventHandler
 {

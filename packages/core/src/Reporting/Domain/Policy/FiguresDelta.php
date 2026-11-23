@@ -8,7 +8,7 @@ use Prospecter\Core\Reporting\Domain\Model\Fact;
 use Prospecter\Core\Reporting\Domain\Model\FiguresChange;
 
 /**
- * What the figures of an account gain or lose when a fact takes the place of the one known of its aggregate.
+ * Computes what an account's figures gain or lose when a fact replaces its aggregate's known fact.
  */
 final class FiguresDelta
 {
