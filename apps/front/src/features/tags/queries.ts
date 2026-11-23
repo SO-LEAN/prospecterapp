@@ -18,9 +18,8 @@ export const contactTagsQuery = (contactId: string) =>
   api.queryOptions('get', '/api/contacts/{id}/tags', { params: { path: { id: contactId } } })
 
 /**
- * The tags proposed to my account: the predefined tags by family, then the tags its organizations and
- * contacts carry. Separately come the automatic tags for where its organizations are, which nobody puts by
- * hand (ADR 0142).
+ * The tags proposed to my account: the predefined tags by family, then the tags its organizations and contacts carry.
+ * The automatic tags for where its organizations are, which nobody puts by hand, are listed apart (ADR 0142).
  */
 export const suggestedTagsQuery = () => api.queryOptions('get', '/api/tags')
 

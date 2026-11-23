@@ -6,9 +6,9 @@ namespace App\Campaigns\Persistence;
 
 /**
  * The keys of the items in Campaigns' table. The repository writes them and the retriever reads them, so both share one
- * format (ADR 0088). An account's taggings share its partition, which is read at once to propose its tags. Beside them
- * are the facts that its contacts' tags are derived from (ADR 0141): each contact's fact is followed by its links. The
- * partition also holds its campaigns, read at once (ADR 0144).
+ * format (ADR 0088). An account's taggings share its partition, which is read at once to propose its tags. The facts
+ * that its contacts' tags are derived from sit beside them (ADR 0141), and each contact's fact is followed by its
+ * links. The partition also holds its campaigns, read at once (ADR 0144).
  */
 final class CampaignsKeys
 {

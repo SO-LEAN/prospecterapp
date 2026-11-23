@@ -11,9 +11,9 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
 /**
- * A contact that a frozen campaign keeps, and where the team stands with them (ADR 0145). A processed recipient has
- * whether the call went through. A dismissed one has the reason. A recipient that PersonalData erased from a started
- * campaign is kept without their name, with what the team did with them.
+ * A contact that a frozen campaign keeps, and where the team stands with them (ADR 0145). A processed recipient records
+ * whether the call went through. A dismissed one records the reason. A recipient that PersonalData erased from a
+ * started campaign is kept without their name, with what the team did with them.
  */
 final readonly class RecipientResource
 {

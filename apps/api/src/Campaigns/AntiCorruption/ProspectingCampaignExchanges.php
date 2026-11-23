@@ -13,8 +13,8 @@ use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Anticorruption layer (ADR 0045, 0195): a campaign's recipients that Prospecting logged an exchange of the campaign
- * with, before Campaigns' reaction processes them.
+ * Anticorruption layer (ADR 0045, 0195): the recipients with whom Prospecting logged an exchange of their campaign,
+ * before Campaigns' reaction processes them.
  */
 final readonly class ProspectingCampaignExchanges implements CampaignExchanges
 {

@@ -18,8 +18,8 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Anticorruption layer (ADR 0045, 0089, 0144). Campaigns calls a contact what PersonalData lets the member read, with
- * their first organization as Prospecting lists them. It asks each context about a set of one.
+ * Anticorruption layer (ADR 0045, 0089, 0144). Campaigns takes a contact's name from what PersonalData lets the member
+ * read, and their first organization from Prospecting's list. It asks each context about a set of one.
  */
 final readonly class PersonalDataAndProspectingAddressees implements Addressees
 {

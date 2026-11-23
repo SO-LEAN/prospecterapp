@@ -24,10 +24,10 @@ type Props = {
 }
 
 /**
- * A line of chips. First comes one chip per tag put by hand, which its cross takes off. Then come the tags
- * that a contact inherits from the named organizations, and the automatic tags. Neither of these can be taken
- * off (ADR 0141, 0142). « Ajouter un tag » opens the picker of the tags proposed to the account. The
- * predefined tags and the account's tags look alike (ADR 0138).
+ * A line of chips. Each tag put by hand has a chip, which its cross takes off. The tags that a contact inherits from
+ * the named organizations and the automatic tags follow. Neither of these can be taken off (ADR 0141, 0142). « Ajouter
+ * un tag » opens the picker of the tags proposed to the account. The predefined tags and the account's tags look alike
+ * (ADR 0138).
  */
 export function TagsLine({ tags, inherited = [], automatic = [], automaticFrom, onTag, onTakeOff }: Props) {
   const { t } = useTranslation()

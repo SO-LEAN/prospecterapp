@@ -7,9 +7,9 @@ namespace App\Tags\Resource;
 use OpenApi\Attributes as OA;
 
 /**
- * The tags proposed to the member's account (ADR 0138): the predefined tags by family, then the account's own tags.
- * Separately come the automatic tags, to search the contacts by and never put by hand. These are the tags for how a
- * contact is reached, then the tags for where its organizations are (ADR 0142).
+ * The tags proposed to the member's account (ADR 0138): the predefined tags by family, then the account's own tags. The
+ * automatic tags are listed apart, to search the contacts by and never put by hand. They are the tags for how a contact
+ * is reached, then the tags for where its organizations are (ADR 0142).
  */
 final readonly class SuggestedTagsResource
 {
