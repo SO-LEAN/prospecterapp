@@ -21,7 +21,7 @@ Fonctionnalité: Ajouter une période inactive
 
   Scénario: Une période inactive finit au plus tôt le jour où elle commence
     Quand j'ajoute une période inactive du 04/01/2027 au 21/12/2026
-    Alors c'est refusé : "An inactive period ends on or after its first day"
+    Alors c'est refusé : "An inactive period cannot end before its first day"
 
   Scénario: Je retire une période inactive
     Soit j'ai ajouté une période inactive du 21/12/2026 au 04/01/2027
