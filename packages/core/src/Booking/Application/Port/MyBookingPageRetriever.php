@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Booking\Application\Port;
 
-use Prospecter\Core\Booking\Application\MyBookingPage;
+use Prospecter\Core\Booking\Application\BookingPage\MyBookingPage;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**

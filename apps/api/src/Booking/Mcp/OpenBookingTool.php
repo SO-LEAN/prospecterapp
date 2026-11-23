@@ -8,7 +8,7 @@ use App\Booking\BookingCodes;
 use App\Shared\Mcp\Adapts;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
-use Prospecter\Core\Booking\Application\OpenBooking\OpenBooking;
+use Prospecter\Core\Booking\Application\BookingPage\OpenBooking\OpenBooking;
 
 /**
  * `POST /api/me/booking-page/opening`, for an AI (ADR 0163).

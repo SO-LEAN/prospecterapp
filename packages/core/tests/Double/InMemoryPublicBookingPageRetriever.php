@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Core\Double;
 
-use Prospecter\Core\Booking\Application\ConsultPublicBookingPage\BookingSchedule;
 use Prospecter\Core\Booking\Application\Port\PublicBookingPageRetriever;
+use Prospecter\Core\Booking\Application\PublicLink\ConsultPublicBookingPage\BookingSchedule;
 use Prospecter\Core\Booking\Domain\Model\Channel;
 use Prospecter\Core\Booking\Domain\Model\HostTimeZone;
 use Prospecter\Core\Booking\Domain\Model\InactivePeriod;

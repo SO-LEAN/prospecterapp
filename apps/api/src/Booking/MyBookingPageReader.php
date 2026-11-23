@@ -6,7 +6,7 @@ namespace App\Booking;
 
 use App\Booking\Resource\BookingPageResource;
 use App\Shared\Links;
-use Prospecter\Core\Booking\Application\ConsultMyBookingPage\ConsultMyBookingPage;
+use Prospecter\Core\Booking\Application\BookingPage\ConsultMyBookingPage\ConsultMyBookingPage;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Symfony\Component\Clock\ClockInterface;
 

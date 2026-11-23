@@ -7,7 +7,7 @@ namespace App\Booking\Mcp;
 use App\Shared\Mcp\Adapts;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
-use Prospecter\Core\Booking\Application\CloseBooking\CloseBooking;
+use Prospecter\Core\Booking\Application\BookingPage\CloseBooking\CloseBooking;
 
 /**
  * `DELETE /api/me/booking-page/opening`, for an AI (ADR 0163). The AI asks its member before it calls the tool.

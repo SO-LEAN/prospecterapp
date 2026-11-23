@@ -11,8 +11,8 @@ use App\Booking\Resource\InactivePeriodResource;
 use App\Booking\Resource\WindowResource;
 use App\Shared\Links;
 use App\Shared\Resource\LinkResource;
-use Prospecter\Core\Booking\Application\ConsultMyBookingPage\ConsultMyBookingPageOutput;
-use Prospecter\Core\Booking\Application\MyBookingPage;
+use Prospecter\Core\Booking\Application\BookingPage\ConsultMyBookingPage\ConsultMyBookingPageOutput;
+use Prospecter\Core\Booking\Application\BookingPage\MyBookingPage;
 
 /**
  * Presents my booking page as the API shows it, as a per-call object (ADR 0085).

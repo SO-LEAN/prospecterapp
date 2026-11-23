@@ -8,7 +8,7 @@ use App\Booking\Input\WindowsInput;
 use App\Shared\Mcp\Adapts;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
-use Prospecter\Core\Booking\Application\SetWeeklyWindows\SetWeeklyWindows;
+use Prospecter\Core\Booking\Application\BookingPage\SetWeeklyWindows\SetWeeklyWindows;
 
 /**
  * `PATCH /api/me/booking-page/windows`, for an AI (ADR 0163).

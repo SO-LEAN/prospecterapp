@@ -13,7 +13,7 @@ use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Booking\Application\ChangeBookingLink\ChangeBookingLink;
+use Prospecter\Core\Booking\Application\BookingPage\ChangeBookingLink\ChangeBookingLink;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;

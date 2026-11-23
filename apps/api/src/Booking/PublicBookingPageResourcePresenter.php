@@ -7,9 +7,9 @@ namespace App\Booking;
 use App\Booking\Resource\PublicBookingPageResource;
 use App\Booking\Resource\PublicHostResource;
 use App\Shared\ImageResourceFactory;
-use Prospecter\Core\Booking\Application\ConsultPublicBookingPage\ConsultPublicBookingPageOutput;
-use Prospecter\Core\Booking\Application\PublicBookingPage;
-use Prospecter\Core\Booking\Application\PublicHost;
+use Prospecter\Core\Booking\Application\PublicLink\ConsultPublicBookingPage\ConsultPublicBookingPageOutput;
+use Prospecter\Core\Booking\Application\PublicLink\PublicBookingPage;
+use Prospecter\Core\Booking\Application\PublicLink\PublicHost;
 
 /**
  * Presents a booking page as anyone with its link reads it, as a per-call object (ADR 0085).

@@ -14,7 +14,7 @@ use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Booking\Application\BookSlot\BookSlot;
+use Prospecter\Core\Booking\Application\PublicLink\BookSlot\BookSlot;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;

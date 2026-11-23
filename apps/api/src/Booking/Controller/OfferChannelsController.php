@@ -13,7 +13,7 @@ use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Booking\Application\OfferChannels\OfferChannels;
+use Prospecter\Core\Booking\Application\BookingPage\OfferChannels\OfferChannels;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
