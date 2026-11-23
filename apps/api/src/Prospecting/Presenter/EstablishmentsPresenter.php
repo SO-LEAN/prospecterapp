@@ -10,7 +10,8 @@ use Prospecter\Core\Prospecting\Application\SearchEstablishments\FoundEstablishm
 use Prospecter\Core\Prospecting\Application\SearchEstablishments\SearchEstablishmentsOutput;
 
 /**
- * The establishments proposed for an organization, kept for the call that asked them (ADR 0085).
+ * Presents the establishments proposed for an organization. It keeps them for the call that asked for them (ADR
+ * 0085).
  */
 final class EstablishmentsPresenter implements SearchEstablishmentsOutput
 {

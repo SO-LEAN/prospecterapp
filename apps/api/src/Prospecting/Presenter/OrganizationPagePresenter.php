@@ -18,15 +18,15 @@ use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\FoundO
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\SearchProspectedOrganizationsOutput;
 
 /**
- * A slice of the organizations my organization prospects, each summed up. Built for one call, it keeps the resource
- * (ADR 0085).
+ * Presents a slice of the organizations that the member's account prospects, each one summed up. It is built for one
+ * call and keeps the resource (ADR 0085).
  */
 final class OrganizationPagePresenter implements SearchProspectedOrganizationsOutput
 {
     public private(set) OrganizationPageResource $resource;
 
     /**
-     * @param string $query the search, kept by the link to the next slice
+     * @param string $query the search, which the link to the next slice keeps
      */
     public function __construct(private readonly ImageResourceFactory $imageResourceFactory, private readonly Links $links, private readonly string $query = '')
     {
@@ -58,7 +58,8 @@ final class OrganizationPagePresenter implements SearchProspectedOrganizationsOu
     }
 
     /**
-     * Saying it is no duplicate is done from its sheet, which tells whether its state offers it.
+     * A member states that an organization is not a duplicate from its sheet. The sheet tells whether its state allows
+     * it.
      */
     private function possibleDuplicateOf(PossibleDuplicate $duplicate): PossibleDuplicateResource
     {

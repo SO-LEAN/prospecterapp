@@ -23,10 +23,11 @@ use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\PossibleDuplicate;
 
 /**
- * An organization with a link per intention its state offers and the signed-in member may carry out
- * (`IntentLinks`, ADR 0081), and to its timeline (ADR 0076); removing a contact concerns one contact, so its link is on
- * each contact of GET /api/organizations/{id}/contacts, and saying it is no duplicate on each possible duplicate. Each link names its intention, its route, and the role its
- * controller requires beyond reaching the organization. Built for one call, it keeps the resource (ADR 0085).
+ * Presents an organization with a link for each intention that its state allows and the signed-in member may carry
+ * out (`IntentLinks`, ADR 0081). It also links its timeline (ADR 0076). Removing a contact concerns one contact, so its
+ * link is on each contact of GET /api/organizations/{id}/contacts. Likewise, the link that states it is not a duplicate
+ * is on each possible duplicate. Each link names its intention, its route, and the role its controller requires beyond
+ * reaching the organization. The presenter is built for one call and keeps the resource (ADR 0085).
  */
 final class OrganizationResourcePresenter implements ConsultOrganizationOutput
 {
@@ -47,8 +48,9 @@ final class OrganizationResourcePresenter implements ConsultOrganizationOutput
     ];
 
     /**
-     * Every member reaching the organization reads its timeline and its tags (ADR 0138); noting in it needs the right to
-     * manage personal data, as reading its to-dos, whose text may hold some (ADR 0113).
+     * Every member who reaches the organization reads its timeline and its tags (ADR 0138). Logging an exchange in it
+     * needs the right to manage personal data. So does reading its to-dos, because their text may hold some (ADR
+     * 0113).
      *
      * @var array<string, array{route: string, role: ?string}>
      */
@@ -93,7 +95,8 @@ final class OrganizationResourcePresenter implements ConsultOrganizationOutput
     }
 
     /**
-     * Saying it is no duplicate concerns one possible duplicate: its link is on each of them.
+     * Stating that the organization is not a duplicate concerns one possible duplicate, so its link is on each of
+     * them.
      */
     private function possibleDuplicateOf(OrganizationSheet $response, PossibleDuplicate $duplicate): PossibleDuplicateResource
     {
@@ -125,8 +128,8 @@ final class OrganizationResourcePresenter implements ConsultOrganizationOutput
     }
 
     /**
-     * Stopping to prospect an organization erases its contacts: the right to manage them is needed while it has some,
-     * as its controller checks.
+     * Stopping prospecting an organization erases its contacts. So while it has contacts, the member needs the right to
+     * manage them. Its controller checks it too.
      */
     private function mayStopProspecting(OrganizationSheet $response): bool
     {

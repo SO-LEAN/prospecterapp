@@ -10,7 +10,7 @@ use Prospecter\Core\Prospecting\Application\ProposeMeetingPlace\MeetingPlace;
 use Prospecter\Core\Prospecting\Application\ProposeMeetingPlace\ProposeMeetingPlaceOutput;
 
 /**
- * The place proposed to meet a contact, kept for the call that asked it (ADR 0085).
+ * Presents the place proposed to meet a contact. It keeps it for the call that asked for it (ADR 0085).
  */
 final class MeetingPlacePresenter implements ProposeMeetingPlaceOutput
 {
