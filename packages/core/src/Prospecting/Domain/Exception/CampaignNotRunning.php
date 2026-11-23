@@ -14,6 +14,6 @@ final class CampaignNotRunning extends NotPossibleInItsState
 {
     public static function toRun(): self
     {
-        return self::because('Only a started campaign is run');
+        return self::because('Only a started campaign can be run');
     }
 }

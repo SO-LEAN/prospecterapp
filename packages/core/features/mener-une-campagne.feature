@@ -60,12 +60,12 @@ Fonctionnalité: Mener une campagne
   Scénario: On ne mène pas une campagne arrêtée
     Soit la campagne "Appels ESN" est arrêtée
     Quand je note pour "Ada Lovelace" dans la campagne "Appels ESN" un échange
-    Alors c'est refusé : "Only a started campaign is run"
+    Alors c'est refusé : "Only a started campaign can be run"
 
   Scénario: On n'écarte personne d'une campagne arrêtée
     Soit la campagne "Appels ESN" est arrêtée
     Quand j'écarte "Alan Turing" de la campagne "Appels ESN"
-    Alors c'est refusé : "Only a started campaign is run"
+    Alors c'est refusé : "Only a started campaign can be run"
 
   Scénario: On ne note pour la campagne que l'échange d'un de ses destinataires
     Soit le contact "Grace Hopper" de "ACME" a le téléphone "06 11 22 33 44"

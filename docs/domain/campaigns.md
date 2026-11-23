@@ -95,7 +95,7 @@ Members put tags on their organizations and contacts. Later, they find the ones 
   - a running campaign then ends once nobody is left to handle (ADR 0145).
 - A member starts a frozen campaign (`StartCampaign`), and the moment is kept. Its recipients, message and channel no longer change (`StartedCampaign`, « A started campaign can no longer change »). It can no longer be discarded (`StartedCampaignNotDiscarded`, « A started campaign can be stopped, not deleted »). Only a frozen campaign starts (`CampaignNotFrozen`, « Only a frozen campaign can start »). Neither a draft nor a stopped one starts. A member stops a started campaign (`StopCampaign`), and the moment is kept. The campaign stays listed and allows nothing more.
 - A member runs a started campaign one recipient after another (ADR 0145). They log an exchange in the campaign for a recipient to handle (Prospecting's `NoteCampaignExchange`). That exchange's facts process the recipient, done or missed (`ProcessRecipientOfCampaignExchange`, reacting to `ExchangeFactsChanged`). Or the member dismisses the recipient without an exchange (`DismissRecipient`, for a reason when one is given).
-  - Only a started campaign is run (`CampaignNotRunning`, « Only a started campaign is run »).
+  - Only a started campaign can be run (`CampaignNotRunning`, « Only a started campaign can be run »).
   - A recipient is handled once (`RecipientAlreadyProcessed`, « This recipient is already processed »).
   - A contact who is not a recipient is unknown (`UnknownRecipient`).
 

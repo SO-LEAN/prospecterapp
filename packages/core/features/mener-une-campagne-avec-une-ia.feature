@@ -27,7 +27,7 @@ Fonctionnalité: Mener une campagne avec une IA
     Soit la campagne "Relance PHP" démarrée par e-mail avec "Ada Lovelace" puis "Grace Hopper", son message pour une IA "tel quel"
     Et la campagne "Relance PHP" est arrêtée
     Quand une IA demande le destinataire suivant de "Relance PHP"
-    Alors c'est refusé : "Only a started campaign is run"
+    Alors c'est refusé : "Only a started campaign can be run"
 
   Scénario: Mené à la main, un destinataire n'est plus le destinataire suivant de l'IA
     Soit la campagne "Relance PHP" démarrée par e-mail avec "Ada Lovelace" puis "Grace Hopper", son message pour une IA "tel quel"
@@ -56,7 +56,7 @@ Fonctionnalité: Mener une campagne avec une IA
     Et les réactions aux gestes n'ont pas encore suivi
     Quand une IA note l'e-mail envoyé à "Grace Hopper" pour "Relance PHP", son Message-ID "<relance-grace@solean-it.test>" et le texte "Bonjour Grace"
     Et une IA demande le destinataire suivant de "Relance PHP"
-    Alors c'est refusé : "Only a started campaign is run"
+    Alors c'est refusé : "Only a started campaign can be run"
 
   Scénario: Juste après un destinataire écarté, le destinataire suivant est le prochain
     Soit la campagne "Relance PHP" démarrée par e-mail avec "Ada Lovelace" puis "Grace Hopper", son message pour une IA "tel quel"
