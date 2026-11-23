@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace Prospecter\Core\Booking\Application;
 
 /**
- * A booking page as anyone holding its link reads it, without signing in: whom the booker meets, how, and the free
- * slots of its host on their clock (ADR 0153). A page offering nothing says nothing, not even why.
+ * A booking page as anyone with its link reads it, without signing in: who the booker meets, how, and the host's free
+ * slots on the host's clock (ADR 0153). A page that offers nothing shows nothing, and does not say why.
  */
 final readonly class PublicBookingPage
 {
     /**
      * @param list<string>                                  $channels `call`, `videoCall`
-     * @param ?string                                       $timeZone the clock of the host, which the days and the slots are on
-     * @param list<array{day: string, slots: list<string>}> $days     the days from tomorrow on, on the clock of the host (YYYY-MM-DD), each with the moments its free slots start at (ISO 8601)
+     * @param ?string                                       $timeZone the host's clock, on which the days and the slots are given
+     * @param list<array{day: string, slots: list<string>}> $days     the days from tomorrow, on the host's clock (YYYY-MM-DD), each with the start times of its free slots (ISO 8601)
      */
     public function __construct(
         public bool $open,

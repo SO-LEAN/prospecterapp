@@ -27,7 +27,7 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 final readonly class ConsultPublicBookingPageHandler implements QueryHandler
 {
     /**
-     * A page whose windows were never set has no clock yet, and no slot whatever the clock.
+     * A page whose windows were never set has no clock yet. It has no slot, whatever the clock.
      */
     private const string NO_CLOCK_YET = 'UTC';
 

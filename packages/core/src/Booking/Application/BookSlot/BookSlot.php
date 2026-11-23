@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Prospecter\Core\Booking\Application\BookSlot;
 
 /**
- * Books a slot of the page a public link leads to, by anyone holding it, without signing in: who they are, how they
- * meet the host, and what about. The client gives the identity of the appointment and the one the booker gets
- * should nobody of the account be them.
+ * Books a slot on a booking page. Anyone with the page's public link can book without signing in. The booker gives
+ * their name and contact details, how they want to meet the host, and the subject. The client sends the appointment's
+ * id. It also sends the id the booker gets when nobody in the account matches them.
  */
 final readonly class BookSlot
 {

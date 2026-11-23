@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Prospecter\Core\Booking\Contract\Event;
 
 /**
- * Integration event published to the other contexts (ADR 0046, 0164): a booker booked a slot of this host by their
- * public link; who they are and what they booked are read from `ConsultAppointmentsService`, the identity given to
- * the booker serving should nobody of the account be them.
+ * Integration event published to the other contexts (ADR 0046, 0164): a booker booked one of this host's slots through
+ * the public link. The other contexts read who the booker is and what they booked from `ConsultAppointmentsService`.
+ * The booker takes the given id when nobody in the account matches them.
  */
 final readonly class SlotBooked
 {

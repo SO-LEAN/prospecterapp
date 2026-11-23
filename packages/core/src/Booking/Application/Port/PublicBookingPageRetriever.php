@@ -7,7 +7,8 @@ namespace Prospecter\Core\Booking\Application\Port;
 use Prospecter\Core\Booking\Application\ConsultPublicBookingPage\BookingSchedule;
 
 /**
- * Port: the booking page of a code, read without restoring it (ADR 0088); none for a former code, nor one nobody drew.
+ * Port: reads the booking page of a code without restoring it (ADR 0088). A former code, or a code nobody drew, leads
+ * to no page.
  */
 interface PublicBookingPageRetriever
 {

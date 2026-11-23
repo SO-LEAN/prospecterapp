@@ -10,9 +10,9 @@ use Prospecter\Core\Prospecting\Contract\Event\ExchangeFactsChanged;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 
 /**
- * An appointment lives as long as the exchange it became, which bears its identity (ADR 0171): the exchange erased,
- * by a member or with its organization, its slot is free again and who booked it forgotten. An exchange no booking
- * became, or delivered again, leaves nothing to do.
+ * An appointment lives as long as the exchange it became, which has the same id (ADR 0171). A member may erase the
+ * exchange, or the exchange may go with its erased organization. Then the appointment's slot is free again, and Booking
+ * forgets the booker. An exchange that no booking became, or an event delivered twice, leaves nothing to do.
  */
 final readonly class ForgetAppointmentOfErasedExchangeHandler implements EventHandler
 {

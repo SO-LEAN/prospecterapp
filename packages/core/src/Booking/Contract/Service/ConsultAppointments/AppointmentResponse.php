@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Prospecter\Core\Booking\Contract\Service\ConsultAppointments;
 
 /**
- * The published language of an appointment (ADR 0045, 0164): its host, when it starts on the clock of the host and
- * how long it lasts, its channel (`call`, `videoCall`), who booked it as they said it (their phone in E.164, their
- * e-mail in lower case) and what about.
+ * An appointment in the published language (ADR 0045, 0164): its host, its start on the host's clock and its length,
+ * its channel (`call`, `videoCall`), the booker as they described themselves (their phone in E.164, their e-mail in
+ * lower case), and the subject.
  */
 final readonly class AppointmentResponse
 {

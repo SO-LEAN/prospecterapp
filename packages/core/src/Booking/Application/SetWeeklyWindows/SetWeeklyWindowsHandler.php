@@ -41,7 +41,7 @@ final readonly class SetWeeklyWindowsHandler implements CommandHandler
      */
     private static function window(array $window): Window
     {
-        $weekday = Weekday::tryFrom($window['weekday']) ?? throw BusinessRuleViolation::because('A window is on a day of the week', 'windows', context: ['weekday' => $window['weekday']]);
+        $weekday = Weekday::tryFrom($window['weekday']) ?? throw BusinessRuleViolation::because('A window falls on a day of the week', 'windows', context: ['weekday' => $window['weekday']]);
 
         return new Window($weekday, WallClockTime::at($window['from'], 'windows'), WallClockTime::at($window['to'], 'windows'));
     }
