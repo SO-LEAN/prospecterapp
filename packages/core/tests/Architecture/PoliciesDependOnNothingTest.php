@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Prospecter\Core\SharedKernel\Application\Handler\Policy;
 
 /**
- * A policy only turns an event into a command (ADR 0202). It is a final readonly class of its context's
+ * A policy only turns an event into a command (ADR 0203). It is a final readonly class of its context's
  * `Application/Policy`, with no dependency, so that it is tested alone, without a double.
  */
 class PoliciesDependOnNothingTest extends TestCase

@@ -8,7 +8,7 @@ use App\Shared\CommandBus;
 use Prospecter\Core\SharedKernel\Application\Handler\Policy;
 
 /**
- * The one adapter of the policies (ADR 0202): it gives the event to the policy, then sends each command the policy
+ * The one adapter of the policies (ADR 0203): it gives the event to the policy, then sends each command the policy
  * returns to the command bus, through the command handlers' decorators.
  */
 final readonly class PolicyReaction implements Reaction

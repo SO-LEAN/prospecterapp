@@ -8,7 +8,7 @@ use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
 
 /**
  * A reaction that is still an event handler of the core, called through its decorators, until it becomes a policy and
- * a command (ADR 0202).
+ * a command (ADR 0203).
  */
 final readonly class HandlerReaction implements Reaction
 {

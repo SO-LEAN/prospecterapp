@@ -13,7 +13,7 @@ A context's `Domain` is grouped by kind of building block (ADR 0086):
 - `Model/`: aggregates, entities, value objects, enums, including the intents;
 - `Repository/`: the repository interfaces;
 - `Service/`: domain services, each a rule on a set of aggregates (ADR 0039);
-- `Rule/`: a pure, stateless rule (`Masking`, `Lateness`). "Policy" keeps the event storming's meaning: a reaction that runs a command when an event happens, in the context's `Application/Policy` (ADR 0200, 0202);
+- `Rule/`: a pure, stateless rule (`Masking`, `Lateness`). "Policy" keeps the event storming's meaning: a reaction that runs a command when an event happens, in the context's `Application/Policy` (ADR 0200, 0203);
 - `Port/`: what the context asks of the others, implemented by an anticorruption layer (ADR 0045);
 - `Event/` and `Exception/`.
 
@@ -37,7 +37,7 @@ A folder exists only when it holds something.
   - `Completion/`: `Completion`, what a client knows about a person or an organization, compared with what is recorded. It lists the fields it would fill, empty until then, and the fields where it gives something else (ADR 0177).
 
   The application is grouped by role:
-  - `Handler/`: `CommandHandler`, `QueryHandler` and `EventHandler`; the marker `Policy` for a reaction that turns an event into a command (ADR 0202); the marker `OutputPort` for query output ports; the marker `Addition` for a command that only adds and contradicts nothing its client read (a contact collected or attached). When what such a command read changed meanwhile, the API runs it again instead of refusing it (ADR 0181). `PublishesEvents`, by which a handler publishes its aggregate's events. The decorators `RefusalTranslatingCommandHandler`, `RefusalTranslatingQueryHandler`, `RefusalTranslatingEventHandler`, `TransactionalCommandHandler` and `TransactionalEventHandler`;
+  - `Handler/`: `CommandHandler`, `QueryHandler` and `EventHandler`; the marker `Policy` for a reaction that turns an event into a command (ADR 0203); the marker `OutputPort` for query output ports; the marker `Addition` for a command that only adds and contradicts nothing its client read (a contact collected or attached). When what such a command read changed meanwhile, the API runs it again instead of refusing it (ADR 0181). `PublishesEvents`, by which a handler publishes its aggregate's events. The decorators `RefusalTranslatingCommandHandler`, `RefusalTranslatingQueryHandler`, `RefusalTranslatingEventHandler`, `TransactionalCommandHandler` and `TransactionalEventHandler`;
   - `Port/`: `Events`, `UnitOfWork`, `Storage` and `GeoLocation`;
   - `Service/`: `FileStore` on the `Storage` port, and `GeoLocalizer` on the `GeoLocation` port;
   - `Response/`: `FileResponse`, `ExternalLink` (a link as the use cases return it), and `Comparison` (a `Completion` as the queries return it, ADR 0177);
@@ -93,7 +93,7 @@ A folder exists only when it holds something.
   - The handler `use PublishesEvents` and calls `publishWhatHappenedTo($aggregate)` after saving it. The events go to the `Events` port. The translators run within the use case, the reactions after it (ADR 0101).
   - A new intention gets its event, and its intents test checks that the event is recorded.
 - What another context must know is an integration event (ADR 0046). It is plain data in `<Context>/Contract/Event` (PersonalData's `ContactCollected` and `ContactForgotten`, Prospecting's `ContactsLeftWithoutOrganization`). It is built from the domain event and published by a handler of the emitting context (`PublishContactCollectedHandler`). The exception is Connectors' `EmailExchanged`, the e-mail that an import reports. The reaction that reads the e-mail publishes it (`ImportMailHandler`), so that no domain event carries the e-mail's text (ADR 0154).
-- A reaction is a **policy** (event storming, ADR 0200, 0202), in the reacting context's `Application/Policy`:
+- A reaction is a **policy** (event storming, ADR 0200, 0203), in the reacting context's `Application/Policy`:
   - It is a final readonly class named `<Intent>Policy`, without a constructor, implementing the marker `Policy` (`tests/Architecture/PoliciesDependOnNothingTest`). Its `__invoke()` takes the event it listens to, or a union of the events (`OrganizationFactsChanged|ExchangeFactsChanged|ContactFactsChanged`), and returns the command to run, filled, in the context's words. It returns `?Command` when it holds a condition on the event's data (`ForgetAppointmentOfErasedExchangePolicy` asks nothing for an exchange still present), or a list of commands when the event asks for several. It calls nothing.
   - The command is an ordinary use case (`RegisterTheFounder`, `RegisterTheFounderHandler`). It acts through the intention methods, as the member who made the gesture. No rights are bypassed. A condition that needs a state or personal data belongs to the use case, and so does "nothing left to do".
   - The delivery sends the command through the command decorators. Any other client may send it too.
@@ -106,7 +106,7 @@ A folder exists only when it holds something.
 - The API sends commands on a synchronous Symfony Messenger bus.
   - Every `CommandHandler` is registered on it through `RefusalTranslatingCommandHandler`, then `TransactionalCommandHandler`.
   - Every `EventHandler` is registered through `RefusalTranslatingEventHandler`, then `TransactionalEventHandler`. A translator goes on the event bus; any other reaction is a subscription in `config/subscriptions.json` (see `contexts.md`).
-  - A policy is a subscription in `config/subscriptions.json` too. The delivery gives it the event and sends its commands to the command bus (`PolicyReaction`, ADR 0202).
+  - A policy is a subscription in `config/subscriptions.json` too. The delivery gives it the event and sends its commands to the command bus (`PolicyReaction`, ADR 0203).
   - The API receives the query handlers already wrapped in `RefusalTranslatingQueryHandler`, as a `QueryHandler` named after their intent (`QueryHandler $consultOrganization`). It passes each call its output port (`$this->consultOrganization->__invoke(new ConsultOrganization($id), $presenter)`). `QueryHandler` declares its `__invoke` by `@method` only, so PHPStan checks the call as a method call, not as a callable.
   - It builds commands with named arguments, so renaming a property breaks it (PHPStan and the API tests catch it). Change the core and the API in the same commit.
 - Reporting's `RebuildFigures` is the only command without `TransactionalCommandHandler`'s unit of work. Each of its steps, one per fact, commits its own (ADR 0103).

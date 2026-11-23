@@ -21,7 +21,7 @@ use Tests\App\Base\ApiTestCase;
 use Tests\App\Double\FailingCommands;
 
 /**
- * A policy's commands go to the command bus, each through the decorators of its handler (ADR 0202). The tests fail a
+ * A policy's commands go to the command bus, each through the decorators of its handler (ADR 0203). The tests fail a
  * command before its use case runs, to see it sent.
  */
 class PolicyReactionTest extends ApiTestCase

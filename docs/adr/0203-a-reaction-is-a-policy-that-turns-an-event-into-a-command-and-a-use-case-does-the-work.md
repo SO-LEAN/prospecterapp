@@ -1,4 +1,4 @@
-# 0202. A reaction is a policy that turns an event into a command, and an ordinary use case does the work
+# 0203. A reaction is a policy that turns an event into a command, and an ordinary use case does the work
 
 - Date: 2026-11-23
 - Type: architecture

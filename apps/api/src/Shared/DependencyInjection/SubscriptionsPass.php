@@ -19,7 +19,7 @@ use Symfony\Component\DependencyInjection\Reference;
 
 /**
  * Gives each subscription its reaction. The subscriptions are listed in `config/subscriptions.json`, which the
- * infrastructure reads too. A subscription names its policy (`policy`, ADR 0202). The delivery (Subscriptions) gives
+ * infrastructure reads too. A subscription names its policy (`policy`, ADR 0203). The delivery (Subscriptions) gives
  * the event to the policy and sends its commands to the command bus (PolicyReaction). A subscription may still name
  * an event handler of the core that is not a policy yet (`handler`), or one per event it listens to (`handlers`, by
  * detail-type). A translator that publishes a domain event for the other contexts stays on the event bus

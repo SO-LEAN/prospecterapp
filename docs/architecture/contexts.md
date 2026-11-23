@@ -106,7 +106,7 @@ Every event leaves its context shaped as an EventBridge event (ADR 0097). The lo
 
 ## The subscriptions
 
-The reactions are listed in one place (ADR 0097), `apps/api/config/subscriptions.json`. Symfony reads it (the `app.subscriptions` parameter), and later the infrastructure reads it too. There is one entry per subscription, named `<context>-<intent>` after its reaction's context. A subscription names its policy (ADR 0202):
+The reactions are listed in one place (ADR 0097), `apps/api/config/subscriptions.json`. Symfony reads it (the `app.subscriptions` parameter), and later the infrastructure reads it too. There is one entry per subscription, named `<context>-<intent>` after its reaction's context. A subscription names its policy (ADR 0203):
 
 ```json
 "accounts-register-the-founder": {
