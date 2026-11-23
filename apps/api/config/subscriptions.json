@@ -94,7 +94,7 @@
     "context": "personal-data",
     "sources": ["prospecter.booking"],
     "events": ["SlotBooked.v1"],
-    "handler": "Prospecter\\Core\\PersonalData\\Application\\IdentifyBooker\\IdentifyBookerHandler",
+    "policy": "Prospecter\\Core\\PersonalData\\Application\\Policy\\IdentifyBookerPolicy",
     "inbox": true
   },
   "prospecting-plan-booked-appointment": {
