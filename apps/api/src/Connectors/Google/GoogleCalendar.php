@@ -179,7 +179,7 @@ final readonly class GoogleCalendar implements ProviderCalendar
         match (true) {
             $status < 300 => null,
             self::UNAUTHORIZED === $status => throw AccessRevoked::by($client->provider),
-            self::TOO_MANY_REQUESTS === $status, $status >= self::SERVER_ERROR, self::FORBIDDEN === $status && self::isARateLimit($response) => throw new \RuntimeException(sprintf('Google answered %d to the calendar. The push will be tried again', $status)),
+            self::TOO_MANY_REQUESTS === $status, $status >= self::SERVER_ERROR, self::FORBIDDEN === $status && self::isARateLimit($response) => throw new \RuntimeException(sprintf('Google answered %d to the calendar. The request will be tried again', $status)),
             default => throw CalendarRefusedThePush::by($client->provider, $status),
         };
     }
