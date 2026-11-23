@@ -49,7 +49,7 @@ final readonly class PlanOrganizationExchangeHandler implements CommandHandler
     }
 
     /**
-     * Kept, like any other exchange with a contact, for every organization the contact is part of.
+     * Like any other exchange with a contact, the exchange is kept for every organization the contact is part of.
      */
     private function plannedWithAContact(Organization $organization, MemberId $holder, PersonId $contact, PlanOrganizationExchange $command): Exchange
     {
