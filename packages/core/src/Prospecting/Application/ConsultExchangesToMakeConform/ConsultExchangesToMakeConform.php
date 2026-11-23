@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\ConsultExchangesToMakeConform;
 
 /**
- * The exchanges of the timeline of an organization that are to make conform, their contact forgotten, the most
- * recent first, a slice after the other.
+ * Reads the exchanges in an organization's timeline that must be redacted because their contact is forgotten. The most
+ * recent come first, one slice at a time.
  */
 final readonly class ConsultExchangesToMakeConform
 {
