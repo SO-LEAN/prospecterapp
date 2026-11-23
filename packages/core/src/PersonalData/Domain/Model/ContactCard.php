@@ -8,8 +8,8 @@ use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
 
 /**
- * What the card of a person says when they are collected: their name, how they are reached, their civility, their
- * job title and their links, each unknown or not.
+ * What a person's card says when they are collected: their name, how to reach them, their title, their job title and
+ * their links. Each of them may be unknown.
  */
 final readonly class ContactCard
 {

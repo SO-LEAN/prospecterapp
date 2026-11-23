@@ -10,8 +10,8 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * A member of an account as personal data sees them: who reads, for which account, which person they are,
- * and whether they hold the right to read personal data in clear.
+ * A member of an account, as PersonalData sees them: who reads, for which account, which person they are, and whether
+ * they hold the right to read personal data unmasked.
  */
 final readonly class Reader
 {
@@ -24,7 +24,7 @@ final readonly class Reader
     }
 
     /**
-     * Every member searches the contacts, by their name at least (ADR 0129).
+     * Every member searches the contacts, at least by their name (ADR 0129).
      *
      * @return list<ContactsIntent>
      */
@@ -34,7 +34,7 @@ final readonly class Reader
     }
 
     /**
-     * A reader of masked emails could guess them by searching in what they cannot read: they search the names only
+     * A reader of masked emails could guess them by searching in what they cannot read. So they search the names only
      * (ADR 0129).
      */
     public function searchesTheEmails(): bool
@@ -43,8 +43,8 @@ final readonly class Reader
     }
 
     /**
-     * Identifying a person by their links, their emails or their phone numbers reads them: a reader of masked data
-     * could guess what they cannot read, and identifies a person by their name only.
+     * Identifying a person by their links, emails or phone numbers reads them. A reader of masked data could guess what
+     * they cannot read, so they identify a person by name only.
      */
     public function identifiesByPersonalData(): bool
     {
@@ -52,7 +52,7 @@ final readonly class Reader
     }
 
     /**
-     * Recognizing a person by their phone number reads it: a reader of masked data may not.
+     * Recognizing a person by their phone number reads that number. A reader of masked data may not do it.
      *
      * @throws PersonalDataManagersOnly
      */

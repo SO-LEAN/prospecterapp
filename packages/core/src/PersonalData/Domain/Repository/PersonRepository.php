@@ -35,38 +35,38 @@ interface PersonRepository
     public function remove(Person $person): void;
 
     /**
-     * The other contacts of the account sharing this resemblance key.
+     * The account's other contacts who share this resemblance key.
      *
      * @return list<PersonId>
      */
     public function resembling(AccountId $accountId, PersonResemblanceKey $key, PersonId $except): array;
 
     /**
-     * Whether another person of the account, kept for this purpose, has this email.
+     * Whether another person in the account, kept for this purpose, has this email.
      */
     public function isEmailUsed(AccountId $accountId, Purpose $purpose, Email $email, PersonId $except): bool;
 
     /**
-     * The contacts of the account having these emails.
+     * The account's contacts who have these emails.
      *
      * @param list<Email> $emails
      *
-     * @return array<string, PersonId> the contact having each email, by the email; one none has absent
+     * @return array<string, PersonId> the contact who has each email, keyed by the email; an email no contact has is absent
      */
     public function contactsHavingEmails(AccountId $accountId, array $emails): array;
 
     /**
-     * The other contact of the account holding this link, as one of their own or as a former one, if any.
+     * The account's other contact who holds this link, as a current or a former link, if any.
      */
     public function contactHoldingReference(AccountId $accountId, ExternalReference $reference, PersonId $except): ?Person;
 
     /**
-     * The contact of the account having this e-mail, if any.
+     * The account's contact who has this e-mail, if any.
      */
     public function contactWithEmail(AccountId $accountId, Email $email): ?Person;
 
     /**
-     * A contact of the account having this phone number, if any.
+     * One of the account's contacts who has this phone number, if any.
      */
     public function contactWithPhoneNumber(AccountId $accountId, PhoneNumber $phoneNumber): ?Person;
 

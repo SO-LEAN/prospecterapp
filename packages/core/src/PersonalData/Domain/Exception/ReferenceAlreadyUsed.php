@@ -8,12 +8,13 @@ use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
 /**
- * The link is already another contact's of the account, as one of their own or a former one.
+ * Another contact in the account already holds the link, as a current or a former link.
  */
 final class ReferenceAlreadyUsed extends BusinessRuleViolation
 {
     /**
-     * Named to the member noting it, who reads the name of every contact of their account (ADR 0129).
+     * The message names the holder to the member who logs the link. That member reads the name of every contact in
+     * their account (ADR 0129).
      */
     public static function heldBy(Person $holder): self
     {

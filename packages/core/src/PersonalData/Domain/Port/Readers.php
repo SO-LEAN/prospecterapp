@@ -9,8 +9,8 @@ use Prospecter\Core\PersonalData\Domain\Model\Reader;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * Port: the reader a member is, translated from the context that knows the members of an account (Accounts),
- * through its published service `ConsultMembersService` (ADR 0045, 0089).
+ * Port: the reader a member is. It translates from the context that knows an account's members (Accounts), through its
+ * published service `ConsultMembersService` (ADR 0045, 0089).
  */
 interface Readers
 {

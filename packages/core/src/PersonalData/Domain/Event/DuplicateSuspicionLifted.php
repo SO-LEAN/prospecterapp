@@ -9,8 +9,8 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * The contact is no longer suspected of being a duplicate of another: they no longer resemble each other, or one is
- * forgotten.
+ * The contact is no longer suspected of being another contact's duplicate. Either they no longer resemble each other,
+ * or one of them was forgotten.
  */
 final readonly class DuplicateSuspicionLifted extends PersonEvent
 {

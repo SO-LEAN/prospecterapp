@@ -9,7 +9,8 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Checked by a member, the contact is no duplicate of the other: neither is suspected of being the other's again.
+ * A member checked that the contact is not the other contact's duplicate. Neither will be suspected of being the other's
+ * duplicate again.
  */
 final readonly class DuplicateSuspicionDismissed extends PersonEvent
 {

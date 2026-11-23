@@ -11,9 +11,9 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Who reads a person, and how (ADR 0031): another account does not even learn that the person exists; the
- * person themself and a member of the account with the right to read personal data read them in clear, the
- * other members masked. Asked by the person and by its reading (ADR 0088).
+ * Who reads a person, and how (ADR 0031). Another account does not even learn that the person exists. The person
+ * themself, and a member of the account with the right to read personal data, read them unmasked. The other members
+ * read them masked. The person and their reading both ask this policy (ADR 0088).
  */
 final class PersonReading
 {
@@ -30,8 +30,8 @@ final class PersonReading
     }
 
     /**
-     * The name of a contact is read in clear by every member, to know with whom they have an exchange; the
-     * profile of a member as the rest of the person (ADR 0129).
+     * Every member reads a contact's name unmasked, to know who they have an exchange with. A member's profile is read
+     * like the rest of the person (ADR 0129).
      */
     #[\NoDiscard]
     public static function ofTheName(Reader $reader, PersonId $person, Purpose $purpose): Reading
@@ -40,8 +40,8 @@ final class PersonReading
     }
 
     /**
-     * Who a contact is suspected of being a duplicate of is read by a member with the right to manage personal data
-     * only, who alone says, once checked, that they are none.
+     * Only a member with the right to manage personal data reads which contact a contact is suspected of duplicating.
+     * Only that member says, after checking, that the contact is not a duplicate.
      */
     #[\NoDiscard]
     public static function showsPossibleDuplicatesTo(Reader $reader): bool

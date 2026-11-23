@@ -7,13 +7,13 @@ namespace Prospecter\Core\PersonalData\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
 /**
- * Two requests noted the link on two contacts at once: the second one, refused by the safety net of
- * ReferenceUniqueness, does not know who holds it.
+ * Two requests logged the link on two contacts at the same time. ReferenceUniqueness's safety net refuses the second
+ * request. The refusal does not know who holds the link.
  */
 final class ReferenceTakenMeanwhile extends BusinessRuleViolation
 {
     public static function byAnother(?\Throwable $detectedBy = null): self
     {
-        return self::because('Link noted meanwhile on another contact', 'links', $detectedBy);
+        return self::because('Another contact got the link meanwhile', 'links', $detectedBy);
     }
 }

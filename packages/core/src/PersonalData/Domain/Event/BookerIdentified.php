@@ -10,8 +10,8 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * The contact who booked an appointment with a host by their public link (ADR 0164): known already, or collected to
- * be attached. Their personal data are not what changed.
+ * The contact who booked an appointment with a host through the host's public link (ADR 0164). The contact was already
+ * known, or was collected to be attached. Their personal data did not change.
  */
 final readonly class BookerIdentified extends DomainEvent
 {

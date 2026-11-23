@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\PersonalData\Domain\Model;
 
 /**
- * The first name and the last name of a person, as they are written: without the spaces at their ends, one space
- * between their words, absent when nothing but spaces.
+ * A person's first name and last name, as they are written. The spaces at their ends are removed, and one space
+ * separates their words. A part made of nothing but spaces is absent.
  */
 final readonly class PersonName
 {

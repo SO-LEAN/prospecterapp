@@ -11,9 +11,9 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * What a reader may do of a person (ADR 0088): a person changes their own data; a member with the right
- * changes the persons their account prospects, not the profile of a colleague, and only a prospected person is
- * forgotten, or has a civility. The person refuses the rest, the reading of a person tells it.
+ * What a reader may do with a person (ADR 0088). A person changes their own data. A member with the right changes the
+ * persons their account prospects, but not a colleague's profile. Only a prospected person can be forgotten or have a
+ * title. The person refuses the rest, and the person's reading tells what is possible.
  */
 final class PersonPossibilities
 {

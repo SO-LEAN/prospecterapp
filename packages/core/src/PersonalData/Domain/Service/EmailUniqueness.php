@@ -9,8 +9,8 @@ use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
 use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
 
 /**
- * Two persons kept by the same account for the same purpose cannot share an email; other accounts and other
- * purposes may (ADR 0031). A rule on all the persons of an account, out of reach of one person alone.
+ * Two persons that the same account keeps for the same purpose cannot share an email. Other accounts and other purposes
+ * may (ADR 0031). The rule covers all of an account's persons, which one person alone cannot reach.
  */
 final readonly class EmailUniqueness
 {
