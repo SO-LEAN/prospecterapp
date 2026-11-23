@@ -13,8 +13,8 @@ use Prospecter\Core\Campaigns\Domain\Model\Recipients;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * The recipients of a frozen campaign: each once, from 1 to 500 as the members change them, a forgotten contact
- * leaving them whatever is left.
+ * A frozen campaign's recipients: each one once, 1 to 500 as the members change them. A forgotten contact leaves them,
+ * whoever is left.
  */
 final class RecipientsTest extends TestCase
 {

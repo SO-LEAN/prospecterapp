@@ -18,8 +18,8 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Each change of the tags of an organization or of a contact records what happened; an automatic tag is never put
- * by hand, and changes nothing.
+ * Each change to an organization's or a contact's tags records what happened. An automatic tag is never put by hand,
+ * and changes nothing.
  */
 final class TaggingTest extends TestCase
 {

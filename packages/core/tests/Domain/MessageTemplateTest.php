@@ -13,8 +13,8 @@ use Prospecter\Core\Campaigns\Domain\Model\Channel;
 use Prospecter\Core\Campaigns\Domain\Model\MessageTemplate;
 
 /**
- * The message of a campaign rendered for one contact: each variable replaced wherever it is, by nothing when nothing
- * is known, any other text kept as written.
+ * A campaign's message rendered for one contact. Each variable is replaced wherever it is, or by nothing when nothing
+ * is known. Any other text is kept as written.
  */
 final class MessageTemplateTest extends TestCase
 {

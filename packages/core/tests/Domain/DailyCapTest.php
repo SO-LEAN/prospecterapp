@@ -8,9 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Campaigns\Domain\Exception\InvalidDailyCap;
 use Prospecter\Core\Campaigns\Domain\Model\DailyCap;
 
-/**
- * A daily cap is a guard of at least one send a day.
- */
+/** A daily cap is a guard that allows at least one send a day. */
 final class DailyCapTest extends TestCase
 {
     public function testACapOfOneSendIsKept(): void
