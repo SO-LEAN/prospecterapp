@@ -18,8 +18,8 @@ use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Symfony\Component\Clock\ClockInterface;
 
 /**
- * The dashboard of a member: the name of their organization, the figures Reporting keeps at the moment of the
- * reading, and the organizations located on the map, a search of Prospecting of 1 000 at most.
+ * Reads a member's dashboard: their organization's name, the figures that Reporting keeps at the time of the read,
+ * and the organizations located on the map. A Prospecting search finds these organizations, 1,000 at most.
  */
 final readonly class DashboardReader
 {

@@ -2166,7 +2166,7 @@
                 "tags": [
                     "Dashboard"
                 ],
-                "summary": "The figures of my organization and the organizations to place on a map",
+                "summary": "Get my organization's figures and the organizations to place on a map",
                 "operationId": "get_api_dashboard",
                 "responses": {
                     "200": {

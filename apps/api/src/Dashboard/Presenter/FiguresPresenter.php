@@ -9,7 +9,7 @@ use Prospecter\Core\Reporting\Application\ConsultFigures\ConsultFiguresOutput;
 use Prospecter\Core\Reporting\Application\ConsultFigures\FiguresResponse;
 
 /**
- * The figures of my organization for its dashboard. Built for one call, it keeps the resource (ADR 0085).
+ * Presents my organization's figures for its dashboard. It is built for one call and keeps the resource (ADR 0085).
  */
 final class FiguresPresenter implements ConsultFiguresOutput
 {

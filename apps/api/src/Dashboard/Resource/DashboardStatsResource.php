@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Dashboard\Resource;
 
 /**
- * The figures of my organization: the organizations it prospects, those placed on the map, its contacts, the
- * exchanges it keeps and those of the month.
+ * My organization's figures: the organizations it prospects, the organizations placed on the map, its contacts, the
+ * exchanges it keeps, and the exchanges in the current month.
  */
 final readonly class DashboardStatsResource
 {
