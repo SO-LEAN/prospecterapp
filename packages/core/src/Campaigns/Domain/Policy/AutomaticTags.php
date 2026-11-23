@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Campaigns\Domain\Policy;
 
 /**
- * The names of the tags Prospecter sets by itself, never put by hand (ADR 0138, 0142): how a contact is reached, and
- * where an organization is, its big city, its department and its region.
+ * The names of the tags that Prospecter sets by itself and nobody puts by hand (ADR 0138, 0142). They tell how a
+ * contact is reached and where an organization is: its big city, its department and its region.
  */
 final readonly class AutomaticTags
 {

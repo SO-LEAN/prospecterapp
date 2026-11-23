@@ -8,10 +8,11 @@ use Prospecter\Core\Campaigns\Domain\Model\Locality;
 use Prospecter\Core\Campaigns\Domain\Model\Tag;
 
 /**
- * The geographic tags of a municipality (ADR 0142): the attraction area of the cities of 50,000 inhabitants or more
- * it belongs to (INSEE zoning AAV 2020), its department and its region, read from the tables generated from INSEE
- * (`data/insee-geography.php`). An address whose country is given and is not French gets none, whatever the geocoder
- * found; a municipality outside a big area, or more recent than the tables, its department and its region only.
+ * A municipality's geographic tags (ADR 0142). They are the attraction area of cities of 50,000 inhabitants or more
+ * that it belongs to (INSEE zoning AAV 2020), its department and its region. They are read from the tables generated
+ * from INSEE data (`data/insee-geography.php`). An address whose country is given and is not French gets none, whatever
+ * the geocoder found. A municipality outside a big area, or more recent than the tables, gets only its department and
+ * region.
  */
 final class GeographicTags
 {
@@ -24,11 +25,11 @@ final class GeographicTags
 
     /** @var array{areas: array<string>, municipalities: array<string>, departments: array<string>, regions: array<string>}|null read once */
     private static ?array $tables = null;
-    /** @var array<string, true>|null the names of the areas and of the regions, read once */
+    /** @var array<string, true>|null the areas' and regions' names, read once */
     private static ?array $reserved = null;
 
     /**
-     * @return list<Tag> the city first, then the department and the region
+     * @return list<Tag> the city, then the department and the region
      */
     public static function of(Locality $locality): array
     {
@@ -48,9 +49,7 @@ final class GeographicTags
         ];
     }
 
-    /**
-     * Whether the name is that of an area or of a region, never put by hand.
-     */
+    /** Whether the name is an area's or a region's. Such a tag is never put by hand. */
     #[\NoDiscard]
     public static function reserve(string $name): bool
     {

@@ -7,10 +7,10 @@ namespace Prospecter\Core\Campaigns\Domain\Policy;
 use Prospecter\Core\Campaigns\Domain\Model\Fact;
 
 /**
- * Which fact of an aggregate Campaigns keeps, the facts arriving in any order and maybe more than once (ADR 0099,
- * 0141): the terminal fact ends the aggregate for good, otherwise the highest revision is the latest. A fact rebuilt
- * from the state of its context replaces the one kept at the same revision too, which may have been recorded before
- * the facts carried what they carry now.
+ * Which of an aggregate's facts Campaigns keeps (ADR 0099, 0141). The facts arrive in any order, and possibly more than
+ * once. The terminal fact ends the aggregate for good. Otherwise, the highest revision is the latest. A fact rebuilt
+ * from its context's state also replaces the kept fact at the same revision. The kept fact may have been recorded
+ * before the facts carried what they carry now.
  */
 final class FactSuccession
 {
@@ -27,7 +27,7 @@ final class FactSuccession
     }
 
     /**
-     * @param \Closure(int, int): bool $isLater whether the revision received is later than the one known
+     * @param \Closure(int, int): bool $isLater whether the received revision is later than the known one
      */
     private static function succeeds(Fact $received, ?Fact $known, \Closure $isLater): bool
     {
