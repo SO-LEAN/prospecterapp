@@ -11,8 +11,8 @@ use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 
 /**
- * Tells the other contexts the facts of an organization each time something happens to it, read as its service
- * reads them, before the commit: the unit of work gives them as the command is about to write them.
+ * Tells the other contexts an organization's facts each time something happens to it. It reads them as the
+ * organization's service does, before the commit: the unit of work gives them when the command is about to write them.
  */
 final readonly class PublishOrganizationFactsHandler implements EventHandler
 {
