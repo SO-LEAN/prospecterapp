@@ -3,7 +3,7 @@
     "context": "accounts",
     "sources": ["prospecter.accounts.internal"],
     "events": ["AccountOpened.v1"],
-    "handler": "Prospecter\\Core\\Accounts\\Application\\RegisterTheFounder\\RegisterTheFounderHandler",
+    "policy": "Prospecter\\Core\\Accounts\\Application\\Policy\\RegisterTheFounderPolicy",
     "inbox": true
   },
   "prospecting-stop-keeping-exchanges": {
@@ -284,7 +284,7 @@
     "sources": ["prospecter.prospecting"],
     "events": ["ExchangeFactsChanged.v4"],
     "payload": {"present": [false]},
-    "handler": "Prospecter\\Core\\Booking\\Application\\ForgetAppointmentOfErasedExchange\\ForgetAppointmentOfErasedExchangeHandler",
+    "policy": "Prospecter\\Core\\Booking\\Application\\Policy\\ForgetAppointmentOfErasedExchangePolicy",
     "inbox": false
   },
   "campaigns-record-facts": {

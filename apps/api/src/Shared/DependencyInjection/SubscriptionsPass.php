@@ -4,25 +4,32 @@ declare(strict_types=1);
 
 namespace App\Shared\DependencyInjection;
 
+use App\Shared\CommandBus;
+use App\Shared\Messaging\HandlerReaction;
+use App\Shared\Messaging\PolicyReaction;
 use App\Shared\Messaging\Subscriptions;
 use App\Shared\Typed;
+use Prospecter\Core\SharedKernel\Application\Handler\Policy;
 use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\Compiler\ServiceLocatorTagPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
 /**
- * Sorts the core's event handlers. A translator that publishes a domain event for the other contexts stays on the event
- * bus (RefusalTranslatingHandlersPass). Every other handler is a subscription's reaction. The subscriptions are listed
- * in `config/subscriptions.json`, which the infrastructure reads too. The pass takes each reaction off the event bus,
- * and the delivery (Subscriptions) reaches it through its decorators. A subscription names its reaction (`handler`), or
- * one reaction per event it listens to (`handlers`, by detail-type). It names the payloads it listens to when it does
- * not listen to all of them (`payload`). The build fails on a reaction that the list does not name. A service tagged
+ * Gives each subscription its reaction. The subscriptions are listed in `config/subscriptions.json`, which the
+ * infrastructure reads too. A subscription names its policy (`policy`, ADR 0202). The delivery (Subscriptions) gives
+ * the event to the policy and sends its commands to the command bus (PolicyReaction). A subscription may still name
+ * an event handler of the core that is not a policy yet (`handler`), or one per event it listens to (`handlers`, by
+ * detail-type). A translator that publishes a domain event for the other contexts stays on the event bus
+ * (RefusalTranslatingHandlersPass). The pass takes every other event handler off the event bus, and the delivery
+ * reaches it through its decorators (HandlerReaction). The build fails on such a handler that the list does not name.
+ * A subscription names the payloads it listens to when it does not listen to all of them (`payload`). A service tagged
  * app.subscription is a subscription too. Its tag declares it, and the infrastructure does not know it: it is a
  * reaction used by the tests.
  *
- * @phpstan-type Listed array{context: string, sources: list<string>, events: list<string>, payload?: array<string, mixed>, handler?: string, handlers?: array<string, string>, inbox: bool}
+ * @phpstan-type Listed array{context: string, sources: list<string>, events: list<string>, payload?: array<string, mixed>, policy?: string, handler?: string, handlers?: array<string, string>, inbox: bool}
  * @phpstan-type Declared array{context: string, sources: list<string>, events: list<string>, payload?: array<string, mixed>, handlers: array<string, string>, inbox: bool}
  */
 final class SubscriptionsPass implements CompilerPassInterface
@@ -37,7 +44,7 @@ final class SubscriptionsPass implements CompilerPassInterface
     public function process(ContainerBuilder $container): void
     {
         $subscriptions = array_map(self::withAHandlerPerEvent(...), $this->subscriptions($container));
-        $reactions = $this->reactionsOfTheCore($container, $subscriptions);
+        $reactions = $this->policyReactions($container, $subscriptions) + $this->reactionsOfTheCore($container, $subscriptions);
 
         foreach ($this->declaredByTheirTag($container) as $name => [$declared, $reaction]) {
             $subscriptions[$name] = $declared;
@@ -77,6 +84,37 @@ final class SubscriptionsPass implements CompilerPassInterface
     }
 
     /**
+     * @param array<string, Declared> $subscriptions
+     *
+     * @return array<string, Reference> each subscription's policy reaction to each event, by Subscriptions::reactionKey()
+     */
+    private function policyReactions(ContainerBuilder $container, array $subscriptions): array
+    {
+        $reactions = [];
+
+        foreach ($subscriptions as $name => $subscription) {
+            foreach ($subscription['handlers'] as $event => $policy) {
+                if (is_a($policy, Policy::class, true)) {
+                    $reactions[Subscriptions::reactionKey($name, $event)] = $this->reactionOfThePolicy($container, $policy);
+                }
+            }
+        }
+
+        return $reactions;
+    }
+
+    private function reactionOfThePolicy(ContainerBuilder $container, string $policy): Reference
+    {
+        $id = $policy.'.reaction';
+
+        if (!$container->hasDefinition($id)) {
+            $container->register($id, PolicyReaction::class)->setArguments(['$policy' => new Definition($policy), '$commands' => new Reference(CommandBus::class)]);
+        }
+
+        return new Reference($id);
+    }
+
+    /**
      * @return array<string, array{Declared, Reference}> each subscription and its reaction, by the subscription's name
      */
     private function declaredByTheirTag(ContainerBuilder $container): array
@@ -101,8 +139,9 @@ final class SubscriptionsPass implements CompilerPassInterface
     private function asASubscription(ContainerBuilder $container, string $id): Reference
     {
         $container->getDefinition($id)->clearTag(RefusalTranslatingHandlersPass::EVENT_HANDLER);
+        $container->register($id.'.reaction', HandlerReaction::class)->setArgument('$handler', new Reference(RefusalTranslatingHandlersPass::decorate($container, $id, RefusalTranslatingHandlersPass::EVENT_DECORATORS)));
 
-        return new Reference(RefusalTranslatingHandlersPass::decorate($container, $id, RefusalTranslatingHandlersPass::EVENT_DECORATORS));
+        return new Reference($id.'.reaction');
     }
 
     /**
@@ -137,12 +176,14 @@ final class SubscriptionsPass implements CompilerPassInterface
 
         return ['context' => Typed::string($subscription['context']), 'sources' => Typed::strings($subscription['sources']), 'events' => Typed::strings($subscription['events']), 'inbox' => Typed::bool($subscription['inbox'])]
             + (isset($subscription['payload']) ? ['payload' => Typed::document($subscription['payload'])] : [])
+            + (isset($subscription['policy']) ? ['policy' => Typed::string($subscription['policy'])] : [])
             + (isset($subscription['handler']) ? ['handler' => Typed::string($subscription['handler'])] : [])
             + (isset($subscription['handlers']) ? ['handlers' => Typed::namedStrings($subscription['handlers'])] : []);
     }
 
     /**
-     * Gives the subscription's single reaction to every event it listens to, when it names only one.
+     * Gives the subscription's single reaction, its policy or its handler, to every event it listens to, when it names
+     * only one.
      *
      * @param Listed $subscription
      *
@@ -150,10 +191,10 @@ final class SubscriptionsPass implements CompilerPassInterface
      */
     private static function withAHandlerPerEvent(array $subscription): array
     {
-        $handlers = $subscription['handlers'] ?? array_fill_keys($subscription['events'], $subscription['handler'] ?? null);
-        unset($subscription['handler']);
+        $handlers = $subscription['handlers'] ?? array_fill_keys($subscription['events'], $subscription['policy'] ?? $subscription['handler'] ?? null);
+        unset($subscription['policy'], $subscription['handler']);
 
-        return ['handlers' => array_map(static fn (?string $handler): string => $handler ?? throw new \LogicException(sprintf('A subscription of %s names its handler or its handlers', self::FILE)), $handlers)] + $subscription;
+        return ['handlers' => array_map(static fn (?string $handler): string => $handler ?? throw new \LogicException(sprintf('A subscription of %s names its policy, its handler or its handlers', self::FILE)), $handlers)] + $subscription;
     }
 
     /**
