@@ -16,8 +16,8 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Anticorruption layer of the API, in the scenarios (ADR 0045, 0089, 0141): the facts Prospecting gives again, slice
- * after slice, in the words of Campaigns.
+ * The API's anticorruption layer in the scenarios (ADR 0045, 0089, 0141): the facts that Prospecting gives again, one
+ * slice after another, in Campaigns' words.
  */
 final readonly class ProspectingOrganizationsAndTheirContacts implements OrganizationsAndTheirContacts
 {

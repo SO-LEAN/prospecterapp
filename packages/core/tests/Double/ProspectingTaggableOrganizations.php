@@ -12,8 +12,8 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
- * Anticorruption layer of the API, in the scenarios (ADR 0045, 0089): Campaigns tags the organizations Prospecting
- * says an account prospects, asked about a set of one.
+ * The API's anticorruption layer in the scenarios (ADR 0045, 0089). Campaigns tags the organizations that Prospecting
+ * says an account prospects. It asks about a set of one.
  */
 final readonly class ProspectingTaggableOrganizations implements TaggableOrganizations
 {

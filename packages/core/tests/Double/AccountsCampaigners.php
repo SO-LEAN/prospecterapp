@@ -13,8 +13,8 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * The anticorruption layer of the API, same code: Campaigns knows the account of a member who runs campaigns from
- * Accounts, asked about a set of one.
+ * The API's anticorruption layer, with the same code. Campaigns learns from Accounts the account of a member who runs
+ * campaigns. It asks about a set of one.
  */
 final readonly class AccountsCampaigners implements Campaigners
 {

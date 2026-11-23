@@ -14,8 +14,8 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * The DynamoDB retriever in the scenarios: the tagging of each contact, the taggings of the organizations whose fact
- * names it, and the reach of its fact, read without their getters.
+ * The DynamoDB retriever in the scenarios. It reads each contact's tagging, the taggings of the organizations whose
+ * fact names it, and the reach in its fact, without their getters.
  */
 final readonly class InMemoryContactTagsRetriever implements ContactTagsRetriever
 {
