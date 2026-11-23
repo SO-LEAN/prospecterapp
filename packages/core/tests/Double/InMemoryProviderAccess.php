@@ -15,9 +15,9 @@ use Prospecter\Core\SharedKernel\Domain\Email;
 
 /**
  * A provider as the scenarios script it. A client serves the account unless a scenario takes it away. A code that the
- * provider gave for an account grants a token of its own, once. The double keeps the tokens that the provider refuses
- * since, and those that it revoked. As Google does, revoking a token revokes its account's grant, with every token
- * given for it so far.
+ * provider gave for an account grants a token of its own, once. The double keeps the tokens that the provider has
+ * refused since then, and those that it revoked. As Google does, revoking a token revokes its account's grant, with
+ * every token given for it so far.
  */
 final class InMemoryProviderAccess implements ProviderAccess
 {
