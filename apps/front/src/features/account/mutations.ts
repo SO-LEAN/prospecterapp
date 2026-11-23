@@ -34,13 +34,13 @@ export function useChangeMyName() {
   return api.useMutation('patch', '/api/me/name', { ...formIntention, onSuccess: useStoreAccount() })
 }
 
-/** What a member gives of themselves to complete their profile: their name and the email of their profile. */
+/** What a member gives to complete their profile: their name and their profile's email. */
 export type MyProfile = { name: PersonNameInput; contactDetails: PersonContactDetailsInput }
 
 /**
- * Completes the profile of the signed-in member with the intentions of their account, each its own use case: the
- * email first, the one an API may refuse (already the email of another member), then the name, which shows the
- * application once stored.
+ * Completes the signed-in member's profile through their account's intents, each one its own use case. The email
+ * comes first, because the API may refuse it (another member already has it). The name comes next: once it is
+ * stored, the application shows.
  */
 export function useCompleteMyProfile() {
   const queryClient = useQueryClient()

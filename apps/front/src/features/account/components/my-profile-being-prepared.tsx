@@ -8,8 +8,9 @@ import { myAccountBeingPreparedQuery } from '../queries'
 type Props = { children: ReactNode }
 
 /**
- * What a member signed in sees while their profile is being prepared: they wait, their account read again until it
- * exists, then are told to try again later; the actions offered (signing out) are the children.
+ * What a signed-in member sees while their profile is in preparation. They wait while the screen reads their account
+ * again until it exists. After too long, the screen tells them to try again later. The children are the offered
+ * actions (signing out).
  */
 export function MyProfileBeingPrepared({ children }: Props) {
   const { t } = useTranslation()

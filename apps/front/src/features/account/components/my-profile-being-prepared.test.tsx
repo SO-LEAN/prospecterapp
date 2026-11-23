@@ -39,7 +39,7 @@ const myProfileNotCreatedYet = () =>
 
 const myProfileCreated = () => json(myAccount, 200)
 
-/** The member signed in, the first reading of their account refused, as the guard of the app made it. */
+/** Renders the screen for a signed-in member whose first account reading was refused, as the app's guard leaves it. */
 async function renderWhileMyProfileIsPrepared() {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   theApi.mockImplementationOnce(async () => myProfileNotCreatedYet())

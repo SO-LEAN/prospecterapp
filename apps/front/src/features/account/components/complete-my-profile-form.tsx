@@ -26,12 +26,12 @@ const myProfileFields = ['firstName', 'lastName', 'email'] as const
 
 type Props = {
   account: Account
-  /** Proposed for the profile: the email the member has just signed in with. */
+  /** The email that the member has just signed in with, proposed for the profile. */
   loginEmail: string
   onCompleted: () => void
 }
 
-/** The name of a member signed in for the first time, and the email of their profile, proposed, theirs to change. */
+/** The name of a member who signs in for the first time, and their profile's email. The form proposes the email, and the member may change it. */
 export function CompleteMyProfileForm({ account, loginEmail, onCompleted }: Props) {
   const { t } = useTranslation()
   const complete = useCompleteMyProfile()

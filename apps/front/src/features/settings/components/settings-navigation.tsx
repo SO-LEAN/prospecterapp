@@ -2,13 +2,13 @@ import { Link } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib/utils'
 
-/** The sections of the configuration, in their order. */
+/** The settings' sections, in their order. */
 export const SETTINGS_SECTIONS = ['reminders', 'booking', 'connectors'] as const
 export type SettingsSection = (typeof SETTINGS_SECTIONS)[number]
 
 type Props = { current: SettingsSection }
 
-/** A side navigation on a computer, tabs above the section on a phone. */
+/** A side navigation on a computer. Tabs above the section on a phone. */
 export function SettingsNavigation({ current }: Props) {
   const { t } = useTranslation()
 

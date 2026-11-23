@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/shared/ui/switch'
 import { type Reminders, useChangeMyReminders } from '../mutations'
 
-/** The delays the API offers, by the key of their wording. */
+/** The delays that the API offers, by their wording's key. */
 const DELAYS = [
   { minutes: 0, label: 'onTime' },
   { minutes: 5, label: 'fiveMinutes' },
@@ -91,7 +91,7 @@ function ReminderDelaySelect({ minutes, disabled, onChange, ...trigger }: DelayP
   )
 }
 
-/** The delay of an item of the list: an item is always one of the delays offered. */
+/** The delay of a list item. An item is always one of the offered delays. */
 function chosen(value: string, onChange: (minutes: Minutes) => void) {
   const delay = DELAYS.find((offered) => String(offered.minutes) === value)
   if (delay) {
@@ -100,8 +100,8 @@ function chosen(value: string, onChange: (minutes: Minutes) => void) {
 }
 
 /**
- * Shows an example of a reminder in the application, and asks once whether this browser may notify the member; when
- * it was refused, says how to allow it again, which only the browser can.
+ * Shows an example reminder in the application, and asks once whether this browser may notify the member. When the
+ * member refused, it says how to allow it again. Only the browser can allow it again.
  */
 function TryAReminder({ minutesBefore }: { minutesBefore: Minutes }) {
   const { t } = useTranslation()
@@ -135,7 +135,7 @@ function TryAReminder({ minutesBefore }: { minutesBefore: Minutes }) {
 
 const AN_HOUR = 60
 
-/** The example announces the exchange as a real reminder would, `minutesBefore` it. */
+/** The example announces the exchange as a real reminder would, `minutesBefore` the exchange. */
 function exampleBodyOf(t: TFunction, minutesBefore: Minutes): string {
   if (minutesBefore === 0) {
     return t('settings.reminders.example.body.now')

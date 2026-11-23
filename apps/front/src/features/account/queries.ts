@@ -1,16 +1,16 @@
 import { api } from '@/shared/api/client'
 import { nextReadingOfMyProfile } from './me'
 
-/** The signed-in user's account; shared by the user menu and the account page (one cached request). */
+/** The signed-in member's account. The user menu and the account page share it (one cached request). */
 export const accountQuery = () => api.queryOptions('get', '/api/me')
 
-/** What I sign in with, in the user pool. */
+/** What I sign in with, kept in the user pool. */
 export const signInQuery = () => api.queryOptions('get', '/api/me/sign-in')
 
 /**
- * My account as the layout reads it, while my profile may still be being prepared: read again, a delay growing, until
- * it exists or I waited too long; a refusal is read again neither at once, nor by a screen mounted, nor by the window
- * focused, for the wait to last as long as it says.
+ * My account as the layout reads it, while my profile may still be in preparation. The query reads it again, with a
+ * growing delay, until it exists or I have waited too long. After a refusal, it never reads again at once, on a screen's
+ * mount or on the window's focus. So the wait lasts as long as it says.
  */
 export const myAccountBeingPreparedQuery = () =>
   api.queryOptions('get', '/api/me', undefined, {
