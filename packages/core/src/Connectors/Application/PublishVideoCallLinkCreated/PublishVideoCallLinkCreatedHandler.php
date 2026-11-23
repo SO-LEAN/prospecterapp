@@ -10,8 +10,8 @@ use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 
 /**
- * Tells the other contexts, in the published language, the link the calendar of a member created for a video call
- * (ADR 0046, 0137).
+ * Tells the other contexts, in the published language, about the link that a member's calendar created for a video
+ * call (ADR 0046, 0137).
  */
 final readonly class PublishVideoCallLinkCreatedHandler implements EventHandler
 {
