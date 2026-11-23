@@ -8,8 +8,8 @@ use Prospecter\Core\Campaigns\Domain\Model\ContactFact;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 
 /**
- * Port: the contacts of an account and how each is reached, as they are now, from the facts PersonalData gives again
- * through its published service `ListContactFactsService` (ADR 0045, 0089, 0141).
+ * Port: an account's contacts and how each is reached now (ADR 0045, 0089, 0141). It reads the facts that PersonalData
+ * gives again through its published service `ListContactFactsService`.
  */
 interface ContactsReach
 {
