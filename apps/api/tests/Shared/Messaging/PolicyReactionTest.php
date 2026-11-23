@@ -6,9 +6,17 @@ namespace Tests\App\Shared\Messaging;
 
 use App\Shared\CommandBus;
 use App\Shared\Messaging\PolicyReaction;
+use Prospecter\Core\Accounts\Application\Policy\RegisterTheFounderPolicy;
 use Prospecter\Core\Accounts\Application\RegisterTheFounder\RegisterTheFounder;
+use Prospecter\Core\Accounts\Domain\Event\AccountOpened;
+use Prospecter\Core\Accounts\Domain\Model\ProfileId;
 use Prospecter\Core\Booking\Application\CloseBooking\CloseBooking;
+use Prospecter\Core\Booking\Application\ForgetAppointmentOfErasedExchange\ForgetAppointmentOfErasedExchange;
+use Prospecter\Core\Booking\Application\Policy\ForgetAppointmentOfErasedExchangePolicy;
+use Prospecter\Core\Prospecting\Contract\Event\ExchangeFactsChanged;
 use Prospecter\Core\SharedKernel\Application\Handler\Policy;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 use Tests\App\Base\ApiTestCase;
 use Tests\App\Double\FailingCommands;
 
@@ -24,7 +32,7 @@ class PolicyReactionTest extends ApiTestCase
 
         $this->expectExceptionObject($sent);
 
-        $this->react(static fn (): object => self::registration());
+        $this->react(new RegisterTheFounderPolicy(), new AccountOpened(new AccountId(self::newIdentity()), new MemberId(self::newIdentity()), new ProfileId(self::newIdentity()), self::now()));
     }
 
     public function testEachCommandOfAListIsSent(): void
@@ -33,17 +41,17 @@ class PolicyReactionTest extends ApiTestCase
 
         $this->expectExceptionObject($sent);
 
-        $this->react(static fn (): array => [self::registration(), self::closing()]);
+        $this->react(self::policyReturning(self::registration(), self::closing()), new \stdClass());
     }
 
     public function testNoCommandSendsNothing(): void
     {
-        $notSentYet = $this->failingWhenSent(RegisterTheFounder::class);
+        $notSentYet = $this->failingWhenSent(ForgetAppointmentOfErasedExchange::class);
 
-        $this->react(static fn (): ?object => null);
+        $this->react(new ForgetAppointmentOfErasedExchangePolicy(), new ExchangeFactsChanged(self::newIdentity(), self::newIdentity(), 2, true, 'planned', null, self::now()));
 
         $this->expectExceptionObject($notSentYet);
-        self::service(CommandBus::class)->dispatch(self::registration());
+        self::service(CommandBus::class)->dispatch(new ForgetAppointmentOfErasedExchange(self::newIdentity(), self::now()));
     }
 
     /**
@@ -57,38 +65,46 @@ class PolicyReactionTest extends ApiTestCase
         return $failure;
     }
 
-    /**
-     * @param \Closure(): (object|list<object>|null) $commands what the policy returns
-     */
-    private function react(\Closure $commands): void
+    private function react(Policy $policy, object $event): void
     {
-        $policy = new readonly class($commands) implements Policy {
+        new PolicyReaction($policy, self::service(CommandBus::class))($event);
+    }
+
+    /**
+     * A policy returning a list, as an event asking for several commands.
+     */
+    private static function policyReturning(object ...$commands): Policy
+    {
+        return new readonly class(array_values($commands)) implements Policy {
             /**
-             * @param \Closure(): (object|list<object>|null) $commands
+             * @param list<object> $commands
              */
-            public function __construct(private \Closure $commands)
+            public function __construct(private array $commands)
             {
             }
 
             /**
-             * @return object|list<object>|null
+             * @return list<object>
              */
-            public function __invoke(object $event): object|array|null
+            public function __invoke(object $event): array
             {
-                return ($this->commands)();
+                return $this->commands;
             }
         };
-
-        new PolicyReaction($policy, self::service(CommandBus::class))(new \stdClass());
     }
 
     private static function registration(): RegisterTheFounder
     {
-        return new RegisterTheFounder(self::newIdentity(), self::newIdentity(), self::newIdentity(), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        return new RegisterTheFounder(self::newIdentity(), self::newIdentity(), self::newIdentity(), self::now());
     }
 
     private static function closing(): CloseBooking
     {
-        return new CloseBooking(self::newIdentity(), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        return new CloseBooking(self::newIdentity(), self::now());
+    }
+
+    private static function now(): \DateTimeImmutable
+    {
+        return new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS);
     }
 }
