@@ -7,7 +7,7 @@ namespace Prospecter\Core\SharedKernel\Application\Port;
 interface Storage
 {
     /**
-     * Stores the file (it may be moved away from its current path) and returns its public URL.
+     * Stores the file and returns its public URL. The file may move away from its current path.
      */
     public function add(\SplFileInfo $file): string;
 

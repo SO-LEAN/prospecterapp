@@ -7,10 +7,10 @@ namespace Prospecter\Core\SharedKernel\Application;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 
 /**
- * The use case side of the domain events (ADR 0043): once an aggregate is saved, its recorded events are
- * released and published on the port Events, that the handler receives as `$events`. What the handler saves and
- * what its events make the other contexts write are kept all at once or not at all, in the unit of work of the
- * command.
+ * The use case's side of the domain events (ADR 0043). Once the handler saves an aggregate, it releases the
+ * aggregate's recorded events and publishes them on the Events port, which the handler receives as `$events`. The
+ * command's unit of work keeps what the handler saves and what the other contexts write in reaction, all at once or
+ * not at all.
  */
 trait PublishesEvents
 {

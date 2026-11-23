@@ -11,11 +11,11 @@ use Prospecter\Core\SharedKernel\Domain\Exception\NotFound;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 
 /**
- * The only exception a use case throws for a business reason: the refusal of the domain, typed and worded
- * for the client, the domain exception kept as the previous one. A failure of the infrastructure is not
- * translated: it goes through as it is. The refusal is named by the class of the domain exception
- * (`InvalidPhoneNumber` is `invalidPhoneNumber`), with what it is about, so that a client words it in its own
- * language (ADR 0073).
+ * The only exception a use case throws for a business reason. It types and words the domain's refusal for the
+ * client, and keeps the domain exception as the previous one. An infrastructure failure is not translated: it goes
+ * through as it is. The domain exception's class names the refusal (`InvalidPhoneNumber` becomes
+ * `invalidPhoneNumber`). The refusal also gives what it is about, so that a client can word it in its own language
+ * (ADR 0073).
  */
 final class UseCaseRefused extends \RuntimeException
 {
@@ -59,7 +59,7 @@ final class UseCaseRefused extends \RuntimeException
     }
 
     /**
-     * The class of the refusal, as a client names it: `InvalidPhoneNumber` is `invalidPhoneNumber`.
+     * The refusal's class, as a client names it: `InvalidPhoneNumber` becomes `invalidPhoneNumber`.
      */
     private static function reasonOf(BusinessException $refusal): string
     {
