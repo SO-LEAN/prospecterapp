@@ -14,7 +14,7 @@ use Prospecter\Core\SharedKernel\Application\Handler\Policy;
 
 /**
  * The reactions live in one list, `config/subscriptions.json`, read by Symfony and by the infrastructure. Every policy
- * of the core is a subscription of that list, which listens only to the events its signature takes (ADR 0202). An
+ * of the core is a subscription of that list, which listens only to the events its signature takes (ADR 0203). An
  * event handler of the core is either a translator publishing a domain event to the other contexts, or a subscription
  * of that list, until it becomes a policy. A domain event never leaves its context (ADR 0046).
  */

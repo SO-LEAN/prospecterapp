@@ -86,4 +86,4 @@ It forgets an appointment on its exchange's terminal fact (`ExchangeFactsChanged
   - `BookSlot`;
   - `ConsultAppointments`, the published service;
   - `PublishSlotBooked`, its translator;
-  - `ForgetAppointmentOfErasedExchange`, the command that `Policy/ForgetAppointmentOfErasedExchangePolicy` sends when an exchange is erased (ADR 0202).
+  - `ForgetAppointmentOfErasedExchange`, the command that `Policy/ForgetAppointmentOfErasedExchangePolicy` sends when an exchange is erased (ADR 0203).
