@@ -55,10 +55,10 @@ Fonctionnalité: Inscrire un membre
     Et je suis connecté en tant que "Grace"
     Quand j'inscris "Alan" à mon compte :
       | rôles | prospecteur |
-    Alors c'est refusé : "Only an administrator of the account may register a member"
+    Alors c'est refusé : "Only the account's administrators can register a member"
 
   Scénario: Un membre a au moins un rôle de travail
     Soit je suis connecté en tant que "Michel"
     Quand j'inscris "Alan" à mon compte :
       | rôles |  |
-    Alors c'est refusé : "A member needs a role among prospector, personal data and administrator"
+    Alors c'est refusé : "A member needs at least one role: prospector, personal data or administrator"
