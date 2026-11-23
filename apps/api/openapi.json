@@ -6720,7 +6720,7 @@
                         }
                     },
                     "404": {
-                        "description": "Not a contact of my account (`unknownContact`), or a tag the contact does not carry (`tagNotCarried`)",
+                        "description": "Not a contact of my account (`unknownContact`), or a tag the contact does not have (`tagAbsent`)",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -6783,7 +6783,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown organization, an organization of another account, or a tag the organization does not carry",
+                        "description": "Unknown organization, an organization of another account, or a tag the organization does not have (`tagAbsent`)",
                         "content": {
                             "application/json": {
                                 "schema": {

@@ -188,13 +188,14 @@ class TagsApiTest extends ApiTestCase
         $this->assertSame(['tags'], $this->violatedFields($problem));
     }
 
-    public function testATagNotCarriedIsNotFound(): void
+    public function testATagAbsentIsNotFound(): void
     {
         $organization = $this->anOrganization('ACME');
 
-        $this->requestJson('DELETE', '/api/organizations/'.$organization.'/tags/ESN');
+        $problem = $this->requestJson('DELETE', '/api/organizations/'.$organization.'/tags/ESN');
 
         $this->assertResponseStatusCodeSame(404);
+        $this->assertSame('tagAbsent', $problem['reason']);
     }
 
     public function testWhatTheAccountDoesNotKnowIsNotFound(): void
