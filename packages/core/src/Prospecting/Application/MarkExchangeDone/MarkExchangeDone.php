@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\MarkExchangeDone;
 
 /**
- * Marks done a planned exchange whose time has come, by its holder: the moment it really took place, and its
- * report, which replaces its agenda.
+ * The holder marks a planned exchange done once its time has come. The holder gives the moment it really took place
+ * and its report. The report replaces its agenda.
  */
 final readonly class MarkExchangeDone
 {
