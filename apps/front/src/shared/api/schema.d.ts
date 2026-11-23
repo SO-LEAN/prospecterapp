@@ -2323,7 +2323,7 @@ export interface components {
         };
         MyClockQuery: {
             /**
-             * @description The time zone of the reader, by its name in the database of the time zones; UTC otherwise
+             * @description The reader's time zone, by its name in the time zone database. UTC by default.
              * @default null
              * @example Europe/Paris
              */
@@ -2429,17 +2429,17 @@ export interface components {
         };
         ExternalLinkResource: {
             /**
-             * @description A known tool (linkedInProfile, linkedInCompany, malt, welcomeToTheJungle), or the host of the address without www
+             * @description A known tool (linkedInProfile, linkedInCompany, malt, welcomeToTheJungle), or the address's host without www
              * @example welcomeToTheJungle
              */
             source: string;
             /**
-             * @description What the link designates on its source, in lower case: what recognizes it
+             * @description What the link points to on its source, in lower case. It identifies the link.
              * @example acme
              */
             identifier: string;
             /**
-             * @description The address as it was pasted, https added when typed without its scheme: what opens it
+             * @description The address as it was pasted, with https added when it was typed without a scheme. It opens the link.
              * @example https://www.welcometothejungle.com/fr/companies/acme
              */
             address: string;
@@ -2509,7 +2509,7 @@ export interface components {
             propertyPath: string;
             title: string;
             /**
-             * @description The refusal of the business named, for a client to word it in its language (ADR 0073); absent for the violations of the input shape
+             * @description The business refusal's name, for the client to word in its language (ADR 0073). Absent for violations of the input's shape.
              * @default null
              * @example invalidPhoneNumber
              */
@@ -2534,7 +2534,7 @@ export interface components {
             /** @default about:blank */
             type: string;
             /**
-             * @description The refusal of the business named, for a client to word it in its language (ADR 0073)
+             * @description The business refusal's name, for the client to word in its language (ADR 0073)
              * @default null
              * @example unknownOrganization
              */
@@ -3125,13 +3125,13 @@ export interface components {
             url: string;
         };
         UploadResource: {
-            /** @description What the file is joined under once sent */
+            /** @description The name the file is attached under once it is sent */
             upload: string;
             url: string;
             fields: {
                 [key: string]: string;
             };
-            /** @description The heaviest file the form takes, in bytes */
+            /** @description The largest file the form accepts, in bytes */
             heaviest: number;
         };
         SignInLinksResource: {
@@ -9398,7 +9398,7 @@ export interface operations {
         parameters: {
             query?: {
                 /**
-                 * @description The time zone of the reader, by its name in the database of the time zones; UTC otherwise
+                 * @description The reader's time zone, by its name in the time zone database. UTC by default.
                  * @example Europe/Paris
                  */
                 timeZone?: string | null;
@@ -10295,7 +10295,7 @@ export interface operations {
         parameters: {
             query?: {
                 /**
-                 * @description The time zone of the reader, by its name in the database of the time zones; UTC otherwise
+                 * @description The reader's time zone, by its name in the time zone database. UTC by default.
                  * @example Europe/Paris
                  */
                 timeZone?: string | null;

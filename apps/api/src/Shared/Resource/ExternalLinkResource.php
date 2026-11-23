@@ -8,16 +8,16 @@ use OpenApi\Attributes as OA;
 use Prospecter\Core\SharedKernel\Application\ExternalLink;
 
 /**
- * A link of a person or an organization to a tool outside.
+ * A person's or an organization's link to an outside tool.
  */
 final readonly class ExternalLinkResource
 {
     public function __construct(
-        #[OA\Property(description: 'A known tool (linkedInProfile, linkedInCompany, malt, welcomeToTheJungle), or the host of the address without www', example: 'welcomeToTheJungle')]
+        #[OA\Property(description: 'A known tool (linkedInProfile, linkedInCompany, malt, welcomeToTheJungle), or the address\'s host without www', example: 'welcomeToTheJungle')]
         public string $source,
-        #[OA\Property(description: 'What the link designates on its source, in lower case: what recognizes it', example: 'acme')]
+        #[OA\Property(description: 'What the link points to on its source, in lower case. It identifies the link.', example: 'acme')]
         public string $identifier,
-        #[OA\Property(description: 'The address as it was pasted, https added when typed without its scheme: what opens it', example: 'https://www.welcometothejungle.com/fr/companies/acme')]
+        #[OA\Property(description: 'The address as it was pasted, with https added when it was typed without a scheme. It opens the link.', example: 'https://www.welcometothejungle.com/fr/companies/acme')]
         public string $address,
     ) {
     }
