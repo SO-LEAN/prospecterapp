@@ -10,7 +10,7 @@ use Prospecter\Core\SharedKernel\Application\OutputPort;
 interface RecognizeCallingOrganizationOutput extends OutputPort
 {
     /**
-     * @param list<OrganizationSheet> $organizations the organizations having the number
+     * @param list<OrganizationSheet> $organizations the organizations that have the number
      */
     public function present(array $organizations): void;
 }

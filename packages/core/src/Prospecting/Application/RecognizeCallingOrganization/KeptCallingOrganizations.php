@@ -7,7 +7,7 @@ namespace Prospecter\Core\Prospecting\Application\RecognizeCallingOrganization;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 
 /**
- * Keeps the answer as it is, for a client that reads it rather than shows it (ADR 0085).
+ * Keeps the answer as it is, for a client that reads it instead of showing it (ADR 0085).
  */
 final class KeptCallingOrganizations implements RecognizeCallingOrganizationOutput
 {
@@ -17,7 +17,7 @@ final class KeptCallingOrganizations implements RecognizeCallingOrganizationOutp
     public private(set) array $organizations;
 
     /**
-     * @param list<OrganizationSheet> $organizations the organizations having the number
+     * @param list<OrganizationSheet> $organizations the organizations that have the number
      */
     public function present(array $organizations): void
     {
