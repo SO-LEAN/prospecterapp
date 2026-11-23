@@ -20,9 +20,9 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Identifies who booked a host's slot (ADR 0164). It looks first for the account's contact who has their e-mail, then
- * for one who has their phone number. Otherwise, it collects a contact to attach for the host, as ADR 0146 says.
- * When the appointment is gone meanwhile, there is nothing to do.
+ * Identifies who booked a host's slot (ADR 0164, 0199). It looks for the account's contact who has their e-mail.
+ * Otherwise, it collects a contact to attach for the host from what they typed, as ADR 0146 says. When the appointment
+ * is gone meanwhile, there is nothing to do.
  */
 final readonly class IdentifyBookerHandler implements EventHandler
 {
@@ -47,14 +47,9 @@ final readonly class IdentifyBookerHandler implements EventHandler
         }
 
         $host = new MemberId($event->hostId);
-        $contact = $this->knownContact(new AccountId($event->accountId), $booker) ?? $this->collect($booker, $host, new PersonId($event->bookerId), $event->occurredAt);
+        $contact = $this->persons->contactWithEmail(new AccountId($event->accountId), $booker->email) ?? $this->collect($booker, $host, new PersonId($event->bookerId), $event->occurredAt);
         $contact->identifyAsBookerOf($event->appointmentId, $host, $event->occurredAt);
         $this->publishWhatHappenedTo($contact);
-    }
-
-    private function knownContact(AccountId $accountId, Booker $booker): ?Person
-    {
-        return $this->persons->contactWithEmail($accountId, $booker->email) ?? $this->persons->contactWithPhoneNumber($accountId, $booker->phoneNumber);
     }
 
     private function collect(Booker $booker, MemberId $host, PersonId $id, \DateTimeImmutable $at): Person
