@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\ConsultContactToAttach;
 
 /**
- * Whether the person waits for this prospector to attach them, and until when (ADR 0146): the banner of their page.
+ * Tells whether the person waits for this prospector to attach them, and until when (ADR 0146). Their page shows
+ * this in its banner.
  */
 final readonly class ConsultContactToAttach
 {

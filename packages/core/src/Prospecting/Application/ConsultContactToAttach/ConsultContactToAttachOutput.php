@@ -10,7 +10,7 @@ use Prospecter\Core\SharedKernel\Application\OutputPort;
 interface ConsultContactToAttachOutput extends OutputPort
 {
     /**
-     * @param ContactToAttachInList|null $contactToAttach none when the person waits for no attachment by the prospector
+     * @param ContactToAttachInList|null $contactToAttach none when the person does not wait for the prospector to attach them
      */
     public function present(?ContactToAttachInList $contactToAttach): void;
 }
