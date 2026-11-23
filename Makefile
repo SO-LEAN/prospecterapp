@@ -142,10 +142,10 @@ WITH_E2E_LOCK = { flock -n $(E2E_LOCK) true || echo "The journeys of another che
 # (make -C apps/api restore). It keeps the containers, the images, the relay's mappings, the bus rules and the buckets.
 # It starts from nothing with FRESH=1, when no stack runs, or when what defines the stack changed since it was made
 # (STACK_DEFINITION). It then starts the stack again (MiniStack without the memory a former run left it), deploys it and
-# recreates its data. Either way the figures are counted (two minutes, ADR 0106) while the journeys reading none run
+# recreates its data. Either way the figures are counted (five minutes, ADR 0106) while the journeys reading none run
 # together. Those running alone run once the others are done (ADR 0117), the main journey then the dashboard, one after
-# the other (ADR 0136), and not when one before failed: the first failure stops them (FAIL_FAST). The relay and the
-# worker are warmed, the console's gestures made and the geocoder doubled once for both. Each step prints how long it
+# the other (ADR 0136), and not when one before failed: the first failure stops them (FAIL_FAST). It warms the relay and
+# the worker, makes the console's gestures and doubles the geocoder once for both projects. Each step prints how long it
 # took, and so does the whole run
 FIGURES_LOG = $(ROOT)/.cache/reporting-rebuild.log
 STACK_RUNNING = $(shell $(DC) ps -q --status running nginx 2>/dev/null)
@@ -162,7 +162,7 @@ MAKE_THE_STACK = $(MAKE) stop && $(MAKE) deploy && $(MAKE) db FIGURES=later && e
 RESTORE_THE_STACK = echo "Giving the running stack its demonstration back (FRESH=1 starts from nothing)" \
 	&& $(call timed,Stack/API and storage deployed and reactions recycled,$(DC) --progress quiet run --rm --build lambda-deploy apps) \
 	&& $(MAKE) -C apps/api restore FIGURES=later
-check-e2e: ## Run the journeys on the stack of this worktree, its demonstration given back first, stopping at the first failure; FRESH=1 (or no stack running, or a change of what defines it): started again, deployed and its data recreated first (ADR 0117, 0121, 0205)
+check-e2e: ## Run the journeys on this worktree's stack after giving it the demonstration back, stopping at the first failure. FRESH=1, no running stack or a change of what defines it starts the stack again, deploys it and recreates its data first (ADR 0117, 0121, 0205)
 	@test -n "$(IN_WORKTREE)" || { echo "check-e2e recreates the data of the stack: in a worktree only; make e2e on the running stack"; exit 1; }
 	@$(WITH_E2E_LOCK) $(MAKE) check-e2e-locked FROM_NOTHING=$(FROM_NOTHING)
 
