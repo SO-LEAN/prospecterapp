@@ -7,7 +7,7 @@ namespace Prospecter\Core\Campaigns\Application\TakeOffTag;
 final readonly class TakeOffTag
 {
     /**
-     * @param string $holder the kind of what is tagged: `organization` or `contact`
+     * @param string $holder what kind of holder is tagged: `organization` or `contact`
      */
     public function __construct(
         public string $memberId,
