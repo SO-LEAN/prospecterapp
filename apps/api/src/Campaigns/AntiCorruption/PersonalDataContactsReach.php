@@ -15,8 +15,8 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Anticorruption layer (ADR 0045, 0089, 0141): the facts PersonalData gives again, slice
- * after slice, in the words of Campaigns.
+ * Anticorruption layer (ADR 0045, 0089, 0141): the facts that PersonalData gives again, one slice after another, in
+ * Campaigns' words.
  */
 final readonly class PersonalDataContactsReach implements ContactsReach
 {

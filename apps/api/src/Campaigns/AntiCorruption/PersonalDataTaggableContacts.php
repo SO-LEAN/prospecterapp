@@ -12,8 +12,8 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Anticorruption layer (ADR 0045, 0089): Campaigns tags the persons PersonalData says
- * are contacts of an account, asked about a set.
+ * Anticorruption layer (ADR 0045, 0089). Campaigns tags the people that PersonalData says are contacts of an account.
+ * It asks about a set.
  */
 final readonly class PersonalDataTaggableContacts implements TaggableContacts
 {

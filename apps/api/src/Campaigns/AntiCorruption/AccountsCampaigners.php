@@ -13,8 +13,8 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * Anticorruption layer (ADR 0045, 0089, 0144): Campaigns knows the account of a member who runs campaigns from
- * Accounts, asked about a set of one.
+ * Anticorruption layer (ADR 0045, 0089, 0144). Campaigns learns from Accounts the account of a member who runs
+ * campaigns. It asks about a set of one.
  */
 final readonly class AccountsCampaigners implements Campaigners
 {
