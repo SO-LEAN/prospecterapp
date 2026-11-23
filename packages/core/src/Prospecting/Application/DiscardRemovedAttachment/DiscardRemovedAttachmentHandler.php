@@ -9,8 +9,8 @@ use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\PrivateStorage;
 
 /**
- * The file of an attachment leaves the private storage once its removal is written, never before: a gesture that
- * fails keeps its attachment whole. Delivered again, it removes nothing more.
+ * Removes an attachment's file from the private storage once the removal is written, never before. So a gesture
+ * that fails keeps its attachment whole. When the event is delivered again, it removes nothing more.
  */
 final readonly class DiscardRemovedAttachmentHandler implements EventHandler
 {
