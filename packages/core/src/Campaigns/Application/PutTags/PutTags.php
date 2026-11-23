@@ -7,7 +7,7 @@ namespace Prospecter\Core\Campaigns\Application\PutTags;
 final readonly class PutTags
 {
     /**
-     * @param string       $holder the kind of what is tagged: `organization` or `contact`
+     * @param string       $holder what kind of holder is tagged: `organization` or `contact`
      * @param list<string> $tags   as the member typed them
      */
     public function __construct(
