@@ -13,9 +13,7 @@ use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
-/**
- * A member of the team keeps the contacts a draft campaign targets now as its recipients, for good.
- */
+/** A team member freezes a draft campaign. The contacts it targets now become its recipients for good. */
 final readonly class FreezeCampaignHandler implements CommandHandler
 {
     use PublishesEvents;
