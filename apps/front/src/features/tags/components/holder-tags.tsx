@@ -11,12 +11,15 @@ import { TagsLine } from './tags-line'
 
 const MARK = '#'
 
-/** A tag is taken off by its name without its mark, as its route names it. */
+/** A tag is taken off by its name without its `#`, as its route names it. */
 const nameOf = (tag: string) => (tag.startsWith(MARK) ? tag.slice(MARK.length) : tag)
 
 const namesOf = (tags: Tags) => tags.tags.map((tag) => tag.name)
 
-/** The tags of an organization, on its card: those put by hand, then those of where it is, deduced from its address. */
+/**
+ * An organization's tags, on its card: the tags put by hand, then the tags for where it is, deduced from its
+ * address.
+ */
 export function OrganizationTags({ organizationId }: { organizationId: string }) {
   const { t } = useTranslation()
   const { data } = useQuery(organizationTagsQuery(organizationId))
@@ -37,8 +40,8 @@ export function OrganizationTags({ organizationId }: { organizationId: string })
 }
 
 /**
- * The tags of a contact, on their card: its own, then those it inherits, named after the organizations it works for,
- * given by the route, and the automatic ones.
+ * A contact's tags, on their card: their own tags, then the tags they inherit, and the automatic tags. Each
+ * inherited tag names the organizations the contact works for, which the route gives.
  */
 export function ContactTags({
   contactId,

@@ -11,8 +11,9 @@ type Props = {
 }
 
 /**
- * A tag the member does not take off, saying where it comes from on hover and on focus: inherited from
- * organizations, or set automatically, which looks apart (ADR 0141); pressed, it opens the contacts carrying it.
+ * A tag that the member does not take off. On hover and on focus, it says where it comes from: inherited from
+ * organizations, or set automatically, which looks different (ADR 0141). Pressing it opens the contacts that
+ * carry it.
  */
 export function ExplainedTag({ tag, explanation, automatic = false }: Props) {
   return (
