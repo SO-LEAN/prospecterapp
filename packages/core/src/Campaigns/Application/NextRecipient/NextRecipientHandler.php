@@ -13,11 +13,11 @@ use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * Asks the campaign itself, restored by its repository, as `RenderCampaignMessage` does: its next recipient and its
- * message are rules of the aggregate. Read again at each call, a recipient handled meanwhile on the screen is no
- * longer the next; nor is one Prospecting noted an exchange of the campaign with, before its reaction processes them
- * (ADR 0195). Its daily cap reached on the member's clock, the recipient is still given, with the warning: a guard
- * only.
+ * Asks the campaign itself, restored by its repository, as `RenderCampaignMessage` does. Its next recipient and its
+ * message are the aggregate's rules. The campaign is read again at each call, so a recipient handled meanwhile on the
+ * screen is no longer the next one. Neither is a recipient that Prospecting logged an exchange of the campaign with
+ * before its reaction processes them (ADR 0195). Once the daily cap is reached on the member's clock, the recipient is
+ * still given, with a warning: the cap is only a guard.
  */
 final readonly class NextRecipientHandler implements QueryHandler
 {
