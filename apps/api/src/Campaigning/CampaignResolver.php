@@ -16,8 +16,8 @@ use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 
 /**
- * The campaign of the route, read in the account of the signed-in member, for its voter (ADR 0081): one of another
- * account is unknown there. Its voter reads no figure of the day: any clock does.
+ * Reads the route's campaign in the signed-in member's account, for its voter (ADR 0081). Another account's campaign is
+ * unknown there. The voter reads none of the day's figures, so any clock will do.
  */
 final readonly class CampaignResolver implements ValueResolverInterface
 {
@@ -41,9 +41,7 @@ final readonly class CampaignResolver implements ValueResolverInterface
         return [$this->read($member, $request->attributes->getString('id'))];
     }
 
-    /**
-     * The campaign of this id in the account of the member; one of another account refused by the core as unknown.
-     */
+    /** The campaign with this id in the member's account. The core refuses another account's campaign as unknown. */
     public function read(User $member, string $id): CampaignSheet
     {
         $kept = new KeptCampaign();

@@ -8,7 +8,7 @@ use App\Security\AccountResourceVoter;
 use Prospecter\Core\Campaigns\Application\CampaignSheet;
 
 /**
- * Whether the signed-in member reaches a campaign: one of their account (ADR 0081, 0144).
+ * Whether the signed-in member can reach a campaign: it must belong to their account (ADR 0081, 0144).
  *
  * @extends AccountResourceVoter<CampaignSheet>
  */

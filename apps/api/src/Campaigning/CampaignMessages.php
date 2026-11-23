@@ -9,9 +9,7 @@ use Prospecter\Core\Campaigns\Application\RenderCampaignMessage\KeptCampaignMess
 use Prospecter\Core\Campaigns\Application\RenderCampaignMessage\RenderCampaignMessage;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 
-/**
- * The message of a campaign, rendered by the core for one of its contacts.
- */
+/** A campaign's message, which the core renders for one of its contacts. */
 final readonly class CampaignMessages
 {
     public function __construct(private QueryHandler $renderCampaignMessage)

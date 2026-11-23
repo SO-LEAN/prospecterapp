@@ -24,8 +24,8 @@ use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Symfony\Component\Clock\ClockInterface;
 
 /**
- * The campaigns of the team composed of three contexts: Campaigns keeps them and counts their targets, Accounts gives
- * the person of each author, PersonalData names them, in one batch each.
+ * Composes the team's campaigns from three contexts, in one batch each. Campaigns keeps the campaigns and counts their
+ * targets. Accounts gives each author's person, and PersonalData names them.
  */
 final readonly class CampaignReader
 {
@@ -43,7 +43,7 @@ final readonly class CampaignReader
     }
 
     /**
-     * @param ?string $timeZone the reader's clock, which the recipients processed today are counted on; UTC otherwise
+     * @param ?string $timeZone the reader's clock, on which the recipients processed today are counted; UTC when null
      */
     public function read(string $reader, string $id, ?string $timeZone = null): CampaignResource
     {
@@ -69,7 +69,7 @@ final readonly class CampaignReader
     /**
      * @param list<CampaignSheet> $campaigns
      *
-     * @return array<string, PersonCard> the person of each author PersonalData reads, by member id
+     * @return array<string, PersonCard> each author's person that PersonalData reads, by member id
      */
     private function authorsOf(string $reader, array $campaigns): array
     {

@@ -23,12 +23,12 @@ use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 
 /**
- * The recipients of a frozen campaign composed of three contexts: Campaigns keeps them by their identities,
- * PersonalData reads them, Prospecting tells the organizations of each and Campaigns the tags each carries, in one
- * batch each, as the search by tags shows its contacts. A recipient PersonalData no longer reads is left out, but one
- * a started campaign keeps erased, shown without its contact, with what the team did with them. A recipient to handle
- * of a started campaign links the exchange to note for them and their dismissal (ADR 0145); one processed, the
- * exchange noted for them (ADR 0152).
+ * Composes a frozen campaign's recipients from three contexts, in one batch each, as the tag search shows its contacts.
+ * Campaigns keeps the recipients by id, and PersonalData reads them. Prospecting gives each recipient's organizations,
+ * and Campaigns gives the tags each one carries. A recipient that PersonalData no longer reads is left out. The
+ * exception is a recipient that a started campaign keeps as erased: it is shown without its contact, with what the team
+ * did with them. In a started campaign, a recipient to handle links to the exchange to log for them and to their
+ * dismissal (ADR 0145). A processed recipient links to the exchange logged for them (ADR 0152).
  */
 final readonly class RecipientsReader
 {
@@ -85,7 +85,7 @@ final readonly class RecipientsReader
     /**
      * @param list<string> $contactIds
      *
-     * @return array<string, PersonCard> those PersonalData reads, by identity
+     * @return array<string, PersonCard> the people that PersonalData reads, by id
      */
     private function personsOf(string $reader, array $contactIds): array
     {
