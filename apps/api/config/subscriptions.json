@@ -59,7 +59,7 @@
     "context": "personal-data",
     "sources": ["prospecter.personal-data.internal"],
     "events": ["DuplicateSuspicionDismissed.v1"],
-    "handler": "Prospecter\\Core\\PersonalData\\Application\\DismissSuspicionInReturn\\DismissSuspicionInReturnHandler",
+    "policy": "Prospecter\\Core\\PersonalData\\Application\\Policy\\DismissSuspicionInReturnPolicy",
     "inbox": true
   },
   "prospecting-attach-collected-contact": {
