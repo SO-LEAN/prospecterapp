@@ -38,7 +38,7 @@
     "context": "personal-data",
     "sources": ["prospecter.prospecting"],
     "events": ["ContactsLeftWithoutOrganization.v1"],
-    "handler": "Prospecter\\Core\\PersonalData\\Application\\ForgetContactsLeftWithoutOrganization\\ForgetContactsLeftWithoutOrganizationHandler",
+    "policy": "Prospecter\\Core\\PersonalData\\Application\\Policy\\ForgetContactsLeftWithoutOrganizationPolicy",
     "inbox": true
   },
   "personal-data-suspect-duplicate-in-return": {
