@@ -4,7 +4,7 @@ import { CircleAlert } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { connectionsQuery, isAnyToReconnect } from '../queries'
 
-/** A discreet line above every page while a provider refuses the access of one of my connections. */
+/** A discreet line above every page while a provider refuses one of my connections' access. */
 export function ReconnectBanner() {
   const { t } = useTranslation()
   const { data: connections } = useQuery(connectionsQuery())

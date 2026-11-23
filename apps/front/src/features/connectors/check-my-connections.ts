@@ -2,15 +2,15 @@ import type { QueryClient } from '@tanstack/react-query'
 import { isProblem } from '@/shared/api/problem'
 import { checkedConnectionsQuery, connectionsQuery } from './queries'
 
-/** What the check of my connections could tell: Google out of reach leaves them as last seen. */
+/** What checking my connections can tell. When Google is out of reach, they stay as last seen. */
 export type ConnectionsCheck = 'checked' | 'googleUnreachable'
 
 const isGoogleUnreachable = (failure: unknown) => isProblem(failure) && failure.reason === 'googleUnreachable'
 
 /**
- * Asks each provider whether it still grants the access of my connection, as the page of the connectors opens, then
- * keeps what they answered as the state the banner of the app reads (ADR 0120). While Google does not answer, my
- * connections are read as last seen, so that the section still shows them and lets me disconnect.
+ * Asks each provider whether it still grants my connection's access when the connectors page opens. Then it keeps their
+ * answers as the state that the app's banner reads (ADR 0120). While Google does not answer, my connections are read as
+ * last seen. So the section still shows them and lets me disconnect.
  */
 export async function checkMyConnections(queryClient: QueryClient): Promise<ConnectionsCheck> {
   try {
