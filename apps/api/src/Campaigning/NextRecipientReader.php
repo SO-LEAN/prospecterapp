@@ -23,10 +23,10 @@ use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Symfony\Component\Clock\ClockInterface;
 
 /**
- * The next recipient of a campaign composed of three contexts, as the recipients are (`RecipientsReader`): Campaigns
- * gives them by their identity and renders their message, PersonalData reads how they are reached, Prospecting and
- * Campaigns tell their organizations and their tags. What the AI does with the message is worded for it here, from
- * the mode the core answers: Prospecter sends nothing (ADR 0144).
+ * Composes a campaign's next recipient from three contexts, as `RecipientsReader` composes the recipients. Campaigns
+ * gives the recipient by id and renders their message. PersonalData reads how they are reached. Prospecting and
+ * Campaigns give their organizations and tags. This class words for the AI what to do with the message, from the mode
+ * the core returns. Prospecter sends nothing (ADR 0144).
  */
 final readonly class NextRecipientReader
 {
@@ -50,7 +50,7 @@ final readonly class NextRecipientReader
     }
 
     /**
-     * @param ?string $timeZone the member's clock, which the day of the daily cap is on; UTC otherwise
+     * @param ?string $timeZone the member's clock, on which the daily cap's day is counted; UTC when null
      */
     public function read(string $reader, string $campaignId, ?string $timeZone = null): NextRecipientResource
     {
@@ -93,9 +93,7 @@ final readonly class NextRecipientReader
         );
     }
 
-    /**
-     * A recipient to handle is a contact PersonalData reads to the member managing the personal data.
-     */
+    /** A recipient to handle is a contact that PersonalData shows to the member who manages personal data. */
     private function personOf(string $reader, string $contactId): PersonCard
     {
         $kept = new KeptPersons();

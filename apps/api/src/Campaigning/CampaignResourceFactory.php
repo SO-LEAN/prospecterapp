@@ -17,8 +17,9 @@ use Prospecter\Core\Campaigns\Application\CampaignSheet;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 
 /**
- * A campaign as the API answers it, its links those its state offers, every one needing the right to manage personal
- * data (ADR 0081, 0144); its target, the search by its targeted tags while a draft, its recipients once frozen.
+ * A campaign as the API returns it (ADR 0081, 0144). Its links are those its state allows, and each one needs the right
+ * to manage personal data. A draft links to its target, the search by its targeted tags. A frozen campaign links to its
+ * recipients.
  */
 final readonly class CampaignResourceFactory
 {
@@ -42,7 +43,7 @@ final readonly class CampaignResourceFactory
     }
 
     /**
-     * @param ?int $processedToday its recipients processed on the reader's day, read with the campaign alone
+     * @param ?int $processedToday its recipients processed on the reader's day, set only when the campaign is read alone
      */
     public function of(CampaignSheet $campaign, int $targeted, ?PersonCard $author, ?int $processedToday = null): CampaignResource
     {
