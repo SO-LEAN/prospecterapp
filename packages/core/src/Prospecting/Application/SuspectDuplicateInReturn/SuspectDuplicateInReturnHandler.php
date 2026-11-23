@@ -12,8 +12,8 @@ use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 
 /**
- * The organization a newcomer resembles is suspected of being its duplicate in return. No longer prospected
- * meanwhile, the reaction has nothing left to do; suspecting it already, the organization records nothing.
+ * The organization that a newcomer resembles is suspected in return of being its duplicate. When the organization is
+ * no longer prospected, the reaction has nothing left to do. When it already suspects the newcomer, it records nothing.
  */
 final readonly class SuspectDuplicateInReturnHandler implements EventHandler
 {
