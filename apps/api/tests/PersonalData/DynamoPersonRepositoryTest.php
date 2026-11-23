@@ -30,7 +30,6 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\Origin;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
-use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 use Tests\App\Base\ApiTestCase;
 
 /**
@@ -175,29 +174,6 @@ class DynamoPersonRepositoryTest extends ApiTestCase
         $this->assertNull($this->persons()->contactWithEmail($account, new Email('grace@solean-it.io')));
     }
 
-    public function testAContactIsFoundByThePhoneNumber(): void
-    {
-        $account = new AccountId(self::newIdentity());
-        $this->persons()->save($ada = $this->personWithThePhoneNumber($account, '06 12 34 56 78'));
-
-        $this->assertSame($ada->id()->value, $this->persons()->contactWithPhoneNumber($account, PhoneNumber::of('+33612345678'))?->id()->value);
-    }
-
-    public function testNoContactOfAnotherAccountIsFoundByThePhoneNumber(): void
-    {
-        $this->persons()->save($this->personWithThePhoneNumber(new AccountId(self::newIdentity()), '06 12 34 56 78'));
-
-        $this->assertNull($this->persons()->contactWithPhoneNumber(new AccountId(self::newIdentity()), PhoneNumber::of('+33612345678')));
-    }
-
-    public function testNoContactIsFoundByAnotherPhoneNumber(): void
-    {
-        $account = new AccountId(self::newIdentity());
-        $this->persons()->save($this->personWithThePhoneNumber($account, '06 12 34 56 78'));
-
-        $this->assertNull($this->persons()->contactWithPhoneNumber($account, PhoneNumber::of('+33698765432')));
-    }
-
     public function testTheContactsResemblingAnotherAreFoundByTheirKey(): void
     {
         $account = new AccountId(self::newIdentity());
@@ -335,11 +311,6 @@ class DynamoPersonRepositoryTest extends ApiTestCase
     private function persons(): PersonRepository
     {
         return self::service(PersonRepository::class);
-    }
-
-    private function personWithThePhoneNumber(AccountId $account, string $phoneNumber): Person
-    {
-        return Person::collect(new Gesture($account, new MemberId(self::newIdentity()), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)), new PersonId(self::newIdentity()), Purpose::Prospecting, new ContactCard(contactDetails: new ContactDetails(phoneNumber: PhoneNumber::of($phoneNumber))));
     }
 
     private function personalDataTable(): Table

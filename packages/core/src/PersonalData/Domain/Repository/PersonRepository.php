@@ -14,7 +14,6 @@ use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
 use Prospecter\Core\SharedKernel\Domain\ExternalReference;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
-use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 interface PersonRepository
 {
@@ -64,11 +63,6 @@ interface PersonRepository
      * The account's contact who has this e-mail, if any.
      */
     public function contactWithEmail(AccountId $accountId, Email $email): ?Person;
-
-    /**
-     * One of the account's contacts who has this phone number, if any.
-     */
-    public function contactWithPhoneNumber(AccountId $accountId, PhoneNumber $phoneNumber): ?Person;
 
     /**
      * @throws EmailAlreadyUsed        when another person took the email meanwhile (EmailUniqueness checked it before)

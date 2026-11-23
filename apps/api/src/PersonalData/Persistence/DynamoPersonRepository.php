@@ -20,7 +20,6 @@ use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
 use Prospecter\Core\SharedKernel\Domain\ExternalReference;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
-use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 /**
  * The persons in PersonalData's table (ADR 0048):
@@ -115,14 +114,6 @@ final readonly class DynamoPersonRepository implements PersonRepository
         $holder = Typed::stringOrNull($this->personalDataTable->item(self::emailKey($accountId, Purpose::Prospecting, $email->value), self::EMAIL)['ownerId'] ?? null);
 
         return null === $holder ? null : $this->get(new PersonId($holder));
-    }
-
-    public function contactWithPhoneNumber(AccountId $accountId, PhoneNumber $phoneNumber): ?Person
-    {
-        $key = SearchIndexes::withPhoneNumber($this->personalDataTable, PersonalDataKeys::scopeOf($accountId, Purpose::Prospecting), $phoneNumber)[0] ?? null;
-        $item = null === $key ? null : $this->personalDataTable->item($key, PersonalDataKeys::PERSON);
-
-        return null === $item ? null : PersonDocument::person($item['person']);
     }
 
     public function contactHoldingReference(AccountId $accountId, ExternalReference $reference, PersonId $except): ?Person
