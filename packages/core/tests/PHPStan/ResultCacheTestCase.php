@@ -49,15 +49,17 @@ abstract class ResultCacheTestCase extends TestCase
     }
 
     /**
-     * @return list<string> the files PHPStan refuses
+     * @return list<string> the files PHPStan refuses, in alphabetical order
      */
     protected function analyse(): array
     {
         exec(\sprintf('php %s analyse --configuration=%s --no-progress --error-format=json 2>/dev/null', escapeshellarg(self::PHPSTAN), escapeshellarg($this->project.'/phpstan.neon')), $output);
         $result = json_decode(implode('', $output), true, flags: \JSON_THROW_ON_ERROR);
         \assert(\is_array($result) && \is_array($result['files']));
+        $refused = array_map(basename(...), array_keys($result['files']));
+        sort($refused);
 
-        return array_map(basename(...), array_keys($result['files']));
+        return $refused;
     }
 
     private function copyToTheProject(string $fixture): void
