@@ -10,7 +10,8 @@ use Prospecter\Core\Booking\Application\Port\MyBookingPageRetriever;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * The booking page of a host read from its item, without restoring it (ADR 0088); closed and empty when never set.
+ * Reads a host's booking page from its item, without restoring it (ADR 0088). A page that was never set up is closed
+ * and empty.
  */
 final readonly class DynamoMyBookingPageRetriever implements MyBookingPageRetriever
 {

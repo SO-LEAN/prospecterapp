@@ -10,7 +10,7 @@ use Prospecter\Core\Booking\Application\ConsultPublicBookingPage\BookingSchedule
 use Prospecter\Core\Booking\Application\Port\PublicBookingPageRetriever;
 
 /**
- * The page a code leads to: the link of the code to its host, then the page of that host (ADR 0151).
+ * Finds the page that a code leads to: first the code's link to its host, then that host's page (ADR 0151).
  */
 final readonly class DynamoPublicBookingPageRetriever implements PublicBookingPageRetriever
 {

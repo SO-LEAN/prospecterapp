@@ -12,7 +12,7 @@ use Prospecter\Core\Booking\Application\PublicBookingPage;
 use Prospecter\Core\Booking\Application\PublicHost;
 
 /**
- * Presents a booking page as anyone holding its link reads it, an object of the call (ADR 0085).
+ * Presents a booking page as anyone with its link reads it, as a per-call object (ADR 0085).
  */
 final class PublicBookingPageResourcePresenter implements ConsultPublicBookingPageOutput
 {

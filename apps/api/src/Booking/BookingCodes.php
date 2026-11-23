@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Booking;
 
 /**
- * Draws the code of a public link (ADR 0148, 0151): 22 characters of base 62, each drawn by the cryptographic
- * generator of PHP, some 131 bits, nothing of the host in it.
+ * Draws a public link's code (ADR 0148, 0151): 22 base-62 characters, each drawn by PHP's cryptographic generator. That
+ * gives about 131 bits, with nothing from the host in it.
  */
 final readonly class BookingCodes
 {

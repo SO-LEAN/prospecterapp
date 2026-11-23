@@ -23,7 +23,7 @@ final readonly class ChangeBookingLinkTool
     /**
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'set-booking-link', description: 'Give the booking page of the member a new public link, the former one leading nowhere any more. Answers the booking page.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'set-booking-link', description: 'Give the member\'s booking page a new public link. The former link leads nowhere any more. Returns the booking page.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
     public function __invoke(): array
     {
         return $this->writes->change(

@@ -21,18 +21,18 @@ final readonly class OfferChannelsTool
     }
 
     /**
-     * @param list<string> $channels how the member may be booked: call, videoCall, or both
+     * @param list<string> $channels how bookers can meet the member: call, videoCall, or both
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'set-booking-channels', description: 'Set how the member may be booked on their booking page, by call, by video call or both, given whole. Answers the booking page.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
+    #[McpTool(name: 'set-booking-channels', description: 'Set how bookers can meet the member through their booking page: by call, by video call, or both. The list replaces the current one. Returns the booking page.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
     public function __invoke(array $channels): array
     {
         return $this->writes->write(
             new ChannelsInput($channels),
             static fn (ChannelsInput $input, string $memberId, \DateTimeImmutable $now): OfferChannels => new OfferChannels(
                 memberId: $memberId,
-                channels: $input->channels ?? throw new \LogicException('Channels validated are given'),
+                channels: $input->channels ?? throw new \LogicException('Validated channels are given'),
                 executedAt: $now,
             ),
         );

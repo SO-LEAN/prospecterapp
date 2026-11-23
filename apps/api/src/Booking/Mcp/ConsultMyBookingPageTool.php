@@ -28,11 +28,11 @@ final readonly class ConsultMyBookingPageTool
     }
 
     /**
-     * @param ?string $timeZone the time zone of the member, by its name (Europe/Paris); UTC otherwise
+     * @param ?string $timeZone the member's time zone, by its name (Europe/Paris), UTC by default
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'get-my-booking-page', description: 'The booking page of the member: open or not, its public link, its slots by day, its inactive periods, its channels.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'get-my-booking-page', description: 'Get the member\'s booking page: whether it is open, its public link, its slots by day, its inactive periods and its channels.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(?string $timeZone = null): array
     {
         $this->access->denyUnlessGranted('ROLE_USER');
