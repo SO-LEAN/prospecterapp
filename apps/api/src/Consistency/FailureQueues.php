@@ -8,9 +8,10 @@ use App\Shared\Typed;
 use Aws\Sqs\SqsClient;
 
 /**
- * The queues of SQS keeping what failed between the contexts: the events the worker could not apply, given again by
- * app:integration:redrive, and the batches the relay could not publish, of which it keeps only the metadata, published
- * again from the outbox by app:outbox:republish. A message waiting there is a reaction missed, received or not.
+ * The SQS queues that keep what failed between the contexts. One keeps the events the worker could not apply, and
+ * app:integration:redrive gives them again. The other keeps the batches the relay could not publish, with their
+ * metadata only, and app:outbox:republish publishes them again from the outbox. A message waiting there is a missed
+ * reaction, whether it was received or not.
  */
 final readonly class FailureQueues
 {

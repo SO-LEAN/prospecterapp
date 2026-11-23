@@ -10,16 +10,16 @@ use App\Shared\Persistence\Documents;
 use App\Shared\Typed;
 
 /**
- * The figures of each account counted again from the tables of Accounts, PersonalData and Prospecting, against those
- * Reporting keeps in its active version: its organizations, those placed on the map, its contacts, its exchanges that
- * took place, done or missed, and those of each month.
+ * Counts each account's figures again from the Accounts, PersonalData and Prospecting tables, and compares them with
+ * the figures that Reporting keeps in its active version. The figures are the account's organizations, those placed on
+ * the map, its contacts, and its exchanges that took place, done or missed, overall and by month.
  */
 final readonly class FiguresAgainstTheTables
 {
     private const string ACTIVE_ORGANIZATIONS = 'activeOrganizations';
     private const string LOCATED_ORGANIZATIONS = 'locatedOrganizations';
     private const string CONTACTS = 'contacts';
-    /** a month as Reporting counts it, of a moment stored in UTC */
+    /** A month as Reporting counts it, from a moment stored in UTC. */
     private const string MONTH = 'Y-m';
     private const array FIGURES_OF_THE_TOTAL = [self::ACTIVE_ORGANIZATIONS, self::LOCATED_ORGANIZATIONS, self::CONTACTS, ReportingKeys::EXCHANGES];
 
@@ -75,7 +75,7 @@ final readonly class FiguresAgainstTheTables
     /**
      * @param array<array<string, mixed>> $exchanges their documents
      *
-     * @return array<string, int> by figure of a month
+     * @return array<string, int> by a month's figure
      */
     private static function exchangesByMonth(array $exchanges): array
     {

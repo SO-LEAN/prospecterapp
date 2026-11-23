@@ -10,15 +10,21 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * Checks the result rather than watching the failures, on demand, reading only: the figures of Reporting counted again
- * from the tables of the other contexts, what the reactions between the contexts should have written, the facts the
- * tags of the contacts derive from (ADR 0141), the keys listing
- * the accounts and the exchanges of each, the exchanges to come in the calendars of their holders connected to a
- * provider (ADR 0133), the contacts noting the same link, and the queues of the failures. Lists each discrepancy with its account, what
- * it concerns and the command correcting it, those of the lists first, their keys written before the figures are counted
- * again, and fails when there is one (ADR 0105).
+ * Checks the result on demand, rather than watching the failures, and only reads. It checks:
+ *
+ * - Reporting's figures, counted again from the other contexts' tables.
+ * - What the reactions between the contexts should have written.
+ * - The facts that the contacts' tags derive from (ADR 0141).
+ * - The keys that list the accounts, and each account's exchanges.
+ * - The upcoming exchanges in the calendars of their holders connected to a provider (ADR 0133).
+ * - The contacts that hold the same link.
+ * - The failure queues.
+ *
+ * It lists each discrepancy with its account, what it is about and the command that corrects it. The lists'
+ * discrepancies come first, because their keys must be written before the figures are counted again. It fails when it
+ * finds one (ADR 0105).
  */
-#[AsCommand(name: 'app:consistency:check', description: 'Check that the figures, the reactions between the contexts and the lists of the items agree with the tables, and that no failure waits')]
+#[AsCommand(name: 'app:consistency:check', description: 'Check that the figures, the reactions between the contexts and the item lists agree with the tables, and that no failure waits')]
 final readonly class CheckConsistencyCommand
 {
     private const array COLUMNS = ['Account', 'Concerns', 'Discrepancy', 'Corrected by'];
@@ -35,7 +41,7 @@ final readonly class CheckConsistencyCommand
     ) {
     }
 
-    public function __invoke(SymfonyStyle $io, #[Option(description: 'The id of the only account to check (the queues of the failures are checked whatever it is)')] ?string $account = null): int
+    public function __invoke(SymfonyStyle $io, #[Option(description: 'The id of the only account to check (the failure queues are checked in any case)')] ?string $account = null): int
     {
         if (null !== $account && !$this->tables->isAnAccount($account)) {
             $io->error(sprintf('No account %s.', $account));
