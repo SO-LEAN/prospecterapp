@@ -10,7 +10,7 @@ use Prospecter\Core\SharedKernel\Application\OutputPort;
 interface ConsultCampaignOutput extends OutputPort
 {
     /**
-     * @param int $targeted       the contacts it targets now
+     * @param int $targeted       the count of contacts it targets now
      * @param int $processedToday its recipients processed today, on the member's clock
      */
     public function present(CampaignSheet $campaign, int $targeted, int $processedToday): void;
