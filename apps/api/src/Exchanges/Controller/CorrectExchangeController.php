@@ -11,13 +11,13 @@ use App\Exchanges\Resource\ExchangeDetailResource;
 use App\Prospecting\Persistence\ExchangeRevisions;
 use App\Security\User;
 use App\Shared\CommandBus;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use App\Shared\Resource\RevisionDescription;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
 use Prospecter\Core\Prospecting\Application\CorrectExchange\CorrectExchange;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
@@ -29,13 +29,14 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('Contacts')]
 #[IsGranted('ROLE_PROSPECTOR')]
-final class CorrectExchangeController extends AbstractController
+final readonly class CorrectExchangeController
 {
     public function __construct(
-        private readonly CommandBus $commandBus,
-        private readonly ClockInterface $clock,
-        private readonly ExchangeReader $exchangeReader,
-        private readonly ExchangeRevisions $revisions,
+        private CommandBus $commandBus,
+        private ClockInterface $clock,
+        private ExchangeReader $exchangeReader,
+        private ExchangeRevisions $revisions,
+        private JsonResponses $jsonResponses,
     ) {
     }
 
@@ -64,6 +65,6 @@ final class CorrectExchangeController extends AbstractController
             madeConform: $input->redacted,
         ), $this->revisions->readAt($exchange->id, $revision));
 
-        return $this->json($this->exchangeReader->read($user->memberId(), $exchange->id));
+        return $this->jsonResponses->of($this->exchangeReader->read($user->memberId(), $exchange->id));
     }
 }

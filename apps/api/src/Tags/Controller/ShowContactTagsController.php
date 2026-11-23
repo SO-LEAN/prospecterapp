@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace App\Tags\Controller;
 
 use App\Security\User;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use App\Tags\ContactTagsReader;
 use App\Tags\Resource\ContactTagsResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
@@ -19,9 +19,9 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('Tags')]
 #[IsGranted('ROLE_PROSPECTOR')]
-final class ShowContactTagsController extends AbstractController
+final readonly class ShowContactTagsController
 {
-    public function __construct(private readonly ContactTagsReader $contactTagsReader)
+    public function __construct(private ContactTagsReader $contactTagsReader, private JsonResponses $jsonResponses)
     {
     }
 
@@ -33,6 +33,6 @@ final class ShowContactTagsController extends AbstractController
     #[OA\Response(response: 404, description: 'Not a contact of my account (`unknownContact`)', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $id, #[CurrentUser] User $user): JsonResponse
     {
-        return $this->json($this->contactTagsReader->read($user->memberId(), $id));
+        return $this->jsonResponses->of($this->contactTagsReader->read($user->memberId(), $id));
     }
 }

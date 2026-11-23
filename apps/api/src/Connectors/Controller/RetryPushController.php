@@ -9,12 +9,12 @@ use App\Connectors\Resource\ExchangeSyncResource;
 use App\Exchanges\ExchangeVoter;
 use App\Security\User;
 use App\Shared\CommandBus;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Connectors\Application\RetryPush\RetryPush;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -24,12 +24,13 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('Connectors')]
 #[IsGranted('ROLE_PROSPECTOR')]
-final class RetryPushController extends AbstractController
+final readonly class RetryPushController
 {
     public function __construct(
-        private readonly CommandBus $commandBus,
-        private readonly ClockInterface $clock,
-        private readonly ExchangeSyncReader $exchangeSyncReader,
+        private CommandBus $commandBus,
+        private ClockInterface $clock,
+        private ExchangeSyncReader $exchangeSyncReader,
+        private JsonResponses $jsonResponses,
     ) {
     }
 
@@ -44,6 +45,6 @@ final class RetryPushController extends AbstractController
     {
         $this->commandBus->dispatch(new RetryPush($user->memberId(), $exchange->id, $this->clock->now()));
 
-        return $this->json($this->exchangeSyncReader->read($user->memberId(), $exchange->id));
+        return $this->jsonResponses->of($this->exchangeSyncReader->read($user->memberId(), $exchange->id));
     }
 }

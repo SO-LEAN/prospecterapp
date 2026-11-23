@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\SignIn\Controller;
 
 use App\Security\User;
+use App\Shared\JsonResponses;
 use App\SignIn\Resource\SignInResource;
 use App\SignIn\SignInReader;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
@@ -17,9 +17,9 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('Sign-in')]
 #[IsGranted('ROLE_USER')]
-final class ShowMySignInController extends AbstractController
+final readonly class ShowMySignInController
 {
-    public function __construct(private readonly SignInReader $signInReader)
+    public function __construct(private SignInReader $signInReader, private JsonResponses $jsonResponses)
     {
     }
 
@@ -29,6 +29,6 @@ final class ShowMySignInController extends AbstractController
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     public function __invoke(#[CurrentUser] User $user): JsonResponse
     {
-        return $this->json($this->signInReader->read($user->memberId()));
+        return $this->jsonResponses->of($this->signInReader->read($user->memberId()));
     }
 }

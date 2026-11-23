@@ -9,12 +9,12 @@ use App\Prospecting\OrganizationVoter;
 use App\Prospecting\Resource\OrganizationResource;
 use App\Security\User;
 use App\Shared\CommandBus;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\RemoveLogo\RemoveLogo;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -24,12 +24,13 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('Organizations')]
 #[IsGranted('ROLE_PROSPECTOR')]
-final class RemoveLogoController extends AbstractController
+final readonly class RemoveLogoController
 {
     public function __construct(
-        private readonly CommandBus $commandBus,
-        private readonly ClockInterface $clock,
-        private readonly OrganizationReader $organizationReader,
+        private CommandBus $commandBus,
+        private ClockInterface $clock,
+        private OrganizationReader $organizationReader,
+        private JsonResponses $jsonResponses,
     ) {
     }
 
@@ -45,6 +46,6 @@ final class RemoveLogoController extends AbstractController
     {
         $this->commandBus->dispatch(new RemoveLogo($user->memberId(), $organization->id, $this->clock->now()));
 
-        return $this->json($this->organizationReader->read($organization->id));
+        return $this->jsonResponses->of($this->organizationReader->read($organization->id));
     }
 }

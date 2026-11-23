@@ -7,6 +7,7 @@ namespace App\Tags\Controller;
 use App\Prospecting\OrganizationVoter;
 use App\Security\User;
 use App\Shared\CommandBus;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use App\Tags\Input\TagsInput;
 use App\Tags\Resource\TagsResource;
@@ -16,7 +17,6 @@ use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Campaigns\Application\PutTags\PutTags;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
@@ -27,12 +27,13 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('Tags')]
 #[IsGranted('ROLE_PROSPECTOR')]
-final class TagOrganizationController extends AbstractController
+final readonly class TagOrganizationController
 {
     public function __construct(
-        private readonly CommandBus $commandBus,
-        private readonly ClockInterface $clock,
-        private readonly TagsReader $tagsReader,
+        private CommandBus $commandBus,
+        private ClockInterface $clock,
+        private TagsReader $tagsReader,
+        private JsonResponses $jsonResponses,
     ) {
     }
 
@@ -48,6 +49,6 @@ final class TagOrganizationController extends AbstractController
     {
         $this->commandBus->dispatch(new PutTags(memberId: $user->memberId(), holder: TagRoutes::Organization->value, holderId: $organization->id, tags: $input->tags, executedAt: $this->clock->now()));
 
-        return $this->json($this->tagsReader->read($user->memberId(), $organization->id));
+        return $this->jsonResponses->of($this->tagsReader->read($user->memberId(), $organization->id));
     }
 }

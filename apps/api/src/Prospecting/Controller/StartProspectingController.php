@@ -10,27 +10,30 @@ use App\Prospecting\Resource\OrganizationResource;
 use App\Security\User;
 use App\Shared\CommandBus;
 use App\Shared\Identities;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('Organizations')]
 #[IsGranted('ROLE_PROSPECTOR')]
-final class StartProspectingController extends AbstractController
+final readonly class StartProspectingController
 {
     public function __construct(
-        private readonly CommandBus $commandBus,
-        private readonly Identities $identities,
-        private readonly ClockInterface $clock,
-        private readonly OrganizationReader $organizationReader,
+        private CommandBus $commandBus,
+        private Identities $identities,
+        private ClockInterface $clock,
+        private OrganizationReader $organizationReader,
+        private JsonResponses $jsonResponses,
+        private UrlGeneratorInterface $urlGenerator,
     ) {
     }
 
@@ -46,6 +49,6 @@ final class StartProspectingController extends AbstractController
         $id = $this->identities->next();
         $this->commandBus->dispatch($input->commandOf($user->memberId(), $id, $this->clock->now()));
 
-        return $this->json($this->organizationReader->read($id), Response::HTTP_CREATED, ['Location' => $this->generateUrl('api_organizations_show', ['id' => $id])]);
+        return $this->jsonResponses->of($this->organizationReader->read($id), Response::HTTP_CREATED, ['Location' => $this->urlGenerator->generate('api_organizations_show', ['id' => $id])]);
     }
 }

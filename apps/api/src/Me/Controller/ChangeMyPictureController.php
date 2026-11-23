@@ -9,12 +9,12 @@ use App\Me\Resource\AccountResource;
 use App\Security\User;
 use App\Shared\CommandBus;
 use App\Shared\Images;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use App\Shared\UploadedFileInfo;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\PersonalData\Application\ChangePersonPicture\ChangePersonPicture;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -26,12 +26,13 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[OA\Tag('My account')]
 #[IsGranted('ROLE_USER')]
-final class ChangeMyPictureController extends AbstractController
+final readonly class ChangeMyPictureController
 {
     public function __construct(
-        private readonly CommandBus $commandBus,
-        private readonly ClockInterface $clock,
-        private readonly MyAccountReader $myAccountReader,
+        private CommandBus $commandBus,
+        private ClockInterface $clock,
+        private MyAccountReader $myAccountReader,
+        private JsonResponses $jsonResponses,
     ) {
     }
 
@@ -45,6 +46,6 @@ final class ChangeMyPictureController extends AbstractController
     {
         $this->commandBus->dispatch(new ChangePersonPicture(readerId: $user->memberId(), id: $user->personId(), picture: new UploadedFileInfo($file), executedAt: $this->clock->now()));
 
-        return $this->json($this->myAccountReader->read($user->memberId()));
+        return $this->jsonResponses->of($this->myAccountReader->read($user->memberId()));
     }
 }

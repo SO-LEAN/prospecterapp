@@ -8,11 +8,11 @@ use App\Connectors\MyConnectionsReader;
 use App\Connectors\Resource\ConnectionsResource;
 use App\Security\User;
 use App\Shared\CommandBus;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Connectors\Application\CheckMyConnections\CheckMyConnections;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -21,12 +21,13 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('Connectors')]
 #[IsGranted('ROLE_USER')]
-final class CheckMyConnectionsController extends AbstractController
+final readonly class CheckMyConnectionsController
 {
     public function __construct(
-        private readonly CommandBus $commandBus,
-        private readonly ClockInterface $clock,
-        private readonly MyConnectionsReader $myConnectionsReader,
+        private CommandBus $commandBus,
+        private ClockInterface $clock,
+        private MyConnectionsReader $myConnectionsReader,
+        private JsonResponses $jsonResponses,
     ) {
     }
 
@@ -40,6 +41,6 @@ final class CheckMyConnectionsController extends AbstractController
     {
         $this->commandBus->dispatch(new CheckMyConnections($user->memberId(), $this->clock->now()));
 
-        return $this->json($this->myConnectionsReader->read($user->memberId()));
+        return $this->jsonResponses->of($this->myConnectionsReader->read($user->memberId()));
     }
 }

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\SignIn\Controller;
 
+use App\Shared\JsonResponses;
 use App\SignIn\OAuth\ProtectedResource;
 use App\SignIn\Resource\ProtectedResourceMetadataResource;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -14,9 +14,9 @@ use Symfony\Component\Routing\Attribute\Route;
  * Public, outside the API and its contract. An AI that the MCP server turned away finds here the server that signs
  * its member in (RFC 9728).
  */
-final class ShowProtectedResourceController extends AbstractController
+final readonly class ShowProtectedResourceController
 {
-    public function __construct(private readonly ProtectedResource $mcp)
+    public function __construct(private ProtectedResource $mcp, private JsonResponses $jsonResponses)
     {
     }
 
@@ -24,6 +24,6 @@ final class ShowProtectedResourceController extends AbstractController
     #[Route('/.well-known/oauth-protected-resource', name: 'oauth_protected_resource_of_the_host', methods: ['GET'])]
     public function __invoke(): JsonResponse
     {
-        return $this->json(new ProtectedResourceMetadataResource($this->mcp->resource(), [$this->mcp->authorizationServer()]));
+        return $this->jsonResponses->of(new ProtectedResourceMetadataResource($this->mcp->resource(), [$this->mcp->authorizationServer()]));
     }
 }

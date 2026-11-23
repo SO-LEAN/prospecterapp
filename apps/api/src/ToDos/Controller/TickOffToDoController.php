@@ -6,6 +6,7 @@ namespace App\ToDos\Controller;
 
 use App\Security\User;
 use App\Shared\CommandBus;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use App\ToDos\Resource\ToDoResource;
 use App\ToDos\ToDoReader;
@@ -14,7 +15,6 @@ use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Prospecting\Application\TickOffToDo\TickOffToDo;
 use Prospecter\Core\Prospecting\Application\ToDoInList;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -24,12 +24,13 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('To-dos')]
 #[IsGranted('ROLE_PROSPECTOR')]
-final class TickOffToDoController extends AbstractController
+final readonly class TickOffToDoController
 {
     public function __construct(
-        private readonly CommandBus $commandBus,
-        private readonly ClockInterface $clock,
-        private readonly ToDoReader $toDoReader,
+        private CommandBus $commandBus,
+        private ClockInterface $clock,
+        private ToDoReader $toDoReader,
+        private JsonResponses $jsonResponses,
     ) {
     }
 
@@ -46,6 +47,6 @@ final class TickOffToDoController extends AbstractController
     {
         $this->commandBus->dispatch(new TickOffToDo($user->memberId(), $toDo->id, $this->clock->now()));
 
-        return $this->json($this->toDoReader->read($user->memberId(), $toDo->id));
+        return $this->jsonResponses->of($this->toDoReader->read($user->memberId(), $toDo->id));
     }
 }

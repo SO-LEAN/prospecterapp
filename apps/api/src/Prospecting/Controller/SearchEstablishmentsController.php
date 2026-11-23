@@ -7,13 +7,13 @@ namespace App\Prospecting\Controller;
 use App\Prospecting\OrganizationVoter;
 use App\Prospecting\Presenter\EstablishmentsPresenter;
 use App\Prospecting\Resource\EstablishmentsResource;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\SearchEstablishments\SearchEstablishments;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
@@ -21,10 +21,11 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('Organizations')]
 #[IsGranted('ROLE_PROSPECTOR')]
-final class SearchEstablishmentsController extends AbstractController
+final readonly class SearchEstablishmentsController
 {
     public function __construct(
-        private readonly QueryHandler $searchEstablishments,
+        private QueryHandler $searchEstablishments,
+        private JsonResponses $jsonResponses,
     ) {
     }
 
@@ -41,6 +42,6 @@ final class SearchEstablishmentsController extends AbstractController
         $presenter = new EstablishmentsPresenter();
         $this->searchEstablishments->__invoke(new SearchEstablishments($organization->id), $presenter);
 
-        return $this->json($presenter->resource);
+        return $this->jsonResponses->of($presenter->resource);
     }
 }

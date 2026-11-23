@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\SignIn\Controller;
 
 use App\Security\User;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use App\SignIn\Credentials;
 use App\SignIn\Input\LoginEmailInput;
@@ -12,7 +13,6 @@ use App\SignIn\Resource\SignInResource;
 use App\SignIn\SignInReader;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
@@ -21,9 +21,9 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('Sign-in')]
 #[IsGranted('ROLE_USER')]
-final class ChangeMyLoginEmailController extends AbstractController
+final readonly class ChangeMyLoginEmailController
 {
-    public function __construct(private readonly Credentials $credentials, private readonly SignInReader $signInReader)
+    public function __construct(private Credentials $credentials, private SignInReader $signInReader, private JsonResponses $jsonResponses)
     {
     }
 
@@ -36,6 +36,6 @@ final class ChangeMyLoginEmailController extends AbstractController
     {
         $this->credentials->changeLoginEmail($user->memberId(), $input->email);
 
-        return $this->json($this->signInReader->read($user->memberId()));
+        return $this->jsonResponses->of($this->signInReader->read($user->memberId()));
     }
 }

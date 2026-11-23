@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\SignIn\Controller;
 
+use App\Shared\JsonResponses;
 use App\SignIn\Resource\UserPoolResource;
 use App\SignIn\UserPool;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -17,12 +17,13 @@ use Symfony\Component\Routing\Attribute\Route;
  * Public: the SPA calls it before anyone signs in.
  */
 #[OA\Tag('Sign-in')]
-final class ShowUserPoolController extends AbstractController
+final readonly class ShowUserPoolController
 {
     public function __construct(
-        private readonly UserPool $pool,
+        private UserPool $pool,
         #[Autowire(env: 'COGNITO_PUBLIC_ENDPOINT')]
-        private readonly string $publicEndpoint,
+        private string $publicEndpoint,
+        private JsonResponses $jsonResponses,
     ) {
     }
 
@@ -31,6 +32,6 @@ final class ShowUserPoolController extends AbstractController
     #[OA\Response(response: 200, description: 'The user pool', content: new Model(type: UserPoolResource::class))]
     public function __invoke(): JsonResponse
     {
-        return $this->json(new UserPoolResource($this->pool->region, $this->pool->id(), $this->pool->clientId(), '' === $this->publicEndpoint ? null : $this->publicEndpoint));
+        return $this->jsonResponses->of(new UserPoolResource($this->pool->region, $this->pool->id(), $this->pool->clientId(), '' === $this->publicEndpoint ? null : $this->publicEndpoint));
     }
 }

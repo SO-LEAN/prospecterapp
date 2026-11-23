@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tags\Controller;
 
 use App\Security\User;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use App\Tags\Resource\SuggestedTagsResource;
 use App\Tags\SuggestedTagsPresenter;
@@ -12,7 +13,6 @@ use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Campaigns\Application\ConsultSuggestedTags\ConsultSuggestedTags;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
@@ -20,9 +20,9 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('Tags')]
 #[IsGranted('ROLE_PROSPECTOR')]
-final class ShowSuggestedTagsController extends AbstractController
+final readonly class ShowSuggestedTagsController
 {
-    public function __construct(private readonly QueryHandler $consultSuggestedTags)
+    public function __construct(private QueryHandler $consultSuggestedTags, private JsonResponses $jsonResponses)
     {
     }
 
@@ -36,6 +36,6 @@ final class ShowSuggestedTagsController extends AbstractController
         $presenter = new SuggestedTagsPresenter();
         $this->consultSuggestedTags->__invoke(new ConsultSuggestedTags($user->memberId()), $presenter);
 
-        return $this->json($presenter->resource);
+        return $this->jsonResponses->of($presenter->resource);
     }
 }

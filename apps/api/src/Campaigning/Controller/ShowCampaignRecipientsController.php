@@ -8,11 +8,11 @@ use App\Campaigning\CampaignVoter;
 use App\Campaigning\RecipientsReader;
 use App\Campaigning\Resource\RecipientListResource;
 use App\Security\User;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Campaigns\Application\CampaignSheet;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
@@ -21,9 +21,9 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('Campaigns')]
 #[IsGranted('ROLE_PROSPECTOR')]
-final class ShowCampaignRecipientsController extends AbstractController
+final readonly class ShowCampaignRecipientsController
 {
-    public function __construct(private readonly RecipientsReader $recipientsReader)
+    public function __construct(private RecipientsReader $recipientsReader, private JsonResponses $jsonResponses)
     {
     }
 
@@ -37,6 +37,6 @@ final class ShowCampaignRecipientsController extends AbstractController
     #[OA\Response(response: 404, description: 'Unknown campaign, or a campaign of another account', content: new Model(type: ProblemResource::class))]
     public function __invoke(CampaignSheet $campaign, #[CurrentUser] User $user): JsonResponse
     {
-        return $this->json($this->recipientsReader->read($user->memberId(), $campaign));
+        return $this->jsonResponses->of($this->recipientsReader->read($user->memberId(), $campaign));
     }
 }

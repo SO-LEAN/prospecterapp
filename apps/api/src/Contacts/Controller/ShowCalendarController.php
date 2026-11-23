@@ -8,10 +8,10 @@ use App\Contacts\AgendaReader;
 use App\Contacts\Input\CalendarQuery;
 use App\Contacts\Resource\CalendarResource;
 use App\Security\User;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,11 +22,12 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('My account')]
 #[IsGranted('ROLE_PROSPECTOR')]
-final class ShowCalendarController extends AbstractController
+final readonly class ShowCalendarController
 {
     public function __construct(
-        private readonly AgendaReader $agendaReader,
-        private readonly ClockInterface $clock,
+        private AgendaReader $agendaReader,
+        private ClockInterface $clock,
+        private JsonResponses $jsonResponses,
     ) {
     }
 
@@ -38,6 +39,6 @@ final class ShowCalendarController extends AbstractController
     #[OA\Response(response: 422, description: 'Invalid period: a missing bound, an end before the start, or more than six weeks. Or an unknown time zone', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[CurrentUser] User $user, #[MapQueryString(validationFailedStatusCode: Response::HTTP_UNPROCESSABLE_ENTITY, mapWhenEmpty: true)] CalendarQuery $period): JsonResponse
     {
-        return $this->json($this->agendaReader->readCalendar($user->memberId(), $period->start(), $period->end(), $period->read($this->clock->now())));
+        return $this->jsonResponses->of($this->agendaReader->readCalendar($user->memberId(), $period->start(), $period->end(), $period->read($this->clock->now())));
     }
 }

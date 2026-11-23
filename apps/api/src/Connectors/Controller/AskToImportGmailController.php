@@ -8,6 +8,7 @@ use App\Connectors\Google\GoogleAuthorization;
 use App\Connectors\Resource\AuthorizationResource;
 use App\Security\User;
 use App\Shared\CommandBus;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
@@ -17,7 +18,6 @@ use Prospecter\Core\Connectors\Application\ConsultMyConnections\ConsultMyConnect
 use Prospecter\Core\Connectors\Application\ConsultMyConnections\KeptConnections;
 use Prospecter\Core\Connectors\Application\MyConnection;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,15 +27,16 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('Connectors')]
 #[IsGranted(User::PERSONAL_DATA)]
-final class AskToImportGmailController extends AbstractController
+final readonly class AskToImportGmailController
 {
     private const string GOOGLE = 'google';
 
     public function __construct(
-        private readonly CommandBus $commandBus,
-        private readonly ClockInterface $clock,
-        private readonly GoogleAuthorization $googleAuthorization,
-        private readonly QueryHandler $consultMyConnections,
+        private CommandBus $commandBus,
+        private ClockInterface $clock,
+        private GoogleAuthorization $googleAuthorization,
+        private QueryHandler $consultMyConnections,
+        private JsonResponses $jsonResponses,
     ) {
     }
 
@@ -53,7 +54,7 @@ final class AskToImportGmailController extends AbstractController
 
         $mine = $this->myConnections($user);
 
-        return $this->json(new AuthorizationResource($this->googleAuthorization->addressImportingGmailOf($request, self::clientOfMyAccount($mine), self::accountConnectedIn($mine))), Response::HTTP_CREATED);
+        return $this->jsonResponses->of(new AuthorizationResource($this->googleAuthorization->addressImportingGmailOf($request, self::clientOfMyAccount($mine), self::accountConnectedIn($mine))), Response::HTTP_CREATED);
     }
 
     private function myConnections(User $user): KeptConnections

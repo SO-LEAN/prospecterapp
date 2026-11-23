@@ -9,11 +9,11 @@ use App\Me\Resource\AccountResource;
 use App\PersonalData\Input\PersonNameInput;
 use App\Security\User;
 use App\Shared\CommandBus;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\PersonalData\Application\RenamePerson\RenamePerson;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
@@ -23,12 +23,13 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('My account')]
 #[IsGranted('ROLE_USER')]
-final class ChangeMyNameController extends AbstractController
+final readonly class ChangeMyNameController
 {
     public function __construct(
-        private readonly CommandBus $commandBus,
-        private readonly ClockInterface $clock,
-        private readonly MyAccountReader $myAccountReader,
+        private CommandBus $commandBus,
+        private ClockInterface $clock,
+        private MyAccountReader $myAccountReader,
+        private JsonResponses $jsonResponses,
     ) {
     }
 
@@ -42,6 +43,6 @@ final class ChangeMyNameController extends AbstractController
     {
         $this->commandBus->dispatch(new RenamePerson(readerId: $user->memberId(), id: $user->personId(), firstName: $input->firstName, lastName: $input->lastName, executedAt: $this->clock->now()));
 
-        return $this->json($this->myAccountReader->read($user->memberId()));
+        return $this->jsonResponses->of($this->myAccountReader->read($user->memberId()));
     }
 }

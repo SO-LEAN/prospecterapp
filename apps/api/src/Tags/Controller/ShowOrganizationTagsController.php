@@ -6,13 +6,13 @@ namespace App\Tags\Controller;
 
 use App\Prospecting\OrganizationVoter;
 use App\Security\User;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use App\Tags\Resource\TagsResource;
 use App\Tags\TagsReader;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
@@ -21,9 +21,9 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('Tags')]
 #[IsGranted('ROLE_PROSPECTOR')]
-final class ShowOrganizationTagsController extends AbstractController
+final readonly class ShowOrganizationTagsController
 {
-    public function __construct(private readonly TagsReader $tagsReader)
+    public function __construct(private TagsReader $tagsReader, private JsonResponses $jsonResponses)
     {
     }
 
@@ -36,6 +36,6 @@ final class ShowOrganizationTagsController extends AbstractController
     #[OA\Response(response: 404, description: 'Unknown organization, or an organization of another account', content: new Model(type: ProblemResource::class))]
     public function __invoke(OrganizationSheet $organization, #[CurrentUser] User $user): JsonResponse
     {
-        return $this->json($this->tagsReader->read($user->memberId(), $organization->id));
+        return $this->jsonResponses->of($this->tagsReader->read($user->memberId(), $organization->id));
     }
 }

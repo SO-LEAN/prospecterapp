@@ -8,13 +8,13 @@ use App\Booking\PublicBookingPageResourcePresenter;
 use App\Booking\PublicBookingRoutes;
 use App\Booking\Resource\PublicBookingPageResource;
 use App\Shared\ImageResourceFactory;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Booking\Application\ConsultPublicBookingPage\ConsultPublicBookingPage;
 use Prospecter\Core\Booking\Application\PublicBookingPage;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -23,7 +23,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * Anyone with the link can read the page without signing in (ADR 0151, 0153). The firewall lets every call through.
  */
 #[OA\Tag('Booking')]
-final class ConsultPublicBookingPageController extends AbstractController
+final readonly class ConsultPublicBookingPageController
 {
     /**
      * Short, so that a closed link or a taken slot shows up within this delay (ADR 0153).
@@ -31,9 +31,10 @@ final class ConsultPublicBookingPageController extends AbstractController
     private const int KEPT_SECONDS = 30;
 
     public function __construct(
-        private readonly QueryHandler $consultPublicBookingPage,
-        private readonly ClockInterface $clock,
-        private readonly ImageResourceFactory $imageResourceFactory,
+        private QueryHandler $consultPublicBookingPage,
+        private ClockInterface $clock,
+        private ImageResourceFactory $imageResourceFactory,
+        private JsonResponses $jsonResponses,
     ) {
     }
 
@@ -50,6 +51,6 @@ final class ConsultPublicBookingPageController extends AbstractController
             $this->consultPublicBookingPage->__invoke(new ConsultPublicBookingPage($code, $this->clock->now()), $presenter);
         }
 
-        return $this->json($presenter->resource)->setPublic()->setMaxAge(self::KEPT_SECONDS);
+        return $this->jsonResponses->of($presenter->resource)->setPublic()->setMaxAge(self::KEPT_SECONDS);
     }
 }

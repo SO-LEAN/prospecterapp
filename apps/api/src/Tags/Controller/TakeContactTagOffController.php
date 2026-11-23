@@ -6,6 +6,7 @@ namespace App\Tags\Controller;
 
 use App\Security\User;
 use App\Shared\CommandBus;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use App\Tags\ContactTagsReader;
 use App\Tags\Resource\ContactTagsResource;
@@ -13,7 +14,6 @@ use App\Tags\TagRoutes;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Campaigns\Application\TakeOffTag\TakeOffTag;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -23,12 +23,13 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('Tags')]
 #[IsGranted('ROLE_PROSPECTOR')]
-final class TakeContactTagOffController extends AbstractController
+final readonly class TakeContactTagOffController
 {
     public function __construct(
-        private readonly CommandBus $commandBus,
-        private readonly ClockInterface $clock,
-        private readonly ContactTagsReader $contactTagsReader,
+        private CommandBus $commandBus,
+        private ClockInterface $clock,
+        private ContactTagsReader $contactTagsReader,
+        private JsonResponses $jsonResponses,
     ) {
     }
 
@@ -42,6 +43,6 @@ final class TakeContactTagOffController extends AbstractController
     {
         $this->commandBus->dispatch(new TakeOffTag(memberId: $user->memberId(), holder: TagRoutes::Contact->value, holderId: $id, tag: $tag, executedAt: $this->clock->now()));
 
-        return $this->json($this->contactTagsReader->read($user->memberId(), $id));
+        return $this->jsonResponses->of($this->contactTagsReader->read($user->memberId(), $id));
     }
 }

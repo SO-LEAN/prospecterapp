@@ -9,12 +9,12 @@ use App\Campaigning\CampaignVoter;
 use App\Campaigning\Resource\CampaignResource;
 use App\Security\User;
 use App\Shared\CommandBus;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Campaigns\Application\CampaignSheet;
 use Prospecter\Core\Campaigns\Application\FreezeCampaign\FreezeCampaign;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -24,12 +24,13 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('Campaigns')]
 #[IsGranted('ROLE_PROSPECTOR')]
-final class FreezeCampaignController extends AbstractController
+final readonly class FreezeCampaignController
 {
     public function __construct(
-        private readonly CommandBus $commandBus,
-        private readonly ClockInterface $clock,
-        private readonly CampaignReader $campaignReader,
+        private CommandBus $commandBus,
+        private ClockInterface $clock,
+        private CampaignReader $campaignReader,
+        private JsonResponses $jsonResponses,
     ) {
     }
 
@@ -47,6 +48,6 @@ final class FreezeCampaignController extends AbstractController
     {
         $this->commandBus->dispatch(new FreezeCampaign($user->memberId(), $campaign->id, $this->clock->now()));
 
-        return $this->json($this->campaignReader->read($user->memberId(), $campaign->id));
+        return $this->jsonResponses->of($this->campaignReader->read($user->memberId(), $campaign->id));
     }
 }

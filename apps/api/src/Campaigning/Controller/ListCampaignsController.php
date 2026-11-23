@@ -7,10 +7,10 @@ namespace App\Campaigning\Controller;
 use App\Campaigning\CampaignReader;
 use App\Campaigning\Resource\CampaignListResource;
 use App\Security\User;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
@@ -18,9 +18,9 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('Campaigns')]
 #[IsGranted('ROLE_PROSPECTOR')]
-final class ListCampaignsController extends AbstractController
+final readonly class ListCampaignsController
 {
-    public function __construct(private readonly CampaignReader $campaignReader)
+    public function __construct(private CampaignReader $campaignReader, private JsonResponses $jsonResponses)
     {
     }
 
@@ -32,6 +32,6 @@ final class ListCampaignsController extends AbstractController
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[CurrentUser] User $user): JsonResponse
     {
-        return $this->json($this->campaignReader->list($user->memberId()));
+        return $this->jsonResponses->of($this->campaignReader->list($user->memberId()));
     }
 }

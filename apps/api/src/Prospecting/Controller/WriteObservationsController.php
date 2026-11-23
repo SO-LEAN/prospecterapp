@@ -11,13 +11,13 @@ use App\Prospecting\Persistence\OrganizationRevisions;
 use App\Prospecting\Resource\OrganizationResource;
 use App\Security\User;
 use App\Shared\CommandBus;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use App\Shared\Resource\RevisionDescription;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\WriteObservations\WriteObservations;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
@@ -29,13 +29,14 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('Organizations')]
 #[IsGranted('ROLE_PROSPECTOR')]
-final class WriteObservationsController extends AbstractController
+final readonly class WriteObservationsController
 {
     public function __construct(
-        private readonly CommandBus $commandBus,
-        private readonly ClockInterface $clock,
-        private readonly OrganizationReader $organizationReader,
-        private readonly OrganizationRevisions $revisions,
+        private CommandBus $commandBus,
+        private ClockInterface $clock,
+        private OrganizationReader $organizationReader,
+        private OrganizationRevisions $revisions,
+        private JsonResponses $jsonResponses,
     ) {
     }
 
@@ -53,6 +54,6 @@ final class WriteObservationsController extends AbstractController
     {
         $this->commandBus->dispatch(new WriteObservations(prospectorId: $user->memberId(), id: $organization->id, observations: $input->observations, executedAt: $this->clock->now()), $this->revisions->readAt($organization->id, $revision));
 
-        return $this->json($this->organizationReader->read($organization->id));
+        return $this->jsonResponses->of($this->organizationReader->read($organization->id));
     }
 }

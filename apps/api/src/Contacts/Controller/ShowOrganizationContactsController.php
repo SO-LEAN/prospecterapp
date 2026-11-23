@@ -8,11 +8,11 @@ use App\Contacts\OrganizationContactsReader;
 use App\Contacts\Resource\OrganizationContactsResource;
 use App\Prospecting\OrganizationVoter;
 use App\Security\User;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
@@ -24,9 +24,9 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  */
 #[OA\Tag('Organizations')]
 #[IsGranted('ROLE_PROSPECTOR')]
-final class ShowOrganizationContactsController extends AbstractController
+final readonly class ShowOrganizationContactsController
 {
-    public function __construct(private readonly OrganizationContactsReader $contacts)
+    public function __construct(private OrganizationContactsReader $contacts, private JsonResponses $jsonResponses)
     {
     }
 
@@ -39,6 +39,6 @@ final class ShowOrganizationContactsController extends AbstractController
     #[OA\Response(response: 404, description: 'The organization is unknown or belongs to another account', content: new Model(type: ProblemResource::class))]
     public function __invoke(OrganizationSheet $organization, #[CurrentUser] User $user): JsonResponse
     {
-        return $this->json($this->contacts->read($user->memberId(), $organization));
+        return $this->jsonResponses->of($this->contacts->read($user->memberId(), $organization));
     }
 }

@@ -8,10 +8,10 @@ use App\Booking\MyBookingPageReader;
 use App\Booking\Resource\BookingPageResource;
 use App\Security\User;
 use App\Shared\Input\MyClockQuery;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
@@ -21,10 +21,11 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('Booking')]
 #[IsGranted('ROLE_USER')]
-final class ConsultMyBookingPageController extends AbstractController
+final readonly class ConsultMyBookingPageController
 {
     public function __construct(
-        private readonly MyBookingPageReader $myBookingPageReader,
+        private MyBookingPageReader $myBookingPageReader,
+        private JsonResponses $jsonResponses,
     ) {
     }
 
@@ -35,6 +36,6 @@ final class ConsultMyBookingPageController extends AbstractController
     #[OA\Response(response: 422, description: 'An unknown time zone', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[CurrentUser] User $user, #[MapQueryString(validationFailedStatusCode: Response::HTTP_UNPROCESSABLE_ENTITY, mapWhenEmpty: true)] MyClockQuery $clock): JsonResponse
     {
-        return $this->json($this->myBookingPageReader->read($user->memberId(), $clock->timeZone));
+        return $this->jsonResponses->of($this->myBookingPageReader->read($user->memberId(), $clock->timeZone));
     }
 }

@@ -8,10 +8,10 @@ use App\Contacts\Input\TaggedContactsQuery;
 use App\Contacts\Resource\TaggedContactListResource;
 use App\Contacts\TaggedContactsReader;
 use App\Security\User;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\Routing\Attribute\Route;
@@ -24,9 +24,9 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  */
 #[OA\Tag('Contacts')]
 #[IsGranted('ROLE_PROSPECTOR')]
-final class SearchContactsByTagsController extends AbstractController
+final readonly class SearchContactsByTagsController
 {
-    public function __construct(private readonly TaggedContactsReader $contacts)
+    public function __construct(private TaggedContactsReader $contacts, private JsonResponses $jsonResponses)
     {
     }
 
@@ -38,6 +38,6 @@ final class SearchContactsByTagsController extends AbstractController
     #[OA\Response(response: 422, description: 'No tag, more than five, or one that makes no tag', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[CurrentUser] User $user, #[MapQueryString] TaggedContactsQuery $query = new TaggedContactsQuery()): JsonResponse
     {
-        return $this->json($this->contacts->search($user->memberId(), $query->chosen(), $query->tags, $query->after));
+        return $this->jsonResponses->of($this->contacts->search($user->memberId(), $query->chosen(), $query->tags, $query->after));
     }
 }

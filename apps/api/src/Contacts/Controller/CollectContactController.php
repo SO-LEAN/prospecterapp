@@ -10,27 +10,30 @@ use App\PersonalData\Input\CollectContactInput;
 use App\Security\User;
 use App\Shared\CommandBus;
 use App\Shared\Identities;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('Contacts')]
 #[IsGranted('ROLE_PROSPECTOR')]
-final class CollectContactController extends AbstractController
+final readonly class CollectContactController
 {
     public function __construct(
-        private readonly CommandBus $commandBus,
-        private readonly ClockInterface $clock,
-        private readonly Identities $identities,
-        private readonly ContactReader $contactReader,
+        private CommandBus $commandBus,
+        private ClockInterface $clock,
+        private Identities $identities,
+        private ContactReader $contactReader,
+        private JsonResponses $jsonResponses,
+        private UrlGeneratorInterface $urlGenerator,
     ) {
     }
 
@@ -46,6 +49,6 @@ final class CollectContactController extends AbstractController
         $id = $this->identities->next();
         $this->commandBus->dispatch($input->commandOf($user->memberId(), $id, $this->clock->now()));
 
-        return $this->json($this->contactReader->read($user->memberId(), $id), Response::HTTP_CREATED, ['Location' => $this->generateUrl('api_contacts_show', ['id' => $id])]);
+        return $this->jsonResponses->of($this->contactReader->read($user->memberId(), $id), Response::HTTP_CREATED, ['Location' => $this->urlGenerator->generate('api_contacts_show', ['id' => $id])]);
     }
 }

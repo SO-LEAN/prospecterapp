@@ -8,10 +8,10 @@ use App\Contacts\ContactSearchReader;
 use App\Contacts\Resource\ContactListResource;
 use App\PersonalData\Input\ContactListQuery;
 use App\Security\User;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\Routing\Attribute\Route;
@@ -23,9 +23,9 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  */
 #[OA\Tag('Contacts')]
 #[IsGranted('ROLE_PROSPECTOR')]
-final class SearchContactsController extends AbstractController
+final readonly class SearchContactsController
 {
-    public function __construct(private readonly ContactSearchReader $contacts)
+    public function __construct(private ContactSearchReader $contacts, private JsonResponses $jsonResponses)
     {
     }
 
@@ -36,6 +36,6 @@ final class SearchContactsController extends AbstractController
     #[OA\Response(response: 403, description: 'Not a prospector', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[CurrentUser] User $user, #[MapQueryString] ContactListQuery $query = new ContactListQuery()): JsonResponse
     {
-        return $this->json($this->contacts->search($user->memberId(), $query->q, $query->after));
+        return $this->jsonResponses->of($this->contacts->search($user->memberId(), $query->q, $query->after));
     }
 }

@@ -10,12 +10,12 @@ use App\Exchanges\Input\MomentInput;
 use App\Exchanges\Resource\ExchangeDetailResource;
 use App\Security\User;
 use App\Shared\CommandBus;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
 use Prospecter\Core\Prospecting\Application\MoveExchange\MoveExchange;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
@@ -26,12 +26,13 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('Contacts')]
 #[IsGranted('ROLE_PROSPECTOR')]
-final class MoveExchangeController extends AbstractController
+final readonly class MoveExchangeController
 {
     public function __construct(
-        private readonly CommandBus $commandBus,
-        private readonly ClockInterface $clock,
-        private readonly ExchangeReader $exchangeReader,
+        private CommandBus $commandBus,
+        private ClockInterface $clock,
+        private ExchangeReader $exchangeReader,
+        private JsonResponses $jsonResponses,
     ) {
     }
 
@@ -48,6 +49,6 @@ final class MoveExchangeController extends AbstractController
     {
         $this->commandBus->dispatch(new MoveExchange(prospectorId: $user->memberId(), id: $exchange->id, plannedAt: $input->occurredAt ?? throw new \LogicException('The moment is validated'), executedAt: $this->clock->now(), durationInMinutes: $input->durationInMinutes));
 
-        return $this->json($this->exchangeReader->read($user->memberId(), $exchange->id, movedFrom: $exchange->occurredAt));
+        return $this->jsonResponses->of($this->exchangeReader->read($user->memberId(), $exchange->id, movedFrom: $exchange->occurredAt));
     }
 }

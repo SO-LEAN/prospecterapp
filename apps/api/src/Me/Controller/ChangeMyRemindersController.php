@@ -9,11 +9,11 @@ use App\Me\MyRemindersReader;
 use App\Me\Resource\RemindersResource;
 use App\Security\User;
 use App\Shared\CommandBus;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Accounts\Application\ChangeMyReminders\ChangeMyReminders;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
@@ -23,12 +23,13 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('My account')]
 #[IsGranted('ROLE_USER')]
-final class ChangeMyRemindersController extends AbstractController
+final readonly class ChangeMyRemindersController
 {
     public function __construct(
-        private readonly CommandBus $commandBus,
-        private readonly ClockInterface $clock,
-        private readonly MyRemindersReader $myRemindersReader,
+        private CommandBus $commandBus,
+        private ClockInterface $clock,
+        private MyRemindersReader $myRemindersReader,
+        private JsonResponses $jsonResponses,
     ) {
     }
 
@@ -47,6 +48,6 @@ final class ChangeMyRemindersController extends AbstractController
             executedAt: $this->clock->now(),
         ));
 
-        return $this->json($this->myRemindersReader->read($user->memberId()));
+        return $this->jsonResponses->of($this->myRemindersReader->read($user->memberId()));
     }
 }

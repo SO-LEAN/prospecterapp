@@ -10,7 +10,6 @@ use App\SignIn\OAuth\GrantRefused;
 use App\SignIn\OAuth\Pkce;
 use App\SignIn\OAuth\Seal;
 use App\SignIn\OAuth\SealPurpose;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\InputBag;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,11 +19,11 @@ use Symfony\Component\Routing\Attribute\Route;
  * Public, outside the API and its contract. An AI exchanges the facade's code for Cognito's tokens (RFC 6749,
  * ADR 0157), once its verifier answers the challenge it gave.
  */
-final class IssueTokensController extends AbstractController
+final readonly class IssueTokensController
 {
     public function __construct(
-        private readonly Seal $seal,
-        private readonly CognitoTokens $cognito,
+        private Seal $seal,
+        private CognitoTokens $cognito,
     ) {
     }
 
