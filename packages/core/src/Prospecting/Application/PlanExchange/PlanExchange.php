@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\PlanExchange;
 
 /**
- * Plans a call, a meeting or a video call with a contact, held by the prospector who plans it, kept for the
- * organizations the contact is part of now. The channel is named by the values of `Channel`; the duration, in
- * minutes, is half an hour when left out; a meeting may have its place, a video call its link, or ask one of the
- * calendar of its holder (ADR 0137). `byAnAI` when an AI plans it, acting as the prospector.
+ * Plans a call, a meeting or a video call with a contact. The prospector who plans it holds it. The exchange is kept
+ * for the organizations the contact is part of now. The channel takes the values of `Channel`. The duration is in
+ * minutes, and is half an hour when left out. A meeting may have its place. A video call may have its link, or request
+ * one from its holder's calendar (ADR 0137). `byAnAI` is set when an AI plans it, acting as the prospector.
  */
 final readonly class PlanExchange
 {
