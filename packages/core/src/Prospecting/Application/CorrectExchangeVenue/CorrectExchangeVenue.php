@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\CorrectExchangeVenue;
 
 /**
- * Corrects where a meeting is held, or the link a video call is joined by, planned or done; its other facts stay.
- * Left out, they are removed.
+ * Corrects where a meeting is held, or the link that joins a video call, planned or done. The exchange's other facts
+ * stay. A place or a link left out is removed.
  */
 final readonly class CorrectExchangeVenue
 {
