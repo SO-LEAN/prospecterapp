@@ -15,8 +15,8 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * An erased contact leaves every organization naming it, by the member who erased it: the integration event
- * PersonalData publishes, translated into the words of Prospecting (ADR 0046).
+ * Reacts to an erased contact. The contact leaves every organization that names it, and the member who erased it is
+ * the author. The reaction translates PersonalData's integration event into Prospecting's words (ADR 0046).
  */
 final readonly class DetachForgottenContactHandler implements EventHandler
 {
