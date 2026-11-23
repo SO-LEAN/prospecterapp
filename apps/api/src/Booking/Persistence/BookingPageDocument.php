@@ -21,8 +21,8 @@ use Prospecter\Core\Booking\Domain\Model\WallClockTime;
 use Prospecter\Core\Booking\Domain\Model\Weekday;
 use Prospecter\Core\Booking\Domain\Model\WeeklyWindows;
 use Prospecter\Core\Booking\Domain\Model\Window;
-use Prospecter\Core\Booking\Domain\Policy\BookingPagePossibilities;
-use Prospecter\Core\Booking\Domain\Policy\BookingSuspension;
+use Prospecter\Core\Booking\Domain\Rule\BookingPagePossibilities;
+use Prospecter\Core\Booking\Domain\Rule\BookingSuspension;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 

@@ -15,7 +15,7 @@ use Prospecter\Core\Booking\Domain\Model\WallClockTime;
 use Prospecter\Core\Booking\Domain\Model\Weekday;
 use Prospecter\Core\Booking\Domain\Model\WeeklyWindows;
 use Prospecter\Core\Booking\Domain\Model\Window;
-use Prospecter\Core\Booking\Domain\Policy\FreeSlots;
+use Prospecter\Core\Booking\Domain\Rule\FreeSlots;
 
 /**
  * A host's free slots: their windows cut into 15-minute slots, for 14 days from tomorrow on their clock.

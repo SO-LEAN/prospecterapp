@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Domain\Model;
 
-use Prospecter\Core\Prospecting\Domain\Policy\PublicMailDomains;
+use Prospecter\Core\Prospecting\Domain\Rule\PublicMailDomains;
 use Prospecter\Core\SharedKernel\Domain\Designated;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;

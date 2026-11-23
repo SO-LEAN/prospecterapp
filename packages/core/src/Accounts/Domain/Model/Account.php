@@ -10,7 +10,7 @@ use Prospecter\Core\Accounts\Domain\Event\AccountOpened;
 use Prospecter\Core\Accounts\Domain\Event\AccountRelocated;
 use Prospecter\Core\Accounts\Domain\Exception\AccountWithoutCorporateName;
 use Prospecter\Core\Accounts\Domain\Exception\UnknownAccount;
-use Prospecter\Core\Accounts\Domain\Policy\AccountPossibilities;
+use Prospecter\Core\Accounts\Domain\Rule\AccountPossibilities;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Address;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;

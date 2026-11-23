@@ -11,7 +11,7 @@ use Prospecter\Core\Accounts\Domain\Model\AccountIntent;
 use Prospecter\Core\Accounts\Domain\Model\Member;
 use Prospecter\Core\Accounts\Domain\Model\ProfileId;
 use Prospecter\Core\Accounts\Domain\Model\Role;
-use Prospecter\Core\Accounts\Domain\Policy\AccountPossibilities;
+use Prospecter\Core\Accounts\Domain\Rule\AccountPossibilities;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Address;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotFound;
@@ -20,7 +20,7 @@ use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * The account refuses an intent exactly when the policy does not offer it, as an organization does (ADR 0088).
+ * The account refuses an intent exactly when the rule does not offer it, as an organization does (ADR 0088).
  */
 class AccountIntentsTest extends TestCase
 {

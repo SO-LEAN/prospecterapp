@@ -13,7 +13,7 @@ use Prospecter\Core\Prospecting\Domain\Model\OrganizationIntent;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationSupplement;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Model\WebPresence;
-use Prospecter\Core\Prospecting\Domain\Policy\OrganizationPossibilities;
+use Prospecter\Core\Prospecting\Domain\Rule\OrganizationPossibilities;
 use Prospecter\Core\Prospecting\Domain\Service\OrphanContacts;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Address;
@@ -32,7 +32,7 @@ use Tests\Core\Double\InMemoryOrganizationRepository;
 
 /**
  * An organization's reading tells what its state offers. The aggregate refuses a call that the state does not
- * offer. So an intention must be refused exactly when the policy does not offer it (ADR 0088).
+ * offer. So an intention must be refused exactly when the rule does not offer it (ADR 0088).
  */
 class OrganizationIntentsTest extends TestCase
 {

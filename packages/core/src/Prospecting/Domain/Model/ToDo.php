@@ -13,7 +13,7 @@ use Prospecter\Core\Prospecting\Domain\Event\ToDoRevised;
 use Prospecter\Core\Prospecting\Domain\Event\ToDoTickedOff;
 use Prospecter\Core\Prospecting\Domain\Event\ToDoUnticked;
 use Prospecter\Core\Prospecting\Domain\Exception\ToDoWithoutText;
-use Prospecter\Core\Prospecting\Domain\Policy\ToDoPossibilities;
+use Prospecter\Core\Prospecting\Domain\Rule\ToDoPossibilities;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 use Prospecter\Core\SharedKernel\Domain\Gesture;

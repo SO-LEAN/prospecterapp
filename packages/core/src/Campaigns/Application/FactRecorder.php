@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Campaigns\Application;
 
 use Prospecter\Core\Campaigns\Domain\Model\Fact;
-use Prospecter\Core\Campaigns\Domain\Policy\FactSuccession;
 use Prospecter\Core\Campaigns\Domain\Repository\FactRepository;
+use Prospecter\Core\Campaigns\Domain\Rule\FactSuccession;
 
 /**
  * Keeps a received fact in place of the known fact it succeeds (ADR 0141). The worker or a rebuild receives it. A fact

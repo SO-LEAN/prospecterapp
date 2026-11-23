@@ -62,8 +62,8 @@ use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Model\RecipientCorrespondent;
 use Prospecter\Core\Prospecting\Domain\Model\RecipientInCampaign;
 use Prospecter\Core\Prospecting\Domain\Model\VideoCallLink;
-use Prospecter\Core\Prospecting\Domain\Policy\ExchangeConformity;
-use Prospecter\Core\Prospecting\Domain\Policy\ExchangePossibilities;
+use Prospecter\Core\Prospecting\Domain\Rule\ExchangeConformity;
+use Prospecter\Core\Prospecting\Domain\Rule\ExchangePossibilities;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 use Prospecter\Core\SharedKernel\Domain\Exception\PersonalDataManagersOnly;
@@ -746,7 +746,7 @@ class ExchangeTest extends TestCase
     }
 
     /**
-     * What the policy offers a member now, given the exchange's state as its reading tells it (ADR 0088).
+     * What the rule offers a member now, given the exchange's state as its reading tells it (ADR 0088).
      *
      * @return list<ExchangeIntent>
      */

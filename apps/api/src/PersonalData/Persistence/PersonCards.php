@@ -13,9 +13,9 @@ use Prospecter\Core\PersonalData\Domain\Model\PersonIntent;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\PersonalData\Domain\Model\Reader;
 use Prospecter\Core\PersonalData\Domain\Model\Reading;
-use Prospecter\Core\PersonalData\Domain\Policy\Masking;
-use Prospecter\Core\PersonalData\Domain\Policy\PersonPossibilities;
-use Prospecter\Core\PersonalData\Domain\Policy\PersonReading;
+use Prospecter\Core\PersonalData\Domain\Rule\Masking;
+use Prospecter\Core\PersonalData\Domain\Rule\PersonPossibilities;
+use Prospecter\Core\PersonalData\Domain\Rule\PersonReading;
 use Prospecter\Core\SharedKernel\Application\ExternalLink;
 use Prospecter\Core\SharedKernel\Application\FileResponse;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
@@ -23,7 +23,7 @@ use Prospecter\Core\SharedKernel\Domain\Origin;
 
 /**
  * Builds a person's card from the document that `DynamoPersonRepository` writes. The card shows what the reader may
- * read, as PersonalData's policies decide (ADR 0031, 0088). It is unmasked, or masked and without a picture. A
+ * read, as PersonalData's rules decide (ADR 0031, 0088). It is unmasked, or masked and without a picture. A
  * contact's name and title stay unmasked (ADR 0129).
  */
 final class PersonCards

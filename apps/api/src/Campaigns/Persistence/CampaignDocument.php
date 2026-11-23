@@ -25,8 +25,8 @@ use Prospecter\Core\Campaigns\Domain\Model\RecipientStatus;
 use Prospecter\Core\Campaigns\Domain\Model\Tag;
 use Prospecter\Core\Campaigns\Domain\Model\TagSelection;
 use Prospecter\Core\Campaigns\Domain\Model\Targeting;
-use Prospecter\Core\Campaigns\Domain\Policy\CampaignPossibilities;
-use Prospecter\Core\Campaigns\Domain\Policy\CampaignProgress;
+use Prospecter\Core\Campaigns\Domain\Rule\CampaignPossibilities;
+use Prospecter\Core\Campaigns\Domain\Rule\CampaignProgress;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 

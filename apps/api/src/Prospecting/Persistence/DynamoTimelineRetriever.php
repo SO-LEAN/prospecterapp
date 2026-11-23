@@ -16,8 +16,8 @@ use Prospecter\Core\Prospecting\Domain\Model\ContactPresence;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Model\TimelineIntent;
-use Prospecter\Core\Prospecting\Domain\Policy\ExchangeConformity;
-use Prospecter\Core\Prospecting\Domain\Policy\ExchangeReading;
+use Prospecter\Core\Prospecting\Domain\Rule\ExchangeConformity;
+use Prospecter\Core\Prospecting\Domain\Rule\ExchangeReading;
 use Prospecter\Core\SharedKernel\Domain\Origin;
 
 /**

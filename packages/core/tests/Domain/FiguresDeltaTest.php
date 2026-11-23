@@ -11,8 +11,8 @@ use Prospecter\Core\Reporting\Domain\Model\ExchangeId;
 use Prospecter\Core\Reporting\Domain\Model\FiguresChange;
 use Prospecter\Core\Reporting\Domain\Model\OrganizationFact;
 use Prospecter\Core\Reporting\Domain\Model\OrganizationId;
-use Prospecter\Core\Reporting\Domain\Policy\FactSuccession;
-use Prospecter\Core\Reporting\Domain\Policy\FiguresDelta;
+use Prospecter\Core\Reporting\Domain\Rule\FactSuccession;
+use Prospecter\Core\Reporting\Domain\Rule\FiguresDelta;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 
 /**

@@ -37,7 +37,7 @@ use Prospecter\Core\Campaigns\Domain\Model\Recipients;
 use Prospecter\Core\Campaigns\Domain\Model\RecipientStatus;
 use Prospecter\Core\Campaigns\Domain\Model\Tag;
 use Prospecter\Core\Campaigns\Domain\Model\Targeting;
-use Prospecter\Core\Campaigns\Domain\Policy\CampaignPossibilities;
+use Prospecter\Core\Campaigns\Domain\Rule\CampaignPossibilities;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 use Prospecter\Core\SharedKernel\Domain\Gesture;

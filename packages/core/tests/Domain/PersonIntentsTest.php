@@ -14,7 +14,7 @@ use Prospecter\Core\PersonalData\Domain\Model\PersonIntent;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\PersonalData\Domain\Model\Reader;
-use Prospecter\Core\PersonalData\Domain\Policy\PersonPossibilities;
+use Prospecter\Core\PersonalData\Domain\Rule\PersonPossibilities;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
@@ -26,8 +26,8 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 /**
- * A person refuses a change exactly when the policy does not offer it, like organizations and accounts do (ADR
- * 0088). The policy offers it to the person themself. It also offers it to a member with the right, for a person
+ * A person refuses a change exactly when the rule does not offer it, like organizations and accounts do (ADR
+ * 0088). The rule offers it to the person themself. It also offers it to a member with the right, for a person
  * their account prospects.
  */
 class PersonIntentsTest extends TestCase

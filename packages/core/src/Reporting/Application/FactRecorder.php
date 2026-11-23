@@ -6,9 +6,9 @@ namespace Prospecter\Core\Reporting\Application;
 
 use Prospecter\Core\Reporting\Application\Port\ProjectionVersions;
 use Prospecter\Core\Reporting\Domain\Model\Fact;
-use Prospecter\Core\Reporting\Domain\Policy\FactSuccession;
-use Prospecter\Core\Reporting\Domain\Policy\FiguresDelta;
 use Prospecter\Core\Reporting\Domain\Repository\FactRepository;
+use Prospecter\Core\Reporting\Domain\Rule\FactSuccession;
+use Prospecter\Core\Reporting\Domain\Rule\FiguresDelta;
 
 /**
  * Applies a fact to the figures. When the fact replaces its aggregate's known fact, the recorder keeps it with the

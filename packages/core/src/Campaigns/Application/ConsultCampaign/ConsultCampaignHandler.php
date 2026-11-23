@@ -9,8 +9,8 @@ use Prospecter\Core\Campaigns\Application\CampaignTargets;
 use Prospecter\Core\Campaigns\Application\Port\CampaignSheetRetriever;
 use Prospecter\Core\Campaigns\Application\RecipientInSheet;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignId;
-use Prospecter\Core\Campaigns\Domain\Policy\CampaignProgress;
 use Prospecter\Core\Campaigns\Domain\Port\Campaigners;
+use Prospecter\Core\Campaigns\Domain\Rule\CampaignProgress;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 

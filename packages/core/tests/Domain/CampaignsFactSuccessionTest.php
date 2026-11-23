@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Campaigns\Domain\Model\Locality;
 use Prospecter\Core\Campaigns\Domain\Model\OrganizationFact;
 use Prospecter\Core\Campaigns\Domain\Model\OrganizationId;
-use Prospecter\Core\Campaigns\Domain\Policy\FactSuccession;
+use Prospecter\Core\Campaigns\Domain\Rule\FactSuccession;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 
 /**

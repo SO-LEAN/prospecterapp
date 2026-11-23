@@ -30,7 +30,7 @@ use Prospecter\Core\Prospecting\Domain\Exception\NotAContact;
 use Prospecter\Core\Prospecting\Domain\Exception\NotASuspectedDuplicate;
 use Prospecter\Core\Prospecting\Domain\Exception\OrganizationWithoutNameNorEmail;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
-use Prospecter\Core\Prospecting\Domain\Policy\OrganizationPossibilities;
+use Prospecter\Core\Prospecting\Domain\Rule\OrganizationPossibilities;
 use Prospecter\Core\Prospecting\Domain\Service\OrphanContacts;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Address;

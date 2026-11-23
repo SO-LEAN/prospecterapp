@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Campaigns\Domain\Model;
 
 use Prospecter\Core\Campaigns\Domain\Exception\InvalidTag;
-use Prospecter\Core\Campaigns\Domain\Policy\AutomaticTags;
+use Prospecter\Core\Campaigns\Domain\Rule\AutomaticTags;
 use Prospecter\Core\SharedKernel\Domain\Decomposed;
 
 /**

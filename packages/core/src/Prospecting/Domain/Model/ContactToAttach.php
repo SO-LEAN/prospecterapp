@@ -9,7 +9,7 @@ use Prospecter\Core\Prospecting\Domain\Event\ContactToAttachAttached;
 use Prospecter\Core\Prospecting\Domain\Event\ContactToAttachHandedOver;
 use Prospecter\Core\Prospecting\Domain\Event\ContactToAttachMet;
 use Prospecter\Core\Prospecting\Domain\Event\ContactToAttachMetAgain;
-use Prospecter\Core\Prospecting\Domain\Policy\UnattachedErasure;
+use Prospecter\Core\Prospecting\Domain\Rule\UnattachedErasure;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 use Prospecter\Core\SharedKernel\Domain\MemberId;

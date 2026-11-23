@@ -8,7 +8,7 @@ use Prospecter\Core\Prospecting\Application\ContactToAttachInList;
 use Prospecter\Core\Prospecting\Application\Port\ContactsToAttachRetriever;
 use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\ContactToAttach;
-use Prospecter\Core\Prospecting\Domain\Policy\UnattachedErasure;
+use Prospecter\Core\Prospecting\Domain\Rule\UnattachedErasure;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
