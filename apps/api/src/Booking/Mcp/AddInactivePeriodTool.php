@@ -9,7 +9,7 @@ use App\Shared\Identities;
 use App\Shared\Mcp\Adapts;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
-use Prospecter\Core\Booking\Application\AddInactivePeriod\AddInactivePeriod;
+use Prospecter\Core\Booking\Application\BookingPage\AddInactivePeriod\AddInactivePeriod;
 
 /**
  * `POST /api/me/booking-page/inactive-periods`, for an AI (ADR 0163).

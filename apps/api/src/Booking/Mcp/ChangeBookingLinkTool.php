@@ -8,7 +8,7 @@ use App\Booking\BookingCodes;
 use App\Shared\Mcp\Adapts;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
-use Prospecter\Core\Booking\Application\ChangeBookingLink\ChangeBookingLink;
+use Prospecter\Core\Booking\Application\BookingPage\ChangeBookingLink\ChangeBookingLink;
 
 /**
  * `POST /api/me/booking-page/link`, for an AI (ADR 0163).

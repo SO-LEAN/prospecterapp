@@ -6,8 +6,8 @@ namespace App\Booking\Persistence;
 
 use App\Shared\Persistence\Table;
 use App\Shared\Typed;
-use Prospecter\Core\Booking\Application\ConsultPublicBookingPage\BookingSchedule;
 use Prospecter\Core\Booking\Application\Port\PublicBookingPageRetriever;
+use Prospecter\Core\Booking\Application\PublicLink\ConsultPublicBookingPage\BookingSchedule;
 
 /**
  * Finds the page that a code leads to: first the code's link to its host, then that host's page (ADR 0151).

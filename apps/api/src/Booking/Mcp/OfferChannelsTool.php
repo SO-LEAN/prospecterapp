@@ -8,7 +8,7 @@ use App\Booking\Input\ChannelsInput;
 use App\Shared\Mcp\Adapts;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
-use Prospecter\Core\Booking\Application\OfferChannels\OfferChannels;
+use Prospecter\Core\Booking\Application\BookingPage\OfferChannels\OfferChannels;
 
 /**
  * `PATCH /api/me/booking-page/channels`, for an AI (ADR 0163).

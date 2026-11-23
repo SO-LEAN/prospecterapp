@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Booking\Persistence;
 
 use App\Shared\Persistence\Table;
-use Prospecter\Core\Booking\Application\MyBookingPage;
+use Prospecter\Core\Booking\Application\BookingPage\MyBookingPage;
 use Prospecter\Core\Booking\Application\Port\MyBookingPageRetriever;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 

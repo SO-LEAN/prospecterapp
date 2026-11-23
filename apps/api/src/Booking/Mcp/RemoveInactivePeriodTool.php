@@ -7,7 +7,7 @@ namespace App\Booking\Mcp;
 use App\Shared\Mcp\Adapts;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
-use Prospecter\Core\Booking\Application\RemoveInactivePeriod\RemoveInactivePeriod;
+use Prospecter\Core\Booking\Application\BookingPage\RemoveInactivePeriod\RemoveInactivePeriod;
 
 /**
  * `DELETE /api/me/booking-page/inactive-periods/{id}`, for an AI (ADR 0163). The AI asks its member before it calls the tool.

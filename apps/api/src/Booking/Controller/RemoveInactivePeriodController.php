@@ -12,7 +12,7 @@ use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Booking\Application\RemoveInactivePeriod\RemoveInactivePeriod;
+use Prospecter\Core\Booking\Application\BookingPage\RemoveInactivePeriod\RemoveInactivePeriod;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;

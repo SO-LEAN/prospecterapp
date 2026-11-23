@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Booking\Application\Policy;
 
-use Prospecter\Core\Booking\Application\ForgetAppointmentOfErasedExchange\ForgetAppointmentOfErasedExchange;
+use Prospecter\Core\Booking\Application\Appointment\ForgetAppointmentOfErasedExchange\ForgetAppointmentOfErasedExchange;
 use Prospecter\Core\Prospecting\Contract\Event\ExchangeFactsChanged;
 use Prospecter\Core\SharedKernel\Application\Handler\Policy;
 

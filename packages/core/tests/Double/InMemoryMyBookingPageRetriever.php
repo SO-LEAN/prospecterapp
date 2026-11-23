@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\Double;
 
-use Prospecter\Core\Booking\Application\MyBookingPage;
+use Prospecter\Core\Booking\Application\BookingPage\MyBookingPage;
 use Prospecter\Core\Booking\Application\Port\MyBookingPageRetriever;
 use Prospecter\Core\Booking\Domain\Model\BookingCode;
 use Prospecter\Core\Booking\Domain\Model\BookingPageIntent;

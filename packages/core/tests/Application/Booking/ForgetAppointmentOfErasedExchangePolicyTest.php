@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Core\Application\Booking;
 
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\Booking\Application\ForgetAppointmentOfErasedExchange\ForgetAppointmentOfErasedExchange;
+use Prospecter\Core\Booking\Application\Appointment\ForgetAppointmentOfErasedExchange\ForgetAppointmentOfErasedExchange;
 use Prospecter\Core\Booking\Application\Policy\ForgetAppointmentOfErasedExchangePolicy;
 use Prospecter\Core\Prospecting\Contract\Event\ExchangeFactsChanged;
 
