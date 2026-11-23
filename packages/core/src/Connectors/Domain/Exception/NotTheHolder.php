@@ -13,6 +13,6 @@ final class NotTheHolder extends NotAllowed
 {
     public static function ofTheExchange(): self
     {
-        return self::because('Only the holder of the exchange pushes it');
+        return self::because('Only the exchange\'s holder can push it');
     }
 }

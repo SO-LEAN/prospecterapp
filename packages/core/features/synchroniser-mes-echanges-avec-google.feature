@@ -102,4 +102,4 @@ Fonctionnalité: L'état de synchronisation de mes échanges planifiés
     Soit un autre prospecteur de "SOLEAN IT" a planifié une visio avec "Ada Lovelace" le 17/11/2026 à 14h00
     Alors elle n'a pas d'état de synchronisation
     Quand je relance sa synchronisation
-    Alors c'est refusé : "Only the holder of the exchange pushes it"
+    Alors c'est refusé : "Only the exchange's holder can push it"
