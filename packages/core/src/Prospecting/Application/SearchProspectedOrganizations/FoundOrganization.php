@@ -8,8 +8,8 @@ use Prospecter\Core\Prospecting\Application\PossibleDuplicate;
 use Prospecter\Core\SharedKernel\Application\FileResponse;
 
 /**
- * An organization in a list: enough to recognize it and to place it on a map, and the organizations it may be a
- * duplicate of.
+ * An organization in a list. It holds enough to recognize the organization and to place it on a map. It also names
+ * the organizations it may be a duplicate of.
  */
 final readonly class FoundOrganization
 {
