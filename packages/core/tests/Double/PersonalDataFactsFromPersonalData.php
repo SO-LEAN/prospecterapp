@@ -14,8 +14,8 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Anticorruption layer of the API, in the scenarios (ADR 0045, 0089, 0099): the facts PersonalData gives again, slice
- * after slice, in the words of Reporting.
+ * The API's anticorruption layer, for the scenarios (ADR 0045, 0089, 0099). It lists the facts that PersonalData gives
+ * again, slice by slice, in Reporting's terms.
  */
 final readonly class PersonalDataFactsFromPersonalData implements PersonalDataFacts
 {

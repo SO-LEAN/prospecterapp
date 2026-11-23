@@ -7,11 +7,13 @@ namespace Tests\Core\Double;
 use Prospecter\Core\Reporting\Application\Port\ProjectionVersions;
 
 /**
- * The versions of the figures over the InMemoryDatabase. A scenario may do a gesture while a rebuild removes the
- * abandoned versions, between their reading and their removal, as DynamoDB scans then deletes, or just before the next
- * activation, once the rebuild read every fact again, as a member may while a rebuild runs, or just after it, as the
- * worker may write in the former version a recording read live before; it may interrupt the next activation, the
- * version left being built.
+ * The figures' versions over the InMemoryDatabase. A scenario may run a gesture at three moments:
+ * - while a rebuild removes the abandoned versions, between their read and their removal, as DynamoDB scans then
+ *   deletes;
+ * - just before the next activation, once the rebuild has read every fact again, as a member may while a rebuild runs;
+ * - just after the next activation, as the worker may write in the previous version a recording that read it live.
+ *
+ * A scenario may also interrupt the next activation. The version then stays in the building state.
  */
 final class InMemoryProjectionVersions implements ProjectionVersions
 {

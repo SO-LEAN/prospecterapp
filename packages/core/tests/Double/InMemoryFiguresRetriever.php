@@ -10,7 +10,7 @@ use Prospecter\Core\Reporting\Domain\Model\Month;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 
 /**
- * Reads the counters the in-memory repository of the facts wrote, as the adapter reads the items of the figures.
+ * Reads the counters that the in-memory fact repository wrote, as the adapter reads the figures' items.
  */
 final readonly class InMemoryFiguresRetriever implements FiguresRetriever
 {
