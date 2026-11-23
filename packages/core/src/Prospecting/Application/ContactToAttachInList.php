@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application;
 
 /**
- * A contact waiting for their holder to attach them (ADR 0146): their last meeting, past or to come, and the moment
- * from which they are erased if nobody attaches them, the start of a day on the clock of that meeting.
+ * A contact who waits for their holder to attach them (ADR 0146). It has their last meeting, past or to come. It
+ * also has the moment from which they are erased if nobody attaches them: the start of a day, on that meeting's
+ * clock.
  */
 final readonly class ContactToAttachInList
 {

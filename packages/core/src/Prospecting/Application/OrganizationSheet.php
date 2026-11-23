@@ -8,15 +8,16 @@ use Prospecter\Core\SharedKernel\Application\ExternalLink;
 use Prospecter\Core\SharedKernel\Application\FileResponse;
 
 /**
- * The sheet of an organization of an account, with what its state offers now, and whether an AI created it.
+ * An account's organization as its sheet shows it. It says what the organization's state offers now, and whether an
+ * AI created it.
  */
 final readonly class OrganizationSheet
 {
     /**
-     * @param list<ExternalLink>      $links              its links to the tools outside
-     * @param list<string>            $contactIds         the persons prospected in it, to read in PersonalData
-     * @param list<string>            $possibleIntents    names of the intentions its state offers now: Relocate, RemoveLogo...
-     * @param list<PossibleDuplicate> $possibleDuplicates the organizations of the account it may be a duplicate of
+     * @param list<ExternalLink>      $links              its links to outside tools
+     * @param list<string>            $contactIds         the people prospected in it, to read in PersonalData
+     * @param list<string>            $possibleIntents    the names of the intents its state offers now, such as Relocate or RemoveLogo
+     * @param list<PossibleDuplicate> $possibleDuplicates the account's organizations it may be a duplicate of
      */
     public function __construct(
         public string $id,

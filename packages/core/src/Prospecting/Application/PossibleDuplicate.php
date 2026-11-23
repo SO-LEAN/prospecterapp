@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application;
 
 /**
- * An organization of the account another one resembles, by its name and its city: perhaps the same.
+ * An organization of the account that another one resembles by its name and its city. They may be the same
+ * organization.
  */
 final readonly class PossibleDuplicate
 {

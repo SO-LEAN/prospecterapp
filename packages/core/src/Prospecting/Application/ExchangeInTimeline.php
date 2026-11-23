@@ -5,19 +5,22 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application;
 
 /**
- * An exchange in a timeline; its channel, its direction and its status by the values of `Channel`, `Direction` and
- * `ExchangeStatus`, who called it off once cancelled, when said, by the values of `Canceller`, how long it lasts when
- * it was planned, where a meeting is held, the link of a video call, the
- * contact it was with, none when it was with the organization itself, its text flagged when the prospector reads
- * it without the right to manage personal data, what is to make conform once its contact was forgotten, whether its
- * contact waits to be attached, the exchange kept for no organization until then (ADR 0146), and the campaign it was
- * noted in, named as Campaigns names it now, none once erased (ADR 0145), and whether its contact booked it by the
- * public link of its holder (ADR 0164), and the provider of the mailbox it was imported from, none when noted (ADR 0174), and whether an AI created it.
+ * An exchange in a timeline. Its channel, direction and status take the values of `Channel`, `Direction` and
+ * `ExchangeStatus`. A cancelled exchange names who called it off, when someone said so, by the values of `Canceller`.
+ * A planned exchange has a duration. A meeting has its place, and a video call has its link.
+ * The exchange names the contact it was with, or none when it was with the organization itself.
+ * Its text is flagged when the prospector reads it without the right to manage personal data.
+ * Once its contact is forgotten, it says what still needs redacting.
+ * It says whether its contact waits to be attached. Until then, the exchange is kept for no organization (ADR 0146).
+ * It names the campaign it was logged in, under the campaign's current name in Campaigns. It names none once the
+ * campaign is erased (ADR 0145). It says whether its contact booked it through its holder's public link (ADR 0164).
+ * It names the provider of the mailbox it was imported from, or none when it was not imported (ADR 0174).
+ * It says whether an AI created it.
  */
 final readonly class ExchangeInTimeline
 {
     /**
-     * @param string|null  $contactPresence by the values of `ContactPresence`, none for the organization itself
+     * @param string|null  $contactPresence a value of `ContactPresence`, or none for the organization itself
      * @param list<string> $organizationIds the organizations it is kept for
      */
     public function __construct(
@@ -48,7 +51,7 @@ final readonly class ExchangeInTimeline
     }
 
     /**
-     * @param array<string, string> $names of campaigns, by identity
+     * @param array<string, string> $names the campaigns' names, by campaign id
      */
     #[\NoDiscard]
     public function withCampaignNamed(array $names): self
