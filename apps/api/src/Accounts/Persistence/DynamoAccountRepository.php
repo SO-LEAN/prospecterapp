@@ -19,8 +19,8 @@ use Prospecter\Core\SharedKernel\Domain\GeoPoint;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 
 /**
- * The accounts in the table of Accounts (ADR 0048): `ACCOUNT#<id>` / `ACCOUNT`, the account as a document, listed
- * with every account in `GSI1` (`ACCOUNTS`, its id).
+ * The accounts in the Accounts table (ADR 0048). Each account is a document under `ACCOUNT#<id>` / `ACCOUNT`.
+ * `GSI1` lists every account under `ACCOUNTS`, by id.
  */
 final readonly class DynamoAccountRepository implements AccountRepository
 {
@@ -62,8 +62,8 @@ final readonly class DynamoAccountRepository implements AccountRepository
     }
 
     /**
-     * Writes again the item of every account, its key in the list of the accounts with it: what a table written
-     * before the accounts were listed needs once.
+     * Rewrites every account's item with its key in the accounts' list. A table written before the accounts were
+     * listed needs this once.
      */
     public function writeTheKeysAgain(): int
     {

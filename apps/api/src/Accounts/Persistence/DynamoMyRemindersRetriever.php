@@ -12,8 +12,8 @@ use Prospecter\Core\Accounts\Domain\Exception\UnknownMember;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * Reads the reminders in the item of the member (`MEMBER#<id>` / `MEMBER`) that `DynamoMemberRepository` writes,
- * without restoring them (ADR 0088).
+ * Reads the reminders in the member's item (`MEMBER#<id>` / `MEMBER`) that `DynamoMemberRepository` writes. It does
+ * not restore the member (ADR 0088).
  */
 final readonly class DynamoMyRemindersRetriever implements MyRemindersRetriever
 {

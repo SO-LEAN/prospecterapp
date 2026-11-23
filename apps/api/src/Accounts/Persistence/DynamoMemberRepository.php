@@ -17,7 +17,7 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * The members in the table of Accounts (ADR 0048): `MEMBER#<id>` / `MEMBER`, the member as a document.
+ * The members in the Accounts table (ADR 0048). Each member is a document under `MEMBER#<id>` / `MEMBER`.
  */
 final readonly class DynamoMemberRepository implements MemberRepository
 {

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Accounts\Persistence;
 
 /**
- * The keys of the items of the table of Accounts, written by the repositories and read by the retrievers
- * (ADR 0088): one format for both.
+ * The keys of the Accounts table's items. The repositories write them and the retrievers read them (ADR 0088), so
+ * both use one format.
  */
 final class AccountsKeys
 {

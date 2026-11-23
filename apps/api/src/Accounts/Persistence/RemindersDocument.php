@@ -9,8 +9,7 @@ use Prospecter\Core\Accounts\Domain\Model\ReminderDelay;
 use Prospecter\Core\Accounts\Domain\Model\Reminders;
 
 /**
- * The reminders of a member in the document of the member; a member written before they had reminders has those by
- * default.
+ * A member's reminders in the member's document. A member written before reminders existed gets the default ones.
  */
 final class RemindersDocument
 {
@@ -34,7 +33,7 @@ final class RemindersDocument
     }
 
     /**
-     * The minutes before as a number, or as the string of a number DynamoDB gave back.
+     * Reads the minutes before as a number. DynamoDB may give them back as a numeric string.
      */
     private static function minutesOf(mixed $minutes): int
     {

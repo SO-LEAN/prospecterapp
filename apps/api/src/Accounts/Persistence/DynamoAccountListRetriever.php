@@ -11,8 +11,8 @@ use Prospecter\Core\Accounts\Application\Port\AccountListRetriever;
 use Prospecter\Core\SharedKernel\Domain\Slice;
 
 /**
- * Reads the identities of the accounts in the items `ACCOUNT#<id>` / `ACCOUNT` that `DynamoAccountRepository`
- * writes, listed in `GSI1` (`ACCOUNTS`), without restoring them (ADR 0088).
+ * Reads the accounts' ids in the `ACCOUNT#<id>` / `ACCOUNT` items that `DynamoAccountRepository` writes. `GSI1`
+ * lists them under `ACCOUNTS`. It does not restore the accounts (ADR 0088).
  */
 final readonly class DynamoAccountListRetriever implements AccountListRetriever
 {
