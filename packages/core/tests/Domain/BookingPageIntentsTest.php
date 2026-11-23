@@ -62,14 +62,14 @@ final class BookingPageIntentsTest extends TestCase
         $page = $this->open();
 
         $this->expectException(NotPossibleInItsState::class);
-        $this->expectExceptionMessageIsOrContains('An open booking page cannot open again');
+        $this->expectExceptionMessageIsOrContains('The booking page is already open');
         $page->open(new BookingCode(self::OTHER_CODE), true, $this->now());
     }
 
     public function testAClosedPageIsNotClosedAgain(): void
     {
         $this->expectException(NotPossibleInItsState::class);
-        $this->expectExceptionMessageIsOrContains('A closed booking page cannot close again');
+        $this->expectExceptionMessageIsOrContains('The booking page is already closed');
         $this->aPageNeverSet()->close($this->now());
     }
 
