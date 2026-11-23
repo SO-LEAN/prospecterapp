@@ -91,7 +91,7 @@ final class OrganizationContext implements Context
     }
 
     /**
-     * The address as written on one line: its street, then its postal code and its city.
+     * The address written on one line: its street, then its postal code and its city.
      */
     #[Given('l\'organisation :name au :address appartient à :owner')]
     public function anOrganizationAtAnAddressProspectedBy(string $name, string $address, string $owner): void
@@ -379,7 +379,8 @@ final class OrganizationContext implements Context
     }
 
     /**
-     * Lifted in return by an organization stopped meanwhile, the reaction has nothing left to do: it fails no event.
+     * An organization stopped meanwhile can lift a suspicion in return. The reaction then has nothing left to do,
+     * and it fails no event.
      */
     #[Then('aucune levée de soupçon n\'a échoué')]
     public function noLiftingOfASuspicionFailed(): void

@@ -22,8 +22,8 @@ use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Tests\Core\Acceptance\Expect;
 
 /**
- * The files joined to "cet échange": the client sends each to the storage, then joins the upload to the exchange.
- * A file is named in the scenarios by its name, its contents made of it.
+ * The files attached to "cet échange". The client sends each file to the storage, then attaches the upload to the
+ * exchange. The scenarios name a file by its name, and its contents are made from that name.
  */
 final class AttachmentContext implements Context
 {
@@ -35,7 +35,7 @@ final class AttachmentContext implements Context
     private array $contents = [];
     /** @var array<string, string> the attachment by name */
     private array $attachments = [];
-    /** @var array<string, string> the upload, then the kept file, by name */
+    /** @var array<string, string> the upload, then the file kept, by name */
     private array $files = [];
     private ?AttachmentDownloadResponse $download = null;
 

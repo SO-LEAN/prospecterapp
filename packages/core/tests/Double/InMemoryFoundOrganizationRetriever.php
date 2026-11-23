@@ -19,7 +19,7 @@ use Prospecter\Core\SharedKernel\Domain\SearchKeys;
 use Prospecter\Core\SharedKernel\Domain\Slice;
 
 /**
- * Reads the organizations the in-memory repository saved, as the adapter reads the items of the table.
+ * Reads the organizations that the in-memory repository saved, as the adapter reads the table's items.
  */
 final readonly class InMemoryFoundOrganizationRetriever implements FoundOrganizationRetriever
 {

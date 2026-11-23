@@ -18,7 +18,8 @@ use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 
 /**
- * The exchanges the signed-in prospector planned, whose end has passed, still to mark done, missed or cancelled.
+ * The exchanges that the signed-in prospector planned and whose end has passed. Nobody has marked them
+ * done, missed or cancelled yet.
  */
 final class WhatIsToProcessContext implements Context
 {

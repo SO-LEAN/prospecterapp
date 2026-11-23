@@ -703,8 +703,8 @@ class ExchangeTest extends TestCase
     }
 
     /**
-     * Moving back is a move to the moment the exchange was just moved from, offered by its reading after that move
-     * only: the aggregate does not know that moment.
+     * Moving back moves the exchange to the moment it was just moved from. Only the exchange's reading after that
+     * move offers it, because the aggregate does not know that moment.
      *
      * @return iterable<string, array{ExchangeIntent, string, string}>
      */
@@ -746,7 +746,7 @@ class ExchangeTest extends TestCase
     }
 
     /**
-     * What the policy offers a member now given the state of the exchange, as its reading tells it (ADR 0088).
+     * What the policy offers a member now, given the exchange's state as its reading tells it (ADR 0088).
      *
      * @return list<ExchangeIntent>
      */
@@ -760,7 +760,7 @@ class ExchangeTest extends TestCase
     }
 
     /**
-     * As the reading of the exchange tells it (ADR 0088).
+     * Tells whether the text still needs redacting, as the exchange's reading tells it (ADR 0088).
      */
     private static function isTextToMakeConform(Exchange $exchange): bool
     {
@@ -999,7 +999,7 @@ class ExchangeTest extends TestCase
     }
 
     /**
-     * Planned the day before for an hour ago, with a file: its time has come.
+     * The exchange was planned the day before for an hour ago, and it has a file. Its time has come.
      */
     private function due(): Exchange
     {

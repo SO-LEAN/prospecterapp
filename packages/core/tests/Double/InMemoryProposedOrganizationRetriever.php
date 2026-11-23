@@ -11,8 +11,8 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 
 /**
- * Reads the organizations the in-memory repository saved by the domain of their email, as the adapter reads the
- * links the repository writes.
+ * Reads the organizations that the in-memory repository saved, by their email's domain. The adapter reads the
+ * links that the repository writes in the same way.
  */
 final readonly class InMemoryProposedOrganizationRetriever implements ProposedOrganizationRetriever
 {

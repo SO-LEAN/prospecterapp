@@ -16,8 +16,8 @@ use Prospecter\Core\SharedKernel\Domain\SearchKeys;
 use Prospecter\Core\SharedKernel\Domain\Slice;
 
 /**
- * Reads the facts of the organizations the in-memory repository saved, as the adapter reads the items of the
- * table, their revision with them.
+ * Reads the facts of the organizations that the in-memory repository saved, with their revision. The adapter
+ * reads the table's items in the same way.
  */
 final readonly class InMemoryOrganizationFactsRetriever implements OrganizationFactsRetriever
 {

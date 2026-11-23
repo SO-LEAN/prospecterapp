@@ -17,8 +17,8 @@ use Prospecter\Core\SharedKernel\Domain\SearchKeys;
 use Prospecter\Core\SharedKernel\Domain\Slice;
 
 /**
- * Reads the facts of the exchanges the in-memory repository saved, as the adapter reads the items of the table,
- * their revision with them.
+ * Reads the facts of the exchanges that the in-memory repository saved, with their revision. The adapter reads
+ * the table's items in the same way.
  */
 final readonly class InMemoryExchangeFactsRetriever implements ExchangeFactsRetriever
 {

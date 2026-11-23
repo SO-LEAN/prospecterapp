@@ -24,7 +24,7 @@ use Tests\Core\Acceptance\Vocabulary;
 use Tests\Core\Double\StateOf;
 
 /**
- * The links of an organization or of a person to the tools outside, and the references they are.
+ * An organization's or a person's links to outside tools, and the references they stand for.
  */
 final class LinkContext implements Context
 {

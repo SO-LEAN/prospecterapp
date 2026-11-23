@@ -12,8 +12,8 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
- * Anticorruption layer of the API, in the scenarios (ADR 0045, 0089): PersonalData knows the organizations a contact may belong to,
- * Prospecting tells which organizations an account prospects, once for all of them.
+ * The API's anticorruption layer, in the scenarios (ADR 0045, 0089). PersonalData knows the organizations that a
+ * contact may belong to. Prospecting tells which of them the account prospects, in one call for all of them.
  */
 final readonly class ProspectingOrganizations implements ProspectedOrganizations
 {

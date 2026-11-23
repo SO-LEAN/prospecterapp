@@ -16,8 +16,8 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Reads the exchanges the in-memory repository saved, as the adapter reads the agenda of a prospector: those they
- * planned, by their moment then their id, the soonest first.
+ * Reads the exchanges that the in-memory repository saved, as the adapter reads a prospector's agenda. The agenda
+ * holds the exchanges the prospector planned, sorted by their moment then their id, the soonest first.
  */
 final readonly class InMemoryAgendaRetriever implements AgendaRetriever
 {

@@ -24,7 +24,8 @@ use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 
 /**
- * The calendar of the signed-in prospector, read period by period: a period is told by its first and its last day.
+ * The signed-in prospector's calendar, read one period at a time. A scenario names a period by its first and last
+ * day.
  */
 final class CalendarContext implements Context
 {
@@ -128,7 +129,7 @@ final class CalendarContext implements Context
     }
 
     /**
-     * The start of a day on the clock of the reader.
+     * The start of a day on the reader's clock.
      */
     private function startOf(string $day): \DateTimeImmutable
     {

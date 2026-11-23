@@ -46,8 +46,8 @@ use Tests\Core\Double\InMemoryPrivateStorage;
 use Tests\Core\Double\StateOf;
 
 /**
- * The exchanges with the contacts and with the organizations, noted or planned, and read in their timeline: a
- * timeline is named after its contact or its organization, those to come apart from the past ones.
+ * The exchanges with contacts and with organizations, logged or planned, and read in their timelines. A timeline
+ * is named after its contact or its organization. It keeps the upcoming exchanges apart from the past ones.
  */
 final class ExchangeContext implements Context
 {
@@ -178,7 +178,7 @@ final class ExchangeContext implements Context
     }
 
     /**
-     * The address written on one line, as the screen proposes it.
+     * The address is written on one line, as the screen proposes it.
      */
     #[Then('le lieu proposé est :place')]
     public function theProposedPlaceIs(string $place): void
@@ -440,7 +440,8 @@ final class ExchangeContext implements Context
     }
 
     /**
-     * With a contact, or from the card of an organization, with it or with one of its contacts.
+     * Plans an exchange with a contact. From an organization's card, it plans one with the organization or with
+     * one of its contacts.
      */
     private function plan(string $prospectorId, string $from, string $interlocutor, string $channel, \DateTimeImmutable $plannedAt, ?int $minutes, ?string $place = null, ?string $link = null, ?string $agenda = null, bool $linkRequested = false, bool $byAnAI = false): void
     {
@@ -520,7 +521,7 @@ final class ExchangeContext implements Context
     }
 
     /**
-     * The exchanges saved for the timeline, the most recent moment first.
+     * The exchanges saved for the timeline, with the most recent moment first.
      *
      * @return list<Exchange>
      */
@@ -535,7 +536,7 @@ final class ExchangeContext implements Context
     }
 
     /**
-     * Who communicated: the contact, or the organization of the timeline itself.
+     * Who took part in the exchange: the contact, or the timeline's organization itself.
      */
     private function interlocutorOf(ExchangeInTimeline $exchange, string $timelineOf): string
     {

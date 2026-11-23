@@ -26,7 +26,7 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 /**
- * Reads the organizations the in-memory repository saved, as the adapter reads the items of the table.
+ * Reads the organizations that the in-memory repository saved, as the adapter reads the table's items.
  */
 final readonly class InMemoryOrganizationSheetRetriever implements OrganizationSheetRetriever
 {

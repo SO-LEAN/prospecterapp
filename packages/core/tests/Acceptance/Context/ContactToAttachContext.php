@@ -31,8 +31,9 @@ use Tests\Core\Acceptance\Vocabulary;
 use Tests\Core\Double\StateOf;
 
 /**
- * The contacts to attach (ADR 0146): a person who took a meeting with the signed-in member, kept without
- * organization until they attach them, erased 30 days after their last meeting otherwise.
+ * The contacts to attach (ADR 0146). A contact to attach is a person who took a meeting with the signed-in member.
+ * The contact stays without an organization until the member attaches them. Otherwise, it is erased 30 days after
+ * its last meeting.
  */
 final class ContactToAttachContext implements Context
 {
@@ -42,8 +43,8 @@ final class ContactToAttachContext implements Context
     private ?ProposedOrganization $proposed = null;
 
     /**
-     * Arranged as the booking of a meeting will do it: the person collected without organization, met by the
-     * signed-in member, the meeting planned by them.
+     * Arranges the contact as a meeting's booking will do. The person is collected without an organization. The
+     * signed-in member meets them and plans the meeting.
      */
     #[Given('/^"(?<name>[^"]+)" \((?<email>[^)]+)\) a pris une visio avec moi le (?<day>\S+) à (?<time>\S+)$/')]
     public function aPersonTookAVideoCallWithMe(string $name, string $email, string $day, string $time): void

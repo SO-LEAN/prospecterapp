@@ -13,8 +13,8 @@ use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 
 /**
- * The facts Prospecting publishes each time an organization or an exchange changes (ADR 0046): the event is
- * the contract, the scenarios read the last one published about what they name.
+ * The facts that Prospecting publishes each time an organization or an exchange changes (ADR 0046). The event is
+ * the contract. The scenarios read the last event published about what they name.
  */
 final class ProspectingFactsContext implements Context
 {
@@ -75,7 +75,7 @@ final class ProspectingFactsContext implements Context
     }
 
     /**
-     * @param array{present: bool, status: ?string, notedAt: ?string, revision: int} $expected the moment in French
+     * @param array{present: bool, status: ?string, notedAt: ?string, revision: int} $expected with the moment written in French
      */
     private function expectTheLastFactsOfTheExchange(array $expected): void
     {

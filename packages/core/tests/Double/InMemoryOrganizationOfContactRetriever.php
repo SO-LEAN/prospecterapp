@@ -12,8 +12,8 @@ use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * The DynamoDB retriever in the scenarios: the organizations of the account naming each contact, in the order of
- * their identities as the links of the table give them, read without their getters.
+ * The DynamoDB retriever in the scenarios. It reads the account's organizations that name each contact, without
+ * their getters. It sorts them by their ids, as the table's links give them.
  */
 final readonly class InMemoryOrganizationOfContactRetriever implements OrganizationOfContactRetriever
 {

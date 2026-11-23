@@ -28,7 +28,7 @@ use Tests\Core\Acceptance\Vocabulary;
 use Tests\Core\Double\StateOf;
 
 /**
- * One exchange, "cet échange" of the scenarios: its detail, its correction, its erasure.
+ * One exchange, "cet échange" in the scenarios: its detail, its correction and its erasure.
  */
 final class ExchangeDetailContext implements Context
 {
@@ -57,7 +57,8 @@ final class ExchangeDetailContext implements Context
     }
 
     /**
-     * As the client corrects an exchange: its facts as they are, but those the table changes.
+     * Corrects the exchange as the client does. It sends the exchange's current facts, except those the table
+     * changes.
      */
     #[When('je corrige cet échange :')]
     public function iCorrectTheExchange(TableNode $table): void
@@ -155,7 +156,7 @@ final class ExchangeDetailContext implements Context
     }
 
     /**
-     * The exchange as it is now, read again after what the scenario did.
+     * The exchange as it is now. It is read again after the scenario's steps.
      */
     private function consulted(): ExchangeDetail
     {
@@ -193,7 +194,7 @@ final class ExchangeDetailContext implements Context
     }
 
     /**
-     * The contact it was with, or the organization itself, the only one it is kept for.
+     * The contact the exchange was with. Otherwise, the organization itself, the only one the exchange is kept for.
      */
     private function interlocutorOf(ExchangeDetail $exchange): string
     {
