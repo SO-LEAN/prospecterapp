@@ -9,12 +9,12 @@ use Prospecter\Core\Connectors\Domain\Model\ExchangeId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * Reads where the push of an exchange stands from its entry, without restoring it (ADR 0088, 0133).
+ * Reads an exchange's push state from its entry, without restoring the entry (ADR 0088, 0133).
  */
 interface ExchangeSyncRetriever
 {
     /**
-     * None while nothing was pushed of it into the calendar of the member.
+     * Returns null while nothing of the exchange was pushed into the member's calendar.
      */
     public function find(ExchangeId $exchange, MemberId $member): ?ExchangeSync;
 }
