@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\ConsultTimelineIntents;
 
 /**
- * What the prospector may do with the timeline of a person, without reading it: the card of a contact leads to
- * its timeline only when it may be read.
+ * Tells what the prospector may do with a person's timeline, without reading it. A contact's card leads to the
+ * timeline only when the prospector may read it.
  */
 final readonly class ConsultTimelineIntents
 {

@@ -11,8 +11,8 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * A person who is no contact of the account has no timeline: nothing is offered on it. A contact waiting for another
- * member to attach them is only read (ADR 0146).
+ * A person who is not a contact of the account has no timeline, so the timeline offers nothing. A contact who waits
+ * for another member to attach them can only be read (ADR 0146).
  */
 final readonly class ConsultTimelineIntentsHandler implements QueryHandler
 {
