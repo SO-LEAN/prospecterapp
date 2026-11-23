@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\CancelExchange;
 
 /**
- * Cancels a planned exchange, by its holder; who called it off, when said, by the values of `Canceller`: the
- * prospector or the contact.
+ * Cancels a planned exchange. Only its holder cancels it. The holder may say who called it off, with the values of
+ * `Canceller`: the prospector or the contact.
  */
 final readonly class CancelExchange
 {
