@@ -50,7 +50,7 @@ final readonly class NotedOnce
         $noted = $this->exchanges->fingerprinted($accountId, $fingerprint);
 
         if (null !== $noted?->erasure) {
-            throw ExchangeErasedBefore::because('Exchange erased before, not noted again', context: ['erasedBy' => $noted->erasure->by->value, 'erasedAt' => $noted->erasure->at->format(\DATE_ATOM)]);
+            throw ExchangeErasedBefore::because('This exchange was erased, so it is not logged again', context: ['erasedBy' => $noted->erasure->by->value, 'erasedAt' => $noted->erasure->at->format(\DATE_ATOM)]);
         }
 
         return $noted?->exchange;

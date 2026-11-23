@@ -14,6 +14,6 @@ final class ExchangeNotedMeanwhile extends NotPossibleInItsState
 {
     public static function byAnother(?\Throwable $detectedBy = null): self
     {
-        return self::because('Exchange noted meanwhile', previous: $detectedBy);
+        return self::because('This exchange was logged in the meantime', previous: $detectedBy);
     }
 }
