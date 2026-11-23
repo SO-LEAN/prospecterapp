@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { DUE_SHORTCUTS, dayOf, formatDue, isOverdue, split } from './due'
 import type { ToDo } from './queries'
 
-/** Friday 13 November 2026, 10:00 in the time of the browser. */
+/** Friday 13 November 2026, 10:00 in the browser's time zone. */
 const FRIDAY = new Date(2026, 10, 13, 10, 0)
 
 const aToDo = (toDo: Partial<ToDo>): ToDo => ({

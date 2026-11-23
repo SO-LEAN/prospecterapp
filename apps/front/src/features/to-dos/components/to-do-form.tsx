@@ -17,13 +17,13 @@ type Props = {
   onSubmit: Submit
   submitLabel: string
   onCancel: () => void
-  /** The to-do to revise; a new one is due tomorrow by default. */
+  /** The to-do to revise. Without it, a new to-do is due tomorrow. */
   defaultValues?: ToDoValues
-  /** A new one noted, the form ready for another: offered beside the submit. */
+  /** Logs the new to-do and readies the form for another one. The form offers it beside the submit button. */
   onSubmitThenAnother?: Submit
 }
 
-/** What is to do, then its day, by a shortcut, and an hour when it matters; the text focused once opened. */
+/** What there is to do, then its day by a shortcut, and an hour when it matters. The text has the focus once the form opens. */
 export function ToDoForm({ onSubmit, submitLabel, onCancel, defaultValues, onSubmitThenAnother }: Props) {
   const { t } = useTranslation()
   const [globalErrors, setGlobalErrors] = useState<string[]>([])
@@ -37,7 +37,7 @@ export function ToDoForm({ onSubmit, submitLabel, onCancel, defaultValues, onSub
     form.setFocus('text')
   }, [form])
 
-  /** The day chosen, the text takes the focus back, for Enter to add the to-do rather than press the shortcut again. */
+  /** Once the day is chosen, the text takes the focus back. So Enter adds the to-do rather than presses the shortcut again. */
   const dueOnTheDayOf = (shortcut: DueShortcut) => {
     form.setValue('dueOn', DUE_SHORTCUTS[shortcut](new Date()), { shouldValidate: true })
     form.setFocus('text')

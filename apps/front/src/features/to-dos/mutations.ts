@@ -6,9 +6,9 @@ import { queryKeys } from '@/shared/api/keys'
 import { toDoKeys } from './queries'
 
 /**
- * A to-do shows on the cards of its contact, of its organizations, among mine, in my calendar and in what I have to
- * process: each is read again, the gesture pending until they are, so that a list never shows the former state once
- * the gesture is over.
+ * A to-do shows on its contact's card, on its organizations' cards, among my to-dos, in my calendar and in what I have
+ * to process. Each of them is read again, and the gesture stays pending until they are. So no list shows the former
+ * state once the gesture is over.
  */
 const readTheListsAgain = (queryClient: QueryClient) =>
   Promise.all([
@@ -45,7 +45,7 @@ export function useNoteOrganizationToDo() {
   })
 }
 
-/** Revised from a form, which tells its refusals; from elsewhere (a to-do dropped on another day), a toast does. */
+/** A form shows the refusals of a revision it sends. A toast shows them for a revision from elsewhere, such as a to-do dropped on another day. */
 export function useReviseToDo({ fromAForm = true } = {}) {
   const queryClient = useQueryClient()
   const { t } = useTranslation()

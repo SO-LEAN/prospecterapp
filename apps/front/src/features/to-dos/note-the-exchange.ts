@@ -4,9 +4,9 @@ import { toast } from 'sonner'
 import type { ToDo } from './queries'
 
 /**
- * Once a to-do is ticked off, « Noter l'échange ? » is proposed, the email sent for instance, so that the timeline
- * stays complete; ignored, nothing happens. Accepted, the page opens the quick entry of an exchange with the to-do
- * it was proposed for.
+ * Once a to-do is ticked off, the page proposes « Noter l'échange ? », for instance the email sent. So the timeline
+ * stays complete. When the member ignores it, nothing happens. When they accept it, the page opens an exchange's quick
+ * entry with the to-do it was proposed for.
  */
 export function useNoteTheExchangeProposal() {
   const { t } = useTranslation()
