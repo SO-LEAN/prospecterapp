@@ -17,7 +17,7 @@ const isRefusal = (error: unknown): error is SignInRefusal =>
   typeof error === 'object' && error !== null && 'code' in error && typeof error.code === 'string'
 
 type Props = {
-  /** Signs in; a refusal of the user pool (wrong credentials, too many attempts) is shown here. */
+  /** Signs in. The form shows the user pool's refusals here (wrong credentials, too many attempts). */
   onSubmit: (values: SignInValues) => Promise<unknown>
 }
 

@@ -7,7 +7,7 @@ import { remindersQuery } from './queries'
 
 export type Reminders = components['schemas']['RemindersResource']
 
-/** Saved at once, each change of the switch or of the delay, confirmed by a toast. */
+/** Saves each change of the switch or of the delay at once, and confirms it with a toast. */
 export function useChangeMyReminders() {
   const queryClient = useQueryClient()
   const { t } = useTranslation()

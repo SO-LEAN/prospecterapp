@@ -7,15 +7,15 @@ const asShown = (account: Account): ShownMember => ({
   email: account.contactDetails.email,
 })
 
-/** How the signed-in member is shown: their name, else the email of their profile, else "Membre sans nom". */
+/** How the signed-in member is shown: their name, else their profile's email, else "Membre sans nom". */
 export const myName = (account: Account) => memberName(asShown(account))
 
-/** How the signed-in member is greeted: their first name, else as they are shown. */
+/** How the signed-in member is greeted: their first name, else the way they are shown. */
 export const myFirstName = (account: Account) => memberFirstName(asShown(account))
 
 /**
- * A profile without a name is completed by its member before anything else, when their account offers them to change
- * their name and their contact details.
+ * A member completes a profile without a name before anything else, when their account lets them change their name
+ * and their contact details.
  */
 export const hasAProfileToComplete = (account: Account) =>
   !account.name.firstName &&
@@ -23,8 +23,8 @@ export const hasAProfileToComplete = (account: Account) =>
   Boolean(account._links.changeMyName && account._links.changeMyContactDetails)
 
 /**
- * The profile of a member is created by a reaction to their registration, a moment after it (ADR 0101): until then,
- * their account is refused for a person not found.
+ * A reaction to a member's registration creates their profile a moment later (ADR 0101). Until then, the API refuses
+ * their account because it does not find the person.
  */
 export const isMyProfileBeingPrepared = (error: unknown) =>
   isProblem(error) && error.status === 404 && error.reason === 'unknownPerson'
@@ -33,8 +33,8 @@ const FIRST_DELAY_MS = 1_000
 const LONGEST_WAIT_MS = 60_000
 
 /**
- * The delay before reading again a profile being prepared, after `readings` readings refused: doubled each time, none
- * once the member waited a minute.
+ * The delay before reading a profile being prepared again, after `readings` refused readings. The delay doubles each
+ * time. There is no further reading once the member has waited a minute.
  */
 export function nextReadingOfMyProfile(readings: number): number | false {
   const waited = waitedBefore(readings)
@@ -44,5 +44,5 @@ export function nextReadingOfMyProfile(readings: number): number | false {
 
 const doubledDelay = (readings: number) => FIRST_DELAY_MS * 2 ** (readings - 1)
 
-/** The delays before the readings so far, 1 + 2 + … + 2^(n−2) seconds: 2^(n−1) − 1, a second short of the next. */
+/** The sum of the delays before the readings so far, 1 + 2 + … + 2^(n−2) seconds: 2^(n−1) − 1, one second less than the next delay. */
 const waitedBefore = (readings: number) => doubledDelay(readings) - FIRST_DELAY_MS
