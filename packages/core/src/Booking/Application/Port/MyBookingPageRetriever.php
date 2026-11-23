@@ -8,12 +8,12 @@ use Prospecter\Core\Booking\Application\MyBookingPage;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * Port: the booking page of a host, read without restoring it (ADR 0088).
+ * Port: reads a host's booking page without restoring it (ADR 0088).
  */
 interface MyBookingPageRetriever
 {
     /**
-     * @param string $today YYYY-MM-DD, the day of the reading on the clock of the host: the periods ended before it are not read
+     * @param string $today YYYY-MM-DD, the reading's day on the host's clock. The periods that ended before it are left out
      */
     public function of(MemberId $host, string $today, bool $calendarConnected): MyBookingPage;
 }

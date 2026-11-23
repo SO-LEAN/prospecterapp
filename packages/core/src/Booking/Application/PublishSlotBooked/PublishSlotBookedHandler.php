@@ -10,7 +10,7 @@ use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 
 /**
- * Tells the other contexts, in the published language, that a slot was booked (ADR 0046, 0164).
+ * Tells the other contexts, in the published language, that a booker booked a slot (ADR 0046, 0164).
  */
 final readonly class PublishSlotBookedHandler implements EventHandler
 {

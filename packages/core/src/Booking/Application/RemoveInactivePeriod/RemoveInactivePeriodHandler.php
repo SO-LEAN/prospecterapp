@@ -23,7 +23,7 @@ final readonly class RemoveInactivePeriodHandler implements CommandHandler
     }
 
     /**
-     * A page never set has no period to remove.
+     * A page that was never set up has no period to remove.
      */
     public function __invoke(RemoveInactivePeriod $command): void
     {

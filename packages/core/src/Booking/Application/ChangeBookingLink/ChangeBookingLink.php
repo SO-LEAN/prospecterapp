@@ -7,7 +7,7 @@ namespace Prospecter\Core\Booking\Application\ChangeBookingLink;
 final readonly class ChangeBookingLink
 {
     /**
-     * @param string $drawnCode 22 random characters of base 62 the API drew, the new code of the link
+     * @param string $drawnCode the link's new code: 22 random base-62 characters that the API drew
      */
     public function __construct(
         public string $memberId,

@@ -7,7 +7,7 @@ namespace Prospecter\Core\Booking\Application\AddInactivePeriod;
 final readonly class AddInactivePeriod
 {
     /**
-     * @param string $firstDay YYYY-MM-DD, on the clock of the host
+     * @param string $firstDay YYYY-MM-DD, on the host's clock
      * @param string $lastDay  YYYY-MM-DD, included
      */
     public function __construct(

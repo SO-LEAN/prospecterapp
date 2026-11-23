@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Booking\Application\ConsultPublicBookingPage;
 
 /**
- * The booking page a public link leads to, read by anyone holding it, without signing in, at a moment: its free slots
- * start the day after.
+ * The booking page that a public link leads to, at a given moment. Anyone with the link can read it without signing in.
+ * Its free slots start on the next day.
  */
 final readonly class ConsultPublicBookingPage
 {

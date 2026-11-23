@@ -10,7 +10,7 @@ use Prospecter\Core\Booking\Domain\Repository\BookingPageRepository;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * The booking page of a host as the gestures on it find it: set up, in the account of its host, by the first one.
+ * Finds a host's booking page for the actions on it. The first action sets the page up in the host's account.
  */
 final readonly class BookingPages
 {

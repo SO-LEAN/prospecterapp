@@ -35,6 +35,6 @@ final readonly class OfferChannelsHandler implements CommandHandler
 
     private static function channel(string $channel): Channel
     {
-        return Channel::tryFrom($channel) ?? throw BusinessRuleViolation::because('A booking offers a call or a video call', 'channels', context: ['channel' => $channel]);
+        return Channel::tryFrom($channel) ?? throw BusinessRuleViolation::because('A booking page offers a call or a video call', 'channels', context: ['channel' => $channel]);
     }
 }
