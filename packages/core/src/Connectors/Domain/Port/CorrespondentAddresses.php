@@ -13,21 +13,21 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Port: the address a correspondent of the account has, translated from the contexts that know them, PersonalData
- * for the contacts and Prospecting for the organizations, through their published services (ADR 0089): read to search
- * the mailbox, never kept.
+ * Port: the address of one of the account's correspondents (ADR 0089). It is translated from the contexts that know
+ * the correspondents, through their published services: PersonalData for the contacts, Prospecting for the
+ * organizations. The address is read to search the mailbox, and is never kept.
  */
 interface CorrespondentAddresses
 {
     /**
-     * The address of a contact as the member reads them, none when they have none.
+     * A contact's address as the member reads it. None when the contact has no address.
      *
-     * @throws UnknownContact unless the member reads them in clear
+     * @throws UnknownContact unless the member reads the contact unmasked
      */
     public function ofContact(MemberId $reader, PersonId $contact): ?Email;
 
     /**
-     * The address of an organization the account prospects, none when it has none.
+     * The address of an organization that the account prospects. None when the organization has no address.
      *
      * @throws UnknownOrganization unless the account prospects it
      */

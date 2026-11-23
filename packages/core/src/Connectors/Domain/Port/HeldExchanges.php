@@ -10,8 +10,9 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * Port: the exchanges as they are now, translated from the context that keeps them (Prospecting), through its
- * published services `ConsultHeldExchangesService` (ADR 0089, 0127) and `ConsultPlannedExchangesService` (ADR 0133).
+ * Port: the exchanges as they currently are. It is translated from Prospecting, the context that keeps them,
+ * through its published services `ConsultHeldExchangesService` (ADR 0089, 0127) and `ConsultPlannedExchangesService`
+ * (ADR 0133).
  */
 interface HeldExchanges
 {
@@ -21,7 +22,7 @@ interface HeldExchanges
     public function find(AccountId $accountId, ExchangeId $id): ?HeldExchange;
 
     /**
-     * Those the holder still has planned from `from` on, the soonest first.
+     * The exchanges that the holder still has planned from `from` on, the soonest first.
      *
      * @return list<HeldExchange>
      */

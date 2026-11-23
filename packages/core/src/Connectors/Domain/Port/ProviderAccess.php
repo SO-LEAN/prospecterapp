@@ -11,27 +11,27 @@ use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Model\RefreshToken;
 
 /**
- * Port: what Connectors asks of a provider about the access a member gives it (OAuth 2, ADR 0120), through the client
- * of the account of the member (ADR 0125), implemented by the API.
+ * Port: what Connectors asks a provider about the access that a member gives (OAuth 2, ADR 0120). Connectors asks
+ * through the member's account's client (ADR 0125). The API implements this port.
  */
 interface ProviderAccess
 {
     /**
-     * The access the provider grants the client for the code of authorization it gave the member, with its verifier
-     * (PKCE).
+     * The access that the provider grants the client for the authorization code it gave the member. The code comes with
+     * its verifier (PKCE).
      *
      * @throws AccessNotGranted
      */
     public function exchange(ClientCredentials $client, string $code, string $codeVerifier): Grant;
 
     /**
-     * False once the provider refuses the token: revoked by the member, expired, or replaced too many times.
+     * False once the provider refuses the token. The member revoked it, it expired, or it was replaced too many times.
      */
     public function stillGrants(ClientCredentials $client, RefreshToken $refreshToken): bool;
 
     /**
-     * Never fails: an access the provider could not revoke is forgotten all the same. A token is revoked without its
-     * client, which may be gone.
+     * Never fails: an access that the provider could not revoke is forgotten all the same. A token is revoked without
+     * its client, because the client may be gone.
      */
     public function revoke(Provider $provider, RefreshToken $refreshToken): void;
 }

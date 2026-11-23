@@ -9,19 +9,19 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Port: the name of a contact as a member reads it, in clear or masked, translated from the context that keeps the
- * personal data (PersonalData), through its published service `NameContactsService` (ADR 0089, 0127).
+ * Port: a contact's name as a member reads it, unmasked or masked (ADR 0089, 0127). It is translated from
+ * PersonalData, the context that keeps the personal data, through its published service `NameContactsService`.
  */
 interface ContactNames
 {
     /**
-     * None for a contact forgotten, or that the member does not reach.
+     * None for a forgotten contact, or for a contact that the member does not reach.
      */
     public function nameOf(PersonId $contact, MemberId $readBy): ?string;
 
     /**
-     * Their e-mail and their phone as the member reads them in clear; none for a contact forgotten, that the member
-     * does not reach, or reads masked.
+     * The contact's e-mail and phone as the member reads them unmasked. None for a forgotten contact, for a contact
+     * that the member does not reach, or for a contact that the member reads masked.
      */
     public function contactDetailsOf(PersonId $contact, MemberId $readBy): ?ContactDetails;
 }
