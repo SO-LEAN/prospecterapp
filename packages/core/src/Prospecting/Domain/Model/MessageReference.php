@@ -63,7 +63,7 @@ final readonly class MessageReference
     private static function ensureOfItsChannel(MessageId|string|null $reference, Channel $itsChannel, Channel $channel, string $field): void
     {
         if (null !== $reference && $itsChannel !== $channel) {
-            throw ReferenceNotOfTheChannel::because(sprintf('Only a message of the channel %s has a %s', $itsChannel->value, $field), $field, context: ['channel' => $channel->value]);
+            throw ReferenceNotOfTheChannel::because(sprintf('Only a message sent by %s can have a %s', $itsChannel->value, $field), $field, context: ['channel' => $channel->value]);
         }
     }
 
