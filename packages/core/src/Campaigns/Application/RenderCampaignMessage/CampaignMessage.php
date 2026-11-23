@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Campaigns\Application\RenderCampaignMessage;
 
-/**
- * The message of a campaign rendered for one contact, and the subject of an e-mail.
- */
+/** A campaign's message rendered for one contact, and an e-mail's subject. */
 final readonly class CampaignMessage
 {
     public function __construct(
