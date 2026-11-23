@@ -266,7 +266,7 @@
     "sources": ["prospecter.prospecting"],
     "events": ["ExchangeFactsChanged.v3", "ExchangeFactsChanged.v4"],
     "payload": {"present": [false]},
-    "handler": "Prospecter\\Core\\Campaigns\\Application\\ReopenRecipientOfErasedExchange\\ReopenRecipientOfErasedExchangeHandler",
+    "policy": "Prospecter\\Core\\Campaigns\\Application\\Policy\\ReopenRecipientOfErasedExchangePolicy",
     "inbox": false
   },
   "booking-forget-appointment-of-erased-exchange": {
