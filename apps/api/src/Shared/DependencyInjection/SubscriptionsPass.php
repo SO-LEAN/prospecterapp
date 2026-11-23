@@ -13,13 +13,14 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 
 /**
- * Ranks the event handlers of the core: a translator publishing a domain event for the other contexts stays on the
- * event bus (RefusalTranslatingHandlersPass); every other one is the reaction of a subscription of
- * `config/subscriptions.json`, the list the infrastructure reads too, taken off the event bus and reached through
- * its decorators by the delivery (Subscriptions). A subscription names its reaction (`handler`), or one per event it
- * listens to (`handlers`, by detail-type), and the payloads it listens to when not all (`payload`). A reaction the list does not name fails the build. A service tagged
- * app.subscription is a subscription too, declared by its tag, unknown to the infrastructure: a reaction of the
- * tests.
+ * Sorts the core's event handlers. A translator that publishes a domain event for the other contexts stays on the event
+ * bus (RefusalTranslatingHandlersPass). Every other handler is a subscription's reaction. The subscriptions are listed
+ * in `config/subscriptions.json`, which the infrastructure reads too. The pass takes each reaction off the event bus,
+ * and the delivery (Subscriptions) reaches it through its decorators. A subscription names its reaction (`handler`), or
+ * one reaction per event it listens to (`handlers`, by detail-type). It names the payloads it listens to when it does
+ * not listen to all of them (`payload`). The build fails on a reaction that the list does not name. A service tagged
+ * app.subscription is a subscription too. Its tag declares it, and the infrastructure does not know it: it is a
+ * reaction used by the tests.
  *
  * @phpstan-type Listed array{context: string, sources: list<string>, events: list<string>, payload?: array<string, mixed>, handler?: string, handlers?: array<string, string>, inbox: bool}
  * @phpstan-type Declared array{context: string, sources: list<string>, events: list<string>, payload?: array<string, mixed>, handlers: array<string, string>, inbox: bool}
@@ -30,7 +31,7 @@ final class SubscriptionsPass implements CompilerPassInterface
     public const string PARAMETER = 'app.subscriptions';
     public const string DECLARED_BY_ITS_TAG = 'app.subscription';
     private const string CORE = 'Prospecter\\Core\\';
-    /** a translator publishes a domain event for the other contexts: `Application\PublishAccountOpened\PublishAccountOpenedHandler` */
+    /** A translator publishes a domain event for the other contexts: `Application\PublishAccountOpened\PublishAccountOpenedHandler`. */
     public const string TRANSLATOR = '/\\\\Application\\\\Publish(\w+)\\\\Publish\1Handler$/';
 
     public function process(ContainerBuilder $container): void
@@ -52,7 +53,7 @@ final class SubscriptionsPass implements CompilerPassInterface
     /**
      * @param array<string, Declared> $subscriptions
      *
-     * @return array<string, Reference> the reaction of each subscription to each event, by Subscriptions::reactionKey()
+     * @return array<string, Reference> each subscription's reaction to each event, by Subscriptions::reactionKey()
      */
     private function reactionsOfTheCore(ContainerBuilder $container, array $subscriptions): array
     {
@@ -76,7 +77,7 @@ final class SubscriptionsPass implements CompilerPassInterface
     }
 
     /**
-     * @return array<string, array{Declared, Reference}> each subscription and its reaction, by its name
+     * @return array<string, array{Declared, Reference}> each subscription and its reaction, by the subscription's name
      */
     private function declaredByTheirTag(ContainerBuilder $container): array
     {
@@ -95,7 +96,7 @@ final class SubscriptionsPass implements CompilerPassInterface
     }
 
     /**
-     * Taken off the event bus, reached through its decorators by the delivery.
+     * Takes the handler off the event bus. The delivery reaches it through its decorators.
      */
     private function asASubscription(ContainerBuilder $container, string $id): Reference
     {
@@ -105,7 +106,7 @@ final class SubscriptionsPass implements CompilerPassInterface
     }
 
     /**
-     * Read once at the build.
+     * Reads the list once, at build time.
      *
      * @return array<string, Listed>
      */
@@ -141,7 +142,7 @@ final class SubscriptionsPass implements CompilerPassInterface
     }
 
     /**
-     * Its reaction to every event it listens to, when it names only one.
+     * Gives the subscription's single reaction to every event it listens to, when it names only one.
      *
      * @param Listed $subscription
      *
@@ -158,7 +159,7 @@ final class SubscriptionsPass implements CompilerPassInterface
     /**
      * @param array<string, Declared> $subscriptions
      *
-     * @return non-empty-list<string> the keys of the reactions the handler is, by Subscriptions::reactionKey()
+     * @return non-empty-list<string> the keys of the reactions that the handler is, by Subscriptions::reactionKey()
      */
     private function keysOf(string $handler, array $subscriptions): array
     {

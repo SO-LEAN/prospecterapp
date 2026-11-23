@@ -16,15 +16,16 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 
 /**
- * Every handler of the core is reached through the decorators of its kind, so that a use case refuses with a
- * UseCaseRefused (ADR 0035) and writes all or nothing, and nobody builds one by hand (ADR 0044). The translation
- * of the refusals is outside the unit of work, so that a refusal detected when it commits is translated too:
- * - a command handler is registered on the command bus, a reaction on the event bus; Messenger routes a message by
- *   the type of the argument of __invoke(), the decorators take any object, so the message handled is named
- *   explicitly, read on the handler itself; a reaction is named after the handler it decorates (`alias`), Messenger
- *   skipping a handler of the same name already called for a message: the translator of `ContactsLeftWithoutOrganization`
- *   and that of its parent `OrganizationEvent`, both decorated alike, would be one;
- * - a query handler is injected as a QueryHandler named after its intent: `QueryHandler $consultOrganization` for
+ * Every core handler is reached through its kind's decorators. So a use case refuses with a UseCaseRefused (ADR 0035),
+ * writes all or nothing, and nobody builds a handler by hand (ADR 0044). The refusals' translation is outside the unit
+ * of work, so a refusal detected at commit time is translated too:
+ * - A command handler is registered on the command bus, and a reaction on the event bus. Messenger routes a message
+ *   by the type of __invoke()'s argument. The decorators take any object, so the pass names the handled message
+ *   explicitly, as it reads it on the handler itself. A reaction is named after the handler it decorates (`alias`).
+ *   Messenger skips a handler whose name it already called for a message. Without the alias, the translators of
+ *   `ContactsLeftWithoutOrganization` and of its parent `OrganizationEvent` would be one, since both are decorated
+ *   alike.
+ * - A query handler is injected as a QueryHandler named after its intent: `QueryHandler $consultOrganization` for
  *   `ConsultOrganizationHandler`.
  */
 final class RefusalTranslatingHandlersPass implements CompilerPassInterface
@@ -33,7 +34,7 @@ final class RefusalTranslatingHandlersPass implements CompilerPassInterface
     public const string QUERY_HANDLER = 'app.query_handler';
     public const string EVENT_HANDLER = 'app.event_handler';
 
-    /** the decorators of a command handler, from the innermost to the outermost, by the suffix of their id */
+    /** A command handler's decorators, from the innermost to the outermost, by their id's suffix. */
     private const array COMMAND_DECORATORS = ['transactional' => TransactionalCommandHandler::class, 'refusal_translating' => RefusalTranslatingCommandHandler::class];
     private const array QUERY_DECORATORS = ['refusal_translating' => RefusalTranslatingQueryHandler::class];
     public const array EVENT_DECORATORS = ['transactional' => TransactionalEventHandler::class, 'refusal_translating' => RefusalTranslatingEventHandler::class];
@@ -78,7 +79,7 @@ final class RefusalTranslatingHandlersPass implements CompilerPassInterface
     }
 
     /**
-     * `ConsultOrganizationHandler` is the intent `consultOrganization`.
+     * `ConsultOrganizationHandler` has the intent `consultOrganization`.
      */
     private function intentOf(string $handler): string
     {

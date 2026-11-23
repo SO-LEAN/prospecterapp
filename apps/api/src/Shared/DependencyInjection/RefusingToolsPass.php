@@ -16,9 +16,9 @@ use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
 /**
- * The tools of the MCP server run through `RefusingTools` (ADR 0163): the builder of the server, which the bundle
- * gives the locator of the tools, runs them by a `ReferenceHandler` on that locator, the refusals translated around it.
- * After the pass of the bundle, which gives the builder its locator.
+ * The MCP server's tools run through `RefusingTools` (ADR 0163). The bundle gives the tools' locator to the server's
+ * builder. The builder runs the tools with a `ReferenceHandler` on that locator, and `RefusingTools` translates the
+ * refusals around it. This pass runs after the bundle's pass, which gives the builder its locator.
  */
 final class RefusingToolsPass implements CompilerPassInterface
 {
