@@ -11,7 +11,7 @@ use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
- * A recipient of a campaign, the exchange kept for the organizations of the contact and for its campaign (ADR 0145).
+ * A campaign's recipient. The exchange is kept for the contact's organizations and for its campaign (ADR 0145).
  */
 final readonly class RecipientCorrespondent extends Correspondent
 {
@@ -24,7 +24,7 @@ final readonly class RecipientCorrespondent extends Correspondent
     }
 
     /**
-     * A pending recipient of a running campaign.
+     * The recipient must still be pending in a running campaign.
      *
      * @throws CampaignNotRunning|UnknownRecipient|RecipientAlreadyProcessed
      */

@@ -7,7 +7,7 @@ namespace Prospecter\Core\Prospecting\Domain\Model;
 use Prospecter\Core\SharedKernel\Domain\SearchKey;
 
 /**
- * What two organizations resembling each other share: perhaps the same organization, entered twice.
+ * What two organizations that resemble each other share. They may be the same organization, entered twice.
  */
 final readonly class ResemblanceKey implements \Stringable
 {
@@ -16,7 +16,8 @@ final readonly class ResemblanceKey implements \Stringable
     }
 
     /**
-     * Null without a name beside its legal form, or without a city: nothing to compare.
+     * Null when the name holds nothing but its legal form, or when there is no city, because there is nothing to
+     * compare.
      */
     #[\NoDiscard]
     public static function of(?string $corporateName, ?string $city): ?self

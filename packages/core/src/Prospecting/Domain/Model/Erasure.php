@@ -7,7 +7,7 @@ namespace Prospecter\Core\Prospecting\Domain\Model;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * Who erased an exchange, and when: what its fingerprint keeps of it (ADR 0166).
+ * Who erased an exchange, and when. Its fingerprint keeps this much of it (ADR 0166).
  */
 final readonly class Erasure
 {

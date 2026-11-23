@@ -8,8 +8,8 @@ use Prospecter\Core\Prospecting\Domain\Exception\CalendarPeriodReversed;
 use Prospecter\Core\Prospecting\Domain\Exception\CalendarPeriodTooLong;
 
 /**
- * The days of a calendar read at once: from the start of the first, until the start of the day after the last.
- * Its length is measured on the clock of its reader, each bound at its own offset: a change of time in the period
+ * The calendar days read at once. The period runs from the start of the first day until the start of the day after
+ * the last. Its length is measured on the reader's clock, each bound at its own offset. A clock change in the period
  * neither lengthens nor shortens it.
  */
 final readonly class CalendarPeriod
@@ -34,7 +34,7 @@ final readonly class CalendarPeriod
     }
 
     /**
-     * Its first day, `Y-m-d`, on the clock of its reader.
+     * Its first day, `Y-m-d`, on the reader's clock.
      */
     #[\NoDiscard]
     public function firstDay(): string
@@ -43,7 +43,7 @@ final readonly class CalendarPeriod
     }
 
     /**
-     * Its last day, `Y-m-d`, on the clock of its reader: the one before it ends.
+     * Its last day, `Y-m-d`, on the reader's clock: the day before it ends.
      */
     #[\NoDiscard]
     public function lastDay(): string

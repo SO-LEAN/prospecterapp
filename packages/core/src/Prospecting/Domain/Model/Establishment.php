@@ -7,8 +7,8 @@ namespace Prospecter\Core\Prospecting\Domain\Model;
 use Prospecter\Core\SharedKernel\Domain\Siret;
 
 /**
- * An establishment as the public directory of the companies lists it: its SIRET, the name of its company, its address
- * on one line, its activity (its NAF code), whether it closed, and the INSEE code of its municipality.
+ * An establishment as the public company directory lists it: its SIRET, its company's name, its address on one line,
+ * its activity (its NAF code), whether it closed, and its municipality's INSEE code.
  */
 final readonly class Establishment
 {

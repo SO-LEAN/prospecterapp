@@ -53,7 +53,7 @@ use Prospecter\Core\SharedKernel\Domain\SearchKeys;
 use Prospecter\Core\SharedKernel\Domain\Siret;
 
 /**
- * Aggregate root: an organization an account prospects; the whole team of the account shares it.
+ * Aggregate root: an organization an account prospects. The account's whole team shares it.
  */
 final class Organization implements ReleasesEvents
 {
@@ -95,7 +95,7 @@ final class Organization implements ReleasesEvents
     }
 
     /**
-     * By the hand of the prospector, or by an AI acting as them.
+     * The prospector starts prospecting it by hand, or an AI does it for them.
      */
     public static function prospectedBy(Gesture $gesture, OrganizationId $id, LegalIdentity $legalIdentity, ContactDetails $contactDetails): self
     {
@@ -114,7 +114,7 @@ final class Organization implements ReleasesEvents
     }
 
     /**
-     * The account whose prospecting base it belongs to.
+     * The account whose prospecting base holds it.
      */
     public function accountId(): AccountId
     {
@@ -127,7 +127,7 @@ final class Organization implements ReleasesEvents
     }
 
     /**
-     * Its links to the tools outside, each designating it alone in its account.
+     * Its links to outside tools. Each link designates this organization alone in its account.
      */
     public function references(): ExternalReferences
     {
@@ -153,7 +153,7 @@ final class Organization implements ReleasesEvents
     }
 
     /**
-     * An organization is found by the beginning of its corporate name or of its email.
+     * A member finds an organization by the beginning of its corporate name or of its email.
      */
     public function searchKeys(): SearchKeys
     {
@@ -161,7 +161,7 @@ final class Organization implements ReleasesEvents
     }
 
     /**
-     * What it shares with an organization resembling it, none without a name nor a city.
+     * What it shares with an organization that resembles it. An organization without a name or a city has none.
      */
     public function resemblanceKey(): ?ResemblanceKey
     {
@@ -169,8 +169,8 @@ final class Organization implements ReleasesEvents
     }
 
     /**
-     * Suspected of being a duplicate of each organization resembling it, and no longer of the others. No member
-     * modified it: it keeps the moment it was last modified.
+     * Suspects the organization of being a duplicate of each organization that resembles it, and no longer of the
+     * others. No member modified it, so it keeps the moment it was last modified.
      *
      * @param list<OrganizationId> $resembling
      */
@@ -188,7 +188,7 @@ final class Organization implements ReleasesEvents
     }
 
     /**
-     * No longer suspected of being a duplicate of this organization; never suspected, nothing changes.
+     * Lifts the suspicion that it is a duplicate of this organization. Nothing changes when it was never suspected.
      */
     public function liftSuspicionOf(OrganizationId $duplicate, MemberId $by, \DateTimeImmutable $at): void
     {
@@ -201,7 +201,7 @@ final class Organization implements ReleasesEvents
     }
 
     /**
-     * Suspected of being a duplicate of this organization, once, unless a member checked it is not.
+     * Suspects it once of being a duplicate of this organization, unless a member checked that it is not.
      */
     public function suspectDuplicateOf(OrganizationId $duplicate, MemberId $by, \DateTimeImmutable $at): void
     {
@@ -214,7 +214,7 @@ final class Organization implements ReleasesEvents
     }
 
     /**
-     * Checked by a member, it is no duplicate of the organization it is suspected of being.
+     * A member checked it. It is no duplicate of the organization it is suspected of duplicating.
      *
      * @throws NotASuspectedDuplicate
      */
@@ -235,7 +235,8 @@ final class Organization implements ReleasesEvents
     }
 
     /**
-     * Checked by a member, it is no duplicate of this organization, suspected or not; known already, nothing changes.
+     * A member checked it. It is no duplicate of this organization, whether it was suspected or not. Nothing changes
+     * when this is already known.
      */
     public function knowItIsNoDuplicateOf(OrganizationId $duplicate, MemberId $by, \DateTimeImmutable $at): void
     {
@@ -293,7 +294,8 @@ final class Organization implements ReleasesEvents
     }
 
     /**
-     * Fills what the organization lacks, never changing what is noted (ADR 0177); nothing to fill, nothing happens.
+     * Fills what the organization lacks, and never changes what is recorded (ADR 0177). Nothing happens when there is
+     * nothing to fill.
      */
     public function completeWith(OrganizationSupplement $supplement, MemberId $by, \DateTimeImmutable $at): void
     {
@@ -317,7 +319,8 @@ final class Organization implements ReleasesEvents
     }
 
     /**
-     * What the supplement would fill of the organization, and what it gives otherwise than noted.
+     * Which of the organization's fields the supplement would fill, and which ones it gives differently from what is
+     * recorded.
      */
     public function completionWith(OrganizationSupplement $supplement): Completion
     {
@@ -343,8 +346,9 @@ final class Organization implements ReleasesEvents
     }
 
     /**
-     * Located before its municipality was kept (ADR 0142): its address geocoded again gives it, once. No member moved
-     * it: the event names the one who started prospecting it, and it keeps the moment it was last modified.
+     * The organization was located before Prospecter kept municipalities (ADR 0142). Geocoding its address again
+     * gives it its municipality, once. No member moved it. The event names the member who started prospecting it, and
+     * the organization keeps the moment it was last modified.
      */
     public function locateAgain(?Location $location, \DateTimeImmutable $at): void
     {
@@ -357,7 +361,8 @@ final class Organization implements ReleasesEvents
     }
 
     /**
-     * The address to geocode again, while it is located without its municipality; null once it has it.
+     * The address to geocode again while the organization is located without its municipality. It is null once the
+     * organization has one.
      */
     public function addressToLocateAgain(): ?Address
     {
@@ -434,7 +439,7 @@ final class Organization implements ReleasesEvents
     }
 
     /**
-     * A contact no other organization names is left alone: it must not stay (ContactsLeftWithoutOrganization).
+     * A contact that no other organization names is left alone. It must not stay (ContactsLeftWithoutOrganization).
      *
      * @throws NotAContact
      */
@@ -453,8 +458,8 @@ final class Organization implements ReleasesEvents
     }
 
     /**
-     * Leaves the prospecting base: once the repository removed it, its contacts no other organization names
-     * are left alone (ContactsLeftWithoutOrganization).
+     * The organization leaves the prospecting base. Once the repository removes it, the contacts that no other
+     * organization names are left alone (ContactsLeftWithoutOrganization).
      */
     public function stopBeingProspected(MemberId $by, \DateTimeImmutable $at, OrphanContacts $orphans): void
     {
@@ -504,7 +509,7 @@ final class Organization implements ReleasesEvents
     }
 
     /**
-     * A holding of another account is unknown to it.
+     * An organization does not know a holding of another account.
      *
      * @throws UnknownOrganization
      */

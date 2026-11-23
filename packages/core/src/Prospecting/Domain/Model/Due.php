@@ -7,8 +7,8 @@ namespace Prospecter\Core\Prospecting\Domain\Model;
 use Prospecter\Core\Prospecting\Domain\Exception\InvalidDue;
 
 /**
- * When a to-do is due: a day of the calendar, and an hour of that day when it is said, both as the prospector
- * reads them on their clock, without a time zone.
+ * When a to-do is due: a calendar day, and an hour of that day when the prospector gives one. The prospector reads
+ * both on their clock, without a time zone.
  */
 final readonly class Due
 {
@@ -30,8 +30,8 @@ final readonly class Due
     }
 
     /**
-     * Its hour, or else its whole day, has passed at the moment, read on the clock of its reader: never converted to
-     * an instant, a to-do of the 14th is on the 14th wherever it is read.
+     * Tells whether its hour, or else its whole day, has passed at the moment, read on the reader's clock. It is never
+     * converted to an instant: a to-do due on the 14th is on the 14th wherever it is read.
      */
     #[\NoDiscard]
     public function hasPassedBy(\DateTimeImmutable $moment): bool
@@ -42,8 +42,8 @@ final readonly class Due
     }
 
     /**
-     * The days from its day to that of the moment, read on the clock of its reader: none on its day, fewer than none
-     * before it.
+     * The number of days from its day to the moment's day, read on the reader's clock. It is zero on its day, and
+     * negative before it.
      */
     #[\NoDiscard]
     public function daysOverdueAt(\DateTimeImmutable $moment): int

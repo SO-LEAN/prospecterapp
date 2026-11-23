@@ -5,24 +5,24 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Domain\Model;
 
 /**
- * What the state of an exchange offers; who may carry it out is decided by the API (ADR 0081), but a planned
- * exchange, handled by its holder only.
+ * What an exchange's state offers. The API decides who may carry it out (ADR 0081). The exception is a planned
+ * exchange: only its holder handles it.
  */
 enum ExchangeIntent
 {
-    /** Correct its channel, its direction, whether it was missed, its moment and its text, once it happened. */
+    /** Correct its channel, its direction, whether it was missed, its moment and its text, once it has happened. */
     case CorrectExchange;
     /** Correct its text only. */
     case CorrectText;
-    /** Correct where a meeting is held, or the link of a video call, planned or done. */
+    /** Correct where a meeting is held, or a video call's link, planned or done. */
     case CorrectVenue;
-    /** Declare conform the text of an exchange whose contact was forgotten, while it is not yet. */
+    /** Declare an exchange's text redacted once its contact was forgotten, while it is not redacted yet. */
     case MakeConform;
     /** Erase it from every timeline. */
     case EraseExchange;
-    /** Join a file to it, while it has room for one. */
+    /** Attach a file to it, while it has room for one. */
     case AttachFile;
-    /** Remove one of the files joined to it. */
+    /** Remove one of its attached files. */
     case RemoveAttachment;
     /** Mark done a planned exchange whose time has come, with its report. */
     case MarkExchangeDone;
@@ -30,7 +30,7 @@ enum ExchangeIntent
     case MarkExchangeMissed;
     /** Move a planned exchange to another moment to come. */
     case MoveExchange;
-    /** Move a planned exchange just moved back to its former moment, while that moment is to come. */
+    /** Put a planned exchange back at its former moment right after a move, while that moment is still to come. */
     case MoveExchangeBack;
     /** Cancel a planned exchange. */
     case CancelExchange;

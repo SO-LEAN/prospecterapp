@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Domain\Model;
 
 /**
- * Where an exchange imported from a mailbox comes from: the provider of the mailbox and the identity of the e-mail
- * across the mailboxes of the account (ADR 0154), and the id the provider gives the message in the mailbox that
- * imported it, which opens it there, none for one imported before it was kept (ADR 0174).
+ * Where an exchange imported from a mailbox comes from: the mailbox's provider and the e-mail's identity across the
+ * account's mailboxes (ADR 0154). It also holds the id the provider gives the message in the importing mailbox,
+ * which opens the message there. An e-mail imported before Prospecter kept that id has none (ADR 0174).
  */
 final readonly class ImportedEmail
 {

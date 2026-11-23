@@ -18,10 +18,10 @@ enum OrganizationIntent
     case AddContact;
     /** Detach one of its contacts. */
     case RemoveContact;
-    /** Remove it from the prospecting base, erasing its contacts no other organization names. */
+    /** Remove it from the prospecting base, and erase the contacts that no other organization names. */
     case StopProspecting;
-    /** Say, once checked, that it is no duplicate of an organization it resembles. */
+    /** After a check, state that it is no duplicate of an organization it resembles. */
     case DismissPossibleDuplicate;
-    /** Fill what it lacks, never changing what is noted (ADR 0177). */
+    /** Fill what it lacks, and never change what is recorded (ADR 0177). */
     case Complete;
 }

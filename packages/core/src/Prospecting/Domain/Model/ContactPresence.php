@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Domain\Model;
 
 /**
- * Where the contact of an exchange stands: still a contact of the organization reading it, removed from it but
- * known, or forgotten, its card erased (ADR 0079).
+ * Where an exchange's contact stands. They are still a contact of the organization reading the exchange, removed
+ * from it but known, or forgotten with their card erased (ADR 0079).
  */
 enum ContactPresence: string
 {
@@ -15,7 +15,7 @@ enum ContactPresence: string
     case Forgotten = 'forgotten';
 
     /**
-     * The contact still known, or forgotten; none for an exchange with the organization itself.
+     * The contact is still known, or forgotten. An exchange with the organization itself has none.
      */
     public static function ofTheContact(bool $hasAContact, bool $forgotten): ?self
     {
@@ -27,7 +27,7 @@ enum ContactPresence: string
     }
 
     /**
-     * In the timeline of an organization: the contact known may have left it since.
+     * In an organization's timeline, a known contact may have left the organization since.
      */
     public static function inTheOrganization(bool $hasAContact, bool $forgotten, bool $stillItsContact): ?self
     {

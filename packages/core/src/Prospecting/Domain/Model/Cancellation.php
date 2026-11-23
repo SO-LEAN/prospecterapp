@@ -7,7 +7,7 @@ namespace Prospecter\Core\Prospecting\Domain\Model;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * Who cancelled a planned exchange and when, and who called it off, when it was said.
+ * Who cancelled a planned exchange, and when. It also holds who called it off, when the prospector said so.
  */
 final readonly class Cancellation
 {

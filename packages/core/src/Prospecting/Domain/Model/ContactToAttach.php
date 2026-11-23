@@ -19,10 +19,10 @@ use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 
 /**
- * Aggregate root: a contact of the account no organization names yet, a person who took a meeting with a member
- * before anyone knew for whom they work (ADR 0146). The member who meets them holds them, and their exchanges and
- * to-dos, until they attach them to an organization; never attached, they are erased from the start of the 30th
- * day after their last meeting, read on the clock that meeting was given in.
+ * Aggregate root: a contact of the account that no organization names yet. The person took a meeting with a member
+ * before anyone knew whom they work for (ADR 0146). The member who meets them holds them, with their exchanges and
+ * to-dos, until someone attaches them to an organization. A contact who is never attached is erased from the start of
+ * the 30th day after their last meeting. That day is read on the clock the meeting was given in.
  */
 final class ContactToAttach implements ReleasesEvents
 {
@@ -42,7 +42,7 @@ final class ContactToAttach implements ReleasesEvents
     }
 
     /**
-     * The clock of the meeting is kept: the day of the erasure is read on it.
+     * The meeting's clock is kept, because the erasure's day is read on it.
      */
     public static function metBy(Prospector $holder, PersonId $contact, \DateTimeImmutable $meeting, \DateTimeImmutable $at): self
     {
@@ -73,7 +73,7 @@ final class ContactToAttach implements ReleasesEvents
     }
 
     /**
-     * A meeting after the last one pushes the erasure back; an earlier one changes nothing.
+     * A meeting after the last one pushes the erasure back. An earlier one changes nothing.
      */
     public function meetAgainAt(\DateTimeImmutable $meeting, \DateTimeImmutable $at): void
     {
@@ -87,8 +87,8 @@ final class ContactToAttach implements ReleasesEvents
     }
 
     /**
-     * Booked by the public link of another member, they are theirs from then on: that member meets them; what the
-     * former holder noted with them stays theirs (ADR 0164).
+     * The contact booked through another member's public link. From then on, that member meets and holds them. What
+     * the former holder logged with them stays the former holder's (ADR 0164).
      */
     public function handOverTo(Prospector $holder, \DateTimeImmutable $meeting, \DateTimeImmutable $at): void
     {
@@ -105,7 +105,7 @@ final class ContactToAttach implements ReleasesEvents
     }
 
     /**
-     * By its holder, the member who collected them: nobody attached them in time.
+     * Its holder, the member who collected the contact, erases them because nobody attached them in time.
      *
      * @throws NotPossibleInItsState
      */

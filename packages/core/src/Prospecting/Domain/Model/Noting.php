@@ -23,7 +23,7 @@ final readonly class Noting
     }
 
     /**
-     * By the hand of the member, or by an AI acting as them.
+     * The member logs it by hand, or an AI logs it for them.
      */
     public static function of(ExchangeFacts $facts, ExchangeStatus $outcome, ?MessageReference $reference = null): self
     {
@@ -31,7 +31,7 @@ final readonly class Noting
     }
 
     /**
-     * By the import of the mailbox of the member, as by them: done.
+     * The import of the member's mailbox logs it as the member would. It is done.
      */
     public static function imported(ExchangeFacts $facts, ImportedEmail $email): self
     {
@@ -47,7 +47,7 @@ final readonly class Noting
     }
 
     /**
-     * An imported e-mail by its identity, any other by where it was read (ADR 0166).
+     * Fingerprints an imported e-mail by its identity, and any other exchange by where it was read (ADR 0166).
      */
     public function fingerprintWith(PersonId|OrganizationId $correspondent): ExchangeFingerprint
     {

@@ -19,7 +19,7 @@ enum Channel: string
     case Other = 'other';
 
     /**
-     * Only a call, a meeting or a video call is agreed upon beforehand: a message is just sent.
+     * Only a call, a meeting or a video call is agreed on beforehand. A message is just sent.
      */
     public function mayBePlanned(): bool
     {
@@ -37,7 +37,7 @@ enum Channel: string
     }
 
     /**
-     * A meeting has its place, a video call its link.
+     * A meeting has its place, and a video call has its link.
      */
     public function hasAVenue(): bool
     {
