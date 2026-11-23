@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\CompareWithOrganization;
 
 /**
- * What completing an organization with what a client knows of it would fill, and what it gives otherwise than noted
- * (ADR 0177), before completing it.
+ * Tells, before a completion, what completing an organization with a client's knowledge would fill. It also tells
+ * which values the client gives differently from those recorded (ADR 0177).
  */
 final readonly class CompareWithOrganization
 {
     /**
-     * @param list<string> $links the addresses of its links
+     * @param list<string> $links its links' addresses
      */
     public function __construct(
         public string $id,
