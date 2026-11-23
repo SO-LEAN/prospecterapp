@@ -13,17 +13,15 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 interface CampaignRepository
 {
     /**
-     * @throws UnknownCampaign when the account has no campaign of this identity
+     * @throws UnknownCampaign when the account has no campaign with this id
      */
     public function get(AccountId $accountId, CampaignId $id): Campaign;
 
-    /**
-     * None when the account has no campaign of this identity.
-     */
+    /** Null when the account has no campaign with this id. */
     public function find(AccountId $accountId, CampaignId $id): ?Campaign;
 
     /**
-     * @return list<Campaign> the campaigns of the account keeping this contact among their recipients
+     * @return list<Campaign> the account's campaigns that keep this contact among their recipients
      */
     public function withRecipient(AccountId $accountId, PersonId $contact): array;
 
