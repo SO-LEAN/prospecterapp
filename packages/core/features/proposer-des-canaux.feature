@@ -27,4 +27,4 @@ Fonctionnalité: Proposer des canaux
   Scénario: Active, ma prise de rendez-vous propose au moins un canal
     Soit ma prise de rendez-vous est active
     Quand je ne propose plus aucun canal
-    Alors c'est refusé : "Booking offers at least one channel"
+    Alors c'est refusé : "Booking must offer at least one channel"

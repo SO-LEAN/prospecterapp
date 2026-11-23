@@ -13,6 +13,6 @@ final class NoChannelOffered extends BusinessRuleViolation
 {
     public static function refused(): self
     {
-        return self::because('Booking offers at least one channel', 'channels');
+        return self::because('Booking must offer at least one channel', 'channels');
     }
 }
