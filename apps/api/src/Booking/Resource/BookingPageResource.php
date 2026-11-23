@@ -11,7 +11,7 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
 /**
- * My booking page (ADR 0148): closed and empty until I set it.
+ * My booking page (ADR 0148). It stays closed and empty until I set it up.
  */
 final readonly class BookingPageResource
 {
@@ -21,21 +21,21 @@ final readonly class BookingPageResource
      * @param list<string>                 $channels
      */
     public function __construct(
-        #[OA\Property(description: 'Whether its public link offers slots')]
+        #[OA\Property(description: 'Whether the page\'s public link offers slots')]
         public bool $open,
         #[OA\Property(type: 'array', items: new OA\Items(ref: new Model(type: WindowResource::class)), description: 'One a day at most, Monday first')]
         public array $windows,
-        #[OA\Property(description: 'The time zone of the windows, by its name in the database of the time zones; none before they are set', example: 'Europe/Paris')]
+        #[OA\Property(description: 'The windows\' time zone, by its name in the time zone database. Null until the windows are set', example: 'Europe/Paris')]
         public ?string $timeZone,
-        #[OA\Property(type: 'array', items: new OA\Items(ref: new Model(type: InactivePeriodResource::class)), description: 'Those not ended before the day of the reading, the soonest first')]
+        #[OA\Property(type: 'array', items: new OA\Items(ref: new Model(type: InactivePeriodResource::class)), description: 'The periods that had not ended before the reading\'s day, the soonest first')]
         public array $inactivePeriods,
         #[OA\Property(type: 'array', items: new OA\Items(type: 'string', enum: ['call', 'videoCall']))]
         public array $channels,
-        #[OA\Property(description: 'The code of its public link, 22 characters of base 62; none before its first opening', example: 'AbCdEfGhIjKlMnOpQrStUv')]
+        #[OA\Property(description: 'The public link\'s code, 22 base-62 characters. Null until the first opening', example: 'AbCdEfGhIjKlMnOpQrStUv')]
         public ?string $code,
-        #[OA\Property(description: 'Whether my calendar is connected, which invites the bookers: without it, the page does not open')]
+        #[OA\Property(description: 'Whether my calendar is connected. The calendar invites the bookers, so the page does not open without it')]
         public bool $calendarConnected,
-        #[OA\Property(description: 'Open, but offering nothing while my calendar is not connected: the members are told so')]
+        #[OA\Property(description: 'Whether the page is open but offers nothing, because my calendar is not connected. The members are told so')]
         public bool $suspended,
         #[SerializedName('_links')]
         #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]

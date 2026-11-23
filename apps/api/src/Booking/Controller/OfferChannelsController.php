@@ -33,15 +33,15 @@ final class OfferChannelsController extends AbstractController
     }
 
     #[Route('/api/me/booking-page/channels', name: 'api_booking_page_offer_channels', methods: ['PATCH'])]
-    #[OA\Patch(summary: 'Choose how the bookers meet me, a call, a video call or both; an open page offers one at least')]
+    #[OA\Patch(summary: 'Choose how bookers meet me: a call, a video call, or both. An open page offers at least one')]
     #[OA\Response(response: 200, description: 'My booking page', content: new Model(type: BookingPageResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
-    #[OA\Response(response: 422, description: 'No channel while the page is open, an unknown channel', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 422, description: 'No channel while the page is open, or an unknown channel', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[MapRequestPayload] ChannelsInput $input, #[CurrentUser] User $user): JsonResponse
     {
         $this->commandBus->dispatch(new OfferChannels(
             memberId: $user->memberId(),
-            channels: $input->channels ?? throw new \LogicException('Channels validated are given'),
+            channels: $input->channels ?? throw new \LogicException('Validated channels are given'),
             executedAt: $this->clock->now(),
         ));
 

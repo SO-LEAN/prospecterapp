@@ -8,9 +8,9 @@ use OpenApi\Attributes as OA;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * A slot booked by its public link: who books it and how they meet the host; the booking page refuses whatever
- * it does not offer. `website` is a trap no person fills, `formShownAt` when the page showed the form: a form filled
- * by a robot books nothing, without saying so (ADR 0164).
+ * A slot booked through a public link: who books it and how they meet the host. The booking page refuses what it does
+ * not offer. `website` is a trap that no person fills. `formShownAt` is when the page showed the form. A form that a
+ * robot filled books nothing, and the API does not say so (ADR 0164).
  */
 final readonly class BookingInput
 {
@@ -26,12 +26,12 @@ final readonly class BookingInput
         public string $firstName = '',
         #[OA\Property(example: 'Lovelace')]
         public string $lastName = '',
-        #[OA\Property(description: 'As typed, French without its country code', example: '06 12 34 56 78')]
+        #[OA\Property(description: 'As typed. A French number may leave out its country code', example: '06 12 34 56 78')]
         public string $phone = '',
         #[OA\Property(example: 'ada@acme.fr')]
         public string $email = '',
         #[Assert\Length(max: 1000)]
-        #[OA\Property(description: 'What the booker wants to talk about, may be left out', example: 'Mission data en mars')]
+        #[OA\Property(description: 'What the booker wants to talk about. Optional', example: 'Mission data en mars')]
         public ?string $subject = null,
         #[OA\Property(description: 'Left empty by a person: the field is hidden')]
         public ?string $website = null,

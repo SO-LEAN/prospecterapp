@@ -8,7 +8,7 @@ use OpenApi\Attributes as OA;
 use Symfony\Component\Serializer\Attribute\SerializedName;
 
 /**
- * Days the host may not be booked, both bounds included.
+ * Days when nobody can book the host. Both bounds are included.
  */
 final readonly class InactivePeriodResource
 {

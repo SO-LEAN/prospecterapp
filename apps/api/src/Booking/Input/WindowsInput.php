@@ -10,7 +10,8 @@ use OpenApi\Attributes as OA;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * The windows of my week, all at once, replacing the former ones, and the time zone of my clock they are set on.
+ * All my weekly windows at once. They replace the former ones. The time zone is my clock's, on which the windows are
+ * set.
  */
 final readonly class WindowsInput
 {
@@ -19,7 +20,7 @@ final readonly class WindowsInput
      */
     public function __construct(
         #[Assert\NotBlank]
-        #[OA\Property(description: 'The time zone of my clock, by its name in the database of the time zones', example: 'Europe/Paris')]
+        #[OA\Property(description: 'My clock\'s time zone, by its name in the time zone database', example: 'Europe/Paris')]
         public ?string $timeZone = null,
         #[Assert\NotNull]
         #[Assert\All([new Assert\Collection(fields: [

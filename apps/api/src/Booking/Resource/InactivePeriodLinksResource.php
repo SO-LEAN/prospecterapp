@@ -7,7 +7,7 @@ namespace App\Booking\Resource;
 use App\Shared\Resource\LinkResource;
 
 /**
- * The host may always remove an inactive period of theirs.
+ * The host can always remove one of their inactive periods.
  */
 final readonly class InactivePeriodLinksResource
 {

@@ -31,10 +31,10 @@ final class CloseBookingController extends AbstractController
     }
 
     #[Route('/api/me/booking-page/opening', name: 'api_booking_page_close', methods: ['DELETE'])]
-    #[OA\Delete(summary: 'Close my booking page at once: its link offers nothing, my settings and my link kept')]
+    #[OA\Delete(summary: 'Close my booking page at once. Its link offers nothing. The page keeps my settings and my link')]
     #[OA\Response(response: 200, description: 'My booking page', content: new Model(type: BookingPageResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
-    #[OA\Response(response: 409, description: 'The page is closed already', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 409, description: 'The page is already closed', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[CurrentUser] User $user): JsonResponse
     {
         $this->commandBus->dispatch(new CloseBooking(memberId: $user->memberId(), executedAt: $this->clock->now()));

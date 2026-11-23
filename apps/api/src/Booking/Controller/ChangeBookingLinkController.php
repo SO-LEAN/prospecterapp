@@ -33,7 +33,7 @@ final class ChangeBookingLinkController extends AbstractController
     }
 
     #[Route('/api/me/booking-page/link', name: 'api_booking_page_change_link', methods: ['POST'])]
-    #[OA\Post(summary: 'Draw another code for the link of my booking page: the former link leads nowhere')]
+    #[OA\Post(summary: 'Draw a new code for my booking page\'s link. The former link leads nowhere')]
     #[OA\Response(response: 200, description: 'My booking page', content: new Model(type: BookingPageResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 409, description: 'The page has no link yet', content: new Model(type: ProblemResource::class))]
