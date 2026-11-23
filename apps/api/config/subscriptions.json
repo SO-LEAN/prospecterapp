@@ -207,7 +207,7 @@
     "context": "connectors",
     "sources": ["prospecter.connectors.internal"],
     "events": ["MailboxMessageAdded.v1"],
-    "handler": "Prospecter\\Core\\Connectors\\Application\\ImportMail\\ImportMailHandler",
+    "policy": "Prospecter\\Core\\Connectors\\Application\\Policy\\ImportMailPolicy",
     "inbox": true
   },
   "prospecting-note-imported-email": {

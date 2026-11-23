@@ -150,6 +150,7 @@ use Prospecter\Core\Connectors\Application\ConsultMyConnections\KeptConnections;
 use Prospecter\Core\Connectors\Application\Disconnect\DisconnectHandler;
 use Prospecter\Core\Connectors\Application\ImportMail\ImportMailHandler;
 use Prospecter\Core\Connectors\Application\NoteMailboxNotification\NoteMailboxNotificationHandler;
+use Prospecter\Core\Connectors\Application\Policy\ImportMailPolicy;
 use Prospecter\Core\Connectors\Application\Policy\PushExchangePolicy;
 use Prospecter\Core\Connectors\Application\Policy\UnnameForgottenContactPolicy;
 use Prospecter\Core\Connectors\Application\PublishVideoCallLinkCreated\PublishVideoCallLinkCreatedHandler;
@@ -1375,6 +1376,7 @@ final class Application
     private function commandHandlers(): array
     {
         return [
+            new ImportMailHandler($this->connections, $this->clients, $this->mailboxes, new PersonalDataAndProspectingCorrespondents($this->whichContactsHaveTheseEmailsService, $this->whichOrganizationsHaveTheseEmailsService), $this->events),
             new PushExchangeHandler($this->calendarPusher),
             new UnnameForgottenContactHandler($this->heldExchanges, $this->calendarEntries, $this->calendarPusher),
             new RecordOrganizationFactsInCampaignsHandler($this->campaignsFactRecorder),
@@ -1802,7 +1804,7 @@ final class Application
             new PushExchangePolicy(),
             new PushUpcomingExchangesHandler($this->heldExchanges, $this->calendarPusher),
             new ReadMailboxHistoryHandler($this->connections, $this->clients, $this->mailboxes, $this->connectingMembers, $this->events),
-            new ImportMailHandler($this->connections, $this->clients, $this->mailboxes, new PersonalDataAndProspectingCorrespondents($this->whichContactsHaveTheseEmailsService, $this->whichOrganizationsHaveTheseEmailsService), $this->events),
+            new ImportMailPolicy(),
             new UnnameForgottenContactPolicy(),
             new ForgetTagsOfUnprospectedOrganizationPolicy(),
             new ForgetTagsOfForgottenContactPolicy(),
