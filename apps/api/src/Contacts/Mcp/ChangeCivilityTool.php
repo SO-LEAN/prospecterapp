@@ -41,7 +41,7 @@ final readonly class ChangeCivilityTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'set-contact-title', description: 'Sets how to address a contact: Ms, Mr, or unknown (x). It needs the right to manage personal data. It returns the contact.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
+    #[McpTool(name: 'set-contact-title', description: 'Set how to address a contact: Ms, Mr, or unknown (x). It needs the right to manage personal data. Returns the contact.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
     public function __invoke(string $id, string $title = 'x', ?int $revision = null): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');

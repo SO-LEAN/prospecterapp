@@ -33,7 +33,7 @@ final readonly class SearchContactsTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'search-contacts', description: 'Searches the account\'s contacts by the start of their name, with their organizations and tags, the most recent first, by slices. With the right to manage personal data, it also searches by e-mail.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'search-contacts', description: 'Search the account\'s contacts by the start of their name, with their organizations and tags, the most recent first, by slices. With the right to manage personal data, it also searches by e-mail.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $q = '', ?string $after = null): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');

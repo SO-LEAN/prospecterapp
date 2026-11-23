@@ -36,7 +36,7 @@ final readonly class ShowExchangesToMakeConformTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'list-exchanges-pending-redaction', description: 'Lists an organization\'s exchanges to redact, the most recent first, by slices.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'list-exchanges-pending-redaction', description: 'List an organization\'s exchanges to redact, the most recent first, by slices.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $id, ?string $after = null): array
     {
         $organization = $this->organizations->read($id);

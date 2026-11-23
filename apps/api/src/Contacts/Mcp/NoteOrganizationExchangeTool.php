@@ -54,7 +54,7 @@ final readonly class NoteOrganizationExchangeTool
      */
     #[McpTool(
         name: 'log-organization-exchange',
-        description: 'Logs a call, a message or a meeting with an organization itself, or with one of its contacts, as read in a mailbox or a messaging app. Give an e-mail\'s Message-ID, or a LinkedIn message\'s conversation. The account logs each exchange once. When you log it again, nothing is logged. The answer\'s status is then alreadyNoted, with the exchange logged first, or erasedBefore, with who erased it.',
+        description: 'Log a call, a message or a meeting with an organization itself, or with one of its contacts, as read in a mailbox or a messaging app. Give an e-mail\'s Message-ID, or a LinkedIn message\'s conversation. The account logs each exchange once. When you log it again, nothing is logged. The answer\'s status is then alreadyNoted, with the exchange logged first, or erasedBefore, with who erased it.',
         annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false),
     )]
     public function __invoke(string $id, string $channel, string $direction, ?string $personId = null, ?string $occurredAt = null, ?string $text = null, bool $missed = false, ?string $messageId = null, ?string $linkedInConversation = null): array

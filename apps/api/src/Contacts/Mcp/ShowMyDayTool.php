@@ -35,7 +35,7 @@ final readonly class ShowMyDayTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'get-my-day', description: 'Gets the member\'s day: what they still have planned that day, then the next five exchanges.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'get-my-day', description: 'Get the member\'s day: what they still have planned that day, then the next five exchanges.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $from, string $to): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');

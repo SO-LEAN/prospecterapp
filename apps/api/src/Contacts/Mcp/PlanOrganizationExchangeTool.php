@@ -50,7 +50,7 @@ final readonly class PlanOrganizationExchangeTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'schedule-organization-exchange', description: 'Plans a call, a meeting or a video call with an organization itself, or with one of its contacts. The member holds the exchange. When the member is connected, the exchange is pushed into their Google calendar. It returns the exchanges to come with the organization.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'schedule-organization-exchange', description: 'Plan a call, a meeting or a video call with an organization itself, or with one of its contacts. The member holds the exchange. When the member is connected, the exchange is pushed into their Google calendar. Returns the exchanges to come with the organization.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id, string $channel, string $occurredAt, ?string $personId = null, ?int $durationInMinutes = null, ?string $text = null, ?string $place = null, ?string $link = null, bool $linkRequested = false): array
     {
         $organization = $this->writes->writable($id);

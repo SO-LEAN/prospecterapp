@@ -64,7 +64,7 @@ final readonly class IdentifyTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'identify', description: 'Finds which persons and organizations Prospecter already knows, before you create any. The answer follows the order given. Each one is known (with its id), new, or to confirm among candidates (ask your member). Nothing is written. A person is identified by a link, an email or a mobile number, then by their first and last names. Without the right to manage personal data, a person is identified by their names only. An organization is identified by its SIRET, a link, its website, its email or an email domain, then by its name.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'identify', description: 'Find which persons and organizations Prospecter already knows, before you create any. The answer follows the order given. Each one is known (with its id), new, or to confirm among candidates (ask your member). Nothing is written. A person is identified by a link, an email or a mobile number, then by their first and last names. Without the right to manage personal data, a person is identified by their names only. An organization is identified by its SIRET, a link, its website, its email or an email domain, then by its name.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(
         #[Schema(definition: ['type' => 'array', 'items' => self::PERSON, 'maxItems' => self::AT_MOST])]
         array $persons = [],
