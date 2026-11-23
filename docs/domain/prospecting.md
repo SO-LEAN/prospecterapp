@@ -93,7 +93,7 @@ This context holds the organizations an account prospects, their contacts, the e
   - An exchange read without a status is done. An exchange read as done, with the facts of a call that did not go through, is missed.
   - Nobody corrects a planned or cancelled exchange as a whole.
 - Only a call, a meeting or a video call is planned (`ChannelNotPlanned`) or missed (`ChannelNotMissed`). A message (an SMS, an email, a LinkedIn or a Malt message) is received or sent.
-  - Only its holder handles a planned exchange (`NotTheHolder`):
+  - Only its holder can handle a planned exchange (`NotTheHolder`):
     - the holder marks it done or missed once its time has come (`NotYetDue`), never in the future. Its report replaces its agenda;
     - the holder moves it to a moment to come. It keeps its own duration unless a new one is given (ADR 0119);
     - the holder cancels it, and may say who called it off (`Canceller`);
@@ -101,7 +101,7 @@ This context holds the organizations an account prospects, their contacts, the e
   - What an exchange offers depends on its reader and on the moment of reading (`ExchangeSituation`).
   - When its contact is forgotten, an exchange still to come is cancelled (ADR 0112).
 - Venues:
-  - Only a meeting has a place. Only a video call has a link, a web address (`ExchangeFacts`).
+  - Only a meeting can have a place. Only a video call can have a link, which must be a web address (`ExchangeFacts`).
   - A member may plan a video call without its link and give it later. The video call may instead request a link from its holder's calendar (`linkRequested`). Another channel cannot request one (`LinkOnlyForAVideoCall`).
   - The system keeps the link created as a correction by nobody, without an author. `KeepCreatedVideoCallLink` reacts to Connectors' `VideoCallLinkCreated` (`Exchange::receiveLink()`, the event `VideoCallLinkReceived`, by its holder, ADR 0137).
   - A link given or received ends the request. A link given meanwhile wins. A removed link does not come back.
