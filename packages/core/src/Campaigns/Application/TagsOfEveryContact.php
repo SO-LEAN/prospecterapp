@@ -9,8 +9,8 @@ use Prospecter\Core\Campaigns\Domain\Model\ContactTags;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 
 /**
- * The tags of every contact of an account, derived once from the partition of the account, as the search by tags
- * derives them (ADR 0143), for the campaigns to find their target in them.
+ * The tags of every contact in an account, derived once from the account's partition, as the tag search derives them
+ * (ADR 0143). The campaigns find their target among them.
  */
 final readonly class TagsOfEveryContact
 {
@@ -19,7 +19,7 @@ final readonly class TagsOfEveryContact
     }
 
     /**
-     * @return array<string, ContactTags> by contact identity
+     * @return array<string, ContactTags> by contact id
      */
     #[\NoDiscard]
     public function of(AccountId $accountId): array

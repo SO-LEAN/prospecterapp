@@ -11,21 +11,20 @@ final readonly class CampaignSheet
 {
     /**
      * @param string                          $channel         `email`, `call`, `sms` or `linkedIn`
-     * @param list<string>                    $tags            the tags chosen, with their mark
-     * @param list<string>                    $targetedTags    the tags a contact carries to be targeted: those chosen and that of the channel
+     * @param list<string>                    $tags            the chosen tags, with their `#`
+     * @param list<string>                    $targetedTags    the tags a targeted contact carries: the chosen tags and the channel's
      * @param string                          $messageMode     how an AI treats its message for each person: `asIs` or `adapted`
      * @param string                          $status          `draft`, `frozen`, `started`, `stopped` or `ended`
-     * @param bool                            $followsTheTags  whether whom it targets is the search by its tags as the contacts
-     *                                                         carry them now, as the domain says of its status: a draft
-     * @param bool                            $running         whether it is led now, as the domain says of its status: started
-     * @param int                             $processed       its recipients processed by an exchange, none before it is started
-     * @param int                             $dismissed       its recipients dismissed, none before it is started
-     * @param array<string, RecipientInSheet> $recipients      each recipient, by contact identity, in the order they were
-     *                                                         added; none in a draft
-     * @param list<string>                    $possibleIntents the names of the intents its state offers (`ReviseCampaign`,
+     * @param bool                            $followsTheTags  whether it targets what its tag search finds now, as its status
+     *                                                         says: a draft
+     * @param bool                            $running         whether it runs now, as its status says: started
+     * @param int                             $processed       its recipients that an exchange processed, 0 before it starts
+     * @param int                             $dismissed       its dismissed recipients, 0 before it starts
+     * @param array<string, RecipientInSheet> $recipients      each recipient by contact id, in the order added; none in a draft
+     * @param list<string>                    $possibleIntents the names of the intents its state allows (`ReviseCampaign`,
      *                                                         `DiscardCampaign`, `FreezeCampaign`, `AddRecipients`,
      *                                                         `RemoveRecipient`, `StartCampaign`, `StopCampaign`, `RunCampaign`)
-     * @param int|null                        $dailyCap        the most recipients processed a day, a guard only; none when not set
+     * @param int|null                        $dailyCap        the most recipients processed in a day, only a guard; null when not set
      */
     public function __construct(
         public string $id,

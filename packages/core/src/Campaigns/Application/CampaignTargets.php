@@ -9,8 +9,8 @@ use Prospecter\Core\Campaigns\Domain\Model\TagSelection;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 
 /**
- * Counts the contacts each campaign targets (ADR 0144): a draft, those carrying its tags as they are now, the tags of
- * every contact of the account derived once for all the campaigns read; a frozen one, its recipients.
+ * Counts the contacts each campaign targets (ADR 0144). A draft targets the contacts that carry its tags now. Every
+ * contact's tags are derived once for all the campaigns read. A frozen campaign targets its recipients.
  */
 final readonly class CampaignTargets
 {
@@ -19,9 +19,9 @@ final readonly class CampaignTargets
     }
 
     /**
-     * @param list<CampaignSheet> $campaigns of the account
+     * @param list<CampaignSheet> $campaigns the account's campaigns
      *
-     * @return array<string, int> by campaign identity
+     * @return array<string, int> by campaign id
      */
     #[\NoDiscard]
     public function counted(AccountId $accountId, array $campaigns): array

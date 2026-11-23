@@ -9,8 +9,8 @@ use Prospecter\Core\Campaigns\Domain\Policy\FactSuccession;
 use Prospecter\Core\Campaigns\Domain\Repository\FactRepository;
 
 /**
- * Keeps a fact received, by the worker or by a rebuild, in place of the known one it succeeds (ADR 0141); received twice
- * by the worker, kept once, and rebuilt at the same revision, kept again.
+ * Keeps a received fact in place of the known fact it succeeds (ADR 0141). The worker or a rebuild receives it. A fact
+ * that the worker receives twice is kept once. A fact rebuilt at the same revision is kept again.
  */
 final readonly class FactRecorder
 {
