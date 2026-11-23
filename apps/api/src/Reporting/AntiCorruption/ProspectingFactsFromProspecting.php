@@ -20,8 +20,8 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
- * Anticorruption layer (ADR 0045, 0089, 0099): the facts Prospecting gives again, slice after slice, in the words of
- * Reporting.
+ * Anticorruption layer (ADR 0045, 0089, 0099). It lists the facts that Prospecting gives again, slice by slice, in
+ * Reporting's terms.
  */
 final readonly class ProspectingFactsFromProspecting implements ProspectingFacts
 {

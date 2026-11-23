@@ -11,9 +11,10 @@ use Prospecter\Core\Reporting\Domain\Model\Month;
 use Prospecter\Core\Reporting\Domain\Model\OrganizationFact;
 
 /**
- * The keys of the items of the table of Reporting, written by the repository and read by the retriever (ADR 0088):
- * the versions under `PROJECTION`, the facts of an account in a version under `FACTS#<version>#<account>`, its figures
- * under `FIGURES#<version>#<account>`; the names of the figures the repository adds to and the retriever reads.
+ * The keys of the items in Reporting's table. The repository writes them and the retriever reads them (ADR 0088). The
+ * versions are under `PROJECTION`. An account's facts in a version are under `FACTS#<version>#<account>`, and its
+ * figures under `FIGURES#<version>#<account>`. The class also names the figures that the repository adds to and the
+ * retriever reads.
  */
 final class ReportingKeys
 {
@@ -21,9 +22,9 @@ final class ReportingKeys
     public const string ACTIVE = 'ACTIVE';
     public const string BUILDING = 'BUILDING';
     public const string TOTAL = 'TOTAL';
-    /** the number of exchanges, in the figures of an account and in those of a month */
+    /** the number of exchanges, in an account's total figures and in a month's figures */
     public const string EXCHANGES = 'exchanges';
-    /** the beginning of the sort key of the figures of a month */
+    /** the sort key prefix for a month's figures */
     public const string MONTH = 'MONTH#';
     private const string FACTS = 'FACTS#';
     private const string FIGURES = 'FIGURES#';
@@ -57,7 +58,7 @@ final class ReportingKeys
     }
 
     /**
-     * @return list<string> the beginnings of the partitions of a version, its facts and its figures
+     * @return list<string> the prefixes of a version's partitions, for its facts and its figures
      */
     public static function partitionsOf(int $version): array
     {
@@ -65,7 +66,7 @@ final class ReportingKeys
     }
 
     /**
-     * @return list<string> the beginnings of the partitions of every version
+     * @return list<string> the partition prefixes of every version
      */
     public static function partitionsOfEveryVersion(): array
     {
@@ -73,7 +74,7 @@ final class ReportingKeys
     }
 
     /**
-     * The version a partition of facts or of figures belongs to: `FACTS#<version>#<account>`.
+     * Returns the version that a fact or figure partition belongs to: `FACTS#<version>#<account>`.
      */
     public static function versionOf(string $partition): int
     {
@@ -81,7 +82,8 @@ final class ReportingKeys
     }
 
     /**
-     * The separator after the version, so that the version 1 is not the beginning of the version 10.
+     * Returns the version's partition prefix. The separator after the version keeps version 1 from being a prefix of
+     * version 10.
      */
     private static function ofTheVersion(int $version, string $kind): string
     {

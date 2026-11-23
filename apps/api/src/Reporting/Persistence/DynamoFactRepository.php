@@ -20,15 +20,17 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Psr\Clock\ClockInterface;
 
 /**
- * The facts of a version and the figures they make, in the table of Reporting: no personal data, identities and
- * booleans. A fact is written in place of the one it replaces under the condition that the version still keeps it,
- * with the additions of its change to the figures of its account, in one transaction; a terminal fact is forgotten
- * 15 days later, longer than an event may wait (6 hours in the worker, a day of retries of EventBridge, 14 days in
- * the failures).
+ * A version's facts and the figures they make, in Reporting's table. The items hold no personal data, only ids and
+ * booleans.
+ *
+ * A fact is written in place of the fact it replaces, on condition that the version still keeps the replaced fact.
+ * One transaction writes the fact and adds its change to its account's figures. A terminal fact is forgotten 15 days
+ * later. That is longer than an event may wait: 6 hours in the worker, a day of EventBridge retries, and 14 days in
+ * the failures.
  *
  * PK `FACTS#<version>#<account>`, SK `ORGANIZATION#<id>` (`revision`, `present`, `located`), `EXCHANGE#<id>`
  * (`revision`, `present`, `held`, `month`, YYYY-MM, null without a moment) or `CONTACT#<id>` (`revision`, `present`),
- * `expiresAt` the epoch a terminal fact is forgotten at; PK `FIGURES#<version>#<account>`, SK `TOTAL`
+ * `expiresAt` the epoch when a terminal fact is forgotten; PK `FIGURES#<version>#<account>`, SK `TOTAL`
  * (`activeOrganizations`, `locatedOrganizations`, `contacts`, `exchanges`) and `MONTH#<YYYY-MM>` (`exchanges`).
  */
 final readonly class DynamoFactRepository implements FactRepository
@@ -68,7 +70,7 @@ final readonly class DynamoFactRepository implements FactRepository
     }
 
     /**
-     * @return list<Write> the additions of the change to the figures it changes
+     * @return list<Write> the writes that add the change to each figure it changes
      */
     private function figuresWrites(int $version, Fact $fact, FiguresChange $change): array
     {
@@ -89,7 +91,7 @@ final readonly class DynamoFactRepository implements FactRepository
     }
 
     /**
-     * @return array<string, mixed> what a fact of its kind carries beyond its revision and its presence
+     * @return array<string, mixed> what a fact of this kind carries besides its revision and presence
      */
     private static function attributesOf(Fact $fact): array
     {
@@ -101,8 +103,9 @@ final readonly class DynamoFactRepository implements FactRepository
     }
 
     /**
-     * The fact as the version keeps it, of the kind of the one it is about; an exchange noted at the first moment of
-     * its month, the moment Reporting counts; kept without `held`, before Reporting told them apart, it was held.
+     * Returns the fact as the version keeps it, of the same kind as the given fact. An exchange's moment is the first
+     * moment of its month, the only moment Reporting counts. An exchange kept without `held` dates from before Reporting
+     * told held exchanges apart, so it was held.
      *
      * @param array<string, mixed> $item
      */

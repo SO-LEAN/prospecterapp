@@ -12,8 +12,8 @@ use Prospecter\Core\Reporting\Domain\Model\Month;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 
 /**
- * Reads the figures of an account in a version from the items `DynamoFactRepository` adds to (ADR 0088): its total
- * and its month, zeros for those never written.
+ * Reads an account's figures in a version from the items that `DynamoFactRepository` adds to (ADR 0088): its total
+ * and its month. A figure never written reads as zero.
  */
 final readonly class DynamoFiguresRetriever implements FiguresRetriever
 {
