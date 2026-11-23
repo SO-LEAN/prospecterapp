@@ -29,7 +29,7 @@ Fonctionnalité: Enregistrer un contact
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
     Quand j'enregistre le contact "Ada Lovelace" sans organisation :
       | prénom | Ada |
-    Alors c'est refusé : "A contact belongs to at least one organization"
+    Alors c'est refusé : "A contact must belong to at least one organization"
 
   Scénario: L'organisation d'un autre compte est introuvable
     Soit l'organisation "Concurrent" qui utilise Prospecter
@@ -43,7 +43,7 @@ Fonctionnalité: Enregistrer un contact
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
     Quand j'enregistre le contact "Ada Lovelace" pour "ACME" :
       | prénom | Ada |
-    Alors c'est refusé : "Only a member allowed to manage personal data may collect a contact"
+    Alors c'est refusé : "Only a member allowed to manage personal data can collect a contact"
     Et "ACME" n'a pas de contact
 
   Scénario: Deux contacts de mon compte ne partagent pas un e-mail

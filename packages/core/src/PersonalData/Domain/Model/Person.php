@@ -100,7 +100,7 @@ final class Person implements ReleasesEvents
         self::ensureCollectedByAManager($by);
 
         if ([] === $contact->organizations) {
-            throw ContactWithoutOrganization::because('A contact belongs to at least one organization', 'organizationIds');
+            throw ContactWithoutOrganization::because('A contact must belong to at least one organization', 'organizationIds');
         }
 
         $collected = self::carded($contact->id, $by->accountId, Purpose::Prospecting, $contact->card, $at);
@@ -142,7 +142,7 @@ final class Person implements ReleasesEvents
     private static function ensureCollectedByAManager(Reader $by): void
     {
         if (!$by->readsPersonalData) {
-            throw PersonalDataManagersOnly::because('Only a member allowed to manage personal data may collect a contact');
+            throw PersonalDataManagersOnly::because('Only a member allowed to manage personal data can collect a contact');
         }
     }
 
@@ -457,9 +457,9 @@ final class Person implements ReleasesEvents
 
         if (!PersonPossibilities::allows($intent, $by, $this->id, $this->purpose)) {
             throw match ($intent) {
-                PersonIntent::Forget => PersonalDataManagersOnly::because('Only a member allowed to manage personal data may forget a prospected person'),
-                PersonIntent::ChangeCivility => PersonalDataManagersOnly::because('Only a member allowed to manage personal data may change the civility of a contact'),
-                PersonIntent::DismissPossibleDuplicate => PersonalDataManagersOnly::because('Only a member allowed to manage personal data may say a contact is no duplicate'),
+                PersonIntent::Forget => PersonalDataManagersOnly::because('Only a member allowed to manage personal data can forget a prospected person'),
+                PersonIntent::ChangeCivility => PersonalDataManagersOnly::because('Only a member allowed to manage personal data can change a contact\'s title'),
+                PersonIntent::DismissPossibleDuplicate => PersonalDataManagersOnly::because('Only a member allowed to manage personal data can say a contact is not a duplicate'),
                 PersonIntent::Complete => PersonalDataManagersOnly::because('Only a member allowed to manage personal data can complete a contact'),
                 default => ThePersonOrAPersonalDataManagerOnly::because('Only the person or a member allowed to manage personal data can change this person\'s data'),
             };
