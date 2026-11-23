@@ -17,24 +17,24 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
 /**
- * The directory of the companies of the French State (Recherche d'entreprises): free, no key, a few requests a second.
- * It answers the companies whose name resembles, the closest first, each with its establishments matching the search;
- * the activity of an establishment is its NAF code, the directory giving no label.
+ * The French State's company directory (Recherche d'entreprises). It is free, needs no key, and takes a few requests a
+ * second. It answers the companies with a similar name, the closest first. Each company comes with its establishments
+ * that match the search. An establishment's activity is its NAF code, because the directory gives no label.
  *
  * @see https://recherche-entreprises.api.gouv.fr/docs/
  */
 final readonly class RechercheEntreprisesDirectory implements EstablishmentDirectory
 {
-    /** The administrative state of an establishment that closed (`A` while it is active). */
+    /** The administrative state of a closed establishment (`A` while it is active). */
     private const string CLOSED = 'F';
-    /** A handful of propositions to choose from, as many establishments of a company as companies. */
+    /** A handful of proposals to choose from: several establishments of one company, or several companies. */
     private const int PROPOSITIONS = 10;
     private const int CLIENT_ERROR = 400;
     private const int TOO_MANY_REQUESTS = 429;
     private const int SERVER_ERROR = 500;
-    /** In seconds, between two bytes as for the whole request: a search makes two. */
+    /** In seconds, both between two bytes and for the whole request. A search makes two requests. */
     private const float TIMEOUT = 5.0;
-    /** The INSEE code of a city of arrondissements, the code of its first arrondissement and their number. */
+    /** For each city with arrondissements: its INSEE code, its first arrondissement's code, and their number. */
     private const array ARRONDISSEMENTS = ['75056' => [75101, 20], '69123' => [69381, 9], '13055' => [13201, 16]];
 
     public function __construct(
@@ -55,8 +55,8 @@ final readonly class RechercheEntreprisesDirectory implements EstablishmentDirec
     }
 
     /**
-     * The directory places an establishment of Paris, Lyon or Marseille in its arrondissement: the city as a whole, as
-     * the geocoder finds a city without its street, is each of them.
+     * The directory places an establishment in Paris, Lyon or Marseille in its arrondissement. The geocoder finds such
+     * a city as a whole when the address has no street, so the whole city stands for each of its arrondissements.
      *
      * @return list<string>
      */
@@ -123,7 +123,7 @@ final readonly class RechercheEntreprisesDirectory implements EstablishmentDirec
     }
 
     /**
-     * A search the directory refuses, a name of less than three letters, finds nothing.
+     * A search that the directory refuses, such as a name of less than three letters, finds nothing.
      */
     private static function isRefused(int $status): bool
     {
@@ -151,7 +151,7 @@ final readonly class RechercheEntreprisesDirectory implements EstablishmentDirec
     }
 
     /**
-     * None for an establishment the directory lists with a SIRET failing its key: it could not be noted.
+     * Returns null for an establishment whose SIRET fails its check digit, because an organization could not record it.
      *
      * @param array<string, mixed> $establishment
      */
