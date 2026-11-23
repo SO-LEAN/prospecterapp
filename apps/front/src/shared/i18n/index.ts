@@ -15,7 +15,7 @@ i18next.services.formatter?.add('de', de)
 
 export const i18n = i18next
 
-/** Country names in the user's language, for country code fields. */
+/** The country names in the user's language, for the country code fields. */
 export const countryNames = new Intl.DisplayNames(['fr'], { type: 'region' })
 
 declare module 'i18next' {

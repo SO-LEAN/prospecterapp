@@ -8,7 +8,7 @@ import { FormField } from './form-field'
 import { atRoot, type FieldsProps } from './section-form'
 import { optionalEmail, optionalPhoneNumber, orNull } from './text'
 
-/** What a person, an organization and an account share of their contact details. */
+/** The contact details that a person, an organization and an account share. */
 type ContactDetails = Pick<
   components['schemas']['PersonContactDetailsInput'],
   'email' | 'phoneNumber' | 'language'

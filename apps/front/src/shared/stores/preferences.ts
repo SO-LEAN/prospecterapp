@@ -12,7 +12,7 @@ type PreferencesState = {
 }
 
 /**
- * Client-only UI preferences, persisted in localStorage.
+ * The UI preferences that only the client knows, persisted in localStorage.
  * Server data never goes here: it belongs to TanStack Query.
  */
 export const usePreferences = create<PreferencesState>()(
@@ -38,7 +38,7 @@ function subscribeToSystemTheme(onChange: () => void) {
   return () => media.removeEventListener('change', onChange)
 }
 
-/** The theme actually displayed: `system` resolved against the OS preference. */
+/** The theme currently displayed: `system` resolves to the OS preference. */
 export function useResolvedTheme(): 'light' | 'dark' {
   const theme = usePreferences((state) => state.theme)
   const systemIsDark = useSyncExternalStore(
@@ -49,7 +49,7 @@ export function useResolvedTheme(): 'light' | 'dark' {
   return theme === 'system' ? (systemIsDark ? 'dark' : 'light') : theme
 }
 
-/** Keeps the `dark` class of <html> in sync with the preference (initial value set in index.html). */
+/** Keeps the `dark` class on <html> in sync with the preference. index.html sets the initial value. */
 export function useThemeClass() {
   const resolved = useResolvedTheme()
 

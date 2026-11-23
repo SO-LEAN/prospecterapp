@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
-/** One labelled value of a section; "not provided" when empty. */
+/** One labelled value of a section. It shows "not provided" when empty. */
 export function Detail({ label, children }: { label: string; children: ReactNode }) {
   const { t } = useTranslation()
 

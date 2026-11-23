@@ -3,8 +3,8 @@ import { useEffect, useState } from 'react'
 import { useDebouncedValue } from './use-debounced-value'
 
 /**
- * The query typed, and the function changing it; `search` is given it once it stopped changing, unless the page
- * was left meanwhile: the page stays rendered while the next one loads, and searching then would bring it back.
+ * The typed query, and the function that changes it. Once the query stops changing, it goes to `search`, unless the
+ * member left the page meanwhile. The page stays rendered while the next one loads, and a search would bring it back.
  */
 export function useSearchAsYouType(searched: string, search: (query: string) => void) {
   const [query, setQuery] = useState(searched)

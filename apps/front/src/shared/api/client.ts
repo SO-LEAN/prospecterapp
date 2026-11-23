@@ -7,7 +7,7 @@ import type { paths } from './schema'
 
 const retried = new WeakSet<Request>()
 
-/** Adds the access token, and on a 401 renews it once before sending the member to sign in again. */
+/** Adds the access token. On a 401, it renews the token once before it sends the member to sign in again. */
 const authentication: Middleware = {
   async onRequest({ request }) {
     const token = await session.accessToken()
@@ -33,7 +33,7 @@ const authentication: Middleware = {
   },
 }
 
-/** Typed fetch client generated from the API OpenAPI contract (`pnpm api:types`). */
+/** The typed fetch client, generated from the API's OpenAPI contract (`pnpm api:types`). */
 export const fetchClient = createFetchClient<paths>({ baseUrl: env.apiUrl })
 fetchClient.use(authentication)
 

@@ -3,8 +3,8 @@ const BLINK_MS = 1_000
 let stopBlinking: (() => void) | null = null
 
 /**
- * The title of a tab in the background alternates with `text` each second, until the tab comes in front again; a
- * second call replaces the text of the first.
+ * A background tab's title alternates with `text` every second, until the tab comes to the front again. A second
+ * call replaces the first call's text.
  */
 export function blinkTheTitleWhileHidden(text: string) {
   stopBlinking?.()

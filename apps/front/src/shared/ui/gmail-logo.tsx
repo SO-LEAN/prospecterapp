@@ -1,4 +1,4 @@
-/** The « M » of Gmail, in its colours: the mark of the mailbox an exchange was imported from, no token of ours. */
+/** Gmail's « M », in its colours: the mark of the mailbox an exchange was imported from, not one of our tokens. */
 export function GmailLogo({ className }: { className?: string }) {
   return (
     <svg viewBox="52 42 88 66" className={className} aria-hidden>

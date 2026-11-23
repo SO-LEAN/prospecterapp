@@ -1,4 +1,4 @@
-/** openapi-fetch serializer for the multipart upload endpoints (single `file` field). */
+/** The openapi-fetch serializer for the multipart upload endpoints, which have a single `file` field. */
 export function fileBody(file: File) {
   return {
     body: {},

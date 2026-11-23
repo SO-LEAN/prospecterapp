@@ -3,10 +3,10 @@ import { queryKeys } from './keys'
 import { readAgainAfterTheReactions } from './reactions'
 
 /**
- * A contact who leaves an organization is struck through in its timeline, no longer once back; erased, their
- * exchanges stay there, their name gone, to make conform (ADR 0079), those to come cancelled, by the reactions to
- * the gesture: the timelines, those to come, the exchanges, the calendar and those to process are read again at once and
- * once they ran.
+ * The organization's timeline strikes through a contact who leaves it, and stops once they come back. When a contact
+ * is erased, the gesture's reactions redact their exchanges (ADR 0079): the exchanges stay, without the name, and the
+ * upcoming ones are cancelled. So the timelines, the upcoming exchanges, the exchanges, the calendar and the items to
+ * process are read again at once, and again once the reactions ran.
  */
 export function readTheExchangesAgain(queryClient: QueryClient) {
   readAgainAfterTheReactions(

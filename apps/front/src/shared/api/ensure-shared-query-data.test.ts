@@ -23,7 +23,7 @@ function anAccountRequestAnswering() {
   return { options, answer }
 }
 
-/** What StrictMode does to a component reading the query: it subscribes, leaves, then subscribes again. */
+/** What StrictMode does to a component that reads the query: the component subscribes, leaves, then subscribes again. */
 function aComponentMountedTwice(
   queryClient: QueryClient,
   options: ReturnType<typeof anAccountRequestAnswering>['options'],

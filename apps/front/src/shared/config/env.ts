@@ -1,6 +1,6 @@
 /**
- * The configuration of the SPA: what an installation sets in /config.js (written by its Terraform, loaded by
- * index.html before the app, ADR 0066), else the Vite `VITE_*` variables of the build (see .env).
+ * The SPA's configuration. An installation sets it in /config.js: its Terraform writes the file, and index.html
+ * loads it before the app (ADR 0066). Without it, the build's Vite `VITE_*` variables apply (see .env).
  */
 declare global {
   interface Window {

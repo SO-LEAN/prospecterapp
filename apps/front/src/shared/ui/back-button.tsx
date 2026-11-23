@@ -4,8 +4,8 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '@/shared/ui/button'
 
 /**
- * Goes back to the previous page of the application (dashboard, filtered list...), as the browser
- * back button does; opened from a bookmark or a shared link, goes to `fallback` instead.
+ * Goes back to the application's previous page (the dashboard, a filtered list, and so on), as the browser's back
+ * button does. When the page was opened from a bookmark or a shared link, it goes to `fallback` instead.
  */
 export function BackButton({ fallback }: { fallback: LinkProps['to'] }) {
   const { t } = useTranslation()

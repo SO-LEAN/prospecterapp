@@ -3,8 +3,8 @@ import { cn } from '@/shared/lib/utils'
 import { Badge } from './badge'
 
 /**
- * « MCP » on what an AI created for the member through the MCP server, « Créé par une IA » on hover and to a screen
- * reader: Prospecter knows an AI acted, never which one.
+ * « MCP » on what an AI created for the member through the MCP server. Hovering and screen readers give « Créé par
+ * une IA ». Prospecter knows that an AI acted, but never which one.
  */
 export function CreatedByAnAIBadge({ className }: { className?: string }) {
   const { t } = useTranslation()

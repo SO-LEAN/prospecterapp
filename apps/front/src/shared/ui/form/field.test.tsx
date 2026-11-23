@@ -3,9 +3,9 @@ import { describe, expect, it } from 'vitest'
 import { Input } from '@/shared/ui/input'
 import { Field } from './field'
 
-/** jsdom computes no layout: the class packing the rows of the grid at its top is what keeps them there. */
+/** jsdom computes no layout. The class that packs the grid's rows at its top is what keeps them there. */
 const ROWS_PACKED_AT_THE_TOP = 'content-start'
-/** The smaller text of the optional mention would otherwise bring its taller line, the label two pixels higher. */
+/** Otherwise the optional mention's smaller text would bring its taller line, and the label would sit two pixels higher. */
 const LINE_AS_HIGH_AS_THE_LABEL = 'leading-none'
 
 function fieldOf(label: string): HTMLElement {

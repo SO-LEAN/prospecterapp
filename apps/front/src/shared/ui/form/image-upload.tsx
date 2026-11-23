@@ -19,8 +19,8 @@ type Props = {
 }
 
 /**
- * Preview + drag and drop or click to upload; the file is checked before being sent (same rules as the API).
- * Without `onUpload` (the API does not offer it), only the preview.
+ * A preview, and a drag and drop or a click to upload. The file is checked before it is sent, with the API's rules.
+ * Without `onUpload` (the API does not offer it), only the preview shows.
  */
 export function ImageUpload({
   imageUrl,

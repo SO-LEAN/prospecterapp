@@ -1,4 +1,4 @@
-/** The « G » of Google, in its colours: the mark of the service a connector connects to, no token of ours. */
+/** Google's « G », in its colours: the mark of the service a connector connects to, not one of our tokens. */
 export function GoogleLogo({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 48 48" className={className} aria-hidden>

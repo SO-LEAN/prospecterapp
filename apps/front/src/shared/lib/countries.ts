@@ -2,7 +2,7 @@ import { countryNames } from '@/shared/i18n'
 
 const frequent = ['FR', 'BE', 'CH', 'LU', 'DE', 'GB', 'ES', 'IT']
 
-/** The codes of ISO 3166-1 in force, the ones the API accepts: the browser also names withdrawn codes. */
+/** The ISO 3166-1 codes in force, which the API accepts. The browser also names withdrawn codes. */
 const isoCodes =
   `AD AE AF AG AI AL AM AO AQ AR AS AT AU AW AX AZ BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT BV
 BW BY BZ CA CC CD CF CG CH CI CK CL CM CN CO CR CU CV CW CX CY CZ DE DJ DK DM DO DZ EC EE EG EH ER ES ET FI FJ FK FM

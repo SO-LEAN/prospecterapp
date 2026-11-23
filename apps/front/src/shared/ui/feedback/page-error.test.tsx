@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import { PageError } from './page-error'
 
-/** A page whose loading fails the first time, as when the api cannot be reached, then succeeds. */
+/** A page whose loading fails the first time, as when the API cannot be reached, then succeeds. */
 function renderAPageFailingOnce() {
   let attempts = 0
   const rootRoute = createRootRoute({

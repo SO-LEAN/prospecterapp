@@ -11,8 +11,8 @@ import { Button } from '@/shared/ui/button'
 type Location = components['schemas']['LocationResource']
 
 /**
- * The route to `to`, a position or an address written freely, on OpenStreetMap, from `start` (my organization) when known, else from where the device is,
- * asked only on the click.
+ * The route on OpenStreetMap to `to`, a position or a free-form address. The route starts from `start` (my
+ * organization) when it is known, or else from the device's position. The link asks for that position only on a click.
  */
 export function DirectionsLink({ to, start }: { to: Destination; start?: Location | null }) {
   const { t } = useTranslation()
@@ -45,8 +45,8 @@ export function DirectionsLink({ to, start }: { to: Destination; start?: Locatio
 }
 
 /**
- * The position is asked from this tab, where the browser shows its question. A tab opened after a late answer is
- * blocked by the browser: the route is then offered, to be opened by a new click.
+ * This tab asks for the position, and the browser shows its question here. The browser blocks a tab opened after a
+ * late answer, so the link then offers the route for a new click.
  */
 async function openTheRouteFromTheDevice(to: Destination) {
   const route = directionsUrl(to, await findDevicePosition())

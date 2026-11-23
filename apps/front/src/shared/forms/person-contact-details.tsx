@@ -14,7 +14,7 @@ import { atRoot, type FieldsProps } from './section-form'
 type PersonContactDetailsResource = components['schemas']['PersonContactDetailsResource']
 type PersonContactDetailsInput = components['schemas']['PersonContactDetailsInput']
 
-/** The contact details of a person: those of an organization, and their links to the tools outside, checked by the API. */
+/** A person's contact details: an organization's details, plus their links to outside tools, which the API checks. */
 export const personContactDetailsSchema = contactDetailsSchema.extend({ links: linksSchema })
 
 export type PersonContactDetailsValues = z.infer<typeof personContactDetailsSchema>

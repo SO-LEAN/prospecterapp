@@ -1,6 +1,6 @@
 import { Skeleton } from '@/shared/ui/skeleton'
 
-/** Pending state of a page while its loader runs (shown only if it takes more than a moment). */
+/** A page's pending state while its loader runs. It shows only when the loader takes more than a moment. */
 export function PageSkeleton({ rows = 4 }: { rows?: number }) {
   return (
     <div className="space-y-6" aria-busy="true">
