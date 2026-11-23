@@ -11,8 +11,9 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * A contact PersonalData forgot leaves the frozen campaigns keeping it, even as their last recipient; delivered
- * again, no campaign keeps it any more. A started campaign keeps it erased, and ends once nobody is left to handle.
+ * A contact that PersonalData forgot leaves the frozen campaigns that keep it, even as their last recipient. When the
+ * event is delivered again, no campaign keeps the contact any more. A started campaign keeps the contact as erased, and
+ * ends once nobody is left to handle.
  */
 final readonly class ForgetRecipientOfForgottenContactHandler implements EventHandler
 {
