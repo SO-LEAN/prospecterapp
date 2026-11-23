@@ -23,7 +23,7 @@ final readonly class NoteMailboxNotificationHandler implements CommandHandler
     }
 
     /**
-     * A mailbox no member of the account imports is none of its business: nothing is done.
+     * Nothing is done for a mailbox that no member of the account imports.
      */
     public function __invoke(NoteMailboxNotification $command): void
     {
