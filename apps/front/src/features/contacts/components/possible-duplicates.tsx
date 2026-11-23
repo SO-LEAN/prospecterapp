@@ -4,7 +4,7 @@ import { PossibleDuplicatesNote, possibleDuplicateLinkStyle } from '@/shared/ui/
 import { useDismissPossibleDuplicateOfContact } from '../mutations'
 import { type Contact, fullNameOf } from '../queries'
 
-/** The contacts of their organization they resemble, by their names: perhaps the same person, noted twice. */
+/** The contacts in their organization whose names resemble theirs. They may be the same person, logged twice. */
 export function PossibleDuplicatesOfContact({ contact }: { contact: Contact }) {
   const { t } = useTranslation()
   const dismiss = useDismissPossibleDuplicateOfContact()

@@ -20,7 +20,7 @@ type Props = {
   onForgotten: () => void
 }
 
-/** Erasing a person cannot be undone: it is confirmed first. */
+/** Erasing a person cannot be undone, so the member confirms it first. */
 export function ForgetContact({ contact, onForgotten }: Props) {
   const { t } = useTranslation()
   const forget = useForgetContact()
