@@ -7,7 +7,7 @@ namespace Prospecter\Core\Connectors\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotAllowed;
 
 /**
- * The clients of an account at the providers are the business of its administrators (ADR 0125).
+ * Only an account's administrators manage the account's clients at the providers (ADR 0125).
  */
 final class NotTheAdministrator extends NotAllowed
 {

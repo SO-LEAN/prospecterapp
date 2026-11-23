@@ -8,7 +8,8 @@ use Prospecter\Core\SharedKernel\Domain\Exception\NotFound;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
- * No organization the account prospects, of another account or none: the member does not even learn that it exists.
+ * The account does not prospect this organization. The organization may belong to another account, or not exist.
+ * The member does not even learn whether it exists.
  */
 final class UnknownOrganization extends NotFound
 {

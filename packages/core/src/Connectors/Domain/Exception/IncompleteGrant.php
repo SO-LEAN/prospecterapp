@@ -7,7 +7,7 @@ namespace Prospecter\Core\Connectors\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
 /**
- * The member unticked, at the consent, the access to the calendar a connection is for.
+ * On the consent screen, the member unticked the calendar access. A connection needs that access.
  */
 final class IncompleteGrant extends BusinessRuleViolation
 {

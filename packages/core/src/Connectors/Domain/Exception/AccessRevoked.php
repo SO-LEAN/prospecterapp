@@ -8,7 +8,7 @@ use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotAllowed;
 
 /**
- * The provider no longer grants the access of the member: revoked, expired, or replaced too many times.
+ * The provider no longer grants the member's access. The access was revoked, expired, or replaced too many times.
  */
 final class AccessRevoked extends NotAllowed
 {
