@@ -236,7 +236,7 @@
     "sources": ["prospecter.prospecting"],
     "events": ["OrganizationFactsChanged.v1", "OrganizationFactsChanged.v2", "OrganizationFactsChanged.v3"],
     "payload": {"present": [false]},
-    "handler": "Prospecter\\Core\\Campaigns\\Application\\ForgetTagsOfUnprospectedOrganization\\ForgetTagsOfUnprospectedOrganizationHandler",
+    "policy": "Prospecter\\Core\\Campaigns\\Application\\Policy\\ForgetTagsOfUnprospectedOrganizationPolicy",
     "inbox": false
   },
   "campaigns-forget-tags-of-forgotten-contact": {
