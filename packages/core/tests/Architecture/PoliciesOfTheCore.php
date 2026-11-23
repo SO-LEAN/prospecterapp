@@ -16,19 +16,29 @@ final class PoliciesOfTheCore
      */
     public static function all(): array
     {
+        return array_values(array_filter(self::classesOfTheFolders(), static fn (string $class): bool => is_a($class, Policy::class, true)));
+    }
+
+    /**
+     * Every class of a context's `Application/Policy`, a policy or not, sorted.
+     *
+     * @return list<class-string>
+     */
+    public static function classesOfTheFolders(): array
+    {
         $root = dirname(__DIR__, 2).'/src/';
-        $policies = [];
+        $classes = [];
 
         foreach (glob($root.'*/Application/Policy/*.php') ?: [] as $file) {
             $class = 'Prospecter\\Core\\'.str_replace(['/', '.php'], ['\\', ''], substr($file, strlen($root)));
 
-            if (is_a($class, Policy::class, true)) {
-                $policies[] = $class;
+            if (class_exists($class)) {
+                $classes[] = $class;
             }
         }
 
-        sort($policies);
+        sort($classes);
 
-        return $policies;
+        return $classes;
     }
 }

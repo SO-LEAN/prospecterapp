@@ -40,14 +40,8 @@ class PoliciesDependOnNothingTest extends TestCase
      */
     public static function classesOfThePolicyFolders(): iterable
     {
-        $root = dirname(__DIR__, 2).'/src/';
-
-        foreach (glob($root.'*/Application/Policy/*.php') ?: [] as $file) {
-            $class = 'Prospecter\\Core\\'.str_replace(['/', '.php'], ['\\', ''], substr($file, strlen($root)));
-
-            if (class_exists($class)) {
-                yield $class => [$class];
-            }
+        foreach (PoliciesOfTheCore::classesOfTheFolders() as $class) {
+            yield $class => [$class];
         }
     }
 }

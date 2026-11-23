@@ -11,7 +11,7 @@ use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
 /**
  * An appointment lives as long as the exchange it became, which has the same id (ADR 0171). A member may erase the
  * exchange, or the exchange may go with its erased organization. Then the appointment's slot is free again, and Booking
- * forgets the booker. An exchange that no booking became, or an erasure told twice, leaves nothing to do.
+ * forgets the booker. An exchange that no booking became, or an erasure sent twice, leaves nothing to do.
  */
 final readonly class ForgetAppointmentOfErasedExchangeHandler implements CommandHandler
 {

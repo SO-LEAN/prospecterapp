@@ -84,7 +84,7 @@ class ReactionsAreSubscribedTest extends TestCase
         }
     }
 
-    public function testASubscriptionNamesItsHandlerOrOneForEachOfItsEvents(): void
+    public function testASubscriptionNamesItsPolicyItsHandlerOrOneHandlerPerEvent(): void
     {
         foreach ($this->subscriptions() as $name => $subscription) {
             $this->assertCount(1, array_filter([isset($subscription['handler']), isset($subscription['handlers']), isset($subscription['policy'])]), $name);
