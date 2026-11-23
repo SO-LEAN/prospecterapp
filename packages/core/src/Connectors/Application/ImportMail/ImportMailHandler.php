@@ -20,10 +20,10 @@ use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Domain\Email;
 
 /**
- * A message added to the mailbox of a member, received from a contact or from the address of an organization of their
- * account, or sent to them in « To », is told to the other contexts, once per correspondent, its subject and its text
- * with it (ADR 0154): published by this reaction, no domain event carrying the text. Anything else, a correspondent
- * unknown included, is nothing to import.
+ * A message was added to a member's mailbox. It may be received from a contact or from the address of an
+ * organization of their account. It may be sent to them in « To ». Then the other contexts are told of it once per
+ * correspondent, with its subject and its text (ADR 0154). This reaction publishes it, and no domain event carries
+ * the text. Any other message imports nothing, and so does an unknown correspondent.
  */
 final readonly class ImportMailHandler implements EventHandler
 {
@@ -66,7 +66,7 @@ final readonly class ImportMailHandler implements EventHandler
     }
 
     /**
-     * @param list<string> $uploads the uploads of its attachments for this correspondent
+     * @param list<string> $uploads the uploads of the message's attachments for this correspondent
      */
     private function exchanged(MailboxMessageAdded $added, Connection $connection, MailboxMail $mail, Correspondent $correspondent, array $uploads): EmailExchanged
     {
