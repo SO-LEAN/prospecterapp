@@ -8,11 +8,11 @@
 
 ## Context
 
-The shared kernel's domain held some 40 files flat, beside `Event/` and `Exception/`. Its application held 18 flat, beside `Port/` and `Exception/`. Nobody could tell at a glance what it held, or why. Three classes in it served Prospecting only. ADR 0197 already says that a context keeps what is its own.
+The shared kernel's domain held some 40 files flat, beside `Event/` and `Exception/`. Its application held 18 flat, beside `Port/` and `Exception/`. Nobody could tell at a glance what it held, or why. Three classes in it served Prospecting only. ADR 0197 had already moved the identities that one context owns out of the shared kernel.
 
 ## Decision
 
-- The shared kernel holds only what several contexts share, as ADR 0197 says. A class serves a context that uses it, directly or through another class of the shared kernel. `tests/Architecture/SharedKernelServesSeveralContextsTest` fails and names a class that serves a single context. It names, as exceptions, the classes only the API uses around every context's handlers.
+- The shared kernel holds only what several contexts share. ADR 0197 applied this rule to the identities. This record applies it to every class. A class serves a context that uses it, directly or through another class of the shared kernel. `tests/Architecture/SharedKernelServesSeveralContextsTest` fails and names a class that serves a single context. It names, as exceptions, the classes only the API uses around every context's handlers.
 - The domain has a folder per concept: `Identity`, `Event`, `Exception` (the generic refusals), `Contact`, `Link`, `Company`, `Location`, `Search`, `File`, `Gesture`, `Completion`. A concept keeps its own refusals beside it.
 - The application has a folder per role: `Handler`, `Port`, `Service`, `Response`, `Exception`.
 
