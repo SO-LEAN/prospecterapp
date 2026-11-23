@@ -11,10 +11,10 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\CampaignId;
 
 /**
- * The exchange that processed a recipient erased in Prospecting by a member, they are to handle again, an ended
- * campaign led again (ADR 0152). Delivered again, or for an exchange of no campaign, a campaign erased, an exchange
- * that processed nobody, nothing changes; one gone with its organization leaves its recipient processed, without the
- * exchange to lead to (ADR 0155).
+ * Puts a recipient back to handle when a member erases, in Prospecting, the exchange that processed them. An ended
+ * campaign runs again (ADR 0152). Nothing changes when the event is delivered again, or when it is about an exchange
+ * outside any campaign, an erased campaign or an exchange that processed nobody. An exchange that went with its
+ * organization leaves its recipient processed, without a link to the exchange (ADR 0155).
  */
 final readonly class ReopenRecipientOfErasedExchangeHandler implements EventHandler
 {
