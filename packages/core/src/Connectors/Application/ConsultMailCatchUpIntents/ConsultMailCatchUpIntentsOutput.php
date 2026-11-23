@@ -9,7 +9,7 @@ use Prospecter\Core\SharedKernel\Application\OutputPort;
 interface ConsultMailCatchUpIntentsOutput extends OutputPort
 {
     /**
-     * @param list<string> $possibleIntents names of what may be done: CatchUpGmail, or nothing
+     * @param list<string> $possibleIntents the names of the possible intents: CatchUpGmail, or none
      */
     public function present(array $possibleIntents): void;
 }

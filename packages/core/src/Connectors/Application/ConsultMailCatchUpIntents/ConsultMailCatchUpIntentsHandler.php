@@ -17,8 +17,9 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * The e-mails exchanged with a correspondent are caught up by a reader managing the personal data, while their import
- * is active and the correspondent has an address; a correspondent the reader may not reach offers nothing.
+ * A reader who manages the personal data may reimport the e-mails exchanged with a correspondent. The reader's import
+ * must be active, and the correspondent must have an address. A correspondent that the reader may not reach offers
+ * nothing.
  */
 final readonly class ConsultMailCatchUpIntentsHandler implements QueryHandler
 {
