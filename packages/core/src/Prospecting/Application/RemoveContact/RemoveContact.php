@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\RemoveContact;
 
 /**
- * Detaches a contact from the organization; their personal data stay in PersonalData.
+ * Detaches a contact from the organization. Their personal data stay in PersonalData.
  */
 final readonly class RemoveContact
 {
