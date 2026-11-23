@@ -27,7 +27,7 @@ Fonctionnalité: Régler mes rappels
 
   Scénario: Le délai d'un rappel est l'un de ceux proposés
     Quand je règle mes rappels à 7 minutes avant
-    Alors c'est refusé : "A reminder comes 0, 5, 10, 15, 30 or 60 minutes before"
+    Alors c'est refusé : "A reminder comes 0, 5, 10, 15, 30 or 60 minutes before the exchange"
 
   Scénario: Mes réglages ne sont qu'à moi
     Soit un autre membre de "SOLEAN IT" a réglé ses rappels à 60 minutes avant
