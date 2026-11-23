@@ -153,7 +153,7 @@ STACK_RUNNING = $(shell $(DC) ps -q --status running nginx 2>/dev/null)
 # kept beside it
 STACK_DEFINITION = docker-compose.yml docker-compose.agents.yml docker/php docker/node docker/nginx docker/lambda \
 	apps/api/config/subscriptions.json apps/api/src/Shared/Persistence/Tables.php apps/api/src/SignIn/UserPool.php \
-	apps/storage/src/Command/RecreateBucketCommand.php
+	apps/storage/src/Bucket.php
 STACK_DEFINITION_DIGEST = $(shell cd $(ROOT) && find $(STACK_DEFINITION) -type f | LC_ALL=C sort | xargs sha256sum | sha256sum | cut -c1-12)
 STACK_MADE = $(ROOT)/.cache/stack-made-from
 STACK_CHANGED = $(if $(filter $(STACK_DEFINITION_DIGEST),$(file < $(STACK_MADE))),,1)
