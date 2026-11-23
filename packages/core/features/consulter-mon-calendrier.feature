@@ -70,7 +70,7 @@ Fonctionnalité: Consulter mon calendrier
 
   Scénario: Une période se lit en une fois, de six semaines au plus
     Quand je consulte mon calendrier du 01/11/2026 au 31/12/2026
-    Alors c'est refusé : "A calendar period lasts six weeks at most"
+    Alors c'est refusé : "A calendar period can last at most six weeks"
 
   Scénario: Le calendrier montre mes actions à faire à leur échéance
     Soit j'ai noté à faire pour "Ada Lovelace" "Envoyer mon CV" pour le 14/11/2026
