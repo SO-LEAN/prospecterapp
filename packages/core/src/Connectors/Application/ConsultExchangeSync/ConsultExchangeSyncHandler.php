@@ -16,9 +16,9 @@ use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * Where the push of my exchange into my calendar stands (ADR 0133), while I have a connection there: as its entry
- * keeps it, or pending while an exchange I planned and still to come was never pushed; none for an exchange of
- * another member, nor for one past never pushed.
+ * Where my exchange's push into my calendar stands (ADR 0133), while I have a connection there. The state is the one
+ * that the exchange's entry keeps. An exchange that I planned, still to come and never pushed, is pending. There is
+ * no state for another member's exchange, nor for a past exchange that was never pushed.
  */
 final readonly class ConsultExchangeSyncHandler implements QueryHandler
 {
