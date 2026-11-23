@@ -29,7 +29,7 @@ import {
 } from '../queries'
 import { CollectContactForm } from './collect-contact-form'
 
-/** The persons prospected in the organization, read in PersonalData (ADR 0041). */
+/** The persons prospected in the organization, read from PersonalData (ADR 0041). */
 export function ContactsSection({ organization }: { organization: Organization }) {
   const { t } = useTranslation()
   const contacts = useQuery(organizationContactsQuery(organization.id))
@@ -77,7 +77,7 @@ export function ContactsSection({ organization }: { organization: Organization }
 
 type Adding = 'new' | 'existing'
 
-/** A new contact of the organization, or one of my contacts already working elsewhere. */
+/** Adds a new contact to the organization, or one of my contacts who already works elsewhere. */
 function ContactAdder({ organization, onDone }: { organization: Organization; onDone: () => void }) {
   const { t } = useTranslation()
   const [adding, setAdding] = useState<Adding>('new')
@@ -122,7 +122,7 @@ function ContactAdder({ organization, onDone }: { organization: Organization; on
   )
 }
 
-/** Removing a contact from its last organization erases it: it is confirmed first. */
+/** Removing a contact from its last organization erases the contact, so the member confirms it first. */
 function RemoveContact({
   organization,
   contact,

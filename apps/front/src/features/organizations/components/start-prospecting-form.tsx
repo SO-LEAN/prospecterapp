@@ -24,7 +24,7 @@ import {
 type Props = {
   onSubmit: (input: StartProspectingInput) => Promise<unknown>
   onCancel: () => void
-  /** The tags to put on the organization once created, chosen by the field the page gives. */
+  /** The tags to put on the organization once it is created. The member chooses them in the field that the page gives. */
   tags?: React.ReactNode
 }
 

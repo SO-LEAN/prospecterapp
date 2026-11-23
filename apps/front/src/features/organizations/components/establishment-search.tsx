@@ -17,7 +17,7 @@ import {
 import { type Establishment, establishmentsQuery } from '../queries'
 import { spacedSiret } from '../siret'
 
-/** The establishments of the public directory the organization may be, the one chosen giving its SIRET. */
+/** The public directory's establishments that the organization may be. The chosen one gives its SIRET. */
 export function EstablishmentSearch({
   organizationId,
   onChoose,

@@ -20,7 +20,7 @@ type Props = {
   onStopped: () => void
 }
 
-/** Stopping to prospect erases the contacts no other organization names: it is confirmed first. */
+/** Stopping prospecting erases the contacts that no other organization names, so the member confirms it first. */
 export function StopProspecting({ organization, onStopped }: Props) {
   const { t } = useTranslation()
   const stop = useStopProspecting()

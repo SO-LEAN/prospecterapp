@@ -14,8 +14,8 @@ import { OrganizationAvatar } from './organization-avatar'
 type Props = { id: string; name: string; logoUrl?: string | null }
 
 /**
- * Quick look at an organization (map popup). Loads the full organization, which also puts it in the
- * cache: opening its page afterwards is instant.
+ * A quick look at an organization, in a map popup. It loads the full organization, which also puts it in the cache.
+ * Opening its page afterwards is instant.
  */
 export function OrganizationPreview({ id, name, logoUrl }: Props) {
   const { t } = useTranslation()

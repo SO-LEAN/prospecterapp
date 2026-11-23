@@ -5,7 +5,7 @@ import { personNameSchema, toPersonName } from '@/shared/forms/person-name'
 import { orNull, text } from '@/shared/forms/text'
 import type { CollectContactInput } from './queries'
 
-/** A new contact of the organization: a contact never comes without one (ADR 0042). */
+/** A new contact for the organization. A contact never comes without an organization (ADR 0042). */
 export const collectContactSchema = z.object({
   name: personNameSchema,
   title: civilitySchema,
@@ -15,7 +15,7 @@ export const collectContactSchema = z.object({
 
 export type CollectContactValues = z.infer<typeof collectContactSchema>
 
-/** Field paths, as the API reports them in its violations. */
+/** The field paths that the API's violations report. */
 export const collectContactFields = [
   'name.firstName',
   'name.lastName',

@@ -51,7 +51,7 @@ function givenTheApiAnswers(organization: Organization) {
   render(<Toaster />)
 }
 
-/** Sonner removes a toast closed after a timer of its own: once the test is over, it would find no window. */
+/** Sonner removes a closed toast after its own timer. Once the test is over, that timer would find no window. */
 async function waitForTheToastsToBeRemoved() {
   act(() => {
     toast.dismiss()

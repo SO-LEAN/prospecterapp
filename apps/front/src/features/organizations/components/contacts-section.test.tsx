@@ -55,7 +55,7 @@ const adaAttached = {
   },
 }
 
-/** The reaction attaching the contact to the organization runs once the organization was read these many times. */
+/** The reaction that attaches the contact to the organization runs once the organization has been read this many times. */
 function givenTheApiCollectsAdaAndAttachesHerAfter(readings: number) {
   let contactsRead = 0
   theApi.mockImplementation(async (input) => {

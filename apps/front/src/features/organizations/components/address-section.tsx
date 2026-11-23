@@ -18,7 +18,7 @@ import type { Organization } from '../queries'
 
 type Location = components['schemas']['LocationResource']
 
-/** `start`: where the routes to the organization start from, the place of my organization when known. */
+/** `start`: where the routes to the organization start. It is my organization's place when it is known. */
 export function AddressSection({
   organization,
   start,

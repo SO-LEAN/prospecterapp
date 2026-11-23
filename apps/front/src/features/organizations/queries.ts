@@ -9,11 +9,11 @@ export type StartProspectingInput = components['schemas']['StartProspectingInput
 export type ReviseLegalIdentityInput = components['schemas']['ReviseLegalIdentityInput']
 export type CollectContactInput = components['schemas']['CollectContactInput']
 
-/** The first slice of the organizations found by the search, for a picker or a summary. */
+/** The first slice of the organizations that the search finds, for a picker or a summary. */
 export const organizationsQuery = (q: string) =>
   api.queryOptions('get', '/api/organizations', { params: { query: { q } } })
 
-/** The organizations found by the search, a slice after the other: "load more" asks for the next one. */
+/** The organizations that the search finds, one slice at a time. "Load more" asks for the next slice. */
 export const organizationSlicesQuery = (q: string) =>
   infiniteQueryOptions({
     queryKey: ['get', '/api/organizations', { params: { query: { q } } }, 'slices'],
@@ -33,23 +33,23 @@ export const organizationContactsQuery = (id: string) =>
 
 export type CollectedContact = components['schemas']['ContactResource']
 
-/** A contact just collected, as the list of the contacts of its organization shows it, before the API attaches it. */
+/** A contact just collected, as its organization's contact list shows it before the API attaches it. */
 export const asOrganizationContact = ({ _links, ...contact }: CollectedContact): OrganizationContact => ({
   ...contact,
   _links: { contact: _links.self },
 })
 
-/** The name of a contact, first then last, empty when they have none. */
+/** A contact's name, first name then last name. It is empty when they have none. */
 export const fullNameOf = (contact: Pick<OrganizationContact, 'name'>) =>
   [contact.name.firstName, contact.name.lastName].filter(Boolean).join(' ')
 
-/** The contacts the picker offers: the persons my organization prospects, searched by text. */
+/** The contacts that the picker offers: the persons my organization prospects, searched by text. */
 export const contactCandidatesQuery = (q: string) =>
   api.queryOptions('get', '/api/contacts', { params: { query: { q } } })
 
 export type Establishment = components['schemas']['EstablishmentResource']
 
-/** Asked once a member opens the directory; out of reach, it is said at once, without trying again. */
+/** The query runs once a member opens the directory. When the directory is out of reach, the query fails at once, without a retry. */
 export const establishmentsQuery = (id: string) =>
   api.queryOptions(
     'get',

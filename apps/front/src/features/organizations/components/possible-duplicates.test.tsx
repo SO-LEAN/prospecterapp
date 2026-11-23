@@ -40,7 +40,7 @@ const acme = (links: { dismiss?: { href: string; method: string } }) => ({
   _links: { self: { href: `/api/organizations/${ACME}`, method: 'GET' }, ...links },
 })
 
-/** As the sheet reads it: from the cache the gestures update. */
+/** The sheet reads it from the cache that the gestures update. */
 function TheSheet({ id }: { id: string }) {
   const { data: organization } = useSuspenseQuery(organizationQuery(id))
 

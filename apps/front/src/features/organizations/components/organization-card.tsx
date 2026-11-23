@@ -7,8 +7,8 @@ import type { OrganizationSummary } from '../queries'
 import { OrganizationAvatar } from './organization-avatar'
 
 /**
- * The whole card opens the organization, its link stretched over it; the organizations it may be a duplicate of are
- * links of their own beside it, a link never nesting another.
+ * The whole card opens the organization: its link stretches over it. The organizations it may duplicate have their own
+ * links beside it, because a link never nests another.
  */
 export function OrganizationCard({ organization }: { organization: OrganizationSummary }) {
   const place = [organization.postalCode, organization.city].filter(Boolean).join(' ')
