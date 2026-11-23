@@ -25,11 +25,11 @@ final readonly class CalendarPeriod
     public function __construct(public \DateTimeImmutable $from, public \DateTimeImmutable $until)
     {
         if ($until <= $from) {
-            throw CalendarPeriodReversed::because('A calendar period ends after it starts', 'to');
+            throw CalendarPeriodReversed::because('A calendar period must end after it starts', 'to');
         }
 
         if (self::onTheClockOfItsReader($until) - self::onTheClockOfItsReader($from) > self::LONGEST_IN_DAYS * self::SECONDS_IN_A_DAY) {
-            throw CalendarPeriodTooLong::because('A calendar period lasts six weeks at most', 'to');
+            throw CalendarPeriodTooLong::because('A calendar period can last at most six weeks', 'to');
         }
     }
 
