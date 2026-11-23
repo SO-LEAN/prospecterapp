@@ -204,6 +204,7 @@ use Prospecter\Core\PersonalData\Application\NameContacts\NameContactsHandler;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\PersonalData\Application\Policy\CollectTheFounderProfilePolicy;
 use Prospecter\Core\PersonalData\Application\Policy\CollectTheMemberProfilePolicy;
+use Prospecter\Core\PersonalData\Application\Policy\ForgetContactLeftUnattachedPolicy;
 use Prospecter\Core\PersonalData\Application\Policy\ForgetContactsLeftWithoutOrganizationPolicy;
 use Prospecter\Core\PersonalData\Application\PresentMembers\PresentMembersHandler;
 use Prospecter\Core\PersonalData\Application\PublishBookerIdentified\PublishBookerIdentifiedHandler;
@@ -1381,6 +1382,7 @@ final class Application
     private function commandHandlers(): array
     {
         return [
+            new ForgetContactLeftUnattachedHandler($this->persons, $this->readers, $this->events),
             new ForgetContactsLeftWithoutOrganizationHandler($this->persons, $this->readers, $this->events),
             new CollectTheMemberProfileHandler($this->persons),
             new CollectTheFounderProfileHandler($this->persons),
@@ -1790,7 +1792,7 @@ final class Application
             new DismissSuspicionInReturnHandler($this->organizations, $this->events),
             new NoteImportedEmailHandler($this->exchanges, $this->organizations, $this->prospectors, $this->contactOrganizations, new NotedOnce($this->exchanges), $this->privateStorage, $this->events),
             new ForgetContactsLeftWithoutOrganizationPolicy(),
-            new ForgetContactLeftUnattachedHandler($this->persons, $this->readers, $this->events),
+            new ForgetContactLeftUnattachedPolicy(),
             new EraseExchangesOfContactLeftUnattachedHandler($this->exchanges, $this->events),
             new AttachContactToAttachHandler($this->contactsToAttach, $this->events),
             new KeepExchangesOfAttachedContactHandler($this->exchanges, $this->events),
