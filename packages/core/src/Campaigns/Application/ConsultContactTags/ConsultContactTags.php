@@ -7,7 +7,7 @@ namespace Prospecter\Core\Campaigns\Application\ConsultContactTags;
 final readonly class ConsultContactTags
 {
     /**
-     * @param list<string> $contactIds a set: the card of a contact asks one, a list of contacts its page
+     * @param list<string> $contactIds a set: a contact's card asks for one, and a contact list asks for its page
      */
     public function __construct(
         public string $memberId,

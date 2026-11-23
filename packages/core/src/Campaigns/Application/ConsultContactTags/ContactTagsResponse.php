@@ -4,15 +4,13 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Campaigns\Application\ConsultContactTags;
 
-/**
- * The tags a contact carries, each list in the order of their names, written with their mark (ADR 0141).
- */
+/** The tags a contact carries, written with their `#` (ADR 0141). Each list is sorted by name. */
 final readonly class ContactTagsResponse
 {
     /**
-     * @param list<string>               $own       put on it by hand, the only ones taken off
-     * @param list<InheritedTagResponse> $inherited from the organizations naming it, put on them by hand or set by
-     *                                              where they are, its own excluded
+     * @param list<string>               $own       put on it by hand; only these are taken off
+     * @param list<InheritedTagResponse> $inherited from the organizations that name it, put on them by hand or set by
+     *                                              where they are; its own tags are left out
      * @param list<string>               $automatic set by Prospecter from how it is reached
      */
     public function __construct(
@@ -24,7 +22,7 @@ final readonly class ContactTagsResponse
     }
 
     /**
-     * @return list<string> every tag it carries, once each, in the order of their names
+     * @return list<string> every tag it carries, once each, sorted by name
      */
     public function carried(): array
     {
