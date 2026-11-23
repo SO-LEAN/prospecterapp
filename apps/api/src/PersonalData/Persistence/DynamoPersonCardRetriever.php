@@ -14,7 +14,7 @@ use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
 use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\PersonalData\Domain\Model\Reader;
-use Prospecter\Core\PersonalData\Domain\Policy\PersonReading;
+use Prospecter\Core\PersonalData\Domain\Rule\PersonReading;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 /**

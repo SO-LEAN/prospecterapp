@@ -23,7 +23,7 @@ use Prospecter\Core\Prospecting\Domain\Model\Task;
 use Prospecter\Core\Prospecting\Domain\Model\ToDo;
 use Prospecter\Core\Prospecting\Domain\Model\ToDoId;
 use Prospecter\Core\Prospecting\Domain\Model\ToDoIntent;
-use Prospecter\Core\Prospecting\Domain\Policy\ToDoPossibilities;
+use Prospecter\Core\Prospecting\Domain\Rule\ToDoPossibilities;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 use Prospecter\Core\SharedKernel\Domain\Gesture;

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Core\Domain;
 
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\Campaigns\Domain\Policy\CampaignProgress;
+use Prospecter\Core\Campaigns\Domain\Rule\CampaignProgress;
 
 /**
  * The recipients processed today are counted on the member's clock.

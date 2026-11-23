@@ -8,7 +8,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Campaigns\Domain\Model\Locality;
 use Prospecter\Core\Campaigns\Domain\Model\Tag;
-use Prospecter\Core\Campaigns\Domain\Policy\AutomaticTags;
+use Prospecter\Core\Campaigns\Domain\Rule\AutomaticTags;
 
 final class GeographicTagsTest extends TestCase
 {

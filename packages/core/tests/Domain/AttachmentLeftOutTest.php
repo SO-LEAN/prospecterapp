@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Core\Domain;
 
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\Prospecting\Domain\Policy\AttachmentLeftOut;
+use Prospecter\Core\Prospecting\Domain\Rule\AttachmentLeftOut;
 
 class AttachmentLeftOutTest extends TestCase
 {

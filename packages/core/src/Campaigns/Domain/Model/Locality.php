@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Campaigns\Domain\Model;
 
-use Prospecter\Core\Campaigns\Domain\Policy\GeographicTags;
+use Prospecter\Core\Campaigns\Domain\Rule\GeographicTags;
 
 /**
  * Where an organization is, as Prospecting publishes it (ADR 0142). It holds the INSEE code of the municipality that

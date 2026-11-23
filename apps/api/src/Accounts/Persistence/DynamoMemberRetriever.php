@@ -10,8 +10,8 @@ use App\Shared\Typed;
 use Prospecter\Core\Accounts\Application\Port\MemberRetriever;
 use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\MemberResponse;
 use Prospecter\Core\Accounts\Domain\Model\Role;
-use Prospecter\Core\Accounts\Domain\Policy\AdministrationRight;
-use Prospecter\Core\Accounts\Domain\Policy\PersonalDataRight;
+use Prospecter\Core\Accounts\Domain\Rule\AdministrationRight;
+use Prospecter\Core\Accounts\Domain\Rule\PersonalDataRight;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**

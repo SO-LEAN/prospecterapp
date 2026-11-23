@@ -20,9 +20,9 @@ use Prospecter\Core\Prospecting\Domain\Model\ImportedEmail;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Model\TimelineIntent;
-use Prospecter\Core\Prospecting\Domain\Policy\ExchangeChronology;
-use Prospecter\Core\Prospecting\Domain\Policy\ExchangeConformity;
-use Prospecter\Core\Prospecting\Domain\Policy\ExchangeReading;
+use Prospecter\Core\Prospecting\Domain\Rule\ExchangeChronology;
+use Prospecter\Core\Prospecting\Domain\Rule\ExchangeConformity;
+use Prospecter\Core\Prospecting\Domain\Rule\ExchangeReading;
 use Prospecter\Core\SharedKernel\Domain\Origin;
 
 /**

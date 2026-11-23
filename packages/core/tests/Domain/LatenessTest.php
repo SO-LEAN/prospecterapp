@@ -10,7 +10,7 @@ use Prospecter\Core\Prospecting\Domain\Model\Due;
 use Prospecter\Core\Prospecting\Domain\Model\Duration;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\Prospecting\Domain\Model\Slot;
-use Prospecter\Core\Prospecting\Domain\Policy\Lateness;
+use Prospecter\Core\Prospecting\Domain\Rule\Lateness;
 
 final class LatenessTest extends TestCase
 {

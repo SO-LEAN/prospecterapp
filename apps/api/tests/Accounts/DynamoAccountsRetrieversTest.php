@@ -29,7 +29,7 @@ use Tests\App\Base\ApiTestCase;
 
 /**
  * My account and a member as the other contexts know them, read from the items the repositories write,
- * without restoring them, with what the policies of Accounts answer (ADR 0088).
+ * without restoring them, with what the rules of Accounts answer (ADR 0088).
  */
 class DynamoAccountsRetrieversTest extends ApiTestCase
 {

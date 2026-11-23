@@ -9,7 +9,7 @@ use Prospecter\Core\SharedKernel\Application\FileResponse;
 /**
  * A person as they would present themselves to someone they give a link to. It holds their unmasked name and picture.
  * It also holds why their account keeps them, which decides whether they present themselves at all
- * (`MemberPresentationPolicy`).
+ * (`Rule\MemberPresentation`).
  */
 final readonly class MemberPresentation
 {

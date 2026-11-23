@@ -8,7 +8,7 @@ use Prospecter\Core\Prospecting\Domain\Model\Due;
 use Prospecter\Core\Prospecting\Domain\Model\Duration;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\Prospecting\Domain\Model\Slot;
-use Prospecter\Core\Prospecting\Domain\Policy\Lateness;
+use Prospecter\Core\Prospecting\Domain\Rule\Lateness;
 
 /**
  * Translates the exchanges' and the to-dos' read models into the domain's terms, and asks the domain what is late.

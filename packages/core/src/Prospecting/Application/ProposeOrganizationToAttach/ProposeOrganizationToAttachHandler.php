@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\ProposeOrganizationToAttach;
 
 use Prospecter\Core\Prospecting\Application\Port\ProposedOrganizationRetriever;
-use Prospecter\Core\Prospecting\Domain\Policy\PublicMailDomains;
 use Prospecter\Core\Prospecting\Domain\Port\Prospectors;
+use Prospecter\Core\Prospecting\Domain\Rule\PublicMailDomains;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\MemberId;

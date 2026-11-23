@@ -8,7 +8,7 @@ use Prospecter\Core\Prospecting\Domain\Model\Channel;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeIntent;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeSituation;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
-use Prospecter\Core\Prospecting\Domain\Policy\ExchangePossibilities;
+use Prospecter\Core\Prospecting\Domain\Rule\ExchangePossibilities;
 
 /**
  * What the exchanges a prospector holds offer them at a given moment. Each exchange's state decides what it offers

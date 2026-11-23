@@ -11,7 +11,7 @@ use Prospecter\Core\Accounts\Domain\Exception\UnknownMember;
 use Prospecter\Core\Accounts\Domain\Model\AccountIntent;
 use Prospecter\Core\Accounts\Domain\Model\ProfileId;
 use Prospecter\Core\Accounts\Domain\Model\Role;
-use Prospecter\Core\Accounts\Domain\Policy\AccountPossibilities;
+use Prospecter\Core\Accounts\Domain\Rule\AccountPossibilities;
 use Prospecter\Core\SharedKernel\Application\FileResponse;
 use Prospecter\Core\SharedKernel\Domain\Address;
 use Prospecter\Core\SharedKernel\Domain\File;

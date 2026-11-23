@@ -23,7 +23,7 @@ use Prospecter\Core\Booking\Domain\Model\InactivePeriod;
 use Prospecter\Core\Booking\Domain\Model\InactivePeriodId;
 use Prospecter\Core\Booking\Domain\Model\OfferedChannels;
 use Prospecter\Core\Booking\Domain\Model\WeeklyWindows;
-use Prospecter\Core\Booking\Domain\Policy\BookingPagePossibilities;
+use Prospecter\Core\Booking\Domain\Rule\BookingPagePossibilities;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Event\DomainEvent;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;

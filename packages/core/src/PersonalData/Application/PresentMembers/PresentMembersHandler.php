@@ -11,7 +11,7 @@ use Prospecter\Core\PersonalData\Contract\Service\PresentMembers\PresentMembersO
 use Prospecter\Core\PersonalData\Contract\Service\PresentMembers\PresentMembersService;
 use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
-use Prospecter\Core\PersonalData\Domain\Policy\MemberPresentationPolicy;
+use Prospecter\Core\PersonalData\Domain\Rule;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 
 final readonly class PresentMembersHandler implements QueryHandler, PresentMembersService
@@ -23,7 +23,7 @@ final readonly class PresentMembersHandler implements QueryHandler, PresentMembe
     public function __invoke(PresentMembers $query, PresentMembersOutput $output): void
     {
         $persons = $this->memberPresentationRetriever->ofIds(array_map(static fn (string $id): PersonId => new PersonId($id), $query->personIds));
-        $members = array_filter($persons, static fn (MemberPresentation $person): bool => MemberPresentationPolicy::presents(Purpose::from($person->purpose)));
+        $members = array_filter($persons, static fn (MemberPresentation $person): bool => Rule\MemberPresentation::presents(Purpose::from($person->purpose)));
 
         $output->present(array_values(array_map(self::responseOf(...), $members)));
     }

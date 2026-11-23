@@ -19,15 +19,15 @@ use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeIntent;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeSituation;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
-use Prospecter\Core\Prospecting\Domain\Policy\ExchangeConformity;
-use Prospecter\Core\Prospecting\Domain\Policy\ExchangePossibilities;
-use Prospecter\Core\Prospecting\Domain\Policy\ExchangeReading;
+use Prospecter\Core\Prospecting\Domain\Rule\ExchangeConformity;
+use Prospecter\Core\Prospecting\Domain\Rule\ExchangePossibilities;
+use Prospecter\Core\Prospecting\Domain\Rule\ExchangeReading;
 use Prospecter\Core\SharedKernel\Domain\Origin;
 
 /**
  * Reads an exchange's detail from the item `EXCHANGE#<id>` / `EXCHANGE` that `DynamoExchangeRepository` writes,
  * without restoring the exchange (ADR 0088). It reads the exchange as its reader may read it. It adds what is to
- * redact, and what the exchange's state offers the reader at the moment of reading. The core's policies decide both.
+ * redact, and what the exchange's state offers the reader at the moment of reading. The core's rules decide both.
  */
 final readonly class DynamoExchangeDetailRetriever implements ExchangeDetailRetriever
 {
