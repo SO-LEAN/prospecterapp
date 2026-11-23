@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsNameTheseContacts;
 
 /**
- * The published language of the organizations naming a contact (ADR 0045): their identities.
+ * The published language of the organizations that name a contact (ADR 0045). It gives their ids.
  */
 final readonly class OrganizationsNamingContactResponse
 {

@@ -7,7 +7,7 @@ namespace Prospecter\Core\Prospecting\Contract\Service\WhichContactsHaveExchange
 interface WhichContactsHaveExchangesOfCampaignOutput
 {
     /**
-     * @param list<string> $contactIds those, among the contacts asked, with an exchange of the campaign
+     * @param list<string> $contactIds the contacts asked that have an exchange in the campaign
      */
     public function present(array $contactIds): void;
 }

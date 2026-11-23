@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Contract\Service\ListExchangeFacts;
 
 /**
- * The facts of an exchange, what another context counts of it: whether the account keeps it, where it stands
- * (`planned`, `done`, `missed`, `cancelled`), the moment it happens, the contact it was with and the campaign it was
- * noted in, if any (ADR 0145), and the revision of its state, incremented at each change; erased, whether it went
- * with its organization, no member erasing it (ADR 0155).
+ * An exchange's facts, the part another context counts. They say whether the account keeps the exchange, its status
+ * (`planned`, `done`, `missed`, `cancelled`) and the moment it happens. They name the contact it was with and the
+ * campaign it was logged in, if any (ADR 0145). They give its state's revision, which each change increments. For an
+ * erased exchange, they say whether it went with its organization, in which case no member erased it (ADR 0155).
  */
 final readonly class ExchangeFactsResponse
 {
@@ -27,8 +27,8 @@ final readonly class ExchangeFactsResponse
     }
 
     /**
-     * An erased exchange: the last of its facts, naming still the contact it was with and the campaign it was noted
-     * in when told (ADR 0152), and whether it went with its organization (ADR 0155).
+     * An erased exchange's last facts. They still name the contact it was with and the campaign it was logged in, when
+     * given (ADR 0152). They say whether it went with its organization (ADR 0155).
      */
     public static function absent(string $exchangeId, ?string $contactId = null, ?string $campaignId = null, bool $withItsOrganization = false): self
     {

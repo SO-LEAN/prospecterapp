@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts;
 
 /**
- * The organizations naming these contacts of the account (ADR 0089, 0144): asked about a set, a single contact being a
- * set of one.
+ * Asks for the organizations that name these contacts of the account (ADR 0089, 0144). The query asks about a set.
+ * A single contact is a set of one.
  */
 final readonly class NameOrganizationsOfContacts
 {

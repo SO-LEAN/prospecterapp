@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges;
 
 /**
- * The exchanges a member of an account planned and still holds from a moment on (ADR 0089, 0133).
+ * Asks for the exchanges that an account's member planned and still holds, from a given moment on (ADR 0089, 0133).
  */
 final readonly class ConsultPlannedExchanges
 {

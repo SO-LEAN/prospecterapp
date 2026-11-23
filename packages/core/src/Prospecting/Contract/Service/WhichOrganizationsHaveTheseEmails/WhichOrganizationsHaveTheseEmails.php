@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsHaveTheseEmails;
 
 /**
- * Which organizations the account prospects have these addresses, whatever their case (ADR 0089, 0154): asked about a
- * set, a single address being a set of one.
+ * Asks which organizations the account prospects have these addresses, ignoring case (ADR 0089, 0154). The query
+ * asks about a set. A single address is a set of one.
  */
 final readonly class WhichOrganizationsHaveTheseEmails
 {

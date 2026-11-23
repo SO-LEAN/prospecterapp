@@ -7,7 +7,7 @@ namespace Prospecter\Core\Prospecting\Contract\Service\WhichAreProspected;
 interface WhichAreProspectedOutput
 {
     /**
-     * @param list<string> $organizationIds those, among the organizations asked, the account prospects; an unknown one is absent
+     * @param list<string> $organizationIds the organizations asked that the account prospects. An unknown one is absent
      */
     public function present(array $organizationIds): void;
 }

@@ -7,8 +7,8 @@ namespace Prospecter\Core\Prospecting\Contract\Service\WhichEmailsHaveTheseOrgan
 interface WhichEmailsHaveTheseOrganizationsOutput
 {
     /**
-     * @param array<string, ?string> $emails the address of each organization, none when it has none, by its identity;
-     *                                       an organization the account does not prospect is absent
+     * @param array<string, ?string> $emails each organization's address by its id, null when it has none. An
+     *                                       organization the account does not prospect is absent
      */
     public function present(array $emails): void;
 }

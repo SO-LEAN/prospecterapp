@@ -8,7 +8,7 @@ interface ListExchangeFactsOutput
 {
     /**
      * @param list<ExchangeFactsResponse> $facts none for an unknown account
-     * @param string|null                 $next  the cursor of the next slice, null when this one is the last
+     * @param string|null                 $next  the next slice's cursor, null when this slice is the last
      */
     public function present(array $facts, ?string $next): void;
 }

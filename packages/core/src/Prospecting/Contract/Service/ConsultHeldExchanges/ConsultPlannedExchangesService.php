@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges;
 
 /**
- * The service Prospecting offers the other contexts (ADR 0045, 0089, 0133): the exchanges a holder still has planned,
- * the soonest first, in the published language of `ConsultHeldExchanges`; it refuses nothing, a holder of another
- * account holding none there.
+ * A service Prospecting offers the other contexts (ADR 0045, 0089, 0133). It gives the exchanges a holder still has
+ * planned, soonest first, in the published language of `ConsultHeldExchanges`. It refuses nothing. A holder of another
+ * account holds none there.
  */
 interface ConsultPlannedExchangesService
 {
