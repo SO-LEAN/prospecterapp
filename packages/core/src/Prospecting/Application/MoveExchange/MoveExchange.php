@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\MoveExchange;
 
 /**
- * Moves a planned exchange to another moment to come, by its holder, for the duration given, else its own (ADR 0119).
+ * The holder moves a planned exchange to another moment to come. It takes the given duration, or keeps its own when
+ * none is given (ADR 0119).
  */
 final readonly class MoveExchange
 {
