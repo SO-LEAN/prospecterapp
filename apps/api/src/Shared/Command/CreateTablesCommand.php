@@ -12,16 +12,16 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * Recreates the tables of the bounded contexts empty, with the data of the demonstration if asked (`make db`).
+ * Recreates the bounded contexts' tables empty, with the demonstration data on request (`make db`).
  */
-#[AsCommand(name: 'app:tables:recreate', description: 'Drop and create the DynamoDB tables of the bounded contexts (destroys their data)')]
+#[AsCommand(name: 'app:tables:recreate', description: 'Drop and create the bounded contexts\' DynamoDB tables (destroys their data)')]
 final readonly class CreateTablesCommand
 {
     public function __construct(private Tables $tables, private DemoData $demoData)
     {
     }
 
-    public function __invoke(SymfonyStyle $io, #[Option(description: 'Load the data of the demonstration')] bool $demo = false): int
+    public function __invoke(SymfonyStyle $io, #[Option(description: 'Load the demonstration data')] bool $demo = false): int
     {
         $this->tables->recreate();
 
