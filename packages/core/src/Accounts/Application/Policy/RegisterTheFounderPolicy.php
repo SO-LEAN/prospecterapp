@@ -15,6 +15,11 @@ final readonly class RegisterTheFounderPolicy implements Policy
 {
     public function __invoke(AccountOpened $event): RegisterTheFounder
     {
-        return new RegisterTheFounder($event->accountId->value, $event->by->value, $event->founderProfile->value, $event->occurredAt);
+        return new RegisterTheFounder(
+            accountId: $event->accountId->value,
+            founderId: $event->by->value,
+            founderProfileId: $event->founderProfile->value,
+            executedAt: $event->occurredAt,
+        );
     }
 }

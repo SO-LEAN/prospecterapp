@@ -21,9 +21,30 @@ final readonly class RecordFactsPolicy implements Policy
     public function __invoke(OrganizationFactsChanged|ExchangeFactsChanged|ContactFactsChanged $event): RecordOrganizationFacts|RecordExchangeFacts|RecordContactFacts
     {
         return match (true) {
-            $event instanceof OrganizationFactsChanged => new RecordOrganizationFacts($event->accountId, $event->organizationId, $event->revision, $event->present, $event->located, $event->occurredAt),
-            $event instanceof ExchangeFactsChanged => new RecordExchangeFacts($event->accountId, $event->exchangeId, $event->revision, $event->present, $event->status, $event->notedAt, $event->occurredAt),
-            $event instanceof ContactFactsChanged => new RecordContactFacts($event->accountId, $event->personId, $event->revision, $event->present, $event->occurredAt),
+            $event instanceof OrganizationFactsChanged => new RecordOrganizationFacts(
+                accountId: $event->accountId,
+                organizationId: $event->organizationId,
+                revision: $event->revision,
+                present: $event->present,
+                located: $event->located,
+                executedAt: $event->occurredAt,
+            ),
+            $event instanceof ExchangeFactsChanged => new RecordExchangeFacts(
+                accountId: $event->accountId,
+                exchangeId: $event->exchangeId,
+                revision: $event->revision,
+                present: $event->present,
+                status: $event->status,
+                notedAt: $event->notedAt,
+                executedAt: $event->occurredAt,
+            ),
+            $event instanceof ContactFactsChanged => new RecordContactFacts(
+                accountId: $event->accountId,
+                contactId: $event->personId,
+                revision: $event->revision,
+                present: $event->present,
+                executedAt: $event->occurredAt,
+            ),
         };
     }
 }
