@@ -7,7 +7,7 @@ namespace Prospecter\Core\PersonalData\Domain\Model;
 use Prospecter\Core\SharedKernel\Domain\SearchKey;
 
 /**
- * What two contacts resembling each other share: perhaps the same person, noted twice.
+ * What two contacts who resemble each other share. They may be the same person, logged twice.
  */
 final readonly class PersonResemblanceKey implements \Stringable
 {
@@ -16,8 +16,8 @@ final readonly class PersonResemblanceKey implements \Stringable
     }
 
     /**
-     * Their first name and their last name without case, accents nor spaces; null without both: a last name alone
-     * resembles too many.
+     * Their first name and last name, without case, accents or spaces. It is null without both names, because a last
+     * name alone resembles too many people.
      */
     #[\NoDiscard]
     public static function of(PersonName $name): ?self

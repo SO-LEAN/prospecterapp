@@ -8,8 +8,8 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * A contact a member collects: the person, their card, and the organizations prospected by the account where they
- * work (ADR 0042).
+ * A contact a member collects: the person, their card, and the organizations where they work, which the account
+ * prospects (ADR 0042).
  */
 final readonly class NewContact
 {

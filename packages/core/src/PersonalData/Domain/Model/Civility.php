@@ -7,8 +7,8 @@ namespace Prospecter\Core\PersonalData\Domain\Model;
 use Prospecter\Core\PersonalData\Domain\Exception\InvalidTitle;
 
 /**
- * How one addresses a contact, when their first name does not tell: unknown until noted, read in clear like their
- * name (ADR 0129).
+ * How to address a contact when their first name does not tell. It is unknown until a member logs it. Every member
+ * reads it unmasked, like the name (ADR 0129).
  */
 enum Civility: string
 {

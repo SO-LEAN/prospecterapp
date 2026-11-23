@@ -10,7 +10,7 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * A person the account prospects was collected, as a contact of these organizations.
+ * A member collected a person the account prospects, as a contact of these organizations.
  */
 final readonly class ContactCollected extends PersonEvent
 {

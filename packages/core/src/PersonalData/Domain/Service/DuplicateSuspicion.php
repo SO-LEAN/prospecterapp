@@ -11,8 +11,8 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * The contacts of the account a contact resembles, by their names, in one of the organizations where they work: a
- * rule on the whole base, out of reach of one person alone.
+ * The account's contacts whom a contact resembles by name, in one of the organizations where the contact works. The
+ * rule covers the whole base, which one person alone cannot reach.
  */
 final readonly class DuplicateSuspicion
 {
@@ -36,7 +36,7 @@ final readonly class DuplicateSuspicion
     }
 
     /**
-     * Where the contact works asked with where those resembling them do.
+     * Asks in one call where the contact works and where the contacts who resemble them work.
      *
      * @return list<PersonId>
      */
@@ -69,7 +69,7 @@ final readonly class DuplicateSuspicion
      * @param list<PersonId>                      $contacts
      * @param array<string, list<OrganizationId>> $theirOrganizations by person id
      *
-     * @return list<PersonId> those of the contacts working in one of the organizations
+     * @return list<PersonId> the contacts who work in one of the organizations
      */
     private static function workingIn(array $organizations, array $contacts, array $theirOrganizations): array
     {

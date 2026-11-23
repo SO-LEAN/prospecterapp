@@ -8,8 +8,8 @@ use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 /**
- * Personal data shown to a reader without the right to read it in clear. A fixed number of stars, so that the
- * length of a name or of an address does not leak either.
+ * Personal data shown to a reader without the right to read it unmasked. It is a fixed number of stars, so that the
+ * length of a name or an address does not leak.
  */
 final class Masking
 {
@@ -38,7 +38,8 @@ final class Masking
     }
 
     /**
-     * One link of stars for any number of them, none without: neither their number nor their sources leak.
+     * One link of stars for any number of links, and none when there is no link. Neither their number nor their sources
+     * leak.
      *
      * @return list<string>
      */

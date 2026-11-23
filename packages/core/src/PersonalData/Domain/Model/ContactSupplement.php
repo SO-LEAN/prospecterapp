@@ -16,8 +16,8 @@ use Prospecter\Core\SharedKernel\Domain\ExternalReference;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 /**
- * What a client knows of a contact, to fill what they lack (ADR 0177): each part optional, links beyond the five a
- * person holds included.
+ * What a client knows about a contact, to fill what the contact lacks (ADR 0177). Each part is optional. The links may
+ * go beyond the five links a person holds.
  */
 final readonly class ContactSupplement
 {

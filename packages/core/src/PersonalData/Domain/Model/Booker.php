@@ -9,7 +9,7 @@ use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 /**
- * A person who booked an appointment with a host, as they said who they are.
+ * A person who booked an appointment with a host, as they described themselves.
  */
 final readonly class Booker
 {

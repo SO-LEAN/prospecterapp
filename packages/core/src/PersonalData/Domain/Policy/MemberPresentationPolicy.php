@@ -7,8 +7,8 @@ namespace Prospecter\Core\PersonalData\Domain\Policy;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 
 /**
- * Who presents themselves, their name and their picture in clear, to anyone holding a link they gave (ADR 0153): a
- * member, by the profile their account keeps of them; never a person the account prospects.
+ * Who presents themselves, with their name and picture unmasked, to anyone who holds a link they gave (ADR 0153). A
+ * member does, through the profile their account keeps of them. A person the account prospects never does.
  */
 final readonly class MemberPresentationPolicy
 {

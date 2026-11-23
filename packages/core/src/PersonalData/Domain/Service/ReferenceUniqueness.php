@@ -11,9 +11,9 @@ use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
 use Prospecter\Core\SharedKernel\Domain\ExternalReference;
 
 /**
- * A link to a tool outside designates one contact of an account, by their links or their former ones; another
- * account, or a member for their own profile, may note it (ADR 0039, 0159). A rule on all the contacts of an account,
- * out of reach of one contact alone.
+ * A link to an outside tool designates one contact in an account, through their current or former links. Another
+ * account may log the same link, and so may a member for their own profile (ADR 0039, 0159). The rule covers all of an
+ * account's contacts, which one contact alone cannot reach.
  */
 final readonly class ReferenceUniqueness
 {
@@ -22,8 +22,8 @@ final readonly class ReferenceUniqueness
     }
 
     /**
-     * Once the person noted their links, the access to them checked: a reference they held before is theirs to keep,
-     * even when another contact noted it too before the references were unique.
+     * Runs once the person logged their links and the access to them was checked. A reference the person held before is
+     * theirs to keep, even when another contact also logged it before references were unique.
      *
      * @param list<ExternalReference> $heldBefore
      *

@@ -11,8 +11,9 @@ use Prospecter\Core\SharedKernel\Domain\ExternalReference;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 /**
- * What designates one contact in their account, among the clues given of them: their links, their emails and their
- * mobiles, a landline being shared by a whole organization; a clue that is no key of its kind designates nobody.
+ * What designates one contact in their account, among the clues given about them: their links, their emails and their
+ * mobiles. A landline is no key, because a whole organization shares it. A clue that is not a valid key of its kind
+ * designates nobody.
  */
 final readonly class PersonKeys
 {

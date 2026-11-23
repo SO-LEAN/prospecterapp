@@ -39,8 +39,8 @@ use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 use Prospecter\Core\SharedKernel\Domain\SearchKeys;
 
 /**
- * Aggregate root: the personal data of a natural person, kept for one account and one purpose. The account
- * collected them: another account does not even learn that the person exists (ADR 0031).
+ * Aggregate root: a natural person's personal data, kept for one account and one purpose. The account collected them.
+ * Another account does not even learn that the person exists (ADR 0031).
  */
 final class Person implements ReleasesEvents
 {
@@ -80,8 +80,8 @@ final class Person implements ReleasesEvents
     }
 
     /**
-     * The gesture names the account keeping the person and the member who brought them in: the administrator who
-     * registers a newcomer, the founder who opens the account.
+     * The gesture names the account that keeps the person and the member who brought the person in. That member is the
+     * administrator who registers a newcomer, or the founder who opens the account.
      */
     public static function collect(Gesture $gesture, PersonId $id, Purpose $purpose, ContactCard $card = new ContactCard()): self
     {
@@ -89,9 +89,9 @@ final class Person implements ReleasesEvents
     }
 
     /**
-     * A person the account of the member prospects, collected by a member with the right to manage personal
-     * data, for at least one of the organizations it prospects: a contact is never alone (ADR 0042); by the hand of the
-     * member, or by an AI acting as them.
+     * Collects a person the member's account prospects, as a contact. Only a member with the right to manage personal
+     * data collects one. The contact works in at least one of the organizations the account prospects: a contact is
+     * never alone (ADR 0042). The member collects the contact by hand, or an AI collects it on the member's behalf.
      *
      * @throws PersonalDataManagersOnly
      * @throws ContactWithoutOrganization
@@ -112,9 +112,9 @@ final class Person implements ReleasesEvents
     }
 
     /**
-     * A person who took a meeting with the member before anyone knows for which organization they work: a contact
-     * of the account waiting to be attached (ADR 0146), collected by a member with the right to manage personal
-     * data like any contact.
+     * Collects a person who met the member before anyone knows which organization they work for. The person is a
+     * contact of the account, waiting to be attached (ADR 0146). As for any contact, only a member with the right to
+     * manage personal data collects it.
      *
      * @throws PersonalDataManagersOnly
      */
@@ -148,7 +148,7 @@ final class Person implements ReleasesEvents
     }
 
     /**
-     * This contact booked an appointment with the host by their public link: the host meets them (ADR 0164).
+     * This contact booked an appointment with the host through the host's public link. The host meets them (ADR 0164).
      */
     public function identifyAsBookerOf(string $appointmentId, MemberId $host, \DateTimeImmutable $at): void
     {
@@ -191,7 +191,7 @@ final class Person implements ReleasesEvents
     }
 
     /**
-     * Their links to the tools outside.
+     * Their links to outside tools.
      */
     public function references(): ExternalReferences
     {
@@ -204,7 +204,7 @@ final class Person implements ReleasesEvents
     }
 
     /**
-     * Their links and the former ones, which still recognize them.
+     * Their current links and their former ones. Both still recognize them.
      *
      * @return list<ExternalReference>
      */
@@ -214,7 +214,7 @@ final class Person implements ReleasesEvents
     }
 
     /**
-     * A person is found by the beginning of their last name, of their first name or of their email.
+     * A search finds the person by the beginning of their last name, their first name or their email.
      */
     public function searchKeys(): SearchKeys
     {
@@ -222,7 +222,8 @@ final class Person implements ReleasesEvents
     }
 
     /**
-     * What a contact shares with those resembling them, none for the profile of a member nor without both names.
+     * What a contact shares with the contacts who resemble them. A member's profile has none, and neither has a contact
+     * without both names.
      */
     public function resemblanceKey(): ?PersonResemblanceKey
     {
@@ -230,8 +231,8 @@ final class Person implements ReleasesEvents
     }
 
     /**
-     * Suspected of being a duplicate of each contact resembling them, and no longer of the others. No member suspects:
-     * the moment of modification stays.
+     * Suspects the contact of being a duplicate of each contact who resembles them, and no longer of the others. No
+     * member suspects anything here, so the modification time stays the same.
      *
      * @param list<PersonId> $resembling
      */
@@ -249,7 +250,8 @@ final class Person implements ReleasesEvents
     }
 
     /**
-     * Suspected of being a duplicate of this contact, once, unless a member checked they are not.
+     * Suspects the contact, once, of being this contact's duplicate. Nothing happens if a member already checked that
+     * they are not.
      */
     public function suspectDuplicateOf(PersonId $duplicate, MemberId $by, \DateTimeImmutable $at): void
     {
@@ -262,7 +264,8 @@ final class Person implements ReleasesEvents
     }
 
     /**
-     * No longer suspected of being a duplicate of this contact; never suspected, nothing changes.
+     * Lifts the suspicion that the contact is this contact's duplicate. Nothing changes if the contact was never
+     * suspected.
      */
     public function liftSuspicionOf(PersonId $duplicate, MemberId $by, \DateTimeImmutable $at): void
     {
@@ -275,7 +278,7 @@ final class Person implements ReleasesEvents
     }
 
     /**
-     * Checked by a member, they are no duplicate of the contact they are suspected of being.
+     * A member checked that the contact is not a duplicate of the contact they are suspected of being.
      *
      * @throws NotASuspectedDuplicateContact|UnknownPerson|NotAllowed
      */
@@ -291,7 +294,8 @@ final class Person implements ReleasesEvents
     }
 
     /**
-     * Checked by a member, they are no duplicate of this contact, suspected or not; known already, nothing changes.
+     * A member checked that the contact is not this contact's duplicate, suspected or not. Nothing changes when this is
+     * already known.
      */
     public function knowItIsNoDuplicateOf(PersonId $duplicate, MemberId $by, \DateTimeImmutable $at): void
     {
@@ -340,7 +344,7 @@ final class Person implements ReleasesEvents
     }
 
     /**
-     * Only for a contact: the civility of the profile of a member is not noted.
+     * Only for a contact. A member's profile does not log a title.
      */
     public function changeCivility(Civility $civility, Reader $by, \DateTimeImmutable $at): void
     {
@@ -360,7 +364,8 @@ final class Person implements ReleasesEvents
     }
 
     /**
-     * Fills what the contact lacks, never changing what is noted (ADR 0177); nothing to fill, nothing happens.
+     * Fills what the contact lacks, and never changes what is logged (ADR 0177). Nothing happens when there is nothing
+     * to fill.
      */
     public function completeWith(ContactSupplement $supplement, Reader $by, \DateTimeImmutable $at): void
     {
@@ -383,7 +388,7 @@ final class Person implements ReleasesEvents
     }
 
     /**
-     * What the supplement would fill of the contact, and what it gives otherwise than noted.
+     * What the supplement would fill in the contact, and what it gives with a value other than the logged one.
      */
     public function completionWith(ContactSupplement $supplement, Reader $by): Completion
     {
@@ -413,8 +418,8 @@ final class Person implements ReleasesEvents
     }
 
     /**
-     * Erases a prospected person: once the repository removed it, no organization may name it any more
-     * (ContactForgotten), nor a contact suspect them of being their duplicate.
+     * Erases a prospected person. Once the repository removed the person, no organization may name them any more
+     * (ContactForgotten). No contact may suspect them of being a duplicate either.
      *
      * @throws UnknownPerson|NotAllowed
      */
@@ -430,8 +435,8 @@ final class Person implements ReleasesEvents
     }
 
     /**
-     * The references they held but those noted now, the most recent first, the last ones only, whatever their source:
-     * a contact forgotten costs a write per reference it holds.
+     * Keeps the references the person held, except the ones logged now, as former references. It keeps only the last
+     * ones, the most recent first, whatever their source. Each reference a forgotten contact holds costs one write.
      */
     private function noteReferences(ExternalReferences $references): void
     {

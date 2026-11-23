@@ -8,15 +8,15 @@ enum PersonIntent
 {
     case Rename;
     case ChangeJobTitle;
-    /** Note how one addresses a contact: never a member, whose civility is not noted. */
+    /** Log a contact's title. Never a member's, whose title is not logged. */
     case ChangeCivility;
     case ChangeContactDetails;
     case ChangePicture;
-    /** Erase a prospected person: never a member, who is no contact. */
+    /** Erase a prospected person. Never a member, who is not a contact. */
     case Forget;
-    /** Say, once checked, that a contact is no duplicate of one they resemble: never a member, who is none. */
+    /** Say, after checking, that a contact is not the duplicate of a contact they resemble. Never a member, who is not a contact. */
     case DismissPossibleDuplicate;
-    /** Fill what a contact lacks, never changing what is noted (ADR 0177): never a member, who completes their profile themself. */
+    /** Fill what a contact lacks without changing what is logged (ADR 0177). Never a member, who completes their own profile. */
     case Complete;
 
     public function concernsAContactOnly(): bool

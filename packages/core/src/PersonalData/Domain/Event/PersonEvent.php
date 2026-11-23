@@ -10,7 +10,7 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Something that happened to the personal data of a person.
+ * Something that happened to a person's personal data.
  */
 abstract readonly class PersonEvent extends DomainEvent
 {

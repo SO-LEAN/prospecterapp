@@ -8,8 +8,8 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
- * Port: which organizations the account prospects, the only places a contact may belong to. Prospecting keeps
- * the organizations; the API answers through an anticorruption adapter, asking once for all of them (ADR 0042,
+ * Port: which organizations the account prospects. A contact may belong to these organizations only. Prospecting keeps
+ * the organizations. The API answers through an anticorruption adapter, which asks once for all of them (ADR 0042,
  * 0089).
  */
 interface ProspectedOrganizations
@@ -17,7 +17,7 @@ interface ProspectedOrganizations
     /**
      * @param list<OrganizationId> $organizations
      *
-     * @return list<OrganizationId> those, among the organizations asked, the account prospects
+     * @return list<OrganizationId> the organizations asked that the account prospects
      */
     public function prospectedAmong(array $organizations, AccountId $accountId): array;
 }

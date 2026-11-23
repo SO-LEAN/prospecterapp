@@ -7,7 +7,7 @@ namespace Prospecter\Core\PersonalData\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
 /**
- * The title given, how one addresses a contact, is none of Ms, Mr and x (unknown).
+ * The given title is not Ms, Mr or x (unknown).
  */
 final class InvalidTitle extends BusinessRuleViolation
 {

@@ -9,7 +9,7 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * The contact is suspected of being a duplicate of another contact of their organization, whom they resemble.
+ * The contact resembles another contact of their organization, and is suspected of being that contact's duplicate.
  */
 final readonly class DuplicateSuspected extends PersonEvent
 {
