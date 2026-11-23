@@ -9,8 +9,8 @@ use Prospecter\Core\SharedKernel\Domain\SearchKeys;
 use Prospecter\Core\SharedKernel\Domain\Slice;
 
 /**
- * A slice of aggregates the way a repository answers (ADR 0049): found by the search, newest first (their
- * UUID v7 descending), after the cursor, which is the identity of the last aggregate of the previous slice.
+ * A slice of aggregates, the way a repository returns it (ADR 0049): the ones the search finds, newest first (by
+ * descending UUID v7), after the cursor. The cursor is the id of the previous slice's last aggregate.
  */
 final class NewestFirst
 {

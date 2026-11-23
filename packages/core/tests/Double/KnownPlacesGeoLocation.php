@@ -9,12 +9,12 @@ use Prospecter\Core\SharedKernel\Domain\GeoPoint;
 use Prospecter\Core\SharedKernel\Domain\Location;
 
 /**
- * A geocoder that knows the places declared by the scenario: an address mentioning one of them is found at its
- * position, in its municipality, any other address is not found.
+ * A geocoder that knows the places the scenario declares. It finds an address that mentions one of them at the
+ * place's position, in its municipality. It finds no other address.
  */
 final class KnownPlacesGeoLocation implements GeoLocation
 {
-    /** The municipality of a place declared without one: a code of no department, giving no geographic tag. */
+    /** The municipality of a place declared without one: a code in no department, so it gives no geographic tag. */
     public const string NO_MUNICIPALITY = '00000';
 
     /** @var array<string, Location> */

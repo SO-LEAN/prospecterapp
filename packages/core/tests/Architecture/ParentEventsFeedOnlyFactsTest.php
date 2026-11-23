@@ -10,9 +10,9 @@ use Prospecter\Core\Connectors\Application\ReadMailboxHistory\ReadMailboxHistory
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 
 /**
- * A handler of a parent event also receives every child added to it later. That suits a publication of
- * facts, which must follow anything that happens to its subject. A business reaction subscribes to the
- * events it reacts to, one by one, so that a new event never reaches it unless someone decides so.
+ * A parent event's handler also receives every child event added later. That suits a handler that publishes
+ * facts, because the facts must follow anything that happens to their subject. A business reaction subscribes to
+ * its events one by one, so that a new event never reaches it unless someone decides so.
  */
 class ParentEventsFeedOnlyFactsTest extends TestCase
 {

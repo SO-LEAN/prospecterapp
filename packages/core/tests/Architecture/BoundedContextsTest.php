@@ -8,10 +8,10 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
- * A bounded context speaks only to the shared kernel; the shared kernel speaks to nobody (ADR 0030). A
- * context asks another one through a port of its own, implemented outside the core by an anticorruption
- * layer that sees only the Contract of the other context (ADR 0045, 0047), its doubles too; it reacts to the
- * integration events of that Contract, never to the domain events of the other context (ADR 0046).
+ * A bounded context depends only on the shared kernel. The shared kernel depends on nothing (ADR 0030). A context
+ * asks another one through its own port. An anticorruption layer outside the core implements that port and sees
+ * only the other context's Contract (ADR 0045, 0047). The port's doubles follow the same rule. A context reacts to
+ * the integration events of the other context's Contract, never to its domain events (ADR 0046).
  */
 class BoundedContextsTest extends TestCase
 {
@@ -19,7 +19,7 @@ class BoundedContextsTest extends TestCase
     private const string CONTRACT_EVENTS = 'Contract\\Event\\';
 
     /**
-     * An import of the core, aliased or not: its context, then the rest of its name.
+     * A core import, aliased or not: its context, then the rest of its name.
      */
     private const string IMPORT = '/^use Prospecter\\\\Core\\\\(\w+)\\\\([\w\\\\]+)(?: as \w+)?;/m';
 
@@ -47,7 +47,7 @@ class BoundedContextsTest extends TestCase
     }
 
     /**
-     * The folders of src: a new context is checked as soon as it is added.
+     * The folders in src, so that the test checks a new context as soon as it is added.
      *
      * @return list<string>
      */
@@ -86,7 +86,7 @@ class BoundedContextsTest extends TestCase
     }
 
     /**
-     * @return list<string> "file: used class" for every class of another context than the one of the port
+     * @return list<string> "file: used class" for every class from a context other than the port's
      */
     private function unpublishedUsesInTheDoubles(): array
     {
@@ -113,7 +113,7 @@ class BoundedContextsTest extends TestCase
     }
 
     /**
-     * The context of the port a double implements, null when it implements none of a context.
+     * The context of the port that a double implements, or null when it implements no context's port.
      */
     private function contextOfThePortIn(string $source): ?string
     {

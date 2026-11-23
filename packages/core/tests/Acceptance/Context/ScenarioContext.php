@@ -31,8 +31,8 @@ use Tests\Core\Acceptance\Vocabulary;
 use Tests\Core\Double\StateOf;
 
 /**
- * The state of a scenario, shared by the other contexts: the application, the organizations it names
- * (scenarios speak of names, the application of identities), and the files the user is about to upload.
+ * A scenario's state, which the other contexts share: the application, the organizations it names, and the files
+ * the user is about to upload. The scenarios use names, and the application uses ids.
  */
 final class ScenarioContext implements Context
 {
@@ -117,7 +117,7 @@ final class ScenarioContext implements Context
     }
 
     /**
-     * A member of the account, with their person in PersonalData (membership), known by name in the scenario.
+     * An account member, with their person in PersonalData (membership), known by name in the scenario.
      */
     public function aMemberOf(string $name, string $account, Role ...$roles): Member
     {
@@ -191,8 +191,8 @@ final class ScenarioContext implements Context
     }
 
     /**
-     * The organization identity a request would carry for this name: the one of a prospected organization,
-     * the one of an account (which is no prospected organization), or one nobody has.
+     * The organization id that a request would carry for this name: a prospected organization's id, an account's
+     * id (an account is not a prospected organization), or an id that nobody has.
      */
     public function idOf(string $name): string
     {
@@ -248,7 +248,7 @@ final class ScenarioContext implements Context
     }
 
     /**
-     * The person a request would carry for this name; an unknown name gets an identity nobody has.
+     * The person that a request would carry for this name. An unknown name gets an id that nobody has.
      */
     public function rememberPerson(string $name, PersonId $id): void
     {
@@ -295,7 +295,7 @@ final class ScenarioContext implements Context
     }
 
     /**
-     * The name of a person as the signed-in member reads it, in clear or masked, the way the clients name them.
+     * A person's name as the signed-in member reads it, in clear or masked, the way the clients name people.
      */
     public function nameOfPersonAsRead(PersonId $id): string
     {
@@ -305,8 +305,8 @@ final class ScenarioContext implements Context
     }
 
     /**
-     * A member of this account allowed to manage personal data, to arrange its persons the way the business
-     * allows.
+     * A member of this account who may manage personal data, so that the scenario arranges the account's persons
+     * the way the business allows.
      */
     public function managerOfPersonalDataOf(AccountId $accountId): Reader
     {
@@ -324,7 +324,7 @@ final class ScenarioContext implements Context
     }
 
     /**
-     * A prospector of the account owning this organization, the author of what a scenario arranges.
+     * A prospector of the account that owns this organization. They author what a scenario arranges.
      */
     public function managerOf(Organization $organization): MemberId
     {
@@ -347,7 +347,7 @@ final class ScenarioContext implements Context
     }
 
     /**
-     * What a prospector of this account does now, the author of what a scenario arranges.
+     * What a prospector of this account does now. They author what a scenario arranges.
      */
     public function aGestureIn(AccountId $accountId): Gesture
     {
@@ -357,7 +357,7 @@ final class ScenarioContext implements Context
     }
 
     /**
-     * A member of this account, to arrange its state the way the business allows.
+     * A member of this account, so that the scenario arranges the account's state the way the business allows.
      */
     public function memberOf(Account $account): Member
     {
@@ -365,7 +365,7 @@ final class ScenarioContext implements Context
     }
 
     /**
-     * "Cet échange" of the scenarios: the last one noted.
+     * The scenarios' "Cet échange": the last exchange logged.
      */
     public function rememberTheExchange(string $id): void
     {

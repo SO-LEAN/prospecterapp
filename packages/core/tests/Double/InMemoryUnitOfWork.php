@@ -8,9 +8,9 @@ use Prospecter\Core\SharedKernel\Application\Port\UnitOfWork;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessException;
 
 /**
- * The unit of work over the InMemoryDatabase, its levels counted like the DynamoDB one: the outermost begin()
- * takes a snapshot of the database; a discard() without its commit() abandons the unit, and the database is
- * restored once its outermost level ends. Its next outermost commit may be refused, as DynamoDB refuses a write
+ * The unit of work over the InMemoryDatabase. It counts its levels like the DynamoDB one. The outermost begin()
+ * takes a snapshot of the database. A discard() without its commit() abandons the unit, and the database comes
+ * back once the outermost level ends. A test can make its next outermost commit refuse, as DynamoDB refuses a write
  * whose condition no longer holds (an email taken meanwhile).
  */
 final class InMemoryUnitOfWork implements UnitOfWork
@@ -32,7 +32,7 @@ final class InMemoryUnitOfWork implements UnitOfWork
     }
 
     /**
-     * Whether a unit is begun and not ended: a command ends every unit it begins.
+     * Whether a unit has begun and not ended. A command ends every unit it begins.
      */
     public function isOpen(): bool
     {

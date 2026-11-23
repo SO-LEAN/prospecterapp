@@ -11,9 +11,9 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 
 /**
- * The scenarios of each feature as a PHPUnit test, run by the tests of mutation only (ADR 0091): Infection knows no
- * Behat, and PHPUnit records the coverage of a test run in its process. One test per feature: Behat booted for each
- * scenario under Xdebug would take too long.
+ * Each feature's scenarios as a PHPUnit test. Only the mutation tests run it (ADR 0091): Infection does not know
+ * Behat, and PHPUnit records the coverage of a test that runs in its process. There is one test per feature,
+ * because booting Behat for each scenario under Xdebug would take too long.
  */
 final class ScenariosTest extends TestCase
 {
@@ -38,7 +38,8 @@ final class ScenariosTest extends TestCase
     }
 
     /**
-     * Behat sets its own error handlers and keeps them: they are removed down to the one PHPUnit watches.
+     * Behat sets its own error handlers and keeps them. They are removed until the handler that PHPUnit watches is
+     * back on top.
      */
     private function runBehat(string $feature, BufferedOutput $output): int
     {
@@ -56,7 +57,7 @@ final class ScenariosTest extends TestCase
     }
 
     /**
-     * Without --xdebug, Behat restarts PHP without Xdebug, and the coverage of the test is lost.
+     * Without --xdebug, Behat restarts PHP without Xdebug, and the test's coverage is lost.
      *
      * @return array<string, mixed>
      */

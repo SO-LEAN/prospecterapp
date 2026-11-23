@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Tests\Core\Double;
 
 /**
- * UUID version 7, like the real repositories generate: ordered by creation, so that "newest first" can sort by id.
- * Each identity a millisecond after the one before, from a fixed moment: the scenarios read no real clock.
+ * Version 7 UUIDs, like the ones the real repositories generate. They follow the creation order, so that "newest
+ * first" can sort by id. Each id comes a millisecond after the one before, from a fixed moment, because the
+ * scenarios read no real clock.
  */
 final class TimeOrderedUuids
 {

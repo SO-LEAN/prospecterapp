@@ -9,8 +9,8 @@ use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 
 /**
- * A stored or exposed enum value of text is its case name in lower camelCase (ADR 0190): `VideoCall` is `videoCall`. The
- * roles keep Symfony's `ROLE_*`.
+ * A string enum value that is stored or exposed is its case name in lower camelCase (ADR 0190): `VideoCall` becomes
+ * `videoCall`. The roles keep Symfony's `ROLE_*`.
  */
 class BackedEnumValuesTest extends TestCase
 {

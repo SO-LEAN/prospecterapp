@@ -8,7 +8,7 @@ use Prospecter\Core\Accounts\Contract\Event\AccountOpened;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 
 /**
- * A reaction of another context to the opening of an account that throws, after writing what it is given to write.
+ * Another context's reaction to an account's opening. It writes what it is given to write, then throws.
  */
 final readonly class FailingReaction implements EventHandler
 {

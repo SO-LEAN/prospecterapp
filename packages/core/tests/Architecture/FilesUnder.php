@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Core\Architecture;
 
 /**
- * The paths of the files of a directory and of its subdirectories.
+ * The paths of the files in a directory and its subdirectories.
  */
 final class FilesUnder
 {

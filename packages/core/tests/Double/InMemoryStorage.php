@@ -7,8 +7,8 @@ namespace Tests\Core\Double;
 use Prospecter\Core\SharedKernel\Application\Port\Storage;
 
 /**
- * Keeps the stored files by URL. Like the real storage, adding a file moves it away from where it
- * was uploaded: reading its size or extension afterwards fails.
+ * Keeps the stored files by URL. Like the real storage, adding a file moves it away from where it was uploaded.
+ * Reading its size or extension afterwards fails.
  */
 final class InMemoryStorage implements Storage
 {

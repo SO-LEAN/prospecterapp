@@ -31,9 +31,9 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 
 /**
- * The tables behind the in-memory repositories, with the constraints of the real ones: an email unique among
- * the persons of an account for a purpose, and among the organizations an account prospects. Like a database,
- * it keeps copies: a change is stored only when it is saved.
+ * The tables behind the in-memory repositories, with the real tables' constraints. An email is unique among an
+ * account's persons for a purpose, and among the organizations an account prospects. Like a database, it keeps
+ * copies: a change is stored only when it is saved.
  */
 final class InMemoryDatabase
 {
@@ -47,15 +47,15 @@ final class InMemoryDatabase
     private array $organizations = [];
     /** @var array<string, Exchange> */
     private array $exchanges = [];
-    /** @var array<string, Fingerprinted> the exchanges noted under each fingerprint, kept once erased, by account and fingerprint */
+    /** @var array<string, Fingerprinted> the exchanges logged under each fingerprint, kept once erased, by account and fingerprint */
     private array $fingerprints = [];
-    /** @var array<string, list<string>> the keys of the fingerprints of the exchanges with each contact, by account and contact */
+    /** @var array<string, list<string>> the fingerprint keys of the exchanges with each contact, by account and contact */
     private array $fingerprintsOfContacts = [];
     /** @var array<string, ToDo> */
     private array $toDos = [];
     /** @var array<string, ContactToAttach> by their person */
     private array $contactsToAttach = [];
-    /** @var array<string, int> the revision of each aggregate stored, by its identity, as the documents keep it */
+    /** @var array<string, int> each stored aggregate's revision, keyed by its id, as the documents keep it */
     private array $revisions = [];
     /** @var array<int, array<string, Fact>> the facts that each version of the figures keeps, by their aggregate */
     private array $facts = [];
@@ -69,17 +69,17 @@ final class InMemoryDatabase
     private array $authorizations = [];
     /** @var array<string, ProviderClient> by the account and the provider */
     private array $clients = [];
-    /** @var array<string, CalendarEntry> by the exchange pushed */
+    /** @var array<string, CalendarEntry> by the pushed exchange */
     private array $calendarEntries = [];
     /** @var array<string, Tagging> by the account and what it tags */
     private array $taggings = [];
     /** @var array<string, array<string, CampaignsFact>> the facts Campaigns keeps, by account, then by the aggregate they are about */
     private array $campaignsFacts = [];
-    /** @var array<string, Campaign> by the account and its identity */
+    /** @var array<string, Campaign> by the account and the campaign's id */
     private array $campaigns = [];
     /** @var array<string, BookingPage> by their host */
     private array $bookingPages = [];
-    /** @var array<string, Appointment> by their identity */
+    /** @var array<string, Appointment> by their id */
     private array $appointments = [];
 
     public function isEmpty(): bool
@@ -93,7 +93,7 @@ final class InMemoryDatabase
     }
 
     /**
-     * The stored copies are never changed in place: the arrays of a snapshot keep the state it was taken in.
+     * The stored copies never change in place, so a snapshot's arrays keep the state they were taken in.
      */
     public function restore(self $snapshot): void
     {
@@ -135,7 +135,7 @@ final class InMemoryDatabase
     }
 
     /**
-     * As the table finds a page by the link of its code: only the code a page has now leads to it.
+     * Finds a page by its code's link, as the table does. Only the page's current code leads to it.
      */
     public function bookingPageAt(string $code): ?BookingPage
     {
@@ -407,7 +407,7 @@ final class InMemoryDatabase
     }
 
     /**
-     * Under the condition the adapter writes it: a fingerprint registered for another exchange is taken.
+     * Writes it under the adapter's condition: a fingerprint registered for another exchange is taken.
      *
      * @throws ExchangeNotedMeanwhile
      */
@@ -444,7 +444,7 @@ final class InMemoryDatabase
     }
 
     /**
-     * Its fingerprint outlives it, with who erased it.
+     * Its fingerprint outlives it and records who erased it.
      */
     public function eraseFingerprintOf(Exchange $exchange): void
     {
@@ -546,8 +546,8 @@ final class InMemoryDatabase
     }
 
     /**
-     * How many times the organization, the exchange or the person was saved: the adapters count it in its document, the
-     * aggregate does not know it.
+     * How many times the organization, the exchange or the person was saved. The adapters count it in the document,
+     * and the aggregate does not know it.
      */
     public function revisionOf(string $id): int
     {
@@ -717,8 +717,8 @@ final class InMemoryDatabase
     }
 
     /**
-     * Like the DynamoDB adapters, a stored aggregate keeps its state, not the events it recorded: they belong to
-     * the use case that changed it.
+     * Like the DynamoDB adapters, the database keeps a stored aggregate's state, not the events it recorded. Those
+     * events belong to the use case that changed it.
      *
      * @template T of ReleasesEvents
      *

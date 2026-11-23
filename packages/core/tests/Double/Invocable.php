@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Core\Double;
 
 /**
- * A handler of the core called as the bus of the API calls it: by its __invoke(), which the marker interfaces of the
- * handlers cannot declare, each taking its own command or event.
+ * A core handler, called the way the API's bus calls it: through its __invoke(). The handlers' marker interfaces
+ * cannot declare that method, because each handler takes its own command or event.
  */
 final class Invocable
 {

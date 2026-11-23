@@ -48,7 +48,8 @@ final class AllOrNothingContext implements Context
     }
 
     /**
-     * As the worker runs them, a moment after the gesture: what a client asks meanwhile reads the state before them.
+     * Holds the reactions back, as the worker runs them a moment after the gesture. A client request in the meantime
+     * reads the state before them.
      */
     #[Given('les réactions aux gestes n\'ont pas encore suivi')]
     public function theReactionsHaveNotFollowedYet(): void
