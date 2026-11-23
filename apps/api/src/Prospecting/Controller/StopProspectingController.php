@@ -30,11 +30,11 @@ final class StopProspectingController extends AbstractController
 
     #[Route('/api/organizations/{id}', name: 'api_organizations_stop_prospecting', requirements: ['id' => Requirement::UUID], methods: ['DELETE'])]
     #[IsGranted(OrganizationVoter::ACCESS, subject: 'organization')]
-    #[OA\Delete(summary: 'Stop prospecting the organization: its subsidiaries lose their holding, its contacts that no other organization names are erased')]
+    #[OA\Delete(summary: 'Stop prospecting the organization. Its subsidiaries lose their holding. Its contacts that no other organization names are erased')]
     #[OA\Response(response: 204, description: 'No longer prospected')]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
-    #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data while the organization has contacts', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 404, description: 'Unknown organization, or one of another account', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data when the organization has contacts', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 404, description: 'Unknown organization, or one in another account', content: new Model(type: ProblemResource::class))]
     public function __invoke(OrganizationSheet $organization, #[CurrentUser] User $user): Response
     {
         $this->ensureMayEraseItsContacts($organization);
@@ -44,7 +44,7 @@ final class StopProspectingController extends AbstractController
     }
 
     /**
-     * Its contacts that no other organization names are erased with it: personal data.
+     * The organization's contacts that no other organization names are erased with it. They are personal data.
      */
     private function ensureMayEraseItsContacts(OrganizationSheet $organization): void
     {

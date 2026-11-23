@@ -35,11 +35,11 @@ final class DismissPossibleDuplicateController extends AbstractController
 
     #[Route('/api/organizations/{id}/possible-duplicates/{duplicateId}', name: 'api_organizations_dismiss_possible_duplicate', requirements: ['id' => Requirement::UUID, 'duplicateId' => Requirement::UUID], methods: ['DELETE'])]
     #[IsGranted(OrganizationVoter::ACCESS, subject: 'organization')]
-    #[OA\Delete(summary: 'Say, once checked, that the organization is no duplicate of the one it resembles; neither is flagged for the other any more')]
+    #[OA\Delete(summary: 'State, after checking, that the organization is not a duplicate of the one it resembles. Neither one is flagged for the other again')]
     #[OA\Response(response: 200, description: 'The organization without this possible duplicate', content: new Model(type: OrganizationResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 404, description: 'Unknown organization, or one of another account', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 404, description: 'Unknown organization, or one in another account', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 409, description: 'The organization is not suspected of being a duplicate of this one', content: new Model(type: ProblemResource::class))]
     public function __invoke(OrganizationSheet $organization, string $duplicateId, #[CurrentUser] User $user): JsonResponse
     {

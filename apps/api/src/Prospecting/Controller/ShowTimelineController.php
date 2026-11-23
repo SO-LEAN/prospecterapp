@@ -30,10 +30,10 @@ final class ShowTimelineController extends AbstractController
 
     #[Route('/api/contacts/{id}/exchanges', name: 'api_contacts_timeline', requirements: ['id' => Requirement::UUID], methods: ['GET'])]
     #[OA\Get(summary: 'The exchanges with the contact, the most recent first')]
-    #[OA\Response(response: 200, description: 'A slice of the exchanges, the next one at the link next', content: new Model(type: TimelineResource::class))]
+    #[OA\Response(response: 200, description: 'A slice of the exchanges. The link next leads to the next slice', content: new Model(type: TimelineResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 404, description: 'Unknown contact, or one of another account', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 404, description: 'Unknown contact, or one in another account', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $id, #[CurrentUser] User $user, #[MapQueryString] TimelineQuery $query = new TimelineQuery()): JsonResponse
     {
         return $this->json($this->timelineReader->read($user->memberId(), $id, $query->after));
