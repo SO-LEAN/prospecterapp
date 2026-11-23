@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\AttachFile;
 
 /**
- * Joins to an exchange a file the client sent to the storage as an upload, under the name it had. No addition run
- * again when the exchange changed meanwhile: the storage keeps the upload before the commit, and keeps it once.
+ * Attaches a file to an exchange. The client sent the file to the storage as an upload, and the file keeps its name.
+ * The addition does not run again when the exchange changed meanwhile. The storage keeps the upload before the
+ * commit, and keeps it only once.
  */
 final readonly class AttachFile
 {
