@@ -11,8 +11,8 @@ use Prospecter\Core\Connectors\Domain\Port\HeldExchanges;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 
 /**
- * Once the member connected, or their calendar was created again, the exchanges they still have planned are pushed
- * into it (ADR 0133): the soonest first, as many as one unit of work writes.
+ * Once the member connected, or once their calendar was created again, the exchanges that they still have planned
+ * are pushed into it (ADR 0133). The soonest come first, as many as one unit of work writes.
  */
 final readonly class PushUpcomingExchangesHandler implements EventHandler
 {
