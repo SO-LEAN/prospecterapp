@@ -11,8 +11,8 @@ use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
- * Asks the organization itself, restored by its repository, the rule its completion follows: the answer and the
- * write never differ (ADR 0177).
+ * Restores the organization from its repository and asks it to apply the rule its completion follows. So the
+ * answer and the write never differ (ADR 0177).
  */
 final readonly class CompareWithOrganizationHandler implements QueryHandler
 {
