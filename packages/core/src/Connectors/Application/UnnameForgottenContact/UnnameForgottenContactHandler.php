@@ -14,8 +14,9 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * A contact forgotten leaves the events of the exchanges done or missed with them (ADR 0127): each is put again,
- * without their name, leading to its organization. Those still to come are cancelled by Prospecting, then withdrawn.
+ * A forgotten contact leaves the events of their done or missed exchanges (ADR 0127). Each event is put again without
+ * their name, and it leads to its organization. Prospecting cancels the upcoming exchanges, and then they are
+ * withdrawn.
  */
 final readonly class UnnameForgottenContactHandler implements EventHandler
 {
