@@ -40,10 +40,11 @@ Natural persons' personal data, and who reads it. Code: `packages/core/src/Perso
 - A member with the right collects a contact for at least one organization the account prospects. A contact is never alone. When no organization names a contact any more, the contact is erased (`CollectContact`, `ForgetContactsLeftWithoutOrganization`; ADR 0041, 0042).
   - The exception is a contact to attach. A member with the same right collects it without an organization, for the member who met them (`Person::collectToAttach`). That member forgets it when Prospecting reports that nobody attached it in time (`ForgetContactLeftUnattached`, ADR 0146).
   - A contact to attach is one of the account's contacts. It is counted, tagged and targeted like any other.
-- A person who booked a slot through a host's public link is identified (`IdentifyBooker`, ADR 0164), in the host's account only. PersonalData looks for them in this order:
+- A person who booked a slot through a host's public link is identified (`IdentifyBooker`, ADR 0164, 0199), in the host's account only. PersonalData looks for them in this order:
   1. the account's contact who has their e-mail, whatever its case;
-  2. otherwise, a contact who has their phone;
-  3. otherwise, a new contact to attach. It is collected for the host, as the booker described themselves.
+  2. otherwise, a new contact to attach. It is collected for the host from what the booker typed: their name, e-mail and phone. This holds even when the phone is a contact's.
+
+  So the invitation goes to the address the booker typed (ADR 0175). This rule covers booking only: identifying a person elsewhere does not change.
 
   The identified person is published (`BookerIdentified`).
 - A member with the right to manage personal data completes a contact with what a client knows about them (`CompleteContact`, ADR 0177).
