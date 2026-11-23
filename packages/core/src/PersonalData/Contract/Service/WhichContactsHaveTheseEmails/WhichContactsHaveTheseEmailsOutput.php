@@ -7,8 +7,8 @@ namespace Prospecter\Core\PersonalData\Contract\Service\WhichContactsHaveTheseEm
 interface WhichContactsHaveTheseEmailsOutput
 {
     /**
-     * @param array<string, string> $contacts the identity of the contact having each address, by the address in lower
-     *                                        case; an address no contact of the account has is absent
+     * @param array<string, string> $contacts the id of the contact who has each address, keyed by the address in
+     *                                        lower case; an address that none of the account's contacts has is absent
      */
     public function present(array $contacts): void;
 }

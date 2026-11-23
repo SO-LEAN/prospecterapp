@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\PersonalData\Contract\Service\ListContactFacts;
 
 /**
- * The facts of the contacts an account keeps for its prospecting, newest first, a slice after a cursor
- * (ADR 0049): what another context needs to count them again from the state.
+ * The facts about the contacts an account keeps for prospecting, newest first, one slice after a cursor (ADR 0049).
+ * Another context needs them to count the contacts again from their state.
  */
 final readonly class ListContactFacts
 {

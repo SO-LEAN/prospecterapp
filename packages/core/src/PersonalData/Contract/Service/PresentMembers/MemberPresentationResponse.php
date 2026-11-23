@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\PersonalData\Contract\Service\PresentMembers;
 
 /**
- * The published language of a member as they present themselves to whom they give a link (ADR 0153): their name and
- * the address of their picture, in clear, theirs to give.
+ * The published language for how a member presents themselves to the people they give a link to (ADR 0153). It holds
+ * their name and their picture's address, unmasked, because these are the member's to give.
  */
 final readonly class MemberPresentationResponse
 {

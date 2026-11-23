@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\PersonalData\Contract\Service\WhichAreContacts;
 
 /**
- * Which of these persons are contacts of the account (ADR 0089): asked about a set, a single person being a set
- * of one.
+ * Which of these persons are the account's contacts (ADR 0089). It asks about a set. A single person is a set of one.
  */
 final readonly class WhichAreContacts
 {
