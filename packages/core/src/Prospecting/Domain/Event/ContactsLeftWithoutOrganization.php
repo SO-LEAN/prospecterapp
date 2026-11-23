@@ -10,8 +10,8 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * These contacts of the organization are no contact of any organization of the account any more: they must not
- * stay (ADR 0042).
+ * The organization had these contacts. No organization of the account names them any more, so they must not stay (ADR
+ * 0042).
  */
 final readonly class ContactsLeftWithoutOrganization extends OrganizationEvent
 {

@@ -10,7 +10,7 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Something that happened to a contact waiting to be attached.
+ * Something happened to a contact who waits to be attached.
  */
 abstract readonly class ContactToAttachEvent extends DomainEvent
 {

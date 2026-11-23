@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Domain\Event;
 
 /**
- * A prospector noted an exchange with a contact.
+ * A prospector logged an exchange with a contact.
  */
 final readonly class ExchangeNoted extends ExchangeEvent implements SetsTheMomentOfAnExchange
 {

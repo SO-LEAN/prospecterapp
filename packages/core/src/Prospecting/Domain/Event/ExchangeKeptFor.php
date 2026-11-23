@@ -10,7 +10,7 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
- * The contact to attach of the exchange was attached to an organization: the exchange is kept for it.
+ * The exchange's contact to attach was attached to an organization. The exchange is now kept for that organization.
  */
 final readonly class ExchangeKeptFor extends ExchangeEvent
 {

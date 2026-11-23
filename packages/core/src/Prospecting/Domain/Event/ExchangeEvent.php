@@ -10,7 +10,7 @@ use Prospecter\Core\SharedKernel\Domain\Event\DomainEvent;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * Something that happened to an exchange with a contact.
+ * Something happened to an exchange with a contact.
  */
 abstract readonly class ExchangeEvent extends DomainEvent
 {
