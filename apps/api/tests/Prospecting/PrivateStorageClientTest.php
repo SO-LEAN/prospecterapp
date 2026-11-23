@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\Shared;
+namespace Tests\App\Prospecting;
 
-use App\Shared\PrivateStorageClient;
+use App\Prospecting\Storage\PrivateStorageClient;
 use App\Shared\StorageEntry;
 use App\Shared\TokenOnlyStorageAuthentication;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\SharedKernel\Application\Port\Upload;
-use Prospecter\Core\SharedKernel\Domain\Exception\UnknownUpload;
+use Prospecter\Core\Prospecting\Application\Port\Upload;
+use Prospecter\Core\Prospecting\Domain\Exception\UnknownUpload;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 

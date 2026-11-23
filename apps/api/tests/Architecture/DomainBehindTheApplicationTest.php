@@ -53,7 +53,7 @@ class DomainBehindTheApplicationTest extends TestCase
         'Connectors/Google/GoogleTokens.php',
         'Prospecting/Directory/RechercheEntreprisesDirectory.php',
         'Shared/GeoplateformeGeoLocation.php',
-        'Shared/PrivateStorageClient.php',
+        'Prospecting/Storage/PrivateStorageClient.php',
         'Demo/DemoData.php',
     ];
 

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Prospecter\Core\SharedKernel\Application\Port;
+namespace Prospecter\Core\Prospecting\Application\Port;
 
 /**
  * A file that the client sent to the storage, as the storage measured it.

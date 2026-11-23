@@ -2,12 +2,15 @@
 
 declare(strict_types=1);
 
-namespace App\Shared;
+namespace App\Prospecting\Storage;
 
 use App\Shared\Resource\UploadResource;
-use Prospecter\Core\SharedKernel\Application\Port\PrivateStorage;
-use Prospecter\Core\SharedKernel\Application\Port\Upload;
-use Prospecter\Core\SharedKernel\Domain\Exception\UnknownUpload;
+use App\Shared\StorageEntry;
+use App\Shared\Typed;
+use App\Shared\UploadForms;
+use Prospecter\Core\Prospecting\Application\Port\PrivateStorage;
+use Prospecter\Core\Prospecting\Application\Port\Upload;
+use Prospecter\Core\Prospecting\Domain\Exception\UnknownUpload;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 

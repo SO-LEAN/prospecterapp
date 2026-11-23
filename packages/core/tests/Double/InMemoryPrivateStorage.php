@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Core\Double;
 
-use Prospecter\Core\SharedKernel\Application\Port\PrivateStorage;
-use Prospecter\Core\SharedKernel\Application\Port\Upload;
-use Prospecter\Core\SharedKernel\Domain\Exception\UnknownUpload;
+use Prospecter\Core\Prospecting\Application\Port\PrivateStorage;
+use Prospecter\Core\Prospecting\Application\Port\Upload;
+use Prospecter\Core\Prospecting\Domain\Exception\UnknownUpload;
 
 /**
  * Keeps the uploads that the client sent and the files kept from them, like the storage's private bucket. An upload
