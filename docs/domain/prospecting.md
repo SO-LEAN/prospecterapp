@@ -30,7 +30,7 @@ This context holds the organizations an account prospects, their contacts, the e
   - a planned exchange whose slot has ended and that the holder has not marked done, missed or cancelled yet;
   - a to-do that is not done once its hour has passed, or its day when it has no hour.
 
-  The `Lateness` policy decides it. It reads an exchange's `ExchangeStatus` and `Slot`, and a to-do's `Due` and whether it is done (`Due::hasPassedBy()`, ADR 0134). The read models express it in their own terms through `Overdue`.
+  The `Lateness` rule decides it. It reads an exchange's `ExchangeStatus` and `Slot`, and a to-do's `Due` and whether it is done (`Due::hasPassedBy()`, ADR 0134). The read models express it in their own terms through `Overdue`.
 - **Timeline**: the exchanges with a contact, or those of an organization and its contacts. What is to come after the moment of reading comes first, soonest first. The first of them is a contact's **next exchange**. The past follows, most recent first. A cancelled exchange is listed there from the moment of its cancellation (ADR 0111, 0112).
 - **Venue**: where a meeting is held, its place, written freely. For a video call, it is the web address that joins the call (`VideoCallLink`). The **place proposed** to meet a contact is the address of their first organization that has one.
 - **To-do** (`ToDo`): work a prospector prepares for a contact or an organization, without them present (send a CV, prepare a proposal). It is due on a day, and at an hour of that day when one is given (`Due`). The member who logged it holds it. The holder ticks it off once it is done (ADR 0113).
@@ -86,7 +86,7 @@ This context holds the organizations an account prospects, their contacts, the e
     - a contact to attach that another member holds passes to this member (`ContactToAttach::handOverTo()`, `ContactToAttachHandedOver`). The new meeting pushes their erasure back if it is later. What the former holder logged with them stays the former holder's;
     - the member plans and holds the booked exchange, under the appointment's identity. Its text is the subject. For a video call, the exchange requests its link from the member's calendar. The exchange is booked by its contact (`Exchange::bookedByAContact()`). Its timeline, its calendar and its detail say so.
   - The platform's daily schedule erases a contact that is never attached (`EraseContactLeftUnattached`, ADR 0147, 0161). It does so within the 24 hours after the start of the contact's 30th day. Its holder forgets its person in PersonalData. Its exchanges are erased (`EraseExchangesOfContactLeftUnattached`). Its to-dos go with its person.
-- A policy says what an organization's state offers (`OrganizationPossibilities`, ADR 0088): a logo to remove, a holding to detach from, and a contact to remove.
+- A rule says what an organization's state offers (`OrganizationPossibilities`, ADR 0088): a logo to remove, a holding to detach from, and a contact to remove.
 - Exchanges and their status (ADR 0111):
   - A member logs an exchange once it has happened, never in the future. It is done or missed.
   - A planned exchange is a call, a meeting or a video call in the future. It lasts 5 minutes to 8 hours, and half an hour when no duration is given.

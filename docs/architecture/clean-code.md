@@ -163,7 +163,7 @@ The repository is public and written in English (ADR 0017). Agents write like wh
 - PHP 8.4 and 8.5:
   - the pipe `|>` for a chain of one-argument steps (`SearchKey::of()`), not where every step needs a wrapping closure (`array_map`, `array_filter`: noise until partial application);
   - `array_find`, `array_any`, `array_all` instead of a loop searching an element;
-  - `#[\NoDiscard]` on a function whose result must be read, policy functions first;
+  - `#[\NoDiscard]` on a function whose result must be read, rule functions first;
   - `clone($object, [...])` to derive a `readonly` object;
   - `public private(set)` for a property only its class writes (presenters that keep an answer).
 

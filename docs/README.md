@@ -6,7 +6,7 @@ Read your subject's document before working on it. It states the rule in force, 
 
 | Subject | Document |
 |---|---|
-| The core: the hexagon, use cases, CQRS, read models, policies, refusals, domain events, dependencies | [architecture/core.md](architecture/core.md) |
+| The core: the hexagon, use cases, CQRS, read models, rules, refusals, domain events, dependencies | [architecture/core.md](architecture/core.md) |
 | The bounded contexts, what each one publishes to the others, their anticorruption layers | [architecture/contexts.md](architecture/contexts.md) |
 | Messaging between the contexts, end to end: outbox, relay, bus, worker, failures, operations | [architecture/messaging.md](architecture/messaging.md) |
 | Persistence: DynamoDB, documents, keys, retrievers, search, slices | [architecture/persistence.md](architecture/persistence.md) |
@@ -49,3 +49,4 @@ The business rules themselves are the core's scenarios (`packages/core/features`
 - The decision records: [adr/README.md](adr/README.md), an index that `make adr-index` writes from their headers. To add one: [adr/TEMPLATE.md](adr/TEMPLATE.md).
 - The 2026 upgrade, step by step, and its traps: [upgrade-2026.md](upgrade-2026.md).
 - The documents ADR 0090 moved (the records before it name their old paths): `docs/auth.md`, `docs/clean-code.md`, `docs/design-system.md`, `docs/infra.md` and `docs/monorepo.md` are in `docs/architecture/` under the same name; `docs/core-tests.md` is `docs/architecture/tests.md`; `docs/front-architecture.md` is `docs/architecture/front.md`.
+- The folders ADR 0200 renamed (the records before it name their old paths): each context's `Domain/Policy` is `Domain/Rule`, and `MemberPresentationPolicy` is `MemberPresentation`.

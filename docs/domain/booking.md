@@ -76,7 +76,7 @@ It forgets an appointment on its exchange's terminal fact (`ExchangeFactsChanged
 - `src/Booking/Domain`:
   - `BookingPage`, `Window`, `WeeklyWindows`, `Weekday`, `WallClockTime`, `HostTimeZone`, `InactivePeriod`, `InactivePeriodId`, `BookerId`, `Channel`, `OfferedChannels`, `BookingCode`, `BookingPageIntent`, `Availability`, `BusyPeriod`, `BookableDay`, `HostIdentity`, `Booker`, `Appointment`, `AppointmentId`; `AppointmentRequest`, `HostAgenda`;
   - the services `BusyPeriods` and `LinkAvailability`;
-  - the policies `BookingPagePossibilities`, `FreeSlots`, `BookingSuspension`;
+  - the rules `BookingPagePossibilities`, `FreeSlots`, `BookingSuspension`;
   - the repositories `BookingPageRepository` and `AppointmentRepository`;
   - the ports `Hosts`, `ConnectedCalendars` and `HostAgendas`, implemented by the API.
 - `src/Booking/Application`:
