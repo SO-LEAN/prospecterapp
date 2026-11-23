@@ -14,7 +14,7 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Detaches the contact; from its last organization, the event the organization records erases it in
+ * Detaches the contact. When it leaves its last organization, the event that the organization records erases it in
  * PersonalData (ContactsLeftWithoutOrganization).
  */
 final readonly class RemoveContactHandler implements CommandHandler
