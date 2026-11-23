@@ -8,11 +8,11 @@ use App\Campaigning\CampaignMessages;
 use App\Campaigning\CampaignVoter;
 use App\Campaigning\Resource\CampaignMessageResource;
 use App\Security\User;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Campaigns\Application\CampaignSheet;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
@@ -22,9 +22,9 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 /** A campaign's message, which the core renders for one contact (ADR 0144). Every client reads it this way. */
 #[OA\Tag('Campaigns')]
 #[IsGranted('ROLE_PROSPECTOR')]
-final class RenderCampaignMessageController extends AbstractController
+final readonly class RenderCampaignMessageController
 {
-    public function __construct(private readonly CampaignMessages $messages)
+    public function __construct(private CampaignMessages $messages, private JsonResponses $jsonResponses)
     {
     }
 
@@ -38,6 +38,6 @@ final class RenderCampaignMessageController extends AbstractController
     #[OA\Response(response: 404, description: 'Unknown campaign or contact, or a campaign or contact of another account', content: new Model(type: ProblemResource::class))]
     public function __invoke(CampaignSheet $campaign, string $contactId, #[CurrentUser] User $user): JsonResponse
     {
-        return $this->json($this->messages->renderedFor($user->memberId(), $campaign->id, $contactId));
+        return $this->jsonResponses->of($this->messages->renderedFor($user->memberId(), $campaign->id, $contactId));
     }
 }

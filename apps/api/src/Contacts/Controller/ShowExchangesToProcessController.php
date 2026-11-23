@@ -8,10 +8,10 @@ use App\Contacts\AgendaReader;
 use App\Contacts\Input\ReaderClockQuery;
 use App\Contacts\Resource\ExchangesToProcessResource;
 use App\Security\User;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,11 +22,12 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('My account')]
 #[IsGranted('ROLE_PROSPECTOR')]
-final class ShowExchangesToProcessController extends AbstractController
+final readonly class ShowExchangesToProcessController
 {
     public function __construct(
-        private readonly AgendaReader $agendaReader,
-        private readonly ClockInterface $clock,
+        private AgendaReader $agendaReader,
+        private ClockInterface $clock,
+        private JsonResponses $jsonResponses,
     ) {
     }
 
@@ -38,6 +39,6 @@ final class ShowExchangesToProcessController extends AbstractController
     #[OA\Response(response: 422, description: 'An unknown time zone', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[CurrentUser] User $user, #[MapQueryString(validationFailedStatusCode: Response::HTTP_UNPROCESSABLE_ENTITY, mapWhenEmpty: true)] ReaderClockQuery $clock): JsonResponse
     {
-        return $this->json($this->agendaReader->readExchangesToProcess($user->memberId(), $clock->read($this->clock->now())));
+        return $this->jsonResponses->of($this->agendaReader->readExchangesToProcess($user->memberId(), $clock->read($this->clock->now())));
     }
 }

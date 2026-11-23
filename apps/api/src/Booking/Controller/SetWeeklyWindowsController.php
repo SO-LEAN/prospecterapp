@@ -9,11 +9,11 @@ use App\Booking\MyBookingPageReader;
 use App\Booking\Resource\BookingPageResource;
 use App\Security\User;
 use App\Shared\CommandBus;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Booking\Application\SetWeeklyWindows\SetWeeklyWindows;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
@@ -23,12 +23,13 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('Booking')]
 #[IsGranted('ROLE_USER')]
-final class SetWeeklyWindowsController extends AbstractController
+final readonly class SetWeeklyWindowsController
 {
     public function __construct(
-        private readonly CommandBus $commandBus,
-        private readonly ClockInterface $clock,
-        private readonly MyBookingPageReader $myBookingPageReader,
+        private CommandBus $commandBus,
+        private ClockInterface $clock,
+        private MyBookingPageReader $myBookingPageReader,
+        private JsonResponses $jsonResponses,
     ) {
     }
 
@@ -46,6 +47,6 @@ final class SetWeeklyWindowsController extends AbstractController
             executedAt: $this->clock->now(),
         ));
 
-        return $this->json($this->myBookingPageReader->read($user->memberId(), $input->timeZone));
+        return $this->jsonResponses->of($this->myBookingPageReader->read($user->memberId(), $input->timeZone));
     }
 }

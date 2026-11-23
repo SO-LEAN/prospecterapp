@@ -7,10 +7,10 @@ namespace App\Connectors\Controller;
 use App\Connectors\MyConnectionsReader;
 use App\Connectors\Resource\ConnectionsResource;
 use App\Security\User;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
@@ -18,10 +18,11 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('Connectors')]
 #[IsGranted('ROLE_USER')]
-final class ConsultMyConnectionsController extends AbstractController
+final readonly class ConsultMyConnectionsController
 {
     public function __construct(
-        private readonly MyConnectionsReader $myConnectionsReader,
+        private MyConnectionsReader $myConnectionsReader,
+        private JsonResponses $jsonResponses,
     ) {
     }
 
@@ -32,6 +33,6 @@ final class ConsultMyConnectionsController extends AbstractController
     #[OA\Response(response: 403, description: 'The signed-in user is not a user', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[CurrentUser] User $user): JsonResponse
     {
-        return $this->json($this->myConnectionsReader->read($user->memberId()));
+        return $this->jsonResponses->of($this->myConnectionsReader->read($user->memberId()));
     }
 }

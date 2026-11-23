@@ -6,13 +6,13 @@ namespace App\ToDos\Controller;
 
 use App\Prospecting\OrganizationVoter;
 use App\Security\User;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use App\ToDos\Resource\ToDoListResource;
 use App\ToDos\ToDoReader;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
@@ -21,9 +21,9 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('To-dos')]
 #[IsGranted('ROLE_PROSPECTOR')]
-final class ShowOrganizationToDosController extends AbstractController
+final readonly class ShowOrganizationToDosController
 {
-    public function __construct(private readonly ToDoReader $toDoReader)
+    public function __construct(private ToDoReader $toDoReader, private JsonResponses $jsonResponses)
     {
     }
 
@@ -37,6 +37,6 @@ final class ShowOrganizationToDosController extends AbstractController
     #[OA\Response(response: 404, description: 'Unknown organization, or one of another account', content: new Model(type: ProblemResource::class))]
     public function __invoke(OrganizationSheet $organization, #[CurrentUser] User $user): JsonResponse
     {
-        return $this->json($this->toDoReader->ofOrganization($user->memberId(), $organization->id));
+        return $this->jsonResponses->of($this->toDoReader->ofOrganization($user->memberId(), $organization->id));
     }
 }

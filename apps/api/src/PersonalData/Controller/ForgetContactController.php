@@ -10,7 +10,6 @@ use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\PersonalData\Application\ForgetContact\ForgetContact;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -20,9 +19,9 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('Contacts')]
 #[IsGranted('ROLE_PROSPECTOR')]
-final class ForgetContactController extends AbstractController
+final readonly class ForgetContactController
 {
-    public function __construct(private readonly CommandBus $commandBus, private readonly ClockInterface $clock)
+    public function __construct(private CommandBus $commandBus, private ClockInterface $clock)
     {
     }
 

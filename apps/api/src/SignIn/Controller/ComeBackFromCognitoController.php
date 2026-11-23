@@ -8,7 +8,6 @@ use App\SignIn\OAuth\BackToTheAi;
 use App\SignIn\OAuth\BrokenSeal;
 use App\SignIn\OAuth\Seal;
 use App\SignIn\OAuth\SealPurpose;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\InputBag;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,9 +20,9 @@ use Symfony\Component\Routing\Attribute\Route;
  * AI's request and Cognito's code sealed together. Otherwise, it gives Cognito's error. A state that the facade did
  * not seal leads nowhere.
  */
-final class ComeBackFromCognitoController extends AbstractController
+final readonly class ComeBackFromCognitoController
 {
-    public function __construct(private readonly Seal $seal)
+    public function __construct(private Seal $seal)
     {
     }
 
@@ -32,7 +31,7 @@ final class ComeBackFromCognitoController extends AbstractController
     {
         $authorization = $this->authorizationSealedIn($request->query->getString('state'));
 
-        return $this->redirect(BackToTheAi::at($authorization['redirect_uri'], [...$this->answerOfCognito($request->query, $authorization), 'state' => $authorization['state']]));
+        return new RedirectResponse(BackToTheAi::at($authorization['redirect_uri'], [...$this->answerOfCognito($request->query, $authorization), 'state' => $authorization['state']]));
     }
 
     /**

@@ -7,10 +7,10 @@ namespace App\Contacts\Controller;
 use App\Contacts\CallerReader;
 use App\Contacts\Resource\CallerResource;
 use App\Security\User;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
@@ -21,9 +21,9 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  */
 #[OA\Tag('Contacts')]
 #[IsGranted('ROLE_PROSPECTOR')]
-final class RecognizeCallerController extends AbstractController
+final readonly class RecognizeCallerController
 {
-    public function __construct(private readonly CallerReader $callers)
+    public function __construct(private CallerReader $callers, private JsonResponses $jsonResponses)
     {
     }
 
@@ -35,6 +35,6 @@ final class RecognizeCallerController extends AbstractController
     #[OA\Response(response: 422, description: 'No valid phone number', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $phoneNumber, #[CurrentUser] User $user): JsonResponse
     {
-        return $this->json($this->callers->recognize($user->memberId(), $phoneNumber));
+        return $this->jsonResponses->of($this->callers->recognize($user->memberId(), $phoneNumber));
     }
 }

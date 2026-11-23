@@ -9,11 +9,11 @@ use App\Booking\MyBookingPageReader;
 use App\Booking\Resource\BookingPageResource;
 use App\Security\User;
 use App\Shared\CommandBus;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Booking\Application\ChangeBookingLink\ChangeBookingLink;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -22,13 +22,14 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('Booking')]
 #[IsGranted('ROLE_USER')]
-final class ChangeBookingLinkController extends AbstractController
+final readonly class ChangeBookingLinkController
 {
     public function __construct(
-        private readonly CommandBus $commandBus,
-        private readonly ClockInterface $clock,
-        private readonly BookingCodes $codes,
-        private readonly MyBookingPageReader $myBookingPageReader,
+        private CommandBus $commandBus,
+        private ClockInterface $clock,
+        private BookingCodes $codes,
+        private MyBookingPageReader $myBookingPageReader,
+        private JsonResponses $jsonResponses,
     ) {
     }
 
@@ -41,6 +42,6 @@ final class ChangeBookingLinkController extends AbstractController
     {
         $this->commandBus->dispatch(new ChangeBookingLink(memberId: $user->memberId(), drawnCode: $this->codes->draw(), executedAt: $this->clock->now()));
 
-        return $this->json($this->myBookingPageReader->read($user->memberId()));
+        return $this->jsonResponses->of($this->myBookingPageReader->read($user->memberId()));
     }
 }

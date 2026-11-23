@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Exchanges\Controller;
 
+use App\Shared\JsonResponses;
 use App\Shared\Resource\UploadResource;
 use App\Shared\UploadForms;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -16,9 +16,9 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('Contacts')]
 #[IsGranted('ROLE_PROSPECTOR')]
-final class PrepareUploadController extends AbstractController
+final readonly class PrepareUploadController
 {
-    public function __construct(private readonly UploadForms $uploadForms)
+    public function __construct(private UploadForms $uploadForms, private JsonResponses $jsonResponses)
     {
     }
 
@@ -29,6 +29,6 @@ final class PrepareUploadController extends AbstractController
     #[OA\Response(response: 403, description: 'Not a prospector')]
     public function __invoke(): JsonResponse
     {
-        return $this->json($this->uploadForms->prepareUpload(), Response::HTTP_CREATED);
+        return $this->jsonResponses->of($this->uploadForms->prepareUpload(), Response::HTTP_CREATED);
     }
 }

@@ -6,6 +6,7 @@ namespace App\ToDos\Controller;
 
 use App\Security\User;
 use App\Shared\CommandBus;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use App\ToDos\Input\ToDoInput;
 use App\ToDos\Resource\ToDoResource;
@@ -15,7 +16,6 @@ use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Prospecting\Application\ReviseToDo\ReviseToDo;
 use Prospecter\Core\Prospecting\Application\ToDoInList;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
@@ -26,12 +26,13 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('To-dos')]
 #[IsGranted('ROLE_PROSPECTOR')]
-final class ReviseToDoController extends AbstractController
+final readonly class ReviseToDoController
 {
     public function __construct(
-        private readonly CommandBus $commandBus,
-        private readonly ClockInterface $clock,
-        private readonly ToDoReader $toDoReader,
+        private CommandBus $commandBus,
+        private ClockInterface $clock,
+        private ToDoReader $toDoReader,
+        private JsonResponses $jsonResponses,
     ) {
     }
 
@@ -55,6 +56,6 @@ final class ReviseToDoController extends AbstractController
             executedAt: $this->clock->now(),
         ));
 
-        return $this->json($this->toDoReader->read($user->memberId(), $toDo->id));
+        return $this->jsonResponses->of($this->toDoReader->read($user->memberId(), $toDo->id));
     }
 }

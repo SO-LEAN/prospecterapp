@@ -10,7 +10,6 @@ use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Connectors\Application\CatchUpMailHistory\CatchUpMailHistory;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -20,11 +19,11 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('Connectors')]
 #[IsGranted('ROLE_USER')]
-final class ReimportContactGmailController extends AbstractController
+final readonly class ReimportContactGmailController
 {
     public function __construct(
-        private readonly CommandBus $commandBus,
-        private readonly ClockInterface $clock,
+        private CommandBus $commandBus,
+        private ClockInterface $clock,
     ) {
     }
 

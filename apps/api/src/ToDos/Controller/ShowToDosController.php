@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace App\ToDos\Controller;
 
 use App\Security\User;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use App\ToDos\Resource\ToDoListResource;
 use App\ToDos\ToDoReader;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
@@ -19,9 +19,9 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('To-dos')]
 #[IsGranted('ROLE_PROSPECTOR')]
-final class ShowToDosController extends AbstractController
+final readonly class ShowToDosController
 {
-    public function __construct(private readonly ToDoReader $toDoReader)
+    public function __construct(private ToDoReader $toDoReader, private JsonResponses $jsonResponses)
     {
     }
 
@@ -34,6 +34,6 @@ final class ShowToDosController extends AbstractController
     #[OA\Response(response: 404, description: 'Unknown contact, or one of another account', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $id, #[CurrentUser] User $user): JsonResponse
     {
-        return $this->json($this->toDoReader->ofContact($user->memberId(), $id));
+        return $this->jsonResponses->of($this->toDoReader->ofContact($user->memberId(), $id));
     }
 }

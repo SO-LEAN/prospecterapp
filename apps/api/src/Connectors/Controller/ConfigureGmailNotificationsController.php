@@ -9,11 +9,11 @@ use App\Connectors\Input\GmailNotificationsInput;
 use App\Connectors\Resource\GoogleClientResource;
 use App\Security\User;
 use App\Shared\CommandBus;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Connectors\Application\ConfigureMailboxNotifications\ConfigureMailboxNotifications;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
@@ -23,14 +23,15 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('Connectors')]
 #[IsGranted('ROLE_ADMIN')]
-final class ConfigureGmailNotificationsController extends AbstractController
+final readonly class ConfigureGmailNotificationsController
 {
     private const string GOOGLE = 'google';
 
     public function __construct(
-        private readonly CommandBus $commandBus,
-        private readonly ClockInterface $clock,
-        private readonly GoogleClientReader $googleClientReader,
+        private CommandBus $commandBus,
+        private ClockInterface $clock,
+        private GoogleClientReader $googleClientReader,
+        private JsonResponses $jsonResponses,
     ) {
     }
 
@@ -52,6 +53,6 @@ final class ConfigureGmailNotificationsController extends AbstractController
             executedAt: $this->clock->now(),
         ));
 
-        return $this->json($this->googleClientReader->read($user));
+        return $this->jsonResponses->of($this->googleClientReader->read($user));
     }
 }

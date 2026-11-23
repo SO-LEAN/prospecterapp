@@ -7,12 +7,12 @@ namespace App\Prospecting\Controller;
 use App\Prospecting\Presenter\MeetingPlacePresenter;
 use App\Prospecting\Resource\MeetingPlaceResource;
 use App\Security\User;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Prospecting\Application\ProposeMeetingPlace\ProposeMeetingPlace;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
@@ -21,10 +21,11 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('Contacts')]
 #[IsGranted('ROLE_PROSPECTOR')]
-final class ProposeMeetingPlaceController extends AbstractController
+final readonly class ProposeMeetingPlaceController
 {
     public function __construct(
-        private readonly QueryHandler $proposeMeetingPlace,
+        private QueryHandler $proposeMeetingPlace,
+        private JsonResponses $jsonResponses,
     ) {
     }
 
@@ -39,6 +40,6 @@ final class ProposeMeetingPlaceController extends AbstractController
         $presenter = new MeetingPlacePresenter();
         $this->proposeMeetingPlace->__invoke(new ProposeMeetingPlace($user->memberId(), $id), $presenter);
 
-        return $this->json($presenter->resource);
+        return $this->jsonResponses->of($presenter->resource);
     }
 }

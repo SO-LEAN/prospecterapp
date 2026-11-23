@@ -10,16 +10,17 @@ use App\Prospecting\TimelineReader;
 use App\Security\User;
 use App\Shared\CommandBus;
 use App\Shared\Identities;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Prospecting\Application\NoteCampaignExchange\NoteCampaignExchange;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\Requirement\Requirement;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -30,13 +31,15 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  */
 #[OA\Tag('Campaigns')]
 #[IsGranted('ROLE_PROSPECTOR')]
-final class NoteCampaignExchangeController extends AbstractController
+final readonly class NoteCampaignExchangeController
 {
     public function __construct(
-        private readonly CommandBus $commandBus,
-        private readonly Identities $identities,
-        private readonly ClockInterface $clock,
-        private readonly TimelineReader $timelineReader,
+        private CommandBus $commandBus,
+        private Identities $identities,
+        private ClockInterface $clock,
+        private TimelineReader $timelineReader,
+        private JsonResponses $jsonResponses,
+        private UrlGeneratorInterface $urlGenerator,
     ) {
     }
 
@@ -65,6 +68,6 @@ final class NoteCampaignExchangeController extends AbstractController
             linkedInConversation: $input->linkedInConversation,
         ));
 
-        return $this->json($this->timelineReader->read($user->memberId(), $contactId), Response::HTTP_CREATED, ['Location' => $this->generateUrl('api_exchanges_show', ['id' => $exchange])]);
+        return $this->jsonResponses->of($this->timelineReader->read($user->memberId(), $contactId), Response::HTTP_CREATED, ['Location' => $this->urlGenerator->generate('api_exchanges_show', ['id' => $exchange])]);
     }
 }

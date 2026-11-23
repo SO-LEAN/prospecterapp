@@ -9,11 +9,11 @@ use App\Contacts\Resource\OrganizationTimelineResource;
 use App\Prospecting\Input\TimelineQuery;
 use App\Prospecting\OrganizationVoter;
 use App\Security\User;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\Routing\Attribute\Route;
@@ -23,10 +23,11 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('Organizations')]
 #[IsGranted('ROLE_PROSPECTOR')]
-final class ShowOrganizationTimelineController extends AbstractController
+final readonly class ShowOrganizationTimelineController
 {
     public function __construct(
-        private readonly OrganizationTimelineReader $organizationTimelineReader,
+        private OrganizationTimelineReader $organizationTimelineReader,
+        private JsonResponses $jsonResponses,
     ) {
     }
 
@@ -39,6 +40,6 @@ final class ShowOrganizationTimelineController extends AbstractController
     #[OA\Response(response: 404, description: 'The organization is unknown or belongs to another account', content: new Model(type: ProblemResource::class))]
     public function __invoke(OrganizationSheet $organization, #[CurrentUser] User $user, #[MapQueryString] TimelineQuery $query = new TimelineQuery()): JsonResponse
     {
-        return $this->json($this->organizationTimelineReader->read($user->memberId(), $organization, $query->after));
+        return $this->jsonResponses->of($this->organizationTimelineReader->read($user->memberId(), $organization, $query->after));
     }
 }

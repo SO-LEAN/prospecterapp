@@ -10,12 +10,12 @@ use App\Campaigning\Input\RecipientInput;
 use App\Campaigning\Resource\CampaignResource;
 use App\Security\User;
 use App\Shared\CommandBus;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Campaigns\Application\AddRecipient\AddRecipient;
 use Prospecter\Core\Campaigns\Application\CampaignSheet;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
@@ -26,12 +26,13 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('Campaigns')]
 #[IsGranted('ROLE_PROSPECTOR')]
-final class AddRecipientController extends AbstractController
+final readonly class AddRecipientController
 {
     public function __construct(
-        private readonly CommandBus $commandBus,
-        private readonly ClockInterface $clock,
-        private readonly CampaignReader $campaignReader,
+        private CommandBus $commandBus,
+        private ClockInterface $clock,
+        private CampaignReader $campaignReader,
+        private JsonResponses $jsonResponses,
     ) {
     }
 
@@ -49,6 +50,6 @@ final class AddRecipientController extends AbstractController
     {
         $this->commandBus->dispatch(new AddRecipient(memberId: $user->memberId(), campaignId: $campaign->id, contactId: (string) $input->contactId, executedAt: $this->clock->now()));
 
-        return $this->json($this->campaignReader->read($user->memberId(), $campaign->id));
+        return $this->jsonResponses->of($this->campaignReader->read($user->memberId(), $campaign->id));
     }
 }

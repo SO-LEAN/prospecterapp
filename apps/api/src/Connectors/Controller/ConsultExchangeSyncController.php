@@ -8,11 +8,11 @@ use App\Connectors\ExchangeSyncReader;
 use App\Connectors\Resource\ExchangeSyncResource;
 use App\Exchanges\ExchangeVoter;
 use App\Security\User;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
@@ -21,10 +21,11 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('Connectors')]
 #[IsGranted('ROLE_PROSPECTOR')]
-final class ConsultExchangeSyncController extends AbstractController
+final readonly class ConsultExchangeSyncController
 {
     public function __construct(
-        private readonly ExchangeSyncReader $exchangeSyncReader,
+        private ExchangeSyncReader $exchangeSyncReader,
+        private JsonResponses $jsonResponses,
     ) {
     }
 
@@ -37,6 +38,6 @@ final class ConsultExchangeSyncController extends AbstractController
     #[OA\Response(response: 404, description: 'Unknown exchange, or one of another account', content: new Model(type: ProblemResource::class))]
     public function __invoke(ExchangeDetail $exchange, #[CurrentUser] User $user): JsonResponse
     {
-        return $this->json($this->exchangeSyncReader->read($user->memberId(), $exchange->id));
+        return $this->jsonResponses->of($this->exchangeSyncReader->read($user->memberId(), $exchange->id));
     }
 }

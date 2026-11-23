@@ -8,11 +8,11 @@ use App\Booking\MyBookingPageReader;
 use App\Booking\Resource\BookingPageResource;
 use App\Security\User;
 use App\Shared\CommandBus;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Booking\Application\CloseBooking\CloseBooking;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -21,12 +21,13 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('Booking')]
 #[IsGranted('ROLE_USER')]
-final class CloseBookingController extends AbstractController
+final readonly class CloseBookingController
 {
     public function __construct(
-        private readonly CommandBus $commandBus,
-        private readonly ClockInterface $clock,
-        private readonly MyBookingPageReader $myBookingPageReader,
+        private CommandBus $commandBus,
+        private ClockInterface $clock,
+        private MyBookingPageReader $myBookingPageReader,
+        private JsonResponses $jsonResponses,
     ) {
     }
 
@@ -39,6 +40,6 @@ final class CloseBookingController extends AbstractController
     {
         $this->commandBus->dispatch(new CloseBooking(memberId: $user->memberId(), executedAt: $this->clock->now()));
 
-        return $this->json($this->myBookingPageReader->read($user->memberId()));
+        return $this->jsonResponses->of($this->myBookingPageReader->read($user->memberId()));
     }
 }

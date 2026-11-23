@@ -7,6 +7,7 @@ namespace App\ToDos\Controller;
 use App\Security\User;
 use App\Shared\CommandBus;
 use App\Shared\Identities;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use App\ToDos\Input\ToDoInput;
 use App\ToDos\Resource\ToDoResource;
@@ -14,25 +15,27 @@ use App\ToDos\ToDoReader;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Prospecting\Application\NoteToDo\NoteToDo;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\Requirement\Requirement;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('To-dos')]
 #[IsGranted('ROLE_PROSPECTOR')]
-final class NoteToDoController extends AbstractController
+final readonly class NoteToDoController
 {
     public function __construct(
-        private readonly CommandBus $commandBus,
-        private readonly Identities $identities,
-        private readonly ClockInterface $clock,
-        private readonly ToDoReader $toDoReader,
+        private CommandBus $commandBus,
+        private Identities $identities,
+        private ClockInterface $clock,
+        private ToDoReader $toDoReader,
+        private JsonResponses $jsonResponses,
+        private UrlGeneratorInterface $urlGenerator,
     ) {
     }
 
@@ -57,6 +60,6 @@ final class NoteToDoController extends AbstractController
             executedAt: $this->clock->now(),
         ));
 
-        return $this->json($this->toDoReader->read($user->memberId(), $toDo), Response::HTTP_CREATED, ['Location' => $this->generateUrl('api_to_dos_show', ['id' => $toDo])]);
+        return $this->jsonResponses->of($this->toDoReader->read($user->memberId(), $toDo), Response::HTTP_CREATED, ['Location' => $this->urlGenerator->generate('api_to_dos_show', ['id' => $toDo])]);
     }
 }

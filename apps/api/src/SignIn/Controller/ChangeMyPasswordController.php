@@ -10,7 +10,6 @@ use App\SignIn\Credentials;
 use App\SignIn\Input\PasswordInput;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
@@ -19,9 +18,9 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('Sign-in')]
 #[IsGranted('ROLE_USER')]
-final class ChangeMyPasswordController extends AbstractController
+final readonly class ChangeMyPasswordController
 {
-    public function __construct(private readonly Credentials $credentials)
+    public function __construct(private Credentials $credentials)
     {
     }
 

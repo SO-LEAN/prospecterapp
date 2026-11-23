@@ -9,12 +9,12 @@ use App\Exchanges\ExchangeVoter;
 use App\Exchanges\Resource\ExchangeDetailResource;
 use App\Security\User;
 use App\Shared\CommandBus;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
 use Prospecter\Core\Prospecting\Application\MarkExchangeMissed\MarkExchangeMissed;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -24,12 +24,13 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('Contacts')]
 #[IsGranted('ROLE_PROSPECTOR')]
-final class MarkExchangeMissedController extends AbstractController
+final readonly class MarkExchangeMissedController
 {
     public function __construct(
-        private readonly CommandBus $commandBus,
-        private readonly ClockInterface $clock,
-        private readonly ExchangeReader $exchangeReader,
+        private CommandBus $commandBus,
+        private ClockInterface $clock,
+        private ExchangeReader $exchangeReader,
+        private JsonResponses $jsonResponses,
     ) {
     }
 
@@ -45,6 +46,6 @@ final class MarkExchangeMissedController extends AbstractController
     {
         $this->commandBus->dispatch(new MarkExchangeMissed($user->memberId(), $exchange->id, $this->clock->now()));
 
-        return $this->json($this->exchangeReader->read($user->memberId(), $exchange->id));
+        return $this->jsonResponses->of($this->exchangeReader->read($user->memberId(), $exchange->id));
     }
 }

@@ -12,7 +12,6 @@ use App\SignIn\OAuth\ProtectedResource;
 use App\SignIn\OAuth\Seal;
 use App\SignIn\OAuth\SealPurpose;
 use App\SignIn\OAuth\UnknownClient;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\InputBag;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,13 +23,13 @@ use Symfony\Component\Routing\Attribute\Route;
  * then goes to Cognito's sign-in page, with the AI's request sealed as its state. Or it goes back to the AI with what
  * the AI got wrong.
  */
-final class AuthorizeController extends AbstractController
+final readonly class AuthorizeController
 {
     public function __construct(
-        private readonly ClientMetadataDocuments $clients,
-        private readonly CognitoSignIn $cognito,
-        private readonly Seal $seal,
-        private readonly ProtectedResource $mcp,
+        private ClientMetadataDocuments $clients,
+        private CognitoSignIn $cognito,
+        private Seal $seal,
+        private ProtectedResource $mcp,
     ) {
     }
 
@@ -74,7 +73,7 @@ final class AuthorizeController extends AbstractController
      */
     private function backToTheAi(InputBag $query, string $error, string $description): RedirectResponse
     {
-        return $this->redirect(BackToTheAi::at($query->getString('redirect_uri'), [
+        return new RedirectResponse(BackToTheAi::at($query->getString('redirect_uri'), [
             'error' => $error,
             'error_description' => $description,
             'state' => $query->getString('state'),
@@ -95,6 +94,6 @@ final class AuthorizeController extends AbstractController
             'verifier' => $verifier,
         ], SealPurpose::SignIn);
 
-        return $this->redirect($this->cognito->pageFor($state, Pkce::challengeOf($verifier)));
+        return new RedirectResponse($this->cognito->pageFor($state, Pkce::challengeOf($verifier)));
     }
 }

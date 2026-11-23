@@ -8,11 +8,11 @@ use App\Connectors\MyConnectionsReader;
 use App\Connectors\Resource\ConnectionsResource;
 use App\Security\User;
 use App\Shared\CommandBus;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Connectors\Application\Disconnect\Disconnect;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -21,14 +21,15 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('Connectors')]
 #[IsGranted('ROLE_USER')]
-final class DisconnectGoogleController extends AbstractController
+final readonly class DisconnectGoogleController
 {
     private const string GOOGLE = 'google';
 
     public function __construct(
-        private readonly CommandBus $commandBus,
-        private readonly ClockInterface $clock,
-        private readonly MyConnectionsReader $myConnectionsReader,
+        private CommandBus $commandBus,
+        private ClockInterface $clock,
+        private MyConnectionsReader $myConnectionsReader,
+        private JsonResponses $jsonResponses,
     ) {
     }
 
@@ -42,6 +43,6 @@ final class DisconnectGoogleController extends AbstractController
     {
         $this->commandBus->dispatch(new Disconnect($user->memberId(), self::GOOGLE, $this->clock->now()));
 
-        return $this->json($this->myConnectionsReader->read($user->memberId()));
+        return $this->jsonResponses->of($this->myConnectionsReader->read($user->memberId()));
     }
 }

@@ -7,11 +7,11 @@ namespace App\Prospecting\Controller;
 use App\Prospecting\OrganizationReader;
 use App\Prospecting\OrganizationVoter;
 use App\Prospecting\Resource\OrganizationResource;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
@@ -19,10 +19,11 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('Organizations')]
 #[IsGranted('ROLE_PROSPECTOR')]
-final class ShowOrganizationController extends AbstractController
+final readonly class ShowOrganizationController
 {
     public function __construct(
-        private readonly OrganizationReader $organizationReader,
+        private OrganizationReader $organizationReader,
+        private JsonResponses $jsonResponses,
     ) {
     }
 
@@ -35,6 +36,6 @@ final class ShowOrganizationController extends AbstractController
     #[OA\Response(response: 404, description: 'Unknown organization, or one that my account neither owns nor prospects', content: new Model(type: ProblemResource::class))]
     public function __invoke(OrganizationSheet $organization): JsonResponse
     {
-        return $this->json($this->organizationReader->resourceOf($organization));
+        return $this->jsonResponses->of($this->organizationReader->resourceOf($organization));
     }
 }

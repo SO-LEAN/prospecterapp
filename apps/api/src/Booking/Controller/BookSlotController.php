@@ -10,11 +10,11 @@ use App\Booking\Resource\BookingResource;
 use App\Booking\Robots;
 use App\Shared\CommandBus;
 use App\Shared\Identities;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Booking\Application\BookSlot\BookSlot;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,12 +26,13 @@ use Symfony\Component\Routing\Attribute\Route;
  * code limits the calls.
  */
 #[OA\Tag('Booking')]
-final class BookSlotController extends AbstractController
+final readonly class BookSlotController
 {
     public function __construct(
-        private readonly CommandBus $commandBus,
-        private readonly ClockInterface $clock,
-        private readonly Identities $identities,
+        private CommandBus $commandBus,
+        private ClockInterface $clock,
+        private Identities $identities,
+        private JsonResponses $jsonResponses,
     ) {
     }
 
@@ -59,6 +60,6 @@ final class BookSlotController extends AbstractController
             ));
         }
 
-        return $this->json(new BookingResource((string) $input->slot, (string) $input->channel, $input->email), Response::HTTP_CREATED);
+        return $this->jsonResponses->of(new BookingResource((string) $input->slot, (string) $input->channel, $input->email), Response::HTTP_CREATED);
     }
 }

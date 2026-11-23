@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace App\ToDos\Controller;
 
 use App\Security\User;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use App\ToDos\Resource\ToDoListResource;
 use App\ToDos\ToDoReader;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
@@ -18,9 +18,9 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('To-dos')]
 #[IsGranted('ROLE_PROSPECTOR')]
-final class ShowMyToDosController extends AbstractController
+final readonly class ShowMyToDosController
 {
-    public function __construct(private readonly ToDoReader $toDoReader)
+    public function __construct(private ToDoReader $toDoReader, private JsonResponses $jsonResponses)
     {
     }
 
@@ -32,6 +32,6 @@ final class ShowMyToDosController extends AbstractController
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[CurrentUser] User $user): JsonResponse
     {
-        return $this->json($this->toDoReader->mine($user->memberId()));
+        return $this->jsonResponses->of($this->toDoReader->mine($user->memberId()));
     }
 }

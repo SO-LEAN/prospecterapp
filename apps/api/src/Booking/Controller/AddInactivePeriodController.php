@@ -10,11 +10,11 @@ use App\Booking\Resource\BookingPageResource;
 use App\Security\User;
 use App\Shared\CommandBus;
 use App\Shared\Identities;
+use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Booking\Application\AddInactivePeriod\AddInactivePeriod;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,13 +25,14 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('Booking')]
 #[IsGranted('ROLE_USER')]
-final class AddInactivePeriodController extends AbstractController
+final readonly class AddInactivePeriodController
 {
     public function __construct(
-        private readonly CommandBus $commandBus,
-        private readonly ClockInterface $clock,
-        private readonly Identities $identities,
-        private readonly MyBookingPageReader $myBookingPageReader,
+        private CommandBus $commandBus,
+        private ClockInterface $clock,
+        private Identities $identities,
+        private MyBookingPageReader $myBookingPageReader,
+        private JsonResponses $jsonResponses,
     ) {
     }
 
@@ -50,6 +51,6 @@ final class AddInactivePeriodController extends AbstractController
             executedAt: $this->clock->now(),
         ));
 
-        return $this->json($this->myBookingPageReader->read($user->memberId()), Response::HTTP_CREATED);
+        return $this->jsonResponses->of($this->myBookingPageReader->read($user->memberId()), Response::HTTP_CREATED);
     }
 }
