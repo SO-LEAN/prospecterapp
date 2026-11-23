@@ -21,7 +21,8 @@ use Prospecter\Core\SharedKernel\Domain\SearchKey;
 final readonly class IdentifyOrganizationsHandler implements QueryHandler
 {
     /**
-     * The organizations whose name begins like the one given compared by name, enough for a name shared by several.
+     * How many organizations whose name begins like the given one are compared by name. That is enough for a name
+     * that several organizations share.
      */
     private const int NAMED_ALIKE_AT_MOST = 50;
 
@@ -83,7 +84,7 @@ final readonly class IdentifyOrganizationsHandler implements QueryHandler
     }
 
     /**
-     * The organizations the keys designate, each once, by the surest key first.
+     * The organizations the keys designate, each one once, the surest key first.
      *
      * @return list<OrganizationId>
      */
