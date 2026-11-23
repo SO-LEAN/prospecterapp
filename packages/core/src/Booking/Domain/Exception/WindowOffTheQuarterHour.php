@@ -13,6 +13,6 @@ final class WindowOffTheQuarterHour extends BusinessRuleViolation
 {
     public static function refused(): self
     {
-        return self::because('A window starts and ends on a quarter hour', 'windows');
+        return self::because('A window must start and end on a quarter hour', 'windows');
     }
 }

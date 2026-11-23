@@ -21,7 +21,7 @@ final readonly class WallClockTime
     public static function at(string $time, string $field): self
     {
         if (1 !== preg_match(self::FORMAT, $time, $parts)) {
-            throw BusinessRuleViolation::because('A time is written HH:MM', $field, context: ['time' => $time]);
+            throw BusinessRuleViolation::because('A time must be a valid time in the HH:MM format', $field, context: ['time' => $time]);
         }
 
         return new self((int) $parts['hours'] * 60 + (int) $parts['minutes']);

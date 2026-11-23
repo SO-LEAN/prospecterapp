@@ -49,7 +49,7 @@ final class BookingSettingsTest extends TestCase
     public function testATimeIsWrittenHoursAndMinutes(string $time): void
     {
         $this->expectException(BusinessRuleViolation::class);
-        $this->expectExceptionMessageIsOrContains('A time is written HH:MM');
+        $this->expectExceptionMessageIsOrContains('A time must be a valid time in the HH:MM format');
         WallClockTime::at($time, 'from');
     }
 
@@ -74,7 +74,7 @@ final class BookingSettingsTest extends TestCase
 
     public function testAWindowEndingOffTheQuarterHourIsRefused(): void
     {
-        $this->expectExceptionMessageIsOrContains('A window starts and ends on a quarter hour');
+        $this->expectExceptionMessageIsOrContains('A window must start and end on a quarter hour');
         new Window(Weekday::Monday, WallClockTime::at('14:00', 'from'), WallClockTime::at('15:20', 'to'));
     }
 
@@ -102,7 +102,7 @@ final class BookingSettingsTest extends TestCase
     #[DataProvider('notDays')]
     public function testAnInactivePeriodIsOfDaysWrittenYearMonthDay(string $day): void
     {
-        $this->expectExceptionMessageIsOrContains('A day is written YYYY-MM-DD');
+        $this->expectExceptionMessageIsOrContains('A day must be a valid date in the YYYY-MM-DD format');
         new InactivePeriod(new InactivePeriodId(self::PERIOD), $day, '2027-01-04');
     }
 

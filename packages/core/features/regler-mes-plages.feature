@@ -31,22 +31,22 @@ Fonctionnalité: Régler mes plages
 
   Scénario: Une plage tient au moins un créneau de 15 minutes, au quart d'heure
     Quand je règle une plage le lundi de 14h00 à 14h10
-    Alors c'est refusé : "A window holds at least one slot of 15 minutes"
+    Alors c'est refusé : "A window must last at least 15 minutes"
 
   Scénario: Une plage qui finit avant de commencer
     Quand je règle une plage le lundi de 17h00 à 14h00
-    Alors c'est refusé : "A window holds at least one slot of 15 minutes"
+    Alors c'est refusé : "A window must last at least 15 minutes"
 
   Scénario: Une plage hors du quart d'heure
     Quand je règle une plage le lundi de 14h05 à 17h00
-    Alors c'est refusé : "A window starts and ends on a quarter hour"
+    Alors c'est refusé : "A window must start and end on a quarter hour"
 
   Scénario: Deux plages le même jour
     Quand je règle mes plages :
       | jour  | de    | à     |
       | lundi | 09:00 | 12:00 |
       | lundi | 14:00 | 17:00 |
-    Alors c'est refusé : "A day holds one window at most"
+    Alors c'est refusé : "A day can hold only one window"
 
   Scénario: Je règle mes plages depuis New York
     Soit je lis l'heure de "America/New_York"
