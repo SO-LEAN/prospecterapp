@@ -16,13 +16,14 @@ import { targetedTagsOf } from '../schema'
 
 type Props = {
   campaign: Campaign
-  /** The contacts the campaign keeps already, left out of what is added. */
+  /** The contacts that the campaign already keeps. They are left out of what is added. */
   kept: string[]
 }
 
 /**
- * « Ajouter » opens a dialog of two tabs: the contacts of another search by tags, previewed without those kept
- * already, and one contact found by their name; each as the links of the campaign offer it.
+ * « Ajouter » opens a dialog with two tabs. One tab previews the contacts that another tag search finds,
+ * without those already kept. The other finds one contact by name. Each tab shows only when the campaign's
+ * links allow it.
  */
 export function AddRecipients({ campaign, kept }: Props) {
   const { t } = useTranslation()

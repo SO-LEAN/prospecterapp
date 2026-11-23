@@ -15,7 +15,10 @@ import {
 import { useStartCampaign } from '../mutations'
 import type { Campaign } from '../queries'
 
-/** Starting does not undo: its list and its message will no longer change, so the member confirms it first. */
+/**
+ * Starting cannot be undone: the campaign's list and message will no longer change. So the member confirms it
+ * first.
+ */
 export function StartCampaign({ campaign }: { campaign: Campaign }) {
   const { t } = useTranslation()
   const start = useStartCampaign()

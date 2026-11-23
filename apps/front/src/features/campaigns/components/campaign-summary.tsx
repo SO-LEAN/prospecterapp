@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Detail } from '@/shared/ui/detail'
 import type { Campaign } from '../queries'
 
-/** A started campaign, read only: nothing of it changes any more, it is led as it was frozen. */
+/** A started campaign, read-only. Nothing in it changes any more: it runs as it was frozen. */
 export function CampaignSummary({ campaign }: { campaign: Campaign }) {
   const { t } = useTranslation()
 

@@ -21,7 +21,7 @@ export function usePrepareCampaign() {
   })
 }
 
-/** The message of the campaign changes with it: its previews are read again. */
+/** The campaign's message changes with it, so its previews are read again. */
 export function useReviseCampaign() {
   const queryClient = useQueryClient()
   const { t } = useTranslation()
@@ -51,7 +51,7 @@ export function useDiscardCampaign() {
   })
 }
 
-/** Frozen, the campaign answers its recipients counted: they are read again with the list. */
+/** The frozen campaign comes back with its recipient count. Its recipients are read again with the list. */
 export function useFreezeCampaign() {
   const { t } = useTranslation()
   const recipientsChanged = useRecipientsChanged()
@@ -88,7 +88,7 @@ export function useAddRecipientsByTags() {
   })
 }
 
-/** Answered without the campaign: it is read again, its recipients counted. */
+/** The answer has no campaign, so the campaign is read again with its recipient count. */
 export function useRemoveRecipient(campaignId: string) {
   const queryClient = useQueryClient()
   const { t } = useTranslation()
@@ -105,7 +105,10 @@ export function useRemoveRecipient(campaignId: string) {
   })
 }
 
-/** Started, the campaign no longer changes: it answers itself, read again with the list and its recipients. */
+/**
+ * A started campaign no longer changes. The answer is the campaign itself, read again with the list and its
+ * recipients.
+ */
 export function useStartCampaign() {
   const { t } = useTranslation()
   const recipientsChanged = useRecipientsChanged()
@@ -118,7 +121,7 @@ export function useStartCampaign() {
   })
 }
 
-/** Stopped, the campaign stays listed: it answers itself, read again with the list. */
+/** A stopped campaign stays listed. The answer is the campaign itself, read again with the list. */
 export function useStopCampaign() {
   const { t } = useTranslation()
   const recipientsChanged = useRecipientsChanged()
@@ -132,9 +135,9 @@ export function useStopCampaign() {
 }
 
 /**
- * The exchange of a recipient noted in the campaign: Campaigns processes them once the reactions ran, reacting to the
- * facts of the exchange (ADR 0145), so the page moves on at once; the campaign, its recipients, the list and the
- * figures are read now and again once the reactions ran, the timelines now.
+ * Logs a recipient's exchange in the campaign. Campaigns processes the recipient once the reactions to the
+ * exchange's facts have run (ADR 0145), so the page moves on at once. The campaign, its recipients, the list
+ * and the figures are read now, and again once the reactions have run. The timelines are read now.
  */
 export function useNoteCampaignExchange(campaignId: string) {
   const queryClient = useQueryClient()
@@ -157,7 +160,10 @@ export function useNoteCampaignExchange(campaignId: string) {
   })
 }
 
-/** The cap answered with the campaign: it is read again on the reader's clock, with the list. */
+/**
+ * The answer holds the campaign with its cap. The campaign is read again on the reader's clock, with the
+ * list.
+ */
 export function useSetDailyCap() {
   const queryClient = useQueryClient()
   const { t } = useTranslation()
@@ -173,7 +179,10 @@ export function useSetDailyCap() {
   })
 }
 
-/** Dismissed within the gesture: the campaign, its recipients and the list are read again at once. */
+/**
+ * The recipient is dismissed within the gesture, so the campaign, its recipients and the list are read again
+ * at once.
+ */
 export function useDismissRecipient(campaignId: string) {
   const queryClient = useQueryClient()
   const { t } = useTranslation()

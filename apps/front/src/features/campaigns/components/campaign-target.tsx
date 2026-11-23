@@ -9,15 +9,15 @@ import type { LiveTarget } from '../use-live-target'
 
 type Props = {
   target: LiveTarget
-  /** The campaign once prepared, whose message saved the preview renders; none before. */
+  /** The campaign once prepared. The preview renders its saved message. Undefined before it is prepared. */
   campaignId?: string
-  /** The message typed differs from the one saved, the only one the preview renders. */
+  /** The typed message differs from the saved one. The preview renders only the saved message. */
   changed: boolean
 }
 
 /**
- * The contacts the campaign targets as it is typed and as their tags are now, and the message of the draft saved,
- * rendered by the api for the contact hovered or focused.
+ * The contacts that the campaign targets as it is typed, with their current tags. The API renders the saved
+ * draft's message for the contact that is hovered or focused.
  */
 export function CampaignTarget({ target, campaignId, changed }: Props) {
   const { contacts, found, noTarget, loadMore } = target
@@ -77,7 +77,7 @@ export function CampaignTarget({ target, campaignId, changed }: Props) {
   )
 }
 
-/** The message of the campaign as saved, rendered by the api for one contact. */
+/** The saved campaign message, which the API renders for one contact. */
 export function MessagePreview({
   campaignId,
   contactId,

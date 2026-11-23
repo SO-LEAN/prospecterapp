@@ -8,12 +8,17 @@ const MAX_MESSAGE = 5000
 
 export const CHANNELS = ['email', 'call', 'sms', 'linkedIn'] as const satisfies readonly Channel[]
 
-/** How an AI leading the campaign treats its message: sent as rendered, or adapted to each person. */
+/**
+ * How an AI running the campaign treats its message: it sends it as rendered, or adapts it to each person.
+ */
 export const MESSAGE_MODES = ['asIs', 'adapted'] as const satisfies readonly MessageMode[]
 
 const required = () => i18n.t('validation.required')
 
-/** Mirrors `CampaignInput` of the API; the core decides the rest, the tag of the channel among the 5 included. */
+/**
+ * Mirrors the API's `CampaignInput`. The core decides the rest, including that the channel's tag counts
+ * within the 5 tags.
+ */
 export const campaignSchema = z.object({
   name: text(MAX_NAME).min(1, { error: required }),
   channel: z.enum(CHANNELS),
@@ -58,8 +63,8 @@ export const revisionOf = (campaign: Campaign): CampaignValues => ({
 })
 
 /**
- * Only an e-mail has a subject: one typed before choosing another channel is not sent. A daily cap left empty is
- * none.
+ * Only an e-mail has a subject. A subject typed before the member chose another channel is not sent. A daily
+ * cap left empty means no cap.
  */
 export const toCampaignInput = (values: CampaignValues): CampaignInput => ({
   name: values.name.trim(),
@@ -71,7 +76,7 @@ export const toCampaignInput = (values: CampaignValues): CampaignInput => ({
   dailyCap: values.dailyCap.trim() === '' ? null : Number(values.dailyCap),
 })
 
-/** The automatic tag a contact carries when the channel reaches them (ADR 0144), as the api names them. */
+/** The automatic tag that a contact carries when the channel reaches them (ADR 0144), as the API names it. */
 const TAG_OF_THE_CHANNEL: Record<Channel, string> = {
   email: '#EMAIL',
   call: '#PHONE',
@@ -79,10 +84,10 @@ const TAG_OF_THE_CHANNEL: Record<Channel, string> = {
   linkedIn: '#LINKEDIN',
 }
 
-/** The most tags a search takes at once, the tag of the channel among them (ADR 0143, 0144). */
+/** The most tags a search takes at once, counting the channel's tag (ADR 0143, 0144). */
 export const MAX_TARGETED_TAGS = 5
 
-/** The tags a contact carries to be targeted while the campaign is typed: those chosen and that of its channel. */
+/** The tags a targeted contact carries while the campaign is typed: the chosen tags and the channel's tag. */
 export const targetedTagsOf = (tags: string[], channel: Channel): string[] => [
   ...new Set([...tags, TAG_OF_THE_CHANNEL[channel]]),
 ]

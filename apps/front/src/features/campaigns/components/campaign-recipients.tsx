@@ -15,15 +15,15 @@ import { OpenTheExchange } from './open-the-exchange'
 
 type Props = {
   campaign: Campaign
-  /** The message typed differs from the one saved, the only one the preview renders. */
+  /** The typed message differs from the saved one. The preview renders only the saved message. */
   changed: boolean
 }
 
 /**
- * The recipients a frozen campaign keeps, each with where the team is with them and its cross, « Ajouter » opening
- * the dialog adding others, and the message saved rendered by the api for the recipient hovered or focused; once
- * started, a contact erased stays among them, without its name. Frozen, the erasure of its contacts may leave none:
- * it no longer starts.
+ * The recipients that a frozen campaign keeps. Each one shows where the team stands with them, and a cross to
+ * remove them. « Ajouter » opens the dialog that adds others. The API renders the saved message for the
+ * recipient that is hovered or focused. Once the campaign has started, an erased contact stays among them,
+ * without their name. A frozen campaign may lose all its contacts to erasure. It then no longer starts.
  */
 export function CampaignRecipients({ campaign, changed }: Props) {
   const { t } = useTranslation()
@@ -72,8 +72,9 @@ type RecipientItemsProps = {
 }
 
 /**
- * Each recipient with its status, its cross while it may be taken off, the exchange noted for them once processed;
- * one erased named « Contact effacé », with what the team did with them.
+ * Each recipient with their status, and a cross while they can be removed. A processed recipient links to the
+ * exchange logged for them. An erased recipient is named « Contact effacé », with what the team did with
+ * them.
  */
 function RecipientItems({ campaignId, recipients, previewed, onPreview }: RecipientItemsProps) {
   const { t } = useTranslation()

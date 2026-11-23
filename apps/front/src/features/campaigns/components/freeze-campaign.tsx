@@ -15,7 +15,9 @@ import {
 import { useFreezeCampaign } from '../mutations'
 import type { Campaign } from '../queries'
 
-/** Freezing does not undo: its search will no longer change, so the member confirms it first. */
+/**
+ * Freezing cannot be undone: the campaign's search will no longer change. So the member confirms it first.
+ */
 export function FreezeCampaign({ campaign }: { campaign: Campaign }) {
   const { t } = useTranslation()
   const freeze = useFreezeCampaign()

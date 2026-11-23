@@ -36,17 +36,17 @@ import { OpenTheExchange } from './open-the-exchange'
 type Contact = NonNullable<Recipient['contact']>
 type Handled = 'processed' | 'dismissed'
 
-/** The key moving to the next recipient to handle without noting anything. */
+/** The key that moves to the next recipient to handle without logging anything. */
 const NEXT_KEY = 'n'
 const MAX_TEXT = 5000
 const MAX_REASON = 500
 
 /**
- * A started campaign led as a list of tasks (ADR 0145): at the left its recipients, those to handle first; at the
- * right the one chosen, how to reach them, the message rendered for them, and the exchange to note or their
- * dismissal; once nobody is left to handle, that it is ended, and its summary. Campaigns processes a recipient a
- * moment after their exchange is noted: the page holds them handled at once and moves to the next one to handle, the
- * campaign read again behind.
+ * A started campaign, run as a task list (ADR 0145). The left side lists its recipients, those to handle
+ * first. The right side shows the chosen recipient: how to reach them, the message rendered for them, and the
+ * exchange to log or their dismissal. Once nobody is left to handle, it says that the campaign has ended and
+ * shows its summary. Campaigns processes a recipient a moment after their exchange is logged. So the page
+ * marks them handled at once and moves to the next one, while the campaign is read again in the background.
  */
 export function CampaignRun({ campaign }: { campaign: Campaign }) {
   const { t } = useTranslation()
@@ -299,7 +299,7 @@ function RenderedMessage({
 
 const isPast = (moment: string) => new Date(moment).getTime() <= Date.now()
 
-/** Mirrors `CampaignExchangeInput` and `DismissalInput` of the API: the moment never in the future. */
+/** Mirrors the API's `CampaignExchangeInput` and `DismissalInput`. The moment is never in the future. */
 const recipientSchema = z.object({
   occurredAt: z
     .string()
@@ -315,8 +315,9 @@ type RecipientValues = z.input<typeof recipientSchema>
 const recipientFields = ['occurredAt', 'text', 'missed', 'reason'] as const
 
 /**
- * « Noter un échange » prefilled: the channel of the campaign, sent, now, the message rendered as its text; saved, the
- * recipient is processed; dismissed instead, without an exchange, for the reason typed.
+ * « Noter un échange », prefilled with the campaign's channel, sent, now, and the rendered message as its
+ * text. Once it is saved, the recipient is processed. The member may instead dismiss the recipient without an
+ * exchange, for the typed reason.
  */
 function RecipientForm({
   campaign,

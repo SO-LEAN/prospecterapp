@@ -7,8 +7,8 @@ import { useSetDailyCap } from '../mutations'
 import type { Campaign } from '../queries'
 
 /**
- * The daily cap of a campaign, changed on its sheet until it is stopped or ended: a guard an AI stops at, which the
- * member may go beyond. Left empty, the campaign has none.
+ * A campaign's daily cap, changed on its sheet until the campaign is stopped or ended. It is a guard: an AI
+ * stops at it, and the member may go beyond it. When the field is left empty, the campaign has no cap.
  */
 export function DailyCapSetting({ campaign }: { campaign: Campaign }) {
   const { t } = useTranslation()

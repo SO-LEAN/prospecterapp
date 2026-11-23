@@ -7,7 +7,9 @@ import { Button } from '@/shared/ui/button'
 
 type Link = components['schemas']['LinkResource']
 
-/** The exchange noted for a recipient processed, opened beside the campaign as from a timeline (ADR 0152). */
+/**
+ * The exchange logged for a processed recipient, opened beside the campaign as from a timeline (ADR 0152).
+ */
 export function OpenTheExchange({ exchange, name }: { exchange: Link | undefined; name: string }) {
   const { t } = useTranslation()
   const [opened, setOpened] = useState<string | null>(null)

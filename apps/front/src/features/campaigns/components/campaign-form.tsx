@@ -24,21 +24,26 @@ type Props = {
   submitLabel: string
   onSubmit: (input: CampaignInput) => Promise<unknown>
   onCancel?: () => void
-  /** The field choosing the tags, given by the page: the filter of the tags of the account. */
+  /** The field that chooses the tags. The page gives it: the account's tag filter. */
   tagsField: (chosen: string[], onChange: (tags: string[]) => void) => ReactNode
-  /** Told whether the form differs from the campaign as saved. */
+  /** Called with whether the form differs from the saved campaign. */
   onChanged?: (changed: boolean) => void
-  /** Told the tags and the channel as they are typed, for the target to follow them; none once frozen. */
+  /**
+   * Called with the tags and channel as they are typed, so that the target follows them. Not called once the
+   * campaign is frozen.
+   */
   onTargetingChange?: (tags: string[], channel: Channel) => void
-  /** Frozen, its channel and its tags are shown without being changed. */
+  /** Once the campaign is frozen, its channel and tags are shown read-only. */
   searchFrozen?: boolean
-  /** As it is prepared, its daily cap; set on its sheet afterwards. */
+  /**
+   * Shows the daily cap while the campaign is prepared. Afterwards, the cap is set on the campaign's sheet.
+   */
   withDailyCap?: boolean
 }
 
 /**
- * A campaign as the member leaves it: its name, its channel, the tags of the contacts it targets and its message, the
- * variables of the message explained; the subject only for an e-mail.
+ * A campaign as the member leaves it: its name, its channel, the tags of the contacts it targets, and its
+ * message with its variables explained. Only an e-mail has a subject.
  */
 export function CampaignForm({
   values,
@@ -181,7 +186,7 @@ type OptionProps<Option extends string> = {
   'aria-describedby'?: string
 }
 
-/** One of the options, the props of its field given to its trigger, the control its label names. */
+/** One of the options. Its field's props go to its trigger, which is the control its label names. */
 function OptionSelect<Option extends string>({
   value,
   options,

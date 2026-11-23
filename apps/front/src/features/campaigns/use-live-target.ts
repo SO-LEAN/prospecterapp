@@ -4,11 +4,11 @@ import { searchOfTags, taggedContactSlicesQuery } from '@/shared/api/tagged-cont
 import type { Channel, TargetedContact } from './queries'
 import { MAX_TARGETED_TAGS, targetedTagsOf } from './schema'
 
-/** Why there is no target to show: no tag chosen yet, or more than a search takes. */
+/** Why there is no target to show: no tag is chosen yet, or more tags than a search takes. */
 export type NoTarget = 'noTag' | 'tooManyTags'
 
 export type LiveTarget = {
-  /** Given by the form each time its tags or its channel change. */
+  /** The form gives it each time its tags or channel change. */
   follow: (tags: string[], channel: Channel) => void
   noTarget: NoTarget | null
   contacts: TargetedContact[]
@@ -17,8 +17,9 @@ export type LiveTarget = {
 }
 
 /**
- * The contacts a campaign targets as it is typed, saved or not (ADR 0144): the search by its tags and that of its
- * channel, the previous one kept on screen while the next loads; none asked while no tag or more than 5 are chosen.
+ * The contacts that a campaign targets as it is typed, saved or not (ADR 0144). It searches by the campaign's
+ * tags and the channel's tag. The previous result stays on screen while the next one loads. Nothing is
+ * requested while no tag, or more than 5 tags, are chosen.
  */
 export function useLiveTarget(tags: string[], channel: Channel): LiveTarget {
   const [targeting, setTargeting] = useState({ tags, channel })
