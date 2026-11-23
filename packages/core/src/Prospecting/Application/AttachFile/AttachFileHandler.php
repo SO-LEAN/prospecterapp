@@ -15,7 +15,7 @@ use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * The upload is kept once the exchange accepted it: a refused file stays an upload, which the storage forgets.
+ * Keeps the upload once the exchange accepts it. A refused file stays an upload, and the storage forgets it.
  */
 final readonly class AttachFileHandler implements CommandHandler
 {
