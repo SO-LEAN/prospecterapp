@@ -4851,7 +4851,7 @@
                 "tags": [
                     "To-dos"
                 ],
-                "summary": "A to-do, and what may be done with it",
+                "summary": "A to-do, and what the member can do with it",
                 "operationId": "get_api_to_dos_show",
                 "parameters": [
                     {
@@ -4950,7 +4950,7 @@
                 "tags": [
                     "To-dos"
                 ],
-                "summary": "Change the text of a to-do and when it is due",
+                "summary": "Change a to-do's text and when it is due",
                 "operationId": "patch_api_to_dos_revise",
                 "parameters": [
                     {
@@ -5008,7 +5008,7 @@
                         }
                     },
                     "422": {
-                        "description": "Invalid to-do: without a text, due on no day or at no hour",
+                        "description": "Invalid to-do: no text, or an invalid due day or hour",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5025,7 +5025,7 @@
                 "tags": [
                     "To-dos"
                 ],
-                "summary": "The to-dos kept for the organization, for it or for its contacts, those to do the soonest due first, then those done",
+                "summary": "The to-dos kept for the organization, for itself or for its contacts. Those still to do come first, the soonest due first. Those done follow",
                 "operationId": "get_api_organizations_to_dos",
                 "parameters": [
                     {
@@ -5078,7 +5078,7 @@
                 "tags": [
                     "To-dos"
                 ],
-                "summary": "Note a to-do for the organization itself",
+                "summary": "Log a to-do for the organization itself",
                 "operationId": "post_api_organizations_note_to_do",
                 "parameters": [
                     {
@@ -5144,7 +5144,7 @@
                         }
                     },
                     "422": {
-                        "description": "Invalid to-do: without a text, due on no day or at no hour",
+                        "description": "Invalid to-do: no text, or an invalid due day or hour",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5161,7 +5161,7 @@
                 "tags": [
                     "To-dos"
                 ],
-                "summary": "The to-dos for the contact, those to do the soonest due first, then those done",
+                "summary": "The contact's to-dos. Those still to do come first, the soonest due first. Those done follow",
                 "operationId": "get_api_contacts_to_dos",
                 "parameters": [
                     {
@@ -5214,7 +5214,7 @@
                 "tags": [
                     "To-dos"
                 ],
-                "summary": "Note a to-do for the contact, kept for the organizations the contact is part of",
+                "summary": "Log a to-do for the contact. It is kept for the organizations the contact is part of",
                 "operationId": "post_api_contacts_note_to_do",
                 "parameters": [
                     {
@@ -5280,7 +5280,7 @@
                         }
                     },
                     "422": {
-                        "description": "Invalid to-do: without a text, due on no day or at no hour",
+                        "description": "Invalid to-do: no text, or an invalid due day or hour",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5297,7 +5297,7 @@
                 "tags": [
                     "To-dos"
                 ],
-                "summary": "The to-dos the signed-in member holds that are still to do, the soonest due first",
+                "summary": "The to-dos that the signed-in member holds and still has to do, the soonest due first",
                 "operationId": "get_api_me_to_dos",
                 "responses": {
                     "200": {
@@ -5331,7 +5331,7 @@
                 "tags": [
                     "To-dos"
                 ],
-                "summary": "Tick a to-do off, done now",
+                "summary": "Tick a to-do off, as done now",
                 "operationId": "post_api_to_dos_tick_off",
                 "parameters": [
                     {
@@ -5394,7 +5394,7 @@
                 "tags": [
                     "To-dos"
                 ],
-                "summary": "Untick a to-do ticked off by mistake: it is to do again",
+                "summary": "Untick a to-do ticked off by mistake. It is to do again",
                 "operationId": "delete_api_to_dos_untick",
                 "parameters": [
                     {
@@ -9101,7 +9101,7 @@
                         "default": null
                     },
                     "dueAt": {
-                        "description": "The hour of that day, `H:i`, when said",
+                        "description": "The hour of that day, `H:i`, when given",
                         "type": "string",
                         "pattern": ".*(^([01]\\d|2[0-3]):[0-5]\\d$).*",
                         "example": "08:30",
@@ -11016,13 +11016,13 @@
                         "format": "date"
                     },
                     "dueAt": {
-                        "description": "The hour of that day, `H:i`, when said",
+                        "description": "The hour of that day, `H:i`, when given",
                         "type": "string",
                         "example": "08:30",
                         "nullable": true
                     },
                     "doneAt": {
-                        "description": "When it was ticked off, none while it is to do",
+                        "description": "When it was ticked off. None while it is still to do",
                         "type": "string",
                         "format": "date-time",
                         "nullable": true
@@ -11031,7 +11031,7 @@
                         "$ref": "#/components/schemas/AuthorResource"
                     },
                     "contact": {
-                        "description": "Its contact, none for the organization itself",
+                        "description": "Its contact. None for a to-do for the organization itself",
                         "nullable": true,
                         "oneOf": [
                             {

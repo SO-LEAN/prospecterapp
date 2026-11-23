@@ -26,8 +26,8 @@ use Prospecter\Core\Prospecting\Application\ToDoInList;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 
 /**
- * The to-dos as the API shows them: read in Prospecting, their holders found in Accounts, their holders and their
- * contacts named by PersonalData, each asked once for all of them.
+ * The to-dos as the API shows them. The reader reads them in Prospecting and finds their holders in Accounts.
+ * PersonalData names their holders and their contacts. The reader asks each context once for all the to-dos.
  */
 final readonly class ToDoReader
 {

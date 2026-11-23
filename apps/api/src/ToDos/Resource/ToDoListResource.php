@@ -9,8 +9,9 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
 /**
- * The to-dos of a contact, of an organization or of the signed-in member, read whole: those to do, the soonest due
- * first, a day without an hour before its hours, then those done, the last done first.
+ * All the to-dos of a contact, an organization or the signed-in member. Those still to do come first, the soonest
+ * due first. On a given day, a to-do without an hour comes before those with one. Those done follow, the last done
+ * first.
  */
 final readonly class ToDoListResource
 {

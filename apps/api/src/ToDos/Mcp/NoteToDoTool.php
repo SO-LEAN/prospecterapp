@@ -36,14 +36,14 @@ final readonly class NoteToDoTool
     }
 
     /**
-     * @param string      $id    the id of the contact
-     * @param string      $text  what is to do, 500 characters at most
+     * @param string      $id    the contact's id
+     * @param string      $text  what there is to do, 500 characters at most
      * @param string      $dueOn the day it is due, Y-m-d
-     * @param string|null $dueAt the hour of that day, H:i, when said
+     * @param string|null $dueAt the hour of that day, H:i, when given
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'create-contact-todo', description: 'Note a to-do for a contact, held by the member, kept for the organizations the contact is part of; needs the right to manage the personal data. Answers the to-do.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'create-contact-todo', description: 'Log a to-do for a contact. The member holds it, and it is kept for the organizations the contact is part of. Needs the right to manage personal data. Returns the to-do.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id, string $text, string $dueOn, ?string $dueAt = null): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');

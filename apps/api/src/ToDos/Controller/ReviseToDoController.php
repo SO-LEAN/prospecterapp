@@ -38,12 +38,12 @@ final class ReviseToDoController extends AbstractController
     #[Route('/api/to-dos/{id}', name: 'api_to_dos_revise', requirements: ['id' => Requirement::UUID], methods: ['PATCH'])]
     #[IsGranted(ToDoVoter::ACCESS, subject: 'toDo')]
     #[IsGranted(User::PERSONAL_DATA)]
-    #[OA\Patch(summary: 'Change the text of a to-do and when it is due')]
+    #[OA\Patch(summary: 'Change a to-do\'s text and when it is due')]
     #[OA\Response(response: 200, description: 'The revised to-do', content: new Model(type: ToDoResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'Unknown to-do, or one of another account', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 422, description: 'Invalid to-do: without a text, due on no day or at no hour', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 422, description: 'Invalid to-do: no text, or an invalid due day or hour', content: new Model(type: ProblemResource::class))]
     public function __invoke(ToDoInList $toDo, #[MapRequestPayload] ToDoInput $input, #[CurrentUser] User $user): JsonResponse
     {
         $this->commandBus->dispatch(new ReviseToDo(

@@ -36,7 +36,7 @@ final class TickOffToDoController extends AbstractController
     #[Route('/api/to-dos/{id}/done', name: 'api_to_dos_tick_off', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
     #[IsGranted(ToDoVoter::ACCESS, subject: 'toDo')]
     #[IsGranted(User::PERSONAL_DATA)]
-    #[OA\Post(summary: 'Tick a to-do off, done now')]
+    #[OA\Post(summary: 'Tick a to-do off, as done now')]
     #[OA\Response(response: 200, description: 'The to-do, done', content: new Model(type: ToDoResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]

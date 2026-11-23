@@ -30,7 +30,7 @@ final class ShowOrganizationToDosController extends AbstractController
     #[Route('/api/organizations/{id}/to-dos', name: 'api_organizations_to_dos', requirements: ['id' => Requirement::UUID], methods: ['GET'])]
     #[IsGranted(OrganizationVoter::ACCESS, subject: 'organization')]
     #[IsGranted(User::PERSONAL_DATA)]
-    #[OA\Get(summary: 'The to-dos kept for the organization, for it or for its contacts, those to do the soonest due first, then those done')]
+    #[OA\Get(summary: 'The to-dos kept for the organization, for itself or for its contacts. Those still to do come first, the soonest due first. Those done follow')]
     #[OA\Response(response: 200, description: 'The to-dos', content: new Model(type: ToDoListResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]

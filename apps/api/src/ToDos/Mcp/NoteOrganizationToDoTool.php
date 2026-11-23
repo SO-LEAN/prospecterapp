@@ -38,14 +38,14 @@ final readonly class NoteOrganizationToDoTool
     }
 
     /**
-     * @param string      $id    the id of the organization
-     * @param string      $text  what is to do, 500 characters at most
+     * @param string      $id    the organization's id
+     * @param string      $text  what there is to do, 500 characters at most
      * @param string      $dueOn the day it is due, Y-m-d
-     * @param string|null $dueAt the hour of that day, H:i, when said
+     * @param string|null $dueAt the hour of that day, H:i, when given
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'create-organization-todo', description: 'Note a to-do for an organization itself, held by the member; needs the right to manage the personal data. Answers the to-do.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'create-organization-todo', description: 'Log a to-do for an organization itself. The member holds it. Needs the right to manage personal data. Returns the to-do.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id, string $text, string $dueOn, ?string $dueAt = null): array
     {
         $organization = $this->writes->writable($id, User::PERSONAL_DATA);

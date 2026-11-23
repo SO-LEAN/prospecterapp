@@ -20,13 +20,13 @@ final readonly class ToDoResource
         public string $text,
         #[OA\Property(description: 'The day it is due, `Y-m-d`', format: 'date')]
         public string $dueOn,
-        #[OA\Property(description: 'The hour of that day, `H:i`, when said', example: '08:30')]
+        #[OA\Property(description: 'The hour of that day, `H:i`, when given', example: '08:30')]
         public ?string $dueAt,
-        #[OA\Property(description: 'When it was ticked off, none while it is to do', format: 'date-time')]
+        #[OA\Property(description: 'When it was ticked off. None while it is still to do', format: 'date-time')]
         public ?string $doneAt,
-        #[OA\Property(description: 'Who noted it, who holds it')]
+        #[OA\Property(description: 'Who logged it, and so holds it')]
         public AuthorResource $heldBy,
-        #[OA\Property(description: 'Its contact, none for the organization itself')]
+        #[OA\Property(description: 'Its contact. None for a to-do for the organization itself')]
         public ?ToDoContactResource $contact,
         #[SerializedName('_links')]
         #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]

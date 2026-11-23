@@ -22,14 +22,14 @@ final readonly class ReviseToDoTool
     }
 
     /**
-     * @param string      $id    the id of the to-do
-     * @param string      $text  what is to do, 500 characters at most
+     * @param string      $id    the to-do's id
+     * @param string      $text  what there is to do, 500 characters at most
      * @param string      $dueOn the day it is due, Y-m-d
-     * @param string|null $dueAt the hour of that day, H:i, when said; removed when left out
+     * @param string|null $dueAt the hour of that day, H:i, when given. Left out, the hour is removed
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'update-todo', description: 'Change the text of a to-do and when it is due, both given; needs the right to manage the personal data. Answers the to-do.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
+    #[McpTool(name: 'update-todo', description: 'Change a to-do\'s text and when it is due. Give both. Needs the right to manage personal data. Returns the to-do.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
     public function __invoke(string $id, string $text, string $dueOn, ?string $dueAt = null): array
     {
         return $this->writes->write(

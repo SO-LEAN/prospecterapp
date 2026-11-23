@@ -36,7 +36,7 @@ final class UntickToDoController extends AbstractController
     #[Route('/api/to-dos/{id}/done', name: 'api_to_dos_untick', requirements: ['id' => Requirement::UUID], methods: ['DELETE'])]
     #[IsGranted(ToDoVoter::ACCESS, subject: 'toDo')]
     #[IsGranted(User::PERSONAL_DATA)]
-    #[OA\Delete(summary: 'Untick a to-do ticked off by mistake: it is to do again')]
+    #[OA\Delete(summary: 'Untick a to-do ticked off by mistake. It is to do again')]
     #[OA\Response(response: 200, description: 'The to-do, to do again', content: new Model(type: ToDoResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]
