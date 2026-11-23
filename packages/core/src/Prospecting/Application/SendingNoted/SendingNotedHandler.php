@@ -14,7 +14,8 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Fingerprints the sending as `NoteCampaignExchange` does, then reads which exchange the account noted under it.
+ * Fingerprints the message as `NoteCampaignExchange` does. Then it reads which exchange the account logged under that
+ * fingerprint.
  */
 final readonly class SendingNotedHandler implements QueryHandler
 {

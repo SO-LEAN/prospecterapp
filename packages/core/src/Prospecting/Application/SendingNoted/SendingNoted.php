@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\SendingNoted;
 
 /**
- * The exchange an AI's sending to the recipient of a campaign is noted as, once it noted it: the exchange it created,
- * or the one noted first that joined the campaign (ADR 0195). Asked with what the AI gave, the core fingerprinting it.
+ * Finds the exchange that an AI logged for a message it sent to a campaign's recipient: the exchange it created, or
+ * the exchange logged earlier that joined the campaign (ADR 0195). The query takes what the AI gave, and the core
+ * fingerprints it.
  */
 final readonly class SendingNoted
 {
