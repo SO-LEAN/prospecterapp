@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\ConsultOrganizationTimeline;
 
 /**
- * The exchanges with an organization and with its contacts until the moment, the most recent first, a slice after
- * the other.
+ * Reads the exchanges with an organization and its contacts up to the given moment. The most recent come first, one
+ * slice at a time.
  */
 final readonly class ConsultOrganizationTimeline
 {
