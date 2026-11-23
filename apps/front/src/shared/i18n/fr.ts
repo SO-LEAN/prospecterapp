@@ -310,7 +310,7 @@ export const fr = {
     },
   },
   members: { unnamed: 'Membre sans nom' },
-  /** How one addresses a contact, by its value in the API. */
+  /** A contact's title, keyed by its API value. */
   civilities: { ms: 'Madame', mr: 'Monsieur', x: 'Non renseignée' },
   links: {
     web: 'Site web',
@@ -468,7 +468,7 @@ export const fr = {
       },
     },
   },
-  /** My booking page (ADR 0148) and the page its public link leads to. */
+  /** My booking page (ADR 0148) and the page its public link opens. */
   booking: {
     title: 'Prise de rendez-vous',
     suspended: 'Votre lien de prise de rendez-vous est suspendu : reconnectez Google',
@@ -933,7 +933,7 @@ export const fr = {
     noteTheExchange: 'Noter l’échange ?',
     noteTheExchangeAction: 'Noter l’échange',
   },
-  /** The refusals of the API by their reason (ADR 0073): a reason unknown here is shown as the API words it. */
+  /** The API's refusals, keyed by their reason (ADR 0073). A reason unknown here shows as the API words it. */
   refusals: {
     windowTooShort: 'Une plage dure au moins 15 minutes.',
     windowOffTheQuarterHour:

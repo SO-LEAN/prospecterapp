@@ -1,4 +1,4 @@
-/** The « in » of LinkedIn, in its colour: the mark of the service a profile lives on, no token of ours. */
+/** LinkedIn's « in », in its colour: the mark of the service that hosts a profile, not one of our tokens. */
 export function LinkedInLogo({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" className={className} aria-hidden>

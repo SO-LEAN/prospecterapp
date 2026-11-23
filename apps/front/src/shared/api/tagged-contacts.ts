@@ -6,8 +6,8 @@ const MARK = '#'
 const SEPARATOR = ','
 
 /**
- * The tags chosen to find the contacts carrying them, as the url and the api keep them: their names without their
- * mark, separated by commas (`ESN,EMAIL`), so that a filter is shared as a link.
+ * The tags chosen to find the contacts that carry them, as the URL and the API keep them: their names without their
+ * mark, separated by commas (`ESN,EMAIL`). So a filter can be shared as a link.
  */
 export const chosenTagsIn = (search: string): string[] =>
   search === '' ? [] : search.split(SEPARATOR).map((name) => MARK + name)
@@ -16,9 +16,9 @@ export const searchOfTags = (tags: string[]): string =>
   tags.map((tag) => (tag.startsWith(MARK) ? tag.slice(MARK.length) : tag)).join(SEPARATOR)
 
 /**
- * The contacts carrying every tag chosen (`ESN,EMAIL`, their names without their mark), a slice after the other,
- * each slice saying how many there are in all (ADR 0143): the list of the contacts filtered by tags and the target of
- * a campaign (ADR 0144) read it alike.
+ * The contacts that carry every chosen tag (`ESN,EMAIL`, the names without their mark), one slice after another.
+ * Each slice gives the total count (ADR 0143). The contact list filtered by tags and a campaign's target (ADR 0144)
+ * both read it the same way.
  */
 export const taggedContactSlicesQuery = (tags: string) =>
   infiniteQueryOptions({

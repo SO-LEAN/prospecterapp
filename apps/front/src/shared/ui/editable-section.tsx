@@ -13,8 +13,8 @@ type Props = {
 }
 
 /**
- * A card showing one part of a resource, changed in place through its own small form when `editable`:
- * when the API offers the action (its link is there).
+ * A card that shows one part of a resource. When `editable`, its own small form changes that part in place.
+ * `editable` means the API offers the action: its link is there.
  */
 export function EditableSection({ title, children, editable, editor, className }: Props) {
   const { t } = useTranslation()

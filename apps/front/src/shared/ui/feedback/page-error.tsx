@@ -8,8 +8,8 @@ import { FullPageMessage } from './full-page-message'
 type Props = { error: unknown; children?: ReactNode }
 
 /**
- * What a page shows when it could not load at all, outside the app shell: the api unreachable, most often. The
- * children are the actions offered beside trying again: signing out, to a member signed in.
+ * What a page shows outside the app shell when it could not load at all, most often because the API is unreachable.
+ * The children are the actions offered beside a retry, such as signing out for a signed-in member.
  */
 export function PageError({ error, children }: Props) {
   const { t } = useTranslation()

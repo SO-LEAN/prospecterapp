@@ -16,12 +16,12 @@ import { shortAddress } from '@/shared/ui/external-links'
 import { Input } from '@/shared/ui/input'
 import { FormField } from './form-field'
 
-/** The addresses of the links of a sheet, recognized and checked by the API. */
+/** A sheet's link addresses, which the API recognizes and checks. */
 export const linksSchema = z.array(z.string())
 
 /**
- * The links of a person or an organization: a field to paste an address, added on Enter or by its button, and a line
- * per link with a button taking it off: the API recognizes their sources, shown once saved.
+ * A person's or an organization's links. A field takes a pasted address, added on Enter or with its button. Each link
+ * has a line with a button that removes it. The API recognizes the links' sources, which show once saved.
  */
 export function LinksField<Values extends FieldValues>({
   form,
@@ -97,7 +97,7 @@ export function LinksField<Values extends FieldValues>({
   )
 }
 
-/** The contact holding the link refused, named by the API, a link to their sheet. */
+/** The contact who holds the refused link, as the API names them, with a link to their sheet. */
 function HolderOfTheLink<Values extends FieldValues>({
   form,
   name,

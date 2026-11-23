@@ -22,7 +22,7 @@ const WHOLE_FRANCE = { longitude: 2.35, latitude: 46.6, zoom: 4.5 }
 const preventTheMapFromClosingThePopup = (event: MarkerEvent<MouseEvent>) =>
   event.originalEvent.stopPropagation()
 
-/** The texts MapLibre shows or announces on our maps, by its identifiers (`src/ui/default_locale.ts` of MapLibre). */
+/** The texts that MapLibre shows or announces on our maps, keyed by MapLibre's ids (its `src/ui/default_locale.ts`). */
 function mapLibreTextsIn(t: TFunction) {
   return {
     'Map.Title': t('map.title'),

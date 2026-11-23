@@ -4,7 +4,7 @@ import { z } from 'zod'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
 import { FormField, type FormFieldProps } from './form-field'
 
-/** Unknown (x) first: the choice of a contact whose civility is not noted. */
+/** Unknown (x) comes first: the choice for a contact whose title is not recorded. */
 export const CIVILITIES = ['x', 'ms', 'mr'] as const
 
 export type Civility = (typeof CIVILITIES)[number]
@@ -41,8 +41,8 @@ function CivilitySelect({ value, onChange, ...trigger }: SelectProps) {
 }
 
 /**
- * How one addresses a contact, in a `FormField`, never required. The `Controller` is around the field: the field
- * gives its label and its error to its direct child, the list itself.
+ * A contact's title, in a `FormField`, never required. The `Controller` wraps the field. The field gives its label
+ * and its error to its direct child, the list itself.
  */
 export function CivilityField<Values extends FieldValues>({
   form,

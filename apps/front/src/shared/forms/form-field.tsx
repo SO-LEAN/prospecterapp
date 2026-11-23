@@ -8,8 +8,8 @@ export type FormFieldProps<Values extends FieldValues> = Omit<ComponentProps<typ
 }
 
 /**
- * A `Field` showing the error of a form field. It subscribes to that error itself: a group of fields
- * receives the same `form` on every render, so the React Compiler does not render it again on its own.
+ * A `Field` that shows a form field's error. It subscribes to that error itself. A group of fields receives the
+ * same `form` on every render, so the React Compiler does not render it again on its own.
  */
 export function FormField<Values extends FieldValues>({ form, name, ...field }: FormFieldProps<Values>) {
   const { errors } = useFormState({ control: form.control, name })

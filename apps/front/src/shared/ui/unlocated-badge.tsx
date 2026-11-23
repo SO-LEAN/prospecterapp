@@ -5,7 +5,7 @@ import { cn } from '@/shared/lib/utils'
 import { Badge } from './badge'
 import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip'
 
-/** Says an address was entered but the geocoder found no place for it: it is missing from the maps. */
+/** Says that an address was entered but the geocoder found no place for it, so it is missing from the maps. */
 export function UnlocatedBadge({ className, ...props }: ComponentProps<typeof Badge>) {
   const { t } = useTranslation()
 
@@ -17,7 +17,7 @@ export function UnlocatedBadge({ className, ...props }: ComponentProps<typeof Ba
   )
 }
 
-/** The badge with why it matters, on hover, on focus, and when pressed (a phone has no hover). */
+/** The badge explains why this matters on hover, on focus, and when pressed (a phone has no hover). */
 export function ExplainedUnlocatedBadge() {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)

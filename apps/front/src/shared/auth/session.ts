@@ -7,23 +7,23 @@ import type { paths } from '@/shared/api/schema'
 import { env } from '@/shared/config/env'
 
 /**
- * The members sign in with the Cognito user pool the API names (ADR 0052), by SRP: the password never leaves
- * the browser. The tokens live in sessionStorage (per tab, gone when the tab closes); the access token is
- * renewed with the refresh token once expired.
+ * The members sign in with the Cognito user pool that the API names (ADR 0052). They sign in by SRP, so the password
+ * never leaves the browser. The tokens live in sessionStorage: each tab has its own, and they go when the tab closes.
+ * Once the access token expires, the refresh token renews it.
  */
 export interface Session {
   signIn(email: string, password: string): Promise<void>
-  /** Signs out of the app alone: its refresh token revoked, the AIs signed in by the member still signed in. */
+  /** Signs out of the app alone. It revokes the app's refresh token, and the member's AIs stay signed in. */
   signOut(): Promise<void>
-  /** Signs out everywhere: every refresh token of the member revoked, those of their AIs included. */
+  /** Signs out everywhere. It revokes all the member's refresh tokens, their AIs' tokens included. */
   signOutEverywhere(): Promise<void>
-  /** The access token to call the API with, renewed when expired; null when nobody is signed in. */
+  /** The access token for API calls, renewed once expired. It is null when nobody is signed in. */
   accessToken(): Promise<string | null>
-  /** A new access token, after the API refused the current one; null when it cannot be renewed. */
+  /** A new access token, after the API refused the current one. It is null when the token cannot be renewed. */
   renewedAccessToken(): Promise<string | null>
 }
 
-/** A refusal of Cognito: its code tells why (`NotAuthorizedException`, `TooManyRequestsException`…). */
+/** A Cognito refusal. Its code gives the reason (`NotAuthorizedException`, `TooManyRequestsException`, and so on). */
 export type SignInRefusal = { code: string; message: string }
 
 const NEW_PASSWORD_REQUIRED: SignInRefusal = {
@@ -35,7 +35,7 @@ const whereToSignIn = createFetchClient<paths>({ baseUrl: env.apiUrl })
 
 let configured: Promise<void> | null = null
 
-/** Amplify configured once with the user pool the API names, its tokens kept in the storage of the tab. */
+/** Configures Amplify once with the user pool that the API names. Amplify keeps its tokens in the tab's storage. */
 function onTheUserPool(): Promise<void> {
   configured ??= whereToSignIn.GET('/api/user-pool').then(({ data, error }) => {
     if (!data) {

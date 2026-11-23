@@ -12,8 +12,8 @@ type Props = {
 }
 
 /**
- * Label, control, hint and error message, wired for screen readers. Its rows stay packed at its top when a
- * grid row stretches it to the height of a taller field beside it.
+ * A label, a control, a hint and an error message, wired for screen readers. Its rows stay packed at its top when a
+ * grid row stretches it to a taller neighbour's height.
  */
 export function Field({ label, error, hint, optional, className, children }: Props) {
   const id = useId()

@@ -7,7 +7,7 @@ export type ExternalLink = components['schemas']['ExternalLinkResource']
 
 const SCHEME_AND_WWW = /^https?:\/\/(?:www\.)?/i
 
-/** The mark of a tool, by its initials and its colour: no token of ours. */
+/** A tool's mark: its initials in its colour, not one of our tokens. */
 function Initials({ name, initials, color }: { name: string; initials: string; color: string }) {
   return (
     <svg viewBox="0 0 24 24" className="size-4 shrink-0" role="img" aria-label={name}>
@@ -19,7 +19,7 @@ function Initials({ name, initials, color }: { name: string; initials: string; c
   )
 }
 
-/** The mark of the source of a link: the tool it lives on, or the web for one Prospecter does not know. */
+/** A link's source mark: the tool that hosts the link, or the web for a tool Prospecter does not know. */
 function SourceMark({ source }: { source: string }) {
   const { t } = useTranslation()
 
@@ -40,10 +40,10 @@ function SourceMark({ source }: { source: string }) {
   }
 }
 
-/** The address of a link as read, without its scheme nor `www.`. */
+/** A link's address for reading, without its scheme or `www.`. */
 export const shortAddress = (address: string) => address.replace(SCHEME_AND_WWW, '')
 
-/** The links of a person or an organization, each opened in a new tab with the mark of its source; masked, their stars. */
+/** A person's or an organization's links. Each opens in a new tab and shows its source's mark. Masked links show their stars. */
 export function ExternalLinks({ links, masked }: { links: ExternalLink[]; masked: boolean }) {
   if (masked) return links.map((link) => link.address).join(' ')
 

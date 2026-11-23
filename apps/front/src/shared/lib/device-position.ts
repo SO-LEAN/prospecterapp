@@ -5,7 +5,7 @@ type Location = components['schemas']['LocationResource']
 export const POSITION_PATIENCE_MS = 5_000
 const RECENT_ENOUGH_MS = 5 * 60_000
 
-/** Where the device is, when it shares it within the patience; nothing when refused, slow or unknown. */
+/** Where the device is, when it shares its position within `POSITION_PATIENCE_MS`. Null when refused, slow or unknown. */
 export function findDevicePosition(): Promise<Location | null> {
   if (!navigator.geolocation) {
     return Promise.resolve(null)

@@ -11,7 +11,7 @@ type Props<Values extends FieldValues> = {
   schema: z.ZodType<Values, Values>
   defaultValues: DefaultValues<Values>
   fields: readonly Path<Values>[]
-  /** The revision of the record read, sent back with the change (ADR 0187). */
+  /** The read record's revision, sent back with the change (ADR 0187). */
   revision?: number
   save: (values: Values, revision: number | undefined) => Promise<unknown>
   onDone: () => void
@@ -19,9 +19,9 @@ type Props<Values extends FieldValues> = {
 }
 
 /**
- * The small form of one intention: validated like the API, sent alone, closed when saved; the API
- * violations land on their fields, the others above the form. It saves on the revision of the record it opened on,
- * not on one read since, so that a change made meanwhile is refused instead of erased.
+ * One intention's small form. It validates like the API, sends alone and closes once saved. The API's violations land
+ * on their fields, and the others land above the form. It saves on the revision of the record it opened on, not on a
+ * revision read since. So a change made meanwhile is refused instead of overwritten.
  */
 export function SectionForm<Values extends FieldValues>({
   schema,
@@ -69,18 +69,18 @@ export function SectionForm<Values extends FieldValues>({
 }
 
 /**
- * A group of fields, in a form of its own values or nested in a bigger one: `path` gives the full path of
- * each of its fields (`(field) => field`, or `(field) => \`address.${field}\``).
+ * A group of fields, in a form of its own or nested in a bigger one. `path` gives each field's full path
+ * (`(field) => field`, or `(field) => \`address.${field}\``).
  */
 export type FieldsProps<Values extends FieldValues> = {
   form: UseFormReturn<Values>
   path?: (field: string) => Path<Values>
 }
 
-/** The fields of a group are the fields of the form. */
+/** The group's fields are the form's fields. */
 export const atRoot = <Values extends FieldValues>(field: string) => field as Path<Values>
 
-/** The fields of a group are nested under `prefix` in a bigger form. */
+/** The group's fields are nested under `prefix` in a bigger form. */
 export const under =
   <Values extends FieldValues>(prefix: string) =>
   (field: string) =>

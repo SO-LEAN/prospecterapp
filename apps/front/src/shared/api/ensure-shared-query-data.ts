@@ -6,10 +6,10 @@ import {
 } from '@tanstack/react-query'
 
 /**
- * `ensureQueryData` for a loader whose query a component outside its route reads too (the user menu of the shell
- * reads the account). When that component leaves while the request runs, the last one reading it (StrictMode mounts
- * it twice), TanStack Query cancels the request and reverts the query, then starts it again for the component back:
- * the loader waits for that one, the cancellation is not a failure of the page.
+ * `ensureQueryData` for a loader whose query a component outside its route also reads (the shell's user menu reads
+ * the account). That component can leave while the request runs, as the query's last reader (StrictMode mounts it
+ * twice). TanStack Query then cancels the request, reverts the query, and starts it again when the component comes
+ * back. The loader waits for that new request, so the cancellation is not a page failure.
  */
 export function ensureSharedQueryData<TQueryFnData, TError, TData, TQueryKey extends QueryKey>(
   queryClient: QueryClient,

@@ -7,7 +7,7 @@ type Civility = components['schemas']['ContactResource']['title']
 
 const MARKS = { ms: Venus, mr: Mars } as const
 
-/** A discreet mark beside the name of a contact, saying Madame or Monsieur on hover and to a reader; nothing when unknown. */
+/** A discreet mark beside a contact's name. It says Madame or Monsieur on hover and to a screen reader. Nothing shows when the title is unknown. */
 export function CivilityMark({ civility }: { civility: Civility }) {
   const { t } = useTranslation()
 

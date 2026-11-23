@@ -15,7 +15,7 @@ const MapViewLoadedOnDemand = lazy(() => import('./map-view'))
 type Props = {
   markers: MapMarker[]
   zoom?: number
-  /** Content of the popup opened by a click on a marker; without it markers are not clickable. */
+  /** The content of the popup that a click on a marker opens. Without it, the markers are not clickable. */
   renderPopup?: (marker: MapMarker) => ReactNode
   className?: string
 }

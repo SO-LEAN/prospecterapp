@@ -20,7 +20,7 @@ const waitLongerThanTheDebounce = () =>
 
 const BABBAGE = '0190a1c0-0000-7000-8000-000000000001'
 
-/** The list of the organizations searched as you type, and an organization whose data come when `arrived` is called. */
+/** The organization list searched as you type, and an organization whose data arrive when `arrived` is called. */
 function theListAndASlowOrganization() {
   let arrived = () => {}
   const rootRoute = createRootRoute({ component: Outlet })

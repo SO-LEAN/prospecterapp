@@ -9,18 +9,18 @@ type Props = { error: unknown; reset?: () => void }
 
 const isForbidden = (error: unknown): error is Problem => isProblem(error) && error.status === 403
 
-/** The refusal of the role alone, which the title of the page already tells. */
+/** The reason of a refusal by role alone, which names no right. The page's title already says it. */
 const ROLE_NOT_ALLOWED: keyof typeof fr.refusals = 'roleNotAllowed'
 
 const namesTheRightLacked = (problem: Problem) =>
   Boolean(problem.reason) && problem.reason !== ROLE_NOT_ALLOWED
 
-/** Error boundary content for routes: problem details from the API or a network failure. */
+/** The routes' error boundary content: the API's problem details or a network failure. */
 export function ErrorState({ error, reset }: Props) {
   return isForbidden(error) ? <Forbidden problem={error} /> : <Failure error={error} reset={reset} />
 }
 
-/** A role or a right I lack: told in my words, the right named when the API names it, nothing to try again. */
+/** A role or a right I lack, in my words. It names the right when the API names it, and offers no retry. */
 function Forbidden({ problem }: { problem: Problem }) {
   const { t } = useTranslation()
 

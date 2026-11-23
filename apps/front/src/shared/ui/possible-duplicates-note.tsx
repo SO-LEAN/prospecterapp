@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Alert, AlertDescription, AlertTitle } from '@/shared/ui/alert'
 import { Button } from '@/shared/ui/button'
 
-/** What the reader may be told of a possible duplicate: a link to it, and, when they may, how to say it is none. */
+/** What the reader may learn about a possible duplicate: a link to it and, when they may, how to say it is not one. */
 export type PossibleDuplicateShown = {
   id: string
   name: string
@@ -13,8 +13,8 @@ export type PossibleDuplicateShown = {
 }
 
 /**
- * The mark « Doublon possible »: what the holder resembles, each with a link to it, and « Ce n'est pas un doublon »
- * when the reader may say it (ADR 0162, 0170).
+ * The « Doublon possible » mark. It lists what the holder resembles, each with a link, and shows « Ce n'est pas un
+ * doublon » when the reader may say so (ADR 0162, 0170).
  */
 export function PossibleDuplicatesNote({
   explanation,
@@ -58,5 +58,5 @@ export function PossibleDuplicatesNote({
   )
 }
 
-/** The link to a possible duplicate, styled alike wherever it is named. */
+/** The link to a possible duplicate, with the same style wherever it appears. */
 export const possibleDuplicateLinkStyle = 'font-medium text-foreground underline-offset-4 hover:underline'

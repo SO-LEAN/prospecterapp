@@ -3,17 +3,17 @@ import { type DragEvent, useId, useState } from 'react'
 import { cn } from '@/shared/lib/utils'
 
 type Props = {
-  /** The files dropped or chosen, several at once. */
+  /** Receives the dropped or chosen files, several at once. */
   onFiles: (files: File[]) => void
-  /** What to do, before the button choosing the files: "Déposez des fichiers ici, ou". */
+  /** The instruction before the file picker button: "Déposez des fichiers ici, ou". */
   invitation: string
-  /** The button choosing the files. */
+  /** The file picker button's label. */
   choose: string
   hint?: string
   disabled?: boolean
 }
 
-/** Files dropped on it or chosen with the file picker of the system, keyboard reachable through its button. */
+/** Takes files dropped on it or chosen with the system's file picker. Its button makes it reachable by keyboard. */
 export function FileDropZone({ onFiles, invitation, choose, hint, disabled = false }: Props) {
   const input = useId()
   const [dragging, setDragging] = useState(false)

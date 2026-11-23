@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react'
 
 /**
- * A ref whose element calls `onVisible` each time it scrolls into view: the end of a list loading what
- * follows. Without IntersectionObserver (jsdom), it never calls.
+ * A ref whose element calls `onVisible` each time it scrolls into view. For example, a list's end loads what
+ * follows. Without IntersectionObserver (jsdom), it never calls `onVisible`.
  */
 export function useWhenVisible<T extends Element>(onVisible: () => void) {
   const ref = useRef<T>(null)
