@@ -17,8 +17,8 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * A member of the team adds a contact of their account they chose to a frozen campaign, when it has the means of its
- * channel; the refusal names them as the member reads them.
+ * A team member adds a contact of their account to a frozen campaign. The contact must have the means that the
+ * campaign's channel needs. A refusal names the contact as the member reads them.
  */
 final readonly class AddRecipientHandler implements CommandHandler
 {
