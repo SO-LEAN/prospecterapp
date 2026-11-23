@@ -14,8 +14,9 @@ use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 
 /**
- * A meeting with a contact to attach later than their last one pushes their erasure back (ADR 0146); nothing for an
- * exchange kept for an organization, gone meanwhile, or whose contact is attached or erased already.
+ * A meeting with a contact to attach that is later than their last one pushes their erasure back (ADR 0146). Nothing
+ * happens for an exchange kept for an organization, for an exchange gone meanwhile, or for one whose contact is
+ * already attached or erased.
  */
 final readonly class PushBackErasureOfContactToAttachHandler implements EventHandler
 {
