@@ -8,11 +8,11 @@ import { AttachDialog } from './attach-dialog'
 type Props = {
   contactId: string
   toAttach: ToAttach
-  /** Given with the right to manage personal data, which attaching needs: their name and email, to attach them. */
+  /** Their name and email, to attach them. They come with the right to manage personal data, which attaching needs. */
   attaching?: { name: string; email: string | null }
 }
 
-/** On the page of a contact waiting for me to attach them: the day they are erased otherwise (ADR 0146). */
+/** On the page of a contact who waits for me to attach them: the day they are erased if nobody does (ADR 0146). */
 export function ToAttachBanner({ contactId, toAttach, attaching }: Props) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)

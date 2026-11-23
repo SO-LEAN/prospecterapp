@@ -23,8 +23,9 @@ type Props = {
 }
 
 /**
- * Attaching a contact to an organization: the one proposed by the domain of their email, one of mine searched, or
- * the one created for that domain, its name deduced from it and its email at it, both to change (ADR 0146).
+ * Attaches a contact to an organization: the one that their email's domain proposes, one of mine found by a search,
+ * or one created for that domain. The created one's name comes from the domain and its email is at the domain. The
+ * member can change both (ADR 0146).
  */
 export function AttachDialog({ contactId, name, email, open, onClose }: Props) {
   const { t } = useTranslation()
@@ -88,7 +89,7 @@ function Proposed({
   )
 }
 
-/** One of my organizations, found by the beginning of its name or of its email. */
+/** One of my organizations, found by the beginning of its name or its email. */
 function Search({ onAttach }: { onAttach: (organizationId: string) => void }) {
   const { t } = useTranslation()
   const [q, setQ] = useState('')

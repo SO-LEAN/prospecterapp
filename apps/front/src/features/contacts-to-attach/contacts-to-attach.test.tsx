@@ -31,13 +31,13 @@ vi.mock('@/shared/auth/session', () => ({
   session: { accessToken: async () => null, renewedAccessToken: async () => null },
 }))
 
-/** Wednesday 18 November 2026, 10:00 in the time of the browser. */
+/** Wednesday 18 November 2026, 10:00 in the browser's time zone. */
 const NOW = new Date(2026, 10, 18, 10, 0)
 const ADA = '0190a1c0-0000-7000-8000-00000000a000'
 const ACME = '0190a1c0-0000-7000-8000-00000000ac00'
 const CREATED = '0190a1c0-0000-7000-8000-00000000c000'
 
-/** Ada Lovelace, met for a video call, erased from the start of the given day if nobody attaches her. */
+/** Ada Lovelace, met in a video call. She is erased from the start of the given day if nobody attaches her. */
 function ada(erasedOn: Date, email = 'ada@acme.fr', proposes = true): ContactToAttach {
   return {
     id: ADA,
