@@ -7,7 +7,7 @@ namespace Prospecter\Core\Prospecting\Application\ConsultOrganization;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 
 /**
- * Keeps the answer as it is, for a client that reads it rather than shows it (ADR 0085).
+ * Keeps the answer unchanged, for a client that reads it instead of showing it (ADR 0085).
  */
 final class KeptOrganization implements ConsultOrganizationOutput
 {
