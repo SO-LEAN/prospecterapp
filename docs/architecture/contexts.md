@@ -118,7 +118,7 @@ The reactions are listed in one place (ADR 0097), `apps/api/config/subscriptions
 }
 ```
 
-The events it listens to are those its policy's signature takes. `reporting-figures` names one policy that takes the facts of an organization, an exchange or a contact, and returns the command recording each kind (`RecordFactsPolicy`). A subscription whose reaction is not a policy yet names it (`handler`), or one reaction per event it listens to (`handlers`, by detail-type, ADR 0104):
+The events it listens to are those its policy's signature takes. `reporting-figures` names one policy that takes the facts of an organization, an exchange or a contact, and returns the command recording each kind (`RecordFactsPolicy`). `campaigns-record-facts` does the same for Campaigns. A subscription whose reaction is not a policy yet names it (`handler`):
 
 ```json
 "prospecting-stop-keeping-exchanges": {
@@ -143,7 +143,7 @@ A subscription that listens to some payloads only names them in `payload` (ADR 0
   - a core policy is not a subscription;
   - a subscription names an unknown policy, or listens to a detail-type that its policy's signature does not take;
   - a core event handler is neither a translator nor a subscription;
-  - a subscription names an unknown reaction, names none or several of `policy`, `handler` and `handlers`, has handlers for events other than its own, or lists an event none of its sources publishes;
+  - a subscription names an unknown reaction, names both or neither of `policy` and `handler`, or lists an event none of its sources publishes;
   - a subscription to a `.internal` source belongs to a different context than the event: a domain event never leaves its context (ADR 0046).
 - `StopKeepingExchanges` publishes one `ExchangeLeftWithoutOrganization` per exchange to erase. `prospecting-erase-exchange` erases each one, so that each erasure fits in its own transaction (`persistence.md`). When the event is delivered again for an exchange already erased, the reaction writes nothing.
 - A removed file leaves the storage in a Prospecting reaction to the event naming it (`prospecting-discard-removed-logo`, `prospecting-discard-removed-attachment`, `prospecting-discard-attachments-of-erased-exchange`), once its removal is written.
