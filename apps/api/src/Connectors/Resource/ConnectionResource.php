@@ -10,8 +10,9 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
 /**
- * A connection of mine to a provider: connected, or to reconnect once the provider refused its access; how many of my
- * exchanges to come are synced in my calendar there, and failed (ADR 0133); where the import of my e-mails stands.
+ * One of my connections to a provider. It is connected, or to reconnect once the provider refused its access. It
+ * counts my upcoming exchanges that are synced in my calendar there, and those that failed (ADR 0133). It also gives my
+ * e-mail import's state.
  */
 final readonly class ConnectionResource
 {
@@ -23,13 +24,13 @@ final readonly class ConnectionResource
         #[OA\Property(description: 'The account connected at the provider', format: 'email')]
         public string $account,
         public \DateTimeImmutable $connectedAt,
-        #[OA\Property(description: 'My exchanges to come in my calendar at the provider')]
+        #[OA\Property(description: 'My upcoming exchanges in my calendar at the provider')]
         public int $synced,
-        #[OA\Property(description: 'My exchanges to come the provider refused')]
+        #[OA\Property(description: 'My upcoming exchanges that the provider refused')]
         public int $failed,
-        #[OA\Property(description: 'Where the import of my e-mails of Gmail stands: off, active, or to reconnect once Google refused to renew it (ADR 0154)', enum: ['off', 'active', 'toReconnect'])]
+        #[OA\Property(description: 'My Gmail e-mail import\'s state: off, active, or to reconnect once Google refused to renew it (ADR 0154)', enum: ['off', 'active', 'toReconnect'])]
         public string $gmailImport,
-        #[OA\Property(description: 'When my mailbox last notified Prospecter of a change, none while the import is off')]
+        #[OA\Property(description: 'When my mailbox last notified Prospecter of a change. None while the import is off')]
         public ?\DateTimeImmutable $lastGmailNotificationAt,
         #[SerializedName('_links')]
         #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]

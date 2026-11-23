@@ -7,8 +7,8 @@ namespace App\Connectors\Resource;
 use OpenApi\Attributes as OA;
 
 /**
- * Where the push of an exchange into my calendar at a provider stands (ADR 0133): pending until a push reaches it,
- * synced once one did, failed once the provider refused it; since when, and why.
+ * An exchange's push state in my calendar at a provider (ADR 0133). It is pending until a push reaches the calendar.
+ * It is synced once a push did. It is failed once the provider refused the push. It also says since when, and why.
  */
 final readonly class SyncResource
 {
@@ -17,9 +17,9 @@ final readonly class SyncResource
         public string $provider,
         #[OA\Property(enum: ['pending', 'synced', 'failed'])]
         public string $state,
-        #[OA\Property(description: 'Since when it stands so; none for an exchange never pushed')]
+        #[OA\Property(description: 'Since when the push has this state. None for an exchange never pushed')]
         public ?\DateTimeImmutable $at = null,
-        #[OA\Property(description: 'Why: the provider refused it (`calendarRefusedThePush`), or my connection is to reconnect (`toReconnect`)', enum: ['calendarRefusedThePush', 'toReconnect'])]
+        #[OA\Property(description: 'Why: the provider refused the push (`calendarRefusedThePush`), or my connection is to reconnect (`toReconnect`)', enum: ['calendarRefusedThePush', 'toReconnect'])]
         public ?string $reason = null,
     ) {
     }
