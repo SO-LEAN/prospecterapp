@@ -15,7 +15,7 @@ ADR 0200 gave the word "policy" the event storming's meaning: when an event happ
 ## Decision
 
 - A **policy** is a final readonly class of `<Context>/Application/Policy`, named `<Intent>Policy`, without a constructor. It implements the marker `SharedKernel\Application\Handler\Policy`. Its `__invoke()` takes the event it listens to, or a union of the events, and returns the command to run, filled. It returns `?Command` when it holds a condition on the event's data, or a list of commands when the event asks for several. It calls nothing. A condition that needs a state or personal data belongs to the use case.
-- The work of a reaction is an ordinary use case: a command and its `CommandHandler`, sent through the command decorators. Any client may send it: a controller, a console command, an MCP tool, a data recovery.
+- A reaction's work is an ordinary use case: a command and its `CommandHandler`, sent through the command decorators. Any client may send it: a controller, a console command, an MCP tool, a data recovery.
 - One adapter delivers an event to the policies listening to it and sends their commands: `PolicyReaction` in the API (the worker and the `sync` delivery), `SynchronousEvents` in the scenarios. The worker's inbox, unit of work, failures and depth do not change: the command's unit nests in the worker's.
 - A subscription of `subscriptions.json` names its `policy`. Its events are those the policy's signature takes, and `ReactionsAreSubscribedTest` checks it. Subscriptions keep their names, sources, events, payload patterns and inboxes: nothing changes on the bus.
 - The translators stay the only event handlers. They run within the command that publishes, inside its decorators, so `RefusalTranslatingEventHandler` and `TransactionalEventHandler` go once no reaction is an event handler.
@@ -41,4 +41,4 @@ The maintainer chose among the options the plan listed:
 
 ## Revisit when
 
-A reaction needs a state its event does not carry to decide whether to run, which a use case cannot check, or a translator needs to refuse.
+A reaction needs a state that its event does not carry, and that no use case can check, to decide whether it runs. Or a translator needs to refuse.
