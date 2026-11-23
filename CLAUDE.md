@@ -22,7 +22,7 @@ Everything runs in Docker. You only need Docker and make on the host. Run these 
 - `make install`: builds the images, installs the dependencies, and creates MiniStack's tables, user pool and bucket with the demonstration data.
 - `make start` / `make stop`: start or stop the checkout's stack. A worktree gets its own port, which `make start` prints. `make down` removes a worktree's stack. Sign in at https://prospecter.localhost as `prospector@solean-it.io` / `password` (or `assistant@…`, `newcomer@…`, see `commands.md`).
 - `make ci`: runs what the CI runs, the checks that the changes since `origin/dev` need. `ALL=1` runs all of them. It needs no stack and runs no journeys.
-- `make check-e2e`: runs the journeys in a worktree, on its running stack given the demonstration back. `FRESH=1` starts from nothing, as do a stack that is not running and a change of what defines it.
+- `make check-e2e`: runs the journeys in a worktree, on its running stack given the demonstration back (ADR 0205). `FRESH=1` starts from nothing, as do a stack that is not running and a change of what defines it.
 - `make check-<secrets|infra|core|api|storage|front|contract|e2e>`: runs one check.
 - `make test`, `make test-core`, `make test-<core|api|storage|front> FILTER=<name>`: run the tests. `FAILED=1` reruns what failed. `FAIL_FAST=1` stops at the first failure. `CLOCK_SHIFT=+365d` runs them on a clock one year ahead.
 - `make e2e`: runs Playwright on the checkout's running stack.

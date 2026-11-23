@@ -136,7 +136,7 @@ check-contract: contract ## Check the OpenAPI contract and the front types again
 E2E_LOCK = $(GIT_COMMON_DIR)/prospecter-e2e.lock
 WITH_E2E_LOCK = { flock -n $(E2E_LOCK) true || echo "The journeys of another checkout run: waiting for them..."; } && flock $(E2E_LOCK)
 
-# In a worktree, never on the data of the main checkout (ADR 0118, 0121). On the stack running, the journeys of a
+# In a worktree, never on the data of the main checkout (ADR 0118, 0121, 0205). On the stack running, the journeys of a
 # branch start from the demonstration all the same: the functions of the API and the storage deployed again, the relay
 # and the worker recycled, the queues of the failures emptied, the tables and the user pool given the demonstration back
 # (make -C apps/api restore), the containers, the images, the relay's mappings, the rules of the bus and the buckets kept.
@@ -162,7 +162,7 @@ MAKE_THE_STACK = $(MAKE) stop && $(MAKE) deploy && $(MAKE) db FIGURES=later && e
 RESTORE_THE_STACK = echo "On the stack running, its demonstration given back (FRESH=1 from nothing)" \
 	&& $(call timed,Stack/API and storage deployed and reactions recycled,$(DC) --progress quiet run --rm --build lambda-deploy apps) \
 	&& $(MAKE) -C apps/api restore FIGURES=later
-check-e2e: ## Run the journeys on the stack of this worktree, its demonstration given back first, stopping at the first failure; FRESH=1 (or no stack running, or a change of what defines it): started again, deployed and its data recreated first (ADR 0117, 0121)
+check-e2e: ## Run the journeys on the stack of this worktree, its demonstration given back first, stopping at the first failure; FRESH=1 (or no stack running, or a change of what defines it): started again, deployed and its data recreated first (ADR 0117, 0121, 0205)
 	@test -n "$(IN_WORKTREE)" || { echo "check-e2e recreates the data of the stack: in a worktree only; make e2e on the running stack"; exit 1; }
 	@$(WITH_E2E_LOCK) $(MAKE) check-e2e-locked FROM_NOTHING=$(FROM_NOTHING)
 
