@@ -10,8 +10,9 @@ use Prospecter\Core\SharedKernel\Application\Port\PrivateStorage;
 use Prospecter\Core\SharedKernel\Domain\Exception\UnknownUpload;
 
 /**
- * The upload of a file an imported e-mail brought to its exchange is kept once the exchange is written, never before:
- * the reaction noting the e-mail, tried again, finds its uploads, and an exchange never written keeps none (ADR 0182).
+ * An imported e-mail brings files to its exchange. Each file's upload is kept once the exchange is written, never
+ * before. So the reaction that logs the e-mail still finds its uploads when it is tried again. An exchange that is
+ * never written keeps no upload (ADR 0182).
  */
 final readonly class KeepImportedAttachmentHandler implements EventHandler
 {
@@ -20,7 +21,7 @@ final readonly class KeepImportedAttachmentHandler implements EventHandler
     }
 
     /**
-     * Delivered again, its upload is kept already: nothing more to keep.
+     * When the event is delivered again, its upload is already kept, and there is nothing more to keep.
      */
     public function __invoke(AttachmentImported $event): void
     {
