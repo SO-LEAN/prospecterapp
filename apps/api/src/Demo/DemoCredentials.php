@@ -7,8 +7,8 @@ namespace App\Demo;
 use App\SignIn\Credentials;
 
 /**
- * What the members of the demonstration sign in with (`make db`, the API tests): their login email and the
- * password `password`, under the member ids of DemoData.
+ * What the demonstration members sign in with (`make db`, the API tests): their login email and the password
+ * `password`, under DemoData's member ids.
  */
 final readonly class DemoCredentials
 {

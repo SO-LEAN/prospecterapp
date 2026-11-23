@@ -9,8 +9,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * The icon the browsers ask for the pages of the api (its doc): the one of the SPA, a copy in `public/favicon.svg`,
- * so that the api answers no 404 to every page view, its function serving no static file.
+ * The icon that browsers ask for on the API's pages (its doc). It is the SPA's icon, copied in `public/favicon.svg`. So
+ * the API answers no 404 on each page view, since its function serves no static file.
  */
 final readonly class ShowFavicon
 {

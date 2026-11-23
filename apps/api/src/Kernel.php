@@ -12,16 +12,16 @@ use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
- * In a Lambda of AWS (ADR 0063), BrefKernel moves the cache and the logs to /tmp, the only writable place, and copies
- * there the cache warmed in the package; elsewhere it is the kernel of Symfony.
+ * In an AWS Lambda (ADR 0063), BrefKernel moves the cache and the logs to /tmp, the only writable place. It copies
+ * there the cache that was warmed in the package. Elsewhere, it is Symfony's kernel.
  */
 class Kernel extends BrefKernel
 {
     use MicroKernelTrait;
 
     /**
-     * A Lambda of AWS runs its package read-only; the local ones of MiniStack and the command line, on the images of
-     * Bref too, write in the mounted repository and share its cache (ADR 0053, 0082).
+     * An AWS Lambda runs its package read-only. MiniStack's local Lambdas and the command line also run on Bref's
+     * images. They write in the mounted repository and share its cache (ADR 0053, 0082).
      */
     public function isLambda(): bool
     {
@@ -30,7 +30,7 @@ class Kernel extends BrefKernel
 
     protected function build(ContainerBuilder $container): void
     {
-        // the reactions are taken off the event bus before the translators are put on it
+        // The reactions leave the event bus before the translators join it.
         $container->addCompilerPass(new SubscriptionsPass(), priority: 20);
         $container->addCompilerPass(new RefusalTranslatingHandlersPass(), priority: 10);
         $container->addCompilerPass(new RefusingToolsPass(), priority: -10);

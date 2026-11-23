@@ -56,25 +56,25 @@ use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 use Symfony\Component\Clock\ClockInterface;
 
 /**
- * The data of the demonstration and of the API tests, made as the use cases make them (ADR 0048): through
- * the domain and the repositories, each aggregate then publishing what happened to it, so that the other
- * contexts react and the search finds it. The account SOLEAN IT, its prospector Camille Martin, its assistant
- * Louis Petit and a newcomer whose profile is empty (who sign in with DemoCredentials), and Babbage & Co with its
- * contact Ada Lovelace and two exchanges with her; SOLEAN IT connects to Google through the client of its double. The
- * identities are fixed: the tests name them.
+ * The data of the demonstration and of the API tests, made as the use cases make them (ADR 0048). It goes through the
+ * domain and the repositories. Each aggregate then publishes what happened to it, so the other contexts react and the
+ * search finds it. The data hold the account SOLEAN IT, its prospector Camille Martin, its assistant Louis Petit and a
+ * newcomer whose profile is empty. They sign in with DemoCredentials. The data also hold Babbage & Co, its contact Ada
+ * Lovelace and two exchanges with her. SOLEAN IT connects to Google through its double's client. The ids are fixed,
+ * because the tests name them.
  */
 final readonly class DemoData
 {
     public const string SOLEAN_IT = '01900000-0000-7000-8000-0000000000a1';
     public const string PROSPECTOR = '01900000-0000-7000-8000-000000000001';
-    /** A prospector without the right to manage personal data: sees the contacts masked. */
+    /** A prospector without the right to manage personal data, who sees the contacts masked. */
     public const string ASSISTANT = '01900000-0000-7000-8000-000000000002';
-    /** A prospector signing in for the first time: their profile is empty, theirs to complete. */
+    /** A prospector who signs in for the first time. Their profile is empty, and they complete it. */
     public const string NEWCOMER = '01900000-0000-7000-8000-000000000003';
     private const string OPENED_AT = '2026-10-13 09:00';
-    /** The INSEE code of the municipality of Colmar, where Babbage & Co is (ADR 0142). */
+    /** The INSEE code of Colmar, the municipality where Babbage & Co is (ADR 0142). */
     private const string COLMAR = '68066';
-    /** the client of the double of Google (docker/nginx/conf.d/google-double.conf), which grants every code (ADR 0125) */
+    /** The Google double's client (docker/nginx/conf.d/google-double.conf), which grants every code (ADR 0125). */
     private const string CLIENT_OF_THE_DOUBLE = 'client-of-the-double';
     private const string SECRET_OF_THE_DOUBLE = 'secret-of-the-double';
 
@@ -140,8 +140,8 @@ final readonly class DemoData
     }
 
     /**
-     * An organization SOLEAN IT prospects, Babbage & Co, and its contact: a contact never comes alone (ADR 0042),
-     * Prospecting attaches it when PersonalData tells it was collected.
+     * An organization that SOLEAN IT prospects, Babbage & Co, and its contact. A contact never comes alone (ADR 0042):
+     * Prospecting attaches it when PersonalData tells that it was collected.
      */
     private function aContact(Account $account): void
     {
@@ -160,9 +160,10 @@ final readonly class DemoData
     }
 
     /**
-     * A person who took a video call with the prospector two days from now, before anyone knew for whom she works:
-     * a contact to attach, whose meeting the prospector holds (ADR 0146), her email of the domain of Babbage & Co. On
-     * the stack only (`make db`): the tests start from the data of `load()`, which their expectations count.
+     * A person who took a video call with the prospector two days from now, before anyone knew who she works for. She
+     * is a contact to attach, and the prospector holds the meeting (ADR 0146). Her email is on Babbage & Co's domain.
+     * She exists on the stack only (`make db`): the tests start from the data of `load()`, which their expectations
+     * count.
      */
     public function addAContactToAttach(): void
     {
@@ -190,7 +191,7 @@ final readonly class DemoData
     }
 
     /**
-     * What happened to the aggregate, published as a use case publishes it.
+     * Publishes what happened to the aggregate, as a use case does.
      */
     private function publish(ReleasesEvents $aggregate): void
     {

@@ -14,16 +14,19 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * Writes again the items of the aggregates with the keys the tables derive from them: the search keys of the
- * organizations and of the persons (ADR 0071), forgetting the items of the former search, the keys listing the
- * exchanges by account and the keys listing the accounts (ADR 0099), the links of the exchanges and of the to-dos in
- * the calendars of their holders (ADR 0115, 0134), the reservations of the links the contacts hold, one two contacts
- * noted before it was unique for the oldest, and of the links and the domains of the websites of the organizations,
- * their LinkedIn profiles and pages before the links taken as links, each recognized again by its address: once on
- * tables written before, then whenever
- * the keys of an aggregate change of rule. It can run any number of times.
+ * Writes the aggregates' items again with the keys that the tables derive from them:
+ *
+ * - The organizations' and the persons' search keys (ADR 0071). It forgets the former search's items.
+ * - The keys that list the exchanges by account, and the keys that list the accounts (ADR 0099).
+ * - The links of the exchanges and of the to-dos in their holders' calendars (ADR 0115, 0134).
+ * - The reservations of the contacts' links. When two contacts hold a link logged before links were unique, the oldest
+ *   contact keeps it.
+ * - The reservations of the organizations' links and website domains. Their LinkedIn profiles and pages come before the
+ *   other links. Each link is recognized again by its address.
+ *
+ * Run it once on tables written before, then whenever an aggregate's key rules change. It can run any number of times.
  */
-#[AsCommand(name: 'app:keys:rebuild', description: 'Write again the keys the tables derive from the aggregates: search keys of the organizations and of the persons, keys listing the exchanges by account and the accounts, links of the exchanges and of the to-dos in the calendars, reservations of the links of the contacts, of the links and of the domains of the websites of the organizations')]
+#[AsCommand(name: 'app:keys:rebuild', description: 'Rewrite the keys that the tables derive from the aggregates: the organizations\' and persons\' search keys, the keys that list the exchanges by account and the accounts, the exchanges\' and to-dos\' calendar links, the reservations of the contacts\' links and of the organizations\' links and website domains')]
 final readonly class RebuildKeysCommand
 {
     public function __construct(

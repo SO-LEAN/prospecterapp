@@ -11,8 +11,9 @@ use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
 /**
- * The doc loads Swagger UI from the CDN (assets_mode of nelmio_api_doc), where NelmioApiDocBundle names its files
- * without a version, the last state of its repository: they are asked at the version installed here.
+ * The doc loads Swagger UI from the CDN (nelmio_api_doc's assets_mode). There, NelmioApiDocBundle names its files
+ * without a version, which serves its repository's latest state. This class asks for them at the version installed
+ * here.
  */
 final class VersionedNelmioAssets extends AbstractExtension
 {
