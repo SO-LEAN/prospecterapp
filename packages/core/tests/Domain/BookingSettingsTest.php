@@ -106,6 +106,26 @@ final class BookingSettingsTest extends TestCase
         new InactivePeriod(new InactivePeriodId(self::PERIOD), $day, '2027-01-04');
     }
 
+    public function testARefusedTimeNamesWhatWasTyped(): void
+    {
+        try {
+            WallClockTime::at('14h00', 'from');
+            $this->fail('The time should have been refused');
+        } catch (BusinessRuleViolation $refusal) {
+            $this->assertSame(['time' => '14h00'], $refusal->context);
+        }
+    }
+
+    public function testARefusedDayNamesWhatWasTyped(): void
+    {
+        try {
+            new InactivePeriod(new InactivePeriodId(self::PERIOD), '21/12/2026', '2027-01-04');
+            $this->fail('The day should have been refused');
+        } catch (BusinessRuleViolation $refusal) {
+            $this->assertSame(['day' => '21/12/2026'], $refusal->context);
+        }
+    }
+
     /**
      * @return iterable<string, array{string}>
      */
