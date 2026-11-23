@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Campaigns\Application\TakeOffTag;
 
-use Prospecter\Core\Campaigns\Domain\Exception\TagNotCarried;
+use Prospecter\Core\Campaigns\Domain\Exception\TagAbsent;
 use Prospecter\Core\Campaigns\Domain\Model\Holder;
 use Prospecter\Core\Campaigns\Domain\Model\Tag;
 use Prospecter\Core\Campaigns\Domain\Port\Taggers;
@@ -37,7 +37,7 @@ final readonly class TakeOffTagHandler implements CommandHandler
         $holder = Holder::of($command->holder, $command->holderId);
         $this->holders->ensureKnownBy($accountId, $holder);
         $tag = Tag::written($command->tag);
-        $tagging = $this->taggings->find($accountId, $holder) ?? throw TagNotCarried::named($tag);
+        $tagging = $this->taggings->find($accountId, $holder) ?? throw TagAbsent::named($tag);
         $tagging->takeOff($tag, by: $member, at: $command->executedAt);
         $this->taggings->save($tagging);
         $this->publishWhatHappenedTo($tagging);

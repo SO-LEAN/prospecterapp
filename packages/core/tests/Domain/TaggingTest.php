@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Campaigns\Domain\Event\ContactTagsChanged;
 use Prospecter\Core\Campaigns\Domain\Event\OrganizationTagsChanged;
 use Prospecter\Core\Campaigns\Domain\Exception\AutomaticTag;
-use Prospecter\Core\Campaigns\Domain\Exception\TagNotCarried;
+use Prospecter\Core\Campaigns\Domain\Exception\TagAbsent;
 use Prospecter\Core\Campaigns\Domain\Model\ContactId;
 use Prospecter\Core\Campaigns\Domain\Model\Holder;
 use Prospecter\Core\Campaigns\Domain\Model\OrganizationId;
@@ -58,7 +58,7 @@ final class TaggingTest extends TestCase
             $this->fail('An automatic tag was put by hand');
         } catch (AutomaticTag) {
             $this->assertSame([], $tagging->releaseEvents());
-            $this->expectException(TagNotCarried::class);
+            $this->expectException(TagAbsent::class);
             $tagging->takeOff(Tag::written('#CLIENT'), new MemberId(self::MEMBER), new \DateTimeImmutable(self::AT));
         }
     }

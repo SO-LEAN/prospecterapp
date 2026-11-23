@@ -44,7 +44,8 @@ Fonctionnalité: Taguer mes organisations et mes contacts
   Scénario: Un tag que l'organisation ne porte pas ne se retire pas
     Soit "ACME" est tagué "#ESN"
     Quand je retire le tag "#PHP" de "ACME"
-    Alors c'est introuvable
+    Alors c'est introuvable, pour la raison "tagAbsent"
+    Et c'est refusé : "The tag #PHP is not on this organization or contact"
 
   Scénario: Rien ne se retire de ce qui n'a jamais été tagué
     Quand je retire le tag "#CLIENT" de "Ada Lovelace"
