@@ -12,8 +12,9 @@ use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 
 /**
- * A to-do kept for no organization is erased, with the personal data its text may hold, by the member who stopped
- * prospecting its organization. Delivered again once it is erased, the reaction has nothing left to do.
+ * Erases a to-do kept for no organization, with the personal data its text may hold. The member who stopped
+ * prospecting its organization is the author. When the event is delivered again after the erasure, the reaction has
+ * nothing left to do.
  */
 final readonly class EraseToDoLeftWithoutOrganizationHandler implements EventHandler
 {
