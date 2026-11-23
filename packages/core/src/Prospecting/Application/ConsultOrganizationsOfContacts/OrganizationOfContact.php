@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\ConsultOrganizationsOfContacts;
 
 /**
- * An organization a contact is part of, as the list of the contacts names it.
+ * An organization a contact is part of, as the contact list names it.
  */
 final readonly class OrganizationOfContact
 {

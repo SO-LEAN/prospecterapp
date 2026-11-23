@@ -9,7 +9,7 @@ use Prospecter\Core\SharedKernel\Application\OutputPort;
 interface ConsultOrganizationsOfContactsOutput extends OutputPort
 {
     /**
-     * @param array<string, list<OrganizationOfContact>> $organizations by person id, every asked person included
+     * @param array<string, list<OrganizationOfContact>> $organizations by person id, with every person asked about
      */
     public function present(array $organizations): void;
 }

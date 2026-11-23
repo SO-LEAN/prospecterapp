@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\ConsultOrganizationsOfContacts;
 
 /**
- * Keeps the answer as it is, for a client that reads it rather than shows it (ADR 0085).
+ * Keeps the answer unchanged, for a client that reads it instead of showing it (ADR 0085).
  */
 final class KeptOrganizationsOfContacts implements ConsultOrganizationsOfContactsOutput
 {
@@ -15,7 +15,7 @@ final class KeptOrganizationsOfContacts implements ConsultOrganizationsOfContact
     public private(set) array $organizations;
 
     /**
-     * @param array<string, list<OrganizationOfContact>> $organizations by person id, every asked person included
+     * @param array<string, list<OrganizationOfContact>> $organizations by person id, with every person asked about
      */
     public function present(array $organizations): void
     {
