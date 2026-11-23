@@ -7,7 +7,7 @@ namespace App\Connectors\Input;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * What Google gave the SPA when it brought the member back: the code of authorization and the state of the request.
+ * What Google gave the SPA when it brought the member back: the authorization code and the request's state.
  */
 final readonly class GoogleAnswerInput
 {

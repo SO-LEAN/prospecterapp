@@ -8,8 +8,8 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * A message Pub/Sub pushes, its data the notification of Gmail in base64: the address of the mailbox and where its
- * history stands (ADR 0154).
+ * A message that Pub/Sub pushes. Its data is the Gmail notification in base64: the mailbox's address and its history's
+ * current point (ADR 0154).
  */
 final readonly class PubSubPushInput
 {
@@ -31,7 +31,7 @@ final readonly class PubSubPushInput
         $notification = json_decode((string) base64_decode($this->message['data'] ?? '', true), true);
 
         if (!is_array($notification) || !is_string($notification['emailAddress'] ?? null) || !is_scalar($notification['historyId'] ?? null)) {
-            throw new BadRequestHttpException('The message is no notification of Gmail');
+            throw new BadRequestHttpException('The message is not a Gmail notification');
         }
 
         return ['emailAddress' => $notification['emailAddress'], 'historyId' => (string) $notification['historyId']];
