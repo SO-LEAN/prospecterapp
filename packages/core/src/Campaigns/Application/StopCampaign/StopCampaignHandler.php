@@ -12,9 +12,7 @@ use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
-/**
- * A member of the team stops a started campaign of their account, kept for the team to read.
- */
+/** A team member stops a started campaign of their account. The campaign stays for the team to read. */
 final readonly class StopCampaignHandler implements CommandHandler
 {
     use PublishesEvents;
