@@ -14,6 +14,6 @@ final class AccessNotGranted extends NotAllowed
 {
     public static function by(Provider $provider, ?\Throwable $previous = null): self
     {
-        return self::because(sprintf('%s did not grant the access', ucfirst($provider->value)), previous: $previous);
+        return self::because(sprintf('%s did not grant access', ucfirst($provider->value)), previous: $previous);
     }
 }

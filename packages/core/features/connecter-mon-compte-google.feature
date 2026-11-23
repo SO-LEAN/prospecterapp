@@ -19,12 +19,12 @@ Fonctionnalité: Connecter mon compte Google
 
   Scénario: Un code que Google refuse ne connecte rien
     Quand je connecte mon compte Google et que Google refuse le code
-    Alors c'est refusé : "Google did not grant the access"
+    Alors c'est refusé : "Google did not grant access"
     Et je n'ai pas de connexion Google
 
   Scénario: Un accès sans l'agenda ne connecte rien
     Quand je connecte mon compte Google "michel@exemple.fr" sans accorder l'accès à l'agenda
-    Alors c'est refusé : "The access to the calendar was not granted"
+    Alors c'est refusé : "The access granted does not include the calendar"
     Et je n'ai pas de connexion Google
 
   Scénario: Une autorisation n'est bonne que dix minutes
@@ -44,7 +44,7 @@ Fonctionnalité: Connecter mon compte Google
   Scénario: Une reconnexion sans l'agenda garde la connexion précédente
     Soit mon compte Google "michel@exemple.fr" est connecté
     Quand je connecte mon compte Google "autre@exemple.fr" sans accorder l'accès à l'agenda
-    Alors c'est refusé : "The access to the calendar was not granted"
+    Alors c'est refusé : "The access granted does not include the calendar"
     Et ma connexion Google est "connectée", au compte "michel@exemple.fr"
 
   Scénario: Une autorisation demandée par un autre membre ne me connecte pas

@@ -13,6 +13,6 @@ final class IncompleteGrant extends BusinessRuleViolation
 {
     public static function ofTheCalendar(): self
     {
-        return self::because('The access to the calendar was not granted');
+        return self::because('The access granted does not include the calendar');
     }
 }
