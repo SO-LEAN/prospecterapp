@@ -39,7 +39,7 @@ final readonly class MessageTemplate
 
         return match (true) {
             mb_strlen($text) > self::MAX => throw MessageTooLong::longerThan(self::MAX),
-            null !== $subject && Channel::Email !== $channel => throw SubjectOnlyForAnEmail::because('Only an e-mail has a subject', 'subject'),
+            null !== $subject && Channel::Email !== $channel => throw SubjectOnlyForAnEmail::because('Only an e-mail can have a subject', 'subject'),
             default => new self($text, $subject, $mode),
         };
     }

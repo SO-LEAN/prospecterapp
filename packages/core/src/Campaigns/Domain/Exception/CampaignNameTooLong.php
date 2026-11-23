@@ -11,6 +11,6 @@ final class CampaignNameTooLong extends BusinessRuleViolation
 {
     public static function longerThan(int $max): self
     {
-        return self::because(sprintf('A campaign name has %d characters at most', $max), 'name', context: ['max' => (string) $max]);
+        return self::because(sprintf('A campaign name can have at most %d characters', $max), 'name', context: ['max' => (string) $max]);
     }
 }
