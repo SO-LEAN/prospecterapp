@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\SharedKernel\Domain\Exception;
 
 /**
- * No file was sent under this upload, or it expired, or it is already kept.
+ * No file was sent under this upload, or the upload expired, or its file is already kept.
  */
 final class UnknownUpload extends NotFound
 {

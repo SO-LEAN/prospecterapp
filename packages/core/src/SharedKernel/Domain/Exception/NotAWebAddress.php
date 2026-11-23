@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\SharedKernel\Domain\Exception;
 
 /**
- * What was given as a link is no address of a page on the web.
+ * The text given as a link is not a web page's address.
  */
 final class NotAWebAddress extends BusinessRuleViolation
 {

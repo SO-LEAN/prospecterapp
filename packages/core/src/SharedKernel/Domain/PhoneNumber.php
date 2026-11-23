@@ -11,9 +11,10 @@ use libphonenumber\PhoneNumberUtil;
 use Prospecter\Core\SharedKernel\Domain\Exception\InvalidPhoneNumber;
 
 /**
- * A phone number as the world dials it (ADR 0072): kept in E.164 (`+33388112233`), read from the national
- * format of France or from the international one, written in the international format (`+33 3 88 11 22 33`).
- * One number has one value however it was typed, so that a call is recognized by its number.
+ * A phone number in the form that the whole world dials (ADR 0072). It reads the French national format or the
+ * international format. It keeps the number in E.164 (`+33388112233`) and writes it in the international format
+ * (`+33 3 88 11 22 33`). A number has one value however it was typed, so that Prospecter recognizes a call by its
+ * number.
  */
 final readonly class PhoneNumber implements \Stringable
 {
@@ -49,7 +50,8 @@ final readonly class PhoneNumber implements \Stringable
     }
 
     /**
-     * A number kept before the numbers were checked, and no number, is written as it was typed.
+     * A number saved before Prospecter checked the numbers, and that is not a valid number, is written as it was
+     * typed.
      */
     public function international(): string
     {
@@ -63,8 +65,9 @@ final readonly class PhoneNumber implements \Stringable
     }
 
     /**
-     * A mobile receives text messages; a number kept before the numbers were checked is none, and so is one whose plan
-     * does not tell a mobile from a landline (`FIXED_LINE_OR_MOBILE`, in North America).
+     * A mobile receives text messages. A number saved before Prospecter checked the numbers is not a mobile. Neither
+     * is a number whose numbering plan does not tell a mobile from a landline (`FIXED_LINE_OR_MOBILE`, in North
+     * America).
      */
     #[\NoDiscard]
     public function isMobile(): bool

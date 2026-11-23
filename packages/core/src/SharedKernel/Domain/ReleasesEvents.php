@@ -7,7 +7,7 @@ namespace Prospecter\Core\SharedKernel\Domain;
 use Prospecter\Core\SharedKernel\Domain\Event\DomainEvent;
 
 /**
- * An aggregate: it records what happens to it, and gives the events to the use case once saved (ADR 0043).
+ * An aggregate. It records what happens to it and gives the events to the use case once it is saved (ADR 0043).
  */
 interface ReleasesEvents
 {

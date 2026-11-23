@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\SharedKernel\Domain\Exception;
 
 /**
- * The text given as a phone number is no valid number.
+ * The text given as a phone number is not a valid number.
  */
 final class InvalidPhoneNumber extends BusinessRuleViolation
 {

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\SharedKernel\Domain;
 
 /**
- * The identity of an account (an organization using Prospecter), published to the other contexts.
+ * An account's id, published to the other contexts. An account is an organization that uses Prospecter.
  */
 final readonly class AccountId extends Uuid
 {

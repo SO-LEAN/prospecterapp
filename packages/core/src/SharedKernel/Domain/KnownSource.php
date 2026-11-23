@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\SharedKernel\Domain;
 
 /**
- * A tool whose addresses Prospecter recognizes: on its site, the pages designating a person or an organization, and
- * in them the identifier of what they designate.
+ * A tool whose addresses Prospecter recognizes. On the tool's site, Prospecter recognizes the pages that point to a
+ * person or an organization, and reads in them the identifier of that person or organization.
  */
 enum KnownSource: string
 {
@@ -27,7 +27,7 @@ enum KnownSource: string
     }
 
     /**
-     * The identifier of the address, when it is one of the pages of this source.
+     * The address's identifier, when the address is one of this source's pages.
      *
      * @param string $address in lower case, without its scheme nor `www.`
      */
@@ -37,7 +37,7 @@ enum KnownSource: string
     }
 
     /**
-     * Whether the address is on the site of this source, one of its pages or not.
+     * Whether the address is on this source's site, on one of its pages or not.
      *
      * @param string $address in lower case, without its scheme nor `www.`
      */

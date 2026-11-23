@@ -7,8 +7,8 @@ namespace Prospecter\Core\SharedKernel\Domain;
 use Prospecter\Core\SharedKernel\Domain\Event\DomainEvent;
 
 /**
- * The events of an aggregate (ReleasesEvents): its intention methods record them, the use case releases them
- * once the aggregate is saved, and publishes them (ADR 0042, 0043).
+ * An aggregate's events (ReleasesEvents). Its intention methods record them. The use case releases them once it
+ * saves the aggregate, then publishes them (ADR 0042, 0043).
  */
 trait RecordsEvents
 {

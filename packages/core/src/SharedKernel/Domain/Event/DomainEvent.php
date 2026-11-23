@@ -9,8 +9,9 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\Uuid;
 
 /**
- * Something that happened to an aggregate, recorded by its intention method (ADR 0043): in which account, by
- * which member, when, to what. It carries identities only, never personal data, so that it may be kept.
+ * Something that happened to an aggregate, recorded by its intention method (ADR 0043). It says in which account,
+ * by which member, when, and to which aggregate. It carries ids only and never personal data, so that it can be
+ * kept.
  */
 abstract readonly class DomainEvent
 {

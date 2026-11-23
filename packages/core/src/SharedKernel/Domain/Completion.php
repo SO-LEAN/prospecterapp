@@ -5,21 +5,22 @@ declare(strict_types=1);
 namespace Prospecter\Core\SharedKernel\Domain;
 
 /**
- * What a client knows of a person or an organization, against what is noted (ADR 0177): the fields it would fill,
- * empty until then, and those it gives otherwise than noted, which stay as they are.
+ * What a client knows about a person or an organization, compared with what Prospecter holds (ADR 0177). It lists
+ * the empty fields that the client would fill. It also lists the fields where the client's value differs from the
+ * saved one. Those fields stay as they are.
  */
 final readonly class Completion
 {
     /**
-     * @param list<string> $completed the names of the fields
-     * @param list<string> $differing the names of the fields
+     * @param list<string> $completed the fields' names
+     * @param list<string> $differing the fields' names
      */
     public function __construct(public array $completed = [], public array $differing = [])
     {
     }
 
     /**
-     * A field noted keeps its value; one left empty takes the value given.
+     * A field that holds a value keeps it. An empty field takes the given value.
      */
     public function with(string $field, ?string $noted, ?string $given): self
     {
@@ -31,7 +32,8 @@ final readonly class Completion
     }
 
     /**
-     * A field of several values, links: those given not held yet fill it while there is room, the others differ.
+     * A field with several values, such as the links. The given values that the field does not hold yet fill it
+     * while there is room. The others differ.
      */
     public function withSome(string $field, int $filled, int $left): self
     {

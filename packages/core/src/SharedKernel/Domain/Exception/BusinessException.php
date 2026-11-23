@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\SharedKernel\Domain\Exception;
 
 /**
- * A refusal of the business: what the domain throws when a rule says no. The application translates it for
- * its clients; anything else thrown is a failure of the infrastructure.
+ * A business refusal: the domain throws it when a rule says no. The application translates it for its clients.
+ * Anything else that is thrown is an infrastructure failure.
  */
 abstract class BusinessException extends \DomainException
 {

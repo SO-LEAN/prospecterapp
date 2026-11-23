@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\SharedKernel\Domain\Exception;
 
 /**
- * The text given as a SIRET is no SIRET: not 14 digits, or a wrong key.
+ * The text given as a SIRET is not a SIRET: it does not have 14 digits, or its check digit is wrong.
  */
 final class InvalidSiret extends BusinessRuleViolation
 {

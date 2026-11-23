@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\SharedKernel\Domain\Exception;
 
 /**
- * The text given as an email is no email.
+ * The text given as an email is not an email.
  */
 final class InvalidEmail extends BusinessRuleViolation
 {

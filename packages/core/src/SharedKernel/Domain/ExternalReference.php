@@ -9,10 +9,10 @@ use Prospecter\Core\SharedKernel\Domain\Exception\ReferenceOfAnotherKind;
 use Prospecter\Core\SharedKernel\Domain\Exception\UnrecognizedPage;
 
 /**
- * A link to a page of a person or an organization on a tool outside (LinkedIn, Malt, a directory...): its source and
- * the identifier of what it designates there, in one form however it was pasted, which recognize it; and the address
- * pasted, which opens it. A tool Prospecter does not know is the host of the address, the address in one form its
- * identifier.
+ * A link to a person's or an organization's page on an outside tool (LinkedIn, Malt, a directory). Its source and
+ * its identifier recognize it: the identifier names the person or the organization on that tool, in one form,
+ * however the link was pasted. The pasted address opens it. For a tool that Prospecter does not know, the source is
+ * the address's host, and the identifier is the address in one form.
  */
 final readonly class ExternalReference
 {
@@ -52,7 +52,7 @@ final readonly class ExternalReference
     }
 
     /**
-     * A reference as it was recognized when it was noted, whatever today's sources say of its address.
+     * A reference as Prospecter recognized it when it was saved, whatever today's sources say about its address.
      */
     public static function restored(string $source, string $identifier, string $address): self
     {
@@ -60,8 +60,8 @@ final readonly class ExternalReference
     }
 
     /**
-     * The reference its address is today, a source known since taking over the links of its host; itself when today's
-     * rules refuse it, so that a reference noted before stays what it was.
+     * The reference that its address gives today: a source that became known takes over its host's links. When
+     * today's rules refuse the address, the reference stays as it is, so that a saved reference keeps its value.
      */
     public function recognizedAgain(Designated $designated): self
     {
@@ -73,7 +73,7 @@ final readonly class ExternalReference
     }
 
     /**
-     * What recognizes the reference, whatever its address: its source and its identifier.
+     * The reference's source and identifier, which recognize it whatever its address.
      */
     public function key(): string
     {
