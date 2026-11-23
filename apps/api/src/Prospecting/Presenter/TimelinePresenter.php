@@ -10,8 +10,8 @@ use Prospecter\Core\Prospecting\Application\Timeline;
 use Prospecter\Core\Prospecting\Application\TimelineOutput;
 
 /**
- * A slice of the timeline of a contact, with a link per intention the prospector may carry out on it. Built for one
- * call, it keeps the resource (ADR 0085).
+ * Presents a slice of a contact's timeline, with a link for each intention the prospector may carry out on it. It is
+ * built for one call and keeps the resource (ADR 0085).
  */
 final class TimelinePresenter implements TimelineOutput
 {
@@ -21,7 +21,7 @@ final class TimelinePresenter implements TimelineOutput
     public private(set) TimelineResource $resource;
 
     /**
-     * @param array{string, string, string} $routes the route of the list, the route noting an exchange and the route planning one
+     * @param array{string, string, string} $routes the list's route, the route that logs an exchange and the route that plans one
      */
     private function __construct(private readonly array $routes, private readonly string $contactId, private readonly TimelineResourceFactory $timelineResourceFactory)
     {
