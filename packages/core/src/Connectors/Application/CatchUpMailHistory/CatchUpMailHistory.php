@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Connectors\Application\CatchUpMailHistory;
 
 /**
- * I catch up the e-mails my mailbox already exchanged with a contact, or with an organization itself: they are
- * imported as the import of my e-mails imports them, asynchronously.
+ * I reimport the e-mails that my mailbox already exchanged with a contact, or with an organization itself. My e-mail
+ * import imports them as it imports any e-mail, asynchronously.
  */
 final readonly class CatchUpMailHistory
 {
