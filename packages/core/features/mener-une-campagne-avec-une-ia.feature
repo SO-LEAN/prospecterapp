@@ -69,7 +69,7 @@ Fonctionnalité: Mener une campagne avec une IA
     Soit la campagne "Relance PHP" démarrée par e-mail avec "Ada Lovelace" puis "Grace Hopper", son message pour une IA "tel quel"
     Et une IA a noté l'e-mail envoyé à "Ada Lovelace" pour "Relance PHP", son Message-ID "<relance-ada@solean-it.test>" et le texte "Bonjour Ada"
     Quand une IA note l'e-mail envoyé à "Ada Lovelace" pour "Relance PHP", son Message-ID "<relance-ada@solean-it.test>" et le texte "Bonjour Ada"
-    Alors c'est refusé : "Exchange already noted"
+    Alors c'est refusé : "This exchange was already logged"
     Et un seul échange est noté pour "Ada Lovelace"
 
   Scénario: L'e-mail que l'import a noté avant l'IA rejoint la campagne et traite le destinataire
@@ -90,7 +90,7 @@ Fonctionnalité: Mener une campagne avec une IA
     Et la campagne "Relance Java" démarrée par e-mail avec "Ada Lovelace" puis "Grace Hopper", son message pour une IA "tel quel"
     Et une IA a noté l'e-mail envoyé à "Ada Lovelace" pour "Relance Java", son Message-ID "<relance-ada@solean-it.test>" et le texte "Bonjour Ada"
     Quand une IA note l'e-mail envoyé à "Ada Lovelace" pour "Relance PHP", son Message-ID "<relance-ada@solean-it.test>" et le texte "Bonjour Ada"
-    Alors c'est refusé : "Exchange already noted"
+    Alors c'est refusé : "This exchange was already logged"
     Et un seul échange est noté pour "Ada Lovelace"
 
   Scénario: L'envoi noté garde le texte que l'IA a réellement envoyé

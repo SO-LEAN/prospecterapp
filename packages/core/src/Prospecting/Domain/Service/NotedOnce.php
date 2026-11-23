@@ -34,7 +34,7 @@ final readonly class NotedOnce
         $noted = null === $fingerprint ? null : $this->keptUnder($exchange->accountId(), $fingerprint);
 
         if (null !== $noted) {
-            throw ExchangeAlreadyNoted::because('Exchange already noted', context: ['exchange' => $noted->value]);
+            throw ExchangeAlreadyNoted::because('This exchange was already logged', context: ['exchange' => $noted->value]);
         }
     }
 

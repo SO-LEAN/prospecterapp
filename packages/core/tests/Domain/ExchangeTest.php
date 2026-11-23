@@ -900,7 +900,7 @@ class ExchangeTest extends TestCase
         $exchange = $this->noted(new ExchangeFacts(Channel::Email, Direction::Outbound, new \DateTimeImmutable(self::NOW)));
         $exchange->joinCampaign($this->recipientInCampaign(), by: $this->me()->id, at: new \DateTimeImmutable(self::LATER));
 
-        $this->expectExceptionObject(ExchangeAlreadyNoted::because('Exchange already noted', context: ['exchange' => self::EXCHANGE]));
+        $this->expectExceptionObject(ExchangeAlreadyNoted::because('This exchange was already logged', context: ['exchange' => self::EXCHANGE]));
 
         $exchange->joinCampaign($this->recipientInCampaign(), by: $this->me()->id, at: new \DateTimeImmutable(self::LATER));
     }
