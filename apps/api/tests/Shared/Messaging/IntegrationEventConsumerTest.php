@@ -189,7 +189,7 @@ class IntegrationEventConsumerTest extends ApiTestCase
         $this->assertSame([], $this->failures());
     }
 
-    public function testASubscriptionReactsToEachEventByTheHandlerItNamesForIt(): void
+    public function testASubscriptionReactsToEachEventByTheCommandItsPolicyReturnsForIt(): void
     {
         $this->rebuildTheFigures();
         $before = $this->figures();
