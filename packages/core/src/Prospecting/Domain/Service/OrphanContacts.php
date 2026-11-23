@@ -11,8 +11,8 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * A contact is never alone (ADR 0042): among the contacts an organization lets go, those no other organization
- * of the account names. A rule on the whole prospecting base, out of reach of one organization.
+ * A contact is never alone (ADR 0042). Among the contacts an organization lets go, this finds those that no other
+ * organization of the account names. The rule covers the whole prospecting base, out of one organization's reach.
  */
 final readonly class OrphanContacts
 {

@@ -14,8 +14,8 @@ use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 
 /**
- * An exchange is noted once in its account, recognized by its fingerprint whoever noted it first: a rule on the whole
- * base, out of reach of one exchange alone (ADR 0166).
+ * An account logs an exchange once. Prospecter recognizes it by its fingerprint, whoever logged it first. The rule
+ * covers the whole base, out of one exchange's reach (ADR 0166).
  */
 final readonly class NotedOnce
 {
@@ -24,7 +24,7 @@ final readonly class NotedOnce
     }
 
     /**
-     * As an AI or an import notes it.
+     * Checks an exchange that an AI or an import logs.
      *
      * @throws ExchangeAlreadyNoted|ExchangeErasedBefore
      */
@@ -39,8 +39,9 @@ final readonly class NotedOnce
     }
 
     /**
-     * The exchange noted first under this fingerprint, checked before the recipient of a campaign is asked, as an AI
-     * notes its sending: it may become the recipient's exchange (ADR 0195). Erased, it is never noted again.
+     * The exchange logged first under this fingerprint. An AI logs a campaign's sending, and this check comes before
+     * Prospecting asks for the campaign's recipient: the exchange may become the recipient's exchange (ADR 0195). An
+     * erased exchange is never logged again.
      *
      * @throws ExchangeErasedBefore
      */
@@ -56,7 +57,8 @@ final readonly class NotedOnce
     }
 
     /**
-     * As a member notes it by hand, never refused: noted before, it leaves its fingerprint to the exchange noted first.
+     * Checks an exchange that a member logs by hand, and never refuses it. When the exchange was logged before, it
+     * leaves its fingerprint to the exchange logged first.
      */
     public function fingerprintUnlessNotedBefore(Exchange $exchange): void
     {

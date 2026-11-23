@@ -9,8 +9,8 @@ use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
 
 /**
- * Two organizations of the prospecting base of an account cannot share an email; other accounts may
- * prospect the same organization. A rule on the whole base, out of reach of one organization alone.
+ * Two organizations in an account's prospecting base cannot share an email. Other accounts may prospect the same
+ * organization. The rule covers the whole base, out of one organization's reach.
  */
 final readonly class EmailUniqueness
 {

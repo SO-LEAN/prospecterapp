@@ -17,8 +17,8 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * The organizations of the account of a prospector a person is a contact of: a rule on the whole prospecting
- * base, out of reach of one organization. A person none of them names is no contact of the account, unless they
+ * The organizations of a prospector's account that name a person as a contact. The rule covers the whole prospecting
+ * base, out of one organization's reach. A person whom none of them names is no contact of the account, unless they
  * wait to be attached (ADR 0146).
  */
 final readonly class ContactOrganizations
@@ -40,8 +40,8 @@ final readonly class ContactOrganizations
     }
 
     /**
-     * Those what a prospector notes or plans with the contact is kept for: none while the contact waits for the
-     * prospector to attach them, their holder keeping it until then.
+     * The organizations that keep what a prospector logs or plans with the contact. There are none while the contact
+     * waits for the prospector to attach them. Until then, their holder keeps it.
      *
      * @return list<OrganizationId>
      *
@@ -59,8 +59,9 @@ final readonly class ContactOrganizations
     }
 
     /**
-     * What the timeline of a person offers a prospector: nothing for a person who is no contact of the account; only
-     * the reading for a contact waiting for another member to attach them, met by their holder only (ADR 0146).
+     * What a person's timeline offers a prospector. It offers nothing for a person who is no contact of the account. It
+     * offers only the reading for a contact who waits for another member to attach them, because only their holder
+     * meets them (ADR 0146).
      *
      * @return list<TimelineIntent>
      */
