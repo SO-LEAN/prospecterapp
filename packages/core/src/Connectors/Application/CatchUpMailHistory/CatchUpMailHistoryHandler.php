@@ -21,8 +21,9 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * The e-mails my mailbox exchanged with a correspondent are given to the import of my e-mails, each a message added
- * to import on its own, which notes each once in the account, never again once erased (ADR 0154, 0166).
+ * The e-mails that the member's mailbox exchanged with a correspondent go to the member's e-mail import. Each one is
+ * an added message, imported on its own. The import logs each e-mail once in the account, and never again once erased
+ * (ADR 0154, 0166).
  */
 final readonly class CatchUpMailHistoryHandler implements CommandHandler
 {
