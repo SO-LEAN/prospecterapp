@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\StartProspecting;
 
 /**
- * Enters an organization in the prospecting base of the account, under the identity the client gives it; `byAnAI`
- * when an AI enters it, acting as the prospector.
+ * Enters an organization in the account's prospecting base, under the identity that the client gives it. `byAnAI` is
+ * true when an AI enters it on the prospector's behalf.
  */
 final readonly class StartProspecting
 {
