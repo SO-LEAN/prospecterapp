@@ -201,3 +201,4 @@ Why the project is shaped the way it is: one record per decision, in the order t
 | [0196](0196-no-mutant-of-the-core-is-skipped-for-lack-of-time.md) | No mutant of the core is skipped for lack of time, and make mutation fails when one is | architecture | Accepted | 2026-11-22 |
 | [0198](0198-the-api-controllers-extend-nothing.md) | The API's controllers extend nothing | architecture | Accepted | 2026-11-23 |
 | [0199](0199-a-booker-is-recognized-by-their-e-mail-only-otherwise-a-new-contact-to-attach.md) | A booker is recognized by their e-mail only, otherwise they become a new contact to attach | domain | Accepted | 2026-11-23 |
+| [0197](0197-each-context-has-its-own-identities.md) | Each context has its own identities; only the account and the member are shared | architecture | Accepted | 2026-11-23 |
