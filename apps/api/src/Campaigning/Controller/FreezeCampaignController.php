@@ -36,7 +36,7 @@ final class FreezeCampaignController extends AbstractController
     #[Route('/api/campaigns/{id}/freeze', name: 'api_campaigns_freeze', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
     #[IsGranted(CampaignVoter::ACCESS, subject: 'campaign')]
     #[IsGranted(User::PERSONAL_DATA)]
-    #[OA\Post(summary: 'Keep the contacts a draft campaign targets now as its recipients, for good: its channel and its tags no longer change')]
+    #[OA\Post(summary: 'Freeze a draft campaign: the contacts it targets now become its recipients for good, and its channel and tags no longer change')]
     #[OA\Response(response: 200, description: 'The frozen campaign', content: new Model(type: CampaignResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]

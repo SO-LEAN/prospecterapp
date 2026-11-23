@@ -26,7 +26,7 @@ final class ListCampaignsController extends AbstractController
 
     #[Route('/api/campaigns', name: 'api_campaigns_list', methods: ['GET'])]
     #[IsGranted(User::PERSONAL_DATA)]
-    #[OA\Get(summary: 'The campaigns of my team, the newest first, each with the contacts it targets counted')]
+    #[OA\Get(summary: 'List my team\'s campaigns, newest first, each with its target count')]
     #[OA\Response(response: 200, description: 'Every campaign of my team', content: new Model(type: CampaignListResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]

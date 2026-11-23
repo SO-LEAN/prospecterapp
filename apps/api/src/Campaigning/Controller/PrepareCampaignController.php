@@ -36,7 +36,7 @@ final class PrepareCampaignController extends AbstractController
 
     #[Route('/api/campaigns', name: 'api_campaigns_prepare', methods: ['POST'])]
     #[IsGranted(User::PERSONAL_DATA)]
-    #[OA\Post(summary: 'Prepare a campaign of my team, as a draft')]
+    #[OA\Post(summary: 'Prepare a team campaign as a draft')]
     #[OA\Response(response: 201, description: 'The prepared draft', content: new Model(type: CampaignResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]

@@ -37,7 +37,7 @@ final class ReviseCampaignController extends AbstractController
     #[Route('/api/campaigns/{id}', name: 'api_campaigns_revise', requirements: ['id' => Requirement::UUID], methods: ['PATCH'])]
     #[IsGranted(CampaignVoter::ACCESS, subject: 'campaign')]
     #[IsGranted(User::PERSONAL_DATA)]
-    #[OA\Patch(summary: 'Change the name, the channel, the tags and the message of a draft campaign')]
+    #[OA\Patch(summary: 'Change a draft campaign\'s name, channel, tags and message')]
     #[OA\Response(response: 200, description: 'The revised campaign', content: new Model(type: CampaignResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]

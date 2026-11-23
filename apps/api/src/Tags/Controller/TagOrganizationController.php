@@ -38,7 +38,7 @@ final class TagOrganizationController extends AbstractController
 
     #[Route('/api/organizations/{id}/tags', name: 'api_organizations_tag', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
     #[IsGranted(OrganizationVoter::ACCESS, subject: 'organization')]
-    #[OA\Post(summary: 'Put tags on the organization, a tag it carries already carried once')]
+    #[OA\Post(summary: 'Put tags on the organization. A tag it already carries is kept once')]
     #[OA\Response(response: 200, description: 'The organization\'s tags now', content: new Model(type: TagsResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector', content: new Model(type: ProblemResource::class))]

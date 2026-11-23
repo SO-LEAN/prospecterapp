@@ -36,7 +36,7 @@ final class StopCampaignController extends AbstractController
     #[Route('/api/campaigns/{id}/stop', name: 'api_campaigns_stop', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
     #[IsGranted(CampaignVoter::ACCESS, subject: 'campaign')]
     #[IsGranted(User::PERSONAL_DATA)]
-    #[OA\Post(summary: 'Stop a started campaign, kept for the team to read')]
+    #[OA\Post(summary: 'Stop a started campaign for good. It stays for the team to read')]
     #[OA\Response(response: 200, description: 'The stopped campaign', content: new Model(type: CampaignResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]

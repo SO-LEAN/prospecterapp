@@ -33,7 +33,7 @@ final class TakeContactTagOffController extends AbstractController
     }
 
     #[Route('/api/contacts/{id}/tags/{tag}', name: 'api_contacts_take_off_tag', requirements: ['id' => Requirement::UUID], methods: ['DELETE'])]
-    #[OA\Delete(summary: 'Take a tag off the contact, named without its mark')]
+    #[OA\Delete(summary: 'Take a tag off the contact. The tag is named without its `#`')]
     #[OA\Response(response: 200, description: 'The contact\'s tags now', content: new Model(type: ContactTagsResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector', content: new Model(type: ProblemResource::class))]

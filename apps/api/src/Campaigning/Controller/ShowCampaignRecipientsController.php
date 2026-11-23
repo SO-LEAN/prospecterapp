@@ -30,7 +30,7 @@ final class ShowCampaignRecipientsController extends AbstractController
     #[Route('/api/campaigns/{id}/recipients', name: 'api_campaigns_recipients', requirements: ['id' => Requirement::UUID], methods: ['GET'])]
     #[IsGranted(CampaignVoter::ACCESS, subject: 'campaign')]
     #[IsGranted(User::PERSONAL_DATA)]
-    #[OA\Get(summary: 'The recipients a campaign keeps, in the order they were added, none in a draft')]
+    #[OA\Get(summary: 'List the recipients a campaign keeps, in the order added. A draft has none')]
     #[OA\Response(response: 200, description: 'Every recipient', content: new Model(type: RecipientListResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]

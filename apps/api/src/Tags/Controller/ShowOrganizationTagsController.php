@@ -29,7 +29,7 @@ final class ShowOrganizationTagsController extends AbstractController
 
     #[Route('/api/organizations/{id}/tags', name: 'api_organizations_tags', requirements: ['id' => Requirement::UUID], methods: ['GET'])]
     #[IsGranted(OrganizationVoter::ACCESS, subject: 'organization')]
-    #[OA\Get(summary: 'The tags put by hand on the organization')]
+    #[OA\Get(summary: 'Get the tags put by hand on the organization')]
     #[OA\Response(response: 200, description: 'The organization\'s tags', content: new Model(type: TagsResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector', content: new Model(type: ProblemResource::class))]

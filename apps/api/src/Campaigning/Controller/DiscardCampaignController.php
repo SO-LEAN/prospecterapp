@@ -33,7 +33,7 @@ final class DiscardCampaignController extends AbstractController
     #[Route('/api/campaigns/{id}', name: 'api_campaigns_discard', requirements: ['id' => Requirement::UUID], methods: ['DELETE'])]
     #[IsGranted(CampaignVoter::ACCESS, subject: 'campaign')]
     #[IsGranted(User::PERSONAL_DATA)]
-    #[OA\Delete(summary: 'Discard a campaign never started')]
+    #[OA\Delete(summary: 'Discard a campaign that never started')]
     #[OA\Response(response: 204, description: 'Discarded')]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]

@@ -36,7 +36,7 @@ final class StartCampaignController extends AbstractController
     #[Route('/api/campaigns/{id}/start', name: 'api_campaigns_start', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
     #[IsGranted(CampaignVoter::ACCESS, subject: 'campaign')]
     #[IsGranted(User::PERSONAL_DATA)]
-    #[OA\Post(summary: 'Start a frozen campaign: its recipients, its message and its channel no longer change, and it is stopped, never discarded')]
+    #[OA\Post(summary: 'Start a frozen campaign. Its recipients, message and channel no longer change. From then on it is stopped, never discarded')]
     #[OA\Response(response: 200, description: 'The started campaign', content: new Model(type: CampaignResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]

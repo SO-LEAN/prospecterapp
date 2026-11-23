@@ -27,7 +27,7 @@ final class ShowSuggestedTagsController extends AbstractController
     }
 
     #[Route('/api/tags', name: 'api_tags', methods: ['GET'])]
-    #[OA\Get(summary: 'The tags proposed to my account: the predefined ones by family, then those its organizations and contacts carry')]
+    #[OA\Get(summary: 'Get the tags proposed to my account: the predefined tags by family, then the tags its organizations and contacts carry')]
     #[OA\Response(response: 200, description: 'The proposed tags', content: new Model(type: SuggestedTagsResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector', content: new Model(type: ProblemResource::class))]
