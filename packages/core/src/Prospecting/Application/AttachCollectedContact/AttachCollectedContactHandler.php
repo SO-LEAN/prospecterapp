@@ -14,9 +14,10 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * A contact collected in PersonalData joins the organizations it was collected for, by its collector: the
- * integration event PersonalData publishes, translated into the words of Prospecting (ADR 0046). An organization a
- * client attached them to meanwhile, before the reaction ran, names them already: it stays as it is (ADR 0177).
+ * Reacts to a contact collected in PersonalData. The contact joins the organizations it was collected for, and its
+ * collector is the author. The reaction translates PersonalData's integration event into Prospecting's words
+ * (ADR 0046). A client may have attached the contact to an organization before the reaction ran. That organization
+ * already names the contact, so it stays as it is (ADR 0177).
  */
 final readonly class AttachCollectedContactHandler implements EventHandler
 {
