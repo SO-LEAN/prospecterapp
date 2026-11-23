@@ -11,14 +11,15 @@ use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\Prospecting\Domain\Policy\ExchangePossibilities;
 
 /**
- * What the exchanges a prospector holds offer them at a moment: what the state of each offers its holder.
+ * What the exchanges a prospector holds offer them at a given moment. Each exchange's state decides what it offers
+ * its holder.
  */
 final class HolderIntents
 {
     /**
      * @param list<ExchangeInTimeline> $exchanges held by the prospector
      *
-     * @return list<string> the ids of those offering the intent
+     * @return list<string> the ids of the exchanges that offer the intent
      */
     public static function offering(ExchangeIntent $intent, array $exchanges, \DateTimeImmutable $at): array
     {
@@ -30,7 +31,7 @@ final class HolderIntents
     /**
      * @param list<ExchangeInTimeline> $exchanges held by the prospector
      *
-     * @return array<string, list<string>> by exchange id, the names of the intents each offers
+     * @return array<string, list<string>> the names of the intents each exchange offers, by exchange id
      */
     public static function offeredBy(array $exchanges, \DateTimeImmutable $at): array
     {

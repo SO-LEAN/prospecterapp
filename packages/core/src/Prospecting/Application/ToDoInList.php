@@ -14,8 +14,8 @@ final readonly class ToDoInList
      * @param list<string> $organizationIds the organizations it is kept for
      * @param string       $dueOn           the day it is due, `Y-m-d`
      * @param string|null  $dueAt           the hour of that day, `H:i`, when said
-     * @param string       $heldBy          the member who noted it, who holds it
-     * @param list<string> $possibleIntents names of what its state offers now: ReviseToDo, TickOffToDo, UntickToDo, EraseToDo
+     * @param string       $heldBy          the member who logged it and holds it
+     * @param list<string> $possibleIntents the names of what its state offers now: ReviseToDo, TickOffToDo, UntickToDo, EraseToDo
      */
     public function __construct(
         public string $id,

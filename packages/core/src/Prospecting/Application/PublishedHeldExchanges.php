@@ -11,9 +11,10 @@ use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
- * The exchanges held, in the published language of Prospecting (ADR 0127), each named by the first organization it
- * is still kept for, one reading per exchange: an exchange kept for no organization any more is about to be erased,
- * absent; one with a contact to attach, kept for none until they are attached (ADR 0146), without organization.
+ * The held exchanges in Prospecting's published language (ADR 0127). Each one is named by the first organization it
+ * is still kept for, read once per exchange. An exchange kept for no organization any more is about to be erased, so
+ * it is left out. An exchange with a contact to attach is kept for no organization until the contact is attached
+ * (ADR 0146), so it comes without an organization.
  */
 final readonly class PublishedHeldExchanges
 {
@@ -61,7 +62,7 @@ final readonly class PublishedHeldExchanges
     }
 
     /**
-     * An organization the account stopped prospecting is gone before its exchanges stop being kept for it.
+     * An organization that the account stopped prospecting is gone before its exchanges stop being kept for it.
      */
     private function firstOrganizationOf(HeldExchange $exchange): ?OrganizationSheet
     {

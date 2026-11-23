@@ -9,8 +9,8 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\CampaignId;
 
 /**
- * Names the campaigns the exchanges of a timeline were noted in, as Campaigns names them now, asked once for the
- * slice: an exchange keeps only the identity of its campaign (ADR 0145).
+ * Names the campaigns that a timeline's exchanges were logged in, with the names Campaigns gives them now. It asks
+ * Campaigns once per slice. An exchange keeps only its campaign's identity (ADR 0145).
  */
 final readonly class CampaignsOfTimeline
 {

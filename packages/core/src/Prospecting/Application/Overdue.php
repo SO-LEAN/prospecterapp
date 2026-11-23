@@ -11,7 +11,7 @@ use Prospecter\Core\Prospecting\Domain\Model\Slot;
 use Prospecter\Core\Prospecting\Domain\Policy\Lateness;
 
 /**
- * The read models of the exchanges and the to-dos told in the terms of the domain, asking it what is late.
+ * Translates the exchanges' and the to-dos' read models into the domain's terms, and asks the domain what is late.
  */
 final class Overdue
 {
@@ -19,7 +19,7 @@ final class Overdue
      * @param list<ExchangeInTimeline> $exchanges
      * @param list<ToDoInList>         $toDos
      *
-     * @return list<string> the ids of those late
+     * @return list<string> the ids of the late ones
      */
     public static function among(array $exchanges, array $toDos, \DateTimeImmutable $at): array
     {
@@ -38,7 +38,7 @@ final class Overdue
     }
 
     /**
-     * The days since the day of the to-do, none on its day, fewer than none before it.
+     * The number of days since the to-do's day. It is zero on that day, and below zero before it.
      */
     public static function daysSince(ToDoInList $toDo, \DateTimeImmutable $at): int
     {
