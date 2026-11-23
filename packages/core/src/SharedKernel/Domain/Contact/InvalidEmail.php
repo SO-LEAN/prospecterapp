@@ -13,6 +13,6 @@ final class InvalidEmail extends BusinessRuleViolation
 {
     public static function of(string $value): self
     {
-        return self::because(sprintf('Email "%s" is not valid', $value), 'email', context: ['email' => $value]);
+        return self::because(sprintf('E-mail address "%s" is not valid', $value), 'email', context: ['email' => $value]);
     }
 }
