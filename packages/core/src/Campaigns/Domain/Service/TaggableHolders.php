@@ -16,7 +16,7 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Domain service (ADR 0039): an account tags only the organizations it prospects and its contacts, as Prospecting and
- * PersonalData know them; anything else is unknown to it.
+ * PersonalData know them. Anything else is unknown to the account.
  */
 final readonly class TaggableHolders
 {
@@ -41,7 +41,7 @@ final readonly class TaggableHolders
     /**
      * @param list<PersonId> $persons
      *
-     * @throws UnknownContact for the first that is no contact of the account
+     * @throws UnknownContact for the first person who is not a contact of the account
      */
     public function ensureContactsOf(AccountId $accountId, array $persons): void
     {
