@@ -23,11 +23,14 @@ use Prospecter\Core\SharedKernel\Domain\Origin;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * An organization as a plain document of its DynamoDB item, and back (ADR 0048): its value objects as they
- * are, its recorded events never; the code of its municipality is absent from the documents written before it was
- * kept (ADR 0142), its website from those written before it was, its links from those written before them (their LinkedIn page then, ADR 0160), the organizations it
- * may be a duplicate of, and those it is no duplicate of, from those written before it was suspected of any; its origin
- * from those written before it was kept, by hand.
+ * Turns an organization into a plain document for its DynamoDB item, and back (ADR 0048). Its value objects are
+ * stored as they are. Its recorded events are never stored. Older documents lack some fields:
+ * - a document written before Prospecter kept municipalities has no municipality code (ADR 0142);
+ * - a document written before Prospecter kept websites has no website;
+ * - a document written before Prospecter kept links has none. It has a LinkedIn page instead (ADR 0160);
+ * - a document written before Prospecter suspected duplicates has neither the organizations it may duplicate nor
+ *   those it does not duplicate;
+ * - a document written before Prospecter kept the origin has none, and reads as created by hand.
  */
 final class OrganizationDocument
 {
@@ -93,7 +96,8 @@ final class OrganizationDocument
     }
 
     /**
-     * Its links as they were noted; its LinkedIn page for a document written before the links were.
+     * Its links as they were recorded. A document written before Prospecter kept links gives its LinkedIn page
+     * instead.
      *
      * @param array<string, mixed> $document
      */
@@ -103,8 +107,8 @@ final class OrganizationDocument
     }
 
     /**
-     * The document with its links recognized again by their addresses: what `app:keys:rebuild` writes once a source
-     * is known.
+     * Returns the document with its links recognized again from their addresses. `app:keys:rebuild` writes it once
+     * Prospecter knows a new source.
      *
      * @param array<string, mixed> $document
      *

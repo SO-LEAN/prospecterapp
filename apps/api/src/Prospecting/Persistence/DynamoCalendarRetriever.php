@@ -13,8 +13,9 @@ use Prospecter\Core\Prospecting\Domain\Model\ContactPresence;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 
 /**
- * Reads the calendar of a member in `GSI1` of the links `DynamoExchangeRepository` writes with every exchange
- * (`CALENDAR#<member>`), the period in one query between two positions, without restoring the exchanges (ADR 0088).
+ * Reads a member's calendar in `GSI1`, from the links that `DynamoExchangeRepository` writes with every exchange
+ * (`CALENDAR#<member>`). One query between two positions reads the period. It does not restore the exchanges (ADR
+ * 0088).
  */
 final readonly class DynamoCalendarRetriever implements CalendarRetriever
 {

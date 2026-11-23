@@ -31,13 +31,17 @@ use Prospecter\Core\SharedKernel\Domain\Origin;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * An exchange as a plain document of its DynamoDB item, and back (ADR 0048): its facts and its attachments as
- * they are, its recorded events never; an item written before an exchange was planned reads as done, and one
- * written done with the fact `missed` of a call that did not go through, before missed was a status, as missed; one
- * written before an exchange was noted in a campaign, in none (ADR 0145); one written before the e-mails were imported,
- * imported from nowhere (ADR 0154); one written before a booker booked one by a public link, booked by none (ADR 0164);
- * one written before the exchanges kept their fingerprint, with that of its e-mail when imported, none otherwise (ADR 0166);
- * one written before the exchanges kept their origin, by hand.
+ * Turns an exchange into a plain document for its DynamoDB item, and back (ADR 0048). Its facts and its attachments
+ * are stored as they are. Its recorded events are never stored. Older items read as follows:
+ * - an item written before exchanges could be planned reads as done;
+ * - before missed was a status, a call that did not go through was written done with the fact `missed`. It reads as
+ *   missed;
+ * - an item written before exchanges were logged in campaigns reads as in no campaign (ADR 0145);
+ * - an item written before e-mails were imported reads as imported from nowhere (ADR 0154);
+ * - an item written before bookers booked through a public link reads as booked by nobody (ADR 0164);
+ * - an item written before exchanges kept their fingerprint reads with its e-mail's fingerprint when it was imported,
+ *   and with none otherwise (ADR 0166);
+ * - an item written before exchanges kept their origin reads as created by hand.
  */
 final class ExchangeDocument
 {
@@ -136,8 +140,8 @@ final class ExchangeDocument
     }
 
     /**
-     * Written before the exchanges kept their fingerprint, one imported has that of its e-mail, unless its contact was
-     * forgotten, any other none (ADR 0166).
+     * An exchange written before exchanges kept their fingerprint gets one only if it was imported. It then gets its
+     * e-mail's fingerprint, unless its contact was forgotten. Any other exchange gets none (ADR 0166).
      *
      * @param array<string, mixed> $document
      */
@@ -156,8 +160,8 @@ final class ExchangeDocument
     }
 
     /**
-     * Written before an exchange had a status, it is done; before missed was a status, a call that did not go through
-     * was done with its fact `missed`: it is missed.
+     * An exchange written before exchanges had a status is done. Before missed was a status, a call that did not go
+     * through was written done with its fact `missed`. Such a call is missed.
      *
      * @param array<string, mixed> $document
      */
@@ -169,7 +173,7 @@ final class ExchangeDocument
     }
 
     /**
-     * Written before a video call could ask its link of the calendar of its holder (ADR 0137), it asks none.
+     * A video call written before it could request its link from its holder's calendar (ADR 0137) requests none.
      *
      * @param array<string, mixed> $document
      */
@@ -199,7 +203,7 @@ final class ExchangeDocument
     }
 
     /**
-     * Still to come, neither held nor cancelled.
+     * Still to come: neither done, missed nor cancelled.
      *
      * @param array<string, mixed> $document
      */
@@ -209,7 +213,7 @@ final class ExchangeDocument
     }
 
     /**
-     * Done or missed, neither still to come nor cancelled.
+     * Done or missed: neither still to come nor cancelled.
      *
      * @param array<string, mixed> $document
      */
@@ -219,7 +223,7 @@ final class ExchangeDocument
     }
 
     /**
-     * Who called the exchange off, by the values of `Canceller`; none while it is not cancelled, or when not said.
+     * Who called the exchange off, as a value of `Canceller`. Null while it is not cancelled, or when nobody said who.
      *
      * @param array<string, mixed> $document
      */
@@ -268,7 +272,7 @@ final class ExchangeDocument
     }
 
     /**
-     * Restored without its constructor, as the duration: a link accepted once stays.
+     * Restores the link without its constructor, like the duration, so a link accepted once stays.
      */
     private static function link(?string $url): ?VideoCallLink
     {

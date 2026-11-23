@@ -13,9 +13,9 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * The contacts to attach read from the items of `DynamoContactToAttachRepository`, without restoring them (ADR 0088):
- * those of a holder in `GSI1`, those of every account left unattached at a moment in `GSI2`, by the moment they are
- * erased from.
+ * Reads the contacts to attach from the items that `DynamoContactToAttachRepository` writes, without restoring them
+ * (ADR 0088). It reads a holder's contacts in `GSI1`. It reads in `GSI2` the contacts of every account that are left
+ * unattached at a given moment, by the moment from which they are erased.
  */
 final readonly class DynamoContactsToAttachRetriever implements ContactsToAttachRetriever
 {

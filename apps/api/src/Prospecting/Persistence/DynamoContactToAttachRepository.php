@@ -12,9 +12,10 @@ use Prospecter\Core\Prospecting\Domain\Repository\ContactToAttachRepository;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * The contacts to attach in the table of Prospecting (ADR 0048, 0146): `CONTACT_TO_ATTACH#<person>` /
- * `CONTACT_TO_ATTACH`, listed in `GSI1` among those of their holder (`TO_ATTACH#<member>`) and in `GSI2` among those
- * of every account (`UNATTACHED_ERASURE`), both under the moment they are erased from, then their person.
+ * Stores the contacts to attach in Prospecting's table (ADR 0048, 0146), as `CONTACT_TO_ATTACH#<person>` /
+ * `CONTACT_TO_ATTACH`. `GSI1` lists them among their holder's contacts (`TO_ATTACH#<member>`). `GSI2` lists them among
+ * every account's contacts (`UNATTACHED_ERASURE`). Both indexes sort them by the moment from which they are erased,
+ * then by their person.
  */
 final readonly class DynamoContactToAttachRepository implements ContactToAttachRepository
 {

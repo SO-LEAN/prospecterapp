@@ -8,7 +8,8 @@ use App\Shared\Persistence\RevisionRead;
 use App\Shared\Persistence\Table;
 
 /**
- * An exchange's revision: exposed with the exchange, and sent back by a client with its correction (ADR 0187).
+ * An exchange's revision. The API exposes it with the exchange, and a client sends it back with its correction (ADR
+ * 0187).
  */
 final readonly class ExchangeRevisions
 {

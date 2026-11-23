@@ -16,13 +16,14 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * The to-dos in the table of Prospecting (ADR 0048, 0113):
- * - `TODO#<id>` / `TODO`: the to-do, listed in `GSI1` among those of its contact (`CONTACT_TODOS#<account>#<person>`)
- *   when it has one, and in `GSI2` among those its holder still has to do (`STILL_TO_DO#<member>`) until it is done;
- * - `TODOS#<organization>` / `TODO#<id>`: the to-dos kept for an organization, written with it;
- * - `TODO_CALENDAR#<member>` / `TODO#<id>`: the to-do in the calendar of its holder, done or not, listed in `GSI1`
- *   (`TODO_CALENDAR#<member>`) under its due as written, its day, then its hour, then its id (ADR 0134).
- * A list of to-dos is read whole: a handful each.
+ * Stores the to-dos in Prospecting's table (ADR 0048, 0113):
+ * - `TODO#<id>` / `TODO`: the to-do. When it has a contact, `GSI1` lists it among its contact's to-dos
+ *   (`CONTACT_TODOS#<account>#<person>`). Until it is done, `GSI2` lists it among the to-dos its holder still has to do
+ *   (`STILL_TO_DO#<member>`).
+ * - `TODOS#<organization>` / `TODO#<id>`: a to-do kept for an organization, written with the to-do.
+ * - `TODO_CALENDAR#<member>` / `TODO#<id>`: the to-do in its holder's calendar, done or not. `GSI1` lists it
+ *   (`TODO_CALENDAR#<member>`) under its due date as written: its day, then its hour, then its id (ADR 0134).
+ * A list of to-dos is read whole, because each list holds only a handful.
  */
 final readonly class DynamoToDoRepository implements ToDoRepository
 {
@@ -62,7 +63,7 @@ final readonly class DynamoToDoRepository implements ToDoRepository
     }
 
     /**
-     * @param array<string, mixed>|null $stored the item of the to-do as stored, none for a new one
+     * @param array<string, mixed>|null $stored the to-do's item as stored, null for a new to-do
      *
      * @return list<string>
      */
@@ -82,8 +83,8 @@ final readonly class DynamoToDoRepository implements ToDoRepository
     }
 
     /**
-     * Writes again the link of every to-do in the calendar of its holder: what a table written before the to-dos were
-     * in the calendars needs once.
+     * Writes again every to-do's link in its holder's calendar. A table written before the to-dos were in the calendars
+     * needs this once.
      */
     public function writeTheKeysAgain(): int
     {
@@ -94,7 +95,7 @@ final readonly class DynamoToDoRepository implements ToDoRepository
     }
 
     /**
-     * The items of the to-dos kept for the organization, through its links.
+     * Reads the items of the to-dos kept for the organization, through its links.
      *
      * @return list<array<string, mixed>>
      */
@@ -145,7 +146,7 @@ final readonly class DynamoToDoRepository implements ToDoRepository
     }
 
     /**
-     * The links to write and to delete so that the organizations the to-do is kept for are those given.
+     * Returns the links to write and to delete, so that the to-do is kept for the given organizations.
      *
      * @param list<string> $keptFor
      * @param list<string> $storedKeptFor

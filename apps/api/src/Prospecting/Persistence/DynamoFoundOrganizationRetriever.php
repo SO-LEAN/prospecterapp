@@ -17,9 +17,9 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\SearchKey;
 
 /**
- * Reads the items `ORGANIZATION#<id>` / `ORGANIZATION` that `DynamoOrganizationRepository` writes, as a list
- * shows them, without restoring the organizations (ADR 0088): listed by account in `GSI1`, found by the indexes
- * of the search (ADR 0071).
+ * Reads the items `ORGANIZATION#<id>` / `ORGANIZATION` that `DynamoOrganizationRepository` writes, as a list shows
+ * them. It does not restore the organizations (ADR 0088). It lists an account's organizations in `GSI1`, and finds
+ * them through the search indexes (ADR 0071).
  */
 final readonly class DynamoFoundOrganizationRetriever implements FoundOrganizationRetriever
 {

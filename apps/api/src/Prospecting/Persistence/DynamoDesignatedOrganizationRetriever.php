@@ -16,8 +16,8 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\Siret;
 
 /**
- * The organization of an account a key designates, read in the reservations `DynamoOrganizationRepository` writes
- * (`SIRET#`, `REFERENCE#`, `WEBSITE#`, `EMAIL#`), without restoring it (ADR 0088).
+ * Reads the account's organization that a key designates, from the reservations that `DynamoOrganizationRepository`
+ * writes (`SIRET#`, `REFERENCE#`, `WEBSITE#`, `EMAIL#`). It does not restore the organization (ADR 0088).
  */
 final readonly class DynamoDesignatedOrganizationRetriever implements DesignatedOrganizationRetriever
 {

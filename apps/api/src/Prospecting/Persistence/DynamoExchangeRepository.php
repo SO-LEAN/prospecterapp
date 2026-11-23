@@ -26,22 +26,22 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * The exchanges in the table of Prospecting (ADR 0048, 0074, 0076):
- * - `EXCHANGE#<id>` / `EXCHANGE`: the exchange, listed in `GSI1` in the timeline of its contact
- *   (`TIMELINE#<account>#<person>`), under its position: the moment it happened and its id, the cursor of a slice;
- *   an exchange with the organization itself is in the timeline of no contact;
- * - `EXCHANGES#<organization>` / `EXCHANGE#<id>`: the exchanges kept for an organization, written with it, listed
- *   in `GSI1` in the timeline of the organization (`ORGANIZATION_TIMELINE#<organization>`) under the same position,
- *   and, while the exchange is to be redacted, in `GSI2` among those of the organization
- *   (`TO_REDACT#<organization>`, ADR 0079), counted there;
- * - `AGENDA#<member>` / `EXCHANGE#<id>`: while it is planned, the exchange in the agenda of the member who planned
- *   it, listed in `GSI1` (`AGENDA#<member>`) under the same position;
- * - `CALENDAR#<member>` / `EXCHANGE#<id>`: the exchange in the calendar of its holder, who planned or noted it,
- *   whatever its status, listed in `GSI1` (`CALENDAR#<member>`) under the moment it happens, cancelled or not, then
- *   its id.
- * The exchange is listed in `GSI2` among those of its account (`ACCOUNT_EXCHANGES#<account>`, its id), and
- * carries its `revision`, incremented at each save: the revision of its facts, which the aggregate does not know,
- * and the one its save and its removal hold to, as their unit of work read it (ADR 0181).
+ * Stores the exchanges in Prospecting's table (ADR 0048, 0074, 0076):
+ * - `EXCHANGE#<id>` / `EXCHANGE`: the exchange. `GSI1` lists it in its contact's timeline
+ *   (`TIMELINE#<account>#<person>`) under its position. The position is the moment it happened and its id, and it is
+ *   a slice's cursor. An exchange with the organization itself is in no contact's timeline.
+ * - `EXCHANGES#<organization>` / `EXCHANGE#<id>`: an exchange kept for an organization, written with the exchange.
+ *   `GSI1` lists it in the organization's timeline (`ORGANIZATION_TIMELINE#<organization>`) under the same position.
+ *   While the exchange is to redact, `GSI2` also lists it among the organization's exchanges to redact
+ *   (`TO_REDACT#<organization>`, ADR 0079), which are counted there.
+ * - `AGENDA#<member>` / `EXCHANGE#<id>`: while the exchange is planned, it is in the agenda of the member who planned
+ *   it. `GSI1` lists it (`AGENDA#<member>`) under the same position.
+ * - `CALENDAR#<member>` / `EXCHANGE#<id>`: the exchange in its holder's calendar, whatever its status. The holder is
+ *   the member who planned or logged it. `GSI1` lists it (`CALENDAR#<member>`) under the moment it happens, cancelled
+ *   or not, then under its id.
+ * `GSI2` lists the exchange among its account's exchanges (`ACCOUNT_EXCHANGES#<account>`, by its id). The exchange
+ * carries its `revision`, which each save increments. It is the revision of its facts, which the aggregate does not
+ * know. Its save and its removal also require the revision that their unit of work read (ADR 0181).
  */
 final readonly class DynamoExchangeRepository implements ExchangeRepository
 {
@@ -71,8 +71,8 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
     }
 
     /**
-     * A new exchange registers its fingerprint in its account, under the condition that no other exchange did
-     * meanwhile: the safety net of NotedOnce (ADR 0166). The registration outlives the exchange.
+     * A new exchange registers its fingerprint in its account, on condition that no other exchange registered it
+     * meanwhile. This condition is NotedOnce's safety net (ADR 0166). The registration outlives the exchange.
      *
      * @param array<string, mixed>|null $stored
      *
@@ -89,7 +89,7 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
     }
 
     /**
-     * Listed among the fingerprints of its contact in `GSI1`, to be forgotten with them.
+     * `GSI1` lists the registration among its contact's fingerprints, so that it is forgotten with them.
      *
      * @return array{PK: string, SK: string, ...}|null
      */
@@ -120,7 +120,7 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
     }
 
     /**
-     * @param array<string, mixed>|null $stored the item of the exchange as stored, none for a new one
+     * @param array<string, mixed>|null $stored the exchange's item as stored, null for a new exchange
      *
      * @return array<string, mixed>|null
      */
@@ -130,7 +130,7 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
     }
 
     /**
-     * @param array<string, mixed>|null $stored the item of the exchange as stored, none for a new one
+     * @param array<string, mixed>|null $stored the exchange's item as stored, null for a new exchange
      *
      * @return list<string>
      */
@@ -140,8 +140,9 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
     }
 
     /**
-     * The fingerprint of an erased exchange keeps who erased it, so that it is not noted again (ADR 0166); written
-     * whole, in case the exchange was noted before it registered it, and never over that of another exchange.
+     * An erased exchange's fingerprint keeps who erased it, so that nobody logs the exchange again (ADR 0166). The
+     * registration is written whole, in case the exchange was logged before it registered its fingerprint. It is never
+     * written over another exchange's registration.
      *
      * @return list<Write>
      */
@@ -191,7 +192,7 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
     }
 
     /**
-     * Each contact's timeline (GSI1), its documents read for their campaign only: no exchange is restored.
+     * Reads each contact's timeline (GSI1). It reads the documents for their campaign only, and restores no exchange.
      *
      * @param list<PersonId> $contacts
      *
@@ -206,10 +207,10 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
     }
 
     /**
-     * Writes again the item of every exchange, its revision kept, its link in the calendar of its holder, and the
-     * registration of its fingerprint: what a table written before the exchanges were listed by account, in the
-     * calendars, or fingerprinted (ADR 0166), needs once. A stored exchange holds its fingerprint alone: no erasure is
-     * written over.
+     * Writes again every exchange's item with its revision kept, its link in its holder's calendar, and its
+     * fingerprint's registration. A table written before the exchanges were listed by account, listed in calendars
+     * or fingerprinted (ADR 0166) needs this once. A stored exchange's registration holds only its fingerprint, so
+     * this writes over no erasure.
      */
     public function writeTheKeysAgain(): int
     {
@@ -250,9 +251,9 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
     }
 
     /**
-     * The links to write and to delete so that the organizations the exchange is kept for are those of the
-     * document, each at the moment of the exchange in the timeline of its organization: a correction may move it;
-     * among those to redact of its organization while it is.
+     * Returns the links to write and to delete, so that the exchange is kept for the document's organizations. Each
+     * link places the exchange at its moment in its organization's timeline, because a correction may move it. While
+     * the exchange is to redact, the link also lists it among its organization's exchanges to redact.
      *
      * @param array<string, mixed> $document
      * @param list<string>         $storedKeptFor
@@ -279,8 +280,8 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
     }
 
     /**
-     * While it is planned, the exchange is in the agenda of the member who planned it, at its moment; the link
-     * removed once it no longer is.
+     * While the exchange is planned, it is in the agenda of the member who planned it, at its moment. The link is
+     * removed once the exchange is no longer planned.
      *
      * @param array<string, mixed>      $document
      * @param array<string, mixed>|null $stored
@@ -300,8 +301,8 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
     }
 
     /**
-     * Whatever its status, the exchange is in the calendar of the member who planned or noted it, at the moment it
-     * happens: a move or a correction moves it there.
+     * Whatever its status, the exchange is in the calendar of the member who planned or logged it, at the moment it
+     * happens. A move or a correction moves it there too.
      *
      * @param array<string, mixed> $document
      *

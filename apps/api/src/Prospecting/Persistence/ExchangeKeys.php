@@ -8,8 +8,8 @@ use App\Shared\Persistence\Documents;
 use App\Shared\Typed;
 
 /**
- * The keys of the items of the exchanges, written by `DynamoExchangeRepository` and read by the retrievers
- * (ADR 0088): one format for both.
+ * The keys of the exchanges' items. `DynamoExchangeRepository` writes them and the retrievers read them (ADR 0088),
+ * so both share one format.
  */
 final class ExchangeKeys
 {
@@ -18,7 +18,7 @@ final class ExchangeKeys
     public const string FINGERPRINT = 'FINGERPRINT';
 
     /**
-     * The exchange an account noted under a fingerprint, kept once it is erased (ADR 0166).
+     * The exchange that an account logged under a fingerprint. The key stays once the exchange is erased (ADR 0166).
      */
     public static function fingerprint(string $accountId, string $fingerprint): string
     {
@@ -26,7 +26,7 @@ final class ExchangeKeys
     }
 
     /**
-     * The fingerprints of the exchanges of an account with a contact, in `GSI1`.
+     * The fingerprints of an account's exchanges with a contact, in `GSI1`.
      */
     public static function fingerprintsOf(string $accountId, string $contact): string
     {
@@ -54,7 +54,7 @@ final class ExchangeKeys
     }
 
     /**
-     * The exchanges of an account, in `GSI2`.
+     * An account's exchanges, in `GSI2`.
      */
     public static function ofAccount(string $accountId): string
     {
@@ -67,7 +67,7 @@ final class ExchangeKeys
     }
 
     /**
-     * The exchanges a member planned: the PK of their links, and the partition of their agenda in `GSI1`.
+     * The exchanges a member planned: their links' PK, and their agenda's partition in `GSI1`.
      */
     public static function agenda(string $member): string
     {
@@ -75,8 +75,8 @@ final class ExchangeKeys
     }
 
     /**
-     * The exchanges a member holds, whatever their status: the PK of their links, and the partition of their
-     * calendar in `GSI1`.
+     * The exchanges a member holds, whatever their status: their links' PK, and their calendar's partition in
+     * `GSI1`.
      */
     public static function calendar(string $member): string
     {
@@ -84,7 +84,7 @@ final class ExchangeKeys
     }
 
     /**
-     * Where an exchange stands in a calendar: the moment it happens, cancelled or not, then its id.
+     * An exchange's position in a calendar: the moment it happens, cancelled or not, then its id.
      *
      * @param array<string, mixed> $document
      */
@@ -94,8 +94,8 @@ final class ExchangeKeys
     }
 
     /**
-     * Where a moment stands in a timeline, after every exchange happening then: the bound between the past and
-     * what is to come.
+     * A moment's position in a timeline, after every exchange that happens at that moment. It is the bound between the
+     * past and what is to come.
      */
     public static function positionAfter(\DateTimeImmutable $moment): string
     {
@@ -103,7 +103,7 @@ final class ExchangeKeys
     }
 
     /**
-     * Where a moment stands in a timeline, before every exchange happening then.
+     * A moment's position in a timeline, before every exchange that happens at that moment.
      */
     public static function positionBefore(\DateTimeImmutable $moment): string
     {
@@ -111,8 +111,9 @@ final class ExchangeKeys
     }
 
     /**
-     * Where an exchange stands in a timeline, and the cursor of a slice: the moment it is listed at, the moment it
-     * happened but for a planned exchange cancelled before it (`ExchangeChronology`), then its id.
+     * An exchange's position in a timeline, which is also a slice's cursor. It is the moment the exchange is listed at,
+     * then its id. That moment is when the exchange happened, except for a planned exchange cancelled before then
+     * (`ExchangeChronology`).
      *
      * @param array<string, mixed> $document
      */

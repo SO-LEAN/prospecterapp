@@ -29,7 +29,7 @@ final class ToDoKeys
     }
 
     /**
-     * The to-dos a member holds still to do, in `GSI2`.
+     * The to-dos a member holds and still has to do, in `GSI2`.
      */
     public static function stillToDoBy(string $member): string
     {
@@ -37,8 +37,7 @@ final class ToDoKeys
     }
 
     /**
-     * The to-dos a member holds, done or not: the PK of their links, and the partition of their calendar in `GSI1`
-     * (ADR 0134).
+     * The to-dos a member holds, done or not: their links' PK, and their calendar's partition in `GSI1` (ADR 0134).
      */
     public static function calendar(string $member): string
     {
@@ -46,7 +45,8 @@ final class ToDoKeys
     }
 
     /**
-     * Where a to-do stands in a calendar: its due as written, its day, then its hour, none before any, then its id.
+     * A to-do's position in a calendar: its due date as written, then its id. The due date is its day, then its hour. A
+     * to-do without an hour comes before those with one.
      *
      * @param array<string, mixed> $document
      */
@@ -58,7 +58,7 @@ final class ToDoKeys
     }
 
     /**
-     * Where a day starts in a calendar, before every to-do due on it.
+     * A day's start in a calendar, before every to-do due on that day.
      */
     public static function dayStart(string $day): string
     {
@@ -66,7 +66,7 @@ final class ToDoKeys
     }
 
     /**
-     * Where a day ends in a calendar, after every to-do due on it.
+     * A day's end in a calendar, after every to-do due on that day.
      */
     public static function dayEnd(string $day): string
     {

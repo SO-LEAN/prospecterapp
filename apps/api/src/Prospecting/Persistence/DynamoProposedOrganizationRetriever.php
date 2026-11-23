@@ -12,8 +12,9 @@ use Prospecter\Core\Prospecting\Application\ProposeOrganizationToAttach\Proposed
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 
 /**
- * The organizations of an account by the domain of their email, read through the links `DynamoOrganizationRepository`
- * writes (`EMAIL_DOMAIN#<account>#<domain>`), without restoring them (ADR 0088, 0146): the first by identity.
+ * Reads an account's organizations by their email's domain, through the links that `DynamoOrganizationRepository`
+ * writes (`EMAIL_DOMAIN#<account>#<domain>`). It does not restore them (ADR 0088, 0146). It takes the first one by
+ * identity.
  */
 final readonly class DynamoProposedOrganizationRetriever implements ProposedOrganizationRetriever
 {
