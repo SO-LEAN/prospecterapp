@@ -44,7 +44,7 @@ final readonly class ConsultWhatIsToProcessHandler implements QueryHandler
     }
 
     /**
-     * What the prospector planned and let pass: one started is to process once it is late.
+     * The exchanges the prospector planned and let pass. An exchange in progress needs processing only once it is late.
      *
      * @return list<ExchangeInTimeline>
      */
@@ -56,7 +56,8 @@ final readonly class ConsultWhatIsToProcessHandler implements QueryHandler
     }
 
     /**
-     * Those still to do of the day of the reading, whatever their hour, and of the days before: the most overdue first.
+     * The to-dos still to do that are due on the reading day, whatever their hour, or on an earlier day. The most
+     * overdue comes first.
      *
      * @return list<ToDoInList>
      */
