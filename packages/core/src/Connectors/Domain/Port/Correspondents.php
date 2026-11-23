@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Connectors\Domain\Port;
 
+use Prospecter\Core\Connectors\Domain\Model\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
-use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**

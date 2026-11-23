@@ -13,6 +13,7 @@ use Prospecter\Core\Connectors\Domain\Model\Channel as ConnectorsChannel;
 use Prospecter\Core\Connectors\Domain\Model\ExchangeId as ConnectorsExchangeId;
 use Prospecter\Core\Connectors\Domain\Model\ExchangeStatus as ConnectorsExchangeStatus;
 use Prospecter\Core\Connectors\Domain\Model\HeldExchange;
+use Prospecter\Core\Connectors\Domain\Model\OrganizationId as ConnectorsOrganizationId;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Repository\CalendarEntryRepository;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
@@ -21,11 +22,11 @@ use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationCorrespondent;
+use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Tests\App\Base\ApiTestCase;
 use Tests\App\Base\ReadsResources;
 use Tests\App\Double\GoogleDouble;
@@ -275,7 +276,7 @@ class GoogleSyncApiTest extends ApiTestCase
 
     private function anEntryOfMinePushedOn(string $moment): void
     {
-        $exchange = new HeldExchange(new ConnectorsExchangeId(self::newIdentity()), $this->accountOfTheFixtures(), new MemberId($this->memberIdOf('prospector-user')), ConnectorsExchangeStatus::Done, ConnectorsChannel::Call, new \DateTimeImmutable($moment), 30, null, null, new OrganizationId(self::newIdentity()), 'Globex');
+        $exchange = new HeldExchange(new ConnectorsExchangeId(self::newIdentity()), $this->accountOfTheFixtures(), new MemberId($this->memberIdOf('prospector-user')), ConnectorsExchangeStatus::Done, ConnectorsChannel::Call, new \DateTimeImmutable($moment), 30, null, null, new ConnectorsOrganizationId(self::newIdentity()), 'Globex');
         $entry = CalendarEntry::of($exchange, Provider::Google, new \DateTimeImmutable($moment));
         $entry->pushed($exchange, new \DateTimeImmutable($moment));
         self::service(CalendarEntryRepository::class)->save($entry);

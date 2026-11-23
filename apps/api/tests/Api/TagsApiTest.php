@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\Campaigns\Domain\Model\Holder;
+use Prospecter\Core\Campaigns\Domain\Model\OrganizationId as CampaignsOrganizationId;
 use Prospecter\Core\Campaigns\Domain\Repository\TaggingRepository;
 use Prospecter\Core\PersonalData\Domain\Model\ContactCard;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
@@ -18,7 +19,6 @@ use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\App\Base\ApiTestCase;
 use Tests\App\Base\ReadsResources;
@@ -276,7 +276,7 @@ class TagsApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(204);
 
         $taggings = self::service(TaggingRepository::class);
-        $this->assertNull($taggings->find($this->accountOfTheFixtures(), Holder::organization(new OrganizationId($organization))));
+        $this->assertNull($taggings->find($this->accountOfTheFixtures(), Holder::organization(new CampaignsOrganizationId($organization))));
         $this->assertNull($taggings->find($this->accountOfTheFixtures(), Holder::contact(new PersonId($ada))));
         $this->assertSame([], $this->requestJson('GET', '/api/tags')['own']);
     }

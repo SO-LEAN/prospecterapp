@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Campaigns\AntiCorruption;
 
+use Prospecter\Core\Campaigns\Domain\Model\OrganizationId;
 use Prospecter\Core\Campaigns\Domain\Port\TaggableOrganizations;
 use Prospecter\Core\Prospecting\Contract\Service\WhichAreProspected\KeptProspected;
 use Prospecter\Core\Prospecting\Contract\Service\WhichAreProspected\WhichAreProspected;
 use Prospecter\Core\Prospecting\Contract\Service\WhichAreProspected\WhichAreProspectedService;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
  * Anticorruption layer (ADR 0045, 0089). Campaigns tags the organizations that Prospecting says an account prospects.

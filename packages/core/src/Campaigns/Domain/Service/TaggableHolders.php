@@ -8,10 +8,10 @@ use Prospecter\Core\Campaigns\Domain\Exception\UnknownContact;
 use Prospecter\Core\Campaigns\Domain\Exception\UnknownOrganization;
 use Prospecter\Core\Campaigns\Domain\Model\Holder;
 use Prospecter\Core\Campaigns\Domain\Model\HolderKind;
+use Prospecter\Core\Campaigns\Domain\Model\OrganizationId;
 use Prospecter\Core\Campaigns\Domain\Port\TaggableContacts;
 use Prospecter\Core\Campaigns\Domain\Port\TaggableOrganizations;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**

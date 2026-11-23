@@ -16,14 +16,15 @@ use Prospecter\Core\Campaigns\Application\PutTags\PutTags;
 use Prospecter\Core\Campaigns\Application\SuggestedTags;
 use Prospecter\Core\Campaigns\Application\TakeOffTag\TakeOffTag;
 use Prospecter\Core\Campaigns\Domain\Model\Holder;
+use Prospecter\Core\Campaigns\Domain\Model\OrganizationId as CampaignsOrganizationId;
 use Prospecter\Core\Campaigns\Domain\Model\Tag;
 use Prospecter\Core\Campaigns\Domain\Model\Tagging;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
+use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\Core\Acceptance\Expect;
 
@@ -68,7 +69,7 @@ final class TagContext implements Context
         $accountId = $this->scenario->accountIdOf($account);
         $organization = Organization::prospectedBy($this->scenario->aGestureIn($accountId), new OrganizationId($this->application->newIdentity()), new LegalIdentity('Organisation de '.$account), new ContactDetails());
         $this->application->organizations->save($organization);
-        $this->tag($accountId, Holder::organization($organization->id()), $tag);
+        $this->tag($accountId, Holder::organization(new CampaignsOrganizationId($organization->id()->value)), $tag);
     }
 
     #[Given('l\'organisation :name appartient à :owner, taguée :tags')]
@@ -79,7 +80,7 @@ final class TagContext implements Context
         $this->scenario->save($name, $organization);
 
         foreach (explode(' ', $tags) as $tag) {
-            $this->tag($accountId, Holder::organization($organization->id()), $tag);
+            $this->tag($accountId, Holder::organization(new CampaignsOrganizationId($organization->id()->value)), $tag);
         }
     }
 
@@ -190,7 +191,7 @@ final class TagContext implements Context
     private function holderOf(string $name): Holder
     {
         return $this->scenario->isAnOrganization($name)
-            ? Holder::organization(new OrganizationId($this->scenario->idOf($name)))
+            ? Holder::organization(new CampaignsOrganizationId($this->scenario->idOf($name)))
             : Holder::contact(new PersonId($this->scenario->personIdOf($name)));
     }
 

@@ -14,8 +14,8 @@ use Prospecter\Core\Reporting\Domain\Model\Fact;
 use Prospecter\Core\Reporting\Domain\Model\FiguresChange;
 use Prospecter\Core\Reporting\Domain\Model\Month;
 use Prospecter\Core\Reporting\Domain\Model\OrganizationFact;
+use Prospecter\Core\Reporting\Domain\Model\OrganizationId;
 use Prospecter\Core\Reporting\Domain\Repository\FactRepository;
-use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Psr\Clock\ClockInterface;
 

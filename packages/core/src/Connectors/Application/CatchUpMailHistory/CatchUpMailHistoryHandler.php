@@ -6,6 +6,7 @@ namespace Prospecter\Core\Connectors\Application\CatchUpMailHistory;
 
 use Prospecter\Core\Connectors\Domain\Exception\NoAddressToReimport;
 use Prospecter\Core\Connectors\Domain\Model\Member;
+use Prospecter\Core\Connectors\Domain\Model\OrganizationId;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Port\CorrespondentAddresses;
 use Prospecter\Core\Connectors\Domain\Port\Members;
@@ -17,7 +18,6 @@ use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**

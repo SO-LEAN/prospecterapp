@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Campaigns\Domain\Model;
 
-use Prospecter\Core\SharedKernel\Domain\OrganizationId;
-
 /** A tag that a contact carries because organizations that name it carry the tag by hand. */
 final readonly class InheritedTag
 {

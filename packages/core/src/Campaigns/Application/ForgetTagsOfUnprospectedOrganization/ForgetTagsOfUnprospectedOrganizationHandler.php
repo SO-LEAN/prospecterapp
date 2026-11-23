@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Prospecter\Core\Campaigns\Application\ForgetTagsOfUnprospectedOrganization;
 
 use Prospecter\Core\Campaigns\Domain\Model\Holder;
+use Prospecter\Core\Campaigns\Domain\Model\OrganizationId;
 use Prospecter\Core\Campaigns\Domain\Repository\TaggingRepository;
 use Prospecter\Core\Prospecting\Contract\Event\OrganizationFactsChanged;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
  * An organization that the account no longer prospects takes its tags with it (ADR 0138). The handler reacts to its

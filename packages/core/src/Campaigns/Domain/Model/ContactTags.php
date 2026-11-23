@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Campaigns\Domain\Model;
 
-use Prospecter\Core\SharedKernel\Domain\OrganizationId;
-
 /**
  * Every tag a contact carries (ADR 0141). Its own tags are put on it by hand. It inherits tags from the organizations
  * that name it. Its automatic tags come from how it is reached. Each list is sorted by tag name.

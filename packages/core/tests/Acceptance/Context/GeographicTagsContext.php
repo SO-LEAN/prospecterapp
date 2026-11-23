@@ -14,16 +14,17 @@ use Prospecter\Core\Campaigns\Application\ConsultOrganizationTags\ConsultOrganiz
 use Prospecter\Core\Campaigns\Application\ConsultSuggestedTags\ConsultSuggestedTags;
 use Prospecter\Core\Campaigns\Domain\Model\Locality;
 use Prospecter\Core\Campaigns\Domain\Model\OrganizationFact;
+use Prospecter\Core\Campaigns\Domain\Model\OrganizationId as CampaignsOrganizationId;
 use Prospecter\Core\Prospecting\Application\LocateAgain\LocateAgain;
 use Prospecter\Core\Prospecting\Application\Relocate\Relocate;
 use Prospecter\Core\Prospecting\Contract\Event\OrganizationFactsChanged;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
+use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\Address;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\GeoPoint;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\Location;
-use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Tests\Core\Acceptance\Expect;
 
 final class GeographicTagsContext implements Context
@@ -190,7 +191,7 @@ final class GeographicTagsContext implements Context
     private function keptFactOf(string $name): OrganizationFact
     {
         $organization = $this->scenario->organizationNamed($name);
-        $kept = $this->application->campaignsFacts->find(new OrganizationFact($organization->accountId(), $organization->id(), self::TERMINAL_REVISION, false, [], Locality::unknown()));
+        $kept = $this->application->campaignsFacts->find(new OrganizationFact($organization->accountId(), new CampaignsOrganizationId($organization->id()->value), self::TERMINAL_REVISION, false, [], Locality::unknown()));
 
         return $kept instanceof OrganizationFact ? $kept : throw new \LogicException(sprintf('Campaigns keeps no fact of %s', $name));
     }

@@ -14,7 +14,7 @@ use Prospecter\Core\Prospecting\Contract\Event\OrganizationFactsChanged;
 use Prospecter\Core\Reporting\Application\ConsultFigures\ConsultFigures;
 use Prospecter\Core\Reporting\Application\RebuildFigures\RebuildFigures;
 use Prospecter\Core\Reporting\Domain\Model\OrganizationFact;
-use Prospecter\Core\SharedKernel\Domain\OrganizationId;
+use Prospecter\Core\Reporting\Domain\Model\OrganizationId;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 use Tests\Core\Double\RebuildInterrupted;

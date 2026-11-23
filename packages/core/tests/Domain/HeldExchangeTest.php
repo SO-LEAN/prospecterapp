@@ -10,9 +10,9 @@ use Prospecter\Core\Connectors\Domain\Model\Channel;
 use Prospecter\Core\Connectors\Domain\Model\ExchangeId;
 use Prospecter\Core\Connectors\Domain\Model\ExchangeStatus;
 use Prospecter\Core\Connectors\Domain\Model\HeldExchange;
+use Prospecter\Core\Connectors\Domain\Model\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
  * Only a planned video call without a link asks the provider to create one (ADR 0137). An event put again once its

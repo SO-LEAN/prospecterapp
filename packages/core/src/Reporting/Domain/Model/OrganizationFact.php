@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Prospecter\Core\Reporting\Domain\Model;
 
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
  * An organization that an account prospects, whether or not it is placed on the map.

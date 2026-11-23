@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Connectors\Domain\Exception;
 
+use Prospecter\Core\Connectors\Domain\Model\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotFound;
-use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
  * The account does not prospect this organization. The organization may belong to another account, or not exist.
