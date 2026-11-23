@@ -14,9 +14,9 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Keeps the contacts an organization names, who inherit its tags (ADR 0141), and where it is (ADR 0142). A fact
- * published before its contacts were tells none: the rebuild reads them again; one published before its municipality
- * was tells it unknown until the next.
+ * Keeps the contacts that an organization names, who inherit its tags (ADR 0141), and where the organization is (ADR
+ * 0142). A fact published before the facts carried the contacts tells none of them. The rebuild reads them again. A
+ * fact published before the facts carried the municipality leaves it unknown until the next fact.
  */
 final readonly class RecordOrganizationFactsHandler implements EventHandler
 {
