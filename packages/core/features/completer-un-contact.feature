@@ -84,7 +84,7 @@ Fonctionnalité: Compléter un contact sans rien écraser
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
     Quand je complète le contact "Ada Lovelace" :
       | fonction | CTO |
-    Alors c'est refusé : "Only a member allowed to manage personal data may complete a contact"
+    Alors c'est refusé : "Only a member allowed to manage personal data can complete a contact"
 
   Scénario: Une adresse e-mail d'un autre contact est refusée
     Soit le contact "Grace Hopper" de "ACME" a l'adresse e-mail "grace@acme.fr"
@@ -97,7 +97,7 @@ Fonctionnalité: Compléter un contact sans rien écraser
     Et "Grace Hopper" a noté le lien "https://www.linkedin.com/in/grace-hopper"
     Quand je complète le contact "Ada Lovelace" :
       | liens | https://www.linkedin.com/in/grace-hopper |
-    Alors c'est refusé : "Link already held by Grace Hopper"
+    Alors c'est refusé : "Grace Hopper already has this link"
 
   Scénario: Le contact complété est publié joignable par ce qu'il a de plus
     Quand je complète le contact "Ada Lovelace" :
@@ -141,4 +141,4 @@ Fonctionnalité: Compléter un contact sans rien écraser
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
     Quand je compare le contact "Ada Lovelace" à :
       | fonction | CTO |
-    Alors c'est refusé : "Only a member allowed to manage personal data may complete a contact"
+    Alors c'est refusé : "Only a member allowed to manage personal data can complete a contact"

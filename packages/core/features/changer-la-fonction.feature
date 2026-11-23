@@ -20,4 +20,4 @@ Fonctionnalité: Changer la fonction d'une personne
   Scénario: Sans le droit, je ne peux pas changer la fonction d'un contact
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
     Quand je change la fonction de "Ada Lovelace" : "Directrice générale"
-    Alors c'est refusé : "Only the person or a member allowed to manage personal data may change them"
+    Alors c'est refusé : "Only the person or a member allowed to manage personal data can change this person's data"

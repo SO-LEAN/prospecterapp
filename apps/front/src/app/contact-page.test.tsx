@@ -216,7 +216,7 @@ describe('the card of a contact', () => {
       violations: [
         {
           propertyPath: 'links',
-          title: 'Link already held by Ada Lovelace',
+          title: 'Ada Lovelace already has this link',
           reason: 'referenceAlreadyUsed',
           context: { holder: 'Ada Lovelace', holderId: ADA },
         },

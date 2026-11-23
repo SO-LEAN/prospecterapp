@@ -72,7 +72,7 @@ const aLinkHeldBy = (holder: string) => ({
   violations: [
     {
       propertyPath: 'links',
-      title: `Link already held by ${holder}`,
+      title: `${holder} already has this link`,
       reason: 'referenceAlreadyUsed',
       context: { holder, holderId: ADA },
     },

@@ -20,6 +20,6 @@ final class ReferenceAlreadyUsed extends BusinessRuleViolation
     {
         $name = trim(sprintf('%s %s', $holder->name()->firstName, $holder->name()->lastName));
 
-        return self::because(sprintf('Link already held by %s', $name), 'links', context: ['holder' => $name, 'holderId' => $holder->id()->value]);
+        return self::because(sprintf('%s already has this link', $name), 'links', context: ['holder' => $name, 'holderId' => $holder->id()->value]);
     }
 }
