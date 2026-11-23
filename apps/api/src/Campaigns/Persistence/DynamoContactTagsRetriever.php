@@ -13,10 +13,10 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * What the tags of contacts derive from, read from the items of `DynamoFactRepository` and `DynamoTaggingRepository`
- * without restoring them (ADR 0088, 0141), by the keys of each contact, never the whole partition: its fact and its
- * links (a `Query` of their range), then the taggings of the contacts and of the organizations their links name, and
- * the facts of those organizations, where they are (ADR 0142), in one `BatchGetItem`.
+ * Reads what contacts' tags are derived from, in the items of `DynamoFactRepository` and `DynamoTaggingRepository`,
+ * without restoring them (ADR 0088, 0141). It reads each contact's keys, never the whole partition. First a `Query` of
+ * their range reads the contact's fact and links. Then one `BatchGetItem` reads the taggings of the contacts and of the
+ * organizations their links name, and those organizations' facts, which say where they are (ADR 0142).
  */
 final readonly class DynamoContactTagsRetriever implements ContactTagsRetriever
 {
@@ -48,7 +48,7 @@ final readonly class DynamoContactTagsRetriever implements ContactTagsRetriever
     }
 
     /**
-     * @param list<array<string, mixed>> $items the fact of a contact and its links
+     * @param list<array<string, mixed>> $items a contact's fact and its links
      *
      * @return list<string>
      */
@@ -74,7 +74,7 @@ final readonly class DynamoContactTagsRetriever implements ContactTagsRetriever
      * @param list<string>   $organizations
      *
      * @return array{array<string, array<string, list<string>>>, array<string, array{municipalityCode: ?string, country: ?string}>}
-     *                                                                                                                              the names of the tags put by hand, by kind of holder then by its identity; where each organization is, by its identity
+     *                                                                                                                              the names of the tags put by hand, by kind of holder then by holder id; where each organization is, by organization id
      */
     private function tagsAndLocalitiesOf(string $account, array $contacts, array $organizations): array
     {

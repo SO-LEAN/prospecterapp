@@ -12,10 +12,10 @@ use Prospecter\Core\Campaigns\Domain\Model\HolderKind;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 
 /**
- * What the tags of every contact of an account derive from, read from the items of `DynamoFactRepository` and
- * `DynamoTaggingRepository` without restoring them (ADR 0088, 0141): the partition of the account at once, the facts
- * of the contacts each followed by its links, its taggings, then the facts of its organizations, where they are (ADR
- * 0142), three `Query`.
+ * Reads what the tags of every contact in an account are derived from, in the items of `DynamoFactRepository` and
+ * `DynamoTaggingRepository`, without restoring them (ADR 0088, 0141). It reads the account's partition at once, in
+ * three `Query` calls. They read the contacts' facts, each followed by its links, then the taggings, then the
+ * organizations' facts, which say where they are (ADR 0142).
  */
 final readonly class DynamoTaggedContactsRetriever implements TaggedContactsRetriever
 {
@@ -49,11 +49,11 @@ final readonly class DynamoTaggedContactsRetriever implements TaggedContactsRetr
     }
 
     /**
-     * @param list<array<string, mixed>> $items the facts of the contacts and their links
+     * @param list<array<string, mixed>> $items the contacts' facts and their links
      *
-     * @return array{array<string, array<string, mixed>>, array<string, list<string>>} the fact of each contact kept,
-     *                                                                                 and the organizations linked to
-     *                                                                                 each contact, by its identity
+     * @return array{array<string, array<string, mixed>>, array<string, list<string>>} each kept contact's fact, and
+     *                                                                                 the organizations linked to each
+     *                                                                                 contact, by contact id
      */
     private static function factsAndLinksOf(array $items): array
     {
@@ -74,7 +74,7 @@ final readonly class DynamoTaggedContactsRetriever implements TaggedContactsRetr
     }
 
     /**
-     * @param string $key the key of the fact of a contact, or of one of its links
+     * @param string $key the key of a contact's fact, or of one of its links
      */
     private static function contactOf(string $key): string
     {
@@ -82,7 +82,7 @@ final readonly class DynamoTaggedContactsRetriever implements TaggedContactsRetr
     }
 
     /**
-     * @return array<string, array{municipalityCode: ?string, country: ?string}> where each organization is, by its identity
+     * @return array<string, array{municipalityCode: ?string, country: ?string}> where each organization is, by organization id
      */
     private function localitiesIn(string $account): array
     {
@@ -96,7 +96,7 @@ final readonly class DynamoTaggedContactsRetriever implements TaggedContactsRetr
     }
 
     /**
-     * @return array<string, array<string, list<string>>> the names of the tags put by hand, by kind of holder then by its identity
+     * @return array<string, array<string, list<string>>> the names of the tags put by hand, by kind of holder then by holder id
      */
     private function tagsIn(string $account): array
     {

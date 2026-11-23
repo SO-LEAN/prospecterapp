@@ -13,9 +13,9 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
- * The tags put by hand, read from the items of `DynamoTaggingRepository` without restoring them (ADR 0088): those of
- * an organization or of a contact, and all those of an account, its partition read at once; where the organizations
- * are, from the items of their facts (`DynamoFactRepository`, ADR 0142).
+ * Reads the tags put by hand from the items of `DynamoTaggingRepository`, without restoring them (ADR 0088). It reads
+ * an organization's or a contact's tags, or all of an account's tags by reading its partition at once. It reads where
+ * the organizations are from their facts' items (`DynamoFactRepository`, ADR 0142).
  */
 final readonly class DynamoTagsRetriever implements TagsRetriever
 {

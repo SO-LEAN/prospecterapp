@@ -12,9 +12,7 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
-/**
- * The campaigns of an account in its partition of the table of Campaigns (ADR 0144).
- */
+/** An account's campaigns, in its partition of Campaigns' table (ADR 0144). */
 final readonly class DynamoCampaignRepository implements CampaignRepository
 {
     public function __construct(private Table $campaignsTable)
@@ -33,9 +31,7 @@ final readonly class DynamoCampaignRepository implements CampaignRepository
         return null === $document ? null : CampaignDocument::campaign($document);
     }
 
-    /**
-     * Every campaign of the account read at once, an account having tens of them (ADR 0144).
-     */
+    /** Reads every campaign of the account at once, because an account has tens of them (ADR 0144). */
     public function withRecipient(AccountId $accountId, PersonId $contact): array
     {
         $items = $this->campaignsTable->queryBetween(CampaignsKeys::account($accountId->value), null, ...CampaignsKeys::campaigns());

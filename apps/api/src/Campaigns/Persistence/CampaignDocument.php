@@ -31,12 +31,16 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * A campaign as its item keeps it (ADR 0048, 0144): its tags by their names without their mark, those of its target
- * derived from them and from its channel, never kept; frozen, its recipients by their identities and their statuses,
- * whether the call of one processed did not go through and the exchange that processed it (ADR 0145, 0152), why one
- * was dismissed, in the order they were added, none in a draft; the moments it was started, stopped and ended, none before;
- * how an AI treats its message, as is for an item written before it was kept; its daily cap, and when each recipient
- * was processed.
+ * A campaign as its item keeps it (ADR 0048, 0144):
+ *
+ * - its tags by name, without their `#`. The targeted tags are derived from them and from the channel, and are never
+ *   kept;
+ * - once frozen, its recipients in the order added, none in a draft. Each one has its id and status. A processed
+ *   recipient has whether the call went through, the exchange that processed them (ADR 0145, 0152), and when. A
+ *   dismissed one has the reason;
+ * - when it was started, stopped and ended, null before;
+ * - how an AI treats its message, `asIs` for an item written before the mode was kept;
+ * - its daily cap.
  */
 final class CampaignDocument
 {
@@ -143,7 +147,7 @@ final class CampaignDocument
     /**
      * @param array<string, mixed> $document
      *
-     * @return list<array<string, mixed>> none for a campaign saved before it could be frozen
+     * @return list<array<string, mixed>> empty for a campaign saved before campaigns could be frozen
      */
     private static function recipientsOf(array $document): array
     {
@@ -159,9 +163,12 @@ final class CampaignDocument
     }
 
     /**
-     * Without whether it was missed nor why it was dismissed when saved before a campaign was led, without its exchange
-     * when processed before the recipient kept it (ADR 0152); erased, by its status alone when saved before an erased
-     * recipient kept what was done with them; without when it was processed when saved before a campaign had a daily cap.
+     * Reads a recipient. An item written by an older version lacks some fields:
+     *
+     * - saved before campaigns ran: without whether it was missed or why it was dismissed;
+     * - processed before recipients kept their exchange: without its exchange (ADR 0152);
+     * - saved before an erased recipient kept what the team did: erased by its status alone;
+     * - saved before campaigns had a daily cap: without when it was processed.
      *
      * @param array<string, mixed> $document
      */
@@ -173,7 +180,7 @@ final class CampaignDocument
     }
 
     /**
-     * None for a campaign saved before it could have a daily cap.
+     * Null for a campaign saved before campaigns had a daily cap.
      *
      * @param array<string, mixed> $document
      */
@@ -183,7 +190,7 @@ final class CampaignDocument
     }
 
     /**
-     * As is for a campaign saved before an AI could adapt its message.
+     * `asIs` for a campaign saved before an AI could adapt its message.
      *
      * @param array<string, mixed> $document
      */
@@ -193,7 +200,7 @@ final class CampaignDocument
     }
 
     /**
-     * None for a campaign saved before it could be started.
+     * Null for a campaign saved before campaigns could be started.
      *
      * @param array<string, mixed> $document
      */

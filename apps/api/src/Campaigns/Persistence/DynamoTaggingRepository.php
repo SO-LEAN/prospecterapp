@@ -15,8 +15,8 @@ use Prospecter\Core\Campaigns\Domain\Repository\TaggingRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 
 /**
- * The tagging of an organization or of a contact (ADR 0138): `ACCOUNT#<account>` / `TAGGING#<kind>#<id>`, its tags
- * by their names.
+ * An organization's or a contact's tagging (ADR 0138): `ACCOUNT#<account>` / `TAGGING#<kind>#<id>`, with its tags by
+ * name.
  */
 final readonly class DynamoTaggingRepository implements TaggingRepository
 {

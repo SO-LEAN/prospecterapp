@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Campaigns\Persistence;
 
 /**
- * The keys of the items of the table of Campaigns, written by the repository and read by the retriever (ADR 0088):
- * one format for both. The taggings of an account share its partition, read at once to propose its tags; beside
- * them, the facts the tags of its contacts derive from (ADR 0141), the fact of a contact followed by its links, and
- * its campaigns, read at once (ADR 0144).
+ * The keys of the items in Campaigns' table. The repository writes them and the retriever reads them, so both share one
+ * format (ADR 0088). An account's taggings share its partition, which is read at once to propose its tags. Beside them
+ * are the facts that its contacts' tags are derived from (ADR 0141): each contact's fact is followed by its links. The
+ * partition also holds its campaigns, read at once (ADR 0144).
  */
 final class CampaignsKeys
 {
@@ -18,7 +18,7 @@ final class CampaignsKeys
     private const string ORGANIZATION = 'ORGANIZATION';
     private const string ORGANIZATION_FACT = 'FACT#ORGANIZATION';
     private const string CONTACT_FACT = 'FACT#CONTACT';
-    /** sorts after `#` and every character of an identity */
+    /** sorts after `#` and after every character of an id */
     private const string AFTER_EVERY_LINK = '#~';
 
     public static function account(string $id): string
@@ -37,7 +37,7 @@ final class CampaignsKeys
     }
 
     /**
-     * @return array{string, string} the first and the last sort keys of the campaigns
+     * @return array{string, string} the campaigns' first and last sort keys
      */
     public static function campaigns(): array
     {
@@ -49,32 +49,26 @@ final class CampaignsKeys
         return self::ORGANIZATION_FACT.'#'.$id;
     }
 
-    /**
-     * The organization whose fact the key is.
-     */
+    /** The organization whose fact has this key. */
     public static function organizationOfFact(string $key): string
     {
         return substr($key, strlen(self::organizationFact('')));
     }
 
-    /**
-     * The fact of a contact, the first of its keys: its links follow it.
-     */
+    /** A contact's fact, the first of its keys. Its links follow it. */
     public static function contactFact(string $id): string
     {
         return self::CONTACT_FACT.'#'.$id;
     }
 
-    /**
-     * The fact of an organization names the contact: it inherits its tags.
-     */
+    /** An organization's fact names the contact, so the contact inherits the organization's tags. */
     public static function link(string $contact, string $organization): string
     {
         return self::contactFact($contact).'#'.self::ORGANIZATION.'#'.$organization;
     }
 
     /**
-     * @return array{string, string} the first and the last sort keys of the fact of a contact and of its links
+     * @return array{string, string} the first and last sort keys of a contact's fact and its links
      */
     public static function factAndLinksOf(string $contact): array
     {
@@ -82,7 +76,7 @@ final class CampaignsKeys
     }
 
     /**
-     * @return array{string, string} the first and the last sort keys of the facts of the organizations
+     * @return array{string, string} the first and last sort keys of the organizations' facts
      */
     public static function organizationFacts(): array
     {
@@ -90,7 +84,7 @@ final class CampaignsKeys
     }
 
     /**
-     * @return array{string, string} the first and the last sort keys of the facts of the contacts and of their links
+     * @return array{string, string} the first and last sort keys of the contacts' facts and their links
      */
     public static function contactFacts(): array
     {
@@ -98,7 +92,7 @@ final class CampaignsKeys
     }
 
     /**
-     * @return array{string, string} the first and the last sort keys of the taggings, the facts beside them left out
+     * @return array{string, string} the first and last sort keys of the taggings, without the facts beside them
      */
     public static function taggings(): array
     {
