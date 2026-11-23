@@ -6399,7 +6399,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Its tags",
+                        "description": "The contact's tags",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -6422,7 +6422,7 @@
                         }
                     },
                     "404": {
-                        "description": "No contact of my account (`unknownContact`)",
+                        "description": "Not a contact of my account (`unknownContact`)",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -6462,7 +6462,7 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Its tags now",
+                        "description": "The contact's tags now",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -6485,7 +6485,7 @@
                         }
                     },
                     "404": {
-                        "description": "No contact of my account (`unknownContact`)",
+                        "description": "Not a contact of my account (`unknownContact`)",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -6495,7 +6495,7 @@
                         }
                     },
                     "422": {
-                        "description": "No tag, one that makes no tag (`invalidTag`), or an automatic one (`automaticTag`)",
+                        "description": "No tag, text that makes no tag (`invalidTag`), or an automatic tag (`automaticTag`)",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -6527,7 +6527,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Its tags",
+                        "description": "The organization's tags",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -6550,7 +6550,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown organization, or one of another account",
+                        "description": "Unknown organization, or an organization of another account",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -6590,7 +6590,7 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Its tags now",
+                        "description": "The organization's tags now",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -6613,7 +6613,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown organization, or one of another account",
+                        "description": "Unknown organization, or an organization of another account",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -6623,7 +6623,7 @@
                         }
                     },
                     "422": {
-                        "description": "No tag, one that makes no tag (`invalidTag`), or an automatic one (`automaticTag`)",
+                        "description": "No tag, text that makes no tag (`invalidTag`), or an automatic tag (`automaticTag`)",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -6644,7 +6644,7 @@
                 "operationId": "get_api_tags",
                 "responses": {
                     "200": {
-                        "description": "The tags proposed",
+                        "description": "The proposed tags",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -6697,7 +6697,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Its tags now",
+                        "description": "The contact's tags now",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -6720,7 +6720,7 @@
                         }
                     },
                     "404": {
-                        "description": "No contact of my account (`unknownContact`), or a tag it does not carry (`tagNotCarried`)",
+                        "description": "Not a contact of my account (`unknownContact`), or a tag the contact does not carry (`tagNotCarried`)",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -6760,7 +6760,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Its tags now",
+                        "description": "The organization's tags now",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -6783,7 +6783,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown organization, one of another account, or a tag it does not carry",
+                        "description": "Unknown organization, an organization of another account, or a tag the organization does not carry",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -6838,7 +6838,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown campaign, or one of another account",
+                        "description": "Unknown campaign, or a campaign of another account",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -6878,7 +6878,7 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "The campaign, its recipients counted",
+                        "description": "The campaign, with its recipient count",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -6901,7 +6901,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown campaign or of another account, or no contact of my organization",
+                        "description": "Unknown campaign or a campaign of another account, or not a contact of my organization",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -6921,7 +6921,7 @@
                         }
                     },
                     "422": {
-                        "description": "A contact without the means of its channel, or more than 500 recipients",
+                        "description": "A contact without the means the channel needs, or more than 500 recipients",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -6963,7 +6963,7 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "The campaign, its recipients counted",
+                        "description": "The campaign, with its recipient count",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -6986,7 +6986,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown campaign, or one of another account",
+                        "description": "Unknown campaign, or a campaign of another account",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -7006,7 +7006,7 @@
                         }
                     },
                     "422": {
-                        "description": "No tag, more than five with that of the channel, or more than 500 recipients",
+                        "description": "No tag, more than five tags counting the channel's tag, or more than 500 recipients",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -7075,7 +7075,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown campaign, or one of another account",
+                        "description": "Unknown campaign, or a campaign of another account",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -7131,7 +7131,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown campaign, or one of another account",
+                        "description": "Unknown campaign, or a campaign of another account",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -7141,7 +7141,7 @@
                         }
                     },
                     "409": {
-                        "description": "Started: stopped, never discarded",
+                        "description": "Started: a started campaign is stopped, never discarded",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -7204,7 +7204,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown campaign, or one of another account",
+                        "description": "Unknown campaign, or a campaign of another account",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -7224,7 +7224,7 @@
                         }
                     },
                     "422": {
-                        "description": "Without a name or too long, an unknown channel, no tag or more than five with that of the channel, a message too long, a subject for another channel than an e-mail",
+                        "description": "No name or a name too long, an unknown channel, no tag or more than five tags counting the channel's tag, a message too long, or a subject for a channel other than e-mail",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -7291,7 +7291,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown campaign or of another account, or no recipient of it",
+                        "description": "Unknown campaign or a campaign of another account, or not one of its recipients",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -7301,7 +7301,7 @@
                         }
                     },
                     "409": {
-                        "description": "The campaign is not started, or the recipient is handled already",
+                        "description": "The campaign is not started, or the recipient is already handled",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -7356,7 +7356,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown campaign, or one of another account",
+                        "description": "Unknown campaign, or a campaign of another account",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -7376,7 +7376,7 @@
                         }
                     },
                     "422": {
-                        "description": "Nobody targeted, or more than 500",
+                        "description": "Nobody targeted, or more than 500 contacts",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -7439,7 +7439,7 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "The draft prepared",
+                        "description": "The prepared draft",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -7462,7 +7462,7 @@
                         }
                     },
                     "422": {
-                        "description": "Without a name or too long, an unknown channel, no tag or more than five with that of the channel, a message too long, a subject for another channel than an e-mail",
+                        "description": "No name or a name too long, an unknown channel, no tag or more than five tags counting the channel's tag, a message too long, or a subject for a channel other than e-mail",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -7503,7 +7503,7 @@
                 ],
                 "responses": {
                     "204": {
-                        "description": "Taken off"
+                        "description": "Removed"
                     },
                     "401": {
                         "description": "Missing or invalid access token"
@@ -7519,7 +7519,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown campaign or of another account, or no recipient of it",
+                        "description": "Unknown campaign or a campaign of another account, or not one of its recipients",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -7539,7 +7539,7 @@
                         }
                     },
                     "422": {
-                        "description": "Its last recipient",
+                        "description": "The campaign's last recipient",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -7603,7 +7603,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown campaign or contact, or one of another account",
+                        "description": "Unknown campaign or contact, or a campaign or contact of another account",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -7668,7 +7668,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown campaign, or one of another account",
+                        "description": "Unknown campaign, or a campaign of another account",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -7743,7 +7743,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown campaign, or one of another account",
+                        "description": "Unknown campaign, or a campaign of another account",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -7763,7 +7763,7 @@
                         }
                     },
                     "422": {
-                        "description": "Frozen, but emptied by the erasure of its contacts",
+                        "description": "Frozen, but empty because its contacts were erased",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -7818,7 +7818,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown campaign, or one of another account",
+                        "description": "Unknown campaign, or a campaign of another account",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -9176,7 +9176,7 @@
             "TagsInput": {
                 "properties": {
                     "tags": {
-                        "description": "Each written one way: `Caf\u00e9 owners` is #CAFE_OWNERS",
+                        "description": "Each tag is written one way: `Caf\u00e9 owners` is #CAFE_OWNERS",
                         "type": "array",
                         "items": {
                             "type": "string"
@@ -9206,7 +9206,7 @@
             "RecipientSearchInput": {
                 "properties": {
                     "tags": {
-                        "description": "The tags chosen, the tag of the channel of the campaign counting with them in the 5 tags of the search",
+                        "description": "The chosen tags. The campaign's channel tag counts with them within the search's 5 tags",
                         "type": "array",
                         "items": {
                             "type": "string"
@@ -9220,7 +9220,7 @@
             "DismissalInput": {
                 "properties": {
                     "reason": {
-                        "description": "Why, when said",
+                        "description": "The reason, when given",
                         "type": "string",
                         "nullable": true,
                         "default": null,
@@ -9249,7 +9249,7 @@
                         ]
                     },
                     "tags": {
-                        "description": "The tags chosen, the tag of the channel counting with them in the 5 tags of the target",
+                        "description": "The chosen tags. The channel's tag counts with them within the target's 5 tags",
                         "type": "array",
                         "items": {
                             "type": "string"
@@ -9258,19 +9258,19 @@
                         "default": null
                     },
                     "message": {
-                        "description": "The message reminded for each contact, its variables {title}, {firstName}, {lastName}, {organization} and {jobTitle}",
+                        "description": "The message shown for each contact, with the variables {title}, {firstName}, {lastName}, {organization} and {jobTitle}",
                         "type": "string",
                         "nullable": true,
                         "default": null
                     },
                     "subject": {
-                        "description": "The subject of an e-mail",
+                        "description": "An e-mail's subject",
                         "type": "string",
                         "nullable": true,
                         "default": null
                     },
                     "messageMode": {
-                        "description": "How an AI leading it treats the message for each person: sent as rendered, or adapted to them, its idea kept; as is when left out",
+                        "description": "How an AI running the campaign treats the message for each person: it sends it as rendered, or adapts it to them and keeps its idea. `asIs` when left out",
                         "type": "string",
                         "nullable": true,
                         "default": null,
@@ -9280,7 +9280,7 @@
                         ]
                     },
                     "dailyCap": {
-                        "description": "The most recipients processed a day, a guard only; none when left out. Read as it is prepared: it changes then by its own endpoint",
+                        "description": "The most recipients processed in a day, only a guard; no cap when left out. Read only when the campaign is prepared: afterwards, it changes through its own endpoint",
                         "type": "integer",
                         "nullable": true,
                         "default": null
@@ -9291,7 +9291,7 @@
             "DailyCapInput": {
                 "properties": {
                     "dailyCap": {
-                        "description": "The most recipients processed a day, a guard an AI stops at and the member may go beyond; none takes the cap off",
+                        "description": "The most recipients processed in a day. It is a guard: an AI stops at it, and the member may go beyond it. Null takes the cap off",
                         "type": "integer",
                         "nullable": true,
                         "default": null
@@ -12067,7 +12067,7 @@
                 ],
                 "properties": {
                     "name": {
-                        "description": "Written with its mark",
+                        "description": "Written with its `#`",
                         "type": "string",
                         "example": "#ESN"
                     },
@@ -12084,12 +12084,12 @@
                 ],
                 "properties": {
                     "name": {
-                        "description": "Written with its mark",
+                        "description": "Written with its `#`",
                         "type": "string",
                         "example": "#ESN"
                     },
                     "from": {
-                        "description": "The organizations it comes from, in the order of their identities",
+                        "description": "The organizations it comes from, sorted by id",
                         "type": "array",
                         "items": {
                             "type": "string",
@@ -12130,7 +12130,7 @@
                         }
                     },
                     "inherited": {
-                        "description": "Put by hand on organizations naming the contact, its own left out",
+                        "description": "Put by hand on the organizations that name the contact, without the contact's own tags",
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/InheritedTagResource"
@@ -12164,7 +12164,7 @@
                         }
                     },
                     "automatic": {
-                        "description": "Set from where the organization is: the big city around, its department and its region, the city first",
+                        "description": "Set from where the organization is: the surrounding big city, its department and its region, in that order",
                         "type": "array",
                         "items": {
                             "type": "string",
@@ -12192,7 +12192,7 @@
                         ]
                     },
                     "tags": {
-                        "description": "In the order they are proposed",
+                        "description": "In the order proposed",
                         "type": "array",
                         "items": {
                             "type": "string"
@@ -12219,7 +12219,7 @@
                         }
                     },
                     "own": {
-                        "description": "The tags its organizations and contacts carry that are not predefined, in the order of their names",
+                        "description": "The tags that its organizations and contacts carry and that are not predefined, sorted by name",
                         "type": "array",
                         "items": {
                             "type": "string"
@@ -12229,7 +12229,7 @@
                         ]
                     },
                     "automatic": {
-                        "description": "The tags set by Prospecter, to search the contacts by, never put by hand: those of how a contact is reached, then the geographic tags its organizations carry, in the order of their names",
+                        "description": "The tags that Prospecter sets, to search the contacts by and never put by hand: the tags for how a contact is reached, then the geographic tags its organizations carry, sorted by name",
                         "type": "array",
                         "items": {
                             "type": "string"
@@ -12272,7 +12272,7 @@
                 ],
                 "properties": {
                     "contact": {
-                        "description": "The contact, none once erased, its status kept",
+                        "description": "The contact, null once erased. The status is kept",
                         "nullable": true,
                         "oneOf": [
                             {
@@ -12281,7 +12281,7 @@
                         ]
                     },
                     "status": {
-                        "description": "To handle, processed by an exchange, dismissed without one, or no longer once erased while to handle",
+                        "description": "To handle, processed by an exchange, dismissed without one, or erased while still to handle",
                         "type": "string",
                         "enum": [
                             "pending",
@@ -12295,7 +12295,7 @@
                         "type": "boolean"
                     },
                     "reason": {
-                        "description": "Why they were dismissed, when said",
+                        "description": "Why they were dismissed, when a reason was given",
                         "type": "string",
                         "nullable": true
                     },
@@ -12341,7 +12341,7 @@
                 ],
                 "properties": {
                     "processed": {
-                        "description": "Its recipients processed by an exchange noted for them in it",
+                        "description": "Its recipients processed by an exchange logged for them in the campaign",
                         "type": "integer"
                     },
                     "dismissed": {
@@ -12424,30 +12424,30 @@
                         ]
                     },
                     "tags": {
-                        "description": "The tags chosen",
+                        "description": "The chosen tags",
                         "type": "array",
                         "items": {
                             "type": "string"
                         }
                     },
                     "targetedTags": {
-                        "description": "The tags a contact carries to be targeted: those chosen and that of the channel",
+                        "description": "The tags a targeted contact carries: the chosen tags and the channel's tag",
                         "type": "array",
                         "items": {
                             "type": "string"
                         }
                     },
                     "message": {
-                        "description": "The message, its variables {title}, {firstName}, {lastName}, {organization} and {jobTitle} not rendered",
+                        "description": "The message, with its variables {title}, {firstName}, {lastName}, {organization} and {jobTitle} not rendered",
                         "type": "string"
                     },
                     "subject": {
-                        "description": "The subject of an e-mail",
+                        "description": "An e-mail's subject",
                         "type": "string",
                         "nullable": true
                     },
                     "messageMode": {
-                        "description": "How an AI leading it treats the message for each person: sent as rendered, or adapted to them, its idea kept",
+                        "description": "How an AI running the campaign treats the message for each person: it sends it as rendered, or adapts it to them and keeps its idea",
                         "type": "string",
                         "enum": [
                             "asIs",
@@ -12471,34 +12471,34 @@
                         "$ref": "#/components/schemas/CampaignProgressResource"
                     },
                     "targeted": {
-                        "description": "How many contacts it targets: those its search finds now while a draft, its recipients once frozen",
+                        "description": "How many contacts it targets: a draft counts what its search finds now, and a frozen campaign counts its recipients",
                         "type": "integer"
                     },
                     "startedAt": {
-                        "description": "When it was started, none before",
+                        "description": "When it was started, null before",
                         "type": "string",
                         "format": "date-time",
                         "nullable": true
                     },
                     "stoppedAt": {
-                        "description": "When it was stopped, none before",
+                        "description": "When it was stopped, null before",
                         "type": "string",
                         "format": "date-time",
                         "nullable": true
                     },
                     "endedAt": {
-                        "description": "When it ended, nobody left to handle, none before",
+                        "description": "When it ended because nobody was left to handle, null before",
                         "type": "string",
                         "format": "date-time",
                         "nullable": true
                     },
                     "dailyCap": {
-                        "description": "The most recipients processed a day, a guard an AI stops at and the member may go beyond; none without a cap",
+                        "description": "The most recipients processed in a day. It is a guard: an AI stops at it, and the member may go beyond it. Null without a cap",
                         "type": "integer",
                         "nullable": true
                     },
                     "processedToday": {
-                        "description": "Its recipients processed today, on the reader's clock, when the campaign is read alone; none in a list",
+                        "description": "Its recipients processed today on the reader's clock, when the campaign is read alone; null in a list",
                         "type": "integer",
                         "nullable": true
                     },
@@ -12547,7 +12547,7 @@
                 ],
                 "properties": {
                     "subject": {
-                        "description": "The subject of an e-mail",
+                        "description": "An e-mail's subject",
                         "type": "string",
                         "nullable": true
                     },
