@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Prospecter\Core\Connectors\Application;
 
 /**
- * A connection of mine as I see it: the provider (`google`), its state (`connected`, `toReconnect`), the account
- * connected there and since when, how many of my exchanges to come are synced there, and failed (ADR 0133), and
- * where the import of my e-mails stands (`off`, `active`, `toReconnect`) and when my mailbox last notified it
- * (ADR 0154).
+ * One of my connections, as I see it. It holds the provider (`google`), its state (`connected`, `toReconnect`), and
+ * the account connected there and since when. It counts my upcoming exchanges that are synced there, and those that
+ * failed (ADR 0133). It also says where my e-mail import stands (`off`, `active`, `toReconnect`), and when my mailbox
+ * last notified it (ADR 0154).
  */
 final readonly class MyConnection
 {
