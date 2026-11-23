@@ -27,10 +27,10 @@ use Prospecter\Core\SharedKernel\Domain\Origin;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Campaigns processes the recipient once it reads the facts of the exchange, which name the campaign (ADR 0145). Noted
- * once, as an AI notes what it sent, the exchange noted before is recognized before the recipient is asked: noted
- * outside any campaign, by the import of a mailbox, it becomes the recipient's exchange; otherwise noting it again is
- * « already noted » (ADR 0166, 0195).
+ * Campaigns processes the recipient once it reads the exchange's facts, which name the campaign (ADR 0145).
+ * An exchange is logged once, as an AI logs what it sent. So the handler recognizes an exchange logged before, and it
+ * does so before it asks about the recipient. When a mailbox's import logged that exchange outside any campaign, it
+ * becomes the recipient's exchange. Otherwise, logging it again is refused as « already noted » (ADR 0166, 0195).
  */
 final readonly class NoteCampaignExchangeHandler implements CommandHandler
 {
