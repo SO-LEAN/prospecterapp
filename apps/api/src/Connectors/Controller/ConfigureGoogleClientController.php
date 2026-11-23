@@ -35,19 +35,19 @@ final class ConfigureGoogleClientController extends AbstractController
     }
 
     #[Route('/api/me/organization/clients/google', name: 'api_me_configure_google_client', methods: ['PATCH'])]
-    #[OA\Patch(summary: 'Configure the client of Google of my account, or another one: the members connect through it from now on, those connected through another client reconnect')]
-    #[OA\Response(response: 200, description: 'The client of Google of my account', content: new Model(type: GoogleClientResource::class))]
+    #[OA\Patch(summary: 'Configure my account\'s Google client, or replace it with another one. From then on, the members connect through it. Members connected through another client reconnect')]
+    #[OA\Response(response: 200, description: 'My account\'s Google client', content: new Model(type: GoogleClientResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
-    #[OA\Response(response: 403, description: 'The signed-in user is no administrator of the account', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 422, description: 'A client without its id or its secret', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 503, description: 'The secret of the client cannot be kept nor read for now (`secretsUnavailable`)', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 403, description: 'The signed-in user is not the account\'s administrator', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 422, description: 'The client has no id or no secret', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 503, description: 'The client\'s secret cannot be stored or read right now (`secretsUnavailable`)', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[MapRequestPayload] GoogleClientInput $input, #[CurrentUser] User $user): JsonResponse
     {
         $this->commandBus->dispatch(new ConfigureClient(
             memberId: $user->memberId(),
             provider: self::GOOGLE,
-            clientId: $input->clientId ?? throw new \LogicException('A client validated has its id'),
-            clientSecret: $input->clientSecret ?? throw new \LogicException('A client validated has its secret'),
+            clientId: $input->clientId ?? throw new \LogicException('A validated client has an id'),
+            clientSecret: $input->clientSecret ?? throw new \LogicException('A validated client has a secret'),
             executedAt: $this->clock->now(),
         ));
 

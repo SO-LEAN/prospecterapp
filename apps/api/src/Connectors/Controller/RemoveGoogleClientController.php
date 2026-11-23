@@ -33,12 +33,12 @@ final class RemoveGoogleClientController extends AbstractController
     }
 
     #[Route('/api/me/organization/clients/google', name: 'api_me_remove_google_client', methods: ['DELETE'])]
-    #[OA\Delete(summary: 'Remove the client of Google of my account: Google is no longer offered to its members')]
-    #[OA\Response(response: 200, description: 'My account without its client of Google', content: new Model(type: GoogleClientResource::class))]
+    #[OA\Delete(summary: 'Remove my account\'s Google client. Google is no longer offered to its members')]
+    #[OA\Response(response: 200, description: 'My account, without its Google client', content: new Model(type: GoogleClientResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
-    #[OA\Response(response: 403, description: 'The signed-in user is no administrator of the account', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 404, description: 'My account has no client of Google', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 503, description: 'The secret of the client cannot be kept nor read for now (`secretsUnavailable`)', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 403, description: 'The signed-in user is not the account\'s administrator', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 404, description: 'My account has no Google client', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 503, description: 'The client\'s secret cannot be stored or read right now (`secretsUnavailable`)', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[CurrentUser] User $user): JsonResponse
     {
         $this->commandBus->dispatch(new RemoveClient($user->memberId(), self::GOOGLE, $this->clock->now()));

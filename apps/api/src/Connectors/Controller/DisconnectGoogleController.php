@@ -33,8 +33,8 @@ final class DisconnectGoogleController extends AbstractController
     }
 
     #[Route('/api/me/connections/google', name: 'api_me_connections_google_disconnect', methods: ['DELETE'])]
-    #[OA\Delete(summary: 'Disconnect my Google account: the access is revoked at Google, then forgotten')]
-    #[OA\Response(response: 200, description: 'My connections, Google no longer among them', content: new Model(type: ConnectionsResource::class))]
+    #[OA\Delete(summary: 'Disconnect my Google account. The access is revoked at Google, then forgotten')]
+    #[OA\Response(response: 200, description: 'My connections, without Google', content: new Model(type: ConnectionsResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'The signed-in user is not a user', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'No connection to Google', content: new Model(type: ProblemResource::class))]

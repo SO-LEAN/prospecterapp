@@ -31,8 +31,8 @@ final class RetryFailedPushesController extends AbstractController
     }
 
     #[Route('/api/me/connections/google/retries', name: 'api_me_connections_google_retry_failed', methods: ['POST'])]
-    #[OA\Post(summary: 'Push again into my calendar at Google every exchange of mine Google refused')]
-    #[OA\Response(response: 200, description: 'My connections, counting my exchanges to come synced and failed now', content: new Model(type: ConnectionsResource::class))]
+    #[OA\Post(summary: 'Push again into my Google calendar each of my exchanges that Google refused')]
+    #[OA\Response(response: 200, description: 'My connections, with the current count of my upcoming exchanges that are synced and of those that failed', content: new Model(type: ConnectionsResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'The signed-in user is not a user', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[CurrentUser] User $user): JsonResponse

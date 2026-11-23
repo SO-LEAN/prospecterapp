@@ -33,8 +33,8 @@ final class StopGmailImportController extends AbstractController
     }
 
     #[Route('/api/me/connections/google/gmail-import', name: 'api_me_connections_google_stop_gmail_import', methods: ['DELETE'])]
-    #[OA\Delete(summary: 'Stop the import of my e-mails of Gmail: my mailbox no longer notifies Prospecter, the exchanges already imported stay, my calendar stays connected (ADR 0154)')]
-    #[OA\Response(response: 200, description: 'My connections, the import of Gmail off', content: new Model(type: ConnectionsResource::class))]
+    #[OA\Delete(summary: 'Stop importing my Gmail e-mails. My mailbox no longer notifies Prospecter. The exchanges already imported stay, and my calendar stays connected (ADR 0154)')]
+    #[OA\Response(response: 200, description: 'My connections, with the Gmail import off', content: new Model(type: ConnectionsResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'The signed-in user is not a user', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'No connection to Google', content: new Model(type: ProblemResource::class))]

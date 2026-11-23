@@ -1103,7 +1103,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Ask Google for the access to my calendar: the browser goes to the address answered, Google brings it back to the SPA with a code to give to POST /api/me/connections/google within ten minutes */
+        /** Ask Google for access to my calendar. The browser goes to the returned address. Google brings it back to the SPA with a code. The SPA gives the code to POST /api/me/connections/google within ten minutes */
         post: operations["post_api_me_connections_google_authorize"];
         delete?: never;
         options?: never;
@@ -1120,7 +1120,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Ask Google for the reading of my mailbox with my calendar, to import my e-mails of Gmail (ADR 0154): the browser goes to the address answered, Google brings it back to the SPA with a code to give to POST /api/me/connections/google within ten minutes */
+        /** Ask Google to read my mailbox along with my calendar, to import my Gmail e-mails (ADR 0154). The browser goes to the returned address. Google brings it back to the SPA with a code. The SPA gives the code to POST /api/me/connections/google within ten minutes */
         post: operations["post_api_me_connections_google_import_gmail"];
         delete?: never;
         options?: never;
@@ -1137,7 +1137,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Check my connections with their providers: one whose access the provider refuses is to reconnect */
+        /** Check my connections with their providers. A connection whose access the provider refuses is then to reconnect */
         post: operations["post_api_me_connections_check"];
         delete?: never;
         options?: never;
@@ -1155,11 +1155,11 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /** Remove the topic of my account: the import of the e-mails of Gmail is no longer offered, the watches of the mailboxes expiring within their week */
+        /** Remove my account's topic. The Gmail e-mail import is no longer offered. The mailboxes' watches expire within their week */
         delete: operations["delete_api_me_remove_gmail_notifications"];
         options?: never;
         head?: never;
-        /** Name the topic of the Google Cloud of my account the mailboxes of its members notify Prospecter through, and the account of service pushing them: the import of the e-mails of Gmail is offered from now on */
+        /** Name the topic in my account's Google Cloud that its members' mailboxes notify Prospecter through. Also name the service account that pushes the notifications. From then on, the Gmail e-mail import is offered */
         patch: operations["patch_api_me_configure_gmail_notifications"];
         trace?: never;
     };
@@ -1170,15 +1170,15 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Consult the client of Google of my account, its secret never answered, and the redirect URI to declare in it */
+        /** Get my account's Google client and the redirect URI to declare in it. The client's secret is never returned */
         get: operations["get_api_me_google_client"];
         put?: never;
         post?: never;
-        /** Remove the client of Google of my account: Google is no longer offered to its members */
+        /** Remove my account's Google client. Google is no longer offered to its members */
         delete: operations["delete_api_me_remove_google_client"];
         options?: never;
         head?: never;
-        /** Configure the client of Google of my account, or another one: the members connect through it from now on, those connected through another client reconnect */
+        /** Configure my account's Google client, or replace it with another one. From then on, the members connect through it. Members connected through another client reconnect */
         patch: operations["patch_api_me_configure_google_client"];
         trace?: never;
     };
@@ -1191,9 +1191,9 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Connect my Google account with the code Google brought the SPA back with, replacing the account connected before */
+        /** Connect my Google account with the code that Google gave back to the SPA. It replaces the account connected before */
         post: operations["post_api_me_connections_google_connect"];
-        /** Disconnect my Google account: the access is revoked at Google, then forgotten */
+        /** Disconnect my Google account. The access is revoked at Google, then forgotten */
         delete: operations["delete_api_me_connections_google_disconnect"];
         options?: never;
         head?: never;
@@ -1207,7 +1207,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Consult where the push of an exchange into my calendar at Google stands: pending, synced or failed; none while it is not pushed into mine */
+        /** Get the state of an exchange's push into my Google calendar: pending, synced or failed. There is none while the exchange is not pushed into my calendar */
         get: operations["get_api_exchanges_google_sync"];
         put?: never;
         post?: never;
@@ -1224,7 +1224,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Consult my connections to the services outside, in the state last seen, without asking them */
+        /** Get my connections to outside services in the state last seen, without asking the services */
         get: operations["get_api_me_connections"];
         put?: never;
         post?: never;
@@ -1243,7 +1243,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** A change of a mailbox Gmail notified through the topic of the account, pushed by its subscription at Pub/Sub with a token Google signed for its account of service, not with a token of a member (ADR 0154): noted and dated, nothing read from Gmail during the request */
+        /** Record a change that a Gmail mailbox notified through the account's topic. The topic's Pub/Sub subscription pushes it with a token that Google signed for the account's service account, not with a member's token (ADR 0154). The change is recorded and dated. Nothing is read from Gmail during the request */
         post: operations["post_api_gmail_notifications"];
         delete?: never;
         options?: never;
@@ -1260,7 +1260,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Reimport the e-mails my mailbox of Gmail exchanged with the contact over the 12 months before, the 200 newest: imported as the import of my e-mails imports them, asynchronously */
+        /** Reimport the e-mails that my Gmail mailbox exchanged with the contact over the past 12 months, the 200 newest. They are imported asynchronously, by the same rules as my e-mail import */
         post: operations["post_api_contacts_reimport_gmail"];
         delete?: never;
         options?: never;
@@ -1277,7 +1277,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Reimport the e-mails my mailbox of Gmail exchanged with the address of the organization itself over the 12 months before, the 200 newest: imported as the import of my e-mails imports them, asynchronously */
+        /** Reimport the e-mails that my Gmail mailbox exchanged with the organization's own address over the past 12 months, the 200 newest. They are imported asynchronously, by the same rules as my e-mail import */
         post: operations["post_api_organizations_reimport_gmail"];
         delete?: never;
         options?: never;
@@ -1294,7 +1294,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Push again into my calendar at Google every exchange of mine Google refused */
+        /** Push again into my Google calendar each of my exchanges that Google refused */
         post: operations["post_api_me_connections_google_retry_failed"];
         delete?: never;
         options?: never;
@@ -1311,7 +1311,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Push an exchange into my calendar at Google again, as it is now; by its holder */
+        /** Push an exchange again, as it is now, into my Google calendar. Only its holder can do it */
         post: operations["post_api_exchanges_google_sync_retry"];
         delete?: never;
         options?: never;
@@ -1329,7 +1329,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /** Stop the import of my e-mails of Gmail: my mailbox no longer notifies Prospecter, the exchanges already imported stay, my calendar stays connected (ADR 0154) */
+        /** Stop importing my Gmail e-mails. My mailbox no longer notifies Prospecter. The exchanges already imported stay, and my calendar stays connected (ADR 0154) */
         delete: operations["delete_api_me_connections_google_stop_gmail_import"];
         options?: never;
         head?: never;
@@ -7974,7 +7974,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description The authorization asked */
+            /** @description The requested authorization */
             201: {
                 headers: {
                     [name: string]: unknown;
@@ -7999,7 +7999,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description No client of Prospecter at Google serves the account (`providerUnavailable`): the link `connectGoogle` is missing */
+            /** @description No Prospecter client at Google serves the account (`providerUnavailable`). The `connectGoogle` link is missing */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -8008,7 +8008,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description The secret of the client cannot be kept nor read for now (`secretsUnavailable`) */
+            /** @description The client's secret cannot be stored or read right now (`secretsUnavailable`) */
             503: {
                 headers: {
                     [name: string]: unknown;
@@ -8028,7 +8028,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description The authorization asked */
+            /** @description The requested authorization */
             201: {
                 headers: {
                     [name: string]: unknown;
@@ -8044,7 +8044,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description The signed-in user has no right to manage the personal data */
+            /** @description The signed-in user is not allowed to manage personal data */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -8053,7 +8053,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description No client of Prospecter at Google serves the account (`providerUnavailable`), or it has no topic of Gmail (`mailImportUnavailable`): the link `importGmail` is missing */
+            /** @description No Prospecter client at Google serves the account (`providerUnavailable`), or the client has no Gmail topic (`mailImportUnavailable`). The `importGmail` link is missing */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -8062,7 +8062,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description The secret of the client cannot be kept nor read for now (`secretsUnavailable`) */
+            /** @description The client's secret cannot be stored or read right now (`secretsUnavailable`) */
             503: {
                 headers: {
                     [name: string]: unknown;
@@ -8082,7 +8082,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description My connections, as their providers see them now */
+            /** @description My connections, as their providers currently see them */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -8107,7 +8107,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description The secret of the client cannot be kept nor read for now (`secretsUnavailable`), or Google does not answer, fails or limits the requests: the connections stay as last seen (`googleUnreachable`) */
+            /** @description The client's secret cannot be stored or read right now (`secretsUnavailable`). Or Google does not answer, fails or limits the requests (`googleUnreachable`). The connections stay as last seen */
             503: {
                 headers: {
                     [name: string]: unknown;
@@ -8127,7 +8127,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description The client of Google of my account, without its topic */
+            /** @description My account's Google client, without its topic */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -8143,7 +8143,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description The signed-in user is no administrator of the account */
+            /** @description The signed-in user is not the account's administrator */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -8152,7 +8152,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description My account has no client of Google */
+            /** @description My account has no Google client */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -8161,7 +8161,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description The secret of the client cannot be kept nor read for now (`secretsUnavailable`) */
+            /** @description The client's secret cannot be stored or read right now (`secretsUnavailable`) */
             503: {
                 headers: {
                     [name: string]: unknown;
@@ -8185,7 +8185,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description The client of Google of my account */
+            /** @description My account's Google client */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -8201,7 +8201,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description The signed-in user is no administrator of the account */
+            /** @description The signed-in user is not the account's administrator */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -8210,7 +8210,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description My account has no client of Google */
+            /** @description My account has no Google client */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -8219,7 +8219,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description A topic not named in full (`invalidTopic`), or an account of service that is no address */
+            /** @description The topic is not named in full (`invalidTopic`), or the service account is not an address */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -8228,7 +8228,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description The secret of the client cannot be kept nor read for now (`secretsUnavailable`) */
+            /** @description The client's secret cannot be stored or read right now (`secretsUnavailable`) */
             503: {
                 headers: {
                     [name: string]: unknown;
@@ -8248,7 +8248,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description The client of Google of my account */
+            /** @description My account's Google client */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -8264,7 +8264,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description The signed-in user is no administrator of the account */
+            /** @description The signed-in user is not the account's administrator */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -8284,7 +8284,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description My account without its client of Google */
+            /** @description My account, without its Google client */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -8300,7 +8300,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description The signed-in user is no administrator of the account */
+            /** @description The signed-in user is not the account's administrator */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -8309,7 +8309,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description My account has no client of Google */
+            /** @description My account has no Google client */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -8318,7 +8318,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description The secret of the client cannot be kept nor read for now (`secretsUnavailable`) */
+            /** @description The client's secret cannot be stored or read right now (`secretsUnavailable`) */
             503: {
                 headers: {
                     [name: string]: unknown;
@@ -8342,7 +8342,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description The client of Google of my account */
+            /** @description My account's Google client */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -8358,7 +8358,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description The signed-in user is no administrator of the account */
+            /** @description The signed-in user is not the account's administrator */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -8367,7 +8367,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description A client without its id or its secret */
+            /** @description The client has no id or no secret */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -8376,7 +8376,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description The secret of the client cannot be kept nor read for now (`secretsUnavailable`) */
+            /** @description The client's secret cannot be stored or read right now (`secretsUnavailable`) */
             503: {
                 headers: {
                     [name: string]: unknown;
@@ -8400,7 +8400,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description My connections, Google connected */
+            /** @description My connections, with Google connected */
             201: {
                 headers: {
                     [name: string]: unknown;
@@ -8416,7 +8416,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Google did not grant the access for this code */
+            /** @description Google did not grant access for this code */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -8425,7 +8425,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description No authorization of mine waits for this state: unknown, expired, or asked by another member */
+            /** @description None of my authorizations waits for this state. It is unknown, expired, or requested by another member */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -8434,7 +8434,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description The access to the calendar was not granted, or the answer is incomplete */
+            /** @description Access to the calendar was not granted, or the answer is incomplete */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -8443,7 +8443,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description The secret of the client cannot be kept nor read for now (`secretsUnavailable`), or Google does not answer, fails or limits the requests: nothing is connected, the member goes through Google again (`googleUnreachable`) */
+            /** @description The client's secret cannot be stored or read right now (`secretsUnavailable`). Or Google does not answer, fails or limits the requests (`googleUnreachable`). Nothing is connected, and the member goes through Google again */
             503: {
                 headers: {
                     [name: string]: unknown;
@@ -8463,7 +8463,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description My connections, Google no longer among them */
+            /** @description My connections, without Google */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -8510,7 +8510,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Where its push stands */
+            /** @description Its push state */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -8597,28 +8597,28 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Noted, or ignored for a mailbox no member of the account imports */
+            /** @description Recorded, or ignored when no member of the account imports the mailbox */
             204: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description A message whose data is no notification of Gmail */
+            /** @description The message's data is not a Gmail notification */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description A token missing, not signed by Google, not issued for this endpoint, not for the account of service of the account, or an account without topic of Gmail */
+            /** @description The token is missing, not signed by Google, not issued for this endpoint, or not issued for the account's service account. Or the account has no Gmail topic */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description A message without data */
+            /** @description The message has no data */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -8638,7 +8638,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description The reimport started: the e-mails arrive in the timeline of the contact */
+            /** @description The reimport started. The e-mails reach the contact's timeline */
             202: {
                 headers: {
                     [name: string]: unknown;
@@ -8652,7 +8652,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description No right to manage personal data */
+            /** @description The signed-in user is not allowed to manage personal data */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -8661,7 +8661,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description No connection to Google, or an unknown contact, or one of another account */
+            /** @description No connection to Google, an unknown contact, or another account's contact */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -8670,7 +8670,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description The import of my e-mails is not active, or the contact has no e-mail */
+            /** @description My e-mail import is not active, or the contact has no e-mail */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -8692,7 +8692,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description The reimport started: the e-mails arrive in the timeline of the organization */
+            /** @description The reimport started. The e-mails reach the organization's timeline */
             202: {
                 headers: {
                     [name: string]: unknown;
@@ -8706,7 +8706,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description No right to manage personal data */
+            /** @description The signed-in user is not allowed to manage personal data */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -8724,7 +8724,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description The import of my e-mails is not active, or the organization has no e-mail */
+            /** @description My e-mail import is not active, or the organization has no e-mail */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -8744,7 +8744,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description My connections, counting my exchanges to come synced and failed now */
+            /** @description My connections, with the current count of my upcoming exchanges that are synced and of those that failed */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -8782,7 +8782,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Where its push stands now */
+            /** @description Its current push state */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -8827,7 +8827,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description My connections, the import of Gmail off */
+            /** @description My connections, with the Gmail import off */
             200: {
                 headers: {
                     [name: string]: unknown;

@@ -26,10 +26,10 @@ final class ConsultMyGoogleClientController extends AbstractController
     }
 
     #[Route('/api/me/organization/clients/google', name: 'api_me_google_client', methods: ['GET'])]
-    #[OA\Get(summary: 'Consult the client of Google of my account, its secret never answered, and the redirect URI to declare in it')]
-    #[OA\Response(response: 200, description: 'The client of Google of my account', content: new Model(type: GoogleClientResource::class))]
+    #[OA\Get(summary: 'Get my account\'s Google client and the redirect URI to declare in it. The client\'s secret is never returned')]
+    #[OA\Response(response: 200, description: 'My account\'s Google client', content: new Model(type: GoogleClientResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
-    #[OA\Response(response: 403, description: 'The signed-in user is no administrator of the account', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 403, description: 'The signed-in user is not the account\'s administrator', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[CurrentUser] User $user): JsonResponse
     {
         return $this->json($this->googleClientReader->read($user));

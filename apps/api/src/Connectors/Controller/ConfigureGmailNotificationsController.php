@@ -35,20 +35,20 @@ final class ConfigureGmailNotificationsController extends AbstractController
     }
 
     #[Route('/api/me/organization/clients/google/gmail-notifications', name: 'api_me_configure_gmail_notifications', methods: ['PATCH'])]
-    #[OA\Patch(summary: 'Name the topic of the Google Cloud of my account the mailboxes of its members notify Prospecter through, and the account of service pushing them: the import of the e-mails of Gmail is offered from now on')]
-    #[OA\Response(response: 200, description: 'The client of Google of my account', content: new Model(type: GoogleClientResource::class))]
+    #[OA\Patch(summary: 'Name the topic in my account\'s Google Cloud that its members\' mailboxes notify Prospecter through. Also name the service account that pushes the notifications. From then on, the Gmail e-mail import is offered')]
+    #[OA\Response(response: 200, description: 'My account\'s Google client', content: new Model(type: GoogleClientResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
-    #[OA\Response(response: 403, description: 'The signed-in user is no administrator of the account', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 404, description: 'My account has no client of Google', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 422, description: 'A topic not named in full (`invalidTopic`), or an account of service that is no address', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 503, description: 'The secret of the client cannot be kept nor read for now (`secretsUnavailable`)', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 403, description: 'The signed-in user is not the account\'s administrator', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 404, description: 'My account has no Google client', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 422, description: 'The topic is not named in full (`invalidTopic`), or the service account is not an address', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 503, description: 'The client\'s secret cannot be stored or read right now (`secretsUnavailable`)', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[MapRequestPayload] GmailNotificationsInput $input, #[CurrentUser] User $user): JsonResponse
     {
         $this->commandBus->dispatch(new ConfigureMailboxNotifications(
             memberId: $user->memberId(),
             provider: self::GOOGLE,
-            topic: $input->topic ?? throw new \LogicException('A topic validated is named'),
-            pushAccount: $input->pushAccount ?? throw new \LogicException('A topic validated has its account of service'),
+            topic: $input->topic ?? throw new \LogicException('A validated topic has a name'),
+            pushAccount: $input->pushAccount ?? throw new \LogicException('A validated topic has a service account'),
             executedAt: $this->clock->now(),
         ));
 

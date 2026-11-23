@@ -39,12 +39,12 @@ final class AskForGoogleAuthorizationController extends AbstractController
     }
 
     #[Route('/api/me/connections/google/authorizations', name: 'api_me_connections_google_authorize', methods: ['POST'])]
-    #[OA\Post(summary: 'Ask Google for the access to my calendar: the browser goes to the address answered, Google brings it back to the SPA with a code to give to POST /api/me/connections/google within ten minutes')]
-    #[OA\Response(response: 201, description: 'The authorization asked', content: new Model(type: AuthorizationResource::class))]
+    #[OA\Post(summary: 'Ask Google for access to my calendar. The browser goes to the returned address. Google brings it back to the SPA with a code. The SPA gives the code to POST /api/me/connections/google within ten minutes')]
+    #[OA\Response(response: 201, description: 'The requested authorization', content: new Model(type: AuthorizationResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'The signed-in user is not a user', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 409, description: 'No client of Prospecter at Google serves the account (`providerUnavailable`): the link `connectGoogle` is missing', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 503, description: 'The secret of the client cannot be kept nor read for now (`secretsUnavailable`)', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 409, description: 'No Prospecter client at Google serves the account (`providerUnavailable`). The `connectGoogle` link is missing', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 503, description: 'The client\'s secret cannot be stored or read right now (`secretsUnavailable`)', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[CurrentUser] User $user): JsonResponse
     {
         $request = $this->googleAuthorization->newRequest();
@@ -54,7 +54,7 @@ final class AskForGoogleAuthorizationController extends AbstractController
     }
 
     /**
-     * The id of the client of Google of my account, read with the providers offered to me (ADR 0125).
+     * My account's Google client id. It comes with the providers offered to me (ADR 0125).
      */
     private function clientOfMyAccount(User $user): string
     {
@@ -62,6 +62,6 @@ final class AskForGoogleAuthorizationController extends AbstractController
         $this->consultMyConnections->__invoke(new ConsultMyConnections($user->memberId(), $this->clock->now()), $kept);
         $google = array_find($kept->offered, static fn (AccountClient $client): bool => self::GOOGLE === $client->provider);
 
-        return $google->clientId ?? throw new \LogicException('The client of Google of the account was removed while the authorization was asked');
+        return $google->clientId ?? throw new \LogicException('The account\'s Google client was removed while the authorization was being requested');
     }
 }
