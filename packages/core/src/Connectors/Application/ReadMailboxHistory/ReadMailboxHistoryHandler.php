@@ -15,9 +15,9 @@ use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 
 /**
- * The history of the mailbox read from where it was read last, once it notified a change or its watch was renewed,
- * each message added to import on its own (ADR 0154), as long as the member manages the personal data. A member no
- * longer connected, or whose account lost its client, has nothing read.
+ * Reads the mailbox history from the point where it was last read. This runs once the mailbox notified a change, or
+ * once its watch was renewed. Each added message is imported on its own (ADR 0154), as long as the member manages the
+ * personal data. Nothing is read for a member who is no longer connected, or whose account lost its client.
  */
 final readonly class ReadMailboxHistoryHandler implements EventHandler
 {
