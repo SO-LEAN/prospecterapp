@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\ReviseToDo;
 
 /**
- * Changes the text of a to-do and when it is due, on a day (`Y-m-d`), at an hour of it (`H:i`) when said.
+ * Changes a to-do's text and when it is due: on a day (`Y-m-d`), and at an hour of that day (`H:i`) when one is given.
  */
 final readonly class ReviseToDo
 {
