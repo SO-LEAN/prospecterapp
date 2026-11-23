@@ -14,10 +14,10 @@ use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * Sends a command of the core to its handler. Handled synchronously: a refusal of the core is thrown back
- * as is, so that the API translates it like any other (404, 409, 422). An addition its transaction cancelled, what it
- * read having changed meanwhile, is run again from what it reads then, three times at most after a short random wait
- * (ADR 0181). A command sent with the revision its client read of the record it changes holds to it (ADR 0187).
+ * Sends a core command to its handler, synchronously. The bus throws a core refusal back unchanged, so the API
+ * translates it like any other refusal (404, 409, 422). A transaction can cancel an addition because the data it read
+ * changed in the meantime. The bus then runs the command again on the new data, three times at most, after a short
+ * random wait (ADR 0181). A command that carries the revision its client read applies to that revision only (ADR 0187).
  */
 final readonly class CommandBus
 {

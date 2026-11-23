@@ -8,8 +8,8 @@ use App\Shared\Resource\ImageResource;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
- * An image in the sizes the screens need. The storage app serves the size of a file under
- * `<public url>/<size>/<path>` and makes it on first request, from a closed list of sizes (ADR 0033).
+ * An image in the sizes the screens need. The storage app serves a file's size under `<public url>/<size>/<path>`. It
+ * makes that size on the first request, from a closed list of sizes (ADR 0033).
  */
 final readonly class ImageResourceFactory
 {

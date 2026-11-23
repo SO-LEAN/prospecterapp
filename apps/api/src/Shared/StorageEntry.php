@@ -9,8 +9,8 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
 /**
- * The internal entry of the storage app (ADR 0033): the API calls it with the token of the services of the platform
- * and, on AWS, the signature of its role (ADR 0068).
+ * The storage app's internal entry (ADR 0033). The API calls it with the platform services' token. On AWS, it also
+ * signs the call with its role (ADR 0068).
  */
 final readonly class StorageEntry
 {

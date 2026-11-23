@@ -10,8 +10,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 
 /**
- * Behind the edge of an installation (ADR 0067), the api answers only the requests the edge passes on, which carry
- * the secret it adds. Without a secret (locally, an installation without a domain), it answers every request.
+ * An installation's edge (ADR 0067) adds a secret to the requests it passes on. Behind the edge, the API answers only
+ * the requests that carry this secret. Without a secret (locally, or on an installation without a domain), the API
+ * answers every request.
  */
 #[AsEventListener(priority: self::BEFORE_ROUTING_AND_SECURITY)]
 final readonly class OnlyThroughTheEdge

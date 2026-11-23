@@ -11,8 +11,8 @@ use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 /**
- * Translates the refusals of the use cases into problem+json responses (`RefusalProblems`). Any other exception is a
- * failure, left to Symfony.
+ * Translates the use cases' refusals into problem+json responses (`RefusalProblems`). Any other exception is a failure,
+ * and Symfony handles it.
  */
 #[AsEventListener]
 final readonly class UseCaseExceptionListener

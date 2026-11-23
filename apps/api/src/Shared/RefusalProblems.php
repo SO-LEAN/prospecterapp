@@ -11,9 +11,10 @@ use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * The problem a refusal of a use case is, by its type: unknown (or not mine) is a 404, an intention its state does
- * not offer (no link) a 409, one the asker has no right to a 403, any other business rule a 422, each named by its
- * reason for the client to word it (ADR 0073).
+ * Maps a use case's refusal to a problem by the refusal's type. An unknown resource (or one of another account) is a
+ * 404. An intention that the resource's state does not offer (no link) is a 409. An intention the caller has no right
+ * to is a 403. Any other business rule is a 422. Each problem carries the refusal's reason, and the client words it
+ * (ADR 0073).
  */
 final readonly class RefusalProblems
 {

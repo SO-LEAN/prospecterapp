@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Shared;
 
 /**
- * Locally, the internal server of the storage is on the Docker network only: the token of the services is enough.
+ * Locally, the storage's internal server is on the Docker network only, so the services' token is enough.
  */
 final readonly class TokenOnlyStorageAuthentication implements StorageAuthentication
 {

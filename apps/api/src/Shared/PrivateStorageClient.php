@@ -12,8 +12,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
 /**
- * The private files of the storage app (ADR 0077), on its internal entry: the form a browser sends a file with, what
- * the storage measured of it, keeping it, the links reading it for a moment, removing it.
+ * The storage app's private files (ADR 0077), on its internal entry. It gives the form a browser sends a file with, and
+ * what the storage measured of the file. It keeps the file, gives links that read it for a short time, and removes it.
  */
 final readonly class PrivateStorageClient implements PrivateStorage, UploadForms
 {
@@ -59,7 +59,7 @@ final readonly class PrivateStorageClient implements PrivateStorage, UploadForms
     }
 
     /**
-     * An upload is named by the storage: anything else given by a client is no upload of it.
+     * The storage names each upload. Any other value a client gives is not one of its uploads.
      *
      * @throws UnknownUpload
      */

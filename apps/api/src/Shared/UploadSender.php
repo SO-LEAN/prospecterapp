@@ -8,7 +8,7 @@ use App\Shared\Resource\UploadResource;
 use Symfony\Component\HttpFoundation\File\File;
 
 /**
- * What the API sends to the private bucket itself, with the form of an upload, as a browser does (ADR 0172).
+ * Sends a file to the private bucket itself, with an upload form, as a browser does (ADR 0172).
  */
 interface UploadSender
 {

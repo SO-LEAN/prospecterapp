@@ -9,7 +9,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
- * Builds the link of a route, with the method that route accepts.
+ * Builds a route's link, with the method that the route accepts.
  */
 final readonly class Links
 {

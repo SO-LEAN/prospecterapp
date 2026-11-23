@@ -7,8 +7,8 @@ namespace App\Shared;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
- * Uploaded file handed to the use cases: PHP stores uploads under a temporary
- * name without extension, so the real one is guessed from the content.
+ * An uploaded file handed to the use cases. PHP stores an upload under a temporary name without an extension, so the
+ * class guesses the real one from the content.
  */
 final class UploadedFileInfo extends \SplFileInfo
 {
