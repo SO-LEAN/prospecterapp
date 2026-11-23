@@ -12,9 +12,9 @@ use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 
 /**
- * The organization an organization no longer resembles is no longer suspected of being its duplicate in return.
- * No longer prospected meanwhile, the reaction has nothing left to do; no longer suspecting it, the organization
- * records nothing.
+ * When an organization no longer resembles another one, the other one is no longer suspected of being its duplicate
+ * in return. When the other one is no longer prospected, the reaction has nothing left to do. When it no longer
+ * suspects the first one, it records nothing.
  */
 final readonly class LiftSuspicionInReturnHandler implements EventHandler
 {
