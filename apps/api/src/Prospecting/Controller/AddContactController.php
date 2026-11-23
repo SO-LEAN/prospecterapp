@@ -38,12 +38,12 @@ final class AddContactController extends AbstractController
     #[Route('/api/organizations/{id}/contacts', name: 'api_organizations_add_contact', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
     #[IsGranted(OrganizationVoter::ACCESS, subject: 'organization')]
     #[IsGranted(User::PERSONAL_DATA)]
-    #[OA\Post(summary: 'Attach a person my organization prospects as a contact of the organization')]
+    #[OA\Post(summary: 'Add a person that my account prospects to the organization\'s contacts')]
     #[OA\Response(response: 200, description: 'The organization with its new contact', content: new Model(type: OrganizationResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 404, description: 'Unknown organization or contact, or one of another account', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 409, description: 'The person is a contact of the organization already', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 404, description: 'Unknown organization or contact, or one in another account', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 409, description: 'The person is already one of the organization\'s contacts', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 422, description: 'Invalid person id', content: new Model(type: ProblemResource::class))]
     public function __invoke(OrganizationSheet $organization, #[MapRequestPayload] ContactInput $input, #[CurrentUser] User $user): JsonResponse
     {

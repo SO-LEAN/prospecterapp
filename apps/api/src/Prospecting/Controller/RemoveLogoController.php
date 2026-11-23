@@ -35,12 +35,12 @@ final class RemoveLogoController extends AbstractController
 
     #[Route('/api/organizations/{id}/logo', name: 'api_organizations_remove_logo', requirements: ['id' => Requirement::UUID], methods: ['DELETE'])]
     #[IsGranted(OrganizationVoter::ACCESS, subject: 'organization')]
-    #[OA\Delete(summary: 'Remove the logo of the organization')]
-    #[OA\Response(response: 200, description: 'The organization without logo', content: new Model(type: OrganizationResource::class))]
+    #[OA\Delete(summary: 'Remove the organization\'s logo')]
+    #[OA\Response(response: 200, description: 'The organization without its logo', content: new Model(type: OrganizationResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'The signed-in user is not a prospector', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 409, description: 'The organization has no logo (no removeLogo link)', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 404, description: 'Unknown organization, or one that is neither mine nor prospected by mine', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 404, description: 'Unknown organization, or one that my account neither owns nor prospects', content: new Model(type: ProblemResource::class))]
     public function __invoke(OrganizationSheet $organization, #[CurrentUser] User $user): JsonResponse
     {
         $this->commandBus->dispatch(new RemoveLogo($user->memberId(), $organization->id, $this->clock->now()));

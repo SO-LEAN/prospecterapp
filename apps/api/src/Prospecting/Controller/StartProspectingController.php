@@ -35,12 +35,12 @@ final class StartProspectingController extends AbstractController
     }
 
     #[Route('/api/organizations', name: 'api_organizations_start_prospecting', methods: ['POST'])]
-    #[OA\Post(summary: 'Start prospecting an organization, owned by my organization')]
+    #[OA\Post(summary: 'Start prospecting an organization for my account')]
     #[OA\Response(response: 201, description: 'The organization now prospected', content: new Model(type: OrganizationResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'The signed-in user is not a prospector', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 404, description: 'Unknown holding, or one that is not prospected by mine', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 422, description: 'Invalid organization, email, link or domain of the website already used, or neither corporate name nor email', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 404, description: 'Unknown holding, or one that my account does not prospect', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 422, description: 'Invalid organization, an email, link or website domain already in use, or no corporate name or email', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[MapRequestPayload] StartProspectingInput $input, #[CurrentUser] User $user): JsonResponse
     {
         $id = $this->identities->next();

@@ -151,7 +151,7 @@ export interface paths {
         /** The contacts of the organization, in clear or masked */
         get: operations["get_api_organizations_contacts"];
         put?: never;
-        /** Attach a person my organization prospects as a contact of the organization */
+        /** Add a person that my account prospects to the organization's contacts */
         post: operations["post_api_organizations_add_contact"];
         delete?: never;
         options?: never;
@@ -173,7 +173,7 @@ export interface paths {
         delete: operations["delete_api_organizations_detach_from_holding"];
         options?: never;
         head?: never;
-        /** Attach the organization to a holding my organization prospects */
+        /** Attach the organization to a holding that my account prospects */
         patch: operations["patch_api_organizations_attach_to_holding"];
         trace?: never;
     };
@@ -190,7 +190,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Change the email, phone number, language, links and website, nothing else changes */
+        /** Change the email, phone number, language, links and website. Nothing else changes */
         patch: operations["patch_api_organizations_change_contact_details"];
         trace?: never;
     };
@@ -203,9 +203,9 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Send a new logo (multipart, field "file"), stored as a new file */
+        /** Send a new logo (multipart, field "file"). It is stored as a new file */
         post: operations["post_api_organizations_change_logo"];
-        /** Remove the logo of the organization */
+        /** Remove the organization's logo */
         delete: operations["delete_api_organizations_remove_logo"];
         options?: never;
         head?: never;
@@ -222,7 +222,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /** Say, once checked, that the organization is no duplicate of the one it resembles; neither is flagged for the other any more */
+        /** State, after checking, that the organization is not a duplicate of the one it resembles. Neither one is flagged for the other again */
         delete: operations["delete_api_organizations_dismiss_possible_duplicate"];
         options?: never;
         head?: never;
@@ -238,7 +238,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Note the exchange had with a recipient of a started campaign, by its channel: the recipient is processed, the campaign ended once nobody is left to handle */
+        /** Log an exchange with a started campaign's recipient, through the campaign's channel. The recipient is processed, and the campaign ends once nobody is left to handle */
         post: operations["post_api_campaigns_note_exchange"];
         delete?: never;
         options?: never;
@@ -256,7 +256,7 @@ export interface paths {
         /** The exchanges with the contact, the most recent first */
         get: operations["get_api_contacts_timeline"];
         put?: never;
-        /** Note a call, a message or a meeting with the contact, kept for the organizations the contact is part of */
+        /** Log a call, a message or a meeting with the contact. The exchange is kept for the contact's organizations */
         post: operations["post_api_contacts_note_exchange"];
         delete?: never;
         options?: never;
@@ -271,10 +271,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** The exchanges to come with the contact, the soonest first: the first is the next one */
+        /** The upcoming exchanges with the contact, soonest first. The first one is the next exchange */
         get: operations["get_api_contacts_upcoming_exchanges"];
         put?: never;
-        /** Plan a call, a meeting or a video call with the contact, held by the signed-in member, kept for the organizations the contact is part of */
+        /** Plan a call, a meeting or a video call with the contact. The signed-in member holds it, and it is kept for the contact's organizations */
         post: operations["post_api_contacts_plan_exchange"];
         delete?: never;
         options?: never;
@@ -289,7 +289,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Where to meet the contact, proposed while planning a meeting with them: the address of their organization */
+        /** Where to meet the contact, proposed while planning a meeting with them. It is the address of their organization */
         get: operations["get_api_contacts_meeting_place"];
         put?: never;
         post?: never;
@@ -312,7 +312,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Move the organization to an address (located again); an empty address removes it */
+        /** Move the organization to an address, and locate it again. An empty address removes the address */
         patch: operations["patch_api_organizations_relocate"];
         trace?: never;
     };
@@ -326,7 +326,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /** Detach a contact from the organization; the person stays among my contacts */
+        /** Remove a contact from the organization. The person stays among my account's contacts */
         delete: operations["delete_api_organizations_remove_contact"];
         options?: never;
         head?: never;
@@ -346,7 +346,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Revise the legal identity (corporate name, form, type, SIRET), nothing else changes */
+        /** Revise the legal identity (corporate name, form, type, SIRET). Nothing else changes */
         patch: operations["patch_api_organizations_revise_legal_identity"];
         trace?: never;
     };
@@ -357,7 +357,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** The establishments of the directory of the companies the organization may be, to note its SIRET: named like it, those of its municipality first */
+        /** The company directory's establishments that the organization may be, to record its SIRET. Their names are like the organization's, and those in its municipality come first */
         get: operations["get_api_organizations_establishments"];
         put?: never;
         post?: never;
@@ -374,10 +374,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Search the organizations my organization prospects, by corporate name or email */
+        /** Search the organizations that my account prospects, by corporate name or email */
         get: operations["get_api_organizations_search"];
         put?: never;
-        /** Start prospecting an organization, owned by my organization */
+        /** Start prospecting an organization for my account */
         post: operations["post_api_organizations_start_prospecting"];
         delete?: never;
         options?: never;
@@ -392,11 +392,11 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Consult an organization: mine or one my organization prospects */
+        /** View an organization that my account owns or prospects */
         get: operations["get_api_organizations_show"];
         put?: never;
         post?: never;
-        /** Stop prospecting the organization: its subsidiaries lose their holding, its contacts that no other organization names are erased */
+        /** Stop prospecting the organization. Its subsidiaries lose their holding. Its contacts that no other organization names are erased */
         delete: operations["delete_api_organizations_stop_prospecting"];
         options?: never;
         head?: never;
@@ -416,7 +416,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Write the observations on the organization */
+        /** Write the organization's observations */
         patch: operations["patch_api_organizations_write_observations"];
         trace?: never;
     };
@@ -4043,7 +4043,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown organization or contact, or one of another account */
+            /** @description Unknown organization or contact, or one in another account */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -4052,7 +4052,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description The person is a contact of the organization already */
+            /** @description The person is already one of the organization's contacts */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -4083,7 +4083,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description The organization without holding */
+            /** @description The organization without its holding */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -4108,7 +4108,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown organization, or one that is neither mine nor prospected by mine */
+            /** @description Unknown organization, or one that my account neither owns nor prospects */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -4143,7 +4143,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description The organization in its holding */
+            /** @description The organization, attached to its holding */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -4168,7 +4168,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown organization, or one that is neither mine nor prospected by mine */
+            /** @description Unknown organization, or one that my account neither owns nor prospects */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -4231,7 +4231,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown organization, or one that is neither mine nor prospected by mine */
+            /** @description Unknown organization, or one that my account neither owns nor prospects */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -4249,7 +4249,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Invalid contact details, email, link or domain of the website already used, or neither corporate name nor email left */
+            /** @description Invalid contact details, an email, link or website domain already in use, or no corporate name or email left */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -4303,7 +4303,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown organization, or one that is neither mine nor prospected by mine */
+            /** @description Unknown organization, or one that my account neither owns nor prospects */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -4334,7 +4334,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description The organization without logo */
+            /** @description The organization without its logo */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -4359,7 +4359,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown organization, or one that is neither mine nor prospected by mine */
+            /** @description Unknown organization, or one that my account neither owns nor prospects */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -4416,7 +4416,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown organization, or one of another account */
+            /** @description Unknown organization, or one in another account */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -4452,7 +4452,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description The timeline of the contact with the new exchange */
+            /** @description The contact's timeline, with the new exchange */
             201: {
                 headers: {
                     /** @description The new exchange */
@@ -4479,7 +4479,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown campaign or of another account, or no recipient of it */
+            /** @description Unknown campaign, one in another account, or a contact who is not its recipient */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -4488,7 +4488,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description The campaign is not started, or the recipient is handled already */
+            /** @description The campaign is not started, or the recipient is already handled */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -4497,7 +4497,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description A moment in the future, a missed exchange that is no call, or a reference of another channel */
+            /** @description A moment in the future, a missed exchange that is not a call, or a reference from another channel */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -4521,7 +4521,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description A slice of the exchanges, the next one at the link next */
+            /** @description A slice of the exchanges. The link next leads to the next slice */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -4546,7 +4546,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown contact, or one of another account */
+            /** @description Unknown contact, or one in another account */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -4572,10 +4572,10 @@ export interface operations {
             };
         };
         responses: {
-            /** @description The timeline of the contact with the new exchange */
+            /** @description The contact's timeline, with the new exchange */
             201: {
                 headers: {
-                    /** @description The new exchange, to join files to it */
+                    /** @description The new exchange, to attach files to */
                     Location?: string;
                     [name: string]: unknown;
                 };
@@ -4599,7 +4599,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown contact, or one of another account */
+            /** @description Unknown contact, or one in another account */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -4608,7 +4608,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description The same exchange noted at the same moment by another request */
+            /** @description Another request logged the same exchange at the same moment */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -4617,7 +4617,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Invalid exchange: unknown channel or direction, a missed exchange that is no call, meeting or video call, a moment in the future, a Message-ID or a conversation of another channel */
+            /** @description Invalid exchange: an unknown channel or direction, a missed exchange that is not a call, a meeting or a video call, a moment in the future, or a Message-ID or conversation from another channel */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -4641,7 +4641,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description A slice of the exchanges to come, the next one at the link next */
+            /** @description A slice of the upcoming exchanges. The link next leads to the next slice */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -4666,7 +4666,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown contact, or one of another account */
+            /** @description Unknown contact, or one in another account */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -4692,7 +4692,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description The exchanges to come with the contact, the new one among them */
+            /** @description The upcoming exchanges with the contact, including the new one */
             201: {
                 headers: {
                     /** @description The new exchange */
@@ -4719,7 +4719,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown contact, or one of another account */
+            /** @description Unknown contact, or one in another account */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -4728,7 +4728,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Invalid exchange: a channel that is not planned, a moment that is not in the future, a duration out of 5 minutes to 8 hours, a place for another channel than a meeting, a link for another than a video call or a link that is no web address */
+            /** @description Invalid exchange: a channel that cannot be planned, a moment that is not in the future, a duration outside 5 minutes to 8 hours, a place for a channel other than a meeting, a link for a channel other than a video call, or a link that is not a web address */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -4750,7 +4750,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description The place proposed, or none */
+            /** @description The proposed place, or none */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -4775,7 +4775,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown contact, or one of another account */
+            /** @description Unknown contact, or one in another account */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -4829,7 +4829,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown organization, or one that is neither mine nor prospected by mine */
+            /** @description Unknown organization, or one that my account neither owns nor prospects */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -4895,7 +4895,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown organization, or one of another account */
+            /** @description Unknown organization, or one in another account */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -4904,7 +4904,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description The person is no contact of the organization */
+            /** @description The person is not the organization's contact */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -4958,7 +4958,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown organization, or one that is neither mine nor prospected by mine */
+            /** @description Unknown organization, or one that my account neither owns nor prospects */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -4976,7 +4976,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Invalid identity or SIRET, a SIRET another organization of the account has, or neither corporate name nor email left */
+            /** @description Invalid identity or SIRET, a SIRET that another organization in the account has, or no corporate name or email left */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -4998,7 +4998,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description The establishments proposed, none for an organization without corporate name */
+            /** @description The proposed establishments. An organization without a corporate name gets none */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -5023,7 +5023,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown organization, or one that is neither mine nor prospected by mine */
+            /** @description Unknown organization, or one that my account neither owns nor prospects */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -5032,7 +5032,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description The directory of the companies does not answer for now (`directoryUnreachable`) */
+            /** @description The company directory does not answer for now (`directoryUnreachable`) */
             503: {
                 headers: {
                     [name: string]: unknown;
@@ -5055,7 +5055,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description A slice of organizations, most recent first, the next one at the link next */
+            /** @description A slice of organizations, most recent first. The link next leads to the next slice */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -5120,7 +5120,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown holding, or one that is not prospected by mine */
+            /** @description Unknown holding, or one that my account does not prospect */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -5129,7 +5129,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Invalid organization, email, link or domain of the website already used, or neither corporate name nor email */
+            /** @description Invalid organization, an email, link or website domain already in use, or no corporate name or email */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -5176,7 +5176,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown organization, or one that is neither mine nor prospected by mine */
+            /** @description Unknown organization, or one that my account neither owns nor prospects */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -5212,7 +5212,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Not a prospector, or no right to manage personal data while the organization has contacts */
+            /** @description Not a prospector, or no right to manage personal data when the organization has contacts */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -5221,7 +5221,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown organization, or one of another account */
+            /** @description Unknown organization, or one in another account */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -5275,7 +5275,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown organization, or one that is neither mine nor prospected by mine */
+            /** @description Unknown organization, or one that my account neither owns nor prospects */
             404: {
                 headers: {
                     [name: string]: unknown;

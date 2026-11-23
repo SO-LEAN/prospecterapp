@@ -518,7 +518,7 @@
                 "tags": [
                     "Organizations"
                 ],
-                "summary": "Attach a person my organization prospects as a contact of the organization",
+                "summary": "Add a person that my account prospects to the organization's contacts",
                 "operationId": "post_api_organizations_add_contact",
                 "parameters": [
                     {
@@ -566,7 +566,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown organization or contact, or one of another account",
+                        "description": "Unknown organization or contact, or one in another account",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -576,7 +576,7 @@
                         }
                     },
                     "409": {
-                        "description": "The person is a contact of the organization already",
+                        "description": "The person is already one of the organization's contacts",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -618,7 +618,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "The organization without holding",
+                        "description": "The organization without its holding",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -651,7 +651,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown organization, or one that is neither mine nor prospected by mine",
+                        "description": "Unknown organization, or one that my account neither owns nor prospects",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -666,7 +666,7 @@
                 "tags": [
                     "Organizations"
                 ],
-                "summary": "Attach the organization to a holding my organization prospects",
+                "summary": "Attach the organization to a holding that my account prospects",
                 "operationId": "patch_api_organizations_attach_to_holding",
                 "parameters": [
                     {
@@ -691,7 +691,7 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "The organization in its holding",
+                        "description": "The organization, attached to its holding",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -714,7 +714,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown organization, or one that is neither mine nor prospected by mine",
+                        "description": "Unknown organization, or one that my account neither owns nor prospects",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -741,7 +741,7 @@
                 "tags": [
                     "Organizations"
                 ],
-                "summary": "Change the email, phone number, language, links and website, nothing else changes",
+                "summary": "Change the email, phone number, language, links and website. Nothing else changes",
                 "operationId": "patch_api_organizations_change_contact_details",
                 "parameters": [
                     {
@@ -801,7 +801,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown organization, or one that is neither mine nor prospected by mine",
+                        "description": "Unknown organization, or one that my account neither owns nor prospects",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -821,7 +821,7 @@
                         }
                     },
                     "422": {
-                        "description": "Invalid contact details, email, link or domain of the website already used, or neither corporate name nor email left",
+                        "description": "Invalid contact details, an email, link or website domain already in use, or no corporate name or email left",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -838,7 +838,7 @@
                 "tags": [
                     "Organizations"
                 ],
-                "summary": "Send a new logo (multipart, field \"file\"), stored as a new file",
+                "summary": "Send a new logo (multipart, field \"file\"). It is stored as a new file",
                 "operationId": "post_api_organizations_change_logo",
                 "parameters": [
                     {
@@ -891,7 +891,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown organization, or one that is neither mine nor prospected by mine",
+                        "description": "Unknown organization, or one that my account neither owns nor prospects",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -916,7 +916,7 @@
                 "tags": [
                     "Organizations"
                 ],
-                "summary": "Remove the logo of the organization",
+                "summary": "Remove the organization's logo",
                 "operationId": "delete_api_organizations_remove_logo",
                 "parameters": [
                     {
@@ -931,7 +931,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "The organization without logo",
+                        "description": "The organization without its logo",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -964,7 +964,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown organization, or one that is neither mine nor prospected by mine",
+                        "description": "Unknown organization, or one that my account neither owns nor prospects",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -981,7 +981,7 @@
                 "tags": [
                     "Organizations"
                 ],
-                "summary": "Say, once checked, that the organization is no duplicate of the one it resembles; neither is flagged for the other any more",
+                "summary": "State, after checking, that the organization is not a duplicate of the one it resembles. Neither one is flagged for the other again",
                 "operationId": "delete_api_organizations_dismiss_possible_duplicate",
                 "parameters": [
                     {
@@ -1028,7 +1028,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown organization, or one of another account",
+                        "description": "Unknown organization, or one in another account",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1055,7 +1055,7 @@
                 "tags": [
                     "Campaigns"
                 ],
-                "summary": "Note the exchange had with a recipient of a started campaign, by its channel: the recipient is processed, the campaign ended once nobody is left to handle",
+                "summary": "Log an exchange with a started campaign's recipient, through the campaign's channel. The recipient is processed, and the campaign ends once nobody is left to handle",
                 "operationId": "post_api_campaigns_note_exchange",
                 "parameters": [
                     {
@@ -1089,7 +1089,7 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "The timeline of the contact with the new exchange",
+                        "description": "The contact's timeline, with the new exchange",
                         "headers": {
                             "Location": {
                                 "description": "The new exchange",
@@ -1120,7 +1120,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown campaign or of another account, or no recipient of it",
+                        "description": "Unknown campaign, one in another account, or a contact who is not its recipient",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1130,7 +1130,7 @@
                         }
                     },
                     "409": {
-                        "description": "The campaign is not started, or the recipient is handled already",
+                        "description": "The campaign is not started, or the recipient is already handled",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1140,7 +1140,7 @@
                         }
                     },
                     "422": {
-                        "description": "A moment in the future, a missed exchange that is no call, or a reference of another channel",
+                        "description": "A moment in the future, a missed exchange that is not a call, or a reference from another channel",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1183,7 +1183,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "A slice of the exchanges, the next one at the link next",
+                        "description": "A slice of the exchanges. The link next leads to the next slice",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1206,7 +1206,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown contact, or one of another account",
+                        "description": "Unknown contact, or one in another account",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1221,7 +1221,7 @@
                 "tags": [
                     "Contacts"
                 ],
-                "summary": "Note a call, a message or a meeting with the contact, kept for the organizations the contact is part of",
+                "summary": "Log a call, a message or a meeting with the contact. The exchange is kept for the contact's organizations",
                 "operationId": "post_api_contacts_note_exchange",
                 "parameters": [
                     {
@@ -1246,10 +1246,10 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "The timeline of the contact with the new exchange",
+                        "description": "The contact's timeline, with the new exchange",
                         "headers": {
                             "Location": {
-                                "description": "The new exchange, to join files to it",
+                                "description": "The new exchange, to attach files to",
                                 "schema": {
                                     "type": "string"
                                 }
@@ -1277,7 +1277,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown contact, or one of another account",
+                        "description": "Unknown contact, or one in another account",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1287,7 +1287,7 @@
                         }
                     },
                     "409": {
-                        "description": "The same exchange noted at the same moment by another request",
+                        "description": "Another request logged the same exchange at the same moment",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1297,7 +1297,7 @@
                         }
                     },
                     "422": {
-                        "description": "Invalid exchange: unknown channel or direction, a missed exchange that is no call, meeting or video call, a moment in the future, a Message-ID or a conversation of another channel",
+                        "description": "Invalid exchange: an unknown channel or direction, a missed exchange that is not a call, a meeting or a video call, a moment in the future, or a Message-ID or conversation from another channel",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1314,7 +1314,7 @@
                 "tags": [
                     "Contacts"
                 ],
-                "summary": "The exchanges to come with the contact, the soonest first: the first is the next one",
+                "summary": "The upcoming exchanges with the contact, soonest first. The first one is the next exchange",
                 "operationId": "get_api_contacts_upcoming_exchanges",
                 "parameters": [
                     {
@@ -1340,7 +1340,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "A slice of the exchanges to come, the next one at the link next",
+                        "description": "A slice of the upcoming exchanges. The link next leads to the next slice",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1363,7 +1363,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown contact, or one of another account",
+                        "description": "Unknown contact, or one in another account",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1378,7 +1378,7 @@
                 "tags": [
                     "Contacts"
                 ],
-                "summary": "Plan a call, a meeting or a video call with the contact, held by the signed-in member, kept for the organizations the contact is part of",
+                "summary": "Plan a call, a meeting or a video call with the contact. The signed-in member holds it, and it is kept for the contact's organizations",
                 "operationId": "post_api_contacts_plan_exchange",
                 "parameters": [
                     {
@@ -1403,7 +1403,7 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "The exchanges to come with the contact, the new one among them",
+                        "description": "The upcoming exchanges with the contact, including the new one",
                         "headers": {
                             "Location": {
                                 "description": "The new exchange",
@@ -1434,7 +1434,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown contact, or one of another account",
+                        "description": "Unknown contact, or one in another account",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1444,7 +1444,7 @@
                         }
                     },
                     "422": {
-                        "description": "Invalid exchange: a channel that is not planned, a moment that is not in the future, a duration out of 5 minutes to 8 hours, a place for another channel than a meeting, a link for another than a video call or a link that is no web address",
+                        "description": "Invalid exchange: a channel that cannot be planned, a moment that is not in the future, a duration outside 5 minutes to 8 hours, a place for a channel other than a meeting, a link for a channel other than a video call, or a link that is not a web address",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1461,7 +1461,7 @@
                 "tags": [
                     "Contacts"
                 ],
-                "summary": "Where to meet the contact, proposed while planning a meeting with them: the address of their organization",
+                "summary": "Where to meet the contact, proposed while planning a meeting with them. It is the address of their organization",
                 "operationId": "get_api_contacts_meeting_place",
                 "parameters": [
                     {
@@ -1476,7 +1476,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "The place proposed, or none",
+                        "description": "The proposed place, or none",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1499,7 +1499,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown contact, or one of another account",
+                        "description": "Unknown contact, or one in another account",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1516,7 +1516,7 @@
                 "tags": [
                     "Organizations"
                 ],
-                "summary": "Move the organization to an address (located again); an empty address removes it",
+                "summary": "Move the organization to an address, and locate it again. An empty address removes the address",
                 "operationId": "patch_api_organizations_relocate",
                 "parameters": [
                     {
@@ -1576,7 +1576,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown organization, or one that is neither mine nor prospected by mine",
+                        "description": "Unknown organization, or one that my account neither owns nor prospects",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1613,7 +1613,7 @@
                 "tags": [
                     "Organizations"
                 ],
-                "summary": "Detach a contact from the organization; the person stays among my contacts",
+                "summary": "Remove a contact from the organization. The person stays among my account's contacts",
                 "operationId": "delete_api_organizations_remove_contact",
                 "parameters": [
                     {
@@ -1660,7 +1660,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown organization, or one of another account",
+                        "description": "Unknown organization, or one in another account",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1670,7 +1670,7 @@
                         }
                     },
                     "409": {
-                        "description": "The person is no contact of the organization",
+                        "description": "The person is not the organization's contact",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1687,7 +1687,7 @@
                 "tags": [
                     "Organizations"
                 ],
-                "summary": "Revise the legal identity (corporate name, form, type, SIRET), nothing else changes",
+                "summary": "Revise the legal identity (corporate name, form, type, SIRET). Nothing else changes",
                 "operationId": "patch_api_organizations_revise_legal_identity",
                 "parameters": [
                     {
@@ -1747,7 +1747,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown organization, or one that is neither mine nor prospected by mine",
+                        "description": "Unknown organization, or one that my account neither owns nor prospects",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1767,7 +1767,7 @@
                         }
                     },
                     "422": {
-                        "description": "Invalid identity or SIRET, a SIRET another organization of the account has, or neither corporate name nor email left",
+                        "description": "Invalid identity or SIRET, a SIRET that another organization in the account has, or no corporate name or email left",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1784,7 +1784,7 @@
                 "tags": [
                     "Organizations"
                 ],
-                "summary": "The establishments of the directory of the companies the organization may be, to note its SIRET: named like it, those of its municipality first",
+                "summary": "The company directory's establishments that the organization may be, to record its SIRET. Their names are like the organization's, and those in its municipality come first",
                 "operationId": "get_api_organizations_establishments",
                 "parameters": [
                     {
@@ -1799,7 +1799,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "The establishments proposed, none for an organization without corporate name",
+                        "description": "The proposed establishments. An organization without a corporate name gets none",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1822,7 +1822,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown organization, or one that is neither mine nor prospected by mine",
+                        "description": "Unknown organization, or one that my account neither owns nor prospects",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1832,7 +1832,7 @@
                         }
                     },
                     "503": {
-                        "description": "The directory of the companies does not answer for now (`directoryUnreachable`)",
+                        "description": "The company directory does not answer for now (`directoryUnreachable`)",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1849,7 +1849,7 @@
                 "tags": [
                     "Organizations"
                 ],
-                "summary": "Search the organizations my organization prospects, by corporate name or email",
+                "summary": "Search the organizations that my account prospects, by corporate name or email",
                 "operationId": "get_api_organizations_search",
                 "parameters": [
                     {
@@ -1876,7 +1876,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "A slice of organizations, most recent first, the next one at the link next",
+                        "description": "A slice of organizations, most recent first. The link next leads to the next slice",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1904,7 +1904,7 @@
                 "tags": [
                     "Organizations"
                 ],
-                "summary": "Start prospecting an organization, owned by my organization",
+                "summary": "Start prospecting an organization for my account",
                 "operationId": "post_api_organizations_start_prospecting",
                 "requestBody": {
                     "required": true,
@@ -1941,7 +1941,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown holding, or one that is not prospected by mine",
+                        "description": "Unknown holding, or one that my account does not prospect",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1951,7 +1951,7 @@
                         }
                     },
                     "422": {
-                        "description": "Invalid organization, email, link or domain of the website already used, or neither corporate name nor email",
+                        "description": "Invalid organization, an email, link or website domain already in use, or no corporate name or email",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1968,7 +1968,7 @@
                 "tags": [
                     "Organizations"
                 ],
-                "summary": "Consult an organization: mine or one my organization prospects",
+                "summary": "View an organization that my account owns or prospects",
                 "operationId": "get_api_organizations_show",
                 "parameters": [
                     {
@@ -2006,7 +2006,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown organization, or one that is neither mine nor prospected by mine",
+                        "description": "Unknown organization, or one that my account neither owns nor prospects",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2021,7 +2021,7 @@
                 "tags": [
                     "Organizations"
                 ],
-                "summary": "Stop prospecting the organization: its subsidiaries lose their holding, its contacts that no other organization names are erased",
+                "summary": "Stop prospecting the organization. Its subsidiaries lose their holding. Its contacts that no other organization names are erased",
                 "operationId": "delete_api_organizations_stop_prospecting",
                 "parameters": [
                     {
@@ -2042,7 +2042,7 @@
                         "description": "Missing or invalid access token"
                     },
                     "403": {
-                        "description": "Not a prospector, or no right to manage personal data while the organization has contacts",
+                        "description": "Not a prospector, or no right to manage personal data when the organization has contacts",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2052,7 +2052,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown organization, or one of another account",
+                        "description": "Unknown organization, or one in another account",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2069,7 +2069,7 @@
                 "tags": [
                     "Organizations"
                 ],
-                "summary": "Write the observations on the organization",
+                "summary": "Write the organization's observations",
                 "operationId": "patch_api_organizations_write_observations",
                 "parameters": [
                     {
@@ -2129,7 +2129,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown organization, or one that is neither mine nor prospected by mine",
+                        "description": "Unknown organization, or one that my account neither owns nor prospects",
                         "content": {
                             "application/json": {
                                 "schema": {

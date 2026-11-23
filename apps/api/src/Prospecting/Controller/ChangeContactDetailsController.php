@@ -41,14 +41,14 @@ final class ChangeContactDetailsController extends AbstractController
 
     #[Route('/api/organizations/{id}/contact-details', name: 'api_organizations_change_contact_details', requirements: ['id' => Requirement::UUID], methods: ['PATCH'])]
     #[IsGranted(OrganizationVoter::ACCESS, subject: 'organization')]
-    #[OA\Patch(summary: 'Change the email, phone number, language, links and website, nothing else changes')]
+    #[OA\Patch(summary: 'Change the email, phone number, language, links and website. Nothing else changes')]
     #[OA\Parameter(name: 'revision', in: 'query', description: RevisionDescription::OF_A_CHANGE)]
     #[OA\Response(response: 200, description: 'The organization with its new contact details', content: new Model(type: OrganizationResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'The signed-in user is not a prospector', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 404, description: 'Unknown organization, or one that is neither mine nor prospected by mine', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 404, description: 'Unknown organization, or one that my account neither owns nor prospects', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 409, description: 'Changed since the revision sent was read', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 422, description: 'Invalid contact details, email, link or domain of the website already used, or neither corporate name nor email left', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 422, description: 'Invalid contact details, an email, link or website domain already in use, or no corporate name or email left', content: new Model(type: ProblemResource::class))]
     public function __invoke(OrganizationSheet $organization, #[MapRequestPayload] OrganizationContactDetailsInput $input, #[CurrentUser] User $user, #[MapQueryParameter(options: ['min_range' => 0], validationFailedStatusCode: 422)] ?int $revision = null): JsonResponse
     {
         $this->commandBus->dispatch(new ChangeContactDetails(prospectorId: $user->memberId(), id: $organization->id, email: $input->email, phoneNumber: $input->phoneNumber, language: $input->language, executedAt: $this->clock->now(), links: $input->links, website: $input->website), $this->revisions->readAt($organization->id, $revision));

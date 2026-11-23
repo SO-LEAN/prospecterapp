@@ -27,8 +27,8 @@ final class SearchOrganizationsController extends AbstractController
     }
 
     #[Route('/api/organizations', name: 'api_organizations_search', methods: ['GET'])]
-    #[OA\Get(summary: 'Search the organizations my organization prospects, by corporate name or email')]
-    #[OA\Response(response: 200, description: 'A slice of organizations, most recent first, the next one at the link next', content: new Model(type: OrganizationPageResource::class))]
+    #[OA\Get(summary: 'Search the organizations that my account prospects, by corporate name or email')]
+    #[OA\Response(response: 200, description: 'A slice of organizations, most recent first. The link next leads to the next slice', content: new Model(type: OrganizationPageResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'The signed-in user is not a prospector', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[CurrentUser] User $user, #[MapQueryString] OrganizationListQuery $query = new OrganizationListQuery()): JsonResponse

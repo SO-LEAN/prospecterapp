@@ -36,11 +36,11 @@ final class DetachFromHoldingController extends AbstractController
     #[Route('/api/organizations/{id}/holding', name: 'api_organizations_detach_from_holding', requirements: ['id' => Requirement::UUID], methods: ['DELETE'])]
     #[IsGranted(OrganizationVoter::ACCESS, subject: 'organization')]
     #[OA\Delete(summary: 'Detach the organization from its holding')]
-    #[OA\Response(response: 200, description: 'The organization without holding', content: new Model(type: OrganizationResource::class))]
+    #[OA\Response(response: 200, description: 'The organization without its holding', content: new Model(type: OrganizationResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'The signed-in user is not a prospector', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 409, description: 'The organization has no holding (no detachFromHolding link)', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 404, description: 'Unknown organization, or one that is neither mine nor prospected by mine', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 404, description: 'Unknown organization, or one that my account neither owns nor prospects', content: new Model(type: ProblemResource::class))]
     public function __invoke(OrganizationSheet $organization, #[CurrentUser] User $user): JsonResponse
     {
         $this->commandBus->dispatch(new DetachFromHolding($user->memberId(), $organization->id, $this->clock->now()));

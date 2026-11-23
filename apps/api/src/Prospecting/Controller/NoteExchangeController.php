@@ -38,13 +38,13 @@ final class NoteExchangeController extends AbstractController
 
     #[Route('/api/contacts/{id}/exchanges', name: 'api_contacts_note_exchange', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
     #[IsGranted(User::PERSONAL_DATA)]
-    #[OA\Post(summary: 'Note a call, a message or a meeting with the contact, kept for the organizations the contact is part of')]
-    #[OA\Response(response: 201, description: 'The timeline of the contact with the new exchange', content: new Model(type: TimelineResource::class), headers: [new OA\Header(header: 'Location', description: 'The new exchange, to join files to it', schema: new OA\Schema(type: 'string'))])]
+    #[OA\Post(summary: 'Log a call, a message or a meeting with the contact. The exchange is kept for the contact\'s organizations')]
+    #[OA\Response(response: 201, description: 'The contact\'s timeline, with the new exchange', content: new Model(type: TimelineResource::class), headers: [new OA\Header(header: 'Location', description: 'The new exchange, to attach files to', schema: new OA\Schema(type: 'string'))])]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 404, description: 'Unknown contact, or one of another account', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 409, description: 'The same exchange noted at the same moment by another request', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 422, description: 'Invalid exchange: unknown channel or direction, a missed exchange that is no call, meeting or video call, a moment in the future, a Message-ID or a conversation of another channel', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 404, description: 'Unknown contact, or one in another account', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 409, description: 'Another request logged the same exchange at the same moment', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 422, description: 'Invalid exchange: an unknown channel or direction, a missed exchange that is not a call, a meeting or a video call, a moment in the future, or a Message-ID or conversation from another channel', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $id, #[MapRequestPayload] ExchangeInput $input, #[CurrentUser] User $user): JsonResponse
     {
         $exchange = $this->identities->next();

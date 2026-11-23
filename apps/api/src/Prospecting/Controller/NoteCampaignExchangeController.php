@@ -25,8 +25,8 @@ use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
- * The campaign is asked of Campaigns by the core, in the account of the member: one of another account is unknown
- * there, without a voter of this context (ADR 0145).
+ * The core asks Campaigns for the campaign in the member's account. Campaigns does not know a campaign in another
+ * account, so this context needs no voter (ADR 0145).
  */
 #[OA\Tag('Campaigns')]
 #[IsGranted('ROLE_PROSPECTOR')]
@@ -42,13 +42,13 @@ final class NoteCampaignExchangeController extends AbstractController
 
     #[Route('/api/campaigns/{id}/recipients/{contactId}/exchanges', name: 'api_campaigns_note_exchange', requirements: ['id' => Requirement::UUID, 'contactId' => Requirement::UUID], methods: ['POST'])]
     #[IsGranted(User::PERSONAL_DATA)]
-    #[OA\Post(summary: 'Note the exchange had with a recipient of a started campaign, by its channel: the recipient is processed, the campaign ended once nobody is left to handle')]
-    #[OA\Response(response: 201, description: 'The timeline of the contact with the new exchange', content: new Model(type: TimelineResource::class), headers: [new OA\Header(header: 'Location', description: 'The new exchange', schema: new OA\Schema(type: 'string'))])]
+    #[OA\Post(summary: 'Log an exchange with a started campaign\'s recipient, through the campaign\'s channel. The recipient is processed, and the campaign ends once nobody is left to handle')]
+    #[OA\Response(response: 201, description: 'The contact\'s timeline, with the new exchange', content: new Model(type: TimelineResource::class), headers: [new OA\Header(header: 'Location', description: 'The new exchange', schema: new OA\Schema(type: 'string'))])]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 404, description: 'Unknown campaign or of another account, or no recipient of it', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 409, description: 'The campaign is not started, or the recipient is handled already', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 422, description: 'A moment in the future, a missed exchange that is no call, or a reference of another channel', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 404, description: 'Unknown campaign, one in another account, or a contact who is not its recipient', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 409, description: 'The campaign is not started, or the recipient is already handled', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 422, description: 'A moment in the future, a missed exchange that is not a call, or a reference from another channel', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $id, string $contactId, #[MapRequestPayload] CampaignExchangeInput $input, #[CurrentUser] User $user): JsonResponse
     {
         $exchange = $this->identities->next();

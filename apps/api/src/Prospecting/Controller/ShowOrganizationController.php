@@ -28,11 +28,11 @@ final class ShowOrganizationController extends AbstractController
 
     #[Route('/api/organizations/{id}', name: 'api_organizations_show', requirements: ['id' => Requirement::UUID], methods: ['GET'])]
     #[IsGranted(OrganizationVoter::ACCESS, subject: 'organization')]
-    #[OA\Get(summary: 'Consult an organization: mine or one my organization prospects')]
+    #[OA\Get(summary: 'View an organization that my account owns or prospects')]
     #[OA\Response(response: 200, description: 'The organization', content: new Model(type: OrganizationResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'The signed-in user is not a prospector', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 404, description: 'Unknown organization, or one that is neither mine nor prospected by mine', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 404, description: 'Unknown organization, or one that my account neither owns nor prospects', content: new Model(type: ProblemResource::class))]
     public function __invoke(OrganizationSheet $organization): JsonResponse
     {
         return $this->json($this->organizationReader->resourceOf($organization));

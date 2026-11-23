@@ -36,12 +36,12 @@ final class RemoveContactController extends AbstractController
     #[Route('/api/organizations/{id}/contacts/{personId}', name: 'api_organizations_remove_contact', requirements: ['id' => Requirement::UUID, 'personId' => Requirement::UUID], methods: ['DELETE'])]
     #[IsGranted(OrganizationVoter::ACCESS, subject: 'organization')]
     #[IsGranted(User::PERSONAL_DATA)]
-    #[OA\Delete(summary: 'Detach a contact from the organization; the person stays among my contacts')]
+    #[OA\Delete(summary: 'Remove a contact from the organization. The person stays among my account\'s contacts')]
     #[OA\Response(response: 200, description: 'The organization without this contact', content: new Model(type: OrganizationResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 404, description: 'Unknown organization, or one of another account', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 409, description: 'The person is no contact of the organization', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 404, description: 'Unknown organization, or one in another account', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 409, description: 'The person is not the organization\'s contact', content: new Model(type: ProblemResource::class))]
     public function __invoke(OrganizationSheet $organization, string $personId, #[CurrentUser] User $user): JsonResponse
     {
         $this->commandBus->dispatch(new RemoveContact(prospectorId: $user->memberId(), id: $organization->id, personId: $personId, executedAt: $this->clock->now()));
