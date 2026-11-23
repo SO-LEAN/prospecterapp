@@ -11,8 +11,8 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * A contact forgotten, the fingerprints of their exchanges, erased or not, are no data to keep any more: they are
- * forgotten too (ADR 0166).
+ * Once a contact is forgotten, Prospecter no longer keeps the fingerprints of their exchanges, erased or not.
+ * It forgets them too (ADR 0166).
  */
 final readonly class ForgetFingerprintsOfForgottenContactHandler implements EventHandler
 {
