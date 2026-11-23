@@ -14,7 +14,7 @@ use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * The detail of an exchange, the campaign it was noted in named as Campaigns names it now (ADR 0145, 0152).
+ * Reads an exchange's detail. The campaign it was logged in has the name Campaigns gives it now (ADR 0145, 0152).
  */
 final readonly class ConsultExchangeHandler implements QueryHandler
 {
