@@ -7,8 +7,8 @@ namespace Prospecter\Core\Connectors\Contract\Service\WhichHaveAConnectedCalenda
 interface WhichHaveAConnectedCalendarOutput
 {
     /**
-     * @param list<string> $memberIds those, among the members asked, whose calendar is connected; a member without
-     *                                a connection, or whose connection is to reconnect, is absent
+     * @param list<string> $memberIds the members asked whose calendar is connected. A member without a connection
+     *                                is absent. So is a member whose connection is to reconnect.
      */
     public function present(array $memberIds): void;
 }

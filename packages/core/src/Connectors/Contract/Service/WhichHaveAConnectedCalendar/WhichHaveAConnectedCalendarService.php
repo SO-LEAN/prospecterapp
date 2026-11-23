@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Connectors\Contract\Service\WhichHaveAConnectedCalendar;
 
 /**
- * The service Connectors offers the other contexts (ADR 0045, 0089): it refuses nothing, what is unknown is absent.
+ * The service that Connectors offers the other contexts (ADR 0045, 0089). It refuses nothing. An unknown member is
+ * absent from the answer.
  */
 interface WhichHaveAConnectedCalendarService
 {
