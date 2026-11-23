@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Fixtures\Cache;
+namespace Fixtures\CacheOfCommands;
 
 final readonly class SendInvitation
 {
