@@ -14,8 +14,8 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Anticorruption layer (ADR 0045, 0089): PersonalData compares a contact with those of their organizations,
- * Prospecting tells which organizations name contacts, once for all of them.
+ * Anticorruption layer (ADR 0045, 0089). PersonalData compares a contact with the other contacts of their
+ * organizations. Prospecting tells which organizations name the contacts, in one call for all of them.
  */
 final readonly class ProspectingOrganizationsOfContacts implements OrganizationsOfContacts
 {

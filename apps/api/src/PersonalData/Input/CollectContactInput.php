@@ -9,8 +9,8 @@ use Prospecter\Core\PersonalData\Application\CollectContact\CollectContact;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * What is known of a person when the account starts prospecting them (the shape of ContactResource), and the
- * organizations they work for: at least one (ADR 0042).
+ * What the account knows about a person when it starts prospecting them, in the shape of ContactResource. It also
+ * names the organizations they work for, at least one (ADR 0042).
  */
 final readonly class CollectContactInput
 {
@@ -20,7 +20,7 @@ final readonly class CollectContactInput
     public function __construct(
         #[Assert\Valid]
         public PersonNameInput $name = new PersonNameInput(),
-        #[OA\Property(description: 'How one addresses the contact, x when unknown, the default', enum: ['ms', 'mr', 'x'])]
+        #[OA\Property(description: 'How to address the contact. It is x when unknown, the default.', enum: ['ms', 'mr', 'x'])]
         public string $title = 'x',
         #[Assert\Length(max: 100)]
         public ?string $jobTitle = null,
@@ -32,7 +32,7 @@ final readonly class CollectContactInput
     }
 
     /**
-     * The collecting of this person by a reader, under this id, the same from the screen and from an AI.
+     * A reader collects this person under this id. The command is the same from the screen and from an AI.
      */
     public function commandOf(string $readerId, string $id, \DateTimeImmutable $executedAt): CollectContact
     {
@@ -40,7 +40,7 @@ final readonly class CollectContactInput
     }
 
     /**
-     * The same collecting, by an AI acting as the reader.
+     * An AI collects this person, acting as the reader.
      */
     public function commandOfAnAI(string $readerId, string $id, \DateTimeImmutable $executedAt): CollectContact
     {

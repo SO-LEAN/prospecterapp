@@ -18,8 +18,8 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 /**
- * Reads the items `PERSON#<id>` / `PERSON` that `DynamoPersonRepository` writes as cards (`PersonCards`),
- * without restoring the persons (ADR 0088); a calling contact by the index of the phone numbers (ADR 0072).
+ * Reads the items `PERSON#<id>` / `PERSON` that `DynamoPersonRepository` writes, as cards (`PersonCards`). It does
+ * not restore the persons (ADR 0088). It finds a calling contact by the phone number index (ADR 0072).
  */
 final readonly class DynamoPersonCardRetriever implements PersonCardRetriever
 {
@@ -40,7 +40,7 @@ final readonly class DynamoPersonCardRetriever implements PersonCardRetriever
     }
 
     /**
-     * The contacts the person is suspected of being a duplicate of, read in one batch: one forgotten meanwhile absent.
+     * Reads, in one batch, the contacts that the person may duplicate. A contact forgotten meanwhile is left out.
      *
      * @param array<string, mixed> $document
      *
@@ -83,7 +83,7 @@ final readonly class DynamoPersonCardRetriever implements PersonCardRetriever
     }
 
     /**
-     * The cards of the persons of these keys the reader reaches, in the order of the keys.
+     * Returns the cards of the persons behind these keys that the reader reaches, in the keys' order.
      *
      * @param list<string> $keys
      *

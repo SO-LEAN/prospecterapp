@@ -17,8 +17,8 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 /**
- * The contacts of an account a key designates, read in the reservations, the index of the phone numbers and the
- * links of the resemblance keys `DynamoPersonRepository` writes, without restoring them (ADR 0088).
+ * Finds the account's contacts that a key designates. It reads the reservations, the phone number index and the
+ * resemblance key links that `DynamoPersonRepository` writes. It does not restore the persons (ADR 0088).
  */
 final readonly class DynamoDesignatedContactRetriever implements DesignatedContactRetriever
 {

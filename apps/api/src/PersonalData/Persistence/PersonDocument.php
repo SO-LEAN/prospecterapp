@@ -22,8 +22,8 @@ use Prospecter\Core\SharedKernel\Domain\Origin;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * A person as a plain document of its DynamoDB item, and back (ADR 0048): its value objects as they are,
- * its recorded events never; its origin from those written before it was kept, by hand.
+ * Turns a person into a plain document for its DynamoDB item, and back (ADR 0048). It keeps the value objects as
+ * they are, and never the recorded events. A person written before the origin was kept gets the origin "by hand".
  */
 final class PersonDocument
 {
@@ -82,7 +82,7 @@ final class PersonDocument
     }
 
     /**
-     * A person saved before the civilities were noted has an unknown one.
+     * A person saved before titles were logged has an unknown title.
      *
      * @param array<string, mixed> $document
      */
@@ -92,8 +92,8 @@ final class PersonDocument
     }
 
     /**
-     * Their links as they were noted; their LinkedIn profile for a person saved before the links were
-     * (ADR 0139), none before the profiles were noted.
+     * Returns their links as they were logged. A person saved before links existed has their LinkedIn profile as
+     * their only link (ADR 0139). A person saved before LinkedIn profiles were logged has none.
      *
      * @param array<string, mixed> $document
      */
@@ -103,7 +103,7 @@ final class PersonDocument
     }
 
     /**
-     * Whether they are reached on LinkedIn: a profile there among their links.
+     * Whether they are reached on LinkedIn, through a LinkedIn profile among their links.
      *
      * @param array<string, mixed> $document
      */
@@ -113,7 +113,7 @@ final class PersonDocument
     }
 
     /**
-     * What recognizes each link they hold, theirs and their former ones.
+     * Returns the key that recognizes each link they hold, current or former.
      *
      * @param array<string, mixed> $document
      *
@@ -125,8 +125,8 @@ final class PersonDocument
     }
 
     /**
-     * The document with their links and their former ones recognized again by their addresses: what
-     * `app:keys:rebuild` writes once a source is known.
+     * Returns the document with their current and former links recognized again from their addresses.
+     * `app:keys:rebuild` writes it once a new source is known.
      *
      * @param array<string, mixed> $document
      *
@@ -141,7 +141,8 @@ final class PersonDocument
     }
 
     /**
-     * Their former links, their former LinkedIn profiles for a person saved before the links were (ADR 0159).
+     * Returns their former links. A person saved before links existed has their former LinkedIn profiles instead
+     * (ADR 0159).
      *
      * @param array<string, mixed> $document
      */

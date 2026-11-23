@@ -30,8 +30,8 @@ final class ForgetContactController extends AbstractController
     #[OA\Delete(summary: 'Erase a person my organization prospects; the organizations that named them forget them')]
     #[OA\Response(response: 204, description: 'Erased')]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
-    #[OA\Response(response: 403, description: 'Not a prospector, no right to manage personal data, or a member and not a contact', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 404, description: 'Unknown contact, or one of another account', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 403, description: 'The caller is not a prospector or has no right to manage personal data, or the person is a member and not a contact', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 404, description: 'The contact is unknown or belongs to another account', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $id, #[CurrentUser] User $user): Response
     {
         $this->commandBus->dispatch(new ForgetContact($user->memberId(), $id, $this->clock->now()));

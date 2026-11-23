@@ -23,20 +23,21 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 /**
- * The persons in the table of PersonalData (ADR 0048):
+ * The persons in PersonalData's table (ADR 0048):
  * - `PERSON#<id>` / `PERSON`: the person, listed by account and purpose in `GSI1` (`ACCOUNT#<id>#<purpose>`,
- *   its id);
+ *   then its id);
  * - `EMAIL#<account>#<purpose>#<email>` / `EMAIL`: the email a person holds among the persons an account keeps
- *   for a purpose, the safety net of EmailUniqueness (ADR 0039, 0048).
- * - `PERSON#<id>` / `FIRST_NAME`: the key of the first name of a person who has one, in the index `NAME` beside
- *   the key of their last name (ADR 0149), written and removed with the person;
- * - `REFERENCE#<account>#<source>#<identifier>` / `REFERENCE`: each link a contact holds, theirs or a former one,
- *   the safety net of ReferenceUniqueness (ADR 0159);
- * - `RESEMBLANCE#<account>#<key>` / `PERSON#<id>`: the contacts of an account sharing a resemblance key, written and
- *   deleted with the contact (ADR 0170).
- * The person carries its search keys and its phone number among the persons of the same account and purpose
- * (`SearchIndexes`), and its `revision`, incremented at each save: the revision of its facts (ADR 0099), which
- * the aggregate does not know, and the one its save and its removal hold to, as their unit of work read it (ADR 0181).
+ *   for a purpose. It is EmailUniqueness's safety net (ADR 0039, 0048);
+ * - `PERSON#<id>` / `FIRST_NAME`: the first name's key of a person who has one, in the `NAME` index next to
+ *   their last name's key (ADR 0149). It is written and removed with the person;
+ * - `REFERENCE#<account>#<source>#<identifier>` / `REFERENCE`: each link a contact holds, current or former.
+ *   It is ReferenceUniqueness's safety net (ADR 0159);
+ * - `RESEMBLANCE#<account>#<key>` / `PERSON#<id>`: the account's contacts that share a resemblance key. It is
+ *   written and deleted with the contact (ADR 0170).
+ * The person item carries its search keys and its phone number among the persons of the same account and purpose
+ * (`SearchIndexes`). It also carries its `revision`, incremented at each save. The revision versions the person's
+ * facts (ADR 0099), and the aggregate does not know it. A save or a removal holds to the revision that its unit of
+ * work read (ADR 0181).
  */
 final readonly class DynamoPersonRepository implements PersonRepository
 {
@@ -93,7 +94,7 @@ final readonly class DynamoPersonRepository implements PersonRepository
     }
 
     /**
-     * Found by the reservations of their emails among the contacts of the account, without reading the persons.
+     * Finds the contacts through their emails' reservations among the account's contacts. It does not read the persons.
      *
      * @param list<Email> $emails
      */
@@ -156,9 +157,9 @@ final readonly class DynamoPersonRepository implements PersonRepository
     }
 
     /**
-     * The reservation of each reference a contact holds and did not before, under the condition that no other contact
-     * holds it: the safety net of ReferenceUniqueness; and the release of those it held and no longer does. The
-     * profile of a member is reserved for nobody.
+     * Reserves each reference that a contact now holds and did not hold before, on condition that no other contact
+     * holds it. This is ReferenceUniqueness's safety net. It also releases the references the contact no longer holds.
+     * A member's profile reserves nothing.
      *
      * @return list<Write>
      */
@@ -184,8 +185,8 @@ final readonly class DynamoPersonRepository implements PersonRepository
     }
 
     /**
-     * The deletes of the reservations of these references the person holds, read in the unit before: one another
-     * contact holds, a duplicate noted before the references were unique, stays theirs.
+     * Deletes the reservations of these references that the person held when the unit of work read it. A reservation
+     * that another contact holds stays theirs. That contact is a duplicate logged before the references were unique.
      *
      * @param list<ExternalReference> $references
      *
@@ -200,11 +201,11 @@ final readonly class DynamoPersonRepository implements PersonRepository
     }
 
     /**
-     * Writes again the item of every person, its search keys and its key in its list with it, the item of their first
-     * name beside it, the reservation of each reference a contact holds, the link of their resemblance key (ADR 0170),
-     * and forgets the items of the search before ADR 0071 and the reservations of the LinkedIn profiles before the
-     * references: what a table written before ADR 0071, before ADR 0149, before ADR 0170, or before the references were
-     * unique, needs once.
+     * Writes every person's item again, with its search keys and its key in its list. It also writes the person's
+     * first name item, the reservation of each reference a contact holds, and their resemblance key link (ADR 0170).
+     * It deletes the search items from before ADR 0071 and the LinkedIn profiles' reservations from before
+     * references existed. A table written before ADR 0071, ADR 0149 or ADR 0170, or before the references were unique, needs
+     * this once.
      */
     public function writeTheKeysAgain(): int
     {
@@ -226,7 +227,8 @@ final readonly class DynamoPersonRepository implements PersonRepository
     }
 
     /**
-     * The reservations of links no contact holds any more, once recognized again under another reference.
+     * Finds the link reservations that no contact holds any more, once the links are recognized again under another
+     * reference.
      *
      * @param list<array<string, string>> $reservations
      *
@@ -240,8 +242,8 @@ final readonly class DynamoPersonRepository implements PersonRepository
     }
 
     /**
-     * The reservation of each reference a contact holds; one two contacts noted before the references were unique for
-     * the oldest of them, the first of the identities in their order (UUID v7).
+     * Reserves each reference a contact holds. Two contacts logged before the references were unique may hold the same
+     * reference. The reservation then goes to the oldest of them, the first id in order (UUID v7).
      *
      * @param list<Person> $persons
      *
@@ -302,8 +304,8 @@ final readonly class DynamoPersonRepository implements PersonRepository
     }
 
     /**
-     * The item of the first name put when the person has one, deleted when the person stored had one and no longer
-     * has, nothing otherwise: a deletion is a write of the transaction too.
+     * Puts the first name item when the person has a first name. Deletes it when the stored person had one and the
+     * person no longer has. Writes nothing otherwise. A deletion is also a write of the transaction.
      *
      * @return list<Write>
      */
@@ -319,7 +321,7 @@ final readonly class DynamoPersonRepository implements PersonRepository
     }
 
     /**
-     * The link of its resemblance key written when the key changes, the former one deleted.
+     * Writes the resemblance key link when the key changes, and deletes the former link.
      *
      * @return list<Write>
      */
@@ -336,7 +338,7 @@ final readonly class DynamoPersonRepository implements PersonRepository
     }
 
     /**
-     * The link of the resemblance key of each person who has one: a contact named by a first and a last name.
+     * Returns the resemblance key link of each person who has a key: a contact with a first and a last name.
      *
      * @param list<Person> $persons
      *
