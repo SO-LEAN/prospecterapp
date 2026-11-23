@@ -11,12 +11,16 @@ use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\UnitOfWork;
 
 /**
- * Counts the figures again in a new version, out of the sight of the members until it is complete, then makes it the
- * active one. It first abandons what a former rebuild left: the version that one was building is no longer live, then,
- * once the recordings that saw it live ended, every version but the active one is removed, so that no recording
- * writes in a version while it is emptied. Each step is a unit of work of its own: the new version is seen by the
- * recordings before the facts are read again, and a rebuild writes far more than one unit holds. The delivery calls
- * it without TransactionalCommandHandler (ADR 0103, 0106).
+ * Counts the figures again in a new version, which the members do not see until it is complete. Then it makes that
+ * version the active one.
+ *
+ * It first abandons what a previous rebuild left behind. The version that the previous rebuild was building is no
+ * longer live. Once the recordings that saw it live have ended, the handler removes every version but the active one.
+ * So no recording writes in a version while the handler empties it.
+ *
+ * Each step is a unit of work of its own. The recordings must see the new version before the facts are read again,
+ * and a rebuild writes far more than one unit of work holds. The delivery calls the handler without
+ * TransactionalCommandHandler (ADR 0103, 0106).
  */
 final readonly class RebuildFiguresHandler implements CommandHandler
 {

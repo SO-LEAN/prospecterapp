@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Prospecter\Core\Reporting\Domain\Model;
 
 /**
- * How much each figure of an account changes: added to the figures as they are, so that two changes written at
- * the same time both count.
+ * How much each of an account's figures changes. The change is added to the current figures, so two changes written
+ * at the same time both count.
  */
 final readonly class FiguresChange
 {
     /**
-     * @param array<string, int> $exchangesByMonth the change of the exchanges of a month, by its value (YYYY-MM)
+     * @param array<string, int> $exchangesByMonth each month's change in exchanges, keyed by the month (YYYY-MM)
      */
     public function __construct(
         public int $activeOrganizations = 0,

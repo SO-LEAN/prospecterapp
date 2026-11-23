@@ -8,8 +8,8 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Uuid;
 
 /**
- * The state of an aggregate of another context, as Reporting counts it (ADR 0099): the highest revision is the
- * latest, and an absent fact, the terminal one, ends the aggregate.
+ * The state of another context's aggregate, as Reporting counts it (ADR 0099). The highest revision is the latest. An
+ * absent fact is the terminal one: it ends the aggregate.
  */
 interface Fact
 {
@@ -22,7 +22,7 @@ interface Fact
     public bool $present { get; }
 
     /**
-     * What the fact adds to the figures of its account, counted from nothing.
+     * Returns what the fact adds to its account's figures, counted from zero.
      */
     public function contribution(): FiguresChange;
 }

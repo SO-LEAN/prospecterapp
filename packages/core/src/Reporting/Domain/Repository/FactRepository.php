@@ -8,19 +8,19 @@ use Prospecter\Core\Reporting\Domain\Model\Fact;
 use Prospecter\Core\Reporting\Domain\Model\FiguresChange;
 
 /**
- * The facts each version of the figures keeps, and the figures they make.
+ * The facts that each version of the figures keeps, and the figures they make.
  */
 interface FactRepository
 {
     /**
-     * The fact the version keeps of the aggregate the given fact is about, null when it keeps none.
+     * Returns the fact that the version keeps for the given fact's aggregate, or null when it keeps none.
      */
     public function find(int $version, Fact $about): ?Fact;
 
     /**
-     * Keeps the fact in the version in place of the one it replaces, found by find(), and adds the change to the
-     * figures of its account, together; refused when the version no longer keeps the replaced fact, the change being
-     * computed from it.
+     * Keeps the fact in the version, in place of the fact that find() returned. It adds the change to the account's
+     * figures in the same write. The write is refused when the version no longer keeps the replaced fact, because the
+     * change was computed from it.
      */
     public function record(int $version, Fact $fact, ?Fact $replaced, FiguresChange $change): void;
 }

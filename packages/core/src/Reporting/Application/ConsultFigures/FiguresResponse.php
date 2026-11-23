@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Reporting\Application\ConsultFigures;
 
 /**
- * The figures of an account: the organizations it prospects, those placed on the map, its contacts, the exchanges it
- * keeps and those of the month.
+ * An account's figures: the organizations it prospects, the organizations placed on the map, its contacts, the
+ * exchanges it keeps, and the exchanges in the requested month.
  */
 final readonly class FiguresResponse
 {

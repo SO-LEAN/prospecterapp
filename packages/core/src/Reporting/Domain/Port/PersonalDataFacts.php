@@ -8,8 +8,8 @@ use Prospecter\Core\Reporting\Domain\Model\ContactFact;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 
 /**
- * Port: the facts of the contacts of an account as they are now, translated from PersonalData, through its published
- * service `ListContactFactsService` (ADR 0045, 0089, 0099).
+ * Port: the current facts of an account's contacts, translated from PersonalData through its published service
+ * `ListContactFactsService` (ADR 0045, 0089, 0099).
  */
 interface PersonalDataFacts
 {

@@ -10,8 +10,8 @@ use Prospecter\Core\Reporting\Domain\Port\ProspectingFacts;
 use Prospecter\Core\Reporting\Domain\Port\SourceAccounts;
 
 /**
- * The facts of every account as the other contexts give them again from their state: their organizations, their
- * exchanges and their contacts.
+ * Every account's facts, as the other contexts list them again from their current state: the account's
+ * organizations, exchanges and contacts.
  */
 final readonly class SourceFacts
 {

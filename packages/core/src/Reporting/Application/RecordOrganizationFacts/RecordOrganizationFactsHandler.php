@@ -12,7 +12,7 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
- * Counts the organizations of an account from the facts Prospecting publishes (ADR 0099).
+ * Counts an account's organizations from the facts that Prospecting publishes (ADR 0099).
  */
 final readonly class RecordOrganizationFactsHandler implements EventHandler
 {

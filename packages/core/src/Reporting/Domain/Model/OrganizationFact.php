@@ -8,7 +8,7 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
- * An organization an account prospects, placed on the map or not.
+ * An organization that an account prospects, whether or not it is placed on the map.
  */
 final readonly class OrganizationFact implements Fact
 {

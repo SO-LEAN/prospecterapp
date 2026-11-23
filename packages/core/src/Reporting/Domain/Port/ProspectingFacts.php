@@ -9,9 +9,8 @@ use Prospecter\Core\Reporting\Domain\Model\OrganizationFact;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 
 /**
- * Port: the facts of the organizations and of the exchanges of an account as they are now, translated from
- * Prospecting, through its published services `ListOrganizationFactsService` and `ListExchangeFactsService`
- * (ADR 0045, 0089, 0099).
+ * Port: the current facts of an account's organizations and exchanges, translated from Prospecting through its
+ * published services `ListOrganizationFactsService` and `ListExchangeFactsService` (ADR 0045, 0089, 0099).
  */
 interface ProspectingFacts
 {

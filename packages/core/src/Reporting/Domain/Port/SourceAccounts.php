@@ -9,8 +9,8 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * Port: the accounts whose figures Reporting keeps, translated from the context that knows them (Accounts), through
- * its published services `ListAccountsService` and `ConsultMembersService` (ADR 0045, 0089).
+ * Port: the accounts whose figures Reporting keeps, translated from Accounts, the context that knows them, through its
+ * published services `ListAccountsService` and `ConsultMembersService` (ADR 0045, 0089).
  */
 interface SourceAccounts
 {

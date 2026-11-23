@@ -8,7 +8,7 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * A person an account keeps as a contact of its prospecting.
+ * A person that an account keeps as a prospecting contact.
  */
 final readonly class ContactFact implements Fact
 {

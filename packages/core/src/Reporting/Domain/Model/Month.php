@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Reporting\Domain\Model;
 
 /**
- * A month of the calendar, cut in UTC whatever the time zone of the moment: every account counts the same months.
+ * A calendar month, cut in UTC whatever the moment's time zone. So every account counts the same months.
  */
 final readonly class Month
 {
@@ -15,7 +15,7 @@ final readonly class Month
     public function __construct(public string $value)
     {
         if (1 !== preg_match(self::WRITTEN, $value)) {
-            throw new \InvalidArgumentException(sprintf('"%s" is no month, YYYY-MM', $value));
+            throw new \InvalidArgumentException(sprintf('"%s" is not a month in the YYYY-MM format', $value));
         }
     }
 

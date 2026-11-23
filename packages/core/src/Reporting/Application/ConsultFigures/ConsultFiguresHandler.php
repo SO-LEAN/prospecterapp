@@ -12,7 +12,7 @@ use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * The figures of the active version: before the first rebuild, zeros.
+ * Presents the member's account figures from the active version. Before the first rebuild, every figure is zero.
  */
 final readonly class ConsultFiguresHandler implements QueryHandler
 {
