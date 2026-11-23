@@ -10,10 +10,10 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * Runs every scheduled task, as the daily schedule of an instance does: by hand on the local stack, whose MiniStack
- * runs no schedule, or on an instance whose schedule missed a day. Each task keeps its own command too.
+ * Runs every scheduled task, as an instance's daily schedule does. Run it by hand on the local stack, because its
+ * MiniStack runs no schedule. Run it on an instance whose schedule missed a day. Each task also keeps its own command.
  */
-#[AsCommand(name: 'app:scheduled-tasks:run', description: 'Run every scheduled task, as the daily schedule of an instance does')]
+#[AsCommand(name: 'app:scheduled-tasks:run', description: 'Run every scheduled task, as an instance\'s daily schedule does')]
 final readonly class RunScheduledTasksCommand
 {
     public function __construct(private ScheduledTasks $tasks)

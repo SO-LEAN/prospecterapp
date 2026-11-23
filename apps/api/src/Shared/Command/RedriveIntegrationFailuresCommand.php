@@ -12,12 +12,12 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * Gives the worker again each event of the queue of the failures, whether Lambda gave it up or the worker refused
- * it, then forgets it, a batch at a time: an event refused is given again once what refused it is corrected and
- * deployed; delivered twice, it is applied once (the inbox keeps an event 15 days, longer than the queue, 14 days).
- * A message keeping no invocation is left in the queue, hidden while the redrive lasts.
+ * Gives each event in the failure queue to the worker again, then forgets it, one batch at a time. An event lands there
+ * when Lambda gave it up or when the worker refused it. Give a refused event again once its cause is fixed and
+ * deployed. An event delivered twice is applied once: the inbox keeps an event for 15 days, longer than the queue's 14
+ * days. A message without an invocation stays in the queue, hidden while the redrive runs.
  */
-#[AsCommand(name: 'app:integration:redrive', description: 'Give the worker again the events of the queue of the failures')]
+#[AsCommand(name: 'app:integration:redrive', description: 'Give the failure queue\'s events to the worker again')]
 final readonly class RedriveIntegrationFailuresCommand
 {
     public function __construct(private IntegrationFailures $failures, private IntegrationWorker $worker)
