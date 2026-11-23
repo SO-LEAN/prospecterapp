@@ -13,8 +13,8 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Asks the contact itself, restored by its repository, the rule its completion follows: the answer and the write
- * never differ (ADR 0177).
+ * Restores the contact from its repository and asks the contact itself to apply the rule its completion follows. So
+ * the answer and the completion's write never differ (ADR 0177).
  */
 final readonly class CompareWithContactHandler implements QueryHandler
 {

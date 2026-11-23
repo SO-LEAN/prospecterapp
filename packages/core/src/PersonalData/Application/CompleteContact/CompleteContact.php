@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace Prospecter\Core\PersonalData\Application\CompleteContact;
 
 /**
- * Fills what a contact lacks with what a client knows of them, never changing what is noted (ADR 0177).
+ * Fills a contact's empty fields with what a client knows about them. It never changes what is already logged
+ * (ADR 0177).
  */
 final readonly class CompleteContact
 {
     /**
-     * @param list<string> $links the addresses of their links
+     * @param list<string> $links their links' addresses
      */
     public function __construct(
         public string $readerId,

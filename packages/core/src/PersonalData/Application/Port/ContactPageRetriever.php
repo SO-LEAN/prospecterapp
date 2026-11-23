@@ -9,13 +9,14 @@ use Prospecter\Core\PersonalData\Domain\Model\Reader;
 use Prospecter\Core\SharedKernel\Domain\SearchKey;
 
 /**
- * Reads the contacts of the account of the reader in slices without restoring them (ADR 0088), each as the
- * reader may read it, with what the reader may do with the contacts (`Reader::contactsIntents()`).
+ * Reads the contacts of the reader's account in slices, without restoring them (ADR 0088). Each contact is read as
+ * the reader may read it. The page tells what the reader may do with the contacts (`Reader::contactsIntents()`).
  */
 interface ContactPageRetriever
 {
     /**
-     * Newest first, after the cursor: those found by the search (ADR 0071), all of them without one.
+     * Returns the contacts newest first, after the cursor. With a search, it returns those the search finds (ADR 0071).
+     * Without one, it returns all of them.
      */
     public function sliceFor(Reader $reader, ?SearchKey $search, ?string $after, int $max): ContactPage;
 }

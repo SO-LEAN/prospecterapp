@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Prospecter\Core\PersonalData\Application\SearchContacts;
 
 /**
- * The persons the account of the reader prospects, newest first, a slice after the cursor `after` (ADR 0049);
- * searched by the beginning of their name, and of their email with the right to read them in clear (ADR 0129).
+ * Gets the persons the reader's account prospects, newest first, in a slice after the cursor `after` (ADR 0049). The
+ * search matches the beginning of their name. With the right to read personal data unmasked, it also matches the
+ * beginning of their email (ADR 0129).
  */
 final readonly class SearchContacts
 {

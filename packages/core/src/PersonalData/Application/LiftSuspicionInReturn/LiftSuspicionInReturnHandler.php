@@ -12,8 +12,9 @@ use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 
 /**
- * The contact another no longer resembles, or forgotten, is no longer suspected of being their duplicate in return.
- * Forgotten meanwhile, the reaction has nothing left to do; no longer suspecting them, the contact records nothing.
+ * A contact no longer resembles another one, or was forgotten. In return, the other contact is no longer suspected of
+ * being their duplicate. When the other contact was forgotten meanwhile, the reaction has nothing left to do. When it
+ * no longer suspects them, it records nothing.
  */
 final readonly class LiftSuspicionInReturnHandler implements EventHandler
 {

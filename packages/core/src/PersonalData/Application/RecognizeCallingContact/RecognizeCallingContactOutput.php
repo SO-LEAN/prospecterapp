@@ -10,7 +10,7 @@ use Prospecter\Core\SharedKernel\Application\OutputPort;
 interface RecognizeCallingContactOutput extends OutputPort
 {
     /**
-     * @param list<PersonCard> $contacts the contacts having the number
+     * @param list<PersonCard> $contacts the contacts who have the number
      */
     public function present(array $contacts): void;
 }

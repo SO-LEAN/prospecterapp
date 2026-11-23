@@ -17,7 +17,7 @@ final class KeptPersons implements ConsultPersonsOutput
     public private(set) array $persons;
 
     /**
-     * @param array<string, PersonCard> $persons by person id
+     * @param array<string, PersonCard> $persons keyed by person id
      */
     public function present(array $persons): void
     {

@@ -27,7 +27,7 @@ final readonly class NameContactsHandler implements QueryHandler, NameContactsSe
     }
 
     /**
-     * A reader nobody knows reads nobody: the service refuses nothing.
+     * An unknown reader reads nobody. The service refuses nothing.
      */
     public function __invoke(NameContacts $query, NameContactsOutput $output): void
     {
@@ -58,7 +58,7 @@ final readonly class NameContactsHandler implements QueryHandler, NameContactsSe
     }
 
     /**
-     * A number kept before the numbers were checked, which nobody could dial, is none.
+     * A number kept before numbers were checked may be one that nobody can dial. Such a number counts as none.
      */
     private static function e164Of(?string $phoneNumber): ?string
     {

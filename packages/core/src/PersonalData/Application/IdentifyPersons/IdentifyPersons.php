@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\PersonalData\Application\IdentifyPersons;
 
 /**
- * Which contacts of the account the clues designate, each person as the client sees them: known, new, or to confirm
- * among candidates; nothing written.
+ * Finds which of the account's contacts the clues designate. The client gives each person as it sees them. Each
+ * person is known, new, or to confirm among candidates. Nothing is written.
  */
 final readonly class IdentifyPersons
 {

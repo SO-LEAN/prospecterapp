@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\PersonalData\Application\IdentifyPersons;
 
 /**
- * A person as the client sees them: what it knows of them, each clue optional.
+ * A person as the client sees them: what the client knows about them. Each clue is optional.
  */
 final readonly class PersonClues
 {
@@ -13,7 +13,7 @@ final readonly class PersonClues
      * @param list<string> $links
      * @param list<string> $emails
      * @param list<string> $phoneNumbers
-     * @param list<string> $organizationIds the organizations of the account they may work for
+     * @param list<string> $organizationIds the account's organizations they may work for
      */
     public function __construct(
         public ?string $firstName = null,

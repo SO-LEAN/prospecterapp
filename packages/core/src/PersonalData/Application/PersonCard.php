@@ -8,15 +8,15 @@ use Prospecter\Core\SharedKernel\Application\ExternalLink;
 use Prospecter\Core\SharedKernel\Application\FileResponse;
 
 /**
- * A person as the reader may see them: in clear, or masked (then without picture), the name and the civility of a
- * contact in clear; whether an AI collected them.
+ * A person as the reader may see them, unmasked or masked. A masked person has no picture. A contact's name and title
+ * are always unmasked. The card also tells whether an AI collected the person.
  */
 final readonly class PersonCard
 {
     /**
-     * @param list<ExternalLink>      $links              their links to the tools outside, one of stars when masked
-     * @param list<PossibleDuplicate> $possibleDuplicates the contacts they resemble, given to a reader with the right to manage personal data only
-     * @param list<string>            $possibleIntents    names of what the reader may do: Rename, ChangeJobTitle, ChangeCivility, ChangeContactDetails, ChangePicture, Forget
+     * @param list<ExternalLink>      $links              their links to outside tools, or a single link of stars when masked
+     * @param list<PossibleDuplicate> $possibleDuplicates the contacts they resemble, given only to a reader with the right to manage personal data
+     * @param list<string>            $possibleIntents    the names of what the reader may do: Rename, ChangeJobTitle, ChangeCivility, ChangeContactDetails, ChangePicture, Forget
      */
     public function __construct(
         public string $id,

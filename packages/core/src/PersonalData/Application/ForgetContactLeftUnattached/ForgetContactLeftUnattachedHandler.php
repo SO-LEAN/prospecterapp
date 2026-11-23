@@ -14,9 +14,9 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * A contact nobody attached in time is erased (ADR 0146), by the member who held them, as they collected them: the
- * integration event Prospecting publishes, translated into the words of PersonalData (ADR 0046). Nothing when the
- * person is gone already.
+ * Erases a contact that nobody attached in time (ADR 0146). The member who held the contact erases them, as this
+ * member collected them. The handler reacts to the integration event Prospecting publishes, translated into
+ * PersonalData's words (ADR 0046). It does nothing when the person is already gone.
  */
 final readonly class ForgetContactLeftUnattachedHandler implements EventHandler
 {

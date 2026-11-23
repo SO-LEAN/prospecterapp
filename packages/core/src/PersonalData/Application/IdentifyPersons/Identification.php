@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\PersonalData\Application\IdentifyPersons;
 
 /**
- * What the clues of a person designate: one contact of the account (known), none (new), or several, or some by their
- * name only (to confirm, among its candidates).
+ * What a person's clues designate. They designate one of the account's contacts (known), or none (new). They may
+ * also designate several contacts, or some by their name only (to confirm, among the candidates).
  */
 final readonly class Identification
 {

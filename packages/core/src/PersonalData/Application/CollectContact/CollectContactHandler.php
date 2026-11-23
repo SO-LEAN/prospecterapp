@@ -31,8 +31,9 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 /**
- * Collects the person; the event it records attaches it to its organizations in Prospecting (ContactCollected).
- * Every organization is checked first, so that the attachment cannot leave the person alone.
+ * Collects the person. The event it records attaches the person to their organizations in Prospecting
+ * (ContactCollected). The handler checks every organization first, so that the attachment cannot leave the person
+ * alone.
  */
 final readonly class CollectContactHandler implements CommandHandler
 {

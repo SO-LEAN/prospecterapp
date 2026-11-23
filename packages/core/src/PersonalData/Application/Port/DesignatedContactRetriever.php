@@ -12,27 +12,27 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 /**
- * Reads which contact of an account a key designates, by what designates each one in its account, without restoring
- * them (ADR 0088).
+ * Reads which of an account's contacts a key designates, without restoring them (ADR 0088). It reads the keys that
+ * designate each contact in their account.
  */
 interface DesignatedContactRetriever
 {
     /**
-     * The contact holding this link, as one of their own or as a former one.
+     * Returns the contact who holds this link, as a current link or as a former one.
      */
     public function withReference(AccountId $accountId, ExternalReference $reference): ?PersonId;
 
     public function withEmail(AccountId $accountId, Email $email): ?PersonId;
 
     /**
-     * The contacts having this phone number: several may share it.
+     * Returns the contacts who have this phone number. Several contacts may share it.
      *
      * @return list<PersonId>
      */
     public function withPhoneNumber(AccountId $accountId, PhoneNumber $phoneNumber): array;
 
     /**
-     * The contacts sharing this resemblance key: named alike (ADR 0170).
+     * Returns the contacts who share this resemblance key, because they are named alike (ADR 0170).
      *
      * @return list<PersonId>
      */

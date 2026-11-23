@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\PersonalData\Application\ChangeCivility;
 
 /**
- * Notes how one addresses a contact, or that it is unknown (x).
+ * Logs a contact's title, which tells how to address them, or logs that it is unknown (x).
  */
 final readonly class ChangeCivility
 {

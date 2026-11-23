@@ -7,13 +7,13 @@ namespace Prospecter\Core\PersonalData\Application\CollectContact;
 use Prospecter\Core\SharedKernel\Application\Addition;
 
 /**
- * Keeps a person the account prospects, under the identity the client gives it, as a contact of these
- * organizations: at least one (ADR 0036, 0042); `byAnAI` when an AI collects them, acting as the reader.
+ * Keeps a person the account prospects as a contact of these organizations, under the id the client gives. A contact
+ * has at least one organization (ADR 0036, 0042). `byAnAI` is true when an AI acting as the reader collects them.
  */
 final readonly class CollectContact implements Addition
 {
     /**
-     * @param list<string> $links           the addresses of their links
+     * @param list<string> $links           their links' addresses
      * @param list<string> $organizationIds
      */
     public function __construct(

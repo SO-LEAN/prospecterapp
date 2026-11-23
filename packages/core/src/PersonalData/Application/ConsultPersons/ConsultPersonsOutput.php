@@ -10,7 +10,7 @@ use Prospecter\Core\SharedKernel\Application\OutputPort;
 interface ConsultPersonsOutput extends OutputPort
 {
     /**
-     * @param array<string, PersonCard> $persons by person id
+     * @param array<string, PersonCard> $persons keyed by person id
      */
     public function present(array $persons): void;
 }

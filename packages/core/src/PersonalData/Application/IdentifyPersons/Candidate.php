@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\PersonalData\Application\IdentifyPersons;
 
 /**
- * A contact of the account the clues may designate, named as every member of the account reads them.
+ * One of the account's contacts that the clues may designate. It carries the name every member of the account reads.
  */
 final readonly class Candidate
 {

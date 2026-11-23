@@ -20,9 +20,9 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Who booked a slot of a host (ADR 0164): the contact of the account having their e-mail, otherwise one having their
- * phone number, otherwise a contact to attach collected for the host, as ADR 0146 has it. An appointment gone
- * meanwhile leaves nothing to do.
+ * Identifies who booked a host's slot (ADR 0164). It looks first for the account's contact who has their e-mail, then
+ * for one who has their phone number. Otherwise, it collects a contact to attach for the host, as ADR 0146 says.
+ * When the appointment is gone meanwhile, there is nothing to do.
  */
 final readonly class IdentifyBookerHandler implements EventHandler
 {

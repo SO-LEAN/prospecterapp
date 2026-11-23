@@ -14,9 +14,9 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * A contact is never alone (ADR 0042): the persons no organization names any more are erased, by the member
- * whose gesture left them alone; the integration event Prospecting publishes, translated into the words of
- * PersonalData (ADR 0046).
+ * A contact is never alone (ADR 0042). So the handler erases the persons that no organization names any more. The
+ * member whose gesture left them alone erases them. The handler reacts to the integration event Prospecting
+ * publishes, translated into PersonalData's words (ADR 0046).
  */
 final readonly class ForgetContactsLeftWithoutOrganizationHandler implements EventHandler
 {

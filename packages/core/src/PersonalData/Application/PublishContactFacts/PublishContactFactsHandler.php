@@ -11,9 +11,9 @@ use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 
 /**
- * Tells the other contexts the facts of a contact each time something happens to it, read as its service reads
- * them, before the commit: the unit of work gives them as the command is about to write them. The profile of a
- * member is no contact: it publishes nothing.
+ * Tells the other contexts a contact's facts each time something happens to the contact. It reads the facts as the
+ * contact's service reads them, before the commit. The unit of work gives them as the command is about to write them.
+ * A member's profile is not a contact, so the handler publishes nothing for it.
  */
 final readonly class PublishContactFactsHandler implements EventHandler
 {

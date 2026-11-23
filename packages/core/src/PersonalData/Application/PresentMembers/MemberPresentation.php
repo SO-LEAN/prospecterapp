@@ -7,8 +7,9 @@ namespace Prospecter\Core\PersonalData\Application\PresentMembers;
 use Prospecter\Core\SharedKernel\Application\FileResponse;
 
 /**
- * A person as they would present themselves to whom they give a link: their name and their picture, in clear, and why
- * their account keeps them, which decides whether they present themselves at all (`MemberPresentationPolicy`).
+ * A person as they would present themselves to someone they give a link to. It holds their unmasked name and picture.
+ * It also holds why their account keeps them, which decides whether they present themselves at all
+ * (`MemberPresentationPolicy`).
  */
 final readonly class MemberPresentation
 {
