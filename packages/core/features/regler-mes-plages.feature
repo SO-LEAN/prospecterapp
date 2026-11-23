@@ -56,3 +56,8 @@ Fonctionnalité: Régler mes plages
   Scénario: Un fuseau inconnu est refusé
     Quand je règle une plage le lundi de 14h00 à 17h00 à l'heure de "Mars/Olympus"
     Alors c'est refusé : "Unknown time zone Mars/Olympus"
+
+  Scénario: Un jour inconnu est refusé
+    Quand je règle une plage un jour qui n'existe pas, "funday"
+    Alors c'est refusé : "A window must fall on a day of the week"
+    Et le refus nomme le jour "funday"

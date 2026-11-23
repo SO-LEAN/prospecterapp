@@ -66,6 +66,18 @@ final class BookingContext implements Context
         $this->setWindows([['weekday' => self::WEEKDAYS[$day], 'from' => self::time($from), 'to' => self::time($to)]], $timeZone);
     }
 
+    #[When('je règle une plage un jour qui n\'existe pas, :day')]
+    public function iSetAWindowOnAnUnknownDay(string $day): void
+    {
+        $this->setWindows([['weekday' => $day, 'from' => '14:00', 'to' => '17:00']], $this->application->readerClock()->getName());
+    }
+
+    #[Then('le refus nomme le jour :day')]
+    public function theRefusalNamesTheDay(string $day): void
+    {
+        Expect::same(['weekday' => $day], $this->application->refusal()?->context);
+    }
+
     #[Then('mes plages sont :')]
     public function myWindowsAre(TableNode $table): void
     {
