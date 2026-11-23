@@ -4,16 +4,14 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Campaigns\Application\ReviseCampaign;
 
-/**
- * Everything of a draft changed at once, as the member left it.
- */
+/** A whole draft, changed at once, as the member left it. */
 final readonly class ReviseCampaign
 {
     /**
      * @param string       $channel     `email`, `call`, `sms` or `linkedIn`
-     * @param list<string> $tags        the tags chosen, as the member typed them
-     * @param string|null  $subject     the subject of an e-mail
-     * @param string|null  $messageMode how an AI treats the message for each person: `asIs` or `adapted`, as is when not said
+     * @param list<string> $tags        the chosen tags, as the member typed them
+     * @param string|null  $subject     an e-mail's subject
+     * @param string|null  $messageMode how an AI treats the message for each person: `asIs` or `adapted`, `asIs` when not given
      */
     public function __construct(
         public string $memberId,

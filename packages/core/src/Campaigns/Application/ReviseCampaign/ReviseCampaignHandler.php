@@ -18,9 +18,7 @@ use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
-/**
- * A member of the team changes a draft campaign of their account, whoever prepared it.
- */
+/** A team member changes a draft campaign of their account, whoever prepared it. */
 final readonly class ReviseCampaignHandler implements CommandHandler
 {
     use PublishesEvents;
