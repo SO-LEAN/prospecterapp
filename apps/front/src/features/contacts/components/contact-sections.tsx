@@ -38,8 +38,8 @@ const nameAndTitleSchema = personNameSchema.extend({ title: civilitySchema })
 const nameAndTitleFields = [...personNameFields, 'title'] as const
 
 /**
- * The name of a contact and how one addresses them, beside it: the title sent only when it changed, on the revision the
- * rename answered.
+ * A contact's name, with their title beside it. The title is sent only when it changed. It is sent on the revision
+ * that the rename answered.
  */
 export function NameSection({ contact }: { contact: Contact }) {
   const { t } = useTranslation()
@@ -169,7 +169,10 @@ export function ContactDetailsSection({ contact }: { contact: Contact }) {
   )
 }
 
-/** The organizations the contact works for; a contact is attached or removed from the organization. */
+/**
+ * The organizations the contact works for. The member attaches the contact from the organization, and removes them
+ * there.
+ */
 export function OrganizationsSection({ contact }: { contact: Contact }) {
   const { t } = useTranslation()
   const organizations = useQuery(organizationsOfContactQuery(contact.id))

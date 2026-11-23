@@ -38,7 +38,7 @@ const ada = (links: { dismiss?: { href: string; method: string } }) => ({
   _links: { self: { href: `/api/contacts/${ADA}`, method: 'GET' }, ...links },
 })
 
-/** As the card reads it: from the cache the gestures update. */
+/** The card reads it from the cache that the gestures update. */
 function TheCard({ id }: { id: string }) {
   const { data: contact } = useSuspenseQuery(contactQuery(id))
 

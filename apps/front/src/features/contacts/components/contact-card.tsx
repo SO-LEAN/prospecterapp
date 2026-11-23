@@ -7,8 +7,8 @@ import { CivilityMark } from '@/shared/ui/civility-mark'
 import { type ContactInList, fullNameOf } from '../queries'
 
 /**
- * A contact of the list, with links to the organizations it works for, and the tags it carries in small, each
- * opening the contacts carrying it.
+ * A contact in the list, with links to the organizations it works for. Its tags show in small. Each tag opens the
+ * contacts that carry it.
  */
 export function ContactCard({ contact }: { contact: ContactInList }) {
   const { t } = useTranslation()

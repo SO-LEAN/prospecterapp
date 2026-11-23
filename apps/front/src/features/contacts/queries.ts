@@ -6,7 +6,7 @@ import { dataOf, nextSliceOf } from '@/shared/api/slices'
 export type Contact = components['schemas']['ContactResource']
 export type ContactInList = components['schemas']['ContactInListResource']
 
-/** The contacts found by the search, a slice after the other: "load more" asks for the next one. */
+/** The contacts that the search finds, slice by slice. "Load more" asks for the next slice. */
 export const contactSlicesQuery = (q: string) =>
   infiniteQueryOptions({
     queryKey: ['get', '/api/contacts', { params: { query: { q } } }, 'slices'],

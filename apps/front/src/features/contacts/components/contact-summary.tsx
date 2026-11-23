@@ -9,9 +9,9 @@ import { Skeleton } from '@/shared/ui/skeleton'
 import { contactQuery, fullNameOf, organizationsOfContactQuery } from '../queries'
 
 /**
- * A contact in short, beside one of their exchanges: who they are, what they do and where, called or written to in a
- * click. A contact has no picture: their initials stand for it. Read without the right to their personal data, only
- * their name and organizations: the rest comes masked.
+ * A short summary of a contact, beside one of their exchanges. It shows who they are, what they do and where. One
+ * click calls them or writes to them. A contact has no picture, so their initials stand in for it. A member without the
+ * right to personal data reads only their name and organizations. The rest comes masked.
  */
 export function ContactSummary({ contactId }: { contactId: string }) {
   const { t } = useTranslation()

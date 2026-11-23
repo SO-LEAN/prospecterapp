@@ -7,7 +7,7 @@ import { queryKeys } from '@/shared/api/keys'
 import { readAgainAfterTheReactions } from '@/shared/api/reactions'
 import { type Contact, contactQuery } from './queries'
 
-/** The contacts listed elsewhere (the list, the contacts of the organizations) show what changed. */
+/** The contacts listed elsewhere (the list, the organizations' contacts) show what changed. */
 function useRefreshTheLists() {
   const queryClient = useQueryClient()
 
@@ -17,7 +17,7 @@ function useRefreshTheLists() {
   }
 }
 
-/** Every intention returns the fresh contact: it goes straight into the detail cache. */
+/** Every intention returns the fresh contact. It goes straight into the detail cache. */
 function useStoreContact() {
   const queryClient = useQueryClient()
   const refreshTheLists = useRefreshTheLists()
@@ -56,7 +56,7 @@ export function useChangeJobTitle() {
   })
 }
 
-/** How the contact is reached sets its automatic tags, by the reactions to the gesture (ADR 0141). */
+/** The reactions to the gesture set the contact's automatic tags from how it is reached (ADR 0141). */
 export function useChangeContactDetailsOfContact() {
   const queryClient = useQueryClient()
   const store = useStoreContact()
@@ -70,7 +70,7 @@ export function useChangeContactDetailsOfContact() {
   })
 }
 
-/** The other contact is no longer flagged once the reaction to the gesture ran: read again after it. */
+/** The other contact stays flagged until the gesture's reaction runs. So it is read again after the reaction. */
 export function useDismissPossibleDuplicateOfContact() {
   const queryClient = useQueryClient()
   const store = useStoreContact()
