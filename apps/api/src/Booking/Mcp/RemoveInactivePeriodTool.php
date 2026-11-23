@@ -10,7 +10,7 @@ use Mcp\Server\Capability\Attribute\McpTool;
 use Prospecter\Core\Booking\Application\RemoveInactivePeriod\RemoveInactivePeriod;
 
 /**
- * `DELETE /api/me/booking-page/inactive-periods/{id}`, for an AI (ADR 0163), which asks its member before calling it.
+ * `DELETE /api/me/booking-page/inactive-periods/{id}`, for an AI (ADR 0163). The AI asks its member before it calls the tool.
  */
 #[Adapts('api_booking_page_remove_inactive_period')]
 final readonly class RemoveInactivePeriodTool
@@ -20,11 +20,11 @@ final readonly class RemoveInactivePeriodTool
     }
 
     /**
-     * @param string $id the id of the inactive period, as the booking page lists it
+     * @param string $id the inactive period's id, as the booking page lists it
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'remove-inactive-period', description: 'Remove an inactive period from the booking page of the member: they may be booked in it again. Answers the booking page.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'remove-inactive-period', description: 'Remove an inactive period from the member\'s booking page. Bookers can book them on those days again. Returns the booking page.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id): array
     {
         return $this->writes->change(

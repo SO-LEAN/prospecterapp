@@ -18,8 +18,8 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * Anticorruption layer (ADR 0045, 0089, 0153): Booking knows the account of a host and the name of its organization
- * from Accounts, how the host presents themselves from PersonalData, each asked about a set of one.
+ * Anticorruption layer (ADR 0045, 0089, 0153). Booking learns a host's account and its organization's name from
+ * Accounts. It learns how the host presents themselves from PersonalData. It asks each one about a set of one.
  */
 final readonly class AccountsAndPersonalDataHosts implements Hosts
 {
@@ -45,8 +45,8 @@ final readonly class AccountsAndPersonalDataHosts implements Hosts
     }
 
     /**
-     * Whether the host may hold the contacts their bookers become: a member with the right to manage personal data
-     * (ADR 0146, 0164). An unknown member may not.
+     * Whether the host can hold the contacts that their bookers become: the host is a member with the right to manage
+     * personal data (ADR 0146, 0164). An unknown member cannot.
      */
     public function mayHoldBookers(MemberId $host): bool
     {

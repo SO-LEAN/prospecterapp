@@ -15,7 +15,7 @@ use Prospecter\Core\Booking\Application\ConsultMyBookingPage\ConsultMyBookingPag
 use Prospecter\Core\Booking\Application\MyBookingPage;
 
 /**
- * Presents my booking page as the API shows it, an object of the call (ADR 0085).
+ * Presents my booking page as the API shows it, as a per-call object (ADR 0085).
  */
 final class BookingPageResourcePresenter implements ConsultMyBookingPageOutput
 {

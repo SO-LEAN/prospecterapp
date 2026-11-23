@@ -11,8 +11,8 @@ use Prospecter\Core\Connectors\Contract\Service\WhichHaveAConnectedCalendar\Whic
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * Anticorruption layer (ADR 0045, 0089): Booking knows whether the calendar of a host is connected from Connectors,
- * asked about a set of one.
+ * Anticorruption layer (ADR 0045, 0089). Booking learns from Connectors whether a host's calendar is connected, by
+ * asking about a set of one.
  */
 final readonly class ConnectorsConnectedCalendars implements ConnectedCalendars
 {

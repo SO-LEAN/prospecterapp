@@ -7,8 +7,8 @@ namespace App\Booking;
 use App\Booking\Input\BookingInput;
 
 /**
- * Tells a form a robot filled from one a person did, without a captcha (ADR 0164): a person leaves the hidden trap
- * empty, and takes some seconds to fill the form the page showed.
+ * Tells a form that a robot filled from a form that a person filled, without a captcha (ADR 0164). A person leaves the
+ * hidden trap empty, and takes some seconds to fill the form that the page showed.
  */
 final readonly class Robots
 {

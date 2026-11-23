@@ -27,8 +27,8 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * A booking page as its item keeps it (ADR 0048, 0148): its windows by their days and their times HH:MM, the time
- * zone they are set in, its inactive periods by their days, its channels, whether it is open, the code of its link.
+ * A booking page as its item keeps it (ADR 0048, 0148): its windows by day with their HH:MM times, the windows' time
+ * zone, its inactive periods by their days, its channels, whether it is open, and its link's code.
  */
 final class BookingPageDocument
 {
@@ -80,8 +80,8 @@ final class BookingPageDocument
     }
 
     /**
-     * The read model of its host, without restoring the page (ADR 0088): the periods ended before the day of the
-     * reading left out, the soonest first. Its item's document is untyped.
+     * The host's read model, without restoring the page (ADR 0088). It leaves out the periods that ended before the
+     * reading's day, and lists the others soonest first. Its item's document is untyped.
      */
     public static function myPage(mixed $document, string $today, bool $calendarConnected): MyBookingPage
     {
@@ -110,7 +110,7 @@ final class BookingPageDocument
     }
 
     /**
-     * The page as its public link needs it, from its item's untyped document, without restoring it (ADR 0088).
+     * The page as its public link needs it, read from its item's untyped document without restoring it (ADR 0088).
      */
     public static function schedule(mixed $document): BookingSchedule
     {

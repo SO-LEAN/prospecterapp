@@ -11,8 +11,8 @@ use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Symfony\Component\Clock\ClockInterface;
 
 /**
- * My booking page as the API shows it, on my clock; a controller calls it after a command, which returns nothing, to
- * answer with the fresh resource.
+ * Reads my booking page as the API shows it, on my clock. A command returns nothing, so a controller calls this reader
+ * after the command to answer with the fresh resource.
  */
 final readonly class MyBookingPageReader
 {

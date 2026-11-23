@@ -14,17 +14,18 @@ use Symfony\Component\RateLimiter\RateLimiterFactoryInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 /**
- * The public routes of Booking, read without signing in by whomever holds a link, are limited by the code of the link
- * (ADR 0153): a route says so by its default `LIMITED_BY_ITS_CODE`. Over the limit, a problem+json 429 the client
- * words, kept by nobody; the limit by address is the edge's of the installation, and the HTTP API's on AWS. A code
- * oversized leads nowhere: neither counted nor looked for, a key of the table holding no more than 2 KB.
+ * Limits Booking's public routes by the link's code (ADR 0153). Anyone with a link reads these routes without signing
+ * in. A route asks for the limit with its default `LIMITED_BY_ITS_CODE`. Over the limit, the answer is a problem+json
+ * 429 that nobody caches, and the client writes its wording. The limit per address belongs to the installation's edge,
+ * and to the HTTP API on AWS. An oversized code leads nowhere: it is neither counted nor looked up, because a table key
+ * holds 2 KB at most.
  */
 #[AsEventListener(priority: self::ONCE_ROUTED)]
 final readonly class PublicBookingRoutes
 {
     public const string LIMITED_BY_ITS_CODE = '_limited_by_its_code';
     /**
-     * Far beyond the 22 characters of a code drawn, far below what a key of the table holds.
+     * Far above a drawn code's 22 characters, and far below what a table key holds.
      */
     private const int LONGEST_CODE = 64;
     private const int ONCE_ROUTED = 16;
@@ -57,7 +58,7 @@ final readonly class PublicBookingRoutes
     }
 
     /**
-     * The limiter counts on the real clock: so does the delay it gives, in seconds.
+     * The limiter counts on the real clock, so the delay it gives, in seconds, does too.
      */
     private function tooManyRequests(\DateTimeImmutable $retryAfter): JsonResponse
     {

@@ -18,8 +18,8 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 /**
- * An appointment as its items keep it (ADR 0048, 0164): its slot a moment and the time zone of the host it was
- * booked on, who booked it as they said it.
+ * An appointment as its items keep it (ADR 0048, 0164): its slot as a moment, with the host's time zone at booking
+ * time, and the booker as they described themselves.
  */
 final class AppointmentDocument
 {

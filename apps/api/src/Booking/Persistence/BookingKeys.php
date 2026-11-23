@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace App\Booking\Persistence;
 
 /**
- * The keys of the items of the table of Booking, written by the repository and read by the retrievers (ADR 0088,
- * 0151): the page of a host in its own partition, and the link of a code to its page, found by the code alone; the
- * counts of a limiter of the public routes, by what it limits (ADR 0153); an appointment by its identity, and the
- * slot it holds in the partition of the slots of its host, by its start (ADR 0164).
+ * The keys of the Booking table's items. The repository writes them and the retrievers read them (ADR 0088, 0151):
+ *
+ * - a host's page, in its own partition;
+ * - a code's link to its page, found by the code alone;
+ * - a public route limiter's counts, by what the limiter limits (ADR 0153);
+ * - an appointment, by its id (ADR 0164);
+ * - the slot an appointment holds, in the partition of its host's slots, by the slot's start.
  */
 final class BookingKeys
 {

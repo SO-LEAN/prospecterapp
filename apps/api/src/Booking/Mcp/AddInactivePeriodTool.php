@@ -22,12 +22,12 @@ final readonly class AddInactivePeriodTool
     }
 
     /**
-     * @param string $firstDay the first day nobody books the member, as 2026-12-21
-     * @param string $lastDay  the last one, as 2027-01-04
+     * @param string $firstDay the first day when nobody can book the member, such as 2026-12-21
+     * @param string $lastDay  the last such day, such as 2027-01-04
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'add-inactive-period', description: 'Add to the booking page of the member a period nobody books them in, their holidays for instance. Answers the booking page, each period with the link removing it.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'add-inactive-period', description: 'Add a period to the member\'s booking page when nobody can book them, such as their holidays. Returns the booking page. Each period has the link that removes it.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $firstDay, string $lastDay): array
     {
         return $this->writes->write(
@@ -35,8 +35,8 @@ final readonly class AddInactivePeriodTool
             fn (InactivePeriodInput $input, string $memberId, \DateTimeImmutable $now): AddInactivePeriod => new AddInactivePeriod(
                 memberId: $memberId,
                 periodId: $this->identities->next(),
-                firstDay: $input->firstDay ?? throw new \LogicException('A period validated has its first day'),
-                lastDay: $input->lastDay ?? throw new \LogicException('A period validated has its last day'),
+                firstDay: $input->firstDay ?? throw new \LogicException('A validated period has its first day'),
+                lastDay: $input->lastDay ?? throw new \LogicException('A validated period has its last day'),
                 executedAt: $now,
             ),
         );

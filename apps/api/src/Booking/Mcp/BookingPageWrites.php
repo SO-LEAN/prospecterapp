@@ -12,8 +12,9 @@ use App\Shared\Mcp\ToolResults;
 use Symfony\Component\Clock\ClockInterface;
 
 /**
- * What every tool writing the booking page of its member does as its controller (ADR 0163): any member, on their own
- * page, the input of the endpoint checked, its command dispatched, the page answered as the screen then reads it.
+ * What every tool that writes its member's booking page does, as the endpoint's controller does (ADR 0163). Any member
+ * can write their own page. The tool checks the endpoint's input, dispatches its command, and answers the page as the
+ * screen then reads it.
  */
 final readonly class BookingPageWrites
 {
@@ -30,9 +31,9 @@ final readonly class BookingPageWrites
     /**
      * @template TInput of object
      *
-     * @param TInput                                               $input    the input of the endpoint
-     * @param \Closure(TInput, string, \DateTimeImmutable): object $command  the command of the endpoint, from its input, by the member, at this moment
-     * @param ?string                                              $timeZone the time zone the page is answered on; UTC otherwise
+     * @param TInput                                               $input    the endpoint's input
+     * @param \Closure(TInput, string, \DateTimeImmutable): object $command  builds the endpoint's command from its input, for the member, at this moment
+     * @param ?string                                              $timeZone the time zone of the answered page, UTC by default
      *
      * @return array<string, mixed>
      */
@@ -46,10 +47,10 @@ final readonly class BookingPageWrites
     }
 
     /**
-     * It does the same as write() for an endpoint without an input.
+     * Does the same as write(), for an endpoint without an input.
      *
-     * @param \Closure(string, \DateTimeImmutable): object $command  the command of the endpoint, by the member, at this moment
-     * @param ?string                                      $timeZone the time zone the page is answered on; UTC otherwise
+     * @param \Closure(string, \DateTimeImmutable): object $command  builds the endpoint's command for the member, at this moment
+     * @param ?string                                      $timeZone the time zone of the answered page, UTC by default
      *
      * @return array<string, mixed>
      */

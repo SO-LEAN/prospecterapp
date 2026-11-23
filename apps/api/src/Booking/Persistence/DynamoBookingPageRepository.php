@@ -13,8 +13,8 @@ use Prospecter\Core\Booking\Domain\Repository\BookingPageRepository;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * The booking page of each host in the table of Booking, and the link of its code to it (ADR 0151): a new code put
- * only where none is, its former link deleted in the same transaction.
+ * Each host's booking page in the Booking table, and its code's link to it (ADR 0151). A new code is put only where no
+ * code is yet. Its former link is deleted in the same transaction.
  */
 final readonly class DynamoBookingPageRepository implements BookingPageRepository
 {

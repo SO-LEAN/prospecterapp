@@ -12,10 +12,13 @@ use Symfony\Component\RateLimiter\Policy\SlidingWindow;
 use Symfony\Component\RateLimiter\Storage\StorageInterface;
 
 /**
- * The counts of the limiters of the public routes of Booking in its table (ADR 0153), shared by every function of
- * the api, as the memory of one is not: `RATE_LIMIT#<limiter and what it limits>` / `RATE_LIMIT`, the state of the
- * limiter serialized (a sliding window, the policy of these limiters), `expiresAt` the epoch the table forgets it at. Written apart from any unit of work: a count is no
- * fact of a gesture, and losing one lets a request more through.
+ * Keeps the counts of Booking's public route limiters in the Booking table (ADR 0153). Every function of the API shares
+ * them, because one function's memory is not shared. The key is `RATE_LIMIT#<limiter and what it limits>` /
+ * `RATE_LIMIT`. The item holds the limiter's serialized state (a sliding window, the policy of these limiters).
+ * `expiresAt` is the epoch at which the table forgets it.
+ *
+ * The storage writes outside any unit of work. A count is not a fact of an action, and a lost count lets one more
+ * request through.
  */
 final readonly class DynamoRateLimiterStorage implements StorageInterface
 {
