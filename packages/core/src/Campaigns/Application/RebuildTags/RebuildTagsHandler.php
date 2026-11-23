@@ -13,10 +13,10 @@ use Prospecter\Core\SharedKernel\Application\Port\UnitOfWork;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 
 /**
- * Records again the facts of the organizations and of the contacts of each account, as Prospecting and PersonalData
- * give them now, through the succession the worker records by (ADR 0141): no version and no wait, the facts replacing
- * each other by their revision, a fact rebuilt replacing the one kept at the same revision too. Each fact is a unit of
- * work of its own, without the unit of a command.
+ * Records again the facts about each account's organizations and contacts, as Prospecting and PersonalData give them
+ * now. It goes through the same succession as the worker (ADR 0141). It needs no version and no wait, because the facts
+ * replace each other by revision. A rebuilt fact also replaces the kept fact at the same revision. Each fact is its own
+ * unit of work, without a command's unit of work.
  */
 final readonly class RebuildTagsHandler implements CommandHandler
 {
