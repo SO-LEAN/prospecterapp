@@ -7,7 +7,7 @@ namespace Prospecter\Core\Campaigns\Application\SetDailyCap;
 final readonly class SetDailyCap
 {
     /**
-     * @param int|null $dailyCap the most recipients processed a day, a guard only; none to take the cap off
+     * @param int|null $dailyCap the most recipients processed in a day, only a guard; null takes the cap off
      */
     public function __construct(
         public string $memberId,
