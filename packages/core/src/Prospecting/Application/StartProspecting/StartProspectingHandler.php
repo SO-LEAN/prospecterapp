@@ -67,7 +67,7 @@ final readonly class StartProspectingHandler implements CommandHandler
     }
 
     /**
-     * Only what is known is told: an organization started without links nor website has no contact details changed.
+     * Only what is known is told. An organization started without links or a website gets no change of contact details.
      */
     private function placeOnTheWeb(Organization $organization, StartProspecting $command, MemberId $author): void
     {
@@ -80,7 +80,7 @@ final readonly class StartProspectingHandler implements CommandHandler
     }
 
     /**
-     * Only what is known is told: an organization started without an address did not move.
+     * Only what is known is told. An organization started without an address did not move.
      */
     private function locate(Organization $organization, StartProspecting $command, MemberId $author): void
     {
