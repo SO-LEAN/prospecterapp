@@ -11,8 +11,8 @@ use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 
 /**
- * The to-dos their holder kept while the contact waited to be attached follow them into the organization they
- * join (ADR 0146); those kept for organizations already stay as they are (ADR 0113).
+ * The holder kept some to-dos while the contact waited to be attached. These to-dos follow the contact into the
+ * organization they join (ADR 0146). The to-dos already kept for organizations stay as they are (ADR 0113).
  */
 final readonly class KeepToDosOfAttachedContactHandler implements EventHandler
 {
