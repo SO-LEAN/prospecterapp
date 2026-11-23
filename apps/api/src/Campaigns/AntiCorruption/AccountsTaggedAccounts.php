@@ -10,9 +10,7 @@ use Prospecter\Core\Accounts\Contract\Service\ListAccounts\ListAccountsService;
 use Prospecter\Core\Campaigns\Domain\Port\TaggedAccounts;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 
-/**
- * Anticorruption layer (ADR 0045, 0089): the accounts Accounts lists, slice after slice.
- */
+/** Anticorruption layer (ADR 0045, 0089): the accounts that Accounts lists, one slice after another. */
 final readonly class AccountsTaggedAccounts implements TaggedAccounts
 {
     private const int SLICE = 100;
