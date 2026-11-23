@@ -13,6 +13,6 @@ final class NoAddressToReimport extends NotPossibleInItsState
 {
     public static function ofTheCorrespondent(): self
     {
-        return self::because('No address to reimport the e-mails exchanged with');
+        return self::because('The contact or organization has no e-mail address to search for');
     }
 }

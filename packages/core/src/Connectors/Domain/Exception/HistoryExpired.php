@@ -12,6 +12,6 @@ final class HistoryExpired extends \RuntimeException
 {
     public static function from(string $historyId): self
     {
-        return new self(sprintf('The history of the mailbox is no longer kept from %s', $historyId));
+        return new self(sprintf('The mailbox\'s history no longer goes back to %s', $historyId));
     }
 }

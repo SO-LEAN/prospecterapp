@@ -103,17 +103,17 @@ Fonctionnalité: Rattraper l'historique Gmail d'un contact ou d'une organisation
   Scénario: Sans import activé, pas de rattrapage
     Soit je coupe l'import de mes e-mails Gmail
     Quand je rattrape l'historique Gmail de "Ada Lovelace"
-    Alors c'est refusé : "The import of the e-mails is not active"
+    Alors c'est refusé : "The e-mail import is not active"
 
   Scénario: Sans le droit aux données personnelles, pas de rattrapage
     Soit je perds le droit aux données personnelles
     Quand je rattrape l'historique Gmail de "Globex"
-    Alors c'est refusé : "Only a member allowed to manage personal data catches up the e-mails of their mailbox"
+    Alors c'est refusé : "Only a member allowed to manage personal data can reimport e-mails from their mailbox"
 
   Scénario: Sans e-mail, pas de rattrapage
     Soit le contact "Alan Turing" de "ACME"
     Quand je rattrape l'historique Gmail de "Alan Turing"
-    Alors c'est refusé : "No address to reimport the e-mails exchanged with"
+    Alors c'est refusé : "The contact or organization has no e-mail address to search for"
 
   Plan du scénario: Un contact ou une organisation d'un autre compte reste introuvable
     Soit l'organisation "Initech SAS" qui utilise Prospecter
