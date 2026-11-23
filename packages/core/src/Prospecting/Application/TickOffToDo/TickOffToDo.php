@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\TickOffToDo;
 
 /**
- * Ticks a to-do off, done at the moment of the command.
+ * Ticks a to-do off. It is done at the command's moment.
  */
 final readonly class TickOffToDo
 {
