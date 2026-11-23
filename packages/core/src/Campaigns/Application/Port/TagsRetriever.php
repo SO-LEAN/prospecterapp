@@ -9,23 +9,23 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
- * Reads the tags put by hand without restoring the taggings (ADR 0088), written with their mark, and where the
- * organizations are, as their facts say it (ADR 0142).
+ * Reads the tags put by hand, written with their `#`, without restoring the taggings (ADR 0088). It also reads where
+ * the organizations are, as their facts say (ADR 0142).
  */
 interface TagsRetriever
 {
     /**
-     * @return list<string> in the order of their names, none when nothing was tagged
+     * @return list<string> sorted by name, empty when nothing was tagged
      */
     public function of(AccountId $accountId, Holder $holder): array;
 
     /**
-     * @return list<string> every tag the organizations and the contacts of the account carry, once each, in no order
+     * @return list<string> every tag that the account's organizations and contacts carry, once each, in no particular order
      */
     public function carriedIn(AccountId $accountId): array;
 
     /**
-     * @return array{municipalityCode: ?string, country: ?string}|null null without a fact of it
+     * @return array{municipalityCode: ?string, country: ?string}|null null without a fact about it
      */
     public function localityOf(AccountId $accountId, OrganizationId $organizationId): ?array;
 
