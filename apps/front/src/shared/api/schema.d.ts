@@ -756,7 +756,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Join to an exchange a file the browser sent with the form of an upload */
+        /** Attach to an exchange a file that the browser sent with an upload form */
         post: operations["post_api_exchanges_attach_file"];
         delete?: never;
         options?: never;
@@ -773,7 +773,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Cancel a planned exchange, saying who called it off if wished; it stays in the timelines, cancelled; by its holder */
+        /** Cancel a planned exchange, and optionally say who called it off. The exchange stays in the timelines as cancelled. Only its holder can cancel it */
         post: operations["post_api_exchanges_cancel"];
         delete?: never;
         options?: never;
@@ -794,7 +794,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Correct the channel, the direction, whether it was missed, the moment and the text of an exchange that took place; its contact stays */
+        /** Correct an exchange that took place: its channel, its direction, whether it was missed, its moment and its text. Its contact stays the same */
         patch: operations["patch_api_exchanges_correct"];
         trace?: never;
     };
@@ -811,7 +811,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Correct the text of an exchange only, to redact it, and declare it redacted once its contact was forgotten; open to every prospector of the account */
+        /** Correct only an exchange's text, to redact it. Once its contact is forgotten, the correction can declare the text redacted. Every prospector of the account can do it */
         patch: operations["patch_api_exchanges_correct_text"];
         trace?: never;
     };
@@ -828,7 +828,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Correct where a meeting is held, or the link of a video call, planned or done; open to every prospector of the account */
+        /** Correct a meeting's place or a video call's link, planned or done. Every prospector of the account can do it */
         patch: operations["patch_api_exchanges_correct_venue"];
         trace?: never;
     };
@@ -839,11 +839,11 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Where to read a file joined to an exchange, for a minute */
+        /** Where to read a file attached to an exchange, for one minute */
         get: operations["get_api_exchanges_download_attachment"];
         put?: never;
         post?: never;
-        /** Remove a file joined to an exchange, and forget it */
+        /** Remove a file attached to an exchange, and forget it */
         delete: operations["delete_api_exchanges_remove_attachment"];
         options?: never;
         head?: never;
@@ -857,7 +857,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** The whole of an exchange with a contact, who noted it and who corrected it last */
+        /** An exchange in full, with who logged it and who last corrected it */
         get: operations["get_api_exchanges_show"];
         put?: never;
         post?: never;
@@ -877,7 +877,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Mark done a planned exchange whose time has come, with its report and the moment it really took place; by its holder */
+        /** Mark a planned exchange done once its time has come, with its report and the moment it really took place. Only its holder can mark it */
         post: operations["post_api_exchanges_mark_done"];
         delete?: never;
         options?: never;
@@ -894,7 +894,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Mark missed a planned exchange whose time has come: the contact did not come or answer; by its holder */
+        /** Mark a planned exchange missed once its time has come: the contact did not come or did not answer. Only its holder can mark it */
         post: operations["post_api_exchanges_mark_missed"];
         delete?: never;
         options?: never;
@@ -915,7 +915,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Move a planned exchange to another moment to come, for a new duration or its own; by its holder */
+        /** Move a planned exchange to another moment in the future. It keeps its duration unless a new one is given. Only its holder can move it */
         patch: operations["patch_api_exchanges_move"];
         trace?: never;
     };
@@ -928,7 +928,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** A form the browser sends one private file with, itself, before joining it to an exchange */
+        /** A form that the browser uses to send one private file itself, before attaching it to an exchange */
         post: operations["post_api_uploads_prepare"];
         delete?: never;
         options?: never;
@@ -2103,7 +2103,7 @@ export interface components {
         };
         AttachmentInput: {
             /**
-             * @description The upload of `UploadResource`
+             * @description The upload that `UploadResource` names
              * @default
              */
             upload: string;
@@ -2112,7 +2112,7 @@ export interface components {
         };
         CancellationInput: {
             /**
-             * @description Who called it off, when said: the prospector or the contact
+             * @description Who called it off, when known: the prospector or the contact
              * @default null
              * @enum {string|null}
              */
@@ -2131,19 +2131,19 @@ export interface components {
             direction: "inbound" | "outbound";
             /**
              * Format: date-time
-             * @description When it happened; never in the future
+             * @description When it happened, never in the future
              * @default null
              */
             occurredAt: string | null;
             /** @default null */
             text: string | null;
             /**
-             * @description Missed: the contact did not answer or come; a call, a meeting or a video call only, its status then missed
+             * @description Missed: the contact did not answer or did not come. Only a call, a meeting or a video call can be missed. Its status then becomes missed
              * @default false
              */
             missed: boolean;
             /**
-             * @description Declares the exchange redacted, its contact forgotten; only while the link redact is offered
+             * @description Declares the exchange redacted once its contact is forgotten. Allowed only while the `redact` link is offered
              * @default false
              */
             redacted: boolean;
@@ -2152,19 +2152,19 @@ export interface components {
             /** @default null */
             text: string | null;
             /**
-             * @description Declares the exchange redacted, its contact forgotten; only while the link redact is offered
+             * @description Declares the exchange redacted once its contact is forgotten. Allowed only while the `redact` link is offered
              * @default false
              */
             redacted: boolean;
         };
         VenueCorrectionInput: {
             /**
-             * @description Where a meeting is held, written freely; a meeting only
+             * @description Where a meeting is held, written freely. Only a meeting has one
              * @default null
              */
             place: string | null;
             /**
-             * @description The web address a video call is joined by; a video call only
+             * @description The web address that joins a video call. Only a video call has one
              * @default null
              */
             link: string | null;
@@ -2172,7 +2172,7 @@ export interface components {
         ReportInput: {
             /**
              * Format: date-time
-             * @description When it really took place, its planned moment when left out; never in the future
+             * @description When it really took place, never in the future. The planned moment when left out
              * @default null
              */
             occurredAt: string | null;
@@ -2185,12 +2185,12 @@ export interface components {
         MomentInput: {
             /**
              * Format: date-time
-             * @description When it is to happen now; in the future
+             * @description When it is now to happen, in the future
              * @default null
              */
             occurredAt: string | null;
             /**
-             * @description How long it lasts now, from 5 minutes to 8 hours; its own when left out
+             * @description How long it now lasts, from 5 minutes to 8 hours. It keeps its duration when left out
              * @default null
              */
             durationInMinutes: number | null;
@@ -2899,7 +2899,7 @@ export interface components {
         };
         AuthorResource: {
             name: components["schemas"]["PersonNameResource"];
-            /** @description Their email, to name them while their profile has no name */
+            /** @description Their email, which names them while their profile has no name */
             email?: string | null;
         };
         ToDoContactResource: {
@@ -3030,7 +3030,7 @@ export interface components {
             /** @description In bytes */
             size: number;
             mediaType: string;
-            /** @description The contact of the exchange forgotten, it may hold their personal data: redacted by removing it */
+            /** @description Once the exchange's contact is forgotten, the file may hold their personal data. Removing it redacts it */
             toRedact: boolean;
             _links: components["schemas"]["AttachmentLinksResource"];
         };
@@ -3057,13 +3057,13 @@ export interface components {
             /** @enum {string} */
             channel: "call" | "sms" | "email" | "linkedIn" | "malt" | "meeting" | "videoCall" | "other";
             /**
-             * @description inbound: the contact or the organization reached out; outbound: we did
+             * @description inbound: the contact or the organization reached out. outbound: we did
              * @enum {string}
              */
             direction: "inbound" | "outbound";
             /**
              * Format: date-time
-             * @description When it happened, or is to happen once planned
+             * @description When it happened, or when it is to happen once planned
              */
             occurredAt: string;
             /**
@@ -3072,41 +3072,41 @@ export interface components {
              */
             status: "planned" | "done" | "missed" | "cancelled";
             /**
-             * @description Who called it off once cancelled, when said
+             * @description Who called it off once cancelled, when known
              * @enum {string|null}
              */
             canceller?: "prospector" | "contact" | null;
             /** @description How long it lasts, once planned */
             durationInMinutes?: number | null;
             text?: string | null;
-            /** @description Where a meeting is held, written freely; null for any other channel */
+            /** @description Where a meeting is held, written freely. Null for any other channel */
             place?: string | null;
-            /** @description The web address a video call is joined by; null for any other channel, or until it is known */
+            /** @description The web address that joins a video call. Null for any other channel, or until it is known */
             link?: string | null;
-            /** @description A video call without a link awaiting the one the calendar of its holder creates, read again until it comes */
+            /** @description A video call without a link waits for the link that its holder's calendar creates. Read it again until the link comes */
             linkAwaited: boolean;
-            /** @description The number the interlocutor is called at: the contact read in clear, or the organization itself; none when unknown or masked */
+            /** @description The number to call the interlocutor at: the contact's number read in clear, or the organization's own. None when unknown or masked */
             phoneNumber?: string | null;
-            /** @description Its text may hold personal data: flagged to a prospector reading it without the right to manage them */
+            /** @description Its text may hold personal data. It is flagged to a prospector who reads it without the right to manage personal data */
             textFlagged: boolean;
-            /** @description Its contact forgotten, its text may still hold their personal data, until it is declared redacted */
+            /** @description Once its contact is forgotten, its text may still hold their personal data, until it is declared redacted */
             textToRedact: boolean;
-            /** @description Its contact forgotten, its text or its files may still hold their personal data */
+            /** @description Once its contact is forgotten, its text or its files may still hold their personal data */
             toRedact: boolean;
-            /** @description The organizations it is kept for: those the contact was part of when it was noted, or the organization itself */
+            /** @description The organizations it is kept for: those the contact was part of when it was logged, or the organization itself */
             organizationIds: string[];
             noted: components["schemas"]["StampResource"];
-            /** @description The last correction, null while it is as it was noted */
+            /** @description The last correction. Null while it is as it was logged */
             corrected?: components["schemas"]["StampResource"] | null;
-            /** @description Who declared it redacted, and when; null while it is not */
+            /** @description Who declared it redacted, and when. Null while it is not redacted */
             redacted?: components["schemas"]["StampResource"] | null;
-            /** @description The files joined to it, in the order they were */
+            /** @description The files attached to it, in the order they were attached */
             attachments: components["schemas"]["AttachmentResource"][];
-            /** @description How many files are joined to it but hidden to a prospector reading it without the right to manage personal data */
+            /** @description How many attached files are hidden from a prospector who reads it without the right to manage personal data */
             hiddenAttachments: number;
-            /** @description The campaign it was noted in, none for an exchange of no campaign */
+            /** @description The campaign it was logged in. None for an exchange outside any campaign */
             campaign?: components["schemas"]["CampaignOfExchangeResource"] | null;
-            /** @description Its contact booked it by the public link of its holder, who planned nothing themselves (ADR 0164) */
+            /** @description Its contact booked it through its holder's public link. The holder planned nothing themselves (ADR 0164) */
             bookedByLink: boolean;
             /**
              * @description The provider of the mailbox it was imported from: google for Gmail. Null for a logged exchange (ADR 0174)
@@ -3121,7 +3121,7 @@ export interface components {
         };
         AttachmentDownloadResource: {
             name: string;
-            /** @description Signed for a minute: open it at once, never keep it */
+            /** @description Signed for one minute. Open it at once and never keep it */
             url: string;
         };
         UploadResource: {
@@ -6567,7 +6567,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description The exchange with the file joined */
+            /** @description The exchange with the attached file */
             201: {
                 headers: {
                     [name: string]: unknown;
@@ -6592,7 +6592,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown exchange, or one of another account; unknown upload, expired or already joined */
+            /** @description Unknown exchange, or one of another account. Or an upload that is unknown, expired or already attached */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -6601,7 +6601,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description The exchange holds as many files as it may */
+            /** @description The exchange already holds as many files as it can */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -6652,7 +6652,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Not a prospector, or not the holder of the exchange */
+            /** @description Not a prospector, or not the exchange's holder */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -6670,7 +6670,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description No longer to come */
+            /** @description The exchange is no longer planned */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -6742,7 +6742,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Declared redacted while nothing is to redact, or changed since the revision sent was read */
+            /** @description Declared redacted while there is nothing to redact, or changed since the client read the revision it sent */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -6814,7 +6814,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Declared redacted while nothing is to redact, or changed since the revision sent was read */
+            /** @description Declared redacted while there is nothing to redact, or changed since the client read the revision it sent */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -6823,7 +6823,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Invalid text: too long, or another fact of the exchange */
+            /** @description Invalid text: too long, or another of the exchange's facts */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -6886,7 +6886,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Neither a meeting nor a video call, or changed since the revision sent was read */
+            /** @description Neither a meeting nor a video call, or changed since the client read the revision it sent */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -6918,7 +6918,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description A link signed for a minute */
+            /** @description A link signed for one minute */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -7125,7 +7125,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Not a prospector, or not the holder of the exchange */
+            /** @description Not a prospector, or not the exchange's holder */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -7143,7 +7143,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description No longer to come, or its time not come */
+            /** @description The exchange is no longer planned, or its time has not come */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -7190,7 +7190,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Not a prospector, or not the holder of the exchange */
+            /** @description Not a prospector, or not the exchange's holder */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -7208,7 +7208,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description No longer to come, or its time not come */
+            /** @description The exchange is no longer planned, or its time has not come */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -7234,7 +7234,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description The exchange, moved, linking moving it back while the moment it was moved from is to come */
+            /** @description The moved exchange. It links a move back while the moment it was moved from is still in the future */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -7250,7 +7250,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Not a prospector, or not the holder of the exchange */
+            /** @description Not a prospector, or not the exchange's holder */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -7268,7 +7268,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description No longer to come */
+            /** @description The exchange is no longer planned */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -7277,7 +7277,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description A moment missing, or in the past; a duration out of range */
+            /** @description A missing moment, a moment in the past, or a duration out of range */
             422: {
                 headers: {
                     [name: string]: unknown;

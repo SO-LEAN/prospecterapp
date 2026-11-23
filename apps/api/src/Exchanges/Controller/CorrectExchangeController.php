@@ -42,13 +42,13 @@ final class CorrectExchangeController extends AbstractController
     #[Route('/api/exchanges/{id}/facts', name: 'api_exchanges_correct', requirements: ['id' => Requirement::UUID], methods: ['PATCH'])]
     #[IsGranted(ExchangeVoter::ACCESS, subject: 'exchange')]
     #[IsGranted(User::PERSONAL_DATA)]
-    #[OA\Patch(summary: 'Correct the channel, the direction, whether it was missed, the moment and the text of an exchange that took place; its contact stays')]
+    #[OA\Patch(summary: 'Correct an exchange that took place: its channel, its direction, whether it was missed, its moment and its text. Its contact stays the same')]
     #[OA\Parameter(name: 'revision', in: 'query', description: RevisionDescription::OF_A_CHANGE)]
     #[OA\Response(response: 200, description: 'The corrected exchange', content: new Model(type: ExchangeDetailResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'Unknown exchange, or one of another account', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 409, description: 'Declared redacted while nothing is to redact, or changed since the revision sent was read', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 409, description: 'Declared redacted while there is nothing to redact, or changed since the client read the revision it sent', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 422, description: 'Invalid correction: unknown channel or direction, a missed exchange that is no call, meeting or video call, a moment in the future, another contact', content: new Model(type: ProblemResource::class))]
     public function __invoke(ExchangeDetail $exchange, #[MapRequestPayload] CorrectionInput $input, #[CurrentUser] User $user, #[MapQueryParameter(options: ['min_range' => 0], validationFailedStatusCode: 422)] ?int $revision = null): JsonResponse
     {

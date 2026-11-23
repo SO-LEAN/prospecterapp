@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace App\Exchanges\Resource;
 
 /**
- * What an AI noting an exchange is answered (ADR 0166): noted, already noted before, with the exchange noted first, or
- * erased before, with who erased it, never noted again; none an error.
+ * What an AI that logs an exchange gets as an answer (ADR 0166). The exchange is either logged, already logged before
+ * with the exchange logged first, or erased before with who erased it. An erased exchange is never logged again. None
+ * of these answers is an error.
  */
 final readonly class NotingResource
 {
@@ -28,7 +29,7 @@ final readonly class NotingResource
     }
 
     /**
-     * Without the exchange noted first when it was noted at the same moment, unknown to the noting refused.
+     * The exchange logged first is missing when it was logged at the same moment. The refused logging does not know it.
      */
     public static function alreadyNoted(?ExchangeDetailResource $notedFirst): self
     {

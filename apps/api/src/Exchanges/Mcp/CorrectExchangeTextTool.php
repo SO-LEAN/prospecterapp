@@ -22,14 +22,14 @@ final readonly class CorrectExchangeTextTool
     }
 
     /**
-     * @param string      $id       the id of the exchange
-     * @param string|null $text     its text corrected, 5000 characters at most
-     * @param bool        $redacted declares the exchange redacted, its contact forgotten; only while its link redact is offered
-     * @param ?int        $revision the exchange's `revision` as you read it: if it changed since, the change is refused (changedMeanwhile) and you read it again
+     * @param string      $id       the exchange's id
+     * @param string|null $text     its corrected text, 5000 characters at most
+     * @param bool        $redacted declares the exchange redacted once its contact is forgotten. Allowed only while its `redact` link is offered
+     * @param ?int        $revision the exchange's `revision` as you read it. If the exchange changed since, the change is refused (changedMeanwhile): read it again
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'set-exchange-text', description: 'Correct the text of an exchange only, its other facts staying, to redact it once its contact was forgotten; open to every prospector of the account. Answers the exchange.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
+    #[McpTool(name: 'set-exchange-text', description: 'Correct only an exchange\'s text. Its other facts stay the same. Use it to redact the text once its contact is forgotten. Every prospector of the account can do it. Returns the exchange.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
     public function __invoke(string $id, ?string $text = null, bool $redacted = false, ?int $revision = null): array
     {
         return $this->writes->writeOnRevision(

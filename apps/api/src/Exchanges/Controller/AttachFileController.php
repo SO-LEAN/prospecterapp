@@ -41,12 +41,12 @@ final class AttachFileController extends AbstractController
     #[Route('/api/exchanges/{id}/attachments', name: 'api_exchanges_attach_file', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
     #[IsGranted(ExchangeVoter::ACCESS, subject: 'exchange')]
     #[IsGranted(User::PERSONAL_DATA)]
-    #[OA\Post(summary: 'Join to an exchange a file the browser sent with the form of an upload')]
-    #[OA\Response(response: 201, description: 'The exchange with the file joined', content: new Model(type: ExchangeDetailResource::class))]
+    #[OA\Post(summary: 'Attach to an exchange a file that the browser sent with an upload form')]
+    #[OA\Response(response: 201, description: 'The exchange with the attached file', content: new Model(type: ExchangeDetailResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 404, description: 'Unknown exchange, or one of another account; unknown upload, expired or already joined', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 409, description: 'The exchange holds as many files as it may', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 404, description: 'Unknown exchange, or one of another account. Or an upload that is unknown, expired or already attached', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 409, description: 'The exchange already holds as many files as it can', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 422, description: 'Invalid input, or a file over 10 MB', content: new Model(type: ProblemResource::class))]
     public function __invoke(ExchangeDetail $exchange, #[MapRequestPayload] AttachmentInput $input, #[CurrentUser] User $user): JsonResponse
     {

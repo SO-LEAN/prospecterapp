@@ -9,17 +9,17 @@ use OpenApi\Attributes as OA;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Where a meeting is held, or the link of a video call, shaped like those of `ExchangeDetailResource`; its other
- * facts stay. Left out, they are removed.
+ * A meeting's place or a video call's link, with the same shape as in `ExchangeDetailResource`. The exchange's other
+ * facts stay the same. A place or a link left out is removed.
  */
 final readonly class VenueCorrectionInput
 {
     public function __construct(
         #[Assert\Length(max: PlannedExchangeInput::MAX_PLACE)]
-        #[OA\Property(description: 'Where a meeting is held, written freely; a meeting only')]
+        #[OA\Property(description: 'Where a meeting is held, written freely. Only a meeting has one')]
         public ?string $place = null,
         #[Assert\Length(max: PlannedExchangeInput::MAX_LINK)]
-        #[OA\Property(description: 'The web address a video call is joined by; a video call only')]
+        #[OA\Property(description: 'The web address that joins a video call. Only a video call has one')]
         public ?string $link = null,
     ) {
     }

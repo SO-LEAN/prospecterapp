@@ -8,7 +8,7 @@ use App\Security\AccountResourceVoter;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
 
 /**
- * Whether the signed-in member reaches an exchange: one of their account (ADR 0081).
+ * Decides whether the signed-in member can reach an exchange. They reach their own account's exchanges (ADR 0081).
  *
  * @extends AccountResourceVoter<ExchangeDetail>
  */

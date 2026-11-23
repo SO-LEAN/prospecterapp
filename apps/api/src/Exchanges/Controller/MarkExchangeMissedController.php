@@ -35,12 +35,12 @@ final class MarkExchangeMissedController extends AbstractController
 
     #[Route('/api/exchanges/{id}/missed', name: 'api_exchanges_mark_missed', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
     #[IsGranted(ExchangeVoter::ACCESS, subject: 'exchange')]
-    #[OA\Post(summary: 'Mark missed a planned exchange whose time has come: the contact did not come or answer; by its holder')]
+    #[OA\Post(summary: 'Mark a planned exchange missed once its time has come: the contact did not come or did not answer. Only its holder can mark it')]
     #[OA\Response(response: 200, description: 'The exchange, missed', content: new Model(type: ExchangeDetailResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
-    #[OA\Response(response: 403, description: 'Not a prospector, or not the holder of the exchange', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 403, description: 'Not a prospector, or not the exchange\'s holder', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'Unknown exchange, or one of another account', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 409, description: 'No longer to come, or its time not come', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 409, description: 'The exchange is no longer planned, or its time has not come', content: new Model(type: ProblemResource::class))]
     public function __invoke(ExchangeDetail $exchange, #[CurrentUser] User $user): JsonResponse
     {
         $this->commandBus->dispatch(new MarkExchangeMissed($user->memberId(), $exchange->id, $this->clock->now()));

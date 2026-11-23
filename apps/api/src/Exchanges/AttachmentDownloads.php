@@ -10,7 +10,7 @@ use Prospecter\Core\Prospecting\Application\DownloadAttachment\KeptDownload;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 
 /**
- * Where to read a file joined to an exchange, by a link signed for a moment (ADR 0077).
+ * Where to read a file attached to an exchange. The link is signed for a short time (ADR 0077).
  */
 final readonly class AttachmentDownloads
 {

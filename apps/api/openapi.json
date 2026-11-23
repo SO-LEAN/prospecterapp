@@ -3774,7 +3774,7 @@
                 "tags": [
                     "Contacts"
                 ],
-                "summary": "Join to an exchange a file the browser sent with the form of an upload",
+                "summary": "Attach to an exchange a file that the browser sent with an upload form",
                 "operationId": "post_api_exchanges_attach_file",
                 "parameters": [
                     {
@@ -3799,7 +3799,7 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "The exchange with the file joined",
+                        "description": "The exchange with the attached file",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3822,7 +3822,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown exchange, or one of another account; unknown upload, expired or already joined",
+                        "description": "Unknown exchange, or one of another account. Or an upload that is unknown, expired or already attached",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3832,7 +3832,7 @@
                         }
                     },
                     "409": {
-                        "description": "The exchange holds as many files as it may",
+                        "description": "The exchange already holds as many files as it can",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3859,7 +3859,7 @@
                 "tags": [
                     "Contacts"
                 ],
-                "summary": "Cancel a planned exchange, saying who called it off if wished; it stays in the timelines, cancelled; by its holder",
+                "summary": "Cancel a planned exchange, and optionally say who called it off. The exchange stays in the timelines as cancelled. Only its holder can cancel it",
                 "operationId": "post_api_exchanges_cancel",
                 "parameters": [
                     {
@@ -3897,7 +3897,7 @@
                         "description": "Missing or invalid access token"
                     },
                     "403": {
-                        "description": "Not a prospector, or not the holder of the exchange",
+                        "description": "Not a prospector, or not the exchange's holder",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3917,7 +3917,7 @@
                         }
                     },
                     "409": {
-                        "description": "No longer to come",
+                        "description": "The exchange is no longer planned",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3944,7 +3944,7 @@
                 "tags": [
                     "Contacts"
                 ],
-                "summary": "Correct the channel, the direction, whether it was missed, the moment and the text of an exchange that took place; its contact stays",
+                "summary": "Correct an exchange that took place: its channel, its direction, whether it was missed, its moment and its text. Its contact stays the same",
                 "operationId": "patch_api_exchanges_correct",
                 "parameters": [
                     {
@@ -4014,7 +4014,7 @@
                         }
                     },
                     "409": {
-                        "description": "Declared redacted while nothing is to redact, or changed since the revision sent was read",
+                        "description": "Declared redacted while there is nothing to redact, or changed since the client read the revision it sent",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -4041,7 +4041,7 @@
                 "tags": [
                     "Contacts"
                 ],
-                "summary": "Correct the text of an exchange only, to redact it, and declare it redacted once its contact was forgotten; open to every prospector of the account",
+                "summary": "Correct only an exchange's text, to redact it. Once its contact is forgotten, the correction can declare the text redacted. Every prospector of the account can do it",
                 "operationId": "patch_api_exchanges_correct_text",
                 "parameters": [
                     {
@@ -4111,7 +4111,7 @@
                         }
                     },
                     "409": {
-                        "description": "Declared redacted while nothing is to redact, or changed since the revision sent was read",
+                        "description": "Declared redacted while there is nothing to redact, or changed since the client read the revision it sent",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -4121,7 +4121,7 @@
                         }
                     },
                     "422": {
-                        "description": "Invalid text: too long, or another fact of the exchange",
+                        "description": "Invalid text: too long, or another of the exchange's facts",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -4138,7 +4138,7 @@
                 "tags": [
                     "Contacts"
                 ],
-                "summary": "Correct where a meeting is held, or the link of a video call, planned or done; open to every prospector of the account",
+                "summary": "Correct a meeting's place or a video call's link, planned or done. Every prospector of the account can do it",
                 "operationId": "patch_api_exchanges_correct_venue",
                 "parameters": [
                     {
@@ -4208,7 +4208,7 @@
                         }
                     },
                     "409": {
-                        "description": "Neither a meeting nor a video call, or changed since the revision sent was read",
+                        "description": "Neither a meeting nor a video call, or changed since the client read the revision it sent",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -4235,7 +4235,7 @@
                 "tags": [
                     "Contacts"
                 ],
-                "summary": "Where to read a file joined to an exchange, for a minute",
+                "summary": "Where to read a file attached to an exchange, for one minute",
                 "operationId": "get_api_exchanges_download_attachment",
                 "parameters": [
                     {
@@ -4259,7 +4259,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "A link signed for a minute",
+                        "description": "A link signed for one minute",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -4297,7 +4297,7 @@
                 "tags": [
                     "Contacts"
                 ],
-                "summary": "Remove a file joined to an exchange, and forget it",
+                "summary": "Remove a file attached to an exchange, and forget it",
                 "operationId": "delete_api_exchanges_remove_attachment",
                 "parameters": [
                     {
@@ -4361,7 +4361,7 @@
                 "tags": [
                     "Contacts"
                 ],
-                "summary": "The whole of an exchange with a contact, who noted it and who corrected it last",
+                "summary": "An exchange in full, with who logged it and who last corrected it",
                 "operationId": "get_api_exchanges_show",
                 "parameters": [
                     {
@@ -4462,7 +4462,7 @@
                 "tags": [
                     "Contacts"
                 ],
-                "summary": "Mark done a planned exchange whose time has come, with its report and the moment it really took place; by its holder",
+                "summary": "Mark a planned exchange done once its time has come, with its report and the moment it really took place. Only its holder can mark it",
                 "operationId": "post_api_exchanges_mark_done",
                 "parameters": [
                     {
@@ -4500,7 +4500,7 @@
                         "description": "Missing or invalid access token"
                     },
                     "403": {
-                        "description": "Not a prospector, or not the holder of the exchange",
+                        "description": "Not a prospector, or not the exchange's holder",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -4520,7 +4520,7 @@
                         }
                     },
                     "409": {
-                        "description": "No longer to come, or its time not come",
+                        "description": "The exchange is no longer planned, or its time has not come",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -4547,7 +4547,7 @@
                 "tags": [
                     "Contacts"
                 ],
-                "summary": "Mark missed a planned exchange whose time has come: the contact did not come or answer; by its holder",
+                "summary": "Mark a planned exchange missed once its time has come: the contact did not come or did not answer. Only its holder can mark it",
                 "operationId": "post_api_exchanges_mark_missed",
                 "parameters": [
                     {
@@ -4575,7 +4575,7 @@
                         "description": "Missing or invalid access token"
                     },
                     "403": {
-                        "description": "Not a prospector, or not the holder of the exchange",
+                        "description": "Not a prospector, or not the exchange's holder",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -4595,7 +4595,7 @@
                         }
                     },
                     "409": {
-                        "description": "No longer to come, or its time not come",
+                        "description": "The exchange is no longer planned, or its time has not come",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -4612,7 +4612,7 @@
                 "tags": [
                     "Contacts"
                 ],
-                "summary": "Move a planned exchange to another moment to come, for a new duration or its own; by its holder",
+                "summary": "Move a planned exchange to another moment in the future. It keeps its duration unless a new one is given. Only its holder can move it",
                 "operationId": "patch_api_exchanges_move",
                 "parameters": [
                     {
@@ -4637,7 +4637,7 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "The exchange, moved, linking moving it back while the moment it was moved from is to come",
+                        "description": "The moved exchange. It links a move back while the moment it was moved from is still in the future",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -4650,7 +4650,7 @@
                         "description": "Missing or invalid access token"
                     },
                     "403": {
-                        "description": "Not a prospector, or not the holder of the exchange",
+                        "description": "Not a prospector, or not the exchange's holder",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -4670,7 +4670,7 @@
                         }
                     },
                     "409": {
-                        "description": "No longer to come",
+                        "description": "The exchange is no longer planned",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -4680,7 +4680,7 @@
                         }
                     },
                     "422": {
-                        "description": "A moment missing, or in the past; a duration out of range",
+                        "description": "A missing moment, a moment in the past, or a duration out of range",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -4697,7 +4697,7 @@
                 "tags": [
                     "Contacts"
                 ],
-                "summary": "A form the browser sends one private file with, itself, before joining it to an exchange",
+                "summary": "A form that the browser uses to send one private file itself, before attaching it to an exchange",
                 "operationId": "post_api_uploads_prepare",
                 "responses": {
                     "201": {
@@ -8915,7 +8915,7 @@
             "AttachmentInput": {
                 "properties": {
                     "upload": {
-                        "description": "The upload of `UploadResource`",
+                        "description": "The upload that `UploadResource` names",
                         "type": "string",
                         "default": ""
                     },
@@ -8930,7 +8930,7 @@
             "CancellationInput": {
                 "properties": {
                     "canceller": {
-                        "description": "Who called it off, when said: the prospector or the contact",
+                        "description": "Who called it off, when known: the prospector or the contact",
                         "type": "string",
                         "nullable": true,
                         "default": null,
@@ -8967,7 +8967,7 @@
                         ]
                     },
                     "occurredAt": {
-                        "description": "When it happened; never in the future",
+                        "description": "When it happened, never in the future",
                         "type": "string",
                         "format": "date-time",
                         "nullable": true,
@@ -8980,12 +8980,12 @@
                         "maxLength": 5000
                     },
                     "missed": {
-                        "description": "Missed: the contact did not answer or come; a call, a meeting or a video call only, its status then missed",
+                        "description": "Missed: the contact did not answer or did not come. Only a call, a meeting or a video call can be missed. Its status then becomes missed",
                         "type": "boolean",
                         "default": false
                     },
                     "redacted": {
-                        "description": "Declares the exchange redacted, its contact forgotten; only while the link redact is offered",
+                        "description": "Declares the exchange redacted once its contact is forgotten. Allowed only while the `redact` link is offered",
                         "type": "boolean",
                         "default": false
                     }
@@ -9001,7 +9001,7 @@
                         "maxLength": 5000
                     },
                     "redacted": {
-                        "description": "Declares the exchange redacted, its contact forgotten; only while the link redact is offered",
+                        "description": "Declares the exchange redacted once its contact is forgotten. Allowed only while the `redact` link is offered",
                         "type": "boolean",
                         "default": false
                     }
@@ -9011,14 +9011,14 @@
             "VenueCorrectionInput": {
                 "properties": {
                     "place": {
-                        "description": "Where a meeting is held, written freely; a meeting only",
+                        "description": "Where a meeting is held, written freely. Only a meeting has one",
                         "type": "string",
                         "nullable": true,
                         "default": null,
                         "maxLength": 255
                     },
                     "link": {
-                        "description": "The web address a video call is joined by; a video call only",
+                        "description": "The web address that joins a video call. Only a video call has one",
                         "type": "string",
                         "nullable": true,
                         "default": null,
@@ -9030,7 +9030,7 @@
             "ReportInput": {
                 "properties": {
                     "occurredAt": {
-                        "description": "When it really took place, its planned moment when left out; never in the future",
+                        "description": "When it really took place, never in the future. The planned moment when left out",
                         "type": "string",
                         "format": "date-time",
                         "nullable": true,
@@ -9049,14 +9049,14 @@
             "MomentInput": {
                 "properties": {
                     "occurredAt": {
-                        "description": "When it is to happen now; in the future",
+                        "description": "When it is now to happen, in the future",
                         "type": "string",
                         "format": "date-time",
                         "nullable": true,
                         "default": null
                     },
                     "durationInMinutes": {
-                        "description": "How long it lasts now, from 5 minutes to 8 hours; its own when left out",
+                        "description": "How long it now lasts, from 5 minutes to 8 hours. It keeps its duration when left out",
                         "type": "integer",
                         "nullable": true,
                         "default": null
@@ -10950,7 +10950,7 @@
                         "$ref": "#/components/schemas/PersonNameResource"
                     },
                     "email": {
-                        "description": "Their email, to name them while their profile has no name",
+                        "description": "Their email, which names them while their profile has no name",
                         "type": "string",
                         "nullable": true
                     }
@@ -11380,7 +11380,7 @@
                         "type": "string"
                     },
                     "toRedact": {
-                        "description": "The contact of the exchange forgotten, it may hold their personal data: redacted by removing it",
+                        "description": "Once the exchange's contact is forgotten, the file may hold their personal data. Removing it redacts it",
                         "type": "boolean"
                     },
                     "_links": {
@@ -11484,7 +11484,7 @@
                         ]
                     },
                     "direction": {
-                        "description": "inbound: the contact or the organization reached out; outbound: we did",
+                        "description": "inbound: the contact or the organization reached out. outbound: we did",
                         "type": "string",
                         "enum": [
                             "inbound",
@@ -11492,7 +11492,7 @@
                         ]
                     },
                     "occurredAt": {
-                        "description": "When it happened, or is to happen once planned",
+                        "description": "When it happened, or when it is to happen once planned",
                         "type": "string",
                         "format": "date-time"
                     },
@@ -11507,7 +11507,7 @@
                         ]
                     },
                     "canceller": {
-                        "description": "Who called it off once cancelled, when said",
+                        "description": "Who called it off once cancelled, when known",
                         "type": "string",
                         "nullable": true,
                         "enum": [
@@ -11525,38 +11525,38 @@
                         "nullable": true
                     },
                     "place": {
-                        "description": "Where a meeting is held, written freely; null for any other channel",
+                        "description": "Where a meeting is held, written freely. Null for any other channel",
                         "type": "string",
                         "nullable": true
                     },
                     "link": {
-                        "description": "The web address a video call is joined by; null for any other channel, or until it is known",
+                        "description": "The web address that joins a video call. Null for any other channel, or until it is known",
                         "type": "string",
                         "nullable": true
                     },
                     "linkAwaited": {
-                        "description": "A video call without a link awaiting the one the calendar of its holder creates, read again until it comes",
+                        "description": "A video call without a link waits for the link that its holder's calendar creates. Read it again until the link comes",
                         "type": "boolean"
                     },
                     "phoneNumber": {
-                        "description": "The number the interlocutor is called at: the contact read in clear, or the organization itself; none when unknown or masked",
+                        "description": "The number to call the interlocutor at: the contact's number read in clear, or the organization's own. None when unknown or masked",
                         "type": "string",
                         "nullable": true
                     },
                     "textFlagged": {
-                        "description": "Its text may hold personal data: flagged to a prospector reading it without the right to manage them",
+                        "description": "Its text may hold personal data. It is flagged to a prospector who reads it without the right to manage personal data",
                         "type": "boolean"
                     },
                     "textToRedact": {
-                        "description": "Its contact forgotten, its text may still hold their personal data, until it is declared redacted",
+                        "description": "Once its contact is forgotten, its text may still hold their personal data, until it is declared redacted",
                         "type": "boolean"
                     },
                     "toRedact": {
-                        "description": "Its contact forgotten, its text or its files may still hold their personal data",
+                        "description": "Once its contact is forgotten, its text or its files may still hold their personal data",
                         "type": "boolean"
                     },
                     "organizationIds": {
-                        "description": "The organizations it is kept for: those the contact was part of when it was noted, or the organization itself",
+                        "description": "The organizations it is kept for: those the contact was part of when it was logged, or the organization itself",
                         "type": "array",
                         "items": {
                             "type": "string"
@@ -11566,7 +11566,7 @@
                         "$ref": "#/components/schemas/StampResource"
                     },
                     "corrected": {
-                        "description": "The last correction, null while it is as it was noted",
+                        "description": "The last correction. Null while it is as it was logged",
                         "nullable": true,
                         "oneOf": [
                             {
@@ -11575,7 +11575,7 @@
                         ]
                     },
                     "redacted": {
-                        "description": "Who declared it redacted, and when; null while it is not",
+                        "description": "Who declared it redacted, and when. Null while it is not redacted",
                         "nullable": true,
                         "oneOf": [
                             {
@@ -11584,18 +11584,18 @@
                         ]
                     },
                     "attachments": {
-                        "description": "The files joined to it, in the order they were",
+                        "description": "The files attached to it, in the order they were attached",
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/AttachmentResource"
                         }
                     },
                     "hiddenAttachments": {
-                        "description": "How many files are joined to it but hidden to a prospector reading it without the right to manage personal data",
+                        "description": "How many attached files are hidden from a prospector who reads it without the right to manage personal data",
                         "type": "integer"
                     },
                     "campaign": {
-                        "description": "The campaign it was noted in, none for an exchange of no campaign",
+                        "description": "The campaign it was logged in. None for an exchange outside any campaign",
                         "nullable": true,
                         "oneOf": [
                             {
@@ -11604,7 +11604,7 @@
                         ]
                     },
                     "bookedByLink": {
-                        "description": "Its contact booked it by the public link of its holder, who planned nothing themselves (ADR 0164)",
+                        "description": "Its contact booked it through its holder's public link. The holder planned nothing themselves (ADR 0164)",
                         "type": "boolean"
                     },
                     "importedFrom": {
@@ -11639,7 +11639,7 @@
                         "type": "string"
                     },
                     "url": {
-                        "description": "Signed for a minute: open it at once, never keep it",
+                        "description": "Signed for one minute. Open it at once and never keep it",
                         "type": "string"
                     }
                 },

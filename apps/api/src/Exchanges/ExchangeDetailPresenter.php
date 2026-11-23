@@ -23,14 +23,18 @@ use Prospecter\Core\Prospecting\Application\ConsultExchange\ConsultExchangeOutpu
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
 
 /**
- * The detail of an exchange, with a link per intention its state offers and the signed-in member may carry out on it
- * and on its attachments (`IntentLinks`, ADR 0081): every prospector retouches its text and declares it conform
- * (ADR 0078), corrects the place of a meeting or the link of a video call (ADR 0114), its holder handles a planned
- * exchange (ADR 0112) and, just moved, moves it back while its former moment is to come (ADR 0135), the rest needs the right to
- * manage personal data. Each link names its intention, its route, and the role its controller requires beyond
- * reaching the exchange; the campaign it was noted in is linked to those who read the campaigns, while it is kept
- * (ADR 0152), the message an imported exchange comes from opened in Gmail by those who manage the personal data
- * (ADR 0174). Built for one call with its participants, it keeps the resource (ADR 0085).
+ * Presents an exchange's detail. It gives one link for each intent that the exchange's state offers and that the
+ * signed-in member can carry out, on the exchange and on its attachments (`IntentLinks`, ADR 0081):
+ * - every prospector corrects its text and declares it redacted (ADR 0078);
+ * - every prospector corrects a meeting's place or a video call's link (ADR 0114);
+ * - the holder handles a planned exchange (ADR 0112). Just after a move, the holder can move it back while its former
+ *   moment is still in the future (ADR 0135);
+ * - the other intents need the right to manage personal data.
+ *
+ * Each link names its intent, its route, and the role its controller requires beyond reaching the exchange. Those who
+ * read the campaigns get a link to the campaign the exchange was logged in, while the campaign exists (ADR 0152).
+ * Those who manage personal data get a link that opens an imported exchange's message in Gmail (ADR 0174). The
+ * presenter is built for one call with its participants, and keeps the resource (ADR 0085).
  */
 final class ExchangeDetailPresenter implements ConsultExchangeOutput
 {
@@ -99,7 +103,7 @@ final class ExchangeDetailPresenter implements ConsultExchangeOutput
     }
 
     /**
-     * Downloaded by whoever reads it, removed when the signed-in member may (`IntentLinks`).
+     * Whoever reads the attachment can download it. The signed-in member removes it when allowed (`IntentLinks`).
      */
     private function presentAttachment(ExchangeDetail $exchange, AttachmentDetail $attachment): AttachmentResource
     {
@@ -126,8 +130,8 @@ final class ExchangeDetailPresenter implements ConsultExchangeOutput
     }
 
     /**
-     * The message an imported exchange comes from, in Gmail, once the id of its message in the mailbox is kept, to
-     * those who manage the personal data (ADR 0174).
+     * Opens an imported exchange's message in Gmail. The link needs the message's id in the mailbox, and only those who
+     * manage personal data get it (ADR 0174).
      */
     private function openInMailboxOf(ExchangeDetail $exchange): ?LinkResource
     {
@@ -135,7 +139,8 @@ final class ExchangeDetailPresenter implements ConsultExchangeOutput
     }
 
     /**
-     * The campaign it was noted in, while Campaigns still names it, to those who read the campaigns (ADR 0152).
+     * The campaign the exchange was logged in, while Campaigns still names it. Only those who read the campaigns get
+     * it (ADR 0152).
      */
     private function campaignOf(ExchangeDetail $exchange): ?LinkResource
     {
@@ -147,7 +152,7 @@ final class ExchangeDetailPresenter implements ConsultExchangeOutput
     }
 
     /**
-     * The card of the contact or of the organization itself; a forgotten contact has none any more.
+     * The card of the contact, or of the organization itself. A forgotten contact no longer has one.
      */
     private function cardOf(InterlocutorResource $interlocutor): ?LinkResource
     {

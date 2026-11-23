@@ -16,9 +16,10 @@ use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
 use Symfony\Component\Clock\ClockInterface;
 
 /**
- * What every tool writing an exchange does as its controller (ADR 0163): the exchange of the route read, the member
- * refused unless a prospector with access to it (and the other attributes of the controller), then the input of the
- * endpoint checked, its command dispatched, the exchange answered as the screen then reads it.
+ * What every tool that writes an exchange does, the way its controller does (ADR 0163). It reads the route's
+ * exchange. It refuses the member unless they are a prospector with access to the exchange and hold the controller's
+ * other attributes. It then checks the endpoint's input and dispatches its command. It answers the exchange as the
+ * screen then reads it.
  */
 final readonly class ExchangeWrites
 {
@@ -37,8 +38,8 @@ final readonly class ExchangeWrites
     /**
      * @template TInput of object
      *
-     * @param TInput                                                               $input   the input of the endpoint
-     * @param \Closure(TInput, ExchangeDetail, string, \DateTimeImmutable): object $command the command of the endpoint, from its input, for the exchange, by the member, at this moment
+     * @param TInput                                                               $input   the endpoint's input
+     * @param \Closure(TInput, ExchangeDetail, string, \DateTimeImmutable): object $command builds the endpoint's command from its input, for the exchange, by the member, at this moment
      *
      * @return array<string, mixed>
      */
@@ -50,7 +51,7 @@ final readonly class ExchangeWrites
     /**
      * It does the same as write() for an endpoint without an input.
      *
-     * @param \Closure(ExchangeDetail, string, \DateTimeImmutable): object $command the command of the endpoint, for the exchange, by the member, at this moment
+     * @param \Closure(ExchangeDetail, string, \DateTimeImmutable): object $command builds the endpoint's command for the exchange, by the member, at this moment
      *
      * @return array<string, mixed>
      */
@@ -60,12 +61,13 @@ final readonly class ExchangeWrites
     }
 
     /**
-     * Like write(), with the correction held to the exchange's revision the AI read, when it gives one (ADR 0187).
+     * Like write(), but the correction applies only to the exchange's revision that the AI read, when it gives one
+     * (ADR 0187).
      *
      * @template TInput of object
      *
-     * @param TInput                                                               $input   the input of the endpoint
-     * @param \Closure(TInput, ExchangeDetail, string, \DateTimeImmutable): object $command the command of the endpoint, from its input, for the exchange, by the member, at this moment
+     * @param TInput                                                               $input   the endpoint's input
+     * @param \Closure(TInput, ExchangeDetail, string, \DateTimeImmutable): object $command builds the endpoint's command from its input, for the exchange, by the member, at this moment
      *
      * @return array<string, mixed>
      */
@@ -78,7 +80,8 @@ final readonly class ExchangeWrites
     }
 
     /**
-     * The exchange as the screen then reads it, offered to move it back to the moment it was moved from while to come.
+     * The exchange as the screen then reads it. After a move, it offers to move the exchange back to the moment it was
+     * moved from, while that moment is still in the future.
      *
      * @return array<string, mixed>
      */
@@ -88,7 +91,7 @@ final readonly class ExchangeWrites
     }
 
     /**
-     * The command dispatched, nothing answered.
+     * Dispatches the command and answers nothing to the AI.
      *
      * @template TInput of object
      *
@@ -108,7 +111,7 @@ final readonly class ExchangeWrites
     /**
      * It does the same as dispatched() for an endpoint without an input.
      *
-     * @param \Closure(ExchangeDetail, string, \DateTimeImmutable): object $command the command of the endpoint, for the exchange, by the member, at this moment
+     * @param \Closure(ExchangeDetail, string, \DateTimeImmutable): object $command builds the endpoint's command for the exchange, by the member, at this moment
      *
      * @return ExchangeDetail the exchange as it was before
      */
@@ -126,7 +129,7 @@ final readonly class ExchangeWrites
     }
 
     /**
-     * The exchange of the route, the member refused unless they may write it as its endpoint allows.
+     * Reads the route's exchange. It refuses the member unless the endpoint allows them to write it.
      */
     public function writable(string $id, string ...$attributes): ExchangeDetail
     {

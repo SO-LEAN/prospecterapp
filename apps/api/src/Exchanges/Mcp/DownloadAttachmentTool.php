@@ -29,12 +29,12 @@ final readonly class DownloadAttachmentTool
     }
 
     /**
-     * @param string $id           the id of the exchange
-     * @param string $attachmentId the id of the file joined to it
+     * @param string $id           the exchange's id
+     * @param string $attachmentId the id of the file attached to it
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'get-attachment-link', description: 'Where to read a file joined to an exchange: its name and a link signed for a minute, with the right to manage the personal data.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'get-attachment-link', description: 'Get a link to read a file attached to an exchange. The link is signed for one minute. Needs the right to manage personal data. Returns the file\'s name and the link.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $id, string $attachmentId): array
     {
         $member = $this->access->member();

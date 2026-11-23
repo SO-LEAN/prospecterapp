@@ -8,7 +8,8 @@ use OpenApi\Attributes as OA;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * A file the browser sent with the form of an upload (`POST /api/uploads`), joined under the name it had.
+ * A file that the browser sent with an upload form (`POST /api/uploads`). The exchange keeps the file under its
+ * original name.
  */
 final readonly class AttachmentInput
 {
@@ -16,7 +17,7 @@ final readonly class AttachmentInput
 
     public function __construct(
         #[Assert\NotBlank]
-        #[OA\Property(description: 'The upload of `UploadResource`')]
+        #[OA\Property(description: 'The upload that `UploadResource` names')]
         public string $upload = '',
         #[Assert\NotBlank]
         #[Assert\Length(max: self::LONGEST_NAME)]

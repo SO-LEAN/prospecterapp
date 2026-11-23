@@ -21,11 +21,11 @@ final readonly class MarkExchangeMissedTool
     }
 
     /**
-     * @param string $id the id of the exchange
+     * @param string $id the exchange's id
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'mark-exchange-missed', description: 'Mark missed a planned exchange whose time has come: the contact did not come or answer; by its holder. It is no longer to process. Answers the exchange.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'mark-exchange-missed', description: 'Mark a planned exchange missed once its time has come: the contact did not come or did not answer. Only its holder can mark it. The exchange then leaves the list to process. Returns the exchange.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id): array
     {
         return $this->writes->change(

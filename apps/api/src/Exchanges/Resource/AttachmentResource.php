@@ -10,7 +10,7 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
 /**
- * A file joined to an exchange: its link `download` answers where to read it for a moment.
+ * A file attached to an exchange. Its `download` link answers where to read it for a short time.
  */
 final readonly class AttachmentResource
 {
@@ -21,7 +21,7 @@ final readonly class AttachmentResource
         #[OA\Property(description: 'In bytes')]
         public int $size,
         public string $mediaType,
-        #[OA\Property(description: 'The contact of the exchange forgotten, it may hold their personal data: redacted by removing it')]
+        #[OA\Property(description: 'Once the exchange\'s contact is forgotten, the file may hold their personal data. Removing it redacts it')]
         public bool $toRedact,
         #[SerializedName('_links')]
         #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]

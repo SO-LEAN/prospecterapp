@@ -23,13 +23,13 @@ final readonly class MoveExchangeTool
     }
 
     /**
-     * @param string   $id                the id of the exchange
-     * @param string   $occurredAt        when it is to happen now (ISO 8601), in the future
-     * @param int|null $durationInMinutes how long it lasts now, from 5 minutes to 8 hours; its own when left out
+     * @param string   $id                the exchange's id
+     * @param string   $occurredAt        when it is now to happen (ISO 8601), in the future
+     * @param int|null $durationInMinutes how long it now lasts, from 5 minutes to 8 hours. It keeps its duration when left out
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'reschedule-exchange', description: 'Move a planned exchange to another moment to come, for a new duration or its own; by its holder, its calendar at Google following. Answers the exchange, linking moving it back while the moment it was moved from is to come.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
+    #[McpTool(name: 'reschedule-exchange', description: 'Move a planned exchange to another moment in the future. It keeps its duration unless a new one is given. Only its holder can move it, and the holder\'s Google calendar follows. While the moment it was moved from is still in the future, the answer links a move back. Returns the exchange.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
     public function __invoke(string $id, string $occurredAt, ?int $durationInMinutes = null): array
     {
         $before = $this->writes->dispatched(

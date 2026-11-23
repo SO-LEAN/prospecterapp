@@ -20,8 +20,8 @@ use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
 use Symfony\Component\HttpFoundation\File\File;
 
 /**
- * `POST /api/exchanges/{id}/attachments`, for an AI (ADR 0163): the file given by its address on the web, which the
- * API downloads and sends to the private bucket with the form of an upload, in place of the browser (ADR 0172).
+ * `POST /api/exchanges/{id}/attachments`, for an AI (ADR 0163). The AI gives the file's web address. The API
+ * downloads the file and sends it to the private bucket with an upload form, in the browser's place (ADR 0172).
  */
 #[Adapts('api_exchanges_attach_file')]
 final readonly class AttachFileTool
@@ -37,13 +37,13 @@ final readonly class AttachFileTool
     }
 
     /**
-     * @param string $id   the id of the exchange
-     * @param string $url  the address on the web of the file, served to anyone (no sign-in), 10 MB at most, downloaded by Prospecter without following a redirect
-     * @param string $name the name the file is joined under, 255 characters at most
+     * @param string $id   the exchange's id
+     * @param string $url  the file's web address. It must serve the file to anyone, without a sign-in, and the file must be 10 MB at most. Prospecter downloads it without following redirects
+     * @param string $name the name to attach the file under, 255 characters at most
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'attach-file', description: 'Join to an exchange a file by its address on the web, which Prospecter downloads and keeps private; a file behind a sign-in (an e-mail, a private drive) cannot be downloaded. Needs the right to manage the personal data. Answers the exchange.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true))]
+    #[McpTool(name: 'attach-file', description: 'Attach a file to an exchange by its web address. Prospecter downloads the file and keeps it private. It cannot download a file behind a sign-in, such as an e-mail or a private drive. Needs the right to manage personal data. Returns the exchange.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true))]
     public function __invoke(string $id, string $url, string $name): array
     {
         $this->writes->writable($id, User::PERSONAL_DATA);

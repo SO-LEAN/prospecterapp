@@ -37,12 +37,12 @@ final class CancelExchangeController extends AbstractController
 
     #[Route('/api/exchanges/{id}/cancellation', name: 'api_exchanges_cancel', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
     #[IsGranted(ExchangeVoter::ACCESS, subject: 'exchange')]
-    #[OA\Post(summary: 'Cancel a planned exchange, saying who called it off if wished; it stays in the timelines, cancelled; by its holder')]
+    #[OA\Post(summary: 'Cancel a planned exchange, and optionally say who called it off. The exchange stays in the timelines as cancelled. Only its holder can cancel it')]
     #[OA\Response(response: 200, description: 'The exchange, cancelled', content: new Model(type: ExchangeDetailResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
-    #[OA\Response(response: 403, description: 'Not a prospector, or not the holder of the exchange', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 403, description: 'Not a prospector, or not the exchange\'s holder', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'Unknown exchange, or one of another account', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 409, description: 'No longer to come', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 409, description: 'The exchange is no longer planned', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 422, description: 'Unknown canceller', content: new Model(type: ProblemResource::class))]
     public function __invoke(ExchangeDetail $exchange, #[MapRequestPayload] CancellationInput $input, #[CurrentUser] User $user): JsonResponse
     {

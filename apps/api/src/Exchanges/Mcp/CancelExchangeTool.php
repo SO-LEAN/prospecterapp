@@ -12,8 +12,8 @@ use Prospecter\Core\Prospecting\Application\CancelExchange\CancelExchange;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
 
 /**
- * `POST /api/exchanges/{id}/cancellation`, for an AI (ADR 0163), which asks its member before calling it: a
- * cancellation is never taken back.
+ * `POST /api/exchanges/{id}/cancellation`, for an AI (ADR 0163). The AI asks its member before it calls this tool,
+ * because a cancellation is never taken back.
  */
 #[Adapts('api_exchanges_cancel')]
 final readonly class CancelExchangeTool
@@ -23,12 +23,12 @@ final readonly class CancelExchangeTool
     }
 
     /**
-     * @param string      $id        the id of the exchange
-     * @param string|null $canceller who called it off, when said: prospector or contact
+     * @param string      $id        the exchange's id
+     * @param string|null $canceller who called it off, when known: prospector or contact
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'cancel-exchange', description: 'Cancel a planned exchange, saying who called it off if known; by its holder. It stays in the timelines, cancelled, and leaves the calendar at Google; it is never planned again. Answers the exchange.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'cancel-exchange', description: 'Cancel a planned exchange, and say who called it off if known. Only its holder can cancel it. The exchange stays in the timelines as cancelled, and leaves the Google calendar. It is never planned again. Returns the exchange.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id, ?string $canceller = null): array
     {
         return $this->writes->write(
