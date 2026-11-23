@@ -42,10 +42,11 @@ final readonly class ImportMailHandler implements CommandHandler
 
     public function __invoke(ImportMail $command): void
     {
+        $account = new AccountId($command->accountId);
         $connection = $this->connections->find(new MemberId($command->memberId), Provider::Google);
-        $client = $this->clients->find(new AccountId($command->accountId), Provider::Google);
+        $client = $this->clients->find($account, Provider::Google);
         $mail = null === $connection || null === $client ? null : $connection->mailOf($command->messageId, $client->credentials(), $this->mailbox);
-        $correspondents = null === $mail ? [] : $this->correspondentsOf($mail, new AccountId($command->accountId));
+        $correspondents = null === $mail ? [] : $this->correspondentsOf($mail, $account);
         if (null === $connection || null === $client || null === $mail || [] === $correspondents) {
             return;
         }
