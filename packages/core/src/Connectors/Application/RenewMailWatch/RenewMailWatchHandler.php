@@ -28,7 +28,7 @@ final readonly class RenewMailWatchHandler implements CommandHandler
     }
 
     /**
-     * A member no longer connected, or whose account lost its client, has nothing to renew.
+     * Nothing is renewed for a member who is no longer connected, or whose account lost its client.
      */
     public function __invoke(RenewMailWatch $command): void
     {
