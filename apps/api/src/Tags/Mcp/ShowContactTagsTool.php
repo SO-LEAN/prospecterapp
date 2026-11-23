@@ -22,11 +22,11 @@ final readonly class ShowContactTagsTool
     }
 
     /**
-     * @param string $id the id of the contact
+     * @param string $id the contact's id
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'list-contact-tags', description: 'The tags of a contact: their own, those they inherit from their organizations, and the automatic ones.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'list-contact-tags', description: 'Get a contact\'s tags: their own tags, the tags they inherit from their organizations, and their automatic tags. Returns the contact\'s tags.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $id): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');

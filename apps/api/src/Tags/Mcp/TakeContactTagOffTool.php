@@ -15,9 +15,7 @@ use Mcp\Server\Capability\Attribute\McpTool;
 use Prospecter\Core\Campaigns\Application\TakeOffTag\TakeOffTag;
 use Symfony\Component\Clock\ClockInterface;
 
-/**
- * `DELETE /api/contacts/{id}/tags/{tag}`, for an AI (ADR 0163), which asks its member before calling it.
- */
+/** `DELETE /api/contacts/{id}/tags/{tag}`, for an AI (ADR 0163). The AI asks its member before it calls this tool. */
 #[Adapts('api_contacts_take_off_tag')]
 final readonly class TakeContactTagOffTool
 {
@@ -31,12 +29,12 @@ final readonly class TakeContactTagOffTool
     }
 
     /**
-     * @param string $id  the id of the contact
-     * @param string $tag the tag put by hand, named without its mark: `PHP` for #PHP
+     * @param string $id  the contact's id
+     * @param string $tag the tag put by hand, named without its `#`: `PHP` for #PHP
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'untag-contact', description: 'Take a tag put by hand off a contact. Answers their tags.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'untag-contact', description: 'Take a tag put by hand off a contact. Returns the contact\'s tags.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id, string $tag): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');

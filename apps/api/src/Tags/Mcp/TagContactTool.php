@@ -34,12 +34,12 @@ final readonly class TagContactTool
     }
 
     /**
-     * @param string       $id   the id of the contact
-     * @param list<string> $tags each written one way, with its mark or not: `Café owners` is #CAFE_OWNERS
+     * @param string       $id   the contact's id
+     * @param list<string> $tags with or without their `#`; each is written one way: `Café owners` is #CAFE_OWNERS
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'tag-contact', description: 'Put tags on a contact, a tag they carry already carried once. Answers their tags.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
+    #[McpTool(name: 'tag-contact', description: 'Put tags on a contact. A tag they already carry is kept once. Returns the contact\'s tags.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
     public function __invoke(string $id, array $tags): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');
