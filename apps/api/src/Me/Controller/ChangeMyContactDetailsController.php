@@ -33,7 +33,7 @@ final class ChangeMyContactDetailsController extends AbstractController
     }
 
     #[Route('/api/me/contact-details', name: 'api_me_change_contact_details', methods: ['PATCH'])]
-    #[OA\Patch(summary: 'Change my email, phone number, language and links, nothing else changes')]
+    #[OA\Patch(summary: 'Change my email, phone number, language and links. Nothing else changes.')]
     #[OA\Response(response: 200, description: 'My account', content: new Model(type: AccountResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'The signed-in user is not a user', content: new Model(type: ProblemResource::class))]

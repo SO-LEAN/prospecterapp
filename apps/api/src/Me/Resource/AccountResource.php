@@ -12,7 +12,7 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
 /**
- * Each part is changed by its own intention: PATCH name, contact-details, organization/legal-identity.
+ * Each part has its own intent to change it: PATCH name, contact-details, organization/legal-identity.
  */
 final readonly class AccountResource
 {

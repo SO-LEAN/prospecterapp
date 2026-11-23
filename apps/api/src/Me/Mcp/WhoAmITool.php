@@ -13,8 +13,8 @@ use Mcp\Server\Capability\Attribute\McpTool;
 use Symfony\Bundle\SecurityBundle\Security;
 
 /**
- * Whom the AI serves: the member its access token names, and their account, as `/api/me` reads them, with their
- * right on the personal data, which the AI has as they do (ADR 0156).
+ * Tells whom the AI serves: the member that its access token names, and their account, as `/api/me` reads them. It
+ * also tells the member's right to the personal data. The AI has the same right as the member (ADR 0156).
  */
 final readonly class WhoAmITool
 {
@@ -25,7 +25,7 @@ final readonly class WhoAmITool
     /**
      * @return array{member: string, account: ?string, readsPersonalData: bool}
      */
-    #[McpTool(name: 'get-me', description: 'The member of Prospecter you serve, their account, and whether they read the personal data in clear (masked otherwise).', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'get-me', description: 'Get the Prospecter member you serve, their account, and whether they read personal data in clear. Otherwise, personal data come masked.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(): array
     {
         $account = $this->myAccount->read($this->access->member()->memberId());

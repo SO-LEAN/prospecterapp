@@ -33,7 +33,7 @@ final class RelocateMyOrganizationController extends AbstractController
     }
 
     #[Route('/api/me/organization/address', name: 'api_me_relocate_organization', methods: ['PATCH'])]
-    #[OA\Patch(summary: 'Move my organization to an address (located again), the start of the routes to the organizations; an empty address removes it')]
+    #[OA\Patch(summary: 'Move my organization to an address and locate it again. The routes to the organizations start there. An empty address removes it.')]
     #[OA\Response(response: 200, description: 'My account', content: new Model(type: AccountResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'The signed-in user is not a user', content: new Model(type: ProblemResource::class))]

@@ -26,7 +26,7 @@ final class ShowAccountController extends AbstractController
     }
 
     #[Route('/api/me', name: 'api_me_show', methods: ['GET'])]
-    #[OA\Get(summary: 'Consult my account and my organization')]
+    #[OA\Get(summary: 'Get my account and my organization')]
     #[OA\Response(response: 200, description: 'My account', content: new Model(type: AccountResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'The signed-in user is not a user', content: new Model(type: ProblemResource::class))]

@@ -17,7 +17,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Change my email, phone number, language and links, nothing else changes */
+        /** Change my email, phone number, language and links. Nothing else changes. */
         patch: operations["patch_api_me_change_contact_details"];
         trace?: never;
     };
@@ -34,7 +34,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Change my first and last names, nothing else changes */
+        /** Change my first and last names. Nothing else changes. */
         patch: operations["patch_api_me_change_name"];
         trace?: never;
     };
@@ -47,7 +47,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Send the new logo of my organization (multipart, field "file") */
+        /** Send my organization's new logo (multipart, field "file") */
         post: operations["post_api_me_change_organization_logo"];
         delete?: never;
         options?: never;
@@ -79,14 +79,14 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Consult whether and how long before a planned exchange I am reminded of it, ten minutes before by default */
+        /** Get whether I am reminded of my planned exchanges, and how long before. The default is ten minutes before. */
         get: operations["get_api_me_reminders"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
-        /** Turn my reminders of the exchanges I planned on or off, and choose how long before they come: 0, 5, 10, 15, 30 or 60 minutes */
+        /** Turn the reminders of my planned exchanges on or off, and choose how long before they come: 0, 5, 10, 15, 30 or 60 minutes */
         patch: operations["patch_api_me_change_reminders"];
         trace?: never;
     };
@@ -103,7 +103,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Move my organization to an address (located again), the start of the routes to the organizations; an empty address removes it */
+        /** Move my organization to an address and locate it again. The routes to the organizations start there. An empty address removes it. */
         patch: operations["patch_api_me_relocate_organization"];
         trace?: never;
     };
@@ -120,7 +120,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Revise the legal identity of my organization */
+        /** Revise my organization's legal identity */
         patch: operations["patch_api_me_revise_organization_identity"];
         trace?: never;
     };
@@ -131,7 +131,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Consult my account and my organization */
+        /** Get my account and my organization */
         get: operations["get_api_me_show"];
         put?: never;
         post?: never;
@@ -3811,7 +3811,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description A delay not offered */
+            /** @description Delay not offered */
             422: {
                 headers: {
                     [name: string]: unknown;

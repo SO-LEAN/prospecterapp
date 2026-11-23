@@ -11,7 +11,7 @@ use Prospecter\Core\Accounts\Application\ConsultMyReminders\ConsultMyRemindersOu
 use Prospecter\Core\Accounts\Application\MyReminders;
 
 /**
- * Presents my reminders as the API shows them, an object of the call (ADR 0085).
+ * Presents my reminders as the API shows them. Each call builds its own presenter (ADR 0085).
  */
 final class RemindersResourcePresenter implements ConsultMyRemindersOutput
 {

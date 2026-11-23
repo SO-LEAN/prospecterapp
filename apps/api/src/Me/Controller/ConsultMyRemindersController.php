@@ -26,7 +26,7 @@ final class ConsultMyRemindersController extends AbstractController
     }
 
     #[Route('/api/me/reminders', name: 'api_me_reminders', methods: ['GET'])]
-    #[OA\Get(summary: 'Consult whether and how long before a planned exchange I am reminded of it, ten minutes before by default')]
+    #[OA\Get(summary: 'Get whether I am reminded of my planned exchanges, and how long before. The default is ten minutes before.')]
     #[OA\Response(response: 200, description: 'My reminders', content: new Model(type: RemindersResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'The signed-in user is not a user', content: new Model(type: ProblemResource::class))]

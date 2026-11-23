@@ -8,7 +8,7 @@ use OpenApi\Attributes as OA;
 use Symfony\Component\Serializer\Attribute\SerializedName;
 
 /**
- * Whether I am reminded of the exchanges I planned, and how many minutes before; changed as a whole by PATCH.
+ * Whether I am reminded of my planned exchanges, and how many minutes before. A PATCH changes them as a whole.
  */
 final readonly class RemindersResource
 {

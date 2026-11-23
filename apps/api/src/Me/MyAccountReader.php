@@ -14,10 +14,10 @@ use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPerson;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 
 /**
- * My account as the API shows it: my membership read in Accounts, my profile read in PersonalData under my
- * person id, presented to the presenter it builds for the call (ADR 0085); what I sign in with is read apart
- * (`/api/me/sign-in`). A controller calls it after a command, which returns nothing, to answer with the fresh
- * resource.
+ * Reads my account as the API shows it. It reads my membership in Accounts and my profile in PersonalData, under my
+ * person id. It gives them to the presenter that it builds for the call (ADR 0085). What I sign in with is read
+ * separately (`/api/me/sign-in`). A command returns nothing, so a controller calls this reader after a command to
+ * answer with the fresh resource.
  */
 final readonly class MyAccountReader
 {

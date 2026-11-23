@@ -24,7 +24,7 @@ final readonly class ConsultMyRemindersTool
     /**
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'get-my-reminders', description: 'The settings of the reminders of the member: when they are told of their exchanges and to-dos.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'get-my-reminders', description: 'Get the member\'s reminder settings: when they are told about their exchanges and to-dos.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(): array
     {
         $this->access->denyUnlessGranted('ROLE_USER');

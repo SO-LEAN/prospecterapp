@@ -33,17 +33,17 @@ final class ChangeMyRemindersController extends AbstractController
     }
 
     #[Route('/api/me/reminders', name: 'api_me_change_reminders', methods: ['PATCH'])]
-    #[OA\Patch(summary: 'Turn my reminders of the exchanges I planned on or off, and choose how long before they come: 0, 5, 10, 15, 30 or 60 minutes')]
+    #[OA\Patch(summary: 'Turn the reminders of my planned exchanges on or off, and choose how long before they come: 0, 5, 10, 15, 30 or 60 minutes')]
     #[OA\Response(response: 200, description: 'My reminders', content: new Model(type: RemindersResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'The signed-in user is not a user', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 422, description: 'A delay not offered', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 422, description: 'Delay not offered', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[MapRequestPayload] RemindersInput $input, #[CurrentUser] User $user): JsonResponse
     {
         $this->commandBus->dispatch(new ChangeMyReminders(
             memberId: $user->memberId(),
-            enabled: $input->enabled ?? throw new \LogicException('Reminders validated are on or off'),
-            minutesBefore: $input->minutesBefore ?? throw new \LogicException('Reminders validated have their delay'),
+            enabled: $input->enabled ?? throw new \LogicException('Validated reminders are either on or off'),
+            minutesBefore: $input->minutesBefore ?? throw new \LogicException('Validated reminders have a delay'),
             executedAt: $this->clock->now(),
         ));
 

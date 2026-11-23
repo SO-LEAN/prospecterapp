@@ -13,9 +13,9 @@ use App\Shared\Mcp\ToolResults;
 use Symfony\Component\Clock\ClockInterface;
 
 /**
- * What every tool writing the profile of its member does as its controller (ADR 0163): any member, their own
- * profile, the input of the endpoint checked, its command dispatched, their account answered as the screen then reads
- * it.
+ * What every tool that writes its member's profile does, as its controller does (ADR 0163). Any member may write
+ * their own profile. The tool checks the endpoint's input and dispatches its command. It then returns the member's
+ * account as the screen reads it.
  */
 final readonly class MyProfileWrites
 {
@@ -32,8 +32,8 @@ final readonly class MyProfileWrites
     /**
      * @template TInput of object
      *
-     * @param TInput                                                       $input   the input of the endpoint
-     * @param \Closure(TInput, string, string, \DateTimeImmutable): object $command the command of the endpoint, from its input, by the member, on their profile, at this moment
+     * @param TInput                                                       $input   the endpoint's input
+     * @param \Closure(TInput, string, string, \DateTimeImmutable): object $command builds the endpoint's command from its input, the member, their profile and the current time
      *
      * @return array<string, mixed>
      */
@@ -45,9 +45,9 @@ final readonly class MyProfileWrites
     }
 
     /**
-     * It does the same as write() for an endpoint without an input.
+     * Does what write() does, for an endpoint without an input.
      *
-     * @param \Closure(string, string, \DateTimeImmutable): object $command the command of the endpoint, by the member, on their profile, at this moment
+     * @param \Closure(string, string, \DateTimeImmutable): object $command builds the endpoint's command from the member, their profile and the current time
      *
      * @return array<string, mixed>
      */
@@ -59,7 +59,8 @@ final readonly class MyProfileWrites
     }
 
     /**
-     * The member, refused unless they may write their profile: checked before anything is downloaded for it.
+     * Returns the member, or refuses them when they may not write their profile. Call it before downloading anything
+     * for the profile.
      */
     public function writable(): User
     {
@@ -69,7 +70,7 @@ final readonly class MyProfileWrites
     }
 
     /**
-     * @return array<string, mixed> their account as the screen reads it once the command is dispatched
+     * @return array<string, mixed> their account as the screen reads it after the command
      */
     private function dispatched(User $member, object $command): array
     {
