@@ -11,6 +11,6 @@ final class StartedCampaignNotDiscarded extends NotPossibleInItsState
 {
     public static function stoppedInstead(): self
     {
-        return self::because('A started campaign is stopped, not deleted');
+        return self::because('A started campaign can be stopped, not deleted');
     }
 }

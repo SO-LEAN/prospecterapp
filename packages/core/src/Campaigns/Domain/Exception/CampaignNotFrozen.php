@@ -14,6 +14,6 @@ final class CampaignNotFrozen extends NotPossibleInItsState
 {
     public static function toStart(): self
     {
-        return self::because('Only a frozen campaign starts');
+        return self::because('Only a frozen campaign can start');
     }
 }

@@ -11,6 +11,6 @@ final class InvalidDailyCap extends BusinessRuleViolation
 {
     public static function belowOne(): self
     {
-        return self::because('A daily cap is at least 1 send', 'dailyCap');
+        return self::because('A daily cap must be at least 1 send', 'dailyCap');
     }
 }

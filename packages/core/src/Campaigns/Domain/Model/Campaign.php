@@ -420,7 +420,7 @@ final class Campaign implements ReleasesEvents
             CampaignIntent::RunCampaign === $intent => CampaignNotRunning::toRun(),
             CampaignIntent::DiscardCampaign === $intent && $this->status->hasStarted() => StartedCampaignNotDiscarded::stoppedInstead(),
             CampaignIntent::StopCampaign !== $intent && $this->status->hasStarted() => StartedCampaign::unchanged(),
-            default => NotPossibleInItsState::because(sprintf('A %s campaign does not offer it', $this->status->value)),
+            default => NotPossibleInItsState::because(sprintf('A %s campaign does not allow this', $this->status->value)),
         };
     }
 }

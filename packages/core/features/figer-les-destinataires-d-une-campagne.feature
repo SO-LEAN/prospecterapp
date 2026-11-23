@@ -28,7 +28,7 @@ Fonctionnalité: Figer les destinataires d'une campagne
   Scénario: Figée, la recherche ne change plus
     Soit la campagne "Relance" est figée
     Quand je change ses tags en "#EDITEUR"
-    Alors c'est refusé : "The search of a frozen campaign does not change"
+    Alors c'est refusé : "A frozen campaign's search can no longer change"
 
   Scénario: Figée, son nom et son message changent encore
     Soit la campagne "Relance" est figée
@@ -58,12 +58,12 @@ Fonctionnalité: Figer les destinataires d'une campagne
   Scénario: On ne retire pas le dernier destinataire
     Soit la campagne "Relance" est figée
     Quand j'en retire "Ada Lovelace"
-    Alors c'est refusé : "A campaign has at least one recipient"
+    Alors c'est refusé : "A campaign needs at least one recipient"
 
   Scénario: On ne fige pas une liste vide
     Soit la campagne "Vide" en brouillon ne cible personne
     Quand je fige la campagne "Vide"
-    Alors c'est refusé : "A campaign has at least one recipient"
+    Alors c'est refusé : "A campaign needs at least one recipient"
 
   Scénario: Un contact effacé quitte une campagne figée
     Soit la campagne "Relance" est figée avec "Ada Lovelace" et "Alan Turing"

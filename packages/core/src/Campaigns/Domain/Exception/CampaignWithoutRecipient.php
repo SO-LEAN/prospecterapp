@@ -13,6 +13,6 @@ final class CampaignWithoutRecipient extends BusinessRuleViolation
 {
     public static function left(): self
     {
-        return self::because('A campaign has at least one recipient');
+        return self::because('A campaign needs at least one recipient');
     }
 }

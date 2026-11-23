@@ -14,6 +14,6 @@ final class FrozenSearch extends BusinessRuleViolation
 {
     public static function unchanged(): self
     {
-        return self::because('The search of a frozen campaign does not change', 'tags');
+        return self::because('A frozen campaign\'s search can no longer change', 'tags');
     }
 }
