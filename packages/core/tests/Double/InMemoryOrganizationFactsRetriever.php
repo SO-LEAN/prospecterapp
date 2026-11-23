@@ -6,12 +6,12 @@ namespace Tests\Core\Double;
 
 use Prospecter\Core\Prospecting\Application\Port\OrganizationFactsRetriever;
 use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\OrganizationFactsResponse;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Address;
 use Prospecter\Core\SharedKernel\Domain\GeoPoint;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\SearchKeys;
 use Prospecter\Core\SharedKernel\Domain\Slice;
 
@@ -49,7 +49,7 @@ final readonly class InMemoryOrganizationFactsRetriever implements OrganizationF
             $this->database->revisionOf((string) $organization->id()),
             true,
             null !== $state->objectOrNull('geoPoint', GeoPoint::class),
-            array_map(static fn (PersonId $contact): string => (string) $contact, $state->listOf('contacts', PersonId::class)),
+            array_map(static fn (ContactId $contact): string => (string) $contact, $state->listOf('contacts', ContactId::class)),
             $state->stringOrNull('municipalityCode'),
             $state->objectOrNull('address', Address::class)?->country,
         );

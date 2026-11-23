@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\AttachCollectedContact;
 
 use Prospecter\Core\PersonalData\Contract\Event\ContactCollected;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Reacts to a contact collected in PersonalData. The contact joins the organizations it was collected for, and its
@@ -30,7 +30,7 @@ final readonly class AttachCollectedContactHandler implements EventHandler
     public function __invoke(ContactCollected $event): void
     {
         $collector = new MemberId($event->memberId);
-        $contact = new PersonId($event->personId);
+        $contact = new ContactId($event->personId);
 
         foreach ($event->organizationIds as $organizationId) {
             $organization = $this->organizations->get(new OrganizationId($organizationId));

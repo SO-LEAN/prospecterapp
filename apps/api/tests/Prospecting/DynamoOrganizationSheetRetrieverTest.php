@@ -7,6 +7,7 @@ namespace Tests\App\Prospecting;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\Port\OrganizationSheetRetriever;
 use Prospecter\Core\Prospecting\Application\PossibleDuplicate;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationIntent;
@@ -26,7 +27,6 @@ use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\Location;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\Siret;
 use Tests\App\Base\ApiTestCase;
 
@@ -55,7 +55,7 @@ class DynamoOrganizationSheetRetrieverTest extends ApiTestCase
         $acme = $this->prospect($prospector, 'ACME');
         $acme->changeLogo(new File('https://static.test/acme.png', 'png', 1024), $prospector->id, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         $acme->attachToHolding($this->prospect($prospector, 'Groupe ACME'), $prospector->id, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
-        $acme->addContact(new PersonId(self::newIdentity()), $prospector->id, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        $acme->addContact(new ContactId(self::newIdentity()), $prospector->id, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         $this->organizations()->save($acme);
 
         $this->assertSame(self::OFFERED_BY_THE_STATE, array_values(array_intersect(self::OFFERED_BY_THE_STATE, $this->sheetOf($acme)->possibleIntents)));

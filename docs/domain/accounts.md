@@ -5,7 +5,7 @@ An organization using Prospecter, and the members working in it. Code: `packages
 ## Language
 
 - **Account** (`Account`): an organization using Prospecter. It has a legal identity, a logo and an address; the address is where the routes to the organizations it prospects start. Its members manage it.
-- **Member** (`Member`): a person working in an account, with their own profile in PersonalData (a `PersonId`) and their roles. Signing in with a login email belongs to authentication, outside the core (ADR 0011, 0052).
+- **Member** (`Member`): a person working in an account, with their own profile in PersonalData (a `ProfileId`) and their roles. Signing in with a login email belongs to authentication, outside the core (ADR 0011, 0052).
 - **Roles** (`Role`):
   - `ROLE_USER`: the right to sign in; every member has it;
   - `ROLE_PROSPECTOR`: the right to prospect;

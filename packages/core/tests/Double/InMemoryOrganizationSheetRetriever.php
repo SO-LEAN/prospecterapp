@@ -7,6 +7,7 @@ namespace Tests\Core\Double;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\Port\OrganizationSheetRetriever;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationIntent;
@@ -22,7 +23,6 @@ use Prospecter\Core\SharedKernel\Domain\GeoPoint;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\Origin;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 /**
@@ -81,10 +81,10 @@ final readonly class InMemoryOrganizationSheetRetriever implements OrganizationS
             observations: $state->stringOrNull('observations'),
             logo: FileResponse::orNone($state->objectOrNull('logo', File::class)),
             holdingId: $state->objectOrNull('holdingId', OrganizationId::class)?->value,
-            contactIds: array_map(static fn (PersonId $contact): string => $contact->value, $state->listOf('contacts', PersonId::class)),
+            contactIds: array_map(static fn (ContactId $contact): string => $contact->value, $state->listOf('contacts', ContactId::class)),
             createdAt: $state->object('createdAt', \DateTimeImmutable::class),
             modifiedAt: $state->object('modifiedAt', \DateTimeImmutable::class),
-            possibleIntents: array_map(static fn (OrganizationIntent $intent): string => $intent->name, OrganizationPossibilities::given(hasLogo: null !== $state->objectOrNull('logo', File::class), hasHolding: null !== $state->objectOrNull('holdingId', OrganizationId::class), hasContacts: [] !== $state->listOf('contacts', PersonId::class), hasPossibleDuplicates: [] !== $possibleDuplicates)),
+            possibleIntents: array_map(static fn (OrganizationIntent $intent): string => $intent->name, OrganizationPossibilities::given(hasLogo: null !== $state->objectOrNull('logo', File::class), hasHolding: null !== $state->objectOrNull('holdingId', OrganizationId::class), hasContacts: [] !== $state->listOf('contacts', ContactId::class), hasPossibleDuplicates: [] !== $possibleDuplicates)),
             possibleDuplicates: $possibleDuplicates,
             createdByAnAI: Origin::Ai === $state->object('origin', Origin::class),
         );

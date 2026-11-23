@@ -32,7 +32,6 @@ use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 
@@ -175,7 +174,7 @@ final class Campaign implements ReleasesEvents
      * system reaction, and it records nothing. A recipient already handled, or a campaign no longer running, stays as
      * it is.
      */
-    public function process(PersonId $contact, string $exchangeId, RecipientOutcome $outcome, \DateTimeImmutable $at): void
+    public function process(ContactId $contact, string $exchangeId, RecipientOutcome $outcome, \DateTimeImmutable $at): void
     {
         if (!$this->status->isRunning()) {
             return;
@@ -236,7 +235,7 @@ final class Campaign implements ReleasesEvents
      * @throws UnknownRecipient
      * @throws RecipientAlreadyProcessed
      */
-    public function dismiss(PersonId $contact, ?string $reason, MemberId $by, \DateTimeImmutable $at): void
+    public function dismiss(ContactId $contact, ?string $reason, MemberId $by, \DateTimeImmutable $at): void
     {
         $this->ensurePossible(CampaignIntent::RunCampaign);
         $this->recipients = $this->recipients->dismissing($contact, $reason);
@@ -284,7 +283,7 @@ final class Campaign implements ReleasesEvents
      * @throws UnknownRecipient
      * @throws CampaignWithoutRecipient
      */
-    public function removeRecipient(PersonId $contact, MemberId $by, \DateTimeImmutable $at): void
+    public function removeRecipient(ContactId $contact, MemberId $by, \DateTimeImmutable $at): void
     {
         $this->ensurePossible(CampaignIntent::RemoveRecipient);
         $this->changeRecipients($this->recipients->without($contact), $by, $at);
@@ -294,7 +293,7 @@ final class Campaign implements ReleasesEvents
      * A contact that PersonalData forgot leaves the recipients, even when it is the last one. A started campaign keeps
      * the contact, without its name and no longer to handle. A running campaign ends once nobody is left to handle.
      */
-    public function forget(PersonId $contact, \DateTimeImmutable $at): void
+    public function forget(ContactId $contact, \DateTimeImmutable $at): void
     {
         $this->recipients = $this->status->hasStarted() ? $this->recipients->erasing($contact) : $this->recipients->forgetting($contact);
 
@@ -304,7 +303,7 @@ final class Campaign implements ReleasesEvents
     }
 
     #[\NoDiscard]
-    public function hasRecipient(PersonId $contact): bool
+    public function hasRecipient(ContactId $contact): bool
     {
         return $this->recipients->includes($contact);
     }
@@ -314,12 +313,12 @@ final class Campaign implements ReleasesEvents
      * exchange of the campaign with, but that the campaign has not processed yet (ADR 0195). When nobody else is left,
      * the campaign is about to end.
      *
-     * @param list<PersonId> $exchangedWith
+     * @param list<ContactId> $exchangedWith
      *
      * @throws CampaignNotRunning
      */
     #[\NoDiscard]
-    public function nextRecipient(array $exchangedWith): PersonId
+    public function nextRecipient(array $exchangedWith): ContactId
     {
         $this->ensurePossible(CampaignIntent::RunCampaign);
 
@@ -327,7 +326,7 @@ final class Campaign implements ReleasesEvents
     }
 
     /**
-     * @return list<PersonId>
+     * @return list<ContactId>
      */
     #[\NoDiscard]
     public function pendingRecipients(): array
@@ -348,7 +347,7 @@ final class Campaign implements ReleasesEvents
     }
 
     /**
-     * @param list<PersonId> $exchangedWith
+     * @param list<ContactId> $exchangedWith
      */
     #[\NoDiscard]
     public function stillToHandle(array $exchangedWith): int
@@ -393,13 +392,13 @@ final class Campaign implements ReleasesEvents
     /**
      * @param array<string, ContactTags> $contacts
      *
-     * @return list<PersonId>
+     * @return list<ContactId>
      */
     private static function found(Targeting $targeting, array $contacts): array
     {
         $found = array_filter($contacts, $targeting->targets(...));
 
-        return array_map(static fn (int|string $id): PersonId => new PersonId((string) $id), array_keys($found));
+        return array_map(static fn (int|string $id): ContactId => new ContactId((string) $id), array_keys($found));
     }
 
     private function ensurePossible(CampaignIntent $intent): void

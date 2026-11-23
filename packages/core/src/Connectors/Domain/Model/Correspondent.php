@@ -7,7 +7,6 @@ namespace Prospecter\Core\Connectors\Domain\Model;
 use Prospecter\Core\Connectors\Domain\Port\Correspondents;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * The party in the account that an e-mail was exchanged with. It is found by its address. It is a contact, or else an
@@ -16,7 +15,7 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 final readonly class Correspondent
 {
     private function __construct(
-        public ?PersonId $contact,
+        public ?ContactId $contact,
         public ?OrganizationId $organization,
     ) {
     }

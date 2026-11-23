@@ -16,13 +16,13 @@ use Prospecter\Core\Connectors\Domain\Exception\CalendarRefusedThePush;
 use Prospecter\Core\Connectors\Domain\Model\CalendarEvent;
 use Prospecter\Core\Connectors\Domain\Model\Channel;
 use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
+use Prospecter\Core\Connectors\Domain\Model\ContactId;
 use Prospecter\Core\Connectors\Domain\Model\ExchangeId;
 use Prospecter\Core\Connectors\Domain\Model\Guest;
 use Prospecter\Core\Connectors\Domain\Model\OrganizationId;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Model\RefreshToken;
 use Prospecter\Core\SharedKernel\Domain\Email;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\JsonMockResponse;
@@ -273,7 +273,7 @@ class GoogleCalendarTest extends TestCase
 
     private static function event(?int $reminder = null): CalendarEvent
     {
-        return new CalendarEvent(new ExchangeId(self::EXCHANGE), Channel::VideoCall, new \DateTimeImmutable('2026-11-17 13:00 UTC'), new \DateTimeImmutable('2026-11-17 13:30 UTC'), 'https://meet.google.com/abc-defg-hij', new PersonId(self::CONTACT), 'Ada Lovelace', new OrganizationId(self::ORGANIZATION), 'ACME', $reminder);
+        return new CalendarEvent(new ExchangeId(self::EXCHANGE), Channel::VideoCall, new \DateTimeImmutable('2026-11-17 13:00 UTC'), new \DateTimeImmutable('2026-11-17 13:30 UTC'), 'https://meet.google.com/abc-defg-hij', new ContactId(self::CONTACT), 'Ada Lovelace', new OrganizationId(self::ORGANIZATION), 'ACME', $reminder);
     }
 
     /**
@@ -281,12 +281,12 @@ class GoogleCalendarTest extends TestCase
      */
     private static function eventInviting(Guest $guest, Channel $channel = Channel::VideoCall): CalendarEvent
     {
-        return new CalendarEvent(new ExchangeId(self::EXCHANGE), $channel, new \DateTimeImmutable('2026-11-24 08:00 UTC'), new \DateTimeImmutable('2026-11-24 08:15 UTC'), null, new PersonId(self::CONTACT), 'Ada Lovelace', null, null, 10, guest: $guest);
+        return new CalendarEvent(new ExchangeId(self::EXCHANGE), $channel, new \DateTimeImmutable('2026-11-24 08:00 UTC'), new \DateTimeImmutable('2026-11-24 08:15 UTC'), null, new ContactId(self::CONTACT), 'Ada Lovelace', null, null, 10, guest: $guest);
     }
 
     private static function eventAskingALink(): CalendarEvent
     {
-        return new CalendarEvent(new ExchangeId(self::EXCHANGE), Channel::VideoCall, new \DateTimeImmutable('2026-11-17 13:00 UTC'), new \DateTimeImmutable('2026-11-17 13:30 UTC'), null, new PersonId(self::CONTACT), 'Ada Lovelace', new OrganizationId(self::ORGANIZATION), 'ACME', null, createsALink: true);
+        return new CalendarEvent(new ExchangeId(self::EXCHANGE), Channel::VideoCall, new \DateTimeImmutable('2026-11-17 13:00 UTC'), new \DateTimeImmutable('2026-11-17 13:30 UTC'), null, new ContactId(self::CONTACT), 'Ada Lovelace', new OrganizationId(self::ORGANIZATION), 'ACME', null, createsALink: true);
     }
 
     private static function eventId(): string

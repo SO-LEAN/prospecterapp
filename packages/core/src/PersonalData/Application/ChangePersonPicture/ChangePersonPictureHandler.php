@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\PersonalData\Application\ChangePersonPicture;
 
+use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\PersonalData\Domain\Port\Readers;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
@@ -11,7 +12,6 @@ use Prospecter\Core\SharedKernel\Application\FileStore;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 final readonly class ChangePersonPictureHandler implements CommandHandler
 {

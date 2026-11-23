@@ -6,8 +6,8 @@ namespace Prospecter\Core\Prospecting\Application\Port;
 
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\Timeline;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Reads the timelines in slices after the cursor (ADR 0049, 0074, 0076, 0079). Past exchanges come most recent first.
@@ -20,7 +20,7 @@ interface TimelineRetriever
     /**
      * Returns the exchanges with the contact in the reader's account, up to the moment.
      */
-    public function ofContact(PersonId $contact, Prospector $reader, \DateTimeImmutable $asOf, ?string $after, int $max): Timeline;
+    public function ofContact(ContactId $contact, Prospector $reader, \DateTimeImmutable $asOf, ?string $after, int $max): Timeline;
 
     /**
      * Returns the exchanges kept for the organization, up to the moment. They are with the organization or with its
@@ -31,7 +31,7 @@ interface TimelineRetriever
     /**
      * Returns the exchanges with the contact in the reader's account, after the moment.
      */
-    public function upcomingWithContact(PersonId $contact, Prospector $reader, \DateTimeImmutable $asOf, ?string $after, int $max): Timeline;
+    public function upcomingWithContact(ContactId $contact, Prospector $reader, \DateTimeImmutable $asOf, ?string $after, int $max): Timeline;
 
     /**
      * Returns the exchanges kept for the organization, after the moment. They are with the organization or with its

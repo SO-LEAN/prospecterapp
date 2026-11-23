@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Campaigns\AntiCorruption;
 
 use Prospecter\Core\Campaigns\Domain\Model\ContactFact;
+use Prospecter\Core\Campaigns\Domain\Model\ContactId;
 use Prospecter\Core\Campaigns\Domain\Model\Reach;
 use Prospecter\Core\Campaigns\Domain\Port\ContactsReach;
 use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\ContactFactsResponse;
@@ -12,7 +13,6 @@ use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\KeptContactFa
 use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\ListContactFacts;
 use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\ListContactFactsService;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Anticorruption layer (ADR 0045, 0089, 0141): the facts that PersonalData gives again, one slice after another, in
@@ -36,7 +36,7 @@ final readonly class PersonalDataContactsReach implements ContactsReach
 
             yield from array_map(static fn (ContactFactsResponse $facts): ContactFact => new ContactFact(
                 $accountId,
-                new PersonId($facts->personId),
+                new ContactId($facts->personId),
                 $facts->revision,
                 $facts->present,
                 new Reach($facts->hasEmail, $facts->hasPhone, $facts->hasMobile, $facts->hasLinkedIn),

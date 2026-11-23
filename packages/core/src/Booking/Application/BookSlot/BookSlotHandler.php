@@ -8,6 +8,7 @@ use Prospecter\Core\Booking\Domain\Exception\BookingUnavailable;
 use Prospecter\Core\Booking\Domain\Model\AppointmentId;
 use Prospecter\Core\Booking\Domain\Model\AppointmentRequest;
 use Prospecter\Core\Booking\Domain\Model\Booker;
+use Prospecter\Core\Booking\Domain\Model\BookerId;
 use Prospecter\Core\Booking\Domain\Model\BookingCode;
 use Prospecter\Core\Booking\Domain\Model\BookingPage;
 use Prospecter\Core\Booking\Domain\Model\Channel;
@@ -19,7 +20,6 @@ use Prospecter\Core\Booking\Domain\Service\LinkAvailability;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 final readonly class BookSlotHandler implements CommandHandler
 {
@@ -46,7 +46,7 @@ final readonly class BookSlotHandler implements CommandHandler
     {
         return new AppointmentRequest(
             new AppointmentId($command->appointmentId),
-            new PersonId($command->bookerId),
+            new BookerId($command->bookerId),
             $command->slot,
             Channel::from($command->channel),
             Booker::named($command->firstName, $command->lastName, $command->phone, $command->email),

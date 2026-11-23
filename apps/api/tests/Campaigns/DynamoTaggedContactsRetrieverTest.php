@@ -8,6 +8,7 @@ use Prospecter\Core\Campaigns\Application\FactRecorder;
 use Prospecter\Core\Campaigns\Application\Port\ContactTagSources;
 use Prospecter\Core\Campaigns\Application\Port\TaggedContactsRetriever;
 use Prospecter\Core\Campaigns\Domain\Model\ContactFact;
+use Prospecter\Core\Campaigns\Domain\Model\ContactId;
 use Prospecter\Core\Campaigns\Domain\Model\Holder;
 use Prospecter\Core\Campaigns\Domain\Model\Locality;
 use Prospecter\Core\Campaigns\Domain\Model\OrganizationFact;
@@ -18,7 +19,6 @@ use Prospecter\Core\Campaigns\Domain\Model\Tagging;
 use Prospecter\Core\Campaigns\Domain\Repository\TaggingRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\App\Base\ApiTestCase;
 
 /**
@@ -41,8 +41,8 @@ class DynamoTaggedContactsRetrieverTest extends ApiTestCase
     public function testEveryContactKeptComesWithWhatItsTagsDeriveFrom(): void
     {
         $acme = new OrganizationId(self::newIdentity());
-        $ada = new PersonId(self::newIdentity());
-        $grace = new PersonId(self::newIdentity());
+        $ada = new ContactId(self::newIdentity());
+        $grace = new ContactId(self::newIdentity());
         $this->recorder()->record(new OrganizationFact($this->account, $acme, 1, true, [$ada, $grace], new Locality(self::ILLKIRCH, 'FR')));
         $this->recorder()->record(new ContactFact($this->account, $ada, 1, true, new Reach(true, false, false, false)));
         $this->recorder()->record(new ContactFact($this->account, $grace, 1, true, Reach::none()));
@@ -58,7 +58,7 @@ class DynamoTaggedContactsRetrieverTest extends ApiTestCase
 
     public function testAContactForgottenIsLeftOut(): void
     {
-        $ada = new PersonId(self::newIdentity());
+        $ada = new ContactId(self::newIdentity());
         $this->recorder()->record(new ContactFact($this->account, $ada, 1, true, Reach::none()));
 
         $this->recorder()->record(new ContactFact($this->account, $ada, 0, false, Reach::none()));
@@ -69,7 +69,7 @@ class DynamoTaggedContactsRetrieverTest extends ApiTestCase
     public function testTheContactsOfAnotherAccountAreLeftOut(): void
     {
         $other = new AccountId(self::newIdentity());
-        $this->recorder()->record(new ContactFact($other, new PersonId(self::newIdentity()), 1, true, Reach::none()));
+        $this->recorder()->record(new ContactFact($other, new ContactId(self::newIdentity()), 1, true, Reach::none()));
 
         $this->assertSame([], $this->retriever()->sourcesOfEveryContact($this->account));
     }

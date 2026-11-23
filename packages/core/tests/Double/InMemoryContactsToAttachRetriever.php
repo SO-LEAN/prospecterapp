@@ -6,10 +6,10 @@ namespace Tests\Core\Double;
 
 use Prospecter\Core\Prospecting\Application\ContactToAttachInList;
 use Prospecter\Core\Prospecting\Application\Port\ContactsToAttachRetriever;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\ContactToAttach;
 use Prospecter\Core\Prospecting\Domain\Policy\UnattachedErasure;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * The contacts to attach that the repository saved, read without their getters. The DynamoDB retriever reads
@@ -29,7 +29,7 @@ final readonly class InMemoryContactsToAttachRetriever implements ContactsToAtta
         return $held;
     }
 
-    public function findHeldBy(MemberId $holder, PersonId $person): ?ContactToAttachInList
+    public function findHeldBy(MemberId $holder, ContactId $person): ?ContactToAttachInList
     {
         $contactToAttach = $this->database->contactToAttach((string) $person);
 

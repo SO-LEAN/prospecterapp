@@ -11,6 +11,7 @@ use App\Shared\Persistence\DynamoUnitOfWork;
 use App\Shared\Typed;
 use Prospecter\Core\Prospecting\Domain\Exception\ReferenceAlreadyUsed;
 use Prospecter\Core\Prospecting\Domain\Exception\SiretAlreadyUsed;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
@@ -31,7 +32,6 @@ use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\Origin;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\Siret;
 use Tests\App\Base\ApiTestCase;
 
@@ -100,7 +100,7 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
     {
         $organizations = self::service(OrganizationRepository::class);
         $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()), managesPersonalData: true);
-        $ada = new PersonId(self::newIdentity());
+        $ada = new ContactId(self::newIdentity());
         $acme = $this->organizationWithTheEmail($prospector, 'contact@acme.test');
         $acme->addContact($ada, by: $prospector->id, at: new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         $organizations->save($acme);
@@ -475,12 +475,12 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
         $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()), managesPersonalData: true);
         $acme = $this->organizationWithTheEmail($prospector, 'contact@acme.test');
         $organizations->save($acme);
-        $grace = new PersonId(self::newIdentity());
+        $grace = new ContactId(self::newIdentity());
         $unitOfWork = self::service(DynamoUnitOfWork::class);
         $unitOfWork->begin();
         $read = $organizations->get($acme->id());
         $this->anotherRequestAttaches($grace, $acme->id(), $prospector);
-        $read->addContact(new PersonId(self::newIdentity()), by: $prospector->id, at: new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        $read->addContact(new ContactId(self::newIdentity()), by: $prospector->id, at: new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         $organizations->save($read);
 
         try {
@@ -499,7 +499,7 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
         $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()), managesPersonalData: true);
         $acme = $this->organizationWithTheEmail($prospector, 'contact@acme.test');
         $organizations->save($acme);
-        $grace = new PersonId(self::newIdentity());
+        $grace = new ContactId(self::newIdentity());
         $unitOfWork = self::service(DynamoUnitOfWork::class);
         $unitOfWork->begin();
         $read = $organizations->get($acme->id());
@@ -516,7 +516,7 @@ class DynamoOrganizationRepositoryTest extends ApiTestCase
         $this->assertTrue($organizations->get($acme->id())->hasContact($grace), 'the organization stays, with the contact attached meanwhile');
     }
 
-    private function anotherRequestAttaches(PersonId $contact, OrganizationId $organization, Prospector $prospector): void
+    private function anotherRequestAttaches(ContactId $contact, OrganizationId $organization, Prospector $prospector): void
     {
         $organizations = new DynamoOrganizationRepository($this->asAnotherRequest(self::tableOf('prospecting')));
         $attaching = $organizations->get($organization);

@@ -12,6 +12,7 @@ use App\Shared\Persistence\RevisionsRead;
 use App\Shared\Persistence\Table;
 use Aws\DynamoDb\DynamoDbClient;
 use Aws\DynamoDb\Marshaler;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\Model\ResemblanceKey;
@@ -21,7 +22,6 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\ExternalReference;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\Siret;
 use Symfony\Component\Clock\ClockInterface;
 
@@ -32,7 +32,7 @@ use Symfony\Component\Clock\ClockInterface;
  */
 final class OrganizationChangedMeanwhile implements OrganizationRepository
 {
-    /** @var list<PersonId> */
+    /** @var list<ContactId> */
     private array $attachedMeanwhile = [];
 
     public function __construct(
@@ -45,7 +45,7 @@ final class OrganizationChangedMeanwhile implements OrganizationRepository
     ) {
     }
 
-    public function attachMeanwhile(PersonId ...$contacts): void
+    public function attachMeanwhile(ContactId ...$contacts): void
     {
         $this->attachedMeanwhile = array_values($contacts);
     }

@@ -6,10 +6,10 @@ namespace Tests\Core\Domain;
 
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFingerprint;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 class ExchangeFingerprintTest extends TestCase
 {
@@ -18,7 +18,7 @@ class ExchangeFingerprintTest extends TestCase
 
     public function testAnEMailWithAnotherCorrespondentIsAnotherExchange(): void
     {
-        $this->assertNotEquals(ExchangeFingerprint::ofEmail('identity', new PersonId(self::ADA)), ExchangeFingerprint::ofEmail('identity', new PersonId(self::GRACE)));
+        $this->assertNotEquals(ExchangeFingerprint::ofEmail('identity', new ContactId(self::ADA)), ExchangeFingerprint::ofEmail('identity', new ContactId(self::GRACE)));
     }
 
     public function testALinkedInMessageIsTheSameWhateverTheCaseTheSpacesAndThePunctuationOfItsText(): void
@@ -57,8 +57,8 @@ class ExchangeFingerprintTest extends TestCase
         $at = new \DateTimeImmutable('2026-11-18 09:12 UTC');
 
         $this->assertNotEquals(
-            ExchangeFingerprint::ofMessage(new ExchangeFacts(Channel::Sms, Direction::Inbound, $at, 'Bonjour'), new PersonId(self::ADA)),
-            ExchangeFingerprint::ofMessage(new ExchangeFacts(Channel::Malt, Direction::Inbound, $at, 'Bonjour'), new PersonId(self::ADA)),
+            ExchangeFingerprint::ofMessage(new ExchangeFacts(Channel::Sms, Direction::Inbound, $at, 'Bonjour'), new ContactId(self::ADA)),
+            ExchangeFingerprint::ofMessage(new ExchangeFacts(Channel::Malt, Direction::Inbound, $at, 'Bonjour'), new ContactId(self::ADA)),
         );
     }
 }

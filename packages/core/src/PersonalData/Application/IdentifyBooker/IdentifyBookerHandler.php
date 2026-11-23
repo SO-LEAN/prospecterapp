@@ -8,6 +8,7 @@ use Prospecter\Core\Booking\Contract\Event\SlotBooked;
 use Prospecter\Core\PersonalData\Domain\Model\Booker;
 use Prospecter\Core\PersonalData\Domain\Model\ContactCard;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
+use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\PersonalData\Domain\Port\Bookers;
 use Prospecter\Core\PersonalData\Domain\Port\Readers;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
@@ -17,7 +18,6 @@ use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Exception\PersonalDataManagersOnly;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Identifies who booked a host's slot (ADR 0164, 0199). It looks for the account's contact who has their e-mail.

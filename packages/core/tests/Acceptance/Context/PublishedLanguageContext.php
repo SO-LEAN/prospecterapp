@@ -26,6 +26,7 @@ use Prospecter\Core\PersonalData\Contract\Service\PresentMembers\PresentMembers;
 use Prospecter\Core\PersonalData\Contract\Service\WhichAreContacts\WhichAreContacts;
 use Prospecter\Core\PersonalData\Contract\Service\WhichContactsHaveTheseEmails\WhichContactsHaveTheseEmails;
 use Prospecter\Core\PersonalData\Contract\Service\WhichEmailsHaveTheseContacts\WhichEmailsHaveTheseContacts;
+use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultHeldExchanges;
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultPlannedExchanges;
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\HeldExchangeResponse;
@@ -45,7 +46,6 @@ use Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsNameTheseCont
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 

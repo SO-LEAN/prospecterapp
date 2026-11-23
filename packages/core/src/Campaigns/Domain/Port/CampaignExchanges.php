@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Campaigns\Domain\Port;
 
 use Prospecter\Core\Campaigns\Domain\Model\CampaignId;
+use Prospecter\Core\Campaigns\Domain\Model\ContactId;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Port: the recipients that Prospecting has already logged an exchange of the campaign with, before Campaigns processes
@@ -16,9 +16,9 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 interface CampaignExchanges
 {
     /**
-     * @param list<PersonId> $recipients
+     * @param list<ContactId> $recipients
      *
-     * @return list<PersonId>
+     * @return list<ContactId>
      */
     public function exchangedWith(AccountId $accountId, CampaignId $campaign, array $recipients): array;
 }

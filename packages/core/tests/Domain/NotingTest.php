@@ -6,6 +6,7 @@ namespace Tests\Core\Domain;
 
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFingerprint;
@@ -13,7 +14,6 @@ use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\Prospecting\Domain\Model\ImportedEmail;
 use Prospecter\Core\Prospecting\Domain\Model\MessageReference;
 use Prospecter\Core\Prospecting\Domain\Model\Noting;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 class NotingTest extends TestCase
 {
@@ -52,8 +52,8 @@ class NotingTest extends TestCase
         return new ExchangeFacts(Channel::LinkedIn, Direction::Inbound, new \DateTimeImmutable(self::AT), 'Bonjour');
     }
 
-    private static function ada(): PersonId
+    private static function ada(): ContactId
     {
-        return new PersonId(self::ADA);
+        return new ContactId(self::ADA);
     }
 }

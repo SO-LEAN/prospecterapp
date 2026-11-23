@@ -9,6 +9,7 @@ use App\Shared\Persistence\DynamoUnitOfWork;
 use App\Shared\Typed;
 use Prospecter\Core\Prospecting\Application\Port\OrganizationFactsRetriever;
 use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\OrganizationFactsResponse;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
@@ -21,7 +22,6 @@ use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\Location;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\App\Base\ApiTestCase;
 
 /**
@@ -65,7 +65,7 @@ class DynamoOrganizationFactsRetrieverTest extends ApiTestCase
     public function testTheFactsNameTheContactsOfTheOrganization(): void
     {
         $organization = $this->prospected('ACME');
-        $ada = new PersonId(self::newIdentity());
+        $ada = new ContactId(self::newIdentity());
         $organization->addContact($ada, by: $this->prospector->id, at: new \DateTimeImmutable(self::NOW));
         $this->organizations()->save($organization);
 

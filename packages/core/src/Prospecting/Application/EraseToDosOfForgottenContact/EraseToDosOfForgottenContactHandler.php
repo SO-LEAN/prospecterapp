@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\EraseToDosOfForgottenContact;
 
 use Prospecter\Core\PersonalData\Contract\Event\ContactForgotten;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Repository\ToDoRepository;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Erases an erased contact's to-dos, by the member who erased the contact. Unlike the exchanges, they are no
@@ -31,7 +31,7 @@ final readonly class EraseToDosOfForgottenContactHandler implements EventHandler
     {
         $author = new MemberId($event->memberId);
 
-        foreach ($this->toDos->forContact(new PersonId($event->personId), new AccountId($event->accountId)) as $toDo) {
+        foreach ($this->toDos->forContact(new ContactId($event->personId), new AccountId($event->accountId)) as $toDo) {
             $toDo->erase(by: $author, at: $event->occurredAt);
             $this->toDos->remove($toDo);
             $this->publishWhatHappenedTo($toDo);

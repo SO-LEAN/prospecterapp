@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\PersonalData\Domain\Event;
 
+use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Event\DomainEvent;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * The contact who booked an appointment with a host through the host's public link (ADR 0164). The contact was already

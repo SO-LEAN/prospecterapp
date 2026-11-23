@@ -16,6 +16,7 @@ use Prospecter\Core\Prospecting\Domain\Model\CampaignId;
 use Prospecter\Core\Prospecting\Domain\Model\Canceller;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
 use Prospecter\Core\Prospecting\Domain\Model\ContactCorrespondent;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\Duration;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
@@ -32,7 +33,6 @@ use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\App\Base\ApiTestCase;
 
 /**
@@ -163,7 +163,7 @@ class DynamoExchangeDetailRetrieverTest extends ApiTestCase
     public function testAnExchangeNotedInACampaignNamesItsCampaign(): void
     {
         $campaign = new CampaignId(self::newIdentity());
-        $recipient = new RecipientInCampaign($campaign, new PersonId(self::newIdentity()), Channel::Email, running: true, recipient: true, pending: true);
+        $recipient = new RecipientInCampaign($campaign, new ContactId(self::newIdentity()), Channel::Email, running: true, recipient: true, pending: true);
         $noting = Noting::of($recipient->exchangeFacts(new \DateTimeImmutable('2026-10-10 09:00 UTC'), null), ExchangeStatus::Done);
         $exchange = Exchange::noted(new Gesture($this->me->accountId, $this->me->id, new \DateTimeImmutable(self::NOW)), new ExchangeId(self::newIdentity()), new RecipientCorrespondent($recipient, [new OrganizationId(self::newIdentity())]), $noting);
         $this->exchanges()->save($exchange);
@@ -178,7 +178,7 @@ class DynamoExchangeDetailRetrieverTest extends ApiTestCase
 
     private function planned(string $at): Exchange
     {
-        $exchange = Exchange::planned(new Gesture($this->me->accountId, $this->me->id, new \DateTimeImmutable(self::NOW)), new ExchangeId(self::newIdentity()), new ContactCorrespondent(new PersonId(self::newIdentity()), [new OrganizationId(self::newIdentity())]), ExchangeFacts::planned(Channel::VideoCall, new \DateTimeImmutable($at), Duration::inMinutes(null), null));
+        $exchange = Exchange::planned(new Gesture($this->me->accountId, $this->me->id, new \DateTimeImmutable(self::NOW)), new ExchangeId(self::newIdentity()), new ContactCorrespondent(new ContactId(self::newIdentity()), [new OrganizationId(self::newIdentity())]), ExchangeFacts::planned(Channel::VideoCall, new \DateTimeImmutable($at), Duration::inMinutes(null), null));
         $this->exchanges()->save($exchange);
 
         return $exchange;
@@ -195,7 +195,7 @@ class DynamoExchangeDetailRetrieverTest extends ApiTestCase
 
     private function noted(): Exchange
     {
-        $exchange = Exchange::noted(new Gesture($this->me->accountId, $this->me->id, new \DateTimeImmutable(self::NOW)), new ExchangeId(self::newIdentity()), new ContactCorrespondent(new PersonId(self::newIdentity()), [new OrganizationId(self::newIdentity())]), Noting::of(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable('2026-10-10 09:00 UTC'), 'Rappeler lundi'), ExchangeStatus::Done));
+        $exchange = Exchange::noted(new Gesture($this->me->accountId, $this->me->id, new \DateTimeImmutable(self::NOW)), new ExchangeId(self::newIdentity()), new ContactCorrespondent(new ContactId(self::newIdentity()), [new OrganizationId(self::newIdentity())]), Noting::of(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable('2026-10-10 09:00 UTC'), 'Rappeler lundi'), ExchangeStatus::Done));
         $this->exchanges()->save($exchange);
 
         return $exchange;

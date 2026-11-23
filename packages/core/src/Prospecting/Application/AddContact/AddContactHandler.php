@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\AddContact;
 
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownContact;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\Port\KnownContacts;
@@ -13,7 +14,6 @@ use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 final readonly class AddContactHandler implements CommandHandler
 {
@@ -25,7 +25,7 @@ final readonly class AddContactHandler implements CommandHandler
 
     public function __invoke(AddContact $command): void
     {
-        $contact = new PersonId($command->personId);
+        $contact = new ContactId($command->personId);
         $organization = $this->organizations->get(new OrganizationId($command->id));
         $this->ensureKnownBy($contact, $organization);
         $organization->addContact($contact, by: new MemberId($command->prospectorId), at: $command->executedAt);
@@ -33,7 +33,7 @@ final readonly class AddContactHandler implements CommandHandler
         $this->publishWhatHappenedTo($organization);
     }
 
-    private function ensureKnownBy(PersonId $contact, Organization $organization): void
+    private function ensureKnownBy(ContactId $contact, Organization $organization): void
     {
         if (!$this->knownContacts->isAContactOf($contact, $organization->accountId())) {
             throw UnknownContact::identifiedBy($contact);

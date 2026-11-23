@@ -8,6 +8,7 @@ use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Hydrator;
 use App\Shared\Typed;
 use Prospecter\Core\Prospecting\Application\ToDoInList;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\Due;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\Model\ToDo;
@@ -16,7 +17,6 @@ use Prospecter\Core\Prospecting\Domain\Model\ToDoIntent;
 use Prospecter\Core\Prospecting\Domain\Policy\ToDoPossibilities;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Turns a to-do into a plain document for its DynamoDB item, and back (ADR 0048). Its recorded events are never
@@ -36,7 +36,7 @@ final class ToDoDocument
             'id' => Typed::object($state['id'], ToDoId::class)->value,
             'accountId' => Typed::object($state['accountId'], AccountId::class)->value,
             'createdBy' => Typed::object($state['createdBy'], MemberId::class)->value,
-            'contact' => Typed::objectOrNull($state['contact'], PersonId::class)?->value,
+            'contact' => Typed::objectOrNull($state['contact'], ContactId::class)?->value,
             'keptFor' => array_map(static fn (OrganizationId $organization): string => $organization->value, Typed::objects($state['keptFor'], OrganizationId::class)),
             'text' => Typed::string($state['text']),
             'due' => ['day' => $due->day, 'time' => $due->time],
@@ -59,7 +59,7 @@ final class ToDoDocument
             'id' => new ToDoId(Typed::string($document['id'])),
             'accountId' => new AccountId(Typed::string($document['accountId'])),
             'createdBy' => new MemberId(Typed::string($document['createdBy'])),
-            'contact' => null === $contact ? null : new PersonId($contact),
+            'contact' => null === $contact ? null : new ContactId($contact),
             'keptFor' => array_map(static fn (string $organization): OrganizationId => new OrganizationId($organization), Typed::strings($document['keptFor'])),
             'text' => Typed::string($document['text']),
             'due' => Hydrator::restore(Due::class, ['day' => Typed::string($due['day']), 'time' => Typed::stringOrNull($due['time'])]),

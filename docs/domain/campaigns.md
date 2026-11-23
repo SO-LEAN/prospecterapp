@@ -5,7 +5,7 @@ Members put tags on their organizations and contacts. Later, they find the ones 
 ## Language
 
 - **Tag** (`Tag`): a `#` followed by 1 to 30 characters. The characters are unaccented capital letters, digits and underscores (#ESN, #SALON_2026). A tag is written one way, whatever was typed. Accents are removed, and every other run of characters becomes an underscore. Nothing is left at either end (`Café owners` is #CAFE_OWNERS). Text that makes no tag is refused (`InvalidTag`).
-- **Holder** (`Holder`): what carries tags, an organization (`OrganizationId`) or a contact (`PersonId`).
+- **Holder** (`Holder`): what carries tags, an organization (`OrganizationId`) or a contact (`ContactId`).
 - **Tagging** (`Tagging`): the tags an account's members put **by hand** on one holder, sorted by name. It is Campaigns' source data.
 - **Predefined tags** (`PredefinedTags`): tags proposed to every account, by family (`TagFamily`):
   - the organization type: #APPORTEUR #ESN #EDITEUR #FINAL #CABINET_RECRUTEMENT #PORTAGE #PARTENAIRE;
@@ -135,7 +135,7 @@ Its domain events stay in the context: `OrganizationTagsChanged`, `ContactTagsCh
 ## In the code
 
 - `src/Campaigns/Domain`:
-  - `Tag`, `Holder` and `HolderKind`, `TagFamily`, `TagSelection`, the aggregate `Tagging`;
+  - `Tag`, `Holder` and `HolderKind`, `OrganizationId` and `ContactId` (Prospecting's organizations and PersonalData's persons, ADR 0197), `TagFamily`, `TagSelection`, the aggregate `Tagging`;
   - the facts (`Fact`, `OrganizationFact`, `ContactFact`), `Reach`, `Locality`, `ContactTags` and `InheritedTag`;
   - the policies `PredefinedTags`, `AutomaticTags`, `GeographicTags` and `FactSuccession`. `bin/insee-geography.php` generates the tables of `GeographicTags` from INSEE data, in `data/insee-geography.php`. Nobody edits them by hand;
   - the domain service `TaggableHolders`;

@@ -7,9 +7,9 @@ namespace Tests\Core\Double;
 use Prospecter\Core\PersonalData\Contract\Service\WhichAreContacts\KeptContacts;
 use Prospecter\Core\PersonalData\Contract\Service\WhichAreContacts\WhichAreContacts;
 use Prospecter\Core\PersonalData\Contract\Service\WhichAreContacts\WhichAreContactsService;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Port\KnownContacts;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * The API's anticorruption layer, in the scenarios (ADR 0045, 0089). Prospecting knows the persons it prospects.
@@ -21,7 +21,7 @@ final readonly class PersonalDataKnownContacts implements KnownContacts
     {
     }
 
-    public function isAContactOf(PersonId $person, AccountId $accountId): bool
+    public function isAContactOf(ContactId $person, AccountId $accountId): bool
     {
         $kept = new KeptContacts();
         ($this->whichAreContactsService)(new WhichAreContacts([$person->value], $accountId->value), $kept);

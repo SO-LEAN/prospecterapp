@@ -8,12 +8,12 @@ use App\Shared\Persistence\SearchIndexes;
 use App\Shared\Persistence\Table;
 use App\Shared\Typed;
 use Prospecter\Core\PersonalData\Application\Port\DesignatedContactRetriever;
+use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\PersonalData\Domain\Model\PersonResemblanceKey;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\ExternalReference;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 /**

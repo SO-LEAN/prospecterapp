@@ -18,7 +18,6 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 
@@ -45,7 +44,7 @@ final class ToDo implements ReleasesEvents
         private readonly ToDoId $id,
         private readonly AccountId $accountId,
         private readonly MemberId $createdBy,
-        private readonly ?PersonId $contact,
+        private readonly ?ContactId $contact,
         private array $keptFor,
         string $text,
         private Due $due,

@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Prospecter\Core\Campaigns\Application\ProcessRecipientOfCampaignExchange;
 
 use Prospecter\Core\Campaigns\Domain\Model\CampaignId;
+use Prospecter\Core\Campaigns\Domain\Model\ContactId;
 use Prospecter\Core\Campaigns\Domain\Model\RecipientOutcome;
 use Prospecter\Core\Campaigns\Domain\Repository\CampaignRepository;
 use Prospecter\Core\Prospecting\Contract\Event\ExchangeFactsChanged;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Marks the recipient as done or missed when Prospecting logs their exchange in a campaign (ADR 0145). The campaign
@@ -34,7 +34,7 @@ final readonly class ProcessRecipientOfCampaignExchangeHandler implements EventH
         $campaign = $this->campaigns->find(new AccountId($event->accountId), new CampaignId($event->campaignId));
 
         if (null !== $campaign) {
-            $campaign->process(new PersonId($event->contactId), $event->exchangeId, $outcome, $event->occurredAt);
+            $campaign->process(new ContactId($event->contactId), $event->exchangeId, $outcome, $event->occurredAt);
             $this->campaigns->save($campaign);
         }
     }

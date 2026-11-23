@@ -8,6 +8,7 @@ use App\Shared\Persistence\Table;
 use App\Shared\Persistence\Write;
 use App\Shared\Typed;
 use Prospecter\Core\Reporting\Domain\Model\ContactFact;
+use Prospecter\Core\Reporting\Domain\Model\ContactId;
 use Prospecter\Core\Reporting\Domain\Model\ExchangeFact;
 use Prospecter\Core\Reporting\Domain\Model\ExchangeId;
 use Prospecter\Core\Reporting\Domain\Model\Fact;
@@ -16,7 +17,6 @@ use Prospecter\Core\Reporting\Domain\Model\Month;
 use Prospecter\Core\Reporting\Domain\Model\OrganizationFact;
 use Prospecter\Core\Reporting\Domain\Model\OrganizationId;
 use Prospecter\Core\Reporting\Domain\Repository\FactRepository;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Psr\Clock\ClockInterface;
 
 /**
@@ -118,7 +118,7 @@ final readonly class DynamoFactRepository implements FactRepository
         return match (true) {
             $about instanceof OrganizationFact => new OrganizationFact($about->accountId, new OrganizationId($about->id->value), $revision, $present, Typed::bool($item['located'])),
             $about instanceof ExchangeFact => new ExchangeFact($about->accountId, new ExchangeId($about->id->value), $revision, $present, Typed::bool($item['held'] ?? true), null === $month ? null : new \DateTimeImmutable($month.'-01T00:00:00Z')),
-            $about instanceof ContactFact => new ContactFact($about->accountId, new PersonId($about->id->value), $revision, $present),
+            $about instanceof ContactFact => new ContactFact($about->accountId, new ContactId($about->id->value), $revision, $present),
             default => throw new \LogicException(sprintf('No item keeps a %s', $about::class)),
         };
     }

@@ -11,13 +11,13 @@ use Prospecter\Core\Prospecting\Domain\Event\ContactToAttachAttached;
 use Prospecter\Core\Prospecting\Domain\Event\ContactToAttachHandedOver;
 use Prospecter\Core\Prospecting\Domain\Event\ContactToAttachMet;
 use Prospecter\Core\Prospecting\Domain\Event\ContactToAttachMetAgain;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\ContactToAttach;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * A contact to attach is erased from the start of the 30th day after their last meeting, on that meeting's clock.
@@ -34,7 +34,7 @@ final class ContactToAttachTest extends TestCase
 
     public function testMeetingThemRecordsIt(): void
     {
-        $this->assertEquals([new ContactToAttachMet(new AccountId(self::ACCOUNT), new MemberId(self::ME), new PersonId(self::ADA), new \DateTimeImmutable(self::NOW))], $this->metOn('2026-11-20 14:00 Europe/Paris')->releaseEvents());
+        $this->assertEquals([new ContactToAttachMet(new AccountId(self::ACCOUNT), new MemberId(self::ME), new ContactId(self::ADA), new \DateTimeImmutable(self::NOW))], $this->metOn('2026-11-20 14:00 Europe/Paris')->releaseEvents());
     }
 
     /**
@@ -62,7 +62,7 @@ final class ContactToAttachTest extends TestCase
 
         $toAttach->meetAgainAt(new \DateTimeImmutable('2026-12-10 08:00 UTC'), new \DateTimeImmutable(self::NOW));
 
-        $this->assertEquals([new ContactToAttachMetAgain(new AccountId(self::ACCOUNT), new MemberId(self::ME), new PersonId(self::ADA), new \DateTimeImmutable(self::NOW))], $toAttach->releaseEvents());
+        $this->assertEquals([new ContactToAttachMetAgain(new AccountId(self::ACCOUNT), new MemberId(self::ME), new ContactId(self::ADA), new \DateTimeImmutable(self::NOW))], $toAttach->releaseEvents());
         $this->assertFalse($toAttach->isLeftUnattachedAt(new \DateTimeImmutable('2027-01-08 23:59 Europe/Paris')));
         $this->assertTrue($toAttach->isLeftUnattachedAt(new \DateTimeImmutable('2027-01-09 00:00 Europe/Paris')));
     }
@@ -85,7 +85,7 @@ final class ContactToAttachTest extends TestCase
 
         $toAttach->attachTo(new OrganizationId(self::ACME), new MemberId(self::ME), new \DateTimeImmutable(self::NOW));
 
-        $this->assertEquals([new ContactToAttachAttached(new AccountId(self::ACCOUNT), new MemberId(self::ME), new PersonId(self::ADA), new OrganizationId(self::ACME), new \DateTimeImmutable(self::NOW))], $toAttach->releaseEvents());
+        $this->assertEquals([new ContactToAttachAttached(new AccountId(self::ACCOUNT), new MemberId(self::ME), new ContactId(self::ADA), new OrganizationId(self::ACME), new \DateTimeImmutable(self::NOW))], $toAttach->releaseEvents());
     }
 
     public function testItIsErasedByItsHolderOnceLeftUnattached(): void
@@ -96,7 +96,7 @@ final class ContactToAttachTest extends TestCase
 
         $toAttach->eraseLeftUnattached($at);
 
-        $this->assertEquals([new ContactLeftUnattached(new AccountId(self::ACCOUNT), new MemberId(self::ME), new PersonId(self::ADA), $at)], $toAttach->releaseEvents());
+        $this->assertEquals([new ContactLeftUnattached(new AccountId(self::ACCOUNT), new MemberId(self::ME), new ContactId(self::ADA), $at)], $toAttach->releaseEvents());
     }
 
     public function testItIsNotErasedBeforeItsDay(): void
@@ -120,7 +120,7 @@ final class ContactToAttachTest extends TestCase
 
         $toAttach->handOverTo(self::another(), new \DateTimeImmutable('2026-11-24 09:00 Europe/Paris'), new \DateTimeImmutable(self::NOW));
 
-        $this->assertEquals([new ContactToAttachHandedOver(new AccountId(self::ACCOUNT), new MemberId(self::ANOTHER), new PersonId(self::ADA), new \DateTimeImmutable(self::NOW))], $toAttach->releaseEvents());
+        $this->assertEquals([new ContactToAttachHandedOver(new AccountId(self::ACCOUNT), new MemberId(self::ANOTHER), new ContactId(self::ADA), new \DateTimeImmutable(self::NOW))], $toAttach->releaseEvents());
         $this->assertSame([true, false], [$toAttach->isHeldBy(new MemberId(self::ANOTHER)), $toAttach->isHeldBy(new MemberId(self::ME))]);
     }
 
@@ -149,6 +149,6 @@ final class ContactToAttachTest extends TestCase
 
     private function metOn(string $meeting): ContactToAttach
     {
-        return ContactToAttach::metBy(new Prospector(new MemberId(self::ME), new AccountId(self::ACCOUNT), managesPersonalData: true), new PersonId(self::ADA), new \DateTimeImmutable($meeting), new \DateTimeImmutable(self::NOW));
+        return ContactToAttach::metBy(new Prospector(new MemberId(self::ME), new AccountId(self::ACCOUNT), managesPersonalData: true), new ContactId(self::ADA), new \DateTimeImmutable($meeting), new \DateTimeImmutable(self::NOW));
     }
 }

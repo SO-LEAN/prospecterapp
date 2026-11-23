@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\ForgetFingerprintsOfForgottenContact;
 
 use Prospecter\Core\PersonalData\Contract\Event\ContactForgotten;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Once a contact is forgotten, Prospecter no longer keeps the fingerprints of their exchanges, erased or not.
@@ -22,6 +22,6 @@ final readonly class ForgetFingerprintsOfForgottenContactHandler implements Even
 
     public function __invoke(ContactForgotten $event): void
     {
-        $this->exchanges->forgetFingerprintsOf(new AccountId($event->accountId), new PersonId($event->personId));
+        $this->exchanges->forgetFingerprintsOf(new AccountId($event->accountId), new ContactId($event->personId));
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\DetachForgottenContact;
 
 use Prospecter\Core\PersonalData\Contract\Event\ContactForgotten;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 use Prospecter\Core\Prospecting\Domain\Service\OrphanContacts;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
@@ -12,7 +13,6 @@ use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Reacts to an erased contact. The contact leaves every organization that names it, and the member who erased it is
@@ -32,7 +32,7 @@ final readonly class DetachForgottenContactHandler implements EventHandler
     public function __invoke(ContactForgotten $event): void
     {
         $author = new MemberId($event->memberId);
-        $contact = new PersonId($event->personId);
+        $contact = new ContactId($event->personId);
 
         foreach ($this->organizations->withContacts([$contact], new AccountId($event->accountId)) as $organization) {
             $organization->removeContact($contact, by: $author, at: $event->occurredAt, orphans: $this->orphans);

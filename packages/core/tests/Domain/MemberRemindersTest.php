@@ -9,12 +9,12 @@ use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Accounts\Domain\Event\RemindersChanged;
 use Prospecter\Core\Accounts\Domain\Exception\ReminderDelayNotOffered;
 use Prospecter\Core\Accounts\Domain\Model\Member;
+use Prospecter\Core\Accounts\Domain\Model\ProfileId;
 use Prospecter\Core\Accounts\Domain\Model\ReminderDelay;
 use Prospecter\Core\Accounts\Domain\Model\Reminders;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * A member is reminded at one of the offered delays. A change to their reminders records what happened.
@@ -26,7 +26,7 @@ final class MemberRemindersTest extends TestCase
 
     public function testAChangeOfTheRemindersRecordsIt(): void
     {
-        $member = Member::register(new MemberId(self::MEMBER), new AccountId(self::ACCOUNT), new PersonId('0190a1c0-0000-7000-8000-0000000000bb'), Role::User, Role::Prospector);
+        $member = Member::register(new MemberId(self::MEMBER), new AccountId(self::ACCOUNT), new ProfileId('0190a1c0-0000-7000-8000-0000000000bb'), Role::User, Role::Prospector);
 
         $member->changeReminders(new Reminders(false, ReminderDelay::HalfAnHour), at: new \DateTimeImmutable('2026-11-13 10:00'));
 

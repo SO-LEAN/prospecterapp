@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Connectors\Application\CatchUpMailHistory;
 
 use Prospecter\Core\Connectors\Domain\Exception\NoAddressToReimport;
+use Prospecter\Core\Connectors\Domain\Model\ContactId;
 use Prospecter\Core\Connectors\Domain\Model\Member;
 use Prospecter\Core\Connectors\Domain\Model\OrganizationId;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
@@ -18,7 +19,6 @@ use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * The e-mails that the member's mailbox exchanged with a correspondent go to the member's e-mail import. Each one is
@@ -57,7 +57,7 @@ final readonly class CatchUpMailHistoryHandler implements CommandHandler
     private function addressOf(CatchUpMailHistory $command, Member $me): Email
     {
         $address = null === $command->organizationId
-            ? $this->addresses->ofContact($me->id, new PersonId((string) $command->contactId))
+            ? $this->addresses->ofContact($me->id, new ContactId((string) $command->contactId))
             : $this->addresses->ofOrganization($me->accountId, new OrganizationId($command->organizationId));
 
         return $address ?? throw NoAddressToReimport::ofTheCorrespondent();

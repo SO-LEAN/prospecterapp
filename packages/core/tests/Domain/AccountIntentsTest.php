@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Accounts\Domain\Model\Account;
 use Prospecter\Core\Accounts\Domain\Model\AccountIntent;
 use Prospecter\Core\Accounts\Domain\Model\Member;
+use Prospecter\Core\Accounts\Domain\Model\ProfileId;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\Accounts\Domain\Policy\AccountPossibilities;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
@@ -17,7 +18,6 @@ use Prospecter\Core\SharedKernel\Domain\Exception\NotFound;
 use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * The account refuses an intent exactly when the policy does not offer it, as an organization does (ADR 0088).
@@ -32,7 +32,7 @@ class AccountIntentsTest extends TestCase
     #[DataProvider('situations')]
     public function testAnIntentionIsRefusedExactlyWhenItIsNotOffered(AccountIntent $intent, string $memberAccount): void
     {
-        $member = Member::register(new MemberId('0190a1c0-0000-7000-8000-0000000000aa'), new AccountId($memberAccount), new PersonId('0190a1c0-0000-7000-8000-0000000000bb'), Role::User);
+        $member = Member::register(new MemberId('0190a1c0-0000-7000-8000-0000000000aa'), new AccountId($memberAccount), new ProfileId('0190a1c0-0000-7000-8000-0000000000bb'), Role::User);
         $account = Account::open(new AccountId(self::MINE), new LegalIdentity('SOLEAN IT'), new \DateTimeImmutable(self::AT));
         $offered = in_array($intent, AccountPossibilities::given(self::MINE === $memberAccount), true);
 

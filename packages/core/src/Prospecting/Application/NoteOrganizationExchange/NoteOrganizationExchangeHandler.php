@@ -7,6 +7,7 @@ namespace Prospecter\Core\Prospecting\Application\NoteOrganizationExchange;
 use Prospecter\Core\Prospecting\Domain\Exception\ReferenceNotOfTheChannel;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
 use Prospecter\Core\Prospecting\Domain\Model\ContactCorrespondent;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
@@ -27,7 +28,6 @@ use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\Origin;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 final readonly class NoteOrganizationExchangeHandler implements CommandHandler
 {
@@ -48,7 +48,7 @@ final readonly class NoteOrganizationExchangeHandler implements CommandHandler
         $organization = $this->organizations->get(new OrganizationId($command->organizationId));
         $exchange = null === $command->personId
             ? Exchange::noted(self::gestureOf($organization, $author, $command), new ExchangeId($command->id), new OrganizationCorrespondent($organization->id()), self::notingOf($command))
-            : $this->notedWithAContact($organization, $author, new PersonId($command->personId), $command);
+            : $this->notedWithAContact($organization, $author, new ContactId($command->personId), $command);
         if ($command->noteOnce) {
             $this->notedOnce->ensureFirst($exchange);
         } else {
@@ -61,7 +61,7 @@ final readonly class NoteOrganizationExchangeHandler implements CommandHandler
     /**
      * Like any other exchange with a contact, the exchange is kept for every organization the contact is part of.
      */
-    private function notedWithAContact(Organization $organization, MemberId $author, PersonId $contact, NoteOrganizationExchange $command): Exchange
+    private function notedWithAContact(Organization $organization, MemberId $author, ContactId $contact, NoteOrganizationExchange $command): Exchange
     {
         $organization->ensureHasContact($contact);
 

@@ -10,6 +10,7 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 use Prospecter\Core\Accounts\Domain\Model\Member;
+use Prospecter\Core\Accounts\Domain\Model\ProfileId;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\Connectors\Application\AskToImportMail\AskToImportMail;
 use Prospecter\Core\Connectors\Application\CatchUpMailHistory\CatchUpMailHistory;
@@ -24,11 +25,13 @@ use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Model\Scope;
 use Prospecter\Core\PersonalData\Domain\Model\ContactCard;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
+use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ConsultExchange;
 use Prospecter\Core\Prospecting\Application\EraseExchange\EraseExchange;
 use Prospecter\Core\Prospecting\Domain\Event\AttachmentImported;
 use Prospecter\Core\Prospecting\Domain\Model\Attachment;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\ContactToAttach;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
@@ -37,7 +40,6 @@ use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 use Tests\Core\Double\StateOf;
@@ -340,7 +342,7 @@ final class MailboxMailContext implements Context
         $person = Person::collectToAttach($this->application->readers->readerFrom($other->id()), new PersonId($this->application->newIdentity()), new ContactCard(new PersonName($firstName, $lastName), new ContactDetails(new Email($email))), $this->application->now());
         $this->application->persons->save($person);
         $this->scenario->rememberPerson($name, $person->id());
-        $this->application->contactsToAttach->save(ContactToAttach::metBy($this->application->prospectors->prospectorFrom($other->id()), $person->id(), $this->application->now(), $this->application->now()));
+        $this->application->contactsToAttach->save(ContactToAttach::metBy($this->application->prospectors->prospectorFrom($other->id()), new ContactId($person->id()->value), $this->application->now(), $this->application->now()));
     }
 
     private function accountNameOfMine(): string
@@ -366,7 +368,7 @@ final class MailboxMailContext implements Context
     public function iLoseThePersonalDataRight(): void
     {
         $me = $this->scenario->me();
-        $this->application->members->save(Member::register($me->id(), $me->accountId(), $this->scenario->profileOf($me), Role::User, Role::Prospector));
+        $this->application->members->save(Member::register($me->id(), $me->accountId(), new ProfileId($this->scenario->profileOf($me)->value), Role::User, Role::Prospector));
     }
 
     #[Then('le texte de l\'échange importé est :subject suivi de :text')]
@@ -561,7 +563,7 @@ final class MailboxMailContext implements Context
     {
         $state = StateOf::the($exchange);
 
-        return null === $state->objectOrNull('contact', PersonId::class) ? $this->scenario->nameOf($state->listOf('keptFor', OrganizationId::class)[0]) : $this->scenario->nameOfPerson($state->objectOrNull('contact', PersonId::class));
+        return null === $state->objectOrNull('contact', ContactId::class) ? $this->scenario->nameOf($state->listOf('keptFor', OrganizationId::class)[0]) : $this->scenario->nameOfPerson($state->objectOrNull('contact', ContactId::class));
     }
 
     #[Then('/^"(?<account>[^"]+)" n\'a aucun autre contact que (?<names>.+)$/')]

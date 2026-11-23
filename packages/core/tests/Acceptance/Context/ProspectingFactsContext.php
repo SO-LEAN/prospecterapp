@@ -6,9 +6,9 @@ namespace Tests\Core\Acceptance\Context;
 
 use Behat\Behat\Context\Context;
 use Behat\Step\Then;
+use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\Prospecting\Contract\Event\ExchangeFactsChanged;
 use Prospecter\Core\Prospecting\Contract\Event\OrganizationFactsChanged;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 

@@ -11,6 +11,7 @@ use Prospecter\Core\Prospecting\Application\Port\TimelineRetriever;
 use Prospecter\Core\Prospecting\Application\Timeline;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
 use Prospecter\Core\Prospecting\Domain\Model\ContactCorrespondent;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\Duration;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
@@ -30,7 +31,6 @@ use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\App\Base\ApiTestCase;
 
 /**
@@ -43,7 +43,7 @@ class DynamoTimelineRetrieverTest extends ApiTestCase
     private const string NOW = '2026-10-18 19:00 UTC';
 
     private Prospector $prospector;
-    private PersonId $contact;
+    private ContactId $contact;
     private Organization $acme;
     private Organization $group;
 
@@ -51,7 +51,7 @@ class DynamoTimelineRetrieverTest extends ApiTestCase
     {
         parent::setUp();
         $this->prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()), managesPersonalData: true);
-        $this->contact = new PersonId(self::newIdentity());
+        $this->contact = new ContactId(self::newIdentity());
         $this->acme = $this->prospectWithTheContact('ACME');
         $this->group = $this->prospectWithTheContact('Groupe ACME');
     }

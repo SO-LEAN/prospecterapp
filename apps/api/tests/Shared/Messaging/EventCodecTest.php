@@ -18,14 +18,15 @@ use Prospecter\Core\Connectors\Contract\Event\EmailExchanged;
 use Prospecter\Core\PersonalData\Contract\Event\ContactFactsChanged;
 use Prospecter\Core\PersonalData\Domain\Event\ContactCollected;
 use Prospecter\Core\PersonalData\Domain\Model\OrganizationId as PersonalDataOrganizationId;
+use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\Prospecting\Contract\Event\ExchangeFactsChanged;
 use Prospecter\Core\Prospecting\Contract\Event\OrganizationFactsChanged;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeErased;
 use Prospecter\Core\Prospecting\Domain\Model\CampaignId;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\Uuid;
 use Symfony\Component\TypeInfo\Type;
 use Symfony\Component\TypeInfo\Type\CollectionType;
@@ -177,7 +178,7 @@ class EventCodecTest extends TestCase
 
     public function testTheErasureOfAnExchangeIsWrittenWithItsContactItsCampaignAndWhetherItWentWithItsOrganization(): void
     {
-        $erased = new ExchangeErased(new AccountId(self::ID), new MemberId(self::ID), new ExchangeId(self::ID), [], new \DateTimeImmutable(self::MOMENT), new PersonId(self::ID), new CampaignId(self::ID), withItsOrganization: true);
+        $erased = new ExchangeErased(new AccountId(self::ID), new MemberId(self::ID), new ExchangeId(self::ID), [], new \DateTimeImmutable(self::MOMENT), new ContactId(self::ID), new CampaignId(self::ID), withItsOrganization: true);
 
         $this->assertSame('ExchangeErased.v3', $this->codec()->encode($erased, new Cause(self::ID, null, 0))->detailType);
     }
@@ -197,7 +198,7 @@ class EventCodecTest extends TestCase
             'accountId' => self::ID, 'by' => self::ID, 'exchange' => self::ID, 'files' => [], 'occurredAt' => self::MOMENT_OF_THE_BUS, 'contact' => self::ID, 'campaign' => self::ID,
         ]);
 
-        $this->assertEquals(new ExchangeErased(new AccountId(self::ID), new MemberId(self::ID), new ExchangeId(self::ID), [], new \DateTimeImmutable(self::MOMENT_OF_THE_BUS), new PersonId(self::ID), new CampaignId(self::ID)), $this->codec()->decode($former));
+        $this->assertEquals(new ExchangeErased(new AccountId(self::ID), new MemberId(self::ID), new ExchangeId(self::ID), [], new \DateTimeImmutable(self::MOMENT_OF_THE_BUS), new ContactId(self::ID), new CampaignId(self::ID)), $this->codec()->decode($former));
     }
 
     public function testADomainEventAndAnIntegrationEventOfTheSameNameAreToldApartByTheirSource(): void

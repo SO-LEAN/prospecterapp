@@ -6,6 +6,7 @@ namespace Tests\Core\Double;
 
 use Prospecter\Core\Campaigns\Domain\Exception\UnknownContact;
 use Prospecter\Core\Campaigns\Domain\Model\Addressee;
+use Prospecter\Core\Campaigns\Domain\Model\ContactId;
 use Prospecter\Core\Campaigns\Domain\Port\Addressees;
 use Prospecter\Core\PersonalData\Contract\Service\NameContacts\KeptContactNames;
 use Prospecter\Core\PersonalData\Contract\Service\NameContacts\NameContacts;
@@ -15,7 +16,6 @@ use Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\Nam
 use Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\NameOrganizationsOfContactsService;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * The API's anticorruption layer, with the same code. Campaigns names a contact as PersonalData lets the member read
@@ -29,7 +29,7 @@ final readonly class PersonalDataAndProspectingAddressees implements Addressees
     ) {
     }
 
-    public function addressee(AccountId $accountId, MemberId $reader, PersonId $contact): Addressee
+    public function addressee(AccountId $accountId, MemberId $reader, ContactId $contact): Addressee
     {
         $names = new KeptContactNames();
         ($this->nameContactsService)(new NameContacts($reader->value, [$contact->value]), $names);

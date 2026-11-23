@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Prospecter\Core\PersonalData\Domain\Model\Civility;
 use Prospecter\Core\PersonalData\Domain\Model\ContactSupplement;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
+use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\PersonalData\Domain\Model\PersonIntent;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
@@ -22,7 +23,6 @@ use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
 use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 /**

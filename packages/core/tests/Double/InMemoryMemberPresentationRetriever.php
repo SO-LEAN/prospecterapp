@@ -7,10 +7,10 @@ namespace Tests\Core\Double;
 use Prospecter\Core\PersonalData\Application\Port\MemberPresentationRetriever;
 use Prospecter\Core\PersonalData\Application\PresentMembers\MemberPresentation;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
+use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\SharedKernel\Application\FileResponse;
 use Prospecter\Core\SharedKernel\Domain\File;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Stands for the DynamoDB retriever in the scenarios. It reads the persons that the repository saved, without

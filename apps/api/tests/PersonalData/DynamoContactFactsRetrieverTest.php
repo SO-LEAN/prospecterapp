@@ -9,6 +9,7 @@ use Prospecter\Core\PersonalData\Application\Port\ContactFactsRetriever;
 use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\ContactFactsResponse;
 use Prospecter\Core\PersonalData\Domain\Model\ContactCard;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
+use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
@@ -17,7 +18,6 @@ use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 use Tests\App\Base\ApiTestCase;
 

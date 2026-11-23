@@ -6,6 +6,7 @@ namespace Prospecter\Core\Connectors\Application\ConsultMailCatchUpIntents;
 
 use Prospecter\Core\Connectors\Domain\Exception\UnknownContact;
 use Prospecter\Core\Connectors\Domain\Exception\UnknownOrganization;
+use Prospecter\Core\Connectors\Domain\Model\ContactId;
 use Prospecter\Core\Connectors\Domain\Model\Member;
 use Prospecter\Core\Connectors\Domain\Model\OrganizationId;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
@@ -14,7 +15,6 @@ use Prospecter\Core\Connectors\Domain\Port\Members;
 use Prospecter\Core\Connectors\Domain\Repository\ConnectionRepository;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * A reader who manages the personal data may reimport the e-mails exchanged with a correspondent. The reader's import
@@ -44,7 +44,7 @@ final readonly class ConsultMailCatchUpIntentsHandler implements QueryHandler
     {
         try {
             $address = null === $query->organizationId
-                ? $this->addresses->ofContact($reader->id, new PersonId((string) $query->contactId))
+                ? $this->addresses->ofContact($reader->id, new ContactId((string) $query->contactId))
                 : $this->addresses->ofOrganization($reader->accountId, new OrganizationId($query->organizationId));
         } catch (UnknownContact|UnknownOrganization) {
             return false;

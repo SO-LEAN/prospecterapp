@@ -10,10 +10,10 @@ use Prospecter\Core\Accounts\Domain\Event\MemberRegistered;
 use Prospecter\Core\Accounts\Domain\Exception\AdministratorsOnly;
 use Prospecter\Core\Accounts\Domain\Model\Member;
 use Prospecter\Core\Accounts\Domain\Model\Newcomer;
+use Prospecter\Core\Accounts\Domain\Model\ProfileId;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Only an administrator registers a member. The registration records what happened.
@@ -29,7 +29,7 @@ class MemberRegistrationTest extends TestCase
         $member = $this->registerBy($this->memberWith(...Role::cases()));
 
         $this->assertEquals(
-            [new MemberRegistered(new AccountId(self::ACCOUNT), new MemberId('0190a1c0-0000-7000-8000-0000000000aa'), new MemberId(self::NEW_MEMBER), new PersonId(self::NEW_PROFILE), new \DateTimeImmutable('2026-10-20 14:00'))],
+            [new MemberRegistered(new AccountId(self::ACCOUNT), new MemberId('0190a1c0-0000-7000-8000-0000000000aa'), new MemberId(self::NEW_MEMBER), new ProfileId(self::NEW_PROFILE), new \DateTimeImmutable('2026-10-20 14:00'))],
             $member->releaseEvents(),
         );
     }
@@ -56,11 +56,11 @@ class MemberRegistrationTest extends TestCase
 
     private function memberWith(Role ...$roles): Member
     {
-        return Member::register(new MemberId('0190a1c0-0000-7000-8000-0000000000aa'), new AccountId(self::ACCOUNT), new PersonId('0190a1c0-0000-7000-8000-0000000000bb'), ...$roles);
+        return Member::register(new MemberId('0190a1c0-0000-7000-8000-0000000000aa'), new AccountId(self::ACCOUNT), new ProfileId('0190a1c0-0000-7000-8000-0000000000bb'), ...$roles);
     }
 
     private function registerBy(Member $administrator): Member
     {
-        return Member::registerBy($administrator, new Newcomer(new MemberId(self::NEW_MEMBER), new PersonId(self::NEW_PROFILE), [Role::Prospector]), new \DateTimeImmutable('2026-10-20 14:00'));
+        return Member::registerBy($administrator, new Newcomer(new MemberId(self::NEW_MEMBER), new ProfileId(self::NEW_PROFILE), [Role::Prospector]), new \DateTimeImmutable('2026-10-20 14:00'));
     }
 }

@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Domain\Model;
 
-use Prospecter\Core\SharedKernel\Domain\PersonId;
-
 /**
  * Who an exchange or a to-do is with, and the organizations that keep it. It is a contact (`ContactCorrespondent`),
  * a campaign's recipient (`RecipientCorrespondent`, for an exchange only), or the organization itself
@@ -17,8 +15,8 @@ abstract readonly class Correspondent
      * @param list<OrganizationId> $keptFor
      */
     protected function __construct(
-        public PersonId|OrganizationId $identity,
-        public ?PersonId $contact,
+        public ContactId|OrganizationId $identity,
+        public ?ContactId $contact,
         public array $keptFor,
     ) {
     }

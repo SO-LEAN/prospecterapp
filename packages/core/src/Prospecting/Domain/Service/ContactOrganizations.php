@@ -6,6 +6,7 @@ namespace Prospecter\Core\Prospecting\Domain\Service;
 
 use Prospecter\Core\Prospecting\Domain\Exception\ContactToAttachOfAnother;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownContact;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\ContactToAttach;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
@@ -14,7 +15,6 @@ use Prospecter\Core\Prospecting\Domain\Model\TimelineIntent;
 use Prospecter\Core\Prospecting\Domain\Repository\ContactToAttachRepository;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * The organizations of a prospector's account that name a person as a contact. The rule covers the whole prospecting
@@ -32,7 +32,7 @@ final readonly class ContactOrganizations
      *
      * @throws UnknownContact
      */
-    public function of(PersonId $contact, AccountId $account): array
+    public function of(ContactId $contact, AccountId $account): array
     {
         $ids = $this->idsNaming($contact, $account);
 
@@ -47,7 +47,7 @@ final readonly class ContactOrganizations
      *
      * @throws UnknownContact|ContactToAttachOfAnother
      */
-    public function keepersOf(PersonId $contact, Prospector $prospector): array
+    public function keepersOf(ContactId $contact, Prospector $prospector): array
     {
         $ids = $this->idsNaming($contact, $prospector->accountId);
 
@@ -65,7 +65,7 @@ final readonly class ContactOrganizations
      *
      * @return list<TimelineIntent>
      */
-    public function timelineIntentsOf(PersonId $contact, Prospector $prospector): array
+    public function timelineIntentsOf(ContactId $contact, Prospector $prospector): array
     {
         if (!$this->isAContactOfTheAccount($contact, $prospector->accountId)) {
             return [];
@@ -74,7 +74,7 @@ final readonly class ContactOrganizations
         return $this->isToAttachByAnother($contact, $prospector) ? [TimelineIntent::ConsultTimeline] : TimelineIntent::cases();
     }
 
-    private function isToAttachByAnother(PersonId $contact, Prospector $prospector): bool
+    private function isToAttachByAnother(ContactId $contact, Prospector $prospector): bool
     {
         $contactToAttach = $this->toAttach($contact, $prospector->accountId);
 
@@ -94,14 +94,14 @@ final readonly class ContactOrganizations
     /**
      * @throws UnknownContact
      */
-    public function ensureIsAContactOfTheAccount(PersonId $contact, AccountId $account): void
+    public function ensureIsAContactOfTheAccount(ContactId $contact, AccountId $account): void
     {
         if (!$this->isAContactOfTheAccount($contact, $account)) {
             throw UnknownContact::identifiedBy($contact);
         }
     }
 
-    public function isAContactOfTheAccount(PersonId $person, AccountId $account): bool
+    public function isAContactOfTheAccount(ContactId $person, AccountId $account): bool
     {
         return [] !== $this->naming($person, $account) || null !== $this->toAttach($person, $account);
     }
@@ -109,7 +109,7 @@ final readonly class ContactOrganizations
     /**
      * @return list<OrganizationId>
      */
-    private function idsNaming(PersonId $contact, AccountId $account): array
+    private function idsNaming(ContactId $contact, AccountId $account): array
     {
         return array_map(static fn (Organization $organization): OrganizationId => $organization->id(), $this->naming($contact, $account));
     }
@@ -117,12 +117,12 @@ final readonly class ContactOrganizations
     /**
      * @return list<Organization>
      */
-    private function naming(PersonId $contact, AccountId $account): array
+    private function naming(ContactId $contact, AccountId $account): array
     {
         return $this->organizations->withContacts([$contact], $account);
     }
 
-    private function toAttach(PersonId $person, AccountId $account): ?ContactToAttach
+    private function toAttach(ContactId $person, AccountId $account): ?ContactToAttach
     {
         $contactToAttach = $this->contactsToAttach->find($person);
 

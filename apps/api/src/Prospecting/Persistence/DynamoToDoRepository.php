@@ -8,12 +8,12 @@ use App\Shared\Persistence\Table;
 use App\Shared\Persistence\Write;
 use App\Shared\Typed;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownToDo;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\Model\ToDo;
 use Prospecter\Core\Prospecting\Domain\Model\ToDoId;
 use Prospecter\Core\Prospecting\Domain\Repository\ToDoRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Stores the to-dos in Prospecting's table (ADR 0048, 0113):
@@ -77,7 +77,7 @@ final readonly class DynamoToDoRepository implements ToDoRepository
         return array_map(static fn (array $item): ToDo => ToDoDocument::toDo($item['toDo']), self::itemsKeptFor($this->prospectingTable, $organization->value));
     }
 
-    public function forContact(PersonId $contact, AccountId $accountId): array
+    public function forContact(ContactId $contact, AccountId $accountId): array
     {
         return array_map(static fn (array $item): ToDo => ToDoDocument::toDo($item['toDo']), $this->prospectingTable->query(ToDoKeys::ofContact($accountId->value, $contact->value), Table::BY_GSI1));
     }

@@ -7,11 +7,11 @@ namespace Tests\Core\Double;
 use Prospecter\Core\Campaigns\Application\Port\ContactTagSources;
 use Prospecter\Core\Campaigns\Application\Port\ContactTagsRetriever;
 use Prospecter\Core\Campaigns\Domain\Model\ContactFact;
+use Prospecter\Core\Campaigns\Domain\Model\ContactId;
 use Prospecter\Core\Campaigns\Domain\Model\Holder;
 use Prospecter\Core\Campaigns\Domain\Model\OrganizationFact;
 use Prospecter\Core\Campaigns\Domain\Model\Tag;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * The DynamoDB retriever in the scenarios. It reads each contact's tagging, the taggings of the organizations whose
@@ -24,14 +24,14 @@ final readonly class InMemoryContactTagsRetriever implements ContactTagsRetrieve
     }
 
     /**
-     * @param list<PersonId> $contacts
+     * @param list<ContactId> $contacts
      */
     public function sourcesOf(AccountId $accountId, array $contacts): array
     {
-        return array_map(fn (PersonId $contact): ContactTagSources => $this->sourcesOfOne($accountId, $contact), $contacts);
+        return array_map(fn (ContactId $contact): ContactTagSources => $this->sourcesOfOne($accountId, $contact), $contacts);
     }
 
-    private function sourcesOfOne(AccountId $accountId, PersonId $contact): ContactTagSources
+    private function sourcesOfOne(AccountId $accountId, ContactId $contact): ContactTagSources
     {
         $facts = $this->database->campaignsFactsOf($accountId->value);
         $byOrganization = [];

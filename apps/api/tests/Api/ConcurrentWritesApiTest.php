@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\App\Api;
 
 use PHPUnit\Framework\Attributes\Group;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Tests\App\Base\ApiTestCase;
 use Tests\App\Base\ReadsResources;
 use Tests\App\Double\ExchangeChangedMeanwhile;
@@ -36,7 +36,7 @@ class ConcurrentWritesApiTest extends ApiTestCase
     public function testTwoContactsCollectedAtOnceAreBothAttached(): void
     {
         $grace = $this->collectedFor($this->prospect('Globex'), 'Grace');
-        $this->organizationChangedMeanwhile()->attachMeanwhile(new PersonId($grace));
+        $this->organizationChangedMeanwhile()->attachMeanwhile(new ContactId($grace));
 
         $ada = $this->collectedFor($this->acme, 'Ada');
 
@@ -47,7 +47,7 @@ class ConcurrentWritesApiTest extends ApiTestCase
     {
         $ada = $this->collectedFor($this->prospect('Globex'), 'Ada');
         $grace = self::newIdentity();
-        $this->organizationChangedMeanwhile()->attachMeanwhile(new PersonId($grace));
+        $this->organizationChangedMeanwhile()->attachMeanwhile(new ContactId($grace));
 
         $organization = $this->requestJson('POST', '/api/organizations/'.$this->acme.'/contacts', ['personId' => $ada]);
 
@@ -74,7 +74,7 @@ class ConcurrentWritesApiTest extends ApiTestCase
     public function testAnAdditionStillChangedMeanwhileAfterThreeReplaysIsRefused(): void
     {
         $ada = $this->collectedFor($this->prospect('Globex'), 'Ada');
-        $this->organizationChangedMeanwhile()->attachMeanwhile(...array_map(static fn (): PersonId => new PersonId(self::newIdentity()), range(1, 4)));
+        $this->organizationChangedMeanwhile()->attachMeanwhile(...array_map(static fn (): ContactId => new ContactId(self::newIdentity()), range(1, 4)));
 
         $problem = $this->requestJson('POST', '/api/organizations/'.$this->acme.'/contacts', ['personId' => $ada]);
 
@@ -87,7 +87,7 @@ class ConcurrentWritesApiTest extends ApiTestCase
     {
         $globex = $this->prospect('Globex');
         $grace = $this->collectedFor($globex, 'Grace');
-        $this->organizationChangedMeanwhile()->attachMeanwhile(new PersonId($grace));
+        $this->organizationChangedMeanwhile()->attachMeanwhile(new ContactId($grace));
         $ada = $this->collectedFor($this->acme, 'Ada');
         $this->requestJson('DELETE', '/api/organizations/'.$globex);
 
@@ -103,7 +103,7 @@ class ConcurrentWritesApiTest extends ApiTestCase
     public function testAChangeOfAnOrganizationChangedMeanwhileIsRefusedAndTheOtherChangeKept(): void
     {
         $grace = $this->collectedFor($this->prospect('Globex'), 'Grace');
-        $this->organizationChangedMeanwhile()->attachMeanwhile(new PersonId($grace));
+        $this->organizationChangedMeanwhile()->attachMeanwhile(new ContactId($grace));
 
         $problem = $this->requestJson('PATCH', '/api/organizations/'.$this->acme.'/observations', ['observations' => 'Rappeler lundi']);
 

@@ -8,7 +8,6 @@ use Prospecter\Core\Campaigns\Domain\Exception\CampaignWithoutRecipient;
 use Prospecter\Core\Campaigns\Domain\Exception\RecipientAlreadyProcessed;
 use Prospecter\Core\Campaigns\Domain\Exception\TooManyRecipients;
 use Prospecter\Core\Campaigns\Domain\Exception\UnknownRecipient;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * The contacts that a frozen campaign keeps, each once, in the order added. The members keep 1 to 500 of them. A draft
@@ -31,7 +30,7 @@ final readonly class Recipients
     }
 
     /**
-     * @param list<PersonId> $contacts
+     * @param list<ContactId> $contacts
      *
      * @throws CampaignWithoutRecipient
      * @throws TooManyRecipients
@@ -44,7 +43,7 @@ final readonly class Recipients
     /**
      * A contact already kept is kept once.
      *
-     * @param list<PersonId> $contacts
+     * @param list<ContactId> $contacts
      *
      * @throws TooManyRecipients
      */
@@ -67,7 +66,7 @@ final readonly class Recipients
      * @throws CampaignWithoutRecipient
      */
     #[\NoDiscard]
-    public function without(PersonId $contact): self
+    public function without(ContactId $contact): self
     {
         if (!$this->includes($contact)) {
             throw UnknownRecipient::identifiedBy($contact);
@@ -83,7 +82,7 @@ final readonly class Recipients
      * list.
      */
     #[\NoDiscard]
-    public function forgetting(PersonId $contact): self
+    public function forgetting(ContactId $contact): self
     {
         return new self(array_values(array_filter($this->recipients, static fn (Recipient $recipient): bool => !$recipient->is($contact))));
     }
@@ -93,7 +92,7 @@ final readonly class Recipients
      * to handle. What the team did stays recorded.
      */
     #[\NoDiscard]
-    public function erasing(PersonId $contact): self
+    public function erasing(ContactId $contact): self
     {
         return $this->handling($contact, static fn (Recipient $recipient): Recipient => $recipient->erased());
     }
@@ -103,7 +102,7 @@ final readonly class Recipients
      * the first exchange wins.
      */
     #[\NoDiscard]
-    public function processing(PersonId $contact, string $exchangeId, RecipientOutcome $outcome, \DateTimeImmutable $at): self
+    public function processing(ContactId $contact, string $exchangeId, RecipientOutcome $outcome, \DateTimeImmutable $at): self
     {
         return $this->handling($contact, static fn (Recipient $recipient): Recipient => $recipient->isPending() ? $recipient->processed($exchangeId, $outcome, $at) : $recipient);
     }
@@ -148,7 +147,7 @@ final readonly class Recipients
      * @throws RecipientAlreadyProcessed when the recipient is no longer to handle
      */
     #[\NoDiscard]
-    public function dismissing(PersonId $contact, ?string $reason): self
+    public function dismissing(ContactId $contact, ?string $reason): self
     {
         $recipient = array_find($this->recipients, static fn (Recipient $recipient): bool => $recipient->is($contact)) ?? throw UnknownRecipient::identifiedBy($contact);
 
@@ -165,16 +164,16 @@ final readonly class Recipients
      * The recipients to handle in the order added. It skips those that an exchange was logged with meanwhile. It is
      * empty once nobody else is left.
      *
-     * @param list<PersonId> $exchangedWith
+     * @param list<ContactId> $exchangedWith
      */
     #[\NoDiscard]
-    public function firstPending(array $exchangedWith): ?PersonId
+    public function firstPending(array $exchangedWith): ?ContactId
     {
         return ($this->pendingBut($exchangedWith)[0] ?? null)?->contact;
     }
 
     /**
-     * @param list<PersonId> $exchangedWith
+     * @param list<ContactId> $exchangedWith
      */
     #[\NoDiscard]
     public function pendingCount(array $exchangedWith): int
@@ -183,16 +182,16 @@ final readonly class Recipients
     }
 
     /**
-     * @return list<PersonId>
+     * @return list<ContactId>
      */
     #[\NoDiscard]
     public function pending(): array
     {
-        return array_map(static fn (Recipient $recipient): PersonId => $recipient->contact, $this->pendingBut([]));
+        return array_map(static fn (Recipient $recipient): ContactId => $recipient->contact, $this->pendingBut([]));
     }
 
     /**
-     * @param list<PersonId> $exchangedWith
+     * @param list<ContactId> $exchangedWith
      *
      * @return list<Recipient>
      */
@@ -208,7 +207,7 @@ final readonly class Recipients
     }
 
     #[\NoDiscard]
-    public function includes(PersonId $contact): bool
+    public function includes(ContactId $contact): bool
     {
         return array_any($this->recipients, static fn (Recipient $recipient): bool => $recipient->is($contact));
     }
@@ -216,7 +215,7 @@ final readonly class Recipients
     /**
      * @param \Closure(Recipient): Recipient $change
      */
-    private function handling(PersonId $contact, \Closure $change): self
+    private function handling(ContactId $contact, \Closure $change): self
     {
         return new self(array_map(static fn (Recipient $recipient): Recipient => $recipient->is($contact) ? $change($recipient) : $recipient, $this->recipients));
     }

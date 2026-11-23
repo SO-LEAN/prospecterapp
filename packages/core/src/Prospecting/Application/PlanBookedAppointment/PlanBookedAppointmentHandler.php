@@ -6,6 +6,7 @@ namespace Prospecter\Core\Prospecting\Application\PlanBookedAppointment;
 
 use Prospecter\Core\PersonalData\Contract\Event\BookerIdentified;
 use Prospecter\Core\Prospecting\Domain\Model\ContactCorrespondent;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\ContactToAttach;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
@@ -20,7 +21,6 @@ use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Someone books an appointment through a host's public link. The appointment becomes an exchange that the host
@@ -55,7 +55,7 @@ final readonly class PlanBookedAppointmentHandler implements EventHandler
         }
 
         $host = $this->prospectors->prospectorFrom(new MemberId($event->hostId));
-        $contact = new PersonId($event->personId);
+        $contact = new ContactId($event->personId);
         $toAttach = $this->contactsToAttach->find($contact);
         $known = $this->contactOrganizations->isAContactOfTheAccount($contact, $host->accountId);
         if (!$known) {
@@ -76,7 +76,7 @@ final readonly class PlanBookedAppointmentHandler implements EventHandler
         $this->publishWhatHappenedTo($toAttach);
     }
 
-    private function meetToAttach(Prospector $host, PersonId $contact, \DateTimeImmutable $meeting, \DateTimeImmutable $at): void
+    private function meetToAttach(Prospector $host, ContactId $contact, \DateTimeImmutable $meeting, \DateTimeImmutable $at): void
     {
         $toAttach = ContactToAttach::metBy($host, $contact, $meeting, $at);
         $this->contactsToAttach->save($toAttach);

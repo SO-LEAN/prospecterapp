@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Tests\Core\Double;
 
 use Prospecter\Core\Campaigns\Domain\Model\CampaignId;
+use Prospecter\Core\Campaigns\Domain\Model\ContactId;
 use Prospecter\Core\Campaigns\Domain\Port\CampaignExchanges;
 use Prospecter\Core\Prospecting\Contract\Service\WhichContactsHaveExchangesOfCampaign\KeptContacts;
 use Prospecter\Core\Prospecting\Contract\Service\WhichContactsHaveExchangesOfCampaign\WhichContactsHaveExchangesOfCampaign;
 use Prospecter\Core\Prospecting\Contract\Service\WhichContactsHaveExchangesOfCampaign\WhichContactsHaveExchangesOfCampaignService;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * The API's anticorruption layer in the scenarios (ADR 0045, 0195): the recipients with whom Prospecting logged an
@@ -23,15 +23,15 @@ final readonly class ProspectingCampaignExchanges implements CampaignExchanges
     }
 
     /**
-     * @param list<PersonId> $recipients
+     * @param list<ContactId> $recipients
      *
-     * @return list<PersonId>
+     * @return list<ContactId>
      */
     public function exchangedWith(AccountId $accountId, CampaignId $campaign, array $recipients): array
     {
         $kept = new KeptContacts();
-        ($this->whichContactsHaveExchangesOfCampaignService)(new WhichContactsHaveExchangesOfCampaign($accountId->value, $campaign->value, array_map(static fn (PersonId $recipient): string => $recipient->value, $recipients)), $kept);
+        ($this->whichContactsHaveExchangesOfCampaignService)(new WhichContactsHaveExchangesOfCampaign($accountId->value, $campaign->value, array_map(static fn (ContactId $recipient): string => $recipient->value, $recipients)), $kept);
 
-        return array_map(static fn (string $contact): PersonId => new PersonId($contact), $kept->contactIds);
+        return array_map(static fn (string $contact): ContactId => new ContactId($contact), $kept->contactIds);
     }
 }

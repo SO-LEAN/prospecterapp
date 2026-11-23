@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Connectors\AntiCorruption;
 
 use Prospecter\Core\Connectors\Domain\Model\Channel;
+use Prospecter\Core\Connectors\Domain\Model\ContactId;
 use Prospecter\Core\Connectors\Domain\Model\ExchangeId;
 use Prospecter\Core\Connectors\Domain\Model\ExchangeStatus;
 use Prospecter\Core\Connectors\Domain\Model\HeldExchange;
@@ -18,7 +19,6 @@ use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\HeldExchan
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\KeptHeldExchanges;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Anticorruption layer (ADR 0045, 0089). Connectors reads an exchange's current state from Prospecting, which it asks
@@ -60,7 +60,7 @@ final readonly class ProspectingHeldExchanges implements HeldExchanges
             $held->startsAt,
             $held->durationInMinutes,
             $held->place ?? $held->link,
-            null === $held->contactId ? null : new PersonId($held->contactId),
+            null === $held->contactId ? null : new ContactId($held->contactId),
             null === $held->organizationId ? null : new OrganizationId($held->organizationId),
             $held->organizationName,
             $held->linkRequested,

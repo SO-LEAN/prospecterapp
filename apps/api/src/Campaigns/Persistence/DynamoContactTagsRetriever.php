@@ -8,9 +8,9 @@ use App\Shared\Persistence\Table;
 use App\Shared\Typed;
 use Prospecter\Core\Campaigns\Application\Port\ContactTagSources;
 use Prospecter\Core\Campaigns\Application\Port\ContactTagsRetriever;
+use Prospecter\Core\Campaigns\Domain\Model\ContactId;
 use Prospecter\Core\Campaigns\Domain\Model\HolderKind;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Reads what contacts' tags are derived from, in the items of `DynamoFactRepository` and `DynamoTaggingRepository`,
@@ -25,17 +25,17 @@ final readonly class DynamoContactTagsRetriever implements ContactTagsRetriever
     }
 
     /**
-     * @param list<PersonId> $contacts
+     * @param list<ContactId> $contacts
      */
     public function sourcesOf(AccountId $accountId, array $contacts): array
     {
         $account = CampaignsKeys::account($accountId->value);
-        $factsAndLinks = array_map(fn (PersonId $contact): array => $this->campaignsTable->queryBetween($account, null, ...CampaignsKeys::factAndLinksOf($contact->value)), $contacts);
+        $factsAndLinks = array_map(fn (ContactId $contact): array => $this->campaignsTable->queryBetween($account, null, ...CampaignsKeys::factAndLinksOf($contact->value)), $contacts);
         $organizations = array_values(array_unique(array_merge([], ...array_map(self::organizationsLinked(...), $factsAndLinks))));
         [$tags, $localities] = $this->tagsAndLocalitiesOf($account, $contacts, $organizations);
 
         return array_map(
-            static fn (PersonId $contact, array $items): ContactTagSources => new ContactTagSources(
+            static fn (ContactId $contact, array $items): ContactTagSources => new ContactTagSources(
                 $contact->value,
                 $tags[HolderKind::Contact->value][$contact->value] ?? [],
                 array_map(static fn (string $organization): array => $tags[HolderKind::Organization->value][$organization] ?? [], array_combine(self::organizationsLinked($items), self::organizationsLinked($items))),
@@ -62,7 +62,7 @@ final readonly class DynamoContactTagsRetriever implements ContactTagsRetriever
      *
      * @return array{email: bool, phone: bool, mobile: bool, linkedIn: bool}|null
      */
-    private static function reachOf(PersonId $contact, array $items): ?array
+    private static function reachOf(ContactId $contact, array $items): ?array
     {
         $fact = array_find($items, static fn (array $item): bool => CampaignsKeys::contactFact($contact->value) === $item['SK']);
 
@@ -70,8 +70,8 @@ final readonly class DynamoContactTagsRetriever implements ContactTagsRetriever
     }
 
     /**
-     * @param list<PersonId> $contacts
-     * @param list<string>   $organizations
+     * @param list<ContactId> $contacts
+     * @param list<string>    $organizations
      *
      * @return array{array<string, array<string, list<string>>>, array<string, array{municipalityCode: ?string, country: ?string}>}
      *                                                                                                                              the names of the tags put by hand, by kind of holder then by holder id; where each organization is, by organization id
@@ -79,7 +79,7 @@ final readonly class DynamoContactTagsRetriever implements ContactTagsRetriever
     private function tagsAndLocalitiesOf(string $account, array $contacts, array $organizations): array
     {
         $keys = [
-            ...array_map(static fn (PersonId $contact): array => [$account, CampaignsKeys::tagging(HolderKind::Contact->value, $contact->value)], $contacts),
+            ...array_map(static fn (ContactId $contact): array => [$account, CampaignsKeys::tagging(HolderKind::Contact->value, $contact->value)], $contacts),
             ...array_map(static fn (string $organization): array => [$account, CampaignsKeys::tagging(HolderKind::Organization->value, $organization)], $organizations),
             ...array_map(static fn (string $organization): array => [$account, CampaignsKeys::organizationFact($organization)], $organizations),
         ];

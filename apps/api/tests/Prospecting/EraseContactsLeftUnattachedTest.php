@@ -8,12 +8,14 @@ use App\Shared\ScheduledTasksFunction;
 use Bref\Context\Context;
 use Prospecter\Core\PersonalData\Domain\Model\ContactCard;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
+use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\PersonalData\Domain\Model\Reader;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
 use Prospecter\Core\Prospecting\Application\Port\ContactsToAttachRetriever;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
 use Prospecter\Core\Prospecting\Domain\Model\ContactCorrespondent;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\ContactToAttach;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
@@ -29,7 +31,6 @@ use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 use Tests\App\Base\ApiTestCase;
@@ -50,9 +51,9 @@ class EraseContactsLeftUnattachedTest extends ApiTestCase
         $this->assertStringContainsString('1 contact(s) left unattached erased', $this->erase());
 
         $this->assertSame([], self::service(PersonRepository::class)->ofIds([new PersonId($left)]));
-        $this->assertSame([], self::service(ExchangeRepository::class)->withContact(new PersonId($left), $this->accountOfTheFixtures()));
-        $this->assertNull(self::service(ContactToAttachRepository::class)->find(new PersonId($left)));
-        $this->assertNotNull(self::service(ContactToAttachRepository::class)->find(new PersonId($waiting)));
+        $this->assertSame([], self::service(ExchangeRepository::class)->withContact(new ContactId($left), $this->accountOfTheFixtures()));
+        $this->assertNull(self::service(ContactToAttachRepository::class)->find(new ContactId($left)));
+        $this->assertNotNull(self::service(ContactToAttachRepository::class)->find(new ContactId($waiting)));
         $this->assertStringContainsString('0 contact(s) left unattached erased', $this->erase());
     }
 
@@ -64,7 +65,7 @@ class EraseContactsLeftUnattachedTest extends ApiTestCase
 
         $this->assertSame(['erased' => 1], $answer['ran']['erase-unattached']);
 
-        $this->assertNull(self::service(ContactToAttachRepository::class)->find(new PersonId($left)));
+        $this->assertNull(self::service(ContactToAttachRepository::class)->find(new ContactId($left)));
     }
 
     public function testTheDailyFunctionOfTheScheduleMakesUpARunMissed(): void
@@ -75,8 +76,8 @@ class EraseContactsLeftUnattachedTest extends ApiTestCase
         $answer = self::service(ScheduledTasksFunction::class)->handle([], new Context('request', 0, 'function', 'trace'));
 
         $this->assertSame(['erased' => 2], $answer['ran']['erase-unattached']);
-        $this->assertNull(self::service(ContactToAttachRepository::class)->find(new PersonId($dueTheDayBeforeYesterday)));
-        $this->assertNull(self::service(ContactToAttachRepository::class)->find(new PersonId($dueYesterday)));
+        $this->assertNull(self::service(ContactToAttachRepository::class)->find(new ContactId($dueTheDayBeforeYesterday)));
+        $this->assertNull(self::service(ContactToAttachRepository::class)->find(new ContactId($dueYesterday)));
     }
 
     public function testTheContactsToAttachAreReadByHolderAndByTheMomentTheyAreErasedFrom(): void
@@ -87,8 +88,8 @@ class EraseContactsLeftUnattachedTest extends ApiTestCase
 
         $held = array_column($retriever->heldBy(new MemberId($this->memberIdOf('prospector-user'))), 'personId');
         $this->assertSame([$sooner, $later], array_values(array_intersect($held, [$sooner, $later])));
-        $this->assertEquals(new \DateTimeImmutable('2026-10-13 22:00 UTC'), $retriever->findHeldBy(new MemberId($this->memberIdOf('prospector-user')), new PersonId($sooner))?->erasableFrom);
-        $this->assertNull($retriever->findHeldBy(new MemberId($this->memberIdOf('assistant-user')), new PersonId($sooner)));
+        $this->assertEquals(new \DateTimeImmutable('2026-10-13 22:00 UTC'), $retriever->findHeldBy(new MemberId($this->memberIdOf('prospector-user')), new ContactId($sooner))?->erasableFrom);
+        $this->assertNull($retriever->findHeldBy(new MemberId($this->memberIdOf('assistant-user')), new ContactId($sooner)));
         $this->assertSame([$sooner], $retriever->leftUnattachedAt(new \DateTimeImmutable('2026-10-13 22:00 UTC')));
         $this->assertSame([], $retriever->leftUnattachedAt(new \DateTimeImmutable('2026-10-13 21:59 UTC')));
     }
@@ -108,8 +109,8 @@ class EraseContactsLeftUnattachedTest extends ApiTestCase
         $at = new \DateTimeImmutable($meeting);
         $person = Person::collectToAttach(new Reader($member, $account, new PersonId(self::newIdentity()), true), new PersonId(self::newIdentity()), new ContactCard(new PersonName('Ada', 'Lovelace'), new ContactDetails(new Email(self::newIdentity().'@acme.test'))), $at);
         self::service(PersonRepository::class)->save($person);
-        self::service(ContactToAttachRepository::class)->save(ContactToAttach::metBy(new Prospector($member, $account, managesPersonalData: true), $person->id(), $at, $at));
-        self::service(ExchangeRepository::class)->save(Exchange::noted(new Gesture($account, $member, $at), new ExchangeId(self::newIdentity()), new ContactCorrespondent($person->id(), []), Noting::of(new ExchangeFacts(Channel::VideoCall, Direction::Outbound, $at), ExchangeStatus::Done)));
+        self::service(ContactToAttachRepository::class)->save(ContactToAttach::metBy(new Prospector($member, $account, managesPersonalData: true), new ContactId($person->id()->value), $at, $at));
+        self::service(ExchangeRepository::class)->save(Exchange::noted(new Gesture($account, $member, $at), new ExchangeId(self::newIdentity()), new ContactCorrespondent(new ContactId($person->id()->value), []), Noting::of(new ExchangeFacts(Channel::VideoCall, Direction::Outbound, $at), ExchangeStatus::Done)));
 
         return $person->id()->value;
     }

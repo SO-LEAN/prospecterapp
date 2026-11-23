@@ -7,7 +7,6 @@ namespace Prospecter\Core\Prospecting\Domain\Model;
 use Prospecter\Core\Prospecting\Domain\Exception\CampaignNotRunning;
 use Prospecter\Core\Prospecting\Domain\Exception\RecipientAlreadyProcessed;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownRecipient;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * A contact as a campaign in Campaigns keeps them, when a member logs an exchange for them in it (ADR 0145). It holds
@@ -18,7 +17,7 @@ final readonly class RecipientInCampaign
 {
     public function __construct(
         public CampaignId $campaign,
-        public PersonId $contact,
+        public ContactId $contact,
         public Channel $channel,
         public bool $running,
         public bool $recipient,

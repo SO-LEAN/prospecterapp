@@ -13,6 +13,7 @@ use Prospecter\Core\Prospecting\Domain\Model\CampaignId;
 use Prospecter\Core\Prospecting\Domain\Model\Cancellation;
 use Prospecter\Core\Prospecting\Domain\Model\Canceller;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\Correction;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\Duration;
@@ -28,7 +29,6 @@ use Prospecter\Core\Prospecting\Domain\Policy\ExchangeChronology;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\Origin;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Turns an exchange into a plain document for its DynamoDB item, and back (ADR 0048). Its facts and its attachments
@@ -58,7 +58,7 @@ final class ExchangeDocument
             'id' => Typed::object($state['id'], ExchangeId::class)->value,
             'accountId' => Typed::object($state['accountId'], AccountId::class)->value,
             'createdBy' => Typed::object($state['createdBy'], MemberId::class)->value,
-            'contact' => Typed::objectOrNull($state['contact'], PersonId::class)?->value,
+            'contact' => Typed::objectOrNull($state['contact'], ContactId::class)?->value,
             'keptFor' => array_map(static fn (OrganizationId $organization): string => $organization->value, Typed::objects($state['keptFor'], OrganizationId::class)),
             'campaignId' => Typed::objectOrNull($state['campaign'], CampaignId::class)?->value,
             'importedFrom' => null === $importedFrom ? null : ['provider' => $importedFrom->provider, 'identity' => $importedFrom->identity, 'providerMessageId' => $importedFrom->providerMessageId],
@@ -100,7 +100,7 @@ final class ExchangeDocument
             'id' => new ExchangeId(Typed::string($document['id'])),
             'accountId' => new AccountId(Typed::string($document['accountId'])),
             'createdBy' => new MemberId(Typed::string($document['createdBy'])),
-            'contact' => null === $contact ? null : new PersonId($contact),
+            'contact' => null === $contact ? null : new ContactId($contact),
             'keptFor' => self::keptForOf($document),
             'campaign' => null === $campaign ? null : new CampaignId($campaign),
             'importedFrom' => self::importedFromOf($document['importedFrom'] ?? null),
@@ -156,7 +156,7 @@ final class ExchangeDocument
         }
         $contact = Typed::stringOrNull($document['contact']);
 
-        return ExchangeFingerprint::ofEmail($email->identity, null === $contact ? self::keptForOf($document)[0] : new PersonId($contact));
+        return ExchangeFingerprint::ofEmail($email->identity, null === $contact ? self::keptForOf($document)[0] : new ContactId($contact));
     }
 
     /**

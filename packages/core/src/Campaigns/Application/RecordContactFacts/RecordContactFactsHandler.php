@@ -6,11 +6,11 @@ namespace Prospecter\Core\Campaigns\Application\RecordContactFacts;
 
 use Prospecter\Core\Campaigns\Application\FactRecorder;
 use Prospecter\Core\Campaigns\Domain\Model\ContactFact;
+use Prospecter\Core\Campaigns\Domain\Model\ContactId;
 use Prospecter\Core\Campaigns\Domain\Model\Reach;
 use Prospecter\Core\PersonalData\Contract\Event\ContactFactsChanged;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Keeps how a contact is reached, which sets its automatic tags (ADR 0141). A fact published before the facts carried
@@ -30,7 +30,7 @@ final readonly class RecordContactFactsHandler implements EventHandler
 
         $this->recorder->record(new ContactFact(
             new AccountId($event->accountId),
-            new PersonId($event->personId),
+            new ContactId($event->personId),
             $event->revision,
             $event->present,
             new Reach($event->hasEmail, $event->hasPhone, $event->hasMobile, $event->hasLinkedIn),

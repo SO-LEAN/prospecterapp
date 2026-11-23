@@ -9,13 +9,13 @@ use App\Shared\Persistence\Table;
 use App\Shared\Typed;
 use Prospecter\Core\Campaigns\Application\FactRecorder;
 use Prospecter\Core\Campaigns\Domain\Model\ContactFact;
+use Prospecter\Core\Campaigns\Domain\Model\ContactId;
 use Prospecter\Core\Campaigns\Domain\Model\Locality;
 use Prospecter\Core\Campaigns\Domain\Model\OrganizationFact;
 use Prospecter\Core\Campaigns\Domain\Model\OrganizationId;
 use Prospecter\Core\Campaigns\Domain\Model\Reach;
 use Prospecter\Core\Campaigns\Domain\Repository\FactRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\App\Base\ApiTestCase;
 
 /**
@@ -37,8 +37,8 @@ class DynamoFactRepositoryTest extends ApiTestCase
 
     public function testTheLinksFollowTheContactsTheOrganizationNames(): void
     {
-        $ada = new PersonId(self::newIdentity());
-        $grace = new PersonId(self::newIdentity());
+        $ada = new ContactId(self::newIdentity());
+        $grace = new ContactId(self::newIdentity());
         $this->recorder()->record($this->organizationNaming(1, $ada, $grace));
 
         $this->recorder()->record($this->organizationNaming(2, $grace));
@@ -50,7 +50,7 @@ class DynamoFactRepositoryTest extends ApiTestCase
 
     public function testATerminalFactRemovesTheLinksAndIsForgottenFifteenDaysLater(): void
     {
-        $ada = new PersonId(self::newIdentity());
+        $ada = new ContactId(self::newIdentity());
         $this->recorder()->record($this->organizationNaming(1, $ada));
 
         $this->recorder()->record(new OrganizationFact($this->account, $this->organization, 0, false, [], Locality::unknown()));
@@ -83,7 +83,7 @@ class DynamoFactRepositoryTest extends ApiTestCase
 
     public function testAContactFactKeepsHowTheContactIsReached(): void
     {
-        $fact = new ContactFact($this->account, new PersonId(self::newIdentity()), 3, true, new Reach(true, true, true, false));
+        $fact = new ContactFact($this->account, new ContactId(self::newIdentity()), 3, true, new Reach(true, true, true, false));
 
         $this->recorder()->record($fact);
 
@@ -101,7 +101,7 @@ class DynamoFactRepositoryTest extends ApiTestCase
         $this->repository()->record($this->organizationNaming(3), $read);
     }
 
-    private function organizationNaming(int $revision, PersonId ...$contacts): OrganizationFact
+    private function organizationNaming(int $revision, ContactId ...$contacts): OrganizationFact
     {
         return new OrganizationFact($this->account, $this->organization, $revision, true, array_values($contacts), Locality::unknown());
     }
@@ -109,7 +109,7 @@ class DynamoFactRepositoryTest extends ApiTestCase
     /**
      * @return list<string> the organizations whose links name the contact
      */
-    private function linksOf(PersonId $contact): array
+    private function linksOf(ContactId $contact): array
     {
         $prefix = 'FACT#CONTACT#'.$contact->value.'#ORGANIZATION#';
         $links = $this->campaignsTable()->queryBetween('ACCOUNT#'.$this->account->value, null, $prefix, $prefix.'~');

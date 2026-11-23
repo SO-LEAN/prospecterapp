@@ -11,7 +11,6 @@ use Prospecter\Core\Accounts\Domain\Exception\MemberWithoutRole;
 use Prospecter\Core\Accounts\Domain\Policy\AdministrationRight;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 
@@ -30,14 +29,14 @@ final class Member implements ReleasesEvents
     private function __construct(
         private readonly MemberId $id,
         private readonly AccountId $accountId,
-        private readonly PersonId $personId,
+        private readonly ProfileId $personId,
         Role ...$roles,
     ) {
         $this->roles = array_values($roles);
         $this->reminders = Reminders::byDefault();
     }
 
-    public static function register(MemberId $id, AccountId $accountId, PersonId $personId, Role ...$roles): self
+    public static function register(MemberId $id, AccountId $accountId, ProfileId $personId, Role ...$roles): self
     {
         return new self($id, $accountId, $personId, ...$roles);
     }

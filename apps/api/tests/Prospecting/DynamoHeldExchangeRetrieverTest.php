@@ -8,6 +8,7 @@ use Prospecter\Core\Prospecting\Application\ConsultHeldExchanges\HeldExchange;
 use Prospecter\Core\Prospecting\Application\Port\HeldExchangeRetriever;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
 use Prospecter\Core\Prospecting\Domain\Model\ContactCorrespondent;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\Duration;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
@@ -16,7 +17,6 @@ use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\App\Base\ApiTestCase;
 
 /**
@@ -30,7 +30,7 @@ class DynamoHeldExchangeRetrieverTest extends ApiTestCase
     public function testAnExchangeBookedByThePublicLinkSaysSo(): void
     {
         $accountId = new AccountId(self::newIdentity());
-        $exchange = Exchange::bookedByAContact(new Gesture($accountId, new MemberId(self::newIdentity()), new \DateTimeImmutable(self::NOW)), new ExchangeId(self::newIdentity()), new ContactCorrespondent(new PersonId(self::newIdentity()), []), ExchangeFacts::planned(Channel::VideoCall, new \DateTimeImmutable('2026-11-24 08:00 UTC'), Duration::inMinutes(15), null));
+        $exchange = Exchange::bookedByAContact(new Gesture($accountId, new MemberId(self::newIdentity()), new \DateTimeImmutable(self::NOW)), new ExchangeId(self::newIdentity()), new ContactCorrespondent(new ContactId(self::newIdentity()), []), ExchangeFacts::planned(Channel::VideoCall, new \DateTimeImmutable('2026-11-24 08:00 UTC'), Duration::inMinutes(15), null));
         self::service(ExchangeRepository::class)->save($exchange);
 
         $held = self::service(HeldExchangeRetriever::class)->ofIds($accountId, [$exchange->id()]);

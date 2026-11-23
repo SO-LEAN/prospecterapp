@@ -6,6 +6,7 @@ namespace Prospecter\Core\Prospecting\Application\PlanExchange;
 
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
 use Prospecter\Core\Prospecting\Domain\Model\ContactCorrespondent;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\Duration;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
@@ -20,7 +21,6 @@ use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\Origin;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 final readonly class PlanExchangeHandler implements CommandHandler
 {
@@ -37,7 +37,7 @@ final readonly class PlanExchangeHandler implements CommandHandler
     public function __invoke(PlanExchange $command): void
     {
         $prospector = $this->prospectors->prospectorFrom(new MemberId($command->prospectorId));
-        $contact = new PersonId($command->personId);
+        $contact = new ContactId($command->personId);
         $exchange = Exchange::planned(
             new Gesture($prospector->accountId, $prospector->id, $command->executedAt, Origin::byAnAI($command->byAnAI)),
             new ExchangeId($command->id),

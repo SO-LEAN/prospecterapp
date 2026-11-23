@@ -6,12 +6,12 @@ namespace Prospecter\Core\Connectors\Application\UnnameForgottenContact;
 
 use Prospecter\Core\Connectors\Application\CalendarPusher;
 use Prospecter\Core\Connectors\Domain\Model\CalendarEntry;
+use Prospecter\Core\Connectors\Domain\Model\ContactId;
 use Prospecter\Core\Connectors\Domain\Port\HeldExchanges;
 use Prospecter\Core\Connectors\Domain\Repository\CalendarEntryRepository;
 use Prospecter\Core\PersonalData\Contract\Event\ContactForgotten;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * A forgotten contact leaves the events of their done or missed exchanges (ADR 0127). Each event is put again without
@@ -31,7 +31,7 @@ final readonly class UnnameForgottenContactHandler implements EventHandler
     {
         $accountId = new AccountId($forgotten->accountId);
 
-        foreach ($this->entries->ofContact(new PersonId($forgotten->personId)) as $entry) {
+        foreach ($this->entries->ofContact(new ContactId($forgotten->personId)) as $entry) {
             $this->unname($entry, $accountId, $forgotten->occurredAt);
         }
     }

@@ -6,6 +6,7 @@ namespace Prospecter\Core\Prospecting\Application\NoteCampaignExchange;
 
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownCampaign;
 use Prospecter\Core\Prospecting\Domain\Model\CampaignId;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
@@ -24,7 +25,6 @@ use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\Origin;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Campaigns processes the recipient once it reads the exchange's facts, which name the campaign (ADR 0145).
@@ -50,7 +50,7 @@ final readonly class NoteCampaignExchangeHandler implements CommandHandler
     {
         $prospector = $this->prospectors->prospectorFrom(new MemberId($command->prospectorId));
         $campaign = new CampaignId($command->campaignId);
-        $contact = new PersonId($command->personId);
+        $contact = new ContactId($command->personId);
         $recipient = $this->campaignRecipients->recipientIn($campaign, $contact, $prospector->accountId) ?? throw UnknownCampaign::identifiedBy($campaign);
         $facts = $recipient->exchangeFacts($command->occurredAt, $command->text);
         $reference = MessageReference::of($facts->channel, $command->messageId, $command->linkedInConversation);

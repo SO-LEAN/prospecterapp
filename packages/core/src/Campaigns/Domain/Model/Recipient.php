@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Campaigns\Domain\Model;
 
-use Prospecter\Core\SharedKernel\Domain\PersonId;
-
 /**
  * A contact that a frozen campaign keeps to contact. The campaign keeps them by id only, because their name belongs to
  * PersonalData. A processed recipient keeps the id of the Prospecting exchange logged for them (ADR 0152), and whether
@@ -19,7 +17,7 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 final readonly class Recipient
 {
     public function __construct(
-        public PersonId $contact,
+        public ContactId $contact,
         public RecipientStatus $status,
         public bool $missed = false,
         public ?string $reason = null,
@@ -29,7 +27,7 @@ final readonly class Recipient
     ) {
     }
 
-    public static function pending(PersonId $contact): self
+    public static function pending(ContactId $contact): self
     {
         return new self($contact, RecipientStatus::Pending);
     }
@@ -64,7 +62,7 @@ final readonly class Recipient
     }
 
     #[\NoDiscard]
-    public function is(PersonId $contact): bool
+    public function is(ContactId $contact): bool
     {
         return $this->contact->equals($contact);
     }

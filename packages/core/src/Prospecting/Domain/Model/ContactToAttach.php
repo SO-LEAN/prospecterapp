@@ -13,7 +13,6 @@ use Prospecter\Core\Prospecting\Domain\Policy\UnattachedErasure;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 
@@ -30,7 +29,7 @@ final class ContactToAttach implements ReleasesEvents
     private \DateTimeImmutable $modifiedAt;
 
     private function __construct(
-        private readonly PersonId $id,
+        private readonly ContactId $id,
         private readonly AccountId $accountId,
         private MemberId $holder,
         private \DateTimeImmutable $lastMeetingAt,
@@ -43,7 +42,7 @@ final class ContactToAttach implements ReleasesEvents
     /**
      * The meeting's clock is kept, because the erasure's day is read on it.
      */
-    public static function metBy(Prospector $holder, PersonId $contact, \DateTimeImmutable $meeting, \DateTimeImmutable $at): self
+    public static function metBy(Prospector $holder, ContactId $contact, \DateTimeImmutable $meeting, \DateTimeImmutable $at): self
     {
         $toAttach = new self($contact, $holder->accountId, $holder->id, $meeting, $meeting->getTimezone(), $at);
         $toAttach->recordThat(new ContactToAttachMet($holder->accountId, $holder->id, $contact, $at));
@@ -51,7 +50,7 @@ final class ContactToAttach implements ReleasesEvents
         return $toAttach;
     }
 
-    public function id(): PersonId
+    public function id(): ContactId
     {
         return $this->id;
     }

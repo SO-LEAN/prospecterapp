@@ -11,10 +11,10 @@ use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\PersonalData\Application\Port\PersonCardRetriever;
 use Prospecter\Core\PersonalData\Application\PossibleDuplicate;
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
+use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\PersonalData\Domain\Model\Reader;
 use Prospecter\Core\PersonalData\Domain\Policy\PersonReading;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 /**

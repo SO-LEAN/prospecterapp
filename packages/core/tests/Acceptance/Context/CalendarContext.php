@@ -10,6 +10,7 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 use Prospecter\Core\Accounts\Domain\Model\Role;
+use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\Prospecting\Application\CancelExchange\CancelExchange;
 use Prospecter\Core\Prospecting\Application\ConsultCalendar\Calendar;
 use Prospecter\Core\Prospecting\Application\ConsultCalendar\ConsultCalendar;
@@ -19,7 +20,6 @@ use Prospecter\Core\Prospecting\Application\PlanExchange\PlanExchange;
 use Prospecter\Core\Prospecting\Application\ToDoInList;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 

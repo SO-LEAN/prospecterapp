@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Domain\Model;
 
 use Prospecter\Core\Prospecting\Domain\Exception\ChannelNotMissed;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * What a member records about an exchange that took place: its facts and its outcome, done or missed. When known, it
@@ -48,7 +47,7 @@ final readonly class Noting
     /**
      * Fingerprints an imported e-mail by its identity, and any other exchange by where it was read (ADR 0166).
      */
-    public function fingerprintWith(PersonId|OrganizationId $correspondent): ExchangeFingerprint
+    public function fingerprintWith(ContactId|OrganizationId $correspondent): ExchangeFingerprint
     {
         if (null !== $this->importedFrom) {
             return ExchangeFingerprint::ofEmail($this->importedFrom->identity, $correspondent);

@@ -6,6 +6,7 @@ namespace Tests\App\Connectors;
 
 use Prospecter\Core\Connectors\Domain\Model\CalendarEntry;
 use Prospecter\Core\Connectors\Domain\Model\Channel;
+use Prospecter\Core\Connectors\Domain\Model\ContactId;
 use Prospecter\Core\Connectors\Domain\Model\ExchangeId;
 use Prospecter\Core\Connectors\Domain\Model\ExchangeStatus;
 use Prospecter\Core\Connectors\Domain\Model\HeldExchange;
@@ -14,7 +15,6 @@ use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Repository\CalendarEntryRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\App\Base\ApiTestCase;
 
 /**
@@ -25,7 +25,7 @@ class DynamoCalendarEntryRepositoryTest extends ApiTestCase
 {
     public function testAnEntryIsFoundByItsExchangeAndByItsContactUntilRemoved(): void
     {
-        $contact = new PersonId(self::newIdentity());
+        $contact = new ContactId(self::newIdentity());
         $withTheContact = self::entryOf(self::heldExchange($contact));
         $withTheOrganization = self::entryOf(self::heldExchange(null));
 
@@ -61,7 +61,7 @@ class DynamoCalendarEntryRepositoryTest extends ApiTestCase
 
     public function testThatItsEventInvitesAGuestIsKept(): void
     {
-        $exchange = new HeldExchange(new ExchangeId(self::newIdentity()), new AccountId(self::newIdentity()), new MemberId(self::newIdentity()), ExchangeStatus::Planned, Channel::VideoCall, new \DateTimeImmutable('2026-10-20 14:00 UTC'), 15, null, new PersonId(self::newIdentity()), null, null, linkRequested: true, bookedByLink: true);
+        $exchange = new HeldExchange(new ExchangeId(self::newIdentity()), new AccountId(self::newIdentity()), new MemberId(self::newIdentity()), ExchangeStatus::Planned, Channel::VideoCall, new \DateTimeImmutable('2026-10-20 14:00 UTC'), 15, null, new ContactId(self::newIdentity()), null, null, linkRequested: true, bookedByLink: true);
         $entry = self::entryOf($exchange);
         $entry->pushed($exchange, new \DateTimeImmutable('2026-10-15 09:00 UTC'));
 
@@ -75,7 +75,7 @@ class DynamoCalendarEntryRepositoryTest extends ApiTestCase
         return CalendarEntry::of($exchange, Provider::Google, new \DateTimeImmutable('2026-10-15 09:00 UTC'));
     }
 
-    private static function heldExchange(?PersonId $contact): HeldExchange
+    private static function heldExchange(?ContactId $contact): HeldExchange
     {
         return new HeldExchange(new ExchangeId(self::newIdentity()), new AccountId(self::newIdentity()), new MemberId(self::newIdentity()), ExchangeStatus::Planned, Channel::VideoCall, new \DateTimeImmutable('2026-10-20 14:00 UTC'), 30, null, $contact, new OrganizationId(self::newIdentity()), 'ACME');
     }

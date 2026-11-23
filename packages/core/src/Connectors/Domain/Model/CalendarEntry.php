@@ -6,7 +6,6 @@ namespace Prospecter\Core\Connectors\Domain\Model;
 
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 
@@ -29,7 +28,7 @@ final class CalendarEntry implements ReleasesEvents
         private readonly AccountId $accountId,
         private readonly MemberId $member,
         private readonly Provider $provider,
-        private readonly ?PersonId $contact,
+        private readonly ?ContactId $contact,
         private \DateTimeImmutable $startsAt,
         private \DateTimeImmutable $since,
     ) {
@@ -106,7 +105,7 @@ final class CalendarEntry implements ReleasesEvents
         return $this->member;
     }
 
-    public function contact(): ?PersonId
+    public function contact(): ?ContactId
     {
         return $this->contact;
     }

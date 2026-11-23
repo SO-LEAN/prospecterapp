@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Connectors\Domain\Exception;
 
+use Prospecter\Core\Connectors\Domain\Model\ContactId;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotFound;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * The member does not read this contact unmasked. The contact may belong to another account, or not exist. The
@@ -13,7 +13,7 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
  */
 final class UnknownContact extends NotFound
 {
-    public static function withId(PersonId $id): self
+    public static function withId(ContactId $id): self
     {
         return new self(sprintf('Unknown contact %s', $id->value));
     }

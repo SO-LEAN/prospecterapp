@@ -9,8 +9,8 @@ use App\Shared\Persistence\Table;
 use App\Shared\Typed;
 use Prospecter\Core\Prospecting\Application\ContactToAttachInList;
 use Prospecter\Core\Prospecting\Application\Port\ContactsToAttachRetriever;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Reads the contacts to attach from the items that `DynamoContactToAttachRepository` writes, without restoring them
@@ -33,7 +33,7 @@ final readonly class DynamoContactsToAttachRetriever implements ContactsToAttach
         return array_map(static fn (array $item): ContactToAttachInList => ContactToAttachDocument::inList($item['contactToAttach']), $items);
     }
 
-    public function findHeldBy(MemberId $holder, PersonId $person): ?ContactToAttachInList
+    public function findHeldBy(MemberId $holder, ContactId $person): ?ContactToAttachInList
     {
         $item = $this->prospectingTable->item(DynamoContactToAttachRepository::key($person->value), DynamoContactToAttachRepository::CONTACT_TO_ATTACH);
         $document = null === $item ? null : Typed::document($item['contactToAttach']);

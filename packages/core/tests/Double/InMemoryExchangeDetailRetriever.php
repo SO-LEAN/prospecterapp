@@ -11,6 +11,7 @@ use Prospecter\Core\Prospecting\Domain\Exception\UnknownExchange;
 use Prospecter\Core\Prospecting\Domain\Model\Attachment;
 use Prospecter\Core\Prospecting\Domain\Model\CampaignId;
 use Prospecter\Core\Prospecting\Domain\Model\Cancellation;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\ContactPresence;
 use Prospecter\Core\Prospecting\Domain\Model\Correction;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
@@ -27,7 +28,6 @@ use Prospecter\Core\Prospecting\Domain\Policy\ExchangePossibilities;
 use Prospecter\Core\Prospecting\Domain\Policy\ExchangeReading;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\Origin;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Reads the exchanges that the in-memory repository saved, as the adapter reads the table's items.
@@ -53,8 +53,8 @@ final readonly class InMemoryExchangeDetailRetriever implements ExchangeDetailRe
         return new ExchangeDetail(
             id: $exchange->id()->value,
             accountId: $exchange->accountId()->value,
-            personId: $state->objectOrNull('contact', PersonId::class)?->value,
-            contactPresence: ContactPresence::ofTheContact(null !== $state->objectOrNull('contact', PersonId::class), $contactForgotten)?->value,
+            personId: $state->objectOrNull('contact', ContactId::class)?->value,
+            contactPresence: ContactPresence::ofTheContact(null !== $state->objectOrNull('contact', ContactId::class), $contactForgotten)?->value,
             channel: $facts->channel->value,
             direction: $facts->direction->value,
             occurredAt: $facts->occurredAt,

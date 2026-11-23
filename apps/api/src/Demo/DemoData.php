@@ -7,6 +7,7 @@ namespace App\Demo;
 use App\Shared\Identities;
 use Prospecter\Core\Accounts\Domain\Model\Account;
 use Prospecter\Core\Accounts\Domain\Model\Member;
+use Prospecter\Core\Accounts\Domain\Model\ProfileId;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\Accounts\Domain\Repository\AccountRepository;
 use Prospecter\Core\Accounts\Domain\Repository\MemberRepository;
@@ -19,12 +20,14 @@ use Prospecter\Core\PersonalData\Domain\Model\ContactCard;
 use Prospecter\Core\PersonalData\Domain\Model\NewContact;
 use Prospecter\Core\PersonalData\Domain\Model\OrganizationId as PersonalDataOrganizationId;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
+use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\PersonalData\Domain\Model\Reader;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
 use Prospecter\Core\Prospecting\Domain\Model\ContactCorrespondent;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\ContactToAttach;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\Duration;
@@ -51,7 +54,6 @@ use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\Location;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 use Symfony\Component\Clock\ClockInterface;
@@ -134,7 +136,7 @@ final readonly class DemoData
 
     private function aMember(string $id, Person $profile, Role ...$roles): Member
     {
-        $member = Member::register(new MemberId($id), $profile->accountId(), $profile->id(), ...$roles);
+        $member = Member::register(new MemberId($id), $profile->accountId(), new ProfileId($profile->id()->value), ...$roles);
         $this->members->save($member);
 
         return $member;
@@ -176,17 +178,17 @@ final readonly class DemoData
         $grace = Person::collectToAttach($manager, new PersonId($this->identities->next()), new ContactCard(new PersonName('Grace', 'Hopper'), new ContactDetails(new Email('grace@babbage.test'), language: 'FR')), $now);
         $this->persons->save($grace);
         $this->publish($grace);
-        $toAttach = ContactToAttach::metBy($prospector, $grace->id(), $meeting, $now);
+        $toAttach = ContactToAttach::metBy($prospector, new ContactId($grace->id()->value), $meeting, $now);
         $this->contactsToAttach->save($toAttach);
         $this->publish($toAttach);
-        $visio = Exchange::planned(new Gesture($account->id(), $prospector->id, $now), new ExchangeId($this->identities->next()), new ContactCorrespondent($grace->id(), []), ExchangeFacts::planned(Channel::VideoCall, $meeting, Duration::inMinutes(null), 'Découverte'));
+        $visio = Exchange::planned(new Gesture($account->id(), $prospector->id, $now), new ExchangeId($this->identities->next()), new ContactCorrespondent(new ContactId($grace->id()->value), []), ExchangeFacts::planned(Channel::VideoCall, $meeting, Duration::inMinutes(null), 'Découverte'));
         $this->exchanges->save($visio);
         $this->publish($visio);
     }
 
     private function anExchange(Prospector $prospector, Person $contact, Organization $organization, ExchangeFacts $facts): void
     {
-        $exchange = Exchange::noted(new Gesture($prospector->accountId, $prospector->id, $facts->occurredAt), new ExchangeId($this->identities->next()), new ContactCorrespondent($contact->id(), [$organization->id()]), Noting::of($facts, ExchangeStatus::Done));
+        $exchange = Exchange::noted(new Gesture($prospector->accountId, $prospector->id, $facts->occurredAt), new ExchangeId($this->identities->next()), new ContactCorrespondent(new ContactId($contact->id()->value), [$organization->id()]), Noting::of($facts, ExchangeStatus::Done));
         $this->exchanges->save($exchange);
         $this->publish($exchange);
     }

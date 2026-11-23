@@ -7,13 +7,13 @@ namespace Tests\Core\Double;
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\Port\AgendaRetriever;
 use Prospecter\Core\Prospecting\Domain\Model\CalendarPeriod;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\ContactPresence;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Reads the exchanges that the in-memory repository saved, as the adapter reads a prospector's agenda. The agenda
@@ -59,6 +59,6 @@ final readonly class InMemoryAgendaRetriever implements AgendaRetriever
         }));
         usort($planned, static fn (Exchange $a, Exchange $b): int => [StateOf::the($a)->object('facts', ExchangeFacts::class)->occurredAt, (string) $a->id()] <=> [StateOf::the($b)->object('facts', ExchangeFacts::class)->occurredAt, (string) $b->id()]);
 
-        return array_map(static fn (Exchange $exchange): ExchangeInTimeline => InMemoryTimelineRetriever::inTimeline($exchange, ContactPresence::ofTheContact(null !== StateOf::the($exchange)->objectOrNull('contact', PersonId::class), StateOf::the($exchange)->bool('contactForgotten')), $holder), $planned);
+        return array_map(static fn (Exchange $exchange): ExchangeInTimeline => InMemoryTimelineRetriever::inTimeline($exchange, ContactPresence::ofTheContact(null !== StateOf::the($exchange)->objectOrNull('contact', ContactId::class), StateOf::the($exchange)->bool('contactForgotten')), $holder), $planned);
     }
 }

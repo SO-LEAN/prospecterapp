@@ -6,6 +6,7 @@ namespace Tests\App\Prospecting;
 
 use Prospecter\Core\Prospecting\Application\ConsultOrganizationsOfContacts\OrganizationOfContact;
 use Prospecter\Core\Prospecting\Application\Port\OrganizationOfContactRetriever;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
@@ -15,7 +16,6 @@ use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\App\Base\ApiTestCase;
 
 /**
@@ -27,9 +27,9 @@ class DynamoOrganizationOfContactRetrieverTest extends ApiTestCase
     public function testEachContactComesWithTheOrganizationsOfTheAccountNamingThem(): void
     {
         $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
-        $ada = new PersonId(self::newIdentity());
-        $grace = new PersonId(self::newIdentity());
-        $alone = new PersonId(self::newIdentity());
+        $ada = new ContactId(self::newIdentity());
+        $grace = new ContactId(self::newIdentity());
+        $alone = new ContactId(self::newIdentity());
         $acme = $this->prospect($prospector, 'ACME', $ada, $grace);
         $group = $this->prospect($prospector, 'Groupe ACME', $ada);
         $this->prospect(new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity())), 'Another account', $ada);
@@ -42,7 +42,7 @@ class DynamoOrganizationOfContactRetrieverTest extends ApiTestCase
         $this->assertSame([], $organizations[$alone->value]);
     }
 
-    private function prospect(Prospector $prospector, string $corporateName, PersonId ...$contacts): Organization
+    private function prospect(Prospector $prospector, string $corporateName, ContactId ...$contacts): Organization
     {
         $organization = Organization::prospectedBy(new Gesture($prospector->accountId, $prospector->id, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)), new OrganizationId(self::newIdentity()), new LegalIdentity($corporateName), new ContactDetails());
 

@@ -13,6 +13,7 @@ use App\Shared\Typed;
 use Prospecter\Core\Prospecting\Domain\Exception\ExchangeNotedMeanwhile;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownExchange;
 use Prospecter\Core\Prospecting\Domain\Model\CampaignId;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\Erasure;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFingerprint;
@@ -23,7 +24,6 @@ use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Stores the exchanges in Prospecting's table (ADR 0048, 0074, 0076):
@@ -100,7 +100,7 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
             return null;
         }
         $registration = ['PK' => ExchangeKeys::fingerprint($exchange->accountId()->value, $fingerprint->value), 'SK' => ExchangeKeys::FINGERPRINT, 'exchangeId' => $exchange->id()->value];
-        $contact = Typed::objectOrNull(Hydrator::stateOf($exchange)['contact'], PersonId::class);
+        $contact = Typed::objectOrNull(Hydrator::stateOf($exchange)['contact'], ContactId::class);
 
         return null === $contact ? $registration : $registration + ['GSI1PK' => ExchangeKeys::fingerprintsOf($exchange->accountId()->value, $contact->value), 'GSI1SK' => $fingerprint->value];
     }
@@ -173,7 +173,7 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
         return new Fingerprinted(new ExchangeId(Typed::string($item['exchangeId'])), $erasure);
     }
 
-    public function forgetFingerprintsOf(AccountId $accountId, PersonId $contact): void
+    public function forgetFingerprintsOf(AccountId $accountId, ContactId $contact): void
     {
         $registrations = $this->prospectingTable->query(ExchangeKeys::fingerprintsOf($accountId->value, $contact->value), Table::BY_GSI1);
         $this->prospectingTable->transact(array_map(fn (array $registration): Write => $this->prospectingTable->deleting(Typed::string($registration['PK']), Typed::string($registration['SK'])), $registrations));
@@ -186,7 +186,7 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
         return $this->exchangesOf($this->prospectingTable->items(array_map(static fn (string $exchange): array => [$exchange, ExchangeKeys::EXCHANGE], Typed::strings(array_column($links, 'SK')))));
     }
 
-    public function withContact(PersonId $contact, AccountId $accountId): array
+    public function withContact(ContactId $contact, AccountId $accountId): array
     {
         return $this->exchangesOf($this->prospectingTable->query(ExchangeKeys::timeline($accountId->value, $contact->value), Table::BY_GSI1));
     }
@@ -194,13 +194,13 @@ final readonly class DynamoExchangeRepository implements ExchangeRepository
     /**
      * Reads each contact's timeline (GSI1). It reads the documents for their campaign only, and restores no exchange.
      *
-     * @param list<PersonId> $contacts
+     * @param list<ContactId> $contacts
      *
-     * @return list<PersonId>
+     * @return list<ContactId>
      */
     public function contactsWithAnExchangeOf(AccountId $accountId, CampaignId $campaign, array $contacts): array
     {
-        return array_values(array_filter($contacts, fn (PersonId $contact): bool => array_any(
+        return array_values(array_filter($contacts, fn (ContactId $contact): bool => array_any(
             $this->prospectingTable->query(ExchangeKeys::timeline($accountId->value, $contact->value), Table::BY_GSI1),
             static fn (array $item): bool => is_array($item['exchange']) && $campaign->value === ($item['exchange']['campaignId'] ?? null),
         )));

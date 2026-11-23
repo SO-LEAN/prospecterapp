@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Domain\Model;
 
 use Prospecter\Core\Prospecting\Domain\Exception\ReferenceNotOfTheChannel;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Where a logged message was read, as an AI gives it: an e-mail's `Message-ID`, or a LinkedIn message's
@@ -68,7 +67,7 @@ final readonly class MessageReference
         }
     }
 
-    public function fingerprintOf(ExchangeFacts $facts, PersonId|OrganizationId $correspondent): ExchangeFingerprint
+    public function fingerprintOf(ExchangeFacts $facts, ContactId|OrganizationId $correspondent): ExchangeFingerprint
     {
         if (null !== $this->messageId) {
             return ExchangeFingerprint::ofEmail($this->messageId->identity(), $correspondent);

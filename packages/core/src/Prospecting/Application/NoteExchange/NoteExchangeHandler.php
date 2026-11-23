@@ -6,6 +6,7 @@ namespace Prospecter\Core\Prospecting\Application\NoteExchange;
 
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
 use Prospecter\Core\Prospecting\Domain\Model\ContactCorrespondent;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
@@ -23,7 +24,6 @@ use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\Origin;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 final readonly class NoteExchangeHandler implements CommandHandler
 {
@@ -41,7 +41,7 @@ final readonly class NoteExchangeHandler implements CommandHandler
     public function __invoke(NoteExchange $command): void
     {
         $prospector = $this->prospectors->prospectorFrom(new MemberId($command->prospectorId));
-        $contact = new PersonId($command->personId);
+        $contact = new ContactId($command->personId);
         $facts = new ExchangeFacts(Channel::from($command->channel), Direction::from($command->direction), $command->occurredAt, $command->text);
         $exchange = Exchange::noted(
             new Gesture($prospector->accountId, $prospector->id, $command->executedAt, Origin::byAnAI($command->byAnAI)),

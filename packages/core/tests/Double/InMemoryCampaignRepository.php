@@ -7,9 +7,9 @@ namespace Tests\Core\Double;
 use Prospecter\Core\Campaigns\Domain\Exception\UnknownCampaign;
 use Prospecter\Core\Campaigns\Domain\Model\Campaign;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignId;
+use Prospecter\Core\Campaigns\Domain\Model\ContactId;
 use Prospecter\Core\Campaigns\Domain\Repository\CampaignRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /** The DynamoDB repository in the scenarios: the campaigns kept in their account's partition. */
 final readonly class InMemoryCampaignRepository implements CampaignRepository
@@ -28,7 +28,7 @@ final readonly class InMemoryCampaignRepository implements CampaignRepository
         return $this->database->campaign($accountId->value, $id->value);
     }
 
-    public function withRecipient(AccountId $accountId, PersonId $contact): array
+    public function withRecipient(AccountId $accountId, ContactId $contact): array
     {
         return array_values(array_filter($this->database->campaignsOf($accountId->value), static fn (Campaign $campaign): bool => $campaign->hasRecipient($contact)));
     }

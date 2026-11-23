@@ -74,7 +74,7 @@ It forgets an appointment on its exchange's terminal fact (`ExchangeFactsChanged
 ## In the code
 
 - `src/Booking/Domain`:
-  - `BookingPage`, `Window`, `WeeklyWindows`, `Weekday`, `WallClockTime`, `HostTimeZone`, `InactivePeriod`, `InactivePeriodId`, `Channel`, `OfferedChannels`, `BookingCode`, `BookingPageIntent`, `Availability`, `BusyPeriod`, `BookableDay`, `HostIdentity`, `Booker`, `Appointment`, `AppointmentId`; `AppointmentRequest`, `HostAgenda`;
+  - `BookingPage`, `Window`, `WeeklyWindows`, `Weekday`, `WallClockTime`, `HostTimeZone`, `InactivePeriod`, `InactivePeriodId`, `BookerId`, `Channel`, `OfferedChannels`, `BookingCode`, `BookingPageIntent`, `Availability`, `BusyPeriod`, `BookableDay`, `HostIdentity`, `Booker`, `Appointment`, `AppointmentId`; `AppointmentRequest`, `HostAgenda`;
   - the services `BusyPeriods` and `LinkAvailability`;
   - the policies `BookingPagePossibilities`, `FreeSlots`, `BookingSuspension`;
   - the repositories `BookingPageRepository` and `AppointmentRepository`;

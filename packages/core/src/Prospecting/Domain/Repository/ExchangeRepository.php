@@ -6,13 +6,13 @@ namespace Prospecter\Core\Prospecting\Domain\Repository;
 
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownExchange;
 use Prospecter\Core\Prospecting\Domain\Model\CampaignId;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFingerprint;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\Fingerprinted;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 interface ExchangeRepository
 {
@@ -33,7 +33,7 @@ interface ExchangeRepository
     /**
      * The fingerprints of the account's exchanges with the contact, erased or not. They are forgotten with the contact.
      */
-    public function forgetFingerprintsOf(AccountId $accountId, PersonId $contact): void;
+    public function forgetFingerprintsOf(AccountId $accountId, ContactId $contact): void;
 
     /**
      * The exchanges kept for this organization.
@@ -47,14 +47,14 @@ interface ExchangeRepository
      *
      * @return list<Exchange>
      */
-    public function withContact(PersonId $contact, AccountId $accountId): array;
+    public function withContact(ContactId $contact, AccountId $accountId): array;
 
     /**
      * The contacts, among these, with whom the account has an exchange in the campaign (ADR 0195).
      *
-     * @param list<PersonId> $contacts
+     * @param list<ContactId> $contacts
      *
-     * @return list<PersonId>
+     * @return list<ContactId>
      */
     public function contactsWithAnExchangeOf(AccountId $accountId, CampaignId $campaign, array $contacts): array;
 }

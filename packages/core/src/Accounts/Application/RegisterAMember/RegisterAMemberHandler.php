@@ -6,13 +6,13 @@ namespace Prospecter\Core\Accounts\Application\RegisterAMember;
 
 use Prospecter\Core\Accounts\Domain\Model\Member;
 use Prospecter\Core\Accounts\Domain\Model\Newcomer;
+use Prospecter\Core\Accounts\Domain\Model\ProfileId;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\Accounts\Domain\Repository\MemberRepository;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 final readonly class RegisterAMemberHandler implements CommandHandler
 {
@@ -27,7 +27,7 @@ final readonly class RegisterAMemberHandler implements CommandHandler
         $administrator = $this->members->get(new MemberId($command->administratorId));
         $member = Member::registerBy(
             $administrator,
-            new Newcomer(new MemberId($command->id), new PersonId($command->profileId), array_map(Role::from(...), $command->roles)),
+            new Newcomer(new MemberId($command->id), new ProfileId($command->profileId), array_map(Role::from(...), $command->roles)),
             $command->executedAt,
         );
         $this->members->save($member);
