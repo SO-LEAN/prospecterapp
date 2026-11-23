@@ -89,6 +89,7 @@ use Prospecter\Core\Campaigns\Application\NextRecipient\NextRecipientHandler;
 use Prospecter\Core\Campaigns\Application\NextRecipient\RecipientToHandle;
 use Prospecter\Core\Campaigns\Application\Policy\ForgetRecipientOfForgottenContactPolicy;
 use Prospecter\Core\Campaigns\Application\Policy\ForgetTagsOfForgottenContactPolicy;
+use Prospecter\Core\Campaigns\Application\Policy\ForgetTagsOfUnprospectedOrganizationPolicy;
 use Prospecter\Core\Campaigns\Application\PrepareCampaign\PrepareCampaignHandler;
 use Prospecter\Core\Campaigns\Application\ProcessRecipientOfCampaignExchange\ProcessRecipientOfCampaignExchangeHandler;
 use Prospecter\Core\Campaigns\Application\PutTags\PutTagsHandler;
@@ -1369,6 +1370,7 @@ final class Application
     private function commandHandlers(): array
     {
         return [
+            new ForgetTagsOfUnprospectedOrganizationHandler($this->taggings),
             new ForgetRecipientOfForgottenContactHandler($this->campaigns),
             new ForgetTagsOfForgottenContactHandler($this->taggings),
             new RegisterTheFounderHandler($this->members),
@@ -1791,7 +1793,7 @@ final class Application
             new ReadMailboxHistoryHandler($this->connections, $this->clients, $this->mailboxes, $this->connectingMembers, $this->events),
             new ImportMailHandler($this->connections, $this->clients, $this->mailboxes, new PersonalDataAndProspectingCorrespondents($this->whichContactsHaveTheseEmailsService, $this->whichOrganizationsHaveTheseEmailsService), $this->events),
             new UnnameForgottenContactHandler($this->heldExchanges, $this->calendarEntries, $this->calendarPusher),
-            new ForgetTagsOfUnprospectedOrganizationHandler($this->taggings),
+            new ForgetTagsOfUnprospectedOrganizationPolicy(),
             new ForgetTagsOfForgottenContactPolicy(),
             new ForgetRecipientOfForgottenContactPolicy(),
             new ProcessRecipientOfCampaignExchangeHandler($this->campaigns),
