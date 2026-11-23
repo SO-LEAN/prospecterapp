@@ -12,8 +12,8 @@ use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Domain\CampaignId;
 
 /**
- * The operations erase a campaign whatever its status, known by its identity alone (the cleaning of a test, a request
- * of a person under the GDPR): no member does, the application never deleting a started campaign.
+ * The operations erase a campaign whatever its status, found by its id alone. They do so to clean up a test, or on a
+ * person's request under the GDPR. No member does this, because the application never deletes a started campaign.
  */
 final readonly class EraseCampaignHandler implements CommandHandler
 {
