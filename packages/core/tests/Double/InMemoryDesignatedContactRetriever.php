@@ -14,8 +14,8 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 /**
- * Reads the contacts the in-memory repository saved by what designates them in their account, as the adapter reads
- * the reservations and the indexes the repository writes.
+ * Reads the contacts that the in-memory repository saved, by what designates them in their account. It reads them
+ * the same way the adapter reads the reservations and indexes that the repository writes.
  */
 final readonly class InMemoryDesignatedContactRetriever implements DesignatedContactRetriever
 {

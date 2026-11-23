@@ -15,7 +15,7 @@ use Prospecter\Core\SharedKernel\Domain\SearchKey;
 use Prospecter\Core\SharedKernel\Domain\SearchKeys;
 
 /**
- * Reads the contacts the in-memory repository saved, as the adapter reads the items of the table.
+ * Reads the contacts that the in-memory repository saved, as the adapter reads the table's items.
  */
 final readonly class InMemoryContactPageRetriever implements ContactPageRetriever
 {
@@ -36,7 +36,7 @@ final readonly class InMemoryContactPageRetriever implements ContactPageRetrieve
     }
 
     /**
-     * As the adapter reads the index of the names alone (the last and the first names) for a reader who does not search the emails.
+     * The adapter reads the names' index alone (last and first names) for a reader who does not search the emails.
      */
     private static function searchKeysOf(Person $person, Reader $reader): SearchKeys
     {

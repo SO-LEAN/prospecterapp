@@ -18,8 +18,8 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * The anticorruption layer of the API, same code: Campaigns names a contact as PersonalData lets the member read them,
- * by their first organization as Prospecting lists them, each asked about a set of one.
+ * The API's anticorruption layer, with the same code. Campaigns names a contact as PersonalData lets the member read
+ * them. It adds their first organization, as Prospecting lists them. Each one is asked about a set of one.
  */
 final readonly class PersonalDataAndProspectingAddressees implements Addressees
 {

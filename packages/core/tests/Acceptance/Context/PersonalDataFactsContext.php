@@ -11,8 +11,8 @@ use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 
 /**
- * The facts PersonalData publishes each time a contact changes (ADR 0046, 0099): the event is the contract, the
- * scenarios read the last one published about the person they name.
+ * The facts that PersonalData publishes each time a contact changes (ADR 0046, 0099). The event is the contract.
+ * The scenarios read the last event published about the person they name.
  */
 final class PersonalDataFactsContext implements Context
 {

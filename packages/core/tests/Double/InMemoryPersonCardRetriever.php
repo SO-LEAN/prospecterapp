@@ -25,7 +25,7 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 /**
- * Reads the persons the in-memory repository saved, as the adapter reads the items of the table.
+ * Reads the persons that the in-memory repository saved, as the adapter reads the table's items.
  */
 final readonly class InMemoryPersonCardRetriever implements PersonCardRetriever
 {
@@ -58,8 +58,8 @@ final readonly class InMemoryPersonCardRetriever implements PersonCardRetriever
     }
 
     /**
-     * The contacts they are suspected of being a duplicate of, by their names as they keep them: one forgotten named
-     * by their identity, so that a suspicion the core forgot to lift shows.
+     * The contacts that the person may duplicate, with the names these contacts keep. A forgotten contact is named
+     * by its id. So a suspicion that the core failed to lift shows.
      *
      * @return list<PossibleDuplicate>
      */
@@ -73,7 +73,8 @@ final readonly class InMemoryPersonCardRetriever implements PersonCardRetriever
     }
 
     /**
-     * For a person the reader reaches; their possible duplicates read apart, the list of the contacts showing none.
+     * The person must be one the reader reaches. The caller reads their possible duplicates separately. The contact
+     * list shows none.
      *
      * @param list<PossibleDuplicate> $possibleDuplicates
      */

@@ -17,8 +17,8 @@ use Prospecter\Core\SharedKernel\Domain\SearchKeys;
 use Prospecter\Core\SharedKernel\Domain\Slice;
 
 /**
- * Reads the facts of the contacts the in-memory repository saved, as the adapter reads the items of the table,
- * their revision with them.
+ * Reads the facts of the contacts that the in-memory repository saved, as the adapter reads the table's items. Each
+ * contact's revision comes with its facts.
  */
 final readonly class InMemoryContactFactsRetriever implements ContactFactsRetriever
 {

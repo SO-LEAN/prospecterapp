@@ -18,8 +18,8 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * A person renames the address of their profile on a tool, or takes a link off: the references they had still
- * recognize them, the last three of them, whatever their source.
+ * A person changes their profile's address on a tool, or removes a link. Their former references still recognize
+ * them. The last three are kept, whatever their source.
  */
 class PersonReferencesTest extends TestCase
 {

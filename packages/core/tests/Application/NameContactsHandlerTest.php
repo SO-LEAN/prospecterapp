@@ -19,8 +19,8 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 /**
- * The phone of a contact a person card shows as it was typed, kept before the numbers were checked: no scenario can
- * write one, the value objects refusing it.
+ * A person card shows a contact's phone number as it was typed, when it was kept before numbers were checked. No
+ * scenario can write such a number, because the value objects refuse it.
  */
 final class NameContactsHandlerTest extends TestCase
 {

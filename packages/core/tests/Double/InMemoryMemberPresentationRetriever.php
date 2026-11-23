@@ -13,7 +13,8 @@ use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * The DynamoDB retriever in the scenarios: the persons the repository saved, read without their getters.
+ * Stands for the DynamoDB retriever in the scenarios. It reads the persons that the repository saved, without
+ * their getters.
  */
 final readonly class InMemoryMemberPresentationRetriever implements MemberPresentationRetriever
 {
