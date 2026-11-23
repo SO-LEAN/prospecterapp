@@ -11,8 +11,8 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Who of the account an e-mail was exchanged with: a contact, or else an organization itself, by its address
- * (ADR 0154).
+ * The party in the account that an e-mail was exchanged with. Its address finds it. It is a contact, or else an
+ * organization itself (ADR 0154).
  */
 final readonly class Correspondent
 {
@@ -23,8 +23,8 @@ final readonly class Correspondent
     }
 
     /**
-     * A contact having the address is the correspondent, even when an organization has it too: the exchange is kept
-     * for the organizations of the contact.
+     * A contact with the address is the correspondent, even when an organization has the address too. The exchange is
+     * then kept for the contact's organizations.
      */
     public static function havingTheAddress(Email $address, AccountId $accountId, Correspondents $correspondents): ?self
     {

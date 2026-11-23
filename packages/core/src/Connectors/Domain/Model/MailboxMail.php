@@ -8,7 +8,7 @@ use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\MessageId;
 
 /**
- * A message of the mailbox of a member as the provider gives it, its text without the quoted history (ADR 0154).
+ * A message in a member's mailbox, as the provider gives it. Its text leaves out the quoted history (ADR 0154).
  */
 final readonly class MailboxMail
 {
@@ -25,9 +25,9 @@ final readonly class MailboxMail
     public string $text;
 
     /**
-     * @param list<Email>             $recipients  its recipients in « To », none in copy
-     * @param list<string>            $labels      where the provider files it
-     * @param list<MailboxAttachment> $attachments the files attached to it, in their order
+     * @param list<Email>             $recipients  the recipients in « To », without those in copy
+     * @param list<string>            $labels      where the provider files the message
+     * @param list<MailboxAttachment> $attachments the attached files, in their order
      */
     public function __construct(
         public string $providerId,
@@ -45,8 +45,9 @@ final readonly class MailboxMail
     }
 
     /**
-     * The same e-mail in every mailbox of the account, by its header `Message-ID`, hashed so that what it says stays
-     * in the mailbox; without one, the message of this mailbox only (ADR 0154).
+     * Identifies the same e-mail in every mailbox of the account by its `Message-ID` header. The header is hashed, so
+     * that what it says stays in the mailbox. Without that header, the identity covers this mailbox's message only
+     * (ADR 0154).
      */
     public function identityIn(Email $mailbox): string
     {
@@ -56,7 +57,7 @@ final readonly class MailboxMail
     }
 
     /**
-     * Its attachments an exchange may hold, in their order: the first ten of them weighing 10 MB at most.
+     * The attachments that an exchange may hold, in their order: the first ten that weigh 10 MB at most.
      *
      * @return list<MailboxAttachment>
      */
@@ -66,8 +67,8 @@ final readonly class MailboxMail
     }
 
     /**
-     * What an exchange could not hold is not downloaded: told to the member to open it at the provider (ADR 0077,
-     * 0182).
+     * The attachments that an exchange cannot hold. They are not downloaded. The member is told about them, so that
+     * they open them at the provider (ADR 0077, 0182).
      *
      * @return list<MailboxAttachment>
      */
@@ -87,7 +88,7 @@ final readonly class MailboxMail
     }
 
     /**
-     * What travels on the bus is bounded, an ellipsis telling what was cut (ADR 0154).
+     * What travels on the bus has a size limit. An ellipsis shows where the text was cut (ADR 0154).
      */
     private static function cut(string $text, int $longest): string
     {
@@ -95,8 +96,8 @@ final readonly class MailboxMail
     }
 
     /**
-     * Sent by the member, or in their spam, their trash or their drafts, it is no e-mail received; the tabs of the
-     * inbox count.
+     * An e-mail that the member sent is not a received e-mail. Neither is an e-mail in their spam, their trash or their
+     * drafts. An e-mail in one of the inbox's tabs counts as received.
      */
     public function isReceived(): bool
     {
@@ -104,7 +105,7 @@ final readonly class MailboxMail
     }
 
     /**
-     * Sent by the member, and kept neither in their spam nor in their trash.
+     * The member sent the e-mail, and it is not in their spam, their trash or their drafts.
      */
     public function isSent(): bool
     {
@@ -112,8 +113,8 @@ final readonly class MailboxMail
     }
 
     /**
-     * Whom the e-mail was exchanged with: its sender when it was received, its recipients in « To » when the member
-     * sent it, nobody otherwise.
+     * The addresses that the e-mail was exchanged with. A received e-mail gives its sender. An e-mail that the member
+     * sent gives its recipients in « To ». Any other e-mail gives nobody.
      *
      * @return list<Email>
      */

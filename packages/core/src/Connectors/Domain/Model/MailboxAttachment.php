@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Connectors\Domain\Model;
 
 /**
- * A file attached to a message of the mailbox, as the provider describes it: the id it gives it in the message, its
- * name, its size in bytes; an image embedded in the body is none (ADR 0182).
+ * A file attached to a mailbox message, as the provider describes it. It holds the id that the provider gives it in
+ * the message, its name and its size in bytes. An image embedded in the body is not an attachment (ADR 0182).
  */
 final readonly class MailboxAttachment
 {

@@ -7,8 +7,8 @@ namespace Prospecter\Core\Connectors\Domain\Model;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * An authorization a member asked a provider for, waiting for its answer: what they asked, bound to the member for
- * ten minutes (ADR 0120, 0154).
+ * An authorization that a member asked a provider for, waiting for the provider's answer. It holds what the member
+ * asked, and it is bound to the member for ten minutes (ADR 0120, 0154).
  */
 final readonly class PendingAuthorization
 {

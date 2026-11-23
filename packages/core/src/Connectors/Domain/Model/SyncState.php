@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Connectors\Domain\Model;
 
 /**
- * Where the push of an exchange into the calendar of its holder stands (ADR 0133): pending until a push reaches the
- * calendar, synced once one did, failed once the provider refused it for good.
+ * The state of an exchange's push into its holder's calendar (ADR 0133). It is pending until a push reaches the
+ * calendar. It is synced once a push did. It is failed once the provider refused the push for good.
  */
 enum SyncState: string
 {

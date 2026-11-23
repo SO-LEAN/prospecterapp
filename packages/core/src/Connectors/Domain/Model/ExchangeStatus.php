@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Connectors\Domain\Model;
 
 /**
- * Where an exchange stands, as Prospecting tells it: planned, it is in the calendar of its holder; done or missed,
- * its event stays as it was; cancelled, it leaves the calendar.
+ * An exchange's status, as Prospecting tells it. A planned exchange is in its holder's calendar. A done or missed
+ * exchange keeps its event as it was. A cancelled exchange leaves the calendar.
  */
 enum ExchangeStatus: string
 {

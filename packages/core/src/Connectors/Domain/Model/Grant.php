@@ -7,8 +7,8 @@ namespace Prospecter\Core\Connectors\Domain\Model;
 use Prospecter\Core\SharedKernel\Domain\Email;
 
 /**
- * What a provider granted for a code of authorization: the external account, its token, and the scopes it granted
- * among those Prospecter asked, the member being able to untick one at the consent.
+ * What a provider granted for an authorization code. It holds the external account, its token, and the scopes granted
+ * among those that Prospecter asked. The member may untick a scope on the consent screen.
  */
 final readonly class Grant
 {

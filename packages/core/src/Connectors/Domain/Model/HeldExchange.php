@@ -10,9 +10,9 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * An exchange as Connectors knows it from Prospecting, read as it is now (ADR 0127): who holds it, where it stands,
- * when, how and where it is held, with whom, whether a video call without a link asks its calendar for one (ADR
- * 0137). Noted once it happened, it has no channel to plan.
+ * An exchange as Connectors knows it from Prospecting, read as it currently is (ADR 0127). It holds who holds it and
+ * its status. It holds when, how and where it takes place, and with whom. It says whether a video call without a link
+ * asks its calendar for one (ADR 0137). An exchange logged after it happened has no channel to plan.
  */
 final readonly class HeldExchange
 {
@@ -34,7 +34,7 @@ final readonly class HeldExchange
     }
 
     /**
-     * A planned exchange, a call, a meeting or a video call, is in the calendar of its holder.
+     * A planned call, meeting or video call belongs in its holder's calendar.
      */
     public function belongsInTheCalendar(): bool
     {
@@ -42,7 +42,8 @@ final readonly class HeldExchange
     }
 
     /**
-     * Planned and still to come at the moment: its state is pending until a push reaches the calendar (ADR 0133).
+     * The exchange is planned and still to come at that moment. Its push state is pending until a push reaches the
+     * calendar (ADR 0133).
      */
     public function awaitsItsPushAt(\DateTimeImmutable $at): bool
     {
@@ -55,7 +56,7 @@ final readonly class HeldExchange
     }
 
     /**
-     * A cancelled exchange leaves the calendar; one done or missed stays there as it was.
+     * A cancelled exchange leaves the calendar. A done or missed exchange stays there as it was.
      */
     public function isCalledOff(): bool
     {
@@ -63,7 +64,7 @@ final readonly class HeldExchange
     }
 
     /**
-     * Done or missed, its event stays; its contact forgotten, it no longer names them.
+     * A done or missed exchange keeps its event. Once its contact is forgotten, the event no longer names them.
      */
     public function staysInTheCalendar(): bool
     {
@@ -71,7 +72,7 @@ final readonly class HeldExchange
     }
 
     /**
-     * A call, the holder calling its contact.
+     * The exchange is a call: the holder calls its contact.
      */
     public function isACall(): bool
     {
@@ -79,7 +80,7 @@ final readonly class HeldExchange
     }
 
     /**
-     * Booked by the public link of its holder, its event invites its contact, who booked it.
+     * The contact booked the exchange through its holder's public link. So its event invites that contact.
      */
     public function invitesItsContact(): bool
     {
@@ -87,8 +88,9 @@ final readonly class HeldExchange
     }
 
     /**
-     * Its event, its contact named as its holder reads them, reminding them as they chose; a contact nobody names any
-     * more, forgotten, leaves it, the event leading to the organization.
+     * Builds the exchange's event. The event names the contact as the holder reads them, and reminds the holder as they
+     * chose. A forgotten contact has no name any more. Then the event leaves the contact out and leads to the
+     * organization.
      */
     public function asCalendarEvent(?string $contactName, ?int $reminderMinutesBefore, ?Guest $guest = null): CalendarEvent
     {

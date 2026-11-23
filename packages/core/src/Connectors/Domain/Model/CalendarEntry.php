@@ -11,9 +11,10 @@ use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 
 /**
- * Aggregate root: an exchange Connectors pushed into the calendar of its holder at a provider (ADR 0127), kept to
- * withdraw it once Prospecting erased it and no longer knows whose it was, and to put it again without the name of its
- * contact once forgotten; and where its push stands, since when, why it failed (ADR 0133).
+ * Aggregate root: an exchange that Connectors pushed into its holder's calendar at a provider (ADR 0127). Connectors
+ * keeps it to withdraw the event once Prospecting erased the exchange and no longer knows whose it was. It also keeps
+ * it to put the event again without the contact's name once the contact is forgotten. The entry holds the push state,
+ * the moment it took that state, and why the push failed (ADR 0133).
  */
 final class CalendarEntry implements ReleasesEvents
 {
@@ -40,7 +41,7 @@ final class CalendarEntry implements ReleasesEvents
     }
 
     /**
-     * The push reached the calendar, the exchange as it was then.
+     * The push reached the calendar with the exchange as it was then.
      */
     public function pushed(HeldExchange $exchange, \DateTimeImmutable $at): void
     {
@@ -50,7 +51,7 @@ final class CalendarEntry implements ReleasesEvents
     }
 
     /**
-     * The provider refused it for good: pushing it again is up to its member.
+     * The provider refused the push for good. The member decides whether to push the exchange again.
      */
     public function refused(string $reason, \DateTimeImmutable $at): void
     {
@@ -58,7 +59,7 @@ final class CalendarEntry implements ReleasesEvents
     }
 
     /**
-     * A push reached nothing, the connection to reconnect: the calendar may lack what changed.
+     * A push reached nothing because the connection is to reconnect. The calendar may miss what changed.
      */
     public function awaits(\DateTimeImmutable $at): void
     {
@@ -73,8 +74,8 @@ final class CalendarEntry implements ReleasesEvents
     }
 
     /**
-     * The guest is told of a push of the exchange when its event is new to them, or when it moved; not of a link, a
-     * reminder or a name put again.
+     * A push tells the guest about the exchange when its event is new to them or has moved. It does not tell them
+     * about a link, a reminder or a name put again.
      */
     public function tellsItsGuestOfAPushOf(HeldExchange $exchange): bool
     {
@@ -82,7 +83,8 @@ final class CalendarEntry implements ReleasesEvents
     }
 
     /**
-     * Its event invites a guest, and is still to come: withdrawn, the provider tells them it is cancelled.
+     * The event invites a guest and is still to come. When it is withdrawn, the provider tells the guest that it is
+     * cancelled.
      */
     public function invitesAGuestStillToComeAt(\DateTimeImmutable $at): bool
     {

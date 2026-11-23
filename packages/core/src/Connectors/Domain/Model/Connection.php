@@ -32,15 +32,16 @@ use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 
 /**
- * Aggregate root: the account a member connected at a provider, the lasting access it gave, and the client of their
- * account it was granted to, and the calendar « Prospecter » its exchanges are pushed into once created; one per
- * member and provider, theirs only (ADR 0120, 0125, 0127).
+ * Aggregate root. It holds the account that a member connected at a provider and the lasting access that the
+ * account gave. It also holds the client of the member's account that the access was granted to. Once the calendar
+ * « Prospecter » is created, it holds that calendar too, and the member's exchanges are pushed into it. A member has
+ * one connection per provider, and the connection is theirs only (ADR 0120, 0125, 0127).
  */
 final class Connection implements ReleasesEvents
 {
     use RecordsEvents;
 
-    /** the most messages a reading lists, so that their events fit in a write (ADR 0154) */
+    /** A reading lists at most this many messages, so that their events fit in one write (ADR 0154). */
     private const int MOST_MESSAGES_BY_HISTORY = 500;
     private const int MOST_MESSAGES_BY_DATE = 1000;
     private const int MOST_MESSAGES_CAUGHT_UP = 200;
@@ -88,8 +89,9 @@ final class Connection implements ReleasesEvents
     }
 
     /**
-     * Connected again: the former access to another account is revoked, the provider keeping it otherwise; that of
-     * the same account is not, Google revoking with a token the whole grant of its account, the new token with it.
+     * Connects the member again. A former access to another account is revoked, because the provider would keep it
+     * otherwise. A former access to the same account is not revoked: Google revokes the account's whole grant with one
+     * token, and that would revoke the new token too.
      *
      * @throws IncompleteGrant
      */
@@ -107,8 +109,8 @@ final class Connection implements ReleasesEvents
     }
 
     /**
-     * The mailbox imported is that of the account connected: another account imports nothing until its member
-     * activates the import again, the watch of the former mailbox expiring within its week, its access revoked.
+     * The imported mailbox is the connected account's mailbox. Another account imports nothing until its member
+     * activates the import again. The former mailbox's watch expires within its week, and its access is revoked.
      */
     private function forgetTheMailImportOfAnotherAccount(Email $account, \DateTimeImmutable $at): void
     {
@@ -127,9 +129,9 @@ final class Connection implements ReleasesEvents
     }
 
     /**
-     * Asks the provider, through the client of the account, whether it still grants the access: once it refuses, or
-     * once the account has another client, the token being valid only with the one it was granted to, the member is to
-     * connect again.
+     * Asks the provider, through the account's client, whether it still grants the access. The member must connect
+     * again once the provider refuses. They must also connect again once the account has another client, because a
+     * token is valid only with the client it was granted to.
      */
     public function check(ClientCredentials $client, ProviderAccess $access, \DateTimeImmutable $at): void
     {
@@ -153,9 +155,10 @@ final class Connection implements ReleasesEvents
     }
 
     /**
-     * The event of a planned exchange put into the calendar « Prospecter », created at the first push, and again
-     * once its member deleted it (ADR 0127), its exchanges to come to push into it again (ADR 0133); the link the
-     * provider created for a video call asking one told to its exchange (ADR 0137).
+     * Puts a planned exchange's event into the calendar « Prospecter ». The first push creates the calendar. A push
+     * creates it again once its member deleted it (ADR 0127), and the upcoming exchanges are then pushed into it again
+     * (ADR 0133). A video call may ask for a link. Then the link that the provider created is told to its exchange
+     * (ADR 0137).
      *
      * @throws CalendarRefusedThePush
      */
@@ -167,7 +170,7 @@ final class Connection implements ReleasesEvents
     }
 
     /**
-     * @return string|null the link the provider created for the event
+     * @return string|null the link that the provider created for the event
      *
      * @throws AccessRevoked|CalendarRefusedThePush
      */
@@ -192,8 +195,8 @@ final class Connection implements ReleasesEvents
     }
 
     /**
-     * The event of an exchange cancelled or erased removed from the calendar « Prospecter »: none to remove while
-     * nothing was pushed, nor once its member deleted the calendar.
+     * Removes a cancelled or erased exchange's event from the calendar « Prospecter ». There is nothing to remove
+     * while nothing was pushed. There is nothing to remove either once the member deleted the calendar.
      *
      * @throws CalendarRefusedThePush
      */
@@ -203,7 +206,7 @@ final class Connection implements ReleasesEvents
     }
 
     /**
-     * Withdrawn as above, the provider telling its guest it is cancelled.
+     * Withdraws the event as `withdraw()` does. The provider also tells the event's guest that it is cancelled.
      *
      * @throws CalendarRefusedThePush
      */
@@ -244,8 +247,9 @@ final class Connection implements ReleasesEvents
     }
 
     /**
-     * Only a connection still connected reaches its calendar, through the client its token was granted to: a token
-     * of another client, or one the provider no longer grants, makes the member connect again, nothing tried again.
+     * Only a connected connection reaches its calendar, through the client that its token was granted to. A token of
+     * another client makes the member connect again. So does a token that the provider no longer grants. Nothing is
+     * tried again.
      *
      * @param \Closure(): void $call
      */
@@ -269,8 +273,8 @@ final class Connection implements ReleasesEvents
     }
 
     /**
-     * The mailbox of the member watched through the topic of their account, their e-mails imported from where its
-     * history stands at this moment (ADR 0154).
+     * Watches the member's mailbox through their account's topic. Their e-mails are imported from the point where the
+     * mailbox history stands at this moment (ADR 0154).
      *
      * @throws AccessRevoked
      */
@@ -285,9 +289,9 @@ final class Connection implements ReleasesEvents
     }
 
     /**
-     * The watch of an import active renewed for another week, through the topic the account has now; a token the
-     * provider refuses, or that no longer grants the mailbox, leaves the import to reconnect; an account without its
-     * topic any more renews nothing, the watch expiring within its week.
+     * Renews an active import's watch for another week, through the account's current topic. A token that the
+     * provider refuses makes the import to reconnect. So does a token that no longer grants the mailbox. An account
+     * that no longer has a topic renews nothing, and the watch expires within its week.
      */
     public function renewMailWatch(ProviderClient $client, ProviderMailbox $mailbox, \DateTimeImmutable $at): void
     {
@@ -306,8 +310,9 @@ final class Connection implements ReleasesEvents
     }
 
     /**
-     * The mailbox notified a change: the furthest point of its history notified kept, whatever the order the
-     * notifications arrive in, and when; an import not active notes nothing (ADR 0154).
+     * Records a change that the mailbox notified. The connection keeps the furthest history point notified, whatever
+     * order the notifications arrive in. It also keeps when the notification came. An inactive import records nothing
+     * (ADR 0154).
      */
     public function noteMailboxChange(string $historyId, \DateTimeImmutable $at): void
     {
@@ -321,7 +326,7 @@ final class Connection implements ReleasesEvents
     }
 
     /**
-     * The points of the history of a mailbox are numbers growing with its changes, longer than an integer may be.
+     * A mailbox's history points are numbers that grow with its changes. They can be longer than an integer.
      */
     private static function furthest(?string $known, string $notified): string
     {
@@ -329,10 +334,10 @@ final class Connection implements ReleasesEvents
     }
 
     /**
-     * The messages added to the mailbox since the point of its history read last, each to import; a reading stopped
-     * before the end leaves the moment of the last complete one, so that the history expiring meanwhile is resumed from
-     * before the first message left unread (ADR 0154). A member no longer managing the personal data imports nothing:
-     * their import is stopped.
+     * Lists the messages added to the mailbox since the last history point read, so that each one is imported. A
+     * reading that stops before the end keeps the moment of the last complete reading. If the history expires in the
+     * meantime, the next reading resumes from before the first unread message (ADR 0154). A member who no longer
+     * manages personal data imports nothing: their import is stopped.
      */
     public function readMailboxHistory(Member $reader, ClientCredentials $client, ProviderMailbox $mailbox, \DateTimeImmutable $at): void
     {
@@ -364,7 +369,8 @@ final class Connection implements ReleasesEvents
     }
 
     /**
-     * The history the provider no longer keeps from where it was read is resumed by the date it was read completely.
+     * The provider may no longer keep the history from the point last read. Then the reading resumes from the date
+     * when the history was last read to its end.
      *
      * @throws AccessRevoked
      */
@@ -378,9 +384,9 @@ final class Connection implements ReleasesEvents
     }
 
     /**
-     * The messages the mailbox exchanged with an address of the 12 months before, each to import as the messages
-     * added to it are, the 200 newest first; only while the import is active, a token the provider refuses making it
-     * to reconnect.
+     * Lists the messages that the mailbox exchanged with an address over the previous 12 months. It takes the 200
+     * newest. Each one is imported as an added message is. This works only while the import is active. A token that
+     * the provider refuses makes the import to reconnect.
      *
      * @throws MailImportNotActive
      */
@@ -404,8 +410,8 @@ final class Connection implements ReleasesEvents
     }
 
     /**
-     * A message of the mailbox imported, none once the import is no longer active, nor once the provider refuses the
-     * access: the next reading of the history makes the import to reconnect.
+     * Gets a mailbox message to import. It returns none once the import is no longer active. It returns none either
+     * once the provider refuses the access: the next history reading then makes the import to reconnect.
      */
     public function mailOf(string $messageId, ClientCredentials $client, ProviderMailbox $mailbox): ?MailboxMail
     {
@@ -421,8 +427,8 @@ final class Connection implements ReleasesEvents
     }
 
     /**
-     * The attachments of an e-mail to import, each sent to the private storage once for each of its correspondents:
-     * the uploads of each attachment, in the order of the attachments (ADR 0182).
+     * Sends each attachment of an e-mail to import to the private storage, once for each of the e-mail's
+     * correspondents. It returns each attachment's uploads, in the attachments' order (ADR 0182).
      *
      * @return list<list<string>>
      *
@@ -434,7 +440,7 @@ final class Connection implements ReleasesEvents
     }
 
     /**
-     * The mailbox imported: that of the account connected.
+     * The imported mailbox is the connected account's mailbox.
      */
     public function mailbox(): Email
     {
@@ -449,8 +455,9 @@ final class Connection implements ReleasesEvents
     }
 
     /**
-     * The mailbox no longer notifies Prospecter: its watch stopped at the provider through the client of the account,
-     * nothing asked of it without one, the watch expiring within its week; nothing to stop while the import is off.
+     * Stops the mailbox from notifying Prospecter. The watch is stopped at the provider through the account's client.
+     * Without a client, nothing is asked of the provider, and the watch expires within its week. There is nothing to
+     * stop while the import is off.
      */
     public function stopMailImport(?ClientCredentials $client, ProviderMailbox $mailbox, \DateTimeImmutable $at): void
     {
@@ -484,7 +491,7 @@ final class Connection implements ReleasesEvents
     }
 
     /**
-     * The mailbox notifies Prospecter, and is read: neither off nor to reconnect.
+     * The mailbox notifies Prospecter and is read. The import is neither off nor to reconnect.
      */
     public function importsMail(): bool
     {
@@ -492,7 +499,7 @@ final class Connection implements ReleasesEvents
     }
 
     /**
-     * Still connected, it reached its calendar at its last push; to reconnect, it reached nothing.
+     * A connected connection reached its calendar at its last push. A connection to reconnect reached nothing.
      */
     public function isConnected(): bool
     {
@@ -500,7 +507,8 @@ final class Connection implements ReleasesEvents
     }
 
     /**
-     * The same connection: of the same member, connected at the same moment; connected again, it is another.
+     * Two connections are the same when they belong to the same member and were connected at the same moment. A
+     * connection connected again is another connection.
      */
     public function isTheSameAs(self $other): bool
     {
