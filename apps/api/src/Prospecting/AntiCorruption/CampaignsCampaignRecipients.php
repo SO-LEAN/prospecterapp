@@ -15,8 +15,8 @@ use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Anticorruption layer (ADR 0045, 0089, 0145): Prospecting notes the exchange of a
- * recipient, Campaigns tells whether the contact is one still to handle, asked about a set of one.
+ * Anticorruption layer (ADR 0045, 0089, 0145). Prospecting logs a recipient's exchange. Campaigns tells whether the
+ * contact is a recipient still to handle. Prospecting asks it about a set of one contact.
  */
 final readonly class CampaignsCampaignRecipients implements CampaignRecipients
 {
