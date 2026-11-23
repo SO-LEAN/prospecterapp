@@ -16,8 +16,8 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Every tag contacts of the account of the member carry, their own, inherited and automatic (ADR 0141); a person who
- * is no contact of the account is unknown to it.
+ * Every tag that contacts of the member's account carry: their own, inherited and automatic tags (ADR 0141). A person
+ * who is not a contact of the account is unknown.
  */
 final readonly class ConsultContactTagsHandler implements QueryHandler
 {
