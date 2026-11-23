@@ -50,8 +50,8 @@ final class GeographicTagsContext implements Context
     }
 
     /**
-     * The address as written on one line: its street, then its postal code and its city, then the code of its country
-     * when given; a single part is a city.
+     * The address as written on one line: its street, then its postal code and city, then its country code when given.
+     * A single part is a city.
      */
     #[When('je déménage :name au :address')]
     public function iRelocateTo(string $name, string $address): void
@@ -86,9 +86,7 @@ final class GeographicTagsContext implements Context
         $this->isLocatedIn($name, $place);
     }
 
-    /**
-     * Geocoded before the municipality merged into a new one: the code is no longer the one the geocoder gives.
-     */
+    /** Geocoded before the municipality merged into a new one. The code is no longer the one the geocoder returns. */
     #[Given('/^"(?<name>[^"]+)" a été géocodée à (?<place>.+) \((?<code>\w+)\), commune fusionnée depuis \d+$/')]
     public function wasGeocodedIn(string $name, string $place, string $code): void
     {
@@ -97,9 +95,7 @@ final class GeographicTagsContext implements Context
         $this->application->organizations->save($organization);
     }
 
-    /**
-     * Located before Prospecter kept the municipality code the geocoder gives.
-     */
+    /** Located before Prospecter kept the municipality code that the geocoder returns. */
     #[Given(':name a été située à :place sans son code commune')]
     public function wasLocatedWithoutItsMunicipality(string $name, string $place): void
     {
@@ -120,7 +116,7 @@ final class GeographicTagsContext implements Context
     }
 
     /**
-     * Recorded by the worker once the organization was no longer prospected, while the rebuild still read it as
+     * The worker recorded it once the organization was no longer prospected, while the rebuild still read it as
      * prospected.
      */
     #[Given('Campaigns garde le fait terminal de :name, reçu pendant la reconstruction')]

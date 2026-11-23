@@ -63,8 +63,7 @@ use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 
 /**
- * The campaigns a team prepares, whom they target and the message they render for each contact (Campaigns,
- * ADR 0144).
+ * The campaigns a team prepares, whom they target, and the message they render for each contact (Campaigns, ADR 0144).
  */
 final class CampaignContext implements Context
 {
@@ -79,7 +78,7 @@ final class CampaignContext implements Context
     private const string REVISED_MESSAGE = 'Bonjour {firstName}, je reviens vers vous';
     private const string SOME_TAGS = '#ESN';
 
-    /** @var array<string, string> the identities of the campaigns, by their names */
+    /** @var array<string, string> the campaigns' ids, by name */
     private array $campaignIds = [];
     private ?string $current = null;
     private ?ReviseCampaign $revision = null;
@@ -182,9 +181,7 @@ final class CampaignContext implements Context
         Expect::same(null, $this->sheet()->dailyCap);
     }
 
-    /**
-     * A mode the scenarios do not name is given as written, for the core to refuse it.
-     */
+    /** A mode that the scenarios do not name is passed as written, so that the core refuses it. */
     private static function messageModeNamed(string $mode): string
     {
         return (string) (array_search($mode, self::MESSAGE_MODES, true) ?: $mode);
@@ -791,7 +788,7 @@ final class CampaignContext implements Context
     }
 
     /**
-     * Without their names: PersonalData reads none of them.
+     * Without their names, because PersonalData reads none of them.
      *
      * @param list<string> $statuses in any order
      */
@@ -1160,8 +1157,8 @@ final class CampaignContext implements Context
     }
 
     /**
-     * As the screen of a draft composes it: its targeted tags searched as every search by tags, the contacts read
-     * by PersonalData.
+     * As a draft's screen composes it. The screen searches the draft's targeted tags like any tag search, and
+     * PersonalData reads the contacts.
      *
      * @return list<PersonCard>
      */
@@ -1179,9 +1176,7 @@ final class CampaignContext implements Context
             ?? throw new \LogicException(sprintf('The campaign was refused: %s', $this->application->refusal()?->getMessage()));
     }
 
-    /**
-     * As the member reads it, on their clock.
-     */
+    /** As the member reads it on their clock. */
     private function consultation(): ConsultCampaign
     {
         return new ConsultCampaign($this->application->signedIn(), $this->currentId(), $this->application->readerClock()->getName(), $this->application->now());
@@ -1203,7 +1198,7 @@ final class CampaignContext implements Context
     }
 
     /**
-     * @return list<string> the tags of `#ESN #STRASBOURG`, none for nothing
+     * @return list<string> the tags in `#ESN #STRASBOURG`, empty for nothing
      */
     private static function listed(string $tags): array
     {

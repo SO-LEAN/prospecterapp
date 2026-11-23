@@ -28,7 +28,7 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\Core\Acceptance\Expect;
 
 /**
- * The tags the members put by hand on their organizations and their contacts, and those proposed to their account
+ * The tags that the members put by hand on their organizations and contacts, and the tags proposed to their account
  * (Campaigns, ADR 0138).
  */
 final class TagContext implements Context
@@ -178,7 +178,7 @@ final class TagContext implements Context
     }
 
     /**
-     * @return array{string, string} what a request names: the kind of what it tags, and its identity
+     * @return array{string, string} what a request names: the kind of holder it tags, and the holder's id
      */
     private function holderNamed(string $name): array
     {
@@ -195,7 +195,7 @@ final class TagContext implements Context
     }
 
     /**
-     * @return list<string> the tags of `"#ESN" et "#APPORTEUR"`
+     * @return list<string> the tags in `"#ESN" et "#APPORTEUR"`
      */
     private static function listed(string $tags): array
     {

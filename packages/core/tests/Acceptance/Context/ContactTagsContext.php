@@ -93,7 +93,7 @@ final class ContactTagsContext implements Context
     }
 
     /**
-     * @return list<string> the names of `"ACME" et "Globex"`
+     * @return list<string> the names in `"ACME" et "Globex"`
      */
     private static function listed(string $names): array
     {
