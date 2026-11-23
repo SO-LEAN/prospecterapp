@@ -26,17 +26,18 @@ interface ConnectionRepository
     public function of(MemberId $member): array;
 
     /**
-     * The connection of a member of the account importing the e-mails of this mailbox, active or to reconnect; none
-     * while its import is off (ADR 0154).
+     * The connection of the account's member who imports this mailbox's e-mails (ADR 0154). Its import is active or to
+     * reconnect. There is none while the import is off.
      */
     public function importing(AccountId $account, Provider $provider, Email $mailbox): ?Connection;
 
     public function save(Connection $connection): void;
 
     /**
-     * Puts the connection in place of itself while it is still the one kept: one its member disconnected meanwhile is
-     * not brought back, nor one they connected again meanwhile overwritten, the failure thrown for the reaction to be
-     * tried again, which then finds none, or the new one (ADR 0133, 0140).
+     * Replaces the kept connection with this one, only while the kept one is still the same (ADR 0133, 0140). Its
+     * member may have disconnected in the meantime: the connection is not brought back. They may have connected again:
+     * the new connection is not overwritten. Either way, the method throws, so that the reaction is tried again. The
+     * retry then finds no connection, or the new one.
      */
     public function replace(Connection $connection): void;
 

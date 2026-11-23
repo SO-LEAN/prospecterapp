@@ -10,7 +10,7 @@ use Prospecter\Core\Connectors\Domain\Model\ProviderClient;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 
 /**
- * The clients the accounts made at the providers, with their secrets.
+ * The clients that the accounts created at the providers, with their secrets.
  */
 interface ProviderClientRepository
 {
