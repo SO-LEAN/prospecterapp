@@ -26,10 +26,10 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * Puts an exchange into the calendar of its holder at the provider, or withdraws it, for the reactions and the
- * retries that push (ADR 0127, 0133): nothing is asked of the provider without a connection of the holder, nor
- * without the client of their account; an entry keeps where the push of each exchange stands, a refusal of the
- * provider kept there rather than thrown; a connection its member disconnected meanwhile is never written again.
+ * Puts an exchange into its holder's calendar at the provider, or withdraws it. The reactions and the retries push
+ * through it (ADR 0127, 0133). Nothing is asked of the provider when the holder has no connection, or when their
+ * account has no client. An entry keeps each exchange's push state. A refusal from the provider is kept there rather
+ * than thrown. A connection that its member disconnected in the meantime is never written again.
  */
 final readonly class CalendarPusher
 {
@@ -51,8 +51,8 @@ final readonly class CalendarPusher
     }
 
     /**
-     * The exchange read again as it is now, whatever the order its changes arrive in (ADR 0127): planned, it is
-     * pushed; cancelled or erased, it is withdrawn; done or missed, it stays as it was.
+     * Reads the exchange again as it is now, whatever the order its changes arrive in (ADR 0127). A planned exchange is
+     * pushed. A cancelled or erased exchange is withdrawn. A done or missed exchange stays as it was.
      */
     public function follow(ExchangeId $id, AccountId $accountId, \DateTimeImmutable $at): void
     {
@@ -66,7 +66,7 @@ final readonly class CalendarPusher
     }
 
     /**
-     * Its contact named as its holder reads them, none once forgotten.
+     * The event names its contact as the holder reads them. It names nobody once the contact is forgotten.
      */
     public function push(HeldExchange $exchange, \DateTimeImmutable $at): void
     {
@@ -95,8 +95,9 @@ final readonly class CalendarPusher
     }
 
     /**
-     * The contact who booked it, at their e-mail as its holder reads it, none without one; called by its holder at
-     * their phone, for a call; told of the push when the event is new to them or moved.
+     * The guest is the contact who booked the exchange, at their e-mail as its holder reads it. A contact without an
+     * e-mail is no guest. For a call, the guest also holds the phone number that the holder calls them at. The push
+     * tells the guest only when the event is new to them or has moved.
      */
     private function guestOf(HeldExchange $exchange, Member $holder, ?CalendarEntry $entry): ?Guest
     {
@@ -122,8 +123,8 @@ final readonly class CalendarPusher
     }
 
     /**
-     * Synced once the push reached the calendar; a connection to reconnect reached nothing, an exchange already
-     * pushed then awaiting the push of what changed.
+     * The entry is synced once the push reached the calendar. A connection to reconnect reached nothing. Then an
+     * exchange already pushed waits for its change to be pushed.
      */
     private function keepThePushOf(HeldExchange $exchange, ?CalendarEntry $entry, Connection $connection, \DateTimeImmutable $at): void
     {
@@ -144,8 +145,8 @@ final readonly class CalendarPusher
     }
 
     /**
-     * Erased, the exchange is withdrawn from the calendar it was pushed into, Prospecting no longer knowing its holder;
-     * its entry forgotten, unless the provider refused the withdrawal.
+     * Withdraws an erased exchange from the calendar it was pushed into. Prospecting may no longer know its holder, so
+     * the entry names the holder. The entry is forgotten, unless the provider refused the withdrawal.
      */
     public function withdraw(ExchangeId $id, AccountId $accountId, ?MemberId $holder, \DateTimeImmutable $at): void
     {
@@ -183,7 +184,7 @@ final readonly class CalendarPusher
     }
 
     /**
-     * An event inviting a guest, still to come, is cancelled for them; any other one is removed without a word.
+     * An upcoming event that invites a guest is cancelled for them. Any other event is removed silently.
      */
     private function takeOut(Connection $connection, ExchangeId $id, ClientCredentials $client, ?CalendarEntry $entry, \DateTimeImmutable $at): void
     {

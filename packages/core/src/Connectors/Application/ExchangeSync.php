@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Prospecter\Core\Connectors\Application;
 
 /**
- * Where the push of an exchange into my calendar at a provider (`google`) stands (ADR 0133): `pending`, `synced` or
- * `failed`, since when, and why: the refusal of the provider (`calendarRefusedThePush`) when failed, my connection
- * to reconnect (`toReconnect`) when pending for it.
+ * Where an exchange's push into my calendar at a provider (`google`) stands (ADR 0133). The state is `pending`,
+ * `synced` or `failed`. It also says since when, and why. A failed push gives the provider's refusal
+ * (`calendarRefusedThePush`). A push may be pending because my connection is to reconnect (`toReconnect`).
  */
 final readonly class ExchangeSync
 {
@@ -28,7 +28,7 @@ final readonly class ExchangeSync
     }
 
     /**
-     * Pending, it awaits my connection too when it is to reconnect.
+     * A pending push also waits for my connection when the connection is to reconnect.
      */
     public function withMyConnection(bool $connected): self
     {
