@@ -5,7 +5,7 @@ import { handledIn } from '../progress'
 import type { Campaign } from '../queries'
 import { CampaignStatusBadge } from './campaign-status-badge'
 
-/** The campaigns of the team: their status, their channel, their author and how far they went. */
+/** The team's campaigns: their status, channel, author and progress. */
 export function CampaignList({ campaigns }: { campaigns: Campaign[] }) {
   const { t } = useTranslation()
 

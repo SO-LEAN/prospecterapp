@@ -12,7 +12,7 @@ export type TargetedContact = components['schemas']['ContactInListResource']
 export type RecipientList = components['schemas']['RecipientListResource']
 export type Recipient = components['schemas']['RecipientResource']
 
-/** The campaigns of the team, read whole, each with its target counted (ADR 0144). */
+/** Every campaign of the team, each with its target count (ADR 0144). */
 export const campaignsQuery = () => api.queryOptions('get', '/api/campaigns')
 
 /** Read on the reader's clock. Its recipients processed today follow it. */
@@ -21,11 +21,11 @@ export const campaignQuery = (campaignId: string) =>
     params: { path: { id: campaignId }, query: { timeZone: readerTimeZone() } },
   })
 
-/** The recipients a frozen campaign keeps, read whole: 500 at most. */
+/** Every recipient that a frozen campaign keeps, 500 at most. */
 export const campaignRecipientsQuery = (campaignId: string) =>
   api.queryOptions('get', '/api/campaigns/{id}/recipients', { params: { path: { id: campaignId } } })
 
-/** The message of the campaign as saved, rendered by the api for one contact: the front never renders it. */
+/** The saved campaign message, which the API renders for one contact. The front never renders it. */
 export const campaignMessageQuery = (campaignId: string, contactId: string) =>
   api.queryOptions('get', '/api/campaigns/{id}/messages/{contactId}', {
     params: { path: { id: campaignId, contactId } },

@@ -3,8 +3,8 @@ import { cn } from '@/shared/lib/utils'
 import type { Campaign } from '../queries'
 
 /**
- * A campaign led under a daily cap: its recipients processed today, on the member's clock, out of the cap; in orange
- * beyond it, the cap being a guard the member may go beyond.
+ * A campaign that runs under a daily cap: its recipients processed today on the member's clock, out of the
+ * cap. The count turns orange beyond the cap, because the cap is a guard that the member may go beyond.
  */
 export function CampaignDailyCount({ campaign }: { campaign: Campaign }) {
   const { t } = useTranslation()

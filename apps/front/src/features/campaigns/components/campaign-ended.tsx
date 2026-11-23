@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 
-/** A campaign nobody is left to handle in: it is ended, said in a sentence. */
+/** A campaign with nobody left to handle has ended. This component says so in a sentence. */
 export function CampaignEnded() {
   const { t } = useTranslation()
 

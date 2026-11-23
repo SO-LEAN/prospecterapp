@@ -21,8 +21,9 @@ import { useDiscardCampaign, useStopCampaign } from '../mutations'
 import type { Campaign } from '../queries'
 
 /**
- * What the campaign offers beside its form, as its links say: discarding it while it never started, stopping it once
- * started, confirmed first since a stopped campaign does not start again.
+ * What the campaign allows beside its form, as its links say. The member discards it while it has never
+ * started, or stops it once it has started. Stopping asks for confirmation first, because a stopped campaign
+ * does not start again.
  */
 export function CampaignMenu({ campaign, onDiscarded }: { campaign: Campaign; onDiscarded: () => void }) {
   const { t } = useTranslation()

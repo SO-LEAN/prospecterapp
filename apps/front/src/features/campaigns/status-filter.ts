@@ -1,6 +1,9 @@
 import type { Campaign } from './queries'
 
-/** The campaigns shown by status: those running by default (draft, frozen, started), those stopped or ended, or all. */
+/**
+ * Which campaigns are shown, by status: the running ones by default (draft, frozen, started), the stopped or
+ * ended ones, or all of them.
+ */
 export const CAMPAIGN_FILTERS = ['running', 'stopped', 'all'] as const
 export type CampaignFilter = (typeof CAMPAIGN_FILTERS)[number]
 

@@ -3,13 +3,18 @@ import type { CampaignMessage, Channel } from './queries'
 
 type ContactDetails = components['schemas']['PersonContactDetailsResource']
 
-/** The source of the profile of a person on LinkedIn, among their links. */
+/** The source of a person's LinkedIn profile among their links. */
 const LINKEDIN_PROFILE = 'linkedInProfile'
 
-/** What opens the tool of the channel for a recipient: the mail, the SMS, the call, or the profile in a new tab. */
+/**
+ * What opens the channel's tool for a recipient: the mail, the SMS, the call, or the profile in a new tab.
+ */
 export type Opening = { href: string; external: boolean }
 
-/** How the channel reaches a recipient: their e-mail, their phone, or their LinkedIn profile; none when unknown. */
+/**
+ * How the channel reaches a recipient: their e-mail, their phone, or their LinkedIn profile. Undefined when
+ * unknown.
+ */
 export function meansOf(channel: Channel, contactDetails: ContactDetails): string | null {
   switch (channel) {
     case 'email':
@@ -29,7 +34,10 @@ const query = (fields: Record<string, string | null | undefined>) =>
     .flatMap(([name, value]) => (value ? [`${name}=${encodeURIComponent(value)}`] : []))
     .join('&')
 
-/** The link opening the tool of the channel, the message rendered for the recipient in it when the tool takes one. */
+/**
+ * The link that opens the channel's tool. It carries the message rendered for the recipient when the tool
+ * accepts one.
+ */
 export function openingOf(
   channel: Channel,
   contactDetails: ContactDetails,
