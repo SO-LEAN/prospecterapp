@@ -11,7 +11,8 @@ use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 
 /**
- * A contact to attach added to an organization is no longer to attach (ADR 0146); nothing for any other contact.
+ * Once a member adds a contact to attach to an organization, the contact is no longer to attach (ADR 0146). The
+ * reaction does nothing for any other contact.
  */
 final readonly class AttachContactToAttachHandler implements EventHandler
 {
