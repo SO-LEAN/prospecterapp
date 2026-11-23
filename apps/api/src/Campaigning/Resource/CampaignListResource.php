@@ -8,9 +8,7 @@ use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Component\Serializer\Attribute\SerializedName;
 
-/**
- * Every campaign of the team, the newest first, each with the contacts it targets counted (ADR 0144).
- */
+/** Every campaign of the team, newest first, each with the count of contacts it targets (ADR 0144). */
 final readonly class CampaignListResource
 {
     /**

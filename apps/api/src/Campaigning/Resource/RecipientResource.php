@@ -11,20 +11,20 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
 /**
- * A contact a frozen campaign keeps, and where the team is with them (ADR 0145): processed by an exchange, whether the
- * call did not go through; dismissed, why; erased by PersonalData from a started campaign, kept without its name,
- * with what the team did with them.
+ * A contact that a frozen campaign keeps, and where the team stands with them (ADR 0145). A processed recipient has
+ * whether the call went through. A dismissed one has the reason. A recipient that PersonalData erased from a started
+ * campaign is kept without their name, with what the team did with them.
  */
 final readonly class RecipientResource
 {
     public function __construct(
-        #[OA\Property(description: 'The contact, none once erased, its status kept')]
+        #[OA\Property(description: 'The contact, null once erased. The status is kept')]
         public ?ContactInListResource $contact,
-        #[OA\Property(description: 'To handle, processed by an exchange, dismissed without one, or no longer once erased while to handle', enum: ['pending', 'processed', 'dismissed', 'erased'])]
+        #[OA\Property(description: 'To handle, processed by an exchange, dismissed without one, or erased while still to handle', enum: ['pending', 'processed', 'dismissed', 'erased'])]
         public string $status,
         #[OA\Property(description: 'Processed by a call that did not go through')]
         public bool $missed,
-        #[OA\Property(description: 'Why they were dismissed, when said')]
+        #[OA\Property(description: 'Why they were dismissed, when a reason was given')]
         public ?string $reason,
         #[SerializedName('_links')]
         #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]
