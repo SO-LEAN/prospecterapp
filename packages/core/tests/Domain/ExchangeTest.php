@@ -905,6 +905,19 @@ class ExchangeTest extends TestCase
         $exchange->joinCampaign($this->recipientInCampaign(), by: $this->me()->id, at: new \DateTimeImmutable(self::LATER));
     }
 
+    public function testAnExchangeAlreadyLoggedNamesItself(): void
+    {
+        $exchange = $this->noted(new ExchangeFacts(Channel::Email, Direction::Outbound, new \DateTimeImmutable(self::NOW)));
+        $exchange->joinCampaign($this->recipientInCampaign(), by: $this->me()->id, at: new \DateTimeImmutable(self::LATER));
+
+        try {
+            $exchange->joinCampaign($this->recipientInCampaign(), by: $this->me()->id, at: new \DateTimeImmutable(self::LATER));
+            $this->fail('The exchange should have been refused');
+        } catch (ExchangeAlreadyNoted $refusal) {
+            $this->assertSame(['exchange' => self::EXCHANGE], $refusal->context);
+        }
+    }
+
     public function testAnExchangeWithAnotherContactNeverJoinsTheCampaign(): void
     {
         $exchange = $this->noted(new ExchangeFacts(Channel::Email, Direction::Outbound, new \DateTimeImmutable(self::NOW)));
