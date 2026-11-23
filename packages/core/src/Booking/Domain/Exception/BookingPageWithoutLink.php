@@ -13,6 +13,6 @@ final class BookingPageWithoutLink extends NotPossibleInItsState
 {
     public static function doesNotChangeIt(): self
     {
-        return self::because('A booking page without a link does not change it');
+        return self::because('The booking page has no link to change yet');
     }
 }
