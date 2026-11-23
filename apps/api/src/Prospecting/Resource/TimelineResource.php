@@ -9,8 +9,8 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
 /**
- * A slice of the exchanges with a contact, the most recent moment first (ADR 0049, 0074): the next one is
- * reached by the link next.
+ * A slice of the exchanges with a contact, the most recent moment first (ADR 0049, 0074). The `next` link leads to the
+ * next slice.
  */
 final readonly class TimelineResource
 {

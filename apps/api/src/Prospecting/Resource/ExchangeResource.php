@@ -11,16 +11,16 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
 /**
- * A call, a message or a meeting with a contact, or with the organization itself, done or planned.
+ * A call, a message or a meeting with a contact or with the organization itself. It is done or planned.
  */
 final readonly class ExchangeResource
 {
     public const array STATUSES = ['planned', 'done', 'missed', 'cancelled'];
-    public const string STATUS_DESCRIPTION = 'planned: still to come; done: it happened; missed: the contact did not come or answer; cancelled: called off before it happened';
+    public const string STATUS_DESCRIPTION = 'planned: still to come; done: it happened; missed: the contact did not come or did not answer; cancelled: called off before it happened';
     public const array CANCELLERS = ['prospector', 'contact'];
     public const array PROVIDERS = ['google'];
     public const string CREATED_BY_AN_AI_DESCRIPTION = 'An AI created it, acting as its member through the MCP server, never named';
-    public const string IMPORTED_FROM_DESCRIPTION = 'The provider of the mailbox it was imported from, google for Gmail; null for an exchange noted (ADR 0174)';
+    public const string IMPORTED_FROM_DESCRIPTION = 'The provider of the mailbox it was imported from: google for Gmail. Null for a logged exchange (ADR 0174)';
 
     /**
      * @param list<string> $organizationIds
@@ -29,36 +29,36 @@ final readonly class ExchangeResource
         public string $id,
         #[OA\Property(enum: ExchangeInput::CHANNELS)]
         public string $channel,
-        #[OA\Property(enum: ExchangeInput::DIRECTIONS, description: 'inbound: the contact or the organization reached out; outbound: we did')]
+        #[OA\Property(enum: ExchangeInput::DIRECTIONS, description: 'inbound: the contact or the organization reached out; outbound: the member reached out')]
         public string $direction,
-        #[OA\Property(format: 'date-time', description: 'When it happened, or is to happen once planned')]
+        #[OA\Property(format: 'date-time', description: 'When it happened, or when it is to happen if it is planned')]
         public string $occurredAt,
         #[OA\Property(enum: self::STATUSES, description: self::STATUS_DESCRIPTION)]
         public string $status,
-        #[OA\Property(enum: self::CANCELLERS, description: 'Who called it off once cancelled, when said')]
+        #[OA\Property(enum: self::CANCELLERS, description: 'Who called it off, if it is cancelled and someone said who')]
         public ?string $canceller,
-        #[OA\Property(description: 'How long it lasts, once planned')]
+        #[OA\Property(description: 'How long it lasts, if it is planned')]
         public ?int $durationInMinutes,
         public ?string $text,
-        #[OA\Property(description: 'Where a meeting is held, written freely; null for any other channel')]
+        #[OA\Property(description: 'Where a meeting is held, written freely. Null for any other channel')]
         public ?string $place,
-        #[OA\Property(description: 'The web address a video call is joined by; null for any other channel, or until it is known')]
+        #[OA\Property(description: 'The web address that joins a video call. Null for any other channel, or until it is known')]
         public ?string $link,
-        #[OA\Property(description: 'Its text may hold personal data: flagged to a prospector reading it without the right to manage them')]
+        #[OA\Property(description: 'Its text may hold personal data. A prospector without the right to manage personal data reads it flagged')]
         public bool $textFlagged,
-        #[OA\Property(description: 'Its contact forgotten, its text may still hold their personal data, until it is declared redacted')]
+        #[OA\Property(description: 'Its contact is forgotten, and its text may still hold their personal data until someone declares it redacted')]
         public bool $textToRedact,
-        #[OA\Property(description: 'Its contact forgotten, its text or its files may still hold their personal data')]
+        #[OA\Property(description: 'Its contact is forgotten, and its text or its files may still hold their personal data')]
         public bool $toRedact,
-        #[OA\Property(description: 'The organizations it is kept for: those the contact was part of when it was noted, or the organization itself')]
+        #[OA\Property(description: 'The organizations it is kept for: those the contact was part of when it was logged, or the organization itself')]
         public array $organizationIds,
-        #[OA\Property(description: 'How many files are joined to it')]
+        #[OA\Property(description: 'The number of files attached to it')]
         public int $attachmentCount,
-        #[OA\Property(description: 'The campaign it was noted in, none for an exchange of no campaign')]
+        #[OA\Property(description: 'The campaign it was logged in. Null for an exchange outside any campaign')]
         public ?CampaignOfExchangeResource $campaign,
-        #[OA\Property(description: 'Its contact waits for its holder to attach them to an organization: kept for none until then (ADR 0146)')]
+        #[OA\Property(description: 'Its contact waits for its holder to attach them to an organization. Until then, no organization keeps it (ADR 0146)')]
         public bool $contactToAttach,
-        #[OA\Property(description: 'Its contact booked it by the public link of its holder (ADR 0164)')]
+        #[OA\Property(description: 'Its contact booked it through its holder\'s public link (ADR 0164)')]
         public bool $bookedByLink,
         #[OA\Property(enum: self::PROVIDERS, description: self::IMPORTED_FROM_DESCRIPTION)]
         public ?string $importedFrom,

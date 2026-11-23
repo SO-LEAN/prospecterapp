@@ -10,17 +10,17 @@ use OpenApi\Attributes as OA;
 final readonly class ExchangeLinksResource
 {
     public function __construct(
-        #[OA\Property(description: 'The whole of the exchange, who noted it and who corrected it')]
+        #[OA\Property(description: 'The whole exchange, with who logged it and who corrected it')]
         public LinkResource $self,
-        #[OA\Property(nullable: false, description: 'Moves it to another moment to come, for a new duration or its own; in the calendar of its holder and among the exchanges they have to process, while it is planned')]
+        #[OA\Property(nullable: false, description: 'Moves it to another moment to come, with a new duration or its own. In its holder\'s calendar and among the exchanges they have to process, while it is planned')]
         public ?LinkResource $move = null,
-        #[OA\Property(nullable: false, description: 'Marks it done, with its report; in the day of its holder and among the exchanges they have to process, once its time has come')]
+        #[OA\Property(nullable: false, description: 'Marks it done, with its report. In its holder\'s day and among the exchanges they have to process, once its time has come')]
         public ?LinkResource $markDone = null,
-        #[OA\Property(nullable: false, description: 'Marks it missed: the contact did not come or answer; in the day of its holder and among the exchanges they have to process, once its time has come')]
+        #[OA\Property(nullable: false, description: 'Marks it missed: the contact did not come or did not answer. In its holder\'s day and among the exchanges they have to process, once its time has come')]
         public ?LinkResource $markMissed = null,
-        #[OA\Property(nullable: false, description: 'Cancels it; among the exchanges its holder has to process, while it is planned')]
+        #[OA\Property(nullable: false, description: 'Cancels it. Among the exchanges its holder has to process, while it is planned')]
         public ?LinkResource $cancel = null,
-        #[OA\Property(nullable: false, description: 'The campaign it was noted in, while it is kept; with the right to manage personal data only')]
+        #[OA\Property(nullable: false, description: 'The campaign it was logged in, while Campaigns keeps it. Only with the right to manage personal data')]
         public ?LinkResource $campaign = null,
     ) {
     }

@@ -8,7 +8,8 @@ use App\Shared\Resource\LinkResource;
 use OpenApi\Attributes as OA;
 
 /**
- * One link per intention the signed-in user may carry out on the organization now; absent when it may not.
+ * One link for each intention the signed-in user may currently carry out on the organization. A link is absent when the
+ * user may not.
  */
 final readonly class OrganizationLinksResource
 {
@@ -16,7 +17,7 @@ final readonly class OrganizationLinksResource
         public LinkResource $self,
         #[OA\Property(nullable: false)]
         public ?LinkResource $reviseLegalIdentity = null,
-        #[OA\Property(nullable: false, description: 'The establishments of the directory of the companies it may be, to note its SIRET')]
+        #[OA\Property(nullable: false, description: 'The establishments from the company directory that it may be, to record its SIRET')]
         public ?LinkResource $searchEstablishments = null,
         #[OA\Property(nullable: false)]
         public ?LinkResource $changeContactDetails = null,
@@ -42,7 +43,7 @@ final readonly class OrganizationLinksResource
         public ?LinkResource $noteExchange = null,
         #[OA\Property(nullable: false, description: 'Its to-dos and those of its contacts (ADR 0113)')]
         public ?LinkResource $toDos = null,
-        #[OA\Property(nullable: false, description: 'The tags put on it by hand, kept by Campaigns (ADR 0138)')]
+        #[OA\Property(nullable: false, description: 'The tags that members put on it by hand. Campaigns keeps them (ADR 0138)')]
         public ?LinkResource $tags = null,
     ) {
     }

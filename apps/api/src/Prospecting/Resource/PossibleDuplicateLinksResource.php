@@ -12,7 +12,7 @@ final readonly class PossibleDuplicateLinksResource
     public function __construct(
         #[OA\Property(description: 'The other organization')]
         public LinkResource $self,
-        #[OA\Property(nullable: false, description: 'Say, once checked, that it is no duplicate of the other organization')]
+        #[OA\Property(nullable: false, description: 'States, after a check, that it is not a duplicate of the other organization')]
         public ?LinkResource $dismiss = null,
     ) {
     }
