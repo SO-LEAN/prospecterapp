@@ -10,7 +10,7 @@ use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * The clients of the account the member administers, without their secrets.
+ * The clients of the account that the member administers, without their secrets.
  */
 final readonly class ConsultMyAccountClientsHandler implements QueryHandler
 {
