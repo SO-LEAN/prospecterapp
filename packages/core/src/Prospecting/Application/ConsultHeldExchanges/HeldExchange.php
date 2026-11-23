@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\ConsultHeldExchanges;
 
 /**
- * An exchange as its holder holds it, read without restoring it: its status and its channel by the values of
- * `ExchangeStatus` and `Channel`, the organizations it is kept for, none once it is left without one, about to be
- * erased.
+ * An exchange as its holder holds it, read without restoring it. It has its status and its channel, with the values
+ * of `ExchangeStatus` and `Channel`. It has the organizations it is kept for. It has none once it is left without an
+ * organization and is about to be erased.
  */
 final readonly class HeldExchange
 {
