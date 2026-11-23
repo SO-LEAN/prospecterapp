@@ -21,8 +21,8 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
 /**
- * The OAuth 2 endpoints of Google (ADR 0120), with the secret of the client: a code exchanged with its verifier, a
- * refresh token tried, then revoked. Google, the one provider so far.
+ * Google's OAuth 2 endpoints (ADR 0120), called with the client's secret. It exchanges a code with its verifier. It
+ * tries a refresh token, then revokes it. Google is the only provider so far.
  *
  * @see https://developers.google.com/identity/protocols/oauth2/web-server
  */
@@ -31,7 +31,7 @@ final readonly class GoogleProviderAccess implements ProviderAccess
     private const int OK = 200;
     private const int TOO_MANY_REQUESTS = 429;
     private const int SERVER_ERROR = 500;
-    /** what Google answers for a token revoked, expired or replaced too many times */
+    /** what Google answers for a token that was revoked, expired or replaced too many times */
     private const string INVALID_GRANT = 'invalid_grant';
     private const float TIMEOUT = 10;
 
@@ -43,7 +43,7 @@ final readonly class GoogleProviderAccess implements ProviderAccess
     }
 
     /**
-     * @throws ServiceUnavailable when Google does not answer, fails or limits the requests: it refused nothing then
+     * @throws ServiceUnavailable when Google does not answer, fails or limits the requests. Google refused nothing then
      */
     public function exchange(ClientCredentials $client, string $code, string $codeVerifier): Grant
     {
@@ -90,7 +90,7 @@ final readonly class GoogleProviderAccess implements ProviderAccess
     }
 
     /**
-     * @return list<Scope> what Prospecter asked among the scopes Google granted
+     * @return list<Scope> the scopes that Prospecter asked for among those that Google granted
      */
     private static function scopesIn(string $granted): array
     {
@@ -100,18 +100,18 @@ final readonly class GoogleProviderAccess implements ProviderAccess
     }
 
     /**
-     * The identity token comes straight from the token endpoint over TLS: its claims are read without checking its
-     * signature, as Google allows for a token received so.
+     * The identity token comes straight from the token endpoint over TLS. So its claims are read without checking its
+     * signature, as Google allows for a token received this way.
      */
     private static function emailIn(string $idToken): string
     {
         $claims = json_decode(base64_decode(strtr(explode('.', $idToken)[1] ?? '', '-_', '+/')), true);
 
-        return is_array($claims) && is_string($claims['email'] ?? null) ? $claims['email'] : throw new \UnexpectedValueException('Google gave an identity token without email');
+        return is_array($claims) && is_string($claims['email'] ?? null) ? $claims['email'] : throw new \UnexpectedValueException('Google gave an identity token without an email');
     }
 
     /**
-     * @throws ServiceUnavailable when Google does not answer, fails or limits the requests: nothing is known of the access then
+     * @throws ServiceUnavailable when Google does not answer, fails or limits the requests. The access is unknown then
      */
     public function stillGrants(ClientCredentials $client, RefreshToken $refreshToken): bool
     {
@@ -153,10 +153,10 @@ final readonly class GoogleProviderAccess implements ProviderAccess
         try {
             $response = $this->httpClient->request('POST', $this->endpoints->revokeUrl, ['body' => ['token' => $refreshToken->value], 'timeout' => self::TIMEOUT]);
             if (self::OK !== $response->getStatusCode()) {
-                $this->logger->warning('Google refused to revoke an access: it is forgotten all the same', ['status' => $response->getStatusCode()]);
+                $this->logger->warning('Google refused to revoke an access. The access is forgotten anyway', ['status' => $response->getStatusCode()]);
             }
         } catch (ExceptionInterface $failure) {
-            $this->logger->warning('An access to Google could not be revoked: it is forgotten all the same', ['exception' => $failure]);
+            $this->logger->warning('A Google access could not be revoked. The access is forgotten anyway', ['exception' => $failure]);
         }
     }
 

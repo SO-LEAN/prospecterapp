@@ -11,8 +11,8 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
- * The public keys Google signs its tokens with, read from its JWKS and cached, as those of the user pool are; read
- * again once when a token names a key not seen yet, Google rotating its keys (ADR 0154).
+ * The public keys that Google signs its tokens with. They are read from Google's JWKS and cached, like the user pool's
+ * keys. Google rotates its keys, so they are read again once when a token names a key not seen yet (ADR 0154).
  */
 final readonly class GoogleSigningKeys
 {
@@ -27,7 +27,7 @@ final readonly class GoogleSigningKeys
     }
 
     /**
-     * @return string|null the PEM of the key, null when Google has no such key
+     * @return string|null the key's PEM, or null when Google has no such key
      */
     public function named(string $keyId): ?string
     {
@@ -35,7 +35,7 @@ final readonly class GoogleSigningKeys
     }
 
     /**
-     * @return array<string, string> the PEM of each RSA key, by key id
+     * @return array<string, string> each RSA key's PEM, by key id
      */
     private function published(): array
     {
