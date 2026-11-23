@@ -12,7 +12,8 @@ use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Asked again for the same contact, by a schedule run twice or two runs at once, it erases them once.
+ * Erases a contact only once, even when it is asked again for the same contact: by a schedule that runs twice, or
+ * by two runs at once.
  */
 final readonly class EraseContactLeftUnattachedHandler implements CommandHandler
 {
