@@ -13,7 +13,7 @@ final readonly class FoundOrganizationPage
 {
     /**
      * @param list<FoundOrganization> $organizations
-     * @param string|null             $next          the cursor of the next slice, null when this one is the last
+     * @param string|null             $next          the next slice's cursor, null when this one is the last
      */
     private function __construct(
         public array $organizations,
