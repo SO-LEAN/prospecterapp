@@ -29,10 +29,11 @@ import { PageHeader } from '@/shared/ui/page-header'
 import { PageSkeleton } from '@/shared/ui/page-skeleton'
 
 /**
- * A campaign: its form at the left, revised whole; at the right, while a draft, the contacts it targets as it is
- * typed, until it is frozen; frozen, its recipients changed by hand, its channel and its tags no longer; started,
- * nothing of it changes, led recipient after recipient (ADR 0145), its progress in its header; stopped or ended, read
- * only, an ended one saying so; and the message saved rendered by the api for the contact hovered (ADR 0144).
+ * A campaign. Its form is on the left, and the member revises it as a whole. On the right, a draft shows the contacts
+ * it targets as the member types, until the draft is frozen. A frozen campaign's recipients change by hand, but its
+ * channel and its tags no longer change. Nothing changes in a started campaign: the member runs it recipient after
+ * recipient (ADR 0145), and its header shows its progress. A stopped or ended campaign is read-only, and an ended one
+ * says so. The API renders the saved message for the hovered contact (ADR 0144).
  */
 export const Route = createFileRoute('/_app/campaigns/$campaignId')({
   params: uuidParams('campaignId'),

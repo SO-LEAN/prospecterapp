@@ -19,7 +19,7 @@ const searchSchema = z.object({
   q: z.string().catch('').default(''),
 })
 
-/** The search lives in the URL (shareable, the back button works); the list comes a slice after the other. */
+/** The URL holds the search, so it can be shared and the back button works. The list comes one slice after another. */
 export const Route = createFileRoute('/_app/organizations/')({
   validateSearch: zodValidator(searchSchema),
   loaderDeps: ({ search }) => search,

@@ -19,8 +19,9 @@ const searchSchema = z.object({
 })
 
 /**
- * The configuration of the member, section by section, the section shown in the URL; the connectors are checked with
- * their providers each time their section opens, never on a preload (a link hovered): a check calls the provider.
+ * The member's settings, section by section. The URL holds the section shown. The connectors are checked with their
+ * providers each time their section opens. A preload (a hovered link) never checks them, because a check calls the
+ * provider.
  */
 export const Route = createFileRoute('/_app/settings')({
   validateSearch: zodValidator(searchSchema),

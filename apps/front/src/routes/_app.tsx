@@ -21,7 +21,7 @@ import { ensureSharedQueryData } from '@/shared/api/ensure-shared-query-data'
 import { session } from '@/shared/auth/session'
 import { PageError } from '@/shared/ui/feedback/page-error'
 
-/** No account yet while the profile of the member is being prepared: the page waits for it. */
+/** There is no account yet while the member's profile is being prepared. The page waits for it. */
 const noAccountWhileMyProfileIsPrepared = (error: unknown) => {
   if (isMyProfileBeingPrepared(error)) {
     return undefined
@@ -30,8 +30,8 @@ const noAccountWhileMyProfileIsPrepared = (error: unknown) => {
 }
 
 /**
- * Every page below requires a signed-in member: anonymous visitors sign in, then come back. A member whose profile
- * is being prepared waits for it, then, as one whose profile has no name, completes it first.
+ * Every page below requires a signed-in member. Anonymous visitors sign in, then come back. A member whose profile
+ * is being prepared waits for it. A member whose profile has no name completes it first.
  */
 export const Route = createFileRoute('/_app')({
   beforeLoad: async ({ location }) => {
@@ -84,7 +84,7 @@ function SignedIn() {
   )
 }
 
-/** The reminders of my exchanges and of my to-dos, on whatever page, as my settings ask: none until they are read. */
+/** My exchanges' and to-dos' reminders, on any page, as my settings ask. There are none until the settings are read. */
 function MyReminders() {
   const { data: reminders } = useQuery(remindersQuery())
 
@@ -113,7 +113,7 @@ function CompleteMyProfile({ account }: { account: Account }) {
   )
 }
 
-/** The contacts I hold to attach, read among what I have to process, reminded before their erasure (ADR 0146). */
+/** The contacts I hold and must attach. They come from what I have to process. A reminder comes before their erasure (ADR 0146). */
 function ErasureRemindersOfMyContactsToAttach() {
   const { data } = useQuery(exchangesToProcessQuery())
 
