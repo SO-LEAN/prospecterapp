@@ -4,9 +4,10 @@ import { queryKeys } from '@/shared/api/keys'
 import { contactTagsQuery, organizationTagsQuery, tagKeys } from './queries'
 
 /**
- * A tag put or taken off changes the tags proposed to the account: a tag of its own appears, or one nothing carries
- * any more leaves them, and the tags the contacts show in their list. The tags answered go straight in the cache of
- * what is tagged; those of an organization change at once the tags its contacts inherit (ADR 0141).
+ * Putting or taking off a tag changes the tags proposed to the account. A new account tag appears, or a tag
+ * that nothing carries any more leaves them. It also changes the tags the contacts show in their list. The
+ * returned tags go straight into the holder's cache. An organization's tags change at once the tags its
+ * contacts inherit (ADR 0141).
  */
 function useReadTheTagsAgain() {
   const queryClient = useQueryClient()
@@ -67,7 +68,7 @@ export function useTakeOffContactTag() {
   })
 }
 
-/** The tags chosen in a form before the organization existed, put once it is created. */
+/** The tags chosen in a form before the organization existed. They are put once it is created. */
 export function useTagTheNewOrganization() {
   const tag = useTagOrganization()
 

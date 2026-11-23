@@ -9,16 +9,16 @@ type Props = {
   suggested: SuggestedTags
   carried: string[]
   onPick: (typed: string) => void
-  /** To search the contacts by: the automatic tags proposed too, none created. */
+  /** For a contact search: the automatic tags are proposed too, and no tag is created. */
   searching?: boolean
 }
 
 type Group = { label: string; tags: string[] }
 
 /**
- * A tag searched among those proposed, the predefined ones by family first, then those of the account, or created as
- * typed; those already carried are not proposed. Enter picks the first option. To search the contacts, the automatic
- * tags are proposed last, and nothing is created.
+ * Finds a tag among the proposed tags, or creates it as typed. The predefined tags come first, by family,
+ * then the account's tags. Tags already carried are not proposed. Enter picks the first option. For a contact
+ * search, the automatic tags are proposed last, and nothing is created.
  */
 export function TagPicker({ suggested, carried, onPick, searching = false }: Props) {
   const { t } = useTranslation()

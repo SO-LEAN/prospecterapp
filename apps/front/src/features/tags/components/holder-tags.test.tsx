@@ -51,7 +51,7 @@ const contactTagsOf = (
 
 type Call = { method: string; pathname: string; body: unknown }
 
-/** The api: the tags proposed, and those of what is tagged, as each gesture leaves them. */
+/** The API double: the proposed tags, and the holder's tags as each gesture leaves them. */
 function theApiAnswers(base: string, carried: string[], afterTheGesture: string[]) {
   const calls: Call[] = []
   theApi.mockImplementation(async (input) => {
@@ -66,12 +66,12 @@ function theApiAnswers(base: string, carried: string[], afterTheGesture: string[
   return calls
 }
 
-/** The api: the tags of Ada. */
+/** The API double: Ada's tags. */
 function adaCarries(tags: ContactTagsResource) {
   theApi.mockImplementation(async () => Response.json(tags))
 }
 
-/** The organizations Ada works for, as the route gives them. */
+/** The organizations that Ada works for, as the route gives them. */
 const ADA_WORKS_FOR = [{ id: ACME, name: 'ACME' }]
 
 const renderWithACache = (node: React.ReactNode) =>

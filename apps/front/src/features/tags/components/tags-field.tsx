@@ -2,7 +2,7 @@ import { TagsLine } from './tags-line'
 
 type Props = { value: string[]; onChange: (tags: string[]) => void }
 
-/** The tags chosen in a creation form, put once what they tag is created. */
+/** The tags chosen in a creation form. They are put once the holder is created. */
 export function TagsField({ value, onChange }: Props) {
   return (
     <TagsLine

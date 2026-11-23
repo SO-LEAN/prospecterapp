@@ -1,6 +1,6 @@
 /**
- * A tag as typed, compared to a tag proposed: without its mark, its accents, its case, nor its separators, the way
- * the API writes a tag (ADR 0138), so that « édi » finds #EDITEUR and « esn » #ESN.
+ * Compares a typed tag to a proposed tag, ignoring the `#`, accents, case and separators, as the API writes a
+ * tag (ADR 0138). So « édi » finds #EDITEUR, and « esn » finds #ESN.
  */
 export const comparable = (text: string) =>
   text

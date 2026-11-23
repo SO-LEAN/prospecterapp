@@ -13,12 +13,12 @@ type Props = {
   onChange: (tags: string[]) => void
 }
 
-/** The most tags a search takes at once (the api refuses more). */
+/** The most tags a search takes at once (the API refuses more). */
 const MAX_CHOSEN = 5
 
 /**
- * The tags the contacts must all carry: a chip per tag chosen, each taken off by its cross, and « Filtrer par tag »
- * opening the picker of every tag of the account, the automatic ones included.
+ * The tags that the contacts must all carry. Each chosen tag is a chip that its cross takes off. « Filtrer
+ * par tag » opens the picker of every account tag, automatic tags included.
  */
 export function TagsFilter({ chosen, onChange }: Props) {
   const { t } = useTranslation()
