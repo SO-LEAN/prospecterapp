@@ -14,14 +14,14 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * Records again the facts the tags of the contacts derive from, as Prospecting and PersonalData give them from their
- * state (ADR 0141): once Campaigns derives them on an instance, then whenever `app:consistency:check` finds them out
- * of date. Run from the command line, out of the time limit of a function; each fact commits its own unit, so it
- * calls its handler without the unit of work of a command. It writes only the table of Campaigns, and starts again
- * when a recording of the worker on the same fact cancels it, three times at most: the facts replace each other by
- * their revision, nothing waits.
+ * Records again the facts that the contacts' tags are derived from, as Prospecting and PersonalData give them from
+ * their state (ADR 0141). Run it once when Campaigns starts deriving them on an instance, then whenever
+ * `app:consistency:check` finds them out of date. It runs from the command line, outside a function's time limit. Each
+ * fact commits its own unit of work, so the command calls its handler without a command's unit of work. It writes only
+ * Campaigns' table. When the worker records the same fact and cancels the write, it retries, three times at most. The
+ * facts replace each other by revision, so nothing waits.
  */
-#[AsCommand(name: 'app:tags:rebuild', description: 'Record again the facts the tags of the contacts derive from, for every account or one')]
+#[AsCommand(name: 'app:tags:rebuild', description: 'Record again the facts that the contacts\' tags are derived from, for every account or for one')]
 final readonly class RebuildTagsCommand
 {
     private const int RETRIES_OF_A_CONFLICT = 3;
@@ -30,7 +30,7 @@ final readonly class RebuildTagsCommand
     {
     }
 
-    public function __invoke(SymfonyStyle $io, #[Option(description: 'The account to rebuild, every account without it')] ?string $account = null): int
+    public function __invoke(SymfonyStyle $io, #[Option(description: 'The account to rebuild. Without it, every account is rebuilt')] ?string $account = null): int
     {
         $this->rebuildStartingAgainOnAConflict($io, $account);
         $io->success(sprintf('The tags are rebuilt for %d account(s).', null === $account ? iterator_count($this->taggedAccounts->all()) : 1));
