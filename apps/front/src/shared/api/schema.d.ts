@@ -148,7 +148,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** The contacts of the organization, in clear or masked */
+        /** List the organization's contacts, unmasked or masked */
         get: operations["get_api_organizations_contacts"];
         put?: never;
         /** Add a person that my account prospects to the organization's contacts */
@@ -444,7 +444,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Consult a person my organization keeps, in clear or masked */
+        /** Get a person my organization keeps, unmasked or masked */
         get: operations["get_api_contacts_show"];
         put?: never;
         post?: never;
@@ -468,7 +468,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Change the email, phone number, language and links of a contact */
+        /** Change a contact's email, phone number, language and links */
         patch: operations["patch_api_contacts_change_contact_details"];
         trace?: never;
     };
@@ -485,7 +485,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Change what a contact does in their organization */
+        /** Change a contact's job in their organization */
         patch: operations["patch_api_contacts_change_job_title"];
         trace?: never;
     };
@@ -502,7 +502,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Note how one addresses a contact, Ms or Mr, or that it is unknown (x) */
+        /** Set how to address a contact: Ms, Mr, or unknown (x) */
         patch: operations["patch_api_contacts_change_title"];
         trace?: never;
     };
@@ -513,10 +513,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Search the persons my organization prospects, by name, or by email with the right to manage personal data, with their organizations */
+        /** Search the persons my organization prospects, with their organizations. Search by name, or by email with the right to manage personal data */
         get: operations["get_api_contacts_search"];
         put?: never;
-        /** Collect a person my organization prospects, as a contact of the organizations they work for (at least one) */
+        /** Collect a person my organization prospects, as a contact of the organizations they work for. At least one organization is required */
         post: operations["post_api_contacts_collect"];
         delete?: never;
         options?: never;
@@ -534,7 +534,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /** Say, once checked, that the contact is no duplicate of the one they resemble; neither is flagged for the other any more */
+        /** Say, once checked, that the contact is not a duplicate of the one they resemble. Neither of them is flagged for the other any more */
         delete: operations["delete_api_contacts_dismiss_possible_duplicate"];
         options?: never;
         head?: never;
@@ -548,10 +548,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** The exchanges with the organization and with its contacts, the most recent first, each with who communicated */
+        /** List the exchanges with the organization and with its contacts, the most recent first, each with who took part */
         get: operations["get_api_organizations_timeline"];
         put?: never;
-        /** Note a call, a message or a meeting with the organization itself, or with one of its contacts */
+        /** Log a call, a message or a meeting with the organization itself, or with one of its contacts */
         post: operations["post_api_organizations_note_exchange"];
         delete?: never;
         options?: never;
@@ -566,7 +566,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** The exchanges to come with the organization and with its contacts, the soonest first, each with who it is with */
+        /** List the exchanges to come with the organization and with its contacts, the soonest first, each with who it is with */
         get: operations["get_api_organizations_upcoming_exchanges"];
         put?: never;
         /** Plan a call, a meeting or a video call with the organization itself, or with one of its contacts, held by the signed-in member */
@@ -584,7 +584,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Recognize who calls: the organizations my organization prospects and its contacts having the phone number, given in E.164 or in the national format of France; needs the right to manage personal data */
+        /** Recognize who calls: the organizations my organization prospects and the contacts that have the phone number. The number is in E.164 or in the French national format. This needs the right to manage personal data */
         get: operations["get_api_phone_numbers_recognize"];
         put?: never;
         post?: never;
@@ -607,7 +607,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Change the first and last names of a contact, nothing else changes */
+        /** Change a contact's first and last names. Nothing else changes */
         patch: operations["patch_api_contacts_rename"];
         trace?: never;
     };
@@ -618,7 +618,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Search the contacts of my organization carrying every tag chosen, their own, inherited or automatic, counted */
+        /** Search my organization's contacts that carry every chosen tag, and count them. A tag may be their own, inherited or automatic */
         get: operations["get_api_contacts_search_by_tags"];
         put?: never;
         post?: never;
@@ -635,7 +635,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** The calendar of the signed-in member over a period: the exchanges they planned or noted, whatever their status, and their to-dos due in it, done or not; what is late, on their clock, at the offset of the period unless their time zone is given */
+        /** Get the signed-in member's calendar over a period. It holds the exchanges they planned or logged, whatever their status, and their to-dos due in the period, done or not. It says what is late on the member's clock. That clock uses the period's offset unless the request gives their time zone */
         get: operations["get_api_me_calendar"];
         put?: never;
         post?: never;
@@ -652,7 +652,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** What the signed-in member has to process: the exchanges they planned whose end has passed, not yet marked done, missed nor cancelled, and their to-dos still to do of the day and before, on their clock, UTC unless their time zone is given */
+        /** Get what the signed-in member has to process. These are the exchanges they planned whose end has passed and that are not yet marked done, missed or cancelled. They also include the member's open to-dos due today or before, on the member's clock. That clock is UTC unless the request gives their time zone */
         get: operations["get_api_me_exchanges_to_process"];
         put?: never;
         post?: never;
@@ -669,7 +669,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** The exchanges of the timeline of the organization whose contact was forgotten, their text or their files still to redact, the most recent first */
+        /** List the exchanges on the organization's timeline whose contact was forgotten and whose text or files are still to redact, the most recent first */
         get: operations["get_api_organizations_exchanges_to_redact"];
         put?: never;
         post?: never;
@@ -686,7 +686,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** The day of the signed-in member: the exchanges they planned today, then the next five to come */
+        /** Get the signed-in member's day: the exchanges they planned today, then the next five to come */
         get: operations["get_api_me_day"];
         put?: never;
         post?: never;
@@ -703,7 +703,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** The organizations of my organization the contact works for */
+        /** List the organizations of my organization that the contact works for */
         get: operations["get_api_contacts_organizations"];
         put?: never;
         post?: never;
@@ -720,7 +720,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** The exchanges the signed-in member planned that overlap a slot, before planning another one in it */
+        /** List the exchanges the signed-in member planned that overlap a slot, before they plan another one in it */
         get: operations["get_api_me_planned_exchanges"];
         put?: never;
         post?: never;
@@ -737,7 +737,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** The organization proposed to attach a contact to: the one of my account whose email has the domain of theirs, none for a public mailbox (ADR 0146) */
+        /** Get the organization proposed to attach a contact to. It is the organization of my account whose email has the same domain as the contact's. A public mailbox gets none (ADR 0146) */
         get: operations["get_api_contacts_proposed_organization"];
         put?: never;
         post?: never;
@@ -1776,7 +1776,7 @@ export interface components {
             /** @default null */
             email: string | null;
             /**
-             * @description In the international format (+33 3 88 11 22 33) or in the national format of France (03 88 11 22 33); kept in E.164, refused when it is no valid number
+             * @description In the international format (+33 3 88 11 22 33) or in the French national format (03 88 11 22 33). It is kept in E.164. An invalid number is refused.
              * @default null
              * @example 03 88 11 22 33
              */
@@ -1784,7 +1784,7 @@ export interface components {
             /** @default null */
             language: string | null;
             /**
-             * @description The addresses of their pages on the tools outside (a profile on LinkedIn or Malt, any other site), five at most; each recognized by its source and an identifier, refused when it is no address of a web page, a page of a known tool designating an organization or none it recognizes, or one another contact of the account has or had
+             * @description The addresses of their pages on outside tools (a LinkedIn or Malt profile, or any other site), five at most. Each link is recognized by its source and an identifier. A link is refused when it is not a web page address, when it is a page on a known tool that designates an organization or that the tool does not recognize, or when another contact of the account has or had it.
              * @default []
              * @example [
              *       "linkedin.com/in/ada-lovelace"
@@ -1995,7 +1995,7 @@ export interface components {
         };
         TitleInput: {
             /**
-             * @description How one addresses the contact, x when unknown
+             * @description How to address the contact. It is x when unknown.
              * @default x
              * @enum {string}
              */
@@ -2004,7 +2004,7 @@ export interface components {
         CollectContactInput: {
             name?: components["schemas"]["PersonNameInput"];
             /**
-             * @description How one addresses the contact, x when unknown, the default
+             * @description How to address the contact. It is x when unknown, the default.
              * @default x
              * @enum {string}
              */
@@ -2033,7 +2033,7 @@ export interface components {
         };
         TaggedContactsQuery: {
             /**
-             * @description The tags chosen, 1 to 5, by their names without their mark, separated by commas
+             * @description The chosen tags, 1 to 5. Give their names without their mark, separated by commas
              * @default
              * @example ESN,EMAIL
              */
@@ -2050,18 +2050,18 @@ export interface components {
         CalendarQuery: {
             /**
              * Format: date-time
-             * @description The start of its first day, included
+             * @description The start of the period's first day, included
              * @default null
              */
             from: string | null;
             /**
              * Format: date-time
-             * @description The start of the day after its last, excluded; six weeks after `from` at most
+             * @description The start of the day after the period's last day, excluded. It is six weeks after `from` at most
              * @default null
              */
             to: string | null;
             /**
-             * @description The time zone of the reader, by its name in the database of the time zones; the offset of `from` otherwise
+             * @description The reader's time zone, by its name in the time zone database. Without it, the offset of `from` applies
              * @default null
              * @example Europe/Paris
              */
@@ -2069,7 +2069,7 @@ export interface components {
         };
         ReaderClockQuery: {
             /**
-             * @description The time zone of the reader, by its name in the database of the time zones; UTC otherwise
+             * @description The reader's time zone, by its name in the time zone database. Without it, UTC applies
              * @default null
              * @example Europe/Paris
              */
@@ -2078,13 +2078,13 @@ export interface components {
         PeriodQuery: {
             /**
              * Format: date-time
-             * @description The start of its first day, included
+             * @description The start of the period's first day, included
              * @default null
              */
             from: string | null;
             /**
              * Format: date-time
-             * @description The start of the day after its last, excluded; six weeks after `from` at most
+             * @description The start of the day after the period's last day, excluded. It is six weeks after `from` at most
              * @default null
              */
             to: string | null;
@@ -2096,7 +2096,7 @@ export interface components {
              */
             startsAt: string | null;
             /**
-             * @description From 5 minutes to 8 hours; 30 when left out
+             * @description From 5 minutes to 8 hours. It is 30 when left out
              * @default null
              */
             durationInMinutes: number | null;
@@ -2558,7 +2558,7 @@ export interface components {
             id: string;
             name: components["schemas"]["PersonNameResource"];
             /**
-             * @description How one addresses the contact, x when unknown, read in clear like their name
+             * @description How to address the contact, x when unknown. It is read unmasked, like their name
              * @enum {string}
              */
             title: "ms" | "mr" | "x";
@@ -2802,7 +2802,7 @@ export interface components {
             lastMeetingAt: string;
             /**
              * Format: date-time
-             * @description The moment they are erased from if nobody attaches them
+             * @description The moment from which they are erased if nobody attaches them
              */
             erasableFrom: string;
         };
@@ -2810,13 +2810,13 @@ export interface components {
             id: string;
             name: components["schemas"]["PersonNameResource"];
             /**
-             * @description How one addresses the contact, x when unknown, read in clear like their name
+             * @description How to address the contact, x when unknown. It is read unmasked, like their name
              * @enum {string}
              */
             title: "ms" | "mr" | "x";
             jobTitle?: string | null;
             contactDetails: components["schemas"]["PersonContactDetailsResource"];
-            /** @description The data are masked, but the name of a contact: the reader has no right to read personal data in clear */
+            /** @description The data are masked, except the contact's name, because the reader has no right to read personal data unmasked */
             masked: boolean;
             _links: components["schemas"]["ContactLinksResource"];
             possibleDuplicates: components["schemas"]["PossibleDuplicateOfContactResource"][];
@@ -2835,7 +2835,7 @@ export interface components {
             id: string;
             name: components["schemas"]["PersonNameResource"];
             /**
-             * @description How one addresses the contact, x when unknown, read in clear like their name
+             * @description How to address the contact, x when unknown. It is read unmasked, like their name
              * @enum {string}
              */
             title: "ms" | "mr" | "x";
@@ -2843,7 +2843,7 @@ export interface components {
             contactDetails: components["schemas"]["PersonContactDetailsResource"];
             masked: boolean;
             organizations: components["schemas"]["OrganizationOfContactResource"][];
-            /** @description Every tag it carries, its own, inherited and automatic, in the order of their names */
+            /** @description Every tag the contact carries, their own, inherited and automatic ones, ordered by name */
             tags: string[];
             contact: components["schemas"]["LinkResource"];
         };
@@ -2861,10 +2861,10 @@ export interface components {
             /** @enum {string} */
             kind: "organization" | "person";
             id: string;
-            /** @description Its name; none for a person no longer known */
+            /** @description Its name. A person who is no longer known has none */
             name?: string | null;
             /**
-             * @description A person still a contact of the organization, removed from it, or forgotten; none for the organization itself
+             * @description Whether the person is still a contact of the organization, removed from it, or forgotten. The organization itself has none
              * @default null
              * @enum {string|null}
              */
@@ -2876,7 +2876,7 @@ export interface components {
         };
         OrganizationTimelineResource: {
             items: components["schemas"]["OrganizationExchangeResource"][];
-            /** @description How many exchanges of the organization are to redact, their contact forgotten */
+            /** @description How many of the organization's exchanges are to redact because their contact was forgotten */
             toRedact: number;
             _links: components["schemas"]["TimelineLinksResource"];
         };
@@ -2891,7 +2891,7 @@ export interface components {
         TaggedContactListResource: {
             items: components["schemas"]["ContactInListResource"][];
             /**
-             * @description How many contacts carry every tag chosen, in all the slices
+             * @description How many contacts carry every chosen tag, across all the slices
              * @example 12
              */
             found: number;
@@ -2942,21 +2942,21 @@ export interface components {
         };
         CalendarResource: {
             items: components["schemas"]["OrganizationExchangeResource"][];
-            /** @description The to-dos the member holds due on a day of the period, done or not, by their due as written: a day without an hour before its hours; none without the right to manage personal data */
+            /** @description The member's to-dos due on a day of the period, done or not, ordered by their due date as written. A day without an hour comes before that day's hours. There are none without the right to manage personal data */
             toDos: components["schemas"]["ToDoResource"][];
-            /** @description The ids of the exchanges and of the to-dos late at the moment of the reading, on the clock of the reader: a planned exchange whose slot has ended, a to-do not done whose hour, or day, has passed */
+            /** @description The ids of the exchanges and to-dos that are late when read, on the reader's clock. A planned exchange is late when its slot has ended. A to-do is late when it is not done and its hour, or day, has passed */
             late: string[];
             _links: components["schemas"]["CalendarLinksResource"];
         };
         DayExchangeResource: {
             exchange: components["schemas"]["ExchangeResource"];
             interlocutor: components["schemas"]["InterlocutorResource"];
-            /** @description The organization of the contact the exchange is kept for; none with the organization itself, or for a contact no longer part of it */
+            /** @description The organization of the contact the exchange is kept for. An exchange with the organization itself has none, and so does a contact who is no longer part of it */
             organization?: components["schemas"]["OrganizationOfContactResource"] | null;
         };
         ToDoToProcessResource: {
             toDo: components["schemas"]["ToDoResource"];
-            /** @description The days since its day, on the clock of the reader: 0 for a to-do of the day */
+            /** @description The days since its due day, on the reader's clock. A to-do due today has 0 */
             daysOverdue: number;
         };
         ContactToAttachLinksResource: {
@@ -2975,7 +2975,7 @@ export interface components {
             lastMeetingAt: string;
             /**
              * Format: date-time
-             * @description The moment they are erased from if nobody attaches them: the start of the 30th day after their last meeting, on the clock of that meeting
+             * @description The moment from which they are erased if nobody attaches them: the start of the 30th day after their last meeting, on that meeting's clock
              */
             erasableFrom: string;
             _links: components["schemas"]["ContactToAttachLinksResource"];
@@ -2985,9 +2985,9 @@ export interface components {
         };
         ExchangesToProcessResource: {
             items: components["schemas"]["DayExchangeResource"][];
-            /** @description The to-dos still to do of the day of the reading, on the clock of the reader, and of the days before, the most overdue first; none without the right to manage personal data */
+            /** @description The open to-dos due on the day of the reading, on the reader's clock, or on the days before, the most overdue first. There are none without the right to manage personal data */
             toDos: components["schemas"]["ToDoToProcessResource"][];
-            /** @description The contacts waiting for the member, who met them, to attach them to an organization, the first erased first (ADR 0146) */
+            /** @description The contacts the member met who wait for the member to attach them to an organization. The first to be erased comes first (ADR 0146) */
             contactsToAttach: components["schemas"]["ContactToAttachResource"][];
             _links: components["schemas"]["ExchangesToProcessLinksResource"];
         };
@@ -3011,7 +3011,7 @@ export interface components {
             name: string;
         };
         ProposedOrganizationResource: {
-            /** @description The organization of the account whose email has the domain of that of the contact; none for a public mailbox, or a domain none has */
+            /** @description The account's organization whose email has the same domain as the contact's. There is none for a public mailbox, or for a domain no organization has */
             organization?: components["schemas"]["OrganizationProposedResource"] | null;
         };
         StampResource: {
@@ -3992,7 +3992,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown organization, or one of another account */
+            /** @description The organization is unknown or belongs to another account */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -5376,7 +5376,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown contact, or one of another account */
+            /** @description The contact is unknown or belongs to another account */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -5412,7 +5412,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Not a prospector, no right to manage personal data, or a member and not a contact */
+            /** @description The caller is not a prospector or has no right to manage personal data, or the person is a member and not a contact */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -5421,7 +5421,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown contact, or one of another account */
+            /** @description The contact is unknown or belongs to another account */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -5475,7 +5475,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown contact, or one of another account */
+            /** @description The contact is unknown or belongs to another account */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -5547,7 +5547,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown contact, or one of another account */
+            /** @description The contact is unknown or belongs to another account */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -5619,7 +5619,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown contact, or one of another account */
+            /** @description The contact is unknown or belongs to another account */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -5725,7 +5725,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown organization, or one of another account */
+            /** @description The organization is unknown or belongs to another account */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -5782,7 +5782,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown contact, or one of another account */
+            /** @description The contact is unknown or belongs to another account */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -5840,7 +5840,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown organization, or one of another account */
+            /** @description The organization is unknown or belongs to another account */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -5866,10 +5866,10 @@ export interface operations {
             };
         };
         responses: {
-            /** @description The timeline of the organization with the new exchange */
+            /** @description The organization's timeline with the new exchange */
             201: {
                 headers: {
-                    /** @description The new exchange, to join files to it */
+                    /** @description The new exchange, to attach files to it */
                     Location?: string;
                     [name: string]: unknown;
                 };
@@ -5893,7 +5893,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown organization, or one of another account */
+            /** @description The organization is unknown or belongs to another account */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -5902,7 +5902,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description The person is no contact of the organization, or the same exchange noted at the same moment by another request */
+            /** @description The person is not a contact of the organization, or another request logged the same exchange at the same moment */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -5911,7 +5911,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Invalid exchange: unknown channel or direction, a missed exchange that is no call, meeting or video call, a moment in the future, a Message-ID or a conversation of another channel */
+            /** @description Invalid exchange: an unknown channel or direction, a missed exchange that is not a call, meeting or video call, a moment in the future, or a Message-ID or conversation of another channel */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -5960,7 +5960,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown organization, or one of another account */
+            /** @description The organization is unknown or belongs to another account */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -6013,7 +6013,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown organization, or one of another account */
+            /** @description The organization is unknown or belongs to another account */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -6022,7 +6022,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description The person is no contact of the organization */
+            /** @description The person is not a contact of the organization */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -6031,7 +6031,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Invalid exchange: a channel that is not planned, a moment that is not in the future, a duration out of 5 minutes to 8 hours, a place for another channel than a meeting, a link for another than a video call or a link that is no web address */
+            /** @description Invalid exchange: a channel that cannot be planned, a moment that is not in the future, a duration outside 5 minutes to 8 hours, a place for a channel other than a meeting, a link for a channel other than a video call, or a link that is not a web address */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -6053,7 +6053,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Who has the number, nobody when both lists are empty */
+            /** @description Who has the number. Both lists are empty when nobody has it */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -6132,7 +6132,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown contact, or one of another account */
+            /** @description The contact is unknown or belongs to another account */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -6165,7 +6165,7 @@ export interface operations {
         parameters: {
             query?: {
                 /**
-                 * @description The tags chosen, 1 to 5, by their names without their mark, separated by commas
+                 * @description The chosen tags, 1 to 5. Give their names without their mark, separated by commas
                  * @example ESN,EMAIL
                  */
                 tags?: string;
@@ -6216,12 +6216,12 @@ export interface operations {
     get_api_me_calendar: {
         parameters: {
             query?: {
-                /** @description The start of its first day, included */
+                /** @description The start of the period's first day, included */
                 from?: string | null;
-                /** @description The start of the day after its last, excluded; six weeks after `from` at most */
+                /** @description The start of the day after the period's last day, excluded. It is six weeks after `from` at most */
                 to?: string | null;
                 /**
-                 * @description The time zone of the reader, by its name in the database of the time zones; the offset of `from` otherwise
+                 * @description The reader's time zone, by its name in the time zone database. Without it, the offset of `from` applies
                  * @example Europe/Paris
                  */
                 timeZone?: string | null;
@@ -6232,7 +6232,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description The exchanges of the period, by their moment */
+            /** @description The period's exchanges, by their moment */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -6257,7 +6257,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Invalid period: a bound missing, an end before the start, longer than six weeks; or a time zone unknown */
+            /** @description Invalid period: a missing bound, an end before the start, or more than six weeks. Or an unknown time zone */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -6272,7 +6272,7 @@ export interface operations {
         parameters: {
             query?: {
                 /**
-                 * @description The time zone of the reader, by its name in the database of the time zones; UTC otherwise
+                 * @description The reader's time zone, by its name in the time zone database. Without it, UTC applies
                  * @example Europe/Paris
                  */
                 timeZone?: string | null;
@@ -6283,7 +6283,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description The exchanges to process, the oldest first, each with the links handling it, and the to-dos, the most overdue first */
+            /** @description The exchanges to process, the oldest first, each with the links that handle it. Then the to-dos, the most overdue first */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -6308,7 +6308,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description A time zone unknown */
+            /** @description An unknown time zone */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -6357,7 +6357,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown organization, or one of another account */
+            /** @description The organization is unknown or belongs to another account */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -6371,9 +6371,9 @@ export interface operations {
     get_api_me_day: {
         parameters: {
             query?: {
-                /** @description The start of its first day, included */
+                /** @description The start of the period's first day, included */
                 from?: string | null;
-                /** @description The start of the day after its last, excluded; six weeks after `from` at most */
+                /** @description The start of the day after the period's last day, excluded. It is six weeks after `from` at most */
                 to?: string | null;
             };
             header?: never;
@@ -6382,7 +6382,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description The exchanges of the day still planned, then the next ones, the soonest first */
+            /** @description The day's exchanges that are still planned, then the next ones, the soonest first */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -6407,7 +6407,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Invalid day: a bound missing, an end before the start */
+            /** @description Invalid day: a missing bound, or an end before the start */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -6429,7 +6429,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description The organizations of the contact */
+            /** @description The contact's organizations */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -6460,7 +6460,7 @@ export interface operations {
         parameters: {
             query?: {
                 startsAt?: string | null;
-                /** @description From 5 minutes to 8 hours; 30 when left out */
+                /** @description From 5 minutes to 8 hours. It is 30 when left out */
                 durationInMinutes?: number | null;
             };
             header?: never;
@@ -6494,7 +6494,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Invalid slot: no start, a duration out of 5 minutes to 8 hours */
+            /** @description Invalid slot: no start, or a duration outside 5 minutes to 8 hours */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -6541,7 +6541,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown contact, or one of another account */
+            /** @description The contact is unknown or belongs to another account */
             404: {
                 headers: {
                     [name: string]: unknown;
