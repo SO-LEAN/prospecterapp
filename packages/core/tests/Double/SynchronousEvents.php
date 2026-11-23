@@ -176,15 +176,15 @@ final class SynchronousEvents implements Events
      */
     private static function commandsOf(Policy $policy, object $event): array
     {
-        $commands = new \ReflectionMethod($policy, '__invoke')->invoke($policy, $event);
+        $returned = new \ReflectionMethod($policy, '__invoke')->invoke($policy, $event);
 
         $commands = match (true) {
-            null === $commands => [],
-            is_array($commands) => array_values($commands),
-            default => [$commands],
+            null === $returned => [],
+            is_array($returned) => array_values($returned),
+            default => [$returned],
         };
 
-        return array_map(static fn (mixed $command): object => is_object($command) ? $command : throw new \LogicException(sprintf('%s returns something else than commands', $policy::class)), $commands);
+        return array_map(static fn (mixed $command): object => is_object($command) ? $command : throw new \LogicException(sprintf('%s returns something other than commands', $policy::class)), $commands);
     }
 
     /**
