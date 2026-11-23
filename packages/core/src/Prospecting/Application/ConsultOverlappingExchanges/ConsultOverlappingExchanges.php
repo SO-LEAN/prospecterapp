@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\ConsultOverlappingExchanges;
 
 /**
- * The exchanges the prospector planned that overlap a slot, before they plan another one in it; the duration, in
- * minutes, is half an hour when left out.
+ * Reads the exchanges the prospector planned that overlap a slot, before they plan another exchange in it. The
+ * duration is in minutes. It is half an hour when the query gives none.
  */
 final readonly class ConsultOverlappingExchanges
 {
