@@ -35,7 +35,7 @@ final class BookingPage implements ReleasesEvents
     use RecordsEvents;
 
     private ?HostTimeZone $timeZone = null;
-    /** @var array<string, InactivePeriod> by their identity */
+    /** @var array<string, InactivePeriod> keyed by their id */
     private array $inactivePeriods = [];
     private bool $open = false;
     private ?BookingCode $code = null;
