@@ -11,6 +11,6 @@ final class InvalidTag extends BusinessRuleViolation
 {
     public static function written(string $typed): self
     {
-        return self::because('A tag holds 1 to 30 capital letters, digits or underscores', 'tags', context: ['tag' => $typed]);
+        return self::because('A tag must have 1 to 30 capital letters, digits or underscores', 'tags', context: ['tag' => $typed]);
     }
 }
