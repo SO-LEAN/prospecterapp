@@ -11,9 +11,9 @@ use Prospecter\Core\Prospecting\Application\Port\ContactsToAttachRetriever;
 use Symfony\Component\Clock\ClockInterface;
 
 /**
- * Gives each contact left unattached at this moment, in every account, the erasure of its own (ADR 0146): what the
- * daily schedule of an instance runs, and the console. Each is a command of its own, erasing it once whoever asks
- * again.
+ * Erases each contact left unattached at this moment, in every account (ADR 0146). An instance's daily schedule runs
+ * it, and so does the console. Each contact gets its own command, so a contact is erased once, however often the
+ * eraser runs.
  */
 final readonly class ContactsLeftUnattachedEraser implements ScheduledTask
 {
@@ -35,7 +35,7 @@ final readonly class ContactsLeftUnattachedEraser implements ScheduledTask
     }
 
     /**
-     * @return int how many it erased
+     * @return int the number of contacts erased
      */
     public function erase(): int
     {

@@ -19,8 +19,8 @@ use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\Timeline;
 
 /**
- * What the timelines of a contact and of an organization show alike: their exchanges, and their links, the campaign
- * of an exchange among them (ADR 0152).
+ * Creates what a contact's timeline and an organization's timeline show alike: their exchanges and their links. An
+ * exchange's links include its campaign (ADR 0152).
  */
 final readonly class TimelineResourceFactory
 {
@@ -29,11 +29,12 @@ final readonly class TimelineResourceFactory
     }
 
     /**
-     * Itself, the next slice, and noting or planning an exchange when the signed-in member may (`IntentLinks`): every
-     * prospector plans, noting needs the right to manage personal data (ADR 0129).
+     * Links the timeline itself and its next slice. It also links logging and planning an exchange when the signed-in
+     * member may do so (`IntentLinks`). Every prospector plans. Logging needs the right to manage personal data (ADR
+     * 0129).
      *
-     * @param array{string, string, string} $routes  the route of the timeline, the route noting an exchange in it and the route planning one
-     * @param array<string, string>         $subject the parameters naming whose timeline it is
+     * @param array{string, string, string} $routes  the timeline's route, the route that logs an exchange in it and the route that plans one
+     * @param array<string, string>         $subject the parameters that name whose timeline it is
      */
     public function createLinks(array $routes, array $subject, Timeline $response): TimelineLinksResource
     {
@@ -53,7 +54,7 @@ final readonly class TimelineResourceFactory
     }
 
     /**
-     * In the calendar of its holder, it is moved by dragging it when the calendar says it may be.
+     * In its holder's calendar, the holder moves an exchange by dragging it, when the calendar allows it.
      */
     public function createCalendarExchange(ExchangeInTimeline $exchange, Calendar $calendar): ExchangeResource
     {
@@ -63,7 +64,7 @@ final readonly class TimelineResourceFactory
     }
 
     /**
-     * In the day of its holder, it is marked done or missed when its time has come.
+     * In its holder's day, the holder marks an exchange done or missed once its time has come.
      */
     public function createDayExchange(ExchangeInTimeline $exchange, MyDay $myDay): ExchangeResource
     {
@@ -78,8 +79,8 @@ final readonly class TimelineResourceFactory
     }
 
     /**
-     * Among the exchanges its holder has to process, it is handled from there: marked done or missed, moved or
-     * cancelled, as its state offers.
+     * Among the exchanges to process, the holder handles an exchange from there. They mark it done or missed, move it
+     * or cancel it, as its state allows.
      */
     public function createExchangeToProcess(ExchangeInTimeline $exchange, WhatIsToProcess $toProcess): ExchangeResource
     {
@@ -97,7 +98,8 @@ final readonly class TimelineResourceFactory
     }
 
     /**
-     * The campaign it was noted in, while Campaigns still names it, to those who read the campaigns (ADR 0152).
+     * Links the campaign the exchange was logged in, while Campaigns still names it. Only members who read the
+     * campaigns get the link (ADR 0152).
      */
     private function campaignOf(ExchangeInTimeline $exchange): ?LinkResource
     {

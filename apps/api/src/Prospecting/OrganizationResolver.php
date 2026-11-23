@@ -14,8 +14,8 @@ use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 
 /**
- * The organization a route names by its `id`, read by the query of the core: the subject `OrganizationVoter`
- * decides on before the controller runs (ADR 0081). An unknown one is refused by the core (404).
+ * Resolves the organization that a route names by its `id`, through the core's query. `OrganizationVoter` decides on
+ * it before the controller runs (ADR 0081). The core refuses an unknown organization (404).
  */
 final readonly class OrganizationResolver implements ValueResolverInterface
 {
@@ -36,7 +36,7 @@ final readonly class OrganizationResolver implements ValueResolverInterface
     }
 
     /**
-     * The organization of this id, for the voter, whatever its account; an unknown one refused by the core.
+     * Reads the organization with this id for the voter, whatever its account. The core refuses an unknown one.
      */
     public function read(string $id): OrganizationSheet
     {

@@ -12,9 +12,9 @@ use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Symfony\Component\Clock\ClockInterface;
 
 /**
- * The timeline of a contact as the API shows it, what happened until now or what is to come: read by the query of
- * the core, presented to the presenter it builds for the call (ADR 0085). A controller calls it after a command, which returns nothing, to answer with the
- * fresh resource.
+ * Reads a contact's timeline as the API shows it: what has happened so far, or what is to come. The core's query reads
+ * it, and a presenter built for the call presents it (ADR 0085). A command returns nothing, so a controller calls this
+ * reader after the command to answer with the fresh resource.
  */
 final readonly class TimelineReader
 {
