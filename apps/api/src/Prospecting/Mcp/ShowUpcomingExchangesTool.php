@@ -29,11 +29,11 @@ final readonly class ShowUpcomingExchangesTool
 
     /**
      * @param string  $id    the id of the contact
-     * @param ?string $after the cursor of the next slice, read in the link `next` of the slice before
+     * @param ?string $after the cursor of the next slice, read in the previous slice's `next` link
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'list-contact-upcoming-exchanges', description: 'The exchanges planned with a contact, the soonest first, by slices.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'list-contact-upcoming-exchanges', description: 'List the exchanges planned with a contact. Returns them in slices, the soonest first.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $id, ?string $after = null): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');

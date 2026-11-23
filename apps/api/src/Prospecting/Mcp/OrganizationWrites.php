@@ -16,9 +16,10 @@ use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Symfony\Component\Clock\ClockInterface;
 
 /**
- * What every tool writing an organization does as its controller (ADR 0163): the organization of the route read,
- * the member refused unless a prospector with access to it (and the other attributes of the controller), then the
- * input of the endpoint checked, its command dispatched, the organization answered as the screen then reads it.
+ * What every tool that writes an organization does in place of its controller (ADR 0163). It reads the route's
+ * organization. It refuses the member unless they are a prospector with access to it and pass the controller's
+ * other attributes. It then checks the endpoint's input, dispatches its command, and returns the organization as
+ * the screen reads it afterwards.
  */
 final readonly class OrganizationWrites
 {
@@ -37,8 +38,8 @@ final readonly class OrganizationWrites
     /**
      * @template TInput of object
      *
-     * @param TInput                                                                  $input   the input of the endpoint
-     * @param \Closure(TInput, OrganizationSheet, string, \DateTimeImmutable): object $command the command of the endpoint, from its input, for the organization, by the member, at this moment
+     * @param TInput                                                                  $input   the endpoint's input
+     * @param \Closure(TInput, OrganizationSheet, string, \DateTimeImmutable): object $command builds the endpoint's command from its input, for the organization, by the member, at this moment
      *
      * @return array<string, mixed>
      */
@@ -50,9 +51,9 @@ final readonly class OrganizationWrites
     }
 
     /**
-     * It does the same as write() for an endpoint without an input.
+     * Does the same as write() for an endpoint without an input.
      *
-     * @param \Closure(OrganizationSheet, string, \DateTimeImmutable): object $command the command of the endpoint, for the organization, by the member, at this moment
+     * @param \Closure(OrganizationSheet, string, \DateTimeImmutable): object $command builds the endpoint's command for the organization, by the member, at this moment
      *
      * @return array<string, mixed>
      */
@@ -64,12 +65,13 @@ final readonly class OrganizationWrites
     }
 
     /**
-     * Like write(), with the change held to the organization's revision the AI read, when it gives one (ADR 0187).
+     * Like write(), but the change applies only to the organization's revision that the AI read, when the AI gives
+     * one (ADR 0187).
      *
      * @template TInput of object
      *
-     * @param TInput                                                                  $input   the input of the endpoint
-     * @param \Closure(TInput, OrganizationSheet, string, \DateTimeImmutable): object $command the command of the endpoint, from its input, for the organization, by the member, at this moment
+     * @param TInput                                                                  $input   the endpoint's input
+     * @param \Closure(TInput, OrganizationSheet, string, \DateTimeImmutable): object $command builds the endpoint's command from its input, for the organization, by the member, at this moment
      *
      * @return array<string, mixed>
      */
@@ -81,7 +83,7 @@ final readonly class OrganizationWrites
     }
 
     /**
-     * @return array<string, mixed> the organization as the screen then reads it
+     * @return array<string, mixed> the organization as the screen reads it afterwards
      */
     private function written(OrganizationSheet $organization, object $command, ?int $revision = null): array
     {
@@ -91,7 +93,7 @@ final readonly class OrganizationWrites
     }
 
     /**
-     * The organization of the route, the member refused unless they may write it as its endpoint allows.
+     * Reads the route's organization. Refuses the member unless the endpoint lets them write it.
      */
     public function writable(string $id, string ...$attributes): OrganizationSheet
     {

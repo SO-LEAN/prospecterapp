@@ -17,7 +17,8 @@ use Prospecter\Core\Prospecting\Application\StopProspecting\StopProspecting;
 use Symfony\Component\Clock\ClockInterface;
 
 /**
- * `DELETE /api/organizations/{id}`, for an AI (ADR 0163), which asks its member before calling it.
+ * `DELETE /api/organizations/{id}`, for an AI (ADR 0163). The AI asks its member
+ * before it calls the tool.
  */
 #[Adapts('api_organizations_stop_prospecting')]
 final readonly class StopProspectingTool
@@ -33,7 +34,7 @@ final readonly class StopProspectingTool
     /**
      * @param string $id the id of the organization
      */
-    #[McpTool(name: 'stop-prospecting', description: 'Stop prospecting an organization: its subsidiaries lose their holding, its contacts that no other organization names are erased (which needs the right to manage the personal data). Answers nothing.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'stop-prospecting', description: 'Stop prospecting an organization. Its subsidiaries lose their holding. Its contacts that no other organization names are erased, which needs the right to manage personal data. Returns nothing.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id): void
     {
         $organization = $this->organizations->read($id);
@@ -44,7 +45,7 @@ final readonly class StopProspectingTool
     }
 
     /**
-     * Its contacts that no other organization names are erased with it: personal data.
+     * The contacts that no other organization names are erased with the organization. They are personal data.
      */
     private function ensureMayEraseItsContacts(OrganizationSheet $organization): void
     {

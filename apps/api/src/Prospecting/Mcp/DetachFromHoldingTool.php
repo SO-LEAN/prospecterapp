@@ -11,7 +11,8 @@ use Prospecter\Core\Prospecting\Application\DetachFromHolding\DetachFromHolding;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 
 /**
- * `DELETE /api/organizations/{id}/holding`, for an AI (ADR 0163), which asks its member before calling it.
+ * `DELETE /api/organizations/{id}/holding`, for an AI (ADR 0163). The AI asks its member
+ * before it calls the tool.
  */
 #[Adapts('api_organizations_detach_from_holding')]
 final readonly class DetachFromHoldingTool
@@ -25,7 +26,7 @@ final readonly class DetachFromHoldingTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'detach-from-holding', description: 'Detach an organization from its holding. Answers the organization.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'detach-from-holding', description: 'Detach an organization from its holding. Returns the organization.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id): array
     {
         return $this->writes->change(

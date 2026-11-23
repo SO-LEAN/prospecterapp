@@ -23,8 +23,9 @@ use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Symfony\Component\Clock\ClockInterface;
 
 /**
- * `POST /api/campaigns/{id}/recipients/{contactId}/exchanges`, for an AI leading a campaign, which notes once what it
- * sent itself (ADR 0163, 0166): the campaign is asked of Campaigns by the core, as by the endpoint (ADR 0145).
+ * `POST /api/campaigns/{id}/recipients/{contactId}/exchanges`, for an AI that leads a campaign. The AI logs each
+ * message it sent itself, once (ADR 0163, 0166). As for the endpoint, the core asks Campaigns for the campaign
+ * (ADR 0145).
  */
 #[Adapts('api_campaigns_note_exchange')]
 final readonly class NoteCampaignExchangeTool
@@ -47,16 +48,16 @@ final readonly class NoteCampaignExchangeTool
     /**
      * @param string      $id                   the id of the campaign
      * @param string      $contactId            the id of the recipient, as `get-next-recipient` gives it
-     * @param string|null $text                 the text really sent, the subject then the body of an e-mail
-     * @param string|null $occurredAt           when it was sent (ISO 8601), now when left out; never in the future
-     * @param string|null $messageId            the header Message-ID of the e-mail sent, as read in the mailbox
-     * @param string|null $linkedInConversation the conversation of the LinkedIn message sent, its id or the address of its thread
+     * @param string|null $text                 the exact text sent. For an e-mail, its subject then its body
+     * @param string|null $occurredAt           when it was sent (ISO 8601), never in the future. Now when left out
+     * @param string|null $messageId            the sent e-mail's Message-ID header, as read in the mailbox
+     * @param string|null $linkedInConversation the sent LinkedIn message's conversation: its id or its thread's address
      *
      * @return array<string, mixed>
      */
     #[McpTool(
         name: 'log-sent-message',
-        description: 'Note the message you sent yourself to a recipient of a campaign you lead, by the channel of the campaign: the recipient is processed, the campaign ended once nobody is left to handle. Give the text really sent and the Message-ID of the e-mail, or the conversation of the LinkedIn message. Each sending is noted once in the account: noted first outside the campaign, by the import of your member\'s mailbox, it joins the campaign and is answered noted; noted again for the campaign, the answer is its status alreadyNoted with the exchange noted first, or erasedBefore with who erased it, and nothing is noted.',
+        description: 'Log a message that you sent yourself to a recipient of a campaign you lead, through the campaign\'s channel. The recipient is then processed. The campaign ends once nobody is left to handle. Give the exact text sent, and the e-mail\'s Message-ID or the LinkedIn message\'s conversation. Each sending is logged once in the account. When the import of your member\'s mailbox logged it first, outside the campaign, it joins the campaign and the answer\'s status is noted. When it is already logged for the campaign, nothing is logged: the answer\'s status is alreadyNoted with the exchange logged first, or erasedBefore with who erased it.',
         annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false),
     )]
     public function __invoke(string $id, string $contactId, ?string $text = null, ?string $occurredAt = null, ?string $messageId = null, ?string $linkedInConversation = null): array
@@ -93,8 +94,8 @@ final readonly class NoteCampaignExchangeTool
     }
 
     /**
-     * The exchange the sending was noted as: the one just noted, or the one noted first that joined the campaign
-     * (ADR 0195).
+     * The exchange that the sending was logged as: the one just logged, or the one logged first that joined the
+     * campaign (ADR 0195).
      */
     private function exchangeNotedFor(SendingNoted $sending): ?string
     {

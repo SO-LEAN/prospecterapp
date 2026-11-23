@@ -19,7 +19,7 @@ use Prospecter\Core\Prospecting\Application\NoteExchange\NoteExchange;
 use Symfony\Component\Clock\ClockInterface;
 
 /**
- * `POST /api/contacts/{id}/exchanges`, for an AI, which notes once what it reads (ADR 0163, 0166).
+ * `POST /api/contacts/{id}/exchanges`, for an AI. The AI logs each exchange it reads, once (ADR 0163, 0166).
  */
 #[Adapts('api_contacts_note_exchange')]
 final readonly class NoteExchangeTool
@@ -39,17 +39,17 @@ final readonly class NoteExchangeTool
      * @param string      $id                   the id of the contact
      * @param string      $channel              call, sms, email, linkedIn, malt, meeting, videoCall or other
      * @param string      $direction            inbound (the contact reached out) or outbound
-     * @param string|null $occurredAt           when it happened (ISO 8601), now when left out; never in the future
-     * @param string|null $text                 what was said or written; the subject then the body of an e-mail
-     * @param bool        $missed               the contact did not answer or come: a call, a meeting or a video call only
-     * @param string|null $messageId            the header Message-ID of an e-mail, as read in the mailbox
-     * @param string|null $linkedInConversation the conversation of a LinkedIn message, its id or the address of its thread
+     * @param string|null $occurredAt           when it happened (ISO 8601), never in the future. Now when left out
+     * @param string|null $text                 what was said or written. For an e-mail, its subject then its body
+     * @param bool        $missed               true when the contact did not answer or come. A call, a meeting or a video call only
+     * @param string|null $messageId            an e-mail's Message-ID header, as read in the mailbox
+     * @param string|null $linkedInConversation a LinkedIn message's conversation: its id or its thread's address
      *
      * @return array<string, mixed>
      */
     #[McpTool(
         name: 'log-contact-exchange',
-        description: 'Note a call, a message or a meeting with a contact, as read in a mailbox or a messaging: give the Message-ID of an e-mail, the conversation of a LinkedIn message. Each exchange is noted once in the account: noted again, the answer is its status alreadyNoted with the exchange noted first, or erasedBefore with who erased it, and nothing is noted.',
+        description: 'Log a call, a message or a meeting with a contact, as read in a mailbox or a messaging app. Give an e-mail\'s Message-ID, or a LinkedIn message\'s conversation. Each exchange is logged once in the account. When it is already logged, nothing is logged: the answer\'s status is alreadyNoted with the exchange logged first, or erasedBefore with who erased it.',
         annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false),
     )]
     public function __invoke(string $id, string $channel, string $direction, ?string $occurredAt = null, ?string $text = null, bool $missed = false, ?string $messageId = null, ?string $linkedInConversation = null): array

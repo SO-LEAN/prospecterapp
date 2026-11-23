@@ -29,11 +29,11 @@ final readonly class ShowTimelineTool
 
     /**
      * @param string  $id    the id of the contact
-     * @param ?string $after the cursor of the next slice, read in the link `next` of the slice before
+     * @param ?string $after the cursor of the next slice, read in the previous slice's `next` link
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'list-contact-exchanges', description: 'The timeline of a contact: the exchanges with them, the most recent first, by slices.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'list-contact-exchanges', description: 'List a contact\'s exchanges, the most recent first, in slices. Returns the contact\'s timeline.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $id, ?string $after = null): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');

@@ -23,12 +23,12 @@ final readonly class WriteObservationsTool
 
     /**
      * @param string  $id           the id of the organization
-     * @param ?string $observations what the members note on it, 255 characters at most; none when empty
-     * @param ?int    $revision     the organization's `revision` as you read it: if it changed since, the change is refused (changedMeanwhile) and you read it again
+     * @param ?string $observations the members' notes about it, 255 characters at most. None when empty
+     * @param ?int    $revision     the organization's `revision` as you read it. If it has changed since, the change is refused (changedMeanwhile): read the organization again
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'set-organization-notes', description: 'Write the observations on an organization, in place of those before. Answers the organization.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
+    #[McpTool(name: 'set-organization-notes', description: 'Write an organization\'s observations, replacing the previous ones. Returns the organization.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
     public function __invoke(string $id, ?string $observations = null, ?int $revision = null): array
     {
         return $this->writes->writeOnRevision(
