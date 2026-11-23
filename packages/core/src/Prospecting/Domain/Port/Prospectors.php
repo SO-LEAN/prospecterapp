@@ -9,7 +9,7 @@ use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * Port: the prospector a member is, translated from the context that knows the members of an account (Accounts),
+ * Port: the prospector a member is. It is translated from Accounts, the context that knows an account's members,
  * through its published service `ConsultMembersService` (ADR 0045, 0089).
  */
 interface Prospectors

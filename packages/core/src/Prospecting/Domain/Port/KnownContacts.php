@@ -8,8 +8,8 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Port: whether a person is one the account prospects. PersonalData keeps the persons, Prospecting never sees
- * it; the API answers through an anticorruption adapter (ADR 0041).
+ * Port: whether the account prospects a person. PersonalData keeps the persons, and Prospecting never sees them. The
+ * API answers through an anticorruption adapter (ADR 0041).
  */
 interface KnownContacts
 {
