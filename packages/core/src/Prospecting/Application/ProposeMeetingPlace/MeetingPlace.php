@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\ProposeMeetingPlace;
 
 /**
- * The address of the organization of a contact, proposed as the place to meet them; written on one line by its
- * client, the country named in its language.
+ * The address of a contact's organization, proposed as the place to meet them. The client writes it on one line and
+ * names the country in its own language.
  */
 final readonly class MeetingPlace
 {
