@@ -288,7 +288,7 @@
     "context": "personal-data",
     "sources": ["prospecter.prospecting"],
     "events": ["ContactLeftUnattached.v1"],
-    "handler": "Prospecter\\Core\\PersonalData\\Application\\ForgetContactLeftUnattached\\ForgetContactLeftUnattachedHandler",
+    "policy": "Prospecter\\Core\\PersonalData\\Application\\Policy\\ForgetContactLeftUnattachedPolicy",
     "inbox": true
   },
   "prospecting-erase-exchanges-of-contact-left-unattached": {
