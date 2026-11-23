@@ -22,14 +22,17 @@ import { GmailImport } from './gmail-import'
 
 type Props = {
   connection: Connection | undefined
-  /** False while no client of Prospecter at Google serves the account: Google is neither connected nor reconnected. */
+  /** False while no Prospecter client at Google serves the account. Then Google cannot be connected or reconnected. */
   offered: boolean
-  /** Google did not answer the check: the state of the connection is the one last seen. */
+  /** Google did not answer the check. The connection's state is the one last seen. */
   unchecked?: boolean
   goTo?: (address: string) => void
 }
 
-/** Google Calendar: connected, to reconnect once Google refused its access, or to connect; unavailable unless offered. */
+/**
+ * Google Calendar: connected, to reconnect once Google refused its access, or to connect. It is unavailable unless
+ * offered.
+ */
 export function GoogleCalendarCard({ connection, offered, unchecked = false, goTo }: Props) {
   const { t } = useTranslation()
 
@@ -84,7 +87,10 @@ function ConnectionState({ connection }: { connection: Connection }) {
   )
 }
 
-/** How many of my exchanges to come are in Google, and failed, pushed again all at once (ADR 0133). */
+/**
+ * How many of my upcoming exchanges are in Google, and how many failed. The failed ones are pushed again all at once
+ * (ADR 0133).
+ */
 function ExchangesSynced({ connection }: { connection: Connection }) {
   const { t } = useTranslation()
   const retry = useRetryFailedPushes()
@@ -152,7 +158,7 @@ function ConnectButton({ connection, goTo }: Pick<Props, 'connection' | 'goTo'>)
   )
 }
 
-/** Disconnecting revokes the access at Google: it is confirmed first. */
+/** Disconnecting revokes the access at Google, so the member confirms it first. */
 function DisconnectButton() {
   const { t } = useTranslation()
   const disconnect = useDisconnectGoogle()

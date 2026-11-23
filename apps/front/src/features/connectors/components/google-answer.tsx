@@ -13,8 +13,8 @@ type Props = {
 }
 
 /**
- * Where Google brings the member back: the code it gave goes to the API, once, then the member sees how it went on
- * the page of the connectors. A refusal at Google (`error=access_denied`) connects nothing.
+ * The page that Google brings the member back to. The code that Google gave goes to the API once. Then the member sees
+ * how it went on the connectors page. A refusal at Google (`error=access_denied`) connects nothing.
  */
 export function GoogleAnswerPage({ answer, onDone }: Props) {
   const { t } = useTranslation()

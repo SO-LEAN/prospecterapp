@@ -2,7 +2,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { api } from '@/shared/api/client'
 import { checkedConnectionsQuery, connectionsQuery, type GoogleClient, googleClientQuery } from './queries'
 
-/** The browser leaves for Google, which brings it back to the page of its answer (ADR 0120). */
+/** The browser leaves for Google. Google brings it back to the answer page (ADR 0120). */
 export function useConnectGoogle(
   goTo: (address: string) => void = (address) => window.location.assign(address),
 ) {
@@ -11,7 +11,7 @@ export function useConnectGoogle(
   })
 }
 
-/** The browser leaves for Google, which asks the reading of Gmail with the calendar (ADR 0154). */
+/** The browser leaves for Google. Google asks for access to Gmail along with the calendar (ADR 0154). */
 export function useImportGmail(
   goTo: (address: string) => void = (address) => window.location.assign(address),
 ) {
@@ -28,7 +28,7 @@ export function useStopGmailImport() {
   })
 }
 
-/** The code Google brought back, given to the API; the page of the answer says how it went. */
+/** Gives the API the code that Google brought back. The answer page says how it went. */
 export function useGiveGoogleItsAnswer() {
   const queryClient = useQueryClient()
 
@@ -38,7 +38,9 @@ export function useGiveGoogleItsAnswer() {
   })
 }
 
-/** Every exchange Google refused pushed again: the connections answer how many are synced and failed now (ADR 0133). */
+/**
+ * Pushes again each exchange that Google refused. The connections return the new synced and failed counts (ADR 0133).
+ */
 export function useRetryFailedPushes() {
   const queryClient = useQueryClient()
 
@@ -56,8 +58,8 @@ export function useDisconnectGoogle() {
 }
 
 /**
- * Another client of the account changes what is offered to its members, and makes those connected through a former
- * one reconnect (ADR 0125): their connections are read again.
+ * A new client for the account changes what its members are offered. Members connected through the former client
+ * must reconnect (ADR 0125). So their connections are read again.
  */
 function useKeepTheGoogleClient() {
   const queryClient = useQueryClient()

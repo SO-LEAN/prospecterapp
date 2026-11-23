@@ -35,8 +35,8 @@ const CLIENT_FIELDS = ['clientId', 'clientSecret'] as const
 type Props = { client: GoogleClient }
 
 /**
- * The client OAuth the organization made in its Google Cloud, which its members connect through (ADR 0125): the
- * redirect URI to declare in it, its id, its secret said set but never shown.
+ * The OAuth client that the organization created in its Google Cloud. Its members connect through it (ADR 0125). The
+ * card shows the redirect URI to declare in it and its id. It says whether the secret is set, but never shows it.
  */
 export function GoogleClientCard({ client }: Props) {
   const { t } = useTranslation()
@@ -108,7 +108,7 @@ function ClientState({ clientId }: { clientId: string | null | undefined }) {
   )
 }
 
-/** The secret is typed again for each client saved: the API never gives it back. */
+/** The secret is typed again each time the client is saved, because the API never gives it back. */
 function ClientForm({ clientId }: { clientId: string }) {
   const { t } = useTranslation()
   const configure = useConfigureGoogleClient()
@@ -159,7 +159,7 @@ function ClientForm({ clientId }: { clientId: string }) {
   )
 }
 
-/** Removing the client makes Google unavailable to the members: it is confirmed first. */
+/** Removing the client makes Google unavailable to the members, so the administrator confirms it first. */
 function RemoveButton() {
   const { t } = useTranslation()
   const remove = useRemoveGoogleClient()

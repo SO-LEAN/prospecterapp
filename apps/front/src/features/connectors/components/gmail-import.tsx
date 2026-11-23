@@ -15,8 +15,8 @@ type Props = {
 }
 
 /**
- * The import of my e-mails of Gmail (ADR 0154): offered while the account has a topic of Gmail and I may manage the
- * personal data, activated by asking Google the reading of my mailbox, stopped without touching my calendar.
+ * My Gmail e-mail import (ADR 0154). It is offered while the account has a Gmail topic and I may manage personal data.
+ * I activate it by asking Google for access to my mailbox. I stop it without touching my calendar.
  */
 export function GmailImport({ connection, goTo }: Props) {
   const { t } = useTranslation()

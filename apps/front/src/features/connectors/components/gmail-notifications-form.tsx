@@ -15,7 +15,7 @@ import { Input } from '@/shared/ui/input'
 import { useConfigureGmailNotifications, useRemoveGmailNotifications } from '../mutations'
 import type { GoogleClient } from '../queries'
 
-/** The steps an administrator follows in the Google Cloud of the organization (ADR 0154). */
+/** The steps that an administrator follows in the organization's Google Cloud (ADR 0154). */
 const PROCEDURE =
   'https://github.com/SO-LEAN/prospecterapp/blob/main/docs/google-client.md#2-the-import-of-gmail'
 
@@ -27,9 +27,9 @@ const NOTIFICATIONS_FIELDS = ['topic', 'pushAccount'] as const
 type Props = { client: GoogleClient }
 
 /**
- * The topic of the Google Cloud of the organization its mailboxes notify Prospecter through, and the account of
- * service its subscription pushes them with, for the import of the e-mails of Gmail (ADR 0154); the address the
- * subscription pushes to.
+ * The topic in the organization's Google Cloud that its mailboxes notify Prospecter through. It comes with the service
+ * account that the subscription pushes the notifications with. Both serve the Gmail e-mail import (ADR 0154). The form
+ * also shows the address that the subscription pushes to.
  */
 export function GmailNotificationsForm({ client }: Props) {
   const { t } = useTranslation()
@@ -134,7 +134,7 @@ function NotificationsForm({ client }: Props) {
   )
 }
 
-/** The import is no longer offered once its topic is removed, the watches expiring within their week. */
+/** The import is no longer offered once its topic is removed. The watches expire within their week. */
 function RemoveTopicButton() {
   const { t } = useTranslation()
   const remove = useRemoveGmailNotifications()
