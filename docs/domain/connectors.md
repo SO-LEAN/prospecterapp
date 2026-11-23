@@ -177,7 +177,7 @@ It reacts to the exchanges' facts (`ExchangeFactsChanged`) and to forgotten cont
 
 - `src/Connectors/Domain`:
   - `Connection` (its `push()`, `withdraw()` and `cancel()`, its `importMail()`, `renewMailWatch()`, `noteMailboxChange()`, `readMailboxHistory()`, `catchUpMailWith()`, `mailOf()` and `stopMailImport()`), `MailboxMail`, `MailboxChanges`, `Correspondent`, `ProviderClient`, `ClientCredentials`, `MailboxNotifications`, `MailImport`, `MailboxWatch`, `Scope`, `Member`, `PendingAuthorization`, `Grant`, `RefreshToken`, `Provider`, `ConnectionState`, `HeldExchange`, `CalendarEvent`, `Guest`, `CalendarEntry`, `ExchangeId`, `ContactId`, `OrganizationId`, `MessageId`, `ExchangeStatus`, `Channel`, `SyncState`;
-  - the events `CalendarToFill` (`Connected`, `CalendarRecreated`), `VideoCallLinkCreated`;
+  - the events `Connected`, `CalendarRecreated`, `VideoCallLinkCreated`;
   - the repositories `ConnectionRepository`, `AuthorizationRepository`, `ProviderClientRepository`, `CalendarEntryRepository`;
   - the ports, which the API implements:
     - `ProviderAccess`: exchange a code through a client's credentials, and tell whether a token still grants access through them. Revoke a token;
@@ -187,9 +187,9 @@ It reacts to the exchanges' facts (`ExchangeFactsChanged`) and to forgotten cont
 - `src/Connectors/Application`:
   - `AskForAuthorization`, `Connect`, `CheckMyConnections`, `Disconnect`, `ConsultMyConnections` (`MyConnection`, the port `MyConnectionsRetriever`), `ConfigureClient`, `RemoveClient`, `ConsultMyAccountClients` (`AccountClient`, the port `AccountClientsRetriever`);
   - through `CalendarPusher`:
-    - `PushExchange` (the reaction to `ExchangeFactsChanged`, the subscription `connectors-push-exchange`);
-    - `UnnameForgottenContact` (the reaction to `ContactForgotten`, `connectors-unname-forgotten-contact`);
-    - `PushUpcomingExchanges` (the reaction to `Connected` and `CalendarRecreated`, `connectors-push-upcoming-exchanges`);
+    - `PushExchange`, which its policy sends for `ExchangeFactsChanged` (the subscription `connectors-push-exchange`);
+    - `UnnameForgottenContact`, which its policy sends for `ContactForgotten` (`connectors-unname-forgotten-contact`);
+    - `PushUpcomingExchanges`, which its policy sends for `Connected` and `CalendarRecreated` (`connectors-push-upcoming-exchanges`);
     - `RetryPush`, `RetryFailedPushes`;
   - `PublishVideoCallLinkCreated` (the created link's translator, ADR 0137);
   - `ConsultExchangeSync` (`ExchangeSync`, the port `ExchangeSyncRetriever`);
@@ -198,7 +198,7 @@ It reacts to the exchanges' facts (`ExchangeFactsChanged`) and to forgotten cont
     - `ConfigureMailboxNotifications`, `RemoveMailboxNotifications`, `ConsultMailboxPusher`, `AskToImportMail`, `StopMailImport`;
     - `RenewMailWatch`. The platform gives it each active import (the port `MailImportsRetriever`);
     - `NoteMailboxNotification`;
-    - `ReadMailboxHistory` (the reaction to `MailboxChanged` and `MailWatchRenewed`, `MailboxToRead`, the subscription `connectors-read-mailbox-history`);
-    - `ImportMail` (the reaction to `MailboxMessageAdded`, `connectors-import-mail`);
+    - `ReadMailboxHistory`, which its policy sends for `MailboxChanged` and `MailWatchRenewed` (the subscription `connectors-read-mailbox-history`);
+    - `ImportMail`, which its policy sends for `MailboxMessageAdded` (`connectors-import-mail`);
   - `CatchUpMailHistory`, `ConsultMailCatchUpIntents`.
 - In the API: the table and its items are in `docs/architecture/persistence.md`, and the endpoints in `docs/architecture/api.md`. Google and its double are in `docs/architecture/local-stack.md` and `infra.md`.
