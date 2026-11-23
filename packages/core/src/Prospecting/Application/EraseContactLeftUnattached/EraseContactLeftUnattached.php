@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\EraseContactLeftUnattached;
 
 /**
- * Erases a contact nobody attached in the 30 days after their last meeting (ADR 0146), asked by the schedule of
- * the platform, no member at its origin; nothing when they were attached, erased already, or not yet due.
+ * Erases a contact that nobody attached in the 30 days after their last meeting (ADR 0146). The platform's schedule
+ * asks for it, and no member is at its origin. It does nothing when the contact was attached, is already erased, or
+ * is not due yet.
  */
 final readonly class EraseContactLeftUnattached
 {
