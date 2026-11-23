@@ -76,7 +76,7 @@ Fonctionnalité: Réserver un créneau
 
   Scénario: Tous les champs sont requis, sauf l'objet
     Quand on réserve un appel par mon lien public le 24/11/2026 à 9h00 sans téléphone
-    Alors c'est refusé : "A booker gives their first name, last name, phone and e-mail"
+    Alors c'est refusé : "A booker must give their first name, last name, phone number and e-mail address"
 
   Scénario: Un créneau pris entre-temps est refusé
     Soit quelqu'un vient de réserver par mon lien public le 24/11/2026 à 9h00
@@ -117,9 +117,9 @@ Fonctionnalité: Réserver un créneau
       | mardi | 09:00 | 09:30 |
     Et ma prise de rendez-vous est active
     Quand on réserve un appel par mon lien public le 24/11/2026 à 9h00
-    Alors c'est refusé : "This booking link offers no slot"
+    Alors c'est refusé : "This booking link offers no slots"
 
   Scénario: Un lien coupé ne réserve rien
     Soit je l'ai coupée
     Quand on réserve un appel par mon lien public le 24/11/2026 à 9h00
-    Alors c'est refusé : "This booking link offers no slot"
+    Alors c'est refusé : "This booking link offers no slots"

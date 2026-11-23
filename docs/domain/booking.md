@@ -18,7 +18,7 @@ Each member's booking page: when they may be booked, how, and the public link th
 - **Slot**: 15 minutes when the host may be booked, starting on a window's quarter hour. A slot is **free** when no exchange the host still has planned overlaps it. Such an exchange is a **busy period** (`BusyPeriod`), half open: an exchange that ends as a slot starts leaves the slot free.
 - **Suspended**: an open page whose calendar is not connected. It offers nothing until the calendar is connected again (`BookingSuspension`).
 - **Host identity** (`HostIdentity`): who the host is to the bookers: their name, their picture and their account's corporate name.
-- **Booker** (`Booker`): the person who books a slot, as they describe themselves. They give their first name, last name, phone (E.164) and e-mail. All four are required (`IncompleteBooker`, « A booker gives their first name, last name, phone and e-mail »).
+- **Booker** (`Booker`): the person who books a slot, as they describe themselves. They give their first name, last name, phone (E.164) and e-mail. All four are required (`IncompleteBooker`, « A booker must give their first name, last name, phone number and e-mail address »).
 - **Appointment** (`Appointment`): a host's slot that a booker booked through the public link, by a channel, about a subject if any. It holds its slot until the slot ends or the appointment's exchange is erased. It also holds the identity the client gives the booker, which the booker takes if nobody in the account is them.
 
 ## Rules
@@ -47,7 +47,7 @@ Each member's booking page: when they may be booked, how, and the public link th
 
 - The link of a host who may not hold the contacts their bookers become, a member without the right to manage personal data, offers nothing and books nothing (`LinkAvailability`, ADR 0146, 0164).
 - Anyone holding a link books a slot without signing in (`BookSlot`, ADR 0164), through the page the link leads to (`BookingPage::book`, an `AppointmentRequest` against the `HostAgenda`):
-  - a link offering nothing books nothing (`BookingUnavailable`, « This booking link offers no slot »);
+  - a link offering nothing books nothing (`BookingUnavailable`, « This booking link offers no slots »);
   - a channel the page does not offer is refused (`ChannelNotOffered`);
   - so is a slot the page does not offer as free, or one another booker took meanwhile (`SlotNotFree`, « This slot was just taken »);
   - a booker who already has an upcoming appointment with the host is told when it is, on the host's clock. The booker is recognized by the same e-mail, whatever its letter case (`AlreadyBooked`, « You already have an appointment »).

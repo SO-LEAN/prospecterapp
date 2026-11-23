@@ -13,6 +13,6 @@ final class IncompleteBooker extends BusinessRuleViolation
 {
     public static function refused(): self
     {
-        return self::because('A booker gives their first name, last name, phone and e-mail');
+        return self::because('A booker must give their first name, last name, phone number and e-mail address');
     }
 }
