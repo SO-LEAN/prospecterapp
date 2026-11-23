@@ -13,7 +13,8 @@ use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * A calendar is connected while the connection of its member to Google is: one to reconnect reaches nothing.
+ * A calendar is connected while its member's connection to Google is connected. A connection to reconnect reaches
+ * nothing.
  */
 final readonly class WhichHaveAConnectedCalendarHandler implements QueryHandler, WhichHaveAConnectedCalendarService
 {
