@@ -12,7 +12,7 @@ use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * The member pushes again every exchange of theirs the provider refused (ADR 0133).
+ * The member pushes again each of their exchanges that the provider refused (ADR 0133).
  */
 final readonly class RetryFailedPushesHandler implements CommandHandler
 {
