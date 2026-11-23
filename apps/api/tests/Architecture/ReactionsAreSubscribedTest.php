@@ -10,11 +10,13 @@ use App\Shared\Messaging\EventTypes;
 use App\Shared\Messaging\IntegrationEventTypes;
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\Policy;
 
 /**
- * The reactions live in one list, `config/subscriptions.json`, read by Symfony and by the infrastructure: an event
- * handler of the core is either a translator publishing a domain event to the other contexts, or a subscription
- * of that list; a domain event never leaves its context (ADR 0046).
+ * The reactions live in one list, `config/subscriptions.json`, read by Symfony and by the infrastructure. Every policy
+ * of the core is a subscription of that list, which listens only to the events its signature takes (ADR 0202). An
+ * event handler of the core is either a translator publishing a domain event to the other contexts, or a subscription
+ * of that list, until it becomes a policy. A domain event never leaves its context (ADR 0046).
  */
 class ReactionsAreSubscribedTest extends TestCase
 {
@@ -34,10 +36,39 @@ class ReactionsAreSubscribedTest extends TestCase
         $this->assertSame([], array_values($undeclared), 'reactions missing from config/subscriptions.json');
     }
 
+    public function testEveryPolicyIsSubscribed(): void
+    {
+        $this->assertSame([], array_values(array_diff($this->policiesOfTheCore(), $this->policiesOfTheSubscriptions())), 'policies missing from config/subscriptions.json');
+    }
+
+    public function testASubscriptionNamesAKnownPolicy(): void
+    {
+        $this->assertSame([], array_values(array_diff($this->policiesOfTheSubscriptions(), $this->policiesOfTheCore())));
+    }
+
+    /**
+     * Each detail-type a subscription listens to is read as a class that its policy's signature takes.
+     */
+    public function testASubscriptionListensToTheEventsItsPolicyTakes(): void
+    {
+        foreach ($this->subscriptions() as $name => $subscription) {
+            if (!isset($subscription['policy'])) {
+                continue;
+            }
+
+            $taken = self::eventsTakenBy($subscription['policy']);
+
+            foreach ($subscription['events'] as $detailType) {
+                $read = array_any(self::classesOf($subscription['sources'], $detailType), static fn (string $class): bool => array_any($taken, static fn (string $event): bool => is_a($class, $event, true)));
+                $this->assertTrue($read, sprintf('%s: %s is not taken by %s', $name, $detailType, $subscription['policy']));
+            }
+        }
+    }
+
     public function testASubscriptionNamesAKnownReaction(): void
     {
         $reactions = array_filter($this->eventHandlersOfTheCore(), static fn (string $handler): bool => !preg_match(SubscriptionsPass::TRANSLATOR, $handler));
-        $unknown = array_diff($this->handlersOfTheSubscriptions(), $reactions);
+        $unknown = array_diff($this->handlersOfTheSubscriptions(), $reactions, $this->policiesOfTheCore());
 
         $this->assertSame([], array_values($unknown));
     }
@@ -56,7 +87,7 @@ class ReactionsAreSubscribedTest extends TestCase
     public function testASubscriptionNamesItsHandlerOrOneForEachOfItsEvents(): void
     {
         foreach ($this->subscriptions() as $name => $subscription) {
-            $this->assertNotSame(isset($subscription['handler']), isset($subscription['handlers']), $name);
+            $this->assertCount(1, array_filter([isset($subscription['handler']), isset($subscription['handlers']), isset($subscription['policy'])]), $name);
             $this->assertSame($subscription['events'], array_keys($subscription['handlers'] ?? array_flip($subscription['events'])), $name);
         }
     }
@@ -97,13 +128,69 @@ class ReactionsAreSubscribedTest extends TestCase
     }
 
     /**
-     * @param array{events: list<string>, handler?: string, handlers?: array<string, string>} $subscription
+     * @param array{events: list<string>, handler?: string, handlers?: array<string, string>, policy?: string} $subscription
      *
-     * @return list<string>
+     * @return list<string> its reactions: its policy, or its event handlers
      */
     private static function handlersOf(array $subscription): array
     {
-        return array_values(array_unique($subscription['handlers'] ?? [$subscription['handler'] ?? '']));
+        return array_values(array_unique($subscription['handlers'] ?? [$subscription['handler'] ?? $subscription['policy'] ?? '']));
+    }
+
+    /**
+     * @param list<string> $sources
+     *
+     * @return list<string> the classes a detail-type is read as, from any of the sources
+     */
+    private static function classesOf(array $sources, string $detailType): array
+    {
+        $classes = [];
+
+        foreach ($sources as $source) {
+            foreach ([new DomainEventTypes(), new IntegrationEventTypes()] as $types) {
+                $classes[] = $types->classOf($source, $detailType);
+            }
+        }
+
+        return array_values(array_filter($classes));
+    }
+
+    /**
+     * @return list<string> the classes the policy's __invoke() takes, one or a union
+     */
+    private static function eventsTakenBy(string $policy): array
+    {
+        $type = new \ReflectionMethod($policy, '__invoke')->getParameters()[0]->getType();
+        $types = $type instanceof \ReflectionUnionType ? $type->getTypes() : [$type];
+
+        return array_values(array_map(static fn (?\ReflectionType $type): string => $type instanceof \ReflectionNamedType ? $type->getName() : '', $types));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function policiesOfTheSubscriptions(): array
+    {
+        return array_values(array_filter(array_column($this->subscriptions(), 'policy')));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function policiesOfTheCore(): array
+    {
+        $root = dirname(__DIR__, 2).'/vendor/prospecter/core/src/';
+        $policies = [];
+
+        foreach (glob($root.self::SERVED_CONTEXTS.'/Application/Policy/*.php', \GLOB_BRACE) ?: [] as $file) {
+            $class = 'Prospecter\\Core\\'.str_replace(['/', '.php'], ['\\', ''], substr($file, strlen($root)));
+
+            if (is_a($class, Policy::class, true)) {
+                $policies[] = $class;
+            }
+        }
+
+        return $policies;
     }
 
     /**
@@ -115,7 +202,7 @@ class ReactionsAreSubscribedTest extends TestCase
     }
 
     /**
-     * @return array<string, array{context: string, sources: list<string>, events: list<string>, handler?: string, handlers?: array<string, string>, inbox: bool}>
+     * @return array<string, array{context: string, sources: list<string>, events: list<string>, handler?: string, handlers?: array<string, string>, policy?: string, inbox: bool}>
      */
     private function subscriptions(): array
     {

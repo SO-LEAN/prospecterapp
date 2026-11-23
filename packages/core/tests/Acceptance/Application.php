@@ -17,6 +17,7 @@ use Prospecter\Core\Accounts\Application\ListAccounts\ListAccountsHandler;
 use Prospecter\Core\Accounts\Application\MyAccount;
 use Prospecter\Core\Accounts\Application\MyReminders;
 use Prospecter\Core\Accounts\Application\OpenAccount\OpenAccountHandler;
+use Prospecter\Core\Accounts\Application\Policy\RegisterTheFounderPolicy;
 use Prospecter\Core\Accounts\Application\PublishAccountOpened\PublishAccountOpenedHandler;
 use Prospecter\Core\Accounts\Application\PublishMemberRegistered\PublishMemberRegisteredHandler;
 use Prospecter\Core\Accounts\Application\RegisterAMember\RegisterAMemberHandler;
@@ -44,6 +45,7 @@ use Prospecter\Core\Booking\Application\ForgetAppointmentOfErasedExchange\Forget
 use Prospecter\Core\Booking\Application\MyBookingPage;
 use Prospecter\Core\Booking\Application\OfferChannels\OfferChannelsHandler;
 use Prospecter\Core\Booking\Application\OpenBooking\OpenBookingHandler;
+use Prospecter\Core\Booking\Application\Policy\ForgetAppointmentOfErasedExchangePolicy;
 use Prospecter\Core\Booking\Application\PublicBookingPage;
 use Prospecter\Core\Booking\Application\PublishSlotBooked\PublishSlotBookedHandler;
 use Prospecter\Core\Booking\Application\RemoveInactivePeriod\RemoveInactivePeriodHandler;
@@ -434,6 +436,7 @@ use Prospecter\Core\Reporting\Domain\Model\Fact;
 use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
 use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\Policy;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Prospecter\Core\SharedKernel\Application\Handler\RefusalTranslatingCommandHandler;
 use Prospecter\Core\SharedKernel\Application\Handler\RefusalTranslatingEventHandler;
@@ -798,7 +801,7 @@ final class Application
         }
 
         foreach ($this->reactions() as $reaction) {
-            $this->alsoReactWith($reaction);
+            $reaction instanceof Policy ? $this->events->subscribePolicy($reaction, $this->sendWithinAReaction(...)) : $this->alsoReactWith($reaction);
         }
 
         foreach ($this->commandHandlers() as $handler) {
@@ -822,6 +825,14 @@ final class Application
     public function alsoReactWith(EventHandler $reaction): void
     {
         $this->events->subscribe($reaction, calledThrough: new RefusalTranslatingEventHandler(new TransactionalEventHandler($reaction, $this->unitOfWork)));
+    }
+
+    /**
+     * Sends a policy's command to its handler, through its decorators, within the reaction that delivers the event.
+     */
+    private function sendWithinAReaction(object $command): void
+    {
+        Invocable::call($this->handlers[$command::class] ?? throw new \LogicException(sprintf('No handler for %s', $command::class)), $command);
     }
 
     /**
@@ -1355,6 +1366,8 @@ final class Application
     private function commandHandlers(): array
     {
         return [
+            new RegisterTheFounderHandler($this->members),
+            new ForgetAppointmentOfErasedExchangeHandler($this->appointments),
             new EraseContactLeftUnattachedHandler($this->contactsToAttach, $this->events),
             new StartProspectingHandler($this->organizations, $this->prospectors, $this->events, $this->geoLocalizer, $this->organizationEmails, $this->organizationReferences, $this->organizationWebsites, $this->duplicateSuspicion),
             new ReviseLegalIdentityHandler($this->organizations, $this->events, $this->organizationSirets, $this->duplicateSuspicion),
@@ -1723,10 +1736,10 @@ final class Application
     }
 
     /**
-     * Every other core event handler: the reactions, internal or from the other contexts. The scenarios run them
-     * after the command, as the API's worker runs the subscriptions.
+     * The reactions, internal or from the other contexts: the policies, and the event handlers that are not
+     * translators. The scenarios run them after the command, as the API's worker runs the subscriptions.
      *
-     * @return list<EventHandler>
+     * @return list<EventHandler|Policy>
      */
     private function reactions(): array
     {
@@ -1752,7 +1765,7 @@ final class Application
             new PushBackErasureOfContactToAttachHandler($this->exchanges, $this->contactsToAttach, $this->events),
             new IdentifyBookerHandler($this->persons, new BookingBookers($this->consultAppointmentsService), $this->readers, $this->events),
             new PlanBookedAppointmentHandler($this->exchanges, $this->contactsToAttach, $this->contactOrganizations, new BookingBookedAppointments($this->consultAppointmentsService), $this->prospectors, $this->events),
-            new RegisterTheFounderHandler($this->members),
+            new RegisterTheFounderPolicy(),
             new CollectTheFounderProfileHandler($this->persons),
             new CollectTheMemberProfileHandler($this->persons),
             new StopKeepingExchangesHandler($this->exchanges, $this->events),
@@ -1777,7 +1790,7 @@ final class Application
             new ForgetRecipientOfForgottenContactHandler($this->campaigns),
             new ProcessRecipientOfCampaignExchangeHandler($this->campaigns),
             new ReopenRecipientOfErasedExchangeHandler($this->campaigns),
-            new ForgetAppointmentOfErasedExchangeHandler($this->appointments),
+            new ForgetAppointmentOfErasedExchangePolicy(),
             new RecordOrganizationFactsInCampaignsHandler($this->campaignsFactRecorder),
             new RecordContactFactsInCampaignsHandler($this->campaignsFactRecorder),
         ];

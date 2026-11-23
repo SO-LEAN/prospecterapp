@@ -12,6 +12,7 @@ use App\Shared\Messaging\EventCodec;
 use App\Shared\Messaging\EventLoop;
 use App\Shared\Messaging\IntegrationEventTypes;
 use App\Shared\Messaging\Payloads;
+use App\Shared\Messaging\Reaction;
 use App\Shared\Messaging\RoutingEvents;
 use App\Shared\Messaging\Subscriptions;
 use App\Shared\Messaging\SynchronousDelivery;
@@ -20,7 +21,6 @@ use PHPUnit\Framework\TestCase;
 use Prospecter\Core\PersonalData\Contract\Event\ContactCollected;
 use Prospecter\Core\PersonalData\Contract\Event\ContactForgotten;
 use Prospecter\Core\Prospecting\Contract\Event\ContactsLeftWithoutOrganization;
-use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\Messenger\MessageBus;
@@ -39,7 +39,7 @@ class SynchronousDeliveryTest extends TestCase
 
     private Causation $causation;
     private Recording $delivered;
-    /** @var array<string, EventHandler> */
+    /** @var array<string, Reaction> */
     private array $reactions = [];
 
     protected function setUp(): void
@@ -104,7 +104,7 @@ class SynchronousDeliveryTest extends TestCase
         $reactions = [];
 
         foreach ($subscriptions as $name => [, $detailType]) {
-            $reactions[Subscriptions::reactionKey($name, $detailType)] = fn (): EventHandler => $this->reactions[$name];
+            $reactions[Subscriptions::reactionKey($name, $detailType)] = fn (): Reaction => $this->reactions[$name];
         }
 
         $locator = new ServiceLocator($reactions);
@@ -133,7 +133,7 @@ class SynchronousDeliveryTest extends TestCase
 /**
  * A reaction publishing an event of its own.
  */
-final readonly class Publishing implements EventHandler
+final readonly class Publishing implements Reaction
 {
     /**
      * @param \Closure(): object $event

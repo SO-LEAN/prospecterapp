@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Shared\Messaging;
 
-use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
 use Psr\Container\ContainerInterface;
 
 /**
- * The subscriptions from `config/subscriptions.json`, and their reactions to each event they listen to. The reactions
- * run through their decorators (`App\Shared\DependencyInjection\SubscriptionsPass`). A subscription that names the
+ * The subscriptions from `config/subscriptions.json`, and their reactions to each event they listen to: a policy's
+ * commands sent through their decorators, or an event handler called through its own
+ * (`App\Shared\DependencyInjection\SubscriptionsPass`). A subscription that names the
  * payloads it listens to reacts to those only, as its bus rule filters them (`PayloadPattern`, ADR 0127).
  *
  * @phpstan-type Declared array{context: string, sources: list<string>, events: list<string>, payload?: array<string, mixed>, inbox: bool}
@@ -33,7 +33,7 @@ final readonly class Subscriptions
     }
 
     /**
-     * @return list<EventHandler>
+     * @return list<Reaction>
      */
     public function reactingTo(TransportedEvent $event): array
     {
@@ -42,7 +42,7 @@ final readonly class Subscriptions
             static fn (array $subscription): bool => in_array($event->source, $subscription['sources'], true) && in_array($event->detailType, $subscription['events'], true) && PayloadPattern::matches($event->payload, $subscription['payload'] ?? []),
         );
 
-        return array_map(fn (string $name): EventHandler => $this->reaction(self::reactionKey($name, $event->detailType)), array_keys($listening));
+        return array_map(fn (string $name): Reaction => $this->reaction(self::reactionKey($name, $event->detailType)), array_keys($listening));
     }
 
     /**
@@ -60,17 +60,17 @@ final readonly class Subscriptions
      *
      * @throws UnknownSubscription when it does not listen to the event
      */
-    public function reactionOf(Subscription $subscription, TransportedEvent $event): EventHandler
+    public function reactionOf(Subscription $subscription, TransportedEvent $event): Reaction
     {
         $key = self::reactionKey($subscription->name, $event->detailType);
 
         return $this->reactions->has($key) ? $this->reaction($key) : throw UnknownSubscription::notListeningTo($subscription->name, $event->detailType);
     }
 
-    private function reaction(string $key): EventHandler
+    private function reaction(string $key): Reaction
     {
         $reaction = $this->reactions->get($key);
 
-        return $reaction instanceof EventHandler ? $reaction : throw new \LogicException(sprintf('The reaction %s is no event handler', $key));
+        return $reaction instanceof Reaction ? $reaction : throw new \LogicException(sprintf('The reaction %s is no reaction', $key));
     }
 }

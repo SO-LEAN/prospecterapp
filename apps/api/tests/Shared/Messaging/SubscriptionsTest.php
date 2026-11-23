@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Tests\App\Shared\Messaging;
 
 use App\Shared\DependencyInjection\SubscriptionsPass;
+use App\Shared\Messaging\Reaction;
 use App\Shared\Messaging\Subscriptions;
 use App\Shared\Messaging\TransportedEvent;
 use App\Shared\Typed;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
 /**
@@ -67,21 +67,21 @@ class SubscriptionsTest extends TestCase
 
         foreach ($declared as $name => $subscription) {
             foreach ($subscription['events'] as $event) {
-                $reactions[Subscriptions::reactionKey($name, $event)] = static fn (): EventHandler => self::reactionNamed($name);
+                $reactions[Subscriptions::reactionKey($name, $event)] = static fn (): Reaction => self::reactionNamed($name);
             }
         }
 
         $reacting = new Subscriptions(new ServiceLocator($reactions), $declared)->reactingTo(new TransportedEvent($source, $detailType, 'an-event', '2026-11-16T09:00:00.000000Z', 'a-correlation', null, 0, $payload));
 
-        return array_map(static fn (EventHandler $reaction): string => property_exists($reaction, 'name') ? Typed::string($reaction->name) : '', $reacting);
+        return array_map(static fn (Reaction $reaction): string => property_exists($reaction, 'name') ? Typed::string($reaction->name) : '', $reacting);
     }
 
     /**
      * A reaction known by the name of its subscription.
      */
-    private static function reactionNamed(string $name): EventHandler
+    private static function reactionNamed(string $name): Reaction
     {
-        return new readonly class($name) implements EventHandler {
+        return new readonly class($name) implements Reaction {
             public function __construct(public string $name)
             {
             }
