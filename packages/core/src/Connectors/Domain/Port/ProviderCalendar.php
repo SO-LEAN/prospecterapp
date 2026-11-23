@@ -13,38 +13,39 @@ use Prospecter\Core\Connectors\Domain\Model\ExchangeId;
 use Prospecter\Core\Connectors\Domain\Model\RefreshToken;
 
 /**
- * Port: the calendar « Prospecter » the provider keeps for a member, reached with their token through the client of
- * their account (ADR 0127), implemented by the API. An event is identified by its exchange: put twice, it is one.
- * A failure that may pass is thrown as it is, to be tried again.
+ * Port: the calendar « Prospecter » that the provider keeps for a member (ADR 0127). Connectors reaches it with the
+ * member's token, through their account's client. The API implements this port. An event is identified by its
+ * exchange, so an event put twice is still one event. A transient failure is thrown as it is, so that it is tried
+ * again.
  */
 interface ProviderCalendar
 {
     /**
-     * @return string the identity of the calendar created
+     * @return string the created calendar's id
      *
      * @throws AccessRevoked|CalendarRefusedThePush
      */
     public function create(ClientCredentials $client, RefreshToken $refreshToken): string;
 
     /**
-     * The event created, or put in place of the one of its exchange, brought back if it was removed; asking a link,
-     * the conference of the event created once, whatever the number of pushes (ADR 0137).
+     * Creates the event, or replaces its exchange's event. An event that was removed is brought back. When the event
+     * asks for a link, its conference is created once, however many times it is pushed (ADR 0137).
      *
-     * @return string|null the link of the conference of an event asking one, none otherwise
+     * @return string|null the conference link of an event that asks for one, none otherwise
      *
      * @throws AccessRevoked|CalendarGone|CalendarRefusedThePush
      */
     public function put(ClientCredentials $client, RefreshToken $refreshToken, string $calendar, CalendarEvent $event): ?string;
 
     /**
-     * The event of the exchange removed, nothing done when there is none.
+     * Removes the exchange's event. Does nothing when there is none.
      *
      * @throws AccessRevoked|CalendarGone|CalendarRefusedThePush
      */
     public function remove(ClientCredentials $client, RefreshToken $refreshToken, string $calendar, ExchangeId $exchange): void;
 
     /**
-     * The event of the exchange removed, the provider telling its guest it is cancelled; nothing done when there is
+     * Removes the exchange's event, and the provider tells its guest that it is cancelled. Does nothing when there is
      * none.
      *
      * @throws AccessRevoked|CalendarGone|CalendarRefusedThePush
