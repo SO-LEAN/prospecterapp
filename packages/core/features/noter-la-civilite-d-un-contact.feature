@@ -46,7 +46,7 @@ Fonctionnalité: Noter la civilité d'un contact
   Scénario: Sans le droit, je ne change pas la civilité
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
     Quand je change la civilité de "Camille Martin" en "Madame"
-    Alors c'est refusé : "Only a member allowed to manage personal data may change the civility of a contact"
+    Alors c'est refusé : "Only a member allowed to manage personal data can change a contact's title"
 
   Scénario: La civilité est celle d'un contact, pas du profil d'un membre
     Quand je consulte la fiche de "moi"

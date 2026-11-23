@@ -25,7 +25,7 @@ Fonctionnalité: Dire qu'un contact n'est pas un doublon
   Scénario: Sans le droit aux données personnelles, je ne lève pas un soupçon
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
     Quand je dis que le contact "ada LOVELACE" n'est pas un doublon de "Ada Lovelace"
-    Alors c'est refusé : "Only a member allowed to manage personal data may say a contact is no duplicate"
+    Alors c'est refusé : "Only a member allowed to manage personal data can say a contact is not a duplicate"
 
   Scénario: L'autre contact n'est plus signalé en retour
     Quand je dis que le contact "ada LOVELACE" n'est pas un doublon de "Ada Lovelace"

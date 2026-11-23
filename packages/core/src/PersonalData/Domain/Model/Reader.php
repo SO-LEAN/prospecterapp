@@ -58,7 +58,7 @@ final readonly class Reader
     public function ensureMayRecognizeByPhoneNumber(): void
     {
         if (!$this->readsPersonalData) {
-            throw PersonalDataManagersOnly::because('Only a member allowed to manage personal data may recognize a person by their phone number', 'phoneNumber');
+            throw PersonalDataManagersOnly::because('Only a member allowed to manage personal data can recognize a person by their phone number', 'phoneNumber');
         }
     }
 }

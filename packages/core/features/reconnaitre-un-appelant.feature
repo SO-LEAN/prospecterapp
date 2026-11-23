@@ -42,4 +42,4 @@ Fonctionnalité: Reconnaître un appelant
   Scénario: Sans le droit aux données personnelles, je ne reconnais pas un contact par son numéro
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
     Quand un appel arrive du "06 12 34 56 78"
-    Alors c'est refusé : "Only a member allowed to manage personal data may recognize a person by their phone number"
+    Alors c'est refusé : "Only a member allowed to manage personal data can recognize a person by their phone number"

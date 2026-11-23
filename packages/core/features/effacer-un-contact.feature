@@ -22,14 +22,14 @@ Fonctionnalité: Effacer un contact
   Scénario: Sans le droit, je ne peux pas effacer un contact
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
     Quand j'efface la fiche de "Ada Lovelace"
-    Alors c'est refusé : "Only a member allowed to manage personal data may forget a prospected person"
+    Alors c'est refusé : "Only a member allowed to manage personal data can forget a prospected person"
 
   Scénario: Un membre n'est pas un contact : sa fiche ne s'efface pas
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
     Et "Grace" est membre de "SOLEAN IT" avec le profil :
       | prénom | Grace |
     Quand j'efface la fiche de "Grace"
-    Alors c'est refusé : "Only a member allowed to manage personal data may forget a prospected person"
+    Alors c'est refusé : "Only a member allowed to manage personal data can forget a prospected person"
 
   Scénario: Le contact d'un autre compte est introuvable
     Soit l'organisation "Concurrent" qui utilise Prospecter
