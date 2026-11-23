@@ -18,17 +18,21 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Psr\Clock\ClockInterface;
 
 /**
- * The facts the tags of the contacts derive from, in the table of Campaigns (ADR 0141): identities and booleans, no
- * personal data. A fact is written in place of the one it replaces under the condition that it is still the one kept;
- * the fact of an organization writes, in the same transaction, a link per contact it names that the replaced one did
- * not name, and removes those of the contacts it no longer names, so that the tags of a contact are read by its keys.
- * A terminal fact is forgotten 15 days later, longer than an event may wait (6 hours in the worker, a day of retries of
- * EventBridge, 14 days in the failures).
+ * The facts that the contacts' tags are derived from, in Campaigns' table (ADR 0141). They hold ids and booleans, and
+ * no personal data. A fact is written in place of the one it replaces, on condition that the replaced fact is still the
+ * kept one. In the same transaction, an organization's fact writes a link for each contact it names that the replaced
+ * fact did not name. It also removes the links of the contacts it no longer names. So a contact's tags are read by its
+ * keys. A terminal fact is forgotten 15 days later. That is longer than an event may wait: 6 hours in the worker, a day
+ * of EventBridge retries, and 14 days among the failures.
  *
- * PK `ACCOUNT#<account>`, SK `FACT#ORGANIZATION#<id>` (`revision`, `present`, `contacts`, `municipalityCode` and
- * `country`, ADR 0142, absent from the facts recorded before), `FACT#CONTACT#<id>`
- * (`revision`, `present`, `hasEmail`, `hasPhone`, `hasMobile`, `hasLinkedIn`) and its links
- * `FACT#CONTACT#<id>#ORGANIZATION#<organization>` (`organization`), `expiresAt` the epoch a terminal fact is forgotten at.
+ * PK `ACCOUNT#<account>`. The SKs are:
+ *
+ * - `FACT#ORGANIZATION#<id>` (`revision`, `present`, `contacts`, `municipalityCode` and `country`). The last two
+ *   came with ADR 0142, and the facts recorded before lack them;
+ * - `FACT#CONTACT#<id>` (`revision`, `present`, `hasEmail`, `hasPhone`, `hasMobile`, `hasLinkedIn`);
+ * - its links, `FACT#CONTACT#<id>#ORGANIZATION#<organization>` (`organization`).
+ *
+ * `expiresAt` is the epoch at which a terminal fact is forgotten.
  */
 final readonly class DynamoFactRepository implements FactRepository
 {
@@ -69,8 +73,8 @@ final readonly class DynamoFactRepository implements FactRepository
     }
 
     /**
-     * @return list<Write> the links of the contacts the fact of an organization names now and did not, and the removal
-     *                     of those it no longer names
+     * @return list<Write> the links of the contacts that an organization's fact names now and did not name before,
+     *                     and the removal of the links of those it no longer names
      */
     private function linkWrites(Fact $fact, ?Fact $replaced): array
     {
@@ -106,7 +110,7 @@ final readonly class DynamoFactRepository implements FactRepository
     }
 
     /**
-     * @return array{contacts: list<string>, municipalityCode: ?string, country: ?string}|array{hasEmail: bool, hasPhone: bool, hasMobile: bool, hasLinkedIn: bool}|array{} what a fact of its kind carries beyond its revision and its presence
+     * @return array{contacts: list<string>, municipalityCode: ?string, country: ?string}|array{hasEmail: bool, hasPhone: bool, hasMobile: bool, hasLinkedIn: bool}|array{} what a fact of its kind carries besides its revision and presence
      */
     private static function attributesOf(Fact $fact): array
     {

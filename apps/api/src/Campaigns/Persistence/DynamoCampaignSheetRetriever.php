@@ -13,9 +13,9 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\CampaignId;
 
 /**
- * The campaigns read from the items of `DynamoCampaignRepository`, without restoring them (ADR 0088): one, or every
- * campaign of the account at once, the range `CAMPAIGN#` of its partition (ADR 0144); the names of some, in one batch
- * (ADR 0145).
+ * Reads the campaigns from the items of `DynamoCampaignRepository`, without restoring them (ADR 0088). It reads one
+ * campaign, or every campaign of the account at once in the range `CAMPAIGN#` of its partition (ADR 0144). It reads the
+ * names of some campaigns in one batch (ADR 0145).
  */
 final readonly class DynamoCampaignSheetRetriever implements CampaignSheetRetriever
 {

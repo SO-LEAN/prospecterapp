@@ -7,15 +7,15 @@ namespace App\Campaigns\Persistence;
 use App\Shared\Typed;
 
 /**
- * What the item of the fact of an organization says of where it is (ADR 0142), written by `DynamoFactRepository` and
- * read by the retrievers: one format for all.
+ * What an organization's fact item says about where it is (ADR 0142). `DynamoFactRepository` writes it and the
+ * retrievers read it, so they all share one format.
  */
 final class OrganizationFactItem
 {
     /**
      * @param array<string, mixed> $item
      *
-     * @return array{municipalityCode: ?string, country: ?string} both null in a fact recorded before they were
+     * @return array{municipalityCode: ?string, country: ?string} both null in a fact recorded before the facts carried them
      */
     public static function localityIn(array $item): array
     {
