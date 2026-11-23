@@ -13,8 +13,8 @@ use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 
 /**
- * Tells the other contexts the facts of an exchange each time something happens to it, read as its service
- * reads them, before the commit: the unit of work gives them as the command is about to write them.
+ * Tells the other contexts an exchange's facts each time something happens to it. It reads them as the exchange's
+ * service does, before the commit: the unit of work gives them when the command is about to write them.
  */
 final readonly class PublishExchangeFactsHandler implements EventHandler
 {
@@ -43,8 +43,8 @@ final readonly class PublishExchangeFactsHandler implements EventHandler
     }
 
     /**
-     * Erased, the exchange is no longer read: its last facts name the contact and the campaign its erasure tells
-     * (ADR 0152), and whether it went with its organization (ADR 0155).
+     * An erased exchange is no longer read. Its last facts name the contact and the campaign that its erasure tells
+     * (ADR 0152). They also say whether it went with its organization (ADR 0155).
      */
     private function factsOf(ExchangeEvent $event): ExchangeFactsResponse
     {
