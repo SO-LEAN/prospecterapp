@@ -39,8 +39,8 @@ use Tests\Core\Double\InMemoryProviderMailbox;
 use Tests\Core\Double\StateOf;
 
 /**
- * Each gesture on a connection records what happened; an authorization waits ten minutes, not one more; a push
- * reaches the calendar only through the client its token was granted to, while connected.
+ * Each gesture on a connection records what happened. An authorization waits ten minutes, and not one minute more. A
+ * push reaches the calendar only through the client that its token was granted to, and only while connected.
  */
 final class ConnectionTest extends TestCase
 {

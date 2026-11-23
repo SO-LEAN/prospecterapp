@@ -25,7 +25,8 @@ use Tests\Core\Acceptance\Expect;
 use Tests\Core\Double\StateOf;
 
 /**
- * The import of the e-mails of the mailbox of a member, notified through the topic of their account (ADR 0154).
+ * The import of a member's e-mails from their mailbox, which notifies Prospecter through their account's topic
+ * (ADR 0154).
  */
 final class MailImportContext implements Context
 {
@@ -36,7 +37,7 @@ final class MailImportContext implements Context
     private const string MY_MAILBOX = 'michel@exemple.fr';
     private const array STATES = ['coupé' => 'off', 'actif' => 'active', 'à reconnecter' => 'toReconnect'];
 
-    /** the `state` of the authorization asked last */
+    /** the last authorization's `state` */
     private ?string $pendingState = null;
 
     #[Given('le client Google de :account a le topic Pub\\/Sub :topic')]

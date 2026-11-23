@@ -16,10 +16,10 @@ use Prospecter\Core\Connectors\Domain\Port\ProviderMailbox;
 use Prospecter\Core\SharedKernel\Domain\Email;
 
 /**
- * The mailboxes Gmail keeps, as the scenarios see them (ADR 0154): the mailbox of the account a token was granted
- * for, where its history stands, each message received moving it one point further, watched for a week through a
- * topic until stopped; its history forgotten when a scenario says so, as Gmail forgets it after a week or so; a token
- * the provider refuses reaches nothing.
+ * The mailboxes that Gmail keeps, as the scenarios see them (ADR 0154). A token reaches the mailbox of the account it
+ * was granted for. The double keeps where each mailbox history stands, and each message received moves it one point
+ * further. A mailbox is watched for a week through a topic, until the watch is stopped. Its history is forgotten when
+ * a scenario says so, as Gmail forgets it after a week or so. A token that the provider refuses reaches nothing.
  */
 final class InMemoryProviderMailbox implements ProviderMailbox
 {
@@ -27,15 +27,15 @@ final class InMemoryProviderMailbox implements ProviderMailbox
     private const int FIRST_HISTORY = 1;
     private const string ANY_FILE = 'application/octet-stream';
 
-    /** @var array<string, int> where the history of each mailbox stands, by its address */
+    /** @var array<string, int> where each mailbox history stands, by the mailbox's address */
     private array $histories = [];
-    /** @var array<string, int> the point of its history each mailbox no longer keeps the history before */
+    /** @var array<string, int> for each mailbox, the history point before which it no longer keeps its history */
     private array $forgottenBefore = [];
     /** @var array<string, list<array{history: int, mail: MailboxMail, copied: list<Email>}>> the messages of each mailbox, the oldest first */
     private array $messages = [];
     /** @var array<string, array{topic: string, expiresAt: \DateTimeImmutable, times: int}> the watches, by mailbox */
     private array $watches = [];
-    /** @var array<string, true> the mailboxes whose messages Gmail refuses to read, the access revoked meanwhile */
+    /** @var array<string, true> the mailboxes whose messages Gmail refuses to read, because the access was revoked in the meantime */
     private array $messagesRefused = [];
 
     /**
@@ -51,8 +51,8 @@ final class InMemoryProviderMailbox implements ProviderMailbox
     }
 
     /**
-     * A message arrives in the mailbox, its history one point further, with the addresses it was copied to, which
-     * Gmail searches but the message as Prospecter reads it does not name.
+     * A message arrives in the mailbox, and its history moves one point further. The message comes with the addresses
+     * that it was copied to. Gmail searches them, but the message as Prospecter reads it does not name them.
      *
      * @param list<Email> $copied
      */
@@ -62,7 +62,7 @@ final class InMemoryProviderMailbox implements ProviderMailbox
     }
 
     /**
-     * The history of the mailbox tells again of a message it has, as when a label is added to it.
+     * The mailbox history tells again about a message that the mailbox has, as when a label is added to the message.
      */
     public function addAgain(string $mailbox, MailboxMail $mail): void
     {
@@ -121,8 +121,8 @@ final class InMemoryProviderMailbox implements ProviderMailbox
     }
 
     /**
-     * As Gmail searches `from:` or `to:` an address, its copies with them, the spam, the trash and the drafts left out,
-     * the newest first by the moment they were exchanged.
+     * As Gmail searches `from:` or `to:` an address, copies included. The search leaves out the spam, the trash and the
+     * drafts. The newest messages come first, by the moment they were exchanged.
      */
     public function messagesExchangedWith(ClientCredentials $client, RefreshToken $refreshToken, Email $address, \DateTimeImmutable $moment, int $atMost): array
     {
@@ -136,7 +136,7 @@ final class InMemoryProviderMailbox implements ProviderMailbox
     }
 
     /**
-     * The access revoked once the history was read, before its messages are.
+     * The access is revoked once the history was read, before its messages are read.
      */
     public function refusesTheMessagesOf(string $mailbox): void
     {
@@ -154,7 +154,7 @@ final class InMemoryProviderMailbox implements ProviderMailbox
     }
 
     /**
-     * Sent as the API sends a file, with the form of an upload: a file of its size.
+     * Sent as the API sends a file, in an upload's form: a file of the attachment's size.
      */
     public function depositAttachment(ClientCredentials $client, RefreshToken $refreshToken, string $messageId, MailboxAttachment $attachment, int $copies): array
     {
@@ -176,7 +176,7 @@ final class InMemoryProviderMailbox implements ProviderMailbox
     }
 
     /**
-     * The topic a mailbox publishes its changes to, none while it is not watched.
+     * The topic that a mailbox publishes its changes to, null while the mailbox is not watched.
      */
     public function topicWatchedBy(string $mailbox): ?string
     {

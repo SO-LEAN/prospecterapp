@@ -15,8 +15,8 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
- * Only a planned video call without a link asks the provider to create one (ADR 0137): an event put again once done,
- * its contact forgotten, asks nothing.
+ * Only a planned video call without a link asks the provider to create one (ADR 0137). An event put again once its
+ * exchange is done, or once its contact is forgotten, asks for nothing.
  */
 class HeldExchangeTest extends TestCase
 {
