@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Contract\Event;
 
 /**
- * Integration event published to the other contexts (ADR 0046, 0047): the state of an organization once it
- * changed, as its facts count it. The highest revision is the latest; an organization the account no longer
- * prospects is absent, at the revision 0, naming no contact. Its contacts are published from its second version: null
- * in a fact of the first; the INSEE code of its municipality and the country of its address from the third (ADR 0142):
- * null in a fact of a former one.
+ * An integration event published to the other contexts (ADR 0046, 0047). It gives an organization's state after a
+ * change, as its facts count it. The highest revision is the latest. An organization the account no longer prospects
+ * is absent, at revision 0, and names no contact.
+ * The event publishes the contacts since its second version: they are null in a fact of the first version. It
+ * publishes the municipality's INSEE code and the address's country since its third version (ADR 0142): they are null
+ * in a fact of an earlier version.
  */
 final readonly class OrganizationFactsChanged
 {
