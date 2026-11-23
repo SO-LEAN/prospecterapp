@@ -9,8 +9,8 @@ use Prospecter\Core\SharedKernel\Application\OutputPort;
 interface ProposeOrganizationToAttachOutput extends OutputPort
 {
     /**
-     * @param ProposedOrganization|null $organization none for a public mailbox, or a domain no organization of the
-     *                                                account has
+     * @param ProposedOrganization|null $organization none for a public mailbox, or for a domain that none of the
+     *                                                account's organizations has
      */
     public function present(?ProposedOrganization $organization): void;
 }
