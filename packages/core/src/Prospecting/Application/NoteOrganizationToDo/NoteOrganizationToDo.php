@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\NoteOrganizationToDo;
 
 /**
- * Notes a to-do for the organization itself, kept for it alone, due on a day (`Y-m-d`), at an hour of it (`H:i`) when
- * said.
+ * Logs a to-do for the organization itself. The to-do is kept for that organization only. It is due on a day
+ * (`Y-m-d`), and at an hour of that day (`H:i`) when one is given.
  */
 final readonly class NoteOrganizationToDo
 {
