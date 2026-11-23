@@ -44,9 +44,7 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\Core\Double\StateOf;
 
-/**
- * Every intention of a campaign is refused exactly when its state does not offer it, and records its event.
- */
+/** A campaign refuses each intent exactly when its state does not allow it. Otherwise, the intent records its event. */
 final class CampaignTest extends TestCase
 {
     private const string ACCOUNT = '0190a1c0-0000-7000-8000-000000000001';
@@ -399,9 +397,7 @@ final class CampaignTest extends TestCase
         };
     }
 
-    /**
-     * A frozen campaign keeps Ada and Alan, so that one of them may be taken off.
-     */
+    /** A frozen campaign keeps Ada and Alan, so that one of them can be removed. */
     private function in(CampaignStatus $status): Campaign
     {
         $campaign = $this->prepared();

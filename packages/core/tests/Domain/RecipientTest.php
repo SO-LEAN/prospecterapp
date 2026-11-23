@@ -10,9 +10,7 @@ use Prospecter\Core\Campaigns\Domain\Model\RecipientOutcome;
 use Prospecter\Core\Campaigns\Domain\Model\RecipientStatus;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
-/**
- * A recipient whose contact is erased loses its identity, never what the team did with them.
- */
+/** A recipient whose contact is erased loses their identity, but never what the team did with them. */
 final class RecipientTest extends TestCase
 {
     private const string ADA = '0190a1c0-0000-7000-8000-000000000004';

@@ -13,7 +13,7 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
- * Which fact of an aggregate Campaigns keeps, the facts arriving in any order and maybe more than once (ADR 0141).
+ * Which of an aggregate's facts Campaigns keeps. The facts arrive in any order, and possibly more than once (ADR 0141).
  */
 final class CampaignsFactSuccessionTest extends TestCase
 {
