@@ -7,7 +7,8 @@ namespace Prospecter\Core\Connectors\Domain\Repository;
 use Prospecter\Core\Connectors\Domain\Model\PendingAuthorization;
 
 /**
- * The authorizations waiting for the answer of their provider, by their `state`, forgotten once expired.
+ * The authorizations that wait for their provider's answer, found by their `state`. An expired authorization is
+ * forgotten.
  */
 interface AuthorizationRepository
 {
