@@ -11,8 +11,8 @@ use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * My connections, with my exchanges to come synced and failed there, and the providers offered to me: those a client
- * of my account serves.
+ * My connections, with my upcoming exchanges that are synced and failed there. Also the providers offered to me: the
+ * ones that a client of my account serves.
  */
 final readonly class ConsultMyConnectionsHandler implements QueryHandler
 {
