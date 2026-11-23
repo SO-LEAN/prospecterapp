@@ -63,7 +63,7 @@ export const INTERLOCUTOR_ICONS: Record<Interlocutor['kind'], LucideIcon> = {
 
 /**
  * One exchange in the timeline. It shows who communicated, in an organization's timeline, its summary, the start of
- * its text and how many files are joined to it. Once its contact is forgotten, it shows what is to redact. It shows
+ * its text and how many files are attached to it. Once its contact is forgotten, it shows what is to redact. It shows
  * the campaign it was logged in, unless that campaign shows beside the line, outside the button that opens its
  * detail.
  */

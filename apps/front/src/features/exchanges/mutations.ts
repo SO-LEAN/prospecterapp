@@ -22,7 +22,7 @@ import {
   upcomingQuery,
 } from './queries'
 
-/** The new exchange, whose address the API returns in `Location`. The files are joined to it. */
+/** The new exchange, whose address the API returns in `Location`. The files are attached to it. */
 const notedIn = (response: Response) => response.headers.get('Location')?.split('/').pop() ?? ''
 
 /**
