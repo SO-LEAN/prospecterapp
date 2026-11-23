@@ -9,10 +9,10 @@ use Prospecter\Core\Connectors\Domain\Port\ContactNames;
 use Prospecter\Core\PersonalData\Contract\Service\NameContacts\KeptContactNames;
 use Prospecter\Core\PersonalData\Contract\Service\NameContacts\NameContacts;
 use Prospecter\Core\PersonalData\Contract\Service\NameContacts\NameContactsService;
-use Prospecter\Core\SharedKernel\Domain\ContactDetails;
-use Prospecter\Core\SharedKernel\Domain\Email;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
+use Prospecter\Core\SharedKernel\Domain\Contact\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\Contact\Email;
+use Prospecter\Core\SharedKernel\Domain\Contact\PhoneNumber;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * The API's anticorruption layer, in the scenarios (ADR 0045, 0089). Connectors names a contact as the member reads

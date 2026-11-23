@@ -9,7 +9,7 @@ use App\Shared\Persistence\Table;
 use App\Shared\Typed;
 use Prospecter\Core\Prospecting\Application\Port\ProposedOrganizationRetriever;
 use Prospecter\Core\Prospecting\Application\ProposeOrganizationToAttach\ProposedOrganization;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * Reads an account's organizations by their email's domain, through the links that `DynamoOrganizationRepository`

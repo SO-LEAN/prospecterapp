@@ -21,15 +21,15 @@ use Prospecter\Core\PersonalData\Domain\Model\PersonResemblanceKey;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\PersonalData\Domain\Model\Reader;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\ContactDetails;
-use Prospecter\Core\SharedKernel\Domain\Designated;
-use Prospecter\Core\SharedKernel\Domain\Email;
-use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
-use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
-use Prospecter\Core\SharedKernel\Domain\Gesture;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\Origin;
+use Prospecter\Core\SharedKernel\Domain\Contact\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\Contact\Email;
+use Prospecter\Core\SharedKernel\Domain\Contact\EmailAlreadyUsed;
+use Prospecter\Core\SharedKernel\Domain\Gesture\Gesture;
+use Prospecter\Core\SharedKernel\Domain\Gesture\Origin;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Link\Designated;
+use Prospecter\Core\SharedKernel\Domain\Link\ExternalReferences;
 use Tests\App\Base\ApiTestCase;
 
 /**

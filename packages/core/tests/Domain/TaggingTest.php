@@ -14,8 +14,8 @@ use Prospecter\Core\Campaigns\Domain\Model\Holder;
 use Prospecter\Core\Campaigns\Domain\Model\OrganizationId;
 use Prospecter\Core\Campaigns\Domain\Model\Tag;
 use Prospecter\Core\Campaigns\Domain\Model\Tagging;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Each change to an organization's or a contact's tags records what happened. An automatic tag is never put by hand,

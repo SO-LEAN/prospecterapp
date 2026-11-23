@@ -13,11 +13,11 @@ use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\Model\ResemblanceKey;
 use Prospecter\Core\Prospecting\Domain\Model\Website;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\Email;
-use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
-use Prospecter\Core\SharedKernel\Domain\ExternalReference;
-use Prospecter\Core\SharedKernel\Domain\Siret;
+use Prospecter\Core\SharedKernel\Domain\Company\Siret;
+use Prospecter\Core\SharedKernel\Domain\Contact\Email;
+use Prospecter\Core\SharedKernel\Domain\Contact\EmailAlreadyUsed;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Link\ExternalReference;
 
 interface OrganizationRepository
 {

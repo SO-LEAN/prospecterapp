@@ -11,7 +11,7 @@ use Prospecter\Core\Connectors\Domain\Model\MailboxMail;
 use Prospecter\Core\Connectors\Domain\Model\MailboxWatch;
 use Prospecter\Core\Connectors\Domain\Model\RefreshToken;
 use Prospecter\Core\Connectors\Domain\Port\ProviderMailbox;
-use Prospecter\Core\SharedKernel\Domain\Email;
+use Prospecter\Core\SharedKernel\Domain\Contact\Email;
 
 /**
  * A mailbox of Gmail without a message, its history standing where a test says, watched a week from the moment of

@@ -8,7 +8,7 @@ use Prospecter\Core\Campaigns\Domain\Model\ContactId;
 use Prospecter\Core\Campaigns\Domain\Repository\CampaignRepository;
 use Prospecter\Core\PersonalData\Contract\Event\ContactForgotten;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * A contact that PersonalData forgot leaves the frozen campaigns that keep it, even as their last recipient. When the

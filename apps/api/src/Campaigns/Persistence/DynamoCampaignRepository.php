@@ -10,7 +10,7 @@ use Prospecter\Core\Campaigns\Domain\Model\Campaign;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignId;
 use Prospecter\Core\Campaigns\Domain\Model\ContactId;
 use Prospecter\Core\Campaigns\Domain\Repository\CampaignRepository;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /** An account's campaigns, in its partition of Campaigns' table (ADR 0144). */
 final readonly class DynamoCampaignRepository implements CampaignRepository

@@ -12,7 +12,7 @@ use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\ContactFactsR
 use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\KeptContactFacts;
 use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\ListContactFacts;
 use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\ListContactFactsService;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * Anticorruption layer (ADR 0045, 0089, 0141): the facts that PersonalData gives again, one slice after another, in

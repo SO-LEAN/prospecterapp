@@ -10,7 +10,7 @@ use Prospecter\Core\Campaigns\Domain\Model\OrganizationFact;
 use Prospecter\Core\Campaigns\Domain\Model\OrganizationId;
 use Prospecter\Core\Campaigns\Domain\Model\Tag;
 use Prospecter\Core\Campaigns\Domain\Model\Tagging;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /** The DynamoDB retriever in the scenarios: the tags in what the repository saved, read without its getters. */
 final readonly class InMemoryTagsRetriever implements TagsRetriever

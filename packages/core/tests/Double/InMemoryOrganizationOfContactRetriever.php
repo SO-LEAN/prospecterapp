@@ -8,8 +8,8 @@ use Prospecter\Core\Prospecting\Application\ConsultOrganizationsOfContacts\Organ
 use Prospecter\Core\Prospecting\Application\Port\OrganizationOfContactRetriever;
 use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
+use Prospecter\Core\SharedKernel\Domain\Company\LegalIdentity;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * The DynamoDB retriever in the scenarios. It reads the account's organizations that name each contact, without

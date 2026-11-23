@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\PersonalData\Domain\Model;
 
-use Prospecter\Core\SharedKernel\Domain\Uuid;
+use Prospecter\Core\SharedKernel\Domain\Identity\Uuid;
 
 /**
  * The id of a natural person whose personal data PersonalData keeps. The other contexts refer to the person by an id

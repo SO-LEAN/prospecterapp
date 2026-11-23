@@ -6,10 +6,10 @@ namespace Prospecter\Core\Connectors\Domain\Model;
 
 use Prospecter\Core\Connectors\Domain\Event\ClientConfigured;
 use Prospecter\Core\Connectors\Domain\Event\ClientRemoved;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
-use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
+use Prospecter\Core\SharedKernel\Domain\Event\RecordsEvents;
+use Prospecter\Core\SharedKernel\Domain\Event\ReleasesEvents;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Aggregate root: the Prospecter client that an account created at a provider, in its own space there. The account's

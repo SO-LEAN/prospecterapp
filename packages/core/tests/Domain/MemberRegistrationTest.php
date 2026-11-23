@@ -12,8 +12,8 @@ use Prospecter\Core\Accounts\Domain\Model\Member;
 use Prospecter\Core\Accounts\Domain\Model\Newcomer;
 use Prospecter\Core\Accounts\Domain\Model\ProfileId;
 use Prospecter\Core\Accounts\Domain\Model\Role;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Only an administrator registers a member. The registration records what happened.

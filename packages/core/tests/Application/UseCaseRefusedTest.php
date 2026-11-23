@@ -11,10 +11,10 @@ use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\SharedKernel\Application\Exception\ErrorType;
 use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
+use Prospecter\Core\SharedKernel\Domain\Contact\EmailAlreadyUsed;
+use Prospecter\Core\SharedKernel\Domain\Contact\InvalidPhoneNumber;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessException;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
-use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
-use Prospecter\Core\SharedKernel\Domain\Exception\InvalidPhoneNumber;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 use Prospecter\Core\SharedKernel\Domain\Exception\PersonalDataManagersOnly;
 

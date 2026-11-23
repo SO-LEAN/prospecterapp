@@ -8,7 +8,7 @@ use Prospecter\Core\Accounts\Application\MyReminders;
 use Prospecter\Core\Accounts\Application\Port\MyRemindersRetriever;
 use Prospecter\Core\Accounts\Domain\Exception\UnknownMember;
 use Prospecter\Core\Accounts\Domain\Model\Reminders;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Reads the reminders of the members that the in-memory repository saved, as the adapter reads the member's item.

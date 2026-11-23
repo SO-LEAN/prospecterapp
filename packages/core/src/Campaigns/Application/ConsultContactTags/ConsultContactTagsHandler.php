@@ -13,7 +13,7 @@ use Prospecter\Core\Campaigns\Domain\Model\Tag;
 use Prospecter\Core\Campaigns\Domain\Port\Taggers;
 use Prospecter\Core\Campaigns\Domain\Service\TaggableHolders;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Every tag that contacts of the member's account carry: their own, inherited and automatic tags (ADR 0141). A person

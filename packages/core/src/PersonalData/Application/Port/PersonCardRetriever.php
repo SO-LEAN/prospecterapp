@@ -8,7 +8,7 @@ use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
 use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\PersonalData\Domain\Model\Reader;
-use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
+use Prospecter\Core\SharedKernel\Domain\Contact\PhoneNumber;
 
 /**
  * Reads persons' cards without restoring the persons (ADR 0088). Each card is read as its reader may read it, unmasked

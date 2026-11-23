@@ -8,7 +8,7 @@ use Prospecter\Core\Booking\Domain\Port\ConnectedCalendars;
 use Prospecter\Core\Connectors\Contract\Service\WhichHaveAConnectedCalendar\KeptConnectedCalendars;
 use Prospecter\Core\Connectors\Contract\Service\WhichHaveAConnectedCalendar\WhichHaveAConnectedCalendar;
 use Prospecter\Core\Connectors\Contract\Service\WhichHaveAConnectedCalendar\WhichHaveAConnectedCalendarService;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Anticorruption layer of the API, in the scenarios (ADR 0045, 0089). Booking learns from Connectors whether a host's

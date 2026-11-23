@@ -6,7 +6,7 @@ namespace Prospecter\Core\Connectors\Application\Port;
 
 use Prospecter\Core\Connectors\Application\ExchangeSync;
 use Prospecter\Core\Connectors\Domain\Model\ExchangeId;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Reads an exchange's push state from its entry, without restoring the entry (ADR 0088, 0133).

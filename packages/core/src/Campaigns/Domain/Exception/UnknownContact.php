@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Campaigns\Domain\Exception;
 
 use Prospecter\Core\SharedKernel\Domain\Exception\NotFound;
-use Prospecter\Core\SharedKernel\Domain\Uuid;
+use Prospecter\Core\SharedKernel\Domain\Identity\Uuid;
 
 /** This person is not a contact of the account, so none of its members tags them. */
 final class UnknownContact extends NotFound

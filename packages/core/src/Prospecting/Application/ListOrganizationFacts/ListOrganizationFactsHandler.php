@@ -9,7 +9,7 @@ use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\ListOrgan
 use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\ListOrganizationFactsOutput;
 use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\ListOrganizationFactsService;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 final readonly class ListOrganizationFactsHandler implements QueryHandler, ListOrganizationFactsService
 {

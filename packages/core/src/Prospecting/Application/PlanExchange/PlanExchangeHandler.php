@@ -18,9 +18,9 @@ use Prospecter\Core\Prospecting\Domain\Service\ContactOrganizations;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
-use Prospecter\Core\SharedKernel\Domain\Gesture;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\Origin;
+use Prospecter\Core\SharedKernel\Domain\Gesture\Gesture;
+use Prospecter\Core\SharedKernel\Domain\Gesture\Origin;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 final readonly class PlanExchangeHandler implements CommandHandler
 {

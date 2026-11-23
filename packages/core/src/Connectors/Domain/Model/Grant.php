@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Connectors\Domain\Model;
 
-use Prospecter\Core\SharedKernel\Domain\Email;
+use Prospecter\Core\SharedKernel\Domain\Contact\Email;
 
 /**
  * What a provider granted for an authorization code. It holds the external account, its token, and the scopes granted

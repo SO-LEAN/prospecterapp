@@ -6,8 +6,8 @@ namespace Tests\App\Shared;
 
 use App\Shared\GeoplateformeGeoLocation;
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\SharedKernel\Domain\GeoPoint;
-use Prospecter\Core\SharedKernel\Domain\Location;
+use Prospecter\Core\SharedKernel\Domain\Location\GeoPoint;
+use Prospecter\Core\SharedKernel\Domain\Location\Location;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\JsonMockResponse;
 use Symfony\Component\HttpClient\Response\MockResponse;

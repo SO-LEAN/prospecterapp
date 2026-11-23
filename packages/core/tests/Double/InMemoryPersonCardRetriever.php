@@ -20,9 +20,9 @@ use Prospecter\Core\PersonalData\Domain\Rule\PersonPossibilities;
 use Prospecter\Core\PersonalData\Domain\Rule\PersonReading;
 use Prospecter\Core\SharedKernel\Application\ExternalLink;
 use Prospecter\Core\SharedKernel\Application\FileResponse;
-use Prospecter\Core\SharedKernel\Domain\File;
-use Prospecter\Core\SharedKernel\Domain\Origin;
-use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
+use Prospecter\Core\SharedKernel\Domain\Contact\PhoneNumber;
+use Prospecter\Core\SharedKernel\Domain\File\File;
+use Prospecter\Core\SharedKernel\Domain\Gesture\Origin;
 
 /**
  * Reads the persons that the in-memory repository saved, as the adapter reads the table's items.

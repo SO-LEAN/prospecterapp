@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace Prospecter\Core\PersonalData\Domain\Model;
 
 use Prospecter\Core\PersonalData\Domain\Exception\InvalidTitle;
-use Prospecter\Core\SharedKernel\Domain\Designated;
-use Prospecter\Core\SharedKernel\Domain\Email;
-use Prospecter\Core\SharedKernel\Domain\Exception\InvalidEmail;
-use Prospecter\Core\SharedKernel\Domain\Exception\InvalidPhoneNumber;
-use Prospecter\Core\SharedKernel\Domain\Exception\NotAWebAddress;
-use Prospecter\Core\SharedKernel\Domain\Exception\ReferenceOfAnotherKind;
-use Prospecter\Core\SharedKernel\Domain\Exception\UnrecognizedPage;
-use Prospecter\Core\SharedKernel\Domain\ExternalReference;
-use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
+use Prospecter\Core\SharedKernel\Domain\Contact\Email;
+use Prospecter\Core\SharedKernel\Domain\Contact\InvalidEmail;
+use Prospecter\Core\SharedKernel\Domain\Contact\InvalidPhoneNumber;
+use Prospecter\Core\SharedKernel\Domain\Contact\PhoneNumber;
+use Prospecter\Core\SharedKernel\Domain\Link\Designated;
+use Prospecter\Core\SharedKernel\Domain\Link\ExternalReference;
+use Prospecter\Core\SharedKernel\Domain\Link\NotAWebAddress;
+use Prospecter\Core\SharedKernel\Domain\Link\ReferenceOfAnotherKind;
+use Prospecter\Core\SharedKernel\Domain\Link\UnrecognizedPage;
 
 /**
  * What a client knows about a contact, to fill what the contact lacks (ADR 0177). Each part is optional. The links may

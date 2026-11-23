@@ -8,8 +8,8 @@ use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Accounts\Domain\Model\Account;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\TransactionalEventHandler;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
+use Prospecter\Core\SharedKernel\Domain\Company\LegalIdentity;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 use Tests\Core\Double\InMemoryDatabase;
 use Tests\Core\Double\InMemoryUnitOfWork;
 

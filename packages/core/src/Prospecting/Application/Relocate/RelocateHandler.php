@@ -11,8 +11,8 @@ use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\GeoLocalizer;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
-use Prospecter\Core\SharedKernel\Domain\Address;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Contact\Address;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 final readonly class RelocateHandler implements CommandHandler
 {

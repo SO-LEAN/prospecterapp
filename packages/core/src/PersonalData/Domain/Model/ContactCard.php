@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\PersonalData\Domain\Model;
 
-use Prospecter\Core\SharedKernel\Domain\ContactDetails;
-use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
+use Prospecter\Core\SharedKernel\Domain\Contact\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\Link\ExternalReferences;
 
 /**
  * What a person's card says when they are collected: their name, how to reach them, their title, their job title and

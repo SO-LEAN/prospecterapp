@@ -6,9 +6,9 @@ namespace Tests\Core\Domain;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\SharedKernel\Domain\Email;
-use Prospecter\Core\SharedKernel\Domain\SearchKey;
-use Prospecter\Core\SharedKernel\Domain\SearchKeys;
+use Prospecter\Core\SharedKernel\Domain\Contact\Email;
+use Prospecter\Core\SharedKernel\Domain\Search\SearchKey;
+use Prospecter\Core\SharedKernel\Domain\Search\SearchKeys;
 
 class SearchKeyTest extends TestCase
 {

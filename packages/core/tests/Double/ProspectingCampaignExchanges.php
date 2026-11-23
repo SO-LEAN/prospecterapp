@@ -10,7 +10,7 @@ use Prospecter\Core\Campaigns\Domain\Port\CampaignExchanges;
 use Prospecter\Core\Prospecting\Contract\Service\WhichContactsHaveExchangesOfCampaign\KeptContacts;
 use Prospecter\Core\Prospecting\Contract\Service\WhichContactsHaveExchangesOfCampaign\WhichContactsHaveExchangesOfCampaign;
 use Prospecter\Core\Prospecting\Contract\Service\WhichContactsHaveExchangesOfCampaign\WhichContactsHaveExchangesOfCampaignService;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * The API's anticorruption layer in the scenarios (ADR 0045, 0195): the recipients with whom Prospecting logged an

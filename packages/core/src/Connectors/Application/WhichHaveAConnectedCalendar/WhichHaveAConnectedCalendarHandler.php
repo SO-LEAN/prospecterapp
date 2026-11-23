@@ -10,7 +10,7 @@ use Prospecter\Core\Connectors\Contract\Service\WhichHaveAConnectedCalendar\Whic
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Repository\ConnectionRepository;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * A calendar is connected while its member's connection to Google is connected. A connection to reconnect reaches

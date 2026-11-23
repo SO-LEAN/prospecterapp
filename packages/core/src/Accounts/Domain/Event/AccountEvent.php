@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Accounts\Domain\Event;
 
-use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Event\DomainEvent;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * Something that happened to an account.

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Booking\Domain\Event;
 
 use Prospecter\Core\Booking\Domain\Model\InactivePeriodId;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * The host removed an inactive period. Its days are bookable again, as the host's windows say.

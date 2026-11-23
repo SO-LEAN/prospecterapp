@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Domain\Model;
 
-use Prospecter\Core\SharedKernel\Domain\SearchKey;
+use Prospecter\Core\SharedKernel\Domain\Search\SearchKey;
 
 /**
  * What two organizations that resemble each other share. They may be the same organization, entered twice.

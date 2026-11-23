@@ -18,8 +18,8 @@ use Prospecter\Core\Campaigns\Domain\Repository\CampaignRepository;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
-use Prospecter\Core\SharedKernel\Domain\Gesture;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Gesture\Gesture;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /** A member prepares a campaign for their account, as a draft. */
 final readonly class PrepareCampaignHandler implements CommandHandler

@@ -64,11 +64,11 @@ use Prospecter\Core\Prospecting\Domain\Model\RecipientInCampaign;
 use Prospecter\Core\Prospecting\Domain\Model\VideoCallLink;
 use Prospecter\Core\Prospecting\Domain\Rule\ExchangeConformity;
 use Prospecter\Core\Prospecting\Domain\Rule\ExchangePossibilities;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 use Prospecter\Core\SharedKernel\Domain\Exception\PersonalDataManagersOnly;
-use Prospecter\Core\SharedKernel\Domain\Gesture;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Gesture\Gesture;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 use Tests\Core\Double\StateOf;
 
 class ExchangeTest extends TestCase

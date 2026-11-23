@@ -22,10 +22,10 @@ use Prospecter\Core\Campaigns\Domain\Model\Tag;
 use Prospecter\Core\Campaigns\Domain\Model\Tagging;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\ContactDetails;
-use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Company\LegalIdentity;
+use Prospecter\Core\SharedKernel\Domain\Contact\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 use Tests\Core\Acceptance\Expect;
 
 /**

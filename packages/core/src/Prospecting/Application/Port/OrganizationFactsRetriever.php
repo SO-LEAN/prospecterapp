@@ -6,8 +6,8 @@ namespace Prospecter\Core\Prospecting\Application\Port;
 
 use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\OrganizationFactsResponse;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\Slice;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Search\Slice;
 
 /**
  * Reads the organizations' facts as the other contexts count them, without restoring the organizations (ADR 0088).

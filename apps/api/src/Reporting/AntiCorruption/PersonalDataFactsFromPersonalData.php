@@ -11,7 +11,7 @@ use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\ListContactFa
 use Prospecter\Core\Reporting\Domain\Model\ContactFact;
 use Prospecter\Core\Reporting\Domain\Model\ContactId;
 use Prospecter\Core\Reporting\Domain\Port\PersonalDataFacts;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * Anticorruption layer (ADR 0045, 0089, 0099). It lists the facts that PersonalData gives again, slice by slice, in

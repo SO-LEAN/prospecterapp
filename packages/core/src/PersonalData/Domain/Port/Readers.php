@@ -6,7 +6,7 @@ namespace Prospecter\Core\PersonalData\Domain\Port;
 
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownReader;
 use Prospecter\Core\PersonalData\Domain\Model\Reader;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Port: the reader a member is. It translates from the context that knows an account's members (Accounts), through its

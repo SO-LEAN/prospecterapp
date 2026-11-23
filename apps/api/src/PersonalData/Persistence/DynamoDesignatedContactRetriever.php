@@ -11,10 +11,10 @@ use Prospecter\Core\PersonalData\Application\Port\DesignatedContactRetriever;
 use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\PersonalData\Domain\Model\PersonResemblanceKey;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\Email;
-use Prospecter\Core\SharedKernel\Domain\ExternalReference;
-use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
+use Prospecter\Core\SharedKernel\Domain\Contact\Email;
+use Prospecter\Core\SharedKernel\Domain\Contact\PhoneNumber;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Link\ExternalReference;
 
 /**
  * Finds the account's contacts that a key designates. It reads the reservations, the phone number index and the

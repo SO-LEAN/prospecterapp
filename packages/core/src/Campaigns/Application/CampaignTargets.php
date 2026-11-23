@@ -6,7 +6,7 @@ namespace Prospecter\Core\Campaigns\Application;
 
 use Prospecter\Core\Campaigns\Domain\Model\ContactTags;
 use Prospecter\Core\Campaigns\Domain\Model\TagSelection;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * Counts the contacts each campaign targets (ADR 0144). A draft targets the contacts that carry its tags now. Every

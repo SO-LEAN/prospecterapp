@@ -6,8 +6,8 @@ namespace Prospecter\Core\Accounts\Domain\Repository;
 
 use Prospecter\Core\Accounts\Domain\Exception\UnknownMember;
 use Prospecter\Core\Accounts\Domain\Model\Member;
-use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Contact\EmailAlreadyUsed;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 interface MemberRepository
 {

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Connectors\Domain\Model;
 
-use Prospecter\Core\SharedKernel\Domain\Email;
+use Prospecter\Core\SharedKernel\Domain\Contact\Email;
 
 /**
  * A message in a member's mailbox, as the provider gives it. Its text leaves out the quoted history (ADR 0154).

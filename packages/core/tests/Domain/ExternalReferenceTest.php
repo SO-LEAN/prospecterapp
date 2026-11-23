@@ -6,12 +6,12 @@ namespace Tests\Core\Domain;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\SharedKernel\Domain\Designated;
-use Prospecter\Core\SharedKernel\Domain\Exception\NotAWebAddress;
-use Prospecter\Core\SharedKernel\Domain\Exception\ReferenceOfAnotherKind;
-use Prospecter\Core\SharedKernel\Domain\Exception\UnrecognizedPage;
-use Prospecter\Core\SharedKernel\Domain\ExternalReference;
-use Prospecter\Core\SharedKernel\Domain\KnownSource;
+use Prospecter\Core\SharedKernel\Domain\Link\Designated;
+use Prospecter\Core\SharedKernel\Domain\Link\ExternalReference;
+use Prospecter\Core\SharedKernel\Domain\Link\KnownSource;
+use Prospecter\Core\SharedKernel\Domain\Link\NotAWebAddress;
+use Prospecter\Core\SharedKernel\Domain\Link\ReferenceOfAnotherKind;
+use Prospecter\Core\SharedKernel\Domain\Link\UnrecognizedPage;
 
 class ExternalReferenceTest extends TestCase
 {

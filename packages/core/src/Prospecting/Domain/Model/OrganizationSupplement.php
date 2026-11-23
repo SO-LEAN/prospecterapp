@@ -5,17 +5,17 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Domain\Model;
 
 use Prospecter\Core\Prospecting\Domain\Exception\InvalidWebsite;
-use Prospecter\Core\SharedKernel\Domain\Designated;
-use Prospecter\Core\SharedKernel\Domain\Email;
-use Prospecter\Core\SharedKernel\Domain\Exception\InvalidEmail;
-use Prospecter\Core\SharedKernel\Domain\Exception\InvalidPhoneNumber;
-use Prospecter\Core\SharedKernel\Domain\Exception\InvalidSiret;
-use Prospecter\Core\SharedKernel\Domain\Exception\NotAWebAddress;
-use Prospecter\Core\SharedKernel\Domain\Exception\ReferenceOfAnotherKind;
-use Prospecter\Core\SharedKernel\Domain\Exception\UnrecognizedPage;
-use Prospecter\Core\SharedKernel\Domain\ExternalReference;
-use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
-use Prospecter\Core\SharedKernel\Domain\Siret;
+use Prospecter\Core\SharedKernel\Domain\Company\InvalidSiret;
+use Prospecter\Core\SharedKernel\Domain\Company\Siret;
+use Prospecter\Core\SharedKernel\Domain\Contact\Email;
+use Prospecter\Core\SharedKernel\Domain\Contact\InvalidEmail;
+use Prospecter\Core\SharedKernel\Domain\Contact\InvalidPhoneNumber;
+use Prospecter\Core\SharedKernel\Domain\Contact\PhoneNumber;
+use Prospecter\Core\SharedKernel\Domain\Link\Designated;
+use Prospecter\Core\SharedKernel\Domain\Link\ExternalReference;
+use Prospecter\Core\SharedKernel\Domain\Link\NotAWebAddress;
+use Prospecter\Core\SharedKernel\Domain\Link\ReferenceOfAnotherKind;
+use Prospecter\Core\SharedKernel\Domain\Link\UnrecognizedPage;
 
 /**
  * What a client knows about an organization, to fill what it lacks (ADR 0177). Each part is optional. It may hold

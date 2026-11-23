@@ -6,7 +6,7 @@ namespace App\Shared\Messaging;
 
 use App\Shared\Persistence\Documents;
 use App\Shared\Typed;
-use Prospecter\Core\SharedKernel\Domain\Uuid;
+use Prospecter\Core\SharedKernel\Domain\Identity\Uuid;
 use Symfony\Component\TypeInfo\Type;
 use Symfony\Component\TypeInfo\Type\CollectionType;
 use Symfony\Component\TypeInfo\Type\NullableType;

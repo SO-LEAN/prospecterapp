@@ -11,7 +11,7 @@ use Prospecter\Core\Prospecting\Domain\Port\CampaignRecipients;
 use Prospecter\Core\Prospecting\Domain\Port\Prospectors;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Fingerprints the message as `NoteCampaignExchange` does. Then it reads which exchange the account logged under that

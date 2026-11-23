@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Connectors\Application\Port;
 
 use Prospecter\Core\Connectors\Application\MyConnection;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Reads a member's connections without restoring them (ADR 0088), in their providers' order. Each connection counts

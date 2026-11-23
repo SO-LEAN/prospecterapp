@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Domain\Port;
 
 use Prospecter\Core\Prospecting\Domain\Model\CampaignId;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * Port: the names of the account's campaigns, as Campaigns names them now. An exchange keeps only its campaign's

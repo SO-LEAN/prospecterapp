@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Reporting\Domain\Model;
 
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\Uuid;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\Uuid;
 
 /**
  * The state of another context's aggregate, as Reporting counts it (ADR 0099). The highest revision is the latest. An

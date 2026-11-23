@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Prospecter\Core\Connectors\Domain\Model;
 
 use Prospecter\Core\Connectors\Domain\Exception\NotTheAdministrator;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Exception\PersonalDataManagersOnly;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * A member as Connectors knows them from Accounts. It holds their account and whether they administer it. It holds

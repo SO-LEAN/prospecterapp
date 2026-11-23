@@ -6,7 +6,7 @@ namespace Prospecter\Core\Reporting\Application\Port;
 
 use Prospecter\Core\Reporting\Application\ConsultFigures\FiguresResponse;
 use Prospecter\Core\Reporting\Domain\Model\Month;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * Reads the figures that a version's facts made (ADR 0088).

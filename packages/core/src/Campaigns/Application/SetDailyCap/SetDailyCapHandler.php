@@ -11,7 +11,7 @@ use Prospecter\Core\Campaigns\Domain\Repository\CampaignRepository;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /** A team member sets the daily cap of a campaign of their account, or takes it off, even while the campaign runs. */
 final readonly class SetDailyCapHandler implements CommandHandler

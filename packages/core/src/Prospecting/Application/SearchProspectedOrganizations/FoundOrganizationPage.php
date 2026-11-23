@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations;
 
-use Prospecter\Core\SharedKernel\Domain\Slice;
+use Prospecter\Core\SharedKernel\Domain\Search\Slice;
 
 /**
  * A slice of the organizations an account prospects, as a list shows them.

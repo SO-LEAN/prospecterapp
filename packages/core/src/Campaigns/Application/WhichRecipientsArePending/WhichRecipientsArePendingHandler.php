@@ -12,7 +12,7 @@ use Prospecter\Core\Campaigns\Contract\Service\WhichRecipientsArePending\WhichRe
 use Prospecter\Core\Campaigns\Contract\Service\WhichRecipientsArePending\WhichRecipientsArePendingService;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignId;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 final readonly class WhichRecipientsArePendingHandler implements QueryHandler, WhichRecipientsArePendingService
 {

@@ -8,7 +8,7 @@ use Prospecter\Core\Campaigns\Application\Port\ContactTagsRetriever;
 use Prospecter\Core\Campaigns\Application\Port\TaggedContactsRetriever;
 use Prospecter\Core\Campaigns\Domain\Model\ContactFact;
 use Prospecter\Core\Campaigns\Domain\Model\ContactId;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * The DynamoDB retriever in the scenarios. It reads every contact of the account whose fact says it is kept, with what

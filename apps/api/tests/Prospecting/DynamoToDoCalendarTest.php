@@ -17,9 +17,9 @@ use Prospecter\Core\Prospecting\Domain\Model\Task;
 use Prospecter\Core\Prospecting\Domain\Model\ToDo;
 use Prospecter\Core\Prospecting\Domain\Model\ToDoId;
 use Prospecter\Core\Prospecting\Domain\Repository\ToDoRepository;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\Gesture;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Gesture\Gesture;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 use Tests\App\Base\ApiTestCase;
 
 /**

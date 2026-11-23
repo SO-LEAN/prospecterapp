@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Shared\Persistence;
 
-use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
-use Prospecter\Core\SharedKernel\Domain\SearchKey;
-use Prospecter\Core\SharedKernel\Domain\SearchKeys;
+use Prospecter\Core\SharedKernel\Domain\Contact\PhoneNumber;
+use Prospecter\Core\SharedKernel\Domain\Search\SearchKey;
+use Prospecter\Core\SharedKernel\Domain\Search\SearchKeys;
 
 /**
  * What finds a context's aggregate: its search keys (ADR 0071) and its phone number (ADR 0072). They are carried

@@ -11,7 +11,7 @@ use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultHel
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultHeldExchangesService;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * Reads the exchanges among these ids. A client asks about one exchange at a time.

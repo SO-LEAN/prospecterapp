@@ -13,7 +13,7 @@ use Prospecter\Core\Reporting\Domain\Model\OrganizationFact;
 use Prospecter\Core\Reporting\Domain\Model\OrganizationId;
 use Prospecter\Core\Reporting\Domain\Rule\FactSuccession;
 use Prospecter\Core\Reporting\Domain\Rule\FiguresDelta;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * What a received fact changes in its account's figures when it replaces the known fact.

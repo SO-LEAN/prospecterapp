@@ -11,7 +11,7 @@ use Prospecter\Core\Campaigns\Domain\Model\OrganizationId;
 use Prospecter\Core\Campaigns\Domain\Port\Taggers;
 use Prospecter\Core\Campaigns\Domain\Service\TaggableHolders;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * The tags of an organization that the member's account prospects: the tags put by hand, and the automatic tags for

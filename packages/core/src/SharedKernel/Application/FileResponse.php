@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\SharedKernel\Application;
 
-use Prospecter\Core\SharedKernel\Domain\File;
+use Prospecter\Core\SharedKernel\Domain\File\File;
 
 /**
  * A stored file, as the use cases return it.

@@ -5,20 +5,20 @@ declare(strict_types=1);
 namespace App\Shared\Persistence;
 
 use App\Shared\Typed;
-use Prospecter\Core\SharedKernel\Domain\Address;
-use Prospecter\Core\SharedKernel\Domain\ContactDetails;
-use Prospecter\Core\SharedKernel\Domain\Designated;
-use Prospecter\Core\SharedKernel\Domain\Email;
+use Prospecter\Core\SharedKernel\Domain\Company\LegalIdentity;
+use Prospecter\Core\SharedKernel\Domain\Company\Siret;
+use Prospecter\Core\SharedKernel\Domain\Contact\Address;
+use Prospecter\Core\SharedKernel\Domain\Contact\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\Contact\Email;
+use Prospecter\Core\SharedKernel\Domain\Contact\PhoneNumber;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
-use Prospecter\Core\SharedKernel\Domain\ExternalReference;
-use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
-use Prospecter\Core\SharedKernel\Domain\File;
-use Prospecter\Core\SharedKernel\Domain\GeoPoint;
-use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
-use Prospecter\Core\SharedKernel\Domain\Origin;
-use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
-use Prospecter\Core\SharedKernel\Domain\Siret;
-use Prospecter\Core\SharedKernel\Domain\Slice;
+use Prospecter\Core\SharedKernel\Domain\File\File;
+use Prospecter\Core\SharedKernel\Domain\Gesture\Origin;
+use Prospecter\Core\SharedKernel\Domain\Link\Designated;
+use Prospecter\Core\SharedKernel\Domain\Link\ExternalReference;
+use Prospecter\Core\SharedKernel\Domain\Link\ExternalReferences;
+use Prospecter\Core\SharedKernel\Domain\Location\GeoPoint;
+use Prospecter\Core\SharedKernel\Domain\Search\Slice;
 
 /**
  * Turns the shared kernel's value objects into plain documents of a DynamoDB item, and back (ADR 0048).

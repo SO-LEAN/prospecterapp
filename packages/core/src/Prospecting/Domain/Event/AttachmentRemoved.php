@@ -6,8 +6,8 @@ namespace Prospecter\Core\Prospecting\Domain\Event;
 
 use Prospecter\Core\Prospecting\Domain\Model\AttachmentId;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * A prospector removed a file attached to an exchange. The file remains to be removed from the private storage.

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Domain\Model;
 
-use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
+use Prospecter\Core\SharedKernel\Domain\Link\ExternalReferences;
 
 /**
  * Where an organization is found on the web: its links, such as its LinkedIn page, and its website, when known.

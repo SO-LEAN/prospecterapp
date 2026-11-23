@@ -23,7 +23,7 @@ use Prospecter\Core\Prospecting\Domain\Model\TimelineIntent;
 use Prospecter\Core\Prospecting\Domain\Rule\ExchangeChronology;
 use Prospecter\Core\Prospecting\Domain\Rule\ExchangeConformity;
 use Prospecter\Core\Prospecting\Domain\Rule\ExchangeReading;
-use Prospecter\Core\SharedKernel\Domain\Origin;
+use Prospecter\Core\SharedKernel\Domain\Gesture\Origin;
 
 /**
  * Reads the exchanges that the in-memory repository saved, as the adapter reads the table's items. The timeline

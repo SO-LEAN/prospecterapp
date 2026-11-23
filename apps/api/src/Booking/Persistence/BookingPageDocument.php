@@ -23,8 +23,8 @@ use Prospecter\Core\Booking\Domain\Model\WeeklyWindows;
 use Prospecter\Core\Booking\Domain\Model\Window;
 use Prospecter\Core\Booking\Domain\Rule\BookingPagePossibilities;
 use Prospecter\Core\Booking\Domain\Rule\BookingSuspension;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * A booking page as its item keeps it (ADR 0048, 0148): its windows by day with their HH:MM times, the windows' time

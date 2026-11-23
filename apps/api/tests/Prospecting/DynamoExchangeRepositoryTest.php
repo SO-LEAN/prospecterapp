@@ -34,12 +34,12 @@ use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Model\RecipientCorrespondent;
 use Prospecter\Core\Prospecting\Domain\Model\RecipientInCampaign;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\ContactDetails;
-use Prospecter\Core\SharedKernel\Domain\Gesture;
-use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\Origin;
+use Prospecter\Core\SharedKernel\Domain\Company\LegalIdentity;
+use Prospecter\Core\SharedKernel\Domain\Contact\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\Gesture\Gesture;
+use Prospecter\Core\SharedKernel\Domain\Gesture\Origin;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 use Tests\App\Base\ApiTestCase;
 
 /**

@@ -12,7 +12,7 @@ use Prospecter\Core\Campaigns\Domain\Model\Holder;
 use Prospecter\Core\Campaigns\Domain\Model\Tag;
 use Prospecter\Core\Campaigns\Domain\Model\Tagging;
 use Prospecter\Core\Campaigns\Domain\Repository\TaggingRepository;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * An organization's or a contact's tagging (ADR 0138): `ACCOUNT#<account>` / `TAGGING#<kind>#<id>`, with its tags by

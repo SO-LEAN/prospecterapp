@@ -7,7 +7,7 @@ namespace Prospecter\Core\Booking\Domain\Repository;
 use Prospecter\Core\Booking\Domain\Exception\UnknownBookingPage;
 use Prospecter\Core\Booking\Domain\Model\BookingCode;
 use Prospecter\Core\Booking\Domain\Model\BookingPage;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 interface BookingPageRepository
 {

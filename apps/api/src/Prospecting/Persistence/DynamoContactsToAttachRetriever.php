@@ -10,7 +10,7 @@ use App\Shared\Typed;
 use Prospecter\Core\Prospecting\Application\ContactToAttachInList;
 use Prospecter\Core\Prospecting\Application\Port\ContactsToAttachRetriever;
 use Prospecter\Core\Prospecting\Domain\Model\ContactId;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Reads the contacts to attach from the items that `DynamoContactToAttachRepository` writes, without restoring them

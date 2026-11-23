@@ -6,7 +6,7 @@ namespace Prospecter\Core\PersonalData\Application\Port;
 
 use Prospecter\Core\PersonalData\Application\SearchContacts\ContactPage;
 use Prospecter\Core\PersonalData\Domain\Model\Reader;
-use Prospecter\Core\SharedKernel\Domain\SearchKey;
+use Prospecter\Core\SharedKernel\Domain\Search\SearchKey;
 
 /**
  * Reads the contacts of the reader's account in slices, without restoring them (ADR 0088). Each contact is read as

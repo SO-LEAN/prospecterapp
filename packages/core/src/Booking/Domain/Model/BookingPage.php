@@ -20,11 +20,11 @@ use Prospecter\Core\Booking\Domain\Exception\SlotNotFree;
 use Prospecter\Core\Booking\Domain\Exception\UnknownInactivePeriod;
 use Prospecter\Core\Booking\Domain\Rule\BookingPagePossibilities;
 use Prospecter\Core\Booking\Domain\Rule\FreeSlots;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Event\RecordsEvents;
+use Prospecter\Core\SharedKernel\Domain\Event\ReleasesEvents;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
-use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Aggregate root: a member's booking page. The member is its host and has one page. It holds the host's weekly windows,

@@ -10,7 +10,7 @@ use Prospecter\Core\Campaigns\Domain\Model\RecipientOutcome;
 use Prospecter\Core\Campaigns\Domain\Repository\CampaignRepository;
 use Prospecter\Core\Prospecting\Contract\Event\ExchangeFactsChanged;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * Marks the recipient as done or missed when Prospecting logs their exchange in a campaign (ADR 0145). The campaign

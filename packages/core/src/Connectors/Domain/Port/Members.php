@@ -6,7 +6,7 @@ namespace Prospecter\Core\Connectors\Domain\Port;
 
 use Prospecter\Core\Connectors\Domain\Exception\UnknownMember;
 use Prospecter\Core\Connectors\Domain\Model\Member;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Port: the members who connect their accounts and who administer their account's clients (ADR 0045, 0089). It is

@@ -8,7 +8,7 @@ use Prospecter\Core\Connectors\Application\CalendarPusher;
 use Prospecter\Core\Connectors\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Contract\Event\ExchangeFactsChanged;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * Reacts to each change to an exchange. It reads the exchange again as it is now, whatever the order the changes

@@ -11,7 +11,7 @@ use Prospecter\Core\Campaigns\Domain\Repository\CampaignRepository;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /** A team member freezes a draft campaign. The contacts it targets now become its recipients for good. */
 final readonly class FreezeCampaignHandler implements CommandHandler

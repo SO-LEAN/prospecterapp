@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Accounts\Domain\Event;
 
 use Prospecter\Core\Accounts\Domain\Model\ProfileId;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * An organization opened its account. Its founder becomes its first member, with the profile the event names.

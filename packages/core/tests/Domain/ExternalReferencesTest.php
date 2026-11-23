@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Tests\Core\Domain;
 
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\SharedKernel\Domain\Designated;
-use Prospecter\Core\SharedKernel\Domain\Exception\TooManyLinks;
-use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
+use Prospecter\Core\SharedKernel\Domain\Link\Designated;
+use Prospecter\Core\SharedKernel\Domain\Link\ExternalReferences;
+use Prospecter\Core\SharedKernel\Domain\Link\TooManyLinks;
 
 class ExternalReferencesTest extends TestCase
 {

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Domain\Model;
 
-use Prospecter\Core\SharedKernel\Domain\Siret;
+use Prospecter\Core\SharedKernel\Domain\Company\Siret;
 
 /**
  * An establishment as the public company directory lists it: its SIRET, its company's name, its address on one line,

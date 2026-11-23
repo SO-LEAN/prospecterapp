@@ -18,8 +18,8 @@ use Prospecter\Core\PersonalData\Domain\Rule\PersonPossibilities;
 use Prospecter\Core\PersonalData\Domain\Rule\PersonReading;
 use Prospecter\Core\SharedKernel\Application\ExternalLink;
 use Prospecter\Core\SharedKernel\Application\FileResponse;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\Origin;
+use Prospecter\Core\SharedKernel\Domain\Gesture\Origin;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * Builds a person's card from the document that `DynamoPersonRepository` writes. The card shows what the reader may

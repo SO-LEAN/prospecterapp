@@ -7,8 +7,8 @@ namespace Prospecter\Core\Campaigns\Domain\Port;
 use Prospecter\Core\Campaigns\Domain\Exception\UnknownContact;
 use Prospecter\Core\Campaigns\Domain\Model\Addressee;
 use Prospecter\Core\Campaigns\Domain\Model\ContactId;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Port: what a message calls a contact (ADR 0089, 0144). It translates what the contexts that know the contact publish

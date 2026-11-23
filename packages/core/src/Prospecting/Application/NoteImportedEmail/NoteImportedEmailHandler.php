@@ -36,8 +36,8 @@ use Prospecter\Core\Prospecting\Domain\Service\NotedOnce;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
-use Prospecter\Core\SharedKernel\Domain\Gesture;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Gesture\Gesture;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * A member's mailbox exchanged an e-mail with a contact, or with an organization itself. The e-mail is logged as an

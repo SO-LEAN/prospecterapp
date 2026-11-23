@@ -9,7 +9,7 @@ use Prospecter\Core\Prospecting\Contract\Service\ListExchangeFacts\ListExchangeF
 use Prospecter\Core\Prospecting\Contract\Service\ListExchangeFacts\ListExchangeFactsOutput;
 use Prospecter\Core\Prospecting\Contract\Service\ListExchangeFacts\ListExchangeFactsService;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 final readonly class ListExchangeFactsHandler implements QueryHandler, ListExchangeFactsService
 {

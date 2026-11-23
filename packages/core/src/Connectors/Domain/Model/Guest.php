@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Connectors\Domain\Model;
 
-use Prospecter\Core\SharedKernel\Domain\Email;
-use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
+use Prospecter\Core\SharedKernel\Domain\Contact\Email;
+use Prospecter\Core\SharedKernel\Domain\Contact\PhoneNumber;
 
 /**
  * The person that an event invites: whoever booked the exchange through its holder's public link. The guest is

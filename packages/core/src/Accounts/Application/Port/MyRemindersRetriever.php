@@ -6,7 +6,7 @@ namespace Prospecter\Core\Accounts\Application\Port;
 
 use Prospecter\Core\Accounts\Application\MyReminders;
 use Prospecter\Core\Accounts\Domain\Exception\UnknownMember;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Reads a member's reminders without restoring the member (ADR 0088). A member who never changed their reminders

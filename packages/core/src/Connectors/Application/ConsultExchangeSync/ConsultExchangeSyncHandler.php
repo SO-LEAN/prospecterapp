@@ -13,7 +13,7 @@ use Prospecter\Core\Connectors\Domain\Port\HeldExchanges;
 use Prospecter\Core\Connectors\Domain\Port\Members;
 use Prospecter\Core\Connectors\Domain\Repository\ConnectionRepository;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Where my exchange's push into my calendar stands (ADR 0133), while I have a connection there. The state is the one

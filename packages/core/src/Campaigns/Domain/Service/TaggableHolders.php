@@ -12,7 +12,7 @@ use Prospecter\Core\Campaigns\Domain\Model\HolderKind;
 use Prospecter\Core\Campaigns\Domain\Model\OrganizationId;
 use Prospecter\Core\Campaigns\Domain\Port\TaggableContacts;
 use Prospecter\Core\Campaigns\Domain\Port\TaggableOrganizations;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * Domain service (ADR 0039): an account tags only the organizations it prospects and its contacts, as Prospecting and

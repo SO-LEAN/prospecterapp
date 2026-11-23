@@ -6,7 +6,7 @@ namespace Prospecter\Core\Campaigns\Domain\Model;
 
 use Prospecter\Core\Campaigns\Domain\Exception\InvalidTag;
 use Prospecter\Core\Campaigns\Domain\Rule\AutomaticTags;
-use Prospecter\Core\SharedKernel\Domain\Decomposed;
+use Prospecter\Core\SharedKernel\Domain\Search\Decomposed;
 
 /**
  * A tag, written one way whatever a member typed (ADR 0138). It is a `#` followed by 1 to 30 unaccented capital

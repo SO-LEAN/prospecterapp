@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Core\Double;
 
-use Prospecter\Core\SharedKernel\Domain\SearchKey;
-use Prospecter\Core\SharedKernel\Domain\SearchKeys;
-use Prospecter\Core\SharedKernel\Domain\Slice;
+use Prospecter\Core\SharedKernel\Domain\Search\SearchKey;
+use Prospecter\Core\SharedKernel\Domain\Search\SearchKeys;
+use Prospecter\Core\SharedKernel\Domain\Search\Slice;
 
 /**
  * A slice of aggregates, the way a repository returns it (ADR 0049): the ones the search finds, newest first (by

@@ -14,7 +14,7 @@ use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Model\TimelineIntent;
 use Prospecter\Core\Prospecting\Domain\Repository\ContactToAttachRepository;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * The organizations of a prospector's account that name a person as a contact. The rule covers the whole prospecting

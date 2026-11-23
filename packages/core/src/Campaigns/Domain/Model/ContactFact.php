@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Campaigns\Domain\Model;
 
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /** A contact as PersonalData publishes it: whether the account keeps it, and how the contact is reached. */
 final readonly class ContactFact implements Fact

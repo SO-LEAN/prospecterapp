@@ -7,7 +7,7 @@ namespace Prospecter\Core\Campaigns\Application\Port;
 use Prospecter\Core\Campaigns\Application\CampaignSheet;
 use Prospecter\Core\Campaigns\Domain\Exception\UnknownCampaign;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignId;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * Reads an account's campaigns as their repository saved them, without restoring them (ADR 0088). It asks the domain

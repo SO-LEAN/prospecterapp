@@ -12,7 +12,7 @@ use Prospecter\Core\Prospecting\Domain\Model\Channel;
 use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\RecipientInCampaign;
 use Prospecter\Core\Prospecting\Domain\Port\CampaignRecipients;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * Anticorruption layer (ADR 0045, 0089, 0145). Prospecting logs a recipient's exchange. Campaigns tells whether the

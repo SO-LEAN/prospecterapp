@@ -6,8 +6,8 @@ namespace Prospecter\Core\Prospecting\Application\Port;
 
 use Prospecter\Core\Prospecting\Application\ConsultHeldExchanges\HeldExchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Reads the exchanges as their holders hold them, without restoring them (ADR 0088).

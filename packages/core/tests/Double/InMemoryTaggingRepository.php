@@ -7,7 +7,7 @@ namespace Tests\Core\Double;
 use Prospecter\Core\Campaigns\Domain\Model\Holder;
 use Prospecter\Core\Campaigns\Domain\Model\Tagging;
 use Prospecter\Core\Campaigns\Domain\Repository\TaggingRepository;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 final readonly class InMemoryTaggingRepository implements TaggingRepository
 {

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Connectors\Domain\Exception;
 
 use Prospecter\Core\SharedKernel\Domain\Exception\NotFound;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 final class UnknownMember extends NotFound
 {

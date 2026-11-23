@@ -10,7 +10,7 @@ use Prospecter\Core\Campaigns\Domain\Port\Campaigners;
 use Prospecter\Core\Campaigns\Domain\Port\CampaignExchanges;
 use Prospecter\Core\Campaigns\Domain\Repository\CampaignRepository;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Asks the campaign itself, restored by its repository, as `RenderCampaignMessage` does. Its next recipient and its

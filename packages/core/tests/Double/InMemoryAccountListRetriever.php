@@ -6,8 +6,8 @@ namespace Tests\Core\Double;
 
 use Prospecter\Core\Accounts\Application\Port\AccountListRetriever;
 use Prospecter\Core\Accounts\Domain\Model\Account;
-use Prospecter\Core\SharedKernel\Domain\SearchKeys;
-use Prospecter\Core\SharedKernel\Domain\Slice;
+use Prospecter\Core\SharedKernel\Domain\Search\SearchKeys;
+use Prospecter\Core\SharedKernel\Domain\Search\Slice;
 
 /**
  * Reads the ids of the accounts that the in-memory repository saved, as the adapter reads the table's items.

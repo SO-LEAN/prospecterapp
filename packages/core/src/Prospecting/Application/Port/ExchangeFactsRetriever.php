@@ -6,8 +6,8 @@ namespace Prospecter\Core\Prospecting\Application\Port;
 
 use Prospecter\Core\Prospecting\Contract\Service\ListExchangeFacts\ExchangeFactsResponse;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\Slice;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Search\Slice;
 
 /**
  * Reads the exchanges' facts as the other contexts count them, without restoring the exchanges (ADR 0088). It is the

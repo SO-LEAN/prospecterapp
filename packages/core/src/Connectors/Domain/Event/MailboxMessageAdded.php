@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Connectors\Domain\Event;
 
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * A message was added to the member's mailbox. The event names it only by its id at the provider. A reaction of its

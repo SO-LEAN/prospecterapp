@@ -9,7 +9,7 @@ use App\Shared\Typed;
 use Prospecter\Core\Reporting\Application\ConsultFigures\FiguresResponse;
 use Prospecter\Core\Reporting\Application\Port\FiguresRetriever;
 use Prospecter\Core\Reporting\Domain\Model\Month;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * Reads an account's figures in a version from the items that `DynamoFactRepository` adds to (ADR 0088): its total

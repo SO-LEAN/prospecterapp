@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Domain\Rule;
 
-use Prospecter\Core\SharedKernel\Domain\Email;
+use Prospecter\Core\SharedKernel\Domain\Contact\Email;
 
 /**
  * The domains of the mailboxes that anyone can open. A person's email there says nothing about the organization they

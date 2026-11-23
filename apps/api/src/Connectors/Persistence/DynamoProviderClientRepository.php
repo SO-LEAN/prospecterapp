@@ -15,8 +15,8 @@ use Prospecter\Core\Connectors\Domain\Model\MailboxNotifications;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Model\ProviderClient;
 use Prospecter\Core\Connectors\Domain\Repository\ProviderClientRepository;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\Email;
+use Prospecter\Core\SharedKernel\Domain\Contact\Email;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * An account's client at a provider (ADR 0125). The Connectors table keeps the client's id and its secret's version.

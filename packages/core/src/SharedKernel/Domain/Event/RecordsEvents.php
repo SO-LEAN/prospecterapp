@@ -1,0 +1,31 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Prospecter\Core\SharedKernel\Domain\Event;
+
+/**
+ * An aggregate's events (ReleasesEvents). Its intention methods record them. The use case releases them once it
+ * saves the aggregate, then publishes them (ADR 0042, 0043).
+ */
+trait RecordsEvents
+{
+    /** @var list<DomainEvent> */
+    private array $recordedEvents = [];
+
+    /**
+     * @return list<DomainEvent>
+     */
+    public function releaseEvents(): array
+    {
+        $released = $this->recordedEvents;
+        $this->recordedEvents = [];
+
+        return $released;
+    }
+
+    private function recordThat(DomainEvent $event): void
+    {
+        $this->recordedEvents[] = $event;
+    }
+}

@@ -10,7 +10,7 @@ use Prospecter\Core\Booking\Domain\Exception\UnknownBookingPage;
 use Prospecter\Core\Booking\Domain\Model\BookingCode;
 use Prospecter\Core\Booking\Domain\Model\BookingPage;
 use Prospecter\Core\Booking\Domain\Repository\BookingPageRepository;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Each host's booking page in the Booking table, and its code's link to it (ADR 0151). A new code is put only where no

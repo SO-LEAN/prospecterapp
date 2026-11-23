@@ -6,7 +6,7 @@ namespace Prospecter\Core\Booking\Domain\Service;
 
 use Prospecter\Core\Booking\Domain\Port\ConnectedCalendars;
 use Prospecter\Core\Booking\Domain\Port\Hosts;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Whether an open page's public link offers slots (ADR 0153, 0164). It does while the host's calendar, which invites

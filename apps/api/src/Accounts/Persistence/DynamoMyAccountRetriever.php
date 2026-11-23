@@ -14,8 +14,8 @@ use Prospecter\Core\Accounts\Domain\Exception\UnknownMember;
 use Prospecter\Core\Accounts\Domain\Model\AccountIntent;
 use Prospecter\Core\Accounts\Domain\Rule\AccountPossibilities;
 use Prospecter\Core\SharedKernel\Application\FileResponse;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Reads the member's item (`MEMBER#<id>` / `MEMBER`) and their account's item (`ACCOUNT#<id>` / `ACCOUNT`) that the

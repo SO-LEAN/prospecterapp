@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Accounts\Application\Port;
 
 use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\MemberResponse;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Reads members as the other contexts know them (ADR 0045, 0047, 0089), without restoring them (ADR 0088). Each

@@ -9,8 +9,8 @@ use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\ConsultMembersServi
 use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\KeptMembers;
 use Prospecter\Core\Campaigns\Domain\Exception\UnknownMember;
 use Prospecter\Core\Campaigns\Domain\Port\Campaigners;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * The API's anticorruption layer, with the same code. Campaigns learns from Accounts the account of a member who runs

@@ -9,12 +9,12 @@ use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\ContactFactsR
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\ContactDetails;
-use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
-use Prospecter\Core\SharedKernel\Domain\KnownSource;
-use Prospecter\Core\SharedKernel\Domain\SearchKeys;
-use Prospecter\Core\SharedKernel\Domain\Slice;
+use Prospecter\Core\SharedKernel\Domain\Contact\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Link\ExternalReferences;
+use Prospecter\Core\SharedKernel\Domain\Link\KnownSource;
+use Prospecter\Core\SharedKernel\Domain\Search\SearchKeys;
+use Prospecter\Core\SharedKernel\Domain\Search\Slice;
 
 /**
  * Reads the facts of the contacts that the in-memory repository saved, as the adapter reads the table's items. Each

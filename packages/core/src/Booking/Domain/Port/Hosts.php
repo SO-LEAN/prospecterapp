@@ -6,8 +6,8 @@ namespace Prospecter\Core\Booking\Domain\Port;
 
 use Prospecter\Core\Booking\Domain\Exception\UnknownMember;
 use Prospecter\Core\Booking\Domain\Model\HostIdentity;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Port: the members who host a booking page, their account, and how they present themselves to bookers. The adapter

@@ -9,7 +9,7 @@ use Prospecter\Core\Prospecting\Application\Port\ContactsToAttachRetriever;
 use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\ContactToAttach;
 use Prospecter\Core\Prospecting\Domain\Rule\UnattachedErasure;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * The contacts to attach that the repository saved, read without their getters. The DynamoDB retriever reads

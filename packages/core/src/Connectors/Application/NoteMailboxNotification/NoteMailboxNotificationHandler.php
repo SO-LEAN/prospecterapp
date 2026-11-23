@@ -9,8 +9,8 @@ use Prospecter\Core\Connectors\Domain\Repository\ConnectionRepository;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\Email;
+use Prospecter\Core\SharedKernel\Domain\Contact\Email;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 final readonly class NoteMailboxNotificationHandler implements CommandHandler
 {

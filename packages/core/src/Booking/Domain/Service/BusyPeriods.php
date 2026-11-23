@@ -8,8 +8,8 @@ use Prospecter\Core\Booking\Domain\Model\Appointment;
 use Prospecter\Core\Booking\Domain\Model\BusyPeriod;
 use Prospecter\Core\Booking\Domain\Port\HostAgendas;
 use Prospecter\Core\Booking\Domain\Repository\AppointmentRepository;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * When a host is already busy from a given moment: the exchanges they still have planned, and the appointments booked

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Reporting\Domain\Model;
 
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * A person that an account keeps as a prospecting contact.

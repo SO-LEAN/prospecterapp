@@ -12,8 +12,8 @@ use Prospecter\Core\PersonalData\Application\Port\ContactFactsRetriever;
 use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\ContactFactsResponse;
 use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\Slice;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Search\Slice;
 
 /**
  * Reads the contacts' facts and their revision in the items `PERSON#<id>` / `PERSON` that `DynamoPersonRepository`

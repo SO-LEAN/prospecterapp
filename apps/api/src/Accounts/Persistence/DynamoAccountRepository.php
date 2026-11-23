@@ -11,12 +11,12 @@ use App\Shared\Typed;
 use Prospecter\Core\Accounts\Domain\Exception\UnknownAccount;
 use Prospecter\Core\Accounts\Domain\Model\Account;
 use Prospecter\Core\Accounts\Domain\Repository\AccountRepository;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\Address;
-use Prospecter\Core\SharedKernel\Domain\ContactDetails;
-use Prospecter\Core\SharedKernel\Domain\File;
-use Prospecter\Core\SharedKernel\Domain\GeoPoint;
-use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
+use Prospecter\Core\SharedKernel\Domain\Company\LegalIdentity;
+use Prospecter\Core\SharedKernel\Domain\Contact\Address;
+use Prospecter\Core\SharedKernel\Domain\Contact\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\File\File;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Location\GeoPoint;
 
 /**
  * The accounts in the Accounts table (ADR 0048). Each account is a document under `ACCOUNT#<id>` / `ACCOUNT`.

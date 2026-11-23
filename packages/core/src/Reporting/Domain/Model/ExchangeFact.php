@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Reporting\Domain\Model;
 
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * An exchange that an account keeps. Once the exchange is held (done or missed), it counts in its moment's month. An

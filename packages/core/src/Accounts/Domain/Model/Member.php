@@ -9,10 +9,10 @@ use Prospecter\Core\Accounts\Domain\Event\RemindersChanged;
 use Prospecter\Core\Accounts\Domain\Exception\AdministratorsOnly;
 use Prospecter\Core\Accounts\Domain\Exception\MemberWithoutRole;
 use Prospecter\Core\Accounts\Domain\Rule\AdministrationRight;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
-use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
+use Prospecter\Core\SharedKernel\Domain\Event\RecordsEvents;
+use Prospecter\Core\SharedKernel\Domain\Event\ReleasesEvents;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Aggregate root: a person who works in an account, with their roles. Their personal data live in PersonalData,

@@ -6,7 +6,7 @@ namespace Tests\Core\Domain;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\SharedKernel\Domain\Email;
+use Prospecter\Core\SharedKernel\Domain\Contact\Email;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
 class EmailTest extends TestCase

@@ -22,20 +22,20 @@ use Prospecter\Core\PersonalData\Domain\Exception\ThePersonOrAPersonalDataManage
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
 use Prospecter\Core\PersonalData\Domain\Rule\PersonPossibilities;
 use Prospecter\Core\PersonalData\Domain\Rule\PersonReading;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\Completion;
-use Prospecter\Core\SharedKernel\Domain\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\Completion\Completion;
+use Prospecter\Core\SharedKernel\Domain\Contact\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\Event\RecordsEvents;
+use Prospecter\Core\SharedKernel\Domain\Event\ReleasesEvents;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotAllowed;
 use Prospecter\Core\SharedKernel\Domain\Exception\PersonalDataManagersOnly;
-use Prospecter\Core\SharedKernel\Domain\ExternalReference;
-use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
-use Prospecter\Core\SharedKernel\Domain\File;
-use Prospecter\Core\SharedKernel\Domain\Gesture;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\Origin;
-use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
-use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
-use Prospecter\Core\SharedKernel\Domain\SearchKeys;
+use Prospecter\Core\SharedKernel\Domain\File\File;
+use Prospecter\Core\SharedKernel\Domain\Gesture\Gesture;
+use Prospecter\Core\SharedKernel\Domain\Gesture\Origin;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Link\ExternalReference;
+use Prospecter\Core\SharedKernel\Domain\Link\ExternalReferences;
+use Prospecter\Core\SharedKernel\Domain\Search\SearchKeys;
 
 /**
  * Aggregate root: a natural person's personal data, kept for one account and one purpose. The account collected them.

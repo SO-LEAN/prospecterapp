@@ -9,7 +9,7 @@ use Prospecter\Core\Campaigns\Domain\Port\TaggableContacts;
 use Prospecter\Core\PersonalData\Contract\Service\WhichAreContacts\KeptContacts;
 use Prospecter\Core\PersonalData\Contract\Service\WhichAreContacts\WhichAreContacts;
 use Prospecter\Core\PersonalData\Contract\Service\WhichAreContacts\WhichAreContactsService;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * Anticorruption layer (ADR 0045, 0089). Campaigns tags the people that PersonalData says are contacts of an account.

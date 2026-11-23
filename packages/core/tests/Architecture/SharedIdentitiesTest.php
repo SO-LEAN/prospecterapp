@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Tests\Core\Architecture;
 
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\Uuid;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\Uuid;
 
 /**
  * A context has its own identities for the things it refers to in another context. Only the account and the member who acts

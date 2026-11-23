@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Connectors\Domain\Port;
 
 use Prospecter\Core\Connectors\Domain\Model\ContactId;
-use Prospecter\Core\SharedKernel\Domain\ContactDetails;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Contact\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Port: a contact's name as a member reads it, unmasked or masked (ADR 0089, 0127). It is translated from

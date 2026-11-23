@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Accounts\Domain\Event;
 
 use Prospecter\Core\SharedKernel\Domain\Event\DomainEvent;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * A member changed whether they are reminded of their planned exchanges, and how long before.

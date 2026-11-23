@@ -7,7 +7,7 @@ namespace Tests\Core\Double;
 use Prospecter\Core\Accounts\Domain\Exception\UnknownAccount;
 use Prospecter\Core\Accounts\Domain\Model\Account;
 use Prospecter\Core\Accounts\Domain\Repository\AccountRepository;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 final readonly class InMemoryAccountRepository implements AccountRepository
 {

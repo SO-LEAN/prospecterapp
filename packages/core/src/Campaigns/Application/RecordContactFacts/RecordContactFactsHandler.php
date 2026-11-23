@@ -10,7 +10,7 @@ use Prospecter\Core\Campaigns\Domain\Model\ContactId;
 use Prospecter\Core\Campaigns\Domain\Model\Reach;
 use Prospecter\Core\PersonalData\Contract\Event\ContactFactsChanged;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * Keeps how a contact is reached, which sets its automatic tags (ADR 0141). A fact published before the facts carried

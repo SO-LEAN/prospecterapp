@@ -9,7 +9,7 @@ use App\Shared\Typed;
 use Prospecter\Core\Accounts\Application\MyReminders;
 use Prospecter\Core\Accounts\Application\Port\MyRemindersRetriever;
 use Prospecter\Core\Accounts\Domain\Exception\UnknownMember;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Reads the reminders in the member's item (`MEMBER#<id>` / `MEMBER`) that `DynamoMemberRepository` writes. It does

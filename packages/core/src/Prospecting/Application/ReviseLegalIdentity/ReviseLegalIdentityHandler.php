@@ -11,9 +11,9 @@ use Prospecter\Core\Prospecting\Domain\Service\SiretUniqueness;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
-use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\Siret;
+use Prospecter\Core\SharedKernel\Domain\Company\LegalIdentity;
+use Prospecter\Core\SharedKernel\Domain\Company\Siret;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 final readonly class ReviseLegalIdentityHandler implements CommandHandler
 {

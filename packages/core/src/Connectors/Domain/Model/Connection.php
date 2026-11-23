@@ -24,12 +24,12 @@ use Prospecter\Core\Connectors\Domain\Exception\MailImportNotActive;
 use Prospecter\Core\Connectors\Domain\Port\ProviderAccess;
 use Prospecter\Core\Connectors\Domain\Port\ProviderCalendar;
 use Prospecter\Core\Connectors\Domain\Port\ProviderMailbox;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\Email;
-use Prospecter\Core\SharedKernel\Domain\Gesture;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
-use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
+use Prospecter\Core\SharedKernel\Domain\Contact\Email;
+use Prospecter\Core\SharedKernel\Domain\Event\RecordsEvents;
+use Prospecter\Core\SharedKernel\Domain\Event\ReleasesEvents;
+use Prospecter\Core\SharedKernel\Domain\Gesture\Gesture;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Aggregate root. It holds the account that a member connected at a provider and the lasting access that the

@@ -14,8 +14,8 @@ use Prospecter\Core\PersonalData\Contract\Service\NameContacts\NameContactsServi
 use Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\KeptOrganizationsOfContacts;
 use Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\NameOrganizationsOfContacts;
 use Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\NameOrganizationsOfContactsService;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Anticorruption layer (ADR 0045, 0089, 0144). Campaigns takes a contact's name from what PersonalData lets the member

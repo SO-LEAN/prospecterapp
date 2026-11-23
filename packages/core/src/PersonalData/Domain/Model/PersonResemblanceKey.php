@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\PersonalData\Domain\Model;
 
-use Prospecter\Core\SharedKernel\Domain\SearchKey;
+use Prospecter\Core\SharedKernel\Domain\Search\SearchKey;
 
 /**
  * What two contacts who resemble each other share. They may be the same person, logged twice.

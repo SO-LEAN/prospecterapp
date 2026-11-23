@@ -17,7 +17,7 @@ use Prospecter\Core\Connectors\Domain\Model\CalendarEvent;
 use Prospecter\Core\Connectors\Domain\Model\Connection;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Prospecting\Contract\Event\ExchangeFactsChanged;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 

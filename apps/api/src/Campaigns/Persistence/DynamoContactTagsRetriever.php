@@ -10,7 +10,7 @@ use Prospecter\Core\Campaigns\Application\Port\ContactTagSources;
 use Prospecter\Core\Campaigns\Application\Port\ContactTagsRetriever;
 use Prospecter\Core\Campaigns\Domain\Model\ContactId;
 use Prospecter\Core\Campaigns\Domain\Model\HolderKind;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * Reads what contacts' tags are derived from, in the items of `DynamoFactRepository` and `DynamoTaggingRepository`,

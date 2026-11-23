@@ -18,7 +18,7 @@ use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Model\TimelineIntent;
 use Prospecter\Core\Prospecting\Domain\Rule\ExchangeConformity;
 use Prospecter\Core\Prospecting\Domain\Rule\ExchangeReading;
-use Prospecter\Core\SharedKernel\Domain\Origin;
+use Prospecter\Core\SharedKernel\Domain\Gesture\Origin;
 
 /**
  * Reads the timelines in the indexes that `DynamoExchangeRepository` writes (`ExchangeKeys`). It does not restore the

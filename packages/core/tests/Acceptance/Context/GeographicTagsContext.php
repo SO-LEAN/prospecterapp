@@ -20,11 +20,11 @@ use Prospecter\Core\Prospecting\Application\Relocate\Relocate;
 use Prospecter\Core\Prospecting\Contract\Event\OrganizationFactsChanged;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
-use Prospecter\Core\SharedKernel\Domain\Address;
-use Prospecter\Core\SharedKernel\Domain\ContactDetails;
-use Prospecter\Core\SharedKernel\Domain\GeoPoint;
-use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
-use Prospecter\Core\SharedKernel\Domain\Location;
+use Prospecter\Core\SharedKernel\Domain\Company\LegalIdentity;
+use Prospecter\Core\SharedKernel\Domain\Contact\Address;
+use Prospecter\Core\SharedKernel\Domain\Contact\ContactDetails;
+use Prospecter\Core\SharedKernel\Domain\Location\GeoPoint;
+use Prospecter\Core\SharedKernel\Domain\Location\Location;
 use Tests\Core\Acceptance\Expect;
 
 final class GeographicTagsContext implements Context

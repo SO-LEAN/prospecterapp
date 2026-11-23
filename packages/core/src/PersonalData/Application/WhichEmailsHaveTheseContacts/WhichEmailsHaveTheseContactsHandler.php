@@ -13,7 +13,7 @@ use Prospecter\Core\PersonalData\Domain\Exception\UnknownReader;
 use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\PersonalData\Domain\Port\Readers;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * A contact's address leaves PersonalData only for a member who reads the contact unmasked and may manage their

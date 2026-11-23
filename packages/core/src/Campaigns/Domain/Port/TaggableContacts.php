@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Campaigns\Domain\Port;
 
 use Prospecter\Core\Campaigns\Domain\Model\ContactId;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * Port: which people in a set are contacts of an account (ADR 0045, 0089). It asks PersonalData through its published

@@ -10,10 +10,10 @@ use App\Shared\Typed;
 use Prospecter\Core\Prospecting\Application\IdentifyOrganizations\Candidate;
 use Prospecter\Core\Prospecting\Application\Port\DesignatedOrganizationRetriever;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\Email;
-use Prospecter\Core\SharedKernel\Domain\ExternalReference;
-use Prospecter\Core\SharedKernel\Domain\Siret;
+use Prospecter\Core\SharedKernel\Domain\Company\Siret;
+use Prospecter\Core\SharedKernel\Domain\Contact\Email;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Link\ExternalReference;
 
 /**
  * Reads the account's organization that a key designates, from the reservations that `DynamoOrganizationRepository`

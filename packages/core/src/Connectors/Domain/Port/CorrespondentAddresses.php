@@ -8,9 +8,9 @@ use Prospecter\Core\Connectors\Domain\Exception\UnknownContact;
 use Prospecter\Core\Connectors\Domain\Exception\UnknownOrganization;
 use Prospecter\Core\Connectors\Domain\Model\ContactId;
 use Prospecter\Core\Connectors\Domain\Model\OrganizationId;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\Email;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Contact\Email;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Port: the address of one of the account's correspondents (ADR 0089). It is translated from the contexts that know

@@ -22,8 +22,8 @@ use Prospecter\Core\Connectors\Domain\Repository\ConnectionRepository;
 use Prospecter\Core\Connectors\Domain\Repository\ProviderClientRepository;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Puts an exchange into its holder's calendar at the provider, or withdraws it. The reactions and the retries push

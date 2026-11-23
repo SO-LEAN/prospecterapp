@@ -20,7 +20,7 @@ use Prospecter\Core\Booking\Application\OpenBooking\OpenBooking;
 use Prospecter\Core\Booking\Application\PublicBookingPage;
 use Prospecter\Core\Booking\Application\RemoveInactivePeriod\RemoveInactivePeriod;
 use Prospecter\Core\Booking\Application\SetWeeklyWindows\SetWeeklyWindows;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 use Tests\Core\Acceptance\Expect;
 
 /**
