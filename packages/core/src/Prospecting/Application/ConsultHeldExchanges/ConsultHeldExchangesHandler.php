@@ -14,7 +14,7 @@ use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 
 /**
- * The exchanges among these ids, a client asking about one at a time.
+ * Reads the exchanges among these ids. A client asks about one exchange at a time.
  */
 final readonly class ConsultHeldExchangesHandler implements QueryHandler, ConsultHeldExchangesService
 {
