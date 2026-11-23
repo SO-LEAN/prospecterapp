@@ -16,9 +16,9 @@ use Prospecter\Core\Campaigns\Application\CampaignSheet;
 use Symfony\Component\Clock\ClockInterface;
 
 /**
- * What every tool writing a campaign does as its controller (ADR 0163): the campaign of the route read, the member
- * refused unless a prospector of its team with the right to manage the personal data, then the input of the endpoint
- * checked, its command dispatched, the campaign answered as the screen then reads it.
+ * What every tool that writes a campaign does, as its controller does (ADR 0163). It reads the route's campaign. It
+ * refuses the member unless they are a prospector of its team with the right to manage personal data. Then it checks
+ * the endpoint's input, dispatches its command, and returns the campaign as the screen then reads it.
  */
 final readonly class CampaignWrites
 {
@@ -36,8 +36,8 @@ final readonly class CampaignWrites
     /**
      * @template TInput of object
      *
-     * @param TInput                                                              $input   the input of the endpoint
-     * @param \Closure(TInput, CampaignSheet, string, \DateTimeImmutable): object $command the command of the endpoint, from its input, for the campaign, by the member, at this moment
+     * @param TInput                                                              $input   the endpoint's input
+     * @param \Closure(TInput, CampaignSheet, string, \DateTimeImmutable): object $command the endpoint's command, built from its input, for the campaign, by the member, at this moment
      *
      * @return array<string, mixed>
      */
@@ -49,7 +49,7 @@ final readonly class CampaignWrites
     /**
      * It does the same as write() for an endpoint without an input.
      *
-     * @param \Closure(CampaignSheet, string, \DateTimeImmutable): object $command the command of the endpoint, for the campaign, by the member, at this moment
+     * @param \Closure(CampaignSheet, string, \DateTimeImmutable): object $command the endpoint's command, for the campaign, by the member, at this moment
      *
      * @return array<string, mixed>
      */
@@ -59,7 +59,7 @@ final readonly class CampaignWrites
     }
 
     /**
-     * The command dispatched, nothing answered.
+     * Dispatches the command and returns nothing.
      *
      * @template TInput of object
      *
@@ -89,7 +89,7 @@ final readonly class CampaignWrites
 
     /**
      * Reads the route's campaign. It refuses the member unless they are a prospector of its team with the right to
-     * manage the personal data.
+     * manage personal data.
      */
     private function writable(string $id): CampaignSheet
     {

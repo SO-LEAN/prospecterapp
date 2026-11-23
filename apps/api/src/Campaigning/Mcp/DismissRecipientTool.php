@@ -12,8 +12,8 @@ use Prospecter\Core\Campaigns\Application\CampaignSheet;
 use Prospecter\Core\Campaigns\Application\DismissRecipient\DismissRecipient;
 
 /**
- * `POST /api/campaigns/{id}/recipients/{contactId}/dismissal`, for an AI (ADR 0163), which asks its member before
- * calling it: a recipient dismissed is never handled again in the campaign.
+ * `POST /api/campaigns/{id}/recipients/{contactId}/dismissal`, for an AI (ADR 0163). The AI asks its member before it
+ * calls this tool, because a dismissed recipient is never handled again in the campaign.
  */
 #[Adapts('api_campaigns_dismiss_recipient')]
 final readonly class DismissRecipientTool
@@ -23,11 +23,11 @@ final readonly class DismissRecipientTool
     }
 
     /**
-     * @param string  $id        the id of the campaign, started
-     * @param string  $contactId the id of the contact, one of its recipients still to handle
-     * @param ?string $reason    why, when said
+     * @param string  $id        the id of a started campaign
+     * @param string  $contactId the contact's id, one of its recipients still to handle
+     * @param ?string $reason    the reason, when given
      */
-    #[McpTool(name: 'dismiss-campaign-recipient', description: 'Dismiss a recipient of a started campaign without an exchange, for good: the campaign ends once nobody is left to handle; needs the right to manage the personal data. Answers nothing.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'dismiss-campaign-recipient', description: 'Dismiss a started campaign\'s recipient without an exchange, for good. The campaign ends once nobody is left to handle. Needs the right to manage personal data. Returns nothing.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id, string $contactId, ?string $reason = null): void
     {
         $this->writes->dispatched(

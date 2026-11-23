@@ -32,12 +32,12 @@ final readonly class ShowCampaignTool
     }
 
     /**
-     * @param string  $id       the id of the campaign
-     * @param ?string $timeZone the member's time zone, by its name (Europe/Paris). The recipients processed today follow it. UTC otherwise
+     * @param string  $id       the campaign's id
+     * @param ?string $timeZone the member's time zone, by name (Europe/Paris). The recipients processed today follow it. UTC when left out
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'get-campaign', description: 'A campaign: its name, its channel, its targeted tags, its message, its status, its progress, its daily cap and its recipients processed today, and the link to its recipients, with the right to manage the personal data.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'get-campaign', description: 'Get a campaign. Needs the right to manage personal data. Returns its name, channel, targeted tags, message, status, progress, daily cap, recipients processed today, and the link to its recipients.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $id, ?string $timeZone = null): array
     {
         $member = $this->access->member();
