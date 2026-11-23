@@ -40,8 +40,8 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * An e-mail the mailbox of a member exchanged with a contact, or with an organization itself, is noted as an exchange
- * by that member (ADR 0154).
+ * A member's mailbox exchanged an e-mail with a contact, or with an organization itself. The e-mail is logged as an
+ * exchange by that member (ADR 0154).
  */
 final readonly class NoteImportedEmailHandler implements EventHandler
 {
@@ -77,8 +77,9 @@ final readonly class NoteImportedEmailHandler implements EventHandler
     }
 
     /**
-     * Its files, sent to the storage by the import as the uploads of this exchange, and those it cannot bring: left
-     * out by the import, no longer in the storage, its uploads gone after a day, or more than the exchange holds
+     * Returns the e-mail's files, and those it cannot bring. The import sent its files to the storage as this
+     * exchange's uploads. A file cannot come when the import left it out, or when it is no longer in the storage
+     * because its upload expired after a day. It cannot come either when the exchange has no room left for it
      * (ADR 0077, 0182).
      *
      * @return array{list<Attachment>, list<array{name: string, size: int}>}
@@ -100,7 +101,7 @@ final readonly class NoteImportedEmailHandler implements EventHandler
     }
 
     /**
-     * None once its upload is gone, or heavier than an exchange holds.
+     * Returns none once its upload is gone, or when the file is heavier than an exchange holds.
      *
      * @param array{upload: string, name: string, size: int} $attachment
      */
@@ -116,7 +117,8 @@ final readonly class NoteImportedEmailHandler implements EventHandler
     }
 
     /**
-     * Imported, noted by an AI, or by hand, erased since or not: an e-mail is noted once in its account (ADR 0166).
+     * An e-mail is logged once in its account (ADR 0166). This holds whether it was imported, logged by an AI or by
+     * hand, and whether it was erased since or not.
      */
     private function wasNotedBefore(Exchange $exchange): bool
     {
@@ -130,8 +132,9 @@ final readonly class NoteImportedEmailHandler implements EventHandler
     }
 
     /**
-     * None with a contact forgotten, or an organization no longer prospected, since the e-mail was read, nor with a
-     * contact another member holds to attach, met by them only (ADR 0146).
+     * Returns none when the contact was forgotten, or the organization is no longer prospected, since the e-mail was
+     * read. It also returns none for a contact to attach that another member holds, because only that member met them
+     * (ADR 0146).
      */
     private function exchangeWith(PersonId|OrganizationId $correspondent, ExchangeId $id, Prospector $prospector, EmailExchanged $email, ExchangeFacts $facts): ?Exchange
     {
@@ -167,8 +170,8 @@ final readonly class NoteImportedEmailHandler implements EventHandler
     }
 
     /**
-     * Its text is its subject followed by its text, as a member would note it, then a line for each file it could not
-     * bring (ADR 0182).
+     * The exchange's text is the e-mail's subject followed by its text, as a member would log it. A line follows for
+     * each file the e-mail could not bring (ADR 0182).
      *
      * @param list<array{name: string, size: int}> $leftOut
      */
