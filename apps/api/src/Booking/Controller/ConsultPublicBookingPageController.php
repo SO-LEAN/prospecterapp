@@ -20,13 +20,13 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * Read without signing in, by whomever holds the link (ADR 0151, 0153): its firewall lets every call through.
+ * Anyone with the link can read the page without signing in (ADR 0151, 0153). The firewall lets every call through.
  */
 #[OA\Tag('Booking')]
 final class ConsultPublicBookingPageController extends AbstractController
 {
     /**
-     * Short: a link closed or a slot taken shows within it (ADR 0153).
+     * Short, so that a closed link or a taken slot shows up within this delay (ADR 0153).
      */
     private const int KEPT_SECONDS = 30;
 
@@ -38,7 +38,7 @@ final class ConsultPublicBookingPageController extends AbstractController
     }
 
     #[Route('/api/booking-pages/{code}', name: 'api_public_booking_page', defaults: [PublicBookingRoutes::LIMITED_BY_ITS_CODE => true], methods: ['GET'])]
-    #[OA\Get(summary: 'Consult the booking page a public link leads to, without signing in: its free slots from tomorrow for 14 days and how its host meets the bookers; a link closed, changed, unknown, of a code oversized, or whose host has no connected calendar shows nothing, without saying why', security: [])]
+    #[OA\Get(summary: 'Get the booking page that a public link leads to, without signing in: its free slots for 14 days from tomorrow, and how its host meets bookers. A closed, changed or unknown link, an oversized code, or a host without a connected calendar shows nothing, and the answer does not say why', security: [])]
     #[OA\Response(response: 200, description: 'The booking page, kept 30 seconds', content: new Model(type: PublicBookingPageResource::class))]
     #[OA\Response(response: 429, description: 'This link was opened too often in the last minute: `tooManyRequests`, try again after `Retry-After` seconds', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $code): JsonResponse

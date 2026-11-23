@@ -7,7 +7,7 @@ namespace App\Booking\Resource;
 use OpenApi\Attributes as OA;
 
 /**
- * What was booked, as the booker gave it, for the page to confirm it.
+ * What the booker booked, as they gave it, so that the page can confirm it.
  */
 final readonly class BookingResource
 {

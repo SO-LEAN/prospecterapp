@@ -7845,7 +7845,7 @@
                 "tags": [
                     "Booking"
                 ],
-                "summary": "Add days I may not be booked, whatever my windows, both bounds included",
+                "summary": "Add days when nobody can book me, whatever my windows say. Both bounds are included",
                 "operationId": "post_api_booking_page_add_inactive_period",
                 "requestBody": {
                     "required": true,
@@ -7872,7 +7872,7 @@
                         "description": "Missing or invalid access token"
                     },
                     "422": {
-                        "description": "A period ending before it starts, a day not written YYYY-MM-DD",
+                        "description": "A period that ends before it starts, or a day not written YYYY-MM-DD",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -7889,7 +7889,7 @@
                 "tags": [
                     "Booking"
                 ],
-                "summary": "Book a free slot of the page a public link leads to, without signing in: it becomes an exchange its host planned with the booker, a contact of the account or one to attach; a form a robot filled books nothing, without saying so",
+                "summary": "Book a free slot on the page that a public link leads to, without signing in. The slot becomes an exchange that the host planned with the booker. The booker is a contact of the account, or a contact to attach. A form that a robot filled books nothing, and the answer does not say so",
                 "operationId": "post_api_public_booking_book",
                 "parameters": [
                     {
@@ -7913,7 +7913,7 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "What was booked",
+                        "description": "What the booker booked",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -7923,7 +7923,7 @@
                         }
                     },
                     "422": {
-                        "description": "A link offering nothing (`bookingUnavailable`), a channel not offered (`channelNotOffered`), a slot taken meanwhile or never offered (`slotNotFree`), another appointment to come with this e-mail (`alreadyBooked`, its moment in the `appointment` of the context of its violation), a booker leaving out anything but the subject (`incompleteBooker`), a phone or an e-mail invalid",
+                        "description": "A link that offers nothing (`bookingUnavailable`), a channel that is not offered (`channelNotOffered`), a slot taken in the meantime or never offered (`slotNotFree`), another upcoming appointment with this e-mail (`alreadyBooked`, with its time in the `appointment` field of its violation's context), a booker who left out anything but the subject (`incompleteBooker`), or an invalid phone or e-mail",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -7951,7 +7951,7 @@
                 "tags": [
                     "Booking"
                 ],
-                "summary": "Draw another code for the link of my booking page: the former link leads nowhere",
+                "summary": "Draw a new code for my booking page's link. The former link leads nowhere",
                 "operationId": "post_api_booking_page_change_link",
                 "responses": {
                     "200": {
@@ -7985,7 +7985,7 @@
                 "tags": [
                     "Booking"
                 ],
-                "summary": "Open my booking page, while my calendar is connected and it offers a channel: its link, drawn at the first opening, offers my slots",
+                "summary": "Open my booking page. My calendar must be connected and the page must offer a channel. The first opening draws the page's link, which then offers my slots",
                 "operationId": "post_api_booking_page_open",
                 "responses": {
                     "200": {
@@ -8002,7 +8002,7 @@
                         "description": "Missing or invalid access token"
                     },
                     "409": {
-                        "description": "The page is open already",
+                        "description": "The page is already open",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -8012,7 +8012,7 @@
                         }
                     },
                     "422": {
-                        "description": "No calendar connected, no channel offered",
+                        "description": "No connected calendar, or no offered channel",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -8027,7 +8027,7 @@
                 "tags": [
                     "Booking"
                 ],
-                "summary": "Close my booking page at once: its link offers nothing, my settings and my link kept",
+                "summary": "Close my booking page at once. Its link offers nothing. The page keeps my settings and my link",
                 "operationId": "delete_api_booking_page_close",
                 "responses": {
                     "200": {
@@ -8044,7 +8044,7 @@
                         "description": "Missing or invalid access token"
                     },
                     "409": {
-                        "description": "The page is closed already",
+                        "description": "The page is already closed",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -8061,7 +8061,7 @@
                 "tags": [
                     "Booking"
                 ],
-                "summary": "Consult my booking page: my windows, my inactive periods not ended on my clock, my channels, whether it is open and its link, whether my calendar is connected",
+                "summary": "Get my booking page: my windows, my inactive periods that have not ended on my clock, my channels, whether it is open, its link, and whether my calendar is connected",
                 "operationId": "get_api_booking_page",
                 "parameters": [
                     {
@@ -8111,7 +8111,7 @@
                 "tags": [
                     "Booking"
                 ],
-                "summary": "Consult the booking page a public link leads to, without signing in: its free slots from tomorrow for 14 days and how its host meets the bookers; a link closed, changed, unknown, of a code oversized, or whose host has no connected calendar shows nothing, without saying why",
+                "summary": "Get the booking page that a public link leads to, without signing in: its free slots for 14 days from tomorrow, and how its host meets bookers. A closed, changed or unknown link, an oversized code, or a host without a connected calendar shows nothing, and the answer does not say why",
                 "operationId": "get_api_public_booking_page",
                 "parameters": [
                     {
@@ -8153,7 +8153,7 @@
                 "tags": [
                     "Booking"
                 ],
-                "summary": "Choose how the bookers meet me, a call, a video call or both; an open page offers one at least",
+                "summary": "Choose how bookers meet me: a call, a video call, or both. An open page offers at least one",
                 "operationId": "patch_api_booking_page_offer_channels",
                 "requestBody": {
                     "required": true,
@@ -8180,7 +8180,7 @@
                         "description": "Missing or invalid access token"
                     },
                     "422": {
-                        "description": "No channel while the page is open, an unknown channel",
+                        "description": "No channel while the page is open, or an unknown channel",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -8197,7 +8197,7 @@
                 "tags": [
                     "Booking"
                 ],
-                "summary": "Remove an inactive period of mine: its days are offered again, as my windows say",
+                "summary": "Remove one of my inactive periods. Its days are bookable again, as my windows say",
                 "operationId": "delete_api_booking_page_remove_inactive_period",
                 "parameters": [
                     {
@@ -8225,7 +8225,7 @@
                         "description": "Missing or invalid access token"
                     },
                     "404": {
-                        "description": "No inactive period of mine of this id",
+                        "description": "I have no inactive period with this id",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -8242,7 +8242,7 @@
                 "tags": [
                     "Booking"
                 ],
-                "summary": "Set the windows of my week, one a day at most, on the quarter hour and of 15 minutes at least, in the time zone of my clock, replacing the former ones",
+                "summary": "Set my weekly windows in my clock's time zone. They replace the former ones. A day holds one window at most. A window starts and ends on a quarter hour and lasts at least 15 minutes",
                 "operationId": "patch_api_booking_page_set_windows",
                 "requestBody": {
                     "required": true,
@@ -8269,7 +8269,7 @@
                         "description": "Missing or invalid access token"
                     },
                     "422": {
-                        "description": "A window too short, off the quarter hour, two on a day, an unknown day or time zone",
+                        "description": "A window too short or off the quarter hour, two windows on one day, or an unknown day or time zone",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -9359,7 +9359,7 @@
                         "default": ""
                     },
                     "phone": {
-                        "description": "As typed, French without its country code",
+                        "description": "As typed. A French number may leave out its country code",
                         "type": "string",
                         "example": "06 12 34 56 78",
                         "default": ""
@@ -9370,7 +9370,7 @@
                         "default": ""
                     },
                     "subject": {
-                        "description": "What the booker wants to talk about, may be left out",
+                        "description": "What the booker wants to talk about. Optional",
                         "type": "string",
                         "example": "Mission data en mars",
                         "nullable": true,
@@ -9436,7 +9436,7 @@
                         "example": "14:00"
                     },
                     "to": {
-                        "description": "HH:MM, on the quarter hour, 15 minutes after the start at least",
+                        "description": "HH:MM, on the quarter hour, at least 15 minutes after the start",
                         "type": "string",
                         "example": "17:00"
                     }
@@ -9446,7 +9446,7 @@
             "WindowsInput": {
                 "properties": {
                     "timeZone": {
-                        "description": "The time zone of my clock, by its name in the database of the time zones",
+                        "description": "My clock's time zone, by its name in the time zone database",
                         "type": "string",
                         "example": "Europe/Paris",
                         "nullable": true,
@@ -12639,7 +12639,7 @@
                 ],
                 "properties": {
                     "open": {
-                        "description": "Whether its public link offers slots",
+                        "description": "Whether the page's public link offers slots",
                         "type": "boolean"
                     },
                     "windows": {
@@ -12650,13 +12650,13 @@
                         }
                     },
                     "timeZone": {
-                        "description": "The time zone of the windows, by its name in the database of the time zones; none before they are set",
+                        "description": "The windows' time zone, by its name in the time zone database. Null until the windows are set",
                         "type": "string",
                         "example": "Europe/Paris",
                         "nullable": true
                     },
                     "inactivePeriods": {
-                        "description": "Those not ended before the day of the reading, the soonest first",
+                        "description": "The periods that had not ended before the reading's day, the soonest first",
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/InactivePeriodResource"
@@ -12673,17 +12673,17 @@
                         }
                     },
                     "code": {
-                        "description": "The code of its public link, 22 characters of base 62; none before its first opening",
+                        "description": "The public link's code, 22 base-62 characters. Null until the first opening",
                         "type": "string",
                         "example": "AbCdEfGhIjKlMnOpQrStUv",
                         "nullable": true
                     },
                     "calendarConnected": {
-                        "description": "Whether my calendar is connected, which invites the bookers: without it, the page does not open",
+                        "description": "Whether my calendar is connected. The calendar invites the bookers, so the page does not open without it",
                         "type": "boolean"
                     },
                     "suspended": {
-                        "description": "Open, but offering nothing while my calendar is not connected: the members are told so",
+                        "description": "Whether the page is open but offers nothing, because my calendar is not connected. The members are told so",
                         "type": "boolean"
                     },
                     "_links": {
@@ -12751,11 +12751,11 @@
                 ],
                 "properties": {
                     "open": {
-                        "description": "Whether it offers slots: closed, changed, unknown or suspended, it offers none and says nothing else",
+                        "description": "Whether the page offers slots. A closed, changed, unknown or suspended page offers none and says nothing else",
                         "type": "boolean"
                     },
                     "host": {
-                        "description": "Whom the booker meets; none when it offers nothing",
+                        "description": "Who the booker meets. Null when the page offers nothing",
                         "nullable": true,
                         "oneOf": [
                             {
@@ -12774,13 +12774,13 @@
                         }
                     },
                     "timeZone": {
-                        "description": "The clock of the host, which the days and the slots are on; none when it offers nothing",
+                        "description": "The host's clock, on which the days and the slots are given. Null when the page offers nothing",
                         "type": "string",
                         "example": "Europe/Paris",
                         "nullable": true
                     },
                     "days": {
-                        "description": "The 14 days from tomorrow on the clock of the host, each with the moments its free slots of 15 minutes start at; none when it offers nothing",
+                        "description": "The 14 days from tomorrow on the host's clock, each with the start times of its free 15-minute slots. Empty when the page offers nothing",
                         "type": "array",
                         "items": {
                             "required": [

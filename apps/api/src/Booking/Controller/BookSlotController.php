@@ -22,8 +22,8 @@ use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * Booked without signing in, by whomever holds the link (ADR 0153, 0164): its firewall lets every call through, the
- * code of the link limits them.
+ * Anyone with the link can book without signing in (ADR 0153, 0164). The firewall lets every call through. The link's
+ * code limits the calls.
  */
 #[OA\Tag('Booking')]
 final class BookSlotController extends AbstractController
@@ -36,9 +36,9 @@ final class BookSlotController extends AbstractController
     }
 
     #[Route('/api/booking-pages/{code}/appointments', name: 'api_public_booking_book', defaults: [PublicBookingRoutes::LIMITED_BY_ITS_CODE => true], methods: ['POST'])]
-    #[OA\Post(summary: 'Book a free slot of the page a public link leads to, without signing in: it becomes an exchange its host planned with the booker, a contact of the account or one to attach; a form a robot filled books nothing, without saying so', security: [])]
-    #[OA\Response(response: 201, description: 'What was booked', content: new Model(type: BookingResource::class))]
-    #[OA\Response(response: 422, description: 'A link offering nothing (`bookingUnavailable`), a channel not offered (`channelNotOffered`), a slot taken meanwhile or never offered (`slotNotFree`), another appointment to come with this e-mail (`alreadyBooked`, its moment in the `appointment` of the context of its violation), a booker leaving out anything but the subject (`incompleteBooker`), a phone or an e-mail invalid', content: new Model(type: ProblemResource::class))]
+    #[OA\Post(summary: 'Book a free slot on the page that a public link leads to, without signing in. The slot becomes an exchange that the host planned with the booker. The booker is a contact of the account, or a contact to attach. A form that a robot filled books nothing, and the answer does not say so', security: [])]
+    #[OA\Response(response: 201, description: 'What the booker booked', content: new Model(type: BookingResource::class))]
+    #[OA\Response(response: 422, description: 'A link that offers nothing (`bookingUnavailable`), a channel that is not offered (`channelNotOffered`), a slot taken in the meantime or never offered (`slotNotFree`), another upcoming appointment with this e-mail (`alreadyBooked`, with its time in the `appointment` field of its violation\'s context), a booker who left out anything but the subject (`incompleteBooker`), or an invalid phone or e-mail', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 429, description: 'This link was used too often in the last minute: `tooManyRequests`, try again after `Retry-After` seconds', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $code, #[MapRequestPayload] BookingInput $input): JsonResponse
     {
@@ -48,8 +48,8 @@ final class BookSlotController extends AbstractController
                 code: $code,
                 appointmentId: $this->identities->next(),
                 bookerId: $this->identities->next(),
-                channel: $input->channel ?? throw new \LogicException('A booking validated has its channel'),
-                slot: new \DateTimeImmutable($input->slot ?? throw new \LogicException('A booking validated has its slot')),
+                channel: $input->channel ?? throw new \LogicException('A validated booking has its channel'),
+                slot: new \DateTimeImmutable($input->slot ?? throw new \LogicException('A validated booking has its slot')),
                 firstName: $input->firstName,
                 lastName: $input->lastName,
                 phone: $input->phone,

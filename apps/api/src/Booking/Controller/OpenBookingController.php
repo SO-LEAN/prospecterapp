@@ -33,11 +33,11 @@ final class OpenBookingController extends AbstractController
     }
 
     #[Route('/api/me/booking-page/opening', name: 'api_booking_page_open', methods: ['POST'])]
-    #[OA\Post(summary: 'Open my booking page, while my calendar is connected and it offers a channel: its link, drawn at the first opening, offers my slots')]
+    #[OA\Post(summary: 'Open my booking page. My calendar must be connected and the page must offer a channel. The first opening draws the page\'s link, which then offers my slots')]
     #[OA\Response(response: 200, description: 'My booking page', content: new Model(type: BookingPageResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
-    #[OA\Response(response: 409, description: 'The page is open already', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 422, description: 'No calendar connected, no channel offered', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 409, description: 'The page is already open', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 422, description: 'No connected calendar, or no offered channel', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[CurrentUser] User $user): JsonResponse
     {
         $this->commandBus->dispatch(new OpenBooking(memberId: $user->memberId(), drawnCode: $this->codes->draw(), executedAt: $this->clock->now()));

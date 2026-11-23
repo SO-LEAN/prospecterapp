@@ -29,7 +29,7 @@ final class ConsultMyBookingPageController extends AbstractController
     }
 
     #[Route('/api/me/booking-page', name: 'api_booking_page', methods: ['GET'])]
-    #[OA\Get(summary: 'Consult my booking page: my windows, my inactive periods not ended on my clock, my channels, whether it is open and its link, whether my calendar is connected')]
+    #[OA\Get(summary: 'Get my booking page: my windows, my inactive periods that have not ended on my clock, my channels, whether it is open, its link, and whether my calendar is connected')]
     #[OA\Response(response: 200, description: 'My booking page, closed and empty until I set it', content: new Model(type: BookingPageResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 422, description: 'An unknown time zone', content: new Model(type: ProblemResource::class))]

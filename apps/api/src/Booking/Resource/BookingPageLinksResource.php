@@ -8,8 +8,8 @@ use App\Shared\Resource\LinkResource;
 use OpenApi\Attributes as OA;
 
 /**
- * The settings change at any time; `open` while the page is closed, `close` while it is open, `changeLink` once it
- * has a link.
+ * The settings change at any time. `open` is offered while the page is closed, `close` while it is open, and
+ * `changeLink` once it has a link.
  */
 final readonly class BookingPageLinksResource
 {
@@ -22,7 +22,7 @@ final readonly class BookingPageLinksResource
         public ?LinkResource $open = null,
         #[OA\Property(description: 'Close the page at once, while it is open', nullable: false)]
         public ?LinkResource $close = null,
-        #[OA\Property(description: 'Draw another code for its link, once it has one', nullable: false)]
+        #[OA\Property(description: 'Draw a new code for the page\'s link, once it has one', nullable: false)]
         public ?LinkResource $changeLink = null,
     ) {
     }

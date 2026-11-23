@@ -7,7 +7,7 @@ namespace App\Booking\Resource;
 use App\Shared\Resource\ImageResource;
 
 /**
- * Whom a booker meets: the name and the picture of the host, and the organization they work for.
+ * Who a booker meets: the host's name and picture, and the organization they work for.
  */
 final readonly class PublicHostResource
 {

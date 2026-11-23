@@ -1623,7 +1623,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Add days I may not be booked, whatever my windows, both bounds included */
+        /** Add days when nobody can book me, whatever my windows say. Both bounds are included */
         post: operations["post_api_booking_page_add_inactive_period"];
         delete?: never;
         options?: never;
@@ -1640,7 +1640,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Book a free slot of the page a public link leads to, without signing in: it becomes an exchange its host planned with the booker, a contact of the account or one to attach; a form a robot filled books nothing, without saying so */
+        /** Book a free slot on the page that a public link leads to, without signing in. The slot becomes an exchange that the host planned with the booker. The booker is a contact of the account, or a contact to attach. A form that a robot filled books nothing, and the answer does not say so */
         post: operations["post_api_public_booking_book"];
         delete?: never;
         options?: never;
@@ -1657,7 +1657,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Draw another code for the link of my booking page: the former link leads nowhere */
+        /** Draw a new code for my booking page's link. The former link leads nowhere */
         post: operations["post_api_booking_page_change_link"];
         delete?: never;
         options?: never;
@@ -1674,9 +1674,9 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Open my booking page, while my calendar is connected and it offers a channel: its link, drawn at the first opening, offers my slots */
+        /** Open my booking page. My calendar must be connected and the page must offer a channel. The first opening draws the page's link, which then offers my slots */
         post: operations["post_api_booking_page_open"];
-        /** Close my booking page at once: its link offers nothing, my settings and my link kept */
+        /** Close my booking page at once. Its link offers nothing. The page keeps my settings and my link */
         delete: operations["delete_api_booking_page_close"];
         options?: never;
         head?: never;
@@ -1690,7 +1690,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Consult my booking page: my windows, my inactive periods not ended on my clock, my channels, whether it is open and its link, whether my calendar is connected */
+        /** Get my booking page: my windows, my inactive periods that have not ended on my clock, my channels, whether it is open, its link, and whether my calendar is connected */
         get: operations["get_api_booking_page"];
         put?: never;
         post?: never;
@@ -1707,7 +1707,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Consult the booking page a public link leads to, without signing in: its free slots from tomorrow for 14 days and how its host meets the bookers; a link closed, changed, unknown, of a code oversized, or whose host has no connected calendar shows nothing, without saying why */
+        /** Get the booking page that a public link leads to, without signing in: its free slots for 14 days from tomorrow, and how its host meets bookers. A closed, changed or unknown link, an oversized code, or a host without a connected calendar shows nothing, and the answer does not say why */
         get: operations["get_api_public_booking_page"];
         put?: never;
         post?: never;
@@ -1730,7 +1730,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Choose how the bookers meet me, a call, a video call or both; an open page offers one at least */
+        /** Choose how bookers meet me: a call, a video call, or both. An open page offers at least one */
         patch: operations["patch_api_booking_page_offer_channels"];
         trace?: never;
     };
@@ -1744,7 +1744,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /** Remove an inactive period of mine: its days are offered again, as my windows say */
+        /** Remove one of my inactive periods. Its days are bookable again, as my windows say */
         delete: operations["delete_api_booking_page_remove_inactive_period"];
         options?: never;
         head?: never;
@@ -1764,7 +1764,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Set the windows of my week, one a day at most, on the quarter hour and of 15 minutes at least, in the time zone of my clock, replacing the former ones */
+        /** Set my weekly windows in my clock's time zone. They replace the former ones. A day holds one window at most. A window starts and ends on a quarter hour and lasts at least 15 minutes */
         patch: operations["patch_api_booking_page_set_windows"];
         trace?: never;
     };
@@ -2366,7 +2366,7 @@ export interface components {
              */
             lastName: string;
             /**
-             * @description As typed, French without its country code
+             * @description As typed. A French number may leave out its country code
              * @default
              * @example 06 12 34 56 78
              */
@@ -2377,7 +2377,7 @@ export interface components {
              */
             email: string;
             /**
-             * @description What the booker wants to talk about, may be left out
+             * @description What the booker wants to talk about. Optional
              * @default null
              * @example Mission data en mars
              */
@@ -2408,14 +2408,14 @@ export interface components {
              */
             from: string;
             /**
-             * @description HH:MM, on the quarter hour, 15 minutes after the start at least
+             * @description HH:MM, on the quarter hour, at least 15 minutes after the start
              * @example 17:00
              */
             to: string;
         };
         WindowsInput: {
             /**
-             * @description The time zone of my clock, by its name in the database of the time zones
+             * @description My clock's time zone, by its name in the time zone database
              * @default null
              * @example Europe/Paris
              */
@@ -3468,26 +3468,26 @@ export interface components {
             changeLink?: components["schemas"]["LinkResource"];
         };
         BookingPageResource: {
-            /** @description Whether its public link offers slots */
+            /** @description Whether the page's public link offers slots */
             open: boolean;
             /** @description One a day at most, Monday first */
             windows: components["schemas"]["WindowResource"][];
             /**
-             * @description The time zone of the windows, by its name in the database of the time zones; none before they are set
+             * @description The windows' time zone, by its name in the time zone database. Null until the windows are set
              * @example Europe/Paris
              */
             timeZone?: string | null;
-            /** @description Those not ended before the day of the reading, the soonest first */
+            /** @description The periods that had not ended before the reading's day, the soonest first */
             inactivePeriods: components["schemas"]["InactivePeriodResource"][];
             channels: ("call" | "videoCall")[];
             /**
-             * @description The code of its public link, 22 characters of base 62; none before its first opening
+             * @description The public link's code, 22 base-62 characters. Null until the first opening
              * @example AbCdEfGhIjKlMnOpQrStUv
              */
             code?: string | null;
-            /** @description Whether my calendar is connected, which invites the bookers: without it, the page does not open */
+            /** @description Whether my calendar is connected. The calendar invites the bookers, so the page does not open without it */
             calendarConnected: boolean;
-            /** @description Open, but offering nothing while my calendar is not connected: the members are told so */
+            /** @description Whether the page is open but offers nothing, because my calendar is not connected. The members are told so */
             suspended: boolean;
             _links: components["schemas"]["BookingPageLinksResource"];
         };
@@ -3509,17 +3509,17 @@ export interface components {
             organization?: string | null;
         };
         PublicBookingPageResource: {
-            /** @description Whether it offers slots: closed, changed, unknown or suspended, it offers none and says nothing else */
+            /** @description Whether the page offers slots. A closed, changed, unknown or suspended page offers none and says nothing else */
             open: boolean;
-            /** @description Whom the booker meets; none when it offers nothing */
+            /** @description Who the booker meets. Null when the page offers nothing */
             host?: components["schemas"]["PublicHostResource"] | null;
             channels: ("call" | "videoCall")[];
             /**
-             * @description The clock of the host, which the days and the slots are on; none when it offers nothing
+             * @description The host's clock, on which the days and the slots are given. Null when the page offers nothing
              * @example Europe/Paris
              */
             timeZone?: string | null;
-            /** @description The 14 days from tomorrow on the clock of the host, each with the moments its free slots of 15 minutes start at; none when it offers nothing */
+            /** @description The 14 days from tomorrow on the host's clock, each with the start times of its free 15-minute slots. Empty when the page offers nothing */
             days: {
                 /** Format: date */
                 day: string;
@@ -10119,7 +10119,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description A period ending before it starts, a day not written YYYY-MM-DD */
+            /** @description A period that ends before it starts, or a day not written YYYY-MM-DD */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -10145,7 +10145,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description What was booked */
+            /** @description What the booker booked */
             201: {
                 headers: {
                     [name: string]: unknown;
@@ -10154,7 +10154,7 @@ export interface operations {
                     "application/json": components["schemas"]["BookingResource"];
                 };
             };
-            /** @description A link offering nothing (`bookingUnavailable`), a channel not offered (`channelNotOffered`), a slot taken meanwhile or never offered (`slotNotFree`), another appointment to come with this e-mail (`alreadyBooked`, its moment in the `appointment` of the context of its violation), a booker leaving out anything but the subject (`incompleteBooker`), a phone or an e-mail invalid */
+            /** @description A link that offers nothing (`bookingUnavailable`), a channel that is not offered (`channelNotOffered`), a slot taken in the meantime or never offered (`slotNotFree`), another upcoming appointment with this e-mail (`alreadyBooked`, with its time in the `appointment` field of its violation's context), a booker who left out anything but the subject (`incompleteBooker`), or an invalid phone or e-mail */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -10235,7 +10235,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description The page is open already */
+            /** @description The page is already open */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -10244,7 +10244,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description No calendar connected, no channel offered */
+            /** @description No connected calendar, or no offered channel */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -10280,7 +10280,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description The page is closed already */
+            /** @description The page is already closed */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -10393,7 +10393,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description No channel while the page is open, an unknown channel */
+            /** @description No channel while the page is open, or an unknown channel */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -10431,7 +10431,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description No inactive period of mine of this id */
+            /** @description I have no inactive period with this id */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -10471,7 +10471,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description A window too short, off the quarter hour, two on a day, an unknown day or time zone */
+            /** @description A window too short or off the quarter hour, two windows on one day, or an unknown day or time zone */
             422: {
                 headers: {
                     [name: string]: unknown;

@@ -36,17 +36,17 @@ final class AddInactivePeriodController extends AbstractController
     }
 
     #[Route('/api/me/booking-page/inactive-periods', name: 'api_booking_page_add_inactive_period', methods: ['POST'])]
-    #[OA\Post(summary: 'Add days I may not be booked, whatever my windows, both bounds included')]
+    #[OA\Post(summary: 'Add days when nobody can book me, whatever my windows say. Both bounds are included')]
     #[OA\Response(response: 201, description: 'My booking page', content: new Model(type: BookingPageResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
-    #[OA\Response(response: 422, description: 'A period ending before it starts, a day not written YYYY-MM-DD', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 422, description: 'A period that ends before it starts, or a day not written YYYY-MM-DD', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[MapRequestPayload] InactivePeriodInput $input, #[CurrentUser] User $user): JsonResponse
     {
         $this->commandBus->dispatch(new AddInactivePeriod(
             memberId: $user->memberId(),
             periodId: $this->identities->next(),
-            firstDay: $input->firstDay ?? throw new \LogicException('A period validated has its first day'),
-            lastDay: $input->lastDay ?? throw new \LogicException('A period validated has its last day'),
+            firstDay: $input->firstDay ?? throw new \LogicException('A validated period has its first day'),
+            lastDay: $input->lastDay ?? throw new \LogicException('A validated period has its last day'),
             executedAt: $this->clock->now(),
         ));
 
