@@ -35,12 +35,12 @@ Fonctionnalité: Mener une campagne
   Scénario: Un destinataire traité ne reçoit pas un second échange de la campagne
     Soit "Ada Lovelace" est traitée dans la campagne "Appels ESN"
     Quand je note pour "Ada Lovelace" dans la campagne "Appels ESN" un échange
-    Alors c'est refusé : "This recipient is already processed"
+    Alors c'est refusé : "This recipient has already been processed"
 
   Scénario: Un destinataire écarté n'est pas écarté de nouveau
     Soit "Alan Turing" est écarté de la campagne "Appels ESN"
     Quand j'écarte "Alan Turing" de la campagne "Appels ESN"
-    Alors c'est refusé : "This recipient is already processed"
+    Alors c'est refusé : "This recipient has already been processed"
 
   Scénario: Quand plus personne n'est à traiter, la campagne est terminée
     Soit "Ada Lovelace" est traitée dans la campagne "Appels ESN"

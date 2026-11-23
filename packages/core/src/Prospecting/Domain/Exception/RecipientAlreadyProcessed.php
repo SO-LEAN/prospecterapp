@@ -14,6 +14,6 @@ final class RecipientAlreadyProcessed extends NotPossibleInItsState
 {
     public static function once(): self
     {
-        return self::because('This recipient is already processed');
+        return self::because('This recipient has already been processed');
     }
 }
