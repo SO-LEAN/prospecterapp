@@ -1670,7 +1670,7 @@
                         }
                     },
                     "409": {
-                        "description": "The person is not the organization's contact",
+                        "description": "The person is not one of the organization's contacts",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5008,7 +5008,7 @@
                         }
                     },
                     "422": {
-                        "description": "Invalid to-do: no text, or an invalid due day or hour",
+                        "description": "Invalid to-do: no text, a missing or invalid due day, or an invalid hour",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5144,7 +5144,7 @@
                         }
                     },
                     "422": {
-                        "description": "Invalid to-do: no text, or an invalid due day or hour",
+                        "description": "Invalid to-do: no text, a missing or invalid due day, or an invalid hour",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5280,7 +5280,7 @@
                         }
                     },
                     "422": {
-                        "description": "Invalid to-do: no text, or an invalid due day or hour",
+                        "description": "Invalid to-do: no text, a missing or invalid due day, or an invalid hour",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -8604,7 +8604,7 @@
                         "maxLength": 255
                     },
                     "link": {
-                        "description": "The web address that joins a video call. It is optional and may be added later. Only for a video call",
+                        "description": "The web address to join a video call. It is optional and may be added later. Only for a video call",
                         "type": "string",
                         "nullable": true,
                         "default": null,
@@ -9018,7 +9018,7 @@
                         "maxLength": 255
                     },
                     "link": {
-                        "description": "The web address that joins a video call. Only a video call has one",
+                        "description": "The web address to join a video call. Only a video call has one",
                         "type": "string",
                         "nullable": true,
                         "default": null,
@@ -10195,7 +10195,7 @@
                         ]
                     },
                     "direction": {
-                        "description": "inbound: the contact or the organization reached out; outbound: the member reached out",
+                        "description": "inbound: the contact or the organization reached out. outbound: the account reached out",
                         "type": "string",
                         "enum": [
                             "inbound",
@@ -10241,7 +10241,7 @@
                         "nullable": true
                     },
                     "link": {
-                        "description": "The web address that joins a video call. Null for any other channel, or until it is known",
+                        "description": "The web address to join a video call. Null for any other channel, or until it is known",
                         "type": "string",
                         "nullable": true
                     },
@@ -11484,7 +11484,7 @@
                         ]
                     },
                     "direction": {
-                        "description": "inbound: the contact or the organization reached out. outbound: we did",
+                        "description": "inbound: the contact or the organization reached out. outbound: the account reached out",
                         "type": "string",
                         "enum": [
                             "inbound",
@@ -11530,7 +11530,7 @@
                         "nullable": true
                     },
                     "link": {
-                        "description": "The web address that joins a video call. Null for any other channel, or until it is known",
+                        "description": "The web address to join a video call. Null for any other channel, or until it is known",
                         "type": "string",
                         "nullable": true
                     },

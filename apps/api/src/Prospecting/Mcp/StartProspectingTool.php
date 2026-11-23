@@ -39,11 +39,15 @@ final readonly class StartProspectingTool
     /**
      * @param ?string      $corporateName its corporate name. Give at least a corporate name or an e-mail
      * @param ?string      $form          its legal form (SAS, SARL…)
+     * @param ?string      $type          its organization type
+     * @param ?string      $email         its e-mail
      * @param ?string      $phoneNumber   its phone number, in international format (+33 3 88 11 22 33) or in French national format (03 88 11 22 33)
      * @param ?string      $language      the country code of the language spoken with it (FR, GB…)
      * @param list<string> $links         the addresses of its pages on outside tools (a company on LinkedIn or Welcome to the Jungle, or any other site), five at most
      * @param ?string      $website       its website's address, with or without the scheme
      * @param ?string      $street        the number and the street of its address
+     * @param ?string      $postalCode    its postal code
+     * @param ?string      $city          its city
      * @param ?string      $country       its country's code (FR, BE…)
      * @param ?string      $observations  the members' notes about it, 255 characters at most
      * @param ?string      $holdingId     the id of its holding, an organization that the account prospects

@@ -42,7 +42,7 @@ final readonly class PlanExchangeTool
      * @param int|null    $durationInMinutes how long it lasts, from 5 minutes to 8 hours. 30 when left out
      * @param string|null $text              its agenda
      * @param string|null $place             where a meeting is held, written freely. A meeting only
-     * @param string|null $link              the web address that joins a video call. A video call only
+     * @param string|null $link              the web address to join a video call. A video call only
      * @param bool        $linkRequested     true to request a Google Meet link from the member's calendar, for a video call without a link
      *
      * @return array<string, mixed>

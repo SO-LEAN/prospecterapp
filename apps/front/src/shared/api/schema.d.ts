@@ -1945,7 +1945,7 @@ export interface components {
              */
             place: string | null;
             /**
-             * @description The web address that joins a video call. It is optional and may be added later. Only for a video call
+             * @description The web address to join a video call. It is optional and may be added later. Only for a video call
              * @default null
              */
             link: string | null;
@@ -2164,7 +2164,7 @@ export interface components {
              */
             place: string | null;
             /**
-             * @description The web address that joins a video call. Only a video call has one
+             * @description The web address to join a video call. Only a video call has one
              * @default null
              */
             link: string | null;
@@ -2652,7 +2652,7 @@ export interface components {
             /** @enum {string} */
             channel: "call" | "sms" | "email" | "linkedIn" | "malt" | "meeting" | "videoCall" | "other";
             /**
-             * @description inbound: the contact or the organization reached out; outbound: the member reached out
+             * @description inbound: the contact or the organization reached out. outbound: the account reached out
              * @enum {string}
              */
             direction: "inbound" | "outbound";
@@ -2676,7 +2676,7 @@ export interface components {
             text?: string | null;
             /** @description Where a meeting is held, written freely. Null for any other channel */
             place?: string | null;
-            /** @description The web address that joins a video call. Null for any other channel, or until it is known */
+            /** @description The web address to join a video call. Null for any other channel, or until it is known */
             link?: string | null;
             /** @description Its text may hold personal data. A prospector without the right to manage personal data reads it flagged */
             textFlagged: boolean;
@@ -3057,7 +3057,7 @@ export interface components {
             /** @enum {string} */
             channel: "call" | "sms" | "email" | "linkedIn" | "malt" | "meeting" | "videoCall" | "other";
             /**
-             * @description inbound: the contact or the organization reached out. outbound: we did
+             * @description inbound: the contact or the organization reached out. outbound: the account reached out
              * @enum {string}
              */
             direction: "inbound" | "outbound";
@@ -3081,7 +3081,7 @@ export interface components {
             text?: string | null;
             /** @description Where a meeting is held, written freely. Null for any other channel */
             place?: string | null;
-            /** @description The web address that joins a video call. Null for any other channel, or until it is known */
+            /** @description The web address to join a video call. Null for any other channel, or until it is known */
             link?: string | null;
             /** @description A video call without a link waits for the link that its holder's calendar creates. Read it again until the link comes */
             linkAwaited: boolean;
@@ -4904,7 +4904,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description The person is not the organization's contact */
+            /** @description The person is not one of the organization's contacts */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -7588,7 +7588,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Invalid to-do: no text, or an invalid due day or hour */
+            /** @description Invalid to-do: no text, a missing or invalid due day, or an invalid hour */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -7697,7 +7697,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Invalid to-do: no text, or an invalid due day or hour */
+            /** @description Invalid to-do: no text, a missing or invalid due day, or an invalid hour */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -7806,7 +7806,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Invalid to-do: no text, or an invalid due day or hour */
+            /** @description Invalid to-do: no text, a missing or invalid due day, or an invalid hour */
             422: {
                 headers: {
                     [name: string]: unknown;

@@ -23,6 +23,7 @@ final readonly class ChangeContactDetailsTool
 
     /**
      * @param string       $id          the id of the organization
+     * @param ?string      $email       its e-mail
      * @param ?string      $phoneNumber its phone number, in international format (+33 3 88 11 22 33) or in French national format (03 88 11 22 33)
      * @param ?string      $language    the country code of the language spoken with it (FR, GB…)
      * @param list<string> $links       the addresses of its pages on outside tools (a company on LinkedIn or Welcome to the Jungle, or any other site), five at most

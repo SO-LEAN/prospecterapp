@@ -19,7 +19,7 @@ final readonly class VenueCorrectionInput
         #[OA\Property(description: 'Where a meeting is held, written freely. Only a meeting has one')]
         public ?string $place = null,
         #[Assert\Length(max: PlannedExchangeInput::MAX_LINK)]
-        #[OA\Property(description: 'The web address that joins a video call. Only a video call has one')]
+        #[OA\Property(description: 'The web address to join a video call. Only a video call has one')]
         public ?string $link = null,
     ) {
     }

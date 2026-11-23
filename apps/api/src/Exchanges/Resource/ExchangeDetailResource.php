@@ -29,7 +29,7 @@ final readonly class ExchangeDetailResource
         public InterlocutorResource $interlocutor,
         #[OA\Property(enum: ExchangeInput::CHANNELS)]
         public string $channel,
-        #[OA\Property(enum: ExchangeInput::DIRECTIONS, description: 'inbound: the contact or the organization reached out. outbound: we did')]
+        #[OA\Property(enum: ExchangeInput::DIRECTIONS, description: 'inbound: the contact or the organization reached out. outbound: the account reached out')]
         public string $direction,
         #[OA\Property(format: 'date-time', description: 'When it happened, or when it is to happen once planned')]
         public string $occurredAt,
@@ -42,7 +42,7 @@ final readonly class ExchangeDetailResource
         public ?string $text,
         #[OA\Property(description: 'Where a meeting is held, written freely. Null for any other channel')]
         public ?string $place,
-        #[OA\Property(description: 'The web address that joins a video call. Null for any other channel, or until it is known')]
+        #[OA\Property(description: 'The web address to join a video call. Null for any other channel, or until it is known')]
         public ?string $link,
         #[OA\Property(description: 'A video call without a link waits for the link that its holder\'s calendar creates. Read it again until the link comes')]
         public bool $linkAwaited,
