@@ -304,7 +304,7 @@ final class Exchange implements ReleasesEvents
     public function joinCampaign(RecipientInCampaign $recipient, MemberId $by, \DateTimeImmutable $at): void
     {
         if (!$this->isTheSendingTo($recipient)) {
-            throw ExchangeAlreadyNoted::because('Exchange already noted', context: ['exchange' => $this->id->value]);
+            throw ExchangeAlreadyNoted::because('This exchange was already logged', context: ['exchange' => $this->id->value]);
         }
 
         $recipient->ensureToHandle();
