@@ -250,7 +250,7 @@
     "context": "campaigns",
     "sources": ["prospecter.personal-data"],
     "events": ["ContactForgotten.v1"],
-    "handler": "Prospecter\\Core\\Campaigns\\Application\\ForgetRecipientOfForgottenContact\\ForgetRecipientOfForgottenContactHandler",
+    "policy": "Prospecter\\Core\\Campaigns\\Application\\Policy\\ForgetRecipientOfForgottenContactPolicy",
     "inbox": false
   },
   "campaigns-process-recipient": {
