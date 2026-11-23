@@ -15,8 +15,8 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * The holder pushes their exchange again, as the reaction to its changes does (ADR 0133): an exchange erased since,
- * whose withdrawal was refused, is theirs by its entry.
+ * The holder pushes their exchange again, as the reaction to its changes does (ADR 0133). The exchange may have been
+ * erased since, and its withdrawal refused. Then its entry tells that the exchange is the holder's.
  */
 final readonly class RetryPushHandler implements CommandHandler
 {
