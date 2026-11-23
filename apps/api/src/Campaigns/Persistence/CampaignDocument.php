@@ -10,6 +10,7 @@ use App\Shared\Typed;
 use Prospecter\Core\Campaigns\Application\CampaignSheet;
 use Prospecter\Core\Campaigns\Application\RecipientInSheet;
 use Prospecter\Core\Campaigns\Domain\Model\Campaign;
+use Prospecter\Core\Campaigns\Domain\Model\CampaignId;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignIntent;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignName;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignStatus;
@@ -26,7 +27,6 @@ use Prospecter\Core\Campaigns\Domain\Model\Targeting;
 use Prospecter\Core\Campaigns\Domain\Policy\CampaignPossibilities;
 use Prospecter\Core\Campaigns\Domain\Policy\CampaignProgress;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 

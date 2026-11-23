@@ -7,10 +7,10 @@ namespace Prospecter\Core\Prospecting\Application\WhichContactsHaveExchangesOfCa
 use Prospecter\Core\Prospecting\Contract\Service\WhichContactsHaveExchangesOfCampaign\WhichContactsHaveExchangesOfCampaign;
 use Prospecter\Core\Prospecting\Contract\Service\WhichContactsHaveExchangesOfCampaign\WhichContactsHaveExchangesOfCampaignOutput;
 use Prospecter\Core\Prospecting\Contract\Service\WhichContactsHaveExchangesOfCampaign\WhichContactsHaveExchangesOfCampaignService;
+use Prospecter\Core\Prospecting\Domain\Model\CampaignId;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 final readonly class WhichContactsHaveExchangesOfCampaignHandler implements QueryHandler, WhichContactsHaveExchangesOfCampaignService

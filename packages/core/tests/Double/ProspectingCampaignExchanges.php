@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Tests\Core\Double;
 
+use Prospecter\Core\Campaigns\Domain\Model\CampaignId;
 use Prospecter\Core\Campaigns\Domain\Port\CampaignExchanges;
 use Prospecter\Core\Prospecting\Contract\Service\WhichContactsHaveExchangesOfCampaign\KeptContacts;
 use Prospecter\Core\Prospecting\Contract\Service\WhichContactsHaveExchangesOfCampaign\WhichContactsHaveExchangesOfCampaign;
 use Prospecter\Core\Prospecting\Contract\Service\WhichContactsHaveExchangesOfCampaign\WhichContactsHaveExchangesOfCampaignService;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**

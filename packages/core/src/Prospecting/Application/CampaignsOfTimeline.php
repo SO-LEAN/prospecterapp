@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application;
 
+use Prospecter\Core\Prospecting\Domain\Model\CampaignId;
 use Prospecter\Core\Prospecting\Domain\Port\CampaignNames;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\CampaignId;
 
 /**
  * Names the campaigns that a timeline's exchanges were logged in, with the names Campaigns gives them now. It asks

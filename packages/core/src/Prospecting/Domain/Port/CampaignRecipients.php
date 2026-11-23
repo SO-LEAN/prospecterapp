@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Domain\Port;
 
+use Prospecter\Core\Prospecting\Domain\Model\CampaignId;
 use Prospecter\Core\Prospecting\Domain\Model\RecipientInCampaign;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**

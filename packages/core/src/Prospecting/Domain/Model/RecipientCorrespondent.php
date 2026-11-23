@@ -7,7 +7,6 @@ namespace Prospecter\Core\Prospecting\Domain\Model;
 use Prospecter\Core\Prospecting\Domain\Exception\CampaignNotRunning;
 use Prospecter\Core\Prospecting\Domain\Exception\RecipientAlreadyProcessed;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownRecipient;
-use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**

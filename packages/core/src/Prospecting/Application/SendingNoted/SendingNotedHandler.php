@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\SendingNoted;
 
+use Prospecter\Core\Prospecting\Domain\Model\CampaignId;
 use Prospecter\Core\Prospecting\Domain\Model\MessageReference;
 use Prospecter\Core\Prospecting\Domain\Port\CampaignRecipients;
 use Prospecter\Core\Prospecting\Domain\Port\Prospectors;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
-use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 

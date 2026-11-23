@@ -139,7 +139,7 @@ Its domain events stay in the context: `OrganizationTagsChanged`, `ContactTagsCh
   - the facts (`Fact`, `OrganizationFact`, `ContactFact`), `Reach`, `Locality`, `ContactTags` and `InheritedTag`;
   - the policies `PredefinedTags`, `AutomaticTags`, `GeographicTags` and `FactSuccession`. `bin/insee-geography.php` generates the tables of `GeographicTags` from INSEE data, in `data/insee-geography.php`. Nobody edits them by hand;
   - the domain service `TaggableHolders`;
-  - the aggregate `Campaign`. Its identity `CampaignId` is in the shared kernel (ADR 0145);
+  - the aggregate `Campaign`. Its identity is `CampaignId`. Prospecting has its own `CampaignId` for the campaign an exchange was logged in (ADR 0197);
   - the campaign's value objects:
     - `CampaignName`, `Channel`, `Targeting`, `MessageTemplate`;
     - `CampaignBrief`: its name, targeting and message, as a member prepares or revises them;

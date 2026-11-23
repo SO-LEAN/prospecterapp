@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Campaigns\Domain\Port;
 
+use Prospecter\Core\Campaigns\Domain\Model\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
