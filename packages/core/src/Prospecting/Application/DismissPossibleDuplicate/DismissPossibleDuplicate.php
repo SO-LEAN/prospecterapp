@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\DismissPossibleDuplicate;
 
 /**
- * Says, once checked, that the organization is no duplicate of the one it is suspected of being.
+ * States, after a check, that the organization is not a duplicate of the one it is suspected of duplicating.
  */
 final readonly class DismissPossibleDuplicate
 {
