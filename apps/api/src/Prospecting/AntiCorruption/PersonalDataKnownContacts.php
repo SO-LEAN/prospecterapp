@@ -12,8 +12,8 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Anticorruption layer (ADR 0045, 0089): Prospecting knows the persons it prospects, PersonalData
- * tells which persons are contacts of an account.
+ * Anticorruption layer (ADR 0045, 0089). Prospecting knows the persons it prospects. PersonalData tells which persons
+ * are an account's contacts.
  */
 final readonly class PersonalDataKnownContacts implements KnownContacts
 {

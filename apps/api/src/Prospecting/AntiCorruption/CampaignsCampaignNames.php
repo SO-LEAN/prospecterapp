@@ -12,8 +12,8 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\CampaignId;
 
 /**
- * Anticorruption layer (ADR 0045, 0089, 0145): a timeline names the campaigns of its
- * exchanges as Campaigns names them now, asked once for all of them.
+ * Anticorruption layer (ADR 0045, 0089, 0145). A timeline names its exchanges' campaigns as Campaigns currently names
+ * them. It asks Campaigns once for all of them.
  */
 final readonly class CampaignsCampaignNames implements CampaignNames
 {

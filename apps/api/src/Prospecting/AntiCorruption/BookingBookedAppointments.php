@@ -13,8 +13,8 @@ use Prospecter\Core\Prospecting\Domain\Model\Duration;
 use Prospecter\Core\Prospecting\Domain\Port\BookedAppointments;
 
 /**
- * Anticorruption layer (ADR 0045, 0089): Prospecting knows what a booker booked from Booking, asked about a set of
- * one.
+ * Anticorruption layer (ADR 0045, 0089). Prospecting learns from Booking what a booker booked. It asks Booking about
+ * a set of one appointment.
  */
 final readonly class BookingBookedAppointments implements BookedAppointments
 {
