@@ -1609,7 +1609,7 @@ final class Application
     }
 
     /**
-     * The code of a public link, drawn as the API draws it: 22 random characters of base 62.
+     * A public link's code, drawn the way the API draws it: 22 random base-62 characters.
      */
     public function newBookingCode(): string
     {

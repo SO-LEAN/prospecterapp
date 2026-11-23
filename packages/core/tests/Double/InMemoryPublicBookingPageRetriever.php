@@ -16,7 +16,8 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * The DynamoDB retriever in the scenarios: the page the code it has now leads to, read without its getters.
+ * Stands in for the DynamoDB retriever in the scenarios. It finds the page that a code currently leads to, and reads it
+ * without its getters.
  */
 final readonly class InMemoryPublicBookingPageRetriever implements PublicBookingPageRetriever
 {

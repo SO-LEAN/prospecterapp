@@ -32,7 +32,7 @@ use Tests\Core\Acceptance\Vocabulary;
 use Tests\Core\Double\StateOf;
 
 /**
- * A booker books a slot by the public link of the member signed in, without signing in themselves (#179).
+ * A booker books a slot through the signed-in member's public link, without signing in themselves (#179).
  */
 final class BookSlotContext implements Context
 {
@@ -42,7 +42,7 @@ final class BookSlotContext implements Context
     private const string SLOT = '(?<day>\d{2}\/\d{2}\/\d{4}) (?:à|de) (?<time>\d{1,2}h\d{2})';
 
     private ?string $appointment = null;
-    /** The identity the booker gets should nobody of the account be them. */
+    /** The id the booker gets when nobody in the account matches them. */
     private ?string $booker = null;
     private ?ExchangeDetail $detail = null;
     /** @var list<AppointmentResponse> */
@@ -234,7 +234,7 @@ final class BookSlotContext implements Context
     }
 
     /**
-     * « Cette visio » of the scenarios is the exchange booked, its booker named as they gave their name.
+     * The scenarios' « Cette visio » is the booked exchange. Its booker is named as they gave their name.
      */
     private function rememberWhatWasBooked(string $booker): void
     {
@@ -256,7 +256,7 @@ final class BookSlotContext implements Context
     }
 
     /**
-     * The exchange a booking becomes takes the identity of the appointment.
+     * The exchange that a booking becomes takes the appointment's id.
      */
     private function bookedExchange(): Exchange
     {

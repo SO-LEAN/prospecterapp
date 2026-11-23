@@ -11,7 +11,8 @@ use Prospecter\Core\Booking\Domain\Repository\BookingPageRepository;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * The DynamoDB repository in the scenarios: the booking page of each host, found by the code it has now.
+ * Stands in for the DynamoDB repository in the scenarios. It keeps each host's booking page and finds it by its current
+ * code.
  */
 final readonly class InMemoryBookingPageRepository implements BookingPageRepository
 {

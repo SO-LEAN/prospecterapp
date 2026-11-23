@@ -14,8 +14,8 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * Anticorruption layer of the API, in the scenarios (ADR 0045, 0089, 0153): Booking knows when a host is taken from
- * the exchanges they still have planned in Prospecting, an exchange planned without a duration taking one slot.
+ * Anticorruption layer of the API, in the scenarios (ADR 0045, 0089, 0153). Booking learns from Prospecting when a host
+ * is busy with the exchanges they still have planned. An exchange planned without a duration takes one slot.
  */
 final readonly class ProspectingHostAgendas implements HostAgendas
 {

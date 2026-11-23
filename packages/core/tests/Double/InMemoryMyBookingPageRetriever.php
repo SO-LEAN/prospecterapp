@@ -19,8 +19,9 @@ use Prospecter\Core\Booking\Domain\Policy\BookingSuspension;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * The DynamoDB retriever in the scenarios: the page the repository saved, read without its getters, closed and empty
- * for a host who never set it; the inactive periods not ended, the soonest first.
+ * Stands in for the DynamoDB retriever in the scenarios. It reads the page that the repository saved, without its
+ * getters. A host who never set up their page gets a closed, empty one. It keeps the inactive periods that have not
+ * ended, the soonest first.
  */
 final readonly class InMemoryMyBookingPageRetriever implements MyBookingPageRetriever
 {

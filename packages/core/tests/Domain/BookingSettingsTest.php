@@ -20,7 +20,7 @@ use Prospecter\Core\Booking\Domain\Model\Window;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
 /**
- * The values a host sets their booking page with: times, windows, days, channels, the code of the link.
+ * The values a host sets on their booking page: times, windows, days, channels and the link's code.
  */
 final class BookingSettingsTest extends TestCase
 {
@@ -117,7 +117,7 @@ final class BookingSettingsTest extends TestCase
     }
 
     /**
-     * A browser may still name its zone by a former name of the database of the time zones, which PHP knows.
+     * A browser may still send a deprecated name from the time zone database. PHP knows these names.
      */
     public function testAFormerNameOfATimeZoneIsKnown(): void
     {
