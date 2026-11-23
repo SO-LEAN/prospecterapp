@@ -13,7 +13,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
 
 /**
- * Reached only when a size of an image is not in the bucket yet: once made, the bucket serves it.
+ * Reached only when an image's size is not in the bucket yet. Once made, the bucket serves it.
  */
 final readonly class ShowImageInSizeController
 {

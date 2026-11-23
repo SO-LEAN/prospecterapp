@@ -8,7 +8,7 @@ use Aws\CloudFront\CloudFrontClient;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
- * On AWS, CloudFront keeps the files for a year (ADR 0070): the paths of the removed ones are invalidated.
+ * On AWS, CloudFront keeps the files for a year (ADR 0070). The storage invalidates the paths of the removed files.
  */
 final readonly class CloudFrontPublicCache implements PublicCache
 {

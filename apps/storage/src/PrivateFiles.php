@@ -7,9 +7,9 @@ namespace App;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
- * The files only a service of the platform hands out (ADR 0077), in a bucket of their own that nothing serves: a
- * browser sends one under `uploads/<name>` with a signed form, the bucket forgetting it after a day unless a service
- * keeps it under `kept/<name>`; a kept file is read by a link signed for a minute.
+ * The files that only a platform service hands out (ADR 0077). They live in a bucket of their own, which nothing
+ * serves. A browser sends a file under `uploads/<name>` with a signed form. The bucket forgets it after a day, unless a
+ * service keeps it under `kept/<name>`. A kept file is read through a link signed for a minute.
  */
 final readonly class PrivateFiles
 {
@@ -41,7 +41,7 @@ final readonly class PrivateFiles
     }
 
     /**
-     * The kept file keeps the name of its upload, which is no upload any more.
+     * The kept file keeps its upload's name, but it is no longer an upload.
      */
     public function keep(string $upload): void
     {

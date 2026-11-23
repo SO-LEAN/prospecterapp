@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App;
 
 /**
- * What keeps copies of the files in front of the bucket: a removed file must not be served from it any more.
+ * Whatever keeps copies of the files in front of the bucket. It must stop serving a removed file.
  */
 interface PublicCache
 {

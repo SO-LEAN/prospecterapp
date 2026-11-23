@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App;
 
 /**
- * What the bucket tells of an object without reading it: its size in bytes and its media type.
+ * What the bucket tells about an object without reading it: its size in bytes and its media type.
  */
 final readonly class ObjectDescription
 {

@@ -8,8 +8,9 @@ use Imagine\Image\ImagineInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
- * Makes the copy of an image in a size, once: the copy is put in the bucket next to the original, and served
- * from there afterwards. Never enlarges: a smaller image stays as it is, blurring it would only make it heavier.
+ * Makes an image's copy in a size, once. The copy goes in the bucket next to the original, and the bucket serves it
+ * from then on. It never enlarges an image: a smaller image stays as it is, because blurring it would only make it
+ * heavier.
  */
 final readonly class Resizer
 {

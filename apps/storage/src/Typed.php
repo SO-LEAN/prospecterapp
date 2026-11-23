@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App;
 
 /**
- * A value the AWS SDK gives untyped, taken as the type the storage expects of it, any other refused.
+ * Takes an untyped value from the AWS SDK as the type the storage expects. It refuses any other type.
  */
 final class Typed
 {

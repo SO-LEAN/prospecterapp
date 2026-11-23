@@ -8,8 +8,8 @@ use Aws\S3\Exception\S3Exception;
 use Aws\S3\S3Client;
 
 /**
- * An S3 bucket of the storage, MiniStack locally: the files (ADR 0051), or the private files (ADR 0077). An object
- * put never changes under its key (a new file gets a new name), so it is cached for a year by whoever serves it.
+ * One of the storage's S3 buckets, on MiniStack locally: the files (ADR 0051) or the private files (ADR 0077). An
+ * object never changes under its key (a new file gets a new name), so whoever serves it caches it for a year.
  */
 final readonly class Bucket
 {
@@ -44,7 +44,7 @@ final readonly class Bucket
     }
 
     /**
-     * The size and the media type of an object, null when there is none under the key.
+     * The object's size and media type, or null when there is no object under the key.
      */
     public function describe(string $key): ?ObjectDescription
     {
@@ -67,7 +67,7 @@ final readonly class Bucket
     }
 
     /**
-     * Deletes the objects, those that do not exist being already deleted.
+     * Deletes the objects. An object that does not exist counts as already deleted.
      *
      * @param list<string> $keys
      */
@@ -82,7 +82,7 @@ final readonly class Bucket
     }
 
     /**
-     * Drops the bucket and its objects and creates it empty.
+     * Drops the bucket and its objects, then creates it empty.
      */
     public function recreate(): void
     {
