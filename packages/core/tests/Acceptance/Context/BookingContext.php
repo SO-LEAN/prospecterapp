@@ -150,6 +150,18 @@ final class BookingContext implements Context
         $this->offer();
     }
 
+    #[When('je propose un canal que Prospecter ne connaît pas, :channel')]
+    public function iOfferAnUnknownChannel(string $channel): void
+    {
+        $this->offer($channel);
+    }
+
+    #[Then('le refus nomme le canal :channel')]
+    public function theRefusalNamesTheChannel(string $channel): void
+    {
+        Expect::same(['channel' => $channel], $this->application->refusal()?->context);
+    }
+
     #[Then('mes canaux proposés sont :channels')]
     public function myChannelsAre(string $channels): void
     {
