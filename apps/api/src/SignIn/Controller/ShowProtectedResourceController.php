@@ -11,8 +11,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * Public, outside the API and its contract: where an AI the MCP server sent away finds the server to sign its
- * member in on (RFC 9728).
+ * Public, outside the API and its contract. An AI that the MCP server turned away finds here the server that signs
+ * its member in (RFC 9728).
  */
 final class ShowProtectedResourceController extends AbstractController
 {

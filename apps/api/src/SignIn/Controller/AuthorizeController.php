@@ -19,9 +19,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * Public, outside the API and its contract: an AI asks to sign its member in (RFC 6749, ADR 0157). Only redirects:
- * once the AI is known by its metadata document to be sent back where it asks, the browser of the member goes to the
- * sign-in page of Cognito with the request of the AI sealed as its state, or back to the AI with what it got wrong.
+ * Public, outside the API and its contract. An AI asks to sign its member in (RFC 6749, ADR 0157). It only
+ * redirects, once the AI's metadata document confirms the address it asks to be sent back to. The member's browser
+ * then goes to Cognito's sign-in page, with the AI's request sealed as its state. Or it goes back to the AI with what
+ * the AI got wrong.
  */
 final class AuthorizeController extends AbstractController
 {
@@ -45,7 +46,7 @@ final class AuthorizeController extends AbstractController
     }
 
     /**
-     * What the AI got wrong in its request, as RFC 6749 names it, or nothing.
+     * What the AI got wrong in its request, as RFC 6749 names it, or null.
      *
      * @param InputBag<string> $query
      *
@@ -54,9 +55,9 @@ final class AuthorizeController extends AbstractController
     private function refusalOf(InputBag $query): ?array
     {
         return match (true) {
-            'code' !== $query->getString('response_type') => ['unsupported_response_type', 'Only a code is given.'],
+            'code' !== $query->getString('response_type') => ['unsupported_response_type', 'Only the code response type is supported.'],
             Pkce::METHOD !== $query->getString('code_challenge_method'), '' === $query->getString('code_challenge') => ['invalid_request', 'A code challenge S256 is required.'],
-            $query->has('resource') && $this->mcp->resource() !== $query->getString('resource') => ['invalid_target', 'The resource is the MCP server of Prospecter.'],
+            $query->has('resource') && $this->mcp->resource() !== $query->getString('resource') => ['invalid_target', 'The only resource is the Prospecter MCP server.'],
             default => null,
         };
     }

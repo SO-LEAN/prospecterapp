@@ -12,8 +12,8 @@ use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 /**
- * An AI the facade cannot trust to be sent back where it asks is answered a problem+json 400, never redirected to an
- * address not checked (RFC 6749, 4.1.2.1; ADR 0157).
+ * When the facade cannot trust the address an AI asks to be sent back to, it answers a problem+json 400. It never
+ * redirects to an unchecked address (RFC 6749, 4.1.2.1; ADR 0157).
  */
 #[AsEventListener]
 final readonly class UnknownClientListener

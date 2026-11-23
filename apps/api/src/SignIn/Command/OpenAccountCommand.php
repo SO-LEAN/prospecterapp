@@ -17,10 +17,11 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * The first account of an installation, and any account until the members open theirs: the account and its founder
- * (the core), then what the founder signs in with; the founder fills in their profile once signed in.
+ * Opens an installation's first account, and any account until the members can open theirs. The command opens the
+ * account with its founder (the core), then registers what the founder signs in with. The founder fills in their
+ * profile once signed in.
  */
-#[AsCommand(name: 'app:account:open', description: 'Open the account of an organization, its founder signing in with the email given')]
+#[AsCommand(name: 'app:account:open', description: 'Open an organization\'s account, whose founder signs in with the given email')]
 final readonly class OpenAccountCommand
 {
     use TellsTheRefusal;
@@ -36,13 +37,13 @@ final readonly class OpenAccountCommand
 
     public function __invoke(
         SymfonyStyle $io,
-        #[Argument(description: 'The corporate name of the organization')]
+        #[Argument(description: 'The organization\'s corporate name')]
         string $corporateName,
-        #[Argument(description: 'The login email of the founder')]
+        #[Argument(description: 'The founder\'s login email')]
         string $email,
-        #[Option(description: 'The legal form of the organization, such as SARL')]
+        #[Option(description: 'The organization\'s legal form, such as SARL')]
         ?string $form = null,
-        #[Option(description: 'For scripts; asked without echo otherwise')]
+        #[Option(description: 'The password, for scripts. Otherwise, the command asks for it without echo')]
         ?string $password = null,
     ): int {
         try {
@@ -51,7 +52,7 @@ final readonly class OpenAccountCommand
             return self::refused($refusal, $io);
         }
 
-        $io->success(sprintf('The account of "%s" is open: its founder signs in with "%s".', $corporateName, $email));
+        $io->success(sprintf('The account of "%s" is open. Its founder signs in with "%s".', $corporateName, $email));
 
         return Command::SUCCESS;
     }

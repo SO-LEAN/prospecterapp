@@ -17,10 +17,10 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * A colleague registered by an administrator until a screen of the SPA does it (ADR 0075): the member (the core),
- * then what they sign in with; the member fills in their profile once signed in.
+ * An administrator registers a colleague from the console until an SPA screen does it (ADR 0075). The command
+ * registers the member (the core), then what they sign in with. The member fills in their profile once signed in.
  */
-#[AsCommand(name: 'app:member:register', description: 'Register a member in the account of an administrator, signing in with the email given')]
+#[AsCommand(name: 'app:member:register', description: 'Register a member, who signs in with the given email, in an administrator\'s account')]
 final readonly class RegisterMemberCommand
 {
     use TellsTheRefusal;
@@ -40,15 +40,15 @@ final readonly class RegisterMemberCommand
 
     public function __invoke(
         SymfonyStyle $io,
-        #[Argument(description: 'The login email of an administrator of the account')]
+        #[Argument(description: 'The login email of one of the account\'s administrators')]
         string $administratorEmail,
-        #[Argument(description: 'The login email of the new member')]
+        #[Argument(description: 'The new member\'s login email')]
         string $email,
         #[Option(description: 'The right to manage personal data')]
         bool $personalData = false,
         #[Option(description: 'The right to administer the account')]
         bool $admin = false,
-        #[Option(description: 'For scripts; asked without echo otherwise')]
+        #[Option(description: 'The password, for scripts. Otherwise, the command asks for it without echo')]
         ?string $password = null,
     ): int {
         $member = new MemberToRegister($administratorEmail, $email, self::rolesGiven($personalData, $admin), $password);
@@ -65,7 +65,7 @@ final readonly class RegisterMemberCommand
     }
 
     /**
-     * @return list<string> a prospector, and the other roles the options give
+     * @return list<string> the prospector role, and the other roles that the options give
      */
     private static function rolesGiven(bool $personalData, bool $admin): array
     {

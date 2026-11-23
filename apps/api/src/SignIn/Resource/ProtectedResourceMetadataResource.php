@@ -7,7 +7,7 @@ namespace App\SignIn\Resource;
 use Symfony\Component\Serializer\Attribute\SerializedName;
 
 /**
- * The metadata of the MCP server as a protected resource (RFC 9728), in its names.
+ * The MCP server's metadata as a protected resource (RFC 9728), with the RFC's field names.
  */
 final readonly class ProtectedResourceMetadataResource
 {

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\SignIn\OAuth;
 
 /**
- * The proof key of a code (RFC 7636), S256 only: a verifier, and the challenge it answers.
+ * A code's proof key (RFC 7636), S256 only: a verifier and the challenge it answers.
  */
 final readonly class Pkce
 {

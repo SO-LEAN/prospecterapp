@@ -10,9 +10,9 @@ use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
- * The Client ID Metadata Documents of the AIs, read where their `client_id` says (ADR 0157): a URL anyone may give,
- * so in https only, never followed elsewhere, briefly, a little of it, and never on a private network (the client
- * injected refuses one, `NoPrivateNetworkHttpClient`).
+ * Reads the AIs' Client ID Metadata Documents at the URL that their `client_id` gives (ADR 0157). Anyone may give
+ * such a URL. So the reader uses https only, never follows a redirect, waits briefly and reads a small document at
+ * most. It never reaches a private network: the injected client refuses one (`NoPrivateNetworkHttpClient`).
  */
 final readonly class ClientMetadataDocuments
 {

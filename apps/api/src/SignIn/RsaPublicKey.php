@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\SignIn;
 
 /**
- * An RSA public key of a JWKS (its modulus and exponent, base64url) as the PEM a signature is checked with:
- * the DER of a SubjectPublicKeyInfo, which OpenSSL cannot build from the two numbers alone.
+ * Turns an RSA public key from a JWKS (its modulus and exponent, base64url) into the PEM that checks a signature. The
+ * PEM holds the DER of a SubjectPublicKeyInfo, which OpenSSL cannot build from the two numbers alone.
  */
 final class RsaPublicKey
 {

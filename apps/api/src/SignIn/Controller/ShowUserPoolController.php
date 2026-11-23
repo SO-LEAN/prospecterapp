@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * Public: the SPA asks it before anyone is signed in.
+ * Public: the SPA calls it before anyone signs in.
  */
 #[OA\Tag('Sign-in')]
 final class ShowUserPoolController extends AbstractController
@@ -27,7 +27,7 @@ final class ShowUserPoolController extends AbstractController
     }
 
     #[Route('/api/user-pool', name: 'api_user_pool', methods: ['GET'])]
-    #[OA\Get(summary: 'Where the members sign in: the Cognito user pool and the client of the SPA', security: [])]
+    #[OA\Get(summary: 'Get where the members sign in: the Cognito user pool and the SPA\'s client', security: [])]
     #[OA\Response(response: 200, description: 'The user pool', content: new Model(type: UserPoolResource::class))]
     public function __invoke(): JsonResponse
     {

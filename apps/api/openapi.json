@@ -4751,7 +4751,7 @@
                         "description": "Missing or invalid access token"
                     },
                     "422": {
-                        "description": "Missing or invalid email, or one another member signs in with",
+                        "description": "Missing or invalid email, or an email that another member signs in with",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -4805,7 +4805,7 @@
                 "tags": [
                     "Sign-in"
                 ],
-                "summary": "The email I sign in with",
+                "summary": "Get the email I sign in with",
                 "operationId": "get_api_me_sign_in",
                 "responses": {
                     "200": {
@@ -4829,7 +4829,7 @@
                 "tags": [
                     "Sign-in"
                 ],
-                "summary": "Where the members sign in: the Cognito user pool and the client of the SPA",
+                "summary": "Get where the members sign in: the Cognito user pool and the SPA's client",
                 "operationId": "get_api_user_pool",
                 "responses": {
                     "200": {

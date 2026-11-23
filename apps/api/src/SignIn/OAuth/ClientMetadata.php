@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace App\SignIn\OAuth;
 
 /**
- * What an AI declares of itself in its Client ID Metadata Document: where it may be sent back. A native client
- * listens on a loopback port of its session, never the same: on the loopback, the port is not matched (RFC 8252).
+ * What an AI declares about itself in its Client ID Metadata Document: where the facade may send it back. A native
+ * client listens on a loopback port that changes with each session, so the port of a loopback address is not matched
+ * (RFC 8252).
  */
 final readonly class ClientMetadata
 {

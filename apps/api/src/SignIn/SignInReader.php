@@ -9,7 +9,7 @@ use App\SignIn\Resource\SignInLinksResource;
 use App\SignIn\Resource\SignInResource;
 
 /**
- * What a member signs in with, read from the user pool, with the changes it may make to it.
+ * Reads what a member signs in with from the user pool, with the changes the member may make to it.
  */
 final readonly class SignInReader
 {

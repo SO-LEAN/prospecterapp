@@ -20,9 +20,9 @@ final readonly class SetPasswordCommand
 
     public function __invoke(
         SymfonyStyle $io,
-        #[Argument(description: 'The login email of the member')]
+        #[Argument(description: 'The member\'s login email')]
         string $email,
-        #[Option(description: 'For scripts; asked without echo otherwise')]
+        #[Option(description: 'The password, for scripts. Otherwise, the command asks for it without echo')]
         ?string $password = null,
     ): int {
         $memberId = $this->credentials->memberSigningInWith($email);
@@ -42,7 +42,7 @@ final readonly class SetPasswordCommand
         }
 
         $this->credentials->changePassword($memberId, $password);
-        $io->success(sprintf('Password of "%s" set.', $email));
+        $io->success(sprintf('Password for "%s" set.', $email));
 
         return Command::SUCCESS;
     }

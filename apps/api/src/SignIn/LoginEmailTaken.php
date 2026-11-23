@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\SignIn;
 
 /**
- * Another member signs in with this email: a login email is unique on the platform.
+ * Another member already signs in with this email. A login email is unique on the platform.
  */
 final class LoginEmailTaken extends \DomainException
 {

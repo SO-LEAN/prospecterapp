@@ -9,8 +9,9 @@ use Psr\Clock\ClockInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
- * What the facade signing the AIs in must find again travels sealed, since it keeps nothing (ADR 0157): encrypted and
- * authenticated with a key only the API knows (`sodium_crypto_secretbox`), for one purpose, for a while.
+ * The facade that signs the AIs in keeps nothing (ADR 0157). So what it must find again travels sealed. A seal is
+ * encrypted and authenticated with a key that only the API knows (`sodium_crypto_secretbox`). It serves one purpose
+ * and expires after a while.
  */
 final readonly class Seal
 {

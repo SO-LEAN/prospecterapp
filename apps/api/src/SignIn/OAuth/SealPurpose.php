@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\SignIn\OAuth;
 
 /**
- * Why the facade sealed a request, and for how long it opens: the time of signing in on Cognito, then that of an
- * authorization code (ADR 0157).
+ * Why the facade sealed a request, and how long the seal stays valid. A sign-in seal lasts the time of a sign-in on
+ * Cognito. An authorization-code seal lasts an authorization code's lifetime (ADR 0157).
  */
 enum SealPurpose: string
 {

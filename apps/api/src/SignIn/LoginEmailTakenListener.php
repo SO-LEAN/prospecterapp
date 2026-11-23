@@ -13,7 +13,7 @@ use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 /**
- * A login email another member signs in with is refused like an invalid field: a problem+json 422.
+ * Refuses a login email that another member signs in with, like an invalid field: a problem+json 422.
  */
 #[AsEventListener]
 final readonly class LoginEmailTakenListener
@@ -22,7 +22,7 @@ final readonly class LoginEmailTakenListener
     {
     }
 
-    /** Named as the refusal of the domain would be (ADR 0073). */
+    /** Named the way a domain refusal would be (ADR 0073). */
     private const string REASON = 'loginEmailTaken';
 
     public function __invoke(ExceptionEvent $event): void

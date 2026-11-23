@@ -9,8 +9,8 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
- * The public keys the tokens of the user pool are signed with, read from its JWKS and cached; read again
- * once when a token names a key not seen yet (Cognito rotated its keys).
+ * The public keys that sign the user pool's tokens, read from its JWKS and cached. When a token names an unknown key,
+ * they are read again once (Cognito rotated its keys).
  */
 final readonly class SigningKeys
 {
@@ -19,7 +19,7 @@ final readonly class SigningKeys
     }
 
     /**
-     * @return string|null the PEM of the key, null when the pool has no such key
+     * @return string|null the key's PEM, null when the pool has no such key
      */
     public function named(string $keyId): ?string
     {
@@ -27,7 +27,7 @@ final readonly class SigningKeys
     }
 
     /**
-     * @return array<string, string> the PEM of each RSA key, by key id
+     * @return array<string, string> each RSA key's PEM, by key id
      */
     private function published(): array
     {

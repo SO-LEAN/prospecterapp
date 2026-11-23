@@ -10,8 +10,8 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
- * The token endpoint of Cognito (its domain on AWS; MiniStack locally), asked by the facade for the client of the AIs
- * with its secret (ADR 0157): the tokens of Cognito, answered to the AI as they are.
+ * Cognito's token endpoint (its domain on AWS, MiniStack locally). The facade calls it for the AIs' client, with that
+ * client's secret (ADR 0157). The facade returns Cognito's tokens to the AI unchanged.
  */
 final readonly class CognitoTokens
 {
