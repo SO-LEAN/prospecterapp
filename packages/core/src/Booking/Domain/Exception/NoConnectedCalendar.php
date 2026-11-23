@@ -14,6 +14,6 @@ final class NoConnectedCalendar extends BusinessRuleViolation
 {
     public static function refused(): self
     {
-        return self::because('Booking needs a connected calendar, which invites the booker');
+        return self::because('Booking needs a connected calendar to invite the booker');
     }
 }

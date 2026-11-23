@@ -19,16 +19,16 @@ Fonctionnalité: Activer et couper ma prise de rendez-vous
   Scénario: Sans Google connecté, mon lien ne s'active pas
     Soit j'ai déconnecté mon compte Google
     Quand j'active ma prise de rendez-vous, en proposant l'appel et la visio
-    Alors c'est refusé : "Booking needs a connected calendar, which invites the booker"
+    Alors c'est refusé : "Booking needs a connected calendar to invite the booker"
 
   Scénario: Avec Google à reconnecter, mon lien ne s'active pas
     Soit Google refuse mon jeton
     Quand j'active ma prise de rendez-vous, en proposant l'appel et la visio
-    Alors c'est refusé : "Booking needs a connected calendar, which invites the booker"
+    Alors c'est refusé : "Booking needs a connected calendar to invite the booker"
 
   Scénario: Il faut au moins un canal
     Quand j'active ma prise de rendez-vous sans proposer ni l'appel ni la visio
-    Alors c'est refusé : "Booking offers at least one channel"
+    Alors c'est refusé : "Booking must offer at least one channel"
 
   Scénario: Je coupe mon lien d'un coup
     Soit mes plages sont réglées

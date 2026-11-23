@@ -25,9 +25,9 @@ Each member's booking page: when they may be booked, how, and the public link th
 
 - The host sets their week's windows all at once, in their clock's time zone. The new windows replace the old ones (`SetWeeklyWindows`).
 - The host adds an inactive period (`AddInactivePeriod`) and removes one (`RemoveInactivePeriod`). Removing one they do not have is refused (`UnknownInactivePeriod`). The host may not be booked on the period's days, bounds included (`BookingPage::isUnavailableOn()`).
-- The host chooses the channels they offer (`OfferChannels`). An open page offers at least one (`NoChannelOffered`, « Booking offers at least one channel »).
+- The host chooses the channels they offer (`OfferChannels`). An open page offers at least one (`NoChannelOffered`, « Booking must offer at least one channel »).
 - The host opens their page (`OpenBooking`) only under two conditions:
-  - their calendar is connected, since the calendar invites the booker (`NoConnectedCalendar`, « Booking needs a connected calendar, which invites the booker »). A connection waiting to be reconnected is not connected;
+  - their calendar is connected, since the calendar invites the booker (`NoConnectedCalendar`, « Booking needs a connected calendar to invite the booker »). A connection waiting to be reconnected is not connected;
   - the page offers a channel.
 
   A page without windows still opens, and offers no slot. The first opening gives the page the code the API drew. A page opened again keeps its link.
