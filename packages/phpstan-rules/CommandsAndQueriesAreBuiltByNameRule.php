@@ -8,6 +8,7 @@ use PhpParser\Node;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Name;
+use PHPStan\Analyser\DependencyTracker;
 use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\Rule;
@@ -17,7 +18,8 @@ use PHPStan\Rules\RuleErrorBuilder;
  * A core command or query with more than three arguments is built with named arguments. Built by position, two
  * arguments of the same type (an email and a phone number, both `?string`) can be swapped without an error. A
  * command or a query is the class that its `<Class>Handler` handles. The rule applies to the applications' code,
- * not to their tests.
+ * not to their tests. The handler is a class that the analysed file does not name: the rule declares it to the result
+ * cache, which analyses the file again when the handler changes.
  *
  * @implements Rule<New_>
  */
@@ -39,6 +41,9 @@ final class CommandsAndQueriesAreBuiltByNameRule implements Rule
         return New_::class;
     }
 
+    /**
+     * @param Scope&DependencyTracker $scope
+     */
     public function processNode(Node $node, Scope $scope): array
     {
         if (!$node->class instanceof Name || $this->isATest($scope) || !$this->hasTooManyArgumentsByPosition($node->getArgs())) {
@@ -46,6 +51,7 @@ final class CommandsAndQueriesAreBuiltByNameRule implements Rule
         }
 
         $class = $scope->resolveName($node->class);
+        $scope->trackClassDependency(self::handlerOf($class));
 
         if (!$this->isACommandOrAQuery($class)) {
             return [];
@@ -67,9 +73,14 @@ final class CommandsAndQueriesAreBuiltByNameRule implements Rule
         return \count($arguments) > self::MAX_POSITIONAL_ARGUMENTS && array_any($arguments, static fn (Arg $argument): bool => null === $argument->name);
     }
 
+    private static function handlerOf(string $class): string
+    {
+        return $class.'Handler';
+    }
+
     private function isACommandOrAQuery(string $class): bool
     {
-        $handler = $class.'Handler';
+        $handler = self::handlerOf($class);
 
         return $this->reflectionProvider->hasClass($handler)
             && array_any(self::HANDLERS, fn (string $interface): bool => $this->reflectionProvider->getClass($handler)->implementsInterface($interface));
