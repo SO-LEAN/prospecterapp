@@ -9,7 +9,7 @@ import { type BookingPage, useAddInactivePeriod, useRemoveInactivePeriod } from 
 
 type Props = { page: BookingPage }
 
-/** A day YYYY-MM-DD as written, never converted to an instant (ADR 0134). */
+/** A YYYY-MM-DD day, kept as written and never converted to an instant (ADR 0134). */
 const dayFormat = new Intl.DateTimeFormat('fr-FR', {
   timeZone: 'UTC',
   day: '2-digit',
@@ -18,7 +18,7 @@ const dayFormat = new Intl.DateTimeFormat('fr-FR', {
 })
 const shown = (day: string) => dayFormat.format(new Date(`${day}T00:00:00Z`))
 
-/** My inactive periods not ended, each removed alone, and the form adding one. */
+/** My inactive periods that have not ended, each one removable alone, and the form that adds one. */
 export function InactivePeriodsCard({ page }: Props) {
   const { t } = useTranslation()
   const remove = useRemoveInactivePeriod()

@@ -21,8 +21,8 @@ type Day = PublicPage['days'][number]
 type Props = { code: string }
 
 /**
- * The page a public link leads to, read without signing in (ADR 0153): whom the booker meets, the channels offered, then
- * the free slots of the 14 days to come, on the clock of the visitor. A page offering nothing says nothing else.
+ * The page that a public link leads to, read without signing in (ADR 0153): who the booker meets, the offered channels,
+ * then the free slots of the next 14 days, on the visitor's clock. A page that offers nothing says nothing else.
  */
 export function PublicBookingPage({ code }: Props) {
   const { t } = useTranslation()
@@ -60,8 +60,8 @@ type OpenPageProps = {
 }
 
 /**
- * The booker chooses a channel, then a slot, then says who they are: the form once booked gives way to what comes next,
- * a slot taken meanwhile sends them back to the slots, read again.
+ * The booker chooses a channel, then a slot, then says who they are. Once the booking succeeds, the form gives way to
+ * the next step. A slot taken in the meantime sends the booker back to the slots, which the page reads again.
  */
 function OpenPage({ code, onSlotTaken, host, channels, hostTimeZone, days }: OpenPageProps) {
   const { t } = useTranslation()

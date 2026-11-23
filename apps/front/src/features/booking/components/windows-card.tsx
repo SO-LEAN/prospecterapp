@@ -20,7 +20,7 @@ import {
 
 type Props = { page: BookingPage }
 
-/** The seven days, each on or off with its window on the quarter hour, saved all at once in the time zone of the browser. */
+/** The seven days, each on or off, with its window on the quarter hour. They are saved all at once in the browser's time zone. */
 export function WindowsCard({ page }: Props) {
   const { t } = useTranslation()
   const [week, setWeek] = useState(() => weekOf(page.windows))

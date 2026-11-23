@@ -6,7 +6,7 @@ import { myBookingPageQuery } from './queries'
 export type BookingPage = components['schemas']['BookingPageResource']
 export type Window = components['schemas']['WindowResource']
 
-/** Every gesture answers my page as it now is: kept as the page read, refreshed on my clock. */
+/** Every action answers with my page as it now is. The answer replaces the cached page, refreshed on my clock. */
 function useKeepMyPage() {
   const queryClient = useQueryClient()
 
@@ -42,7 +42,7 @@ export function useCloseBooking() {
   return api.useMutation('delete', '/api/me/booking-page/opening', { onSuccess: useKeepMyPage() })
 }
 
-/** A slot booked by its public link, its refusals told by the form of the booker. */
+/** Books a slot through its public link. The booker's form shows the refusals. */
 export function useBookSlot() {
   return api.useMutation('post', '/api/booking-pages/{code}/appointments', {
     meta: { silentValidation: true },

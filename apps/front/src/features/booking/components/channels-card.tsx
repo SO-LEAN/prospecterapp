@@ -9,7 +9,7 @@ type Channel = (typeof CHANNELS)[number]
 
 type Props = { page: BookingPage }
 
-/** The channels I offer, each saved at once as it is checked. */
+/** The channels I offer. Each one is saved as soon as it is checked or unchecked. */
 export function ChannelsCard({ page }: Props) {
   const { t } = useTranslation()
   const offerChannels = useOfferChannels()

@@ -104,7 +104,7 @@ const keepTheUnhandled = (reason: unknown) => {
   unhandledRejections.push(reason)
 }
 
-/** The rejections of the promises are told once the tasks of the moment are done: one task later. */
+/** Promise rejections are reported once the current tasks are done, so one task later. */
 const rejectionsLeftUnhandled = async () => {
   await new Promise((resolve) => setTimeout(resolve, 0))
 
