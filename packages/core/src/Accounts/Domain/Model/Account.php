@@ -56,7 +56,7 @@ final class Account implements ReleasesEvents
     public static function openBy(Gesture $gesture, ProfileId $founderProfile, LegalIdentity $legalIdentity): self
     {
         if (!$legalIdentity->hasCorporateName()) {
-            throw AccountWithoutCorporateName::because('An account needs the corporate name of its organization', 'corporateName');
+            throw AccountWithoutCorporateName::because('An account needs its organization\'s corporate name', 'corporateName');
         }
 
         $account = new self($gesture->accountId, $legalIdentity, new ContactDetails(), $gesture->at);
