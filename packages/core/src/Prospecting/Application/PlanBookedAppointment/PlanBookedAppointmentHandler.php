@@ -23,16 +23,17 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * An appointment booked by the public link of a host becomes an exchange they planned with its booker, under the
- * identity of the appointment (ADR 0164): a contact of the account, or a contact to attach held by the host, met
- * then, when nobody knew them (ADR 0146). An appointment gone meanwhile leaves nothing to do.
+ * Someone books an appointment through a host's public link. The appointment becomes an exchange that the host
+ * planned with the booker, under the appointment's id (ADR 0164). The booker is a contact of the account. When nobody
+ * knew them, they become a contact to attach, held by the host who meets them (ADR 0146). When the appointment is gone
+ * meanwhile, there is nothing to do.
  */
 final readonly class PlanBookedAppointmentHandler implements EventHandler
 {
     use PublishesEvents;
 
     /**
-     * The host keeps what they plan with a contact to attach (ADR 0146).
+     * What the host plans with a contact to attach is kept for no organization. The host keeps it (ADR 0146).
      */
     private const array NO_KEEPER_OF_A_CONTACT_TO_ATTACH = [];
 
