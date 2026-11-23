@@ -15,7 +15,7 @@ use Prospecter\Core\SharedKernel\Application\Handler\TransactionalEventHandler;
 use Prospecter\Core\SharedKernel\Domain\Exception\ChangedMeanwhile;
 
 /**
- * The shared kernel holds only what several contexts share (ADR 0197). A class serves a context that uses it, directly
+ * The shared kernel holds only what several contexts share (ADR 0197, 0201). A class serves a context that uses it, directly
  * or through another class of the shared kernel. A class that serves a single context belongs in that context.
  */
 class SharedKernelServesSeveralContextsTest extends TestCase
