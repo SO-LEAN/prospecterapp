@@ -13,7 +13,7 @@ final readonly class ChangeContactDetails
         public ?string $phoneNumber,
         public ?string $language,
         public \DateTimeImmutable $executedAt,
-        /** @var list<string> the addresses of its links */
+        /** @var list<string> its links' addresses */
         public array $links = [],
         public ?string $website = null,
     ) {
