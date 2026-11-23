@@ -9,7 +9,7 @@ use Prospecter\Core\SharedKernel\Application\OutputPort;
 interface SearchEstablishmentsOutput extends OutputPort
 {
     /**
-     * @param list<FoundEstablishment> $establishments those of the municipality of the organization first
+     * @param list<FoundEstablishment> $establishments those of the organization's municipality first
      */
     public function present(array $establishments): void;
 }

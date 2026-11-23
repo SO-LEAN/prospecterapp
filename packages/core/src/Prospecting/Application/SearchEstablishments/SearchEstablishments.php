@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\SearchEstablishments;
 
 /**
- * The establishments of the public directory an organization may be, to note its SIRET without typing it.
+ * Finds the public directory's establishments that an organization may be, so that a member records its SIRET
+ * without typing it.
  */
 final readonly class SearchEstablishments
 {

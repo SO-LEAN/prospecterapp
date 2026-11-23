@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\SearchEstablishments;
 
 /**
- * An establishment proposed for an organization: its SIRET, the name of its company, its address on one line, its
- * activity (its NAF code), and whether it closed.
+ * An establishment proposed for an organization: its SIRET, its company's name, its address on one line, its
+ * activity (its NAF code), and whether it has closed.
  */
 final readonly class FoundEstablishment
 {
