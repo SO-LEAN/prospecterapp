@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\ConsultExchange;
 
 use Prospecter\Core\Prospecting\Application\Port\ExchangeDetailRetriever;
+use Prospecter\Core\Prospecting\Domain\Model\CampaignId;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Port\CampaignNames;
 use Prospecter\Core\Prospecting\Domain\Port\Prospectors;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
-use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**

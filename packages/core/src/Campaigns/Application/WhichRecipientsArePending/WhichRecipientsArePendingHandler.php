@@ -10,9 +10,9 @@ use Prospecter\Core\Campaigns\Contract\Service\WhichRecipientsArePending\Pending
 use Prospecter\Core\Campaigns\Contract\Service\WhichRecipientsArePending\WhichRecipientsArePending;
 use Prospecter\Core\Campaigns\Contract\Service\WhichRecipientsArePending\WhichRecipientsArePendingOutput;
 use Prospecter\Core\Campaigns\Contract\Service\WhichRecipientsArePending\WhichRecipientsArePendingService;
+use Prospecter\Core\Campaigns\Domain\Model\CampaignId;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\CampaignId;
 
 final readonly class WhichRecipientsArePendingHandler implements QueryHandler, WhichRecipientsArePendingService
 {

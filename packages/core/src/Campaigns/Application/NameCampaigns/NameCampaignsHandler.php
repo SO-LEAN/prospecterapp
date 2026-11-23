@@ -8,9 +8,9 @@ use Prospecter\Core\Campaigns\Application\Port\CampaignSheetRetriever;
 use Prospecter\Core\Campaigns\Contract\Service\NameCampaigns\NameCampaigns;
 use Prospecter\Core\Campaigns\Contract\Service\NameCampaigns\NameCampaignsOutput;
 use Prospecter\Core\Campaigns\Contract\Service\NameCampaigns\NameCampaignsService;
+use Prospecter\Core\Campaigns\Domain\Model\CampaignId;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\CampaignId;
 
 final readonly class NameCampaignsHandler implements QueryHandler, NameCampaignsService
 {
