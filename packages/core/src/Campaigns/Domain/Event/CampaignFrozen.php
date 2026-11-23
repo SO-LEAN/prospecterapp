@@ -9,9 +9,7 @@ use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\Event\DomainEvent;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
-/**
- * A member kept the contacts the search of a draft campaign found as its recipients.
- */
+/** A member froze a draft campaign. The contacts its search found became its recipients. */
 final readonly class CampaignFrozen extends DomainEvent
 {
     public function __construct(AccountId $accountId, MemberId $by, public CampaignId $campaign, \DateTimeImmutable $occurredAt)
