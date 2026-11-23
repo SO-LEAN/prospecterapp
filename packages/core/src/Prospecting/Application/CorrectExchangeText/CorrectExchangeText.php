@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\CorrectExchangeText;
 
 /**
- * Corrects the text of an exchange only, to make it conform; its other facts stay. Its contact forgotten, the
- * prospector may declare it made conform at once.
+ * Corrects only an exchange's text, to redact it. Its other facts stay. When the contact is forgotten, the prospector
+ * may declare the exchange redacted in the same gesture.
  */
 final readonly class CorrectExchangeText
 {
