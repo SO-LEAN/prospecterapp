@@ -10,7 +10,7 @@ use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 
 /**
- * Tells the other contexts, in the published language, that a contact was left unattached (ADR 0046, 0146).
+ * Tells the other contexts in the published language that a contact was left unattached (ADR 0046, 0146).
  */
 final readonly class PublishContactLeftUnattachedHandler implements EventHandler
 {
