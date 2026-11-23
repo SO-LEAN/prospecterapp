@@ -9,7 +9,7 @@ use Prospecter\Core\SharedKernel\Application\OutputPort;
 interface IdentifyOrganizationsOutput extends OutputPort
 {
     /**
-     * @param list<Identification> $identifications one per organization of the query, in its order
+     * @param list<Identification> $identifications one per organization in the query, in the query's order
      */
     public function present(array $identifications): void;
 }

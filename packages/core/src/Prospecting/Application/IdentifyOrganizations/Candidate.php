@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\IdentifyOrganizations;
 
 /**
- * An organization of the account the clues may designate.
+ * An organization of the account that the clues may designate.
  */
 final readonly class Candidate
 {

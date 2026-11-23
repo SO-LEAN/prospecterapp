@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\IdentifyOrganizations;
 
 /**
- * Which organizations of the account the clues designate, each organization as the client sees it: known, new, or
- * to confirm among candidates; nothing written.
+ * Finds which of the account's organizations the clues designate. Each set of clues is an organization as the client
+ * sees it. The answer is known, new, or to confirm among candidates. The query writes nothing.
  */
 final readonly class IdentifyOrganizations
 {

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\IdentifyOrganizations;
 
 /**
- * What the clues of an organization designate: one organization of the account (known), none (new), or several, or
- * some by their name only (to confirm, among its candidates).
+ * What an organization's clues designate. They designate one organization of the account (known) or none (new).
+ * They can also designate several, or some by their name only. The member must confirm them among the candidates.
  */
 final readonly class Identification
 {
