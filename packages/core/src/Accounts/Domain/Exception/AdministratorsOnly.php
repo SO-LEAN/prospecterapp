@@ -7,7 +7,7 @@ namespace Prospecter\Core\Accounts\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotAllowed;
 
 /**
- * Only an administrator of the account may carry out this intention.
+ * Only an administrator of the account may carry out this intent.
  */
 final class AdministratorsOnly extends NotAllowed
 {

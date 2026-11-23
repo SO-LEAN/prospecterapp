@@ -9,7 +9,7 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * An administrator registered a member in the account, under the profile named.
+ * An administrator registered a member in the account, under the profile the event names.
  */
 final readonly class MemberRegistered extends AccountEvent
 {

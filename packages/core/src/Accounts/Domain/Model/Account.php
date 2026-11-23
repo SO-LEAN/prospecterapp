@@ -23,7 +23,7 @@ use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 
 /**
- * Aggregate root: an organization using Prospecter, managed by its members.
+ * Aggregate root: an organization that uses Prospecter. Its members manage it.
  */
 final class Account implements ReleasesEvents
 {
@@ -49,8 +49,8 @@ final class Account implements ReleasesEvents
     }
 
     /**
-     * An organization opens its account with its founder, who becomes its first member under the profile given: the
-     * gesture names the account opened and its founder.
+     * An organization opens its account with its founder. The founder becomes its first member under the given
+     * profile. The gesture names the new account and its founder.
      *
      * @throws AccountWithoutCorporateName
      */
@@ -88,8 +88,8 @@ final class Account implements ReleasesEvents
     }
 
     /**
-     * Where the organization of the account is, the start of the routes to the organizations it prospects; an
-     * address without any part erases it.
+     * Sets where the account's organization is. The routes to the organizations it prospects start there. An address
+     * without any part erases it.
      */
     public function relocateTo(Address $address, ?GeoPoint $geoPoint, Member $by, \DateTimeImmutable $at): void
     {
@@ -101,7 +101,7 @@ final class Account implements ReleasesEvents
     }
 
     /**
-     * An account is unknown to whom does not belong to it.
+     * An account is unknown to anyone who does not belong to it.
      *
      * @throws UnknownAccount
      */

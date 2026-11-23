@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Accounts\Contract\Service\ConsultMembers;
 
 /**
- * Who these members are (ADR 0089): asked about a set, a single member being a set of one.
+ * Asks who these members are (ADR 0089). The query takes a set of members. A single member is a set of one.
  */
 final readonly class ConsultMembers
 {

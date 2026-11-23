@@ -9,7 +9,8 @@ use Prospecter\Core\Accounts\Domain\Exception\UnknownMember;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * Reads the reminders of a member without restoring them (ADR 0088), those by default when they never changed them.
+ * Reads a member's reminders without restoring the member (ADR 0088). A member who never changed their reminders
+ * gets the default ones.
  */
 interface MyRemindersRetriever
 {

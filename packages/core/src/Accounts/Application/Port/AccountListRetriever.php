@@ -7,12 +7,12 @@ namespace Prospecter\Core\Accounts\Application\Port;
 use Prospecter\Core\SharedKernel\Domain\Slice;
 
 /**
- * Reads the identities of the accounts, without restoring them (ADR 0088).
+ * Reads the accounts' ids without restoring the accounts (ADR 0088).
  */
 interface AccountListRetriever
 {
     /**
-     * The identities of the accounts newest first, after the cursor (ADR 0049).
+     * Returns the accounts' ids, newest first, after the cursor (ADR 0049).
      *
      * @return Slice<string>
      */

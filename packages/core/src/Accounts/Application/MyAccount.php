@@ -7,14 +7,14 @@ namespace Prospecter\Core\Accounts\Application;
 use Prospecter\Core\SharedKernel\Application\FileResponse;
 
 /**
- * My account: who I am (my identities, my roles), the identity, logo and address of my organization, what I may change
- * of it. The delivery also reads it to know who calls it.
+ * My account: who I am (my ids and my roles), my organization's identity, logo and address, and what I may change in
+ * it. The delivery also reads it to know who the caller is.
  */
 final readonly class MyAccount
 {
     /**
-     * @param list<string> $roles          values of my roles: ROLE_USER, ROLE_PROSPECTOR...
-     * @param list<string> $accountIntents names of what I may change of my organization: ReviseLegalIdentity, ChangeLogo, Relocate
+     * @param list<string> $roles          my roles' values: ROLE_USER, ROLE_PROSPECTOR...
+     * @param list<string> $accountIntents the names of what I may change in my organization: ReviseLegalIdentity, ChangeLogo, Relocate
      */
     public function __construct(
         public string $memberId,

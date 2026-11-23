@@ -9,7 +9,7 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * An organization opened its account; its founder becomes its first member, with the profile named.
+ * An organization opened its account. Its founder becomes its first member, with the profile the event names.
  */
 final readonly class AccountOpened extends AccountEvent
 {

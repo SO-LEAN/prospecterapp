@@ -8,7 +8,7 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * A colleague an administrator registers: the member they become, the profile they are given and the roles they
+ * A colleague that an administrator registers. It holds the colleague's member id, their profile and the roles they
  * work with.
  */
 final readonly class Newcomer

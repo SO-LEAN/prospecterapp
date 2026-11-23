@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Accounts\Application\ChangeMyReminders;
 
 /**
- * Turns my reminders of the exchanges I planned on or off, and sets how long before they come.
+ * Turns the reminders of my planned exchanges on or off, and sets how long before an exchange they come.
  */
 final readonly class ChangeMyReminders
 {
