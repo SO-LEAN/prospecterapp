@@ -7,8 +7,8 @@ namespace App\Connectors\Input;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * The topic of the Google Cloud of the account its mailboxes publish their changes to, in full, and the account of
- * service the subscription pushes them with (ADR 0154).
+ * The full name of the topic in the account's Google Cloud that its mailboxes publish their changes to. It comes with
+ * the service account that the subscription pushes the changes with (ADR 0154).
  */
 final readonly class GmailNotificationsInput
 {

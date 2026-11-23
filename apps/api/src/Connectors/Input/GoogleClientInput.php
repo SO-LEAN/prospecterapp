@@ -7,7 +7,7 @@ namespace App\Connectors\Input;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * The client an administrator made for their account in Google Cloud: its id and its secret.
+ * The client that an administrator created for their account in Google Cloud: its id and its secret.
  */
 final readonly class GoogleClientInput
 {
