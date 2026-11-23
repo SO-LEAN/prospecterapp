@@ -14,8 +14,8 @@ use Symfony\Component\Clock\ClockInterface;
 
 /**
  * Renews the mailbox watch of each active e-mail import, in every account (ADR 0154). An instance's daily schedule
- * runs it, and so does the console. Each renewal is a command of its own. When the provider refuses a renewal, its
- * import becomes to reconnect.
+ * runs it, and so does the console. Each renewal is a command of its own. When the provider refuses a renewal, it
+ * leaves the import to reconnect.
  */
 #[WithMonologChannel('mailbox')]
 final readonly class MailWatchesRenewer implements ScheduledTask
