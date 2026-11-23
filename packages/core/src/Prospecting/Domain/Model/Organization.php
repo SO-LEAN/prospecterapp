@@ -428,7 +428,7 @@ final class Organization implements ReleasesEvents
         $this->ensurePossible(OrganizationIntent::AddContact);
 
         if ($this->hasContact($contact)) {
-            throw AlreadyAContact::because('This person is a contact of the organization already', 'personId');
+            throw AlreadyAContact::because('This person is already a contact of the organization', 'personId');
         }
 
         $this->contacts[] = $contact;
@@ -498,7 +498,7 @@ final class Organization implements ReleasesEvents
 
     private function notAContact(): NotAContact
     {
-        return NotAContact::because('This person is no contact of the organization', 'personId');
+        return NotAContact::because('This person is not a contact of the organization', 'personId');
     }
 
     private function allowsInItsState(OrganizationIntent $intent): bool
