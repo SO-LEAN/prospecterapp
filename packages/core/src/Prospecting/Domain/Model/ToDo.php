@@ -24,10 +24,10 @@ use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 
 /**
- * Aggregate root: work a prospector has to prepare for a contact or an organization, without them in front, due on a
- * day (ADR 0113). Held by the member who noted it, its author. Its text may hold personal data: like an exchange, it
- * is kept for the organizations the contact is part of when it is noted, or for the organization itself, and lives
- * as long as one of them is prospected; unlike an exchange, it is erased with its contact.
+ * Aggregate root: work a prospector has to prepare for a contact or an organization, without them present. It is due
+ * on a day (ADR 0113). Its author, the member who logged it, holds it. Its text may hold personal data. Like an
+ * exchange, it is kept for the organizations the contact is part of when it is logged, or for the organization
+ * itself. It lives as long as one of them is prospected. Unlike an exchange, it is erased with its contact.
  */
 final class ToDo implements ReleasesEvents
 {
@@ -57,8 +57,8 @@ final class ToDo implements ReleasesEvents
     }
 
     /**
-     * Kept, like an exchange, for the organizations of its correspondent now: those the contact is part of, or the
-     * organization itself.
+     * Like an exchange, the to-do is kept for its correspondent's current organizations. These are the organizations
+     * the contact is part of, or the organization itself.
      *
      * @throws ToDoWithoutText
      */
@@ -96,7 +96,7 @@ final class ToDo implements ReleasesEvents
     }
 
     /**
-     * Its contact to attach attached to an organization: the to-do is kept for it from now on (ADR 0146).
+     * A member attached its contact to an organization. From now on, that organization keeps the to-do (ADR 0146).
      */
     public function keepFor(OrganizationId $organization, MemberId $by, \DateTimeImmutable $at): void
     {
@@ -140,7 +140,7 @@ final class ToDo implements ReleasesEvents
     }
 
     /**
-     * Erased everywhere, once the repository removed it.
+     * The to-do is erased everywhere once the repository removes it.
      */
     public function erase(MemberId $by, \DateTimeImmutable $at): void
     {
@@ -149,8 +149,8 @@ final class ToDo implements ReleasesEvents
     }
 
     /**
-     * The account stopped prospecting this organization: kept for no organization any more, the to-do must not
-     * stay (ToDoLeftWithoutOrganization).
+     * The account stopped prospecting this organization. A to-do that no organization keeps any more must not stay
+     * (ToDoLeftWithoutOrganization).
      */
     public function stopKeepingFor(OrganizationId $organization, MemberId $by, \DateTimeImmutable $at): void
     {

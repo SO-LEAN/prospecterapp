@@ -7,7 +7,7 @@ namespace Prospecter\Core\Prospecting\Domain\Model;
 use Prospecter\Core\Prospecting\Domain\Exception\InvalidVideoCallLink;
 
 /**
- * Where a video call is joined: a web address, Meet, Teams, Zoom or any other.
+ * The web address that joins a video call, on Meet, Teams, Zoom or any other service.
  */
 final readonly class VideoCallLink
 {
@@ -24,7 +24,7 @@ final readonly class VideoCallLink
     }
 
     /**
-     * None when left blank: it may be added once the video call is planned.
+     * A blank link is none. A member may add it after planning the video call.
      *
      * @throws InvalidVideoCallLink
      */

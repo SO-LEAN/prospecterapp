@@ -10,10 +10,10 @@ use Prospecter\Core\Prospecting\Domain\Exception\LinkOnlyForAVideoCall;
 use Prospecter\Core\Prospecting\Domain\Exception\PlaceOnlyForAMeeting;
 
 /**
- * What happened between the prospector and the contact in the real world, or what they agreed upon: the moment,
- * and how long it lasts, of a planned exchange; where a meeting is held, written freely, and the link a video
- * call is joined by, or asked of the calendar of its holder while it has none (ADR 0137); the subject of an email,
- * if any, is in the text.
+ * What happened between the prospector and the contact in the real world, or what they agreed on. A planned
+ * exchange has a moment and a duration. A meeting has a place, written freely. A video call has the link that joins
+ * it. While it has none, it may request one from its holder's calendar (ADR 0137). An email's subject, if any, is in
+ * the text.
  */
 final readonly class ExchangeFacts
 {
@@ -72,8 +72,8 @@ final readonly class ExchangeFacts
     }
 
     /**
-     * Agreed upon with the contact, at the prospector's initiative; the text is the agenda. withVenue() gives the place
-     * or the link, askingALink() the request of a link.
+     * The prospector agreed on these facts with the contact, on their own initiative. The text is the agenda.
+     * withVenue() gives the place or the link. askingALink() requests a link.
      *
      * @throws ChannelNotPlanned
      */
@@ -87,7 +87,7 @@ final readonly class ExchangeFacts
     }
 
     /**
-     * A video call asking its link of the calendar of its holder, while it has none (ADR 0137).
+     * A video call without a link requests one from its holder's calendar (ADR 0137).
      *
      * @throws LinkOnlyForAVideoCall
      */
@@ -102,7 +102,7 @@ final readonly class ExchangeFacts
     }
 
     /**
-     * As it took place, at the moment it did, with what was said, where it was held.
+     * The facts as the exchange took place: the moment it did, what was said, and where it was held.
      */
     public function happened(\DateTimeImmutable $at, ?string $report): self
     {
@@ -115,7 +115,7 @@ final readonly class ExchangeFacts
     }
 
     /**
-     * A link given ends the request of one.
+     * A link given ends the request for one.
      *
      * @throws PlaceOnlyForAMeeting|LinkOnlyForAVideoCall
      */
@@ -125,7 +125,7 @@ final readonly class ExchangeFacts
     }
 
     /**
-     * Corrected as a whole, the facts keep where the exchange was held, or its link, or the request of one, while
+     * When the facts are corrected as a whole, they keep the exchange's place, its link, or its link request, while
      * their channel still has one.
      */
     public function keepingTheVenueOf(self $former): self

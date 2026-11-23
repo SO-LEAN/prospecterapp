@@ -7,8 +7,8 @@ namespace Prospecter\Core\Prospecting\Domain\Model;
 use Prospecter\Core\Prospecting\Domain\Exception\AttachmentTooHeavy;
 
 /**
- * A file joined to an exchange: its name as it was sent, its size in bytes, its media type, and the private file
- * of the storage holding it (ADR 0077).
+ * A file attached to an exchange: its name as it was sent, its size in bytes, its media type, and the storage's
+ * private file that holds it (ADR 0077).
  */
 final readonly class Attachment
 {

@@ -7,12 +7,12 @@ namespace Prospecter\Core\Prospecting\Domain\Model;
 use Prospecter\Core\SharedKernel\Domain\SearchKey;
 
 /**
- * What two names of the same organization share: the name without case, accents, punctuation, spaces nor legal form.
+ * What two names of the same organization share: the name without case, accents, punctuation, spaces or legal form.
  */
 final readonly class CorporateNameKey implements \Stringable
 {
     /**
-     * The legal forms of the French companies: a word of the name that is one, its points aside, does not count,
+     * French companies' legal forms. A word of the name that is one of them, ignoring its dots, does not count,
      * wherever it stands.
      */
     private const array LEGAL_FORMS = ['sa', 'sas', 'sasu', 'sarl', 'sarlu', 'eurl', 'snc', 'sci', 'scop', 'sca', 'scs', 'scp', 'scm', 'selarl', 'selas', 'selasu', 'selafa', 'gie', 'ei', 'eirl', 'sem', 'spl'];
@@ -22,7 +22,7 @@ final readonly class CorporateNameKey implements \Stringable
     }
 
     /**
-     * Null without a name beside its legal form: nothing to compare.
+     * Null when the name holds nothing but its legal form, because there is nothing to compare.
      */
     #[\NoDiscard]
     public static function of(?string $corporateName): ?self

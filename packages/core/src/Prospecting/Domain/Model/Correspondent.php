@@ -9,8 +9,8 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Who an exchange or a to-do is with, and the organizations that keep it: a contact (`ContactCorrespondent`), a
- * recipient of a campaign (`RecipientCorrespondent`, an exchange only), or the organization itself
+ * Who an exchange or a to-do is with, and the organizations that keep it. It is a contact (`ContactCorrespondent`),
+ * a campaign's recipient (`RecipientCorrespondent`, for an exchange only), or the organization itself
  * (`OrganizationCorrespondent`).
  */
 abstract readonly class Correspondent
@@ -26,7 +26,7 @@ abstract readonly class Correspondent
     }
 
     /**
-     * Only a recipient of a campaign has a campaign to check.
+     * Only a campaign's recipient has a campaign to check.
      */
     public function ensureToHandle(): void
     {

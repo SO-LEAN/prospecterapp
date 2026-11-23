@@ -7,7 +7,7 @@ namespace Prospecter\Core\Prospecting\Domain\Model;
 use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
 
 /**
- * Where an organization is found on the web: its links (its LinkedIn page...) and its website, when known.
+ * Where an organization is found on the web: its links, such as its LinkedIn page, and its website, when known.
  */
 final readonly class WebPresence
 {

@@ -9,8 +9,8 @@ use Prospecter\Core\SharedKernel\Domain\Uuid;
 final readonly class AttachmentId extends Uuid
 {
     /**
-     * The attachment an imported e-mail brings to its exchange is always the same: no client gives the identity of
-     * what a reaction imports, and a delivery of the e-mail tried again finds the same attachments (ADR 0182).
+     * An imported e-mail always brings the same attachment to its exchange. No client gives the identity of what a
+     * reaction imports, and a retried delivery of the e-mail finds the same attachments (ADR 0182).
      */
     public static function ofImportedEmail(ExchangeId $exchange, string $upload): self
     {

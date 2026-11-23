@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Domain\Model;
 
 /**
- * What decides what an exchange offers to the member who would act on it, at a moment: its files, whether it awaits
- * being made conform, its status, whether the time of a planned exchange has come, whether the member holds it, and
- * its channel, a meeting having its place and a video call its link; read just after its move, whether the moment it
- * was moved from is still to come.
+ * What decides what an exchange offers, at a moment, to the member who would act on it. It holds the exchange's
+ * files, whether it awaits redaction, its status, whether a planned exchange's time has come, whether the member
+ * holds it, and its channel. A meeting has its place and a video call has its link. Read just after a move, it also
+ * holds whether the moment the exchange was moved from is still to come.
  */
 final readonly class ExchangeSituation
 {

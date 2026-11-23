@@ -8,9 +8,9 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * What tells an exchange noted from any other of its account, computed by the core from what was exchanged, never
- * given by a client: the same whatever noted it, by hand, an AI or the import of a mailbox (ADR 0166). Hashed, so that
- * what was said stays out of it.
+ * What tells a logged exchange apart from the account's other exchanges. The core computes it from what was
+ * exchanged. A client never gives it. It is the same whoever logged the exchange: a member by hand, an AI or a
+ * mailbox's import (ADR 0166). It is hashed, so that what was said stays out of it.
  */
 final readonly class ExchangeFingerprint
 {
@@ -24,7 +24,7 @@ final readonly class ExchangeFingerprint
     }
 
     /**
-     * An e-mail by the identity of its `Message-ID`, with each of its correspondents (ADR 0154).
+     * Fingerprints an e-mail by its `Message-ID`'s identity, with each of its correspondents (ADR 0154).
      */
     public static function ofEmail(string $identity, PersonId|OrganizationId $correspondent): self
     {
@@ -32,7 +32,7 @@ final readonly class ExchangeFingerprint
     }
 
     /**
-     * A LinkedIn message by its conversation, whoever wrote in it.
+     * Fingerprints a LinkedIn message by its conversation, whoever wrote in it.
      */
     public static function ofLinkedInMessage(string $conversation, Direction $direction, \DateTimeImmutable $at, ?string $text): self
     {
@@ -40,7 +40,8 @@ final readonly class ExchangeFingerprint
     }
 
     /**
-     * Any other message, call or meeting, and an e-mail or a LinkedIn message noted without its reference.
+     * Fingerprints any other message, call or meeting. It also fingerprints an e-mail or a LinkedIn message logged
+     * without its reference.
      */
     public static function ofMessage(ExchangeFacts $facts, PersonId|OrganizationId $correspondent): self
     {
@@ -58,7 +59,7 @@ final readonly class ExchangeFingerprint
     }
 
     /**
-     * Written again, a text differs by its case, its spaces or its punctuation only.
+     * A text written again differs only by its case, its spaces or its punctuation.
      */
     private static function normalized(?string $text): string
     {

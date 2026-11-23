@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Domain\Model;
 
 /**
- * What a booker booked with a host: when, on the clock of the host, for how long, by which channel, and what about.
+ * What a booker booked with a host: when, on the host's clock, for how long, through which channel, and what about.
  */
 final readonly class BookedAppointment
 {
@@ -18,7 +18,8 @@ final readonly class BookedAppointment
     }
 
     /**
-     * A video call asks its link of the calendar of the host, whose invitation gives it to the booker.
+     * A video call requests its link from the host's calendar. The calendar's invitation gives the link to the
+     * booker.
      */
     public function facts(): ExchangeFacts
     {

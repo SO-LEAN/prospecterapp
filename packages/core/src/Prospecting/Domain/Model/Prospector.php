@@ -9,8 +9,8 @@ use Prospecter\Core\SharedKernel\Domain\Exception\PersonalDataManagersOnly;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * A member of an account as prospecting sees them: who reads, for which account they prospect, and whether
- * they read the personal data an exchange may hold.
+ * An account's member as Prospecting sees them: who reads, which account they prospect for, and whether they read
+ * the personal data an exchange may hold.
  */
 final readonly class Prospector
 {
@@ -22,7 +22,8 @@ final readonly class Prospector
     }
 
     /**
-     * What is said with a contact is personal data: noting it needs the right to manage them.
+     * What a member and a contact say to each other is personal data. Logging it needs the right to manage personal
+     * data.
      *
      * @throws PersonalDataManagersOnly
      */

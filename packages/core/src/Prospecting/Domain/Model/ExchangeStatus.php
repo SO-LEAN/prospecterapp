@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Domain\Model;
 
 /**
- * Where an exchange stands: planned, still to come; done, or missed when the contact did not come or answer; or
- * cancelled before it happened. An exchange noted once it happened is done or missed.
+ * Where an exchange stands. A planned exchange is still to come. A done exchange took place. A missed exchange did
+ * not, because the contact did not come or answer. A cancelled exchange was called off before it happened. An
+ * exchange logged after it happened is done or missed.
  */
 enum ExchangeStatus: string
 {
@@ -16,7 +17,7 @@ enum ExchangeStatus: string
     case Cancelled = 'cancelled';
 
     /**
-     * What became of an exchange noted, or corrected, once it happened.
+     * What became of an exchange logged or corrected after it happened.
      */
     public static function outcome(bool $missed): self
     {

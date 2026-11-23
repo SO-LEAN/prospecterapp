@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Domain\Model;
 
 /**
- * The exchange an account noted under a fingerprint, kept once it is erased, with who erased it (ADR 0166).
+ * The exchange an account logged under a fingerprint. It is kept after the exchange is erased, with who erased it
+ * (ADR 0166).
  */
 final readonly class Fingerprinted
 {

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Domain\Model;
 
 /**
- * Who called off a planned exchange, when the prospector says it.
+ * Who called off a planned exchange, when the prospector says so.
  */
 enum Canceller: string
 {

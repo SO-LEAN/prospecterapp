@@ -12,7 +12,7 @@ use Prospecter\Core\SharedKernel\Domain\Uuid;
 final readonly class ExchangeId extends Uuid
 {
     /**
-     * The exchange of an e-mail imported with one correspondent of an account is always the same: no client gives the
+     * An e-mail imported with one of an account's correspondents always gives the same exchange. No client gives the
      * identity of what a reaction imports, and an e-mail imported again finds the exchange it made (ADR 0154).
      */
     public static function ofImportedEmail(AccountId $account, string $email, PersonId|OrganizationId $correspondent): self

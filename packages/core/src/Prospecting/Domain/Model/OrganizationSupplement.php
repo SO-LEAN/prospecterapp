@@ -18,8 +18,8 @@ use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 use Prospecter\Core\SharedKernel\Domain\Siret;
 
 /**
- * What a client knows of an organization, to fill what it lacks (ADR 0177): each part optional, links beyond the
- * five an organization holds included.
+ * What a client knows about an organization, to fill what it lacks (ADR 0177). Each part is optional. It may hold
+ * more links than the five an organization holds.
  */
 final readonly class OrganizationSupplement
 {

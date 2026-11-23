@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Domain\Model;
 
 /**
- * A moment of the agenda of a prospector and how long it lasts: what a planned exchange takes.
+ * A moment in a prospector's agenda and how long it lasts. A planned exchange takes one.
  */
 final readonly class Slot
 {
@@ -26,7 +26,7 @@ final readonly class Slot
     }
 
     /**
-     * One ending when the other starts does not overlap it.
+     * A slot that ends when the other starts does not overlap it.
      */
     #[\NoDiscard]
     public function overlaps(self $other): bool
@@ -35,7 +35,7 @@ final readonly class Slot
     }
 
     /**
-     * No slot starting earlier overlaps this one, lasting at most the longest duration.
+     * A slot lasts at most the longest duration. So no slot that starts before the returned moment overlaps this one.
      */
     #[\NoDiscard]
     public function earliestStartOfAnOverlap(): \DateTimeImmutable

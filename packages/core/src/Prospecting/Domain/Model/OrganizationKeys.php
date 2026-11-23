@@ -12,9 +12,8 @@ use Prospecter\Core\SharedKernel\Domain\ExternalReference;
 use Prospecter\Core\SharedKernel\Domain\Siret;
 
 /**
- * What designates one organization in its account, among the clues given of it: its SIRET, its links, the domain of
- * its website, its emails, and the domains of the emails of the persons working there; a clue that is no key of its
- * kind designates nothing.
+ * The clues that designate one organization in its account: its SIRET, its links, its website's domain, its emails,
+ * and the domains of its staff's emails. A clue that is no key of its kind designates nothing.
  */
 final readonly class OrganizationKeys
 {
@@ -45,7 +44,7 @@ final readonly class OrganizationKeys
     }
 
     /**
-     * The domains of the emails, those of a public mailbox aside: they designate no organization.
+     * The emails' domains, except those of public mailboxes, which designate no organization.
      *
      * @return list<string>
      */

@@ -11,8 +11,9 @@ use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * A contact as a campaign of Campaigns keeps them, when an exchange is noted for them in it (ADR 0145): the channel
- * of the campaign, whether it is led now, whether the contact is one of its recipients, and still to handle.
+ * A contact as a campaign in Campaigns keeps them, when a member logs an exchange for them in it (ADR 0145). It holds
+ * the campaign's channel, whether the campaign is running now, whether the contact is one of its recipients, and
+ * whether they still need handling.
  */
 final readonly class RecipientInCampaign
 {
@@ -27,7 +28,7 @@ final readonly class RecipientInCampaign
     }
 
     /**
-     * What the exchange noted for them in the campaign tells: outbound, by the channel of the campaign.
+     * What the exchange logged for them in the campaign tells: it is outbound, through the campaign's channel.
      */
     #[\NoDiscard]
     public function exchangeFacts(\DateTimeImmutable $occurredAt, ?string $text): ExchangeFacts
@@ -36,8 +37,8 @@ final readonly class RecipientInCampaign
     }
 
     /**
-     * What tells a sending to them in the account, the same when an AI notes it and when it asks how it was noted
-     * (ADR 0166, 0195).
+     * What tells a sending to them apart in the account. It is the same when an AI logs the sending and when it asks
+     * how the sending was logged (ADR 0166, 0195).
      */
     #[\NoDiscard]
     public function fingerprintOfSending(\DateTimeImmutable $occurredAt, ?string $text, MessageReference $reference): ExchangeFingerprint

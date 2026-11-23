@@ -26,7 +26,7 @@ final readonly class Duration
     }
 
     /**
-     * Half an hour when not said.
+     * Half an hour when no duration is given.
      *
      * @throws DurationOutOfRange
      */

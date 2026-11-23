@@ -10,8 +10,8 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Where a message noted was read, as an AI gives it: the `Message-ID` of an e-mail, the conversation of a LinkedIn
- * message; it decides how the exchange is fingerprinted, and is not kept (ADR 0166).
+ * Where a logged message was read, as an AI gives it: an e-mail's `Message-ID`, or a LinkedIn message's
+ * conversation. It decides how the exchange is fingerprinted. Prospecter does not keep it (ADR 0166).
  */
 final readonly class MessageReference
 {
@@ -22,7 +22,7 @@ final readonly class MessageReference
     }
 
     /**
-     * Each given blank is none.
+     * A blank value counts as none.
      *
      * @throws ReferenceNotOfTheChannel
      */
@@ -36,7 +36,7 @@ final readonly class MessageReference
     }
 
     /**
-     * Noted by hand, or by an AI that read none.
+     * A member logged the exchange by hand, or an AI logged it without reading a message.
      */
     public static function none(): self
     {
@@ -51,7 +51,7 @@ final readonly class MessageReference
     }
 
     /**
-     * The identifier of a conversation, given bare or as the address of its thread, `linkedin.com/messaging/thread/<id>/`.
+     * A conversation's identifier, given bare or as its thread's address, `linkedin.com/messaging/thread/<id>/`.
      */
     private static function conversationIn(?string $given): ?string
     {

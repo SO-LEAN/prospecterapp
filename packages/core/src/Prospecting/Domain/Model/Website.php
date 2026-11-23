@@ -7,8 +7,8 @@ namespace Prospecter\Core\Prospecting\Domain\Model;
 use Prospecter\Core\Prospecting\Domain\Exception\InvalidWebsite;
 
 /**
- * The site of an organization on the web, kept as its origin (`<scheme>://<host>`, in lower case, `https` when typed
- * without its scheme), recognized by its domain: its host without `www.`.
+ * An organization's website. It is kept as its origin (`<scheme>://<host>`, in lower case), with `https` when the
+ * member typed no scheme. It is recognized by its domain: its host without `www.`.
  */
 final readonly class Website implements \Stringable
 {

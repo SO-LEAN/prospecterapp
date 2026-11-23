@@ -55,14 +55,14 @@ use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 
 /**
- * Aggregate root: a fact of the real world between a prospector of the account and a contact, or the
- * organization itself, a call, a message or a meeting; not a change made in the application (ADR 0074, 0076).
- * Planned, it is still to come, held by the member who planned it, its author, who alone marks it done or missed
- * once its time has come, moves it or cancels it (ADR 0111, 0112).
- * Its text may hold personal data: it is kept for the organizations the contact was part of when it was noted, or
- * for the organization itself, and lives as long as one of them is prospected.
- * Its contact forgotten, it stays, to make conform (ADR 0079). Noted for a recipient of a campaign, it keeps the
- * campaign (ADR 0145).
+ * Aggregate root: a real-world fact between one of the account's prospectors and a contact, or the organization
+ * itself. It is a call, a message or a meeting. It is not a change made in the application (ADR 0074, 0076).
+ * A planned exchange is still to come. Its author, the member who planned it, holds it. Once its time has come,
+ * only the holder marks it done or missed. Only the holder moves it or cancels it (ADR 0111, 0112).
+ * Its text may hold personal data. The exchange is kept for the organizations the contact was part of when it was
+ * logged, or for the organization itself. It lives as long as one of them is prospected.
+ * When its contact is forgotten, the exchange stays and must be redacted (ADR 0079). An exchange logged for a
+ * campaign's recipient keeps the campaign (ADR 0145).
  */
 final class Exchange implements ReleasesEvents
 {
@@ -101,10 +101,11 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * Done, or missed when the contact did not answer or come. It is kept for the organizations of its correspondent.
-     * Noted for a pending recipient of a running campaign, it keeps the campaign (ADR 0145); imported from the member's
-     * mailbox, it keeps the e-mail (ADR 0154). Its fingerprint comes from where it was read, when given (ADR 0166).
-     * The member notes it by hand, or an AI notes it for them (ADR 0185, 0186).
+     * A logged exchange is done, or missed when the contact did not answer or come. It is kept for its
+     * correspondent's organizations. An exchange logged for a running campaign's pending recipient keeps the campaign
+     * (ADR 0145). An exchange imported from the member's mailbox keeps the e-mail (ADR 0154). Its fingerprint comes
+     * from where it was read, when the caller gives it (ADR 0166). The member logs it by hand, or an AI logs it for
+     * them (ADR 0185, 0186).
      *
      * @throws CampaignNotRunning|UnknownRecipient|RecipientAlreadyProcessed
      * @throws ExchangeInTheFuture|ChannelNotMissed
@@ -125,7 +126,7 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * Kept, like an exchange noted, for the organizations of its correspondent now.
+     * Like a logged exchange, a planned exchange is kept for its correspondent's current organizations.
      *
      * @throws PlannedExchangeInThePast
      */
@@ -140,8 +141,8 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * Booked by the contact through the public link of its holder, the member of the gesture, who planned nothing
-     * themselves (ADR 0164).
+     * The contact booked this exchange through its holder's public link. The holder is the gesture's member, who
+     * planned nothing themselves (ADR 0164).
      *
      * @throws PlannedExchangeInThePast
      */
@@ -174,7 +175,8 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * The only moments an exchange is planned at, or moved to.
+     * Tells whether a moment is to come. An exchange is planned at such a moment, or moved to one, and never at
+     * another.
      */
     public static function isAMomentToCome(\DateTimeImmutable $moment, \DateTimeImmutable $at): bool
     {
@@ -182,8 +184,8 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * A video call awaits the link it asked of the calendar of its holder while it is planned: done, missed or
-     * cancelled, it is no longer pushed there (ADR 0137).
+     * A video call awaits the link it requested from its holder's calendar while it is planned. Once it is done,
+     * missed or cancelled, Prospecter no longer pushes it there (ADR 0137).
      */
     public static function awaitsALink(bool $linkRequested, ExchangeStatus $status): bool
     {
@@ -196,7 +198,7 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * What tells it from any other exchange of its account, when it was noted (ADR 0166).
+     * What tells it apart from the account's other exchanges, taken when it was logged (ADR 0166).
      */
     public function fingerprint(): ?ExchangeFingerprint
     {
@@ -204,8 +206,8 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * Noted by hand as an exchange already noted, it is told from it by nothing: the fingerprint stays the one of the
-     * exchange noted first (ADR 0166).
+     * A member logged by hand an exchange that was already logged. Nothing tells the two apart, so the fingerprint
+     * stays with the exchange logged first (ADR 0166).
      */
     public function leaveItsFingerprint(): void
     {
@@ -218,8 +220,8 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * Its contact forgotten, it may still hold their personal data: in its text until it is declared conform,
-     * in its files until they are removed.
+     * When its contact is forgotten, the exchange may still hold their personal data. Its text holds them until a
+     * member declares it redacted. Its files hold them until a member removes them.
      */
     public function isToMakeConform(): bool
     {
@@ -232,7 +234,7 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * The files joined to it, in the order they were.
+     * The files attached to it, in the order they were attached.
      *
      * @return list<Attachment>
      */
@@ -242,7 +244,8 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * The files joined to it a prospector reads: none without the right to manage personal data (ADR 0078).
+     * The attached files a prospector reads. A prospector without the right to manage personal data reads none
+     * (ADR 0078).
      *
      * @return list<Attachment>
      */
@@ -252,7 +255,7 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * A file joined to it, hidden to a prospector without the right to manage personal data (ADR 0078).
+     * One attached file. It is hidden from a prospector without the right to manage personal data (ADR 0078).
      *
      * @throws PersonalDataManagersOnly|UnknownAttachment
      */
@@ -277,8 +280,9 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * Once it took place, done or missed. The contact stays: an exchange with somebody else is erased, then noted
-     * again. Its place or its link stay while its channel has one: they are corrected by a gesture of their own.
+     * A member corrects an exchange once it took place, as done or missed. The contact stays. An exchange with
+     * somebody else is erased, then logged again. Its place or its link stays while its channel has one. A gesture
+     * of their own corrects them.
      *
      * @throws ExchangeInTheFuture|ChannelNotMissed
      */
@@ -294,9 +298,9 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * Noted first outside any campaign, as the import of a mailbox notes an e-mail before the AI that sent it, it
-     * becomes the exchange of the recipient once the AI notes the same sending: a correction by the AI's member
-     * (ADR 0195). Any other exchange of that fingerprint stays already noted.
+     * The exchange was logged first outside any campaign. For example, a mailbox's import logs an e-mail before the
+     * AI that sent it does. The exchange becomes the recipient's exchange once the AI logs the same sending. This is
+     * a correction by the AI's member (ADR 0195). Any other exchange with that fingerprint stays already logged.
      *
      * @throws ExchangeAlreadyNoted|CampaignNotRunning|UnknownRecipient|RecipientAlreadyProcessed
      */
@@ -321,7 +325,8 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * To make it conform, without the right to manage personal data too: its other facts stay.
+     * A member corrects the text to redact it, even without the right to manage personal data. The other facts
+     * stay.
      */
     public function correctText(?string $text, MemberId $by, \DateTimeImmutable $at): void
     {
@@ -332,8 +337,9 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * Where a meeting is held, or the link of a video call, planned or done: a link may come once the video call is
-     * planned. Not personal data: every prospector of the account corrects them.
+     * Corrects where a meeting is held, or a video call's link, whether the exchange is planned or done. A link may
+     * come after the video call is planned. Neither is personal data, so every prospector of the account corrects
+     * them.
      *
      * @throws PlaceOnlyForAMeeting|LinkOnlyForAVideoCall|NotPossibleInItsState
      */
@@ -346,8 +352,9 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * The link the calendar of its holder created for it, while it still asks one: a link given meanwhile wins. A
-     * correction by the system, without an author: its last correction stays that of a member (ADR 0137).
+     * Keeps the link that its holder's calendar created for it, while the exchange still requests one. A link given
+     * meanwhile wins. The system makes this correction, without an author. The last correction stays a member's
+     * (ADR 0137).
      */
     public function receiveLink(VideoCallLink $link, \DateTimeImmutable $at): void
     {
@@ -361,7 +368,8 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * Once its text retouched: its files, if any, are made conform by removing them.
+     * A member declares the exchange redacted once they have edited its text. Its files, if any, are redacted by
+     * removing them.
      *
      * @throws NothingToRedact
      */
@@ -380,7 +388,8 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * Its time come, it took place: its report replaces its agenda, its moment the one it really took place.
+     * Its time has come and it took place. Its report replaces its agenda. Its moment becomes the moment it really
+     * took place.
      *
      * @throws NotUpcoming|NotTheHolder|NotYetDue|ExchangeInTheFuture
      */
@@ -395,7 +404,7 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * Its time come, the contact did not come or answer.
+     * Its time has come, and the contact did not come or answer.
      *
      * @throws NotUpcoming|NotTheHolder|NotYetDue
      */
@@ -407,7 +416,8 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * To another moment to come, for another duration when one is given, else its own (ADR 0119).
+     * Moves the exchange to another moment to come. It takes the new duration when one is given, and keeps its own
+     * otherwise (ADR 0119).
      *
      * @throws NotUpcoming|NotTheHolder|PlannedExchangeInThePast
      */
@@ -421,7 +431,8 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * It stays in the timelines, cancelled; who called it off, the prospector or the contact, when it is said.
+     * The cancelled exchange stays in the timelines. It keeps who called it off, the prospector or the contact, when
+     * the member says so.
      *
      * @throws NotUpcoming|NotTheHolder
      */
@@ -445,7 +456,7 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * Erased from every timeline, once the repository removed it.
+     * The exchange is erased from every timeline once the repository removes it.
      */
     public function erase(MemberId $by, \DateTimeImmutable $at): void
     {
@@ -453,7 +464,8 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * Erased as no organization keeps it any more, the prospecting of the last one stopped: no member erased it.
+     * The account stopped prospecting the last organization that kept the exchange, so no organization keeps it any
+     * more. No member erased it.
      */
     public function eraseWithItsOrganization(MemberId $by, \DateTimeImmutable $at): void
     {
@@ -482,7 +494,8 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * A file of the e-mail it was imported from, its upload kept once the exchange is written (ADR 0182).
+     * Attaches a file of the e-mail the exchange was imported from. Its upload is kept once the exchange is written
+     * (ADR 0182).
      *
      * @throws NoRoomForAnAttachment
      */
@@ -507,8 +520,8 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * The account stopped prospecting this organization: kept for no organization any more, the exchange must
-     * not stay (ExchangeLeftWithoutOrganization).
+     * The account stopped prospecting this organization. An exchange that no organization keeps any more must not
+     * stay (ExchangeLeftWithoutOrganization).
      */
     public function stopKeepingFor(OrganizationId $organization, MemberId $by, \DateTimeImmutable $at): void
     {
@@ -522,8 +535,8 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * Its contact erased by PersonalData: the exchange stays in the timelines of its organizations, its text
-     * and its files to make conform (ADR 0079), its fingerprint forgotten (ADR 0166); still to come, it is cancelled,
+     * PersonalData erased its contact. The exchange stays in its organizations' timelines. Its text and its files
+     * must be redacted (ADR 0079). Its fingerprint is forgotten (ADR 0166). An exchange still to come is cancelled,
      * whoever holds it.
      */
     public function forgetItsContact(MemberId $by, \DateTimeImmutable $at): void
@@ -554,7 +567,8 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * Its contact waits to be attached: kept for no organization, its holder keeps it until then (ADR 0146).
+     * The contact who waits to be attached. No organization keeps the exchange, and its holder keeps it until then
+     * (ADR 0146).
      */
     public function contactToAttach(): ?PersonId
     {
@@ -562,7 +576,8 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * With a contact and kept for no organization: its holder keeps it while the contact waits to be attached.
+     * An exchange with a contact that no organization keeps is with a contact to attach. Its holder keeps it while
+     * the contact waits to be attached.
      */
     public static function isWithAContactToAttach(bool $withAContact, bool $keptForAnOrganization): bool
     {
@@ -570,7 +585,7 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * The moment it happens, a meeting of its contact to attach.
+     * The moment it happens. It dates a meeting with its contact to attach.
      */
     public function happensAt(): \DateTimeImmutable
     {
@@ -578,7 +593,8 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * Its contact to attach attached to an organization: the exchange is kept for it from now on (ADR 0146).
+     * A member attached its contact to an organization. From now on, that organization keeps the exchange
+     * (ADR 0146).
      */
     public function keepFor(OrganizationId $organization, MemberId $by, \DateTimeImmutable $at): void
     {
@@ -588,7 +604,7 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * Every intention starts with it: what the exchange does not offer the member now is refused.
+     * Every intention starts here. It refuses what the exchange does not offer the member now.
      *
      * @throws NoRoomForAnAttachment|NothingToRedact|NotPossibleInItsState|NotTheHolder
      */
@@ -611,7 +627,7 @@ final class Exchange implements ReleasesEvents
     }
 
     /**
-     * No longer to come, held by another member, or its time not come.
+     * The exchange is no longer to come, another member holds it, or its time has not come.
      */
     private function whyNotHandledBy(MemberId $by): NotUpcoming|NotTheHolder|NotYetDue
     {
