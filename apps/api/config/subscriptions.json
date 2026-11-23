@@ -31,7 +31,7 @@
     "context": "personal-data",
     "sources": ["prospecter.accounts"],
     "events": ["MemberRegistered.v1"],
-    "handler": "Prospecter\\Core\\PersonalData\\Application\\CollectTheMemberProfile\\CollectTheMemberProfileHandler",
+    "policy": "Prospecter\\Core\\PersonalData\\Application\\Policy\\CollectTheMemberProfilePolicy",
     "inbox": true
   },
   "personal-data-forget-contacts-left-without-organization": {
