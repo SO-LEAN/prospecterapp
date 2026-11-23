@@ -13,6 +13,6 @@ final class TwoWindowsOnADay extends BusinessRuleViolation
 {
     public static function refused(): self
     {
-        return self::because('A day holds one window at most', 'windows');
+        return self::because('A day can hold only one window', 'windows');
     }
 }

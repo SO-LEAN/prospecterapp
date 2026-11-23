@@ -13,6 +13,6 @@ final class WindowTooShort extends BusinessRuleViolation
 {
     public static function holdsNoSlot(): self
     {
-        return self::because('A window holds at least one slot of 15 minutes', 'windows');
+        return self::because('A window must last at least 15 minutes', 'windows');
     }
 }

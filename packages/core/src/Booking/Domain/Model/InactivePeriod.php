@@ -41,7 +41,7 @@ final readonly class InactivePeriod
     {
         $read = \DateTimeImmutable::createFromFormat(self::DAY, $day);
         if (false === $read || $read->format('Y-m-d') !== $day) {
-            throw BusinessRuleViolation::because('A day is written YYYY-MM-DD', $field, context: ['day' => $day]);
+            throw BusinessRuleViolation::because('A day must be a valid date in the YYYY-MM-DD format', $field, context: ['day' => $day]);
         }
     }
 }

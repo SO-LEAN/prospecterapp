@@ -8,7 +8,7 @@ Each member's booking page: when they may be booked, how, and the public link th
 - **Booking page** (`BookingPage`): one per member, identified by the member and theirs alone. The member's first action on it sets it up; until then it is closed and empty.
 - **Window** (`Window`): when the host may be booked on a day of the week (`Weekday`), from a time to a later one (`WallClockTime`, HH:MM on the host's clock).
   - Both times fall on the quarter hour (`WindowOffTheQuarterHour`).
-  - A window holds at least one 15-minute slot (`WindowTooShort`, « A window holds at least one slot of 15 minutes »).
+  - A window holds at least one 15-minute slot (`WindowTooShort`, « A window must last at least 15 minutes »).
   - There is at most one window a day (`WeeklyWindows`, `TwoWindowsOnADay`).
 - **Host time zone** (`HostTimeZone`): the IANA name of the clock the windows are set on (`UnknownTimeZone` otherwise). The slots are computed in it.
 - **Inactive period** (`InactivePeriod`): days the host may not be booked, whatever their windows. It runs from a first day to a last day, both included (YYYY-MM-DD). The last day is on or after the first (`PeriodEndsBeforeItStarts`). It has no label.
