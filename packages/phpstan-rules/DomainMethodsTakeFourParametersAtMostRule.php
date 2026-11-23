@@ -11,8 +11,8 @@ use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 
 /**
- * A public method of the domain takes four parameters at most (ADR 0191): values that go together become an argument
- * object named in the domain's words. A constructor is exempt, a value object or an aggregate listing its fields there.
+ * A public domain method takes four parameters at most (ADR 0191). Values that go together become an argument
+ * object named in the domain's words. A constructor is exempt: a value object or an aggregate lists its fields there.
  *
  * @implements Rule<ClassMethod>
  */
