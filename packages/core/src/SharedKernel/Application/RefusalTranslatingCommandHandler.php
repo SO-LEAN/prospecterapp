@@ -8,9 +8,9 @@ use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessException;
 
 /**
- * Decorates a command handler so that it refuses the way every use case refuses: the BusinessException of the
- * domain becomes a UseCaseRefused (ADR 0035), anything else goes through. The handlers stay free of error
- * handling; a client sends its commands through this decorator.
+ * Decorates a command handler so that it refuses the way every use case refuses. The domain's BusinessException
+ * becomes a UseCaseRefused (ADR 0035). Anything else goes through. So the handlers stay free of error handling. A
+ * client sends its commands through this decorator.
  */
 final readonly class RefusalTranslatingCommandHandler implements CommandHandler
 {

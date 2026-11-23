@@ -9,18 +9,18 @@ use Prospecter\Core\SharedKernel\Domain\Exception\BusinessException;
 /**
  * Port: what a use case writes, its state and what follows from it, is kept all at once or not at all.
  *
- * - A begin() within an open unit joins it: only the outermost commit() writes.
- * - A discard() after the commit() of its own level does nothing; a discard() without its commit() throws the
- *   whole unit away, whatever its level.
- * - Two writes of the same item make one, the last one wins.
- * - A refusal detected when writing is thrown by the commit(), nothing written.
+ * - A begin() inside an open unit joins it: only the outermost commit() writes.
+ * - A discard() after its own level's commit() does nothing. A discard() without its commit() throws the whole
+ *   unit away, whatever its level.
+ * - Two writes of the same item make one write: the last one wins.
+ * - The commit() throws a refusal detected while writing, and writes nothing.
  */
 interface UnitOfWork
 {
     public function begin(): void;
 
     /**
-     * @throws BusinessException a refusal detected when writing
+     * @throws BusinessException a refusal detected while writing
      */
     public function commit(): void;
 

@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Prospecter\Core\SharedKernel\Application\Port;
 
 /**
- * Port: delivers the events the aggregates recorded, released by the use case once they are saved
- * (ADR 0042). Delivered synchronously, within the use case: a refusal of a context that reacts refuses the
- * whole use case.
+ * Port: delivers the events that the aggregates recorded. The use case releases them once it saves the aggregates
+ * (ADR 0042). The port delivers them synchronously, inside the use case: when a reacting context refuses, the
+ * whole use case refuses.
  */
 interface Events
 {

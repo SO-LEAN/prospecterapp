@@ -7,8 +7,8 @@ namespace Prospecter\Core\SharedKernel\Application;
 use Prospecter\Core\SharedKernel\Application\Port\UnitOfWork;
 
 /**
- * Decorates an event handler so that what the reaction writes is kept all at once or not at all: within the
- * command that published, it joins its unit of work, and fails it when it fails.
+ * Decorates an event handler so that what the reaction writes is kept all at once or not at all. The reaction
+ * joins the unit of work of the command that published the event. When the reaction fails, the command fails too.
  */
 final readonly class TransactionalEventHandler implements EventHandler
 {

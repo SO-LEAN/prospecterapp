@@ -7,7 +7,7 @@ namespace Prospecter\Core\SharedKernel\Application;
 use Prospecter\Core\SharedKernel\Domain\File;
 
 /**
- * A stored file, as the use cases answer it.
+ * A stored file, as the use cases return it.
  */
 final readonly class FileResponse
 {
