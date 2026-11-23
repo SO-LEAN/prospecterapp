@@ -7,7 +7,7 @@ namespace Prospecter\Core\Prospecting\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
 /**
- * A to-do is due on a day of the calendar, at an hour of that day when it is said.
+ * A to-do is due on a calendar day, and at an hour of that day when one is given.
  */
 final class InvalidDue extends BusinessRuleViolation
 {

@@ -7,7 +7,7 @@ namespace Prospecter\Core\Prospecting\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
 /**
- * An exchange is planned for later: one that already happened is noted.
+ * A member plans an exchange for later, and logs one that already happened.
  */
 final class PlannedExchangeInThePast extends BusinessRuleViolation
 {

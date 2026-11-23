@@ -7,7 +7,7 @@ namespace Prospecter\Core\Prospecting\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
 /**
- * An exchange is noted once it happened.
+ * A member logs an exchange once it has happened.
  */
 final class ExchangeInTheFuture extends BusinessRuleViolation
 {

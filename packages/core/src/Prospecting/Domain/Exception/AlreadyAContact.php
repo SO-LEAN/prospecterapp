@@ -7,7 +7,7 @@ namespace Prospecter\Core\Prospecting\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 
 /**
- * The person is a contact of the organization already.
+ * The person is already a contact of the organization.
  */
 final class AlreadyAContact extends NotPossibleInItsState
 {

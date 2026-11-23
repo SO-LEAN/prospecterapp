@@ -7,7 +7,8 @@ namespace Prospecter\Core\Prospecting\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 
 /**
- * An exchange is noted in a campaign only while it is led: neither prepared, nor stopped, nor ended.
+ * A member logs an exchange in a campaign only while the campaign runs. A campaign in preparation, stopped or ended
+ * takes no exchange.
  */
 final class CampaignNotRunning extends NotPossibleInItsState
 {

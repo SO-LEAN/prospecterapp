@@ -7,7 +7,7 @@ namespace Prospecter\Core\Prospecting\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
 /**
- * Another organization of the account has a website of the same domain already: one domain, one organization.
+ * Another organization of the account already has a website on the same domain. A domain designates one organization.
  */
 final class WebsiteAlreadyUsed extends BusinessRuleViolation
 {

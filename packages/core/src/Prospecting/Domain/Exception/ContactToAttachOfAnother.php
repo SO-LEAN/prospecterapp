@@ -7,7 +7,8 @@ namespace Prospecter\Core\Prospecting\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotAllowed;
 
 /**
- * A contact to attach is the member's who met them until attached: a colleague neither plans nor notes with them.
+ * A contact to attach belongs to the member who met them until someone attaches them. A colleague neither plans nor
+ * logs anything with them.
  */
 final class ContactToAttachOfAnother extends NotAllowed
 {

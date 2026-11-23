@@ -7,7 +7,7 @@ namespace Prospecter\Core\Prospecting\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
 /**
- * Another organization of the account has the link already: one reference, one organization.
+ * Another organization of the account already has the link. A reference designates one organization.
  */
 final class ReferenceAlreadyUsed extends BusinessRuleViolation
 {

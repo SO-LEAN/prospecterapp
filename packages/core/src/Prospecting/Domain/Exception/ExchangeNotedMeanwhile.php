@@ -7,8 +7,8 @@ namespace Prospecter\Core\Prospecting\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 
 /**
- * Two notings of the same exchange at once: the second one, refused by the safety net of NotedOnce, does not know the
- * exchange noted first (ADR 0166).
+ * The same exchange was logged twice at once. `NotedOnce`'s safety net refuses the second one, which does not know
+ * the exchange logged first (ADR 0166).
  */
 final class ExchangeNotedMeanwhile extends NotPossibleInItsState
 {
