@@ -38,7 +38,7 @@ final readonly class TakeContactTagOffController
     #[OA\Response(response: 200, description: 'The contact\'s tags now', content: new Model(type: ContactTagsResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 404, description: 'Not a contact of my account (`unknownContact`), or a tag the contact does not carry (`tagNotCarried`)', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 404, description: 'Not a contact of my account (`unknownContact`), or a tag the contact does not have (`tagAbsent`)', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $id, string $tag, #[CurrentUser] User $user): JsonResponse
     {
         $this->commandBus->dispatch(new TakeOffTag(memberId: $user->memberId(), holder: TagRoutes::Contact->value, holderId: $id, tag: $tag, executedAt: $this->clock->now()));

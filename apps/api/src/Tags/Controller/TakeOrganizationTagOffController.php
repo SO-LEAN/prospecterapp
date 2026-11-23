@@ -41,7 +41,7 @@ final readonly class TakeOrganizationTagOffController
     #[OA\Response(response: 200, description: 'The organization\'s tags now', content: new Model(type: TagsResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 404, description: 'Unknown organization, an organization of another account, or a tag the organization does not carry', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 404, description: 'Unknown organization, an organization of another account, or a tag the organization does not have (`tagAbsent`)', content: new Model(type: ProblemResource::class))]
     public function __invoke(OrganizationSheet $organization, string $tag, #[CurrentUser] User $user): JsonResponse
     {
         $this->commandBus->dispatch(new TakeOffTag(memberId: $user->memberId(), holder: TagRoutes::Organization->value, holderId: $organization->id, tag: $tag, executedAt: $this->clock->now()));

@@ -9150,7 +9150,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Not a contact of my account (`unknownContact`), or a tag the contact does not carry (`tagNotCarried`) */
+            /** @description Not a contact of my account (`unknownContact`), or a tag the contact does not have (`tagAbsent`) */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -9198,7 +9198,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown organization, an organization of another account, or a tag the organization does not carry */
+            /** @description Unknown organization, an organization of another account, or a tag the organization does not have (`tagAbsent`) */
             404: {
                 headers: {
                     [name: string]: unknown;
