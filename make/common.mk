@@ -56,6 +56,10 @@ NODE = $(DC) --progress quiet run --rm --no-deps $(ON_THE_CLOCK) -w $(WORKDIR) n
 # functions by its absolute path
 export PROJECT_DIR := $(ROOT)
 
+# $(call timed,<step>,<command>): the command, then how long its step took, so that a slow preparation shows its
+# slowest step; it fails when the command fails
+timed = { started=$$(date +%s); { $(2); }; status=$$?; echo "Time/$(1): $$(($$(date +%s) - started)) s"; test $$status -eq 0; }
+
 .DEFAULT_GOAL := help
 .PHONY: help ministack ministack-test
 
