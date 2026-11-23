@@ -8,8 +8,9 @@ use Prospecter\Core\Prospecting\Domain\Model\Establishment;
 use Prospecter\Core\Prospecting\Domain\Port\EstablishmentDirectory;
 
 /**
- * The public directory of the companies as the scenarios see it: the establishments they declare, in the order they
- * declare them, found by a name their own contains, whatever its case; not answering a while, as a scenario says.
+ * The public company directory as the scenarios see it. It holds the establishments they declare, in the order
+ * they declare them. It finds an establishment when its name contains the name searched, whatever the case. It
+ * stops answering for a while when a scenario says so.
  */
 final class KnownEstablishmentsDirectory implements EstablishmentDirectory
 {

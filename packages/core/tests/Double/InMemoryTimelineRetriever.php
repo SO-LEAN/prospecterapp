@@ -26,9 +26,10 @@ use Prospecter\Core\SharedKernel\Domain\Origin;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Reads the exchanges the in-memory repository saved, as the adapter reads the items of the table: a timeline
- * ordered by the moment the exchanges are listed at (`ExchangeChronology`) then their identity, the most recent first until the moment of the
- * reading, the soonest first after it, its cursor the moment and the identity of the last exchange of the slice.
+ * Reads the exchanges that the in-memory repository saved, as the adapter reads the table's items. The timeline
+ * sorts them by the moment they are listed at (`ExchangeChronology`), then by their id. Up to the reading moment,
+ * the most recent comes first. After it, the soonest comes first. The cursor is the slice's last exchange: its
+ * moment and its id.
  */
 final readonly class InMemoryTimelineRetriever implements TimelineRetriever
 {
@@ -82,8 +83,6 @@ final readonly class InMemoryTimelineRetriever implements TimelineRetriever
     }
 
     /**
-     * Those after the moment.
-     *
      * @param list<Exchange> $exchanges
      *
      * @return list<Exchange>
@@ -150,7 +149,7 @@ final readonly class InMemoryTimelineRetriever implements TimelineRetriever
     }
 
     /**
-     * The soonest first, after the cursor.
+     * Lists the upcoming exchanges after the cursor, the soonest first.
      *
      * @param array<Exchange>                        $exchanges
      * @param \Closure(Exchange): ExchangeInTimeline $read
@@ -210,7 +209,7 @@ final readonly class InMemoryTimelineRetriever implements TimelineRetriever
     }
 
     /**
-     * @param list<Exchange> $slice shorter than the exchanges listed
+     * @param list<Exchange> $slice holds fewer exchanges than the list
      */
     private static function lastOf(array $slice): Exchange
     {

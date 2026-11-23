@@ -30,7 +30,7 @@ use Prospecter\Core\SharedKernel\Domain\Origin;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Reads the exchanges the in-memory repository saved, as the adapter reads the items of the table.
+ * Reads the exchanges that the in-memory repository saved, as the adapter reads the table's items.
  */
 final readonly class InMemoryExchangeDetailRetriever implements ExchangeDetailRetriever
 {

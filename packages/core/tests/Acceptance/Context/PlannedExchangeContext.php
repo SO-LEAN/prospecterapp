@@ -24,8 +24,8 @@ use Tests\Core\Double\State;
 use Tests\Core\Double\StateOf;
 
 /**
- * What a prospector does of a planned exchange, "cette visio" of the scenarios, the last one planned: marked done
- * or missed, moved, cancelled.
+ * What a prospector does with a planned exchange: mark it done or missed, move it, or cancel it. In the scenarios,
+ * "cette visio" is the last exchange planned.
  */
 final class PlannedExchangeContext implements Context
 {
@@ -100,7 +100,7 @@ final class PlannedExchangeContext implements Context
     }
 
     /**
-     * The state of the exchange as it is stored.
+     * The exchange's state as it is stored.
      */
     private function planned(): State
     {
@@ -118,7 +118,7 @@ final class PlannedExchangeContext implements Context
     }
 
     /**
-     * A step telling what was done before arranges the scenario: refused, the scenario is wrong.
+     * A step that tells what was done before arranges the scenario. When the step is refused, the scenario is wrong.
      */
     private function expectAcceptedWhen(string $step, string $arranging): void
     {

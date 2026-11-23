@@ -11,8 +11,8 @@ use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
 use Tests\Core\Acceptance\Expect;
 
 /**
- * The link Google Meet the calendar of the member creates for a video call planned asking for one (ADR 0137): « la
- * visio » of the scenarios is the last exchange planned, read again as its detail shows it.
+ * The Google Meet link that the member's calendar creates for a video call planned with a link request (ADR 0137).
+ * In the scenarios, « la visio » is the last exchange planned, read again as its detail shows it.
  */
 final class VideoCallLinkContext implements Context
 {

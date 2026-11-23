@@ -15,8 +15,8 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\Siret;
 
 /**
- * Reads the organizations the in-memory repository saved by what designates them in their account, as the adapter
- * reads the reservations the repository writes.
+ * Reads the organizations that the in-memory repository saved, by the keys that designate them in their account.
+ * The adapter reads the reservations that the repository writes in the same way.
  */
 final readonly class InMemoryDesignatedOrganizationRetriever implements DesignatedOrganizationRetriever
 {

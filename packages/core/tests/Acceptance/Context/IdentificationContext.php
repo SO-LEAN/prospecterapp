@@ -19,7 +19,7 @@ use Prospecter\Core\Prospecting\Application\IdentifyOrganizations\OrganizationCl
 use Tests\Core\Acceptance\Expect;
 
 /**
- * The AI gives organizations and persons as it sees them: each is known, new, or to confirm among candidates.
+ * The AI gives organizations and persons as it sees them. Each one is known, new, or to confirm among candidates.
  */
 final class IdentificationContext implements Context
 {

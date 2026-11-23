@@ -20,8 +20,8 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * A contact to attach is erased from the start of the 30th day after their last meeting, on the clock that meeting
- * was given in, and every intention records its event (ADR 0146).
+ * A contact to attach is erased from the start of the 30th day after their last meeting, on that meeting's clock.
+ * Every intention records its event (ADR 0146).
  */
 final class ContactToAttachTest extends TestCase
 {

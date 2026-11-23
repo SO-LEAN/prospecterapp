@@ -15,8 +15,9 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Reads the exchanges the in-memory repository saved, as the adapter reads the calendar of a prospector: those they
- * hold, whatever their status, happening in the period, by their moment then their id.
+ * Reads the exchanges that the in-memory repository saved, as the adapter reads a prospector's calendar. The
+ * calendar holds the exchanges the prospector holds that happen in the period, whatever their status. It sorts
+ * them by their moment, then by their id.
  */
 final readonly class InMemoryCalendarRetriever implements CalendarRetriever
 {

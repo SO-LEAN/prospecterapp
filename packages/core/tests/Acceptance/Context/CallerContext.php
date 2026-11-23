@@ -14,7 +14,7 @@ use Prospecter\Core\Prospecting\Application\RecognizeCallingOrganization\Recogni
 use Tests\Core\Acceptance\Expect;
 
 /**
- * A call comes in: the organizations I prospect and my contacts having its number, asked to each context.
+ * A call comes in. Each context tells which of my prospected organizations and of my contacts have its number.
  */
 final class CallerContext implements Context
 {

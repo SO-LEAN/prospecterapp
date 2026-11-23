@@ -25,7 +25,7 @@ use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 
 /**
- * The to-dos of the contacts and of the organizations: « elle » of the scenarios is the last one noted.
+ * The contacts' and the organizations' to-dos. In the scenarios, « elle » is the last to-do logged.
  */
 final class ToDoContext implements Context
 {
@@ -35,7 +35,7 @@ final class ToDoContext implements Context
 
     private ?string $lastNoted = null;
     private string $lastNotedFor = '';
-    /** @var array<string, string> the to-dos noted, by their text */
+    /** @var array<string, string> the to-dos logged, by their text */
     private array $noted = [];
     /** @var list<ToDoInList>|null */
     private ?array $mine = null;
@@ -216,7 +216,7 @@ final class ToDoContext implements Context
     }
 
     /**
-     * The last one noted, as the list of its contact or of its organization reads it.
+     * The last to-do logged, as its contact's or its organization's list reads it.
      */
     private function stored(): ?ToDoInList
     {

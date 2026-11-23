@@ -31,8 +31,8 @@ use Tests\Core\Double\InMemoryDatabase;
 use Tests\Core\Double\InMemoryOrganizationRepository;
 
 /**
- * The reading of an organization tells what its state offers, and the aggregate refuses a call it does not:
- * an intention must be refused exactly when the policy does not offer it (ADR 0088).
+ * An organization's reading tells what its state offers. The aggregate refuses a call that the state does not
+ * offer. So an intention must be refused exactly when the policy does not offer it (ADR 0088).
  */
 class OrganizationIntentsTest extends TestCase
 {
@@ -118,7 +118,7 @@ class OrganizationIntentsTest extends TestCase
     }
 
     /**
-     * No other organization: every contact the organization lets go is left alone.
+     * No other organization names the contacts. So every contact the organization lets go is left alone.
      */
     private function orphans(): OrphanContacts
     {

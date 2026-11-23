@@ -16,14 +16,14 @@ use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 
 /**
- * The day of the signed-in prospector, on their dashboard: what they planned today, then the next exchanges to come.
- * An exchange is told by its channel and its hour: « l'appel de 9h00 ».
+ * The signed-in prospector's day, on their dashboard: what they planned today, then the next upcoming exchanges.
+ * A scenario names an exchange by its channel and its hour: « l'appel de 9h00 ».
  */
 final class MyDayContext implements Context
 {
     use SharesTheScenario;
 
-    /** The channels as a sentence names one exchange shown through them. */
+    /** The channels, as a sentence names one exchange made through them. */
     private const array SHOWN = [
         "l'appel" => 'call',
         'le rendez-vous' => 'meeting',
@@ -34,7 +34,7 @@ final class MyDayContext implements Context
 
     private ?MyDay $myDay = null;
 
-    /** @var list<\DateTimeImmutable> the meetings planned the days after, the soonest first */
+    /** @var list<\DateTimeImmutable> the meetings planned on the following days, the soonest first */
     private array $meetingsToCome = [];
 
     #[Given('/^j\'ai planifié avec "(?<contact>[^"]+)" un appel le (?<callDay>\S+) à (?<callTime>\S+), une visio le (?<videoCallDay>\S+) à (?<videoCallTime>\S+) et (?<meetings>\d+) rendez-vous les jours suivants$/')]
@@ -102,7 +102,8 @@ final class MyDayContext implements Context
     }
 
     /**
-     * Planned the day before, so that it is to come when planned whatever the moment of the scenario.
+     * The exchange is planned the day before. So it is still to come when it is planned, whatever the scenario's
+     * moment.
      */
     private function plan(string $contact, string $channel, \DateTimeImmutable $plannedAt): void
     {

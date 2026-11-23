@@ -16,8 +16,8 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Reads the exchanges the in-memory repository saved, as the adapter reads their items, and the agenda of a holder
- * as it reads its links: those still planned, by their moment then their id.
+ * Reads the exchanges that the in-memory repository saved, as the adapter reads their items. It reads a holder's
+ * agenda as the adapter reads its links: the exchanges still planned, sorted by their moment then their id.
  */
 final readonly class InMemoryHeldExchangeRetriever implements HeldExchangeRetriever
 {

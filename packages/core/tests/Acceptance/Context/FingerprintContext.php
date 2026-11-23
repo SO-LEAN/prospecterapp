@@ -22,7 +22,8 @@ use Tests\Core\Acceptance\Vocabulary;
 use Tests\Core\Double\StateOf;
 
 /**
- * The exchanges an AI notes once only, recognized by their fingerprint, whoever noted them first (ADR 0166).
+ * An AI logs each exchange only once. Prospecter recognizes it by its fingerprint, whoever logged it first
+ * (ADR 0166).
  */
 final class FingerprintContext implements Context
 {

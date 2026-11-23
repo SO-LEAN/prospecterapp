@@ -9,8 +9,8 @@ use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\SharedKernel\Domain\GeoPoint;
 
 /**
- * The organizations the in-memory repository saved with a position and without their municipality, as the adapter
- * scans the items of the table.
+ * The organizations that the in-memory repository saved with a position but without a municipality. The adapter
+ * scans the table's items for them.
  */
 final readonly class InMemoryOrganizationsToLocateAgainRetriever implements OrganizationsToLocateAgainRetriever
 {

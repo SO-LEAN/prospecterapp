@@ -31,7 +31,7 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\Core\Double\StateOf;
 
 /**
- * Every intention of a to-do is refused exactly when its state does not offer it, and records its event.
+ * A to-do refuses each intention exactly when its state does not offer it. Each intention records its event.
  */
 final class ToDoTest extends TestCase
 {

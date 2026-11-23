@@ -17,8 +17,8 @@ use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 
 /**
- * What a client knows of a contact or an organization Prospecter knows already: what is empty is completed, what is
- * noted stays (ADR 0177).
+ * What a client knows about a contact or an organization that Prospecter already knows. The empty fields get
+ * filled. The recorded values stay (ADR 0177).
  */
 final class CompletionContext implements Context
 {

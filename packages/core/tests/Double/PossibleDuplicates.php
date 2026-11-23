@@ -9,8 +9,8 @@ use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
- * The organizations an organization is suspected of being a duplicate of, by their name, as it keeps them: one no
- * longer prospected named by its identity, so that a suspicion the core forgot to lift shows.
+ * The organizations that an organization may duplicate, by their names, as the organization keeps them. An
+ * organization no longer prospected is named by its id, so that a suspicion the core forgot to lift shows.
  */
 final class PossibleDuplicates
 {

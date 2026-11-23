@@ -18,7 +18,7 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Reads the to-dos the in-memory repository saved, as the adapter reads them, without their getters.
+ * Reads the to-dos that the in-memory repository saved, as the adapter reads them, without their getters.
  */
 final readonly class InMemoryToDoListRetriever implements ToDoListRetriever
 {

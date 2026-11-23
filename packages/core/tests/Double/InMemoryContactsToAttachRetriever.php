@@ -12,8 +12,8 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * The contacts to attach the repository saved, read without their getters, as the DynamoDB retriever reads their
- * items.
+ * The contacts to attach that the repository saved, read without their getters. The DynamoDB retriever reads
+ * their items in the same way.
  */
 final readonly class InMemoryContactsToAttachRetriever implements ContactsToAttachRetriever
 {
