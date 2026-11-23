@@ -11,10 +11,10 @@ use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 
 /**
- * Reacts to each change of an exchange by reading it again as it is now, whatever the order the changes arrive in
- * (ADR 0127): planned, it is pushed into the calendar of its holder; cancelled or erased, it is withdrawn from it;
- * done or missed, it stays there as it was. The bus gives it only the facts of the exchanges planned, cancelled or
- * erased.
+ * Reacts to each change to an exchange. It reads the exchange again as it is now, whatever the order the changes
+ * arrive in (ADR 0127). A planned exchange is pushed into its holder's calendar. A cancelled or erased exchange is
+ * withdrawn from it. A done or missed exchange stays there as it was. The bus passes only the facts of exchanges that
+ * are planned, cancelled or erased.
  */
 final readonly class PushExchangeHandler implements EventHandler
 {
