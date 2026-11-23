@@ -11,9 +11,9 @@ use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 
 /**
- * An organization no longer prospected takes its exchanges along: those still kept for another organization
- * are saved, each of the others left to its own reaction, that erases it (EraseExchangeLeftWithoutOrganization,
- * ADR 0074): one transaction holds a bounded number of writes.
+ * An organization that is no longer prospected takes its exchanges along. Those still kept for another organization
+ * are saved. Each of the others is left to its own reaction, which erases it (EraseExchangeLeftWithoutOrganization,
+ * ADR 0074), because one transaction holds a bounded number of writes.
  */
 final readonly class StopKeepingExchangesHandler implements EventHandler
 {
