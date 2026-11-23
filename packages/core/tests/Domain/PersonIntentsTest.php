@@ -26,9 +26,9 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 /**
- * Like the organizations and the accounts: a person refuses a change exactly when the policy does not offer it
- * (ADR 0088), which offers it to the person themself, or to a member with the right for a person their account
- * prospects.
+ * A person refuses a change exactly when the policy does not offer it, like organizations and accounts do (ADR
+ * 0088). The policy offers it to the person themself. It also offers it to a member with the right, for a person
+ * their account prospects.
  */
 class PersonIntentsTest extends TestCase
 {
@@ -86,7 +86,8 @@ class PersonIntentsTest extends TestCase
     }
 
     /**
-     * Suspected without a member, what it recorded let go: only the dismissal is judged.
+     * Flags the person as a possible duplicate and discards the events this records. The test then judges the
+     * dismissal only.
      */
     private function suspectedDuplicateOf(Person $person): PersonId
     {

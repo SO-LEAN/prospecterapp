@@ -17,8 +17,9 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Anticorruption layer of the API, in the scenarios (ADR 0045, 0089): Connectors learns who of the account an address
- * designates, a contact from PersonalData, an organization from Prospecting, each asked about a set of one (ADR 0154).
+ * The API's anticorruption layer, in the scenarios (ADR 0045, 0089). Connectors learns whom an address designates
+ * in the account. PersonalData gives the contact, and Prospecting gives the organization. Each one is asked about a
+ * set of one (ADR 0154).
  */
 final readonly class PersonalDataAndProspectingCorrespondents implements Correspondents
 {

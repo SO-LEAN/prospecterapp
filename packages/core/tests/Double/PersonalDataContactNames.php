@@ -15,8 +15,8 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 /**
- * Anticorruption layer of the API, in the scenarios (ADR 0045, 0089): Connectors names a contact as the member reads
- * them, from PersonalData, asked about a set of one (ADR 0127).
+ * The API's anticorruption layer, in the scenarios (ADR 0045, 0089). Connectors names a contact as the member reads
+ * them in PersonalData. It asks about a set of one (ADR 0127).
  */
 final readonly class PersonalDataContactNames implements ContactNames
 {

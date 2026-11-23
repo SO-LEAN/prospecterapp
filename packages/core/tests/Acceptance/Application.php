@@ -1286,7 +1286,7 @@ final class Application
     }
 
     /**
-     * Gives each contact left unattached its erasure, as the schedule of the platform does.
+     * Erases each contact left unattached, as the platform's schedule does.
      */
     public function eraseContactsLeftUnattached(): void
     {

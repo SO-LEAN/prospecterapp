@@ -15,7 +15,8 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Anticorruption layer of the API, in the scenarios (ADR 0045, 0089): PersonalData knows readers, Accounts publishes its members.
+ * The API's anticorruption layer, in the scenarios (ADR 0045, 0089). PersonalData knows readers, and Accounts
+ * publishes its members.
  */
 final readonly class AccountsReaders implements Readers
 {

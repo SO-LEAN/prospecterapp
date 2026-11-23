@@ -134,7 +134,7 @@ final class Vocabulary
         'administrateur' => 'ROLE_ADMIN',
     ];
 
-    /** The civilities as a table names them, by their value in the requests. */
+    /** The titles as a table names them, by their value in the requests. */
     private const array CIVILITIES = [
         'Madame' => 'ms',
         'Monsieur' => 'mr',
@@ -186,8 +186,8 @@ final class Vocabulary
     }
 
     /**
-     * Unknown when left out; a civility the scenarios do not know is given as it is written, for the use case to
-     * refuse it.
+     * A title left out is unknown. A title that the scenarios do not know is given as it is written, so that the use
+     * case refuses it.
      */
     public static function civility(?string $label): string
     {
@@ -418,7 +418,7 @@ final class Vocabulary
     }
 
     /**
-     * How a contact is reached, as the facts of PersonalData say it: "téléphone, mobile".
+     * How a contact is reached, as PersonalData's facts say it: "téléphone, mobile".
      */
     public static function describeReach(?bool $email, ?bool $phone, ?bool $mobile, ?bool $linkedIn): string
     {

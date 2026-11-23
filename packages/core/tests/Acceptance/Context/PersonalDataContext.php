@@ -41,7 +41,7 @@ use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 
 /**
- * The persons of the scenarios read and changed through PersonalData: who sees them in clear, masked, or not
+ * The scenarios' persons, read and changed through PersonalData. A member sees them unmasked, masked, or not
  * at all.
  */
 final class PersonalDataContext implements Context
@@ -103,7 +103,8 @@ final class PersonalDataContext implements Context
     }
 
     /**
-     * Noted as it is, whether another contact noted it too or not: as before the references were unique.
+     * Logs the link as it is, even when another contact has it too. This is how links were logged before they were
+     * unique.
      */
     #[Given(':name a noté le lien :address')]
     public function aPersonWithTheLink(string $name, string $address): void
@@ -150,7 +151,7 @@ final class PersonalDataContext implements Context
     }
 
     /**
-     * The name between quotes, as a table would lose the spaces at the ends of its cells.
+     * The name is written between quotes, because a table would lose the spaces at its cells' ends.
      */
     #[When('j\'enregistre le contact :name pour :organization en le nommant :firstName :lastName')]
     public function iCollectAContactNamed(string $name, string $organization, string $firstName, string $lastName): void
@@ -198,7 +199,8 @@ final class PersonalDataContext implements Context
     }
 
     /**
-     * As the worker may deliver it once more, or after a client attached the contact meanwhile (ADR 0177).
+     * The worker may deliver the event once more. A client may also have attached the contact in the meantime (ADR
+     * 0177).
      */
     #[When('la collecte de :name est délivrée une fois de plus')]
     public function theCollectionIsDeliveredAgain(string $name): void
@@ -227,7 +229,8 @@ final class PersonalDataContext implements Context
     }
 
     /**
-     * As the API composes them: Campaigns finds the contacts carrying the tags, PersonalData reads them.
+     * Composes the two contexts as the API does. Campaigns finds the contacts that carry the tags, and PersonalData
+     * reads them.
      */
     #[When('je cherche mes contacts tagués :tags')]
     public function iSearchMyContactsTagged(string $tags): void
@@ -321,7 +324,7 @@ final class PersonalDataContext implements Context
     }
 
     /**
-     * Both ways, as the reaction leaves them.
+     * Flags both contacts, as the reaction does.
      */
     #[Given('le contact :name a été signalé comme doublon possible de :other')]
     public function theContactWasSuspected(string $name, string $other): void
@@ -361,7 +364,7 @@ final class PersonalDataContext implements Context
     }
 
     /**
-     * Read on their card, by the member signed in.
+     * The signed-in member reads them on the contact's card.
      *
      * @return list<string>
      */
