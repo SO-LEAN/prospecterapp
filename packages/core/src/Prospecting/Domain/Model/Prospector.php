@@ -30,7 +30,7 @@ final readonly class Prospector
     public function ensureMayExchangeWithTheContacts(): void
     {
         if (!$this->managesPersonalData) {
-            throw PersonalDataManagersOnly::because('Only a prospector allowed to manage personal data may exchange with the contacts');
+            throw PersonalDataManagersOnly::because('Only a prospector allowed to manage personal data can exchange with contacts');
         }
     }
 }

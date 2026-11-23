@@ -19,7 +19,7 @@ Fonctionnalité: Télécharger une pièce jointe d'un échange
   Scénario: Sans le droit aux données personnelles, les pièces jointes sont cachées
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
     Quand je télécharge "planning.xlsx"
-    Alors c'est refusé : "Only a prospector allowed to manage personal data may exchange with the contacts"
+    Alors c'est refusé : "Only a prospector allowed to manage personal data can exchange with contacts"
 
   Scénario: Sans le droit aux données personnelles, le détail ne montre que le nombre de pièces jointes
     Soit "devis.pdf" est joint à cet échange
