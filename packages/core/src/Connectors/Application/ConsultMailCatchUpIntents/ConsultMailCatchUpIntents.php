@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Connectors\Application\ConsultMailCatchUpIntents;
 
 /**
- * Whether I may catch up the e-mails my mailbox exchanged with a contact, or with an organization itself, without
- * reading anything of it: the card offers it only then.
+ * Whether I may reimport the e-mails that my mailbox exchanged with a contact, or with an organization itself. This
+ * query reads no e-mail. The card offers the reimport only when it is possible.
  */
 final readonly class ConsultMailCatchUpIntents
 {
