@@ -39,8 +39,8 @@ final class DismissRecipientController extends AbstractController
     #[OA\Response(response: 204, description: 'Dismissed')]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 404, description: 'Unknown campaign or of another account, or no recipient of it', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 409, description: 'The campaign is not started, or the recipient is handled already', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 404, description: 'Unknown campaign or a campaign of another account, or not one of its recipients', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 409, description: 'The campaign is not started, or the recipient is already handled', content: new Model(type: ProblemResource::class))]
     public function __invoke(CampaignSheet $campaign, string $contactId, #[MapRequestPayload] DismissalInput $input, #[CurrentUser] User $user): Response
     {
         $this->commandBus->dispatch(new DismissRecipient(memberId: $user->memberId(), campaignId: $campaign->id, contactId: $contactId, reason: $input->reason, executedAt: $this->clock->now()));
