@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\ConsultOrganizationToDos;
 
 /**
- * The to-dos kept for an organization, for it or for its contacts, those to do then those done.
+ * Reads the to-dos kept for an organization, for the organization itself or for its contacts. The to-dos still to do
+ * come first, then those done.
  */
 final readonly class ConsultOrganizationToDos
 {
