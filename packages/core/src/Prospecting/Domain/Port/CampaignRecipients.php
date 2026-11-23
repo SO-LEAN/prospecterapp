@@ -10,13 +10,13 @@ use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Port: a contact as a campaign of the account keeps them. Campaigns keeps the campaigns, Prospecting never sees
- * them; the API answers through an anticorruption adapter (ADR 0045, 0145).
+ * Port: a contact as one of the account's campaigns keeps them. Campaigns keeps the campaigns, and Prospecting never
+ * sees them. The API answers through an anticorruption adapter (ADR 0045, 0145).
  */
 interface CampaignRecipients
 {
     /**
-     * None when the account has no campaign of this identity.
+     * Returns null when the account has no campaign with this identity.
      */
     public function recipientIn(CampaignId $campaign, PersonId $contact, AccountId $accountId): ?RecipientInCampaign;
 }

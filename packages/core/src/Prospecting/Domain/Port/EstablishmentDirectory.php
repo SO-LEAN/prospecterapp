@@ -7,8 +7,8 @@ namespace Prospecter\Core\Prospecting\Domain\Port;
 use Prospecter\Core\Prospecting\Domain\Model\Establishment;
 
 /**
- * The public directory of the companies: their establishments, found by a name that resembles theirs, as the directory
- * judges it, the closest first.
+ * The public company directory. It finds companies' establishments by a name that resembles theirs, as the directory
+ * judges it. The closest come first.
  */
 interface EstablishmentDirectory
 {
@@ -20,7 +20,7 @@ interface EstablishmentDirectory
     public function named(string $name): array;
 
     /**
-     * Those of a municipality, by its INSEE code.
+     * The establishments in a municipality, given by its INSEE code.
      *
      * @return list<Establishment>
      *

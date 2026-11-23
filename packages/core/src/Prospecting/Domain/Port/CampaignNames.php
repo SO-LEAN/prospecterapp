@@ -8,8 +8,8 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\CampaignId;
 
 /**
- * Port: the names of campaigns of the account, as Campaigns names them now, an exchange keeping only the identity of
- * its campaign (ADR 0145).
+ * Port: the names of the account's campaigns, as Campaigns names them now. An exchange keeps only its campaign's
+ * identity (ADR 0145).
  */
 interface CampaignNames
 {
