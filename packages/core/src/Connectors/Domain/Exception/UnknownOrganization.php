@@ -15,6 +15,6 @@ final class UnknownOrganization extends NotFound
 {
     public static function withId(OrganizationId $id): self
     {
-        return new self(sprintf('Unknown organization %s', $id->value));
+        return new self(sprintf('Organization %s not found', $id->value));
     }
 }

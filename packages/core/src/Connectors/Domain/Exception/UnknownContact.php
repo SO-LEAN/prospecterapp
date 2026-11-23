@@ -15,6 +15,6 @@ final class UnknownContact extends NotFound
 {
     public static function withId(ContactId $id): self
     {
-        return new self(sprintf('Unknown contact %s', $id->value));
+        return new self(sprintf('Contact %s not found', $id->value));
     }
 }
