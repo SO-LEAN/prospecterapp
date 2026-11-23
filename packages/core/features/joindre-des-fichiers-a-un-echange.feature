@@ -27,7 +27,7 @@ Fonctionnalité: Joindre des fichiers à un échange
 
   Scénario: Un fichier trop lourd est refusé
     Quand je joins un fichier "video.mp4" de 11 Mo à cet échange
-    Alors c'est refusé : "An attachment weighs 10 MB at most"
+    Alors c'est refusé : "An attachment can weigh at most 10 MB"
 
   Scénario: Un fichier de 10 Mo est accepté
     Quand je joins un fichier "photos.zip" de 10 Mo à cet échange
@@ -37,7 +37,7 @@ Fonctionnalité: Joindre des fichiers à un échange
   Scénario: Un échange a 10 pièces jointes au plus
     Soit 10 fichiers sont joints à cet échange
     Quand je joins "un-de-trop.pdf" à cet échange
-    Alors c'est refusé : "An exchange holds 10 attachments at most"
+    Alors c'est refusé : "An exchange can hold at most 10 attachments"
 
   Scénario: Un envoi est joint une seule fois
     Soit "planning.xlsx" est joint à cet échange
