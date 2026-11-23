@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Accounts\Application\RelocateMyOrganization;
 
 /**
- * Moves my organization to an address; an address without any part erases it.
+ * Moves my organization to an address. An address without any part erases it.
  */
 final readonly class RelocateMyOrganization
 {

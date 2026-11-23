@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Accounts\Contract\Event;
 
 /**
- * An organization opened its account (ADR 0046): its founder is its first member, under the profile named.
+ * An organization opened its account (ADR 0046). Its founder is its first member, under the profile the event names.
  */
 final readonly class AccountOpened
 {

@@ -8,7 +8,7 @@ use Prospecter\Core\SharedKernel\Domain\Event\DomainEvent;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * A member changed whether and how long before a planned exchange they are reminded of it.
+ * A member changed whether they are reminded of their planned exchanges, and how long before.
  */
 final readonly class RemindersChanged extends DomainEvent
 {

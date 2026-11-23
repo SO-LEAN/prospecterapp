@@ -7,8 +7,8 @@ namespace Prospecter\Core\Accounts\Domain\Policy;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 
 /**
- * Who reads and manages the personal data PersonalData keeps (ADR 0031): a member with the right to, or an
- * administrator. Asked by the member and by its reading (ADR 0088).
+ * Who reads and manages the personal data that PersonalData keeps (ADR 0031): a member with this right, or an
+ * administrator. The member and the member's read model both ask this policy (ADR 0088).
  */
 final class PersonalDataRight
 {

@@ -16,8 +16,8 @@ use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 
 /**
- * Aggregate root: a person working in an account, with their roles. Their personal data live in PersonalData,
- * under their person id (ADR 0031); signing in, with a login email, is the business of authentication (ADR 0032).
+ * Aggregate root: a person who works in an account, with their roles. Their personal data live in PersonalData,
+ * under their person id (ADR 0031). Authentication handles signing in with a login email (ADR 0032).
  */
 final class Member implements ReleasesEvents
 {
@@ -43,8 +43,8 @@ final class Member implements ReleasesEvents
     }
 
     /**
-     * An administrator registers a colleague in their account, under a profile of their own, with the roles they
-     * work with; every member signs in.
+     * An administrator registers a colleague in their account. The colleague gets a profile of their own and the
+     * roles they work with. Every member has the right to sign in.
      *
      * @throws AdministratorsOnly
      * @throws MemberWithoutRole
@@ -73,7 +73,7 @@ final class Member implements ReleasesEvents
     /**
      * @param list<Role> $roles
      *
-     * @return list<Role> the roles given and the right to sign in, each once, in the order of the roles
+     * @return list<Role> the given roles and the right to sign in, each once, in the order of `Role`'s cases
      */
     private static function signingInWith(array $roles): array
     {
@@ -81,7 +81,7 @@ final class Member implements ReleasesEvents
     }
 
     /**
-     * The member chooses for themselves whether and how long before a planned exchange they are reminded of it.
+     * The member chooses whether they are reminded of their planned exchanges, and how long before.
      */
     public function changeReminders(Reminders $reminders, \DateTimeImmutable $at): void
     {

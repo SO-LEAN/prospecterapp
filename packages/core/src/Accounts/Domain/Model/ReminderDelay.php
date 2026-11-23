@@ -7,7 +7,7 @@ namespace Prospecter\Core\Accounts\Domain\Model;
 use Prospecter\Core\Accounts\Domain\Exception\ReminderDelayNotOffered;
 
 /**
- * How long before a planned exchange a member is reminded of it, among the delays offered.
+ * How long before a planned exchange a member is reminded of it. It is one of the offered delays.
  */
 enum ReminderDelay: int
 {

@@ -7,7 +7,7 @@ namespace Prospecter\Core\Accounts\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
 /**
- * A reminder comes at one of the delays offered, never another.
+ * A reminder comes at one of the offered delays, never at another one.
  */
 final class ReminderDelayNotOffered extends BusinessRuleViolation
 {

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Accounts\Contract\Service\ListAccounts;
 
 /**
- * The service Accounts offers the other contexts (ADR 0045, 0089): it refuses nothing.
+ * The service that Accounts offers the other contexts (ADR 0045, 0089). It refuses nothing.
  */
 interface ListAccountsService
 {

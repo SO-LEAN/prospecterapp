@@ -11,7 +11,7 @@ use Prospecter\Core\Accounts\Domain\Repository\MemberRepository;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 
 /**
- * The founder of an account is its first member, with every role.
+ * An account's founder is its first member and has every role.
  */
 final readonly class RegisterTheFounderHandler implements EventHandler
 {

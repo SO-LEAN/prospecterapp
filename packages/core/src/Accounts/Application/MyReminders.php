@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Accounts\Application;
 
 /**
- * Whether I am reminded of the exchanges I planned, and how many minutes before.
+ * Whether I am reminded of my planned exchanges, and how many minutes before.
  */
 final readonly class MyReminders
 {

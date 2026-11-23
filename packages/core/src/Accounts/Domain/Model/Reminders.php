@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Accounts\Domain\Model;
 
 /**
- * Whether a member is reminded of the exchanges they planned, and how long before; turned off, the delay is kept for
- * when they turn them on again.
+ * Whether a member is reminded of their planned exchanges, and how long before. When the member turns their reminders
+ * off, the delay stays for when they turn them on again.
  */
 final readonly class Reminders
 {

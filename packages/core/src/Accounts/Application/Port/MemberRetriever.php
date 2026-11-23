@@ -8,8 +8,8 @@ use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\MemberResponse;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * Reads members as the other contexts know them (ADR 0045, 0047, 0089) without restoring them (ADR 0088), with
- * their right to read the personal data (`PersonalDataRight`).
+ * Reads members as the other contexts know them (ADR 0045, 0047, 0089), without restoring them (ADR 0088). Each
+ * member comes with their right to read the personal data (`PersonalDataRight`).
  */
 interface MemberRetriever
 {
