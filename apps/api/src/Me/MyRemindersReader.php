@@ -10,8 +10,8 @@ use Prospecter\Core\Accounts\Application\ConsultMyReminders\ConsultMyReminders;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 
 /**
- * My reminders as the API shows them; a controller calls it after a command, which returns nothing, to answer with
- * the fresh resource.
+ * Reads my reminders as the API shows them. A command returns nothing, so a controller calls this reader after a
+ * command to answer with the fresh resource.
  */
 final readonly class MyRemindersReader
 {

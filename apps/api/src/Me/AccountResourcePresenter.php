@@ -21,9 +21,9 @@ use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPersonOutput;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 
 /**
- * My account composed of my membership (Accounts) and my profile (PersonalData), with a link per intention
- * they offer me. What I sign in with lives in the user pool (`/api/me/sign-in`). Built for one call with my
- * membership, it presents my profile and keeps the resource (ADR 0085).
+ * Presents my account: my membership (Accounts) and my profile (PersonalData), with one link per intent that they
+ * offer me. What I sign in with lives in the user pool (`/api/me/sign-in`). Each call builds this presenter with my
+ * membership. The presenter then presents my profile and keeps the resource (ADR 0085).
  */
 final class AccountResourcePresenter implements ConsultPersonOutput
 {
@@ -42,7 +42,7 @@ final class AccountResourcePresenter implements ConsultPersonOutput
     public private(set) AccountResource $resource;
 
     /**
-     * The links to the gestures of the team, by the role their controller requires.
+     * The links to the team's gestures, with the role that each controller requires.
      */
     private const array TEAM_ROUTES = [
         'campaigns' => ['api_campaigns_list', User::PERSONAL_DATA],
@@ -95,8 +95,8 @@ final class AccountResourcePresenter implements ConsultPersonOutput
     }
 
     /**
-     * @param list<string>                         $intents names of the possible intentions
-     * @param array<string, array{string, string}> $routes  link name and route by intent
+     * @param list<string>                         $intents the possible intents' names
+     * @param array<string, array{string, string}> $routes  the link's name and route, by intent
      *
      * @return list<array{string, string}>
      */

@@ -21,14 +21,14 @@ final readonly class ChangeMyContactDetailsTool
     }
 
     /**
-     * @param ?string      $email       their e-mail
+     * @param ?string      $email       their email
      * @param ?string      $phoneNumber their phone number, international (+33 3 88 11 22 33) or national in France (03 88 11 22 33)
-     * @param ?string      $language    the country of the language they speak (FR, GB…)
-     * @param list<string> $links       the addresses of their pages on the tools outside (their profile on LinkedIn or Malt, any other site), five at most
+     * @param ?string      $language    the country code of the language they speak (FR, GB…)
+     * @param list<string> $links       the addresses of their pages on outside tools (their LinkedIn or Malt profile, any other site), five at most
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'update-my-contact-details', description: 'Change the e-mail, phone number, language and links of the member in their profile; what is left out is removed. Answers their account.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
+    #[McpTool(name: 'update-my-contact-details', description: 'Change the member\'s email, phone number, language and links in their profile. Anything left out is removed. Returns their account.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
     public function __invoke(?string $email = null, ?string $phoneNumber = null, ?string $language = null, array $links = []): array
     {
         return $this->writes->write(

@@ -11,7 +11,7 @@
                 "tags": [
                     "My account"
                 ],
-                "summary": "Change my email, phone number, language and links, nothing else changes",
+                "summary": "Change my email, phone number, language and links. Nothing else changes.",
                 "operationId": "patch_api_me_change_contact_details",
                 "requestBody": {
                     "required": true,
@@ -65,7 +65,7 @@
                 "tags": [
                     "My account"
                 ],
-                "summary": "Change my first and last names, nothing else changes",
+                "summary": "Change my first and last names. Nothing else changes.",
                 "operationId": "patch_api_me_change_name",
                 "requestBody": {
                     "required": true,
@@ -119,7 +119,7 @@
                 "tags": [
                     "My account"
                 ],
-                "summary": "Send the new logo of my organization (multipart, field \"file\")",
+                "summary": "Send my organization's new logo (multipart, field \"file\")",
                 "operationId": "post_api_me_change_organization_logo",
                 "requestBody": {
                     "content": {
@@ -237,7 +237,7 @@
                 "tags": [
                     "My account"
                 ],
-                "summary": "Consult whether and how long before a planned exchange I am reminded of it, ten minutes before by default",
+                "summary": "Get whether I am reminded of my planned exchanges, and how long before. The default is ten minutes before.",
                 "operationId": "get_api_me_reminders",
                 "responses": {
                     "200": {
@@ -269,7 +269,7 @@
                 "tags": [
                     "My account"
                 ],
-                "summary": "Turn my reminders of the exchanges I planned on or off, and choose how long before they come: 0, 5, 10, 15, 30 or 60 minutes",
+                "summary": "Turn the reminders of my planned exchanges on or off, and choose how long before they come: 0, 5, 10, 15, 30 or 60 minutes",
                 "operationId": "patch_api_me_change_reminders",
                 "requestBody": {
                     "required": true,
@@ -306,7 +306,7 @@
                         }
                     },
                     "422": {
-                        "description": "A delay not offered",
+                        "description": "Delay not offered",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -323,7 +323,7 @@
                 "tags": [
                     "My account"
                 ],
-                "summary": "Move my organization to an address (located again), the start of the routes to the organizations; an empty address removes it",
+                "summary": "Move my organization to an address and locate it again. The routes to the organizations start there. An empty address removes it.",
                 "operationId": "patch_api_me_relocate_organization",
                 "requestBody": {
                     "required": true,
@@ -377,7 +377,7 @@
                 "tags": [
                     "My account"
                 ],
-                "summary": "Revise the legal identity of my organization",
+                "summary": "Revise my organization's legal identity",
                 "operationId": "patch_api_me_revise_organization_identity",
                 "requestBody": {
                     "required": true,
@@ -431,7 +431,7 @@
                 "tags": [
                     "My account"
                 ],
-                "summary": "Consult my account and my organization",
+                "summary": "Get my account and my organization",
                 "operationId": "get_api_me_show",
                 "responses": {
                     "200": {

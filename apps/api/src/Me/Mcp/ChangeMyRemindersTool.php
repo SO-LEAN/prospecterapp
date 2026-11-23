@@ -38,7 +38,7 @@ final readonly class ChangeMyRemindersTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'update-my-reminders', description: 'Turn the reminders of the member on or off, and say how long before their exchanges and to-dos they are reminded. Answers their reminders.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
+    #[McpTool(name: 'update-my-reminders', description: 'Turn the member\'s reminders on or off, and set how long before their exchanges and to-dos the reminders come. Returns their reminders.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
     public function __invoke(bool $enabled, int $minutesBefore): array
     {
         $this->access->denyUnlessGranted('ROLE_USER');
@@ -46,8 +46,8 @@ final readonly class ChangeMyRemindersTool
         $memberId = $this->access->member()->memberId();
         $this->commandBus->dispatch(new ChangeMyReminders(
             memberId: $memberId,
-            enabled: $input->enabled ?? throw new \LogicException('Reminders validated are on or off'),
-            minutesBefore: $input->minutesBefore ?? throw new \LogicException('Reminders validated have their delay'),
+            enabled: $input->enabled ?? throw new \LogicException('Validated reminders are either on or off'),
+            minutesBefore: $input->minutesBefore ?? throw new \LogicException('Validated reminders have a delay'),
             executedAt: $this->clock->now(),
         ));
 

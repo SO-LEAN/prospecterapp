@@ -8,7 +8,7 @@ use App\Shared\Resource\LinkResource;
 use OpenApi\Attributes as OA;
 
 /**
- * One link per intention the signed-in user may carry out on their account now; absent when they may not.
+ * One link per intent that the signed-in user may carry out on their account now. A link is absent when they may not.
  */
 final readonly class AccountLinksResource
 {
@@ -26,7 +26,7 @@ final readonly class AccountLinksResource
         public ?LinkResource $changeMyOrganizationLogo = null,
         #[OA\Property(nullable: false)]
         public ?LinkResource $relocateMyOrganization = null,
-        #[OA\Property(description: 'The campaigns of my team, with the right to manage personal data', nullable: false)]
+        #[OA\Property(description: 'My team\'s campaigns. The link needs the right to manage personal data.', nullable: false)]
         public ?LinkResource $campaigns = null,
     ) {
     }

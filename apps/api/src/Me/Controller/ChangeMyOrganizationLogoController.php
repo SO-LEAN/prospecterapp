@@ -36,7 +36,7 @@ final class ChangeMyOrganizationLogoController extends AbstractController
     }
 
     #[Route('/api/me/organization/logo', name: 'api_me_change_organization_logo', methods: ['POST'])]
-    #[OA\Post(summary: 'Send the new logo of my organization (multipart, field "file")')]
+    #[OA\Post(summary: 'Send my organization\'s new logo (multipart, field "file")')]
     #[OA\Response(response: 200, description: 'My account', content: new Model(type: AccountResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'The signed-in user is not a user', content: new Model(type: ProblemResource::class))]

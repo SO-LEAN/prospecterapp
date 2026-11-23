@@ -14,7 +14,7 @@ use Prospecter\Core\PersonalData\Application\ChangePersonPicture\ChangePersonPic
 use Symfony\Component\HttpFoundation\File\File;
 
 /**
- * `POST /api/me/picture`, for an AI (ADR 0163), the image given by its address on the web (ADR 0168).
+ * `POST /api/me/picture`, for an AI (ADR 0163). The AI gives the image's web address (ADR 0168).
  */
 #[Adapts('api_me_change_picture')]
 final readonly class ChangeMyPictureTool
@@ -24,11 +24,11 @@ final readonly class ChangeMyPictureTool
     }
 
     /**
-     * @param string $url the address on the web of their picture, a JPEG, PNG or WebP image of 2 MB at most, downloaded by Prospecter without following a redirect
+     * @param string $url their picture's web address: a JPEG, PNG or WebP image of 2 MB at most. Prospecter downloads it without following a redirect.
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'set-my-picture', description: 'Give the member a new picture in their profile by the address of its image on the web, which Prospecter downloads and keeps. Answers their account.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true))]
+    #[McpTool(name: 'set-my-picture', description: 'Give the member a new profile picture from the image\'s web address. Prospecter downloads and keeps the image. Returns their account.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true))]
     public function __invoke(string $url): array
     {
         $this->writes->writable();
