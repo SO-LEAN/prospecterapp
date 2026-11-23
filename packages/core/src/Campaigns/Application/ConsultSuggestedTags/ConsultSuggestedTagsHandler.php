@@ -15,9 +15,9 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * The tags proposed to the account of the member: the predefined ones, then those its organizations and contacts
- * carry; a tag nothing carries any more is no longer proposed (ADR 0138); and the automatic tags to search by: those of
- * how a contact is reached, then the geographic tags of its organizations (ADR 0142).
+ * The tags proposed to the member's account: the predefined tags, then the tags its organizations and contacts carry. A
+ * tag that nothing carries any more is no longer proposed (ADR 0138). It also proposes the automatic tags to search by:
+ * the tags for how a contact is reached, then its organizations' geographic tags (ADR 0142).
  */
 final readonly class ConsultSuggestedTagsHandler implements QueryHandler
 {
@@ -37,7 +37,7 @@ final readonly class ConsultSuggestedTagsHandler implements QueryHandler
     }
 
     /**
-     * @return list<string> those of where its organizations are, once each, in the order of their names
+     * @return list<string> the tags for where its organizations are, once each, sorted by name
      */
     private function geographicTagsIn(AccountId $accountId): array
     {
