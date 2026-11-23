@@ -52,7 +52,7 @@ Fonctionnalité: Commencer à prospecter une organisation
     Quand je commence à prospecter l'organisation :
       | raison sociale | ACME                |
       | e-mail         | contact@globex.test |
-    Alors c'est refusé : "Email already used"
+    Alors c'est refusé : "This e-mail address is already in use"
 
   Scénario: L'e-mail peut être celui d'une organisation prospectée par un autre compte
     Soit l'organisation "Concurrent" qui utilise Prospecter
@@ -95,7 +95,7 @@ Fonctionnalité: Commencer à prospecter une organisation
     Quand je commence à prospecter l'organisation :
       | raison sociale | ACME                                     |
       | liens          | https://www.linkedin.com/in/ada-lovelace |
-    Alors c'est refusé : "A page of linkedInProfile designates a person"
+    Alors c'est refusé : "A linkedInProfile page designates a person"
     Et l'organisation "SOLEAN IT" compte 0 organisation active
 
   Scénario: L'organisation peut faire partie d'une holding que je prospecte

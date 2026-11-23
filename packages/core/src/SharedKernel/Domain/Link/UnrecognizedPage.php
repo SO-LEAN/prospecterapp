@@ -14,6 +14,6 @@ final class UnrecognizedPage extends BusinessRuleViolation
 {
     public static function on(string $host): self
     {
-        return self::because(sprintf('This page of %s is none of the pages it designates a person or an organization by', $host), 'links', context: ['host' => $host]);
+        return self::because(sprintf('Prospecter does not recognize this %s page as a person\'s or an organization\'s page', $host), 'links', context: ['host' => $host]);
     }
 }

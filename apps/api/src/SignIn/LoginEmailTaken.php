@@ -11,6 +11,6 @@ final class LoginEmailTaken extends \DomainException
 {
     public function __construct()
     {
-        parent::__construct('Email already used');
+        parent::__construct('This e-mail address is already in use');
     }
 }

@@ -14,6 +14,6 @@ final class ReferenceOfAnotherKind extends BusinessRuleViolation
 {
     public static function from(KnownSource $source): self
     {
-        return self::because(sprintf('A page of %s designates %s', $source->value, Designated::Person === $source->designates() ? 'a person' : 'an organization'), 'links', context: ['source' => $source->value, 'designates' => $source->designates()->value]);
+        return self::because(sprintf('A %s page designates %s', $source->value, Designated::Person === $source->designates() ? 'a person' : 'an organization'), 'links', context: ['source' => $source->value, 'designates' => $source->designates()->value]);
     }
 }

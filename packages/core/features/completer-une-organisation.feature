@@ -73,7 +73,7 @@ Fonctionnalité: Compléter une organisation sans rien écraser
       | e-mail | contact@acme.fr |
     Quand je complète l'organisation "ACME" :
       | e-mail | contact@acme.fr |
-    Alors c'est refusé : "Email already used"
+    Alors c'est refusé : "This e-mail address is already in use"
 
   Scénario: Rien à compléter, rien ne change
     Soit l'organisation "Initech" fait partie de mes organisations avec :

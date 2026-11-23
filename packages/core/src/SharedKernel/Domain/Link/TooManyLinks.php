@@ -13,6 +13,6 @@ final class TooManyLinks extends BusinessRuleViolation
 {
     public static function beyond(int $max): self
     {
-        return self::because(sprintf('%d links at most', $max), 'links', context: ['max' => (string) $max]);
+        return self::because(sprintf('There can be at most %d links', $max), 'links', context: ['max' => (string) $max]);
     }
 }

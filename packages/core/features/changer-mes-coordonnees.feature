@@ -39,7 +39,7 @@ Fonctionnalité: Changer mes coordonnées
       | e-mail | grace@solean-it.test |
     Quand je change mes coordonnées :
       | e-mail | grace@solean-it.test |
-    Alors c'est refusé : "Email already used"
+    Alors c'est refusé : "This e-mail address is already in use"
     Et mon compte est enregistré avec :
       | e-mail | ada@solean-it.test |
 

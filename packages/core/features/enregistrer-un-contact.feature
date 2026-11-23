@@ -52,7 +52,7 @@ Fonctionnalité: Enregistrer un contact
     Quand j'enregistre le contact "Grace Hopper" pour "ACME" :
       | prénom | Grace         |
       | e-mail | ada@acme.test |
-    Alors c'est refusé : "Email already used"
+    Alors c'est refusé : "This e-mail address is already in use"
     Et les contacts de "ACME" sont :
       | Ada Lovelace |
 

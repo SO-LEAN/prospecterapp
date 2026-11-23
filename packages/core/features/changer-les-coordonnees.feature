@@ -38,14 +38,14 @@ Fonctionnalité: Changer les coordonnées d'une organisation
       | e-mail | contact@globex.test |
     Quand je change les coordonnées de "ACME" :
       | e-mail | contact@globex.test |
-    Alors c'est refusé : "Email already used"
+    Alors c'est refusé : "This e-mail address is already in use"
 
   Scénario: L'e-mail d'une autre organisation l'est quelle que soit sa casse
     Soit l'organisation "Globex" fait partie de mes organisations avec :
       | e-mail | contact@globex.test |
     Quand je change les coordonnées de "ACME" :
       | e-mail | Contact@GLOBEX.test |
-    Alors c'est refusé : "Email already used"
+    Alors c'est refusé : "This e-mail address is already in use"
 
   Scénario: Sans raison sociale, l'e-mail ne peut pas être effacé
     Soit l'organisation sans raison sociale "contact@globex.test" fait partie de mes organisations
@@ -72,11 +72,11 @@ Fonctionnalité: Changer les coordonnées d'une organisation
 
   Scénario: Une source connue ne désigne qu'un genre
     Quand j'ajoute à "ACME" le lien "https://www.malt.fr/profile/adalovelace"
-    Alors c'est refusé : "A page of malt designates a person"
+    Alors c'est refusé : "A malt page designates a person"
 
   Scénario: Une page d'une source connue qu'elle ne reconnaît pas est refusée
     Quand j'ajoute à "ACME" le lien "https://www.linkedin.com/school/acme"
-    Alors c'est refusé : "This page of linkedin.com is none of the pages it designates a person or an organization by"
+    Alors c'est refusé : "Prospecter does not recognize this linkedin.com page as a person's or an organization's page"
 
   Scénario: Une référence ne désigne qu'une organisation du compte
     Soit "ACME Lyon" fait partie de mes organisations avec le lien "https://www.welcometothejungle.com/fr/companies/acme"
@@ -99,7 +99,7 @@ Fonctionnalité: Changer les coordonnées d'une organisation
   Scénario: Une organisation a cinq liens au plus
     Quand je change les coordonnées de "ACME" :
       | liens | https://a.test/acme https://b.test/acme https://c.test/acme https://d.test/acme https://e.test/acme https://f.test/acme |
-    Alors c'est refusé : "5 links at most"
+    Alors c'est refusé : "There can be at most 5 links"
 
   Scénario: Un domaine ne désigne qu'une organisation du compte
     Soit l'organisation "ACME Lyon" fait partie de mes organisations avec :
