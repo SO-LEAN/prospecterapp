@@ -10,8 +10,7 @@ use Prospecter\Core\SharedKernel\Domain\SearchKeys;
 use Prospecter\Core\SharedKernel\Domain\Slice;
 
 /**
- * Reads the identities of the accounts the in-memory repository saved, as the adapter reads the items of the
- * table.
+ * Reads the ids of the accounts that the in-memory repository saved, as the adapter reads the table's items.
  */
 final readonly class InMemoryAccountListRetriever implements AccountListRetriever
 {

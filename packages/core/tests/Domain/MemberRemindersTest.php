@@ -17,7 +17,7 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * A member is reminded at one of the delays offered, and a change of their reminders records what happened.
+ * A member is reminded at one of the offered delays. A change to their reminders records what happened.
  */
 final class MemberRemindersTest extends TestCase
 {

@@ -20,7 +20,7 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Like the organizations: the account refuses an intention exactly when the policy does not offer it (ADR 0088).
+ * The account refuses an intent exactly when the policy does not offer it, as an organization does (ADR 0088).
  */
 class AccountIntentsTest extends TestCase
 {

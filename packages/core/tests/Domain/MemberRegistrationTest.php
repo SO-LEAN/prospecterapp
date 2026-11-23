@@ -16,7 +16,7 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Only an administrator registers a member, and the registration records what happened.
+ * Only an administrator registers a member. The registration records what happened.
  */
 class MemberRegistrationTest extends TestCase
 {

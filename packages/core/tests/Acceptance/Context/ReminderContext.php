@@ -14,7 +14,7 @@ use Prospecter\Core\Accounts\Domain\Model\Role;
 use Tests\Core\Acceptance\Expect;
 
 /**
- * The reminders of a member: whether and how long before a planned exchange they are warned.
+ * A member's reminders: whether they are reminded of a planned exchange, and how long before.
  */
 final class ReminderContext implements Context
 {
@@ -36,7 +36,7 @@ final class ReminderContext implements Context
     }
 
     /**
-     * As the screen does: the switch turned off, the delay as it was, for when it is turned on again.
+     * Does what the screen does: it turns the switch off and keeps the delay for when the member turns it on again.
      */
     #[When('je désactive mes rappels')]
     public function iTurnMyRemindersOff(): void
