@@ -28,3 +28,8 @@ Fonctionnalité: Proposer des canaux
     Soit ma prise de rendez-vous est active
     Quand je ne propose plus aucun canal
     Alors c'est refusé : "Booking must offer at least one channel"
+
+  Scénario: Un canal inconnu est refusé
+    Quand je propose un canal que Prospecter ne connaît pas, "fax"
+    Alors c'est refusé : "A booking page can only offer a call or a video call"
+    Et le refus nomme le canal "fax"
