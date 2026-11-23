@@ -12,7 +12,7 @@ use OpenApi\Attributes as OA;
 final readonly class ProposedOrganizationResource
 {
     public function __construct(
-        #[OA\Property(description: 'The organization of the account whose email has the domain of that of the contact; none for a public mailbox, or a domain none has')]
+        #[OA\Property(description: 'The account\'s organization whose email has the same domain as the contact\'s. There is none for a public mailbox, or for a domain no organization has')]
         public ?OrganizationProposedResource $organization,
     ) {
     }

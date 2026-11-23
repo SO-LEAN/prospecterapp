@@ -9,8 +9,8 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
 
 /**
  * The exchanges the signed-in member planned whose end has passed and that they have not handled yet, the oldest
- * first, each with who it is with and their organization, and the links handling it; the to-dos they still have to do
- * of the day of the reading and before, the most overdue first.
+ * first. Each one comes with who it is with, their organization and the links that handle it. Then come the
+ * member's open to-dos due on the day of the reading or before, the most overdue first.
  */
 final readonly class ExchangesToProcessResource
 {
@@ -21,9 +21,9 @@ final readonly class ExchangesToProcessResource
      */
     public function __construct(
         public array $items,
-        #[OA\Property(description: 'The to-dos still to do of the day of the reading, on the clock of the reader, and of the days before, the most overdue first; none without the right to manage personal data')]
+        #[OA\Property(description: 'The open to-dos due on the day of the reading, on the reader\'s clock, or on the days before, the most overdue first. There are none without the right to manage personal data')]
         public array $toDos,
-        #[OA\Property(description: 'The contacts waiting for the member, who met them, to attach them to an organization, the first erased first (ADR 0146)')]
+        #[OA\Property(description: 'The contacts the member met who wait for the member to attach them to an organization. The first to be erased comes first (ADR 0146)')]
         public array $contactsToAttach,
         #[SerializedName('_links')]
         public ExchangesToProcessLinksResource $links,

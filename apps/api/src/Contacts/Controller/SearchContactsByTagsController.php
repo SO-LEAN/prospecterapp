@@ -19,8 +19,8 @@ use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
- * The contacts carrying every tag chosen, composed by `TaggedContactsReader`. Every prospector searches by tags, tags
- * being no personal data.
+ * Searches the contacts that carry every chosen tag. `TaggedContactsReader` reads the answer. Every prospector may
+ * search by tags, because tags are not personal data.
  */
 #[OA\Tag('Contacts')]
 #[IsGranted('ROLE_PROSPECTOR')]
@@ -31,7 +31,7 @@ final class SearchContactsByTagsController extends AbstractController
     }
 
     #[Route('/api/tagged-contacts', name: 'api_contacts_search_by_tags', methods: ['GET'])]
-    #[OA\Get(summary: 'Search the contacts of my organization carrying every tag chosen, their own, inherited or automatic, counted')]
+    #[OA\Get(summary: 'Search my organization\'s contacts that carry every chosen tag, and count them. A tag may be their own, inherited or automatic')]
     #[OA\Response(response: 200, description: 'A slice of contacts, most recent first, the next one at the link next', content: new Model(type: TaggedContactListResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector', content: new Model(type: ProblemResource::class))]

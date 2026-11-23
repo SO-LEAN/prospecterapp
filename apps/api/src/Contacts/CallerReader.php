@@ -17,9 +17,10 @@ use Prospecter\Core\Prospecting\Application\RecognizeCallingOrganization\Recogni
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 
 /**
- * Who calls (ADR 0072), composed of three contexts: Prospecting tells the organizations having the number,
- * PersonalData the contacts, read in clear; Prospecting then the organizations of each contact, Campaigns its tags.
- * Each organization is read again by its id, so that it is shown with its revision (ADR 0187).
+ * Reads who calls from three contexts (ADR 0072). Prospecting gives the organizations that have the number.
+ * PersonalData gives the contacts that have it, read unmasked. Prospecting then gives each contact's organizations,
+ * and Campaigns gives their tags. The reader reads each organization again by its id, so that it shows the
+ * organization's revision (ADR 0187).
  */
 final readonly class CallerReader
 {

@@ -32,11 +32,11 @@ final class ShowOrganizationTimelineController extends AbstractController
 
     #[Route('/api/organizations/{id}/exchanges', name: 'api_organizations_timeline', requirements: ['id' => Requirement::UUID], methods: ['GET'])]
     #[IsGranted(OrganizationVoter::ACCESS, subject: 'organization')]
-    #[OA\Get(summary: 'The exchanges with the organization and with its contacts, the most recent first, each with who communicated')]
+    #[OA\Get(summary: 'List the exchanges with the organization and with its contacts, the most recent first, each with who took part')]
     #[OA\Response(response: 200, description: 'A slice of the exchanges, the next one at the link next', content: new Model(type: OrganizationTimelineResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 404, description: 'Unknown organization, or one of another account', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 404, description: 'The organization is unknown or belongs to another account', content: new Model(type: ProblemResource::class))]
     public function __invoke(OrganizationSheet $organization, #[CurrentUser] User $user, #[MapQueryString] TimelineQuery $query = new TimelineQuery()): JsonResponse
     {
         return $this->json($this->organizationTimelineReader->read($user->memberId(), $organization, $query->after));

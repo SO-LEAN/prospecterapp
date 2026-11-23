@@ -38,12 +38,12 @@ final class ChangeContactDetailsController extends AbstractController
     }
 
     #[Route('/api/contacts/{id}/contact-details', name: 'api_contacts_change_contact_details', requirements: ['id' => Requirement::UUID], methods: ['PATCH'])]
-    #[OA\Patch(summary: 'Change the email, phone number, language and links of a contact')]
+    #[OA\Patch(summary: 'Change a contact\'s email, phone number, language and links')]
     #[OA\Parameter(name: 'revision', in: 'query', description: RevisionDescription::OF_A_CHANGE)]
     #[OA\Response(response: 200, description: 'The contact', content: new Model(type: ContactResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 404, description: 'Unknown contact, or one of another account', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 404, description: 'The contact is unknown or belongs to another account', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 409, description: 'Changed since the revision sent was read', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 422, description: 'Invalid contact details, or email or link already used by another contact', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $id, #[MapRequestPayload] PersonContactDetailsInput $input, #[CurrentUser] User $user, #[MapQueryParameter(options: ['min_range' => 0], validationFailedStatusCode: 422)] ?int $revision = null): JsonResponse

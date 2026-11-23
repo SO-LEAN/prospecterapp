@@ -14,22 +14,22 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
 /**
- * A person the account prospects, in clear for a member with the right to manage personal data, masked for
- * the others (ADR 0031).
+ * A person the account prospects. A member with the right to manage personal data reads them unmasked. The others
+ * read them masked (ADR 0031).
  */
 final readonly class ContactResource
 {
     /**
-     * @param list<PossibleDuplicateOfContactResource> $possibleDuplicates the contacts of the same organization they resemble, named to a reader with the right to manage personal data only
+     * @param list<PossibleDuplicateOfContactResource> $possibleDuplicates the contacts they resemble in the same organization, named only to a reader with the right to manage personal data
      */
     public function __construct(
         public string $id,
         public PersonNameResource $name,
-        #[OA\Property(description: 'How one addresses the contact, x when unknown, read in clear like their name', enum: ['ms', 'mr', 'x'])]
+        #[OA\Property(description: 'How to address the contact, x when unknown. It is read unmasked, like their name', enum: ['ms', 'mr', 'x'])]
         public string $title,
         public ?string $jobTitle,
         public PersonContactDetailsResource $contactDetails,
-        #[OA\Property(description: 'The data are masked, but the name of a contact: the reader has no right to read personal data in clear')]
+        #[OA\Property(description: 'The data are masked, except the contact\'s name, because the reader has no right to read personal data unmasked')]
         public bool $masked,
         #[SerializedName('_links')]
         #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]
@@ -39,7 +39,7 @@ final readonly class ContactResource
         public bool $createdByAnAI,
         #[OA\Property(description: RevisionDescription::OF_A_RECORD)]
         public int $revision,
-        #[OA\Property(description: 'Until when the contact waits for the reader, who met them, to attach them to an organization (ADR 0146); absent otherwise', nullable: false)]
+        #[OA\Property(description: 'Until when the contact waits for the reader who met them to attach them to an organization (ADR 0146). Absent otherwise', nullable: false)]
         #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]
         public ?ToAttachResource $toAttach = null,
     ) {

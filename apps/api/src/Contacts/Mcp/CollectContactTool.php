@@ -39,16 +39,16 @@ final readonly class CollectContactTool
      * @param list<string> $organizationIds the ids of the organizations they work for, at least one
      * @param ?string      $firstName       their first name
      * @param ?string      $lastName        their last name
-     * @param string       $title           how one addresses them: ms, mr, or x when unknown
-     * @param ?string      $jobTitle        what they do in their organization
+     * @param string       $title           how to address them: ms, mr, or x when unknown
+     * @param ?string      $jobTitle        their job in their organization
      * @param ?string      $email           their e-mail
-     * @param ?string      $phoneNumber     their phone number, international (+33 3 88 11 22 33) or national in France (03 88 11 22 33)
-     * @param ?string      $language        the country of the language spoken with them (FR, GB…)
-     * @param list<string> $links           the addresses of their pages on the tools outside (their profile on LinkedIn or Malt, any other site), five at most
+     * @param ?string      $phoneNumber     their phone number, in international format (+33 3 88 11 22 33) or in the French national format (03 88 11 22 33)
+     * @param ?string      $language        the country of the language you speak with them (FR, GB…)
+     * @param list<string> $links           the addresses of their pages on outside tools (their LinkedIn or Malt profile, or any other site), five at most
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'create-contact', description: 'Collect a person the account prospects, as a contact of the organizations they work for (at least one); needs the right to manage the personal data. Answers the new contact.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'create-contact', description: 'Collects a person the account prospects, as a contact of the organizations they work for. Give at least one organization. It needs the right to manage personal data. It returns the new contact.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
     public function __invoke(
         array $organizationIds,
         ?string $firstName = null,

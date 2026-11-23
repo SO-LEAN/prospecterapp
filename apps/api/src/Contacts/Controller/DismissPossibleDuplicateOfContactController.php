@@ -32,11 +32,11 @@ final class DismissPossibleDuplicateOfContactController extends AbstractControll
     }
 
     #[Route('/api/contacts/{id}/possible-duplicates/{duplicateId}', name: 'api_contacts_dismiss_possible_duplicate', requirements: ['id' => Requirement::UUID, 'duplicateId' => Requirement::UUID], methods: ['DELETE'])]
-    #[OA\Delete(summary: 'Say, once checked, that the contact is no duplicate of the one they resemble; neither is flagged for the other any more')]
+    #[OA\Delete(summary: 'Say, once checked, that the contact is not a duplicate of the one they resemble. Neither of them is flagged for the other any more')]
     #[OA\Response(response: 200, description: 'The contact', content: new Model(type: ContactResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 404, description: 'Unknown contact, or one of another account', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 404, description: 'The contact is unknown or belongs to another account', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 409, description: 'The contact is not suspected of being a duplicate of this one (notASuspectedDuplicateContact)', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $id, string $duplicateId, #[CurrentUser] User $user): JsonResponse
     {

@@ -15,7 +15,7 @@ final readonly class ContactListLinksResource
         public ?LinkResource $search = null,
         #[OA\Property(nullable: false, description: 'The next slice, absent when this one is the last')]
         public ?LinkResource $next = null,
-        #[OA\Property(nullable: false, description: 'Search the contacts carrying every tag chosen, with the query parameter tags')]
+        #[OA\Property(nullable: false, description: 'Search the contacts that carry every chosen tag, with the query parameter tags')]
         public ?LinkResource $searchByTags = null,
     ) {
     }

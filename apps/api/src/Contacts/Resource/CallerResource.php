@@ -7,8 +7,8 @@ namespace App\Contacts\Resource;
 use App\Prospecting\Resource\OrganizationResource;
 
 /**
- * Who has the number calling: the organizations I prospect and my contacts having it, each with the link to
- * its card; both empty when nobody is recognized.
+ * Who has the calling number: the organizations I prospect and my contacts that have it. Each one comes with the
+ * link to its card. Both lists are empty when nobody is recognized.
  */
 final readonly class CallerResource
 {

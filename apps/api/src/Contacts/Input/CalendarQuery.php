@@ -8,20 +8,20 @@ use OpenApi\Attributes as OA;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * A period of the calendar, at the offset of its reader: the start of its first day, and the start of the day after
- * its last; and the clock of its reader, on which what is late is read (ADR 0134).
+ * A calendar period, at its reader's offset: the start of its first day, and the start of the day after its last.
+ * It also gives the reader's clock, which tells what is late (ADR 0134).
  */
 final readonly class CalendarQuery
 {
     public function __construct(
         #[Assert\NotNull]
-        #[OA\Property(format: 'date-time', description: 'The start of its first day, included')]
+        #[OA\Property(format: 'date-time', description: 'The start of the period\'s first day, included')]
         public ?\DateTimeImmutable $from = null,
         #[Assert\NotNull]
-        #[OA\Property(format: 'date-time', description: 'The start of the day after its last, excluded; six weeks after `from` at most')]
+        #[OA\Property(format: 'date-time', description: 'The start of the day after the period\'s last day, excluded. It is six weeks after `from` at most')]
         public ?\DateTimeImmutable $to = null,
         #[Assert\Timezone]
-        #[OA\Property(description: 'The time zone of the reader, by its name in the database of the time zones; the offset of `from` otherwise', example: 'Europe/Paris')]
+        #[OA\Property(description: 'The reader\'s time zone, by its name in the time zone database. Without it, the offset of `from` applies', example: 'Europe/Paris')]
         public ?string $timeZone = null,
     ) {
     }
@@ -37,7 +37,7 @@ final readonly class CalendarQuery
     }
 
     /**
-     * The moment on the clock of the reader.
+     * Gives the moment on the reader's clock.
      */
     public function read(\DateTimeImmutable $moment): \DateTimeImmutable
     {

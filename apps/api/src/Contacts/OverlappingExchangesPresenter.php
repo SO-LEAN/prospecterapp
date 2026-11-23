@@ -15,17 +15,17 @@ use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 
 /**
- * The exchanges of the signed-in member overlapping a slot, each with who it is with: the person, or the
- * organization itself. Built for one call with the persons and the organizations they are with, it keeps the
- * resource (ADR 0085).
+ * Presents the signed-in member's exchanges that overlap a slot. Each exchange names who it is with: the person, or
+ * the organization itself. One presenter serves one call. It gets the persons and the organizations the exchanges
+ * are with, and keeps the resource (ADR 0085).
  */
 final class OverlappingExchangesPresenter implements ConsultOverlappingExchangesOutput
 {
     public private(set) PlannedExchangesResource $resource;
 
     /**
-     * @param array<string, PersonCard>        $persons       the persons of the exchanges, by id
-     * @param array<string, OrganizationSheet> $organizations the organizations of the exchanges with them alone, by id
+     * @param array<string, PersonCard>        $persons       the exchanges' persons, by id
+     * @param array<string, OrganizationSheet> $organizations the organizations that exchanges are held with directly, with no contact, by id
      */
     public function __construct(
         private readonly array $persons,

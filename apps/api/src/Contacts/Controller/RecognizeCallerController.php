@@ -17,7 +17,7 @@ use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
- * Who calls (ADR 0072), composed by `CallerReader`.
+ * Recognizes who calls (ADR 0072). `CallerReader` reads the answer.
  */
 #[OA\Tag('Contacts')]
 #[IsGranted('ROLE_PROSPECTOR')]
@@ -28,8 +28,8 @@ final class RecognizeCallerController extends AbstractController
     }
 
     #[Route('/api/phone-numbers/{phoneNumber}', name: 'api_phone_numbers_recognize', methods: ['GET'])]
-    #[OA\Get(summary: 'Recognize who calls: the organizations my organization prospects and its contacts having the phone number, given in E.164 or in the national format of France; needs the right to manage personal data')]
-    #[OA\Response(response: 200, description: 'Who has the number, nobody when both lists are empty', content: new Model(type: CallerResource::class))]
+    #[OA\Get(summary: 'Recognize who calls: the organizations my organization prospects and the contacts that have the phone number. The number is in E.164 or in the French national format. This needs the right to manage personal data')]
+    #[OA\Response(response: 200, description: 'Who has the number. Both lists are empty when nobody has it', content: new Model(type: CallerResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or without the right to manage personal data', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 422, description: 'No valid phone number', content: new Model(type: ProblemResource::class))]

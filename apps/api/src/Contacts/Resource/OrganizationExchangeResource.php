@@ -7,7 +7,7 @@ namespace App\Contacts\Resource;
 use App\Prospecting\Resource\ExchangeResource;
 
 /**
- * An exchange in the timeline of an organization, and who communicated.
+ * An exchange on an organization's timeline, and who took part.
  */
 final readonly class OrganizationExchangeResource
 {

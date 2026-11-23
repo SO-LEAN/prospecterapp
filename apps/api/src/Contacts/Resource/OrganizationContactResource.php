@@ -16,7 +16,7 @@ final readonly class OrganizationContactResource
     public function __construct(
         public string $id,
         public PersonNameResource $name,
-        #[OA\Property(description: 'How one addresses the contact, x when unknown, read in clear like their name', enum: ['ms', 'mr', 'x'])]
+        #[OA\Property(description: 'How to address the contact, x when unknown. It is read unmasked, like their name', enum: ['ms', 'mr', 'x'])]
         public string $title,
         public ?string $jobTitle,
         public PersonContactDetailsResource $contactDetails,

@@ -19,8 +19,8 @@ use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 
 /**
- * The contacts of an organization, composed of two contexts (ADR 0041): Prospecting knows which persons the
- * organization has, PersonalData reads them, in clear or masked, in one batch. An erased person is left out.
+ * Reads an organization's contacts from two contexts (ADR 0041). Prospecting knows which persons the organization
+ * has. PersonalData reads them in one batch, unmasked or masked. The reader leaves an erased person out.
  */
 final readonly class OrganizationContactsReader
 {

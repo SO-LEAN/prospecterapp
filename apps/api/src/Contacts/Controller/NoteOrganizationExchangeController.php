@@ -41,13 +41,13 @@ final class NoteOrganizationExchangeController extends AbstractController
     #[Route('/api/organizations/{id}/exchanges', name: 'api_organizations_note_exchange', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
     #[IsGranted(OrganizationVoter::ACCESS, subject: 'organization')]
     #[IsGranted(User::PERSONAL_DATA)]
-    #[OA\Post(summary: 'Note a call, a message or a meeting with the organization itself, or with one of its contacts')]
-    #[OA\Response(response: 201, description: 'The timeline of the organization with the new exchange', content: new Model(type: OrganizationTimelineResource::class), headers: [new OA\Header(header: 'Location', description: 'The new exchange, to join files to it', schema: new OA\Schema(type: 'string'))])]
+    #[OA\Post(summary: 'Log a call, a message or a meeting with the organization itself, or with one of its contacts')]
+    #[OA\Response(response: 201, description: 'The organization\'s timeline with the new exchange', content: new Model(type: OrganizationTimelineResource::class), headers: [new OA\Header(header: 'Location', description: 'The new exchange, to attach files to it', schema: new OA\Schema(type: 'string'))])]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 404, description: 'Unknown organization, or one of another account', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 409, description: 'The person is no contact of the organization, or the same exchange noted at the same moment by another request', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 422, description: 'Invalid exchange: unknown channel or direction, a missed exchange that is no call, meeting or video call, a moment in the future, a Message-ID or a conversation of another channel', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 404, description: 'The organization is unknown or belongs to another account', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 409, description: 'The person is not a contact of the organization, or another request logged the same exchange at the same moment', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 422, description: 'Invalid exchange: an unknown channel or direction, a missed exchange that is not a call, meeting or video call, a moment in the future, or a Message-ID or conversation of another channel', content: new Model(type: ProblemResource::class))]
     public function __invoke(OrganizationSheet $organization, #[MapRequestPayload] OrganizationExchangeInput $input, #[CurrentUser] User $user): JsonResponse
     {
         $exchange = $input->exchange;

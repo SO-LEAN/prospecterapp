@@ -30,11 +30,11 @@ final readonly class ShowExchangesToProcessTool
     }
 
     /**
-     * @param ?string $timeZone the time zone of the member, by its name (Europe/Paris); UTC otherwise
+     * @param ?string $timeZone the member's time zone, by its name (Europe/Paris). Without it, UTC applies
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'list-exchanges-to-handle', description: 'What the member has to process: their exchanges planned, ended and left unhandled, the oldest first.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'list-exchanges-to-handle', description: 'Lists what the member has to process: their planned exchanges that have ended and are still unhandled, the oldest first.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(?string $timeZone = null): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');

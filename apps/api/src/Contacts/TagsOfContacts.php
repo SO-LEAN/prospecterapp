@@ -10,7 +10,8 @@ use Prospecter\Core\Campaigns\Application\ConsultContactTags\KeptContactTags;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 
 /**
- * The tags contacts carry, their own, inherited and automatic together, read in Campaigns in one batch (ADR 0141).
+ * Reads the tags contacts carry in Campaigns, in one batch: their own tags, the inherited ones and the automatic ones
+ * together (ADR 0141).
  */
 final readonly class TagsOfContacts
 {
@@ -21,7 +22,7 @@ final readonly class TagsOfContacts
     /**
      * @param list<string> $contactIds
      *
-     * @return array<string, list<string>> by contact id, in the order of the names of the tags
+     * @return array<string, list<string>> by contact id, ordered by tag name
      */
     public function read(string $reader, array $contactIds): array
     {

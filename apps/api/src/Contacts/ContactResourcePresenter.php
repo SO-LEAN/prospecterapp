@@ -23,9 +23,9 @@ use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\TimelineInten
 use Prospecter\Core\Prospecting\Application\ContactToAttachInList;
 
 /**
- * A contact with a link per intention the reader may carry out on it, or on its timeline, and until when they wait
- * for the reader to attach them (ADR 0146). Built for one call with what its timeline offers, it presents the person
- * and keeps the resource (ADR 0085).
+ * Presents a contact with a link per intent the reader may carry out on the contact or on their timeline. It also
+ * says until when the contact waits for the reader to attach them (ADR 0146). One presenter serves one call. It gets
+ * what the timeline offers, presents the person and keeps the resource (ADR 0085).
  */
 final class ContactResourcePresenter implements ConsultPersonOutput
 {
@@ -47,7 +47,7 @@ final class ContactResourcePresenter implements ConsultPersonOutput
     private const string CATCH_UP_ROUTE = 'api_contacts_reimport_gmail';
 
     /**
-     * @param list<string> $catchUpIntents what Connectors offers of the e-mails exchanged with the contact
+     * @param list<string> $catchUpIntents what Connectors offers to do with the e-mails exchanged with the contact
      */
     public function __construct(private readonly TimelineIntentsResponse $timeline, private readonly ?ContactToAttachInList $toAttach, private readonly array $catchUpIntents, private readonly Links $links, private readonly IntentLinks $intentLinks, private readonly PersonRevisions $revisions)
     {
@@ -71,7 +71,8 @@ final class ContactResourcePresenter implements ConsultPersonOutput
     }
 
     /**
-     * Named with a link to them, and to say, once checked, that the contact is no duplicate of them when the reader may.
+     * Names the possible duplicate with a link to them. When the reader may, it adds a link to say, once checked, that
+     * the contact is not their duplicate.
      */
     private function possibleDuplicateOf(PersonCard $contact, PossibleDuplicate $duplicate): PossibleDuplicateOfContactResource
     {
@@ -100,7 +101,7 @@ final class ContactResourcePresenter implements ConsultPersonOutput
     }
 
     /**
-     * The to-dos of a contact are read with the right to manage personal data, their text possibly holding some.
+     * Reading a contact's to-dos takes the right to manage personal data, because their text may hold some.
      *
      * @param array<string, string> $id
      *
@@ -112,8 +113,8 @@ final class ContactResourcePresenter implements ConsultPersonOutput
     }
 
     /**
-     * The organization to attach a contact waiting for the reader is proposed with the right to manage personal data,
-     * which attaching needs (ADR 0146).
+     * The organization to attach a waiting contact to is proposed only with the right to manage personal data.
+     * Attaching the contact needs that right (ADR 0146).
      *
      * @param array<string, string> $id
      *
@@ -125,8 +126,8 @@ final class ContactResourcePresenter implements ConsultPersonOutput
     }
 
     /**
-     * The e-mails exchanged with a contact are caught up with the right to manage personal data, as they are imported
-     * (ADR 0081, 0176).
+     * Catching up the e-mails exchanged with a contact takes the right to manage personal data, because it imports
+     * them (ADR 0081, 0176).
      *
      * @param array<string, string> $id
      *
@@ -138,11 +139,11 @@ final class ContactResourcePresenter implements ConsultPersonOutput
     }
 
     /**
-     * @param array<string, array{string, string}> $routes  by intent, the name of its link and its route
+     * @param array<string, array{string, string}> $routes  by intent, its link's name and its route
      * @param list<string>                         $intents
      * @param array<string, string>                $id
      *
-     * @return array<string, LinkResource> by name of link
+     * @return array<string, LinkResource> by link name
      */
     private function possible(array $routes, array $intents, array $id): array
     {

@@ -35,13 +35,13 @@ final readonly class ChangeCivilityTool
     }
 
     /**
-     * @param string $id       the id of the contact
-     * @param string $title    how one addresses the contact: ms, mr, or x when unknown
-     * @param ?int   $revision the contact's `revision` as you read it: if it changed since, the change is refused (changedMeanwhile) and you read it again
+     * @param string $id       the contact's id
+     * @param string $title    how to address the contact: ms, mr, or x when unknown
+     * @param ?int   $revision the contact's `revision` as you read it. If it changed since, the change is refused (changedMeanwhile) and you read the contact again
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'set-contact-title', description: 'Note how one addresses a contact, Ms or Mr, or that it is unknown (x); needs the right to manage the personal data. Answers the contact.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
+    #[McpTool(name: 'set-contact-title', description: 'Sets how to address a contact: Ms, Mr, or unknown (x). It needs the right to manage personal data. It returns the contact.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
     public function __invoke(string $id, string $title = 'x', ?int $revision = null): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');

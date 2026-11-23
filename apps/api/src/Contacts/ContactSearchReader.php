@@ -15,9 +15,9 @@ use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContacts;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 
 /**
- * The contacts of the account of a member, composed of three contexts: PersonalData reads a page of persons, in
- * clear or masked; Prospecting tells the organizations of each, and Campaigns the tags each carries, in one batch
- * each.
+ * Reads the contacts of a member's account from three contexts. PersonalData reads a page of persons, unmasked or
+ * masked. Prospecting gives each contact's organizations, and Campaigns gives the tags each contact carries. Each
+ * context answers in one batch.
  */
 final readonly class ContactSearchReader
 {

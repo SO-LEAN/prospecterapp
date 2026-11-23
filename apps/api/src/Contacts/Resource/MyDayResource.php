@@ -9,9 +9,9 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
 /**
- * The day of the signed-in member: the exchanges they planned today and still planned, then the next five planned
- * after it, the soonest first, each with who it is with and their organization; the search of the contacts to plan
- * with when they may plan.
+ * The signed-in member's day: the exchanges planned today that are still planned, then the next five planned after
+ * today, the soonest first. Each one comes with who it is with and their organization. When the member may plan, the
+ * day links to the search for contacts to plan an exchange with.
  */
 final readonly class MyDayResource
 {

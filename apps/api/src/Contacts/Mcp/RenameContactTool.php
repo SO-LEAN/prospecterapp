@@ -35,14 +35,14 @@ final readonly class RenameContactTool
     }
 
     /**
-     * @param string  $id        the id of the contact
+     * @param string  $id        the contact's id
      * @param ?string $firstName their first name
      * @param ?string $lastName  their last name
-     * @param ?int    $revision  the contact's `revision` as you read it: if it changed since, the change is refused (changedMeanwhile) and you read it again
+     * @param ?int    $revision  the contact's `revision` as you read it. If it changed since, the change is refused (changedMeanwhile) and you read the contact again
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'set-contact-name', description: 'Change the first and last names of a contact, nothing else changes; needs the right to manage the personal data. Answers the contact.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
+    #[McpTool(name: 'set-contact-name', description: 'Changes a contact\'s first and last names. Nothing else changes. It needs the right to manage personal data. It returns the contact.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
     public function __invoke(string $id, ?string $firstName = null, ?string $lastName = null, ?int $revision = null): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');

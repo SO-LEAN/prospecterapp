@@ -35,16 +35,16 @@ final readonly class ChangeContactDetailsTool
     }
 
     /**
-     * @param string       $id          the id of the contact
+     * @param string       $id          the contact's id
      * @param ?string      $email       their e-mail
-     * @param ?string      $phoneNumber their phone number, international (+33 3 88 11 22 33) or national in France (03 88 11 22 33)
-     * @param ?string      $language    the country of the language spoken with them (FR, GB…)
-     * @param list<string> $links       the addresses of their pages on the tools outside (their profile on LinkedIn or Malt, any other site), five at most
-     * @param ?int         $revision    the contact's `revision` as you read it: if it changed since, the change is refused (changedMeanwhile) and you read it again
+     * @param ?string      $phoneNumber their phone number, in international format (+33 3 88 11 22 33) or in the French national format (03 88 11 22 33)
+     * @param ?string      $language    the country of the language you speak with them (FR, GB…)
+     * @param list<string> $links       the addresses of their pages on outside tools (their LinkedIn or Malt profile, or any other site), five at most
+     * @param ?int         $revision    the contact's `revision` as you read it. If it changed since, the change is refused (changedMeanwhile) and you read the contact again
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'update-contact-details', description: 'Change the e-mail, phone number, language and links (their profile on LinkedIn among them) of a contact; what is left out is removed. Needs the right to manage the personal data. Answers the contact.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
+    #[McpTool(name: 'update-contact-details', description: 'Changes a contact\'s e-mail, phone number, language and links, their LinkedIn profile among them. Whatever you leave out is removed. It needs the right to manage personal data. It returns the contact.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
     public function __invoke(string $id, ?string $email = null, ?string $phoneNumber = null, ?string $language = null, array $links = [], ?int $revision = null): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');

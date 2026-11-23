@@ -31,12 +31,12 @@ final readonly class ShowOrganizationUpcomingExchangesTool
     }
 
     /**
-     * @param string  $id    the id of the organization
-     * @param ?string $after the cursor of the next slice, read in the link `next` of the slice before
+     * @param string  $id    the organization's id
+     * @param ?string $after the next slice's cursor, read in the previous slice's link `next`
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'list-organization-upcoming-exchanges', description: 'The exchanges planned with an organization and its contacts, the soonest first, by slices.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'list-organization-upcoming-exchanges', description: 'Lists the exchanges planned with an organization and its contacts, the soonest first, by slices.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $id, ?string $after = null): array
     {
         $organization = $this->organizations->read($id);

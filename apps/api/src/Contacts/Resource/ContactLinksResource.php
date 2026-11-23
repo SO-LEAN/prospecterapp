@@ -25,11 +25,11 @@ final readonly class ContactLinksResource
         public ?LinkResource $exchanges = null,
         #[OA\Property(description: 'The to-dos for the contact (ADR 0113)', nullable: false)]
         public ?LinkResource $toDos = null,
-        #[OA\Property(description: 'The tags put on the contact by hand, kept by Campaigns (ADR 0138)', nullable: false)]
+        #[OA\Property(description: 'The tags put on the contact by hand. Campaigns keeps them (ADR 0138)', nullable: false)]
         public ?LinkResource $tags = null,
-        #[OA\Property(description: 'The organization proposed to attach the contact to, while they wait for the reader to attach them, with the right to manage personal data (ADR 0146)', nullable: false)]
+        #[OA\Property(description: 'The organization proposed to attach the contact to, while they wait for the reader to attach them. It needs the right to manage personal data (ADR 0146)', nullable: false)]
         public ?LinkResource $proposedOrganization = null,
-        #[OA\Property(description: 'Reimport the e-mails the mailbox of Gmail of the reader exchanged with the contact, while its import is active and the contact has an e-mail, with the right to manage personal data', nullable: false)]
+        #[OA\Property(description: 'Reimport the e-mails that the reader\'s Gmail mailbox exchanged with the contact. It is there while the import is active and the contact has an e-mail, with the right to manage personal data', nullable: false)]
         public ?LinkResource $reimportGmail = null,
     ) {
     }

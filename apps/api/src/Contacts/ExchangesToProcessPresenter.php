@@ -25,19 +25,20 @@ use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\ToDoInList;
 
 /**
- * The exchanges of the signed-in member to process, each with who it is with: the person and their organization, or
- * the organization itself, and the links handling it; the to-dos to process they may read; the contacts they hold to
- * attach, named, and the organization proposed to attach them to with the right to manage personal data (ADR 0146).
- * Built for one call with the persons and the organizations they are with and the to-dos as the API shows them, it
- * keeps the resource (ADR 0085).
+ * Presents what the signed-in member has to process. Each exchange names who it is with: the person and their
+ * organization, or the organization itself. Each exchange also gets the links that handle it. The to-dos to process
+ * are the ones the member may read. The contacts the member holds to attach are named. With the right to manage
+ * personal data, each of them also gets the organization proposed to attach them to (ADR 0146). One presenter serves
+ * one call. It gets the persons, the organizations and the to-dos as the API shows them, and keeps the resource
+ * (ADR 0085).
  */
 final class ExchangesToProcessPresenter implements ConsultWhatIsToProcessOutput
 {
     public private(set) ExchangesToProcessResource $resource;
 
     /**
-     * @param array<string, PersonCard>                          $persons                 the persons of the exchanges and the contacts to attach, by id
-     * @param array<string, OrganizationSheet>                   $organizations           the organizations of the exchanges with them alone, by id
+     * @param array<string, PersonCard>                          $persons                 the exchanges' persons and the contacts to attach, by id
+     * @param array<string, OrganizationSheet>                   $organizations           the organizations that exchanges are held with directly, with no contact, by id
      * @param array<string, list<OrganizationOfContactResource>> $organizationsOfContacts by contact id
      * @param array<string, ToDoResource>                        $toDos                   the to-dos the member may read, by id
      */

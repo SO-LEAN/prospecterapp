@@ -44,9 +44,9 @@ final class PlanOrganizationExchangeController extends AbstractController
     #[OA\Response(response: 201, description: 'The exchanges to come with the organization, the new one among them', content: new Model(type: OrganizationTimelineResource::class), headers: [new OA\Header(header: 'Location', description: 'The new exchange', schema: new OA\Schema(type: 'string'))])]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 404, description: 'Unknown organization, or one of another account', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 409, description: 'The person is no contact of the organization', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 422, description: 'Invalid exchange: a channel that is not planned, a moment that is not in the future, a duration out of 5 minutes to 8 hours, a place for another channel than a meeting, a link for another than a video call or a link that is no web address', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 404, description: 'The organization is unknown or belongs to another account', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 409, description: 'The person is not a contact of the organization', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 422, description: 'Invalid exchange: a channel that cannot be planned, a moment that is not in the future, a duration outside 5 minutes to 8 hours, a place for a channel other than a meeting, a link for a channel other than a video call, or a link that is not a web address', content: new Model(type: ProblemResource::class))]
     public function __invoke(OrganizationSheet $organization, #[MapRequestPayload] OrganizationPlannedExchangeInput $input, #[CurrentUser] User $user): JsonResponse
     {
         $exchange = $input->exchange;
@@ -57,7 +57,7 @@ final class PlanOrganizationExchangeController extends AbstractController
             organizationId: $organization->id,
             personId: $input->personId,
             channel: $exchange->channel,
-            plannedAt: $exchange->occurredAt ?? throw new \LogicException('A planned exchange validated has its moment'),
+            plannedAt: $exchange->occurredAt ?? throw new \LogicException('A validated planned exchange has its moment'),
             durationInMinutes: $exchange->durationInMinutes,
             agenda: $exchange->text,
             place: $exchange->place,

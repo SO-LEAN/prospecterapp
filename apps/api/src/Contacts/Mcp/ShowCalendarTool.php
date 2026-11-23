@@ -30,13 +30,13 @@ final readonly class ShowCalendarTool
     }
 
     /**
-     * @param string  $from     the start of the first day of the period, with the offset of the member (2026-10-12T00:00:00+02:00)
-     * @param string  $to       the start of the day after its last, excluded; six weeks after `from` at most
-     * @param ?string $timeZone the time zone of the member, by its name (Europe/Paris); the offset of `from` otherwise
+     * @param string  $from     the start of the period's first day, with the member's offset (2026-10-12T00:00:00+02:00)
+     * @param string  $to       the start of the day after the period's last day, excluded. It is six weeks after `from` at most
+     * @param ?string $timeZone the member's time zone, by its name (Europe/Paris). Without it, the offset of `from` applies
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'get-calendar', description: 'The calendar of the member: the exchanges they hold in a period of six weeks at most, whatever their status, and those late.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'get-calendar', description: 'Gets the member\'s calendar: the exchanges they hold in a period of six weeks at most, whatever their status. It also says which ones are late.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $from, string $to, ?string $timeZone = null): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');

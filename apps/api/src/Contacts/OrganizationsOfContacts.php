@@ -13,7 +13,7 @@ use Prospecter\Core\Prospecting\Application\ConsultOrganizationsOfContacts\Organ
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 
 /**
- * The organizations of contacts, read in Prospecting in one batch and presented with a link to each.
+ * Reads the contacts' organizations in Prospecting, in one batch, and presents each one with a link to it.
  */
 final readonly class OrganizationsOfContacts
 {
@@ -37,7 +37,7 @@ final readonly class OrganizationsOfContacts
     }
 
     /**
-     * The organizations of one contact, none for a contact the reader does not reach.
+     * Gives one contact's organizations. A contact the reader does not reach has none.
      */
     public function ofOne(string $reader, string $contactId): OrganizationsOfContactResource
     {

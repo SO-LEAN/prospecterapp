@@ -31,11 +31,11 @@ final class ShowMyDayController extends AbstractController
     }
 
     #[Route('/api/me/day', name: 'api_me_day', methods: ['GET'])]
-    #[OA\Get(summary: 'The day of the signed-in member: the exchanges they planned today, then the next five to come')]
-    #[OA\Response(response: 200, description: 'The exchanges of the day still planned, then the next ones, the soonest first', content: new Model(type: MyDayResource::class))]
+    #[OA\Get(summary: 'Get the signed-in member\'s day: the exchanges they planned today, then the next five to come')]
+    #[OA\Response(response: 200, description: 'The day\'s exchanges that are still planned, then the next ones, the soonest first', content: new Model(type: MyDayResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 422, description: 'Invalid day: a bound missing, an end before the start', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 422, description: 'Invalid day: a missing bound, or an end before the start', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[CurrentUser] User $user, #[MapQueryString(validationFailedStatusCode: Response::HTTP_UNPROCESSABLE_ENTITY, mapWhenEmpty: true)] PeriodQuery $day): JsonResponse
     {
         return $this->json($this->agendaReader->readMyDay($user->memberId(), $day->start(), $day->end(), $this->clock->now()));

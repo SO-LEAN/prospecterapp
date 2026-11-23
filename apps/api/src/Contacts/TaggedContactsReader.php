@@ -17,9 +17,9 @@ use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 
 /**
- * The contacts carrying every tag chosen, composed of three contexts: Campaigns finds them and counts them,
- * PersonalData reads them, in clear or masked, Prospecting tells the organizations of each and Campaigns the tags
- * each carries, in one batch each.
+ * Reads the contacts that carry every chosen tag, from three contexts. Campaigns finds them and counts them.
+ * PersonalData reads them, unmasked or masked. Prospecting gives each contact's organizations, and Campaigns gives the
+ * tags each contact carries. Each context answers in one batch.
  */
 final readonly class TaggedContactsReader
 {
@@ -34,8 +34,8 @@ final readonly class TaggedContactsReader
     }
 
     /**
-     * @param list<string> $chosen the names of the tags, without their mark
-     * @param string       $tags   the tags chosen, as the query names them
+     * @param list<string> $chosen the tags' names, without their mark
+     * @param string       $tags   the chosen tags, as the query names them
      */
     public function search(string $memberId, array $chosen, string $tags, ?string $after): TaggedContactListResource
     {
@@ -56,7 +56,7 @@ final readonly class TaggedContactsReader
     /**
      * @param list<string> $contactIds
      *
-     * @return list<PersonCard> in their order, those PersonalData no longer reads left out
+     * @return list<PersonCard> in their order, without those PersonalData no longer reads
      */
     private function read(string $reader, array $contactIds): array
     {

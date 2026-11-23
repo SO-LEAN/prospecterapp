@@ -10,7 +10,7 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
 /**
- * A slice of the contacts carrying every tag chosen, and how many carry them in all.
+ * A slice of the contacts that carry every chosen tag, and how many carry them in all.
  */
 final readonly class TaggedContactListResource
 {
@@ -19,7 +19,7 @@ final readonly class TaggedContactListResource
      */
     public function __construct(
         public array $items,
-        #[OA\Property(description: 'How many contacts carry every tag chosen, in all the slices', example: 12)]
+        #[OA\Property(description: 'How many contacts carry every chosen tag, across all the slices', example: 12)]
         public int $found,
         #[SerializedName('_links')]
         #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => true])]
