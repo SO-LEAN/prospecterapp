@@ -38,7 +38,7 @@ Fonctionnalité: L'empreinte d'un échange
 
   Scénario: Une référence d'un autre canal est refusée
     Quand l'IA note le SMS reçu de "Ada Lovelace" le 18/11/2026 à 9h12 de Message-ID "<abc@acme.fr>"
-    Alors c'est refusé : "Only a message of the channel email has a messageId"
+    Alors c'est refusé : "Only a message sent by email can have a messageId"
     Et "Ada Lovelace" a 0 échanges
 
   Scénario: Un échange noté à la main n'est pas renoté par l'IA
