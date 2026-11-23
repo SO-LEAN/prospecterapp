@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Prospecter\Core\Connectors\Application\ImportMail;
 
 use Prospecter\Core\Connectors\Contract\Event\EmailExchanged;
-use Prospecter\Core\Connectors\Domain\Event\MailboxMessageAdded;
 use Prospecter\Core\Connectors\Domain\Model\Connection;
 use Prospecter\Core\Connectors\Domain\Model\Correspondent;
 use Prospecter\Core\Connectors\Domain\Model\MailboxAttachment;
@@ -15,17 +14,19 @@ use Prospecter\Core\Connectors\Domain\Port\Correspondents;
 use Prospecter\Core\Connectors\Domain\Port\ProviderMailbox;
 use Prospecter\Core\Connectors\Domain\Repository\ConnectionRepository;
 use Prospecter\Core\Connectors\Domain\Repository\ProviderClientRepository;
-use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Domain\Contact\Email;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * A message was added to a member's mailbox. It may be received from a contact or from the address of an
  * organization of their account. Or the member may have sent it to them in « To ». Then the other contexts are told
- * of it once per correspondent, with its subject and its text (ADR 0154). This reaction publishes it, and no domain
+ * of it once per correspondent, with its subject and its text (ADR 0154). This use case publishes it, and no domain
  * event carries the text. Any other message imports nothing, and so does an unknown correspondent.
  */
-final readonly class ImportMailHandler implements EventHandler
+final readonly class ImportMailHandler implements CommandHandler
 {
     private const string RECEIVED = 'inbound';
     private const string SENT = 'outbound';
@@ -39,28 +40,28 @@ final readonly class ImportMailHandler implements EventHandler
     ) {
     }
 
-    public function __invoke(MailboxMessageAdded $added): void
+    public function __invoke(ImportMail $command): void
     {
-        $connection = $this->connections->find($added->subject(), Provider::Google);
-        $client = $this->clients->find($added->accountId, Provider::Google);
-        $mail = null === $connection || null === $client ? null : $connection->mailOf($added->messageId, $client->credentials(), $this->mailbox);
-        $correspondents = null === $mail ? [] : $this->correspondentsOf($mail, $added);
+        $connection = $this->connections->find(new MemberId($command->memberId), Provider::Google);
+        $client = $this->clients->find(new AccountId($command->accountId), Provider::Google);
+        $mail = null === $connection || null === $client ? null : $connection->mailOf($command->messageId, $client->credentials(), $this->mailbox);
+        $correspondents = null === $mail ? [] : $this->correspondentsOf($mail, new AccountId($command->accountId));
         if (null === $connection || null === $client || null === $mail || [] === $correspondents) {
             return;
         }
 
         $uploads = $connection->depositAttachmentsOf($mail, count($correspondents), $client->credentials(), $this->mailbox);
         foreach ($correspondents as $rank => $correspondent) {
-            $this->events->publish($this->exchanged($added, $connection, $mail, $correspondent, array_column($uploads, $rank)));
+            $this->events->publish($this->exchanged($command, $connection, $mail, $correspondent, array_column($uploads, $rank)));
         }
     }
 
     /**
      * @return list<Correspondent>
      */
-    private function correspondentsOf(MailboxMail $mail, MailboxMessageAdded $added): array
+    private function correspondentsOf(MailboxMail $mail, AccountId $accountId): array
     {
-        $correspondents = array_map(fn (Email $address): ?Correspondent => Correspondent::havingTheAddress($address, $added->accountId, $this->correspondents), $mail->correspondentAddresses());
+        $correspondents = array_map(fn (Email $address): ?Correspondent => Correspondent::havingTheAddress($address, $accountId, $this->correspondents), $mail->correspondentAddresses());
 
         return array_values(array_filter($correspondents));
     }
@@ -68,11 +69,11 @@ final readonly class ImportMailHandler implements EventHandler
     /**
      * @param list<string> $uploads the uploads of the message's attachments for this correspondent
      */
-    private function exchanged(MailboxMessageAdded $added, Connection $connection, MailboxMail $mail, Correspondent $correspondent, array $uploads): EmailExchanged
+    private function exchanged(ImportMail $command, Connection $connection, MailboxMail $mail, Correspondent $correspondent, array $uploads): EmailExchanged
     {
         return new EmailExchanged(
-            $added->accountId->value,
-            $added->by->value,
+            $command->accountId,
+            $command->memberId,
             Provider::Google->value,
             $mail->identityIn($connection->mailbox()),
             $mail->isSent() ? self::SENT : self::RECEIVED,
@@ -81,7 +82,7 @@ final readonly class ImportMailHandler implements EventHandler
             $mail->subject,
             $mail->text,
             $mail->exchangedAt,
-            $added->occurredAt,
+            $command->executedAt,
             $mail->providerId,
             array_map(static fn (MailboxAttachment $attachment, string $upload): array => ['upload' => $upload, 'name' => $attachment->name, 'size' => $attachment->size], $mail->attachmentsToImport(), $uploads),
             array_map(static fn (MailboxAttachment $attachment): array => ['name' => $attachment->name, 'size' => $attachment->size], $mail->attachmentsLeftOut()),
