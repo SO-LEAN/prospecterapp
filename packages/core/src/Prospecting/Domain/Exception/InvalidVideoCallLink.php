@@ -7,7 +7,7 @@ namespace Prospecter\Core\Prospecting\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
 /**
- * A video call is joined by a web address, opened in a browser.
+ * A member joins a video call through a web address that a browser opens.
  */
 final class InvalidVideoCallLink extends BusinessRuleViolation
 {

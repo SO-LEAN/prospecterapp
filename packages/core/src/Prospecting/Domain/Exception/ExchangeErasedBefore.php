@@ -7,7 +7,7 @@ namespace Prospecter\Core\Prospecting\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 
 /**
- * The exchange of the same fingerprint was erased by a member: it does not come back (ADR 0166).
+ * A member erased the exchange with the same fingerprint. It does not come back (ADR 0166).
  */
 final class ExchangeErasedBefore extends NotPossibleInItsState
 {

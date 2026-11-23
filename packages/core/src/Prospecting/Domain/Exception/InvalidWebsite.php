@@ -7,7 +7,7 @@ namespace Prospecter\Core\Prospecting\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
 /**
- * The address given as the website of an organization is no address of a site on the web.
+ * The address given as an organization's website is not the address of a website.
  */
 final class InvalidWebsite extends BusinessRuleViolation
 {

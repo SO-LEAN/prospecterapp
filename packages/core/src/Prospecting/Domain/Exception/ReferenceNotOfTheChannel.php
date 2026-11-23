@@ -7,7 +7,7 @@ namespace Prospecter\Core\Prospecting\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
 /**
- * A Message-ID identifies an e-mail only, a conversation a LinkedIn message only.
+ * A Message-ID identifies only an e-mail. A LinkedIn conversation identifies only a LinkedIn message.
  */
 final class ReferenceNotOfTheChannel extends BusinessRuleViolation
 {

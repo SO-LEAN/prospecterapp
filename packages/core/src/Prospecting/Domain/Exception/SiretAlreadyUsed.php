@@ -7,7 +7,7 @@ namespace Prospecter\Core\Prospecting\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
 /**
- * Another organization of the account has the SIRET already: one establishment, one organization.
+ * Another organization of the account already has the SIRET. An establishment is one organization.
  */
 final class SiretAlreadyUsed extends BusinessRuleViolation
 {

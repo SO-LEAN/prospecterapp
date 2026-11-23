@@ -8,7 +8,7 @@ use Prospecter\Core\SharedKernel\Domain\Exception\NotFound;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * This contact is no recipient of the campaign an exchange is noted in.
+ * This contact is not a recipient of the campaign that the exchange is logged in.
  */
 final class UnknownRecipient extends NotFound
 {

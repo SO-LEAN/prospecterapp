@@ -7,7 +7,8 @@ namespace Prospecter\Core\Prospecting\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 
 /**
- * A recipient of a campaign gets one exchange of it: processed or dismissed already, it is no longer to handle.
+ * A campaign's recipient gets one exchange in that campaign. A recipient already processed or dismissed no longer needs
+ * handling.
  */
 final class RecipientAlreadyProcessed extends NotPossibleInItsState
 {

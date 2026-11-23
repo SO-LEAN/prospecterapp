@@ -7,7 +7,7 @@ namespace Prospecter\Core\Prospecting\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
 /**
- * An organization is named by its corporate name or its email, at least one.
+ * An organization needs a corporate name or an email to name it, or both.
  */
 final class OrganizationWithoutNameNorEmail extends BusinessRuleViolation
 {
