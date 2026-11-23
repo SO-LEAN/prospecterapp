@@ -49,6 +49,6 @@ An organization using Prospecter, and the members working in it. Code: `packages
 
 - An organization using Prospecter (`Account`) and its members (`Member`: account, person id, `Role`). Signing in with a login email belongs to authentication, outside the core.
 - The account intents, among them `RelocateMyOrganization` (its address, where the routes to the organizations it prospects start).
-- `OpenAccount` opens an account with its founder. `RegisterTheFounder` registers the founder with every role, and the integration event `AccountOpened` announces the account to the other contexts (ADR 0064).
+- `OpenAccount` opens an account with its founder. `RegisterTheFounder` registers the founder with every role, the command that `RegisterTheFounderPolicy` sends when an account opens (ADR 0202), and the integration event `AccountOpened` announces the account to the other contexts (ADR 0064).
 - `RegisterAMember` registers a member in the acting administrator's account. The member gets at least one role among prospector, personal data and administrator. The use case calls `Member::registerBy()` with the administrator, who stands for the `Gesture`, and a `Newcomer`: the member, their profile and their roles. The aggregate decides who has the right to register (ADR 0193). `MemberRegistered` announces it (ADR 0075).
 - `ChangeMyReminders` changes the acting member's reminders (`RemindersChanged`). `ConsultMyReminders` reads them through `MyRemindersRetriever`, with the defaults for a member who never changed them.

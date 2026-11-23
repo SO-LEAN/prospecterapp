@@ -106,7 +106,19 @@ Every event leaves its context shaped as an EventBridge event (ADR 0097). The lo
 
 ## The subscriptions
 
-The reactions are listed in one place (ADR 0097), `apps/api/config/subscriptions.json`. Symfony reads it (the `app.subscriptions` parameter), and later the infrastructure reads it too. There is one entry per subscription, named `<context>-<intent>` after its reaction's context:
+The reactions are listed in one place (ADR 0097), `apps/api/config/subscriptions.json`. Symfony reads it (the `app.subscriptions` parameter), and later the infrastructure reads it too. There is one entry per subscription, named `<context>-<intent>` after its reaction's context. A subscription names its policy (ADR 0202):
+
+```json
+"accounts-register-the-founder": {
+  "context": "accounts",
+  "sources": ["prospecter.accounts.internal"],
+  "events": ["AccountOpened.v1"],
+  "policy": "Prospecter\\Core\\Accounts\\Application\\Policy\\RegisterTheFounderPolicy",
+  "inbox": true
+}
+```
+
+The events it listens to are those its policy's signature takes. `reporting-figures` names one policy that takes the facts of an organization, an exchange or a contact, and returns the command recording each kind (`RecordFactsPolicy`). A subscription whose reaction is not a policy yet names it (`handler`), or one reaction per event it listens to (`handlers`, by detail-type, ADR 0104):
 
 ```json
 "prospecting-stop-keeping-exchanges": {
@@ -115,18 +127,6 @@ The reactions are listed in one place (ADR 0097), `apps/api/config/subscriptions
   "events": ["ProspectingStopped.v1"],
   "handler": "Prospecter\\Core\\Prospecting\\Application\\StopKeepingExchanges\\StopKeepingExchangesHandler",
   "inbox": true
-}
-```
-
-A subscription names its reaction (`handler`), or one reaction per event it listens to (`handlers`, by detail-type, ADR 0104). `reporting-figures` hands each fact to the reaction for its kind:
-
-```json
-"reporting-figures": {
-  "context": "reporting",
-  "sources": ["prospecter.prospecting", "prospecter.personal-data"],
-  "events": ["OrganizationFactsChanged.v1", "OrganizationFactsChanged.v2", "OrganizationFactsChanged.v3", "ExchangeFactsChanged.v1", "ExchangeFactsChanged.v2", "ContactFactsChanged.v1", "ContactFactsChanged.v2"],
-  "handlers": {"OrganizationFactsChanged.v1": "…RecordOrganizationFactsHandler", "OrganizationFactsChanged.v2": "…RecordOrganizationFactsHandler", "OrganizationFactsChanged.v3": "…RecordOrganizationFactsHandler", "ExchangeFactsChanged.v1": "…RecordExchangeFactsHandler", "ExchangeFactsChanged.v2": "…RecordExchangeFactsHandler", "ContactFactsChanged.v1": "…RecordContactFactsHandler", "ContactFactsChanged.v2": "…RecordContactFactsHandler"},
-  "inbox": false
 }
 ```
 
@@ -140,8 +140,10 @@ A subscription that listens to some payloads only names them in `payload` (ADR 0
 - A test service can be a subscription declared by its `app.subscription` tag (`Tests\App\Double\FailingReaction`), unknown to the infrastructure.
 - A translator (`Application/Publish…/Publish…Handler`) is not a subscription: it stays on the event bus and publishes a domain event for the other contexts.
 - `tests/Architecture/ReactionsAreSubscribedTest` fails when:
+  - a core policy is not a subscription;
+  - a subscription names an unknown policy, or listens to a detail-type that its policy's signature does not take;
   - a core event handler is neither a translator nor a subscription;
-  - a subscription names an unknown reaction, has neither or both of `handler` and `handlers`, has handlers for events other than its own, or lists an event none of its sources publishes;
+  - a subscription names an unknown reaction, names none or several of `policy`, `handler` and `handlers`, has handlers for events other than its own, or lists an event none of its sources publishes;
   - a subscription to a `.internal` source belongs to a different context than the event: a domain event never leaves its context (ADR 0046).
 - `StopKeepingExchanges` publishes one `ExchangeLeftWithoutOrganization` per exchange to erase. `prospecting-erase-exchange` erases each one, so that each erasure fits in its own transaction (`persistence.md`). When the event is delivered again for an exchange already erased, the reaction writes nothing.
 - A removed file leaves the storage in a Prospecting reaction to the event naming it (`prospecting-discard-removed-logo`, `prospecting-discard-removed-attachment`, `prospecting-discard-attachments-of-erased-exchange`), once its removal is written.
@@ -155,7 +157,7 @@ The worker is the function `prospecter-<instance>-api-worker` (`App\Shared\Messa
   1. reads the event (`Invocation`, `EventCodec`) and refuses one deeper than 5;
   2. opens a unit of work;
   3. keeps the subscription's inbox when it has one (`Inbox`: PK `INBOX#<subscription>`, SK the `eventId`, `expiresAt` 15 days later, in its context's table, under `attribute_not_exists(SK)`);
-  4. calls the reaction through its decorators within the event's cause (what the reaction publishes goes one level deeper, `Causation`);
+  4. calls the reaction within the event's cause: it sends a policy's commands through the command decorators, and calls an event handler through its own (what the reaction publishes goes one level deeper, `Causation`);
   5. commits the inbox, what the reaction writes, and the outbox of what it publishes.
 
   An event already applied is detected at the commit (`AlreadyApplied`). The invocation then ends normally and writes nothing. A transaction can be cancelled by a condition that carries no refusal, or by a conflict with another transaction (`ConditionFailed`). It is then applied again from its reads, at most three times, each after a random wait under 100 ms. After that, the failure is thrown (ADR 0104).
