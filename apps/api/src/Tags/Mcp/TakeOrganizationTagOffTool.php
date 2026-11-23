@@ -18,7 +18,7 @@ use Prospecter\Core\Campaigns\Application\TakeOffTag\TakeOffTag;
 use Symfony\Component\Clock\ClockInterface;
 
 /**
- * `DELETE /api/organizations/{id}/tags/{tag}`, for an AI (ADR 0163), which asks its member before calling it.
+ * `DELETE /api/organizations/{id}/tags/{tag}`, for an AI (ADR 0163). The AI asks its member before it calls this tool.
  */
 #[Adapts('api_organizations_take_off_tag')]
 final readonly class TakeOrganizationTagOffTool
@@ -34,12 +34,12 @@ final readonly class TakeOrganizationTagOffTool
     }
 
     /**
-     * @param string $id  the id of the organization
-     * @param string $tag the tag put by hand, named without its mark: `ESN` for #ESN
+     * @param string $id  the organization's id
+     * @param string $tag the tag put by hand, named without its `#`: `ESN` for #ESN
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'untag-organization', description: 'Take a tag put by hand off an organization; its contacts no longer inherit it. Answers its tags.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'untag-organization', description: 'Take a tag put by hand off an organization. Its contacts no longer inherit it. Returns the organization\'s tags.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id, string $tag): array
     {
         $organization = $this->organizations->read($id);

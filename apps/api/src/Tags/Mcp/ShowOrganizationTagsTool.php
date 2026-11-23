@@ -28,11 +28,11 @@ final readonly class ShowOrganizationTagsTool
     }
 
     /**
-     * @param string $id the id of the organization
+     * @param string $id the organization's id
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'list-organization-tags', description: 'The tags of an organization, which its contacts inherit.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'list-organization-tags', description: 'Get an organization\'s tags. Its contacts inherit them. Returns the organization\'s tags.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $id): array
     {
         $organization = $this->organizations->read($id);

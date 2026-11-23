@@ -37,12 +37,12 @@ final readonly class TagOrganizationTool
     }
 
     /**
-     * @param string       $id   the id of the organization
-     * @param list<string> $tags each written one way, with its mark or not: `Café owners` is #CAFE_OWNERS
+     * @param string       $id   the organization's id
+     * @param list<string> $tags with or without their `#`; each is written one way: `Café owners` is #CAFE_OWNERS
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'tag-organization', description: 'Put tags on an organization, which its contacts inherit, a tag it carries already carried once. Answers its tags.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
+    #[McpTool(name: 'tag-organization', description: 'Put tags on an organization. Its contacts inherit them. A tag it already carries is kept once. Returns the organization\'s tags.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
     public function __invoke(string $id, array $tags): array
     {
         $organization = $this->organizations->read($id);
