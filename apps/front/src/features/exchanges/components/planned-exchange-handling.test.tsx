@@ -113,7 +113,7 @@ async function requestsToTheApi(): Promise<Sent[]> {
   )
 }
 
-/** What the API was asked to join to the exchange once the storage received the file. */
+/** What the API was asked to attach to the exchange once the storage received the file. */
 async function joinedToTheExchange() {
   const joining = theApi.mock.calls
     .map(([request]) => request)

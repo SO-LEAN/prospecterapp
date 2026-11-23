@@ -11,7 +11,7 @@ import type { Attachment, ExchangeDetail } from '../queries'
 import { PersonalDataWarning } from './exchange-text'
 
 /**
- * The files joined to an exchange. The reader can download or remove each one. A drop zone joins more files while
+ * The files attached to an exchange. The reader can download or remove each one. A drop zone attaches more files while
  * the exchange has room for them. When the files are hidden from the reader, only their count shows. They stay on a
  * yellow ground while they are to redact, which means removing them.
  */

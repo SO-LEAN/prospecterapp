@@ -50,7 +50,7 @@ export function FollowUp({ channel, plan, onDone }: Props) {
 type Noted = { channel: Channel; personId: string | null }
 
 type NoteProps = {
-  /** Logs the exchange, then joins its files. */
+  /** Logs the exchange, then attaches its files. */
   note: (facts: ExchangeFacts, personId: string | null, files: File[]) => Promise<unknown>
   /** Plans with the same interlocutor. It is absent when planning is not offered. */
   plan?: (exchange: PlannedExchangeInput, personId: string | null) => Promise<unknown>

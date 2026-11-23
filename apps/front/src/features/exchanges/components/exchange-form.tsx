@@ -35,7 +35,7 @@ import { MadeConformField } from './made-conform-field'
 export type Interlocutors = { organization: string; contacts: { id: string; name: string }[] }
 
 type Props = {
-  /** Gets the chosen person, null for the organization itself or on a contact's card, and the files to join. */
+  /** Gets the chosen person, null for the organization itself or on a contact's card, and the files to attach. */
   onSubmit: (facts: ExchangeFacts, personId: string | null, files: File[]) => Promise<unknown>
   onCancel: () => void
   interlocutors?: Interlocutors
@@ -49,7 +49,7 @@ type Props = {
 
 const DIRECTION_ICONS = { inbound: ArrowDownLeft, outbound: ArrowUpRight }
 
-/** A file chosen to join. The same file may be chosen twice. */
+/** A file chosen to attach. The same file may be chosen twice. */
 export type ChosenFile = { key: string; file: File }
 
 /** Logs an exchange in a few seconds, or corrects one. By default it is received, now: the member chooses the channel, then saves. */
@@ -202,7 +202,7 @@ export function Choice({ icon: Icon, label, ...radio }: ChoiceProps) {
   )
 }
 
-/** The files chosen to join to an exchange. One click removes one. The member drops or chooses more. */
+/** The files chosen to attach to an exchange. One click removes one. The member drops or chooses more. */
 export function FilesField({
   files,
   onChange,

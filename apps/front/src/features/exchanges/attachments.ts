@@ -7,7 +7,7 @@ const ANY_FILE = 'application/octet-stream'
 
 /**
  * The browser sends the file to the storage itself, with the form that the API signed for it (ADR 0077). It is the
- * SPA's only request outside the API, and it goes to S3. The upload is then joined to the exchange. A file heavier
+ * SPA's only request outside the API, and it goes to S3. The upload is then attached to the exchange. A file heavier
  * than the form accepts is refused before it is sent.
  */
 export async function attachFile(exchangeId: string, file: File): Promise<ExchangeDetail> {
