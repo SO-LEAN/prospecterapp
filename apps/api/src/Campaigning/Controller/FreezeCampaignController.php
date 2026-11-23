@@ -40,9 +40,9 @@ final class FreezeCampaignController extends AbstractController
     #[OA\Response(response: 200, description: 'The frozen campaign', content: new Model(type: CampaignResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 404, description: 'Unknown campaign, or one of another account', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 404, description: 'Unknown campaign, or a campaign of another account', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 409, description: 'No longer a draft', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 422, description: 'Nobody targeted, or more than 500', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 422, description: 'Nobody targeted, or more than 500 contacts', content: new Model(type: ProblemResource::class))]
     public function __invoke(CampaignSheet $campaign, #[CurrentUser] User $user): JsonResponse
     {
         $this->commandBus->dispatch(new FreezeCampaign($user->memberId(), $campaign->id, $this->clock->now()));

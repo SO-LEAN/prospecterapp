@@ -39,12 +39,12 @@ final class AddRecipientController extends AbstractController
     #[IsGranted(CampaignVoter::ACCESS, subject: 'campaign')]
     #[IsGranted(User::PERSONAL_DATA)]
     #[OA\Post(summary: 'Add a contact chosen to the recipients of a frozen campaign, kept once')]
-    #[OA\Response(response: 200, description: 'The campaign, its recipients counted', content: new Model(type: CampaignResource::class))]
+    #[OA\Response(response: 200, description: 'The campaign, with its recipient count', content: new Model(type: CampaignResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 404, description: 'Unknown campaign or of another account, or no contact of my organization', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 404, description: 'Unknown campaign or a campaign of another account, or not a contact of my organization', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 409, description: 'Not frozen', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 422, description: 'A contact without the means of its channel, or more than 500 recipients', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 422, description: 'A contact without the means the channel needs, or more than 500 recipients', content: new Model(type: ProblemResource::class))]
     public function __invoke(CampaignSheet $campaign, #[MapRequestPayload] RecipientInput $input, #[CurrentUser] User $user): JsonResponse
     {
         $this->commandBus->dispatch(new AddRecipient(memberId: $user->memberId(), campaignId: $campaign->id, contactId: (string) $input->contactId, executedAt: $this->clock->now()));

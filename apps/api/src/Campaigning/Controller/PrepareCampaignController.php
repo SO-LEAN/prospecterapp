@@ -37,10 +37,10 @@ final class PrepareCampaignController extends AbstractController
     #[Route('/api/campaigns', name: 'api_campaigns_prepare', methods: ['POST'])]
     #[IsGranted(User::PERSONAL_DATA)]
     #[OA\Post(summary: 'Prepare a campaign of my team, as a draft')]
-    #[OA\Response(response: 201, description: 'The draft prepared', content: new Model(type: CampaignResource::class))]
+    #[OA\Response(response: 201, description: 'The prepared draft', content: new Model(type: CampaignResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 422, description: 'Without a name or too long, an unknown channel, no tag or more than five with that of the channel, a message too long, a subject for another channel than an e-mail', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 422, description: 'No name or a name too long, an unknown channel, no tag or more than five tags counting the channel\'s tag, a message too long, or a subject for a channel other than e-mail', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[MapRequestPayload] CampaignInput $input, #[CurrentUser] User $user): JsonResponse
     {
         $id = $this->identities->next();

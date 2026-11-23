@@ -19,9 +19,7 @@ use Symfony\Component\Routing\Requirement\Requirement;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-/**
- * The message of a campaign rendered by the core for one contact (ADR 0144), as every client reads it.
- */
+/** A campaign's message, which the core renders for one contact (ADR 0144). Every client reads it this way. */
 #[OA\Tag('Campaigns')]
 #[IsGranted('ROLE_PROSPECTOR')]
 final class RenderCampaignMessageController extends AbstractController
@@ -37,7 +35,7 @@ final class RenderCampaignMessageController extends AbstractController
     #[OA\Response(response: 200, description: 'The message rendered for the contact', content: new Model(type: CampaignMessageResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 404, description: 'Unknown campaign or contact, or one of another account', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 404, description: 'Unknown campaign or contact, or a campaign or contact of another account', content: new Model(type: ProblemResource::class))]
     public function __invoke(CampaignSheet $campaign, string $contactId, #[CurrentUser] User $user): JsonResponse
     {
         return $this->json($this->messages->renderedFor($user->memberId(), $campaign->id, $contactId));
