@@ -9,11 +9,13 @@ use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\PersonalData\Domain\Model\ContactCard;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
+use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\PersonalData\Domain\Model\Reader;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
 use Prospecter\Core\Prospecting\Domain\Model\ContactCorrespondent;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\ContactToAttach;
 use Prospecter\Core\Prospecting\Domain\Model\Duration;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
@@ -26,7 +28,6 @@ use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 use Tests\App\Base\ApiTestCase;
@@ -257,9 +258,9 @@ class ContactsToAttachApiTest extends ApiTestCase
         $person = Person::collectToAttach(new Reader($member, $this->accountOfTheFixtures(), new PersonId(self::newIdentity()), true), new PersonId(self::newIdentity()), new ContactCard(new PersonName($firstName, $lastName), new ContactDetails(new Email($email))), $at);
         self::service(PersonRepository::class)->save($person);
         $prospector = new Prospector($member, $this->accountOfTheFixtures(), managesPersonalData: true);
-        self::service(ContactToAttachRepository::class)->save(ContactToAttach::metBy($prospector, $person->id(), new \DateTimeImmutable($meeting), $at));
+        self::service(ContactToAttachRepository::class)->save(ContactToAttach::metBy($prospector, new ContactId($person->id()->value), new \DateTimeImmutable($meeting), $at));
         $facts = ExchangeFacts::planned(Channel::VideoCall, new \DateTimeImmutable($meeting), Duration::inMinutes(null), null);
-        self::service(ExchangeRepository::class)->save(Exchange::planned(new Gesture($this->accountOfTheFixtures(), $member, $at), new ExchangeId(self::newIdentity()), new ContactCorrespondent($person->id(), []), $facts));
+        self::service(ExchangeRepository::class)->save(Exchange::planned(new Gesture($this->accountOfTheFixtures(), $member, $at), new ExchangeId(self::newIdentity()), new ContactCorrespondent(new ContactId($person->id()->value), []), $facts));
 
         return $person->id()->value;
     }

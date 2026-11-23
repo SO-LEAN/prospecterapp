@@ -6,9 +6,9 @@ namespace Prospecter\Core\PersonalData\Domain\Service;
 
 use Prospecter\Core\PersonalData\Domain\Model\OrganizationId;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
+use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\PersonalData\Domain\Port\OrganizationsOfContacts;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * The account's contacts whom a contact resembles by name, in one of the organizations where the contact works. The

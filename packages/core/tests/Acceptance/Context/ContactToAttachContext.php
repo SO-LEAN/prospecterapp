@@ -10,6 +10,7 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use Prospecter\Core\PersonalData\Domain\Model\ContactCard;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
+use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\Prospecting\Application\ConsultContactToAttach\ConsultContactToAttach;
 use Prospecter\Core\Prospecting\Application\ContactToAttachInList;
@@ -18,6 +19,7 @@ use Prospecter\Core\Prospecting\Application\PlanExchange\PlanExchange;
 use Prospecter\Core\Prospecting\Application\ProposeOrganizationToAttach\ProposedOrganization;
 use Prospecter\Core\Prospecting\Application\ProposeOrganizationToAttach\ProposeOrganizationToAttach;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\ContactToAttach;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
@@ -25,7 +27,6 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 use Tests\Core\Double\StateOf;
@@ -55,7 +56,7 @@ final class ContactToAttachContext implements Context
         $person = Person::collectToAttach($this->application->readers->readerFrom($holder->id), new PersonId($this->application->newIdentity()), new ContactCard(new PersonName($firstName, $lastName), new ContactDetails(new Email($email))), $this->application->now());
         $this->application->persons->save($person);
         $this->scenario->rememberPerson($name, $person->id());
-        $this->application->contactsToAttach->save(ContactToAttach::metBy($holder, $person->id(), $meeting, $this->application->now()));
+        $this->application->contactsToAttach->save(ContactToAttach::metBy($holder, new ContactId($person->id()->value), $meeting, $this->application->now()));
         $this->application->dispatch(new PlanExchange($holder->id->value, $this->application->newIdentity(), $person->id()->value, Channel::VideoCall->value, $meeting, null, null, $this->application->now()));
         Expect::that(null === $this->application->refusal(), sprintf('The meeting was expected to be planned, got: %s', $this->application->refusal()?->getMessage()));
         $this->lastMet = $name;
@@ -121,13 +122,13 @@ final class ContactToAttachContext implements Context
     {
         $person = new PersonId($this->scenario->personIdOf($name));
 
-        Expect::same([[], null], [$this->application->persons->ofIds([$person]), $this->application->contactsToAttach->find($person)]);
+        Expect::same([[], null], [$this->application->persons->ofIds([$person]), $this->application->contactsToAttach->find(new ContactId($person->value))]);
     }
 
     #[Then('ses échanges et ses actions à faire sont effacés')]
     public function itsExchangesAndToDosAreErased(): void
     {
-        Expect::same([[], []], [$this->exchangesWith($this->lastMet), $this->application->toDos->forContact(new PersonId($this->scenario->personIdOf($this->lastMet)), $this->accountOfMine())]);
+        Expect::same([[], []], [$this->exchangesWith($this->lastMet), $this->application->toDos->forContact(new ContactId($this->scenario->personIdOf($this->lastMet)), $this->accountOfMine())]);
     }
 
     private function contactToAttach(string $name): ?ContactToAttachInList
@@ -140,7 +141,7 @@ final class ContactToAttachContext implements Context
      */
     private function exchangesWith(string $contact): array
     {
-        return $this->application->exchanges->withContact(new PersonId($this->scenario->personIdOf($contact)), $this->accountOfMine());
+        return $this->application->exchanges->withContact(new ContactId($this->scenario->personIdOf($contact)), $this->accountOfMine());
     }
 
     private function accountOfMine(): AccountId

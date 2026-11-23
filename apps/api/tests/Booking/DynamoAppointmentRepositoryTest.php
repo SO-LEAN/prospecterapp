@@ -9,11 +9,11 @@ use Prospecter\Core\Booking\Domain\Model\Appointment;
 use Prospecter\Core\Booking\Domain\Model\AppointmentId;
 use Prospecter\Core\Booking\Domain\Model\AppointmentRequest;
 use Prospecter\Core\Booking\Domain\Model\Booker;
+use Prospecter\Core\Booking\Domain\Model\BookerId;
 use Prospecter\Core\Booking\Domain\Model\Channel;
 use Prospecter\Core\Booking\Domain\Repository\AppointmentRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\App\Base\ApiTestCase;
 
 /**
@@ -101,7 +101,7 @@ class DynamoAppointmentRepositoryTest extends ApiTestCase
             $host,
             new AppointmentRequest(
                 new AppointmentId(self::newIdentity()),
-                new PersonId(self::newIdentity()),
+                new BookerId(self::newIdentity()),
                 new \DateTimeImmutable($slot)->setTimezone(new \DateTimeZone('Europe/Paris')),
                 Channel::VideoCall,
                 Booker::named('Ada', 'Lovelace', '06 12 34 56 78', 'ada@acme.fr'),

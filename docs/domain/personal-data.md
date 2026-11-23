@@ -26,7 +26,7 @@ Natural persons' personal data, and who reads it. Code: `packages/core/src/Perso
 
 ## Rules
 
-- No other context keeps personal data, only a `PersonId`. The exceptions:
+- No other context keeps personal data, only an identity of its own for the person (ADR 0197). The exceptions:
   - the text and attachments of Prospecting's exchanges, which may hold some (ADR 0031, 0074, 0077). A meeting's place and a video call's link are not personal data (ADR 0114);
   - the address of the account a member connects at a provider. Connectors keeps it for that member alone, and forgets it when they disconnect (ADR 0120);
   - the person who booked an appointment through a public link, as they described themselves. Booking keeps them for 16 days at most, until PersonalData identifies them (ADR 0164).
@@ -102,4 +102,4 @@ Natural persons' personal data, and who reads it. Code: `packages/core/src/Perso
   - `IdentifyPersons` (which contacts the clues designate, read through the port `DesignatedContactRetriever`, ADR 0173).
 - Commands that change a person (`ChangeCivility` for a contact only). Two commands concern the persons an account prospects, the contacts (ADR 0041, 0042). They need the right to manage personal data (ADR 0031). `CollectContact` collects a contact for at least one organization, checked through the port `ProspectedOrganizations`. `ForgetContact` forgets one.
 - Reactions: `ForgetContactsLeftWithoutOrganization` reacts to Prospecting. `CollectTheFounderProfile` reacts to an account's opening, and `CollectTheMemberProfile` to a member's registration. Each one collects the member's own empty profile (ADR 0064, 0075). `IdentifyBooker` reacts to Booking (ADR 0164).
-- No other context keeps personal data, only a `PersonId`. There are three exceptions. The first is the text of Prospecting's exchanges (ADR 0074), which is to be redacted (ADR 0079), and their attachments (ADR 0077). The second is the address of a Connectors connection's external account (ADR 0120). The third is the booker of a Booking appointment (ADR 0164).
+- No other context keeps personal data, only an identity of its own for the person (ADR 0197). There are three exceptions. The first is the text of Prospecting's exchanges (ADR 0074), which is to be redacted (ADR 0079), and their attachments (ADR 0077). The second is the address of a Connectors connection's external account (ADR 0120). The third is the booker of a Booking appointment (ADR 0164).

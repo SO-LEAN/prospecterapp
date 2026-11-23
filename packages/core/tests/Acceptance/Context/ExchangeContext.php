@@ -27,6 +27,7 @@ use Prospecter\Core\Prospecting\Application\Timeline;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeLeftWithoutOrganization;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
 use Prospecter\Core\Prospecting\Domain\Model\ContactCorrespondent;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
@@ -38,7 +39,6 @@ use Prospecter\Core\Prospecting\Domain\Model\OrganizationCorrespondent;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 use Tests\Core\Double\InMemoryDatabase;
@@ -111,7 +111,7 @@ final class ExchangeContext implements Context
     #[Given('j\'ai noté :count échanges avec :contact')]
     public function iNotedManyExchanges(int $count, string $contact): void
     {
-        $keptFor = array_map(static fn (Organization $organization): OrganizationId => $organization->id(), $this->application->organizations->withContacts([$this->scenario->personNamed($contact)->id()], $this->scenario->meAsProspector()->accountId));
+        $keptFor = array_map(static fn (Organization $organization): OrganizationId => $organization->id(), $this->application->organizations->withContacts([$this->scenario->contactIdOf($contact)], $this->scenario->meAsProspector()->accountId));
 
         foreach (range(1, $count) as $minutesAgo) {
             $this->arrange($contact, $keptFor, new ExchangeFacts(Channel::Sms, Direction::Inbound, $this->application->now()->modify(sprintf('-%d minutes', $minutesAgo))));
@@ -495,7 +495,7 @@ final class ExchangeContext implements Context
     private function arrange(string $contact, array $keptFor, ExchangeFacts $facts): void
     {
         $me = $this->scenario->meAsProspector();
-        $correspondent = new ContactCorrespondent($this->scenario->personNamed($contact)->id(), $keptFor);
+        $correspondent = new ContactCorrespondent($this->scenario->contactIdOf($contact), $keptFor);
         $exchange = Exchange::noted(new Gesture($me->accountId, $me->id, $this->application->now()), new ExchangeId($this->application->newIdentity()), $correspondent, Noting::of($facts, ExchangeStatus::Done));
         $this->application->exchanges->save($exchange);
     }
@@ -529,7 +529,7 @@ final class ExchangeContext implements Context
     {
         $stored = $this->scenario->isAnOrganization($name)
             ? $this->application->exchanges->keptFor($this->scenario->organizationNamed($name)->id())
-            : $this->application->exchanges->withContact(new PersonId($this->scenario->personIdOf($name)), $this->scenario->meAsProspector()->accountId);
+            : $this->application->exchanges->withContact(new ContactId($this->scenario->personIdOf($name)), $this->scenario->meAsProspector()->accountId);
         usort($stored, static fn (Exchange $a, Exchange $b): int => [StateOf::the($b)->object('facts', ExchangeFacts::class)->occurredAt, (string) $b->id()] <=> [StateOf::the($a)->object('facts', ExchangeFacts::class)->occurredAt, (string) $a->id()]);
 
         return $stored;
@@ -540,7 +540,7 @@ final class ExchangeContext implements Context
      */
     private function interlocutorOf(ExchangeInTimeline $exchange, string $timelineOf): string
     {
-        return null === $exchange->personId ? $timelineOf : $this->scenario->nameOfPersonAsRead(new PersonId($exchange->personId));
+        return null === $exchange->personId ? $timelineOf : $this->scenario->nameOfPersonAsRead(new ContactId($exchange->personId));
     }
 
     /**

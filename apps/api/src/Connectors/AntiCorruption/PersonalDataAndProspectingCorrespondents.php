@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Connectors\AntiCorruption;
 
 use Monolog\Attribute\WithMonologChannel;
+use Prospecter\Core\Connectors\Domain\Model\ContactId;
 use Prospecter\Core\Connectors\Domain\Model\OrganizationId;
 use Prospecter\Core\Connectors\Domain\Port\Correspondents;
 use Prospecter\Core\PersonalData\Contract\Service\WhichContactsHaveTheseEmails\KeptContactsByEmail;
@@ -15,7 +16,6 @@ use Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsHaveTheseEmai
 use Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsHaveTheseEmails\WhichOrganizationsHaveTheseEmailsService;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -36,7 +36,7 @@ final readonly class PersonalDataAndProspectingCorrespondents implements Corresp
     ) {
     }
 
-    public function contactWithEmail(AccountId $accountId, Email $email): ?PersonId
+    public function contactWithEmail(AccountId $accountId, Email $email): ?ContactId
     {
         $kept = new KeptContactsByEmail();
         ($this->whichContactsHaveTheseEmailsService)(new WhichContactsHaveTheseEmails([$email->value], $accountId->value), $kept);
@@ -47,7 +47,7 @@ final readonly class PersonalDataAndProspectingCorrespondents implements Corresp
             return null;
         }
 
-        return new PersonId($contact);
+        return new ContactId($contact);
     }
 
     public function organizationWithEmail(AccountId $accountId, Email $email): ?OrganizationId

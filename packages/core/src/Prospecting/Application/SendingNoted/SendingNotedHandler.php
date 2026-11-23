@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\SendingNoted;
 
 use Prospecter\Core\Prospecting\Domain\Model\CampaignId;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\MessageReference;
 use Prospecter\Core\Prospecting\Domain\Port\CampaignRecipients;
 use Prospecter\Core\Prospecting\Domain\Port\Prospectors;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Fingerprints the message as `NoteCampaignExchange` does. Then it reads which exchange the account logged under that
@@ -29,7 +29,7 @@ final readonly class SendingNotedHandler implements QueryHandler
     public function __invoke(SendingNoted $query, SendingNotedOutput $output): void
     {
         $prospector = $this->prospectors->prospectorFrom(new MemberId($query->prospectorId));
-        $recipient = $this->campaignRecipients->recipientIn(new CampaignId($query->campaignId), new PersonId($query->personId), $prospector->accountId);
+        $recipient = $this->campaignRecipients->recipientIn(new CampaignId($query->campaignId), new ContactId($query->personId), $prospector->accountId);
 
         if (null === $recipient) {
             $output->present(null);

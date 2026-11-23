@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\PersonalData\Domain\Policy;
 
+use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\PersonalData\Domain\Model\Reader;
 use Prospecter\Core\PersonalData\Domain\Model\Reading;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Who reads a person, and how (ADR 0031). Another account does not even learn that the person exists. The person

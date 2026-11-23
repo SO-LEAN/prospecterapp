@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Domain\Model;
 
-use Prospecter\Core\SharedKernel\Domain\PersonId;
-
 /**
  * What tells a logged exchange apart from the account's other exchanges. The core computes it from what was
  * exchanged. A client never gives it. It is the same whoever logged the exchange: a member by hand, an AI or a
@@ -25,7 +23,7 @@ final readonly class ExchangeFingerprint
     /**
      * Fingerprints an e-mail by its `Message-ID`'s identity, with each of its correspondents (ADR 0154).
      */
-    public static function ofEmail(string $identity, PersonId|OrganizationId $correspondent): self
+    public static function ofEmail(string $identity, ContactId|OrganizationId $correspondent): self
     {
         return self::of(self::EMAIL, $identity, $correspondent->value);
     }
@@ -42,7 +40,7 @@ final readonly class ExchangeFingerprint
      * Fingerprints any other message, call or meeting. It also fingerprints an e-mail or a LinkedIn message logged
      * without its reference.
      */
-    public static function ofMessage(ExchangeFacts $facts, PersonId|OrganizationId $correspondent): self
+    public static function ofMessage(ExchangeFacts $facts, ContactId|OrganizationId $correspondent): self
     {
         return self::of($facts->channel->value, $correspondent->value, $facts->direction->value, self::minuteOf($facts->occurredAt), self::normalized($facts->text));
     }

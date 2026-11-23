@@ -8,9 +8,9 @@ use App\Shared\Persistence\Table;
 use Prospecter\Core\Campaigns\Domain\Exception\UnknownCampaign;
 use Prospecter\Core\Campaigns\Domain\Model\Campaign;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignId;
+use Prospecter\Core\Campaigns\Domain\Model\ContactId;
 use Prospecter\Core\Campaigns\Domain\Repository\CampaignRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /** An account's campaigns, in its partition of Campaigns' table (ADR 0144). */
 final readonly class DynamoCampaignRepository implements CampaignRepository
@@ -32,7 +32,7 @@ final readonly class DynamoCampaignRepository implements CampaignRepository
     }
 
     /** Reads every campaign of the account at once, because an account has tens of them (ADR 0144). */
-    public function withRecipient(AccountId $accountId, PersonId $contact): array
+    public function withRecipient(AccountId $accountId, ContactId $contact): array
     {
         $items = $this->campaignsTable->queryBetween(CampaignsKeys::account($accountId->value), null, ...CampaignsKeys::campaigns());
         $campaigns = array_map(static fn (array $item): Campaign => CampaignDocument::campaign($item['campaign']), $items);

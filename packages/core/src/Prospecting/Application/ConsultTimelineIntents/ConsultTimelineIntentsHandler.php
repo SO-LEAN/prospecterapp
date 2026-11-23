@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\ConsultTimelineIntents;
 
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Port\Prospectors;
 use Prospecter\Core\Prospecting\Domain\Service\ContactOrganizations;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * A person who is not a contact of the account has no timeline, so the timeline offers nothing. A contact who waits
@@ -25,7 +25,7 @@ final readonly class ConsultTimelineIntentsHandler implements QueryHandler
     public function __invoke(ConsultTimelineIntents $query, ConsultTimelineIntentsOutput $output): void
     {
         $prospector = $this->prospectors->prospectorFrom(new MemberId($query->prospectorId));
-        $contact = new PersonId($query->personId);
+        $contact = new ContactId($query->personId);
 
         $output->present(TimelineIntentsResponse::of($this->contactOrganizations->timelineIntentsOf($contact, $prospector)));
     }

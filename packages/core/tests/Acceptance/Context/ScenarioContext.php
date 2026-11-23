@@ -10,11 +10,14 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use Prospecter\Core\Accounts\Domain\Model\Account;
 use Prospecter\Core\Accounts\Domain\Model\Member;
+use Prospecter\Core\Accounts\Domain\Model\ProfileId;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersons;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
+use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\PersonalData\Domain\Model\Reader;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
@@ -23,7 +26,6 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\Uuid;
 use Tests\Core\Acceptance\Application;
 use Tests\Core\Acceptance\Expect;
@@ -124,7 +126,7 @@ final class ScenarioContext implements Context
         $person = Person::collect(new Gesture($this->accountIdOf($account), new MemberId($this->application->newIdentity()), $this->application->now()), new PersonId($this->application->newIdentity()), Purpose::Membership);
         $this->application->persons->save($person);
         $this->personIds[$name] = $person->id();
-        $member = Member::register(new MemberId($this->application->newIdentity()), $this->accountIdOf($account), $person->id(), ...$roles);
+        $member = Member::register(new MemberId($this->application->newIdentity()), $this->accountIdOf($account), new ProfileId($person->id()->value), ...$roles);
         $this->application->members->save($member);
         $this->rememberMember($name, $member->id());
 
@@ -244,7 +246,7 @@ final class ScenarioContext implements Context
 
     public function profileOf(Member $member): PersonId
     {
-        return StateOf::the($member)->object('personId', PersonId::class);
+        return new PersonId(StateOf::the($member)->object('personId', ProfileId::class)->value);
     }
 
     /**
@@ -287,9 +289,12 @@ final class ScenarioContext implements Context
         return $this->application->persons->get($this->personIds[$name] ?? throw new \LogicException(sprintf('No person "%s" in the scenario', $name)));
     }
 
-    public function nameOfPerson(PersonId $id): string
+    /**
+     * The name of a person, whatever context designates them.
+     */
+    public function nameOfPerson(Uuid $id): string
     {
-        $name = array_search($id, $this->personIds, false);
+        $name = array_search($id->value, array_map(strval(...), $this->personIds), true);
 
         return false === $name ? throw new \LogicException(sprintf('No person %s in the scenario', $id)) : $name;
     }
@@ -297,7 +302,7 @@ final class ScenarioContext implements Context
     /**
      * A person's name as the signed-in member reads it, in clear or masked, the way the clients name people.
      */
-    public function nameOfPersonAsRead(PersonId $id): string
+    public function nameOfPersonAsRead(Uuid $id): string
     {
         $person = $this->application->consultPersons(new ConsultPersons($this->application->signedIn(), [$id->value]))[$id->value] ?? null;
 
@@ -311,6 +316,14 @@ final class ScenarioContext implements Context
     public function managerOfPersonalDataOf(AccountId $accountId): Reader
     {
         return new Reader(new MemberId($this->application->newIdentity()), $accountId, new PersonId($this->application->newIdentity()), true);
+    }
+
+    /**
+     * The contact Prospecting knows by this name: the person PersonalData knows by it.
+     */
+    public function contactIdOf(string $name): ContactId
+    {
+        return new ContactId($this->personNamed($name)->id()->value);
     }
 
     public function personIdOf(string $name): string
@@ -361,7 +374,7 @@ final class ScenarioContext implements Context
      */
     public function memberOf(Account $account): Member
     {
-        return Member::register(new MemberId($this->application->newIdentity()), $account->id(), new PersonId($this->application->newIdentity()), Role::User);
+        return Member::register(new MemberId($this->application->newIdentity()), $account->id(), new ProfileId($this->application->newIdentity()), Role::User);
     }
 
     /**

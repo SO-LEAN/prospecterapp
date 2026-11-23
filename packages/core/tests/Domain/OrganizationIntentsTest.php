@@ -6,6 +6,7 @@ namespace Tests\Core\Domain;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationIntent;
@@ -25,7 +26,6 @@ use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 use Tests\Core\Double\InMemoryDatabase;
 use Tests\Core\Double\InMemoryOrganizationRepository;
@@ -95,8 +95,8 @@ class OrganizationIntentsTest extends TestCase
             OrganizationIntent::DetachFromHolding => $organization->detachFromHolding($by, new \DateTimeImmutable(self::AT)),
             OrganizationIntent::ChangeLogo => $organization->changeLogo($this->logo(), $by, new \DateTimeImmutable(self::AT)),
             OrganizationIntent::RemoveLogo => $organization->removeLogo($by, new \DateTimeImmutable(self::AT)),
-            OrganizationIntent::AddContact => $organization->addContact(new PersonId(self::NEW_CONTACT), $by, new \DateTimeImmutable(self::AT)),
-            OrganizationIntent::RemoveContact => $organization->removeContact(new PersonId(self::CONTACT), $by, new \DateTimeImmutable(self::AT), $this->orphans()),
+            OrganizationIntent::AddContact => $organization->addContact(new ContactId(self::NEW_CONTACT), $by, new \DateTimeImmutable(self::AT)),
+            OrganizationIntent::RemoveContact => $organization->removeContact(new ContactId(self::CONTACT), $by, new \DateTimeImmutable(self::AT), $this->orphans()),
             OrganizationIntent::StopProspecting => $organization->stopBeingProspected($by, new \DateTimeImmutable(self::AT), $this->orphans()),
             OrganizationIntent::DismissPossibleDuplicate => $organization->dismissSuspicionOf(new OrganizationId(self::DUPLICATE), $by, new \DateTimeImmutable(self::AT)),
             OrganizationIntent::Complete => $organization->completeWith(new OrganizationSupplement(email: new Email('contact@acme.fr')), $by, new \DateTimeImmutable(self::AT)),
@@ -110,7 +110,7 @@ class OrganizationIntentsTest extends TestCase
         if (self::FULL === $state) {
             $prospect->changeLogo($this->logo(), $this->prospector()->id, new \DateTimeImmutable(self::AT));
             $prospect->attachToHolding($this->holding(), $this->prospector()->id, new \DateTimeImmutable(self::AT));
-            $prospect->addContact(new PersonId(self::CONTACT), $this->prospector()->id, new \DateTimeImmutable(self::AT));
+            $prospect->addContact(new ContactId(self::CONTACT), $this->prospector()->id, new \DateTimeImmutable(self::AT));
             $prospect->suspectDuplicateOf(new OrganizationId(self::DUPLICATE), $this->prospector()->id, new \DateTimeImmutable(self::AT));
         }
 

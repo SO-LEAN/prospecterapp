@@ -30,13 +30,14 @@ use Prospecter\Core\PersonalData\Domain\Model\ContactCard;
 use Prospecter\Core\PersonalData\Domain\Model\NewContact;
 use Prospecter\Core\PersonalData\Domain\Model\OrganizationId as PersonalDataOrganizationId;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
+use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Designated;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\ExternalReference;
 use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
@@ -79,7 +80,7 @@ final class PersonalDataContext implements Context
     {
         $this->aContactWithoutContactDetails($name, $organization);
         $prospect = $this->scenario->organizationNamed($other);
-        $prospect->addContact($this->scenario->personNamed($name)->id(), by: $this->scenario->managerOf($prospect), at: $this->application->now());
+        $prospect->addContact($this->scenario->contactIdOf($name), by: $this->scenario->managerOf($prospect), at: $this->application->now());
         $this->application->organizations->save($prospect);
     }
 
@@ -134,7 +135,7 @@ final class PersonalDataContext implements Context
             $this->application->now(),
         );
         $this->application->persons->save($contact);
-        $prospect->addContact($contact->id(), by: $this->scenario->managerOf($prospect), at: $this->application->now());
+        $prospect->addContact(new ContactId($contact->id()->value), by: $this->scenario->managerOf($prospect), at: $this->application->now());
         $this->application->organizations->save($prospect);
         $this->scenario->rememberPerson($name, $contact->id());
     }

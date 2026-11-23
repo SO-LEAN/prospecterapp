@@ -6,9 +6,9 @@ namespace Prospecter\Core\Prospecting\Application\PublishContactsLeftWithoutOrga
 
 use Prospecter\Core\Prospecting\Contract\Event as Published;
 use Prospecter\Core\Prospecting\Domain\Event\ContactsLeftWithoutOrganization;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Tells the other contexts in the published language that no organization names some contacts any more (ADR 0046).
@@ -25,7 +25,7 @@ final readonly class PublishContactsLeftWithoutOrganizationHandler implements Ev
             (string) $event->accountId,
             (string) $event->by,
             (string) $event->organization,
-            array_map(static fn (PersonId $contact): string => (string) $contact, $event->contacts),
+            array_map(static fn (ContactId $contact): string => (string) $contact, $event->contacts),
             $event->occurredAt,
         ));
     }

@@ -15,6 +15,7 @@ use Prospecter\Core\Accounts\Domain\Exception\UnknownMember;
 use Prospecter\Core\Accounts\Domain\Model\Account;
 use Prospecter\Core\Accounts\Domain\Model\AccountIntent;
 use Prospecter\Core\Accounts\Domain\Model\Member;
+use Prospecter\Core\Accounts\Domain\Model\ProfileId;
 use Prospecter\Core\Accounts\Domain\Model\ReminderDelay;
 use Prospecter\Core\Accounts\Domain\Model\Reminders;
 use Prospecter\Core\Accounts\Domain\Model\Role;
@@ -24,7 +25,6 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Address;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\App\Base\ApiTestCase;
 
 /**
@@ -40,7 +40,7 @@ class DynamoAccountsRetrieversTest extends ApiTestCase
 
         $myAccount = self::service(MyAccountRetriever::class)->of($me->id());
 
-        $this->assertSame([$me->id()->value, $account->id()->value, Typed::object(Hydrator::stateOf($me)['personId'], PersonId::class)->value], [$myAccount->memberId, $myAccount->accountId, $myAccount->personId]);
+        $this->assertSame([$me->id()->value, $account->id()->value, Typed::object(Hydrator::stateOf($me)['personId'], ProfileId::class)->value], [$myAccount->memberId, $myAccount->accountId, $myAccount->personId]);
         $this->assertSame(['ROLE_USER', 'ROLE_PROSPECTOR'], $myAccount->roles);
         $this->assertSame(['SOLEAN IT', 'Strasbourg'], [$myAccount->organizationCorporateName, $myAccount->organizationCity]);
         $this->assertSame(array_map(static fn (AccountIntent $intent): string => $intent->name, AccountIntent::cases()), $myAccount->accountIntents);
@@ -64,7 +64,7 @@ class DynamoAccountsRetrieversTest extends ApiTestCase
 
         $published = self::service(MemberRetriever::class)->ofIds([$member->id()])[$member->id()->value];
 
-        $this->assertSame([$member->id()->value, $account->id()->value, Typed::object(Hydrator::stateOf($member)['personId'], PersonId::class)->value, $readsPersonalData], [$published->id, $published->accountId, $published->personId, $published->readsPersonalData]);
+        $this->assertSame([$member->id()->value, $account->id()->value, Typed::object(Hydrator::stateOf($member)['personId'], ProfileId::class)->value, $readsPersonalData], [$published->id, $published->accountId, $published->personId, $published->readsPersonalData]);
     }
 
     public function testTheMembersAreReadInOneBatchTheUnknownOnesAbsent(): void
@@ -124,7 +124,7 @@ class DynamoAccountsRetrieversTest extends ApiTestCase
     private function anAccount(): Account
     {
         $account = Account::open(new AccountId(self::newIdentity()), new LegalIdentity('SOLEAN IT'), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
-        $account->relocateTo(new Address(city: 'Strasbourg'), null, Member::register(new MemberId(self::newIdentity()), $account->id(), new PersonId(self::newIdentity()), Role::Admin), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
+        $account->relocateTo(new Address(city: 'Strasbourg'), null, Member::register(new MemberId(self::newIdentity()), $account->id(), new ProfileId(self::newIdentity()), Role::Admin), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
         self::service(AccountRepository::class)->save($account);
 
         return $account;
@@ -132,7 +132,7 @@ class DynamoAccountsRetrieversTest extends ApiTestCase
 
     private function aMemberOf(Account $account, Role ...$roles): Member
     {
-        $member = Member::register(new MemberId(self::newIdentity()), $account->id(), new PersonId(self::newIdentity()), ...$roles);
+        $member = Member::register(new MemberId(self::newIdentity()), $account->id(), new ProfileId(self::newIdentity()), ...$roles);
         self::service(MemberRepository::class)->save($member);
 
         return $member;

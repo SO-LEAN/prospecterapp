@@ -7,7 +7,6 @@ namespace Prospecter\Core\PersonalData\Domain\Model;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Exception\PersonalDataManagersOnly;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * A member of an account, as PersonalData sees them: who reads, for which account, which person they are, and whether

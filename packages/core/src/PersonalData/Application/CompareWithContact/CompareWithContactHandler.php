@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Prospecter\Core\PersonalData\Application\CompareWithContact;
 
 use Prospecter\Core\PersonalData\Domain\Model\ContactSupplement;
+use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\PersonalData\Domain\Port\Readers;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
 use Prospecter\Core\SharedKernel\Application\Comparison;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Restores the contact from its repository and asks the contact itself to apply the rule its completion follows. So

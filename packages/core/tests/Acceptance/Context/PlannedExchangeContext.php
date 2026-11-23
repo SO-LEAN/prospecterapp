@@ -16,8 +16,8 @@ use Prospecter\Core\Prospecting\Application\MarkExchangeDone\MarkExchangeDone;
 use Prospecter\Core\Prospecting\Application\MarkExchangeMissed\MarkExchangeMissed;
 use Prospecter\Core\Prospecting\Application\MoveExchange\MoveExchange;
 use Prospecter\Core\Prospecting\Domain\Model\Canceller;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 use Tests\Core\Double\State;
@@ -93,7 +93,7 @@ final class PlannedExchangeContext implements Context
     public function itIsNoLongerUpcoming(): void
     {
         Expect::that(null === $this->application->refusal(), sprintf('Refused: %s', $this->application->refusal()?->getMessage()));
-        $contact = $this->planned()->objectOrNull('contact', PersonId::class);
+        $contact = $this->planned()->objectOrNull('contact', ContactId::class);
         $upcoming = $this->application->consultUpcomingExchanges(new ConsultUpcomingExchanges($this->application->signedIn(), (string) $contact?->value, $this->application->now()));
 
         Expect::that(!array_any($upcoming->exchanges ?? [], fn (ExchangeInTimeline $exchange): bool => $exchange->id === $this->scenario->theExchange()), 'The exchange is still among the upcoming ones');

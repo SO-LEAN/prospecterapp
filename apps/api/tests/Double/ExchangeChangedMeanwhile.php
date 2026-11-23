@@ -15,6 +15,7 @@ use App\Shared\Typed;
 use Aws\DynamoDb\DynamoDbClient;
 use Aws\DynamoDb\Marshaler;
 use Prospecter\Core\Prospecting\Domain\Model\CampaignId;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFingerprint;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
@@ -23,7 +24,6 @@ use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Symfony\Component\Clock\ClockInterface;
 
 /**
@@ -72,7 +72,7 @@ final class ExchangeChangedMeanwhile implements ExchangeRepository
         return $this->exchanges->fingerprinted($accountId, $fingerprint);
     }
 
-    public function forgetFingerprintsOf(AccountId $accountId, PersonId $contact): void
+    public function forgetFingerprintsOf(AccountId $accountId, ContactId $contact): void
     {
         $this->exchanges->forgetFingerprintsOf($accountId, $contact);
     }
@@ -82,15 +82,15 @@ final class ExchangeChangedMeanwhile implements ExchangeRepository
         return $this->exchanges->keptFor($organization);
     }
 
-    public function withContact(PersonId $contact, AccountId $accountId): array
+    public function withContact(ContactId $contact, AccountId $accountId): array
     {
         return $this->exchanges->withContact($contact, $accountId);
     }
 
     /**
-     * @param list<PersonId> $contacts
+     * @param list<ContactId> $contacts
      *
-     * @return list<PersonId>
+     * @return list<ContactId>
      */
     public function contactsWithAnExchangeOf(AccountId $accountId, CampaignId $campaign, array $contacts): array
     {

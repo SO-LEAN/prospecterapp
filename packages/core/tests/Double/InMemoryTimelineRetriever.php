@@ -10,6 +10,7 @@ use Prospecter\Core\Prospecting\Application\Port\TimelineRetriever;
 use Prospecter\Core\Prospecting\Application\Timeline;
 use Prospecter\Core\Prospecting\Domain\Model\CampaignId;
 use Prospecter\Core\Prospecting\Domain\Model\Cancellation;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\ContactPresence;
 use Prospecter\Core\Prospecting\Domain\Model\Correction;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
@@ -23,7 +24,6 @@ use Prospecter\Core\Prospecting\Domain\Policy\ExchangeChronology;
 use Prospecter\Core\Prospecting\Domain\Policy\ExchangeConformity;
 use Prospecter\Core\Prospecting\Domain\Policy\ExchangeReading;
 use Prospecter\Core\SharedKernel\Domain\Origin;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Reads the exchanges that the in-memory repository saved, as the adapter reads the table's items. The timeline
@@ -37,7 +37,7 @@ final readonly class InMemoryTimelineRetriever implements TimelineRetriever
     {
     }
 
-    public function ofContact(PersonId $contact, Prospector $reader, \DateTimeImmutable $asOf, ?string $after, int $max): Timeline
+    public function ofContact(ContactId $contact, Prospector $reader, \DateTimeImmutable $asOf, ?string $after, int $max): Timeline
     {
         return self::timelineOf(self::until($asOf, $this->withContact($contact, $reader)), $after, $max, 0, self::inTheTimelineOfTheContact($reader));
     }
@@ -47,7 +47,7 @@ final readonly class InMemoryTimelineRetriever implements TimelineRetriever
         return self::timelineOf(self::until($asOf, $this->keptFor($organization)), $after, $max, count($this->keptAndToMakeConform($organization)), self::inTheTimelineOf($organization, $reader));
     }
 
-    public function upcomingWithContact(PersonId $contact, Prospector $reader, \DateTimeImmutable $asOf, ?string $after, int $max): Timeline
+    public function upcomingWithContact(ContactId $contact, Prospector $reader, \DateTimeImmutable $asOf, ?string $after, int $max): Timeline
     {
         return self::upcomingOf(self::after($asOf, $this->withContact($contact, $reader)), $after, $max, 0, self::inTheTimelineOfTheContact($reader));
     }
@@ -67,9 +67,9 @@ final readonly class InMemoryTimelineRetriever implements TimelineRetriever
     /**
      * @return list<Exchange>
      */
-    private function withContact(PersonId $contact, Prospector $reader): array
+    private function withContact(ContactId $contact, Prospector $reader): array
     {
-        return array_values(array_filter($this->database->exchanges(), static fn (Exchange $exchange): bool => true === StateOf::the($exchange)->objectOrNull('contact', PersonId::class)?->equals($contact) && $exchange->accountId()->equals($reader->accountId)));
+        return array_values(array_filter($this->database->exchanges(), static fn (Exchange $exchange): bool => true === StateOf::the($exchange)->objectOrNull('contact', ContactId::class)?->equals($contact) && $exchange->accountId()->equals($reader->accountId)));
     }
 
     /**
@@ -97,7 +97,7 @@ final readonly class InMemoryTimelineRetriever implements TimelineRetriever
      */
     private static function inTheTimelineOfTheContact(Prospector $reader): \Closure
     {
-        return static fn (Exchange $exchange): ExchangeInTimeline => self::inTimeline($exchange, ContactPresence::ofTheContact(null !== StateOf::the($exchange)->objectOrNull('contact', PersonId::class), StateOf::the($exchange)->bool('contactForgotten')), $reader);
+        return static fn (Exchange $exchange): ExchangeInTimeline => self::inTimeline($exchange, ContactPresence::ofTheContact(null !== StateOf::the($exchange)->objectOrNull('contact', ContactId::class), StateOf::the($exchange)->bool('contactForgotten')), $reader);
     }
 
     /**
@@ -123,7 +123,7 @@ final readonly class InMemoryTimelineRetriever implements TimelineRetriever
     {
         return static function (Exchange $exchange) use ($organization, $reader): ExchangeInTimeline {
             $state = StateOf::the($exchange);
-            $contact = $state->objectOrNull('contact', PersonId::class)?->value;
+            $contact = $state->objectOrNull('contact', ContactId::class)?->value;
             $presence = ContactPresence::inTheOrganization(null !== $contact, $state->bool('contactForgotten'), in_array($contact, $organization->contactIds, true));
 
             return self::inTimeline($exchange, $presence, $reader);
@@ -177,7 +177,7 @@ final readonly class InMemoryTimelineRetriever implements TimelineRetriever
 
         return new ExchangeInTimeline(
             id: $exchange->id()->value,
-            personId: $state->objectOrNull('contact', PersonId::class)?->value,
+            personId: $state->objectOrNull('contact', ContactId::class)?->value,
             contactPresence: $presence?->value,
             channel: $facts->channel->value,
             direction: $facts->direction->value,

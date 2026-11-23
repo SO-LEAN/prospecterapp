@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Core\Double;
 
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\ContactToAttach;
 use Prospecter\Core\Prospecting\Domain\Repository\ContactToAttachRepository;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 final readonly class InMemoryContactToAttachRepository implements ContactToAttachRepository
 {
@@ -14,7 +14,7 @@ final readonly class InMemoryContactToAttachRepository implements ContactToAttac
     {
     }
 
-    public function find(PersonId $contact): ?ContactToAttach
+    public function find(ContactId $contact): ?ContactToAttach
     {
         return $this->database->contactToAttach((string) $contact);
     }

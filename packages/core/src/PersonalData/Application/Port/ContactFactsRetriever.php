@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\PersonalData\Application\Port;
 
 use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\ContactFactsResponse;
+use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\Slice;
 
 /**

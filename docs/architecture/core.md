@@ -20,7 +20,7 @@ A context's `Domain` is grouped by kind of building block (ADR 0086):
 A folder exists only when it holds something. The shared kernel is only model, so it stays flat, except for `Event/` and `Exception/`.
 
 - `src/SharedKernel/{Domain,Application}`: what every context shares, kept small:
-  - the published identities `AccountId`, `MemberId` and `PersonId`;
+  - the identities `AccountId` and `MemberId`, the account and the member who acts, which mean the same in every context (ADR 0197);
   - `DomainEvent`, the base class of every domain event (in `Domain/Event`), and `ReleasesEvents` and `RecordsEvents`;
   - `Email` (lower case), `PhoneNumber` (E.164, ADR 0072), `ContactDetails`;
   - links to outside tools (ADR 0165):
@@ -56,7 +56,7 @@ A folder exists only when it holds something. The shared kernel is only model, s
 
   Each context keeps its own exceptions in `Domain/Exception` (`UnknownOrganization`...).
 
-  Each context also has its own identities, in `Domain/Model`, for the things it refers to in other contexts. It names them in its language (ADR 0197). The context that keeps the aggregate keeps the identity's first name, and another context keeps that name when its word is the same (`ExchangeId` in Prospecting, Reporting and Connectors). A context translates another one's identity where it receives it: in the anticorruption adapter of its port, from the other context's string. Connectors and Prospecting each have a `MessageId`, an e-mail's `Message-ID` header. Both apply the same rule, so that an imported e-mail and the same e-mail an AI logs are recognized as one (ADR 0154, 0166). `tests/Domain/MessageIdTest` checks both.
+  Each context also has its own identities, in `Domain/Model`, for the things it refers to in other contexts. It names them in its language (ADR 0197). The context that keeps the aggregate names its identity (`OrganizationId` in Prospecting, `PersonId` in PersonalData, `CampaignId` in Campaigns). Another context keeps that name when its word is the same, as `ExchangeId` does in Prospecting, Reporting and Connectors. It takes its own word otherwise (`ContactId`, `ProfileId` in Accounts, `BookerId` in Booking). A context translates another one's identity where it receives it: in the anticorruption adapter of its port, from the other context's string. Connectors and Prospecting each have a `MessageId`, an e-mail's `Message-ID` header. Both apply the same rule, so that an imported e-mail and the same e-mail an AI logs are recognized as one (ADR 0154, 0166). `tests/Domain/MessageIdTest` checks both.
 - `<Context>/Application/<Intent>/`: one package per use case, CQRS (ADR 0029).
   - A command (`Relocate/Relocate`, readonly data) and its handler (`RelocateHandler`, implements `CommandHandler`, `__invoke(Relocate): void`) change the state and return nothing.
   - A query (`ConsultOrganization/ConsultOrganization`) and its handler (`__invoke(ConsultOrganization, ConsultOrganizationOutput): void`) present a response to the output port the client passes in (ADR 0085). Each query declares its port next to it (`ConsultOrganizationOutput`, extending the `OutputPort` marker). The ports of published queries extend nothing, since a Contract imports nothing. The presenter that keeps the answer as is also sits next to the query (`KeptOrganization`, `public private(set)`). It serves the clients that read the answer instead of showing it. Only queries return data.

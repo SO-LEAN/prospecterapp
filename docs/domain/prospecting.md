@@ -8,7 +8,7 @@ This context holds the organizations an account prospects, their contacts, the e
   - its legal identity, with an optional SIRET, its establishment's number (ADR 0158);
   - its contact details, its links to outside tools and its optional website (the shared kernel's `ExternalReferences`, `Website`, ADR 0160, ADR 0165);
   - its address, its position and its municipality's INSEE code, as the geocoder found them (`Location`, ADR 0142);
-  - its observations, its logo, its holding, and its contacts (`PersonId`s only).
+  - its observations, its logo, its holding, and its contacts (`ContactId`s only, the identities of PersonalData's persons).
 - **Possible duplicate**: an organization of the account that another one resembles. They resemble each other by name, ignoring the legal form, and by city (`ResemblanceKey`). They may be the same organization, entered twice. Prospecter flags both and never refuses them. The flag stays until a member checks and states that it is not a duplicate (ADR 0162).
 - **Establishment** (`Establishment`): a company's establishment as the public company directory lists it. It has a SIRET, its company's name, an address, an activity (its NAF code), and whether it has closed. Prospecter proposes establishments so that a member records an organization's SIRET without typing it (ADR 0158).
 - **Prospector** (`Prospector`): a member as Prospecting sees them. It says who acts, for which account, and whether they read the personal data an exchange may hold.
@@ -193,7 +193,7 @@ This context holds the organizations an account prospects, their contacts, the e
 
 - Organizations and contacts:
   - the organizations an account prospects (`Organization`), and `StopProspecting`;
-  - its contacts (`PersonId`s only, `AddContact` / `RemoveContact`). A contact is never left alone: `OrphanContacts`;
+  - its contacts (`ContactId`s only, `AddContact` / `RemoveContact`). A contact is never left alone: `OrphanContacts`;
   - the `Prospector` who acts or reads, with or without the right to manage personal data. Its `Gesture` starts prospecting an organization (`Organization::prospectedBy()`). The `Prospectors` port reads it (`prospectorFrom()`), implemented outside the core from Accounts' members;
   - the `KnownContacts` port says whether a person is one the account prospects. PersonalData answers it;
   - an organization's possible duplicates (ADR 0162):

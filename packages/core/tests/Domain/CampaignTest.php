@@ -26,6 +26,7 @@ use Prospecter\Core\Campaigns\Domain\Model\CampaignName;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignStatus;
 use Prospecter\Core\Campaigns\Domain\Model\Candidate;
 use Prospecter\Core\Campaigns\Domain\Model\Channel;
+use Prospecter\Core\Campaigns\Domain\Model\ContactId;
 use Prospecter\Core\Campaigns\Domain\Model\ContactTags;
 use Prospecter\Core\Campaigns\Domain\Model\DailyCap;
 use Prospecter\Core\Campaigns\Domain\Model\MessageTemplate;
@@ -41,7 +42,6 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\Core\Double\StateOf;
 
 /** A campaign refuses each intent exactly when its state does not allow it. Otherwise, the intent records its event. */
@@ -84,8 +84,8 @@ final class CampaignTest extends TestCase
     public function testStartingAFrozenCampaignItsErasedContactsEmptiedIsRefusedForWantOfRecipient(): void
     {
         $campaign = $this->in(CampaignStatus::Frozen);
-        $campaign->forget(new PersonId(self::ADA), $this->now());
-        $campaign->forget(new PersonId(self::ALAN), $this->now());
+        $campaign->forget(new ContactId(self::ADA), $this->now());
+        $campaign->forget(new ContactId(self::ALAN), $this->now());
 
         $this->expectExceptionObject(CampaignWithoutRecipient::left());
         $campaign->start(new MemberId(self::ME), $this->now());
@@ -119,7 +119,7 @@ final class CampaignTest extends TestCase
     {
         $campaign = $this->in(CampaignStatus::Started);
 
-        $campaign->process(new PersonId(self::ADA), self::EXCHANGE, RecipientOutcome::Done, at: $this->now());
+        $campaign->process(new ContactId(self::ADA), self::EXCHANGE, RecipientOutcome::Done, at: $this->now());
 
         $this->assertSame(1, $campaign->processedOnTheDayOf($this->later(), new \DateTimeZone('UTC')));
     }
@@ -139,9 +139,9 @@ final class CampaignTest extends TestCase
     public function testDismissingTheLastRecipientToHandleEndsTheCampaign(): void
     {
         $campaign = $this->in(CampaignStatus::Started);
-        $campaign->process(new PersonId(self::ADA), self::EXCHANGE, RecipientOutcome::Missed, at: $this->now());
+        $campaign->process(new ContactId(self::ADA), self::EXCHANGE, RecipientOutcome::Missed, at: $this->now());
 
-        $campaign->dismiss(new PersonId(self::ALAN), 'Parti', new MemberId(self::ME), $this->later());
+        $campaign->dismiss(new ContactId(self::ALAN), 'Parti', new MemberId(self::ME), $this->later());
 
         $this->assertEquals([CampaignStatus::Ended, $this->later()], [StateOf::the($campaign)->object('status', CampaignStatus::class), StateOf::the($campaign)->objectOrNull('endedAt', \DateTimeImmutable::class)]);
     }
@@ -149,15 +149,15 @@ final class CampaignTest extends TestCase
     public function testTheNextRecipientIsTheFirstStillToHandle(): void
     {
         $campaign = $this->in(CampaignStatus::Started);
-        $campaign->dismiss(new PersonId(self::ADA), null, new MemberId(self::ME), $this->now());
+        $campaign->dismiss(new ContactId(self::ADA), null, new MemberId(self::ME), $this->now());
 
-        $this->assertEquals(new PersonId(self::ALAN), $campaign->nextRecipient(exchangedWith: []));
+        $this->assertEquals(new ContactId(self::ALAN), $campaign->nextRecipient(exchangedWith: []));
     }
 
     public function testTheNextRecipientCountsAmongThoseStillToHandle(): void
     {
         $campaign = $this->in(CampaignStatus::Started);
-        $campaign->process(new PersonId(self::ADA), self::EXCHANGE, RecipientOutcome::Done, at: $this->now());
+        $campaign->process(new ContactId(self::ADA), self::EXCHANGE, RecipientOutcome::Done, at: $this->now());
 
         $this->assertSame(1, $campaign->stillToHandle(exchangedWith: []));
     }
@@ -166,14 +166,14 @@ final class CampaignTest extends TestCase
     {
         $campaign = $this->in(CampaignStatus::Started);
 
-        $this->assertEquals(new PersonId(self::ALAN), $campaign->nextRecipient(exchangedWith: [new PersonId(self::ADA)]));
+        $this->assertEquals(new ContactId(self::ALAN), $campaign->nextRecipient(exchangedWith: [new ContactId(self::ADA)]));
     }
 
     public function testThoseStillToHandleAreNotThoseAnExchangeWasNotedWithMeanwhile(): void
     {
         $campaign = $this->in(CampaignStatus::Started);
 
-        $this->assertSame(1, $campaign->stillToHandle(exchangedWith: [new PersonId(self::ADA)]));
+        $this->assertSame(1, $campaign->stillToHandle(exchangedWith: [new ContactId(self::ADA)]));
     }
 
     public function testACampaignWhoseLastRecipientsWereExchangedWithMeanwhileHasNoNextRecipient(): void
@@ -181,15 +181,15 @@ final class CampaignTest extends TestCase
         $campaign = $this->in(CampaignStatus::Started);
         $this->expectExceptionObject(CampaignNotRunning::toRun());
 
-        (void) $campaign->nextRecipient(exchangedWith: [new PersonId(self::ADA), new PersonId(self::ALAN)]);
+        (void) $campaign->nextRecipient(exchangedWith: [new ContactId(self::ADA), new ContactId(self::ALAN)]);
     }
 
     public function testThePendingRecipientsAreThoseStillToHandle(): void
     {
         $campaign = $this->in(CampaignStatus::Started);
-        $campaign->dismiss(new PersonId(self::ADA), null, new MemberId(self::ME), $this->now());
+        $campaign->dismiss(new ContactId(self::ADA), null, new MemberId(self::ME), $this->now());
 
-        $this->assertEquals([new PersonId(self::ALAN)], $campaign->pendingRecipients());
+        $this->assertEquals([new ContactId(self::ALAN)], $campaign->pendingRecipients());
     }
 
     public function testACampaignNotLedHasNoNextRecipient(): void
@@ -203,18 +203,18 @@ final class CampaignTest extends TestCase
     public function testProcessingARecipientHandledAlreadyChangesNothing(): void
     {
         $campaign = $this->in(CampaignStatus::Started);
-        $campaign->dismiss(new PersonId(self::ADA), null, new MemberId(self::ME), $this->now());
+        $campaign->dismiss(new ContactId(self::ADA), null, new MemberId(self::ME), $this->now());
 
-        $campaign->process(new PersonId(self::ADA), self::EXCHANGE, RecipientOutcome::Missed, at: $this->now());
+        $campaign->process(new ContactId(self::ADA), self::EXCHANGE, RecipientOutcome::Missed, at: $this->now());
 
-        $this->assertEquals([new Recipient(new PersonId(self::ADA), RecipientStatus::Dismissed), Recipient::pending(new PersonId(self::ALAN))], StateOf::the($campaign)->object('recipients', Recipients::class)->recipients);
+        $this->assertEquals([new Recipient(new ContactId(self::ADA), RecipientStatus::Dismissed), Recipient::pending(new ContactId(self::ALAN))], StateOf::the($campaign)->object('recipients', Recipients::class)->recipients);
     }
 
     public function testAStoppedCampaignProcessesNobody(): void
     {
         $campaign = $this->in(CampaignStatus::Stopped);
 
-        $campaign->process(new PersonId(self::ADA), self::EXCHANGE, RecipientOutcome::Done, at: $this->now());
+        $campaign->process(new ContactId(self::ADA), self::EXCHANGE, RecipientOutcome::Done, at: $this->now());
 
         $this->assertTrue(StateOf::the($campaign)->object('recipients', Recipients::class)->recipients[0]->isPending());
     }
@@ -222,20 +222,20 @@ final class CampaignTest extends TestCase
     public function testTheErasureOfTheExchangeOfARecipientReopensAnEndedCampaign(): void
     {
         $campaign = $this->in(CampaignStatus::Started);
-        $campaign->process(new PersonId(self::ADA), self::EXCHANGE, RecipientOutcome::Done, at: $this->now());
-        $campaign->dismiss(new PersonId(self::ALAN), null, new MemberId(self::ME), $this->now());
+        $campaign->process(new ContactId(self::ADA), self::EXCHANGE, RecipientOutcome::Done, at: $this->now());
+        $campaign->dismiss(new ContactId(self::ALAN), null, new MemberId(self::ME), $this->now());
 
         $campaign->reopenAfterErasureOf(self::EXCHANGE, $this->later());
 
         $state = StateOf::the($campaign);
-        $this->assertEquals([CampaignStatus::Started, null, $this->later(), Recipient::pending(new PersonId(self::ADA))], [$state->object('status', CampaignStatus::class), $state->objectOrNull('endedAt', \DateTimeImmutable::class), $state->object('modifiedAt', \DateTimeImmutable::class), $state->object('recipients', Recipients::class)->recipients[0]]);
+        $this->assertEquals([CampaignStatus::Started, null, $this->later(), Recipient::pending(new ContactId(self::ADA))], [$state->object('status', CampaignStatus::class), $state->objectOrNull('endedAt', \DateTimeImmutable::class), $state->object('modifiedAt', \DateTimeImmutable::class), $state->object('recipients', Recipients::class)->recipients[0]]);
     }
 
     public function testTheErasureOfAnotherExchangeChangesNothing(): void
     {
         $campaign = $this->in(CampaignStatus::Started);
-        $campaign->process(new PersonId(self::ADA), self::EXCHANGE, RecipientOutcome::Done, at: $this->now());
-        $campaign->dismiss(new PersonId(self::ALAN), null, new MemberId(self::ME), $this->now());
+        $campaign->process(new ContactId(self::ADA), self::EXCHANGE, RecipientOutcome::Done, at: $this->now());
+        $campaign->dismiss(new ContactId(self::ALAN), null, new MemberId(self::ME), $this->now());
 
         $campaign->reopenAfterErasureOf(self::OTHER_EXCHANGE, $this->later());
 
@@ -246,41 +246,41 @@ final class CampaignTest extends TestCase
     public function testARecipientErasedSinceIsNotToHandleAgain(): void
     {
         $campaign = $this->in(CampaignStatus::Started);
-        $campaign->process(new PersonId(self::ADA), self::EXCHANGE, RecipientOutcome::Done, at: $this->now());
-        $campaign->forget(new PersonId(self::ADA), $this->now());
+        $campaign->process(new ContactId(self::ADA), self::EXCHANGE, RecipientOutcome::Done, at: $this->now());
+        $campaign->forget(new ContactId(self::ADA), $this->now());
 
         $campaign->reopenAfterErasureOf(self::EXCHANGE, $this->later());
 
-        $this->assertEquals(new Recipient(new PersonId(self::ADA), RecipientStatus::Processed, erased: true, processedAt: $this->now()), StateOf::the($campaign)->object('recipients', Recipients::class)->recipients[0]);
+        $this->assertEquals(new Recipient(new ContactId(self::ADA), RecipientStatus::Processed, erased: true, processedAt: $this->now()), StateOf::the($campaign)->object('recipients', Recipients::class)->recipients[0]);
     }
 
     public function testAnExchangeGoneWithItsOrganizationLeavesItsRecipientProcessedWithoutIt(): void
     {
         $campaign = $this->in(CampaignStatus::Started);
-        $campaign->process(new PersonId(self::ADA), self::EXCHANGE, RecipientOutcome::Missed, at: $this->now());
+        $campaign->process(new ContactId(self::ADA), self::EXCHANGE, RecipientOutcome::Missed, at: $this->now());
 
         $campaign->forgetExchangeGoneWithItsOrganization(self::EXCHANGE);
 
         $state = StateOf::the($campaign);
-        $this->assertEquals([CampaignStatus::Started, new Recipient(new PersonId(self::ADA), RecipientStatus::Processed, missed: true, processedAt: $this->now())], [$state->object('status', CampaignStatus::class), $state->object('recipients', Recipients::class)->recipients[0]]);
+        $this->assertEquals([CampaignStatus::Started, new Recipient(new ContactId(self::ADA), RecipientStatus::Processed, missed: true, processedAt: $this->now())], [$state->object('status', CampaignStatus::class), $state->object('recipients', Recipients::class)->recipients[0]]);
     }
 
     public function testAStoppedCampaignStaysStoppedWhenItsRecipientIsToHandleAgain(): void
     {
         $campaign = $this->in(CampaignStatus::Started);
-        $campaign->process(new PersonId(self::ADA), self::EXCHANGE, RecipientOutcome::Missed, at: $this->now());
+        $campaign->process(new ContactId(self::ADA), self::EXCHANGE, RecipientOutcome::Missed, at: $this->now());
         $campaign->stop(new MemberId(self::ME), $this->now());
 
         $campaign->reopenAfterErasureOf(self::EXCHANGE, $this->later());
 
         $state = StateOf::the($campaign);
-        $this->assertEquals([CampaignStatus::Stopped, Recipient::pending(new PersonId(self::ADA))], [$state->object('status', CampaignStatus::class), $state->object('recipients', Recipients::class)->recipients[0]]);
+        $this->assertEquals([CampaignStatus::Stopped, Recipient::pending(new ContactId(self::ADA))], [$state->object('status', CampaignStatus::class), $state->object('recipients', Recipients::class)->recipients[0]]);
     }
 
     public function testTheReopeningRecordsNoEvent(): void
     {
         $campaign = $this->in(CampaignStatus::Started);
-        $campaign->process(new PersonId(self::ADA), self::EXCHANGE, RecipientOutcome::Done, at: $this->now());
+        $campaign->process(new ContactId(self::ADA), self::EXCHANGE, RecipientOutcome::Done, at: $this->now());
         $campaign->releaseEvents();
 
         $campaign->reopenAfterErasureOf(self::EXCHANGE, $this->later());
@@ -297,7 +297,7 @@ final class CampaignTest extends TestCase
         $this->exercise($campaign, $intent);
 
         $expected = RecipientDismissed::class === $event
-            ? new RecipientDismissed(new AccountId(self::ACCOUNT), new MemberId(self::ME), new CampaignId(self::CAMPAIGN), new PersonId(self::ADA), $this->now())
+            ? new RecipientDismissed(new AccountId(self::ACCOUNT), new MemberId(self::ME), new CampaignId(self::CAMPAIGN), new ContactId(self::ADA), $this->now())
             : new $event(new AccountId(self::ACCOUNT), new MemberId(self::ME), new CampaignId(self::CAMPAIGN), $this->now());
 
         $this->assertEquals([$expected], $campaign->releaseEvents());
@@ -376,8 +376,8 @@ final class CampaignTest extends TestCase
 
         $campaign->freeze([self::ADA => $this->reachedByEmail('#ESN'), self::ALAN => $this->reachedByEmail('#PHP')], new MemberId(self::ME), $this->now());
 
-        $this->assertTrue($campaign->hasRecipient(new PersonId(self::ADA)));
-        $this->assertFalse($campaign->hasRecipient(new PersonId(self::ALAN)));
+        $this->assertTrue($campaign->hasRecipient(new ContactId(self::ADA)));
+        $this->assertFalse($campaign->hasRecipient(new ContactId(self::ALAN)));
     }
 
     private function exercise(Campaign $campaign, CampaignIntent $intent): void
@@ -388,11 +388,11 @@ final class CampaignTest extends TestCase
             CampaignIntent::ReviseCampaign => $campaign->revise(new CampaignBrief(CampaignName::of('Relance'), Targeting::by(Channel::Email, ['#ESN']), MessageTemplate::of('Bonjour', null, Channel::Email)), $me, $this->now()),
             CampaignIntent::DiscardCampaign => $campaign->discard($me, $this->now()),
             CampaignIntent::FreezeCampaign => $campaign->freeze([self::ADA => $this->reachedByEmail('#ESN')], $me, $this->now()),
-            CampaignIntent::AddRecipients => $campaign->addRecipient(new Candidate(new PersonId(self::ALAN), $this->reachedByEmail(), new Addressee('Alan', 'Turing', 'x', null, null)), $me, $this->now()),
-            CampaignIntent::RemoveRecipient => $campaign->removeRecipient(new PersonId(self::ADA), $me, $this->now()),
+            CampaignIntent::AddRecipients => $campaign->addRecipient(new Candidate(new ContactId(self::ALAN), $this->reachedByEmail(), new Addressee('Alan', 'Turing', 'x', null, null)), $me, $this->now()),
+            CampaignIntent::RemoveRecipient => $campaign->removeRecipient(new ContactId(self::ADA), $me, $this->now()),
             CampaignIntent::StartCampaign => $campaign->start($me, $this->now()),
             CampaignIntent::StopCampaign => $campaign->stop($me, $this->now()),
-            CampaignIntent::RunCampaign => $campaign->dismiss(new PersonId(self::ADA), null, $me, $this->now()),
+            CampaignIntent::RunCampaign => $campaign->dismiss(new ContactId(self::ADA), null, $me, $this->now()),
             CampaignIntent::SetDailyCap => $campaign->setDailyCap(DailyCap::of(30), $me, $this->now()),
         };
     }
@@ -416,8 +416,8 @@ final class CampaignTest extends TestCase
         }
 
         if (CampaignStatus::Ended === $status) {
-            $campaign->dismiss(new PersonId(self::ADA), null, $me, $this->now());
-            $campaign->dismiss(new PersonId(self::ALAN), null, $me, $this->now());
+            $campaign->dismiss(new ContactId(self::ADA), null, $me, $this->now());
+            $campaign->dismiss(new ContactId(self::ALAN), null, $me, $this->now());
         }
 
         return $campaign;

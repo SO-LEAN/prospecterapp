@@ -9,13 +9,13 @@ use Prospecter\Core\Campaigns\Domain\Event\ContactTagsChanged;
 use Prospecter\Core\Campaigns\Domain\Event\OrganizationTagsChanged;
 use Prospecter\Core\Campaigns\Domain\Exception\AutomaticTag;
 use Prospecter\Core\Campaigns\Domain\Exception\TagNotCarried;
+use Prospecter\Core\Campaigns\Domain\Model\ContactId;
 use Prospecter\Core\Campaigns\Domain\Model\Holder;
 use Prospecter\Core\Campaigns\Domain\Model\OrganizationId;
 use Prospecter\Core\Campaigns\Domain\Model\Tag;
 use Prospecter\Core\Campaigns\Domain\Model\Tagging;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Each change to an organization's or a contact's tags records what happened. An automatic tag is never put by hand,
@@ -40,18 +40,18 @@ final class TaggingTest extends TestCase
 
     public function testTakingATagOffAContactRecordsIt(): void
     {
-        $tagging = $this->taggingOf(Holder::contact(new PersonId(self::CONTACT)));
+        $tagging = $this->taggingOf(Holder::contact(new ContactId(self::CONTACT)));
         $tagging->tagWith([Tag::written('#CLIENT')], new MemberId(self::MEMBER), new \DateTimeImmutable(self::AT));
         $tagging->releaseEvents();
 
         $tagging->takeOff(Tag::written('#CLIENT'), new MemberId(self::MEMBER), new \DateTimeImmutable(self::AT));
 
-        $this->assertEquals([new ContactTagsChanged(new AccountId(self::ACCOUNT), new MemberId(self::MEMBER), new PersonId(self::CONTACT), new \DateTimeImmutable(self::AT))], $tagging->releaseEvents());
+        $this->assertEquals([new ContactTagsChanged(new AccountId(self::ACCOUNT), new MemberId(self::MEMBER), new ContactId(self::CONTACT), new \DateTimeImmutable(self::AT))], $tagging->releaseEvents());
     }
 
     public function testAnAutomaticTagAmongOthersChangesNothing(): void
     {
-        $tagging = $this->taggingOf(Holder::contact(new PersonId(self::CONTACT)));
+        $tagging = $this->taggingOf(Holder::contact(new ContactId(self::CONTACT)));
 
         try {
             $tagging->tagWith([Tag::written('#CLIENT'), Tag::written('#EMAIL')], new MemberId(self::MEMBER), new \DateTimeImmutable(self::AT));

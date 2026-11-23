@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Campaigns\AntiCorruption;
 
+use Prospecter\Core\Campaigns\Domain\Model\ContactId;
 use Prospecter\Core\Campaigns\Domain\Model\Locality;
 use Prospecter\Core\Campaigns\Domain\Model\OrganizationFact;
 use Prospecter\Core\Campaigns\Domain\Model\OrganizationId;
@@ -13,7 +14,6 @@ use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\ListOrgan
 use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\ListOrganizationFactsService;
 use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\OrganizationFactsResponse;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Anticorruption layer (ADR 0045, 0089, 0141): the facts that Prospecting gives again, one slice after another, in
@@ -40,7 +40,7 @@ final readonly class ProspectingOrganizationsAndTheirContacts implements Organiz
                 new OrganizationId($facts->organizationId),
                 $facts->revision,
                 $facts->present,
-                array_map(static fn (string $contact): PersonId => new PersonId($contact), $facts->contacts),
+                array_map(static fn (string $contact): ContactId => new ContactId($contact), $facts->contacts),
                 new Locality($facts->municipalityCode, $facts->country),
             ), $kept->facts);
 

@@ -7,6 +7,7 @@ namespace App\Prospecting\Persistence;
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Hydrator;
 use App\Shared\Typed;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\Model\Website;
@@ -20,7 +21,6 @@ use Prospecter\Core\SharedKernel\Domain\GeoPoint;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\Origin;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Turns an organization into a plain document for its DynamoDB item, and back (ADR 0048). Its value objects are
@@ -55,7 +55,7 @@ final class OrganizationDocument
             'municipalityCode' => Typed::stringOrNull($state['municipalityCode']),
             'observations' => Typed::stringOrNull($state['observations']),
             'logo' => Documents::file(Typed::objectOrNull($state['logo'], File::class)),
-            'contacts' => array_map(static fn (PersonId $contact): string => $contact->value, Typed::objects($state['contacts'], PersonId::class)),
+            'contacts' => array_map(static fn (ContactId $contact): string => $contact->value, Typed::objects($state['contacts'], ContactId::class)),
             'possibleDuplicates' => array_map(static fn (OrganizationId $duplicate): string => $duplicate->value, Typed::objects($state['possibleDuplicates'], OrganizationId::class)),
             'notDuplicates' => array_map(static fn (OrganizationId $checked): string => $checked->value, Typed::objects($state['notDuplicates'], OrganizationId::class)),
             'origin' => Typed::object($state['origin'], Origin::class)->value,
@@ -86,7 +86,7 @@ final class OrganizationDocument
             'municipalityCode' => Typed::stringOrNull($document['municipalityCode'] ?? null),
             'observations' => Typed::stringOrNull($document['observations']),
             'logo' => Documents::fileOf($document['logo']),
-            'contacts' => array_map(static fn (string $contact): PersonId => new PersonId($contact), Typed::strings($document['contacts'])),
+            'contacts' => array_map(static fn (string $contact): ContactId => new ContactId($contact), Typed::strings($document['contacts'])),
             'possibleDuplicates' => array_map(static fn (string $duplicate): OrganizationId => new OrganizationId($duplicate), Typed::strings($document['possibleDuplicates'] ?? [])),
             'notDuplicates' => array_map(static fn (string $checked): OrganizationId => new OrganizationId($checked), Typed::strings($document['notDuplicates'] ?? [])),
             'origin' => Documents::originOf($document),

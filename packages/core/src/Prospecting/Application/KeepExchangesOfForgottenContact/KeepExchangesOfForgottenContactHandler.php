@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\KeepExchangesOfForgottenContact;
 
 use Prospecter\Core\PersonalData\Contract\Event\ContactForgotten;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * An erased contact's exchanges stay in their organizations' timelines, because they are the account's commercial
@@ -32,7 +32,7 @@ final readonly class KeepExchangesOfForgottenContactHandler implements EventHand
     {
         $author = new MemberId($event->memberId);
 
-        foreach ($this->exchanges->withContact(new PersonId($event->personId), new AccountId($event->accountId)) as $exchange) {
+        foreach ($this->exchanges->withContact(new ContactId($event->personId), new AccountId($event->accountId)) as $exchange) {
             $exchange->forgetItsContact(by: $author, at: $event->occurredAt);
             $this->exchanges->save($exchange);
             $this->publishWhatHappenedTo($exchange);

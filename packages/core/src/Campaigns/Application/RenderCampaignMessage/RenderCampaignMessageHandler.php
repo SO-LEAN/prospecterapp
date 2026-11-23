@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Prospecter\Core\Campaigns\Application\RenderCampaignMessage;
 
 use Prospecter\Core\Campaigns\Domain\Model\CampaignId;
+use Prospecter\Core\Campaigns\Domain\Model\ContactId;
 use Prospecter\Core\Campaigns\Domain\Port\Addressees;
 use Prospecter\Core\Campaigns\Domain\Port\Campaigners;
 use Prospecter\Core\Campaigns\Domain\Repository\CampaignRepository;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /** The core renders the message, for the member's screen and for every other client that reads a campaign. */
 final readonly class RenderCampaignMessageHandler implements QueryHandler
@@ -27,7 +27,7 @@ final readonly class RenderCampaignMessageHandler implements QueryHandler
         $member = new MemberId($query->memberId);
         $accountId = $this->campaigners->accountOf($member);
         $campaign = $this->campaigns->get($accountId, new CampaignId($query->campaignId));
-        $message = $campaign->messageFor($this->addressees->addressee($accountId, $member, new PersonId($query->contactId)));
+        $message = $campaign->messageFor($this->addressees->addressee($accountId, $member, new ContactId($query->contactId)));
 
         $output->present(new CampaignMessage($query->campaignId, $query->contactId, $message->subject, $message->text));
     }

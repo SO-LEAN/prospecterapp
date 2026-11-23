@@ -8,9 +8,9 @@ use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Campaigns\Domain\Exception\CampaignWithoutRecipient;
 use Prospecter\Core\Campaigns\Domain\Exception\TooManyRecipients;
 use Prospecter\Core\Campaigns\Domain\Exception\UnknownRecipient;
+use Prospecter\Core\Campaigns\Domain\Model\ContactId;
 use Prospecter\Core\Campaigns\Domain\Model\Recipient;
 use Prospecter\Core\Campaigns\Domain\Model\Recipients;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * A frozen campaign's recipients: each one once, 1 to 500 as the members change them. A forgotten contact leaves them,
@@ -73,13 +73,13 @@ final class RecipientsTest extends TestCase
         $this->assertFalse($recipients->includes(self::contact(1)));
     }
 
-    private static function contact(int $number): PersonId
+    private static function contact(int $number): ContactId
     {
-        return new PersonId(sprintf('0190a1c0-0000-7000-8000-%012d', $number));
+        return new ContactId(sprintf('0190a1c0-0000-7000-8000-%012d', $number));
     }
 
     /**
-     * @return list<PersonId>
+     * @return list<ContactId>
      */
     private static function contacts(int $count): array
     {

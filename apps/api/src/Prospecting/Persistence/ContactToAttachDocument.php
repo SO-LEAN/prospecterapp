@@ -8,11 +8,11 @@ use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Hydrator;
 use App\Shared\Typed;
 use Prospecter\Core\Prospecting\Application\ContactToAttachInList;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\ContactToAttach;
 use Prospecter\Core\Prospecting\Domain\Policy\UnattachedErasure;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Turns a contact to attach into a plain document for its DynamoDB item, and back (ADR 0048). Its recorded events are
@@ -28,7 +28,7 @@ final class ContactToAttachDocument
         $state = Hydrator::stateOf($contactToAttach);
 
         return [
-            'id' => Typed::object($state['id'], PersonId::class)->value,
+            'id' => Typed::object($state['id'], ContactId::class)->value,
             'accountId' => Typed::object($state['accountId'], AccountId::class)->value,
             'holder' => Typed::object($state['holder'], MemberId::class)->value,
             'lastMeetingAt' => Documents::moment(Typed::object($state['lastMeetingAt'], \DateTimeImmutable::class)),
@@ -46,7 +46,7 @@ final class ContactToAttachDocument
         $document = Typed::document($document);
 
         return Hydrator::restore(ContactToAttach::class, [
-            'id' => new PersonId(Typed::string($document['id'])),
+            'id' => new ContactId(Typed::string($document['id'])),
             'accountId' => new AccountId(Typed::string($document['accountId'])),
             'holder' => new MemberId(Typed::string($document['holder'])),
             'lastMeetingAt' => Documents::momentOf(Typed::string($document['lastMeetingAt'])),

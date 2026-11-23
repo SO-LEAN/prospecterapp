@@ -15,6 +15,7 @@ use Prospecter\Core\Campaigns\Application\ConsultSuggestedTags\ConsultSuggestedT
 use Prospecter\Core\Campaigns\Application\PutTags\PutTags;
 use Prospecter\Core\Campaigns\Application\SuggestedTags;
 use Prospecter\Core\Campaigns\Application\TakeOffTag\TakeOffTag;
+use Prospecter\Core\Campaigns\Domain\Model\ContactId as CampaignsContactId;
 use Prospecter\Core\Campaigns\Domain\Model\Holder;
 use Prospecter\Core\Campaigns\Domain\Model\OrganizationId as CampaignsOrganizationId;
 use Prospecter\Core\Campaigns\Domain\Model\Tag;
@@ -25,7 +26,6 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\Core\Acceptance\Expect;
 
 /**
@@ -192,7 +192,7 @@ final class TagContext implements Context
     {
         return $this->scenario->isAnOrganization($name)
             ? Holder::organization(new CampaignsOrganizationId($this->scenario->idOf($name)))
-            : Holder::contact(new PersonId($this->scenario->personIdOf($name)));
+            : Holder::contact(new CampaignsContactId($this->scenario->personIdOf($name)));
     }
 
     /**

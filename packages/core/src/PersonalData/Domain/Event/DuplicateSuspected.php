@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\PersonalData\Domain\Event;
 
+use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * The contact resembles another contact of their organization, and is suspected of being that contact's duplicate.

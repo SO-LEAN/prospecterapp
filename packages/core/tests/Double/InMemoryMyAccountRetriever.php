@@ -9,6 +9,7 @@ use Prospecter\Core\Accounts\Application\Port\MyAccountRetriever;
 use Prospecter\Core\Accounts\Domain\Exception\UnknownAccount;
 use Prospecter\Core\Accounts\Domain\Exception\UnknownMember;
 use Prospecter\Core\Accounts\Domain\Model\AccountIntent;
+use Prospecter\Core\Accounts\Domain\Model\ProfileId;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\Accounts\Domain\Policy\AccountPossibilities;
 use Prospecter\Core\SharedKernel\Application\FileResponse;
@@ -17,7 +18,6 @@ use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\GeoPoint;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Reads the members and the accounts that the in-memory repositories saved, as the adapter reads the table's items.
@@ -41,7 +41,7 @@ final readonly class InMemoryMyAccountRetriever implements MyAccountRetriever
         return new MyAccount(
             memberId: $member->id()->value,
             accountId: $account->id()->value,
-            personId: $memberState->object('personId', PersonId::class)->value,
+            personId: $memberState->object('personId', ProfileId::class)->value,
             roles: array_map(static fn (Role $role): string => $role->value, $memberState->listOf('roles', Role::class)),
             organizationCorporateName: $identity->corporateName,
             organizationForm: $identity->form,

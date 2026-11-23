@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Connectors\Domain\Model;
 
-use Prospecter\Core\SharedKernel\Domain\PersonId;
-
 /**
  * A planned exchange as its holder finds it in their calendar at a provider (ADR 0127). It holds when, how and where
  * the exchange happens, and with whom. It holds the card it leads to: the contact's card, or the organization's own
@@ -20,7 +18,7 @@ final readonly class CalendarEvent
         public \DateTimeImmutable $startsAt,
         public \DateTimeImmutable $endsAt,
         public ?string $venue,
-        public ?PersonId $contact,
+        public ?ContactId $contact,
         public ?string $contactName,
         public ?OrganizationId $organization,
         public ?string $organizationName,

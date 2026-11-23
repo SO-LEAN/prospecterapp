@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\NoteToDo;
 
 use Prospecter\Core\Prospecting\Domain\Model\ContactCorrespondent;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\Due;
 use Prospecter\Core\Prospecting\Domain\Model\Task;
 use Prospecter\Core\Prospecting\Domain\Model\ToDo;
@@ -17,7 +18,6 @@ use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 final readonly class NoteToDoHandler implements CommandHandler
 {
@@ -34,7 +34,7 @@ final readonly class NoteToDoHandler implements CommandHandler
     public function __invoke(NoteToDo $command): void
     {
         $prospector = $this->prospectors->prospectorFrom(new MemberId($command->prospectorId));
-        $contact = new PersonId($command->personId);
+        $contact = new ContactId($command->personId);
         $toDo = ToDo::noted(
             new Gesture($prospector->accountId, $prospector->id, $command->executedAt),
             new ToDoId($command->id),

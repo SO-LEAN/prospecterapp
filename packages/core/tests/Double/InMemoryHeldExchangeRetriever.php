@@ -6,6 +6,7 @@ namespace Tests\Core\Double;
 
 use Prospecter\Core\Prospecting\Application\ConsultHeldExchanges\HeldExchange;
 use Prospecter\Core\Prospecting\Application\Port\HeldExchangeRetriever;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
@@ -13,7 +14,6 @@ use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Reads the exchanges that the in-memory repository saved, as the adapter reads their items. It reads a holder's
@@ -65,7 +65,7 @@ final readonly class InMemoryHeldExchangeRetriever implements HeldExchangeRetrie
             $facts->place,
             $facts->link?->url,
             $facts->linkRequested,
-            $state->objectOrNull('contact', PersonId::class)?->value,
+            $state->objectOrNull('contact', ContactId::class)?->value,
             array_map(strval(...), $state->listOf('keptFor', OrganizationId::class)),
             $state->bool('bookedByLink'),
         );

@@ -9,13 +9,13 @@ use App\Shared\Persistence\Hydrator;
 use App\Shared\Persistence\Table;
 use App\Shared\Typed;
 use Prospecter\Core\Connectors\Domain\Model\CalendarEntry;
+use Prospecter\Core\Connectors\Domain\Model\ContactId;
 use Prospecter\Core\Connectors\Domain\Model\ExchangeId;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Model\SyncState;
 use Prospecter\Core\Connectors\Domain\Repository\CalendarEntryRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * The exchanges pushed into their holders' calendars, in the Connectors table (ADR 0127). The key is
@@ -40,7 +40,7 @@ final readonly class DynamoCalendarEntryRepository implements CalendarEntryRepos
         return null === $item ? null : self::restore($item['entry']);
     }
 
-    public function ofContact(PersonId $contact): array
+    public function ofContact(ContactId $contact): array
     {
         return array_map(static fn (array $item): CalendarEntry => self::restore($item['entry']), $this->connectorsTable->query(ConnectorsKeys::contact($contact->value)));
     }
@@ -61,7 +61,7 @@ final readonly class DynamoCalendarEntryRepository implements CalendarEntryRepos
             'accountId' => new AccountId(Typed::string($document['accountId'])),
             'member' => new MemberId(Typed::string($document['member'])),
             'provider' => Provider::from(Typed::string($document['provider'])),
-            'contact' => null === $contact ? null : new PersonId($contact),
+            'contact' => null === $contact ? null : new ContactId($contact),
             'startsAt' => $startsAt,
             'state' => SyncState::from(Typed::stringOrNull($document['state'] ?? null) ?? SyncState::Synced->value),
             'reason' => Typed::stringOrNull($document['reason'] ?? null),
@@ -112,7 +112,7 @@ final readonly class DynamoCalendarEntryRepository implements CalendarEntryRepos
             'accountId' => Typed::object($state['accountId'], AccountId::class)->value,
             'member' => Typed::object($state['member'], MemberId::class)->value,
             'provider' => Typed::object($state['provider'], Provider::class)->value,
-            'contact' => Typed::objectOrNull($state['contact'], PersonId::class)?->value,
+            'contact' => Typed::objectOrNull($state['contact'], ContactId::class)?->value,
             'startsAt' => Documents::moment(Typed::object($state['startsAt'], \DateTimeImmutable::class)),
             'state' => Typed::object($state['state'], SyncState::class)->value,
             'reason' => Typed::stringOrNull($state['reason']),

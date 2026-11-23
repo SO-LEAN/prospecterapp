@@ -18,7 +18,6 @@ use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\GeoPoint;
 use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 
@@ -54,7 +53,7 @@ final class Account implements ReleasesEvents
      *
      * @throws AccountWithoutCorporateName
      */
-    public static function openBy(Gesture $gesture, PersonId $founderProfile, LegalIdentity $legalIdentity): self
+    public static function openBy(Gesture $gesture, ProfileId $founderProfile, LegalIdentity $legalIdentity): self
     {
         if (!$legalIdentity->hasCorporateName()) {
             throw AccountWithoutCorporateName::because('An account needs the corporate name of its organization', 'corporateName');

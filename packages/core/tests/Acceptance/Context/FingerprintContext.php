@@ -14,9 +14,9 @@ use Prospecter\Core\Prospecting\Application\NoteOrganizationExchange\NoteOrganiz
 use Prospecter\Core\Prospecting\Domain\Exception\ExchangeAlreadyNoted;
 use Prospecter\Core\Prospecting\Domain\Exception\ExchangeErasedBefore;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\SharedKernel\Application\Exception\ErrorType;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 use Tests\Core\Double\StateOf;
@@ -128,7 +128,7 @@ final class FingerprintContext implements Context
     public function hasExchanges(string $contact, int $count): void
     {
         $person = $this->scenario->personIdOf($contact);
-        $with = array_filter($this->application->database->exchanges(), static fn (Exchange $exchange): bool => StateOf::the($exchange)->objectOrNull('contact', PersonId::class)?->value === $person);
+        $with = array_filter($this->application->database->exchanges(), static fn (Exchange $exchange): bool => StateOf::the($exchange)->objectOrNull('contact', ContactId::class)?->value === $person);
         Expect::same($count, count($with));
     }
 

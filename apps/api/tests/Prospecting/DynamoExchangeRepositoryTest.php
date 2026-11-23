@@ -15,6 +15,7 @@ use Prospecter\Core\Prospecting\Domain\Exception\UnknownExchange;
 use Prospecter\Core\Prospecting\Domain\Model\CampaignId;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
 use Prospecter\Core\Prospecting\Domain\Model\ContactCorrespondent;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\Correction;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\Erasure;
@@ -39,7 +40,6 @@ use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\Origin;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\App\Base\ApiTestCase;
 
 /**
@@ -51,7 +51,7 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
     private const string NOW = '2026-10-18 19:00 UTC';
 
     private Prospector $prospector;
-    private PersonId $contact;
+    private ContactId $contact;
     private OrganizationId $acme;
     private OrganizationId $group;
 
@@ -59,7 +59,7 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
     {
         parent::setUp();
         $this->prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()), true);
-        $this->contact = new PersonId(self::newIdentity());
+        $this->contact = new ContactId(self::newIdentity());
         $this->acme = new OrganizationId(self::newIdentity());
         $this->group = new OrganizationId(self::newIdentity());
     }
@@ -129,7 +129,7 @@ class DynamoExchangeRepositoryTest extends ApiTestCase
     {
         $exchanges = $this->exchanges();
         $campaign = new CampaignId(self::newIdentity());
-        $other = new PersonId(self::newIdentity());
+        $other = new ContactId(self::newIdentity());
         $recipient = new RecipientInCampaign($campaign, $this->contact, Channel::Email, running: true, recipient: true, pending: true);
         $exchanges->save($this->noted('2026-10-10 09:00 UTC'));
         $exchanges->save(Exchange::noted(new Gesture($this->prospector->accountId, $this->prospector->id, new \DateTimeImmutable(self::NOW)), new ExchangeId(self::newIdentity()), new RecipientCorrespondent($recipient, [$this->acme]), Noting::of($recipient->exchangeFacts(new \DateTimeImmutable('2026-10-11 09:00 UTC'), 'Bonjour'), ExchangeStatus::Done)));

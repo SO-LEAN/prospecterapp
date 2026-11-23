@@ -14,6 +14,7 @@ use Prospecter\Core\Campaigns\Domain\Model\CampaignBrief;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignId;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignName;
 use Prospecter\Core\Campaigns\Domain\Model\Channel;
+use Prospecter\Core\Campaigns\Domain\Model\ContactId;
 use Prospecter\Core\Campaigns\Domain\Model\ContactTags;
 use Prospecter\Core\Campaigns\Domain\Model\DailyCap;
 use Prospecter\Core\Campaigns\Domain\Model\MessageMode;
@@ -26,7 +27,6 @@ use Prospecter\Core\Campaigns\Domain\Repository\CampaignRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\App\Base\ApiTestCase;
 
 /**
@@ -104,7 +104,7 @@ class DynamoCampaignRepositoryTest extends ApiTestCase
     {
         $campaign = $this->aFrozenCampaign(self::ADA, self::ALAN);
         $campaign->start(new MemberId(self::newIdentity()), new \DateTimeImmutable('2026-11-17 12:00:00'));
-        $campaign->forget(new PersonId(self::ALAN), new \DateTimeImmutable('2026-11-17 12:30:00'));
+        $campaign->forget(new ContactId(self::ALAN), new \DateTimeImmutable('2026-11-17 12:30:00'));
         $campaign->stop(new MemberId(self::newIdentity()), new \DateTimeImmutable('2026-11-17 13:00:00'));
         $this->repository()->save($campaign);
         $campaign->releaseEvents();
@@ -121,8 +121,8 @@ class DynamoCampaignRepositoryTest extends ApiTestCase
     {
         $campaign = $this->aFrozenCampaign(self::ADA, self::ALAN);
         $campaign->start(new MemberId(self::newIdentity()), new \DateTimeImmutable('2026-11-17 12:00:00'));
-        $campaign->process(new PersonId(self::ADA), self::EXCHANGE, RecipientOutcome::Missed, at: new \DateTimeImmutable('2026-11-17 12:30:00'));
-        $campaign->dismiss(new PersonId(self::ALAN), 'Parti', new MemberId(self::newIdentity()), new \DateTimeImmutable('2026-11-17 13:00:00'));
+        $campaign->process(new ContactId(self::ADA), self::EXCHANGE, RecipientOutcome::Missed, at: new \DateTimeImmutable('2026-11-17 12:30:00'));
+        $campaign->dismiss(new ContactId(self::ALAN), 'Parti', new MemberId(self::newIdentity()), new \DateTimeImmutable('2026-11-17 13:00:00'));
         $this->repository()->save($campaign);
         $campaign->releaseEvents();
 
@@ -138,8 +138,8 @@ class DynamoCampaignRepositoryTest extends ApiTestCase
     {
         $campaign = $this->aFrozenCampaign(self::ADA, self::ALAN);
         $campaign->start(new MemberId(self::newIdentity()), new \DateTimeImmutable('2026-11-17 12:00:00'));
-        $campaign->process(new PersonId(self::ADA), self::EXCHANGE, RecipientOutcome::Missed, at: new \DateTimeImmutable('2026-11-17 12:30:00'));
-        $campaign->forget(new PersonId(self::ADA), new \DateTimeImmutable('2026-11-17 13:00:00'));
+        $campaign->process(new ContactId(self::ADA), self::EXCHANGE, RecipientOutcome::Missed, at: new \DateTimeImmutable('2026-11-17 12:30:00'));
+        $campaign->forget(new ContactId(self::ADA), new \DateTimeImmutable('2026-11-17 13:00:00'));
         $this->repository()->save($campaign);
         $campaign->releaseEvents();
 
@@ -199,8 +199,8 @@ class DynamoCampaignRepositoryTest extends ApiTestCase
         $this->repository()->save($this->aFrozenCampaign(self::ALAN));
         $this->repository()->save($this->aCampaign('Brouillon'));
 
-        $this->assertSame([$keeping->id()->value], array_map(static fn (Campaign $campaign): string => $campaign->id()->value, $this->repository()->withRecipient($this->account, new PersonId(self::ADA))));
-        $this->assertSame([], $this->repository()->withRecipient(new AccountId(self::newIdentity()), new PersonId(self::ADA)));
+        $this->assertSame([$keeping->id()->value], array_map(static fn (Campaign $campaign): string => $campaign->id()->value, $this->repository()->withRecipient($this->account, new ContactId(self::ADA))));
+        $this->assertSame([], $this->repository()->withRecipient(new AccountId(self::newIdentity()), new ContactId(self::ADA)));
     }
 
     public function testTheCampaignsOfTheAccountAreReadAtOnceTheNewestFirst(): void

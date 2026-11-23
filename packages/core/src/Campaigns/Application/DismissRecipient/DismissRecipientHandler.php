@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Prospecter\Core\Campaigns\Application\DismissRecipient;
 
 use Prospecter\Core\Campaigns\Domain\Model\CampaignId;
+use Prospecter\Core\Campaigns\Domain\Model\ContactId;
 use Prospecter\Core\Campaigns\Domain\Port\Campaigners;
 use Prospecter\Core\Campaigns\Domain\Repository\CampaignRepository;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * A team member dismisses a recipient of a started campaign of their account. The campaign ends once nobody is left to
@@ -32,7 +32,7 @@ final readonly class DismissRecipientHandler implements CommandHandler
     {
         $member = new MemberId($command->memberId);
         $campaign = $this->campaigns->get($this->campaigners->accountOf($member), new CampaignId($command->campaignId));
-        $campaign->dismiss(new PersonId($command->contactId), self::reasonOf($command->reason), by: $member, at: $command->executedAt);
+        $campaign->dismiss(new ContactId($command->contactId), self::reasonOf($command->reason), by: $member, at: $command->executedAt);
         $this->campaigns->save($campaign);
         $this->publishWhatHappenedTo($campaign);
     }

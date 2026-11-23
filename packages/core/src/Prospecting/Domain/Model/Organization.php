@@ -45,7 +45,6 @@ use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\Location;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\Origin;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 use Prospecter\Core\SharedKernel\Domain\SearchKeys;
@@ -72,7 +71,7 @@ final class Organization implements ReleasesEvents
     private ?File $logo = null;
     private ExternalReferences $references;
     private ?Website $website = null;
-    /** @var list<PersonId> */
+    /** @var list<ContactId> */
     private array $contacts = [];
     /** @var list<OrganizationId> */
     private array $possibleDuplicates = [];
@@ -424,7 +423,7 @@ final class Organization implements ReleasesEvents
     /**
      * @throws AlreadyAContact
      */
-    public function addContact(PersonId $contact, MemberId $by, \DateTimeImmutable $at): void
+    public function addContact(ContactId $contact, MemberId $by, \DateTimeImmutable $at): void
     {
         $this->ensurePossible(OrganizationIntent::AddContact);
 
@@ -442,7 +441,7 @@ final class Organization implements ReleasesEvents
      *
      * @throws NotAContact
      */
-    public function removeContact(PersonId $contact, MemberId $by, \DateTimeImmutable $at, OrphanContacts $orphans): void
+    public function removeContact(ContactId $contact, MemberId $by, \DateTimeImmutable $at, OrphanContacts $orphans): void
     {
         $this->ensurePossible(OrganizationIntent::RemoveContact);
 
@@ -450,7 +449,7 @@ final class Organization implements ReleasesEvents
             throw $this->notAContact();
         }
 
-        $this->contacts = array_values(array_filter($this->contacts, static fn (PersonId $attached): bool => !$attached->equals($contact)));
+        $this->contacts = array_values(array_filter($this->contacts, static fn (ContactId $attached): bool => !$attached->equals($contact)));
         $this->modifiedAt = $at;
         $this->recordThat(new ContactRemoved($this->accountId, $by, $this->id, $contact, $at));
         $this->leaveAlone($orphans->among([$contact], $this->accountId, $this->id), $by, $at);
@@ -473,7 +472,7 @@ final class Organization implements ReleasesEvents
     }
 
     /**
-     * @param list<PersonId> $contacts
+     * @param list<ContactId> $contacts
      */
     private function leaveAlone(array $contacts, MemberId $by, \DateTimeImmutable $at): void
     {
@@ -485,16 +484,16 @@ final class Organization implements ReleasesEvents
     /**
      * @throws NotAContact
      */
-    public function ensureHasContact(PersonId $contact): void
+    public function ensureHasContact(ContactId $contact): void
     {
         if (!$this->hasContact($contact)) {
             throw $this->notAContact();
         }
     }
 
-    public function hasContact(PersonId $contact): bool
+    public function hasContact(ContactId $contact): bool
     {
-        return array_any($this->contacts, static fn (PersonId $attached): bool => $attached->equals($contact));
+        return array_any($this->contacts, static fn (ContactId $attached): bool => $attached->equals($contact));
     }
 
     private function notAContact(): NotAContact

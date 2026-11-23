@@ -7,9 +7,9 @@ namespace App\Prospecting\Persistence;
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Table;
 use App\Shared\Typed;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\ContactToAttach;
 use Prospecter\Core\Prospecting\Domain\Repository\ContactToAttachRepository;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Stores the contacts to attach in Prospecting's table (ADR 0048, 0146), as `CONTACT_TO_ATTACH#<person>` /
@@ -26,7 +26,7 @@ final readonly class DynamoContactToAttachRepository implements ContactToAttachR
     {
     }
 
-    public function find(PersonId $contact): ?ContactToAttach
+    public function find(ContactId $contact): ?ContactToAttach
     {
         $item = $this->prospectingTable->item(self::key($contact->value), self::CONTACT_TO_ATTACH);
 

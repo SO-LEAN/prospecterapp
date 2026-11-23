@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Domain\Port;
 
 use Prospecter\Core\Prospecting\Domain\Model\CampaignId;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\RecipientInCampaign;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Port: a contact as one of the account's campaigns keeps them. Campaigns keeps the campaigns, and Prospecting never
@@ -18,5 +18,5 @@ interface CampaignRecipients
     /**
      * Returns null when the account has no campaign with this identity.
      */
-    public function recipientIn(CampaignId $campaign, PersonId $contact, AccountId $accountId): ?RecipientInCampaign;
+    public function recipientIn(CampaignId $campaign, ContactId $contact, AccountId $accountId): ?RecipientInCampaign;
 }

@@ -18,6 +18,7 @@ use Prospecter\Core\Connectors\Domain\Model\PendingAuthorization;
 use Prospecter\Core\Connectors\Domain\Model\ProviderClient;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\Prospecting\Domain\Exception\ExchangeNotedMeanwhile;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\ContactToAttach;
 use Prospecter\Core\Prospecting\Domain\Model\Erasure;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
@@ -27,7 +28,6 @@ use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\ToDo;
 use Prospecter\Core\Reporting\Domain\Model\Fact;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 
 /**
@@ -423,13 +423,13 @@ final class InMemoryDatabase
             throw ExchangeNotedMeanwhile::byAnother();
         }
         $this->fingerprints[$key] = $registered ?? new Fingerprinted($exchange->id());
-        $contact = StateOf::the($exchange)->objectOrNull('contact', PersonId::class);
+        $contact = StateOf::the($exchange)->objectOrNull('contact', ContactId::class);
         if (null !== $contact) {
             $this->fingerprintsOfContacts[$exchange->accountId()->value.'#'.$contact->value][] = $key;
         }
     }
 
-    public function forgetFingerprintsOf(AccountId $accountId, PersonId $contact): void
+    public function forgetFingerprintsOf(AccountId $accountId, ContactId $contact): void
     {
         $ofTheContact = $accountId->value.'#'.$contact->value;
         foreach ($this->fingerprintsOfContacts[$ofTheContact] ?? [] as $key) {

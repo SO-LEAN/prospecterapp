@@ -9,10 +9,10 @@ use Prospecter\Core\PersonalData\Contract\Service\PresentMembers\MemberPresentat
 use Prospecter\Core\PersonalData\Contract\Service\PresentMembers\PresentMembers;
 use Prospecter\Core\PersonalData\Contract\Service\PresentMembers\PresentMembersOutput;
 use Prospecter\Core\PersonalData\Contract\Service\PresentMembers\PresentMembersService;
+use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\PersonalData\Domain\Policy\MemberPresentationPolicy;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 final readonly class PresentMembersHandler implements QueryHandler, PresentMembersService
 {

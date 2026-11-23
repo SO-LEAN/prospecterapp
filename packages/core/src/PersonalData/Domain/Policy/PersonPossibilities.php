@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\PersonalData\Domain\Policy;
 
+use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\PersonalData\Domain\Model\PersonIntent;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\PersonalData\Domain\Model\Reader;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * What a reader may do with a person (ADR 0088). A person changes their own data. A member with the right changes the

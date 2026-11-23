@@ -176,7 +176,7 @@ It reacts to the exchanges' facts (`ExchangeFactsChanged`) and to forgotten cont
 ## In the code
 
 - `src/Connectors/Domain`:
-  - `Connection` (its `push()`, `withdraw()` and `cancel()`, its `importMail()`, `renewMailWatch()`, `noteMailboxChange()`, `readMailboxHistory()`, `catchUpMailWith()`, `mailOf()` and `stopMailImport()`), `MailboxMail`, `MailboxChanges`, `Correspondent`, `ProviderClient`, `ClientCredentials`, `MailboxNotifications`, `MailImport`, `MailboxWatch`, `Scope`, `Member`, `PendingAuthorization`, `Grant`, `RefreshToken`, `Provider`, `ConnectionState`, `HeldExchange`, `CalendarEvent`, `Guest`, `CalendarEntry`, `ExchangeId`, `ExchangeStatus`, `Channel`, `SyncState`;
+  - `Connection` (its `push()`, `withdraw()` and `cancel()`, its `importMail()`, `renewMailWatch()`, `noteMailboxChange()`, `readMailboxHistory()`, `catchUpMailWith()`, `mailOf()` and `stopMailImport()`), `MailboxMail`, `MailboxChanges`, `Correspondent`, `ProviderClient`, `ClientCredentials`, `MailboxNotifications`, `MailImport`, `MailboxWatch`, `Scope`, `Member`, `PendingAuthorization`, `Grant`, `RefreshToken`, `Provider`, `ConnectionState`, `HeldExchange`, `CalendarEvent`, `Guest`, `CalendarEntry`, `ExchangeId`, `ContactId`, `OrganizationId`, `MessageId`, `ExchangeStatus`, `Channel`, `SyncState`;
   - the events `CalendarToFill` (`Connected`, `CalendarRecreated`), `VideoCallLinkCreated`;
   - the repositories `ConnectionRepository`, `AuthorizationRepository`, `ProviderClientRepository`, `CalendarEntryRepository`;
   - the ports, which the API implements:

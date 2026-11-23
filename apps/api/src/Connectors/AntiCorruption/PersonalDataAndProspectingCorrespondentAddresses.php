@@ -6,6 +6,7 @@ namespace App\Connectors\AntiCorruption;
 
 use Prospecter\Core\Connectors\Domain\Exception\UnknownContact;
 use Prospecter\Core\Connectors\Domain\Exception\UnknownOrganization;
+use Prospecter\Core\Connectors\Domain\Model\ContactId;
 use Prospecter\Core\Connectors\Domain\Model\OrganizationId;
 use Prospecter\Core\Connectors\Domain\Port\CorrespondentAddresses;
 use Prospecter\Core\PersonalData\Contract\Service\WhichEmailsHaveTheseContacts\KeptEmailsOfContacts;
@@ -17,7 +18,6 @@ use Prospecter\Core\Prospecting\Contract\Service\WhichEmailsHaveTheseOrganizatio
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Anticorruption layer (ADR 0045, 0089). Connectors gets a contact's address from PersonalData and an organization's
@@ -32,7 +32,7 @@ final readonly class PersonalDataAndProspectingCorrespondentAddresses implements
     ) {
     }
 
-    public function ofContact(MemberId $reader, PersonId $contact): ?Email
+    public function ofContact(MemberId $reader, ContactId $contact): ?Email
     {
         $kept = new KeptEmailsOfContacts();
         ($this->whichEmailsHaveTheseContactsService)(new WhichEmailsHaveTheseContacts($reader->value, [$contact->value]), $kept);

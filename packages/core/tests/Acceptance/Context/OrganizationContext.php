@@ -30,6 +30,7 @@ use Prospecter\Core\Prospecting\Application\StartProspecting\StartProspecting;
 use Prospecter\Core\Prospecting\Application\StopProspecting\StopProspecting;
 use Prospecter\Core\Prospecting\Application\WriteObservations\WriteObservations;
 use Prospecter\Core\Prospecting\Domain\Event\DuplicateSuspicionLifted;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\Model\WebPresence;
@@ -41,7 +42,6 @@ use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
 use Prospecter\Core\SharedKernel\Domain\File;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\Siret;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
@@ -247,7 +247,7 @@ final class OrganizationContext implements Context
     public function aContactOfTheOrganization(string $contact, string $organization): void
     {
         $prospect = $this->scenario->organizationNamed($organization);
-        $prospect->addContact($this->scenario->personNamed($contact)->id(), by: $this->scenario->managerOf($prospect), at: $this->application->now());
+        $prospect->addContact($this->scenario->contactIdOf($contact), by: $this->scenario->managerOf($prospect), at: $this->application->now());
         $this->application->organizations->save($prospect);
     }
 
@@ -272,13 +272,13 @@ final class OrganizationContext implements Context
     #[Then('les contacts de :organization sont :')]
     public function theContactsOfTheOrganizationAre(string $organization, TableNode $table): void
     {
-        Expect::same($table->getColumn(0), array_map($this->scenario->nameOfPerson(...), StateOf::the($this->scenario->organizationNamed($organization))->listOf('contacts', PersonId::class)));
+        Expect::same($table->getColumn(0), array_map($this->scenario->nameOfPerson(...), StateOf::the($this->scenario->organizationNamed($organization))->listOf('contacts', ContactId::class)));
     }
 
     #[Then(':organization n\'a pas de contact')]
     public function theOrganizationHasNoContact(string $organization): void
     {
-        Expect::same([], StateOf::the($this->scenario->organizationNamed($organization))->listOf('contacts', PersonId::class));
+        Expect::same([], StateOf::the($this->scenario->organizationNamed($organization))->listOf('contacts', ContactId::class));
     }
 
     #[When('je consulte l\'organisation :name')]

@@ -6,6 +6,7 @@ namespace Tests\Core\Double;
 
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownExchange;
 use Prospecter\Core\Prospecting\Domain\Model\CampaignId;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFingerprint;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
@@ -13,7 +14,6 @@ use Prospecter\Core\Prospecting\Domain\Model\Fingerprinted;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 final readonly class InMemoryExchangeRepository implements ExchangeRepository
 {
@@ -42,7 +42,7 @@ final readonly class InMemoryExchangeRepository implements ExchangeRepository
         return $this->database->fingerprinted($accountId, $fingerprint);
     }
 
-    public function forgetFingerprintsOf(AccountId $accountId, PersonId $contact): void
+    public function forgetFingerprintsOf(AccountId $accountId, ContactId $contact): void
     {
         $this->database->forgetFingerprintsOf($accountId, $contact);
     }
@@ -52,18 +52,18 @@ final readonly class InMemoryExchangeRepository implements ExchangeRepository
         return array_values(array_filter($this->database->exchanges(), static fn (Exchange $exchange): bool => array_any(StateOf::the($exchange)->listOf('keptFor', OrganizationId::class), $organization->equals(...))));
     }
 
-    public function withContact(PersonId $contact, AccountId $accountId): array
+    public function withContact(ContactId $contact, AccountId $accountId): array
     {
-        return array_values(array_filter($this->database->exchanges(), static fn (Exchange $exchange): bool => true === StateOf::the($exchange)->objectOrNull('contact', PersonId::class)?->equals($contact) && $exchange->accountId()->equals($accountId)));
+        return array_values(array_filter($this->database->exchanges(), static fn (Exchange $exchange): bool => true === StateOf::the($exchange)->objectOrNull('contact', ContactId::class)?->equals($contact) && $exchange->accountId()->equals($accountId)));
     }
 
     /**
-     * @param list<PersonId> $contacts
+     * @param list<ContactId> $contacts
      *
-     * @return list<PersonId>
+     * @return list<ContactId>
      */
     public function contactsWithAnExchangeOf(AccountId $accountId, CampaignId $campaign, array $contacts): array
     {
-        return array_values(array_filter($contacts, fn (PersonId $contact): bool => array_any($this->withContact($contact, $accountId), static fn (Exchange $exchange): bool => true === StateOf::the($exchange)->objectOrNull('campaign', CampaignId::class)?->equals($campaign))));
+        return array_values(array_filter($contacts, fn (ContactId $contact): bool => array_any($this->withContact($contact, $accountId), static fn (Exchange $exchange): bool => true === StateOf::the($exchange)->objectOrNull('campaign', CampaignId::class)?->equals($campaign))));
     }
 }

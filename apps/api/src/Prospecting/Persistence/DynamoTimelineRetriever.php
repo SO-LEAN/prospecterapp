@@ -11,6 +11,7 @@ use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\Port\TimelineRetriever;
 use Prospecter\Core\Prospecting\Application\Timeline;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\ContactPresence;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
@@ -18,7 +19,6 @@ use Prospecter\Core\Prospecting\Domain\Model\TimelineIntent;
 use Prospecter\Core\Prospecting\Domain\Policy\ExchangeConformity;
 use Prospecter\Core\Prospecting\Domain\Policy\ExchangeReading;
 use Prospecter\Core\SharedKernel\Domain\Origin;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Reads the timelines in the indexes that `DynamoExchangeRepository` writes (`ExchangeKeys`). It does not restore the
@@ -32,7 +32,7 @@ final readonly class DynamoTimelineRetriever implements TimelineRetriever
     {
     }
 
-    public function ofContact(PersonId $contact, Prospector $reader, \DateTimeImmutable $asOf, ?string $after, int $max): Timeline
+    public function ofContact(ContactId $contact, Prospector $reader, \DateTimeImmutable $asOf, ?string $after, int $max): Timeline
     {
         $items = $this->prospectingTable->query(ExchangeKeys::timeline($reader->accountId->value, $contact->value), Table::BY_GSI1, $after ?? ExchangeKeys::positionAfter($asOf), $max + 1);
 
@@ -46,7 +46,7 @@ final readonly class DynamoTimelineRetriever implements TimelineRetriever
         return $this->timelineOf($this->itemsListedBy($links), $max, $this->countToMakeConform($organization), self::inTheTimelineOf($organization, $reader));
     }
 
-    public function upcomingWithContact(PersonId $contact, Prospector $reader, \DateTimeImmutable $asOf, ?string $after, int $max): Timeline
+    public function upcomingWithContact(ContactId $contact, Prospector $reader, \DateTimeImmutable $asOf, ?string $after, int $max): Timeline
     {
         $items = $this->prospectingTable->queryAfter(ExchangeKeys::timeline($reader->accountId->value, $contact->value), Table::BY_GSI1, $after ?? ExchangeKeys::positionAfter($asOf), $max + 1);
 

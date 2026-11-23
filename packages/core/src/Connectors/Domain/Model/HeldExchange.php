@@ -6,7 +6,6 @@ namespace Prospecter\Core\Connectors\Domain\Model;
 
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * An exchange as Connectors knows it from Prospecting, read as it currently is (ADR 0127). It holds who holds it and
@@ -24,7 +23,7 @@ final readonly class HeldExchange
         public \DateTimeImmutable $startsAt,
         private ?int $durationInMinutes,
         private ?string $venue,
-        public ?PersonId $contact,
+        public ?ContactId $contact,
         private ?OrganizationId $organization,
         private ?string $organizationName,
         private bool $linkRequested = false,

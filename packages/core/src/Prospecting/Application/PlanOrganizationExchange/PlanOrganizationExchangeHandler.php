@@ -6,6 +6,7 @@ namespace Prospecter\Core\Prospecting\Application\PlanOrganizationExchange;
 
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
 use Prospecter\Core\Prospecting\Domain\Model\ContactCorrespondent;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\Duration;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
@@ -23,7 +24,6 @@ use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\Origin;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 final readonly class PlanOrganizationExchangeHandler implements CommandHandler
 {
@@ -43,7 +43,7 @@ final readonly class PlanOrganizationExchangeHandler implements CommandHandler
         $organization = $this->organizations->get(new OrganizationId($command->organizationId));
         $exchange = null === $command->personId
             ? Exchange::planned(self::gestureOf($organization, $holder, $command), new ExchangeId($command->id), new OrganizationCorrespondent($organization->id()), self::factsOf($command))
-            : $this->plannedWithAContact($organization, $holder, new PersonId($command->personId), $command);
+            : $this->plannedWithAContact($organization, $holder, new ContactId($command->personId), $command);
         $this->exchanges->save($exchange);
         $this->publishWhatHappenedTo($exchange);
     }
@@ -51,7 +51,7 @@ final readonly class PlanOrganizationExchangeHandler implements CommandHandler
     /**
      * Like any other exchange with a contact, the exchange is kept for every organization the contact is part of.
      */
-    private function plannedWithAContact(Organization $organization, MemberId $holder, PersonId $contact, PlanOrganizationExchange $command): Exchange
+    private function plannedWithAContact(Organization $organization, MemberId $holder, ContactId $contact, PlanOrganizationExchange $command): Exchange
     {
         $organization->ensureHasContact($contact);
 

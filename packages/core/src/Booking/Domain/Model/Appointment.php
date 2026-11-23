@@ -8,7 +8,6 @@ use Prospecter\Core\Booking\Domain\Event\SlotBooked;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 
@@ -27,7 +26,7 @@ final class Appointment implements ReleasesEvents
         private readonly AppointmentId $id,
         private readonly AccountId $accountId,
         private readonly MemberId $host,
-        private readonly PersonId $bookerId,
+        private readonly BookerId $bookerId,
         private readonly \DateTimeImmutable $slot,
         private readonly Channel $channel,
         private readonly Booker $booker,
@@ -63,7 +62,7 @@ final class Appointment implements ReleasesEvents
         return $this->host;
     }
 
-    public function bookerId(): PersonId
+    public function bookerId(): BookerId
     {
         return $this->bookerId;
     }

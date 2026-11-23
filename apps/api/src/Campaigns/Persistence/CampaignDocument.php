@@ -15,6 +15,7 @@ use Prospecter\Core\Campaigns\Domain\Model\CampaignIntent;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignName;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignStatus;
 use Prospecter\Core\Campaigns\Domain\Model\Channel;
+use Prospecter\Core\Campaigns\Domain\Model\ContactId;
 use Prospecter\Core\Campaigns\Domain\Model\DailyCap;
 use Prospecter\Core\Campaigns\Domain\Model\MessageMode;
 use Prospecter\Core\Campaigns\Domain\Model\MessageTemplate;
@@ -28,7 +29,6 @@ use Prospecter\Core\Campaigns\Domain\Policy\CampaignPossibilities;
 use Prospecter\Core\Campaigns\Domain\Policy\CampaignProgress;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * A campaign as its item keeps it (ADR 0048, 0144):
@@ -176,7 +176,7 @@ final class CampaignDocument
     {
         $status = RecipientStatus::from(Typed::string($document['status']));
 
-        return new Recipient(new PersonId(Typed::string($document['contactId'])), $status, Typed::bool($document['missed'] ?? false), Typed::stringOrNull($document['reason'] ?? null), Typed::stringOrNull($document['exchangeId'] ?? null), Typed::bool($document['erased'] ?? RecipientStatus::Erased === $status), self::momentOfOrNone($document, 'processedAt'));
+        return new Recipient(new ContactId(Typed::string($document['contactId'])), $status, Typed::bool($document['missed'] ?? false), Typed::stringOrNull($document['reason'] ?? null), Typed::stringOrNull($document['exchangeId'] ?? null), Typed::bool($document['erased'] ?? RecipientStatus::Erased === $status), self::momentOfOrNone($document, 'processedAt'));
     }
 
     /**

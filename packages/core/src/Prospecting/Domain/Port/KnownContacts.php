@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Domain\Port;
 
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Port: whether the account prospects a person. PersonalData keeps the persons, and Prospecting never sees them. The
@@ -13,5 +13,5 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
  */
 interface KnownContacts
 {
-    public function isAContactOf(PersonId $person, AccountId $accountId): bool;
+    public function isAContactOf(ContactId $person, AccountId $accountId): bool;
 }

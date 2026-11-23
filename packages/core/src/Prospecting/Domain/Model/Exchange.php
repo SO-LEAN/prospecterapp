@@ -48,7 +48,6 @@ use Prospecter\Core\SharedKernel\Domain\Exception\PersonalDataManagersOnly;
 use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\Origin;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 
@@ -89,7 +88,7 @@ final class Exchange implements ReleasesEvents
         private readonly ExchangeId $id,
         private readonly AccountId $accountId,
         private readonly MemberId $createdBy,
-        private readonly ?PersonId $contact,
+        private readonly ?ContactId $contact,
         private array $keptFor,
         private ExchangeFacts $facts,
         private ExchangeStatus $status,
@@ -568,7 +567,7 @@ final class Exchange implements ReleasesEvents
      * The contact who waits to be attached. No organization keeps the exchange, and its holder keeps it until then
      * (ADR 0146).
      */
-    public function contactToAttach(): ?PersonId
+    public function contactToAttach(): ?ContactId
     {
         return self::isWithAContactToAttach(null !== $this->contact, $this->isKeptForAnOrganization()) ? $this->contact : null;
     }

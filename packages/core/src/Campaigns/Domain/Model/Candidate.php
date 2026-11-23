@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Campaigns\Domain\Model;
 
-use Prospecter\Core\SharedKernel\Domain\PersonId;
-
 /**
  * A contact that a member adds to a campaign by hand. It holds who they are, the tags they carry and what a message
  * calls them.
@@ -13,7 +11,7 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 final readonly class Candidate
 {
     public function __construct(
-        public PersonId $contact,
+        public ContactId $contact,
         public ContactTags $tags,
         private Addressee $addressee,
     ) {

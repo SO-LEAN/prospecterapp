@@ -15,6 +15,7 @@ use Prospecter\Core\Prospecting\Domain\Model\Attachment;
 use Prospecter\Core\Prospecting\Domain\Model\AttachmentId;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
 use Prospecter\Core\Prospecting\Domain\Model\ContactCorrespondent;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
@@ -37,7 +38,6 @@ use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\Exception\UnknownUpload;
 use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * A member's mailbox exchanged an e-mail with a contact, or with an organization itself. The e-mail is logged as an
@@ -61,7 +61,7 @@ final readonly class NoteImportedEmailHandler implements EventHandler
     public function __invoke(EmailExchanged $email): void
     {
         $prospector = $this->prospectors->prospectorFrom(new MemberId($email->memberId));
-        $correspondent = null === $email->contactId ? new OrganizationId((string) $email->organizationId) : new PersonId($email->contactId);
+        $correspondent = null === $email->contactId ? new OrganizationId((string) $email->organizationId) : new ContactId($email->contactId);
         $id = ExchangeId::ofImportedEmail($prospector->accountId, $email->emailId, $correspondent);
         [$attachments, $leftOut] = $this->attachmentsOf($email, $id);
         $exchange = $this->exchangeWith($correspondent, $id, $prospector, $email, self::factsOf($email, $leftOut));
@@ -136,10 +136,10 @@ final readonly class NoteImportedEmailHandler implements EventHandler
      * read. It also returns none for a contact to attach that another member holds, because only that member met them
      * (ADR 0146).
      */
-    private function exchangeWith(PersonId|OrganizationId $correspondent, ExchangeId $id, Prospector $prospector, EmailExchanged $email, ExchangeFacts $facts): ?Exchange
+    private function exchangeWith(ContactId|OrganizationId $correspondent, ExchangeId $id, Prospector $prospector, EmailExchanged $email, ExchangeFacts $facts): ?Exchange
     {
         try {
-            return $correspondent instanceof PersonId
+            return $correspondent instanceof ContactId
                 ? $this->withAContact($id, $correspondent, $prospector, $email, $facts)
                 : $this->withTheOrganization($id, $correspondent, $prospector, $email, $facts);
         } catch (UnknownContact|ContactToAttachOfAnother|UnknownOrganization) {
@@ -147,7 +147,7 @@ final readonly class NoteImportedEmailHandler implements EventHandler
         }
     }
 
-    private function withAContact(ExchangeId $id, PersonId $contact, Prospector $prospector, EmailExchanged $email, ExchangeFacts $facts): Exchange
+    private function withAContact(ExchangeId $id, ContactId $contact, Prospector $prospector, EmailExchanged $email, ExchangeFacts $facts): Exchange
     {
         return Exchange::noted(
             new Gesture($prospector->accountId, $prospector->id, $email->occurredAt),

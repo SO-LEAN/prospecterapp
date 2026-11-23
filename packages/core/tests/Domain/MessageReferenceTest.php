@@ -7,12 +7,12 @@ namespace Tests\Core\Domain;
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Prospecting\Domain\Exception\ReferenceNotOfTheChannel;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFingerprint;
 use Prospecter\Core\Prospecting\Domain\Model\MessageId;
 use Prospecter\Core\Prospecting\Domain\Model\MessageReference;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 class MessageReferenceTest extends TestCase
 {
@@ -74,8 +74,8 @@ class MessageReferenceTest extends TestCase
         return new ExchangeFacts($channel, Direction::Inbound, new \DateTimeImmutable(self::AT), $text);
     }
 
-    private static function ada(): PersonId
+    private static function ada(): ContactId
     {
-        return new PersonId(self::ADA);
+        return new ContactId(self::ADA);
     }
 }

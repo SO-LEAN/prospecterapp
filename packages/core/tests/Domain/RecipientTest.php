@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Tests\Core\Domain;
 
 use PHPUnit\Framework\TestCase;
+use Prospecter\Core\Campaigns\Domain\Model\ContactId;
 use Prospecter\Core\Campaigns\Domain\Model\Recipient;
 use Prospecter\Core\Campaigns\Domain\Model\RecipientOutcome;
 use Prospecter\Core\Campaigns\Domain\Model\RecipientStatus;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /** A recipient whose contact is erased loses their identity, but never what the team did with them. */
 final class RecipientTest extends TestCase
@@ -46,7 +46,7 @@ final class RecipientTest extends TestCase
 
     public function testARecipientWhoseExchangeWentWithItsOrganizationStaysProcessedWithoutIt(): void
     {
-        $this->assertEquals(new Recipient(new PersonId(self::ADA), RecipientStatus::Processed, missed: true, processedAt: self::now()), self::ada()->processed(self::EXCHANGE, RecipientOutcome::Missed, self::now())->withoutItsExchange());
+        $this->assertEquals(new Recipient(new ContactId(self::ADA), RecipientStatus::Processed, missed: true, processedAt: self::now()), self::ada()->processed(self::EXCHANGE, RecipientOutcome::Missed, self::now())->withoutItsExchange());
     }
 
     public function testAProcessedRecipientErasedKeepsWhenItWasProcessed(): void
@@ -56,7 +56,7 @@ final class RecipientTest extends TestCase
 
     private static function ada(): Recipient
     {
-        return Recipient::pending(new PersonId(self::ADA));
+        return Recipient::pending(new ContactId(self::ADA));
     }
 
     private static function now(): \DateTimeImmutable

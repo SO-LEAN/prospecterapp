@@ -9,9 +9,9 @@ use Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsNameTheseCont
 use Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsNameTheseContacts\WhichOrganizationsNameTheseContacts;
 use Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsNameTheseContacts\WhichOrganizationsNameTheseContactsOutput;
 use Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsNameTheseContacts\WhichOrganizationsNameTheseContactsService;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 final readonly class WhichOrganizationsNameTheseContactsHandler implements QueryHandler, WhichOrganizationsNameTheseContactsService
 {
@@ -21,7 +21,7 @@ final readonly class WhichOrganizationsNameTheseContactsHandler implements Query
 
     public function __invoke(WhichOrganizationsNameTheseContacts $query, WhichOrganizationsNameTheseContactsOutput $output): void
     {
-        $contacts = array_map(static fn (string $id): PersonId => new PersonId($id), $query->personIds);
+        $contacts = array_map(static fn (string $id): ContactId => new ContactId($id), $query->personIds);
         $named = array_filter($this->organizationOfContactRetriever->ofContacts($contacts, new AccountId($query->accountId)));
 
         $output->present(array_map(

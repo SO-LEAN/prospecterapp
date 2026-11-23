@@ -7,9 +7,9 @@ namespace Prospecter\Core\Reporting\Application\RecordContactFacts;
 use Prospecter\Core\PersonalData\Contract\Event\ContactFactsChanged;
 use Prospecter\Core\Reporting\Application\FactRecorder;
 use Prospecter\Core\Reporting\Domain\Model\ContactFact;
+use Prospecter\Core\Reporting\Domain\Model\ContactId;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * Counts an account's contacts from the facts that PersonalData publishes (ADR 0099).
@@ -22,6 +22,6 @@ final readonly class RecordContactFactsHandler implements EventHandler
 
     public function __invoke(ContactFactsChanged $event): void
     {
-        $this->recorder->record(new ContactFact(new AccountId($event->accountId), new PersonId($event->personId), $event->revision, $event->present));
+        $this->recorder->record(new ContactFact(new AccountId($event->accountId), new ContactId($event->personId), $event->revision, $event->present));
     }
 }

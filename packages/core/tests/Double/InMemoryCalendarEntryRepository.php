@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Tests\Core\Double;
 
 use Prospecter\Core\Connectors\Domain\Model\CalendarEntry;
+use Prospecter\Core\Connectors\Domain\Model\ContactId;
 use Prospecter\Core\Connectors\Domain\Model\ExchangeId;
 use Prospecter\Core\Connectors\Domain\Repository\CalendarEntryRepository;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 final readonly class InMemoryCalendarEntryRepository implements CalendarEntryRepository
 {
@@ -21,7 +21,7 @@ final readonly class InMemoryCalendarEntryRepository implements CalendarEntryRep
         return $this->database->calendarEntry($exchange->value);
     }
 
-    public function ofContact(PersonId $contact): array
+    public function ofContact(ContactId $contact): array
     {
         return $this->database->calendarEntriesOf($contact->value);
     }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\PersonalData\Application\CompleteContact;
 
 use Prospecter\Core\PersonalData\Domain\Model\ContactSupplement;
+use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\PersonalData\Domain\Port\Readers;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
 use Prospecter\Core\PersonalData\Domain\Service\EmailUniqueness;
@@ -13,7 +14,6 @@ use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 final readonly class CompleteContactHandler implements CommandHandler
 {

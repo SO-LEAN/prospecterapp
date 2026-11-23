@@ -10,11 +10,11 @@ use App\Shared\Typed;
 use Prospecter\Core\Booking\Domain\Model\Appointment;
 use Prospecter\Core\Booking\Domain\Model\AppointmentId;
 use Prospecter\Core\Booking\Domain\Model\Booker;
+use Prospecter\Core\Booking\Domain\Model\BookerId;
 use Prospecter\Core\Booking\Domain\Model\Channel;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 /**
@@ -59,7 +59,7 @@ final class AppointmentDocument
             'id' => new AppointmentId(Typed::string($document['id'])),
             'accountId' => new AccountId(Typed::string($document['accountId'])),
             'host' => new MemberId(Typed::string($document['host'])),
-            'bookerId' => new PersonId(Typed::string($document['bookerId'])),
+            'bookerId' => new BookerId(Typed::string($document['bookerId'])),
             'slot' => Documents::momentOf(Typed::string($document['slot']))->setTimezone(new \DateTimeZone(Typed::string($document['timeZone']))),
             'channel' => Channel::from(Typed::string($document['channel'])),
             'booker' => Hydrator::restore(Booker::class, [

@@ -6,10 +6,10 @@ namespace Tests\Core\Double;
 
 use Prospecter\Core\Prospecting\Application\ConsultOrganizationsOfContacts\OrganizationOfContact;
 use Prospecter\Core\Prospecting\Application\Port\OrganizationOfContactRetriever;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
  * The DynamoDB retriever in the scenarios. It reads the account's organizations that name each contact, without
@@ -35,9 +35,9 @@ final readonly class InMemoryOrganizationOfContactRetriever implements Organizat
         return $ofContacts;
     }
 
-    private static function names(Organization $organization, PersonId $contact): bool
+    private static function names(Organization $organization, ContactId $contact): bool
     {
-        return array_any(StateOf::the($organization)->listOf('contacts', PersonId::class), $contact->equals(...));
+        return array_any(StateOf::the($organization)->listOf('contacts', ContactId::class), $contact->equals(...));
     }
 
     private static function organizationOfContact(Organization $organization): OrganizationOfContact

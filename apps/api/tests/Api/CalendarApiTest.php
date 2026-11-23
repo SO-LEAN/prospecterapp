@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
 use Prospecter\Core\Prospecting\Domain\Model\ContactCorrespondent;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\Due;
 use Prospecter\Core\Prospecting\Domain\Model\Duration;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
@@ -24,7 +25,6 @@ use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 use Prospecter\Core\Prospecting\Domain\Repository\ToDoRepository;
 use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Tests\App\Base\ApiTestCase;
 use Tests\App\Base\ReadsResources;
 
@@ -132,7 +132,7 @@ class CalendarApiTest extends ApiTestCase
         $organization = self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']]), 'id');
         $ada = self::stringAt($this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'], 'organizationIds' => [$organization]]), 'id');
         $assistant = $this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector);
-        $planned = Exchange::planned(new Gesture($this->accountOfTheFixtures(), new MemberId($this->memberIdOf($assistant)), new \DateTimeImmutable('2026-10-15 09:00 UTC')), new ExchangeId(self::newIdentity()), new ContactCorrespondent(new PersonId($ada), [new OrganizationId($organization)]), ExchangeFacts::planned(Channel::Call, new \DateTimeImmutable('2026-10-20T12:00:00+00:00'), Duration::inMinutes(null), null));
+        $planned = Exchange::planned(new Gesture($this->accountOfTheFixtures(), new MemberId($this->memberIdOf($assistant)), new \DateTimeImmutable('2026-10-15 09:00 UTC')), new ExchangeId(self::newIdentity()), new ContactCorrespondent(new ContactId($ada), [new OrganizationId($organization)]), ExchangeFacts::planned(Channel::Call, new \DateTimeImmutable('2026-10-20T12:00:00+00:00'), Duration::inMinutes(null), null));
         self::service(ExchangeRepository::class)->save($planned);
         $this->login($assistant);
 
@@ -260,7 +260,7 @@ class CalendarApiTest extends ApiTestCase
     public function testAMemberWithoutTheRightToManagePersonalDataSeesNoToDoInTheCalendar(): void
     {
         $assistant = $this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector);
-        $toDo = ToDo::noted(new Gesture($this->accountOfTheFixtures(), new MemberId($this->memberIdOf($assistant)), new \DateTimeImmutable('2026-10-13 09:00 UTC')), new ToDoId(self::newIdentity()), new ContactCorrespondent(new PersonId(self::newIdentity()), [new OrganizationId(self::newIdentity())]), new Task('Envoyer mon CV', new Due('2026-10-14')));
+        $toDo = ToDo::noted(new Gesture($this->accountOfTheFixtures(), new MemberId($this->memberIdOf($assistant)), new \DateTimeImmutable('2026-10-13 09:00 UTC')), new ToDoId(self::newIdentity()), new ContactCorrespondent(new ContactId(self::newIdentity()), [new OrganizationId(self::newIdentity())]), new Task('Envoyer mon CV', new Due('2026-10-14')));
         self::service(ToDoRepository::class)->save($toDo);
         $this->login($assistant);
 

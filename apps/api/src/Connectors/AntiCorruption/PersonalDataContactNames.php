@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Connectors\AntiCorruption;
 
+use Prospecter\Core\Connectors\Domain\Model\ContactId;
 use Prospecter\Core\Connectors\Domain\Port\ContactNames;
 use Prospecter\Core\PersonalData\Contract\Service\NameContacts\KeptContactNames;
 use Prospecter\Core\PersonalData\Contract\Service\NameContacts\NameContacts;
@@ -11,7 +12,6 @@ use Prospecter\Core\PersonalData\Contract\Service\NameContacts\NameContactsServi
 use Prospecter\Core\SharedKernel\Domain\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 /**
@@ -25,7 +25,7 @@ final readonly class PersonalDataContactNames implements ContactNames
     {
     }
 
-    public function nameOf(PersonId $contact, MemberId $readBy): ?string
+    public function nameOf(ContactId $contact, MemberId $readBy): ?string
     {
         $kept = new KeptContactNames();
         ($this->nameContactsService)(new NameContacts($readBy->value, [$contact->value]), $kept);
@@ -34,7 +34,7 @@ final readonly class PersonalDataContactNames implements ContactNames
         return null === $name ? null : trim(sprintf('%s %s', $name->firstName, $name->lastName));
     }
 
-    public function contactDetailsOf(PersonId $contact, MemberId $readBy): ?ContactDetails
+    public function contactDetailsOf(ContactId $contact, MemberId $readBy): ?ContactDetails
     {
         $kept = new KeptContactNames();
         ($this->nameContactsService)(new NameContacts($readBy->value, [$contact->value]), $kept);
