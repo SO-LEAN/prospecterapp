@@ -17,9 +17,9 @@ use App\Shared\Persistence\Table;
 use App\Shared\Typed;
 
 /**
- * The tables of every context, read directly by their keys and their indexes, never through the services the contexts
- * publish nor their retrievers: a check reading them through those would repeat their bugs without seeing them. The
- * only code reading the tables of several contexts (ADR 0105); it only reads.
+ * Reads every context's tables directly, by their keys and their indexes. It never goes through the services that the
+ * contexts publish, nor through their retrievers: a check that read through those would repeat their bugs without
+ * seeing them. It is the only code that reads several contexts' tables (ADR 0105), and it only reads.
  */
 final readonly class ContextTables
 {
@@ -38,7 +38,7 @@ final readonly class ContextTables
     }
 
     /**
-     * @return list<string> every account, found by its item, listed among the accounts or not
+     * @return list<string> every account, found by its item, whether it is listed among the accounts or not
      */
     public function accounts(): array
     {
@@ -46,7 +46,7 @@ final readonly class ContextTables
     }
 
     /**
-     * @return list<string> the accounts whose item lacks the key listing it among the accounts
+     * @return list<string> the accounts whose item lacks the key that lists it among the accounts
      */
     public function accountsOutOfTheirList(): array
     {
@@ -77,7 +77,7 @@ final readonly class ContextTables
     }
 
     /**
-     * @return list<array{id: string, accountId: string, personId: string}> the members of every account
+     * @return list<array{id: string, accountId: string, personId: string}> every account's members
      */
     public function members(): array
     {
@@ -97,7 +97,7 @@ final readonly class ContextTables
     /**
      * @param list<string> $personIds
      *
-     * @return list<string> those PersonalData keeps
+     * @return list<string> those that PersonalData keeps
      */
     public function keptPersonsAmong(array $personIds): array
     {
@@ -115,7 +115,7 @@ final readonly class ContextTables
     }
 
     /**
-     * @return list<array<string, mixed>> the documents of the persons the account keeps for its prospecting
+     * @return list<array<string, mixed>> the documents of the persons that the account keeps for its prospecting
      */
     public function contactDocumentsOf(string $accountId): array
     {
@@ -128,7 +128,7 @@ final readonly class ContextTables
     }
 
     /**
-     * @return list<array<string, mixed>> the documents of the organizations the account prospects
+     * @return list<array<string, mixed>> the documents of the organizations that the account prospects
      */
     public function organizationsOf(string $accountId): array
     {
@@ -159,8 +159,8 @@ final readonly class ContextTables
     }
 
     /**
-     * @return array<string, list<string>> the contacts each campaign keeps among its recipients, by its id, none for a
-     *                                     draft (ADR 0144), those a started campaign keeps erased left out
+     * @return array<string, list<string>> each campaign's recipient contacts, by the campaign's id, none for a
+     *                                     draft (ADR 0144), without the erased ones a started campaign keeps
      */
     public function recipientsOf(string $accountId): array
     {
@@ -182,7 +182,8 @@ final readonly class ContextTables
     }
 
     /**
-     * By its status alone when saved before an erased recipient kept what was done with them.
+     * A recipient saved before erased recipients kept what was done with them has no `erased` flag: its status alone
+     * tells.
      *
      * @param array<string, mixed> $recipient
      */
@@ -192,8 +193,8 @@ final readonly class ContextTables
     }
 
     /**
-     * @return array<string, list<string>> the contacts each organization names, by its id, as the facts Campaigns keeps
-     *                                     of those still present say (ADR 0141)
+     * @return array<string, list<string>> the contacts each organization names, by its id, as Campaigns' facts about the
+     *                                     organizations still present say (ADR 0141)
      */
     public function organizationFactsOf(string $accountId): array
     {
@@ -204,7 +205,7 @@ final readonly class ContextTables
 
     /**
      * @return array<string, array{municipalityCode: ?string, country: ?string}> where each organization is, by its id, as
-     *                                                                           the facts Campaigns keeps of those still present say (ADR 0142)
+     *                                                                           Campaigns' facts about the organizations still present say (ADR 0142)
      */
     public function organizationLocalitiesOf(string $accountId): array
     {
@@ -231,7 +232,7 @@ final readonly class ContextTables
 
     /**
      * @return array<string, array{hasEmail: bool, hasPhone: bool, hasMobile: bool, hasLinkedIn: bool}> how each contact
-     *                                                                                                  is reached, by its id, as the facts Campaigns keeps of those still present say, their links left out
+     *                                                                                                  is reached, by its id, as Campaigns' facts about the contacts still present say, without their links
      */
     public function contactFactsOf(string $accountId): array
     {
@@ -247,8 +248,8 @@ final readonly class ContextTables
     }
 
     /**
-     * The contacts to attach of the account, as their items keep them, read in the partition listing those of every
-     * account by the moment they are erased from (ADR 0146, 0147).
+     * The account's contacts to attach, as their items keep them. They are read in the partition that lists every
+     * account's contacts by the moment of their erasure (ADR 0146, 0147).
      *
      * @return list<array<string, mixed>>
      */
@@ -261,7 +262,7 @@ final readonly class ContextTables
     }
 
     /**
-     * @return list<array<string, mixed>> the documents of the exchanges the account keeps
+     * @return list<array<string, mixed>> the documents of the exchanges that the account keeps
      */
     public function exchangesOf(string $accountId): array
     {
@@ -269,7 +270,7 @@ final readonly class ContextTables
     }
 
     /**
-     * @return list<array<string, mixed>> the documents of the exchanges whose item lacks the key listing it in its account
+     * @return list<array<string, mixed>> the documents of the exchanges whose item lacks the key that lists it in its account
      */
     public function exchangesOutOfTheListOfTheirAccount(): array
     {
@@ -280,8 +281,8 @@ final readonly class ContextTables
     }
 
     /**
-     * @return array<string, array<string, string>> the provider each member is connected to, by member, by account;
-     *                                              none to reconnect
+     * @return array<string, array<string, string>> the provider each member is connected to, by member, by account,
+     *                                              except those to reconnect
      */
     public function connectedMembersByAccount(): array
     {
@@ -303,8 +304,8 @@ final readonly class ContextTables
     }
 
     /**
-     * @return list<array<string, mixed>> the items of the figures of the account in the active version of Reporting, its
-     *                                    `TOTAL` and its months; none before the first rebuild
+     * @return list<array<string, mixed>> the account's figure items in Reporting's active version, its
+     *                                    `TOTAL` and its months, none before the first rebuild
      */
     public function figuresReportedFor(string $accountId): array
     {

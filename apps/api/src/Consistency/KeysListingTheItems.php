@@ -7,8 +7,9 @@ namespace App\Consistency;
 use App\Shared\Typed;
 
 /**
- * The keys listing each account among the accounts and each exchange in its account, by which the figures are counted
- * again: an item written before them lacks them until app:keys:rebuild writes them, and nothing counts it meanwhile.
+ * The keys that list each account among the accounts, and each exchange in its account. The figures are counted again
+ * through them. An item written before these keys lacks them until app:keys:rebuild writes them, and nothing counts it
+ * in the meantime.
  */
 final readonly class KeysListingTheItems
 {

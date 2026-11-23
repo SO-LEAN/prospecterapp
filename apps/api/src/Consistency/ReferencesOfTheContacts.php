@@ -8,9 +8,9 @@ use App\PersonalData\Persistence\PersonDocument;
 use App\Shared\Typed;
 
 /**
- * A link designates one contact of an account, by their links or their former ones: two contacts noting the same,
- * noted before it was unique, are shown by their ids, never the link, for the members to merge them or correct one of
- * them by hand.
+ * A link points to one contact in an account, by the contact's current or former links. Two contacts can hold the same
+ * link when it was logged before links were unique. The check shows them by their ids, never by the link, so the
+ * members can merge them or correct one of them by hand.
  */
 final readonly class ReferencesOfTheContacts
 {
@@ -60,7 +60,7 @@ final readonly class ReferencesOfTheContacts
     /**
      * @param array<string, mixed> $contact
      *
-     * @return list<string> what recognizes each
+     * @return list<string> what identifies each link
      */
     private static function referencesHeldBy(array $contact): array
     {

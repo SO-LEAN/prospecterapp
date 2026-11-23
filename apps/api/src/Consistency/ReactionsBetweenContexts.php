@@ -9,11 +9,11 @@ use App\Shared\Typed;
 use Symfony\Component\Clock\ClockInterface;
 
 /**
- * What the reactions between the contexts should have written, read in the tables: each account has a member at
- * least, its founder registered, and each member their profile in PersonalData; each contact collected is attached to
- * organizations, none forgotten still is; no organization no longer prospected still keeps exchanges; neither keeps
- * its tags; no campaign keeps a forgotten contact among its recipients. A contact to attach is attached to none, their
- * exchanges kept for none, until the day of their erasure (ADR 0146).
+ * What the reactions between the contexts should have written, read in the tables. Each account has at least one
+ * member, its registered founder. Each member has their profile in PersonalData. Each collected contact is attached to
+ * organizations, and no forgotten contact still is. No organization that is no longer prospected keeps exchanges or
+ * tags. No campaign keeps a forgotten contact among its recipients. A contact to attach is attached to no organization,
+ * and their exchanges are kept for none, until the day of their erasure (ADR 0146).
  */
 final readonly class ReactionsBetweenContexts
 {
@@ -142,7 +142,7 @@ final readonly class ReactionsBetweenContexts
 
     /**
      * @param list<array<string, mixed>> $organizations
-     * @param list<string>               $contactsToAttach whose exchanges are kept for none
+     * @param list<string>               $contactsToAttach the contacts whose exchanges are kept for none
      *
      * @return list<Discrepancy>
      */

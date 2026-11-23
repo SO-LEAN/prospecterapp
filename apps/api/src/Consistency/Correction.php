@@ -5,11 +5,16 @@ declare(strict_types=1);
 namespace App\Consistency;
 
 /**
- * The command correcting a discrepancy: the figures are counted again; the facts the tags of the contacts of an
- * account derive from are recorded again; a reaction missed is given again to the worker from the queue of its
- * failures, or, when no failure keeps it, published again from the outbox of its commit; an item missing from its list
- * gets its keys written again; an exchange its calendar lacks is pushed again by its holder; a contact left unattached
- * past their day is erased; two contacts noting the same link are merged or corrected by the members.
+ * The command that corrects a discrepancy:
+ *
+ * - The figures are counted again.
+ * - An account's contact tags derive from facts, and those facts are recorded again.
+ * - A missed reaction is given to the worker again from its failure queue. When no failure keeps it, it is published
+ *   again from its commit's outbox.
+ * - An item missing from its list gets its keys written again.
+ * - An exchange missing from its calendar is pushed again by its holder.
+ * - A contact left unattached past their day is erased.
+ * - The members merge or correct two contacts that hold the same link.
  */
 enum Correction: string
 {

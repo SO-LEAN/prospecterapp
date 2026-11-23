@@ -9,10 +9,10 @@ use App\Shared\Persistence\Documents;
 use App\Shared\Typed;
 
 /**
- * The facts the tags of the contacts derive from, kept by Campaigns, against the tables of Prospecting and PersonalData
- * (ADR 0141): an organization whose contacts or whose locality (ADR 0142), or a contact whose reach, Campaigns lacks or
- * keeps out of date is corrected by a rebuild of the tags of its account; a fact kept for what is gone, a terminal fact
- * missed, by the reaction given again.
+ * Compares the facts that the contacts' tags derive from, which Campaigns keeps, with the Prospecting and PersonalData
+ * tables (ADR 0141). Campaigns may lack or keep stale an organization's contacts or locality (ADR 0142), or a contact's
+ * reach. A rebuild of its account's tags corrects that. A fact kept for something gone, or a missed terminal fact, is
+ * corrected by giving the reaction again.
  */
 final readonly class TagsAgainstTheTables
 {
@@ -56,7 +56,7 @@ final readonly class TagsAgainstTheTables
     /**
      * @template T of array
      *
-     * @param array<string, T>          $state    what the table of the context keeps, by id
+     * @param array<string, T>          $state    what the context's table keeps, by id
      * @param array<string, T>          $facts    what Campaigns keeps, by id
      * @param \Closure(T): array<mixed> $compared
      *

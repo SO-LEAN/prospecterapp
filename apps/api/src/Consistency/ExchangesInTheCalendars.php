@@ -10,8 +10,8 @@ use App\Shared\Typed;
 use Symfony\Component\Clock\ClockInterface;
 
 /**
- * What the pushes into the calendars should have written, read in the tables (ADR 0133): each exchange still planned
- * and to come of a member connected to a provider is synced in their calendar there.
+ * What the calendar pushes should have written, read in the tables (ADR 0133). Each planned, upcoming exchange of a
+ * member connected to a provider is synced to their calendar there.
  */
 final readonly class ExchangesInTheCalendars
 {
@@ -32,7 +32,7 @@ final readonly class ExchangesInTheCalendars
     }
 
     /**
-     * @param array<string, string> $connected the provider each member of the account is connected to, by member
+     * @param array<string, string> $connected the provider each of the account's members is connected to, by member
      *
      * @return list<Discrepancy>
      */
