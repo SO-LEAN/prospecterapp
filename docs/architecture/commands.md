@@ -27,7 +27,7 @@ Run these from the repository root. `make` alone lists the commands. A new targe
 ## Checks
 
 - `make ci`: runs what the CI runs. It runs the checks that the changes since `origin/dev` need, and `ALL=1` runs every one (ADR 0110). It builds the images, installs the dependencies and checks the contract. Then it runs each project's lint and tests together and builds the front (ADR 0109). It needs no stack: the API and storage tests run on the checkout's own MiniStack. It stops at the first failure. It does not run the journeys (ADR 0121).
-- `make check-e2e`: runs the journeys in a worktree once development is done, on the worktree's stack as it runs. `FRESH=1` starts from nothing: the stack is started again, deployed and its data recreated. Only one checkout at a time runs them, and the first failure stops them (ADR 0117, 0121).
+- `make check-e2e`: runs the journeys in a worktree once development is done. On the worktree's running stack, it first deploys the API and the storage again, recycles the relay and the worker, and gives the tables and the user pool the demonstration back (`make -C apps/api restore`). It starts from nothing when `FRESH=1` is set, when no stack runs, or when what defines the stack changed since it was made. The stack is then started again, deployed and its data recreated. Each step prints how long it took (`Time/<step>: <n> s`). Only one checkout at a time runs them, and the first failure stops them (ADR 0117, 0121).
 - `make check-<secrets|infra|core|api|storage|front|contract|e2e>`: runs one check. `make -j` runs its steps together.
 - `make test`: runs the core's scenarios and unit tests, then the API, storage and front tests.
 - `make test-core`: runs the business rules only.
@@ -61,6 +61,7 @@ Each of the following commands runs one use case. A member completes their profi
 - `app:account:open <corporate name> <login email>`: opens an account and its founder (ADR 0064).
 - `app:member:register <login email of an administrator> <login email>`: registers a member in the administrator's account, as a prospector unless `--personal-data` or `--admin` is given (ADR 0075).
 - `app:campaign:erase <id>`: erases a campaign whatever its status, to clean up after a test or to answer a person's request.
+- `app:demo:restore`: gives the local tables and user pool the demonstration back without recreating them. It empties the tables, loads the demonstration again and gives its members back. It deletes the users and the clients added since. `make check-e2e` runs it through `make -C apps/api restore`. **This destroys local data.**
 - `app:integration:redrive`: hands the events in the failure queue back to the worker (ADR 0101).
 - `app:organizations:locate-again`: a one-time command. It geocodes again the organizations that were located before their municipality was stored. Then run `app:tags:rebuild` to give them their geographic tags (ADR 0142).
 - `app:reporting:rebuild`: recounts every account's figures and says how many accounts it counted, after five minutes of waiting (ADR 0106, 0182). Run it on an instance where Reporting is new, after `app:keys:rebuild` (ADR 0104).
