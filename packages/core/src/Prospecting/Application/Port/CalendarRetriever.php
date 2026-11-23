@@ -9,14 +9,14 @@ use Prospecter\Core\Prospecting\Domain\Model\CalendarPeriod;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 
 /**
- * Reads the calendar of a prospector, without restoring the exchanges (ADR 0088), each as they may read it
- * (`ExchangeReading`).
+ * Reads a prospector's calendar without restoring the exchanges (ADR 0088). Each exchange reads as the prospector may
+ * read it (`ExchangeReading`).
  */
 interface CalendarRetriever
 {
     /**
-     * The exchanges the prospector holds, planned by them or noted by them, whatever their status, happening in the
-     * period, by their moment then their id.
+     * Returns the exchanges the prospector holds that happen in the period, whatever their status. The prospector
+     * planned or logged each of them. They are sorted by their moment, then by their id.
      *
      * @return list<ExchangeInTimeline>
      */

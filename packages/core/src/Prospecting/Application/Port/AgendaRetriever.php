@@ -9,34 +9,35 @@ use Prospecter\Core\Prospecting\Domain\Model\CalendarPeriod;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 
 /**
- * Reads the exchanges a prospector planned, without restoring them (ADR 0088), each as they may read it
- * (`ExchangeReading`).
+ * Reads the exchanges a prospector planned without restoring them (ADR 0088). Each exchange reads as the prospector
+ * may read it (`ExchangeReading`).
  */
 interface AgendaRetriever
 {
     /**
-     * The exchanges the prospector planned starting after `from` and before `until`, the soonest first.
+     * Returns the exchanges the prospector planned that start after `from` and before `until`, soonest first.
      *
      * @return list<ExchangeInTimeline>
      */
     public function plannedBy(Prospector $holder, \DateTimeImmutable $from, \DateTimeImmutable $until): array;
 
     /**
-     * The exchanges the prospector planned happening in the period, its start included, the soonest first.
+     * Returns the exchanges the prospector planned that happen in the period, soonest first. The period's start is
+     * included.
      *
      * @return list<ExchangeInTimeline>
      */
     public function plannedIn(Prospector $holder, CalendarPeriod $period): array;
 
     /**
-     * The first `count` exchanges the prospector planned happening from `from` on, the soonest first.
+     * Returns the first `count` exchanges the prospector planned that happen at `from` or later, soonest first.
      *
      * @return list<ExchangeInTimeline>
      */
     public function firstPlannedFrom(Prospector $holder, \DateTimeImmutable $from, int $count): array;
 
     /**
-     * The exchanges the prospector planned starting before `until`, the oldest first.
+     * Returns the exchanges the prospector planned that start before `until`, oldest first.
      *
      * @return list<ExchangeInTimeline>
      */

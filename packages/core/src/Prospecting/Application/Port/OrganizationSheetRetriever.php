@@ -11,8 +11,8 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 /**
- * Reads the sheets of the organizations, without restoring them, with what their state offers now, asked to
- * `OrganizationPossibilities` (ADR 0088).
+ * Reads the organizations' sheets without restoring the organizations (ADR 0088). Each sheet says what the
+ * organization's state currently offers, as `OrganizationPossibilities` decides it.
  */
 interface OrganizationSheetRetriever
 {
@@ -22,7 +22,7 @@ interface OrganizationSheetRetriever
     public function get(OrganizationId $id): OrganizationSheet;
 
     /**
-     * The organizations the account prospects that have this phone number.
+     * Returns the organizations the account prospects that have this phone number.
      *
      * @return list<OrganizationSheet>
      */

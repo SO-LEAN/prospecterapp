@@ -9,14 +9,14 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Reads the organizations of an account naming each contact, without restoring them (ADR 0088).
+ * Reads which of an account's organizations name each contact, without restoring them (ADR 0088).
  */
 interface OrganizationOfContactRetriever
 {
     /**
      * @param list<PersonId> $contacts
      *
-     * @return array<string, list<OrganizationOfContact>> by person id, every asked person included
+     * @return array<string, list<OrganizationOfContact>> by person id, with every person asked for
      */
     public function ofContacts(array $contacts, AccountId $accountId): array;
 }

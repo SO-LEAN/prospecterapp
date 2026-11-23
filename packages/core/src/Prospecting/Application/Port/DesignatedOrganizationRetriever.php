@@ -12,8 +12,8 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\Siret;
 
 /**
- * Reads which organization of an account a key designates, by what designates each one in its account, without
- * restoring them (ADR 0088).
+ * Reads which of an account's organizations a key designates, without restoring them (ADR 0088). It looks the key up
+ * among what designates each organization in its account.
  */
 interface DesignatedOrganizationRetriever
 {
@@ -22,7 +22,7 @@ interface DesignatedOrganizationRetriever
     public function withReference(AccountId $accountId, ExternalReference $reference): ?OrganizationId;
 
     /**
-     * The organization whose website has this domain: its host without `www.`.
+     * Returns the organization whose website has this domain. The domain is the website's host without `www.`.
      */
     public function withWebsiteDomain(AccountId $accountId, string $domain): ?OrganizationId;
 
@@ -31,7 +31,7 @@ interface DesignatedOrganizationRetriever
     /**
      * @param list<OrganizationId> $ids
      *
-     * @return list<Candidate> in the order of the ids, those that no longer exist absent
+     * @return list<Candidate> in the ids' order, without the organizations that no longer exist
      */
     public function named(array $ids): array;
 }

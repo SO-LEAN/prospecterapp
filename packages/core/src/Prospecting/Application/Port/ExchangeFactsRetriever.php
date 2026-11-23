@@ -10,18 +10,18 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Slice;
 
 /**
- * Reads the facts of the exchanges as the other contexts count them, without restoring them (ADR 0088): the one
- * reading of them, for their event and for their service.
+ * Reads the exchanges' facts as the other contexts count them, without restoring the exchanges (ADR 0088). It is the
+ * only reading of these facts, for their event and for their service.
  */
 interface ExchangeFactsRetriever
 {
     /**
-     * The facts of the exchange as the command is about to write them, absent once it is erased.
+     * Returns the exchange's facts as the command is about to write them. They are absent once the exchange is erased.
      */
     public function of(ExchangeId $id): ExchangeFactsResponse;
 
     /**
-     * The facts of the exchanges of the account newest first, after the cursor (ADR 0049).
+     * Returns the facts of the account's exchanges after the cursor, newest first (ADR 0049).
      *
      * @return Slice<ExchangeFactsResponse>
      */

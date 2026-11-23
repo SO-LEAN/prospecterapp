@@ -15,7 +15,7 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 interface HeldExchangeRetriever
 {
     /**
-     * Those of the account among these ids, in no particular order.
+     * Returns the account's exchanges among these ids, in no particular order.
      *
      * @param list<ExchangeId> $ids
      *
@@ -24,7 +24,7 @@ interface HeldExchangeRetriever
     public function ofIds(AccountId $accountId, array $ids): array;
 
     /**
-     * Those of the account the holder still has planned from `from` on, the soonest first.
+     * Returns the account's exchanges that the holder still has planned at `from` or later, soonest first.
      *
      * @return list<HeldExchange>
      */
