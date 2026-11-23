@@ -13,12 +13,12 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * Gives the organizations located before their municipality was kept their municipality, their address geocoded again
- * (ADR 0142), so that they carry their geographic tags: once on an instance, after the deployment that keeps it. Each
- * organization is a command of its own; run again, it finds none left, but those whose address the geocoder no longer
- * finds, which it counts apart.
+ * Geocodes again the address of each organization located before Prospecter kept municipalities, to give it its
+ * municipality (ADR 0142). The organization then carries its geographic tags. Run it once on an instance, after the
+ * deployment that keeps municipalities. Each organization gets its own command. Run again, the command finds only the
+ * organizations whose address the geocoder no longer finds, and counts them separately.
  */
-#[AsCommand(name: 'app:organizations:locate-again', description: 'Geocode again the organizations located without their municipality')]
+#[AsCommand(name: 'app:organizations:locate-again', description: 'Geocode again the organizations that were located without their municipality')]
 final readonly class LocateOrganizationsAgainCommand
 {
     public function __construct(
