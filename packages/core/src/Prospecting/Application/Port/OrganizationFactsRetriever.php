@@ -10,19 +10,19 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\Slice;
 
 /**
- * Reads the facts of the organizations as the other contexts count them, without restoring them (ADR 0088): the
- * one reading of them, for their event and for their service.
+ * Reads the organizations' facts as the other contexts count them, without restoring the organizations (ADR 0088).
+ * It is the only reading of these facts, for their event and for their service.
  */
 interface OrganizationFactsRetriever
 {
     /**
-     * The facts of the organization as the command is about to write them, absent when the account no longer
-     * prospects it.
+     * Returns the organization's facts as the command is about to write them. They are absent when the account no
+     * longer prospects the organization.
      */
     public function of(OrganizationId $id): OrganizationFactsResponse;
 
     /**
-     * The facts of the organizations of the account newest first, after the cursor (ADR 0049).
+     * Returns the facts of the account's organizations after the cursor, newest first (ADR 0049).
      *
      * @return Slice<OrganizationFactsResponse>
      */

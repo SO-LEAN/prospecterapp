@@ -14,8 +14,8 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Reads the to-dos without restoring them (ADR 0088), each with what its state offers (`ToDoPossibilities`), in no
- * particular order but in a calendar: `ToDoList` orders them.
+ * Reads the to-dos without restoring them (ADR 0088). Each to-do says what its state offers (`ToDoPossibilities`).
+ * Only the calendar's to-dos come in an order. `ToDoList` orders the others.
  */
 interface ToDoListRetriever
 {
@@ -25,29 +25,30 @@ interface ToDoListRetriever
     public function get(ToDoId $id): ToDoInList;
 
     /**
-     * The to-dos of the account for the contact, done or not.
+     * Returns the account's to-dos for the contact, done or not.
      *
      * @return list<ToDoInList>
      */
     public function forContact(PersonId $contact, AccountId $accountId): array;
 
     /**
-     * The to-dos kept for the organization, for it or for its contacts, done or not.
+     * Returns the to-dos kept for the organization, done or not. They are for the organization or for its contacts.
      *
      * @return list<ToDoInList>
      */
     public function keptFor(OrganizationId $organization): array;
 
     /**
-     * The to-dos the member holds that are still to do.
+     * Returns the to-dos the member holds that are still to do.
      *
      * @return list<ToDoInList>
      */
     public function stillToDoBy(MemberId $holder): array;
 
     /**
-     * The to-dos the member holds, done or not, due on a day of the period on the clock of its reader, by their due as
-     * written: their day, a day without an hour before its hours, then their id (ADR 0134).
+     * Returns the to-dos the member holds that are due on a day of the period, done or not. The days are read on the
+     * reader's clock. The to-dos are sorted by their due as written: by day, a to-do without an hour before those of
+     * the same day with one, then by id (ADR 0134).
      *
      * @return list<ToDoInList>
      */

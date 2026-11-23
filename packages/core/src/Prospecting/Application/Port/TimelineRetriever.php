@@ -10,37 +10,37 @@ use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Reads the timelines in slices, the exchanges past the most recent moment first, those to come the soonest first,
- * after the cursor (ADR 0049, 0074, 0076, 0079),
- * without restoring the exchanges (ADR 0088): each as its reader may read it (`ExchangeReading`), with what is to
- * make conform (`ExchangeConformity`) and where its contact stands (`ContactPresence`).
+ * Reads the timelines in slices after the cursor (ADR 0049, 0074, 0076, 0079). Past exchanges come most recent first.
+ * Upcoming exchanges come soonest first. It does not restore the exchanges (ADR 0088). Each exchange reads as its
+ * reader may read it (`ExchangeReading`). It says what still needs redacting (`ExchangeConformity`) and where its
+ * contact stands (`ContactPresence`).
  */
 interface TimelineRetriever
 {
     /**
-     * The exchanges with the contact in the account of the reader, until the moment.
+     * Returns the exchanges with the contact in the reader's account, up to the moment.
      */
     public function ofContact(PersonId $contact, Prospector $reader, \DateTimeImmutable $asOf, ?string $after, int $max): Timeline;
 
     /**
-     * The exchanges kept for the organization, with it or with its contacts, until the moment, counting those to
-     * make conform.
+     * Returns the exchanges kept for the organization, up to the moment. They are with the organization or with its
+     * contacts. The timeline counts those still to be redacted.
      */
     public function ofOrganization(OrganizationSheet $organization, Prospector $reader, \DateTimeImmutable $asOf, ?string $after, int $max): Timeline;
 
     /**
-     * The exchanges with the contact in the account of the reader, after the moment.
+     * Returns the exchanges with the contact in the reader's account, after the moment.
      */
     public function upcomingWithContact(PersonId $contact, Prospector $reader, \DateTimeImmutable $asOf, ?string $after, int $max): Timeline;
 
     /**
-     * The exchanges kept for the organization, with it or with its contacts, after the moment, counting those to
-     * make conform.
+     * Returns the exchanges kept for the organization, after the moment. They are with the organization or with its
+     * contacts. The timeline counts those still to be redacted.
      */
     public function upcomingInOrganization(OrganizationSheet $organization, Prospector $reader, \DateTimeImmutable $asOf, ?string $after, int $max): Timeline;
 
     /**
-     * Only those to make conform of the timeline of the organization.
+     * Returns only the exchanges still to be redacted in the organization's timeline.
      */
     public function toMakeConformIn(OrganizationSheet $organization, Prospector $reader, ?string $after, int $max): Timeline;
 }

@@ -14,8 +14,8 @@ use Prospecter\Core\SharedKernel\Domain\SearchKey;
 interface FoundOrganizationRetriever
 {
     /**
-     * The organizations of the account newest first, found by the beginning of their name or of their email
-     * when a search is given, after the cursor (ADR 0049, 0071).
+     * Returns the account's organizations after the cursor, newest first (ADR 0049). When a search is given, it finds
+     * them by the beginning of their name or of their email (ADR 0071).
      */
     public function sliceProspectedBy(AccountId $accountId, ?SearchKey $search, ?string $after, int $max): FoundOrganizationPage;
 }
