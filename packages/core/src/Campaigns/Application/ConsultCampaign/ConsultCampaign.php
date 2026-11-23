@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Campaigns\Application\ConsultCampaign;
 
-/**
- * A campaign as the member reads it, its recipients processed today counted on their clock.
- */
+/** A campaign as the member reads it. Its recipients processed today are counted on the member's clock. */
 final readonly class ConsultCampaign
 {
     /**
