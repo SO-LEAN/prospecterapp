@@ -14,6 +14,6 @@ final class CalendarRefusedThePush extends BusinessRuleViolation
 {
     public static function by(Provider $provider, int $status): self
     {
-        return self::because(sprintf('%s refused the event of the exchange', ucfirst($provider->value)), context: ['status' => (string) $status]);
+        return self::because(sprintf('%s refused the exchange\'s event', ucfirst($provider->value)), context: ['status' => (string) $status]);
     }
 }
