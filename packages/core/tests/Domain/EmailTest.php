@@ -24,6 +24,16 @@ class EmailTest extends TestCase
         new Email($notAnEmail);
     }
 
+    public function testARefusedAddressNamesWhatWasTyped(): void
+    {
+        try {
+            new Email('contact@');
+            $this->fail('The address should have been refused');
+        } catch (BusinessRuleViolation $refusal) {
+            $this->assertSame(['email' => 'contact@'], $refusal->context);
+        }
+    }
+
     /**
      * @return iterable<string, array{string}>
      */
