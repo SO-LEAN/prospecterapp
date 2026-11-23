@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Shared\Persistence;
 
+use App\Shared\Typed;
 use Aws\DynamoDb\DynamoDbClient;
 use Aws\DynamoDb\Exception\DynamoDbException;
 
@@ -50,11 +51,32 @@ final readonly class Tables
     }
 
     /**
+     * Removes every item of the tables and keeps the tables, their indexes and their streams. It also forgets the
+     * secrets that the accounts gave, since the items that name them are gone.
+     */
+    public function empty(): void
+    {
+        $this->accountSecrets->forgetEvery();
+
+        foreach ($this->tables() as $table) {
+            $table->batch([], array_map(static fn (array $item): array => [Typed::string($item['PK']), Typed::string($item['SK'])], $table->scan('')));
+        }
+    }
+
+    /**
      * @return list<string>
      */
     public function names(): array
     {
-        return [$this->accountsTable->name, $this->personalDataTable->name, $this->prospectingTable->name, $this->reportingTable->name, $this->connectorsTable->name, $this->campaignsTable->name, $this->bookingTable->name];
+        return array_map(static fn (Table $table): string => $table->name, $this->tables());
+    }
+
+    /**
+     * @return list<Table>
+     */
+    private function tables(): array
+    {
+        return [$this->accountsTable, $this->personalDataTable, $this->prospectingTable, $this->reportingTable, $this->connectorsTable, $this->campaignsTable, $this->bookingTable];
     }
 
     private function drop(string $name): void
