@@ -35,7 +35,7 @@ final readonly class Member
     public function ensureMayCatchUpMail(): void
     {
         if (!$this->mayCatchUpMail()) {
-            throw PersonalDataManagersOnly::because('Only a member allowed to manage personal data catches up the e-mails of their mailbox');
+            throw PersonalDataManagersOnly::because('Only a member allowed to manage personal data can reimport e-mails from their mailbox');
         }
     }
 

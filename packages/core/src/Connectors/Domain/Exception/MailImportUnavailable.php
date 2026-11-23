@@ -13,6 +13,6 @@ final class MailImportUnavailable extends NotPossibleInItsState
 {
     public static function withoutTopic(): self
     {
-        return self::because('The import of the e-mails is not available');
+        return self::because('The e-mail import is not available');
     }
 }

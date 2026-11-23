@@ -152,5 +152,5 @@ Fonctionnalité: Activer l'import de mes e-mails Gmail
 
   Scénario: Sans topic du compte, l'import est refusé
     Quand j'active l'import de mes e-mails Gmail et que Google accorde l'accès à Gmail
-    Alors c'est refusé : "The import of the e-mails is not available"
+    Alors c'est refusé : "The e-mail import is not available"
     Et l'import de mes e-mails Gmail est "coupé"

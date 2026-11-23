@@ -13,6 +13,6 @@ final class MailImportNotActive extends NotPossibleInItsState
 {
     public static function toCatchUp(): self
     {
-        return self::because('The import of the e-mails is not active');
+        return self::because('The e-mail import is not active');
     }
 }
