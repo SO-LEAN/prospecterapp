@@ -17,7 +17,7 @@ Every controller of the API extended `AbstractController`. The parent class hand
 - One shared service, `App\Shared\JsonResponses`, writes every JSON answer. It uses the Serializer with the encoding options of a `JsonResponse`, as `json()` did.
 - A controller builds a URL with `UrlGeneratorInterface` and a redirection with `new RedirectResponse()`.
 - A right that depends on the resource is checked with `AuthorizationCheckerInterface` and refused with an `AccessDeniedException`. Any other right stays an `#[IsGranted]` attribute.
-- `tests/Architecture/ControllersExtendNothingTest` fails when a controller of the API is not a `final readonly` class without a parent.
+- `tests/Architecture/ControllersExtendNothingTest` fails when a controller of the API is not a `final readonly` class without a parent, or when it builds a `JsonResponse` itself.
 
 ## Consequences
 
