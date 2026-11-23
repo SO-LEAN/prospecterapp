@@ -22,7 +22,7 @@ Fonctionnalité: Fixer un plafond d'envois par jour
 
   Scénario: Un plafond de moins d'un envoi est refusé à la préparation
     Quand je prépare la campagne "Relance PHP" avec un plafond de 0 envoi par jour
-    Alors c'est refusé : "A daily cap is at least 1 send"
+    Alors c'est refusé : "A daily cap must be at least 1 send"
 
   Scénario: Je change le plafond de la campagne démarrée
     Soit la campagne "Relance PHP" démarrée par e-mail avec "Ada Lovelace" puis "Grace Hopper", son message pour une IA "tel quel"
@@ -38,7 +38,7 @@ Fonctionnalité: Fixer un plafond d'envois par jour
     Soit la campagne "Relance PHP" démarrée par e-mail avec "Ada Lovelace" puis "Grace Hopper", son message pour une IA "tel quel"
     Et la campagne "Relance PHP" est arrêtée
     Quand je fixe le plafond de "Relance PHP" à 30 envois par jour
-    Alors c'est refusé : "A started campaign does not change"
+    Alors c'est refusé : "A started campaign can no longer change"
 
   Scénario: Au plafond du jour, l'IA est avertie
     Soit la campagne "Relance PHP" démarrée par e-mail avec "Ada Lovelace" puis "Grace Hopper", son message pour une IA "tel quel"

@@ -11,6 +11,6 @@ final class TooManyRecipients extends BusinessRuleViolation
 {
     public static function beyond(int $max): self
     {
-        return self::because(sprintf('A campaign has %d recipients at most', $max), context: ['max' => (string) $max]);
+        return self::because(sprintf('A campaign can have at most %d recipients', $max), context: ['max' => (string) $max]);
     }
 }

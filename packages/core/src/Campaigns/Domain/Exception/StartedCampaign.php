@@ -11,6 +11,6 @@ final class StartedCampaign extends NotPossibleInItsState
 {
     public static function unchanged(): self
     {
-        return self::because('A started campaign does not change');
+        return self::because('A started campaign can no longer change');
     }
 }

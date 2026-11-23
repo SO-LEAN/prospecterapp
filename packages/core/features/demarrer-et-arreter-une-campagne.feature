@@ -19,17 +19,17 @@ Fonctionnalité: Démarrer et arrêter une campagne
   Scénario: On ne démarre pas un brouillon
     Soit la campagne "Brouillon" en brouillon
     Quand je démarre la campagne "Brouillon"
-    Alors c'est refusé : "Only a frozen campaign starts"
+    Alors c'est refusé : "Only a frozen campaign can start"
 
   Scénario: Démarrée, la campagne ne change plus
     Soit la campagne "Relance" est démarrée
     Quand j'en retire "Ada Lovelace"
-    Alors c'est refusé : "A started campaign does not change"
+    Alors c'est refusé : "A started campaign can no longer change"
 
   Scénario: Démarrée, la campagne ne se supprime plus
     Soit la campagne "Relance" est démarrée
     Quand je supprime la campagne "Relance"
-    Alors c'est refusé : "A started campaign is stopped, not deleted"
+    Alors c'est refusé : "A started campaign can be stopped, not deleted"
 
   Scénario: J'arrête une campagne démarrée
     Soit la campagne "Relance" est démarrée
@@ -40,7 +40,7 @@ Fonctionnalité: Démarrer et arrêter une campagne
   Scénario: Une campagne arrêtée ne redémarre pas
     Soit la campagne "Relance" est arrêtée
     Quand je démarre la campagne "Relance"
-    Alors c'est refusé : "Only a frozen campaign starts"
+    Alors c'est refusé : "Only a frozen campaign can start"
 
   Scénario: Un contact effacé reste dans une campagne démarrée, sans son nom
     Soit la campagne "Relance" est démarrée
@@ -55,7 +55,7 @@ Fonctionnalité: Démarrer et arrêter une campagne
   Scénario: Une campagne figée vidée par l'effacement de ses contacts ne démarre plus
     Soit j'efface le contact "Ada Lovelace"
     Quand je démarre la campagne "Relance"
-    Alors c'est refusé : "A campaign has at least one recipient"
+    Alors c'est refusé : "A campaign needs at least one recipient"
 
   Scénario: Une campagne figée vidée par l'effacement de ses contacts se supprime encore
     Soit j'efface le contact "Ada Lovelace"
