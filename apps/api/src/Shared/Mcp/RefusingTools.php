@@ -19,10 +19,10 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 
 /**
- * Runs the tools of the MCP server, a refusal answered as the error of the tool, its text the problem the endpoint
- * the tool adapts would answer (a refusal, an access denied, a service out of reach), or the violations of its arguments
- * (ADR 0163): the AI reads why, as the SPA does, a service out of reach logged with its cause as for the SPA. Any
- * other exception stays a failure.
+ * Runs the MCP server's tools. A refusal becomes the tool's error. Its text is the problem that the adapted endpoint
+ * would answer (a refusal, a denied access, an unreachable service), or its arguments' violations (ADR 0163). So the AI
+ * reads why, as the SPA does. An unreachable service is logged with its cause, as for the SPA. Any other exception
+ * stays a failure.
  */
 final readonly class RefusingTools implements ReferenceHandlerInterface
 {
@@ -48,12 +48,12 @@ final readonly class RefusingTools implements ReferenceHandlerInterface
     }
 
     /**
-     * As Symfony logs it before the 503 of the SPA (`ServiceUnavailableListener`): the cause is read in the logs only.
+     * Logs the cause as Symfony does before the SPA's 503 (`ServiceUnavailableListener`). Only the logs show the cause.
      */
     private function logTheCauseOfAServiceOutOfReach(\Throwable $failure): void
     {
         if ($failure instanceof ServiceUnavailable) {
-            $this->logger->error('A service is out of reach of a tool', ['exception' => $failure]);
+            $this->logger->error('A tool cannot reach a service', ['exception' => $failure]);
         }
     }
 

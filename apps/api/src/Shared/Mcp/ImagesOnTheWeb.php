@@ -10,8 +10,8 @@ use Symfony\Component\Validator\Exception\ValidationFailedException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * The images an AI gives by their address on the web, downloaded as the screen sends them (ADR 0168): 2 MB at most,
- * a JPEG, PNG or WebP, refused as the image of the screen otherwise.
+ * The images an AI gives by their web address. They are downloaded as the screen sends them (ADR 0168): 2 MB at most,
+ * in JPEG, PNG or WebP. Any other image is refused, as the screen's image would be.
  */
 final readonly class ImagesOnTheWeb
 {
@@ -22,11 +22,11 @@ final readonly class ImagesOnTheWeb
     /**
      * @template TResult
      *
-     * @param \Closure(File): TResult $use what is done with the image, kept by then (the commands run within the request)
+     * @param \Closure(File): TResult $use what to do with the image, which is kept until then (the commands run within the request)
      *
      * @return TResult
      *
-     * @throws ValidationFailedException the image out of reach, or no image Prospecter takes
+     * @throws ValidationFailedException when the image is unreachable, or when Prospecter does not accept it
      */
     public function whileDownloaded(WebAddressInput $address, \Closure $use): mixed
     {

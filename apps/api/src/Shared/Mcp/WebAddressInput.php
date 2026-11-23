@@ -7,8 +7,8 @@ namespace App\Shared\Mcp;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * The address on the web of a file an AI gives, an image or an attachment, in place of the file the screen sends
- * (ADR 0168).
+ * The web address of a file that an AI gives, an image or an attachment, in place of the file the screen sends (ADR
+ * 0168).
  */
 final readonly class WebAddressInput
 {

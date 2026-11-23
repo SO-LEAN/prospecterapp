@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Shared\Mcp;
 
 /**
- * The endpoint a tool of the MCP server adapts, by the name of its route: every endpoint of a member has its tool
- * (ADR 0163, `tests/Architecture/EveryEndpointHasItsToolTest`).
+ * The endpoint that an MCP tool adapts, by its route's name. Every member endpoint has its tool (ADR 0163,
+ * `tests/Architecture/EveryEndpointHasItsToolTest`).
  */
 #[\Attribute(\Attribute::TARGET_CLASS)]
 final readonly class Adapts
