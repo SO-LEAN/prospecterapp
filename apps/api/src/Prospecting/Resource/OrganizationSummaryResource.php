@@ -10,7 +10,7 @@ use App\Shared\Resource\LocationResource;
 final readonly class OrganizationSummaryResource
 {
     /**
-     * @param list<PossibleDuplicateResource> $possibleDuplicates the organizations of the account it resembles
+     * @param list<PossibleDuplicateResource> $possibleDuplicates the account's organizations that it resembles
      */
     public function __construct(
         public string $id,

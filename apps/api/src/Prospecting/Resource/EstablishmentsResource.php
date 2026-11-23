@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Prospecting\Resource;
 
 /**
- * The establishments proposed for an organization, those of its municipality first.
+ * The establishments proposed for an organization. Those in its municipality come first.
  */
 final readonly class EstablishmentsResource
 {

@@ -9,7 +9,7 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
 /**
- * An organization of the account the organization resembles, by its name and its city: perhaps the same.
+ * An organization of the account that the organization resembles by its name and its city. They may be the same.
  */
 final readonly class PossibleDuplicateResource
 {

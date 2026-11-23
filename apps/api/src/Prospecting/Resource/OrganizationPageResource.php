@@ -9,7 +9,7 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
 /**
- * A slice of the organizations, newest first (ADR 0049): the next one is reached by the link next.
+ * A slice of the organizations, newest first (ADR 0049). The `next` link leads to the next slice.
  */
 final readonly class OrganizationPageResource
 {

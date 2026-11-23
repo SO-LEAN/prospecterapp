@@ -15,11 +15,11 @@ final readonly class TimelineLinksResource
         public ?LinkResource $next = null,
         #[OA\Property(nullable: false)]
         public ?LinkResource $noteExchange = null,
-        #[OA\Property(nullable: false, description: 'Plan an exchange to come, with the right to manage personal data')]
+        #[OA\Property(nullable: false, description: 'Plans an exchange to come')]
         public ?LinkResource $planExchange = null,
-        #[OA\Property(nullable: false, description: 'The exchanges of an organization to redact, their contact forgotten, absent while there is none')]
+        #[OA\Property(nullable: false, description: 'An organization\'s exchanges to redact, whose contact is forgotten. Absent while there is none')]
         public ?LinkResource $toRedact = null,
-        #[OA\Property(nullable: false, description: 'Reimport the e-mails the mailbox of Gmail of the reader exchanged with the address of the organization itself, while its import is active and the organization has an e-mail, with the right to manage personal data')]
+        #[OA\Property(nullable: false, description: 'Reimports the e-mails that the reader\'s Gmail mailbox exchanged with the organization\'s own address. Present while the import is active and the organization has an e-mail, and only with the right to manage personal data')]
         public ?LinkResource $reimportGmail = null,
     ) {
     }

@@ -2636,7 +2636,7 @@ export interface components {
         };
         CampaignOfExchangeResource: {
             id: string;
-            /** @description Its name, none once the campaign was erased */
+            /** @description Its name, or null once the campaign is erased */
             name?: string | null;
         };
         ExchangeLinksResource: {
@@ -2652,50 +2652,50 @@ export interface components {
             /** @enum {string} */
             channel: "call" | "sms" | "email" | "linkedIn" | "malt" | "meeting" | "videoCall" | "other";
             /**
-             * @description inbound: the contact or the organization reached out; outbound: we did
+             * @description inbound: the contact or the organization reached out; outbound: the member reached out
              * @enum {string}
              */
             direction: "inbound" | "outbound";
             /**
              * Format: date-time
-             * @description When it happened, or is to happen once planned
+             * @description When it happened, or when it is to happen if it is planned
              */
             occurredAt: string;
             /**
-             * @description planned: still to come; done: it happened; missed: the contact did not come or answer; cancelled: called off before it happened
+             * @description planned: still to come; done: it happened; missed: the contact did not come or did not answer; cancelled: called off before it happened
              * @enum {string}
              */
             status: "planned" | "done" | "missed" | "cancelled";
             /**
-             * @description Who called it off once cancelled, when said
+             * @description Who called it off, if it is cancelled and someone said who
              * @enum {string|null}
              */
             canceller?: "prospector" | "contact" | null;
-            /** @description How long it lasts, once planned */
+            /** @description How long it lasts, if it is planned */
             durationInMinutes?: number | null;
             text?: string | null;
-            /** @description Where a meeting is held, written freely; null for any other channel */
+            /** @description Where a meeting is held, written freely. Null for any other channel */
             place?: string | null;
-            /** @description The web address a video call is joined by; null for any other channel, or until it is known */
+            /** @description The web address that joins a video call. Null for any other channel, or until it is known */
             link?: string | null;
-            /** @description Its text may hold personal data: flagged to a prospector reading it without the right to manage them */
+            /** @description Its text may hold personal data. A prospector without the right to manage personal data reads it flagged */
             textFlagged: boolean;
-            /** @description Its contact forgotten, its text may still hold their personal data, until it is declared redacted */
+            /** @description Its contact is forgotten, and its text may still hold their personal data until someone declares it redacted */
             textToRedact: boolean;
-            /** @description Its contact forgotten, its text or its files may still hold their personal data */
+            /** @description Its contact is forgotten, and its text or its files may still hold their personal data */
             toRedact: boolean;
-            /** @description The organizations it is kept for: those the contact was part of when it was noted, or the organization itself */
+            /** @description The organizations it is kept for: those the contact was part of when it was logged, or the organization itself */
             organizationIds: string[];
-            /** @description How many files are joined to it */
+            /** @description The number of files attached to it */
             attachmentCount: number;
-            /** @description The campaign it was noted in, none for an exchange of no campaign */
+            /** @description The campaign it was logged in. Null for an exchange outside any campaign */
             campaign?: components["schemas"]["CampaignOfExchangeResource"] | null;
-            /** @description Its contact waits for its holder to attach them to an organization: kept for none until then (ADR 0146) */
+            /** @description Its contact waits for its holder to attach them to an organization. Until then, no organization keeps it (ADR 0146) */
             contactToAttach: boolean;
-            /** @description Its contact booked it by the public link of its holder (ADR 0164) */
+            /** @description Its contact booked it through its holder's public link (ADR 0164) */
             bookedByLink: boolean;
             /**
-             * @description The provider of the mailbox it was imported from, google for Gmail; null for an exchange noted (ADR 0174)
+             * @description The provider of the mailbox it was imported from: google for Gmail. Null for a logged exchange (ADR 0174)
              * @enum {string|null}
              */
             importedFrom?: "google" | null;
@@ -2716,14 +2716,14 @@ export interface components {
             _links: components["schemas"]["TimelineLinksResource"];
         };
         MeetingPlaceResource: {
-            /** @description The address of the first organization of the contact having one; none when no organization of theirs has */
+            /** @description The address of the contact's first organization that has one. Null when none of their organizations has one */
             address?: components["schemas"]["AddressResource"] | null;
         };
         EstablishmentResource: {
             /** @example 55210055400013 */
             siret: string;
             /**
-             * @description The name of its company
+             * @description Its company's name
              * @example ACME
              */
             name: string;
@@ -3067,7 +3067,7 @@ export interface components {
              */
             occurredAt: string;
             /**
-             * @description planned: still to come; done: it happened; missed: the contact did not come or answer; cancelled: called off before it happened
+             * @description planned: still to come; done: it happened; missed: the contact did not come or did not answer; cancelled: called off before it happened
              * @enum {string}
              */
             status: "planned" | "done" | "missed" | "cancelled";
@@ -3109,7 +3109,7 @@ export interface components {
             /** @description Its contact booked it by the public link of its holder, who planned nothing themselves (ADR 0164) */
             bookedByLink: boolean;
             /**
-             * @description The provider of the mailbox it was imported from, google for Gmail; null for an exchange noted (ADR 0174)
+             * @description The provider of the mailbox it was imported from: google for Gmail. Null for a logged exchange (ADR 0174)
              * @enum {string|null}
              */
             importedFrom?: "google" | null;

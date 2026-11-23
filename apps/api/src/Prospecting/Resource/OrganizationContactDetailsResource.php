@@ -9,7 +9,7 @@ use OpenApi\Attributes as OA;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 
 /**
- * The contact details of an organization: those of a person, its links to the tools outside and its website.
+ * An organization's contact details: the same ones as a person's, plus its links to outside tools and its website.
  */
 final readonly class OrganizationContactDetailsResource
 {

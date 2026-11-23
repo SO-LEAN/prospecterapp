@@ -15,13 +15,13 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
 /**
- * Each part is changed by its own intention: PATCH legal-identity, contact-details, address, observations, holding.
+ * Each part changes through its own intention: PATCH legal-identity, contact-details, address, observations, holding.
  */
 final readonly class OrganizationResource
 {
     /**
-     * @param list<string>                    $contactIds         the persons prospected in it, read with GET /api/organizations/{id}/contacts
-     * @param list<PossibleDuplicateResource> $possibleDuplicates the organizations of the account it resembles
+     * @param list<string>                    $contactIds         the persons prospected in it. GET /api/organizations/{id}/contacts reads them
+     * @param list<PossibleDuplicateResource> $possibleDuplicates the account's organizations that it resembles
      */
     public function __construct(
         public string $id,
