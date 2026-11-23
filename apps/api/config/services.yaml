@@ -434,8 +434,7 @@ when@test:
             arguments:
                 $pool: '@App\SignIn\UserPool'
                 $demoCredentials: '@App\Demo\DemoCredentials'
-                $credentials: '@App\SignIn\Credentials'
-                $cognito: '@Aws\CognitoIdentityProvider\CognitoIdentityProviderClient'
+                $demoMembers: '@App\Demo\DemoMembers'
             public: true
         Prospecter\Core\Prospecting\Application\Port\PrivateStorage: '@Tests\App\Double\InMemoryPrivateStorage'
         App\Shared\UploadForms: '@Tests\App\Double\InMemoryPrivateStorage'
