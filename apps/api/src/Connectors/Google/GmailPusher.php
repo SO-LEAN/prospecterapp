@@ -8,8 +8,8 @@ use App\Shared\Typed;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * Who pushes the notifications of Gmail to an account: the account of service of its subscription at Google, no
- * member (ADR 0154).
+ * The one who pushes Gmail notifications to an account. It is the service account of the account's subscription at
+ * Google, not a member (ADR 0154).
  */
 final readonly class GmailPusher implements UserInterface
 {

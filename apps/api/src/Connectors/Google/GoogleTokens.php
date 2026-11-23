@@ -10,13 +10,13 @@ use Prospecter\Core\Connectors\Domain\Model\RefreshToken;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
- * The access token of an hour Google gives for the refresh token of a member, through the client of their account,
- * asked for each push and never kept (ADR 0120, 0127).
+ * The one-hour access token that Google gives for a member's refresh token, through their account's client. Each push
+ * asks for one, and it is never kept (ADR 0120, 0127).
  */
 final readonly class GoogleTokens
 {
     private const int OK = 200;
-    /** what Google answers for a token revoked, expired or replaced too many times */
+    /** what Google answers for a token that was revoked, expired or replaced too many times */
     private const string INVALID_GRANT = 'invalid_grant';
     private const float TIMEOUT = 10;
 

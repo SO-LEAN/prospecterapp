@@ -144,7 +144,7 @@ class GoogleMailboxTest extends TestCase
 
         $mailbox->messagesAddedSince(self::client(), new RefreshToken('a-token'), '1000', 500);
 
-        $this->assertSame([['level' => 'info', 'message' => 'The history of a mailbox read', 'context' => ['from' => '1000', 'to' => '1001', 'messages' => ['m1', 'm2'], 'complete' => true]]], $this->logger->records);
+        $this->assertSame([['level' => 'info', 'message' => 'Read a mailbox\'s history', 'context' => ['from' => '1000', 'to' => '1001', 'messages' => ['m1', 'm2'], 'complete' => true]]], $this->logger->records);
     }
 
     public function testAHistoryGmailNoLongerKeepsIsExpired(): void
@@ -181,7 +181,7 @@ class GoogleMailboxTest extends TestCase
 
         $mailbox->messagesExchangedAfter(self::client(), new RefreshToken('a-token'), new \DateTimeImmutable('2026-11-18 09:12:00 UTC'), 1);
 
-        $this->assertSame([['level' => 'warning', 'message' => 'The history of a mailbox expired: its oldest messages since its last reading are not imported', 'context' => ['leftOut' => 2]]], $this->logger->records);
+        $this->assertSame([['level' => 'warning', 'message' => 'A mailbox\'s history expired. Its oldest messages since its last reading are not imported', 'context' => ['leftOut' => 2]]], $this->logger->records);
     }
 
     public function testTheMessagesExchangedWithAnAddressAfterAMomentAreSearchedTheNewestFirstAtMostSoMany(): void
@@ -228,7 +228,7 @@ class GoogleMailboxTest extends TestCase
 
         $mailbox->message(self::client(), new RefreshToken('a-token'), 'm1');
 
-        $this->assertSame([['level' => 'info', 'message' => 'A message of a mailbox read', 'context' => ['message' => 'm1', 'labels' => ['INBOX', 'UNREAD']]]], $this->logger->records);
+        $this->assertSame([['level' => 'info', 'message' => 'Read a mailbox message', 'context' => ['message' => 'm1', 'labels' => ['INBOX', 'UNREAD']]]], $this->logger->records);
     }
 
     public function testAMessageWithoutTheAddressOfItsSenderIsLoggedSetAside(): void
@@ -241,7 +241,7 @@ class GoogleMailboxTest extends TestCase
 
         $mailbox->message(self::client(), new RefreshToken('a-token'), 'm1');
 
-        $this->assertSame([['level' => 'info', 'message' => 'A message of a mailbox set aside: no address of its sender', 'context' => ['message' => 'm1']]], $this->logger->records);
+        $this->assertSame([['level' => 'info', 'message' => 'Set aside a mailbox message without a sender address', 'context' => ['message' => 'm1']]], $this->logger->records);
     }
 
     public function testAMessageDeletedMeanwhileIsNone(): void
@@ -253,7 +253,7 @@ class GoogleMailboxTest extends TestCase
     {
         $this->mailbox(new MockResponse('', ['http_code' => 404]))->message(self::client(), new RefreshToken('a-token'), 'm1');
 
-        $this->assertSame([['level' => 'info', 'message' => 'A message of a mailbox gone before its reading', 'context' => ['message' => 'm1']]], $this->logger->records);
+        $this->assertSame([['level' => 'info', 'message' => 'A mailbox message was gone before it was read', 'context' => ['message' => 'm1']]], $this->logger->records);
     }
 
     public function testAnAttachmentIsReadOnceAndSentToThePrivateStorageForEachCorrespondent(): void

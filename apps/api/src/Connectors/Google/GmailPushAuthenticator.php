@@ -34,10 +34,15 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 
 /**
- * Trusts a notification of Gmail pushed by Pub/Sub to the endpoint of an account (ADR 0154): its token signed by
- * Google with one of its published keys, issued by Google for that endpoint, for the account of service the account
- * named with its topic, its address verified, not expired; checked without calling Google, but for its keys. Anything
- * else, an account without topic too, is refused: Pub/Sub retries it until its retention ends.
+ * Trusts a Gmail notification that Pub/Sub pushes to an account's endpoint (ADR 0154). Its token must meet these
+ * conditions:
+ * - Google signed it with one of its published keys;
+ * - Google issued it for that endpoint;
+ * - it names the service account that the account gave with its topic, and that address is verified;
+ * - it has not expired.
+ *
+ * The check calls Google only for its keys. Any other notification is refused, and so is an account without a topic.
+ * Pub/Sub then retries the notification until its retention ends.
  */
 final class GmailPushAuthenticator extends AbstractAuthenticator
 {
@@ -107,7 +112,7 @@ final class GmailPushAuthenticator extends AbstractAuthenticator
         $pusher = new KeptMailboxPusher();
         $this->consultMailboxPusher->__invoke(new ConsultMailboxPusher($account, self::GOOGLE), $pusher);
 
-        return $pusher->pushAccount ?? throw new BadCredentialsException('This account has no topic of Gmail.');
+        return $pusher->pushAccount ?? throw new BadCredentialsException('This account has no Gmail topic.');
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response

@@ -20,14 +20,19 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
 /**
- * The calendar « Prospecter » of a member in Google Calendar, as the spike #92 established it (ADR 0127): the id of
- * an event `p` and the id of its exchange without its dashes (base32hex), put first with `status: confirmed`, which
- * brings back an event removed, created with its id when Google does not know it, put again when it was created
- * meanwhile; nobody told, but the guest of an event, the booker of an exchange booked by the public link (ADR 0175),
- * told of its creation, its changes and its cancellation. The words of the event are those of the member: the
- * channel, the contact, the organization, the link to the card in the SPA, which an event inviting a guest does not
- * show them, saying instead who calls them, and at which number, for a call. A video call asking a link is put with
- * the request of a Meet conference, its link answered at once (ADR 0137).
+ * A member's « Prospecter » calendar in Google Calendar, as spike #92 established it (ADR 0127).
+ *
+ * An event's id is `p` followed by its exchange's id without the dashes (base32hex). The event is first put with
+ * `status: confirmed`, which brings back a removed event. It is created with its id when Google does not know it. It is
+ * put again when someone created it in the meantime.
+ *
+ * Nobody is notified except the event's guest. The guest is the person who booked the exchange through the public link
+ * (ADR 0175). Google tells the guest about the event's creation, its changes and its cancellation.
+ *
+ * The event uses the member's words: the channel, the contact, the organization, and the link to the card in the SPA.
+ * An event that invites a guest does not show the guest that link. For a call, it tells the guest who calls them, and
+ * at which number. A video call that asks for a link is put with a Meet conference request. Google returns the link at
+ * once (ADR 0137).
  *
  * @see https://developers.google.com/calendar/api/v3/reference/events
  */
@@ -42,11 +47,11 @@ final readonly class GoogleCalendar implements ProviderCalendar
     private const int FORBIDDEN = 403;
     private const int TOO_MANY_REQUESTS = 429;
     private const int SERVER_ERROR = 500;
-    /** the refusals of a 403 that pass once the quota of Google is back */
+    /** the 403 refusals that clear once Google's quota is back */
     private const array RATE_LIMITS = ['rateLimitExceeded', 'userRateLimitExceeded'];
     private const array CHANNELS = [Channel::Call->value => 'Appel', Channel::Meeting->value => 'Rendez-vous', Channel::VideoCall->value => 'Visio'];
     private const float TIMEOUT = 10;
-    /** without it, Google ignores the conference of the body and keeps that of the event as it is */
+    /** without it, Google ignores the body's conference and keeps the event's conference as it is */
     private const string WITH_CONFERENCE = '&conferenceDataVersion=1';
     private const string MEET = 'hangoutsMeet';
     private const string TELLS_NOBODY = 'none';
@@ -95,7 +100,7 @@ final readonly class GoogleCalendar implements ProviderCalendar
     }
 
     /**
-     * The link of the conference Google created for the event, at once (the spike #92).
+     * The link of the conference that Google created for the event. Google returns it at once (spike #92).
      */
     private static function conferenceLinkOf(ResponseInterface $response): ?string
     {
@@ -115,7 +120,7 @@ final readonly class GoogleCalendar implements ProviderCalendar
     }
 
     /**
-     * An event Google no longer has is withdrawn already.
+     * An event that Google no longer has is already withdrawn.
      */
     private function delete(ClientCredentials $client, RefreshToken $refreshToken, string $eventPath): void
     {
@@ -147,7 +152,7 @@ final readonly class GoogleCalendar implements ProviderCalendar
     }
 
     /**
-     * Google tells the guest of an event when the push is to tell them, and nobody else (ADR 0175).
+     * Google notifies the event's guest when the push asks for it, and nobody else (ADR 0175).
      */
     private static function updatesOf(CalendarEvent $event): string
     {
@@ -174,7 +179,7 @@ final readonly class GoogleCalendar implements ProviderCalendar
         match (true) {
             $status < 300 => null,
             self::UNAUTHORIZED === $status => throw AccessRevoked::by($client->provider),
-            self::TOO_MANY_REQUESTS === $status, $status >= self::SERVER_ERROR, self::FORBIDDEN === $status && self::isARateLimit($response) => throw new \RuntimeException(sprintf('Google answered %d to the calendar, to try again', $status)),
+            self::TOO_MANY_REQUESTS === $status, $status >= self::SERVER_ERROR, self::FORBIDDEN === $status && self::isARateLimit($response) => throw new \RuntimeException(sprintf('Google answered %d to the calendar. The push will be tried again', $status)),
             default => throw CalendarRefusedThePush::by($client->provider, $status),
         };
     }
@@ -211,8 +216,8 @@ final readonly class GoogleCalendar implements ProviderCalendar
     }
 
     /**
-     * Identified by its exchange: a request Google already answered is ignored, the conference created once, however
-     * many times its event is pushed (ADR 0137).
+     * The request is identified by its exchange. Google ignores a request that it already answered. So it creates the
+     * conference once, however many times the event is pushed (ADR 0137).
      *
      * @return array{createRequest: array{requestId: string, conferenceSolutionKey: array{type: string}}}
      */
@@ -237,8 +242,8 @@ final readonly class GoogleCalendar implements ProviderCalendar
     }
 
     /**
-     * The card it leads to in Prospecter, for the member; an event inviting a guest shows them none, but for a call
-     * who calls them, and at which number (ADR 0175).
+     * The card in Prospecter that the event leads the member to. An event that invites a guest shows the guest no card.
+     * For a call, it tells the guest who calls them, and at which number (ADR 0175).
      */
     private function descriptionOf(CalendarEvent $event): ?string
     {
@@ -251,7 +256,7 @@ final readonly class GoogleCalendar implements ProviderCalendar
     }
 
     /**
-     * « Alan vous appellera au +33 6 12 34 56 78. », without the first name of a host who gave none.
+     * « Alan vous appellera au +33 6 12 34 56 78. ». The first name is left out when the host gave none.
      */
     private static function callOf(PhoneNumber $number, ?string $caller): string
     {

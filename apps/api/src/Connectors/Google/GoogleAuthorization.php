@@ -5,17 +5,17 @@ declare(strict_types=1);
 namespace App\Connectors\Google;
 
 /**
- * Draws a new authorization of Google: an unguessable `state` and a verifier of the code; then the address asking,
- * for the client of the account of the member (ADR 0125), the calendar of Prospecter with a lasting access
- * (`offline`, the consent asked each time so that Google gives a refresh token) and the challenge of the verifier
- * (PKCE S256), ADR 0120.
+ * Draws a new Google authorization: an unguessable `state` and a code verifier. Then it builds the address that asks
+ * for Prospecter's calendar with a lasting access (ADR 0120). The address names the client of the member's account
+ * (ADR 0125). It asks for `offline` access and for the consent each time, so that Google gives a refresh token. It
+ * also carries the verifier's challenge (PKCE S256).
  */
 final readonly class GoogleAuthorization
 {
     public const string SCOPES = 'openid email '.self::CALENDAR_SCOPE;
     public const string CALENDAR_SCOPE = 'https://www.googleapis.com/auth/calendar.app.created';
     public const string GMAIL_SCOPE = 'https://www.googleapis.com/auth/gmail.readonly';
-    /** the scope of Google of each scope Prospecter asks */
+    /** the Google scope for each scope that Prospecter asks for */
     public const array SCOPES_OF_GOOGLE = ['calendar' => self::CALENDAR_SCOPE, 'mailbox' => self::GMAIL_SCOPE];
     private const int STATE_BYTES = 16;
     private const int VERIFIER_BYTES = 48;
@@ -35,9 +35,9 @@ final readonly class GoogleAuthorization
     }
 
     /**
-     * The reading of the mailbox asked with the calendar, by incremental consent: the token answered grants both, the
-     * scopes granted before kept (ADR 0154); Google opens the account connected, rather than the one the browser
-     * signed in to first.
+     * Asks for access to the mailbox along with the calendar, by incremental consent. The returned token grants both,
+     * and keeps the scopes granted before (ADR 0154). Google opens the connected account, rather than the one the
+     * browser signed in to first.
      */
     public function addressImportingGmailOf(AuthorizationRequest $request, string $clientId, ?string $accountConnected): string
     {

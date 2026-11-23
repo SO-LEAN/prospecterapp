@@ -12,8 +12,8 @@ use Prospecter\Core\SharedKernel\Domain\Email;
 use Soundasleep\Html2Text;
 
 /**
- * A message as Gmail answers it (`messages.get`, `format=full`), read as an e-mail of the mailbox (ADR 0154): its
- * text is its first part in plain text, not attached, the quoted history and a signature after `-- ` left out.
+ * A message as Gmail returns it (`messages.get`, `format=full`), read as a mailbox e-mail (ADR 0154). Its text is its
+ * first plain-text part that is not an attachment. The text leaves out the quoted history and a signature after `-- `.
  *
  * @see https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.messages#Message
  */
@@ -26,7 +26,7 @@ final readonly class GmailMessage
     private const string ATTACHMENT = 'attachment';
 
     /**
-     * None without the address of its sender: nobody to recognize.
+     * Returns null when the message has no sender address, because there is nobody to recognize.
      *
      * @param array<string, mixed> $message
      */
@@ -53,7 +53,7 @@ final readonly class GmailMessage
     }
 
     /**
-     * The parts with a file name, those of the parts read in their order, but the images embedded in the body
+     * The parts that have a file name, including nested parts, in their order. Images embedded in the body are left out
      * (ADR 0182).
      *
      * @param array<string, mixed> $part
@@ -69,8 +69,8 @@ final readonly class GmailMessage
     }
 
     /**
-     * A part named by a Content-ID and not given as an attachment is shown in the body, the logo of a signature: a
-     * file shown inline without one (Apple Mail) is attached all the same.
+     * A part with a Content-ID that is not given as an attachment shows in the body, like a signature's logo. A file
+     * shown inline without a Content-ID (Apple Mail) is still an attachment.
      *
      * @param array<string, mixed> $part
      */
@@ -85,7 +85,7 @@ final readonly class GmailMessage
     /**
      * @param array<string, mixed> $part
      *
-     * @return array<string, string> the value of each header, by its name in lower case
+     * @return array<string, string> each header's value, by its lower-case name
      */
     private static function headersOf(array $part): array
     {
@@ -98,7 +98,7 @@ final readonly class GmailMessage
     }
 
     /**
-     * Each address of the list, any that is none left out.
+     * Each address in the list. A value that is not an address is left out.
      *
      * @return list<Email>
      */
@@ -128,7 +128,7 @@ final readonly class GmailMessage
     }
 
     /**
-     * Its part in plain text, or else its part in HTML converted.
+     * Its plain-text part, or else its HTML part converted to text.
      *
      * @param array<string, mixed> $payload
      */
@@ -173,7 +173,8 @@ final readonly class GmailMessage
     }
 
     /**
-     * The charset its header `Content-Type` names, UTF-8 when it names none or one PHP does not know.
+     * The charset that its `Content-Type` header names. It is UTF-8 when the header names none, or one that PHP
+     * does not know.
      *
      * @param array<string, mixed> $part
      */
@@ -185,7 +186,7 @@ final readonly class GmailMessage
     }
 
     /**
-     * The first part of this type, not attached, the parts of the parts read in their order.
+     * The first part of this type that is not an attachment. Nested parts are read in their order.
      *
      * @param array<string, mixed> $part
      *
@@ -208,7 +209,7 @@ final readonly class GmailMessage
     }
 
     /**
-     * Gmail answers the body of a part in base64url.
+     * Gmail returns a part's body in base64url.
      */
     public static function decoded(string $data): string
     {

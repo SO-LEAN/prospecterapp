@@ -7,8 +7,8 @@ namespace App\Connectors\Google;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
- * The addresses of Google (its double locally) and the page of the SPA Google brings the member back to, the same for
- * every account of the instance: each declares it in its own client (ADR 0120, 0125).
+ * Google's addresses (its double, locally) and the SPA page that Google brings the member back to. The page is the
+ * same for every account of the instance. Each account declares it in its own client (ADR 0120, 0125).
  */
 final readonly class GoogleEndpoints
 {

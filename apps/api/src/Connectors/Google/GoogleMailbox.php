@@ -25,7 +25,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
 /**
- * The mailbox of a member at Gmail, watched through the topic of their account (ADR 0154).
+ * A member's Gmail mailbox, watched through their account's topic (ADR 0154).
  *
  * @see https://developers.google.com/workspace/gmail/api/guides/push
  */
@@ -37,7 +37,7 @@ final readonly class GoogleMailbox implements ProviderMailbox
     private const int MILLISECONDS = 1000;
     private const array NOT_GRANTED = [401, 403];
     private const int NOT_FOUND = 404;
-    /** what is no e-mail received nor sent, in the words of the search of Gmail */
+    /** what is neither a received nor a sent e-mail, in Gmail's search syntax */
     private const string NOT_EXCHANGED = '-in:draft -in:spam -in:trash';
     private const int PAGE = 500;
     private const int NOT_DONE = 300;
@@ -67,8 +67,8 @@ final readonly class GoogleMailbox implements ProviderMailbox
     }
 
     /**
-     * A token refused, or a token that no longer grants the reading of the mailbox, is the access revoked; any other
-     * failure is thrown as it is, to be tried again.
+     * A refused token, or a token that no longer grants access to the mailbox, means that the access is revoked. Any
+     * other failure is thrown as it is, so that it is tried again.
      *
      * @throws AccessRevoked
      */
@@ -80,7 +80,7 @@ final readonly class GoogleMailbox implements ProviderMailbox
     }
 
     /**
-     * Gmail answers the end of the watch in milliseconds since the epoch.
+     * Gmail returns the watch's end in milliseconds since the epoch.
      */
     private static function momentOf(string $milliseconds): \DateTimeImmutable
     {
@@ -100,9 +100,9 @@ final readonly class GoogleMailbox implements ProviderMailbox
     }
 
     /**
-     * The history read page after page, the point kept that of the last record it listed whole, never the point the
-     * mailbox reached meanwhile: a message whose record Gmail did not list yet is read next time, not skipped; a
-     * reading stopping at the most it may list leaves the records after it to the next one.
+     * Reads the history page after page. It keeps the point of the last record that it listed whole. It never keeps the
+     * point that the mailbox reached in the meantime. So a message whose record Gmail did not list yet is read next
+     * time, not skipped. A reading that stops at its maximum leaves the later records to the next reading.
      *
      * @see https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.history/list
      */
@@ -129,11 +129,12 @@ final readonly class GoogleMailbox implements ProviderMailbox
     }
 
     /**
-     * What a reading listed, said by its points and the ids of its messages at Gmail only: nothing they say is told.
+     * Logs what a reading listed, by its points and its messages' Gmail ids only. The log tells nothing that the
+     * messages say.
      */
     private function logged(MailboxChanges $changes, string $from): MailboxChanges
     {
-        $this->logger->info('The history of a mailbox read', ['from' => $from, 'to' => $changes->historyId, 'messages' => $changes->messageIds, 'complete' => $changes->complete]);
+        $this->logger->info('Read a mailbox\'s history', ['from' => $from, 'to' => $changes->historyId, 'messages' => $changes->messageIds, 'complete' => $changes->complete]);
 
         return $changes;
     }
@@ -168,9 +169,9 @@ final readonly class GoogleMailbox implements ProviderMailbox
     }
 
     /**
-     * Where the history stands is read first, so that a message arriving while they are listed is read again from the
-     * history next time rather than lost. Gmail lists the newest first: the older ones beyond the most are left out,
-     * and said.
+     * Reads the history's current point first. So a message that arrives during the listing is read from the
+     * history next time, rather than lost. Gmail lists the newest messages first. The older ones beyond the maximum
+     * are left out, and the log says so.
      *
      * @see https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.messages/list
      */
@@ -192,8 +193,8 @@ final readonly class GoogleMailbox implements ProviderMailbox
     }
 
     /**
-     * Gmail searches the address as sender or as recipient (`{from: to:}`, either of them), its copies with it: the
-     * import keeps the sender and the recipients in « To » only. The newest first, on one page.
+     * Gmail searches for the address as the sender or as a recipient (`{from: to:}`, either of them), copies included.
+     * The import keeps only the sender and the recipients in « To ». The newest messages come first, on one page.
      *
      * @see https://support.google.com/mail/answer/7190
      */
@@ -218,7 +219,7 @@ final readonly class GoogleMailbox implements ProviderMailbox
     private function warnOfTheLeftOut(int $leftOut): void
     {
         if ($leftOut > 0) {
-            $this->logger->warning('The history of a mailbox expired: its oldest messages since its last reading are not imported', ['leftOut' => $leftOut]);
+            $this->logger->warning('A mailbox\'s history expired. Its oldest messages since its last reading are not imported', ['leftOut' => $leftOut]);
         }
     }
 
@@ -235,8 +236,9 @@ final readonly class GoogleMailbox implements ProviderMailbox
     }
 
     /**
-     * Read once from Gmail, then sent with the form of an upload, as the API sends the files of the AIs (ADR 0172),
-     * once for each copy: the file goes through the function, never through the bus (ADR 0182).
+     * Reads the attachment once from Gmail. Then sends it as an upload form, as the API sends the AIs' files
+     * (ADR 0172). It sends it once for each copy. The file goes through the function, never through the bus
+     * (ADR 0182).
      *
      * @see https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.messages.attachments/get
      */
@@ -278,7 +280,7 @@ final readonly class GoogleMailbox implements ProviderMailbox
     {
         $response = $this->read($client, $refreshToken, '/users/me/messages/'.rawurlencode($messageId), ['format' => 'full']);
         if (self::NOT_FOUND === $response->getStatusCode()) {
-            $this->logger->info('A message of a mailbox gone before its reading', ['message' => $messageId]);
+            $this->logger->info('A mailbox message was gone before it was read', ['message' => $messageId]);
 
             return null;
         }
@@ -290,17 +292,17 @@ final readonly class GoogleMailbox implements ProviderMailbox
     }
 
     /**
-     * By its id and its labels only: nothing it says is told.
+     * Logs the message by its id and its labels only. The log tells nothing that the message says.
      */
     private function logRead(string $messageId, ?MailboxMail $mail): void
     {
         if (null === $mail) {
-            $this->logger->info('A message of a mailbox set aside: no address of its sender', ['message' => $messageId]);
+            $this->logger->info('Set aside a mailbox message without a sender address', ['message' => $messageId]);
 
             return;
         }
 
-        $this->logger->info('A message of a mailbox read', ['message' => $messageId, 'labels' => $mail->labels]);
+        $this->logger->info('Read a mailbox message', ['message' => $messageId, 'labels' => $mail->labels]);
     }
 
     public function stop(ClientCredentials $client, RefreshToken $refreshToken): void
@@ -308,14 +310,14 @@ final readonly class GoogleMailbox implements ProviderMailbox
         try {
             $this->warnUnlessDone($this->call($client, $refreshToken, '/users/me/stop')->getStatusCode());
         } catch (ExceptionInterface|AccessRevoked|\RuntimeException $failure) {
-            $this->logger->warning('A watch of Gmail could not be stopped: it expires within its week', ['exception' => $failure]);
+            $this->logger->warning('A Gmail watch could not be stopped. It expires within its week', ['exception' => $failure]);
         }
     }
 
     private function warnUnlessDone(int $status): void
     {
         if ($status >= self::NOT_DONE) {
-            $this->logger->warning('Gmail refused to stop a watch: it expires within its week', ['status' => $status]);
+            $this->logger->warning('Gmail refused to stop a watch. It expires within its week', ['status' => $status]);
         }
     }
 }
