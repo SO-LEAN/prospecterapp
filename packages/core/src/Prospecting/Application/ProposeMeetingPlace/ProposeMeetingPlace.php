@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\ProposeMeetingPlace;
 
 /**
- * Where to meet a contact, proposed while planning a meeting with them: the address of their organization.
+ * Proposes where to meet a contact while a member plans a meeting with them: the address of their organization.
  */
 final readonly class ProposeMeetingPlace
 {

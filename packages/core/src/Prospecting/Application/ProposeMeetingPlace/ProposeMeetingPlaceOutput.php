@@ -9,7 +9,7 @@ use Prospecter\Core\SharedKernel\Application\OutputPort;
 interface ProposeMeetingPlaceOutput extends OutputPort
 {
     /**
-     * @param MeetingPlace|null $place none when no organization of the contact has an address
+     * @param MeetingPlace|null $place none when none of the contact's organizations has an address
      */
     public function present(?MeetingPlace $place): void;
 }
