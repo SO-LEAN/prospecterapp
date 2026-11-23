@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\DownloadAttachment;
 
 /**
- * A link reading a file joined to an exchange for a moment.
+ * Asks for a link that reads a file attached to an exchange. The link works for a moment only.
  */
 final readonly class DownloadAttachment
 {

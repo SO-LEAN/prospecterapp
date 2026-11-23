@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\DownloadAttachment;
 
 /**
- * Where to read a file joined to an exchange, for a moment only.
+ * Tells where to read a file attached to an exchange. The address works for a moment only.
  */
 final readonly class AttachmentDownloadResponse
 {
