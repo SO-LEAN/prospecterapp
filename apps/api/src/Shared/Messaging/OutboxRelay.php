@@ -13,9 +13,9 @@ use Bref\Event\DynamoDb\DynamoDbHandler;
 use Bref\Event\DynamoDb\DynamoDbRecord;
 
 /**
- * The function the stream of each table calls with its new items of outbox (its mapping filters them): it
- * publishes their events on the bus, and writes nothing. A failure fails the whole batch, which the stream gives
- * again: an event may be published twice, the reactions are idempotent.
+ * The function that each table's stream calls with its new outbox items (its mapping filters them). It publishes
+ * their events on the bus, and writes nothing. A failure fails the whole batch, and the stream sends the batch again.
+ * So an event may be published twice: the reactions are idempotent.
  */
 final class OutboxRelay extends DynamoDbHandler
 {

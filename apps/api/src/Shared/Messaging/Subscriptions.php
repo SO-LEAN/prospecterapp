@@ -8,24 +8,24 @@ use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Psr\Container\ContainerInterface;
 
 /**
- * The subscriptions of `config/subscriptions.json`, and their reactions to each event they listen to, through their
- * decorators (`App\Shared\DependencyInjection\SubscriptionsPass`); a subscription naming the payloads it listens to
- * reacts to those only, as its rule of the bus passes them (`PayloadPattern`, ADR 0127).
+ * The subscriptions from `config/subscriptions.json`, and their reactions to each event they listen to. The reactions
+ * run through their decorators (`App\Shared\DependencyInjection\SubscriptionsPass`). A subscription that names the
+ * payloads it listens to reacts to those only, as its bus rule filters them (`PayloadPattern`, ADR 0127).
  *
  * @phpstan-type Declared array{context: string, sources: list<string>, events: list<string>, payload?: array<string, mixed>, inbox: bool}
  */
 final readonly class Subscriptions
 {
     /**
-     * @param ContainerInterface      $reactions     the reaction of each subscription to each event, by reactionKey()
-     * @param array<string, Declared> $subscriptions by name, in the order of the file
+     * @param ContainerInterface      $reactions     each subscription's reaction to each event, keyed by reactionKey()
+     * @param array<string, Declared> $subscriptions keyed by name, in the file's order
      */
     public function __construct(private ContainerInterface $reactions, private array $subscriptions)
     {
     }
 
     /**
-     * The key of the reaction of a subscription to an event, by its detail-type.
+     * The key of a subscription's reaction to an event, built from the event's detail-type.
      */
     public static function reactionKey(string $subscription, string $detailType): string
     {
@@ -56,7 +56,7 @@ final readonly class Subscriptions
     }
 
     /**
-     * Its reaction to the event, through its decorators.
+     * The subscription's reaction to the event, wrapped in its decorators.
      *
      * @throws UnknownSubscription when it does not listen to the event
      */

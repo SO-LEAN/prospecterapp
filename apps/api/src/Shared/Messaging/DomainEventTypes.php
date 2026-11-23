@@ -12,7 +12,7 @@ use Prospecter\Core\PersonalData\Domain\Event as PersonalData;
 use Prospecter\Core\Prospecting\Domain\Event as Prospecting;
 
 /**
- * The domain events, each from its own context, never read by another one (ADR 0046).
+ * The domain events. Each one belongs to its context, and no other context reads it (ADR 0046).
  */
 final readonly class DomainEventTypes extends EventTypes
 {

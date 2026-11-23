@@ -12,13 +12,14 @@ use Aws\DynamoDb\Marshaler;
 use Psr\Clock\ClockInterface;
 
 /**
- * The events a subscription applied, so that an event delivered twice is applied once: an item per event, in the
- * table of the context of the subscription, written with what the reaction writes, all or nothing, under the
- * condition that it is not there yet; a reaction that fails writes none. The table forgets it 15 days later, longer
- * than an event may wait (6 hours in the worker, a day of retries of EventBridge, 14 days in the failures).
+ * The events that a subscription applied, so that an event delivered twice is applied once. Each event gets an item
+ * in the table of the subscription's context. The item is written with what the reaction writes, all or nothing, on
+ * the condition that it does not exist yet. A reaction that fails writes none. The table forgets the item 15 days
+ * later. That is longer than an event may wait (6 hours in the worker, a day of EventBridge retries, 14 days in the
+ * failures).
  *
- * PK `INBOX#<subscription>`, SK `<eventId>`, `receivedAt` the moment it was applied, `expiresAt` the epoch the table
- * forgets it at.
+ * PK `INBOX#<subscription>`, SK `<eventId>`, `receivedAt` the time it was applied, `expiresAt` the epoch at which
+ * the table forgets it.
  */
 final readonly class Inbox
 {
@@ -27,7 +28,7 @@ final readonly class Inbox
     private const string KEPT_FOR = '+15 days';
 
     /**
-     * @param array<string, string> $tables the name of the table of each context
+     * @param array<string, string> $tables each context's table name
      */
     public function __construct(
         private array $tables,
@@ -38,7 +39,7 @@ final readonly class Inbox
     }
 
     /**
-     * Keeps the event in the inbox of the subscription, in the open unit of work.
+     * Keeps the event in the subscription's inbox, within the open unit of work.
      */
     public function receive(Subscription $subscription, TransportedEvent $event): void
     {

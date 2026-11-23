@@ -12,21 +12,22 @@ use Psr\Clock\ClockInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
- * The events the open unit of work publishes, delivered through the outbox: written at its outermost commit, with
- * what it changes, in one item of the table of the context of the use case. It builds its put itself, by the names of
- * the tables, and not through a `Table`: a table depends on the unit of work, which depends on the outbox. An event
- * the commit publishes again, the same source, type and payload (the facts of an aggregate, published for each of
- * its domain events, ADR 0099), is kept once: each one published is a reaction more for the worker.
+ * The events that the open unit of work publishes, delivered through the outbox. The outermost commit writes them
+ * with what it changes, in one outbox item in the table of the use case's context. This class builds its put itself
+ * from the table names, not through a `Table`: a table depends on the unit of work, which depends on the outbox.
+ * When the commit publishes the same event again (the same source, type and payload), it keeps the event once. For
+ * example, an aggregate's facts are published for each of its domain events (ADR 0099). Each extra event would be
+ * one more reaction for the worker.
  */
 final class CommitOutbox implements ResetInterface
 {
     private const string NEW_ITEM = 'attribute_not_exists(PK)';
 
-    /** @var array<string, TransportedEvent> by what makes it the same event */
+    /** @var array<string, TransportedEvent> keyed by what makes two events the same */
     private array $events = [];
 
     /**
-     * @param array<string, string> $tables the name of the table of each context, by the name its sources give it
+     * @param array<string, string> $tables each context's table name, keyed by the context name its sources use
      */
     public function __construct(
         private readonly array $tables,
@@ -47,9 +48,9 @@ final class CommitOutbox implements ResetInterface
     }
 
     /**
-     * @return list<Write> the put of the item of outbox, none when nothing was published
+     * @return list<Write> the outbox item's put, or none when nothing was published
      *
-     * @throws \LogicException when the events happened in two contexts: a transaction spans one use case
+     * @throws \LogicException when the events happened in two contexts. A transaction spans one use case.
      */
     public function writes(): array
     {

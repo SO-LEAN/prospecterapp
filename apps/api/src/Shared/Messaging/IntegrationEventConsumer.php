@@ -15,17 +15,17 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Clock\ClockInterface;
 
 /**
- * The worker: the function the rules of the subscriptions invoke with an event, which it applies once by the reaction
- * of the subscription, in one unit of work holding its inbox, what the reaction writes and what it publishes, the
- * outbox of the reaction carrying the cause it reacted to, one level deeper.
+ * The worker. The subscriptions' rules invoke this function with an event. It applies the event once, through the
+ * subscription's reaction, in one unit of work. That unit of work holds the inbox, what the reaction writes and what
+ * it publishes. The reaction's outbox carries the event it reacted to as the cause, one level deeper.
  *
- * A transaction cancelled by a condition carrying no refusal, or by another transaction on its items, is applied
- * again from its reads, three times at most after a short random wait (ADR 0104).
+ * When a condition without a refusal, or another transaction on the same items, cancels the transaction, the worker
+ * applies it again from its reads. It retries three times at most, after a short random wait (ADR 0104).
  *
- * A failure is sorted: an event delivered again ends the invocation normally; a failure another attempt would repeat
- * (a refusal, translated by the decorators of the reaction or detected at the commit, an event it cannot read, a
- * subscription it does not know, a loop) goes by the worker to the queue of the failures, without a retry; any other
- * is thrown for Lambda to retry, then to give up into the same queue. In doubt, a failure is retried.
+ * The worker sorts the failures. An event delivered again ends the invocation normally. Another attempt would repeat
+ * some failures: a refusal (translated by the reaction's decorators or detected at the commit), an unreadable event,
+ * an unknown subscription, a loop. The worker sends those to the failures queue, without a retry. It throws any other
+ * failure, so that Lambda retries it and then gives up into the same queue. In doubt, the worker retries a failure.
  */
 #[WithMonologChannel('messaging')]
 final readonly class IntegrationEventConsumer implements Handler
@@ -114,7 +114,7 @@ final readonly class IntegrationEventConsumer implements Handler
     }
 
     /**
-     * @throws \Throwable the failure another attempt may not repeat, for Lambda to retry
+     * @throws \Throwable a failure that another attempt may not repeat, so that Lambda retries it
      */
     private function fail(\Throwable $failure, mixed $invocation, Context $context): void
     {

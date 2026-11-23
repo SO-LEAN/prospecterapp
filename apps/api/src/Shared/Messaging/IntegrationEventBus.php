@@ -10,9 +10,10 @@ use Monolog\Attribute\WithMonologChannel;
 use Psr\Log\LoggerInterface;
 
 /**
- * The bus of EventBridge the events travel on, from the relay to the subscriptions: an event goes as it travels,
- * its detail in JSON, ten at a time, the most a PutEvents takes, and under 256 KB, the least a PutEvents takes (1 MB
- * on AWS since January 2026, 256 KB before and on some buses): an e-mail imported carries its text (ADR 0154).
+ * The EventBridge bus that carries the events from the relay to the subscriptions. An event goes as it travels, with
+ * its detail in JSON. A put holds ten entries at most, the most that PutEvents takes. A put also stays under 256 KB,
+ * the lowest PutEvents limit (1 MB on AWS since January 2026, 256 KB before and on some buses). An imported e-mail
+ * carries its text (ADR 0154).
  */
 #[WithMonologChannel('messaging')]
 final readonly class IntegrationEventBus
@@ -25,7 +26,7 @@ final readonly class IntegrationEventBus
     }
 
     /**
-     * @throws EventsNotPublished when the bus refused some of them: those of the same put may have been published
+     * @throws EventsNotPublished when the bus refused some of them. The others in the same put may have been published.
      */
     public function publish(TransportedEvent ...$events): void
     {
@@ -35,7 +36,7 @@ final readonly class IntegrationEventBus
     }
 
     /**
-     * The entries in their order, a put closed once the next one would make it too many or too big.
+     * Splits the entries into puts, in order. A put closes when the next entry would make it hold too many entries or weigh too much.
      *
      * @param list<array{event: TransportedEvent, entry: array{Source: string, DetailType: string, Detail: string, EventBusName: string}}> $entries
      *
@@ -60,7 +61,7 @@ final readonly class IntegrationEventBus
     }
 
     /**
-     * As EventBridge counts an entry: its source, its detail-type and its detail, in bytes.
+     * The entry's size as EventBridge counts it: its source, detail-type and detail, in bytes.
      *
      * @param array{Source: string, DetailType: string, Detail: string, EventBusName: string} $entry
      */

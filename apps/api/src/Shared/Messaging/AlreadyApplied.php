@@ -7,7 +7,7 @@ namespace App\Shared\Messaging;
 use App\Shared\Persistence\ConditionFailed;
 
 /**
- * The inbox of the subscription keeps the event already: delivered again, it was applied once, and is not again.
+ * The subscription's inbox already holds the event. The event was delivered again, and it is not applied a second time.
  */
 final class AlreadyApplied extends \RuntimeException
 {

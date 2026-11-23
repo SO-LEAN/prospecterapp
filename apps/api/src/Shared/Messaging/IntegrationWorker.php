@@ -7,8 +7,8 @@ namespace App\Shared\Messaging;
 use Aws\Lambda\LambdaClient;
 
 /**
- * The function running the reactions (IntegrationEventConsumer), invoked as the rules of the subscriptions invoke
- * it: asynchronously, with its retries and the destination of its failures.
+ * The function that runs the reactions (IntegrationEventConsumer). The subscriptions' rules invoke it asynchronously,
+ * with retries and a failure destination.
  */
 final readonly class IntegrationWorker
 {

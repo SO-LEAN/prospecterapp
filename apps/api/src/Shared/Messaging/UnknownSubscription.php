@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Shared\Messaging;
 
 /**
- * The worker was given a subscription `config/subscriptions.json` does not name, or an event it does not listen to,
- * the rule of an older or newer version: nothing reacts.
+ * The worker received a subscription that `config/subscriptions.json` does not name, or an event that the
+ * subscription does not listen to. The rule comes from an older or newer version: nothing reacts.
  */
 final class UnknownSubscription extends \RuntimeException
 {

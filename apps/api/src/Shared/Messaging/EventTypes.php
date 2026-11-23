@@ -5,22 +5,22 @@ declare(strict_types=1);
 namespace App\Shared\Messaging;
 
 /**
- * The classes of the events that may travel, by source and detail-type: the detail-type names the version of
- * the contract, so that an event may change without breaking those reading the former one.
+ * The classes of the events that may travel, keyed by source and detail-type. The detail-type names the contract's
+ * version, so that an event may change without breaking the readers of its former version.
  */
 abstract readonly class EventTypes
 {
-    /** @var array<string, array<string, class-string>> the classes by detail-type, by source */
+    /** @var array<string, array<string, class-string>> the classes, keyed by source, then by detail-type */
     protected const array TYPES = [];
 
     /**
-     * @var array<string, array<string, class-string>> the former versions of a contract, still read while an outbox
-     *                                                 or a queue of failures may hold them, never written
+     * @var array<string, array<string, class-string>> a contract's former versions. They are still read while an
+     *                                                 outbox or the failures queue may hold them, and never written.
      */
     protected const array FORMER_TYPES = [];
 
     /**
-     * @return array{string, string}|null the source and the detail-type of an event of the class, null when not listed here
+     * @return array{string, string}|null the source and detail-type of the class's events, or null when the class is not listed here
      */
     public function typeOf(string $class): ?array
     {

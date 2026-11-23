@@ -7,9 +7,9 @@ namespace App\Shared\Messaging;
 use App\Shared\Typed;
 
 /**
- * An event as it travels, in the shape of an event of EventBridge: from `prospecter.<context>` for an integration
- * event, `prospecter.<context>.internal` for a domain event; its detail-type the short name of its class and the
- * version of its contract; its detail the identity of this publication, its moment, its cause, and the event as
+ * An event as it travels, in the shape of an EventBridge event. Its source is `prospecter.<context>` for an
+ * integration event, and `prospecter.<context>.internal` for a domain event. Its detail-type is the class's short
+ * name and the contract's version. Its detail holds this publication's id, its time, its cause, and the event as
  * plain data.
  *
  * @phpstan-type Detail array{eventId: string, occurredAt: string, correlationId: string, causationId: ?string, depth: int, payload: array<string, mixed>}
@@ -32,7 +32,7 @@ final readonly class TransportedEvent
     }
 
     /**
-     * An event of EventBridge, as JSON gives it untyped.
+     * An EventBridge event, untyped as JSON decodes it.
      */
     public static function fromEventBridge(mixed $event): self
     {
@@ -50,7 +50,7 @@ final readonly class TransportedEvent
     }
 
     /**
-     * An entry of an item of outbox, as JSON gives it untyped.
+     * An outbox item's entry, untyped as JSON decodes it.
      */
     public static function fromOutbox(mixed $entry): self
     {
@@ -60,7 +60,7 @@ final readonly class TransportedEvent
     }
 
     /**
-     * @return array{source: string, detailType: string, detail: Detail} the entry of an item of outbox
+     * @return array{source: string, detailType: string, detail: Detail} an outbox item's entry
      */
     public function toOutbox(): array
     {
@@ -77,7 +77,7 @@ final readonly class TransportedEvent
     }
 
     /**
-     * What a reaction to this event publishes is caused by it, one level deeper.
+     * The cause of what a reaction to this event publishes: this event, one level deeper.
      */
     public function causeOfAReaction(): Cause
     {
@@ -85,8 +85,8 @@ final readonly class TransportedEvent
     }
 
     /**
-     * The integration event translating a domain event for the other contexts is the same fact: caused by it, at
-     * its depth.
+     * The integration event that translates a domain event for the other contexts is the same fact. Its cause is the
+     * domain event, at the same depth.
      */
     public function causeOfATranslation(): Cause
     {

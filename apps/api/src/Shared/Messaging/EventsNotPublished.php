@@ -7,13 +7,13 @@ namespace App\Shared\Messaging;
 use App\Shared\Typed;
 
 /**
- * The bus refused some events of a put, each with its reason: the whole batch is to be published again.
+ * The bus refused some events in a put, each with its reason. The whole batch must be published again.
  */
 final class EventsNotPublished extends \RuntimeException
 {
     /**
      * @param list<TransportedEvent>     $events
-     * @param list<array<string, mixed>> $entries the answer of the bus for each event, in order: an ErrorCode and an ErrorMessage for one refused
+     * @param list<array<string, mixed>> $entries the bus's answer for each event, in order. A refused event has an ErrorCode and an ErrorMessage
      */
     public static function refusedBy(string $bus, int $refused, array $events, array $entries): self
     {

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Shared\Messaging;
 
 /**
- * Reactions answering each other without end: an event deeper than MAX_EVENT_DEPTH is not delivered.
+ * Reactions answer each other without end. An event deeper than MAX_EVENT_DEPTH is not delivered.
  */
 final class EventLoop extends \LogicException
 {
