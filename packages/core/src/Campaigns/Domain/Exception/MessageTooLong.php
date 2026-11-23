@@ -11,6 +11,6 @@ final class MessageTooLong extends BusinessRuleViolation
 {
     public static function longerThan(int $max): self
     {
-        return self::because(sprintf('A message has %d characters at most', $max), 'message', context: ['max' => (string) $max]);
+        return self::because(sprintf('A message can have at most %d characters', $max), 'message', context: ['max' => (string) $max]);
     }
 }

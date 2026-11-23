@@ -71,7 +71,7 @@ final class MessageTemplateTest extends TestCase
 
     public function testOnlyAnEmailHasASubject(): void
     {
-        $this->expectExceptionObject(SubjectOnlyForAnEmail::because('Only an e-mail has a subject', 'subject'));
+        $this->expectExceptionObject(SubjectOnlyForAnEmail::because('Only an e-mail can have a subject', 'subject'));
 
         MessageTemplate::of('Bonjour', 'Une question', Channel::LinkedIn);
     }

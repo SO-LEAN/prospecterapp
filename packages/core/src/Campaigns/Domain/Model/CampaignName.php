@@ -25,7 +25,7 @@ final readonly class CampaignName
         $name = trim($typed);
 
         return match (true) {
-            '' === $name => throw CampaignWithoutName::because('A campaign has a name', 'name'),
+            '' === $name => throw CampaignWithoutName::because('A campaign needs a name', 'name'),
             mb_strlen($name) > self::MAX => throw CampaignNameTooLong::longerThan(self::MAX),
             default => new self($name),
         };

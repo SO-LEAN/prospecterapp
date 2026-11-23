@@ -72,7 +72,7 @@ Fonctionnalité: Préparer une campagne
 
   Scénario: Un message pour une IA est tel quel ou adapté
     Quand je prépare la campagne "Relance ESN" avec un message pour une IA "réécrit"
-    Alors c'est refusé : "An AI sends the message as is or adapted"
+    Alors c'est refusé : "An AI can only send the message as is or adapted"
 
   Scénario: Le message type est rendu pour chaque contact
     Soit la campagne "Relance ESN" a le message "Bonjour {firstName} {lastName}, chez {organization}…"
@@ -118,23 +118,23 @@ Fonctionnalité: Préparer une campagne
 
   Scénario: Une campagne a un nom, un canal et au moins un tag choisi
     Quand je prépare la campagne "" sans tag
-    Alors c'est refusé : "A campaign has a name"
+    Alors c'est refusé : "A campaign needs a name"
     Quand je prépare la campagne "Relance ESN" sans tag
     Alors c'est refusé : "Choose from 1 to 5 tags"
     Quand je prépare la campagne "Relance ESN" avec le canal "Fax" et les tags "#ESN"
-    Alors c'est refusé : "A campaign is run by e-mail, call, SMS or LinkedIn"
+    Alors c'est refusé : "A campaign's channel must be e-mail, call, SMS or LinkedIn"
 
   Scénario: Le nom fait 100 caractères au plus
     Quand je prépare une campagne dont le nom fait 101 caractères
-    Alors c'est refusé : "A campaign name has 100 characters at most"
+    Alors c'est refusé : "A campaign name can have at most 100 characters"
 
   Scénario: Le message fait 5 000 caractères au plus
     Quand je prépare une campagne dont le message fait 5001 caractères
-    Alors c'est refusé : "A message has 5000 characters at most"
+    Alors c'est refusé : "A message can have at most 5000 characters"
 
   Scénario: Seul un e-mail a un objet
     Quand je prépare la campagne "Relance ESN" par SMS avec l'objet "Une question"
-    Alors c'est refusé : "Only an e-mail has a subject"
+    Alors c'est refusé : "Only an e-mail can have a subject"
 
   Scénario: Je supprime un brouillon
     Soit la campagne "Relance ESN" en brouillon

@@ -11,6 +11,6 @@ final class UnknownMessageMode extends BusinessRuleViolation
 {
     public static function named(string $name): self
     {
-        return self::because('An AI sends the message as is or adapted', 'messageMode', context: ['messageMode' => $name]);
+        return self::because('An AI can only send the message as is or adapted', 'messageMode', context: ['messageMode' => $name]);
     }
 }

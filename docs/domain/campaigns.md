@@ -73,13 +73,13 @@ Members put tags on their organizations and contacts. Later, they find the ones 
 - A contact's tags are derived when they are read, from the facts that Campaigns keeps (ADR 0141). A received fact replaces its aggregate's known fact when its revision is higher. The terminal fact replaces any other, and no fact replaces it. A fact received twice counts once (`FactSuccession`, `FactRecorder`). The first version of the facts did not carry the contacts and the reach. A fact published in that version is not recorded.
 - A member finds their account's contacts that carry every chosen tag (`SearchContactsByTags`). Own, inherited and automatic tags count alike. `ContactTags` derives them for each contact that its fact keeps. Results come newest first, as a slice after a cursor, with the total count (ADR 0143). Every prospector searches by tags, with or without the right to manage personal data. PersonalData then reads the contacts as the prospector may read them.
 - A member prepares a campaign of their account (`PrepareCampaign`) as a draft. The draft has a name, a channel, at least one chosen tag and a message. It is refused:
-  - without a name (`CampaignWithoutName`, « A campaign has a name »);
+  - without a name (`CampaignWithoutName`, « A campaign needs a name »);
   - with a name of more than 100 characters (`CampaignNameTooLong`);
   - with an unknown channel (`UnknownChannel`);
   - with no tag, or more than 5 counting the channel's tag (`InvalidTagSelection`);
   - with a message of more than 5,000 characters (`MessageTooLong`);
   - with a subject for a channel other than e-mail (`SubjectOnlyForAnEmail`);
-  - with a message mode other than as is or adapted (`UnknownMessageMode`, « An AI sends the message as is or adapted »);
+  - with a message mode other than as is or adapted (`UnknownMessageMode`, « An AI can only send the message as is or adapted »);
   - with a daily cap below 1 (`InvalidDailyCap`, « A daily cap is at least 1 send »). When no cap is given, the campaign has none.
 
   The mode is as is when it is not given. It is revised with the message until the campaign starts.

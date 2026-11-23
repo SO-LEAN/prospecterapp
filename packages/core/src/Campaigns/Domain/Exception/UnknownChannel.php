@@ -11,6 +11,6 @@ final class UnknownChannel extends BusinessRuleViolation
 {
     public static function named(string $name): self
     {
-        return self::because('A campaign is run by e-mail, call, SMS or LinkedIn', 'channel', context: ['channel' => $name]);
+        return self::because('A campaign\'s channel must be e-mail, call, SMS or LinkedIn', 'channel', context: ['channel' => $name]);
     }
 }
