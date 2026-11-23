@@ -53,7 +53,7 @@ services:
     # Handlers of the core: commands go through the command bus, queries are called by the controllers, the
     # published services by the anticorruption layers of the other contexts (ADR 0045, 0089)
     Prospecter\Core\:
-        resource: '../vendor/prospecter/core/src/{Accounts,Booking,Campaigns,Connectors,PersonalData,Prospecting,Reporting}/Application/*/*Handler.php'
+        resource: '../vendor/prospecter/core/src/{Accounts,Booking,Campaigns,Connectors,PersonalData,Prospecting,Reporting}/Application/{*,*/*}/*Handler.php'
         exclude:
             - '../vendor/prospecter/core/src/Reporting/Application/RebuildFigures/RebuildFiguresHandler.php'
             - '../vendor/prospecter/core/src/Campaigns/Application/RebuildTags/RebuildTagsHandler.php'

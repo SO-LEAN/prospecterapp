@@ -22,7 +22,7 @@ final class EventHandlersOfTheCore
         $root = dirname(__DIR__, 2).'/src/';
         $handlers = [];
 
-        foreach (glob($root.'*/Application/*/*Handler.php') ?: [] as $file) {
+        foreach (glob($root.'*/Application/{*,*/*}/*Handler.php', \GLOB_BRACE) ?: [] as $file) {
             if (str_starts_with(substr($file, strlen($root)), self::SHARED_KERNEL)) {
                 continue;
             }

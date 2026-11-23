@@ -37,8 +37,11 @@ final class SubscriptionsPass implements CompilerPassInterface
     public const string PARAMETER = 'app.subscriptions';
     public const string DECLARED_BY_ITS_TAG = 'app.subscription';
     private const string CORE = 'Prospecter\\Core\\';
-    /** A translator publishes a domain event for the other contexts: `Application\PublishAccountOpened\PublishAccountOpenedHandler`. */
-    public const string TRANSLATOR = '/\\\\Application\\\\Publish(\w+)\\\\Publish\1Handler$/';
+    /**
+     * A translator publishes a domain event for the other contexts, in its context's application or in one of its modules:
+     * `Application\PublishAccountOpened\PublishAccountOpenedHandler`, `Application\Appointment\PublishSlotBooked\PublishSlotBookedHandler`.
+     */
+    public const string TRANSLATOR = '/\\\\Application\\\\(?:\w+\\\\)?Publish(\w+)\\\\Publish\1Handler$/';
 
     public function process(ContainerBuilder $container): void
     {
