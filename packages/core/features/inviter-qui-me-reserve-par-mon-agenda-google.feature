@@ -24,6 +24,19 @@ Fonctionnalité: Inviter qui me réserve par mon agenda Google
     Et une fois poussée, la visio a un lien Meet
     Et Google envoie l'invitation à "ada@acme.fr"
 
+  Scénario: Une personne qui partage le téléphone d'un contact est invitée à l'adresse qu'elle a tapée
+    Soit le contact "Ada Lovelace" de "ACME" a l'adresse e-mail "ada@acme.fr"
+    Et le contact "Ada Lovelace" de "ACME" a le téléphone "+33612345678"
+    Quand on réserve une visio par mon lien public le 24/11/2026 à 9h00 :
+      | prénom    | Grace          |
+      | nom       | Hopper         |
+      | téléphone | 06 12 34 56 78 |
+      | e-mail    | grace@acme.fr  |
+      | objet     | Un audit       |
+    Alors mon agenda Google a l'événement « Visio · Grace Hopper » le 24/11/2026 de 9h00 à 9h15
+    Et l'événement invite "grace@acme.fr"
+    Et Google envoie l'invitation à "grace@acme.fr"
+
   Scénario: Un appel réservé invite le demandeur, avec le numéro où je l'appellerai
     Soit mon profil est :
       | prénom | Alan                |

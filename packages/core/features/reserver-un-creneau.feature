@@ -46,11 +46,17 @@ Fonctionnalité: Réserver un créneau
     Alors j'ai un appel planifié avec "Ada Lovelace" de "ACME"
     Et aucun contact n'est créé
 
-  Scénario: Un contact connu par son téléphone est reconnu
-    Soit le contact "Ada Lovelace" de "ACME" a le téléphone "+33612345678"
-    Quand on réserve un appel par mon lien public le 24/11/2026 à 9h00 avec le téléphone "06 12 34 56 78" et l'e-mail "ada.perso@gmail.com"
-    Alors j'ai un appel planifié avec "Ada Lovelace" de "ACME"
-    Et aucun contact n'est créé
+  Scénario: Une personne qui partage le téléphone d'un contact, sans son e-mail, devient un contact à rattacher
+    Soit le contact "Ada Lovelace" de "ACME" a l'adresse e-mail "ada@acme.fr"
+    Et le contact "Ada Lovelace" de "ACME" a le téléphone "+33612345678"
+    Quand on réserve une visio par mon lien public le 24/11/2026 à 9h00 :
+      | prénom    | Grace          |
+      | nom       | Hopper         |
+      | téléphone | 06 12 34 56 78 |
+      | e-mail    | grace@acme.fr  |
+      | objet     | Un audit       |
+    Alors j'ai une visio planifiée le 24/11/2026 de 9h00 à 9h15 avec "Grace Hopper", au texte "Un audit"
+    Et "Grace Hopper" est un contact à rattacher, au 06 12 34 56 78 et à grace@acme.fr
 
   Scénario: Un contact à rattacher d'un autre prospecteur passe au prospecteur qu'il réserve
     Soit je suis connecté en tant qu'un autre prospecteur de "SOLEAN IT"
