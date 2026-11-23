@@ -54,7 +54,7 @@ Nothing: Reporting is downstream of Accounts, PersonalData and Prospecting.
   - the ports `SourceAccounts` (the accounts, and a member's account, from Accounts), `ProspectingFacts` and `PersonalDataFacts` (an account's facts as they are now, from the fact services of Prospecting and PersonalData), implemented by anticorruption layers.
 - `src/Reporting/Application`:
   - `FactRecorder`;
-  - the reactions `RecordOrganizationFacts`, `RecordExchangeFacts`, `RecordContactFacts` to `OrganizationFactsChanged`, `ExchangeFactsChanged`, `ContactFactsChanged`;
+  - the commands `RecordOrganizationFacts`, `RecordExchangeFacts`, `RecordContactFacts`, which `Policy/RecordFactsPolicy` sends for `OrganizationFactsChanged`, `ExchangeFactsChanged`, `ContactFactsChanged` (ADR 0202);
   - `ConsultFigures` (`FiguresResponse`);
   - `RebuildFigures` (`SourceFacts`, every account's facts), without a command's unit of work;
   - the ports `ProjectionVersions` (the active version, the live ones, abandon the one being built, remove the abandoned ones, start, activate), `FiguresRetriever` and `RecordingsInFlight` (awaits the end of the recordings already begun).
