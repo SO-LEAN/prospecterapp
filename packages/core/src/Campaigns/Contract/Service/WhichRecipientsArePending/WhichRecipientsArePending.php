@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Campaigns\Contract\Service\WhichRecipientsArePending;
 
 /**
- * Which of these contacts a campaign of the account keeps as its recipients, and which of them are still to handle
- * (ADR 0089, 0145): asked about a set, a single contact being a set of one.
+ * Which of these contacts an account's campaign keeps as its recipients, and which of them are still to handle (ADR
+ * 0089, 0145). The query asks about a set. A single contact is a set of one.
  */
 final readonly class WhichRecipientsArePending
 {

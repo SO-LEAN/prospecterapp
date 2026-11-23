@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Campaigns\Contract\Service\NameCampaigns;
 
 /**
- * The names of campaigns of an account (ADR 0089, 0145): asked about a set, a single campaign being a set of one.
+ * The names of an account's campaigns (ADR 0089, 0145). The query asks about a set. A single campaign is a set of one.
  */
 final readonly class NameCampaigns
 {

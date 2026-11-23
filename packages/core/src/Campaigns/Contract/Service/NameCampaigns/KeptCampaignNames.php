@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Campaigns\Contract\Service\NameCampaigns;
 
-/**
- * Keeps the answer as it is, for a client that reads it rather than shows it (ADR 0085).
- */
+/** Keeps the answer as is, for a client that reads it rather than shows it (ADR 0085). */
 final class KeptCampaignNames implements NameCampaignsOutput
 {
     /**
