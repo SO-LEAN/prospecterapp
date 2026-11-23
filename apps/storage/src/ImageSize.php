@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App;
 
 /**
- * The sizes an image is served in, a closed list: nobody can make the storage compute a size of their own.
- * The width in pixels, the height following the ratio.
+ * The sizes an image is served in. The list is closed, so nobody can make the storage compute a size of their own. The
+ * value is the width in pixels, and the height follows the ratio.
  */
 enum ImageSize: int
 {

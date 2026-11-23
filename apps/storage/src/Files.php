@@ -7,8 +7,9 @@ namespace App;
 use Symfony\Component\HttpFoundation\File\File;
 
 /**
- * The stored files: an original under `<year>/<month>/<name>/<name>.<extension>`, its resized copies under
- * `<size>/` the same key, all in the bucket. What exists is served without PHP; PHP stores, removes and resizes.
+ * The stored files. An original lives under `<year>/<month>/<name>/<name>.<extension>`, and its resized copies under
+ * the same key prefixed by `<size>/`, all in the bucket. What exists is served without PHP. PHP stores, removes and
+ * resizes.
  */
 final readonly class Files
 {
@@ -29,7 +30,7 @@ final readonly class Files
     }
 
     /**
-     * Removes the original and every copy made from it, from the bucket and from what keeps copies in front of it.
+     * Removes the original and every copy made from it, from the bucket and from whatever keeps copies in front of it.
      */
     public function remove(string $key): void
     {

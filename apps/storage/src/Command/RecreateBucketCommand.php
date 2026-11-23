@@ -10,9 +10,9 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * Recreates the buckets of the files and of the private files empty (`make db`).
+ * Recreates the files' and the private files' buckets empty (`make db`).
  */
-#[AsCommand(name: 'app:bucket:recreate', description: 'Drop and create the S3 buckets of the files and of the private files (destroys them)')]
+#[AsCommand(name: 'app:bucket:recreate', description: 'Drop and create the S3 buckets of the files and the private files (destroys them)')]
 final readonly class RecreateBucketCommand
 {
     public function __construct(private Bucket $bucket, private Bucket $privateBucket)

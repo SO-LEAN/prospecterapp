@@ -9,8 +9,8 @@ use Aws\S3\S3Client;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 
 /**
- * Requests a browser sends to S3 itself, signed for a moment by the storage (ADR 0077): on the address the browsers
- * reach the bucket at, the static host locally, S3 on AWS.
+ * Requests that a browser sends to S3 itself, signed for a short time by the storage (ADR 0077). They go to the address
+ * where the browsers reach the bucket: the static host locally, S3 on AWS.
  */
 final readonly class SignedRequests
 {
@@ -21,7 +21,7 @@ final readonly class SignedRequests
     }
 
     /**
-     * The form sending one file under the key, no heavier than the limit.
+     * The form that sends one file under the key, up to the size limit.
      *
      * @return array{url: string, fields: array<string, string>}
      */
@@ -38,7 +38,7 @@ final readonly class SignedRequests
     }
 
     /**
-     * A link downloading the object under this name.
+     * A link that downloads the object under this name.
      */
     public function download(string $bucket, string $key, string $name, string $lasting): string
     {
@@ -52,7 +52,8 @@ final readonly class SignedRequests
     }
 
     /**
-     * Any name a prospect gave a file, in UTF-8, with a plain ASCII one for the browsers reading no other.
+     * Accepts any name a prospect gave a file, in UTF-8, with a plain ASCII fallback for the browsers that read no
+     * other.
      */
     private function attachmentNamed(string $name): string
     {
