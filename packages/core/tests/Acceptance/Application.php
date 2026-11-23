@@ -426,6 +426,7 @@ use Prospecter\Core\Reporting\Application\ConsultFigures\ConsultFiguresHandler;
 use Prospecter\Core\Reporting\Application\ConsultFigures\FiguresResponse;
 use Prospecter\Core\Reporting\Application\ConsultFigures\KeptFigures;
 use Prospecter\Core\Reporting\Application\FactRecorder;
+use Prospecter\Core\Reporting\Application\Policy\RecordFactsPolicy;
 use Prospecter\Core\Reporting\Application\RebuildFigures\RebuildFigures;
 use Prospecter\Core\Reporting\Application\RebuildFigures\RebuildFiguresHandler;
 use Prospecter\Core\Reporting\Application\RebuildFigures\SourceFacts;
@@ -1368,6 +1369,9 @@ final class Application
         return [
             new RegisterTheFounderHandler($this->members),
             new ForgetAppointmentOfErasedExchangeHandler($this->appointments),
+            new RecordOrganizationFactsHandler($this->factRecorder),
+            new RecordExchangeFactsHandler($this->factRecorder),
+            new RecordContactFactsHandler($this->factRecorder),
             new EraseContactLeftUnattachedHandler($this->contactsToAttach, $this->events),
             new StartProspectingHandler($this->organizations, $this->prospectors, $this->events, $this->geoLocalizer, $this->organizationEmails, $this->organizationReferences, $this->organizationWebsites, $this->duplicateSuspicion),
             new ReviseLegalIdentityHandler($this->organizations, $this->events, $this->organizationSirets, $this->duplicateSuspicion),
@@ -1777,9 +1781,7 @@ final class Application
             new DiscardRemovedAttachmentHandler($this->privateStorage),
             new KeepImportedAttachmentHandler($this->privateStorage),
             new DiscardAttachmentsOfErasedExchangeHandler($this->privateStorage),
-            new RecordOrganizationFactsHandler($this->factRecorder),
-            new RecordExchangeFactsHandler($this->factRecorder),
-            new RecordContactFactsHandler($this->factRecorder),
+            new RecordFactsPolicy(),
             new PushExchangeHandler($this->calendarPusher),
             new PushUpcomingExchangesHandler($this->heldExchanges, $this->calendarPusher),
             new ReadMailboxHistoryHandler($this->connections, $this->clients, $this->mailboxes, $this->connectingMembers, $this->events),
