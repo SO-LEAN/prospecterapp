@@ -13,15 +13,15 @@ const longDayFormat = new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: '
 type Props = {
   items: CalendarExchange[]
   toDos: CalendarToDo[]
-  /** The ids of the exchanges and of the to-dos late, as the API says. */
+  /** The ids of the late exchanges and to-dos, as the API says. */
   late: ReadonlySet<string>
   now: Date
   onOpen: (item: CalendarExchange) => void
 }
 
 /**
- * The days of the period holding exchanges or to-dos, one under the other, the to-dos of a day first, today marked:
- * what a phone shows first.
+ * The period's days that hold exchanges or to-dos, one under the other. A day's to-dos come first, and today is
+ * marked. A phone shows this view first.
  */
 export function AgendaView({ items, toDos, late, now, onOpen }: Props) {
   const { t } = useTranslation()

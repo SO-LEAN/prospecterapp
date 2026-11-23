@@ -1,18 +1,18 @@
 import type { Exchange } from '../queries'
 
-/** A noted exchange has no duration: it takes the room of half an hour, to be read. */
+/** A logged exchange has no duration. It takes up half an hour, so that it can be read. */
 const SHORTEST_SHOWN_IN_MINUTES = 30
 const MINUTES_IN_AN_HOUR = 60
 const MINUTES_IN_A_DAY = 24 * MINUTES_IN_AN_HOUR
 
-/** Where an exchange stands in its day, in hours from midnight, and the lane it takes among those it overlaps. */
+/** Where an exchange is in its day, in hours from midnight, and the lane it takes among the exchanges it overlaps. */
 export type Placed<Item> = { item: Item; start: number; length: number; lane: number; lanes: number }
 
 type Timed = { exchange: Pick<Exchange, 'occurredAt' | 'durationInMinutes'> }
 
 /**
- * The exchanges of a day side by side when they overlap: each in the first lane free at its start, the lanes of a
- * group of overlapping exchanges sharing the width; in the time of the browser.
+ * Places a day's exchanges side by side when they overlap, in the browser's time zone. Each one takes the first lane
+ * free at its start. The lanes of a group of overlapping exchanges share the width.
  */
 export function placeInTheDay<Item extends Timed>(items: Item[]): Placed<Item>[] {
   const timed = items
@@ -41,14 +41,14 @@ export function placeInTheDay<Item extends Timed>(items: Item[]): Placed<Item>[]
   return placed
 }
 
-/** The exchanges overlapping one another, the moment each lane is free again, the moment all of them are. */
+/** The exchanges that overlap one another, the moment each lane is free again, and the moment all of them are. */
 type Group<Item> = { lanes: number[]; members: Placed<Item>[]; until: number }
 
 function aNewGroup<Item>(): Group<Item> {
   return { lanes: [], members: [], until: Number.NEGATIVE_INFINITY }
 }
 
-/** The moment in hours from midnight: where the line of now stands. */
+/** The moment in hours from midnight: where the line of now is. */
 export function hoursFromMidnight(moment: Date): number {
   return moment.getHours() + moment.getMinutes() / MINUTES_IN_AN_HOUR
 }

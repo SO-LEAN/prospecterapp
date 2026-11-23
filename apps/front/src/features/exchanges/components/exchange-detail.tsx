@@ -48,7 +48,7 @@ import { VenueCorrectionForm } from './venue-correction-form'
 
 type Props = { exchangeId: string | null; onClose: () => void }
 
-/** The whole of an exchange beside the card it was opened from, which stays where it was. */
+/** The whole exchange, beside the card it was opened from. That card stays where it was. */
 export function ExchangeDetailSheet({ exchangeId, onClose }: Props) {
   const { t } = useTranslation()
 
@@ -68,20 +68,20 @@ export function ExchangeDetailSheet({ exchangeId, onClose }: Props) {
 type PanelProps = {
   exchangeId: string
   onErased: () => void
-  /** Opened on its report, to mark it done at once, or on its move: from the dashboard. */
+  /** The dashboard opens it on its report, to mark it done at once, or on its move. */
   startWith?: StartWith
 }
 
 export type StartWith = 'report' | 'move'
 
-/** What it is opened on, when it offers it. */
+/** What the panel opens on, when the exchange offers it. */
 function offered(startWith: StartWith | undefined, { _links }: ExchangeDetail): StartWith | null {
   if (startWith === 'report') return _links.markDone ? startWith : null
   if (startWith === 'move') return _links.move ? startWith : null
   return null
 }
 
-/** The whole of an exchange and what it offers, read from the API: in its sheet, in the calendar or the day. */
+/** The whole exchange and what it offers, read from the API. It shows in its sheet, in the calendar or in the day. */
 export function ExchangePanel({ exchangeId, onErased, startWith }: PanelProps) {
   const exchange = useQuery(exchangeQuery(exchangeId))
 
@@ -98,14 +98,14 @@ export function ExchangePanel({ exchangeId, onErased, startWith }: PanelProps) {
 }
 
 /**
- * What is being done of it: all its facts, its text only, its place or its link corrected, its report written once
- * done, then what follows planned, its moment moved; or nothing while it is read.
+ * What the member is doing with the exchange: correcting all its facts, its text only, or its place or link. Or
+ * writing its report once it is done, then planning what follows, or moving its moment. Null while they only read it.
  */
 type Correcting = 'facts' | 'text' | 'venue' | 'report' | 'followUp' | 'move' | null
 
 /**
- * The revision of the exchange when what is being done of it began, kept while it goes on: a correction is sent on it,
- * not on a revision read since, so that a change made meanwhile is refused instead of erased (ADR 0187).
+ * The exchange's revision when the current correction began, kept while it goes on. The correction is sent with that
+ * revision, not with one read since. So a change made meanwhile is refused instead of overwritten (ADR 0187).
  */
 function useRevisionWhenOpened(correcting: Correcting, revision: number): number {
   const [opened, setOpened] = useState({ correcting, revision })
@@ -303,7 +303,7 @@ function Exchange({
 }
 
 /**
- * How it came: booked by the public link, imported from Gmail, or planned or noted by a member.
+ * Where the exchange came from: booked through the public link, imported from Gmail, or planned or logged by a member.
  */
 function originOf(exchange: ExchangeDetail, t: TFunction): string {
   const moment = formatMoment(exchange.noted.at)
@@ -316,8 +316,8 @@ function originOf(exchange: ExchangeDetail, t: TFunction): string {
 }
 
 /**
- * Done, what follows is planned with the same interlocutor, on the same channel: the contact, or the organization
- * itself; a forgotten contact has nobody to plan with.
+ * Once the exchange is done, plans what follows with the same interlocutor, on the same channel. The interlocutor is
+ * the contact or the organization itself. A forgotten contact leaves nobody to plan with.
  */
 function PlanTheFollowUp({ exchange, onDone }: { exchange: ExchangeDetail; onDone: () => void }) {
   const planWithTheContact = usePlanExchange()
@@ -341,8 +341,8 @@ function PlanTheFollowUp({ exchange, onDone }: { exchange: ExchangeDetail; onDon
 }
 
 /**
- * What is done in one click to hold an exchange to come: the route to the place of a meeting, joining a video call,
- * calling the number of the interlocutor; the place of a meeting shown even once it is done.
+ * What one click does to hold an upcoming exchange: show the route to a meeting's place, join a video call, or call
+ * the interlocutor's number. A meeting's place shows even once the meeting is done.
  */
 function Venue({ exchange }: { exchange: ExchangeDetail }) {
   const { t } = useTranslation()
@@ -376,7 +376,7 @@ function Venue({ exchange }: { exchange: ExchangeDetail }) {
   )
 }
 
-/** Correcting the place of a meeting, the link of a video call, or adding the link it does not have yet. */
+/** Corrects a meeting's place or a video call's link, or adds the link the video call does not have yet. */
 const venueCorrectionOf = (exchange: ExchangeDetail) =>
   exchange.channel === 'meeting'
     ? 'exchanges.detail.correctPlace'
@@ -384,7 +384,7 @@ const venueCorrectionOf = (exchange: ExchangeDetail) =>
       ? 'exchanges.detail.correctLink'
       : 'exchanges.detail.addLink'
 
-/** Erasing an exchange cannot be undone: it is confirmed first. */
+/** Erasing an exchange cannot be undone, so the member confirms it first. */
 function EraseExchange({ exchangeId, onErased }: { exchangeId: string; onErased: () => void }) {
   const { t } = useTranslation()
   const erase = useEraseExchange()

@@ -17,7 +17,7 @@ const theApi = vi.hoisted(() => {
   return fetch
 })
 
-/** The toaster follows the theme of the system, which jsdom does not tell. */
+/** The toaster follows the system's theme, which jsdom does not provide. */
 vi.hoisted(() => {
   window.matchMedia = (query: string) =>
     ({
@@ -43,7 +43,7 @@ const move = { href: `/api/exchanges/${EXCHANGE}/moment`, method: 'PATCH' }
 const searchContacts = { href: '/api/contacts', method: 'GET' }
 const CALENDAR_SELF = { href: '/api/me/calendar', method: 'GET' }
 
-/** The calendar as the API answers it to a member who may plan, unless told otherwise. */
+/** The calendar as the API answers it to a member who may plan, unless the test says otherwise. */
 const aCalendarOf = (
   items: CalendarExchange[],
   links: { searchContacts?: typeof searchContacts } = { searchContacts },
@@ -79,7 +79,7 @@ const aVideoCall = (
   interlocutor: { kind: 'person', id: ADA, name: 'Ada Lovelace', presence: 'present' },
 })
 
-/** As the API answers it, a move answered offering to move it back unless told otherwise. */
+/** The detail as the API answers it. After a move, it offers to move back unless the test says otherwise. */
 const theDetail = (
   item: CalendarExchange,
   links: { moveBack?: typeof move } = { moveBack: move },
@@ -101,7 +101,7 @@ const theDetail = (
 type Answer = { status?: number; body: unknown }
 type Answering = (url: URL) => Answer | Promise<Answer>
 
-/** The API by method and path; what it was sent with a change. */
+/** The API's answers by method and path, and what each change sent it. */
 function theApiAnswers(answers: Record<string, Answering>) {
   theApi.mockImplementation(async (input) => {
     const request = input as Request
@@ -116,7 +116,7 @@ async function sent(method: string) {
   return Promise.all(changes.map(async (request) => [new URL(request.url).pathname, await request.json()]))
 }
 
-/** Each column of hours 100 pixels wide and 2 400 high, 100 an hour; a cell of the month under its own point. */
+/** Each column of hours is 100 pixels wide and 2 400 high, 100 an hour. Each month cell lies under its own point. */
 function theGridIsLaidOut() {
   vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(
     () => ({ top: 0, height: 2400, left: 0, width: 100 }) as DOMRect,
@@ -129,19 +129,19 @@ function theGridIsLaidOut() {
 
 const theCellOf = (day: string) => document.querySelector(`[data-day="${day}"]`) as HTMLElement
 
-/** Grabbed on the element, then followed by the window, the element drawn again where it is dragged. */
+/** Grabs the element, then the window follows the pointer, and the element is drawn again where it is dragged. */
 function drag(element: Element, from: { x: number; y: number }, to: { x: number; y: number }) {
   fireEvent.pointerDown(element, { button: 0, pointerId: 1, clientX: from.x, clientY: from.y })
   fireEvent.pointerMove(window, { pointerId: 1, clientX: to.x, clientY: to.y })
   fireEvent.pointerUp(window, { pointerId: 1, clientX: to.x, clientY: to.y })
 }
 
-/** As in the app, the toaster is beside the page, not in it: a toast outlives the page it was raised on. */
+/** As in the app, the toaster is beside the page, not in it. A toast outlives the page that raised it. */
 function theToasterOutlivesThePage() {
   render(<Toaster />)
 }
 
-/** The refusals of the API told by the toast of every mutation, as in the app. */
+/** As in the app, the toast of every mutation shows the API's refusals. */
 async function showTheCalendar(view: View, calendar: ReturnType<typeof aCalendarOf>) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { staleTime: Number.POSITIVE_INFINITY } },
@@ -173,7 +173,7 @@ async function showTheCalendar(view: View, calendar: ReturnType<typeof aCalendar
 
 const theToastSaying = async (text: string) => (await screen.findByText(text)).closest('li') as HTMLElement
 
-/** The timers of the toasts too, still running on their own, so that minutes pass in an instant. */
+/** The fake clock also runs the toasts' timers, which still run on their own, so that minutes pass in an instant. */
 function theClockRunsTheTimers() {
   vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'clearTimeout'], shouldAdvanceTime: true })
   vi.setSystemTime(NOW)

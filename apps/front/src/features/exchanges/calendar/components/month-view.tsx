@@ -9,7 +9,7 @@ import { useGestures } from '../use-gestures'
 import { CalendarExchangeChip } from './calendar-exchange'
 import { CalendarToDoChip, type toDoDrop } from './calendar-to-do'
 
-/** Beyond them, a day of the month tells how many more it holds, and opens on its own. */
+/** Beyond this many, a day in the month says how many more it holds, and opens on its own. */
 export const SHOWN_IN_A_DAY_OF_THE_MONTH = 3
 
 const weekdayFormat = new Intl.DateTimeFormat('fr-FR', { weekday: 'short' })
@@ -20,7 +20,7 @@ type Props = {
   month: number
   items: CalendarExchange[]
   toDos: CalendarToDo[]
-  /** The ids of the exchanges and of the to-dos late, as the API says. */
+  /** The ids of the late exchanges and to-dos, as the API says. */
   late: ReadonlySet<string>
   /** Where a to-do is dropped to change its day. */
   dropOn: ReturnType<typeof toDoDrop>
@@ -31,8 +31,9 @@ type Props = {
 }
 
 /**
- * The weeks of a month, each day with its first to-dos and exchanges and how many more; the days of the months around
- * it faded, today marked. An exchange the API lets move is dragged to another day, at its own hour, a to-do too.
+ * A month's weeks. Each day shows its first to-dos and exchanges, and how many more it holds. The days of the
+ * surrounding months are faded, and today is marked. An exchange that the API lets move can be dragged to another
+ * day, at its own hour. So can a to-do.
  */
 export function MonthView({
   period,

@@ -3,14 +3,14 @@ import type { Exchange } from '../queries'
 export const VIEWS = ['month', 'week', 'day', 'agenda'] as const
 export type View = (typeof VIEWS)[number]
 
-/** The days the screen shows, in the time of the browser: from midnight of the first to midnight after the last. */
+/** The days that the screen shows, in the browser's time zone: from the first day's midnight to the midnight after the last day. */
 export type Period = { first: Date; end: Date }
 
 const DAYS_IN_A_WEEK = 7
 const MONDAY = 1
 const DAY_WRITTEN = /^(\d{4})-(\d{2})-(\d{2})$/
 
-/** "2026-11-17" -> midnight of that day in the time of the browser */
+/** "2026-11-17" -> that day's midnight in the browser's time zone */
 export function parseDay(written: string): Date {
   const [, year, month, date] = DAY_WRITTEN.exec(written) ?? []
 
@@ -30,7 +30,7 @@ export function startOfDay(moment: Date): Date {
   return new Date(moment.getFullYear(), moment.getMonth(), moment.getDate())
 }
 
-/** By the calendar, not by 24 hours: midnight stays midnight across a change of time. */
+/** Counts calendar days, not 24 hours. Midnight stays midnight across a clock change. */
 export function addDays(day: Date, days: number): Date {
   return new Date(day.getFullYear(), day.getMonth(), day.getDate() + days)
 }
@@ -44,8 +44,8 @@ const firstOfTheMonth = (day: Date) => new Date(day.getFullYear(), day.getMonth(
 const firstOfTheNextMonth = (day: Date) => new Date(day.getFullYear(), day.getMonth() + 1, 1)
 
 /**
- * A month is shown in whole weeks, from the Monday of its first to the Sunday of its last: six weeks at most, what
- * the API reads at once; the agenda lists its days only.
+ * A month shows in whole weeks, from its first week's Monday to its last week's Sunday. That makes six weeks at most,
+ * which the API reads at once. The agenda lists only the month's days.
  */
 export function periodOf(view: View, day: Date): Period {
   switch (view) {
@@ -69,7 +69,7 @@ export function daysOf({ first, end }: Period): Date[] {
   return days
 }
 
-/** The day the previous or the next period opens on: a month opens on its first day. */
+/** The day that the previous or the next period opens on. A month opens on its first day. */
 export function neighbourOf(view: View, day: Date, step: 1 | -1): Date {
   switch (view) {
     case 'month':
@@ -82,7 +82,7 @@ export function neighbourOf(view: View, day: Date, step: 1 | -1): Date {
   }
 }
 
-/** What the API reads: the bounds of the period, each at the offset of the browser then, the end excluded. */
+/** What the API reads: the period's bounds, each with the browser's offset at that moment. The end is excluded. */
 export function queryOf({ first, end }: Period): { from: string; to: string } {
   return { from: momentWithItsOffset(first), to: momentWithItsOffset(end) }
 }
@@ -98,7 +98,7 @@ export function momentWithItsOffset(moment: Date): string {
   return `${dayOf(moment)}T${time}${sign}${hours}:${minutes}`
 }
 
-/** The exchanges of each day, by "2026-11-17", in the order they come. */
+/** Each day's exchanges, keyed by "2026-11-17", in the order they come. */
 export function byDay<Item extends { exchange: Pick<Exchange, 'occurredAt'> }>(
   items: Item[],
 ): Map<string, Item[]> {
@@ -110,7 +110,7 @@ export function byDay<Item extends { exchange: Pick<Exchange, 'occurredAt'> }>(
   return days
 }
 
-/** Planned, its moment passed: nobody said yet whether it was done or missed. */
+/** A planned exchange whose moment has passed. Nobody has said yet whether it was done or missed. */
 export function isToHandle(exchange: Pick<Exchange, 'status' | 'occurredAt'>, now: Date): boolean {
   return exchange.status === 'planned' && new Date(exchange.occurredAt) < now
 }

@@ -72,7 +72,7 @@ function aQueryClient() {
   return new QueryClient({ defaultOptions: { queries: { staleTime: Number.POSITIVE_INFINITY } } })
 }
 
-/** The revision each correction was sent on, the API answering the exchange at the next one. */
+/** The revision that each correction was sent with. The API answers each one with the exchange at the next revision. */
 function revisionsSent(exchange: ExchangeDetail) {
   const revisions: Array<{ path: string; revision: string | null }> = []
   theApi.mockImplementation(async (input) => {

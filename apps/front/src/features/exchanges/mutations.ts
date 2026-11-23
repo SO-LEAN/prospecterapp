@@ -22,12 +22,12 @@ import {
   upcomingQuery,
 } from './queries'
 
-/** The new exchange, whose address the API answers in `Location`: files are joined to it. */
+/** The new exchange, whose address the API returns in `Location`. The files are joined to it. */
 const notedIn = (response: Response) => response.headers.get('Location')?.split('/').pop() ?? ''
 
 /**
- * The API answers the first slice of the timeline with the new exchange: the timeline starts again from it,
- * and those of its organizations will be read again.
+ * The API returns the timeline's first slice with the new exchange. The timeline starts again from that slice, and
+ * the timelines of the contact's organizations will be read again.
  */
 export function useNoteExchange() {
   const queryClient = useQueryClient()
@@ -57,8 +57,8 @@ export function useNoteExchange() {
 }
 
 /**
- * Noted from the card of an organization: its timeline starts again from the first slice the API answers; the
- * other timelines, of its contacts and of their other organizations, will be read again when shown.
+ * Logs an exchange from an organization's card. Its timeline starts again from the first slice that the API returns.
+ * The other timelines, those of its contacts and of their other organizations, will be read again when shown.
  */
 export function useNoteOrganizationExchange() {
   const queryClient = useQueryClient()
@@ -95,8 +95,8 @@ export function useNoteOrganizationExchange() {
 }
 
 /**
- * The API answers the exchanges to come with the contact, the new one among them; those of its organizations and my
- * agenda will be read again.
+ * The API returns the upcoming exchanges with the contact, the new one among them. The upcoming exchanges of the
+ * contact's organizations and my agenda will be read again.
  */
 export function usePlanExchange() {
   const queryClient = useQueryClient()
@@ -119,8 +119,8 @@ export function usePlanExchange() {
 }
 
 /**
- * Planned from the card of an organization: its exchanges to come as the API answers them; those of its contacts and
- * of their other organizations, and my agenda, will be read again.
+ * Plans an exchange from an organization's card. The API returns the organization's upcoming exchanges. Those of its
+ * contacts and of their other organizations, and my agenda, will be read again.
  */
 export function usePlanOrganizationExchange() {
   const queryClient = useQueryClient()
@@ -146,12 +146,12 @@ export function usePlanOrganizationExchange() {
   })
 }
 
-/** The dashboard counts the exchanges, those of the month by their moment, once the reactions to the gesture ran. */
+/** Once the gesture's reactions have run, the dashboard counts the exchanges again, the month's ones by their moment. */
 function readTheFiguresAgain(queryClient: QueryClient) {
   readAgainAfterTheReactions(queryClient, queryKeys.dashboard)
 }
 
-/** The recipient the erased exchange processed is to handle again, once the reactions ran (ADR 0152). */
+/** Once the reactions have run, the recipient that the erased exchange processed is to handle again (ADR 0152). */
 function readTheCampaignsAgain(queryClient: QueryClient) {
   readAgainAfterTheReactions(
     queryClient,
@@ -161,7 +161,7 @@ function readTheCampaignsAgain(queryClient: QueryClient) {
   )
 }
 
-/** A corrected or erased exchange may be in several timelines, of contacts and of organizations, past or to come. */
+/** A corrected or erased exchange may be in several timelines: contacts' and organizations', past or upcoming. */
 export function readTheTimelinesAgain(queryClient: QueryClient) {
   void queryClient.invalidateQueries({ queryKey: timelineKeys.ofContacts })
   void queryClient.invalidateQueries({ queryKey: timelineKeys.ofOrganizations })
@@ -175,7 +175,7 @@ export function readTheTimelinesAgain(queryClient: QueryClient) {
   readAgainAfterTheReactions(queryClient, googleSyncKey)
 }
 
-/** The corrected exchange goes straight into its detail; the timelines showing it read it again. */
+/** The corrected exchange goes straight into its detail. The timelines that show it read it again. */
 function useShowTheCorrection() {
   const queryClient = useQueryClient()
   const { t } = useTranslation()
@@ -231,8 +231,8 @@ export function useEraseExchange() {
 }
 
 /**
- * The files are sent one after the other, the exchange as the last answer shows it going straight into its detail;
- * a file refused stops the others.
+ * Sends the files one after the other. The exchange, as the last answer shows it, goes straight into its detail. A
+ * refused file stops the others.
  */
 export function useAttachFiles() {
   const queryClient = useQueryClient()
@@ -251,7 +251,7 @@ export function useAttachFiles() {
   })
 }
 
-/** Once the exchange is noted, its files are sent while the timeline shows it; a refusal is told by a toast. */
+/** Once the exchange is logged, its files are sent while the timeline shows it. A toast shows a refusal. */
 export function attachTheFiles(attach: ReturnType<typeof useAttachFiles>, exchangeId: string, files: File[]) {
   if (files.length > 0) {
     attach.mutate({ exchangeId, files })
@@ -271,12 +271,12 @@ export function useRemoveAttachment() {
   })
 }
 
-/** Whose e-mails are caught up: a contact, or an organization itself. */
+/** Whose e-mails the catch-up imports: a contact's, or an organization's own. */
 export type CatchUpCorrespondent = { contactId: string } | { organizationId: string }
 
 /**
- * The catch-up of Gmail answers at once, the import noting the e-mails a moment later: the timelines showing them are
- * read again once the reactions ran, those of the organizations of a contact too.
+ * The Gmail catch-up answers at once, and the import logs the e-mails a moment later. Once the reactions have run,
+ * the timelines that show the e-mails are read again, including those of a contact's organizations.
  */
 export function useCatchUpGmail() {
   const queryClient = useQueryClient()
@@ -309,7 +309,7 @@ export function useCatchUpGmail() {
   })
 }
 
-/** Pushed again into my Google calendar by its holder, the exchange shows where its push stands now (ADR 0133). */
+/** Its holder pushes the exchange into my Google calendar again. It then shows where its push currently stands (ADR 0133). */
 export function useRetryGooglePush() {
   const queryClient = useQueryClient()
 
@@ -319,7 +319,7 @@ export function useRetryGooglePush() {
   })
 }
 
-/** A planned exchange marked done goes straight into its detail; its timelines and the figures are read again. */
+/** A planned exchange marked done goes straight into its detail. Its timelines and the figures are read again. */
 export function useMarkExchangeDone() {
   const queryClient = useQueryClient()
   const { t } = useTranslation()
@@ -350,9 +350,9 @@ export function useMoveExchange() {
 }
 
 /**
- * Marked missed or cancelled, the exchange goes into its detail and its timelines are read again. Run once the
- * toast that may take it back is gone, its sheet maybe closed: what follows the gesture is in the options of the
- * mutation, which run even once its component is gone.
+ * An exchange marked missed or cancelled goes into its detail, and its timelines are read again. The gesture runs
+ * once the toast that can take it back is gone, and its sheet may be closed by then. So what follows the gesture is
+ * in the mutation's options, which run even once its component is gone.
  */
 function useShowTheHandling() {
   const queryClient = useQueryClient()
@@ -372,12 +372,12 @@ export function useCancelExchange() {
   return api.useMutation('post', '/api/exchanges/{id}/cancellation', { onSuccess: useShowTheHandling() })
 }
 
-/** How long a toast lets the gesture it tells be taken back. */
+/** How long a toast lets the member take back the gesture it announces. */
 export const UNDO_DELAY_MS = 5000
 
 /**
- * A gesture carried out once a few seconds passed, unless « Annuler » of its toast took it back, which `takenBack`
- * then follows.
+ * Carries out a gesture after a few seconds, unless its toast's « Annuler » takes it back. `takenBack` then says
+ * so.
  */
 export function useUndoable() {
   const { t } = useTranslation()

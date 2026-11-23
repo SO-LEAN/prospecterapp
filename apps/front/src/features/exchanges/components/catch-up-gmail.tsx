@@ -4,8 +4,9 @@ import { Button } from '@/shared/ui/button'
 import { type CatchUpCorrespondent, useCatchUpGmail } from '../mutations'
 
 /**
- * Catches up the e-mails my mailbox of Gmail exchanged with a contact, or with an organization itself, the 200 newest
- * of the 12 months before: they arrive in the timeline as the import notes them. Shown when the timeline links it.
+ * Catches up the e-mails that my Gmail mailbox exchanged with a contact, or with an organization itself. It takes
+ * the 200 newest ones from the last 12 months. They arrive in the timeline as the import logs them. The button shows
+ * when the timeline gives its link.
  */
 export function CatchUpGmail(correspondent: CatchUpCorrespondent) {
   const { t } = useTranslation()

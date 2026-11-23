@@ -32,7 +32,7 @@ const A_CALL = '0190a1c0-0000-7000-8000-000000000004'
 const ACME = '0190a1c0-0000-7000-8000-000000000005'
 const A_WEEK_OF_MY_CALENDAR = calendarQuery(periodOf('week', parseDay('2026-11-16'))).queryKey
 
-/** A period of my calendar in the cache, which a gesture on an exchange must have read again. */
+/** A period of my calendar in the cache. A gesture on an exchange must read it again. */
 function myCalendarInTheCacheOf(queryClient: QueryClient) {
   queryClient.setQueryData(A_WEEK_OF_MY_CALENDAR, { items: [] })
   return { isReadAgain: () => queryClient.getQueryState(A_WEEK_OF_MY_CALENDAR)?.isInvalidated }

@@ -1,7 +1,7 @@
 import type { UseFormRegisterReturn } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 
-/** Ticked, the correction declares the exchange made conform: its yellow ground goes (ADR 0079). */
+/** When ticked, the correction declares the exchange redacted, and its yellow ground goes away (ADR 0079). */
 export function MadeConformField(checkbox: UseFormRegisterReturn) {
   const { t } = useTranslation()
 

@@ -40,21 +40,22 @@ import { CHANNEL_ICONS, INTERLOCUTOR_ICONS } from './exchange-line'
 import { VideoCallLinkInput } from './video-call-link-input'
 
 type Props = {
-  /** The person chosen, null for the organization itself or on the card of a contact. */
+  /** Gets the chosen person, null for the organization itself or on a contact's card. */
   onSubmit: (exchange: PlannedExchangeInput, personId: string | null) => Promise<unknown>
   onCancel: () => void
   interlocutors?: Interlocutors
-  /** The channel proposed: that of the exchange it follows. */
+  /** The proposed channel: the previous exchange's channel. */
   channel?: PlannedChannel
-  /** Where a meeting is proposed to be held: the address of the organization, written on one line. */
+  /** Where the form proposes to hold a meeting: the organization's address, written on one line. */
   proposedPlace?: string
-  /** The slot proposed, chosen in the calendar, rather than the next quarter of an hour for half an hour. */
+  /** The proposed slot, chosen in the calendar, instead of the next quarter hour for half an hour. */
   slot?: Slot
 }
 
 /**
- * Planned in a few clicks: the next quarter of an hour and half an hour by default, shortcuts for the usual moments
- * and durations, the place of a meeting proposed; warned, without being stopped, of an exchange of mine it overlaps.
+ * Plans an exchange in a few clicks. By default it starts at the next quarter hour and lasts half an hour. Shortcuts
+ * set the usual moments and durations, and a meeting gets a proposed place. The form warns me of an exchange of mine
+ * that it overlaps, without stopping me.
  */
 export function PlanForm({ onSubmit, onCancel, interlocutors, channel, proposedPlace, slot }: Props) {
   const { t } = useTranslation()
@@ -182,8 +183,8 @@ export function PlanForm({ onSubmit, onCancel, interlocutors, channel, proposedP
 }
 
 /**
- * Where a meeting is held, written freely; the link of a video call, optional, the first Meet, Teams or Zoom link of
- * an invitation pasted whole taken from it.
+ * Where a meeting is held, written freely. Or a video call's optional link. When a whole invitation is pasted, the
+ * field takes its first Meet, Teams or Zoom link.
  */
 function Venue({ form }: { form: UseFormReturn<PlanValues> }) {
   const { t } = useTranslation()
@@ -217,7 +218,7 @@ function Venue({ form }: { form: UseFormReturn<PlanValues> }) {
   return null
 }
 
-/** A Google Meet link created for a video call without a link, while Google is connected, checked by default. */
+/** Creates a Google Meet link for a video call without a link, while Google is connected. The box is checked by default. */
 function MeetLink({ form, googleConnected }: { form: UseFormReturn<PlanValues>; googleConnected: boolean }) {
   const { t } = useTranslation()
   const [channel, link] = useWatch({ control: form.control, name: ['channel', 'link'] })
@@ -234,7 +235,7 @@ function MeetLink({ form, googleConnected }: { form: UseFormReturn<PlanValues>; 
   )
 }
 
-/** The usual durations in a click, the one in force pressed. */
+/** The usual durations, one click each. The current duration is pressed. */
 function QuickDurations({ form }: { form: UseFormReturn<PlanValues> }) {
   const { t } = useTranslation()
   const durationInMinutes = useWatch({ control: form.control, name: 'durationInMinutes' })
@@ -261,8 +262,8 @@ function QuickDurations({ form }: { form: UseFormReturn<PlanValues> }) {
 }
 
 /**
- * The exchanges I planned in the slot being chosen: a warning, the planning still possible. Checked once the slot
- * stopped changing, not for each key typed on the way.
+ * The exchanges I planned in the slot being chosen. It is a warning, and planning stays possible. The check runs once
+ * the slot stops changing, not for each key typed on the way.
  */
 function Overlaps({ form }: { form: UseFormReturn<PlanValues> }) {
   const { t } = useTranslation()

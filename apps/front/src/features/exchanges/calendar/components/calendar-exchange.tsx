@@ -8,7 +8,7 @@ import { ToAttachBadge } from '../../components/to-attach-badge'
 import { isToHandle } from '../dates'
 import type { CalendarExchange } from '../queries'
 
-/** How an exchange looks, by what became of it: to come in full colour, done faded, missed hatched, cancelled struck. */
+/** How an exchange looks, by what became of it: upcoming in full colour, done faded, missed hatched, cancelled struck through. */
 const LOOKS = {
   planned: 'bg-primary text-primary-foreground',
   toHandle: 'bg-warning text-foreground',
@@ -27,19 +27,19 @@ export function lookOf({ exchange }: CalendarExchange, now: Date): Look {
 type Props = Omit<ComponentProps<'button'>, 'children'> & {
   item: CalendarExchange
   now: Date
-  /** Grabbed to be dragged, in a view handling the gestures, when the API lets it move. */
+  /** The member can grab it to drag it, in a view that handles the gestures, when the API lets it move. */
   movable?: boolean
-  /** Being dragged: lifted above the others. */
+  /** Being dragged, it is lifted above the others. */
   dragged?: boolean
-  /** Its slot ended without it being processed, as the API says (ADR 0134). */
+  /** Its slot has ended and it is not processed, as the API says (ADR 0134). */
   late?: boolean
   children?: ReactNode
 }
 
 /**
- * An exchange of the calendar: its hour, its channel and who it is with, in the look of its status; late, an icon and
- * « En retard » beside the colour, with one pulse when shown. A click opens it, one the API lets move is grabbed to be
- * dragged.
+ * A calendar exchange: its hour, its channel and who it is with, in its status's look. A late one shows an icon and
+ * « En retard » beside the colour, and pulses once when shown. A click opens it. When the API lets it move, the
+ * member can grab it to drag it.
  */
 export function CalendarExchangeChip({
   item,

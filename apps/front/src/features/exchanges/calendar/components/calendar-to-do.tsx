@@ -5,26 +5,26 @@ import { cn } from '@/shared/lib/utils'
 import type { CalendarToDo } from '../queries'
 import { movedTo, type ToDoRevision } from '../to-dos'
 
-/** What a to-do dragged carries, told apart from the exchanges the grid moves by its own gestures. */
+/** The type of what a dragged to-do carries. It tells the to-do apart from the exchanges that the grid moves with its own gestures. */
 const TO_DO_DRAGGED = 'application/x-prospecter-to-do'
 
 /**
- * The box ticking a to-do off or unticking it, told by the route composing the to-dos: a feature never imports
- * another.
+ * The box that ticks a to-do off or unticks it. The route that composes the to-dos gives it, because a feature never
+ * imports another.
  */
 export const ToDoBoxOf = createContext<(toDo: CalendarToDo) => ReactNode>(() => null)
 
 type Props = Omit<ComponentProps<'div'>, 'children'> & {
   toDo: CalendarToDo
   late: boolean
-  /** « En retard » written beside its icon, where there is room for it; said to the screen readers otherwise. */
+  /** Writes « En retard » beside its icon where there is room for it. Otherwise only screen readers say it. */
   withTheLateLabel?: boolean
 }
 
 /**
- * A to-do of the calendar: its box, its hour when said, its text; done, it stays, greyed. Late, its edge, an icon and
- * « En retard » say it, never the colour alone, with one pulse when shown. One the API lets revise is dragged to
- * another day.
+ * A calendar to-do: its box, its hour when given, and its text. A done to-do stays, greyed. A late one shows its
+ * lateness by its edge, an icon and « En retard », never by the colour alone, and pulses once when shown. When the
+ * API lets the member revise it, they can drag it to another day.
  */
 export function CalendarToDoChip({ toDo, late, withTheLateLabel = false, className, ...props }: Props) {
   const { t } = useTranslation()
@@ -59,12 +59,12 @@ export function CalendarToDoChip({ toDo, late, withTheLateLabel = false, classNa
   )
 }
 
-/** Revises a to-do: told by the route composing the to-dos. */
+/** Revises a to-do. The route that composes the to-dos gives it. */
 export type ReviseToDo = (id: string, revision: ToDoRevision) => void
 
 /**
- * Where a to-do is dropped to change its day, its hour kept: a day of the grid, of the month, or its band of the whole
- * day. A drop on its own day changes nothing.
+ * Where a to-do is dropped to change its day, keeping its hour: a day in the grid, in the month, or a day's all-day
+ * band. A drop on its own day changes nothing.
  */
 export function toDoDrop(toDos: CalendarToDo[], reviseToDo: ReviseToDo) {
   return (day: string) => ({

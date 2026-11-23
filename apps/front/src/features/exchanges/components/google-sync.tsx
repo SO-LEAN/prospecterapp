@@ -18,8 +18,9 @@ const ICONS = {
 } as const
 
 /**
- * Where the push of my planned exchange into my Google calendar stands (ADR 0133), its reason and its moment on hover:
- * synced, pending, or failed with « Réessayer »; nothing while it is not pushed into mine.
+ * Where my planned exchange's push into my Google calendar stands (ADR 0133): synced, pending, or failed with
+ * « Réessayer ». A hover shows its reason and its moment. It shows nothing while the exchange is not pushed into my
+ * calendar.
  */
 export function GoogleSync({ exchangeId }: { exchangeId: string }) {
   const { t } = useTranslation()

@@ -3,24 +3,24 @@ import type { Exchange } from '../queries'
 
 const MINUTE_MS = 60_000
 
-/** « Dans 5 min »: the reminder comes again that long after. */
+/** « Dans 5 min »: the reminder comes again this long after. */
 export const SNOOZE_MS = 5 * MINUTE_MS
 
-/** A reminder comes late by this much at most: the application opened after its moment, or the tab asleep. */
+/** A reminder comes this late at most, when the application opens after its moment or the tab was asleep. */
 const LATE_AT_MOST_MS = MINUTE_MS
 
 export type ReminderSettings = { enabled: boolean; minutesBefore: number }
 
-/** The reminders a tab already showed, by exchange and moment: shown once, or to show again at `again`. */
+/** The reminders that a tab already showed, by exchange and moment. Each one was shown once, or shows again at `again`. */
 export type Reminded = Record<string, { occurredAt: string; again: string | null }>
 
-/** An exchange moved is another reminder: its new moment is reminded of, whatever was of the former one. */
+/** A moved exchange makes a new reminder. Its new moment gets a reminder, whatever happened to the former one. */
 export const reminderOf = (exchange: Pick<Exchange, 'id' | 'occurredAt'>) =>
   `${exchange.id}@${exchange.occurredAt}`
 
 /**
- * Those to show now: their moment came, `minutesBefore` its exchange or the one asked by « Dans 5 min », and passed by
- * less than a minute after the start of the exchange, or after that moment when later.
+ * The reminders to show now. Their moment has come: `minutesBefore` the exchange, or the moment that « Dans 5 min »
+ * asked for. It is less than a minute past the exchange's start, or past that moment when it is later.
  */
 export function remindersDue(
   items: DayExchange[],
@@ -38,7 +38,7 @@ export function remindersDue(
   })
 }
 
-/** The moment of the next reminder to come, none when there is none. */
+/** The next upcoming reminder's moment, or none when there is none. */
 export function nextReminderAt(
   items: DayExchange[],
   settings: ReminderSettings,

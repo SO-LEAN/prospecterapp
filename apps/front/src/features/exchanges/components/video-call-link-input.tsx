@@ -4,11 +4,11 @@ import { Input } from '@/shared/ui/input'
 import { takingTheLinkOfAnInvitation } from '../video-call-link'
 
 type Props = Omit<ComponentProps<typeof Input>, 'type' | 'onPaste'> & {
-  /** The link of an invitation pasted whole, in place of the invitation. */
+  /** Gets the link of a whole pasted invitation, which replaces the invitation. */
   onLink: (link: string) => void
 }
 
-/** The link of a video call, typed, or taken from an invitation pasted whole. */
+/** A video call's link, typed or taken from a whole pasted invitation. */
 export function VideoCallLinkInput({ onLink, ...input }: Props) {
   const { t } = useTranslation()
 

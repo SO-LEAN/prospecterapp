@@ -11,9 +11,9 @@ import type { Attachment, ExchangeDetail } from '../queries'
 import { PersonalDataWarning } from './exchange-text'
 
 /**
- * The files joined to an exchange, each downloaded or removed, and the zone joining more while the exchange has
- * room for them; only counted when they are hidden to the reader; on a yellow ground while they are to make
- * conform, by removing them.
+ * The files joined to an exchange. The reader can download or remove each one. A drop zone joins more files while
+ * the exchange has room for them. When the files are hidden from the reader, only their count shows. They stay on a
+ * yellow ground while they are to redact, which means removing them.
  */
 export function ExchangeAttachments({ exchange }: { exchange: ExchangeDetail }) {
   const { t } = useTranslation()
@@ -58,8 +58,8 @@ export function ExchangeAttachments({ exchange }: { exchange: ExchangeDetail }) 
 }
 
 /**
- * Its link is the address of the API, which reads nothing without the access token: a click asks it a link signed
- * for a minute, and the browser downloads the file from there.
+ * Its link is the API's address, which returns nothing without the access token. A click asks the API for a link
+ * signed for a minute, and the browser downloads the file from there.
  */
 function AttachmentLine({ exchangeId, attachment }: { exchangeId: string; attachment: Attachment }) {
   const { t } = useTranslation()

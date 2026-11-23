@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { renderInARouter } from '@/test/render-in-a-router'
 import { NoteThenFollowUp } from './follow-up'
 
-/** The plan form reads the exchanges it overlaps: none. */
+/** The plan form reads the exchanges it overlaps. There are none. */
 vi.hoisted(() => {
   globalThis.fetch = async () => Response.json({ items: [], _links: { self: { href: '/', method: 'GET' } } })
 })

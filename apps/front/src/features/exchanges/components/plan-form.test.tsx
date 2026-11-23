@@ -76,7 +76,7 @@ afterEach(() => {
   theApi.mockReset()
 })
 
-/** The durations of the overlap checks the form asked the API. */
+/** The durations of the overlap checks that the form asked the API for. */
 const checkedDurations = () =>
   theApi.mock.calls
     .map(([request]) => new URL((request as Request).url))

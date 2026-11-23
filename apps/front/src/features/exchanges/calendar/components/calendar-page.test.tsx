@@ -57,7 +57,7 @@ const anExchange = (
   }
 }
 
-/** The URLs the calendar asked the API for, its period in each: what it read ahead. */
+/** The URLs that the calendar asked the API for, with the period in each. They show what it read ahead. */
 const periodsAsked = () =>
   theApi.mock.calls.map(([request]) => {
     const url = new URL(request instanceof Request ? request.url : String(request))

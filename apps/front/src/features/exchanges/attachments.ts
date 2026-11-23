@@ -6,9 +6,9 @@ import type { ExchangeDetail } from './queries'
 const ANY_FILE = 'application/octet-stream'
 
 /**
- * The browser sends the file to the storage itself, with the form the API signed for it (ADR 0077): the one request
- * of the SPA out of the API, to S3. The upload is then joined to the exchange. A file heavier than the form takes is
- * refused before it is sent.
+ * The browser sends the file to the storage itself, with the form that the API signed for it (ADR 0077). It is the
+ * SPA's only request outside the API, and it goes to S3. The upload is then joined to the exchange. A file heavier
+ * than the form accepts is refused before it is sent.
  */
 export async function attachFile(exchangeId: string, file: File): Promise<ExchangeDetail> {
   const upload = dataOf(await fetchClient.POST('/api/uploads'))
@@ -34,7 +34,7 @@ export async function attachFile(exchangeId: string, file: File): Promise<Exchan
   )
 }
 
-/** A refusal shaped like those of the API, worded the same way (ADR 0073). */
+/** A refusal shaped and worded like the API's refusals (ADR 0073). */
 function refusalOf(reason: 'attachmentTooHeavy' | 'attachmentNotSent', file: File): Problem {
   return {
     type: 'about:blank',
@@ -47,8 +47,8 @@ function refusalOf(reason: 'attachmentTooHeavy' | 'attachmentNotSent', file: Fil
 }
 
 /**
- * The link of the API needs the access token: it answers a link signed for a minute, opened at once, which the
- * browser downloads under the name of the file.
+ * The API's link needs the access token. It returns a link signed for a minute. The browser opens it at once and
+ * downloads the file under its name.
  */
 export async function downloadAttachment(exchangeId: string, attachmentId: string): Promise<void> {
   const download = dataOf(

@@ -29,7 +29,7 @@ const anExchange = (exchange: Partial<Exchange>): Exchange => ({
   ...exchange,
 })
 
-/** A line out of a button, as the last exchanges of the calendar show it: its campaign within it. */
+/** A line outside a button, as the calendar's last exchanges show it. Its campaign is within it. */
 describe('ExchangeLine', () => {
   it('leads to the campaign of the exchange when the api links it', async () => {
     await renderInARouter(

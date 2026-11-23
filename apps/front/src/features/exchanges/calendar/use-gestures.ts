@@ -13,23 +13,23 @@ import {
 import type { CalendarMove } from './mutations'
 import type { CalendarExchange } from './queries'
 
-/** Dragged whole to another moment, or stretched by its end to another duration. */
+/** The exchange is dragged whole to another moment, or stretched by its end to another duration. */
 type Handling = 'move' | 'stretch'
 
 type Dragging = {
   item: CalendarExchange
   handling: Handling
-  /** Where the pointer went down, to tell a drag from a click. */
+  /** Where the pointer went down, to tell a drag apart from a click. */
   x: number
   y: number
-  /** How far into the exchange it was grabbed, in minutes: it lands where the pointer goes, less that. */
+  /** How far into the exchange the pointer grabbed it, in minutes. It lands where the pointer goes, minus that offset. */
   grabbedMinutes: number
   dragged: boolean
   occurredAt: Date
   durationInMinutes: number | null
 }
 
-/** A free slot being chosen in a column of hours, from the quarter the pointer went down on to the one it is on. */
+/** A free slot being chosen in a column of hours, from the quarter hour where the pointer went down to the current one. */
 type Choosing = { day: Date; from: number; to: number }
 
 type Props = {
@@ -39,10 +39,10 @@ type Props = {
 }
 
 /**
- * What the pointer does in the grid: an exchange the API lets move (`_links.move`) dragged to another moment or
- * stretched, shown there while it is; a click on it still opens it; a free slot clicked or dragged in a column of
- * hours, to plan there. Once an exchange is grabbed, the window follows the pointer: the exchange shown elsewhere is
- * drawn again in another column, which the pointer may not be over.
+ * What the pointer does in the grid. It drags an exchange that the API lets move (`_links.move`) to another moment,
+ * or stretches it, and shows it there meanwhile. A click on that exchange still opens it. It clicks or drags a free
+ * slot in a column of hours, to plan there. Once an exchange is grabbed, the window follows the pointer. The reason:
+ * the exchange shown elsewhere is drawn again in another column, and the pointer may not be over that column.
  */
 export function useGestures({ items, onMove, onChooseSlot }: Props) {
   const [dragging, setDragging] = useState<Dragging | null>(null)
@@ -98,7 +98,7 @@ export function useGestures({ items, onMove, onChooseSlot }: Props) {
     })
   }
 
-  /** A drag may end with a click on what was dragged: it must not open it; the next press is a click again. */
+  /** A drag may end with a click on what was dragged. That click must not open it. The next press is a click again. */
   const unlessDraggedJustNow = (click: () => void) => {
     if (!draggedJustNow.current) click()
     draggedJustNow.current = false
@@ -124,7 +124,7 @@ export function useGestures({ items, onMove, onChooseSlot }: Props) {
   const shownMoved = dragging?.dragged ? { id: dragging.item.exchange.id, ...dragging } : null
 
   return {
-    /** The exchanges as they show, the one dragged where it is being dragged. */
+    /** The exchanges as they show, with the dragged one where it is being dragged. */
     shown: withTheGesture(items, shownMoved),
     draggedId: shownMoved?.id ?? null,
     /** The free slot being chosen, as it shows. */
@@ -141,7 +141,7 @@ export function useGestures({ items, onMove, onChooseSlot }: Props) {
   }
 }
 
-/** Where the exchange stands under the pointer: at another moment, or, stretched, for another duration. */
+/** Where the exchange is under the pointer: at another moment, or, when stretched, with another duration. */
 function landed(dragging: Dragging, event: globalThis.PointerEvent) {
   const spot = spotUnder(event.clientX, event.clientY)
   if (!spot) return {}

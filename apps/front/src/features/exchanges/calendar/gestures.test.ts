@@ -6,7 +6,7 @@ import type { CalendarExchange } from './queries'
 const TUESDAY = parseDay('2026-11-17')
 const at = (hour: number, minute = 0) => new Date(2026, 10, 17, hour, minute)
 
-/** A column of 24 hours of 2 400 pixels: 100 pixels an hour, from the top of the page. */
+/** A 24-hour column, 2 400 pixels high: 100 pixels an hour, from the top of the page. */
 const aColumn = (day: string, hours = true) => {
   const column = document.createElement('ol')
   column.setAttribute('data-day', day)

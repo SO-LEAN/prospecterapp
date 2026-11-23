@@ -12,7 +12,7 @@ import { type DayExchange, type MyDay, myDayQuery } from '../../my-day/queries'
 import type { ExchangeDetail } from '../../queries'
 import { ExchangeReminders } from './exchange-reminders'
 
-/** Being reminded of an exchange I planned, the application open, on a clock the test moves. */
+/** Reminders of an exchange I planned, while the application is open, on a clock that the test moves. */
 
 const theApi = vi.hoisted(() => {
   const fetch = vi.fn<typeof globalThis.fetch>()
@@ -20,7 +20,7 @@ const theApi = vi.hoisted(() => {
   return fetch
 })
 
-/** The toaster follows the theme of the system, which jsdom does not tell. */
+/** The toaster follows the system's theme, which jsdom does not provide. */
 vi.hoisted(() => {
   window.matchMedia = (query: string) =>
     ({
@@ -45,7 +45,7 @@ const THE_REMINDER = 'Visio avec Ada Lovelace à 14h00'
 let lastId = 0
 const nextId = () => `0190a1c0-0000-7000-8000-${String(++lastId).padStart(12, '0')}`
 
-/** An exchange planned with Ada Lovelace of ACME, as my day tells it. */
+/** An exchange planned with ACME's Ada Lovelace, as my day shows it. */
 function planned(
   channel: DayExchange['exchange']['channel'],
   occurredAt: Date,
@@ -106,7 +106,7 @@ const theDetailOf = (item: DayExchange, detail: Partial<ExchangeDetail>): Exchan
 
 let myDay = aDayOf([])
 
-/** My day as it is now, and the detail of each exchange, by its path; nothing else. */
+/** My current day, and each exchange's detail, by its path. Nothing else. */
 function theApiAnswers(details: Record<string, ExchangeDetail> = {}) {
   theApi.mockImplementation(async (input) => {
     const { pathname } = new URL((input as Request).url)
@@ -119,7 +119,7 @@ type Settings = { enabled: boolean; minutesBefore: number }
 
 const TABS = ['a tab', 'another tab']
 
-/** The application open on my day, in as many tabs as asked, sharing the storage of the browser. */
+/** Opens the application on my day, in as many tabs as asked. The tabs share the browser's storage. */
 async function openTheApplication(today: DayExchange[], settings: Settings = TEN_MINUTES_BEFORE, tabs = 1) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { staleTime: Number.POSITIVE_INFINITY, retry: false } },
@@ -135,12 +135,12 @@ async function openTheApplication(today: DayExchange[], settings: Settings = TEN
     </QueryClientProvider>,
   )
   return {
-    /** My day read again after a gesture on one of its exchanges. */
+    /** Reads my day again after a gesture on one of its exchanges. */
     readAgain: (changed: DayExchange[]) => {
       myDay = aDayOf(changed)
       act(() => queryClient.setQueryData(myDayQuery(startOfDay(at(0, 0))).queryKey, myDay))
     },
-    /** A gesture on an exchange, reading my day again with the page, as its mutation does. */
+    /** A gesture on an exchange reads my day again with the page, as its mutation does. */
     aGestureChangedMyDay: () => act(() => queryClient.invalidateQueries({ queryKey: queryKeys.myDay })),
   }
 }
@@ -156,7 +156,7 @@ const theTabIs = (state: DocumentVisibilityState) => {
   document.dispatchEvent(new Event('visibilitychange'))
 }
 
-/** The notifications of the browser, allowed: what each says, and its click. */
+/** The browser's notifications, allowed: what each one says, and its click. */
 function theBrowserNotifies() {
   const shown: { title: string; body?: string; click: () => void }[] = []
   class Shown {

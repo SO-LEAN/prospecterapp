@@ -13,7 +13,7 @@ import { nextReminderAt, type ReminderSettings, reminderOf, remindersDue, SNOOZE
 import { useMyDayToRemind } from '../use-my-day-to-remind'
 import { ReminderToast } from './reminder-toast'
 
-/** A tab in the background lets one in front show a reminder due in both: the member sees it where they are. */
+/** A background tab lets a foreground tab show a reminder due in both. So the member sees it where they are. */
 const HIDDEN_TAB_LETS_THE_OTHERS_MS = 2_000
 
 const MINUTE_MS = 60_000
@@ -21,8 +21,9 @@ const MINUTE_MS = 60_000
 type Props = { settings: ReminderSettings }
 
 /**
- * The reminders of the exchanges I planned, `minutesBefore` each, while the application is open: a toast until it
- * is closed, once whatever the tabs open, and in the background a notification of the browser and a blinking title.
+ * The reminders of the exchanges I planned, `minutesBefore` each one, while the application is open. Each one shows
+ * a toast until it is closed, once, however many tabs are open. In the background, it also shows a browser
+ * notification and a blinking title.
  */
 export function ExchangeReminders({ settings }: Props) {
   const today = startOfDay(new Date())
@@ -60,19 +61,19 @@ export function ExchangeReminders({ settings }: Props) {
   return null
 }
 
-/** Today's exchanges and the next ones: past midnight, the first of the next day are among them. */
+/** Today's exchanges and the next ones. After midnight, the next day's first exchanges are among them. */
 const toComeOf = (myDay: { today?: DayExchange[]; next?: DayExchange[] } | undefined) => [
   ...(myDay?.today ?? []),
   ...(myDay?.next ?? []),
 ]
 
-/** At the next reminder, at the latest at midnight, my day then read for the new day. */
+/** Wakes up at the next reminder, or at midnight at the latest, when my day is read for the new day. */
 function nextWakingOf(nextReminder: Date | null, now: Date): Date {
   const midnight = addDays(startOfDay(now), 1)
   return nextReminder && nextReminder < midnight ? nextReminder : midnight
 }
 
-/** Shows the reminder of an exchange: a toast, and the attention of the member drawn to a tab in the background. */
+/** Shows an exchange's reminder: a toast, and it draws the member's attention to a background tab. */
 function useRemind(wakeUp: () => void) {
   const { t } = useTranslation()
   const navigate = useNavigate()

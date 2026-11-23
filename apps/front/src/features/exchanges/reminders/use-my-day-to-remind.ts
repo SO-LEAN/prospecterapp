@@ -3,16 +3,17 @@ import { useEffect } from 'react'
 import { AFTER_THE_REACTIONS_MS } from '@/shared/api/reactions'
 import { myDayToRemindQuery } from '../my-day/queries'
 
-/** My day is read again that often, in a tab in the background too, where the reminders notify. */
+/** How often my day is read again, also in a background tab, where the reminders notify. */
 export const READ_AGAIN_MS = 5 * 60_000
 
-/** Once a gesture changed my day, it is read again when its reactions are done, a second after the last read of the page. */
+/** Once a gesture has changed my day, it is read again when the reactions are done, a second after the page's last read. */
 export const ONCE_THE_REACTIONS_RAN_MS = AFTER_THE_REACTIONS_MS + 1_000
 
 /**
- * My day for the reminders: read at once, again every five minutes, and once after a gesture changed it, when the
- * reads of the page and the reactions are done, never along with them, which it would delay (a page waited for it
- * after stopping to prospect an organization of many exchanges). What the pages read of it comes at once.
+ * My day for the reminders. It is read at once, then every five minutes, and once after a gesture changes it. That
+ * last read waits until the page's reads and the reactions are done. It never runs along with them, because it would
+ * delay them: a page once waited for it after stopping prospecting an organization with many exchanges. What the
+ * pages read of my day comes at once.
  */
 export function useMyDayToRemind(day: Date) {
   const queryClient = useQueryClient()
