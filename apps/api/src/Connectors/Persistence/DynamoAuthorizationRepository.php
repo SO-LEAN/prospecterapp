@@ -16,14 +16,15 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Psr\Clock\ClockInterface;
 
 /**
- * The authorizations waiting for the answer of their provider in the table of Connectors (ADR 0120):
- * `AUTHORIZATION#<state>` / `AUTHORIZATION`, `expiresAt` the epoch the table forgets it at, counted from now, the real
- * one: the rule refusing it once expired is that of the core; the scopes it asked (ADR 0154).
+ * The authorizations that wait for their provider's answer, in the Connectors table (ADR 0120). The key is
+ * `AUTHORIZATION#<state>` / `AUTHORIZATION`. `expiresAt` is the epoch when the table forgets the item, counted from the
+ * real current time. The core's rule refuses an expired authorization. The item also keeps the requested scopes
+ * (ADR 0154).
  */
 final readonly class DynamoAuthorizationRepository implements AuthorizationRepository
 {
     private const string KEPT_FOR = '+1 hour';
-    /** what an authorization kept before ADR 0154 asked */
+    /** what an authorization stored before ADR 0154 asked for */
     private const array THE_CALENDAR = ['calendar'];
 
     public function __construct(private Table $connectorsTable, private ClockInterface $clock)

@@ -11,7 +11,7 @@ use Prospecter\Core\Connectors\Application\Port\AccountClientsRetriever;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 
 /**
- * The clients of an account read from their items alone, without their secrets.
+ * Reads an account's clients from their items alone, without their secrets.
  */
 final readonly class DynamoAccountClientsRetriever implements AccountClientsRetriever
 {

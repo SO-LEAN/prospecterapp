@@ -20,15 +20,15 @@ use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * The connections in the table of Connectors (ADR 0120): `MEMBER#<member>` / `CONNECTION#<provider>`, the
- * connection as a document, its refresh token encrypted at rest by DynamoDB only, the calendar « Prospecter » once
- * created (ADR 0127).
+ * The connections, in the Connectors table (ADR 0120). The key is `MEMBER#<member>` / `CONNECTION#<provider>`. The
+ * item holds the connection as a document. Only DynamoDB's encryption at rest protects its refresh token. The item
+ * also holds the « Prospecter » calendar once it is created (ADR 0127).
  */
 final readonly class DynamoConnectionRepository implements ConnectionRepository
 {
-    /** the client of the instance the connections made before ADR 0125 were granted to, which no account has */
+    /** the instance's client that connections made before ADR 0125 were granted to. No account has it */
     private const string CLIENT_OF_THE_INSTANCE = 'the-client-of-the-instance';
-    /** `connection` a reserved word of DynamoDB, named by a placeholder */
+    /** `connection` is a DynamoDB reserved word, so a placeholder names it */
     private const string STILL_THE_SAME = 'attribute_exists(PK) AND #connection.connectedAt = :connectedAt';
 
     public function __construct(private Table $connectorsTable)
@@ -89,8 +89,8 @@ final readonly class DynamoConnectionRepository implements ConnectionRepository
     }
 
     /**
-     * Conditioned on the item still there, connected at the same moment: a connection removed meanwhile, or made
-     * again, fails the commit (`ConditionFailed`).
+     * The write requires the item to still exist, connected at the same moment. A connection that was removed or made
+     * again in the meantime fails the commit (`ConditionFailed`).
      */
     public function replace(Connection $connection): void
     {
@@ -141,9 +141,9 @@ final readonly class DynamoConnectionRepository implements ConnectionRepository
     }
 
     /**
-     * While its import is not off, the connection is found by its mailbox in its account, under `GSI2`, the
-     * notifications of the mailbox naming only its address; while it is active, it is listed for the daily renewal
-     * of its watch, under `GSI1` (ADR 0154).
+     * While its import is not off, the connection is found by its mailbox in its account, under `GSI2`. The mailbox's
+     * notifications name only its address. While the import is active, the connection is listed under `GSI1` for its
+     * watch's daily renewal (ADR 0154).
      *
      * @param array{member: string, accountId: string, provider: string, externalAccount: string, mailImport: string, ...} $document
      *

@@ -19,9 +19,10 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
 
 /**
- * The client of an account at a provider (ADR 0125): its id in the table of Connectors with the version of its
- * secret, the secret a parameter of SSM; a client whose secret is gone is no client; the topic its mailboxes notify
- * Prospecter through and the account of service pushing them, while it has them (ADR 0154).
+ * An account's client at a provider (ADR 0125). The Connectors table keeps the client's id and its secret's version.
+ * The secret itself is an SSM parameter. A client whose secret is gone is no client. The table also keeps, while the
+ * client has them, the topic that its mailboxes notify Prospecter through and the service account that pushes the
+ * notifications (ADR 0154).
  */
 final readonly class DynamoProviderClientRepository implements ProviderClientRepository
 {
