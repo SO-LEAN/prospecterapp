@@ -25,6 +25,16 @@ class ExternalReferencesTest extends TestCase
         ExternalReferences::designating(array_map(static fn (int $site): string => sprintf('https://site%d.test/acme', $site), range(1, 6)), Designated::Organization);
     }
 
+    public function testARefusalOfTooManyLinksNamesTheMost(): void
+    {
+        try {
+            ExternalReferences::designating(array_map(static fn (int $site): string => sprintf('https://site%d.test/acme', $site), range(1, 6)), Designated::Organization);
+            $this->fail('The links should have been refused');
+        } catch (TooManyLinks $refusal) {
+            $this->assertSame(['max' => '5'], $refusal->context);
+        }
+    }
+
     public function testFiveLinksAreKept(): void
     {
         $this->assertCount(5, ExternalReferences::designating(array_map(static fn (int $site): string => sprintf('https://site%d.test/acme', $site), range(1, 5)), Designated::Organization)->all());

@@ -70,6 +70,26 @@ class ExternalReferenceTest extends TestCase
         yield 'a Welcome to the Jungle page on a person' => ['https://www.welcometothejungle.com/fr/companies/acme', Designated::Person, KnownSource::WelcomeToTheJungle];
     }
 
+    public function testARefusalOfAnotherKindNamesTheSourceAndWhatItDesignates(): void
+    {
+        try {
+            ExternalReference::designating('https://www.malt.fr/profile/adalovelace', Designated::Organization);
+            $this->fail('The link should have been refused');
+        } catch (ReferenceOfAnotherKind $refusal) {
+            $this->assertSame(['source' => KnownSource::Malt->value, 'designates' => Designated::Person->value], $refusal->context);
+        }
+    }
+
+    public function testARefusalOfAnUnrecognizedPageNamesItsHost(): void
+    {
+        try {
+            ExternalReference::designating('https://www.linkedin.com/school/acme', Designated::Organization);
+            $this->fail('The link should have been refused');
+        } catch (UnrecognizedPage $refusal) {
+            $this->assertSame(['host' => 'linkedin.com'], $refusal->context);
+        }
+    }
+
     #[DataProvider('unrecognizedPages')]
     public function testAnAddressOfTheSiteOfAKnownSourceThatIsNoneOfItsPagesIsRefused(string $address, string $host): void
     {
