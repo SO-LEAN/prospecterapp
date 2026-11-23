@@ -21,15 +21,14 @@ use Symfony\Component\DependencyInjection\Reference;
  * Gives each subscription its reaction. The subscriptions are listed in `config/subscriptions.json`, which the
  * infrastructure reads too. A subscription names its policy (`policy`, ADR 0203). The delivery (Subscriptions) gives
  * the event to the policy and sends its commands to the command bus (PolicyReaction). A subscription may still name
- * an event handler of the core that is not a policy yet (`handler`), or one per event it listens to (`handlers`, by
- * detail-type). A translator that publishes a domain event for the other contexts stays on the event bus
+ * an event handler of the core that is not a policy yet (`handler`). A translator that publishes a domain event for the other contexts stays on the event bus
  * (RefusalTranslatingHandlersPass). The pass takes every other event handler off the event bus, and the delivery
  * reaches it through its decorators (HandlerReaction). The build fails on such a handler that the list does not name.
  * A subscription names the payloads it listens to when it does not listen to all of them (`payload`). A service tagged
  * app.subscription is a subscription too. Its tag declares it, and the infrastructure does not know it: it is a
  * reaction used by the tests.
  *
- * @phpstan-type Listed array{context: string, sources: list<string>, events: list<string>, payload?: array<string, mixed>, policy?: string, handler?: string, handlers?: array<string, string>, inbox: bool}
+ * @phpstan-type Listed array{context: string, sources: list<string>, events: list<string>, payload?: array<string, mixed>, policy?: string, handler?: string, inbox: bool}
  * @phpstan-type Declared array{context: string, sources: list<string>, events: list<string>, payload?: array<string, mixed>, handlers: array<string, string>, inbox: bool}
  */
 final class SubscriptionsPass implements CompilerPassInterface
@@ -177,13 +176,11 @@ final class SubscriptionsPass implements CompilerPassInterface
         return ['context' => Typed::string($subscription['context']), 'sources' => Typed::strings($subscription['sources']), 'events' => Typed::strings($subscription['events']), 'inbox' => Typed::bool($subscription['inbox'])]
             + (isset($subscription['payload']) ? ['payload' => Typed::document($subscription['payload'])] : [])
             + (isset($subscription['policy']) ? ['policy' => Typed::string($subscription['policy'])] : [])
-            + (isset($subscription['handler']) ? ['handler' => Typed::string($subscription['handler'])] : [])
-            + (isset($subscription['handlers']) ? ['handlers' => Typed::namedStrings($subscription['handlers'])] : []);
+            + (isset($subscription['handler']) ? ['handler' => Typed::string($subscription['handler'])] : []);
     }
 
     /**
-     * Gives the subscription's single reaction, its policy or its handler, to every event it listens to, when it names
-     * only one.
+     * Gives the subscription's reaction, its policy or its handler, to every event it listens to.
      *
      * @param Listed $subscription
      *
@@ -191,10 +188,10 @@ final class SubscriptionsPass implements CompilerPassInterface
      */
     private static function withAHandlerPerEvent(array $subscription): array
     {
-        $handlers = $subscription['handlers'] ?? array_fill_keys($subscription['events'], $subscription['policy'] ?? $subscription['handler'] ?? null);
+        $handlers = array_fill_keys($subscription['events'], $subscription['policy'] ?? $subscription['handler'] ?? null);
         unset($subscription['policy'], $subscription['handler']);
 
-        return ['handlers' => array_map(static fn (?string $handler): string => $handler ?? throw new \LogicException(sprintf('A subscription of %s names its policy, its handler or its handlers', self::FILE)), $handlers)] + $subscription;
+        return ['handlers' => array_map(static fn (?string $handler): string => $handler ?? throw new \LogicException(sprintf('A subscription of %s names its policy or its handler', self::FILE)), $handlers)] + $subscription;
     }
 
     /**

@@ -84,11 +84,10 @@ class ReactionsAreSubscribedTest extends TestCase
         }
     }
 
-    public function testASubscriptionNamesItsPolicyItsHandlerOrOneHandlerPerEvent(): void
+    public function testASubscriptionNamesItsPolicyOrItsHandler(): void
     {
         foreach ($this->subscriptions() as $name => $subscription) {
-            $this->assertCount(1, array_filter([isset($subscription['handler']), isset($subscription['handlers']), isset($subscription['policy'])]), $name);
-            $this->assertSame($subscription['events'], array_keys($subscription['handlers'] ?? array_flip($subscription['events'])), $name);
+            $this->assertNotSame(isset($subscription['handler']), isset($subscription['policy']), $name);
         }
     }
 
@@ -128,13 +127,13 @@ class ReactionsAreSubscribedTest extends TestCase
     }
 
     /**
-     * @param array{events: list<string>, handler?: string, handlers?: array<string, string>, policy?: string} $subscription
+     * @param array{events: list<string>, handler?: string, policy?: string} $subscription
      *
-     * @return list<string> its reactions: its policy, or its event handlers
+     * @return list<string> its reaction: its policy, or its event handler
      */
     private static function handlersOf(array $subscription): array
     {
-        return array_values(array_unique($subscription['handlers'] ?? [$subscription['handler'] ?? $subscription['policy'] ?? '']));
+        return [$subscription['handler'] ?? $subscription['policy'] ?? ''];
     }
 
     /**
@@ -202,7 +201,7 @@ class ReactionsAreSubscribedTest extends TestCase
     }
 
     /**
-     * @return array<string, array{context: string, sources: list<string>, events: list<string>, handler?: string, handlers?: array<string, string>, policy?: string, inbox: bool}>
+     * @return array<string, array{context: string, sources: list<string>, events: list<string>, handler?: string, policy?: string, inbox: bool}>
      */
     private function subscriptions(): array
     {
