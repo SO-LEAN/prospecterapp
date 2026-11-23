@@ -14,8 +14,8 @@ use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * A member of the team adds to a frozen campaign the contacts another search finds, the recipients it keeps already
- * kept once.
+ * A team member adds the contacts that another search finds to a frozen campaign. A contact who is already a recipient
+ * is kept once.
  */
 final readonly class AddRecipientsByTagsHandler implements CommandHandler
 {
