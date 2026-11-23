@@ -22,12 +22,12 @@ final readonly class AddRecipientsByTagsTool
     }
 
     /**
-     * @param string       $id   the id of the campaign, frozen
-     * @param list<string> $tags the tags chosen, the tag of the channel of the campaign counting with them in the 5 tags of the search
+     * @param string       $id   the id of a frozen campaign
+     * @param list<string> $tags the chosen tags; the campaign's channel tag counts with them within the search's 5 tags
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'add-recipients-by-tags', description: 'Add to the recipients of a frozen campaign the contacts carrying every tag chosen and that of its channel, those already kept kept once; needs the right to manage the personal data. Answers the campaign.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
+    #[McpTool(name: 'add-recipients-by-tags', description: 'Add to a frozen campaign\'s recipients the contacts that carry every chosen tag and the channel\'s tag. A contact already kept is kept once. Needs the right to manage personal data. Returns the campaign.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
     public function __invoke(string $id, array $tags): array
     {
         return $this->writes->write(

@@ -29,11 +29,11 @@ final readonly class ShowCampaignRecipientsTool
     }
 
     /**
-     * @param string $id the id of the campaign
+     * @param string $id the campaign's id
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'list-campaign-recipients', description: 'The recipients of a frozen or started campaign, each with its status (pending, processed, dismissed, erased), with the right to manage the personal data.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'list-campaign-recipients', description: 'List a frozen or started campaign\'s recipients. Needs the right to manage personal data. Returns each recipient with their status (pending, processed, dismissed, erased).', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $id): array
     {
         $member = $this->access->member();

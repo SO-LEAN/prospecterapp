@@ -16,8 +16,8 @@ use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
 
 /**
- * No endpoint: no screen asks it, the screen of a campaign listing its recipients (ADR 0163). Its access is that of
- * the message of a campaign, `get-campaign-message`.
+ * No endpoint: no screen asks for it, because a campaign's screen lists its recipients (ADR 0163). Its access rule is
+ * the one of a campaign's message, `get-campaign-message`.
  */
 final readonly class NextRecipientTool
 {
@@ -31,14 +31,14 @@ final readonly class NextRecipientTool
     }
 
     /**
-     * @param string  $id       the id of the campaign
-     * @param ?string $timeZone the member's time zone, by its name (Europe/Paris). Its daily cap's day follows it. UTC otherwise
+     * @param string  $id       the campaign's id
+     * @param ?string $timeZone the member's time zone, by name (Europe/Paris). The daily cap's day follows it. UTC when left out
      *
      * @return array<string, mixed>
      */
     #[McpTool(
         name: 'get-next-recipient',
-        description: 'The next recipient of a started campaign you lead for your member, how to reach them, the message rendered for them and what to do with it (its instruction: send it as is, or adapt it to the person), and how many are left to handle. Send it yourself, then note it by log-sent-message, or dismiss the recipient by dismiss-campaign-recipient when they cannot be reached; ask again for the next one. Once its daily cap is reached, it warns you: stop, and ask your member whether to go beyond it. Refused once the campaign is no longer led (campaignNotRunning): stopped, or ended once nobody is left to handle.',
+        description: 'Get the next recipient of a started campaign that you run for your member. Send the message yourself, then log it with log-sent-message. When the recipient cannot be reached, dismiss them with dismiss-campaign-recipient. Then ask for the next one. Once the daily cap is reached, the answer warns you: stop, and ask your member whether to go beyond it. Refused once the campaign no longer runs (campaignNotRunning): it was stopped, or it ended once nobody was left to handle. Returns how to reach the recipient, the message rendered for them, its instruction (send it as is, or adapt it to the person), and how many recipients are left to handle.',
         annotations: new ToolAnnotations(readOnlyHint: true),
     )]
     public function __invoke(string $id, ?string $timeZone = null): array

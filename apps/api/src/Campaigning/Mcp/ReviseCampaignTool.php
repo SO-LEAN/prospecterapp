@@ -22,16 +22,16 @@ final readonly class ReviseCampaignTool
     }
 
     /**
-     * @param string       $id      the id of the campaign, a draft
-     * @param string       $name    its name
+     * @param string       $id      the id of a draft campaign
+     * @param string       $name    the campaign's name
      * @param string       $channel how each contact is contacted: email, call, sms or linkedIn
-     * @param list<string> $tags    the tags its contacts carry, the tag of the channel counting with them in the 5 tags of the target
-     * @param string       $message the message reminded for each contact, its variables {title}, {firstName}, {lastName}, {organization} and {jobTitle}
-     * @param ?string      $subject the subject of an e-mail
+     * @param list<string> $tags    the tags its contacts carry; the channel's tag counts with them within the target's 5 tags
+     * @param string       $message the message shown for each contact, with the variables {title}, {firstName}, {lastName}, {organization} and {jobTitle}
+     * @param ?string      $subject an e-mail's subject
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'update-campaign', description: 'Change the name, the channel, the tags and the message of a draft campaign, given whole; needs the right to manage the personal data. Answers the campaign.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
+    #[McpTool(name: 'update-campaign', description: 'Change a draft campaign\'s name, channel, tags and message, all given at once. Needs the right to manage personal data. Returns the campaign.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
     public function __invoke(string $id, string $name, string $channel, array $tags, string $message, ?string $subject = null): array
     {
         return $this->writes->write(

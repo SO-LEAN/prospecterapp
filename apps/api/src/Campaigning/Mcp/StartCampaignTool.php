@@ -21,11 +21,11 @@ final readonly class StartCampaignTool
     }
 
     /**
-     * @param string $id the id of the campaign, frozen
+     * @param string $id the id of a frozen campaign
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'start-campaign', description: 'Start a frozen campaign: its recipients, its message and its channel no longer change, and it is stopped, never discarded; needs the right to manage the personal data. Answers the campaign.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'start-campaign', description: 'Start a frozen campaign. Its recipients, message and channel no longer change. From then on it is stopped, never discarded. Needs the right to manage personal data. Returns the campaign.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id): array
     {
         return $this->writes->change(

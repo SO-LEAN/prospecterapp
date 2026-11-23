@@ -11,8 +11,8 @@ use Prospecter\Core\Campaigns\Application\CampaignSheet;
 use Prospecter\Core\Campaigns\Application\StopCampaign\StopCampaign;
 
 /**
- * `POST /api/campaigns/{id}/stop`, for an AI (ADR 0163), which asks its member before calling it: a campaign
- * stopped is never started again.
+ * `POST /api/campaigns/{id}/stop`, for an AI (ADR 0163). The AI asks its member before it calls this tool, because a
+ * stopped campaign never starts again.
  */
 #[Adapts('api_campaigns_stop')]
 final readonly class StopCampaignTool
@@ -22,11 +22,11 @@ final readonly class StopCampaignTool
     }
 
     /**
-     * @param string $id the id of the campaign, started
+     * @param string $id the id of a started campaign
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'stop-campaign', description: 'Stop a started campaign for good, kept for the team to read; needs the right to manage the personal data. Answers the campaign.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'stop-campaign', description: 'Stop a started campaign for good. It stays for the team to read. Needs the right to manage personal data. Returns the campaign.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id): array
     {
         return $this->writes->change(

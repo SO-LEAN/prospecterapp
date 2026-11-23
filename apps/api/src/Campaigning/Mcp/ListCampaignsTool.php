@@ -25,7 +25,7 @@ final readonly class ListCampaignsTool
     /**
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'list-campaigns', description: 'The campaigns of the team, each with its target counted, its status and its progress, with the right to manage the personal data.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'list-campaigns', description: 'List the team\'s campaigns. Needs the right to manage personal data. Returns each campaign with its target count, its status and its progress.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');

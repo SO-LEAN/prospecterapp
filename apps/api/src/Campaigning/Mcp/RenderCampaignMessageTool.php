@@ -29,12 +29,12 @@ final readonly class RenderCampaignMessageTool
     }
 
     /**
-     * @param string $id        the id of the campaign
-     * @param string $contactId the id of the contact the message is rendered for
+     * @param string $id        the campaign's id
+     * @param string $contactId the id of the contact that the message is rendered for
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'get-campaign-message', description: 'The message of a campaign rendered for one of its contacts: its subject and its text, with the right to manage the personal data.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'get-campaign-message', description: 'Get a campaign\'s message rendered for one of its contacts. Needs the right to manage personal data. Returns the message\'s subject and text.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $id, string $contactId): array
     {
         $member = $this->access->member();
