@@ -1,0 +1,34 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Core\Application\PersonalData;
+
+use PHPUnit\Framework\TestCase;
+use Prospecter\Core\PersonalData\Application\DismissSuspicionInReturn\DismissSuspicionInReturn;
+use Prospecter\Core\PersonalData\Application\Policy\DismissSuspicionInReturnPolicy;
+use Prospecter\Core\PersonalData\Domain\Event\DuplicateSuspicionDismissed;
+use Prospecter\Core\PersonalData\Domain\Model\PersonId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
+
+class DismissSuspicionInReturnPolicyTest extends TestCase
+{
+    private const string ACCOUNT = '01960000-0000-7000-8000-000000000001';
+    private const string MEMBER = '01960000-0000-7000-8000-000000000002';
+    private const string PERSON = '01960000-0000-7000-8000-000000000003';
+    private const string CONTACT = '01960000-0000-7000-8000-000000000004';
+    private const string AT = '2026-11-24 09:00 UTC';
+
+    public function testTheOtherContactKnowsInReturnThatThePersonIsNoDuplicate(): void
+    {
+        $dismissed = new DuplicateSuspicionDismissed(new AccountId(self::ACCOUNT), new MemberId(self::MEMBER), new PersonId(self::PERSON), new PersonId(self::CONTACT), new \DateTimeImmutable(self::AT));
+
+        $this->assertEquals(new DismissSuspicionInReturn(
+            memberId: self::MEMBER,
+            contactId: self::CONTACT,
+            duplicateId: self::PERSON,
+            executedAt: new \DateTimeImmutable(self::AT),
+        ), new DismissSuspicionInReturnPolicy()($dismissed));
+    }
+}

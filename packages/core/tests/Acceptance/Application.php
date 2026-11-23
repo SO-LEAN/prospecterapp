@@ -204,6 +204,7 @@ use Prospecter\Core\PersonalData\Application\NameContacts\NameContactsHandler;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\PersonalData\Application\Policy\CollectTheFounderProfilePolicy;
 use Prospecter\Core\PersonalData\Application\Policy\CollectTheMemberProfilePolicy;
+use Prospecter\Core\PersonalData\Application\Policy\DismissSuspicionInReturnPolicy as DismissContactSuspicionInReturnPolicy;
 use Prospecter\Core\PersonalData\Application\Policy\ForgetContactLeftUnattachedPolicy;
 use Prospecter\Core\PersonalData\Application\Policy\ForgetContactsLeftWithoutOrganizationPolicy;
 use Prospecter\Core\PersonalData\Application\Policy\IdentifyBookerPolicy;
@@ -1385,6 +1386,7 @@ final class Application
     private function commandHandlers(): array
     {
         return [
+            new DismissContactSuspicionInReturnHandler($this->persons, $this->events),
             new LiftContactSuspicionInReturnHandler($this->persons, $this->events),
             new SuspectContactDuplicateInReturnHandler($this->persons, $this->events),
             new IdentifyBookerHandler($this->persons, new BookingBookers($this->consultAppointmentsService), $this->readers, $this->events),
@@ -1794,7 +1796,7 @@ final class Application
             new LiftSuspicionInReturnHandler($this->organizations, $this->events),
             new SuspectContactDuplicateInReturnPolicy(),
             new LiftContactSuspicionInReturnPolicy(),
-            new DismissContactSuspicionInReturnHandler($this->persons, $this->events),
+            new DismissContactSuspicionInReturnPolicy(),
             new DismissSuspicionInReturnHandler($this->organizations, $this->events),
             new NoteImportedEmailHandler($this->exchanges, $this->organizations, $this->prospectors, $this->contactOrganizations, new NotedOnce($this->exchanges), $this->privateStorage, $this->events),
             new ForgetContactsLeftWithoutOrganizationPolicy(),
