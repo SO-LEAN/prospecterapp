@@ -7,9 +7,9 @@ namespace Tests\App\Double;
 use App\Shared\Resource\UploadResource;
 use App\Shared\UploadForms;
 use App\Shared\UploadSender;
-use Prospecter\Core\SharedKernel\Application\Port\PrivateStorage;
-use Prospecter\Core\SharedKernel\Application\Port\Upload;
-use Prospecter\Core\SharedKernel\Domain\Exception\UnknownUpload;
+use Prospecter\Core\Prospecting\Application\Port\PrivateStorage;
+use Prospecter\Core\Prospecting\Application\Port\Upload;
+use Prospecter\Core\Prospecting\Domain\Exception\UnknownUpload;
 use Symfony\Component\HttpFoundation\File\File;
 
 /**

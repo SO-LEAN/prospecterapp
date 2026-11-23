@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\NoteImportedEmail;
 
 use Prospecter\Core\Connectors\Contract\Event\EmailExchanged;
+use Prospecter\Core\Prospecting\Application\Port\PrivateStorage;
 use Prospecter\Core\Prospecting\Domain\Exception\AttachmentTooHeavy;
 use Prospecter\Core\Prospecting\Domain\Exception\ContactToAttachOfAnother;
 use Prospecter\Core\Prospecting\Domain\Exception\ExchangeAlreadyNoted;
 use Prospecter\Core\Prospecting\Domain\Exception\ExchangeErasedBefore;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownContact;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
+use Prospecter\Core\Prospecting\Domain\Exception\UnknownUpload;
 use Prospecter\Core\Prospecting\Domain\Model\Attachment;
 use Prospecter\Core\Prospecting\Domain\Model\AttachmentId;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
@@ -33,9 +35,7 @@ use Prospecter\Core\Prospecting\Domain\Service\ContactOrganizations;
 use Prospecter\Core\Prospecting\Domain\Service\NotedOnce;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
-use Prospecter\Core\SharedKernel\Application\Port\PrivateStorage;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
-use Prospecter\Core\SharedKernel\Domain\Exception\UnknownUpload;
 use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 

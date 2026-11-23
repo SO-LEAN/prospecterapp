@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Prospecter\Core\SharedKernel\Application\Port;
+namespace Prospecter\Core\Prospecting\Application\Port;
 
-use Prospecter\Core\SharedKernel\Domain\Exception\UnknownUpload;
+use Prospecter\Core\Prospecting\Domain\Exception\UnknownUpload;
 
 /**
  * The files that only their allowed readers reach (ADR 0077). The client sends a file to the storage as an upload.

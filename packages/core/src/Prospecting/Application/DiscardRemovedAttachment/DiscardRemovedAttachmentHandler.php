@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\DiscardRemovedAttachment;
 
+use Prospecter\Core\Prospecting\Application\Port\PrivateStorage;
 use Prospecter\Core\Prospecting\Domain\Event\AttachmentRemoved;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
-use Prospecter\Core\SharedKernel\Application\Port\PrivateStorage;
 
 /**
  * Removes an attachment's file from the private storage once the removal is written, never before. So a gesture

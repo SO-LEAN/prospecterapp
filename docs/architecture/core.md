@@ -19,7 +19,7 @@ A context's `Domain` is grouped by kind of building block (ADR 0086):
 
 A folder exists only when it holds something. The shared kernel is only model, so it stays flat, except for `Event/` and `Exception/`.
 
-- `src/SharedKernel/{Domain,Application}`: what every context shares, kept small:
+- `src/SharedKernel/{Domain,Application}`: what several contexts share, kept small. A class that serves a single context, directly or through another class of the shared kernel, belongs in that context: `tests/Architecture/SharedKernelServesSeveralContextsTest` fails and names it. The classes that only the API uses around every context's handlers are named in the test. Prospecting keeps the `PrivateStorage` port of its attachments (ADR 0077):
   - the identities `AccountId` and `MemberId`, the account and the member who acts, which mean the same in every context (ADR 0197);
   - `DomainEvent`, the base class of every domain event (in `Domain/Event`), and `ReleasesEvents` and `RecordsEvents`;
   - `Email` (lower case), `PhoneNumber` (E.164, ADR 0072), `ContactDetails`;
@@ -51,7 +51,6 @@ A folder exists only when it holds something. The shared kernel is only model, s
     - `ExternalLink` (a link as the use cases return it);
     - `Comparison` (a `Completion` as the queries return it, ADR 0177);
     - the `Storage` port and `FileStore`;
-    - the `PrivateStorage` port (private files, ADR 0077) and its `Upload`;
     - the `GeoLocation` port and `GeoLocalizer`.
 
   Each context keeps its own exceptions in `Domain/Exception` (`UnknownOrganization`...).

@@ -336,8 +336,8 @@ services:
     Prospecter\Core\Prospecting\Domain\Port\EstablishmentDirectory: '@App\Prospecting\Directory\RechercheEntreprisesDirectory'
     Prospecter\Core\SharedKernel\Application\Port\Storage: '@App\Shared\StorageClient'
     # the private files of the storage, sent by the browsers themselves (ADR 0077)
-    Prospecter\Core\SharedKernel\Application\Port\PrivateStorage: '@App\Shared\PrivateStorageClient'
-    App\Shared\UploadForms: '@App\Shared\PrivateStorageClient'
+    Prospecter\Core\Prospecting\Application\Port\PrivateStorage: '@App\Prospecting\Storage\PrivateStorageClient'
+    App\Shared\UploadForms: '@App\Prospecting\Storage\PrivateStorageClient'
     # the files the AIs join, sent by the API itself with the form of an upload (ADR 0172)
     App\Shared\UploadSender: '@App\Shared\UploadsSentByTheApi'
     App\Shared\UploadsSentByTheApi:
@@ -437,7 +437,7 @@ when@test:
                 $credentials: '@App\SignIn\Credentials'
                 $cognito: '@Aws\CognitoIdentityProvider\CognitoIdentityProviderClient'
             public: true
-        Prospecter\Core\SharedKernel\Application\Port\PrivateStorage: '@Tests\App\Double\InMemoryPrivateStorage'
+        Prospecter\Core\Prospecting\Application\Port\PrivateStorage: '@Tests\App\Double\InMemoryPrivateStorage'
         App\Shared\UploadForms: '@Tests\App\Double\InMemoryPrivateStorage'
         App\Shared\UploadSender: '@Tests\App\Double\InMemoryPrivateStorage'
         Tests\App\Double\InMemoryPrivateStorage:

@@ -76,7 +76,8 @@ tests/Architecture/             PHPUnit: no bounded context uses another one exc
                                 Contract, src imports only PHP and the permitted vendors, a Contract imports nothing, no domain class in a request or a response, every handler is a
                                 CommandHandler, a QueryHandler or an EventHandler, every event handler is subscribed in the scenarios,
                                 only a publication of facts subscribes to a parent event (ParentEventsFeedOnlyFactsTest),
-                                the shared kernel holds no identity but AccountId and MemberId (SharedIdentitiesTest)
+                                the shared kernel holds no identity but AccountId and MemberId (SharedIdentitiesTest),
+                                no class of the shared kernel serves a single context (SharedKernelServesSeveralContextsTest)
 tests/Mutation/                 each feature's scenarios as a PHPUnit test, for mutation testing only
 ```
 
