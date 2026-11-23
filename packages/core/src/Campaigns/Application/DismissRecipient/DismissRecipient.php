@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Campaigns\Application\DismissRecipient;
 
-/**
- * Dismisses a recipient of a started campaign without an exchange, for a reason when said.
- */
+/** Dismisses a started campaign's recipient without an exchange, for a reason when the member gives one. */
 final readonly class DismissRecipient
 {
     public function __construct(

@@ -14,8 +14,8 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * A member of the team dismisses a recipient of a started campaign of their account, the campaign ended once nobody is
- * left to handle.
+ * A team member dismisses a recipient of a started campaign of their account. The campaign ends once nobody is left to
+ * handle.
  */
 final readonly class DismissRecipientHandler implements CommandHandler
 {
