@@ -38,12 +38,14 @@ use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 
 /**
- * Aggregate root: a campaign of communication the team of an account prepares (ADR 0144), its members contacting each
- * person it targets themselves, by its channel, the message it keeps reminding them; Prospecter sends nothing. Shared
- * by the team, prepared by its author. A draft targets the contacts carrying its tags as they are now; frozen, it keeps
- * its recipients, changed by hand only; started, it is led as it was frozen, recipient after recipient, each processed
- * by the exchange noted for them or dismissed, until it ends once nobody is left to handle, or is stopped; never
- * discarded once started (ADR 0145).
+ * Aggregate root: a communication campaign that an account's team prepares (ADR 0144). The members contact each person
+ * it targets themselves, through its channel. The campaign keeps its message to remind them. Prospecter sends nothing.
+ * The whole team shares the campaign, and its author prepares it.
+ *
+ * A draft targets the contacts that carry its tags now. A frozen campaign keeps its recipients, and only a member
+ * changes them by hand. A started campaign runs as it was frozen, one recipient after another. The exchange logged for
+ * a recipient processes them, or a member dismisses them. The campaign ends once nobody is left to handle, unless a
+ * member stops it first. A started campaign is never discarded (ADR 0145).
  */
 final class Campaign implements ReleasesEvents
 {
@@ -90,7 +92,7 @@ final class Campaign implements ReleasesEvents
     }
 
     /**
-     * Its channel and its tags no longer change once it is frozen.
+     * Its channel and tags no longer change once it is frozen.
      *
      * @throws NotPossibleInItsState
      * @throws FrozenSearch
@@ -111,7 +113,7 @@ final class Campaign implements ReleasesEvents
     }
 
     /**
-     * Discarded everywhere, once the repository removed it.
+     * The campaign is discarded everywhere once the repository removes it.
      *
      * @throws NotPossibleInItsState
      */
@@ -140,8 +142,8 @@ final class Campaign implements ReleasesEvents
     }
 
     /**
-     * Leads it as it was frozen: nothing of it changes any more. Frozen but emptied by the erasure of its contacts,
-     * it is cancelled in fact: it no longer starts.
+     * Runs the campaign as it was frozen. Nothing in it changes any more. A frozen campaign that lost all its contacts
+     * to erasure is cancelled in effect: it no longer starts.
      *
      * @throws CampaignNotFrozen
      * @throws CampaignWithoutRecipient
@@ -156,7 +158,7 @@ final class Campaign implements ReleasesEvents
     }
 
     /**
-     * Stops leading it, kept for the team to read.
+     * Stops running the campaign. The campaign stays for the team to read.
      *
      * @throws NotPossibleInItsState
      */
@@ -170,8 +172,9 @@ final class Campaign implements ReleasesEvents
     }
 
     /**
-     * The exchange noted for a recipient in the campaign processes them, as Prospecting tells it: a reaction of the
-     * system, recording nothing; a recipient handled already, or a campaign no longer led, stays as it is.
+     * Processes a recipient when Prospecting tells that an exchange was logged for them in the campaign. This is a
+     * system reaction, and it records nothing. A recipient already handled, or a campaign no longer running, stays as
+     * it is.
      */
     public function process(PersonId $contact, string $exchangeId, RecipientOutcome $outcome, \DateTimeImmutable $at): void
     {
@@ -184,9 +187,9 @@ final class Campaign implements ReleasesEvents
     }
 
     /**
-     * The exchange that processed a recipient erased, as Prospecting tells it, they are to handle again (ADR 0152):
-     * an ended campaign is led again, a stopped one stays stopped. A reaction of the system, recording nothing; an
-     * exchange that processed nobody changes nothing.
+     * Puts a recipient back to handle when Prospecting tells that the exchange that processed them was erased (ADR
+     * 0152). An ended campaign runs again. A stopped one stays stopped. This is a system reaction, and it records
+     * nothing. An exchange that processed nobody changes nothing.
      */
     public function reopenAfterErasureOf(string $exchangeId, \DateTimeImmutable $at): void
     {
@@ -204,8 +207,9 @@ final class Campaign implements ReleasesEvents
     }
 
     /**
-     * The exchange that processed a recipient gone with its organization, no member erasing it, they stay processed,
-     * without the exchange to lead to (ADR 0155). A reaction of the system, recording nothing.
+     * Keeps a recipient processed when the exchange that processed them went with its organization, and no member
+     * erased it. The recipient no longer links to the exchange (ADR 0155). This is a system reaction, and it records
+     * nothing.
      */
     public function forgetExchangeGoneWithItsOrganization(string $exchangeId): void
     {
@@ -213,7 +217,8 @@ final class Campaign implements ReleasesEvents
     }
 
     /**
-     * Its cap changes at any time until it is stopped or ended, even started; none takes the cap off.
+     * Its cap changes at any time until the campaign is stopped or ended, even once it has started. No cap takes the
+     * cap off.
      *
      * @throws NotPossibleInItsState
      */
@@ -226,7 +231,7 @@ final class Campaign implements ReleasesEvents
     }
 
     /**
-     * Without an exchange, for a reason when said.
+     * Dismisses the recipient without an exchange, for a reason when the member gives one.
      *
      * @throws CampaignNotRunning
      * @throws UnknownRecipient
@@ -242,7 +247,8 @@ final class Campaign implements ReleasesEvents
     }
 
     /**
-     * Adds the contacts carrying the tags typed and that of its channel, those already recipients kept once.
+     * Adds the contacts that carry the typed tags and the channel's tag. A contact who is already a recipient is kept
+     * once.
      *
      * @param list<string>               $typed
      * @param array<string, ContactTags> $contacts every contact of the account, by identity
@@ -260,7 +266,7 @@ final class Campaign implements ReleasesEvents
 
     /**
      * @throws NotPossibleInItsState
-     * @throws UnreachableContact    when the contact has not the means of its channel
+     * @throws UnreachableContact    when the contact lacks the means its channel needs
      * @throws TooManyRecipients
      */
     public function addRecipient(Candidate $candidate, MemberId $by, \DateTimeImmutable $at): void
@@ -286,8 +292,8 @@ final class Campaign implements ReleasesEvents
     }
 
     /**
-     * A contact PersonalData forgot leaves its recipients, even the last one; started, it stays, without its name, no
-     * longer to handle, the campaign led ending once nobody is left to handle.
+     * A contact that PersonalData forgot leaves the recipients, even when it is the last one. A started campaign keeps
+     * the contact, without its name and no longer to handle. A running campaign ends once nobody is left to handle.
      */
     public function forget(PersonId $contact, \DateTimeImmutable $at): void
     {
@@ -305,8 +311,9 @@ final class Campaign implements ReleasesEvents
     }
 
     /**
-     * The first recipient still to handle, while it is led, but those Prospecting noted an exchange of the campaign
-     * with that it has not processed yet (ADR 0195): with nobody else, it is about to end.
+     * The first recipient still to handle while the campaign runs. It skips the recipients that Prospecting logged an
+     * exchange of the campaign with, but that the campaign has not processed yet (ADR 0195). When nobody else is left,
+     * the campaign is about to end.
      *
      * @param list<PersonId> $exchangedWith
      *
@@ -404,8 +411,8 @@ final class Campaign implements ReleasesEvents
     }
 
     /**
-     * Started, a campaign tells why it no longer changes; frozen, why it does not start; any other state refuses what
-     * it does not offer.
+     * A started campaign tells why it no longer changes. A frozen one tells why it does not start. Any other state
+     * refuses what it does not offer.
      */
     private function refusalOf(CampaignIntent $intent): BusinessRuleViolation
     {

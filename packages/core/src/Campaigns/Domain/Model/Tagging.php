@@ -17,14 +17,14 @@ use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 
 /**
- * Aggregate root: the tagging of an organization or of a contact of an account, the tags its members put on it by
- * hand, source data of Campaigns (ADR 0138). The automatic tags are never among them.
+ * Aggregate root: the tags that an account's members put by hand on one of its organizations or contacts. It is
+ * Campaigns' source data (ADR 0138). The automatic tags are never among them.
  */
 final class Tagging implements ReleasesEvents
 {
     use RecordsEvents;
 
-    /** @var list<Tag> in the order of their names */
+    /** @var list<Tag> sorted by name */
     private array $tags = [];
     private \DateTimeImmutable $modifiedAt;
 

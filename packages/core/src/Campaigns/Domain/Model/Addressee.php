@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Campaigns\Domain\Model;
 
 /**
- * What a message names a contact by: their name, their civility as PersonalData publishes it (ms, mr, x while
- * unknown), their first organization and their job title, each unknown or not.
+ * What a message calls a contact. It holds their name, their title as PersonalData publishes it (ms, mr, or x while
+ * unknown), their first organization and their job title. Each of them may be unknown.
  */
 final readonly class Addressee
 {
@@ -19,18 +19,14 @@ final readonly class Addressee
     ) {
     }
 
-    /**
-     * Their first name and their last name, those known.
-     */
+    /** Their first name and last name, as far as they are known. */
     #[\NoDiscard]
     public function name(): string
     {
         return trim(sprintf('%s %s', $this->firstName, $this->lastName));
     }
 
-    /**
-     * How a message addresses them, Madame or Monsieur, nothing while their civility is unknown.
-     */
+    /** How a message addresses them: Madame or Monsieur. It is empty while their title is unknown. */
     #[\NoDiscard]
     public function civilityTitle(): string
     {

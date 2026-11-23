@@ -5,10 +5,15 @@ declare(strict_types=1);
 namespace Prospecter\Core\Campaigns\Domain\Model;
 
 /**
- * Where the team is with a recipient of a campaign (ADR 0144, 0145): to handle, once frozen; processed, by an exchange
- * noted for them in the campaign; dismissed, without an exchange; erased, once PersonalData erased the contact of a
- * started campaign still to handle, kept without its name; a recipient processed or dismissed keeps its status once
- * erased (`Recipient::$erased`).
+ * Where the team stands with a campaign's recipient (ADR 0144, 0145):
+ *
+ * - pending: to handle, once the campaign is frozen;
+ * - processed: by an exchange logged for them in the campaign;
+ * - dismissed: without an exchange;
+ * - erased: PersonalData erased the contact from a started campaign while they were still to handle. The recipient is
+ *   kept without their name.
+ *
+ * A processed or dismissed recipient keeps its status once erased (`Recipient::$erased`).
  */
 enum RecipientStatus: string
 {

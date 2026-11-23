@@ -7,9 +7,7 @@ namespace Prospecter\Core\Campaigns\Domain\Model;
 use Prospecter\Core\Campaigns\Domain\Exception\CampaignNameTooLong;
 use Prospecter\Core\Campaigns\Domain\Exception\CampaignWithoutName;
 
-/**
- * What the team calls a campaign: 1 to 100 characters, without the spaces at its ends.
- */
+/** What the team calls a campaign: 1 to 100 characters, trimmed of spaces at both ends. */
 final readonly class CampaignName
 {
     public const int MAX = 100;

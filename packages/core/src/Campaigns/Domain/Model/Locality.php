@@ -7,8 +7,8 @@ namespace Prospecter\Core\Campaigns\Domain\Model;
 use Prospecter\Core\Campaigns\Domain\Policy\GeographicTags;
 
 /**
- * Where an organization is, as Prospecting publishes it (ADR 0142): the INSEE code of the municipality its geocoding
- * gave, and the country of its address; the geographic tags it sets.
+ * Where an organization is, as Prospecting publishes it (ADR 0142). It holds the INSEE code of the municipality that
+ * the geocoding returned, and the address's country. It sets the organization's geographic tags.
  */
 final readonly class Locality
 {
@@ -24,7 +24,7 @@ final readonly class Locality
     }
 
     /**
-     * @param array{municipalityCode: ?string, country: ?string}|null $locality as it is read, null without a fact
+     * @param array{municipalityCode: ?string, country: ?string}|null $locality as read, null without a fact
      */
     public static function read(?array $locality): self
     {
@@ -32,7 +32,7 @@ final readonly class Locality
     }
 
     /**
-     * @return list<Tag> the big city around, the department and the region, the city first
+     * @return list<Tag> the surrounding big city, the department and the region, in that order
      */
     #[\NoDiscard]
     public function geographicTags(): array

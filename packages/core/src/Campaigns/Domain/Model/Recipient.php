@@ -7,11 +7,14 @@ namespace Prospecter\Core\Campaigns\Domain\Model;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * A contact a frozen campaign keeps to be contacted, by its identity only: its name is PersonalData's. Processed, by
- * the identity of the exchange of Prospecting noted for them (ADR 0152), whether the call did not go through;
- * dismissed, why, when said. Erased by PersonalData from a started campaign, kept without its name (ADR 0145): what
- * the team did with them stays, processed, missed or dismissed, and one still to handle is no longer; neither the
- * exchange nor the reason, which may tell of the person, are kept. Processed, when, for the daily cap of its campaign.
+ * A contact that a frozen campaign keeps to contact. The campaign keeps them by id only, because their name belongs to
+ * PersonalData. A processed recipient keeps the id of the Prospecting exchange logged for them (ADR 0152), and whether
+ * the call went through. A dismissed recipient keeps the reason, when one is given. A processed recipient also keeps
+ * when they were processed, for the campaign's daily cap.
+ *
+ * PersonalData may erase the contact from a started campaign. The recipient is then kept without their name (ADR 0145).
+ * What the team did with them stays: processed, missed or dismissed. A recipient still to handle no longer is. Neither
+ * the exchange nor the reason stays, because both may say something about the person.
  */
 final readonly class Recipient
 {
@@ -43,9 +46,7 @@ final readonly class Recipient
         return new self($this->contact, RecipientStatus::Dismissed, reason: $reason);
     }
 
-    /**
-     * Its contact erased, what the team did with them stays.
-     */
+    /** Once the contact is erased, what the team did with them stays. */
     #[\NoDiscard]
     public function erased(): self
     {
@@ -53,8 +54,8 @@ final readonly class Recipient
     }
 
     /**
-     * Its exchange gone with its organization, no member erasing it: what the team did stays, without the exchange to
-     * lead to (ADR 0155).
+     * The exchange went with its organization, and no member erased it. What the team did stays, but the recipient no
+     * longer links to the exchange (ADR 0155).
      */
     #[\NoDiscard]
     public function withoutItsExchange(): self
@@ -75,7 +76,8 @@ final readonly class Recipient
     }
 
     /**
-     * Processed by this exchange, and still: a recipient erased since keeps none.
+     * Whether this exchange processed the recipient and they still link to it. A recipient erased since links to no
+     * exchange.
      */
     #[\NoDiscard]
     public function isProcessedBy(string $exchangeId): bool

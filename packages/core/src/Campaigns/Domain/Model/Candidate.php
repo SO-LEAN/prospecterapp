@@ -7,7 +7,8 @@ namespace Prospecter\Core\Campaigns\Domain\Model;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * A contact a member adds to a campaign by hand: who they are, the tags they carry and what a message names them by.
+ * A contact that a member adds to a campaign by hand. It holds who they are, the tags they carry and what a message
+ * calls them.
  */
 final readonly class Candidate
 {
@@ -18,9 +19,7 @@ final readonly class Candidate
     ) {
     }
 
-    /**
-     * What a refusal names them by: their first name and their last name, those known.
-     */
+    /** What a refusal calls them: their first name and last name, as far as they are known. */
     #[\NoDiscard]
     public function name(): string
     {

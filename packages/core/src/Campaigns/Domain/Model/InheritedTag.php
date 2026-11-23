@@ -6,13 +6,11 @@ namespace Prospecter\Core\Campaigns\Domain\Model;
 
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
-/**
- * A tag a contact carries because organizations naming it carry it by hand.
- */
+/** A tag that a contact carries because organizations that name it carry the tag by hand. */
 final readonly class InheritedTag
 {
     /**
-     * @param list<OrganizationId> $from in the order of their identities
+     * @param list<OrganizationId> $from sorted by id
      */
     public function __construct(public Tag $tag, public array $from)
     {

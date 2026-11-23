@@ -7,8 +7,8 @@ namespace Prospecter\Core\Campaigns\Domain\Model;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
- * Every tag a contact carries (ADR 0141): its own, put on it by hand; those it inherits from the organizations naming
- * it; the automatic ones of how it is reached. Each list in the order of the names of the tags.
+ * Every tag a contact carries (ADR 0141). Its own tags are put on it by hand. It inherits tags from the organizations
+ * that name it. Its automatic tags come from how it is reached. Each list is sorted by tag name.
  */
 final readonly class ContactTags
 {
@@ -22,12 +22,12 @@ final readonly class ContactTags
     }
 
     /**
-     * A tag carried by hand and inherited too is its own, shown once; an inherited tag names every organization it
-     * comes from.
+     * A tag that the contact carries by hand and also inherits is its own, shown once. An inherited tag names every
+     * organization it comes from.
      *
      * @param list<Tag>                $own
-     * @param array<string, list<Tag>> $byOrganization the tags put by hand on each organization naming the contact,
-     *                                                 by the identity of the organization
+     * @param array<string, list<Tag>> $byOrganization the tags put by hand on each organization that names the
+     *                                                 contact, by organization id
      */
     public static function of(array $own, array $byOrganization, Reach $reach): self
     {

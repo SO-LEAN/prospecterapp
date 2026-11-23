@@ -11,8 +11,8 @@ use Prospecter\Core\Campaigns\Domain\Exception\UnknownRecipient;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * The contacts a frozen campaign keeps, each once, in the order they were added: from 1 to 500 as the members change
- * them, none in a draft.
+ * The contacts that a frozen campaign keeps, each once, in the order added. The members keep 1 to 500 of them. A draft
+ * keeps none.
  */
 final readonly class Recipients
 {
@@ -79,7 +79,8 @@ final readonly class Recipients
     }
 
     /**
-     * A contact PersonalData forgot leaves, even the last one: the erasure of a person wins over the list of the team.
+     * A contact that PersonalData forgot leaves, even when it is the last one. A person's erasure wins over the team's
+     * list.
      */
     #[\NoDiscard]
     public function forgetting(PersonId $contact): self
@@ -88,8 +89,8 @@ final readonly class Recipients
     }
 
     /**
-     * A contact PersonalData erased stays among the recipients of a started campaign, without its name, no longer to
-     * handle: what the team did stays told.
+     * A contact that PersonalData erased stays among a started campaign's recipients, without their name and no longer
+     * to handle. What the team did stays recorded.
      */
     #[\NoDiscard]
     public function erasing(PersonId $contact): self
@@ -98,8 +99,8 @@ final readonly class Recipients
     }
 
     /**
-     * A recipient still to handle is processed by the exchange noted for them; one handled already stays as it is,
-     * the first exchange winning.
+     * The exchange logged for a recipient still to handle processes them. A recipient already handled stays as it is:
+     * the first exchange wins.
      */
     #[\NoDiscard]
     public function processing(PersonId $contact, string $exchangeId, RecipientOutcome $outcome, \DateTimeImmutable $at): self
@@ -117,7 +118,7 @@ final readonly class Recipients
     }
 
     /**
-     * The recipient the erased exchange processed is to handle again; another exchange of theirs changes nothing
+     * The recipient that the erased exchange processed is to handle again. Another of their exchanges changes nothing
      * (ADR 0152).
      */
     #[\NoDiscard]
@@ -127,7 +128,8 @@ final readonly class Recipients
     }
 
     /**
-     * The recipient the exchange gone with its organization processed stays processed, without it (ADR 0155).
+     * The exchange went with its organization. The recipient it processed stays processed, without the exchange (ADR
+     * 0155).
      */
     #[\NoDiscard]
     public function forgettingExchange(string $exchangeId): self
@@ -143,7 +145,7 @@ final readonly class Recipients
 
     /**
      * @throws UnknownRecipient
-     * @throws RecipientAlreadyProcessed when no longer to handle
+     * @throws RecipientAlreadyProcessed when the recipient is no longer to handle
      */
     #[\NoDiscard]
     public function dismissing(PersonId $contact, ?string $reason): self
@@ -160,7 +162,8 @@ final readonly class Recipients
     }
 
     /**
-     * In the order they were added, but those an exchange was noted with meanwhile: none once nobody else is left.
+     * The recipients to handle in the order added. It skips those that an exchange was logged with meanwhile. It is
+     * empty once nobody else is left.
      *
      * @param list<PersonId> $exchangedWith
      */

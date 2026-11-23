@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Campaigns\Domain\Model;
 
-/**
- * What the predefined tags say: the type of an organization, the relation with a contact, the technologies.
- */
+/** What the predefined tags describe: an organization's type, the relationship with a contact, and technologies. */
 enum TagFamily: string
 {
     case OrganizationType = 'organizationType';

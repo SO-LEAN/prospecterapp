@@ -7,8 +7,8 @@ namespace Prospecter\Core\Campaigns\Domain\Model;
 use Prospecter\Core\Campaigns\Domain\Exception\InvalidDailyCap;
 
 /**
- * The most recipients of a campaign processed a day, so that the member's mailbox or LinkedIn account is not flagged:
- * a guard only, which an AI stops at and a member may go beyond.
+ * The most recipients of a campaign processed in a day. It keeps the member's mailbox or LinkedIn account from being
+ * flagged. It is only a guard: an AI stops at it, and a member may go beyond it.
  */
 final readonly class DailyCap
 {
@@ -31,7 +31,7 @@ final readonly class DailyCap
     }
 
     /**
-     * None when the member set none.
+     * Null when the member set no cap.
      *
      * @throws InvalidDailyCap
      */

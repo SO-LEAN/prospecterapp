@@ -8,9 +8,7 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\Uuid;
 
-/**
- * What carries tags: an organization or a contact, by its identity in the context that keeps it.
- */
+/** What carries tags: an organization or a contact, by its id in the context that keeps it. */
 final readonly class Holder
 {
     private function __construct(public HolderKind $kind, public Uuid $id)

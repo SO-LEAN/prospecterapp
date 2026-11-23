@@ -8,8 +8,8 @@ use Prospecter\Core\Campaigns\Domain\Exception\InvalidTag;
 use Prospecter\Core\Campaigns\Domain\Exception\InvalidTagSelection;
 
 /**
- * Whom a campaign targets (ADR 0144): the contacts carrying every tag chosen and the tag of its channel, the means of
- * reaching them, all of them counting in the 5 tags of a search.
+ * Whom a campaign targets (ADR 0144): the contacts that carry every chosen tag and the channel's tag. The channel's tag
+ * stands for the means of reaching them. All of these tags count within the 5 tags of a search.
  */
 final readonly class Targeting
 {
@@ -20,7 +20,7 @@ final readonly class Targeting
     }
 
     /**
-     * @param list<string> $typed the tags chosen, as typed
+     * @param list<string> $typed the chosen tags, as typed
      *
      * @throws InvalidTag
      * @throws InvalidTagSelection
@@ -49,7 +49,7 @@ final readonly class Targeting
     }
 
     /**
-     * The tags of a search adding contacts to the campaign: those typed and that of its channel.
+     * The tags of a search that adds contacts to the campaign: the typed tags and the channel's tag.
      *
      * @param list<string> $typed
      *
@@ -71,9 +71,7 @@ final readonly class Targeting
         return $contact->carriesAll(TagSelection::of([(string) $this->channel->tag()]));
     }
 
-    /**
-     * The same channel and the same tags chosen, whatever their order.
-     */
+    /** Whether both have the same channel and the same chosen tags, in any order. */
     #[\NoDiscard]
     public function searchesAs(self $other): bool
     {
