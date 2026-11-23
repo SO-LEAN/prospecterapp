@@ -49,7 +49,7 @@ Nothing: Reporting is downstream of Accounts, PersonalData and Prospecting.
 
 - `src/Reporting/Domain`:
   - the facts, `FiguresChange` and `Month`;
-  - the policies `FactSuccession` and `FiguresDelta`;
+  - the rules `FactSuccession` and `FiguresDelta`;
   - the repository `FactRepository` (a version's facts and the figures they make);
   - the ports `SourceAccounts` (the accounts, and a member's account, from Accounts), `ProspectingFacts` and `PersonalDataFacts` (an account's facts as they are now, from the fact services of Prospecting and PersonalData), implemented by anticorruption layers.
 - `src/Reporting/Application`:

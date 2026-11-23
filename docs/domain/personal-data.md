@@ -75,7 +75,7 @@ Natural persons' personal data, and who reads it. Code: `packages/core/src/Perso
 - Two searches need the right to manage personal data: searching contacts by the beginning of their email, and recognizing a caller by their phone number. Otherwise, a reader of masked data could guess what they cannot read (ADR 0031, 0072). Without the right, a reader searches contacts by the beginning of their name only (`Reader::searchesTheEmails()`; ADR 0129).
 - A contact is found by the beginning of their last name or of their first name, with or without an email. A contact is never found by the first name followed by the last name (ADR 0071, 0149).
 - Forgetting a contact erases their person. Their exchanges stay in Prospecting, to be redacted (ADR 0079).
-- A member presents themselves to the people they give a link to. They show their name and their picture unmasked, which are theirs to give. A person the account prospects is never presented (`MemberPresentationPolicy`, ADR 0153).
+- A member presents themselves to the people they give a link to. They show their name and their picture unmasked, which are theirs to give. A person the account prospects is never presented (the rule `MemberPresentation`, ADR 0153).
 
 ## What it publishes
 

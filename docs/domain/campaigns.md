@@ -137,7 +137,7 @@ Its domain events stay in the context: `OrganizationTagsChanged`, `ContactTagsCh
 - `src/Campaigns/Domain`:
   - `Tag`, `Holder` and `HolderKind`, `OrganizationId` and `ContactId` (Prospecting's organizations and PersonalData's persons, ADR 0197), `TagFamily`, `TagSelection`, the aggregate `Tagging`;
   - the facts (`Fact`, `OrganizationFact`, `ContactFact`), `Reach`, `Locality`, `ContactTags` and `InheritedTag`;
-  - the policies `PredefinedTags`, `AutomaticTags`, `GeographicTags` and `FactSuccession`. `bin/insee-geography.php` generates the tables of `GeographicTags` from INSEE data, in `data/insee-geography.php`. Nobody edits them by hand;
+  - the rules `PredefinedTags`, `AutomaticTags`, `GeographicTags` and `FactSuccession`. `bin/insee-geography.php` generates the tables of `GeographicTags` from INSEE data, in `data/insee-geography.php`. Nobody edits them by hand;
   - the domain service `TaggableHolders`;
   - the aggregate `Campaign`. Its identity is `CampaignId`. Prospecting has its own `CampaignId` for the campaign an exchange was logged in (ADR 0197);
   - the campaign's value objects:
@@ -148,7 +148,7 @@ Its domain events stay in the context: `OrganizationTagsChanged`, `ContactTagsCh
     - `Recipients`, `Recipient` (it keeps, among other things, when it was processed), `RecipientStatus`;
     - `RecipientOutcome`: how the exchange that processed a recipient went, done or missed;
     - `DailyCap`;
-  - the policies `CampaignPossibilities` and `CampaignProgress`. `CampaignProgress` counts the processed and dismissed recipients, and those processed on the member's day;
+  - the rules `CampaignPossibilities` and `CampaignProgress`. `CampaignProgress` counts the processed and dismissed recipients, and those processed on the member's day;
   - the repositories `TaggingRepository`, `FactRepository` and `CampaignRepository`;
   - the ports, implemented by anticorruption layers:
     - from Accounts: `Campaigners` (a member's account), `Taggers` (a member's account), and `TaggedAccounts` (the accounts whose tags are rebuilt, and among which a campaign is erased);

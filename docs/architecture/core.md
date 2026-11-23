@@ -2,7 +2,7 @@
 
 This document states the rules in force. The decision records (`docs/adr`) explain why. Read them only for that, or before changing a rule (ADR 0090).
 
-`packages/core` (`prospecter/core`) is the hexagon, in pure PHP. It holds the bounded contexts Accounts, PersonalData, Prospecting, Reporting, Connectors, Campaigns and Booking, and their shared kernel. Each context has its domain (aggregates, value objects, policies, repository interfaces) and its application (use cases by business intent, with their ports and services). `contexts.md` says what the bounded contexts publish to each other. `docs/domain/` holds each context's language and rules.
+`packages/core` (`prospecter/core`) is the hexagon, in pure PHP. It holds the bounded contexts Accounts, PersonalData, Prospecting, Reporting, Connectors, Campaigns and Booking, and their shared kernel. Each context has its domain (aggregates, value objects, rules, repository interfaces) and its application (use cases by business intent, with their ports and services). `contexts.md` says what the bounded contexts publish to each other. `docs/domain/` holds each context's language and rules.
 
 ## Layout
 
@@ -13,7 +13,7 @@ A context's `Domain` is grouped by kind of building block (ADR 0086):
 - `Model/`: aggregates, entities, value objects, enums, including the intents;
 - `Repository/`: the repository interfaces;
 - `Service/`: domain services, each a rule on a set of aggregates (ADR 0039);
-- `Policy/`: a pure, stateless rule (`Masking`, `Lateness`);
+- `Rule/`: a pure, stateless rule (`Masking`, `Lateness`). "Policy" keeps the event storming's meaning: a reaction that runs a command when an event happens (ADR 0200);
 - `Port/`: what the context asks of the others, implemented by an anticorruption layer (ADR 0045);
 - `Event/` and `Exception/`.
 
@@ -93,7 +93,7 @@ A folder exists only when it holds something. The shared kernel is only model, s
   The repositories, or the read model retrievers, return a slice after a cursor and search by the aggregate's `searchKeys()`. A read model retriever is a port in `Application/Port` that reads the aggregate's table without restoring it (ADR 0088: `FoundOrganizationRetriever`).
 - In Prospecting, authentication, roles and access to a resource are not the core's business (ADR 0081). The API's voters check that the organization or the exchange belongs to the member's account. They also check that the member has the right to manage personal data when an intention needs it. The core refuses a planned exchange to anyone but its holder (`NotTheHolder`, 403, ADR 0112). A request carries the id of the acting member, the author of what is recorded, so that a use case also runs without a signed-in member. What a member reads still depends on them (`Prospectors`: the flagged text, the hidden attachments). PersonalData decides what its reader sees and may do, and checks that a person belongs to the reader's account (`Readers`). Accounts checks that an account is managed by its members.
 - An aggregate offers its possible intents, which the API turns into links (ADR 0027). In Prospecting, the API offers only the links that its voters also grant (ADR 0081).
-  - An organization offers them through the `OrganizationPossibilities` policy, given the facts of its state. The retrievers of its sheet ask the policy too (ADR 0088).
+  - An organization offers them through the `OrganizationPossibilities` rule, given the facts of its state. The retrievers of its sheet ask the rule too (ADR 0088).
   - An exchange offers them through `ExchangePossibilities`, given its reader and the time of reading (`ExchangeSituation`, ADR 0112). Its retriever also asks `ExchangeConformity` and `ExchangeReading` what the reader sees.
   - An account offers them through `AccountPossibilities`, given whether the member belongs to it. It offers the right to read personal data through `PersonalDataRight`, which `Member::readsPersonalData()` and the Accounts retrievers ask.
   - A person offers them through `PersonPossibilities`, given their reader, read in clear or masked as `PersonReading` says.

@@ -89,7 +89,7 @@ Why the project is shaped the way it is: one record per decision, in the order t
 | [0083](0083-the-scripts-of-tools-become-recipes-of-their-project.md) | The scripts of `tools/` become recipes of their project; the PHPStan rules a package | architecture | Accepted | 2026-10-26 |
 | [0084](0084-the-e2e-journeys-run-in-the-network-of-the-stack.md) | The e2e journeys run in the network of the stack | architecture | Accepted | 2026-10-26 |
 | [0085](0085-a-query-presents-its-answer-to-a-presenter-built-for-the-call.md) | A query presents its answer to a presenter built for the call; a service is stateless | architecture | Accepted | 2026-10-26 |
-| [0086](0086-the-domain-of-a-context-is-grouped-by-kind-of-building-block.md) | The domain of a context is grouped by kind of building block | architecture | Accepted | 2026-10-28 |
+| [0086](0086-the-domain-of-a-context-is-grouped-by-kind-of-building-block.md) | The domain of a context is grouped by kind of building block | architecture | Accepted, the `Policy/` folder superseded by [0200](0200-a-policy-is-a-reaction-as-in-event-storming-a-pure-domain-rule-is-a-rule.md) | 2026-10-28 |
 | [0087](0087-a-controller-is-named-after-its-intent-and-its-role.md) | A controller is named after its intent and its role; a property after its type, a repository after its collection | architecture | Accepted | 2026-10-30 |
 | [0088](0088-a-query-reads-its-read-model-through-a-port-a-policy-says-what-is-possible.md) | A query reads its read model through a port, in the table of the aggregate; a policy says what is possible | architecture | Accepted | 2026-10-30 |
 | [0089](0089-a-contract-declares-the-service-it-offers.md) | A Contract declares the service it offers, answering questions on sets; the anticorruption layers depend on it by its type | architecture | Accepted | 2026-10-31 |
@@ -202,3 +202,4 @@ Why the project is shaped the way it is: one record per decision, in the order t
 | [0197](0197-each-context-has-its-own-identities.md) | Each context has its own identities; only the account and the member are shared | architecture | Accepted | 2026-11-23 |
 | [0198](0198-the-api-controllers-extend-nothing.md) | The API's controllers extend nothing | architecture | Accepted | 2026-11-23 |
 | [0199](0199-a-booker-is-recognized-by-their-e-mail-only-otherwise-a-new-contact-to-attach.md) | A booker is recognized by their e-mail only, otherwise they become a new contact to attach | domain | Accepted | 2026-11-23 |
+| [0200](0200-a-policy-is-a-reaction-as-in-event-storming-a-pure-domain-rule-is-a-rule.md) | A policy is a reaction, as in event storming; a pure rule of the domain is a Rule | architecture | Accepted | 2026-11-23 |
