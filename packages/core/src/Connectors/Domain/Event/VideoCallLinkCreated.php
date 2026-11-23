@@ -9,7 +9,8 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * The calendar of the member at the provider created the link of a video call they hold, which asked one (ADR 0137).
+ * The member's calendar at the provider created the link of a video call that the member holds. The video call had
+ * asked for a link (ADR 0137).
  */
 final readonly class VideoCallLinkCreated extends ConnectionEvent
 {

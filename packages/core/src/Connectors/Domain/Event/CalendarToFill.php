@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Connectors\Domain\Event;
 
 /**
- * The calendar of the member at the provider lacks their exchanges to come: they connected, or it was created again
- * (ADR 0133).
+ * The member's calendar at the provider lacks their upcoming exchanges (ADR 0133). The member connected, or the
+ * calendar was created again.
  */
 abstract readonly class CalendarToFill extends ConnectionEvent
 {
