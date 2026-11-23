@@ -6,8 +6,6 @@ namespace Prospecter\Core\Campaigns\Contract\Service\WhichRecipientsArePending;
 
 interface WhichRecipientsArePendingOutput
 {
-    /**
-     * Not called for a campaign the account does not have.
-     */
+    /** Not called for a campaign that the account does not have. */
     public function present(PendingRecipientsResponse $campaign): void;
 }

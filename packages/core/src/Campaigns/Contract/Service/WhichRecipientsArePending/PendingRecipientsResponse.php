@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Prospecter\Core\Campaigns\Contract\Service\WhichRecipientsArePending;
 
 /**
- * A campaign as a context noting its exchanges needs it: its channel (`email`, `call`, `sms`, `linkedIn`), whether it
- * is started, being led, and, among the contacts asked, those it keeps as recipients and those still to handle.
+ * A campaign as the context that logs its exchanges needs it. It holds the campaign's channel (`email`, `call`, `sms`,
+ * `linkedIn`) and whether it is started and running. Among the requested contacts, it lists those the campaign keeps as
+ * recipients and those still to handle.
  */
 final readonly class PendingRecipientsResponse
 {
