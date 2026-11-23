@@ -8,7 +8,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
- * The core is pure PHP (docs/architecture/core.md): besides PHP itself, it uses only the vendors named here. A
+ * The core is pure PHP (docs/architecture/core.md). Besides PHP itself, it uses only the vendors listed here. A
  * development tool or a new package in src fails this test.
  */
 class PermittedVendorsTest extends TestCase
@@ -16,7 +16,7 @@ class PermittedVendorsTest extends TestCase
     private const string CORE = 'Prospecter\\Core\\';
 
     /**
-     * What a phone number is (ADR 0072).
+     * It tells what a phone number is (ADR 0072).
      */
     private const array PERMITTED_VENDORS = ['libphonenumber\\'];
 

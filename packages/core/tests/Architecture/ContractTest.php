@@ -8,8 +8,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
- * The Contract of a context (ADR 0047) is plain data depending on nothing, not even on its own context: it can
- * leave the core as a package of its own when the context is deployed apart.
+ * A context's Contract (ADR 0047) is plain data that depends on nothing, not even on its own context. So it can
+ * leave the core as its own package when the context is deployed separately.
  */
 class ContractTest extends TestCase
 {

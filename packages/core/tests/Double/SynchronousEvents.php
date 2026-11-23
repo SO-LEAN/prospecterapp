@@ -8,23 +8,24 @@ use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 
 /**
- * The events delivered as the API delivers them, each handler found by the type of its __invoke(), a parent class of
- * the event included, and called through its decorators: a translator at once, within the command that publishes,
- * like the event bus of the API; a reaction once the command succeeded, like the worker, each in its own unit, in
- * the order they subscribed, then the reactions to what the reactions published, until none is left. A command
- * that fails delivers nothing; a reaction that fails publishes nothing, its event kept in the failures.
+ * Delivers the events the way the API delivers them. It finds each handler by its __invoke()'s type, the event's
+ * parent classes included, and calls it through its decorators. A translator runs at once, inside the command that
+ * publishes, like the API's event bus. A reaction runs once the command has succeeded, like the worker. Each
+ * reaction runs in its own unit, in the order they subscribed. Then the reactions to what the reactions published
+ * run, until none is left. A command that fails delivers nothing. A reaction that fails publishes nothing, and its
+ * event joins the failures.
  */
 final class SynchronousEvents implements Events
 {
     /** @var list<array{class-string, EventHandler}> each translator with the type of event it takes */
     private array $translators = [];
-    /** @var list<array{class-string, EventHandler}> each reaction with the type of event it takes, in the order they subscribed */
+    /** @var list<array{class-string, EventHandler}> each reaction with the type of event it takes, in subscription order */
     private array $reactions = [];
     /** @var list<class-string<EventHandler>> */
     private array $subscribers = [];
     /** @var list<object> */
     private array $published = [];
-    /** @var list<object> published, not delivered to the reactions yet */
+    /** @var list<object> the events published but not delivered to the reactions yet */
     private array $undelivered = [];
     private bool $reactionsHeld = false;
     /** @var list<array{object, \Throwable}> each event a reaction failed on, with its failure */
@@ -51,7 +52,7 @@ final class SynchronousEvents implements Events
     }
 
     /**
-     * The events of this class published so far, the oldest first.
+     * The events of this class published so far, oldest first.
      *
      * @template T of object
      *
@@ -65,7 +66,7 @@ final class SynchronousEvents implements Events
     }
 
     /**
-     * What the reactions to the events of this class failed with, the oldest first.
+     * The errors that the reactions to this class's events failed with, oldest first.
      *
      * @param class-string $class
      *
@@ -89,7 +90,7 @@ final class SynchronousEvents implements Events
     }
 
     /**
-     * Runs the command, then delivers what it published to the reactions; a command that throws delivers nothing.
+     * Runs the command, then delivers what it published to the reactions. A command that throws delivers nothing.
      *
      * @param \Closure(): void $command
      */
@@ -131,7 +132,7 @@ final class SynchronousEvents implements Events
     }
 
     /**
-     * What a call publishes is kept for the reactions only when it succeeds.
+     * Keeps what a call publishes for the reactions only when the call succeeds.
      *
      * @param \Closure(): void $call
      */
@@ -159,8 +160,8 @@ final class SynchronousEvents implements Events
     }
 
     /**
-     * The handlers taking its class or a parent of it, in the order they subscribed: a handler of
-     * `OrganizationEvent` receives every event of an organization.
+     * The handlers that take the event's class or one of its parents, in subscription order. An `OrganizationEvent`
+     * handler receives every organization event.
      *
      * @param list<array{class-string, EventHandler}> $subscribed
      *

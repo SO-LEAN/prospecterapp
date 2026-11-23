@@ -29,12 +29,12 @@ use Prospecter\Core\SharedKernel\Domain\Uuid;
 use Tests\Core\Double\StateOf;
 
 /**
- * The words of the scenarios: French labels of the Gherkin tables, how they become value objects and how
- * they describe the stored aggregates, so that every feature speaks the same language.
+ * The scenarios' words: the Gherkin tables' French labels, how they become value objects, and how they describe the
+ * stored aggregates. So every feature speaks the same language.
  */
 final class Vocabulary
 {
-    /** The intentions by name, whatever the aggregate: the same intention has the same words everywhere. */
+    /** The intentions by name, whatever the aggregate. The same intention has the same words everywhere. */
     private const array INTENTS = [
         'ReviseLegalIdentity' => 'réviser l\'identité',
         'ChangeContactDetails' => 'changer les coordonnées',
@@ -77,7 +77,7 @@ final class Vocabulary
 
     private const string MOMENT = 'Y-m-d H:i';
 
-    /** The channels as a table names them, by their value in the requests. */
+    /** The channels as a table names them, keyed by their value in the requests. */
     private const array CHANNELS = [
         'Appel' => 'call',
         'SMS' => 'sms',
@@ -100,7 +100,7 @@ final class Vocabulary
         'une visio' => 'videoCall',
     ];
 
-    /** The known sources as a sentence names them, by their value. */
+    /** The known sources as a sentence names them, keyed by their value. */
     private const array SOURCES = [
         'LinkedIn' => 'linkedInProfile',
         'LinkedIn entreprise' => 'linkedInCompany',
@@ -147,7 +147,7 @@ final class Vocabulary
     ];
 
     /**
-     * A table of a label and its value per row.
+     * A table with a label and its value on each row.
      *
      * @return array<string, string>
      */
@@ -176,7 +176,7 @@ final class Vocabulary
     }
 
     /**
-     * @param list<string> $intents names of the intentions, as the use cases answer them
+     * @param list<string> $intents the intentions' names, as the use cases return them
      *
      * @return list<string>
      */
@@ -218,7 +218,7 @@ final class Vocabulary
     /**
      * @param array<string, string|null> $values
      *
-     * @return list<string> the addresses of the links, separated by spaces
+     * @return list<string> the links' addresses, separated by spaces
      */
     public static function links(array $values): array
     {
@@ -234,7 +234,7 @@ final class Vocabulary
     }
 
     /**
-     * The value of a known source, as a sentence names it.
+     * A known source's value, as a sentence names it.
      */
     public static function source(string $label): string
     {
@@ -250,7 +250,7 @@ final class Vocabulary
     }
 
     /**
-     * The addresses of the links, separated by spaces.
+     * The links' addresses, separated by spaces.
      *
      * @param list<ExternalLink> $links
      */
@@ -288,7 +288,7 @@ final class Vocabulary
     }
 
     /**
-     * What a scenario can say about a stored organization, by label.
+     * What a scenario can say about a stored organization, keyed by label.
      *
      * @param \Closure(Uuid): string $nameOf
      *
@@ -382,8 +382,8 @@ final class Vocabulary
     }
 
     /**
-     * Whether the contact of an exchange is still one of the organization of the timeline, removed from it, or
-     * forgotten; nothing for the organization itself.
+     * Whether an exchange's contact still belongs to the timeline's organization, was removed from it, or was
+     * forgotten. Nothing for the organization itself.
      */
     public static function describeContactPresence(?string $presence): string
     {
@@ -401,7 +401,7 @@ final class Vocabulary
     }
 
     /**
-     * The mailbox an exchange was imported from, as the member knows it; nothing for one noted.
+     * The mailbox that an exchange was imported from, as the member knows it. Nothing for a logged exchange.
      */
     public static function describeProvenance(?string $provider): string
     {
@@ -444,7 +444,7 @@ final class Vocabulary
     }
 
     /**
-     * The channel of "un appel", "un SMS"...
+     * The channel that "un appel" or "un SMS" names.
      */
     public static function channelOfAnExchange(string $exchange): string
     {
@@ -457,7 +457,7 @@ final class Vocabulary
     }
 
     /**
-     * Who called a cancelled exchange off; nothing when it was not said.
+     * Who called a cancelled exchange off. Nothing when the scenario does not say.
      */
     public static function describeCanceller(?string $canceller): string
     {
@@ -465,7 +465,7 @@ final class Vocabulary
     }
 
     /**
-     * "30 min", "1 h", "1 h 30"; nothing for an exchange noted once it happened.
+     * "30 min", "1 h", "1 h 30". Nothing for an exchange logged after it happened.
      */
     public static function describeDuration(?int $minutes): string
     {

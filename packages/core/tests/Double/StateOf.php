@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace Tests\Core\Double;
 
 /**
- * The private state of an aggregate, as the adapter of the API reads it to write its document
- * (`Hydrator::stateOf()`): the in-memory retrievers and the scenarios read what was saved without the aggregate
- * exposing it (ADR 0088).
+ * An aggregate's private state, as the API's adapter reads it to write its document (`Hydrator::stateOf()`). The
+ * in-memory retrievers and the scenarios read what was saved without the aggregate exposing it (ADR 0088).
  */
 final class StateOf
 {

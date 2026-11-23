@@ -13,8 +13,8 @@ use Prospecter\Core\SharedKernel\Application\RefusalTranslatingCommandHandler;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingQueryHandler;
 
 /**
- * The domain does not cross the application (ADR 0035): what a client sends (requests) and receives
- * (responses, refusals) is plain data, never a class of a Domain namespace.
+ * The domain does not cross the application (ADR 0035). What a client sends (requests) and receives (responses,
+ * refusals) is plain data, never a class from a Domain namespace.
  */
 class ApplicationBoundaryTest extends TestCase
 {
@@ -62,7 +62,7 @@ class ApplicationBoundaryTest extends TestCase
     }
 
     /**
-     * The command and query handlers: an event handler reacts to a domain event within the core, no client
+     * The command and query handlers. An event handler reacts to a domain event inside the core, and no client
      * calls it.
      *
      * @return iterable<string, array{class-string}>
@@ -77,8 +77,8 @@ class ApplicationBoundaryTest extends TestCase
     }
 
     /**
-     * Every class of an application layer exposing public properties: the requests, the responses and what
-     * they carry.
+     * Every application layer class that exposes public properties: the requests, the responses and what they
+     * carry.
      *
      * @return iterable<string, array{class-string}>
      */

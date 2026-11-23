@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Core\Double;
 
 /**
- * The private state of an aggregate, each property read as the type the reader expects of it.
+ * An aggregate's private state. It reads each property as the type that the reader expects.
  */
 final readonly class State
 {
@@ -80,7 +80,7 @@ final readonly class State
     }
 
     /**
-     * As it is, for an assertion comparing it.
+     * The value as it is, for an assertion that compares it.
      */
     public function value(string $property): mixed
     {

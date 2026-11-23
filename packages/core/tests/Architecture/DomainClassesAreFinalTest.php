@@ -8,9 +8,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
- * A class of a domain is final: an aggregate or a value object is not extended, and nothing of the
- * persistence needs to (ADR 0048, the DynamoDB adapters restore an aggregate without a proxy). Only what the
- * domain extends itself is open: the abstract bases of the events, the kinds of refusal.
+ * A domain class is final. Nothing extends an aggregate or a value object, and the persistence needs no extension
+ * either (ADR 0048: the DynamoDB adapters restore an aggregate without a proxy). Only what the domain itself
+ * extends stays open: the events' abstract bases and the kinds of refusal.
  */
 class DomainClassesAreFinalTest extends TestCase
 {

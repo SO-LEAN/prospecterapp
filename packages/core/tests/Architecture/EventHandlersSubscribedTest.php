@@ -8,8 +8,8 @@ use PHPUnit\Framework\TestCase;
 use Tests\Core\Acceptance\Application;
 
 /**
- * The scenarios check the side effects of a gesture in the other contexts: every event handler of the core
- * must react in them, as it does in the API.
+ * The scenarios check a gesture's side effects in the other contexts. So every core event handler must react in
+ * them, as it does in the API.
  */
 class EventHandlersSubscribedTest extends TestCase
 {

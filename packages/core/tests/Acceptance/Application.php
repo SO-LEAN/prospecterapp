@@ -542,10 +542,10 @@ use Tests\Core\Double\SynchronousEvents;
 use Tests\Core\Double\TimeOrderedUuids;
 
 /**
- * The hexagon as the scenarios use it: the real handlers, wired to in-memory implementations of their
- * ports, called the way a delivery calls them: through the translation of their refusals, a command is sent to
- * its handler (a command bus in the API) within a unit of work its reactions join, and returns nothing, a query presents what it reads to the presenter
- * of the core keeping it as it is (ADR 0085).
+ * The hexagon as the scenarios use it: the real handlers, wired to in-memory implementations of their ports, and
+ * called the way a delivery calls them, through the translation of their refusals. A command goes to its handler
+ * (through a command bus in the API) inside a unit of work that its reactions join, and returns nothing. A query
+ * presents what it reads to the core's presenter, which keeps it as it is (ADR 0085).
  */
 final class Application
 {
@@ -816,8 +816,8 @@ final class Application
     }
 
     /**
-     * A reaction subscribed after those already there, called the way the worker of the API calls it: through
-     * the translation of its refusals, in a unit of work of its own, once the command that published succeeded.
+     * Subscribes a reaction after the existing ones. The scenario calls it the way the API's worker does: through
+     * the translation of its refusals, in its own unit of work, once the command that published has succeeded.
      */
     public function alsoReactWith(EventHandler $reaction): void
     {
@@ -843,7 +843,7 @@ final class Application
     }
 
     /**
-     * The time the client gives the commands it sends.
+     * The time that the client gives the commands it sends.
      */
     public function now(): \DateTimeImmutable
     {
@@ -856,7 +856,7 @@ final class Application
     }
 
     /**
-     * The time zone of the clock the signed-in member reads, that of the scenarios unless one is said.
+     * The time zone of the signed-in member's clock: the scenarios' time zone unless the scenario names another one.
      */
     public function readerClock(): \DateTimeZone
     {
@@ -869,7 +869,7 @@ final class Application
     }
 
     /**
-     * The moment of a reading, on the clock of its reader.
+     * A reading's moment, on its reader's clock.
      */
     public function readingNow(): \DateTimeImmutable
     {
@@ -877,7 +877,7 @@ final class Application
     }
 
     /**
-     * An identity for what the client is about to create (UUID v7, as the API generates them).
+     * An id for what the client is about to create (a UUID v7, as the API generates them).
      */
     public function newIdentity(): string
     {
@@ -898,7 +898,7 @@ final class Application
     }
 
     /**
-     * An event delivered once more to its reactions, as a bus delivering at least once may do.
+     * Delivers an event to its reactions once more, as an at-least-once bus may do.
      */
     public function publishAgain(object $event): void
     {
@@ -994,10 +994,9 @@ final class Application
     }
 
     /**
-     * Each organization located without its municipality geocoded again, as the command of the console does it (ADR
-     * 0142).
+     * Geocodes again each organization located without its municipality, as the console command does (ADR 0142).
      *
-     * @return int how many were
+     * @return int how many organizations were geocoded again
      */
     public function locateOrganizationsAgain(): int
     {
@@ -1019,7 +1018,7 @@ final class Application
     }
 
     /**
-     * @return array{list<CampaignSheet>, array<string, int>}|null the campaigns, and the contacts each targets
+     * @return array{list<CampaignSheet>, array<string, int>}|null the campaigns, and how many contacts each one targets
      */
     public function listCampaigns(ListCampaigns $query): ?array
     {
@@ -1276,7 +1275,7 @@ final class Application
     }
 
     /**
-     * As the daily schedule of the platform does: each import active given the renewal of its watch (ADR 0154).
+     * Renews each active import's watch, as the platform's daily schedule does (ADR 0154).
      */
     public function renewMailWatches(): void
     {
@@ -1324,8 +1323,8 @@ final class Application
     }
 
     /**
-     * Events delivered to their reactions at the same time, as invocations of the worker running together: each
-     * reaction reads what it needs before any writes.
+     * Delivers events to their reactions at the same time, like worker invocations that run together. Each reaction
+     * reads what it needs before any reaction writes.
      */
     public function publishAtTheSameTime(object ...$events): void
     {
@@ -1343,7 +1342,7 @@ final class Application
     }
 
     /**
-     * The business refusal of the last command or query, null when it succeeded.
+     * The last command's or query's business refusal, or null when it succeeded.
      */
     public function refusal(): ?UseCaseRefused
     {
@@ -1449,8 +1448,8 @@ final class Application
     }
 
     /**
-     * The services a context offers the others refuse nothing (ADR 0089): they are called as an anticorruption
-     * layer calls them.
+     * The services that a context offers the others refuse nothing (ADR 0089). The scenario calls them as an
+     * anticorruption layer does.
      *
      * @return array<string, MemberResponse>
      */
@@ -1700,8 +1699,8 @@ final class Application
     }
 
     /**
-     * The translators publishing the domain events of a context for the others, the facts first, called within the
-     * command as the event bus of the API calls them (`EventHandlersSubscribedTest` fails when one is missing).
+     * The translators that publish a context's domain events for the others, the facts first. They run inside the
+     * command, as the API's event bus calls them (`EventHandlersSubscribedTest` fails when one is missing).
      *
      * @return list<EventHandler>
      */
@@ -1724,8 +1723,8 @@ final class Application
     }
 
     /**
-     * Every other event handler of the core: the reactions, internal or of the other contexts, run in the scenarios
-     * after the command as the worker of the API runs the subscriptions.
+     * Every other core event handler: the reactions, internal or from the other contexts. The scenarios run them
+     * after the command, as the API's worker runs the subscriptions.
      *
      * @return list<EventHandler>
      */
@@ -1799,8 +1798,8 @@ final class Application
     }
 
     /**
-     * The command a handler carries out, found the way the command bus of the API finds it: the type of
-     * the argument of __invoke().
+     * The command that a handler carries out, found the way the API's command bus finds it: the type of
+     * __invoke()'s argument.
      *
      * @return class-string
      */
@@ -1812,7 +1811,7 @@ final class Application
     }
 
     /**
-     * Asks a query, its answer presented to the output port given; false when it was refused.
+     * Asks a query and presents its answer to the given output port. Returns false when the query was refused.
      */
     private function ask(QueryHandler $handler, object $query, object $output): bool
     {

@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Tests\Core\Acceptance;
 
 /**
- * Assertions of the scenarios. PHPUnit's need its runner to describe a failure, Behat is not that runner.
+ * The scenarios' assertions. PHPUnit's assertions need PHPUnit's runner to describe a failure, and Behat is not that
+ * runner.
  */
 final class Expect
 {
@@ -34,7 +35,7 @@ final class Expect
     }
 
     /**
-     * The labels of the scenario table are described this way, whatever their order.
+     * Describes the scenario table's labels this way, whatever their order.
      *
      * @param array<string, string> $expected labels the scenario cares about
      * @param array<string, string> $actual   everything that can be said

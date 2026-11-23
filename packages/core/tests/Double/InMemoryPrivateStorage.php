@@ -9,8 +9,8 @@ use Prospecter\Core\SharedKernel\Application\Port\Upload;
 use Prospecter\Core\SharedKernel\Domain\Exception\UnknownUpload;
 
 /**
- * Keeps the uploads the client sent and the files kept from them, like the private bucket of the storage: an
- * upload is kept once, a link reads a kept file only.
+ * Keeps the uploads that the client sent and the files kept from them, like the storage's private bucket. An upload
+ * is kept once. A link reads only a kept file.
  */
 final class InMemoryPrivateStorage implements PrivateStorage
 {
@@ -24,7 +24,7 @@ final class InMemoryPrivateStorage implements PrivateStorage
     private bool $forgetsTheUploads = false;
 
     /**
-     * What the client does with the form the storage signed for it.
+     * Does what the client does with the form that the storage signed for it.
      */
     public function send(string $contents, string $mediaType): string
     {
@@ -37,7 +37,7 @@ final class InMemoryPrivateStorage implements PrivateStorage
     }
 
     /**
-     * An upload never kept goes after a day: what a delivery tried again after it finds.
+     * An upload that is never kept disappears after a day. A delivery that is retried later finds it gone.
      */
     public function forgetTheUploads(): void
     {
@@ -69,7 +69,7 @@ final class InMemoryPrivateStorage implements PrivateStorage
     }
 
     /**
-     * What a link reads, null when the file is no longer kept.
+     * What a link reads, or null when the file is no longer kept.
      */
     public function read(string $link): ?string
     {
