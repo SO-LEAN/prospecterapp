@@ -18,9 +18,9 @@ use Prospecter\Core\Reporting\Domain\Model\ExchangeId;
 use Prospecter\Core\Reporting\Domain\Model\FiguresChange;
 use Prospecter\Core\Reporting\Domain\Model\Month;
 use Prospecter\Core\Reporting\Domain\Model\OrganizationFact;
+use Prospecter\Core\Reporting\Domain\Model\OrganizationId;
 use Prospecter\Core\Reporting\Domain\Repository\FactRepository;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Psr\Clock\ClockInterface;
 use Tests\App\Base\ApiTestCase;
 

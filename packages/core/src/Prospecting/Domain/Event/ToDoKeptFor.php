@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Domain\Event;
 
+use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\Model\ToDoId;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
  * The to-do's contact to attach was attached to an organization. The to-do is now kept for that organization.

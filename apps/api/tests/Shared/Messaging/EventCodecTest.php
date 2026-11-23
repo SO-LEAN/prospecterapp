@@ -17,6 +17,7 @@ use Prospecter\Core\Accounts\Contract\Event\AccountOpened;
 use Prospecter\Core\Connectors\Contract\Event\EmailExchanged;
 use Prospecter\Core\PersonalData\Contract\Event\ContactFactsChanged;
 use Prospecter\Core\PersonalData\Domain\Event\ContactCollected;
+use Prospecter\Core\PersonalData\Domain\Model\OrganizationId as PersonalDataOrganizationId;
 use Prospecter\Core\Prospecting\Contract\Event\ExchangeFactsChanged;
 use Prospecter\Core\Prospecting\Contract\Event\OrganizationFactsChanged;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeErased;
@@ -24,7 +25,6 @@ use Prospecter\Core\Prospecting\Domain\Model\CampaignId;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\Uuid;
 use Symfony\Component\TypeInfo\Type;
@@ -211,7 +211,7 @@ class EventCodecTest extends TestCase
 
     public function testTheDetailCarriesTheIdentityTheMomentAndTheCause(): void
     {
-        $event = new ContactCollected(new AccountId(self::ID), new MemberId(self::ID), new PersonId(self::ID), [new OrganizationId(self::ID)], new \DateTimeImmutable('2026-10-15 11:00:00.5 Europe/Paris'));
+        $event = new ContactCollected(new AccountId(self::ID), new MemberId(self::ID), new PersonId(self::ID), [new PersonalDataOrganizationId(self::ID)], new \DateTimeImmutable('2026-10-15 11:00:00.5 Europe/Paris'));
 
         $detail = $this->codec()->encode($event, new Cause('0199f1d2-0000-7000-8000-000000000001', '0199f1d2-0000-7000-8000-000000000002', 3))->toEventBridge()['detail'];
 

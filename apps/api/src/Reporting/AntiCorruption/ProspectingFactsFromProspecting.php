@@ -15,9 +15,9 @@ use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\Organizat
 use Prospecter\Core\Reporting\Domain\Model\ExchangeFact;
 use Prospecter\Core\Reporting\Domain\Model\ExchangeId;
 use Prospecter\Core\Reporting\Domain\Model\OrganizationFact;
+use Prospecter\Core\Reporting\Domain\Model\OrganizationId;
 use Prospecter\Core\Reporting\Domain\Port\ProspectingFacts;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
  * Anticorruption layer (ADR 0045, 0089, 0099). It lists the facts that Prospecting gives again, slice by slice, in

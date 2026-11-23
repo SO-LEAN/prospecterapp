@@ -7,13 +7,13 @@ namespace Prospecter\Core\Connectors\Application\ConsultMailCatchUpIntents;
 use Prospecter\Core\Connectors\Domain\Exception\UnknownContact;
 use Prospecter\Core\Connectors\Domain\Exception\UnknownOrganization;
 use Prospecter\Core\Connectors\Domain\Model\Member;
+use Prospecter\Core\Connectors\Domain\Model\OrganizationId;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Port\CorrespondentAddresses;
 use Prospecter\Core\Connectors\Domain\Port\Members;
 use Prospecter\Core\Connectors\Domain\Repository\ConnectionRepository;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**

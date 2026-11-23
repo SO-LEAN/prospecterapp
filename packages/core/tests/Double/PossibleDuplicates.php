@@ -6,7 +6,7 @@ namespace Tests\Core\Double;
 
 use Prospecter\Core\Prospecting\Application\PossibleDuplicate;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
-use Prospecter\Core\SharedKernel\Domain\OrganizationId;
+use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 
 /**
  * The organizations that an organization may duplicate, by their names, as the organization keeps them. An

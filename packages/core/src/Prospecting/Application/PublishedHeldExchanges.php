@@ -8,7 +8,7 @@ use Prospecter\Core\Prospecting\Application\ConsultHeldExchanges\HeldExchange;
 use Prospecter\Core\Prospecting\Application\Port\OrganizationSheetRetriever;
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\HeldExchangeResponse;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
-use Prospecter\Core\SharedKernel\Domain\OrganizationId;
+use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 
 /**
  * The held exchanges in Prospecting's published language (ADR 0127). Each one is named by the first organization it

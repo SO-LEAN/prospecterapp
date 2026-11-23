@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Connectors\AntiCorruption;
 
 use Monolog\Attribute\WithMonologChannel;
+use Prospecter\Core\Connectors\Domain\Model\OrganizationId;
 use Prospecter\Core\Connectors\Domain\Port\Correspondents;
 use Prospecter\Core\PersonalData\Contract\Service\WhichContactsHaveTheseEmails\KeptContactsByEmail;
 use Prospecter\Core\PersonalData\Contract\Service\WhichContactsHaveTheseEmails\WhichContactsHaveTheseEmails;
@@ -14,7 +15,6 @@ use Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsHaveTheseEmai
 use Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsHaveTheseEmails\WhichOrganizationsHaveTheseEmailsService;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
-use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Psr\Log\LoggerInterface;
 

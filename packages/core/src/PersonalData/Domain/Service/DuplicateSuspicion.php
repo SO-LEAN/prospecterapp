@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\PersonalData\Domain\Service;
 
+use Prospecter\Core\PersonalData\Domain\Model\OrganizationId;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Port\OrganizationsOfContacts;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
-use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**

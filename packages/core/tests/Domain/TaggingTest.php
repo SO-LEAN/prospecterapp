@@ -10,11 +10,11 @@ use Prospecter\Core\Campaigns\Domain\Event\OrganizationTagsChanged;
 use Prospecter\Core\Campaigns\Domain\Exception\AutomaticTag;
 use Prospecter\Core\Campaigns\Domain\Exception\TagNotCarried;
 use Prospecter\Core\Campaigns\Domain\Model\Holder;
+use Prospecter\Core\Campaigns\Domain\Model\OrganizationId;
 use Prospecter\Core\Campaigns\Domain\Model\Tag;
 use Prospecter\Core\Campaigns\Domain\Model\Tagging;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**

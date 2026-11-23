@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\AttachToHolding;
 
+use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 final readonly class AttachToHoldingHandler implements CommandHandler
 {

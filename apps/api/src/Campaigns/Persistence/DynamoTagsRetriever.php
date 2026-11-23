@@ -8,9 +8,9 @@ use App\Shared\Persistence\Table;
 use App\Shared\Typed;
 use Prospecter\Core\Campaigns\Application\Port\TagsRetriever;
 use Prospecter\Core\Campaigns\Domain\Model\Holder;
+use Prospecter\Core\Campaigns\Domain\Model\OrganizationId;
 use Prospecter\Core\Campaigns\Domain\Model\Tag;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
  * Reads the tags put by hand from the items of `DynamoTaggingRepository`, without restoring them (ADR 0088). It reads

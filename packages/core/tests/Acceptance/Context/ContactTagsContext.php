@@ -12,7 +12,7 @@ use Prospecter\Core\Campaigns\Application\ConsultContactTags\ConsultContactTags;
 use Prospecter\Core\Campaigns\Application\ConsultContactTags\ContactTagsResponse;
 use Prospecter\Core\Campaigns\Application\ConsultContactTags\InheritedTagResponse;
 use Prospecter\Core\Campaigns\Application\RebuildTags\RebuildTags;
-use Prospecter\Core\SharedKernel\Domain\OrganizationId;
+use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Tests\Core\Acceptance\Expect;
 
 final class ContactTagsContext implements Context

@@ -20,7 +20,7 @@ A context's `Domain` is grouped by kind of building block (ADR 0086):
 A folder exists only when it holds something. The shared kernel is only model, so it stays flat, except for `Event/` and `Exception/`.
 
 - `src/SharedKernel/{Domain,Application}`: what every context shares, kept small:
-  - the published identities `AccountId`, `MemberId`, `PersonId` and `OrganizationId`;
+  - the published identities `AccountId`, `MemberId` and `PersonId`;
   - `DomainEvent`, the base class of every domain event (in `Domain/Event`), and `ReleasesEvents` and `RecordsEvents`;
   - `Email` (lower case), `PhoneNumber` (E.164, ADR 0072), `ContactDetails`;
   - links to outside tools (ADR 0165):

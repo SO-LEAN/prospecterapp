@@ -6,9 +6,9 @@ namespace Prospecter\Core\PersonalData\Application\PublishContactCollected;
 
 use Prospecter\Core\PersonalData\Contract\Event as Published;
 use Prospecter\Core\PersonalData\Domain\Event\ContactCollected;
+use Prospecter\Core\PersonalData\Domain\Model\OrganizationId;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
-use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
  * Tells the other contexts, in the published language, that a contact was collected (ADR 0046).

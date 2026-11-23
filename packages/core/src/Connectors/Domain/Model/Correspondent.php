@@ -7,7 +7,6 @@ namespace Prospecter\Core\Connectors\Domain\Model;
 use Prospecter\Core\Connectors\Domain\Port\Correspondents;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Email;
-use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**

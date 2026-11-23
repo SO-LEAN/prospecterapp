@@ -7,9 +7,9 @@ namespace Prospecter\Core\Reporting\Application\RecordOrganizationFacts;
 use Prospecter\Core\Prospecting\Contract\Event\OrganizationFactsChanged;
 use Prospecter\Core\Reporting\Application\FactRecorder;
 use Prospecter\Core\Reporting\Domain\Model\OrganizationFact;
+use Prospecter\Core\Reporting\Domain\Model\OrganizationId;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
  * Counts an account's organizations from the facts that Prospecting publishes (ADR 0099).
