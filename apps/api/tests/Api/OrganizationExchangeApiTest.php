@@ -46,6 +46,7 @@ class OrganizationExchangeApiTest extends ApiTestCase
         $this->assertSame($timeline, $this->requestJson('GET', '/api/organizations/'.$organization.'/exchanges'));
     }
 
+    #[Group('core-rule')]
     public function testAnExchangeWithTheOrganizationItselfIsInTheTimelineOfNoContact(): void
     {
         $organization = $this->anOrganization('ACME');
@@ -64,6 +65,7 @@ class OrganizationExchangeApiTest extends ApiTestCase
         $this->assertSame('referenceNotOfTheChannel', $problem['reason']);
     }
 
+    #[Group('core-rule')]
     public function testAnExchangeNotedWithAContactFromTheOrganizationIsInTheTimelineOfTheContact(): void
     {
         $organization = $this->anOrganization('ACME');
@@ -129,6 +131,7 @@ class OrganizationExchangeApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(403);
     }
 
+    #[Group('core-rule')]
     public function testAContactRemovedFromTheOrganizationStaysInItsTimelineAsRemoved(): void
     {
         $organization = $this->anOrganization('ACME');

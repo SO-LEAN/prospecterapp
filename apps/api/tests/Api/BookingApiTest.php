@@ -293,6 +293,7 @@ class BookingApiTest extends ApiTestCase
         $this->assertResponseIsSuccessful();
     }
 
+    #[Group('core-rule')]
     public function testALinkNobodyDrewShowsNothingAsAClosedOne(): void
     {
         $page = $this->requestJson('GET', '/api/booking-pages/AbCdEfGhIjKlMnOpQrStUv');
@@ -446,6 +447,7 @@ class BookingApiTest extends ApiTestCase
         $this->assertSame('slotNotFree', $problem['reason']);
     }
 
+    #[Group('core-rule')]
     public function testASecondAppointmentToComeOfAnEmailIsRefusedSayingWhenTheFirstIs(): void
     {
         $code = $this->anOpenPageOnFridayMorning();
@@ -458,6 +460,7 @@ class BookingApiTest extends ApiTestCase
         $this->assertSame(['alreadyBooked', ['appointment' => self::FRIDAY_MORNING]], [$problem['reason'], self::valueAt($problem, 'violations', 0, 'context')]);
     }
 
+    #[Group('core-rule')]
     public function testABookerLeavingOutTheirPhoneIsRefused(): void
     {
         $code = $this->anOpenPageOnFridayMorning();

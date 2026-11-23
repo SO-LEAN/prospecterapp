@@ -118,6 +118,7 @@ class OrganizationApiTest extends ApiTestCase
         $this->assertSame('Call back', $noted['observations']);
     }
 
+    #[Group('core-rule')]
     public function testTheSiretIsNotedWithTheLegalIdentity(): void
     {
         $id = $this->started(self::ACME);
@@ -162,6 +163,7 @@ class OrganizationApiTest extends ApiTestCase
         $this->assertSame([['siret'], 'invalidSiret'], [$this->violatedFields($problem), $problem['reason']]);
     }
 
+    #[Group('core-rule')]
     public function testASiretOfAnotherOrganizationOfTheAccountIsRefusedNamingIt(): void
     {
         $globex = $this->started(['legalIdentity' => ['corporateName' => 'Globex']]);
@@ -196,6 +198,7 @@ class OrganizationApiTest extends ApiTestCase
         $this->assertSame([['links'], 'referenceAlreadyUsed', ['holder' => 'Globex']], [$this->violatedFields($problem), $problem['reason'], self::valueAt($problem, 'violations', 0, 'context')]);
     }
 
+    #[Group('core-rule')]
     public function testMoreThanFiveLinksAreRefusedOnTheirField(): void
     {
         $id = $this->started(self::ACME);
@@ -206,6 +209,7 @@ class OrganizationApiTest extends ApiTestCase
         $this->assertSame(['links'], $this->violatedFields($problem));
     }
 
+    #[Group('core-rule')]
     public function testAWebsiteOfTheDomainOfAnotherOrganizationOfTheAccountIsRefusedNamingIt(): void
     {
         $globex = $this->started(['legalIdentity' => ['corporateName' => 'Globex']]);
@@ -257,6 +261,7 @@ class OrganizationApiTest extends ApiTestCase
         $this->assertSame([['links'], 'referenceAlreadyUsed', ['holder' => 'Globex']], [$this->violatedFields($problem), $problem['reason'], self::valueAt($problem, 'violations', 0, 'context')]);
     }
 
+    #[Group('core-rule')]
     public function testAPageOfAPersonIsRefusedOnTheLinks(): void
     {
         $id = $this->started(self::ACME);
@@ -267,6 +272,7 @@ class OrganizationApiTest extends ApiTestCase
         $this->assertSame([['links'], 'referenceOfAnotherKind', ['source' => 'malt', 'designates' => 'person']], [$this->violatedFields($problem), $problem['reason'], self::valueAt($problem, 'violations', 0, 'context')]);
     }
 
+    #[Group('core-rule')]
     public function testWhatIsNoAddressIsRefusedOnTheLinks(): void
     {
         $id = $this->started(self::ACME);
@@ -277,6 +283,7 @@ class OrganizationApiTest extends ApiTestCase
         $this->assertSame([['links'], 'notAWebAddress'], [$this->violatedFields($problem), $problem['reason']]);
     }
 
+    #[Group('core-rule')]
     public function testAPageOfAKnownSourceItDoesNotRecognizeIsRefusedOnTheLinks(): void
     {
         $id = $this->started(self::ACME);
@@ -287,6 +294,7 @@ class OrganizationApiTest extends ApiTestCase
         $this->assertSame([['links'], 'unrecognizedPage', ['host' => 'linkedin.com']], [$this->violatedFields($problem), $problem['reason'], self::valueAt($problem, 'violations', 0, 'context')]);
     }
 
+    #[Group('core-rule')]
     public function testAnAddressThatIsNoSiteIsRefusedOnItsField(): void
     {
         $id = $this->started(self::ACME);
