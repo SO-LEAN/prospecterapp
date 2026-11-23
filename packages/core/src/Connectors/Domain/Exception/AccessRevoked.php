@@ -14,6 +14,6 @@ final class AccessRevoked extends NotAllowed
 {
     public static function by(Provider $provider): self
     {
-        return self::because(sprintf('%s no longer grants the access', ucfirst($provider->value)));
+        return self::because(sprintf('%s no longer grants access', ucfirst($provider->value)));
     }
 }
