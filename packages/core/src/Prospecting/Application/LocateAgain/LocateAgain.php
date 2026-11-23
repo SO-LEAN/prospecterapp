@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\LocateAgain;
 
 /**
- * Geocodes again the address of an organization located before its municipality was kept (ADR 0142); nothing for
- * one that has it.
+ * Geocodes again an organization's address when the organization was located before Prospecter kept municipalities
+ * (ADR 0142). Nothing happens for an organization that already has its municipality.
  */
 final readonly class LocateAgain
 {
