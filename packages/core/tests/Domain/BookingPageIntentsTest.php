@@ -30,7 +30,8 @@ use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * Every intention of a booking page is refused exactly when its state does not offer it, and records its event.
+ * A booking page refuses each intention exactly when its state does not allow it. Otherwise, the intention records its
+ * event.
  */
 final class BookingPageIntentsTest extends TestCase
 {
@@ -61,14 +62,14 @@ final class BookingPageIntentsTest extends TestCase
         $page = $this->open();
 
         $this->expectException(NotPossibleInItsState::class);
-        $this->expectExceptionMessageIsOrContains('An open booking page does not open again');
+        $this->expectExceptionMessageIsOrContains('An open booking page cannot open again');
         $page->open(new BookingCode(self::OTHER_CODE), true, $this->now());
     }
 
     public function testAClosedPageIsNotClosedAgain(): void
     {
         $this->expectException(NotPossibleInItsState::class);
-        $this->expectExceptionMessageIsOrContains('A closed booking page does not close again');
+        $this->expectExceptionMessageIsOrContains('A closed booking page cannot close again');
         $this->aPageNeverSet()->close($this->now());
     }
 

@@ -7,7 +7,7 @@ namespace Prospecter\Core\Booking\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
 /**
- * A time zone is one of the IANA database, by its name (Europe/Paris).
+ * A time zone is an IANA time zone, given by its name (Europe/Paris).
  */
 final class UnknownTimeZone extends BusinessRuleViolation
 {

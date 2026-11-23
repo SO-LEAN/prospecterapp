@@ -9,8 +9,8 @@ use Prospecter\Core\Booking\Domain\Port\Hosts;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * Whether the public link of an open page offers slots (ADR 0153, 0164): while the calendar of its host is connected,
- * which invites the bookers, and the host may hold the contacts their bookers become (ADR 0146).
+ * Whether an open page's public link offers slots (ADR 0153, 0164). It does while the host's calendar, which invites
+ * the bookers, is connected, and while the host can hold the contacts that their bookers become (ADR 0146).
  */
 final readonly class LinkAvailability
 {

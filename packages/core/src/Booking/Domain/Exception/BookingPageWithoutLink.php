@@ -7,7 +7,7 @@ namespace Prospecter\Core\Booking\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 
 /**
- * A page gets its link at its first opening: before it, there is no link to change.
+ * A page gets its link when it opens for the first time. Before that, it has no link to change.
  */
 final class BookingPageWithoutLink extends NotPossibleInItsState
 {

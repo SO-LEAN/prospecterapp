@@ -9,13 +9,14 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * Port: when a host is already taken, by the exchanges they still have planned, translated from the context that
- * keeps them (Prospecting), through its published service `ConsultPlannedExchangesService` (ADR 0089, 0133, 0153).
+ * Port: when a host is already busy with the exchanges they still have planned. The adapter translates them from
+ * Prospecting, the context that keeps them, through its published service `ConsultPlannedExchangesService` (ADR 0089,
+ * 0133, 0153).
  */
 interface HostAgendas
 {
     /**
-     * @return list<BusyPeriod> those starting from `from` on
+     * @return list<BusyPeriod> the periods that start at `from` or later
      */
     public function busyPeriodsOf(AccountId $accountId, MemberId $host, \DateTimeImmutable $from): array;
 }

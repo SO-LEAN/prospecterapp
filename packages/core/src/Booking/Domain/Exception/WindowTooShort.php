@@ -7,7 +7,7 @@ namespace Prospecter\Core\Booking\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
 /**
- * A window ends at least 15 minutes after it starts: it holds one slot at least.
+ * A window ends at least 15 minutes after it starts, so it holds at least one slot.
  */
 final class WindowTooShort extends BusinessRuleViolation
 {

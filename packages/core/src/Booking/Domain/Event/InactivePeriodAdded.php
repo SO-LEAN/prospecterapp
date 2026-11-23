@@ -9,7 +9,7 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * The host added days they may not be booked.
+ * The host added days when nobody can book them.
  */
 final readonly class InactivePeriodAdded extends BookingPageEvent
 {

@@ -7,8 +7,8 @@ namespace Prospecter\Core\Booking\Domain\Model;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * What a booker asks of a booking page: a slot, by a channel, saying who they are and what about; the identities
- * given by the client, that of the appointment and the one the booker gets should nobody of the account be them.
+ * What a booker asks a booking page for: a slot, a channel, who they are and the subject. The client gives two ids: the
+ * appointment's id, and the id the booker gets when nobody in the account matches them.
  */
 final readonly class AppointmentRequest
 {

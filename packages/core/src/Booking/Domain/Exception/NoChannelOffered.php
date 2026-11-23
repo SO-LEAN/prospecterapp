@@ -7,7 +7,7 @@ namespace Prospecter\Core\Booking\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
 /**
- * An open booking page offers the bookers a call, a video call or both.
+ * An open booking page offers bookers a call, a video call, or both.
  */
 final class NoChannelOffered extends BusinessRuleViolation
 {

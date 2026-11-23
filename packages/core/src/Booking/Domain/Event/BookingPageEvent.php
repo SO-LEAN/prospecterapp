@@ -8,7 +8,7 @@ use Prospecter\Core\SharedKernel\Domain\Event\DomainEvent;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * Something that happened to the booking page of a host, by that host: the page is theirs alone.
+ * An event on a host's booking page. Only the host acts on it, because the page is theirs alone.
  */
 abstract readonly class BookingPageEvent extends DomainEvent
 {

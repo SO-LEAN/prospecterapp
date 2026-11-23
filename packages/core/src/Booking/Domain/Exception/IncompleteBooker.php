@@ -7,7 +7,7 @@ namespace Prospecter\Core\Booking\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
 /**
- * The host needs to know whom they meet and how to reach them; only the subject may be left out.
+ * The host needs to know who they meet and how to reach them. Only the subject is optional.
  */
 final class IncompleteBooker extends BusinessRuleViolation
 {

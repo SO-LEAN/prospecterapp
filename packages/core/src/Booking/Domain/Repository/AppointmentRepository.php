@@ -14,19 +14,19 @@ interface AppointmentRepository
     public function find(AppointmentId $id): ?Appointment;
 
     /**
-     * The appointments of the host not ended at this moment, the soonest first.
+     * The host's appointments that have not ended at this moment, the soonest first.
      *
      * @return list<Appointment>
      */
     public function toComeOf(MemberId $host, \DateTimeImmutable $at): array;
 
     /**
-     * @throws SlotNotFree when another appointment took its slot meanwhile
+     * @throws SlotNotFree when another appointment took the slot in the meantime
      */
     public function save(Appointment $appointment): void;
 
     /**
-     * The appointment and the slot it holds, forgotten.
+     * Forgets the appointment and frees the slot it holds.
      */
     public function remove(Appointment $appointment): void;
 }

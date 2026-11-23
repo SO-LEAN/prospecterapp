@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Prospecter\Core\Booking\Domain\Model;
 
 /**
- * What a host may do with their booking page, as its state allows.
+ * What a host can do with their booking page in its current state.
  */
 enum BookingPageIntent
 {
-    /** Open the page to the bookers, its link drawn the first time. */
+    /** Open the page to bookers. The first opening draws its link. */
     case OpenBooking;
-    /** Close it at once, its settings kept. */
+    /** Close the page at once. It keeps its settings. */
     case CloseBooking;
-    /** Draw another code for its link, the former one leading nowhere. */
+    /** Draw a new code for the page's link. The former link leads nowhere. */
     case ChangeBookingLink;
 }

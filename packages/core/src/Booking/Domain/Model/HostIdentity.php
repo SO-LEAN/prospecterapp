@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Booking\Domain\Model;
 
 /**
- * Who a host is to the bookers: their name, their picture and the organization they work for, as they present
- * themselves to whom they give their link.
+ * How a host presents themselves to the people they give their link to: their name, their picture and the organization
+ * they work for.
  */
 final readonly class HostIdentity
 {

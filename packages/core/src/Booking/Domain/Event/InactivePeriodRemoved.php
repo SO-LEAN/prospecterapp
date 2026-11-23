@@ -9,7 +9,7 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * The host removed an inactive period: those days are offered again, as their windows say.
+ * The host removed an inactive period. Its days are bookable again, as the host's windows say.
  */
 final readonly class InactivePeriodRemoved extends BookingPageEvent
 {

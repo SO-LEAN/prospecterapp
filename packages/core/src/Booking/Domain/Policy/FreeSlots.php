@@ -11,8 +11,8 @@ use Prospecter\Core\Booking\Domain\Model\Weekday;
 use Prospecter\Core\Booking\Domain\Model\Window;
 
 /**
- * The slots a booker may choose (ADR 0153): the windows of the host cut by 15 minutes, from tomorrow on their clock
- * and for 14 days, none on a day of an inactive period nor overlapping a time the host is already taken.
+ * The slots a booker can choose (ADR 0153). The host's windows are cut into 15-minute slots, for 14 days from tomorrow
+ * on the host's clock. No slot falls on an inactive period's day or overlaps a time when the host is already busy.
  */
 final readonly class FreeSlots
 {

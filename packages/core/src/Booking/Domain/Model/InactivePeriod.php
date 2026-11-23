@@ -8,8 +8,8 @@ use Prospecter\Core\Booking\Domain\Exception\PeriodEndsBeforeItStarts;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
 /**
- * Days the host may not be booked, whatever their windows: from a first day to a last one, both included, written
- * YYYY-MM-DD on the clock of the host. It has no label: an unavailability, not a note.
+ * Days when nobody can book the host, whatever their windows say. The period runs from a first day to a last day, both
+ * included, written YYYY-MM-DD on the host's clock. It has no label: it marks an unavailability, not a note.
  */
 final readonly class InactivePeriod
 {

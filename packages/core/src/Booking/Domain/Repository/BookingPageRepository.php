@@ -19,12 +19,12 @@ interface BookingPageRepository
     public function find(MemberId $host): ?BookingPage;
 
     /**
-     * The page the link of this code leads to now, none for a former code.
+     * The page that this code's link currently leads to. A former code leads to no page.
      */
     public function findByCode(BookingCode $code): ?BookingPage;
 
     /**
-     * Keeps the page and the link of its code to it, the link of a former code gone with it.
+     * Saves the page and links its code to it. The link of a former code goes away.
      */
     public function save(BookingPage $page): void;
 }

@@ -10,9 +10,9 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * Port: the members who host a booking page, their account and who they are to the bookers, translated from the
- * contexts that know them, through their published services: Accounts (`ConsultMembersService`) and PersonalData
- * (`PresentMembersService`) (ADR 0045, 0089, 0153).
+ * Port: the members who host a booking page, their account, and how they present themselves to bookers. The adapter
+ * translates them from the contexts that know them, through their published services: Accounts
+ * (`ConsultMembersService`) and PersonalData (`PresentMembersService`) (ADR 0045, 0089, 0153).
  */
 interface Hosts
 {
@@ -27,7 +27,7 @@ interface Hosts
     public function identityOf(MemberId $host): HostIdentity;
 
     /**
-     * Whether the host may hold the contacts their bookers become (ADR 0146, 0164).
+     * Whether the host can hold the contacts that their bookers become (ADR 0146, 0164).
      */
     public function mayHoldBookers(MemberId $host): bool;
 }

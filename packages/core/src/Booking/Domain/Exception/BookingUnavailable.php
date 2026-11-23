@@ -7,7 +7,8 @@ namespace Prospecter\Core\Booking\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
 /**
- * A link no page has now, a page closed or suspended books nothing, without saying why, as it offers nothing (ADR 0153).
+ * Nobody can book through a link that leads to no page, or to a closed or suspended page. The refusal does not say why,
+ * because the link offers nothing (ADR 0153).
  */
 final class BookingUnavailable extends BusinessRuleViolation
 {

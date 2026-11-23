@@ -7,7 +7,7 @@ namespace Prospecter\Core\Booking\Domain\Model;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
 /**
- * A time of the day as the host reads it on their clock, written HH:MM, without a day nor a time zone.
+ * A time of day as the host reads it on their clock, written HH:MM, without a date or a time zone.
  */
 final readonly class WallClockTime
 {
