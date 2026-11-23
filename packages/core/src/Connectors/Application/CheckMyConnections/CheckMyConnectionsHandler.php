@@ -39,7 +39,8 @@ final readonly class CheckMyConnectionsHandler implements CommandHandler
     }
 
     /**
-     * Without a client of the account at its provider, nothing can be asked of it: the connection stays as last seen.
+     * Nothing can be asked of a provider when the account has no client there. Then the connection stays as it was
+     * last seen.
      */
     private function check(Connection $connection, AccountId $myAccount, \DateTimeImmutable $at): void
     {
