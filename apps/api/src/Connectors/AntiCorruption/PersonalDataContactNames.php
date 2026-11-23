@@ -15,9 +15,9 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 /**
- * Anticorruption layer (ADR 0045, 0089): Connectors names a contact as the member reads them, from PersonalData, asked
- * about a set of one (ADR 0127), and reaches them at their e-mail and their phone read in clear, to invite them
- * (ADR 0175).
+ * Anticorruption layer (ADR 0045, 0089). Connectors names a contact as the member reads them in PersonalData, which it
+ * asks about a set of one (ADR 0127). To invite the contact, it reaches them at their e-mail and phone number, read
+ * unmasked (ADR 0175).
  */
 final readonly class PersonalDataContactNames implements ContactNames
 {

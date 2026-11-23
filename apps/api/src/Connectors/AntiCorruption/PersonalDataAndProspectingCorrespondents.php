@@ -19,10 +19,12 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Psr\Log\LoggerInterface;
 
 /**
- * Anticorruption layer (ADR 0045, 0089): Connectors learns who of the account an address
- * designates, a contact from PersonalData, an organization from Prospecting, each asked about a set of one (ADR 0154);
- * an address no contact has, then no organization, is logged by the account only, the address never told: a sender
- * set aside is the two lines, no contact then no organization, the first alone being a sender found an organization.
+ * Anticorruption layer (ADR 0045, 0089). Connectors learns who in the account an address designates: a contact from
+ * PersonalData, or else an organization from Prospecting. Each context is asked about a set of one (ADR 0154).
+ *
+ * When no contact has the address, and then no organization, the log names the account only, never the address. A
+ * sender set aside leaves two lines: no contact, then no organization. The first line alone means that the sender is
+ * an organization.
  */
 #[WithMonologChannel('mailbox')]
 final readonly class PersonalDataAndProspectingCorrespondents implements Correspondents
@@ -40,7 +42,7 @@ final readonly class PersonalDataAndProspectingCorrespondents implements Corresp
         ($this->whichContactsHaveTheseEmailsService)(new WhichContactsHaveTheseEmails([$email->value], $accountId->value), $kept);
         $contact = $kept->contacts[$email->value] ?? null;
         if (null === $contact) {
-            $this->logger->info('The sender of a message is no contact of the account', ['account' => $accountId->value]);
+            $this->logger->info('The message\'s sender is not a contact of the account', ['account' => $accountId->value]);
 
             return null;
         }
@@ -54,7 +56,7 @@ final readonly class PersonalDataAndProspectingCorrespondents implements Corresp
         ($this->whichOrganizationsHaveTheseEmailsService)(new WhichOrganizationsHaveTheseEmails([$email->value], $accountId->value), $kept);
         $organization = $kept->organizations[$email->value] ?? null;
         if (null === $organization) {
-            $this->logger->info('The sender of a message is no organization of the account', ['account' => $accountId->value]);
+            $this->logger->info('The message\'s sender is not an organization of the account', ['account' => $accountId->value]);
 
             return null;
         }

@@ -17,8 +17,8 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * Anticorruption layer (ADR 0045, 0089): Connectors knows the account of a member from Accounts, and their first name
- * as they present themselves from PersonalData (ADR 0175), asked about a set of one.
+ * Anticorruption layer (ADR 0045, 0089). Connectors gets a member's account from Accounts. It gets the first name that
+ * the member presents themselves with from PersonalData (ADR 0175). Each context is asked about a set of one.
  */
 final readonly class AccountsAndPersonalDataMembers implements Members
 {

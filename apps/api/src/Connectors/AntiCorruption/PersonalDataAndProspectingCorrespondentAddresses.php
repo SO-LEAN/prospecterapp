@@ -20,8 +20,9 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Anticorruption layer (ADR 0045, 0089): Connectors learns the address of a contact from PersonalData, that of an
- * organization from Prospecting, each asked about a set of one, to search the mailbox by it, never kept.
+ * Anticorruption layer (ADR 0045, 0089). Connectors gets a contact's address from PersonalData and an organization's
+ * address from Prospecting. Each context is asked about a set of one. Connectors searches the mailbox by the address
+ * and never keeps it.
  */
 final readonly class PersonalDataAndProspectingCorrespondentAddresses implements CorrespondentAddresses
 {
