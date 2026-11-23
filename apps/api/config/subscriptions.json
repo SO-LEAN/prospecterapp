@@ -243,7 +243,7 @@
     "context": "campaigns",
     "sources": ["prospecter.personal-data"],
     "events": ["ContactForgotten.v1"],
-    "handler": "Prospecter\\Core\\Campaigns\\Application\\ForgetTagsOfForgottenContact\\ForgetTagsOfForgottenContactHandler",
+    "policy": "Prospecter\\Core\\Campaigns\\Application\\Policy\\ForgetTagsOfForgottenContactPolicy",
     "inbox": false
   },
   "campaigns-forget-recipient-of-forgotten-contact": {
