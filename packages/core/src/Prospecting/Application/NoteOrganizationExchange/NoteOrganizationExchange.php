@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\NoteOrganizationExchange;
 
 /**
- * Notes, from the card of an organization, a call, a message or a meeting with the organization itself, or with
- * one of its contacts when `personId` names one (ADR 0076). The channel and the direction are named by the
- * values of `Channel` and `Direction`. `byAnAI` when an AI notes it, acting as the prospector.
+ * Logs a call, a message or a meeting from an organization's card. The exchange is with the organization itself, or
+ * with one of its contacts when `personId` names one (ADR 0076). The channel and the direction take the values of
+ * `Channel` and `Direction`. `byAnAI` is set when an AI logs it, acting as the prospector.
  */
 final readonly class NoteOrganizationExchange
 {

@@ -59,7 +59,7 @@ final readonly class NoteOrganizationExchangeHandler implements CommandHandler
     }
 
     /**
-     * Kept, like any other exchange with a contact, for every organization the contact is part of.
+     * Like any other exchange with a contact, the exchange is kept for every organization the contact is part of.
      */
     private function notedWithAContact(Organization $organization, MemberId $author, PersonId $contact, NoteOrganizationExchange $command): Exchange
     {
