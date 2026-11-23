@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Connectors\Application\Connect;
 
 /**
- * The provider I asked brought me back with its code of authorization and the `state` of my request: my account
- * there is connected, the access it grants replacing any I gave before.
+ * The provider that I asked brought me back with its authorization code and my request's `state`. My account there
+ * is connected. The access that it grants replaces any access I gave before.
  */
 final readonly class Connect
 {

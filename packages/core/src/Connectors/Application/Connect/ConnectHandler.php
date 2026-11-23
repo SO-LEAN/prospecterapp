@@ -80,8 +80,9 @@ final readonly class ConnectHandler implements CommandHandler
     }
 
     /**
-     * The import of the e-mails starts once the member granted the reading of their mailbox they asked for, while the
-     * account still has its topic; unticked at the consent, nothing is imported, the calendar connected all the same.
+     * The e-mail import starts once the member granted the mailbox access that they asked for, while the account still
+     * has its topic. When the member unticked the mailbox on the consent screen, nothing is imported. The calendar is
+     * connected all the same.
      */
     private function importTheMailWhenGranted(Connection $connection, ProviderClient $client, PendingAuthorization $authorization, Grant $grant, \DateTimeImmutable $at): void
     {
