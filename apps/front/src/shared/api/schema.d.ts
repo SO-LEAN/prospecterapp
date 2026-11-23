@@ -427,7 +427,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** The figures of my organization and the organizations to place on a map */
+        /** Get my organization's figures and the organizations to place on a map */
         get: operations["get_api_dashboard"];
         put?: never;
         post?: never;

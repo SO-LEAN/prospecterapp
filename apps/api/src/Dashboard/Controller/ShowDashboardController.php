@@ -25,7 +25,7 @@ final class ShowDashboardController extends AbstractController
     }
 
     #[Route('/api/dashboard', name: 'api_dashboard', methods: ['GET'])]
-    #[OA\Get(summary: 'The figures of my organization and the organizations to place on a map')]
+    #[OA\Get(summary: 'Get my organization\'s figures and the organizations to place on a map')]
     #[OA\Response(response: 200, description: 'My dashboard', content: new Model(type: DashboardResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'The signed-in user is not a prospector', content: new Model(type: ProblemResource::class))]
