@@ -200,7 +200,7 @@
     "context": "connectors",
     "sources": ["prospecter.connectors.internal"],
     "events": ["MailboxChanged.v1", "MailWatchRenewed.v1"],
-    "handler": "Prospecter\\Core\\Connectors\\Application\\ReadMailboxHistory\\ReadMailboxHistoryHandler",
+    "policy": "Prospecter\\Core\\Connectors\\Application\\Policy\\ReadMailboxHistoryPolicy",
     "inbox": true
   },
   "connectors-import-mail": {

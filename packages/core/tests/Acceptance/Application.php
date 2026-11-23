@@ -153,6 +153,7 @@ use Prospecter\Core\Connectors\Application\NoteMailboxNotification\NoteMailboxNo
 use Prospecter\Core\Connectors\Application\Policy\ImportMailPolicy;
 use Prospecter\Core\Connectors\Application\Policy\PushExchangePolicy;
 use Prospecter\Core\Connectors\Application\Policy\PushUpcomingExchangesPolicy;
+use Prospecter\Core\Connectors\Application\Policy\ReadMailboxHistoryPolicy;
 use Prospecter\Core\Connectors\Application\Policy\UnnameForgottenContactPolicy;
 use Prospecter\Core\Connectors\Application\PublishVideoCallLinkCreated\PublishVideoCallLinkCreatedHandler;
 use Prospecter\Core\Connectors\Application\PushExchange\PushExchangeHandler;
@@ -1377,6 +1378,7 @@ final class Application
     private function commandHandlers(): array
     {
         return [
+            new ReadMailboxHistoryHandler($this->connections, $this->clients, $this->mailboxes, $this->connectingMembers, $this->events),
             new PushUpcomingExchangesHandler($this->heldExchanges, $this->calendarPusher),
             new ImportMailHandler($this->connections, $this->clients, $this->mailboxes, new PersonalDataAndProspectingCorrespondents($this->whichContactsHaveTheseEmailsService, $this->whichOrganizationsHaveTheseEmailsService), $this->events),
             new PushExchangeHandler($this->calendarPusher),
@@ -1805,7 +1807,7 @@ final class Application
             new RecordFactsPolicy(),
             new PushExchangePolicy(),
             new PushUpcomingExchangesPolicy(),
-            new ReadMailboxHistoryHandler($this->connections, $this->clients, $this->mailboxes, $this->connectingMembers, $this->events),
+            new ReadMailboxHistoryPolicy(),
             new ImportMailPolicy(),
             new UnnameForgottenContactPolicy(),
             new ForgetTagsOfUnprospectedOrganizationPolicy(),

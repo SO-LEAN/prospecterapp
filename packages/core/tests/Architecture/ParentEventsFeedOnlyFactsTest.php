@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Core\Architecture;
 
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\Connectors\Application\ReadMailboxHistory\ReadMailboxHistoryHandler;
 use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
 
 /**
@@ -16,16 +15,6 @@ use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
 class ParentEventsFeedOnlyFactsTest extends TestCase
 {
     private const string PUBLICATION_OF_FACTS = '/\\\\Publish\w+Facts\\\\/';
-
-    /**
-     * The reactions allowed to subscribe to a parent. Each of these parents names a condition, and an event
-     * meets it by extending the parent. Backlog #273 turns the reactions into translations of an event into a
-     * command, and removes these parents with this list.
-     */
-    private const array REACTIONS_TO_A_CONDITION = [
-        // ADR 0154: the mailbox may hold messages not read yet
-        ReadMailboxHistoryHandler::class,
-    ];
 
     public function testOnlyAPublicationOfFactsSubscribesToAParentEvent(): void
     {
@@ -42,7 +31,7 @@ class ParentEventsFeedOnlyFactsTest extends TestCase
         foreach (EventHandlersOfTheCore::all() as $handler) {
             $event = $this->eventOf($handler);
 
-            if ($this->isAParent($event) && !$this->publishesFacts($handler) && !in_array($handler, self::REACTIONS_TO_A_CONDITION, true)) {
+            if ($this->isAParent($event) && !$this->publishesFacts($handler)) {
                 $reactions[] = sprintf('%s: %s', $handler, $event);
             }
         }
