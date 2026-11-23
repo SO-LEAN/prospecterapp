@@ -13,9 +13,9 @@ use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * The exchange Prospecting noted for a recipient in a campaign processes them, done or missed (ADR 0145): the
- * campaign ends once nobody is left to handle. Delivered again, or for an exchange of no campaign, a campaign erased
- * or a recipient handled already, nothing changes.
+ * Marks the recipient as done or missed when Prospecting logs their exchange in a campaign (ADR 0145). The campaign
+ * ends once nobody is left to handle. Nothing changes when the event is delivered again, or when it is about an
+ * exchange outside any campaign, an erased campaign or a recipient already handled.
  */
 final readonly class ProcessRecipientOfCampaignExchangeHandler implements EventHandler
 {
@@ -39,9 +39,7 @@ final readonly class ProcessRecipientOfCampaignExchangeHandler implements EventH
         }
     }
 
-    /**
-     * Prospecting's status of the exchange, translated here: a planned exchange processes nobody yet.
-     */
+    /** Translates the exchange's status in Prospecting. A planned exchange processes nobody yet. */
     private static function outcomeOf(?string $status): ?RecipientOutcome
     {
         return match ($status) {
