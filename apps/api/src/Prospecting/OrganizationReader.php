@@ -15,9 +15,9 @@ use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 
 /**
- * An organization as the API shows it: read by the query of the core, presented to the presenter it builds for the
- * call (ADR 0085). A controller calls it after a command, which returns nothing, to answer with the fresh resource,
- * or to present an organization a resolver already read.
+ * Reads an organization as the API shows it. The core's query reads it, and a presenter built for the call presents
+ * it (ADR 0085). A command returns nothing, so a controller calls this reader after the command to answer with the
+ * fresh resource. A controller also calls it to present an organization that a resolver already read.
  */
 final readonly class OrganizationReader
 {

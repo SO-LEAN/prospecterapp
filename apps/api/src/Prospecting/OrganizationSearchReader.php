@@ -12,8 +12,8 @@ use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\Search
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 
 /**
- * A slice of the organizations the account of a member prospects, by the start of their corporate name or their
- * email, as its endpoint and its tool answer it.
+ * Reads a slice of the organizations a member's account prospects, found by the start of their corporate name or of
+ * their email. The endpoint and the MCP tool answer with it.
  */
 final readonly class OrganizationSearchReader
 {

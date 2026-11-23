@@ -8,7 +8,8 @@ use App\Security\AccountResourceVoter;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 
 /**
- * Whether the signed-in member reaches an organization: one of their account (ADR 0081).
+ * Decides whether the signed-in member reaches an organization. They reach their own account's organizations (ADR
+ * 0081).
  *
  * @extends AccountResourceVoter<OrganizationSheet>
  */
