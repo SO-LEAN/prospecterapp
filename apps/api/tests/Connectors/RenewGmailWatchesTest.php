@@ -42,7 +42,7 @@ class RenewGmailWatchesTest extends ApiTestCase
         $this->aClientNotifyingTheMailboxes();
         $this->aMemberImportingTheMail('prospector-user');
 
-        $this->assertStringContainsString('1 watch(es) of Gmail renewed, 0 failed', $this->renew());
+        $this->assertStringContainsString('1 Gmail watch(es) renewed, 0 failed', $this->renew());
 
         $this->assertSame([self::TOPIC], self::service(GoogleDouble::class)->watches());
     }
@@ -54,7 +54,7 @@ class RenewGmailWatchesTest extends ApiTestCase
         $this->aMemberImportingTheMail('assistant-user');
         self::service(GoogleDouble::class)->failsTheNextWatch();
 
-        $this->assertStringContainsString('1 watch(es) of Gmail renewed, 1 failed', $this->renew());
+        $this->assertStringContainsString('1 Gmail watch(es) renewed, 1 failed', $this->renew());
 
         $this->assertSame([self::TOPIC], self::service(GoogleDouble::class)->watches());
         $this->assertCount(2, self::service(MailImportsRetriever::class)->active(), 'A renewal failing keeps its import active, to renew the next day');

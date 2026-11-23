@@ -10,10 +10,10 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * Renews the watch of the mailbox of each import of the e-mails active (ADR 0154): by hand on the local stack, whose
- * MiniStack runs no schedule, or on an instance whose schedule missed a day.
+ * Renews the mailbox watch of each active e-mail import (ADR 0154). Run it by hand on the local stack, because
+ * MiniStack runs no schedule. Run it also on an instance whose schedule missed a day.
  */
-#[AsCommand(name: 'app:gmail:renew-watches', description: 'Renew the watch of the mailbox of each import of the e-mails of Gmail active')]
+#[AsCommand(name: 'app:gmail:renew-watches', description: 'Renew the mailbox watch of each active Gmail e-mail import')]
 final readonly class RenewGmailWatchesCommand
 {
     public function __construct(private MailWatchesRenewer $renewer)
@@ -23,7 +23,7 @@ final readonly class RenewGmailWatchesCommand
     public function __invoke(SymfonyStyle $io): int
     {
         $renewal = $this->renewer->renew();
-        $io->success(sprintf('%d watch(es) of Gmail renewed, %d failed.', $renewal['renewed'], $renewal['failed']));
+        $io->success(sprintf('%d Gmail watch(es) renewed, %d failed.', $renewal['renewed'], $renewal['failed']));
 
         return Command::SUCCESS;
     }
