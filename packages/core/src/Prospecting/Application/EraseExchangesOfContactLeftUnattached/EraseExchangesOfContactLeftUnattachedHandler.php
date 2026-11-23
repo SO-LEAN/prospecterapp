@@ -12,8 +12,8 @@ use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 
 /**
- * The exchanges of a contact left unattached were kept for no organization: nothing to keep them for, nothing to
- * make conform, they go with the contact (ADR 0146), their files by the reaction to their erasure.
+ * Erases the exchanges of a contact left unattached. They were kept for no organization, so nothing needs them and
+ * nothing is left to redact. They go with the contact (ADR 0146). The reaction to their erasure removes their files.
  */
 final readonly class EraseExchangesOfContactLeftUnattachedHandler implements EventHandler
 {
