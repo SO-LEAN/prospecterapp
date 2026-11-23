@@ -16,7 +16,7 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
- * What a fact received changes in the figures of its account, when it takes the place of the known one.
+ * What a received fact changes in its account's figures when it replaces the known fact.
  */
 class FiguresDeltaTest extends TestCase
 {
@@ -25,7 +25,7 @@ class FiguresDeltaTest extends TestCase
     private const string EXCHANGE = '0199a000-0000-7000-8000-000000000003';
 
     /**
-     * @param array{int, int} $expected the change of the active, then of the located organizations
+     * @param array{int, int} $expected the change in active organizations, then in located organizations
      */
     #[DataProvider('organizations')]
     public function testAnOrganizationFact(?OrganizationFact $known, OrganizationFact $received, bool $replaces, array $expected): void
@@ -70,7 +70,7 @@ class FiguresDeltaTest extends TestCase
     }
 
     /**
-     * @param array{int, array<string, int>} $expected the change of the exchanges, then of those of each month
+     * @param array{int, array<string, int>} $expected the change in exchanges, then each month's change
      */
     #[DataProvider('statuses')]
     public function testAnExchangeCountsOnceHeld(?string $known, ?string $received, array $expected): void

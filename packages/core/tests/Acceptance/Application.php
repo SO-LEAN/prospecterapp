@@ -908,8 +908,8 @@ final class Application
     }
 
     /**
-     * A recording that read the live versions before a rebuild activated a new one, writing in the former, as the
-     * worker may.
+     * Records a fact in the given version, as the worker may. The recording read the live versions before a rebuild
+     * activated a new one, so it writes in the previous version.
      */
     public function recordIn(int $version, Fact $fact): void
     {
@@ -1785,7 +1785,7 @@ final class Application
     }
 
     /**
-     * The rebuild commits each of its steps in a unit of its own: no unit of work around it (ADR 0103).
+     * The rebuild commits each step in a unit of work of its own, so no unit of work wraps it (ADR 0103).
      */
     private function rebuildFigures(): RebuildFiguresHandler
     {

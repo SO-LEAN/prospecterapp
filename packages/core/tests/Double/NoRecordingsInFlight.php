@@ -7,8 +7,8 @@ namespace Tests\Core\Double;
 use Prospecter\Core\Reporting\Application\Port\RecordingsInFlight;
 
 /**
- * The scenarios record each fact before the gesture that published it returns: none is in flight when a rebuild
- * starts.
+ * The scenarios record each fact before the gesture that published it returns. So no recording is in flight when a
+ * rebuild starts.
  */
 final readonly class NoRecordingsInFlight implements RecordingsInFlight
 {

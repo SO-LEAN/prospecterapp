@@ -57,9 +57,9 @@ final class InMemoryDatabase
     private array $contactsToAttach = [];
     /** @var array<string, int> the revision of each aggregate stored, by its identity, as the documents keep it */
     private array $revisions = [];
-    /** @var array<int, array<string, Fact>> the facts each version of the figures keeps, by the aggregate they are about */
+    /** @var array<int, array<string, Fact>> the facts that each version of the figures keeps, by their aggregate */
     private array $facts = [];
-    /** @var array<int, array<string, array<string, int>>> the figures of each version, by account, then by name */
+    /** @var array<int, array<string, array<string, int>>> each version's figures, by account, then by name */
     private array $figures = [];
     private ?int $activeVersion = null;
     private ?int $versionBuilding = null;
@@ -652,8 +652,8 @@ final class InMemoryDatabase
     }
 
     /**
-     * The keys of the facts (version, aggregate) and of the figures (version, account, name) of every version but the
-     * one kept, as a scan reads them.
+     * Returns the keys of the facts (version, aggregate) and the figures (version, account, name) in every version but
+     * the kept one, as a scan reads them.
      *
      * @return array{facts: list<array{int, string}>, figures: list<array{int, string, string}>}
      */
@@ -693,7 +693,7 @@ final class InMemoryDatabase
     }
 
     /**
-     * @return list<int> the versions keeping a fact or a figure
+     * @return list<int> the versions that keep a fact or a figure
      */
     public function versionsKept(): array
     {
@@ -705,7 +705,7 @@ final class InMemoryDatabase
     }
 
     /**
-     * The version built becomes the active one, the former one removed with its facts and its figures.
+     * Makes the built version the active one, and removes the previous one with its facts and figures.
      */
     public function activate(int $version): void
     {

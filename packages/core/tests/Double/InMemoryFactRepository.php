@@ -9,9 +9,9 @@ use Prospecter\Core\Reporting\Domain\Model\FiguresChange;
 use Prospecter\Core\Reporting\Domain\Repository\FactRepository;
 
 /**
- * The facts of each version over the InMemoryDatabase, and the figures they make, each a counter a change is added
- * to, as DynamoDB adds to a number. Within a fiber, a reading yields once it has read: the scenarios interleave two
- * recordings as two invocations of the worker may.
+ * Each version's facts over the InMemoryDatabase, and the figures they make. Each figure is a counter that a change
+ * is added to, as DynamoDB adds to a number. Within a fiber, a read yields once it has read. So the scenarios
+ * interleave two recordings, as two invocations of the worker may.
  */
 final readonly class InMemoryFactRepository implements FactRepository
 {
@@ -42,7 +42,7 @@ final readonly class InMemoryFactRepository implements FactRepository
     }
 
     /**
-     * @throws \RuntimeException when the version no longer keeps the replaced fact, as the condition of the adapter
+     * @throws \RuntimeException when the version no longer keeps the replaced fact, as the adapter's condition refuses it
      */
     public function record(int $version, Fact $fact, ?Fact $replaced, FiguresChange $change): void
     {

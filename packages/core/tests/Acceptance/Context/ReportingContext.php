@@ -20,8 +20,8 @@ use Tests\Core\Acceptance\Vocabulary;
 use Tests\Core\Double\RebuildInterrupted;
 
 /**
- * The figures Reporting keeps from the facts of the other contexts (ADR 0103): the facts it receives, its rebuilds,
- * and the figures a member consults.
+ * The figures that Reporting keeps from the other contexts' facts (ADR 0103): the facts it receives, its rebuilds,
+ * and the figures a member views.
  */
 final class ReportingContext implements Context
 {
