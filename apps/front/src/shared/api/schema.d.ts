@@ -2247,7 +2247,7 @@ export interface components {
         };
         TagsInput: {
             /**
-             * @description Each written one way: `Café owners` is #CAFE_OWNERS
+             * @description Each tag is written one way: `Café owners` is #CAFE_OWNERS
              * @default []
              * @example [
              *       "#ESN",
@@ -2266,14 +2266,14 @@ export interface components {
         };
         RecipientSearchInput: {
             /**
-             * @description The tags chosen, the tag of the channel of the campaign counting with them in the 5 tags of the search
+             * @description The chosen tags. The campaign's channel tag counts with them within the search's 5 tags
              * @default null
              */
             tags: string[] | null;
         };
         DismissalInput: {
             /**
-             * @description Why, when said
+             * @description The reason, when given
              * @default null
              */
             reason: string | null;
@@ -2288,35 +2288,35 @@ export interface components {
              */
             channel: "email" | "call" | "sms" | "linkedIn" | null;
             /**
-             * @description The tags chosen, the tag of the channel counting with them in the 5 tags of the target
+             * @description The chosen tags. The channel's tag counts with them within the target's 5 tags
              * @default null
              */
             tags: string[] | null;
             /**
-             * @description The message reminded for each contact, its variables {title}, {firstName}, {lastName}, {organization} and {jobTitle}
+             * @description The message shown for each contact, with the variables {title}, {firstName}, {lastName}, {organization} and {jobTitle}
              * @default null
              */
             message: string | null;
             /**
-             * @description The subject of an e-mail
+             * @description An e-mail's subject
              * @default null
              */
             subject: string | null;
             /**
-             * @description How an AI leading it treats the message for each person: sent as rendered, or adapted to them, its idea kept; as is when left out
+             * @description How an AI running the campaign treats the message for each person: it sends it as rendered, or adapts it to them and keeps its idea. `asIs` when left out
              * @default null
              * @enum {string|null}
              */
             messageMode: "asIs" | "adapted" | null;
             /**
-             * @description The most recipients processed a day, a guard only; none when left out. Read as it is prepared: it changes then by its own endpoint
+             * @description The most recipients processed in a day, only a guard; no cap when left out. Read only when the campaign is prepared: afterwards, it changes through its own endpoint
              * @default null
              */
             dailyCap: number | null;
         };
         DailyCapInput: {
             /**
-             * @description The most recipients processed a day, a guard an AI stops at and the member may go beyond; none takes the cap off
+             * @description The most recipients processed in a day. It is a guard: an AI stops at it, and the member may go beyond it. Null takes the cap off
              * @default null
              */
             dailyCap: number | null;
@@ -3268,7 +3268,7 @@ export interface components {
         };
         TagResource: {
             /**
-             * @description Written with its mark
+             * @description Written with its `#`
              * @example #ESN
              */
             name: string;
@@ -3276,11 +3276,11 @@ export interface components {
         };
         InheritedTagResource: {
             /**
-             * @description Written with its mark
+             * @description Written with its `#`
              * @example #ESN
              */
             name: string;
-            /** @description The organizations it comes from, in the order of their identities */
+            /** @description The organizations it comes from, sorted by id */
             from: string[];
         };
         TagsLinksResource: {
@@ -3290,7 +3290,7 @@ export interface components {
         ContactTagsResource: {
             /** @description Put on the contact by hand */
             tags: components["schemas"]["TagResource"][];
-            /** @description Put by hand on organizations naming the contact, its own left out */
+            /** @description Put by hand on the organizations that name the contact, without the contact's own tags */
             inherited: components["schemas"]["InheritedTagResource"][];
             /** @description Set from how the contact is reached: #EMAIL, #PHONE, #SMS for a mobile, #LINKEDIN */
             automatic: string[];
@@ -3298,7 +3298,7 @@ export interface components {
         };
         TagsResource: {
             tags: components["schemas"]["TagResource"][];
-            /** @description Set from where the organization is: the big city around, its department and its region, the city first */
+            /** @description Set from where the organization is: the surrounding big city, its department and its region, in that order */
             automatic: string[];
             _links: components["schemas"]["TagsLinksResource"];
         };
@@ -3306,7 +3306,7 @@ export interface components {
             /** @enum {string} */
             family: "organizationType" | "relationship" | "technology";
             /**
-             * @description In the order they are proposed
+             * @description In the order proposed
              * @example [
              *       "#APPORTEUR",
              *       "#ESN"
@@ -3317,14 +3317,14 @@ export interface components {
         SuggestedTagsResource: {
             families: components["schemas"]["TagFamilyResource"][];
             /**
-             * @description The tags its organizations and contacts carry that are not predefined, in the order of their names
+             * @description The tags that its organizations and contacts carry and that are not predefined, sorted by name
              * @example [
              *       "#SALON_2026"
              *     ]
              */
             own: string[];
             /**
-             * @description The tags set by Prospecter, to search the contacts by, never put by hand: those of how a contact is reached, then the geographic tags its organizations carry, in the order of their names
+             * @description The tags that Prospecter sets, to search the contacts by and never put by hand: the tags for how a contact is reached, then the geographic tags its organizations carry, sorted by name
              * @example [
              *       "#EMAIL",
              *       "#PHONE",
@@ -3344,16 +3344,16 @@ export interface components {
             exchange?: components["schemas"]["LinkResource"];
         };
         RecipientResource: {
-            /** @description The contact, none once erased, its status kept */
+            /** @description The contact, null once erased. The status is kept */
             contact?: components["schemas"]["ContactInListResource"] | null;
             /**
-             * @description To handle, processed by an exchange, dismissed without one, or no longer once erased while to handle
+             * @description To handle, processed by an exchange, dismissed without one, or erased while still to handle
              * @enum {string}
              */
             status: "pending" | "processed" | "dismissed" | "erased";
             /** @description Processed by a call that did not go through */
             missed: boolean;
-            /** @description Why they were dismissed, when said */
+            /** @description Why they were dismissed, when a reason was given */
             reason?: string | null;
             _links: components["schemas"]["RecipientLinksResource"];
         };
@@ -3365,7 +3365,7 @@ export interface components {
             _links: components["schemas"]["RecipientListLinksResource"];
         };
         CampaignProgressResource: {
-            /** @description Its recipients processed by an exchange noted for them in it */
+            /** @description Its recipients processed by an exchange logged for them in the campaign */
             processed: number;
             /** @description Its recipients dismissed without an exchange */
             dismissed: number;
@@ -3388,16 +3388,16 @@ export interface components {
             name: string;
             /** @enum {string} */
             channel: "email" | "call" | "sms" | "linkedIn";
-            /** @description The tags chosen */
+            /** @description The chosen tags */
             tags: string[];
-            /** @description The tags a contact carries to be targeted: those chosen and that of the channel */
+            /** @description The tags a targeted contact carries: the chosen tags and the channel's tag */
             targetedTags: string[];
-            /** @description The message, its variables {title}, {firstName}, {lastName}, {organization} and {jobTitle} not rendered */
+            /** @description The message, with its variables {title}, {firstName}, {lastName}, {organization} and {jobTitle} not rendered */
             message: string;
-            /** @description The subject of an e-mail */
+            /** @description An e-mail's subject */
             subject?: string | null;
             /**
-             * @description How an AI leading it treats the message for each person: sent as rendered, or adapted to them, its idea kept
+             * @description How an AI running the campaign treats the message for each person: it sends it as rendered, or adapts it to them and keeps its idea
              * @enum {string}
              */
             messageMode: "asIs" | "adapted";
@@ -3405,26 +3405,26 @@ export interface components {
             status: "draft" | "frozen" | "started" | "stopped" | "ended";
             author: components["schemas"]["AuthorResource"];
             progress: components["schemas"]["CampaignProgressResource"];
-            /** @description How many contacts it targets: those its search finds now while a draft, its recipients once frozen */
+            /** @description How many contacts it targets: a draft counts what its search finds now, and a frozen campaign counts its recipients */
             targeted: number;
             /**
              * Format: date-time
-             * @description When it was started, none before
+             * @description When it was started, null before
              */
             startedAt?: string | null;
             /**
              * Format: date-time
-             * @description When it was stopped, none before
+             * @description When it was stopped, null before
              */
             stoppedAt?: string | null;
             /**
              * Format: date-time
-             * @description When it ended, nobody left to handle, none before
+             * @description When it ended because nobody was left to handle, null before
              */
             endedAt?: string | null;
-            /** @description The most recipients processed a day, a guard an AI stops at and the member may go beyond; none without a cap */
+            /** @description The most recipients processed in a day. It is a guard: an AI stops at it, and the member may go beyond it. Null without a cap */
             dailyCap?: number | null;
-            /** @description Its recipients processed today, on the reader's clock, when the campaign is read alone; none in a list */
+            /** @description Its recipients processed today on the reader's clock, when the campaign is read alone; null in a list */
             processedToday?: number | null;
             _links: components["schemas"]["CampaignLinksResource"];
         };
@@ -3437,7 +3437,7 @@ export interface components {
             _links: components["schemas"]["CampaignListLinksResource"];
         };
         CampaignMessageResource: {
-            /** @description The subject of an e-mail */
+            /** @description An e-mail's subject */
             subject?: string | null;
             text: string;
         };
@@ -8874,7 +8874,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Its tags */
+            /** @description The contact's tags */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -8899,7 +8899,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description No contact of my account (`unknownContact`) */
+            /** @description Not a contact of my account (`unknownContact`) */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -8925,7 +8925,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Its tags now */
+            /** @description The contact's tags now */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -8950,7 +8950,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description No contact of my account (`unknownContact`) */
+            /** @description Not a contact of my account (`unknownContact`) */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -8959,7 +8959,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description No tag, one that makes no tag (`invalidTag`), or an automatic one (`automaticTag`) */
+            /** @description No tag, text that makes no tag (`invalidTag`), or an automatic tag (`automaticTag`) */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -8981,7 +8981,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Its tags */
+            /** @description The organization's tags */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -9006,7 +9006,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown organization, or one of another account */
+            /** @description Unknown organization, or an organization of another account */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -9032,7 +9032,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Its tags now */
+            /** @description The organization's tags now */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -9057,7 +9057,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown organization, or one of another account */
+            /** @description Unknown organization, or an organization of another account */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -9066,7 +9066,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description No tag, one that makes no tag (`invalidTag`), or an automatic one (`automaticTag`) */
+            /** @description No tag, text that makes no tag (`invalidTag`), or an automatic tag (`automaticTag`) */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -9086,7 +9086,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description The tags proposed */
+            /** @description The proposed tags */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -9125,7 +9125,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Its tags now */
+            /** @description The contact's tags now */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -9150,7 +9150,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description No contact of my account (`unknownContact`), or a tag it does not carry (`tagNotCarried`) */
+            /** @description Not a contact of my account (`unknownContact`), or a tag the contact does not carry (`tagNotCarried`) */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -9173,7 +9173,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Its tags now */
+            /** @description The organization's tags now */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -9198,7 +9198,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown organization, one of another account, or a tag it does not carry */
+            /** @description Unknown organization, an organization of another account, or a tag the organization does not carry */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -9245,7 +9245,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown campaign, or one of another account */
+            /** @description Unknown campaign, or a campaign of another account */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -9271,7 +9271,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description The campaign, its recipients counted */
+            /** @description The campaign, with its recipient count */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -9296,7 +9296,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown campaign or of another account, or no contact of my organization */
+            /** @description Unknown campaign or a campaign of another account, or not a contact of my organization */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -9314,7 +9314,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description A contact without the means of its channel, or more than 500 recipients */
+            /** @description A contact without the means the channel needs, or more than 500 recipients */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -9340,7 +9340,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description The campaign, its recipients counted */
+            /** @description The campaign, with its recipient count */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -9365,7 +9365,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown campaign, or one of another account */
+            /** @description Unknown campaign, or a campaign of another account */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -9383,7 +9383,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description No tag, more than five with that of the channel, or more than 500 recipients */
+            /** @description No tag, more than five tags counting the channel's tag, or more than 500 recipients */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -9436,7 +9436,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown campaign, or one of another account */
+            /** @description Unknown campaign, or a campaign of another account */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -9490,7 +9490,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown campaign, or one of another account */
+            /** @description Unknown campaign, or a campaign of another account */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -9499,7 +9499,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Started: stopped, never discarded */
+            /** @description Started: a started campaign is stopped, never discarded */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -9550,7 +9550,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown campaign, or one of another account */
+            /** @description Unknown campaign, or a campaign of another account */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -9568,7 +9568,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Without a name or too long, an unknown channel, no tag or more than five with that of the channel, a message too long, a subject for another channel than an e-mail */
+            /** @description No name or a name too long, an unknown channel, no tag or more than five tags counting the channel's tag, a message too long, or a subject for a channel other than e-mail */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -9618,7 +9618,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown campaign or of another account, or no recipient of it */
+            /** @description Unknown campaign or a campaign of another account, or not one of its recipients */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -9627,7 +9627,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description The campaign is not started, or the recipient is handled already */
+            /** @description The campaign is not started, or the recipient is already handled */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -9674,7 +9674,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown campaign, or one of another account */
+            /** @description Unknown campaign, or a campaign of another account */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -9692,7 +9692,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Nobody targeted, or more than 500 */
+            /** @description Nobody targeted, or more than 500 contacts */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -9752,7 +9752,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description The draft prepared */
+            /** @description The prepared draft */
             201: {
                 headers: {
                     [name: string]: unknown;
@@ -9777,7 +9777,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Without a name or too long, an unknown channel, no tag or more than five with that of the channel, a message too long, a subject for another channel than an e-mail */
+            /** @description No name or a name too long, an unknown channel, no tag or more than five tags counting the channel's tag, a message too long, or a subject for a channel other than e-mail */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -9800,7 +9800,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Taken off */
+            /** @description Removed */
             204: {
                 headers: {
                     [name: string]: unknown;
@@ -9823,7 +9823,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown campaign or of another account, or no recipient of it */
+            /** @description Unknown campaign or a campaign of another account, or not one of its recipients */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -9841,7 +9841,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Its last recipient */
+            /** @description The campaign's last recipient */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -9889,7 +9889,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown campaign or contact, or one of another account */
+            /** @description Unknown campaign or contact, or a campaign or contact of another account */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -9940,7 +9940,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown campaign, or one of another account */
+            /** @description Unknown campaign, or a campaign of another account */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -10005,7 +10005,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown campaign, or one of another account */
+            /** @description Unknown campaign, or a campaign of another account */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -10023,7 +10023,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Frozen, but emptied by the erasure of its contacts */
+            /** @description Frozen, but empty because its contacts were erased */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -10070,7 +10070,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Unknown campaign, or one of another account */
+            /** @description Unknown campaign, or a campaign of another account */
             404: {
                 headers: {
                     [name: string]: unknown;
