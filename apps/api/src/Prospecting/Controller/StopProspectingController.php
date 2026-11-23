@@ -12,19 +12,20 @@ use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\StopProspecting\StopProspecting;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[OA\Tag('Organizations')]
 #[IsGranted('ROLE_PROSPECTOR')]
-final class StopProspectingController extends AbstractController
+final readonly class StopProspectingController
 {
-    public function __construct(private readonly CommandBus $commandBus, private readonly ClockInterface $clock)
+    public function __construct(private CommandBus $commandBus, private ClockInterface $clock, private AuthorizationCheckerInterface $authorizationChecker)
     {
     }
 
@@ -48,8 +49,8 @@ final class StopProspectingController extends AbstractController
      */
     private function ensureMayEraseItsContacts(OrganizationSheet $organization): void
     {
-        if ([] !== $organization->contactIds) {
-            $this->denyAccessUnlessGranted(User::PERSONAL_DATA);
+        if ([] !== $organization->contactIds && !$this->authorizationChecker->isGranted(User::PERSONAL_DATA)) {
+            throw new AccessDeniedException();
         }
     }
 }
