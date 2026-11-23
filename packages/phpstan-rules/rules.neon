@@ -1,4 +1,4 @@
-# Rules shared by every PHP codebase of the monorepo, included by their phpstan.dist.neon
+# The rules that every PHP codebase in the monorepo shares. Each codebase's phpstan.dist.neon includes them.
 rules:
     - Prospecter\PHPStan\DependenciesAreInjectedRule
     - Prospecter\PHPStan\TestsReadNoRealClockRule

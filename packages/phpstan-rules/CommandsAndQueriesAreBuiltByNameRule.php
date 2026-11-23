@@ -14,10 +14,10 @@ use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 
 /**
- * A command or a query of the core of more than three arguments is built with named arguments: built by position,
- * two arguments of the same type (an email and a phone number, both `?string`) are swapped without an error. A
- * command or a query is the class its `<Class>Handler` handles. The rule holds for the code of the applications,
- * not for their tests.
+ * A core command or query with more than three arguments is built with named arguments. Built by position, two
+ * arguments of the same type (an email and a phone number, both `?string`) can be swapped without an error. A
+ * command or a query is the class that its `<Class>Handler` handles. The rule applies to the applications' code,
+ * not to their tests.
  *
  * @implements Rule<New_>
  */

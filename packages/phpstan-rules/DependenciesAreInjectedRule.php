@@ -15,11 +15,11 @@ use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\Type\Type;
 
 /**
- * Dependencies are injected, never built (ADR 0044): a constructor builds nothing but the exception it throws,
- * and a service of the monorepo (a class depending on an interface or on another service) is built only by the
- * container or, in the tests, by their composition root. The objects a library makes for one call (a Passport,
- * a SymfonyStyle) are not services, nor a presenter, which implements an output port of the core and keeps the
- * state of one call: built where it is used, it may receive the services of its builder (ADR 0085).
+ * Dependencies are injected, never built (ADR 0044). A constructor builds nothing but the exception it throws. Only
+ * the container builds a monorepo service (a class that depends on an interface or on another service). In the
+ * tests, their composition root builds it. The objects that a library makes for one call (a Passport, a
+ * SymfonyStyle) are not services. Neither is a presenter: it implements a core output port and keeps one call's
+ * state. It is built where it is used, and it may receive its builder's services (ADR 0085).
  *
  * @implements Rule<New_>
  */
@@ -30,7 +30,7 @@ final class DependenciesAreInjectedRule implements Rule
     private const string OUTPUT_PORT = 'Prospecter\\Core\\SharedKernel\\Application\\OutputPort';
 
     /**
-     * @var array<string, bool>
+     * @var array<string, bool> whether each class is a service, by class name
      */
     private array $services = [];
 
@@ -91,7 +91,7 @@ final class DependenciesAreInjectedRule implements Rule
     }
 
     /**
-     * The core is installed in the vendors of the apps, through a symlink.
+     * The core sits in the apps' vendors, through a symlink.
      */
     private function isOfTheMonorepo(ClassReflection $class): bool
     {
