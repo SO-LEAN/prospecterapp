@@ -11,9 +11,9 @@ use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 
 /**
- * An organization no longer prospected takes its to-dos along, as it does its exchanges: those still kept for another
- * organization are saved, each of the others left to its own reaction, that erases it
- * (EraseToDoLeftWithoutOrganization): one transaction holds a bounded number of writes.
+ * An organization that is no longer prospected takes its to-dos along, as it does its exchanges. Those still kept for
+ * another organization are saved. Each of the others is left to its own reaction, which erases it
+ * (EraseToDoLeftWithoutOrganization), because one transaction holds a bounded number of writes.
  */
 final readonly class StopKeepingToDosHandler implements EventHandler
 {
