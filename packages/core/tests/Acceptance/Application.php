@@ -87,6 +87,7 @@ use Prospecter\Core\Campaigns\Application\NextRecipient\KeptRecipientToHandle;
 use Prospecter\Core\Campaigns\Application\NextRecipient\NextRecipient;
 use Prospecter\Core\Campaigns\Application\NextRecipient\NextRecipientHandler;
 use Prospecter\Core\Campaigns\Application\NextRecipient\RecipientToHandle;
+use Prospecter\Core\Campaigns\Application\Policy\ForgetRecipientOfForgottenContactPolicy;
 use Prospecter\Core\Campaigns\Application\Policy\ForgetTagsOfForgottenContactPolicy;
 use Prospecter\Core\Campaigns\Application\PrepareCampaign\PrepareCampaignHandler;
 use Prospecter\Core\Campaigns\Application\ProcessRecipientOfCampaignExchange\ProcessRecipientOfCampaignExchangeHandler;
@@ -1368,6 +1369,7 @@ final class Application
     private function commandHandlers(): array
     {
         return [
+            new ForgetRecipientOfForgottenContactHandler($this->campaigns),
             new ForgetTagsOfForgottenContactHandler($this->taggings),
             new RegisterTheFounderHandler($this->members),
             new ForgetAppointmentOfErasedExchangeHandler($this->appointments),
@@ -1791,7 +1793,7 @@ final class Application
             new UnnameForgottenContactHandler($this->heldExchanges, $this->calendarEntries, $this->calendarPusher),
             new ForgetTagsOfUnprospectedOrganizationHandler($this->taggings),
             new ForgetTagsOfForgottenContactPolicy(),
-            new ForgetRecipientOfForgottenContactHandler($this->campaigns),
+            new ForgetRecipientOfForgottenContactPolicy(),
             new ProcessRecipientOfCampaignExchangeHandler($this->campaigns),
             new ReopenRecipientOfErasedExchangeHandler($this->campaigns),
             new ForgetAppointmentOfErasedExchangePolicy(),
