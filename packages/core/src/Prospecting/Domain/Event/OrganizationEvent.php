@@ -10,7 +10,7 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
- * Something that happened to an organization the account prospects.
+ * Something happened to an organization the account prospects.
  */
 abstract readonly class OrganizationEvent extends DomainEvent
 {

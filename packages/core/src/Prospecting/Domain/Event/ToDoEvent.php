@@ -10,7 +10,7 @@ use Prospecter\Core\SharedKernel\Domain\Event\DomainEvent;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * Something that happened to a to-do.
+ * Something happened to a to-do.
  */
 abstract readonly class ToDoEvent extends DomainEvent
 {

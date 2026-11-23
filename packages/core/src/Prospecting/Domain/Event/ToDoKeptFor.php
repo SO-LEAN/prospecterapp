@@ -10,7 +10,7 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
- * The contact to attach of the to-do was attached to an organization: the to-do is kept for it.
+ * The to-do's contact to attach was attached to an organization. The to-do is now kept for that organization.
  */
 final readonly class ToDoKeptFor extends ToDoEvent
 {

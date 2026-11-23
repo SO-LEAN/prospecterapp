@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Domain\Event;
 
 /**
- * The contact of an exchange was forgotten: the exchange stays, to make conform.
+ * An exchange's contact was forgotten. The exchange stays, and it must be redacted.
  */
 final readonly class ExchangeContactForgotten extends ExchangeEvent
 {

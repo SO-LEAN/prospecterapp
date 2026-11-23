@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Domain\Event;
 
 /**
- * A contact to attach nobody attached in the 30 days after their last meeting: to erase, with what was kept for them
- * (ADR 0146), by their holder.
+ * Nobody attached a contact to attach in the 30 days after their last meeting. The contact is to be erased, with what
+ * was kept for them (ADR 0146). Their holder is the event's author.
  */
 final readonly class ContactLeftUnattached extends ContactToAttachEvent
 {

@@ -10,7 +10,7 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * A prospector removed a file joined to an exchange, left to remove from the private storage.
+ * A prospector removed a file attached to an exchange. The file remains to be removed from the private storage.
  */
 final readonly class AttachmentRemoved extends ExchangeEvent
 {

@@ -9,7 +9,8 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
- * A member checked that the organization is no duplicate of the one it resembles: it is never suspected of it again.
+ * A member checked that the organization is no duplicate of the one it resembles. Prospecter never suspects it of that
+ * again.
  */
 final readonly class DuplicateSuspicionDismissed extends OrganizationEvent
 {

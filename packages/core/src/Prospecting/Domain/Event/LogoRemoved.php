@@ -9,7 +9,7 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
- * The logo of the organization was removed, its file (its URL in the storage) left to discard.
+ * The organization's logo was removed. Its file, its URL in the storage, remains to be discarded.
  */
 final readonly class LogoRemoved extends OrganizationEvent
 {

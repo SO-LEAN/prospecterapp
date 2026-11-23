@@ -9,7 +9,8 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
- * The organization resembles another one of its account, by its name and its city: perhaps the same, entered twice.
+ * The organization resembles another organization of its account by its name and its city. They may be the same
+ * organization, entered twice.
  */
 final readonly class DuplicateSuspected extends OrganizationEvent
 {

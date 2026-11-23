@@ -10,7 +10,7 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * A prospector joined a file to an exchange.
+ * A prospector attached a file to an exchange.
  */
 final readonly class FileAttached extends ExchangeEvent
 {

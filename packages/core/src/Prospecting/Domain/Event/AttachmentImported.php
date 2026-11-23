@@ -10,8 +10,8 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * The import of an e-mail joined one of its files to the exchange it noted, an upload left to keep in the private
- * storage once the exchange is written (ADR 0182).
+ * An e-mail's import attached one of the e-mail's files to the exchange that the import logged. The upload is to be
+ * kept in the private storage once the exchange is written (ADR 0182).
  */
 final readonly class AttachmentImported extends ExchangeEvent
 {

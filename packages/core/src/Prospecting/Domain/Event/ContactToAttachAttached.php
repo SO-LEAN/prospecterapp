@@ -10,7 +10,7 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * A contact to attach became the contact of an organization: no longer to attach.
+ * A contact to attach became an organization's contact. It is no longer to attach.
  */
 final readonly class ContactToAttachAttached extends ContactToAttachEvent
 {
