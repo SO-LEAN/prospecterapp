@@ -9,9 +9,7 @@ use App\Tags\Resource\TagFamilyResource;
 use Prospecter\Core\Campaigns\Application\ConsultSuggestedTags\ConsultSuggestedTagsOutput;
 use Prospecter\Core\Campaigns\Application\SuggestedTags;
 
-/**
- * Presents the tags proposed to an account, an object of the call (ADR 0085).
- */
+/** Presents the tags proposed to an account. The presenter is an object of the call (ADR 0085). */
 final class SuggestedTagsPresenter implements ConsultSuggestedTagsOutput
 {
     public private(set) SuggestedTagsResource $resource;

@@ -12,8 +12,8 @@ use Prospecter\Core\Campaigns\Application\ConsultContactTags\ContactTagsResponse
 use Prospecter\Core\Campaigns\Application\ConsultContactTags\InheritedTagResponse;
 
 /**
- * Presents the tags of one contact as the API shows them, an object of the call (ADR 0085): only its own are taken
- * off.
+ * Presents one contact's tags as the API shows them. The presenter is an object of the call (ADR 0085). Only the
+ * contact's own tags can be taken off.
  */
 final class ContactTagsResourcePresenter implements ConsultContactTagsOutput
 {
@@ -24,7 +24,7 @@ final class ContactTagsResourcePresenter implements ConsultContactTagsOutput
     }
 
     /**
-     * @param list<ContactTagsResponse> $contacts the one asked
+     * @param list<ContactTagsResponse> $contacts the requested contact
      */
     public function present(array $contacts): void
     {
