@@ -16,10 +16,11 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 use Prospecter\Core\SharedKernel\Domain\Slice;
 
 /**
- * Reads the facts of the contacts in the items `PERSON#<id>` / `PERSON` that `DynamoPersonRepository` writes,
- * their revision with them, without restoring them (ADR 0088): by key, as the open unit of work is about to write
- * them, and listed among the persons the account keeps for its prospecting in `GSI1`; how a contact is reached, read
- * from its contact details and its LinkedIn profile among its links, never published themselves.
+ * Reads the contacts' facts and their revision in the items `PERSON#<id>` / `PERSON` that `DynamoPersonRepository`
+ * writes. It does not restore the persons (ADR 0088). It reads a contact by key, as the open unit of work is about to
+ * write it. It also lists the persons the account keeps for prospecting, in `GSI1`. It tells how a contact is reached
+ * from their contact details and from a LinkedIn profile among their links. It never publishes the contact details
+ * or the links themselves.
  */
 final readonly class DynamoContactFactsRetriever implements ContactFactsRetriever
 {

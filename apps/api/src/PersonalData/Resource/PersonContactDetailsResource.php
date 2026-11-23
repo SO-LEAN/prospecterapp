@@ -9,7 +9,7 @@ use OpenApi\Attributes as OA;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 
 /**
- * The contact details of a person: an email, a phone number, a language, and their links to the tools outside.
+ * A person's contact details: an email, a phone number, a language, and their links to outside tools.
  */
 final readonly class PersonContactDetailsResource
 {

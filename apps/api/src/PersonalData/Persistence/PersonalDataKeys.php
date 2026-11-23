@@ -9,8 +9,8 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\ExternalReference;
 
 /**
- * The keys of the items of the persons, written by `DynamoPersonRepository` and read by the retrievers
- * (ADR 0088): one format for both.
+ * The keys of the persons' items. `DynamoPersonRepository` writes them and the retrievers read them (ADR 0088).
+ * Both use this one format.
  */
 final class PersonalDataKeys
 {
@@ -25,7 +25,7 @@ final class PersonalDataKeys
     }
 
     /**
-     * What a person is searched among: the persons their account keeps for the same purpose.
+     * The scope of a person's search: the persons their account keeps for the same purpose.
      */
     public static function scopeOf(AccountId $accountId, Purpose $purpose): string
     {
@@ -33,7 +33,7 @@ final class PersonalDataKeys
     }
 
     /**
-     * The contacts of an account, the persons it keeps for its prospecting, listed in `GSI1`.
+     * An account's contacts, the persons it keeps for prospecting, listed in `GSI1`.
      */
     public static function contactsOf(string $accountId): string
     {
@@ -49,7 +49,7 @@ final class PersonalDataKeys
     }
 
     /**
-     * The links to the contacts of an account resembling each other, by their names.
+     * The links between an account's contacts whose names resemble each other.
      */
     public static function ofResemblance(string $accountId, string $key): string
     {
@@ -57,8 +57,8 @@ final class PersonalDataKeys
     }
 
     /**
-     * The email a person holds among those their account keeps for a purpose: the item `EMAIL` names its holder,
-     * `ownerId`.
+     * The email a person holds among the persons their account keeps for a purpose. The `EMAIL` item names its
+     * holder in `ownerId`.
      */
     public static function email(AccountId $accountId, Purpose $purpose, string $email): string
     {
@@ -66,7 +66,7 @@ final class PersonalDataKeys
     }
 
     /**
-     * A link a contact holds in their account, as their own or a former one: the item `REFERENCE` names its holder,
+     * A link a contact holds in their account, current or former. The `REFERENCE` item names its holder in
      * `ownerId`.
      */
     public static function reference(AccountId $accountId, ExternalReference $reference): string

@@ -22,9 +22,9 @@ use Prospecter\Core\SharedKernel\Domain\Origin;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * The card of a person from the document `DynamoPersonRepository` writes, as the reader may read it, asked to
- * the policies of PersonalData (ADR 0031, 0088): in clear, or masked and without picture, the name of a contact
- * and its civility in clear (ADR 0129).
+ * Builds a person's card from the document that `DynamoPersonRepository` writes. The card shows what the reader may
+ * read, as PersonalData's policies decide (ADR 0031, 0088). It is unmasked, or masked and without a picture. A
+ * contact's name and title stay unmasked (ADR 0129).
  */
 final class PersonCards
 {
@@ -38,7 +38,7 @@ final class PersonCards
 
     /**
      * Builds the card of a person the reader reaches, from an item's untyped document. The caller reads the possible
-     * duplicates apart. A list of persons shows none.
+     * duplicates separately. A list of persons shows none.
      *
      * @param list<PossibleDuplicate> $possibleDuplicates
      */

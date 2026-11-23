@@ -8,7 +8,7 @@ use App\Shared\Persistence\RevisionRead;
 use App\Shared\Persistence\Table;
 
 /**
- * A person's revision: exposed with the contact, and sent back by a client with its change (ADR 0187).
+ * A person's revision. The API exposes it with the contact, and a client sends it back with its change (ADR 0187).
  */
 final readonly class PersonRevisions
 {
@@ -22,7 +22,7 @@ final readonly class PersonRevisions
     }
 
     /**
-     * The revision a client read, or null when it sent none.
+     * Returns the revision the client read, or null when it sent none.
      */
     public function readAt(string $id, ?int $revision): ?RevisionRead
     {

@@ -16,8 +16,8 @@ use Prospecter\Core\PersonalData\Domain\Model\Reader;
 use Prospecter\Core\SharedKernel\Domain\SearchKey;
 
 /**
- * Reads the contacts of an account in the items `DynamoPersonRepository` writes, as cards (`PersonCards`),
- * without restoring them (ADR 0088): listed by account and purpose in `GSI1`, found by the indexes of the search
+ * Reads an account's contacts as cards (`PersonCards`) in the items that `DynamoPersonRepository` writes. It does not
+ * restore them (ADR 0088). It lists them by account and purpose in `GSI1`, and finds them by the search indexes
  * (ADR 0071).
  */
 final readonly class DynamoContactPageRetriever implements ContactPageRetriever
@@ -37,7 +37,7 @@ final readonly class DynamoContactPageRetriever implements ContactPageRetriever
     }
 
     /**
-     * @return list<string> partition keys of persons
+     * @return list<string> the persons' partition keys
      */
     private function found(Reader $reader, SearchKey $search, ?string $before, int $max): array
     {
@@ -49,7 +49,7 @@ final readonly class DynamoContactPageRetriever implements ContactPageRetriever
     }
 
     /**
-     * @param list<string> $keys partition keys of persons
+     * @param list<string> $keys the persons' partition keys
      *
      * @return list<array<string, mixed>>
      */

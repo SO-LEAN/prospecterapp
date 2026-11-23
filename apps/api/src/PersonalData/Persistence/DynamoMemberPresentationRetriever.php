@@ -13,9 +13,9 @@ use Prospecter\Core\SharedKernel\Application\FileResponse;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Reads the items `PERSON#<id>` / `PERSON` that `DynamoPersonRepository` writes, without restoring the persons
- * (ADR 0088): their name and picture in clear, and their purpose, which decides whether they present themselves (ADR
- * 0153).
+ * Reads the items `PERSON#<id>` / `PERSON` that `DynamoPersonRepository` writes. It does not restore the persons
+ * (ADR 0088). It reads their name and picture unmasked, and their purpose. The purpose decides whether they present
+ * themselves (ADR 0153).
  */
 final readonly class DynamoMemberPresentationRetriever implements MemberPresentationRetriever
 {
