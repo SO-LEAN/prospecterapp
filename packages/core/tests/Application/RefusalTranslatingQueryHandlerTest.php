@@ -7,8 +7,8 @@ namespace Tests\Core\Application;
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\SharedKernel\Application\Exception\ErrorType;
 use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
-use Prospecter\Core\SharedKernel\Application\RefusalTranslatingQueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\RefusalTranslatingQueryHandler;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotAllowed;
 
 class RefusalTranslatingQueryHandlerTest extends TestCase

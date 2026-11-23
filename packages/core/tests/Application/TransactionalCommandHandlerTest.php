@@ -6,11 +6,11 @@ namespace Tests\Core\Application;
 
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Accounts\Domain\Model\Account;
-use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
+use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\RefusalTranslatingCommandHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\TransactionalCommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\UnitOfWork;
-use Prospecter\Core\SharedKernel\Application\RefusalTranslatingCommandHandler;
-use Prospecter\Core\SharedKernel\Application\TransactionalCommandHandler;
 use Prospecter\Core\SharedKernel\Domain\Company\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\Contact\EmailAlreadyUsed;
 use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;

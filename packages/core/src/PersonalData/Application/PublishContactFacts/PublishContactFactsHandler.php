@@ -7,7 +7,7 @@ namespace Prospecter\Core\PersonalData\Application\PublishContactFacts;
 use Prospecter\Core\PersonalData\Application\Port\ContactFactsRetriever;
 use Prospecter\Core\PersonalData\Contract\Event\ContactFactsChanged;
 use Prospecter\Core\PersonalData\Domain\Event\PersonEvent;
-use Prospecter\Core\SharedKernel\Application\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 
 /**

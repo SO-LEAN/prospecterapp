@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Accounts\Application\ConsultMyReminders;
 
 use Prospecter\Core\Accounts\Application\Port\MyRemindersRetriever;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 final readonly class ConsultMyRemindersHandler implements QueryHandler

@@ -13,7 +13,7 @@ use Prospecter\Core\Prospecting\Domain\Model\ContactPresence;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\Model\Website;
-use Prospecter\Core\SharedKernel\Application\ExternalLink;
+use Prospecter\Core\SharedKernel\Application\Response\ExternalLink;
 use Prospecter\Core\SharedKernel\Domain\Company\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\Contact\Address;
 use Prospecter\Core\SharedKernel\Domain\Contact\ContactDetails;

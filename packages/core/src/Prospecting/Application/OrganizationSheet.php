@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application;
 
-use Prospecter\Core\SharedKernel\Application\ExternalLink;
-use Prospecter\Core\SharedKernel\Application\FileResponse;
+use Prospecter\Core\SharedKernel\Application\Response\ExternalLink;
+use Prospecter\Core\SharedKernel\Application\Response\FileResponse;
 
 /**
  * An account's organization as its sheet shows it. It says what the organization's state offers now, and whether an

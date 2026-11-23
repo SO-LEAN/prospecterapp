@@ -14,7 +14,7 @@ use App\Shared\ImageResourceFactory;
 use App\Shared\Links;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\SearchProspectedOrganizations;
 use Prospecter\Core\Reporting\Application\ConsultFigures\ConsultFigures;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Symfony\Component\Clock\ClockInterface;
 
 /**

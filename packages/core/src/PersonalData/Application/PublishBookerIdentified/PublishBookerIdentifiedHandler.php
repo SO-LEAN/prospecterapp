@@ -6,7 +6,7 @@ namespace Prospecter\Core\PersonalData\Application\PublishBookerIdentified;
 
 use Prospecter\Core\PersonalData\Contract\Event as Published;
 use Prospecter\Core\PersonalData\Domain\Event\BookerIdentified;
-use Prospecter\Core\SharedKernel\Application\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 
 /**

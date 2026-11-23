@@ -17,7 +17,7 @@ use Prospecter\Core\Prospecting\Application\IdentifyOrganizations\Identification
 use Prospecter\Core\Prospecting\Application\IdentifyOrganizations\IdentifyOrganizations;
 use Prospecter\Core\Prospecting\Application\IdentifyOrganizations\KeptIdentifications as KeptOrganizationIdentifications;
 use Prospecter\Core\Prospecting\Application\IdentifyOrganizations\OrganizationClues;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 
 /**
  * Finds which of the account's persons and organizations the clues designate. It composes two contexts (ADR 0173).

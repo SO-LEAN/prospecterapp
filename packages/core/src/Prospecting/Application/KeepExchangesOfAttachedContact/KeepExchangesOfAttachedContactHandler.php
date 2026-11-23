@@ -6,9 +6,9 @@ namespace Prospecter\Core\Prospecting\Application\KeepExchangesOfAttachedContact
 
 use Prospecter\Core\Prospecting\Domain\Event\ContactAdded;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
-use Prospecter\Core\SharedKernel\Application\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\PublishesEvents;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
-use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 
 /**
  * The holder kept some exchanges while the contact waited to be attached. These exchanges follow the contact into

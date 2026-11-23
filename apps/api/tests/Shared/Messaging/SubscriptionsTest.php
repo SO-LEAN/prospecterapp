@@ -10,7 +10,7 @@ use App\Shared\Messaging\TransportedEvent;
 use App\Shared\Typed;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\SharedKernel\Application\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
 /**

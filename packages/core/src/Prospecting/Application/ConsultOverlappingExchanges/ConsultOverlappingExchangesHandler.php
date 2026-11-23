@@ -9,7 +9,7 @@ use Prospecter\Core\Prospecting\Application\Port\AgendaRetriever;
 use Prospecter\Core\Prospecting\Domain\Model\Duration;
 use Prospecter\Core\Prospecting\Domain\Model\Slot;
 use Prospecter\Core\Prospecting\Domain\Port\Prospectors;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 final readonly class ConsultOverlappingExchangesHandler implements QueryHandler

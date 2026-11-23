@@ -17,7 +17,7 @@ use Prospecter\Core\PersonalData\Domain\Model\ContactCard;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
-use Prospecter\Core\SharedKernel\Application\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
 use Prospecter\Core\SharedKernel\Domain\Contact\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Gesture\Gesture;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;

@@ -7,7 +7,7 @@ namespace Prospecter\Core\Prospecting\Application\PublishContactsLeftWithoutOrga
 use Prospecter\Core\Prospecting\Contract\Event as Published;
 use Prospecter\Core\Prospecting\Domain\Event\ContactsLeftWithoutOrganization;
 use Prospecter\Core\Prospecting\Domain\Model\ContactId;
-use Prospecter\Core\SharedKernel\Application\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 
 /**

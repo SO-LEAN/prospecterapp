@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Prospecter\Core\SharedKernel\Application;
+namespace Prospecter\Core\SharedKernel\Application\Response;
 
 /**
  * What a client knows about a person or an organization, compared with what Prospecter holds (ADR 0177). It names

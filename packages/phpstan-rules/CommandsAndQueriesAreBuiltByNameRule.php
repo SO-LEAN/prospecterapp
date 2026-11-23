@@ -26,8 +26,8 @@ final class CommandsAndQueriesAreBuiltByNameRule implements Rule
     private const int MAX_POSITIONAL_ARGUMENTS = 3;
 
     private const array HANDLERS = [
-        'Prospecter\\Core\\SharedKernel\\Application\\CommandHandler',
-        'Prospecter\\Core\\SharedKernel\\Application\\QueryHandler',
+        'Prospecter\\Core\\SharedKernel\\Application\\Handler\\CommandHandler',
+        'Prospecter\\Core\\SharedKernel\\Application\\Handler\\QueryHandler',
     ];
 
     public function __construct(private readonly ReflectionProvider $reflectionProvider)

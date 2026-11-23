@@ -7,7 +7,7 @@ namespace Prospecter\Core\Prospecting\Application\KeepImportedAttachment;
 use Prospecter\Core\Prospecting\Application\Port\PrivateStorage;
 use Prospecter\Core\Prospecting\Domain\Event\AttachmentImported;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownUpload;
-use Prospecter\Core\SharedKernel\Application\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
 
 /**
  * An imported e-mail brings files to its exchange. Each file's upload is kept once the exchange is written, never

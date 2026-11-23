@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Prospecter\Core\SharedKernel\Application;
+namespace Prospecter\Core\SharedKernel\Application\Handler;
 
 use Prospecter\Core\SharedKernel\Application\Port\UnitOfWork;
 

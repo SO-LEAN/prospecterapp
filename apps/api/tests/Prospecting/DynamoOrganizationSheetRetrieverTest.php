@@ -15,7 +15,7 @@ use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Model\WebPresence;
 use Prospecter\Core\Prospecting\Domain\Model\Website;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
-use Prospecter\Core\SharedKernel\Application\ExternalLink;
+use Prospecter\Core\SharedKernel\Application\Response\ExternalLink;
 use Prospecter\Core\SharedKernel\Domain\Company\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\Company\Siret;
 use Prospecter\Core\SharedKernel\Domain\Contact\Address;

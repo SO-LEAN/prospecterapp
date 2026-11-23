@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Prospecter\Core\SharedKernel\Application;
+namespace Prospecter\Core\SharedKernel\Application\Service;
 
 use Prospecter\Core\SharedKernel\Application\Port\Storage;
 use Prospecter\Core\SharedKernel\Domain\File\File;

@@ -9,7 +9,7 @@ use App\Shared\Messaging\DomainEventTypes;
 use App\Shared\Messaging\EventTypes;
 use App\Shared\Messaging\IntegrationEventTypes;
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\SharedKernel\Application\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
 
 /**
  * The reactions live in one list, `config/subscriptions.json`, read by Symfony and by the infrastructure: an event

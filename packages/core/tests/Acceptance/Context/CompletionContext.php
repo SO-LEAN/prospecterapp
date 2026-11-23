@@ -12,7 +12,7 @@ use Prospecter\Core\PersonalData\Application\CompareWithContact\CompareWithConta
 use Prospecter\Core\PersonalData\Application\CompleteContact\CompleteContact;
 use Prospecter\Core\Prospecting\Application\CompareWithOrganization\CompareWithOrganization;
 use Prospecter\Core\Prospecting\Application\CompleteOrganization\CompleteOrganization;
-use Prospecter\Core\SharedKernel\Application\Comparison;
+use Prospecter\Core\SharedKernel\Application\Response\Comparison;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 

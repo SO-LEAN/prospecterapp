@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Accounts\Application;
 
-use Prospecter\Core\SharedKernel\Application\FileResponse;
+use Prospecter\Core\SharedKernel\Application\Response\FileResponse;
 
 /**
  * My account: who I am (my ids and my roles), my organization's identity, logo and address, and what I may change in

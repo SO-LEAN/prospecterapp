@@ -20,7 +20,7 @@ use Prospecter\Core\Campaigns\Application\RecipientInSheet;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersons;
 use Prospecter\Core\PersonalData\Application\ConsultPersons\KeptPersons;
 use Prospecter\Core\PersonalData\Application\PersonCard;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 
 /**
  * Composes a frozen campaign's recipients from three contexts, in one batch each, as the tag search shows its contacts.

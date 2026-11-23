@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Tests\Core\Application;
 
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Exception\ErrorType;
 use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
-use Prospecter\Core\SharedKernel\Application\RefusalTranslatingCommandHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\RefusalTranslatingCommandHandler;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotAllowed;
 
 class RefusalTranslatingCommandHandlerTest extends TestCase

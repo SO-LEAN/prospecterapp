@@ -27,7 +27,7 @@ final class DependenciesAreInjectedRule implements Rule
 {
     private const int MAX_DEPTH = 5;
 
-    private const string OUTPUT_PORT = 'Prospecter\\Core\\SharedKernel\\Application\\OutputPort';
+    private const string OUTPUT_PORT = 'Prospecter\\Core\\SharedKernel\\Application\\Handler\\OutputPort';
 
     /**
      * @var array<string, bool> whether each class is a service, by class name

@@ -6,7 +6,7 @@ namespace App\Tags;
 
 use App\Tags\Resource\TagsResource;
 use Prospecter\Core\Campaigns\Application\ConsultOrganizationTags\ConsultOrganizationTags;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 
 /**
  * An organization's tags, as the API shows them. A controller calls it after a command, which returns nothing, to

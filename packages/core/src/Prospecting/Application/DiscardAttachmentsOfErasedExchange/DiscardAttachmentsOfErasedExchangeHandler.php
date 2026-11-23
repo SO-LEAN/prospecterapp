@@ -6,7 +6,7 @@ namespace Prospecter\Core\Prospecting\Application\DiscardAttachmentsOfErasedExch
 
 use Prospecter\Core\Prospecting\Application\Port\PrivateStorage;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeErased;
-use Prospecter\Core\SharedKernel\Application\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
 
 /**
  * Removes an erased exchange's files, since they may hold personal data (ADR 0077). It removes them once the

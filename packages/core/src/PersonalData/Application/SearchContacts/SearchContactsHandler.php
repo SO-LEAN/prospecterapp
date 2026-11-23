@@ -6,7 +6,7 @@ namespace Prospecter\Core\PersonalData\Application\SearchContacts;
 
 use Prospecter\Core\PersonalData\Application\Port\ContactPageRetriever;
 use Prospecter\Core\PersonalData\Domain\Port\Readers;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 use Prospecter\Core\SharedKernel\Domain\Search\SearchKey;
 

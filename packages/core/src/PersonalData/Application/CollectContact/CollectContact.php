@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\PersonalData\Application\CollectContact;
 
-use Prospecter\Core\SharedKernel\Application\Addition;
+use Prospecter\Core\SharedKernel\Application\Handler\Addition;
 
 /**
  * Keeps a person the account prospects as a contact of these organizations, under the id the client gives. A contact

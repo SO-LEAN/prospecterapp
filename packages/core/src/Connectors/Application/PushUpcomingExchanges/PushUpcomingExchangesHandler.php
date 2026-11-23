@@ -8,7 +8,7 @@ use Prospecter\Core\Connectors\Application\CalendarPusher;
 use Prospecter\Core\Connectors\Domain\Event\CalendarToFill;
 use Prospecter\Core\Connectors\Domain\Model\HeldExchange;
 use Prospecter\Core\Connectors\Domain\Port\HeldExchanges;
-use Prospecter\Core\SharedKernel\Application\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
 
 /**
  * Once the member connected, or once their calendar was created again, the exchanges that they still have planned

@@ -7,8 +7,8 @@ namespace Prospecter\Core\Prospecting\Application\CompareWithOrganization;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationSupplement;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
-use Prospecter\Core\SharedKernel\Application\Comparison;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Response\Comparison;
 
 /**
  * Restores the organization from its repository and asks it to apply the rule its completion follows. So the

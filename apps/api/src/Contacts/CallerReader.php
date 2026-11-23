@@ -14,7 +14,7 @@ use Prospecter\Core\PersonalData\Application\RecognizeCallingContact\RecognizeCa
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\RecognizeCallingOrganization\KeptCallingOrganizations;
 use Prospecter\Core\Prospecting\Application\RecognizeCallingOrganization\RecognizeCallingOrganization;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 
 /**
  * Reads who calls from three contexts (ADR 0072). Prospecting gives the organizations that have the number.

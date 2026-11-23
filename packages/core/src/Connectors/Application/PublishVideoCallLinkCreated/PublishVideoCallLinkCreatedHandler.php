@@ -6,7 +6,7 @@ namespace Prospecter\Core\Connectors\Application\PublishVideoCallLinkCreated;
 
 use Prospecter\Core\Connectors\Contract\Event as Published;
 use Prospecter\Core\Connectors\Domain\Event\VideoCallLinkCreated;
-use Prospecter\Core\SharedKernel\Application\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 
 /**

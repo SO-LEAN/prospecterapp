@@ -23,7 +23,7 @@ use Prospecter\Core\Prospecting\Application\ConsultToDo\KeptToDo;
 use Prospecter\Core\Prospecting\Application\ConsultToDos\ConsultToDos;
 use Prospecter\Core\Prospecting\Application\KeptToDoList;
 use Prospecter\Core\Prospecting\Application\ToDoInList;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 
 /**
  * The to-dos as the API shows them. The reader reads them in Prospecting and finds their holders in Accounts.

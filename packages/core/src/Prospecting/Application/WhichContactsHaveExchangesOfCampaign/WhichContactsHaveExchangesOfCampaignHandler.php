@@ -10,7 +10,7 @@ use Prospecter\Core\Prospecting\Contract\Service\WhichContactsHaveExchangesOfCam
 use Prospecter\Core\Prospecting\Domain\Model\CampaignId;
 use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 final readonly class WhichContactsHaveExchangesOfCampaignHandler implements QueryHandler, WhichContactsHaveExchangesOfCampaignService

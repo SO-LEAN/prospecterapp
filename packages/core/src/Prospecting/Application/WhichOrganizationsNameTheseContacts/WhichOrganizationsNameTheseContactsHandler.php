@@ -10,7 +10,7 @@ use Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsNameTheseCont
 use Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsNameTheseContacts\WhichOrganizationsNameTheseContactsOutput;
 use Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsNameTheseContacts\WhichOrganizationsNameTheseContactsService;
 use Prospecter\Core\Prospecting\Domain\Model\ContactId;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 final readonly class WhichOrganizationsNameTheseContactsHandler implements QueryHandler, WhichOrganizationsNameTheseContactsService

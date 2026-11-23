@@ -7,7 +7,7 @@ namespace Prospecter\Core\PersonalData\Application\PublishContactCollected;
 use Prospecter\Core\PersonalData\Contract\Event as Published;
 use Prospecter\Core\PersonalData\Domain\Event\ContactCollected;
 use Prospecter\Core\PersonalData\Domain\Model\OrganizationId;
-use Prospecter\Core\SharedKernel\Application\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 
 /**

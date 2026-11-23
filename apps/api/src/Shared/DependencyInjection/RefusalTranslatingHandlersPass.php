@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace App\Shared\DependencyInjection;
 
 use App\Shared\Typed;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
-use Prospecter\Core\SharedKernel\Application\RefusalTranslatingCommandHandler;
-use Prospecter\Core\SharedKernel\Application\RefusalTranslatingEventHandler;
-use Prospecter\Core\SharedKernel\Application\RefusalTranslatingQueryHandler;
-use Prospecter\Core\SharedKernel\Application\TransactionalCommandHandler;
-use Prospecter\Core\SharedKernel\Application\TransactionalEventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\RefusalTranslatingCommandHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\RefusalTranslatingEventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\RefusalTranslatingQueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\TransactionalCommandHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\TransactionalEventHandler;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;

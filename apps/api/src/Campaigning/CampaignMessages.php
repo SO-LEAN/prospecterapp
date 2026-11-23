@@ -7,7 +7,7 @@ namespace App\Campaigning;
 use App\Campaigning\Resource\CampaignMessageResource;
 use Prospecter\Core\Campaigns\Application\RenderCampaignMessage\KeptCampaignMessage;
 use Prospecter\Core\Campaigns\Application\RenderCampaignMessage\RenderCampaignMessage;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 
 /** A campaign's message, which the core renders for one of its contacts. */
 final readonly class CampaignMessages

@@ -6,7 +6,7 @@ namespace Prospecter\Core\PersonalData\Application\RecognizeCallingContact;
 
 use Prospecter\Core\PersonalData\Application\Port\PersonCardRetriever;
 use Prospecter\Core\PersonalData\Domain\Port\Readers;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\Contact\PhoneNumber;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 

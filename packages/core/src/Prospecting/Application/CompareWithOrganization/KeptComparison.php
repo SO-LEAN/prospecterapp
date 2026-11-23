@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\CompareWithOrganization;
 
-use Prospecter\Core\SharedKernel\Application\Comparison;
+use Prospecter\Core\SharedKernel\Application\Response\Comparison;
 
 /**
  * Keeps the answer unchanged, for a client that reads it instead of showing it (ADR 0085).

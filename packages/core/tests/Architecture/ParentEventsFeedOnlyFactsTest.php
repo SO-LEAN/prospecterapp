@@ -7,7 +7,7 @@ namespace Tests\Core\Architecture;
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Connectors\Application\PushUpcomingExchanges\PushUpcomingExchangesHandler;
 use Prospecter\Core\Connectors\Application\ReadMailboxHistory\ReadMailboxHistoryHandler;
-use Prospecter\Core\SharedKernel\Application\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
 
 /**
  * A parent event's handler also receives every child event added later. That suits a handler that publishes

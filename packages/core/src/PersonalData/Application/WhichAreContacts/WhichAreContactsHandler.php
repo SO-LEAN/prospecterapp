@@ -10,7 +10,7 @@ use Prospecter\Core\PersonalData\Contract\Service\WhichAreContacts\WhichAreConta
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 final readonly class WhichAreContactsHandler implements QueryHandler, WhichAreContactsService

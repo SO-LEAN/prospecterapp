@@ -6,7 +6,7 @@ namespace App\Tags;
 
 use App\Tags\Resource\ContactTagsResource;
 use Prospecter\Core\Campaigns\Application\ConsultContactTags\ConsultContactTags;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 
 /**
  * A contact's own, inherited and automatic tags, as the API shows them (ADR 0141). A controller calls it after a

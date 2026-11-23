@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations;
 
 use Prospecter\Core\Prospecting\Application\PossibleDuplicate;
-use Prospecter\Core\SharedKernel\Application\FileResponse;
+use Prospecter\Core\SharedKernel\Application\Response\FileResponse;
 
 /**
  * An organization in a list. It holds enough to recognize the organization and to place it on a map. It also names

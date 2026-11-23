@@ -7,9 +7,9 @@ namespace Prospecter\Core\Prospecting\Application\EraseExchangesOfContactLeftUna
 use Prospecter\Core\Prospecting\Domain\Event\ContactLeftUnattached;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
-use Prospecter\Core\SharedKernel\Application\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\PublishesEvents;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
-use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 
 /**
  * Erases the exchanges of a contact left unattached. They were kept for no organization, so nothing needs them and

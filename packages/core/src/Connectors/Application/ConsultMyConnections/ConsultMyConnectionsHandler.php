@@ -7,7 +7,7 @@ namespace Prospecter\Core\Connectors\Application\ConsultMyConnections;
 use Prospecter\Core\Connectors\Application\Port\AccountClientsRetriever;
 use Prospecter\Core\Connectors\Application\Port\MyConnectionsRetriever;
 use Prospecter\Core\Connectors\Domain\Port\Members;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**

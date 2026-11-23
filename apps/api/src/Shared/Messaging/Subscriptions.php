@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Shared\Messaging;
 
-use Prospecter\Core\SharedKernel\Application\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
 use Psr\Container\ContainerInterface;
 
 /**

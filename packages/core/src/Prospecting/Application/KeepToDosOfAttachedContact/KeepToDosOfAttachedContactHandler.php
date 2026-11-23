@@ -6,9 +6,9 @@ namespace Prospecter\Core\Prospecting\Application\KeepToDosOfAttachedContact;
 
 use Prospecter\Core\Prospecting\Domain\Event\ContactAdded;
 use Prospecter\Core\Prospecting\Domain\Repository\ToDoRepository;
-use Prospecter\Core\SharedKernel\Application\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\PublishesEvents;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
-use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 
 /**
  * The holder kept some to-dos while the contact waited to be attached. These to-dos follow the contact into the

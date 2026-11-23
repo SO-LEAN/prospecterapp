@@ -7,7 +7,7 @@ namespace Prospecter\Core\Booking\Application\ConsultMyBookingPage;
 use Prospecter\Core\Booking\Application\Port\MyBookingPageRetriever;
 use Prospecter\Core\Booking\Domain\Model\HostTimeZone;
 use Prospecter\Core\Booking\Domain\Port\ConnectedCalendars;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 final readonly class ConsultMyBookingPageHandler implements QueryHandler

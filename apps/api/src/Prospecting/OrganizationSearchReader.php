@@ -9,7 +9,7 @@ use App\Prospecting\Resource\OrganizationPageResource;
 use App\Shared\ImageResourceFactory;
 use App\Shared\Links;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\SearchProspectedOrganizations;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 
 /**
  * Reads a slice of the organizations a member's account prospects, found by the start of their corporate name or of

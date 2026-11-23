@@ -7,7 +7,7 @@ namespace App\Me;
 use App\Me\Resource\RemindersResource;
 use App\Shared\Links;
 use Prospecter\Core\Accounts\Application\ConsultMyReminders\ConsultMyReminders;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 
 /**
  * Reads my reminders as the API shows them. A command returns nothing, so a controller calls this reader after a

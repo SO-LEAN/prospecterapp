@@ -13,7 +13,7 @@ use App\Shared\Mcp\ToolResults;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
 use Prospecter\Core\Prospecting\Application\SearchEstablishments\SearchEstablishments;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 
 /**
  * `GET /api/organizations/{id}/establishments`, for an AI (ADR 0163).

@@ -7,9 +7,9 @@ namespace Prospecter\Core\Prospecting\Application\LiftSuspicionInReturn;
 use Prospecter\Core\Prospecting\Domain\Event\DuplicateSuspicionLifted;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
-use Prospecter\Core\SharedKernel\Application\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\PublishesEvents;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
-use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 
 /**
  * When an organization no longer resembles another one, the other one is no longer suspected of being its duplicate

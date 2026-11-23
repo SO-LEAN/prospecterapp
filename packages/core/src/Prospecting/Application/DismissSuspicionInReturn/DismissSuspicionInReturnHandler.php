@@ -7,9 +7,9 @@ namespace Prospecter\Core\Prospecting\Application\DismissSuspicionInReturn;
 use Prospecter\Core\Prospecting\Domain\Event\DuplicateSuspicionDismissed;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
-use Prospecter\Core\SharedKernel\Application\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\PublishesEvents;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
-use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 
 /**
  * A member stated that an organization is not a duplicate of another. In return, the other organization is not a

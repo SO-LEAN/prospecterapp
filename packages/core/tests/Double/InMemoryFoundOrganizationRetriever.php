@@ -8,7 +8,7 @@ use Prospecter\Core\Prospecting\Application\Port\FoundOrganizationRetriever;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\FoundOrganization;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\FoundOrganizationPage;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
-use Prospecter\Core\SharedKernel\Application\FileResponse;
+use Prospecter\Core\SharedKernel\Application\Response\FileResponse;
 use Prospecter\Core\SharedKernel\Domain\Company\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\Contact\Address;
 use Prospecter\Core\SharedKernel\Domain\File\File;

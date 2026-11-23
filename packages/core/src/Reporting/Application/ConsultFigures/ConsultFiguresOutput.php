@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Reporting\Application\ConsultFigures;
 
-use Prospecter\Core\SharedKernel\Application\OutputPort;
+use Prospecter\Core\SharedKernel\Application\Handler\OutputPort;
 
 interface ConsultFiguresOutput extends OutputPort
 {
