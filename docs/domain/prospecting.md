@@ -133,7 +133,7 @@ This context holds the organizations an account prospects, their contacts, the e
 - Fingerprints (ADR 0166):
   - The core fingerprints an exchange logged with a contact, an organization or a campaign recipient. It also fingerprints an imported exchange (`ExchangeFingerprint`). A client never does.
   - The core fingerprints the exchange from where it was read (`MessageReference`, not kept):
-    - an e-mail by its `Message-ID`'s identity (the shared kernel's `MessageId`, the same as the import's) and its correspondent;
+    - an e-mail by its `Message-ID`'s identity (Prospecting's `MessageId`, computed by the same rule as Connectors' one, ADR 0197) and its correspondent;
     - a LinkedIn message by its conversation (its identifier, or its thread's address), its direction, its minute and its text. The text ignores case, punctuation and extra spaces;
     - any other exchange, and one given without a reference, by its channel, correspondent, direction, minute and text. The text is normalized the same way;
     - a reference of another channel is refused (`ReferenceNotOfTheChannel`).

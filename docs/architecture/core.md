@@ -32,7 +32,6 @@ A folder exists only when it holds something. The shared kernel is only model, s
   - `Address` and its `GeoPoint`;
   - `Location`, where the geocoder finds an address: its `GeoPoint` and its municipality's INSEE code (ADR 0142);
   - `File`;
-  - `MessageId`: an e-mail's `Message-ID` header. Connectors and Prospecting identify an e-mail the same way with it (ADR 0154, 0166);
   - `Origin`: how an organization, a contact or an exchange was created, by hand or by an AI through the MCP server (ADR 0185);
   - `Gesture`: who acts, in which account, when, and the act's `Origin`. It is the argument object of the aggregates' factories (ADR 0191). The exception is an actor who carries a right that its aggregate checks: PersonalData's `Reader`, the administrator registering a member (ADR 0193);
   - `Completion`: what a client knows about a person or an organization, compared with what is recorded. It lists the fields it would fill, empty until then, and the fields where it gives something else (ADR 0177);
@@ -56,6 +55,8 @@ A folder exists only when it holds something. The shared kernel is only model, s
     - the `GeoLocation` port and `GeoLocalizer`.
 
   Each context keeps its own exceptions in `Domain/Exception` (`UnknownOrganization`...).
+
+  Each context also has its own identities, in `Domain/Model`, for the things it refers to in other contexts. It names them in its language (ADR 0197). The context that keeps the aggregate keeps the identity's first name, and another context keeps that name when its word is the same (`ExchangeId` in Prospecting, Reporting and Connectors). A context translates another one's identity where it receives it: in the anticorruption adapter of its port, from the other context's string. Connectors and Prospecting each have a `MessageId`, an e-mail's `Message-ID` header. Both apply the same rule, so that an imported e-mail and the same e-mail an AI logs are recognized as one (ADR 0154, 0166). `tests/Domain/MessageIdTest` checks both.
 - `<Context>/Application/<Intent>/`: one package per use case, CQRS (ADR 0029).
   - A command (`Relocate/Relocate`, readonly data) and its handler (`RelocateHandler`, implements `CommandHandler`, `__invoke(Relocate): void`) change the state and return nothing.
   - A query (`ConsultOrganization/ConsultOrganization`) and its handler (`__invoke(ConsultOrganization, ConsultOrganizationOutput): void`) present a response to the output port the client passes in (ADR 0085). Each query declares its port next to it (`ConsultOrganizationOutput`, extending the `OutputPort` marker). The ports of published queries extend nothing, since a Contract imports nothing. The presenter that keeps the answer as is also sits next to the query (`KeptOrganization`, `public private(set)`). It serves the clients that read the answer instead of showing it. Only queries return data.
