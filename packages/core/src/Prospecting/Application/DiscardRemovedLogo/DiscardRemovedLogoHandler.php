@@ -9,8 +9,8 @@ use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Storage;
 
 /**
- * The file of a logo leaves the storage once its removal is written, never before: a gesture that fails keeps its
- * logo whole. Delivered again, it removes nothing more.
+ * Removes a logo's file from the storage once the removal is written, never before. So a gesture that fails keeps
+ * its logo whole. When the event is delivered again, it removes nothing more.
  */
 final readonly class DiscardRemovedLogoHandler implements EventHandler
 {
