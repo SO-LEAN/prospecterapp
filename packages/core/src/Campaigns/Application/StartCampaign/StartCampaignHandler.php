@@ -12,9 +12,7 @@ use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
-/**
- * A member of the team starts a frozen campaign of their account: its recipients and its message no longer change.
- */
+/** A team member starts a frozen campaign of their account. Its recipients and message no longer change. */
 final readonly class StartCampaignHandler implements CommandHandler
 {
     use PublishesEvents;
