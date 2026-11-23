@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Prospecter\Core\SharedKernel\Domain;
+namespace Prospecter\Core\Connectors\Domain\Model;
 
 /**
- * An e-mail's `Message-ID` header, the same in every mailbox the e-mail reached. Connectors reads it from a mailbox.
- * Prospecting reads it from what an AI gives. Both identify the e-mail the same way (ADR 0154, 0166).
+ * An e-mail's `Message-ID` header as a mailbox gives it, the same in every mailbox the e-mail reached.
+ * Prospecting has its own `MessageId` for what an AI gives. Both identify the e-mail the same way (ADR 0154, 0166).
  */
 final readonly class MessageId
 {

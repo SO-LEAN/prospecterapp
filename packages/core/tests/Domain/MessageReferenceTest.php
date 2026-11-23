@@ -10,8 +10,8 @@ use Prospecter\Core\Prospecting\Domain\Model\Channel;
 use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFingerprint;
+use Prospecter\Core\Prospecting\Domain\Model\MessageId;
 use Prospecter\Core\Prospecting\Domain\Model\MessageReference;
-use Prospecter\Core\SharedKernel\Domain\MessageId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 class MessageReferenceTest extends TestCase
