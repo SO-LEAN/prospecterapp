@@ -203,6 +203,7 @@ use Prospecter\Core\PersonalData\Application\ListContactFacts\ListContactFactsHa
 use Prospecter\Core\PersonalData\Application\NameContacts\NameContactsHandler;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\PersonalData\Application\Policy\CollectTheFounderProfilePolicy;
+use Prospecter\Core\PersonalData\Application\Policy\CollectTheMemberProfilePolicy;
 use Prospecter\Core\PersonalData\Application\PresentMembers\PresentMembersHandler;
 use Prospecter\Core\PersonalData\Application\PublishBookerIdentified\PublishBookerIdentifiedHandler;
 use Prospecter\Core\PersonalData\Application\PublishContactCollected\PublishContactCollectedHandler;
@@ -1379,6 +1380,7 @@ final class Application
     private function commandHandlers(): array
     {
         return [
+            new CollectTheMemberProfileHandler($this->persons),
             new CollectTheFounderProfileHandler($this->persons),
             new ReadMailboxHistoryHandler($this->connections, $this->clients, $this->mailboxes, $this->connectingMembers, $this->events),
             new PushUpcomingExchangesHandler($this->heldExchanges, $this->calendarPusher),
@@ -1796,7 +1798,7 @@ final class Application
             new PlanBookedAppointmentHandler($this->exchanges, $this->contactsToAttach, $this->contactOrganizations, new BookingBookedAppointments($this->consultAppointmentsService), $this->prospectors, $this->events),
             new RegisterTheFounderPolicy(),
             new CollectTheFounderProfilePolicy(),
-            new CollectTheMemberProfileHandler($this->persons),
+            new CollectTheMemberProfilePolicy(),
             new StopKeepingExchangesHandler($this->exchanges, $this->events),
             new EraseExchangeLeftWithoutOrganizationHandler($this->exchanges, $this->events),
             new StopKeepingToDosHandler($this->toDos, $this->events),
