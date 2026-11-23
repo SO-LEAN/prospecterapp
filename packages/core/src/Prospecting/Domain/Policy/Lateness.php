@@ -9,8 +9,9 @@ use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\Prospecting\Domain\Model\Slot;
 
 /**
- * What a prospector let pass at the moment of a reading, on their clock: a planned exchange whose slot has ended,
- * still to mark done, missed or cancelled; a to-do not done whose hour, or else whose day, has passed.
+ * What a prospector let pass at the moment of a reading, on their clock. A planned exchange is late once its slot has
+ * ended and nobody marked it done, missed or cancelled. A to-do is late when it is not done and its hour has passed, or
+ * its day when it has no hour.
  */
 final class Lateness
 {

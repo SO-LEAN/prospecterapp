@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Domain\Policy;
 
 /**
- * Its contact forgotten, an exchange may still hold their personal data: in its text until it is declared
- * conform, in its files until they are removed (ADR 0079). Asked by the exchange and by its reading (ADR 0088).
+ * Once its contact is forgotten, an exchange may still hold their personal data. Its text holds them until a member
+ * declares it redacted. Its files hold them until a member removes them (ADR 0079). The exchange and its reading both
+ * ask this policy (ADR 0088).
  */
 final class ExchangeConformity
 {
@@ -23,7 +24,7 @@ final class ExchangeConformity
     }
 
     /**
-     * A file is made conform by removing it.
+     * A member redacts a file by removing it.
      */
     #[\NoDiscard]
     public static function areAttachmentsToMakeConform(bool $contactForgotten): bool

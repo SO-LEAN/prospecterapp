@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Domain\Policy;
 
 /**
- * A contact to attach nobody attaches is erased from the start of the 30th day after their last meeting, the day
- * read on the clock that meeting was given in (ADR 0146).
+ * Prospecter erases a contact to attach that nobody attaches. The erasure comes from the start of the 30th day after
+ * their last meeting. That day is read on the clock the meeting was given in (ADR 0146).
  */
 final class UnattachedErasure
 {

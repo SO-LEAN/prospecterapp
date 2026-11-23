@@ -7,8 +7,8 @@ namespace Prospecter\Core\Prospecting\Domain\Policy;
 use Prospecter\Core\SharedKernel\Domain\Email;
 
 /**
- * The domains of the mailboxes anyone opens: the email of a person there says nothing of the organization they work
- * for, so none is proposed to attach them to (ADR 0146).
+ * The domains of the mailboxes that anyone can open. A person's email there says nothing about the organization they
+ * work for. So Prospecter proposes no organization to attach them to (ADR 0146).
  */
 final class PublicMailDomains
 {
