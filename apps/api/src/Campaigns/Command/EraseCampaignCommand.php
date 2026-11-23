@@ -13,8 +13,8 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * Erases a campaign whatever its status, known by its identity alone: the cleaning of a test, a request of a person.
- * Reserved to the operations, the application never deleting a started campaign.
+ * Erases a campaign whatever its status, found by its id alone. The operations run it to clean up a test, or on a
+ * person's request. Only the operations run it, because the application never deletes a started campaign.
  */
 #[AsCommand(name: 'app:campaign:erase', description: 'Erase a campaign whatever its status, for the operations only')]
 final readonly class EraseCampaignCommand
@@ -23,7 +23,7 @@ final readonly class EraseCampaignCommand
     {
     }
 
-    public function __invoke(SymfonyStyle $io, #[Argument(description: 'The identity of the campaign')] string $id): int
+    public function __invoke(SymfonyStyle $io, #[Argument(description: 'The campaign\'s id')] string $id): int
     {
         try {
             $this->commands->dispatch(new EraseCampaign($id));
