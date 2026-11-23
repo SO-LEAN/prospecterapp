@@ -8,8 +8,8 @@ use Prospecter\Core\Reporting\Application\Port\RecordingsInFlight;
 use Symfony\Component\Clock\ClockInterface;
 
 /**
- * The facts are recorded by the worker, which runs 120 seconds at most (`infra/messaging.tf`, ADR 0182): once
- * two minutes and a half have passed, every recording begun before has ended, written or abandoned (ADR 0103, 0104).
+ * The worker records the facts. It runs for 120 seconds at most (`infra/messaging.tf`, ADR 0182). So after two and a
+ * half minutes, every recording begun before has ended, whether written or abandoned (ADR 0103, 0104).
  */
 final readonly class RecordingsOfTheWorker implements RecordingsInFlight
 {

@@ -11,12 +11,13 @@ use Prospecter\Core\Reporting\Application\Port\ProjectionVersions;
 use Psr\Clock\ClockInterface;
 
 /**
- * The versions of the figures in the table of Reporting: PK `PROJECTION`, SK `ACTIVE` (`version`) and `BUILDING`
- * (`version`, `since` the moment the rebuild started it). The version being built is abandoned by removing `BUILDING`,
- * written in its unit; the abandoned versions are every version but the active one, removed by a scan then deletions
- * written at once: what an interrupted rebuild left, and what a recording wrote in the former version after its removal.
- * Once activated, the former version is removed the same way, its facts and its figures, a projection that can be
- * rebuilt (ADR 0103, 0106).
+ * The figures' versions in Reporting's table: PK `PROJECTION`, SK `ACTIVE` (`version`) and `BUILDING` (`version`,
+ * `since` the moment the rebuild started it).
+ *
+ * Removing `BUILDING`, in its own unit of work, abandons the version being built. The abandoned versions are every
+ * version but the active one: what an interrupted rebuild left, and what a recording wrote in the previous version
+ * after its removal. A scan finds them, then the deletions are written at once. After an activation, the previous
+ * version's facts and figures are removed the same way. They are a projection that can be rebuilt (ADR 0103, 0106).
  */
 final readonly class DynamoProjectionVersions implements ProjectionVersions
 {
@@ -79,7 +80,7 @@ final readonly class DynamoProjectionVersions implements ProjectionVersions
     }
 
     /**
-     * Its facts and its figures.
+     * Removes the version's facts and figures.
      */
     private function remove(int $version): void
     {

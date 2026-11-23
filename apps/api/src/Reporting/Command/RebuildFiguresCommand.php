@@ -13,17 +13,24 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * Counts the figures of every account again, from the state of the other contexts, in a new version made the active
- * one (ADR 0103): once Reporting is put in service on an instance, after `app:keys:rebuild` wrote the keys listing
- * the accounts and the exchanges of an account in the items written before them, then whenever its figures went
- * wrong. Run from the command line, out of the time limit of a function; its steps commit their own units, so it
- * calls its handler without the unit of work of a command. It writes only the table of Reporting, figures derived
- * from the state. A step cancelled by a recording of the worker on the same figures starts the rebuild again, three
- * times at most, the version it was building abandoned then emptied first (ADR 0104, 0106). It says how many accounts
- * the list of the accounts gives it, none being no failure: a new instance has none, and app:consistency:check shows
- * an account missing from that list.
+ * Counts every account's figures again from the other contexts' state, in a new version that becomes the active one
+ * (ADR 0103).
+ *
+ * Run it once when Reporting goes into service on an instance, after `app:keys:rebuild` has written the keys that list
+ * the accounts and an account's exchanges in the older items. Run it again whenever the figures go wrong.
+ *
+ * It runs from the command line, outside a function's time limit. Its steps commit their own units of work, so it
+ * calls its handler without a command's unit of work. It writes only Reporting's table, whose figures derive from the
+ * state.
+ *
+ * A worker's recording on the same figures can cancel a step. The command then starts the rebuild again, three times
+ * at most. Each new attempt first abandons the version that the cancelled one was building, then empties it (ADR 0104,
+ * 0106).
+ *
+ * It reports how many accounts the account list gives it. Zero is not a failure: a new instance has no account, and
+ * app:consistency:check shows an account missing from that list.
  */
-#[AsCommand(name: 'app:reporting:rebuild', description: 'Count the figures of every account again, from the state of the other contexts')]
+#[AsCommand(name: 'app:reporting:rebuild', description: 'Count every account\'s figures again from the other contexts\' state')]
 final readonly class RebuildFiguresCommand
 {
     private const int RETRIES_OF_A_CONFLICT = 3;
@@ -54,7 +61,7 @@ final readonly class RebuildFiguresCommand
                     throw $conflict;
                 }
 
-                $io->warning('A fact recorded meanwhile cancelled the rebuild: starting it again.');
+                $io->warning('A fact recorded during the rebuild cancelled it. Starting it again.');
             }
         }
     }

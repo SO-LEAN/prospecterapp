@@ -16,8 +16,8 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * Anticorruption layer (ADR 0045, 0089): Reporting counts accounts, Accounts publishes them, and the members of each,
- * slice after slice.
+ * Anticorruption layer (ADR 0045, 0089). Reporting counts accounts. Accounts publishes them and each account's
+ * members, slice by slice.
  */
 final readonly class AccountsSourceAccounts implements SourceAccounts
 {
