@@ -9,7 +9,7 @@ GITLEAKS = docker run --rm -u $(UID):$(GID) -e GIT_INDEX_FILE -v $(CURDIR):$(CUR
 	-w $(CURDIR) ghcr.io/gitleaks/gitleaks:v8.30.1
 INFRA_APPS = api storage front
 
-.PHONY: install hooks build vendor db aws ca front-install check-secrets check-infra check-contract check-core check-api check-storage check-front check-e2e check-e2e-locked e2e-locked front-lint front-tested-build changed-checks infra-target infra-init infra-plan infra-apply infra-lint changed-apps package-api package-storage package-front release-front console start deploy stop down images-prune agents-slice logs ps google-down google-up ci test test-api test-storage test-front e2e test-core mutation mutation-api lint adr-references adr-index adr-index-check fix front-build api-doc contract commands profiler-clear exec-api exec-front secrets secrets-branch
+.PHONY: install hooks build vendor db aws ca front-install check-secrets check-infra check-contract check-core check-api check-storage check-front check-e2e check-e2e-locked check-e2e-run e2e-locked front-lint front-tested-build changed-checks infra-target infra-init infra-plan infra-apply infra-lint changed-apps package-api package-storage package-front release-front console start deploy stop down images-prune agents-slice logs ps google-down google-up ci test test-api test-storage test-front e2e test-core mutation mutation-api lint adr-references adr-index adr-index-check fix front-build api-doc contract commands profiler-clear exec-api exec-front secrets secrets-branch
 
 ##@ Setup
 install: hooks build vendor db front-install ## Build the images, install the dependencies, create the tables, the bucket and the user pool, install the Git hooks
@@ -136,27 +136,45 @@ check-contract: contract ## Check the OpenAPI contract and the front types again
 E2E_LOCK = $(GIT_COMMON_DIR)/prospecter-e2e.lock
 WITH_E2E_LOCK = { flock -n $(E2E_LOCK) true || echo "The journeys of another checkout run: waiting for them..."; } && flock $(E2E_LOCK)
 
-# In a worktree, never on the data of the main checkout (ADR 0118, 0121). On the stack running, as it is: the code is
-# mounted in the functions, a journey passes whatever the data. With FRESH=1, or no stack running, from nothing: the
-# stack started again (MiniStack without the memory a former run left it), deployed, its data recreated, the figures
-# counted (two minutes, ADR 0106) while the journeys reading none run together; FRESH=1 after a change of the
-# functions, of their settings or of the subscriptions. Those running alone run once the others are done (ADR 0117), the
-# main journey then the dashboard, one after the other (ADR 0136), and not when one before failed: the first failure
-# stops them (FAIL_FAST). The relay and the worker warmed, the gestures of the console made and the geocoder doubled
-# once for both
+# In a worktree, never on the data of the main checkout (ADR 0118, 0121). On the stack running, the journeys of a
+# branch start from the demonstration all the same: the functions of the API and the storage deployed again, the relay
+# and the worker recycled, the queues of the failures emptied, the tables and the user pool given the demonstration back
+# (make -C apps/api restore), the containers, the images, the relay's mappings, the rules of the bus and the buckets kept.
+# From nothing, with FRESH=1, no stack running or a change of what defines the stack since it was made (STACK_DEFINITION):
+# the stack started again (MiniStack without the memory a former run left it), deployed, its data recreated. Either
+# way the figures are counted (two minutes, ADR 0106) while the journeys reading none run together. Those running alone
+# run once the others are done (ADR 0117), the main journey then the dashboard, one after the other (ADR 0136), and not
+# when one before failed: the first failure stops them (FAIL_FAST). The relay and the worker warmed, the gestures of
+# the console made and the geocoder doubled once for both. Each step says how long it took, and so does the whole
 FIGURES_LOG = $(ROOT)/.cache/reporting-rebuild.log
 STACK_RUNNING = $(shell $(DC) ps -q --status running nginx 2>/dev/null)
-FROM_NOTHING = $(or $(FRESH),$(if $(STACK_RUNNING),,1))
-check-e2e: ## Run the journeys on the stack of this worktree as it runs, stopping at the first failure; FRESH=1 (or no stack running): started again, deployed and its data recreated first (ADR 0117, 0121)
+# what the restore of a running stack does not make again: the containers and their images, the tables, the user pool,
+# the buckets, the relay and the rules of the subscriptions. The digest of the definition the stack was made from is
+# kept beside it
+STACK_DEFINITION = docker-compose.yml docker-compose.agents.yml docker/php docker/node docker/nginx docker/lambda \
+	apps/api/config/subscriptions.json apps/api/src/Shared/Persistence/Tables.php apps/api/src/SignIn/UserPool.php \
+	apps/storage/src/Command/RecreateBucketCommand.php
+STACK_DEFINITION_DIGEST = $(shell cd $(ROOT) && find $(STACK_DEFINITION) -type f | LC_ALL=C sort | xargs sha256sum | sha256sum | cut -c1-12)
+STACK_MADE = $(ROOT)/.cache/stack-made-from
+STACK_CHANGED = $(if $(filter $(STACK_DEFINITION_DIGEST),$(file < $(STACK_MADE))),,1)
+FROM_NOTHING = $(or $(FRESH),$(if $(STACK_RUNNING),,1),$(STACK_CHANGED))
+MAKE_THE_STACK = $(MAKE) stop && $(MAKE) deploy && $(MAKE) db FIGURES=later && echo $(STACK_DEFINITION_DIGEST) >$(STACK_MADE)
+RESTORE_THE_STACK = echo "On the stack running, its demonstration given back (FRESH=1 from nothing)" \
+	&& $(call timed,Stack/API and storage deployed and reactions recycled,$(DC) --progress quiet run --rm --build lambda-deploy apps) \
+	&& $(MAKE) -C apps/api restore FIGURES=later
+check-e2e: ## Run the journeys on the stack of this worktree, its demonstration given back first, stopping at the first failure; FRESH=1 (or no stack running, or a change of what defines it): started again, deployed and its data recreated first (ADR 0117, 0121)
 	@test -n "$(IN_WORKTREE)" || { echo "check-e2e recreates the data of the stack: in a worktree only; make e2e on the running stack"; exit 1; }
 	@$(WITH_E2E_LOCK) $(MAKE) check-e2e-locked FROM_NOTHING=$(FROM_NOTHING)
 
-check-e2e-locked: export FAIL_FAST = 1
 check-e2e-locked:
-	@$(if $(FROM_NOTHING),$(MAKE) stop && $(MAKE) deploy && $(MAKE) db FIGURES=later && mkdir -p $(dir $(FIGURES_LOG)),echo "On the stack running, as it is (FRESH=1 from nothing)")
-	@$(if $(FROM_NOTHING),{ $(call timed,API/figures counted,$(API_CONSOLE)app:reporting:rebuild >$(FIGURES_LOG) 2>&1); } & figures=$$!;,figures=;) \
+	@$(call timed,check-e2e,$(MAKE) check-e2e-run)
+
+check-e2e-run: export FAIL_FAST = 1
+check-e2e-run:
+	@mkdir -p $(dir $(FIGURES_LOG)) && $(if $(FROM_NOTHING),$(MAKE_THE_STACK),$(RESTORE_THE_STACK))
+	@{ $(call timed,API/figures counted,$(API_CONSOLE)app:reporting:rebuild >$(FIGURES_LOG) 2>&1); } & figures=$$!; \
 	$(E2E_SETUP) && $(call timed,Journeys/together,$(FRONT_E2E) E2E_ARGS="--project='together*'" E2E_RESULTS=together); together=$$?; \
-	test -z "$$figures" || wait $$figures || { echo "The figures were not counted:"; cat $(FIGURES_LOG); exit 1; }; \
+	wait $$figures || { echo "The figures were not counted:"; cat $(FIGURES_LOG); exit 1; }; \
 	test $$together -eq 0 || { echo "A journey running together failed: those running alone are not run"; exit $$together; }; \
 	$(call timed,Journeys/main journey,$(FRONT_E2E) E2E_ARGS="--project=alone --no-deps" E2E_RESULTS=alone) && \
 	$(call timed,Journeys/dashboard,$(FRONT_E2E) E2E_ARGS="--project=alone-dashboard --no-deps" E2E_RESULTS=alone-dashboard)

@@ -6,6 +6,8 @@
 # service of the IGN of apps/api/.env with no url; then as many functions of the API warmed as asked.
 # deploy relay: only the bus, the relay of the outbox and the mappings of the streams of the tables, which make db
 # recreates, and the worker with the rules of the subscriptions.
+# deploy apps: only the functions of the API and the storage, the relay and the worker kept and recycled, before the
+# journeys of a branch on a stack that runs (make check-e2e).
 # deploy warm: only a first call to the relay and to the worker, before the journeys.
 # deploy purge: only the messages of the queues of the failures emptied, which make db does before recreating the
 # tables their messages are about.
@@ -206,7 +208,19 @@ deploy_apps() {
     wait
 
     echo "Lambdas prospecter-dev-api and prospecter-dev-storage with $php and $imagick, behind their HTTP APIs (stage local)"
-    deploy_relay
+}
+
+# recycle_reactions: the relay and the worker kept, with their mappings and the rules of the bus, their containers
+# started again on their next call: they load the code of the checkout once per container. MiniStack recycles the
+# containers of a function whose environment changes
+recycle_reactions() {
+    for function in prospecter-dev-relay prospecter-dev-worker; do
+        variables=$(aws lambda get-function-configuration --function-name "$function" --query Environment.Variables --output json)
+        aws lambda update-function-configuration --function-name "$function" \
+            --environment "$(echo "$variables" | jq -c --arg at "$(date +%s)" '{Variables: (. + {RECYCLED_AT: $at})}')" >/dev/null
+        aws lambda wait function-updated --function-name "$function"
+    done
+    echo "Lambdas prospecter-dev-relay and prospecter-dev-worker recycled"
 }
 
 # warm_reactions: the relay and the worker started, their first call taking some 16 seconds, before the journeys
@@ -245,6 +259,10 @@ elif [ "${1:-}" = purge ]; then
     purge_failures
 elif [ "${1:-}" = warm ]; then
     warm_reactions
+elif [ "${1:-}" = apps ]; then
+    deploy_apps
+    recycle_reactions
 else
     deploy_apps
+    deploy_relay
 fi
