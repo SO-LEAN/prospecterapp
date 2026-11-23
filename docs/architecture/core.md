@@ -31,7 +31,7 @@ A folder exists only when it holds something.
     - The refusals are `NotAWebAddress`, `ReferenceOfAnotherKind`, `UnrecognizedPage` and `TooManyLinks`;
   - `Company/`: `LegalIdentity` and its `Siret` (fourteen digits checked by Luhn, or by their sum for La Poste, ADR 0158), refused by `InvalidSiret`;
   - `Location/`: `GeoPoint`, and `Location`, where the geocoder finds an address: its `GeoPoint` and its municipality's INSEE code (ADR 0142);
-  - `Search/`: `SearchKey` and `SearchKeys`, by which an aggregate is found by the start of its name or email, ignoring accents, case, spaces and punctuation (ADR 0071), with `Decomposed`. And `Slice`: a list, newest first, with the cursor to what follows (ADR 0049);
+  - `Search/`: `SearchKey` and `SearchKeys`, by which an aggregate is found by the start of its name or email, ignoring accents, case, spaces and punctuation (ADR 0071), with `Decomposed`. `Slice` is a list, newest first, with the cursor to what follows (ADR 0049);
   - `File/`: `File`;
   - `Gesture/`: `Gesture`, who acts, in which account, when, and the act's `Origin`. It is the argument object of the aggregates' factories (ADR 0191). The exception is an actor who carries a right that its aggregate checks: PersonalData's `Reader`, the administrator registering a member (ADR 0193). `Origin` says how an organization, a contact or an exchange was created, by hand or by an AI through the MCP server (ADR 0185);
   - `Completion/`: `Completion`, what a client knows about a person or an organization, compared with what is recorded. It lists the fields it would fill, empty until then, and the fields where it gives something else (ADR 0177).
