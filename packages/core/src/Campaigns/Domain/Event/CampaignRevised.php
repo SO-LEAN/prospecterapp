@@ -9,9 +9,7 @@ use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\Event\DomainEvent;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
-/**
- * A member changed the name, the channel, the tags or the message of a draft campaign.
- */
+/** A member changed a draft campaign's name, channel, tags or message. */
 final readonly class CampaignRevised extends DomainEvent
 {
     public function __construct(AccountId $accountId, MemberId $by, public CampaignId $campaign, \DateTimeImmutable $occurredAt)

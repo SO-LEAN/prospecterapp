@@ -9,9 +9,7 @@ use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\Event\DomainEvent;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
-/**
- * A member started a frozen campaign: the team leads it as it was frozen.
- */
+/** A member started a frozen campaign. The team runs it as it was frozen. */
 final readonly class CampaignStarted extends DomainEvent
 {
     public function __construct(AccountId $accountId, MemberId $by, public CampaignId $campaign, \DateTimeImmutable $occurredAt)

@@ -9,9 +9,7 @@ use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\Event\DomainEvent;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
-/**
- * A member stopped a started campaign, kept for the team to read.
- */
+/** A member stopped a started campaign. The campaign stays for the team to read. */
 final readonly class CampaignStopped extends DomainEvent
 {
     public function __construct(AccountId $accountId, MemberId $by, public CampaignId $campaign, \DateTimeImmutable $occurredAt)
