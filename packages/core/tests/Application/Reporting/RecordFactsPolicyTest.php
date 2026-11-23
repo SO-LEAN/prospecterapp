@@ -19,6 +19,7 @@ class RecordFactsPolicyTest extends TestCase
     private const string AGGREGATE = '01960000-0000-7000-8000-000000000002';
     private const string AT = '2026-11-23 09:00 UTC';
     private const string NOTED = '2026-11-20 14:00 UTC';
+    private const string CONTACT = '01960000-0000-7000-8000-000000000003';
 
     public function testAnOrganizationsFactIsRecorded(): void
     {
@@ -29,7 +30,7 @@ class RecordFactsPolicyTest extends TestCase
 
     public function testAnExchangesFactIsRecorded(): void
     {
-        $changed = new ExchangeFactsChanged(self::ACCOUNT, self::AGGREGATE, 2, true, 'done', new \DateTimeImmutable(self::NOTED), new \DateTimeImmutable(self::AT), contactId: self::ACCOUNT);
+        $changed = new ExchangeFactsChanged(self::ACCOUNT, self::AGGREGATE, 2, true, 'done', new \DateTimeImmutable(self::NOTED), new \DateTimeImmutable(self::AT), contactId: self::CONTACT);
 
         $this->assertEquals(new RecordExchangeFacts(self::ACCOUNT, self::AGGREGATE, 2, true, 'done', new \DateTimeImmutable(self::NOTED), new \DateTimeImmutable(self::AT)), new RecordFactsPolicy()($changed));
     }

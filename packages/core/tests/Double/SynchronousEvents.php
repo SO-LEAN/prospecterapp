@@ -14,8 +14,8 @@ use Prospecter\Core\SharedKernel\Application\Port\Events;
  * publishes, like the API's event bus. A reaction runs once the command has succeeded, like the worker. Each
  * reaction runs in its own unit, in the order they subscribed: a policy's commands are sent through their handlers'
  * decorators, a reaction that is still an event handler is called through its own. Then the reactions to what the
- * reactions published run, until none is left. A command that fails delivers nothing. A reaction that fails publishes nothing, and its
- * event joins the failures.
+ * reactions published run, until none is left. A command that fails delivers nothing. A reaction that fails publishes
+ * nothing, and its event joins the failures.
  */
 final class SynchronousEvents implements Events
 {
@@ -178,12 +178,13 @@ final class SynchronousEvents implements Events
     {
         $commands = new \ReflectionMethod($policy, '__invoke')->invoke($policy, $event);
 
-        return match (true) {
+        $commands = match (true) {
             null === $commands => [],
-            is_array($commands) => array_values(array_filter($commands, is_object(...))),
-            is_object($commands) => [$commands],
-            default => throw new \LogicException(sprintf('%s returns no command', $policy::class)),
+            is_array($commands) => array_values($commands),
+            default => [$commands],
         };
+
+        return array_map(static fn (mixed $command): object => is_object($command) ? $command : throw new \LogicException(sprintf('%s returns something else than commands', $policy::class)), $commands);
     }
 
     /**
