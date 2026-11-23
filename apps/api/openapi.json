@@ -465,7 +465,7 @@
                 "tags": [
                     "Organizations"
                 ],
-                "summary": "The contacts of the organization, in clear or masked",
+                "summary": "List the organization's contacts, unmasked or masked",
                 "operationId": "get_api_organizations_contacts",
                 "parameters": [
                     {
@@ -503,7 +503,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown organization, or one of another account",
+                        "description": "The organization is unknown or belongs to another account",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2200,7 +2200,7 @@
                 "tags": [
                     "Contacts"
                 ],
-                "summary": "Consult a person my organization keeps, in clear or masked",
+                "summary": "Get a person my organization keeps, unmasked or masked",
                 "operationId": "get_api_contacts_show",
                 "parameters": [
                     {
@@ -2238,7 +2238,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown contact, or one of another account",
+                        "description": "The contact is unknown or belongs to another account",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2274,7 +2274,7 @@
                         "description": "Missing or invalid access token"
                     },
                     "403": {
-                        "description": "Not a prospector, no right to manage personal data, or a member and not a contact",
+                        "description": "The caller is not a prospector or has no right to manage personal data, or the person is a member and not a contact",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2284,7 +2284,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown contact, or one of another account",
+                        "description": "The contact is unknown or belongs to another account",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2301,7 +2301,7 @@
                 "tags": [
                     "Contacts"
                 ],
-                "summary": "Change the email, phone number, language and links of a contact",
+                "summary": "Change a contact's email, phone number, language and links",
                 "operationId": "patch_api_contacts_change_contact_details",
                 "parameters": [
                     {
@@ -2361,7 +2361,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown contact, or one of another account",
+                        "description": "The contact is unknown or belongs to another account",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2398,7 +2398,7 @@
                 "tags": [
                     "Contacts"
                 ],
-                "summary": "Change what a contact does in their organization",
+                "summary": "Change a contact's job in their organization",
                 "operationId": "patch_api_contacts_change_job_title",
                 "parameters": [
                     {
@@ -2458,7 +2458,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown contact, or one of another account",
+                        "description": "The contact is unknown or belongs to another account",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2495,7 +2495,7 @@
                 "tags": [
                     "Contacts"
                 ],
-                "summary": "Note how one addresses a contact, Ms or Mr, or that it is unknown (x)",
+                "summary": "Set how to address a contact: Ms, Mr, or unknown (x)",
                 "operationId": "patch_api_contacts_change_title",
                 "parameters": [
                     {
@@ -2555,7 +2555,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown contact, or one of another account",
+                        "description": "The contact is unknown or belongs to another account",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2592,7 +2592,7 @@
                 "tags": [
                     "Contacts"
                 ],
-                "summary": "Search the persons my organization prospects, by name, or by email with the right to manage personal data, with their organizations",
+                "summary": "Search the persons my organization prospects, with their organizations. Search by name, or by email with the right to manage personal data",
                 "operationId": "get_api_contacts_search",
                 "parameters": [
                     {
@@ -2647,7 +2647,7 @@
                 "tags": [
                     "Contacts"
                 ],
-                "summary": "Collect a person my organization prospects, as a contact of the organizations they work for (at least one)",
+                "summary": "Collect a person my organization prospects, as a contact of the organizations they work for. At least one organization is required",
                 "operationId": "post_api_contacts_collect",
                 "requestBody": {
                     "required": true,
@@ -2684,7 +2684,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown organization, or one of another account",
+                        "description": "The organization is unknown or belongs to another account",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2711,7 +2711,7 @@
                 "tags": [
                     "Contacts"
                 ],
-                "summary": "Say, once checked, that the contact is no duplicate of the one they resemble; neither is flagged for the other any more",
+                "summary": "Say, once checked, that the contact is not a duplicate of the one they resemble. Neither of them is flagged for the other any more",
                 "operationId": "delete_api_contacts_dismiss_possible_duplicate",
                 "parameters": [
                     {
@@ -2758,7 +2758,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown contact, or one of another account",
+                        "description": "The contact is unknown or belongs to another account",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2785,7 +2785,7 @@
                 "tags": [
                     "Organizations"
                 ],
-                "summary": "The exchanges with the organization and with its contacts, the most recent first, each with who communicated",
+                "summary": "List the exchanges with the organization and with its contacts, the most recent first, each with who took part",
                 "operationId": "get_api_organizations_timeline",
                 "parameters": [
                     {
@@ -2834,7 +2834,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown organization, or one of another account",
+                        "description": "The organization is unknown or belongs to another account",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2849,7 +2849,7 @@
                 "tags": [
                     "Organizations"
                 ],
-                "summary": "Note a call, a message or a meeting with the organization itself, or with one of its contacts",
+                "summary": "Log a call, a message or a meeting with the organization itself, or with one of its contacts",
                 "operationId": "post_api_organizations_note_exchange",
                 "parameters": [
                     {
@@ -2874,10 +2874,10 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "The timeline of the organization with the new exchange",
+                        "description": "The organization's timeline with the new exchange",
                         "headers": {
                             "Location": {
-                                "description": "The new exchange, to join files to it",
+                                "description": "The new exchange, to attach files to it",
                                 "schema": {
                                     "type": "string"
                                 }
@@ -2905,7 +2905,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown organization, or one of another account",
+                        "description": "The organization is unknown or belongs to another account",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2915,7 +2915,7 @@
                         }
                     },
                     "409": {
-                        "description": "The person is no contact of the organization, or the same exchange noted at the same moment by another request",
+                        "description": "The person is not a contact of the organization, or another request logged the same exchange at the same moment",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2925,7 +2925,7 @@
                         }
                     },
                     "422": {
-                        "description": "Invalid exchange: unknown channel or direction, a missed exchange that is no call, meeting or video call, a moment in the future, a Message-ID or a conversation of another channel",
+                        "description": "Invalid exchange: an unknown channel or direction, a missed exchange that is not a call, meeting or video call, a moment in the future, or a Message-ID or conversation of another channel",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2942,7 +2942,7 @@
                 "tags": [
                     "Organizations"
                 ],
-                "summary": "The exchanges to come with the organization and with its contacts, the soonest first, each with who it is with",
+                "summary": "List the exchanges to come with the organization and with its contacts, the soonest first, each with who it is with",
                 "operationId": "get_api_organizations_upcoming_exchanges",
                 "parameters": [
                     {
@@ -2991,7 +2991,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown organization, or one of another account",
+                        "description": "The organization is unknown or belongs to another account",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3062,7 +3062,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown organization, or one of another account",
+                        "description": "The organization is unknown or belongs to another account",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3072,7 +3072,7 @@
                         }
                     },
                     "409": {
-                        "description": "The person is no contact of the organization",
+                        "description": "The person is not a contact of the organization",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3082,7 +3082,7 @@
                         }
                     },
                     "422": {
-                        "description": "Invalid exchange: a channel that is not planned, a moment that is not in the future, a duration out of 5 minutes to 8 hours, a place for another channel than a meeting, a link for another than a video call or a link that is no web address",
+                        "description": "Invalid exchange: a channel that cannot be planned, a moment that is not in the future, a duration outside 5 minutes to 8 hours, a place for a channel other than a meeting, a link for a channel other than a video call, or a link that is not a web address",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3099,7 +3099,7 @@
                 "tags": [
                     "Contacts"
                 ],
-                "summary": "Recognize who calls: the organizations my organization prospects and its contacts having the phone number, given in E.164 or in the national format of France; needs the right to manage personal data",
+                "summary": "Recognize who calls: the organizations my organization prospects and the contacts that have the phone number. The number is in E.164 or in the French national format. This needs the right to manage personal data",
                 "operationId": "get_api_phone_numbers_recognize",
                 "parameters": [
                     {
@@ -3113,7 +3113,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Who has the number, nobody when both lists are empty",
+                        "description": "Who has the number. Both lists are empty when nobody has it",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3153,7 +3153,7 @@
                 "tags": [
                     "Contacts"
                 ],
-                "summary": "Change the first and last names of a contact, nothing else changes",
+                "summary": "Change a contact's first and last names. Nothing else changes",
                 "operationId": "patch_api_contacts_rename",
                 "parameters": [
                     {
@@ -3213,7 +3213,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown contact, or one of another account",
+                        "description": "The contact is unknown or belongs to another account",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3250,16 +3250,16 @@
                 "tags": [
                     "Contacts"
                 ],
-                "summary": "Search the contacts of my organization carrying every tag chosen, their own, inherited or automatic, counted",
+                "summary": "Search my organization's contacts that carry every chosen tag, and count them. A tag may be their own, inherited or automatic",
                 "operationId": "get_api_contacts_search_by_tags",
                 "parameters": [
                     {
                         "name": "tags",
                         "in": "query",
-                        "description": "The tags chosen, 1 to 5, by their names without their mark, separated by commas",
+                        "description": "The chosen tags, 1 to 5. Give their names without their mark, separated by commas",
                         "required": false,
                         "schema": {
-                            "description": "The tags chosen, 1 to 5, by their names without their mark, separated by commas",
+                            "description": "The chosen tags, 1 to 5. Give their names without their mark, separated by commas",
                             "type": "string",
                             "example": "ESN,EMAIL",
                             "default": "",
@@ -3321,16 +3321,16 @@
                 "tags": [
                     "My account"
                 ],
-                "summary": "The calendar of the signed-in member over a period: the exchanges they planned or noted, whatever their status, and their to-dos due in it, done or not; what is late, on their clock, at the offset of the period unless their time zone is given",
+                "summary": "Get the signed-in member's calendar over a period. It holds the exchanges they planned or logged, whatever their status, and their to-dos due in the period, done or not. It says what is late on the member's clock. That clock uses the period's offset unless the request gives their time zone",
                 "operationId": "get_api_me_calendar",
                 "parameters": [
                     {
                         "name": "from",
                         "in": "query",
-                        "description": "The start of its first day, included",
+                        "description": "The start of the period's first day, included",
                         "required": false,
                         "schema": {
-                            "description": "The start of its first day, included",
+                            "description": "The start of the period's first day, included",
                             "type": "string",
                             "format": "date-time",
                             "nullable": true,
@@ -3340,10 +3340,10 @@
                     {
                         "name": "to",
                         "in": "query",
-                        "description": "The start of the day after its last, excluded; six weeks after `from` at most",
+                        "description": "The start of the day after the period's last day, excluded. It is six weeks after `from` at most",
                         "required": false,
                         "schema": {
-                            "description": "The start of the day after its last, excluded; six weeks after `from` at most",
+                            "description": "The start of the day after the period's last day, excluded. It is six weeks after `from` at most",
                             "type": "string",
                             "format": "date-time",
                             "nullable": true,
@@ -3353,10 +3353,10 @@
                     {
                         "name": "timeZone",
                         "in": "query",
-                        "description": "The time zone of the reader, by its name in the database of the time zones; the offset of `from` otherwise",
+                        "description": "The reader's time zone, by its name in the time zone database. Without it, the offset of `from` applies",
                         "required": false,
                         "schema": {
-                            "description": "The time zone of the reader, by its name in the database of the time zones; the offset of `from` otherwise",
+                            "description": "The reader's time zone, by its name in the time zone database. Without it, the offset of `from` applies",
                             "type": "string",
                             "example": "Europe/Paris",
                             "nullable": true,
@@ -3367,7 +3367,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "The exchanges of the period, by their moment",
+                        "description": "The period's exchanges, by their moment",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3390,7 +3390,7 @@
                         }
                     },
                     "422": {
-                        "description": "Invalid period: a bound missing, an end before the start, longer than six weeks; or a time zone unknown",
+                        "description": "Invalid period: a missing bound, an end before the start, or more than six weeks. Or an unknown time zone",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3407,16 +3407,16 @@
                 "tags": [
                     "My account"
                 ],
-                "summary": "What the signed-in member has to process: the exchanges they planned whose end has passed, not yet marked done, missed nor cancelled, and their to-dos still to do of the day and before, on their clock, UTC unless their time zone is given",
+                "summary": "Get what the signed-in member has to process. These are the exchanges they planned whose end has passed and that are not yet marked done, missed or cancelled. They also include the member's open to-dos due today or before, on the member's clock. That clock is UTC unless the request gives their time zone",
                 "operationId": "get_api_me_exchanges_to_process",
                 "parameters": [
                     {
                         "name": "timeZone",
                         "in": "query",
-                        "description": "The time zone of the reader, by its name in the database of the time zones; UTC otherwise",
+                        "description": "The reader's time zone, by its name in the time zone database. Without it, UTC applies",
                         "required": false,
                         "schema": {
-                            "description": "The time zone of the reader, by its name in the database of the time zones; UTC otherwise",
+                            "description": "The reader's time zone, by its name in the time zone database. Without it, UTC applies",
                             "type": "string",
                             "example": "Europe/Paris",
                             "nullable": true,
@@ -3427,7 +3427,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "The exchanges to process, the oldest first, each with the links handling it, and the to-dos, the most overdue first",
+                        "description": "The exchanges to process, the oldest first, each with the links that handle it. Then the to-dos, the most overdue first",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3450,7 +3450,7 @@
                         }
                     },
                     "422": {
-                        "description": "A time zone unknown",
+                        "description": "An unknown time zone",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3467,7 +3467,7 @@
                 "tags": [
                     "Organizations"
                 ],
-                "summary": "The exchanges of the timeline of the organization whose contact was forgotten, their text or their files still to redact, the most recent first",
+                "summary": "List the exchanges on the organization's timeline whose contact was forgotten and whose text or files are still to redact, the most recent first",
                 "operationId": "get_api_organizations_exchanges_to_redact",
                 "parameters": [
                     {
@@ -3516,7 +3516,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown organization, or one of another account",
+                        "description": "The organization is unknown or belongs to another account",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3533,16 +3533,16 @@
                 "tags": [
                     "My account"
                 ],
-                "summary": "The day of the signed-in member: the exchanges they planned today, then the next five to come",
+                "summary": "Get the signed-in member's day: the exchanges they planned today, then the next five to come",
                 "operationId": "get_api_me_day",
                 "parameters": [
                     {
                         "name": "from",
                         "in": "query",
-                        "description": "The start of its first day, included",
+                        "description": "The start of the period's first day, included",
                         "required": false,
                         "schema": {
-                            "description": "The start of its first day, included",
+                            "description": "The start of the period's first day, included",
                             "type": "string",
                             "format": "date-time",
                             "nullable": true,
@@ -3552,10 +3552,10 @@
                     {
                         "name": "to",
                         "in": "query",
-                        "description": "The start of the day after its last, excluded; six weeks after `from` at most",
+                        "description": "The start of the day after the period's last day, excluded. It is six weeks after `from` at most",
                         "required": false,
                         "schema": {
-                            "description": "The start of the day after its last, excluded; six weeks after `from` at most",
+                            "description": "The start of the day after the period's last day, excluded. It is six weeks after `from` at most",
                             "type": "string",
                             "format": "date-time",
                             "nullable": true,
@@ -3565,7 +3565,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "The exchanges of the day still planned, then the next ones, the soonest first",
+                        "description": "The day's exchanges that are still planned, then the next ones, the soonest first",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3588,7 +3588,7 @@
                         }
                     },
                     "422": {
-                        "description": "Invalid day: a bound missing, an end before the start",
+                        "description": "Invalid day: a missing bound, or an end before the start",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3605,7 +3605,7 @@
                 "tags": [
                     "Contacts"
                 ],
-                "summary": "The organizations of my organization the contact works for",
+                "summary": "List the organizations of my organization that the contact works for",
                 "operationId": "get_api_contacts_organizations",
                 "parameters": [
                     {
@@ -3620,7 +3620,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "The organizations of the contact",
+                        "description": "The contact's organizations",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3650,7 +3650,7 @@
                 "tags": [
                     "My account"
                 ],
-                "summary": "The exchanges the signed-in member planned that overlap a slot, before planning another one in it",
+                "summary": "List the exchanges the signed-in member planned that overlap a slot, before they plan another one in it",
                 "operationId": "get_api_me_planned_exchanges",
                 "parameters": [
                     {
@@ -3667,10 +3667,10 @@
                     {
                         "name": "durationInMinutes",
                         "in": "query",
-                        "description": "From 5 minutes to 8 hours; 30 when left out",
+                        "description": "From 5 minutes to 8 hours. It is 30 when left out",
                         "required": false,
                         "schema": {
-                            "description": "From 5 minutes to 8 hours; 30 when left out",
+                            "description": "From 5 minutes to 8 hours. It is 30 when left out",
                             "type": "integer",
                             "nullable": true,
                             "default": null
@@ -3702,7 +3702,7 @@
                         }
                     },
                     "422": {
-                        "description": "Invalid slot: no start, a duration out of 5 minutes to 8 hours",
+                        "description": "Invalid slot: no start, or a duration outside 5 minutes to 8 hours",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3719,7 +3719,7 @@
                 "tags": [
                     "Contacts"
                 ],
-                "summary": "The organization proposed to attach a contact to: the one of my account whose email has the domain of theirs, none for a public mailbox (ADR 0146)",
+                "summary": "Get the organization proposed to attach a contact to. It is the organization of my account whose email has the same domain as the contact's. A public mailbox gets none (ADR 0146)",
                 "operationId": "get_api_contacts_proposed_organization",
                 "parameters": [
                     {
@@ -3757,7 +3757,7 @@
                         }
                     },
                     "404": {
-                        "description": "Unknown contact, or one of another account",
+                        "description": "The contact is unknown or belongs to another account",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -8293,7 +8293,7 @@
                         "maxLength": 255
                     },
                     "phoneNumber": {
-                        "description": "In the international format (+33 3 88 11 22 33) or in the national format of France (03 88 11 22 33); kept in E.164, refused when it is no valid number",
+                        "description": "In the international format (+33 3 88 11 22 33) or in the French national format (03 88 11 22 33). It is kept in E.164. An invalid number is refused.",
                         "type": "string",
                         "example": "03 88 11 22 33",
                         "nullable": true,
@@ -8306,7 +8306,7 @@
                         "default": null
                     },
                     "links": {
-                        "description": "The addresses of their pages on the tools outside (a profile on LinkedIn or Malt, any other site), five at most; each recognized by its source and an identifier, refused when it is no address of a web page, a page of a known tool designating an organization or none it recognizes, or one another contact of the account has or had",
+                        "description": "The addresses of their pages on outside tools (a LinkedIn or Malt profile, or any other site), five at most. Each link is recognized by its source and an identifier. A link is refused when it is not a web page address, when it is a page on a known tool that designates an organization or that the tool does not recognize, or when another contact of the account has or had it.",
                         "type": "array",
                         "items": {
                             "type": "string"
@@ -8730,7 +8730,7 @@
             "TitleInput": {
                 "properties": {
                     "title": {
-                        "description": "How one addresses the contact, x when unknown",
+                        "description": "How to address the contact. It is x when unknown.",
                         "type": "string",
                         "default": "x",
                         "enum": [
@@ -8748,7 +8748,7 @@
                         "$ref": "#/components/schemas/PersonNameInput"
                     },
                     "title": {
-                        "description": "How one addresses the contact, x when unknown, the default",
+                        "description": "How to address the contact. It is x when unknown, the default.",
                         "type": "string",
                         "default": "x",
                         "enum": [
@@ -8807,7 +8807,7 @@
             "TaggedContactsQuery": {
                 "properties": {
                     "tags": {
-                        "description": "The tags chosen, 1 to 5, by their names without their mark, separated by commas",
+                        "description": "The chosen tags, 1 to 5. Give their names without their mark, separated by commas",
                         "type": "string",
                         "example": "ESN,EMAIL",
                         "default": "",
@@ -8841,21 +8841,21 @@
             "CalendarQuery": {
                 "properties": {
                     "from": {
-                        "description": "The start of its first day, included",
+                        "description": "The start of the period's first day, included",
                         "type": "string",
                         "format": "date-time",
                         "nullable": true,
                         "default": null
                     },
                     "to": {
-                        "description": "The start of the day after its last, excluded; six weeks after `from` at most",
+                        "description": "The start of the day after the period's last day, excluded. It is six weeks after `from` at most",
                         "type": "string",
                         "format": "date-time",
                         "nullable": true,
                         "default": null
                     },
                     "timeZone": {
-                        "description": "The time zone of the reader, by its name in the database of the time zones; the offset of `from` otherwise",
+                        "description": "The reader's time zone, by its name in the time zone database. Without it, the offset of `from` applies",
                         "type": "string",
                         "example": "Europe/Paris",
                         "nullable": true,
@@ -8867,7 +8867,7 @@
             "ReaderClockQuery": {
                 "properties": {
                     "timeZone": {
-                        "description": "The time zone of the reader, by its name in the database of the time zones; UTC otherwise",
+                        "description": "The reader's time zone, by its name in the time zone database. Without it, UTC applies",
                         "type": "string",
                         "example": "Europe/Paris",
                         "nullable": true,
@@ -8879,14 +8879,14 @@
             "PeriodQuery": {
                 "properties": {
                     "from": {
-                        "description": "The start of its first day, included",
+                        "description": "The start of the period's first day, included",
                         "type": "string",
                         "format": "date-time",
                         "nullable": true,
                         "default": null
                     },
                     "to": {
-                        "description": "The start of the day after its last, excluded; six weeks after `from` at most",
+                        "description": "The start of the day after the period's last day, excluded. It is six weeks after `from` at most",
                         "type": "string",
                         "format": "date-time",
                         "nullable": true,
@@ -8904,7 +8904,7 @@
                         "default": null
                     },
                     "durationInMinutes": {
-                        "description": "From 5 minutes to 8 hours; 30 when left out",
+                        "description": "From 5 minutes to 8 hours. It is 30 when left out",
                         "type": "integer",
                         "nullable": true,
                         "default": null
@@ -9864,7 +9864,7 @@
                         "$ref": "#/components/schemas/PersonNameResource"
                     },
                     "title": {
-                        "description": "How one addresses the contact, x when unknown, read in clear like their name",
+                        "description": "How to address the contact, x when unknown. It is read unmasked, like their name",
                         "type": "string",
                         "enum": [
                             "ms",
@@ -10626,7 +10626,7 @@
                         "format": "date-time"
                     },
                     "erasableFrom": {
-                        "description": "The moment they are erased from if nobody attaches them",
+                        "description": "The moment from which they are erased if nobody attaches them",
                         "type": "string",
                         "format": "date-time"
                     }
@@ -10653,7 +10653,7 @@
                         "$ref": "#/components/schemas/PersonNameResource"
                     },
                     "title": {
-                        "description": "How one addresses the contact, x when unknown, read in clear like their name",
+                        "description": "How to address the contact, x when unknown. It is read unmasked, like their name",
                         "type": "string",
                         "enum": [
                             "ms",
@@ -10669,7 +10669,7 @@
                         "$ref": "#/components/schemas/PersonContactDetailsResource"
                     },
                     "masked": {
-                        "description": "The data are masked, but the name of a contact: the reader has no right to read personal data in clear",
+                        "description": "The data are masked, except the contact's name, because the reader has no right to read personal data unmasked",
                         "type": "boolean"
                     },
                     "_links": {
@@ -10733,7 +10733,7 @@
                         "$ref": "#/components/schemas/PersonNameResource"
                     },
                     "title": {
-                        "description": "How one addresses the contact, x when unknown, read in clear like their name",
+                        "description": "How to address the contact, x when unknown. It is read unmasked, like their name",
                         "type": "string",
                         "enum": [
                             "ms",
@@ -10758,7 +10758,7 @@
                         }
                     },
                     "tags": {
-                        "description": "Every tag it carries, its own, inherited and automatic, in the order of their names",
+                        "description": "Every tag the contact carries, their own, inherited and automatic ones, ordered by name",
                         "type": "array",
                         "items": {
                             "type": "string",
@@ -10826,12 +10826,12 @@
                         "type": "string"
                     },
                     "name": {
-                        "description": "Its name; none for a person no longer known",
+                        "description": "Its name. A person who is no longer known has none",
                         "type": "string",
                         "nullable": true
                     },
                     "presence": {
-                        "description": "A person still a contact of the organization, removed from it, or forgotten; none for the organization itself",
+                        "description": "Whether the person is still a contact of the organization, removed from it, or forgotten. The organization itself has none",
                         "type": "string",
                         "nullable": true,
                         "default": null,
@@ -10873,7 +10873,7 @@
                         }
                     },
                     "toRedact": {
-                        "description": "How many exchanges of the organization are to redact, their contact forgotten",
+                        "description": "How many of the organization's exchanges are to redact because their contact was forgotten",
                         "type": "integer"
                     },
                     "_links": {
@@ -10931,7 +10931,7 @@
                         }
                     },
                     "found": {
-                        "description": "How many contacts carry every tag chosen, in all the slices",
+                        "description": "How many contacts carry every chosen tag, across all the slices",
                         "type": "integer",
                         "example": 12
                     },
@@ -11074,14 +11074,14 @@
                         }
                     },
                     "toDos": {
-                        "description": "The to-dos the member holds due on a day of the period, done or not, by their due as written: a day without an hour before its hours; none without the right to manage personal data",
+                        "description": "The member's to-dos due on a day of the period, done or not, ordered by their due date as written. A day without an hour comes before that day's hours. There are none without the right to manage personal data",
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/ToDoResource"
                         }
                     },
                     "late": {
-                        "description": "The ids of the exchanges and of the to-dos late at the moment of the reading, on the clock of the reader: a planned exchange whose slot has ended, a to-do not done whose hour, or day, has passed",
+                        "description": "The ids of the exchanges and to-dos that are late when read, on the reader's clock. A planned exchange is late when its slot has ended. A to-do is late when it is not done and its hour, or day, has passed",
                         "type": "array",
                         "items": {
                             "type": "string"
@@ -11106,7 +11106,7 @@
                         "$ref": "#/components/schemas/InterlocutorResource"
                     },
                     "organization": {
-                        "description": "The organization of the contact the exchange is kept for; none with the organization itself, or for a contact no longer part of it",
+                        "description": "The organization of the contact the exchange is kept for. An exchange with the organization itself has none, and so does a contact who is no longer part of it",
                         "nullable": true,
                         "oneOf": [
                             {
@@ -11127,7 +11127,7 @@
                         "$ref": "#/components/schemas/ToDoResource"
                     },
                     "daysOverdue": {
-                        "description": "The days since its day, on the clock of the reader: 0 for a to-do of the day",
+                        "description": "The days since its due day, on the reader's clock. A to-do due today has 0",
                         "type": "integer",
                         "minimum": 0
                     }
@@ -11174,7 +11174,7 @@
                         "format": "date-time"
                     },
                     "erasableFrom": {
-                        "description": "The moment they are erased from if nobody attaches them: the start of the 30th day after their last meeting, on the clock of that meeting",
+                        "description": "The moment from which they are erased if nobody attaches them: the start of the 30th day after their last meeting, on that meeting's clock",
                         "type": "string",
                         "format": "date-time"
                     },
@@ -11210,14 +11210,14 @@
                         }
                     },
                     "toDos": {
-                        "description": "The to-dos still to do of the day of the reading, on the clock of the reader, and of the days before, the most overdue first; none without the right to manage personal data",
+                        "description": "The open to-dos due on the day of the reading, on the reader's clock, or on the days before, the most overdue first. There are none without the right to manage personal data",
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/ToDoToProcessResource"
                         }
                     },
                     "contactsToAttach": {
-                        "description": "The contacts waiting for the member, who met them, to attach them to an organization, the first erased first (ADR 0146)",
+                        "description": "The contacts the member met who wait for the member to attach them to an organization. The first to be erased comes first (ADR 0146)",
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/ContactToAttachResource"
@@ -11314,7 +11314,7 @@
             "ProposedOrganizationResource": {
                 "properties": {
                     "organization": {
-                        "description": "The organization of the account whose email has the domain of that of the contact; none for a public mailbox, or a domain none has",
+                        "description": "The account's organization whose email has the same domain as the contact's. There is none for a public mailbox, or for a domain no organization has",
                         "nullable": true,
                         "oneOf": [
                             {
