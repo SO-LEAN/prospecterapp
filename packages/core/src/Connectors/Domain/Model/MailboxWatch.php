@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Prospecter\Core\Connectors\Domain\Model;
 
 /**
- * What the provider answers when it starts, or renews, watching a mailbox: where its history stands at that moment,
- * the import starting from there, and until when it notifies its changes (ADR 0154).
+ * What the provider answers when it starts or renews a mailbox's watch. It gives the point where the mailbox history
+ * stands at that moment, and the import starts from there. It also gives the date until which the provider notifies
+ * the mailbox's changes (ADR 0154).
  */
 final readonly class MailboxWatch
 {

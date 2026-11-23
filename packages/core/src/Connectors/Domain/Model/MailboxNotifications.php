@@ -8,8 +8,9 @@ use Prospecter\Core\Connectors\Domain\Exception\InvalidTopic;
 use Prospecter\Core\SharedKernel\Domain\Email;
 
 /**
- * How the mailboxes of the members of an account notify Prospecter of their changes, through the space of the account
- * at the provider (ADR 0154): the topic they publish to, and the account of service pushing what they publish.
+ * How an account's members' mailboxes notify Prospecter of their changes, through the account's space at the provider
+ * (ADR 0154). It names the topic that the mailboxes publish to. It also names the service account that pushes what
+ * they publish.
  */
 final readonly class MailboxNotifications
 {

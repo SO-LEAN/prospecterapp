@@ -12,8 +12,8 @@ use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
 use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
 
 /**
- * Aggregate root: the client of Prospecter an account made at a provider, in its own space there, the one its members
- * connect through; one per account and provider (ADR 0125).
+ * Aggregate root: the Prospecter client that an account created at a provider, in its own space there. The account's
+ * members connect through it. An account has one client per provider (ADR 0125).
  */
 final class ProviderClient implements ReleasesEvents
 {
@@ -39,7 +39,8 @@ final class ProviderClient implements ReleasesEvents
     }
 
     /**
-     * Another client, or a new secret of the same one: a token granted to a former client is not valid with another.
+     * Replaces the credentials with another client, or with a new secret for the same client. A token granted to a
+     * former client is not valid with another one.
      */
     public function replaceBy(ClientCredentials $credentials, MemberId $by, \DateTimeImmutable $at): void
     {
@@ -49,7 +50,7 @@ final class ProviderClient implements ReleasesEvents
     }
 
     /**
-     * The mailboxes of the members notify Prospecter through this topic from now on (ADR 0154).
+     * From now on, the members' mailboxes notify Prospecter through this topic (ADR 0154).
      */
     public function notifyMailboxesThrough(MailboxNotifications $notifications, MemberId $by, \DateTimeImmutable $at): void
     {
@@ -59,7 +60,7 @@ final class ProviderClient implements ReleasesEvents
     }
 
     /**
-     * The mailboxes of the members no longer notify Prospecter: the import of their e-mails is no longer offered.
+     * The members' mailboxes no longer notify Prospecter. The e-mail import is no longer offered.
      */
     public function stopMailboxNotificationsBy(MemberId $by, \DateTimeImmutable $at): void
     {

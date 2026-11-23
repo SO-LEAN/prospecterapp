@@ -7,8 +7,9 @@ namespace Prospecter\Core\Connectors\Domain\Model;
 use Prospecter\Core\Connectors\Domain\Exception\IncompleteClient;
 
 /**
- * What a provider gave an account for Prospecter to ask it in the name of its members: the id of its client and its
- * secret (OAuth 2, ADR 0125). A token the provider grants is valid only with the client it was granted to.
+ * What a provider gave an account, so that Prospecter calls the provider on behalf of the account's members: the
+ * client's id and its secret (OAuth 2, ADR 0125). A token that the provider grants is valid only with the client it
+ * was granted to.
  */
 final readonly class ClientCredentials
 {

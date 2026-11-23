@@ -8,9 +8,10 @@ use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 /**
- * Who an event invites: the booker of an exchange booked by the public link of its holder, at their e-mail, the
- * provider sending them the invitation and its updates from the calendar of the holder; for a call, the phone the
- * holder calls them at, and the first name of the holder; whether the push tells them, the event new to them or moved.
+ * The person that an event invites: whoever booked the exchange through its holder's public link. The guest is
+ * invited at their e-mail. The provider sends them the invitation and its updates from the holder's calendar. For a
+ * call, the guest also holds the phone number that the holder calls them at, and the holder's first name. It says
+ * whether the push tells them, because the event is new to them or has moved.
  */
 final readonly class Guest
 {

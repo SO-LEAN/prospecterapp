@@ -10,10 +10,10 @@ use Prospecter\Core\SharedKernel\Domain\Exception\PersonalDataManagersOnly;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * A member as Connectors knows them from Accounts: their account, whether they administer it, and how long before
- * their planned exchanges they are reminded, none when they turned their reminders off, and whether they manage the
- * personal data, which the import of their e-mails needs (ADR 0154); their first name as they present themselves,
- * which the guest they call reads.
+ * A member as Connectors knows them from Accounts. It holds their account and whether they administer it. It holds
+ * how long before their planned exchanges they are reminded, and none when they turned their reminders off. It says
+ * whether they manage personal data, which the e-mail import needs (ADR 0154). It also holds the first name they
+ * present themselves with. The guest they call reads that name.
  */
 final readonly class Member
 {
@@ -28,7 +28,7 @@ final readonly class Member
     }
 
     /**
-     * The e-mails of a mailbox are personal data: only a member managing them catches them up (ADR 0081, 0154).
+     * A mailbox's e-mails are personal data. Only a member who manages personal data catches them up (ADR 0081, 0154).
      *
      * @throws PersonalDataManagersOnly
      */
