@@ -8,8 +8,8 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Event\DomainEvent;
 
 /**
- * Something that happened to an account's client at a provider. The account is its subject: an account has one
- * client per provider.
+ * Something that happened to an account's client at a provider. The account is its subject, because an account has
+ * one client per provider.
  */
 abstract readonly class ClientEvent extends DomainEvent
 {

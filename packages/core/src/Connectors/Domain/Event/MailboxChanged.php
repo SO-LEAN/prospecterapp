@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Connectors\Domain\Event;
 
 /**
- * The mailbox of the member notified Prospecter of a change, its e-mails to read (ADR 0154).
+ * The member's mailbox notified Prospecter of a change. Its e-mails are to be read (ADR 0154).
  */
 final readonly class MailboxChanged extends MailboxToRead
 {

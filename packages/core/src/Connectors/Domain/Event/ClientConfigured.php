@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Connectors\Domain\Event;
 
 /**
- * An administrator configured the client of their account at a provider, for the first time or another one.
+ * An administrator configured their account's client at a provider. It is the first client, or it replaces another.
  */
 final readonly class ClientConfigured extends ClientEvent
 {
