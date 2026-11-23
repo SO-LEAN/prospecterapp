@@ -32,9 +32,9 @@ type Item = {
     | 'nav.account'
   icon: LucideIcon
   exact?: boolean
-  /** What is left to do there, told beside it. */
+  /** What is left to do there, shown beside the link. */
   count?: ComponentType<{ className?: string }>
-  /** Shown only when my account carries this link: the api says what I may reach. */
+  /** Shown only when my account carries this link. The API says what I may reach. */
   link?: keyof Account['_links']
 }
 

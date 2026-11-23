@@ -6,7 +6,7 @@ import type { Organization } from '@/features/organizations/queries'
 import type { SuggestedTags } from '@/features/tags/queries'
 import { renderTheSpaAt } from '@/test/render-the-spa'
 
-/** The creation of an organization on the routes of the SPA: its tags put once it is created. */
+/** Creating an organization on the SPA's routes. Its tags are added once the organization exists. */
 
 const theApi = vi.hoisted(() => {
   const fetch = vi.fn<typeof globalThis.fetch>()

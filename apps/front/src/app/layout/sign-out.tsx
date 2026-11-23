@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { session } from '@/shared/auth/session'
 import { Button } from '@/shared/ui/button'
 
-/** Where a member signs out: of the app alone, their AIs kept signed in, or everywhere, their AIs included. */
+/** Where a member signs out. They sign out of the app alone and keep their AIs signed in, or sign out everywhere, their AIs included. */
 type SignOutScope = 'thisApp' | 'everywhere'
 
 const signOutOf: Record<SignOutScope, () => Promise<void>> = {
@@ -25,7 +25,7 @@ export function useSignOut(scope: SignOutScope = 'thisApp') {
   }
 }
 
-/** Signing out from a page outside the shell, where the user menu is not. */
+/** Signs out from a page outside the shell, which has no user menu. */
 export function SignOutButton() {
   const { t } = useTranslation()
   const signOut = useSignOut()

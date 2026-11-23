@@ -12,7 +12,7 @@ const GOLD_SHADE =
 const GOLD_LIGHT =
   'M4236 3583 c-6 -14 -5 -15 5 -6 7 7 10 15 7 18 -3 3 -9 -2 -12 -12z M4940 3586 c0 -2 7 -7 16 -10 8 -3 12 -2 9 4 -6 10 -25 14 -25 6z M4290 3576 c0 -2 8 -10 18 -17 15 -13 16 -12 3 4 -13 16 -21 21 -21 13z M4285 3469 c-4 -6 -5 -12 -2 -15 2 -3 7 2 10 11 7 17 1 20 -8 4z M4029 2993 c-13 -16 -12 -17 4 -4 16 13 21 21 13 21 -2 0 -10 -8 -17 -17z M4376 2750 c-10 -45 -16 -83 -14 -85 2 -3 20 17 39 43 34 47 34 47 18 80 -10 19 -19 36 -22 38 -2 2 -12 -32 -21 -76z m24 -17 c0 -20 -3 -24 -11 -16 -7 7 -9 19 -6 27 10 24 17 19 17 -11z'
 
-/** The shovel and its nuggets of gold: the drawing of `public/favicon.svg`, its ink following the theme. */
+/** The shovel and its gold nuggets: the drawing in `public/favicon.svg`, whose ink follows the theme. */
 export function BrandMark({ className }: { className?: string }) {
   return (
     <svg viewBox="385 65 300 300" className={cn('size-8 shrink-0', className)} aria-hidden>

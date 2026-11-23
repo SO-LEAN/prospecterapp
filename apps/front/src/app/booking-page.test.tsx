@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { renderTheSpaAt } from '@/test/render-the-spa'
 
-/** The page a public link of a booking leads to, opened by anyone, without signing in (ADR 0148, 0151, 0153). */
+/** The page that a booking page's public link opens. Anyone opens it without signing in (ADR 0148, 0151, 0153). */
 
 const theApi = vi.hoisted(() => {
   const fetch = vi.fn<typeof globalThis.fetch>()
@@ -39,7 +39,7 @@ const theApiAnswers = (status: number, body: unknown) =>
     return answer(status, body)
   })
 
-/** The page, then the booking: what the booker sent kept, the API answering as told. */
+/** The page, then the booking. The test keeps what the booker sent, and the API answers as told. */
 const theApiBooks = (status: number, body: unknown, page = anOpenPage()) => {
   const sent: unknown[] = []
   theApi.mockImplementation(async (input) => {
@@ -54,7 +54,7 @@ const theApiBooks = (status: number, body: unknown, page = anOpenPage()) => {
   return sent
 }
 
-/** A person takes some seconds to fill the form: the clock moves on meanwhile, the page sending when it showed it. */
+/** A person takes a few seconds to fill in the form. The clock moves on meanwhile, and the page sends the time it showed the form. */
 async function iFillTheFormFor(channel: 'Appel' | 'Visio', slot: string) {
   const user = userEvent.setup()
   await renderTheSpaAt(`/booking/${CODE}`)
@@ -67,7 +67,7 @@ async function iFillTheFormFor(channel: 'Appel' | 'Visio', slot: string) {
   return user
 }
 
-/** The phone typed alone in the form of a call, on an open page. */
+/** Only the phone number typed in a call's form, on an open page. */
 async function iTypeThePhone(number: string) {
   theApiBooks(201, {})
   const user = userEvent.setup()

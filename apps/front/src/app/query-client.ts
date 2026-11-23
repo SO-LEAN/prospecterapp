@@ -9,7 +9,7 @@ const shouldRetry = (failureCount: number, error: unknown) => !isClientError(err
 
 const stillShowsCachedData = (query: Query<unknown, unknown>) => query.state.data !== undefined
 
-/** What a form words itself (`applyViolations`): the validation of its fields, and the refusal of the role. */
+/** The problems a form shows itself (`applyViolations`): its fields' validation errors and the role's refusal. */
 const isWordedByAForm = (error: unknown) => isProblem(error) && (error.status === 422 || error.status === 403)
 
 const isShownByItsForm = (error: unknown, mutation: Mutation<unknown, unknown, unknown, unknown>) => {
@@ -20,7 +20,7 @@ const isShownByItsForm = (error: unknown, mutation: Mutation<unknown, unknown, u
   )
 }
 
-/** A refusal of a mutation, or its failure, is told in a toast, unless its form shows it. */
+/** A toast shows a mutation's refusal or failure, unless the mutation's form shows it. */
 export function mutationsToastingTheirRefusals() {
   return new MutationCache({
     onError: (error, _variables, _context, mutation) => {
@@ -33,8 +33,8 @@ export function mutationsToastingTheirRefusals() {
 }
 
 /**
- * Server state cache. Defaults favour a snappy UI: data is fresh for 30 s (no refetch on every
- * mount), kept 5 min after its last use, refetched in background on window focus.
+ * The server state cache. Its defaults keep the UI fast. Data stays fresh for 30 s, so a mount does not refetch it.
+ * The cache keeps data for 5 min after its last use. A window focus refetches it in the background.
  */
 export const queryClient = new QueryClient({
   defaultOptions: {

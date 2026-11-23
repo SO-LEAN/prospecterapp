@@ -4,7 +4,7 @@ import type { Account } from '@/features/account/mutations'
 import type { CalendarToDo } from '@/features/exchanges/calendar/queries'
 import { renderTheSpaAt } from '@/test/render-the-spa'
 
-/** A to-do dropped on another day of the calendar, on the routes of the SPA: no form tells its refusal, a toast does. */
+/** A to-do dropped on another calendar day, on the SPA's routes. No form shows its refusal, so a toast does. */
 
 const theApi = vi.hoisted(() => {
   const fetch = vi.fn<typeof globalThis.fetch>()
@@ -51,7 +51,7 @@ const refusedForMyRole = {
   reason: 'roleNotAllowed',
 }
 
-/** The api: my calendar holding the to-do, its revision refused for my role. */
+/** The API serves my calendar with the to-do, and refuses the to-do's change for my role. */
 function theApiRefusesTheRevisionForMyRole() {
   theApi.mockImplementation(async (input) => {
     const request = input as Request

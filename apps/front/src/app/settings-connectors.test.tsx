@@ -6,8 +6,9 @@ import type { Connections } from '@/features/connectors/queries'
 import { renderTheSpaAt } from '@/test/render-the-spa'
 
 /**
- * The section of the connectors, on the routes of the SPA: they are checked with their providers as it opens, never
- * as a link to it is only hovered (the router preloads it then), a check costing a call to Google.
+ * The connectors section, on the SPA's routes. The section checks the connectors with their providers when it opens.
+ * It never checks them when a link to it is only hovered (the router preloads it then): each check costs a call to
+ * Google.
  */
 
 const theApi = vi.hoisted(() => {
@@ -72,7 +73,7 @@ function theApiAnswers(connections: Connections = noConnection) {
   })
 }
 
-/** The client of Google was removed since the section was shown: the API refuses the authorization. */
+/** The Google client was removed after the section was shown. The API refuses the authorization. */
 function theApiNoLongerOffersGoogle() {
   const answerAsBefore = theApi.getMockImplementation()
   theApi.mockImplementation(async (input, init) => {
@@ -112,7 +113,7 @@ const connectedToGoogle: Connections = {
   _links: noConnection._links,
 }
 
-/** Google does not answer: the API cannot check the connections, it still tells them as last seen and forgets one. */
+/** Google does not answer. The API cannot check the connections, so it returns them as last seen. It still disconnects one. */
 function googleDoesNotAnswer() {
   const answerAsBefore = theApi.getMockImplementation()
   theApi.mockImplementation(async (input, init) => {

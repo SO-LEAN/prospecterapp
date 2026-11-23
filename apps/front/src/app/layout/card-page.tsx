@@ -5,7 +5,7 @@ import { BrandMark } from './brand'
 
 type Props = { title: string; description: string; children?: ReactNode }
 
-/** A page of one card under the brand, outside the shell of the application: signing in, completing a profile, a booking page. */
+/** A page with one card under the brand, outside the application shell: signing in, completing a profile, a booking page. */
 export function CardPage({ title, description, children }: Props) {
   const { t } = useTranslation()
 

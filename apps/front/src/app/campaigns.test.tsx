@@ -6,7 +6,7 @@ import type { Campaign, CampaignList, CampaignMessage, TargetedContact } from '@
 import type { SuggestedTags } from '@/features/tags/queries'
 import { renderTheSpaAt } from '@/test/render-the-spa'
 
-/** The campaigns of the team, on the routes of the SPA (ADR 0144): the list, a draft prepared, revised and discarded. */
+/** The team's campaigns, on the SPA's routes (ADR 0144): the list, and a draft that is prepared, revised and discarded. */
 
 const theApi = vi.hoisted(() => {
   const fetch = vi.fn<typeof globalThis.fetch>()

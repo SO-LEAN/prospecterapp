@@ -7,7 +7,7 @@ import type { Campaign, Recipient, RecipientList, TargetedContact } from '@/feat
 import { AFTER_THE_REACTIONS_MS } from '@/shared/api/reactions'
 import { renderTheSpaAt } from '@/test/render-the-spa'
 
-/** A started campaign led contact by contact (ADR 0145): a recipient chosen, reached, then noted or dismissed. */
+/** A started campaign, run contact by contact (ADR 0145). The member picks a recipient, reaches them, then logs or dismisses them. */
 
 const theApi = vi.hoisted(() => {
   const fetch = vi.fn<typeof globalThis.fetch>()

@@ -8,7 +8,7 @@ import type { SuggestedTags } from '@/features/tags/queries'
 import { AFTER_THE_REACTIONS_MS } from '@/shared/api/reactions'
 import { renderTheSpaAt } from '@/test/render-the-spa'
 
-/** The recipients of a campaign (ADR 0144): a draft frozen once confirmed, then its list changed by hand. */
+/** A campaign's recipients (ADR 0144). The member confirms and freezes a draft, then changes its list by hand. */
 
 const theApi = vi.hoisted(() => {
   const fetch = vi.fn<typeof globalThis.fetch>()
