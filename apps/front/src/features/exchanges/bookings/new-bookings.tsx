@@ -5,10 +5,10 @@ import { toast } from 'sonner'
 import { addDays, startOfDay } from '../calendar/dates'
 import { type CalendarExchange, calendarQuery } from '../calendar/queries'
 
-/** My agenda is read again that often while the application is open, as for the reminders. */
+/** How often my agenda is read again while the application is open, as for the reminders. */
 export const READ_AGAIN_MS = 5 * 60_000
 
-/** Beyond the 14 days a public link offers slots in, from tomorrow. */
+/** The read period reaches beyond the 14 days, from tomorrow, in which a public link offers slots. */
 const DAYS_A_LINK_OFFERS = 16
 
 const weekdayAndHour = new Intl.DateTimeFormat('fr-FR', {
@@ -17,7 +17,7 @@ const weekdayAndHour = new Intl.DateTimeFormat('fr-FR', {
   minute: '2-digit',
 })
 
-/** "2026-11-24T08:00:00+00:00" -> "mardi 9h00" in Paris: on the clock of the browser. */
+/** "2026-11-24T08:00:00+00:00" -> "mardi 9h00" in Paris, on the browser's clock. */
 function dayAndHourOf(moment: string): string {
   const parts = weekdayAndHour.formatToParts(new Date(moment))
   const part = (type: Intl.DateTimeFormatPartTypes) => parts.find((each) => each.type === type)?.value
@@ -28,8 +28,9 @@ const bookedOf = (items: CalendarExchange[]) =>
   items.filter(({ exchange }) => exchange.bookedByLink && exchange.status === 'planned')
 
 /**
- * The bookings made by my public link while the application is open (ADR 0164): told by a toast at the reading of my
- * agenda that finds them, once each; those there when it opened are in the calendar already.
+ * The bookings made through my public link while the application is open (ADR 0164). A toast tells each one once,
+ * when a reading of my agenda finds it. The bookings that existed when the application opened are already in the
+ * calendar.
  */
 export function NewBookings() {
   const { t } = useTranslation()

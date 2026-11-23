@@ -13,7 +13,7 @@ import {
 } from '../../to-process/queries'
 import { ToDoReminders } from './to-do-reminders'
 
-/** Being reminded of my to-dos of the day, the application open, on a clock the test moves. */
+/** Reminders of my to-dos due today, while the application is open, on a clock that the test moves. */
 
 const theApi = vi.hoisted(() => {
   const fetch = vi.fn<typeof globalThis.fetch>()
@@ -21,7 +21,7 @@ const theApi = vi.hoisted(() => {
   return fetch
 })
 
-/** The toaster follows the theme of the system, which jsdom does not tell. */
+/** The toaster follows the system's theme, which jsdom does not provide. */
 vi.hoisted(() => {
   window.matchMedia = (query: string) =>
     ({

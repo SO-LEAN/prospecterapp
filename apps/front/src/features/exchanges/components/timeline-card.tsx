@@ -17,20 +17,20 @@ import { ExchangeDetailSheet } from './exchange-detail'
 
 type Props<Item> = {
   timeline: UseInfiniteQueryResult
-  /** The exchanges to come, the soonest first, above the past ones, a slice after the other. */
+  /** The upcoming exchanges, the soonest first, above the past ones, one slice at a time. */
   upcoming?: UseInfiniteQueryResult
   upcomingItems?: Item[]
   items: Item[]
-  /** The id of the exchange of an item, the one its detail opens. */
+  /** The id of an item's exchange, the one that its detail opens. */
   keyOf: (item: Item) => string
   renderItem: (item: Item) => ReactNode
-  /** What an exchange to come offers at once beside it, outside the button opening its detail: joining a video call. */
+  /** What an upcoming exchange offers at once beside it, outside the button that opens its detail: joining a video call. */
   actionOf?: (item: Item) => ReactNode
-  /** What an exchange, past or to come, shows beside it, outside the button opening its detail: its campaign. */
+  /** What a past or upcoming exchange shows beside it, outside the button that opens its detail: its campaign. */
   asideOf?: (item: Item) => ReactNode
-  /** The quick entry of a new exchange, when the timeline offers it. */
+  /** A new exchange's quick entry, when the timeline offers it. */
   noteExchange?: ReactNode
-  /** The planning of an exchange to come, when the timeline offers it. */
+  /** The planning of an upcoming exchange, when the timeline offers it. */
   planExchange?: ReactNode
   /** What narrows the timeline, beside its title. */
   filter?: ReactNode
@@ -40,8 +40,8 @@ type Props<Item> = {
 }
 
 /**
- * A timeline, of a contact or of an organization: what is to come first, the soonest first, then the past, the most
- * recent first, what follows loaded on scrolling; an exchange opens its detail beside the card.
+ * A contact's or an organization's timeline. The upcoming exchanges come first, the soonest first, then the past
+ * ones, the most recent first. Scrolling loads more. An exchange opens its detail beside the card.
  */
 export function TimelineCard<Item>({
   timeline,
@@ -173,7 +173,7 @@ type ExchangeDialogProps = {
   children: (close: () => void) => ReactNode
 }
 
-/** The button opening the quick entry of an exchange with this name, in a dialog it closes once noted. */
+/** The button that opens the quick entry of an exchange with this name. The dialog closes once the exchange is logged. */
 export function NoteExchangeDialog({ name, children }: ExchangeDialogProps) {
   const { t } = useTranslation()
 
@@ -190,7 +190,7 @@ export function NoteExchangeDialog({ name, children }: ExchangeDialogProps) {
 
 type ProposedProps = { name: string; open: boolean; onClose: () => void; children: ReactNode }
 
-/** The quick entry of an exchange with this name, opened by the page rather than by a button: proposed after a gesture. */
+/** The quick entry of an exchange with this name. The page opens it instead of a button, to propose it after a gesture. */
 export function ProposedExchangeDialog({ name, open, onClose, children }: ProposedProps) {
   const { t } = useTranslation()
 
@@ -207,7 +207,7 @@ export function ProposedExchangeDialog({ name, open, onClose, children }: Propos
   )
 }
 
-/** The button opening the planning of an exchange with this name, in a dialog it closes once planned. */
+/** The button that opens the planning of an exchange with this name. The dialog closes once the exchange is planned. */
 export function PlanExchangeDialog({ name, children }: ExchangeDialogProps) {
   const { t } = useTranslation()
 

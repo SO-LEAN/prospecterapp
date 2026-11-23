@@ -23,7 +23,7 @@ const theApi = vi.hoisted(() => {
   return fetch
 })
 
-/** The toaster follows the theme of the system, which jsdom does not tell. */
+/** The toaster follows the system's theme, which jsdom does not provide. */
 vi.hoisted(() => {
   window.matchMedia = (query: string) =>
     ({
@@ -38,7 +38,7 @@ vi.mock('@/shared/auth/session', () => ({
   session: { accessToken: async () => null, renewedAccessToken: async () => null },
 }))
 
-/** Friday 13 November 2026, 10:00 in the time of the browser. */
+/** Friday 13 November 2026, 10:00 in the browser's time zone. */
 const NOW = new Date(2026, 10, 13, 10, 0)
 const ADA = '0190a1c0-0000-7000-8000-00000000a000'
 const ACME = '0190a1c0-0000-7000-8000-00000000ac00'
@@ -47,7 +47,7 @@ const TO_PROCESS = '/api/me/exchanges-to-process'
 let lastId = 0
 const nextId = () => `0190a1c0-0000-7000-8000-${String(++lastId).padStart(12, '0')}`
 
-/** An exchange planned with Ada Lovelace of ACME, ended, handled from the list as the API offers it. */
+/** An ended exchange planned with ACME's Ada Lovelace, handled from the list as the API offers it. */
 function ended(channel: ExchangeToProcess['exchange']['channel'], occurredAt: Date): ExchangeToProcess {
   const id = nextId()
   return {
@@ -109,7 +109,7 @@ const toProcess = (
   _links: { self: { href: TO_PROCESS, method: 'GET' } },
 })
 
-/** The detail of each exchange, by its path; the list read again as `readAgain` gives it; an empty timeline else. */
+/** Each exchange's detail, by its path. The list read again, as `readAgain` gives it. An empty timeline for anything else. */
 function theApiAnswers(details: Record<string, ExchangeDetail> = {}, readAgain: ExchangeToProcess[] = []) {
   theApi.mockImplementation(async (input) => {
     const { pathname } = new URL((input as Request).url)
@@ -124,7 +124,7 @@ const sent = (method: string) =>
     .filter((request) => request.method === method)
     .map((request) => new URL(request.url).pathname)
 
-/** Grace Hopper, who took a meeting with me, waiting to be attached. */
+/** Grace Hopper, who had a meeting with me and waits to be attached. */
 function aContactToAttach(): ExchangesToProcess['contactsToAttach'][number] {
   return {
     id: ADA,
@@ -188,7 +188,7 @@ async function showTheCard(items: ExchangeToProcess[], toDos: ToDoToProcess[] = 
   )
 }
 
-/** Time runs, so that the toasts close, and the user waits for it. */
+/** Lets time run so that the toasts close. The user waits for them. */
 function letTimeRun() {
   vi.useFakeTimers({ shouldAdvanceTime: true })
   vi.setSystemTime(NOW)
@@ -289,7 +289,7 @@ describe('the exchanges to process on the dashboard', () => {
     await showTheCard([ended('call', new Date(2026, 10, 13, 9, 0))])
 
     await user.click(screen.getByRole('button', { name: 'Manqué' }))
-    /** Those of the tests before still leave the toaster, shared by them all: the newest comes first. */
+    /** The earlier tests' toasts are still leaving the toaster that all the tests share. The newest comes first. */
     const toasts = await screen.findAllByText('Échange marqué manqué')
     const toast = toasts[0]?.closest('[data-sonner-toast]') as HTMLElement
     await user.click(within(toast).getByRole('button', { name: 'Annuler' }))

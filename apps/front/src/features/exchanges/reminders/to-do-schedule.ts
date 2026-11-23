@@ -4,10 +4,10 @@ import { type Reminded, type ReminderSettings, reminderOf } from './schedule'
 
 const MINUTE_MS = 60_000
 
-/** A to-do without an hour is reminded at that hour of its day (ADR 0134). */
+/** A to-do without an hour gets its reminder at this hour on its day (ADR 0134). */
 const REMINDED_AT_WITHOUT_AN_HOUR = { hours: 9, minutes: 0 }
 
-/** A reminder comes late by this much at most after the hour of its to-do. */
+/** A reminder comes this late at most after its to-do's hour. */
 const LATE_AT_MOST_MS = MINUTE_MS
 
 export type RemindedToDo = Pick<
@@ -16,8 +16,8 @@ export type RemindedToDo = Pick<
 >
 
 /**
- * The moment its due stands for in the time of the browser: its hour on its day, or the start of its day; a due
- * changed is another reminder.
+ * The moment that a to-do's due stands for, in the browser's time zone: its hour on its day, or its day's start. A
+ * changed due makes a new reminder.
  */
 export function dueMomentOf({ dueOn, dueAt }: Pick<RemindedToDo, 'dueOn' | 'dueAt'>): Date {
   const [year = 0, month = 1, day = 1] = dueOn.split('-').map(Number)
@@ -25,7 +25,7 @@ export function dueMomentOf({ dueOn, dueAt }: Pick<RemindedToDo, 'dueOn' | 'dueA
   return new Date(year, month - 1, day, hours, minutes)
 }
 
-/** A to-do as the reminders shown remember it, among the exchanges: by its id and the moment of its due. */
+/** A to-do as the shown reminders remember it, among the exchanges: by its id and its due's moment. */
 export const asReminder = (toDo: Pick<RemindedToDo, 'id' | 'dueOn' | 'dueAt'>) => ({
   id: toDo.id,
   occurredAt: dueMomentOf(toDo).toISOString(),
@@ -35,8 +35,9 @@ export const reminderOfToDo = (toDo: Pick<RemindedToDo, 'id' | 'dueOn' | 'dueAt'
   reminderOf(asReminder(toDo))
 
 /**
- * Those to show now: a to-do with an hour `minutesBefore` it, as an exchange, until a minute after its hour; one
- * without an hour from 9:00 on its day, or later that day once the application opens; or when asked again later.
+ * The reminders to show now. A to-do with an hour shows `minutesBefore` that hour, like an exchange, until a minute
+ * after it. A to-do without an hour shows from 9:00 on its day, or later that day once the application opens. A
+ * reminder also shows when the member asked for it again later.
  */
 export function toDoRemindersDue(
   toDos: RemindedToDo[],
@@ -50,7 +51,7 @@ export function toDoRemindersDue(
   })
 }
 
-/** The moment of the next reminder of a to-do to come, none when there is none. */
+/** The moment of a to-do's next upcoming reminder, or none when there is none. */
 export function nextToDoReminderAt(
   toDos: RemindedToDo[],
   settings: ReminderSettings,
@@ -79,7 +80,7 @@ function momentOf(toDo: RemindedToDo, settings: ReminderSettings, reminded: Remi
   return new Date(due).setHours(REMINDED_AT_WITHOUT_AN_HOUR.hours, REMINDED_AT_WITHOUT_AN_HOUR.minutes)
 }
 
-/** A minute after its hour, or after the moment asked again when later; the end of its day without an hour. */
+/** A minute after its hour, or after the moment asked for again when that is later. Without an hour, its day's end. */
 function lastMomentOf(toDo: RemindedToDo, moment: number): number {
   if (!toDo.dueAt) {
     const theDayAfter = dueMomentOf(toDo)

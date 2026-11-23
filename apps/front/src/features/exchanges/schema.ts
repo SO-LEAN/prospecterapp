@@ -14,7 +14,7 @@ import {
 
 const MAX_TEXT = 5000
 
-/** "2026-10-18T19:00", the value of a `datetime-local` input, in the time of the browser. */
+/** "2026-10-18T19:00": a `datetime-local` input's value, in the browser's time zone. */
 export const localMoment = (moment: Date) => {
   const local = new Date(moment.getTime() - moment.getTimezoneOffset() * 60_000)
   return local.toISOString().slice(0, 16)
@@ -23,8 +23,8 @@ export const localMoment = (moment: Date) => {
 const isPast = (moment: string) => new Date(moment).getTime() <= Date.now()
 
 /**
- * Mirrors `ExchangeInput` and `CorrectionInput` of the API: only a call, a meeting or a video call is missed, never
- * in the future.
+ * Mirrors the API's `ExchangeInput` and `CorrectionInput`. Only a call, a meeting or a video call can be missed. An
+ * exchange is never in the future.
  */
 export const exchangeSchema = z.object({
   channel: z.enum(CHANNELS, { error: () => i18n.t('exchanges.chooseChannel') }),
@@ -51,10 +51,10 @@ export const exchangeFields = [
   'redacted',
 ] as const
 
-/** The interlocutor chosen when noting from the card of an organization: none is the organization itself. */
+/** The interlocutor chosen when logging from an organization's card. None means the organization itself. */
 export const ITSELF = ''
 
-/** Quick to note: received, now; only the channel is to choose. */
+/** Quick to log: received, now. Only the channel remains to choose. */
 export const newExchange = (now: Date): DefaultValues<ExchangeValues> => ({
   direction: 'inbound',
   occurredAt: localMoment(now),
@@ -64,7 +64,7 @@ export const newExchange = (now: Date): DefaultValues<ExchangeValues> => ({
   redacted: false,
 })
 
-/** The exchange as it is, to correct it. */
+/** The exchange as it currently is, to correct it. */
 export const correctionOf = (exchange: ExchangeDetail): ExchangeValues => ({
   channel: exchange.channel,
   direction: exchange.direction,
@@ -87,7 +87,7 @@ export const toExchangeFacts = (values: ExchangeValues): ExchangeFacts => ({
 export const personIdOf = (values: ExchangeValues): string | null =>
   values.personId === ITSELF ? null : values.personId
 
-/** Mirrors `ReportInput` of the API: when it really took place, never in the future, and what was said. */
+/** Mirrors the API's `ReportInput`: when the exchange really took place, never in the future, and what was said. */
 export const reportSchema = z.object({
   occurredAt: z
     .string()
@@ -100,7 +100,7 @@ export type ReportValues = z.input<typeof reportSchema>
 
 export const reportFields = ['occurredAt', 'text'] as const
 
-/** Its planned moment and its agenda, to write the report from. */
+/** The exchange's planned moment and its agenda, which the report starts from. */
 export const reportOf = (exchange: ExchangeDetail): ReportValues => ({
   occurredAt: localMoment(new Date(exchange.occurredAt)),
   text: exchange.text ?? '',
@@ -111,7 +111,7 @@ export const toReport = (values: ReportValues): Report => ({
   text: orNull(values.text),
 })
 
-/** Mirrors `TextCorrectionInput` of the API. */
+/** Mirrors the API's `TextCorrectionInput`. */
 export const textSchema = z.object({ text: text(MAX_TEXT), redacted: z.boolean() })
 
 export type TextValues = z.input<typeof textSchema>

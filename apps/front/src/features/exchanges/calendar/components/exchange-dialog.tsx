@@ -10,21 +10,22 @@ import { ExchangeLine } from '../../components/exchange-line'
 import { exchangeQuery, timelineQuery } from '../../queries'
 import type { CalendarExchange } from '../queries'
 
-/** The last exchanges with the contact shown beside the one opened. */
+/** How many of the last exchanges with the contact show beside the opened one. */
 const LAST_EXCHANGES_SHOWN = 3
 
 type Props = {
   item: CalendarExchange | null
   onClose: () => void
-  /** Who the contact is, their card in short: told by the page composing the calendar with the contacts. */
+  /** Who the contact is, a short version of their card. The page that composes the calendar with the contacts gives it. */
   contactSummary: (contactId: string) => ReactNode
-  /** Opened on its report, to mark it done at once, or on its move. */
+  /** Opens the exchange on its report, to mark it done at once, or on its move. */
   startWith?: StartWith
 }
 
 /**
- * An exchange opened from the calendar or the day, past or to come: all of it and what it offers, as in its detail, then who it
- * is with and their last exchanges, and their card; closed by Échap, its controls reached by the keyboard.
+ * A past or upcoming exchange, opened from the calendar or the day. It shows the whole exchange and what it offers,
+ * as its detail does. Then it shows who the exchange is with, their last exchanges and their card. Échap closes it,
+ * and the keyboard reaches its controls.
  */
 export function ExchangeDialog({ item, onClose, contactSummary, startWith }: Props) {
   const { t } = useTranslation()
@@ -74,7 +75,7 @@ function LastExchanges({ contactId }: { contactId: string }) {
   )
 }
 
-/** The card of the contact or of the organization, when the exchange leads to one: not for a forgotten contact. */
+/** The contact's or the organization's card, when the exchange leads to one. A forgotten contact has none. */
 function OpenTheCard({ item }: { item: CalendarExchange }) {
   const { t } = useTranslation()
   const detail = useQuery(exchangeQuery(item.exchange.id))

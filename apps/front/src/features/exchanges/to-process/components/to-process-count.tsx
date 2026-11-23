@@ -4,7 +4,7 @@ import { cn } from '@/shared/lib/utils'
 import { Badge } from '@/shared/ui/badge'
 import { countOf, exchangesToProcessQuery } from '../queries'
 
-/** How many exchanges and to-dos are left to process, beside the entry of the dashboard; nothing when none is. */
+/** How many exchanges and to-dos are left to process, beside the dashboard's entry. It shows nothing when none is left. */
 export function ToProcessCount({ className }: { className?: string }) {
   const { t } = useTranslation()
   const { data } = useQuery(exchangesToProcessQuery())

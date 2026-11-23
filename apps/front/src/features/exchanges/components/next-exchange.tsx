@@ -5,7 +5,7 @@ import { formatMoment, formatUpcoming } from '@/shared/lib/format'
 import { Badge } from '@/shared/ui/badge'
 import { upcomingQuery } from '../queries'
 
-/** The next exchange planned with the contact, the first of those to come; nothing while none is. */
+/** The next exchange planned with the contact, the first upcoming one. It shows nothing while there is none. */
 export function NextExchange({ contactId }: { contactId: string }) {
   const { t } = useTranslation()
   const next = useInfiniteQuery(upcomingQuery(contactId)).data?.pages[0]?.items[0]

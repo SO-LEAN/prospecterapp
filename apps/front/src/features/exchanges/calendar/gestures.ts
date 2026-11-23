@@ -2,21 +2,21 @@ import { LONGEST, type Slot } from '../planning'
 import { parseDay } from './dates'
 import type { CalendarExchange } from './queries'
 
-/** A gesture in the grid lands on a quarter of an hour. */
+/** A gesture in the grid lands on a quarter hour. */
 export const STEP_IN_MINUTES = 15
-/** What a click on a free slot plans for, before a drag says otherwise. */
+/** The duration that a click on a free slot plans, unless a drag sets another one. */
 export const USUAL_DURATION_IN_MINUTES = 30
 const MINUTES_IN_A_DAY = 24 * 60
-/** Below it, the pointer only clicked: the exchange opens rather than moves. */
+/** Below this distance, the pointer only clicked. The exchange opens instead of moving. */
 export const DRAG_THRESHOLD_PX = 4
 
-/** Where a pointer stands in the grid: the day under it, and the minute in that day when the grid has hours. */
+/** Where a pointer is in the grid: the day under it, and the minute in that day when the grid has hours. */
 export type Spot = { day: Date; minutes: number | null }
 
-/** The day of a cell or of a column of the grid, written on it as `data-day`. */
+/** The day of a grid's cell or column, written on it as `data-day`. */
 export const DAY_ATTRIBUTE = 'data-day'
 
-/** The cell or the column under the pointer, the minute it points at in a column of hours, snapped down. */
+/** The cell or the column under the pointer. In a column of hours, also the minute it points at, snapped down. */
 export function spotUnder(x: number, y: number): Spot | null {
   const cell = document.elementFromPoint(x, y)?.closest(`[${DAY_ATTRIBUTE}]`)
   const written = cell?.getAttribute(DAY_ATTRIBUTE)
@@ -24,14 +24,14 @@ export function spotUnder(x: number, y: number): Spot | null {
   return { day: parseDay(written), minutes: cell.hasAttribute('data-hours') ? minutesAt(cell, y) : null }
 }
 
-/** The minute a height of a column of hours points at, snapped down to its quarter. */
+/** The minute that a height in a column of hours points at, snapped down to its quarter hour. */
 export function minutesAt(column: Element, y: number): number {
   const { top, height } = column.getBoundingClientRect()
   const minutes = ((y - top) / height) * MINUTES_IN_A_DAY
   return clamp(snapDown(minutes), 0, MINUTES_IN_A_DAY - STEP_IN_MINUTES)
 }
 
-/** A day at a minute from its midnight, in the time of the browser. */
+/** A day at a given minute after its midnight, in the browser's time zone. */
 export function atMinutes(day: Date, minutes: number): Date {
   return new Date(day.getFullYear(), day.getMonth(), day.getDate(), 0, minutes)
 }
@@ -41,8 +41,8 @@ export function minutesOfTheDay(moment: Date): number {
 }
 
 /**
- * Where an exchange dragged lands: at the minute pointed at less where it was grabbed in it; on a day of the month,
- * at its own hour.
+ * Where a dragged exchange lands: at the minute pointed at, minus the offset where it was grabbed. On a day of the
+ * month view, it keeps its own hour.
  */
 export function landing(occurredAt: Date, spot: Spot, grabbedMinutes: number): Date {
   if (spot.minutes === null) return atMinutes(spot.day, minutesOfTheDay(occurredAt))
@@ -50,14 +50,14 @@ export function landing(occurredAt: Date, spot: Spot, grabbedMinutes: number): D
   return atMinutes(spot.day, clamp(snapDown(spot.minutes - grabbedMinutes), 0, latestStart))
 }
 
-/** The duration of an exchange stretched to the minute pointed at: a quarter at least, 8 hours at most, in its day. */
+/** The duration of an exchange stretched to the minute pointed at: a quarter hour at least, 8 hours at most, within its day. */
 export function stretched(occurredAt: Date, endMinutes: number): number {
   const start = minutesOfTheDay(occurredAt)
   const end = snapDown(endMinutes) + STEP_IN_MINUTES
   return clamp(end - start, STEP_IN_MINUTES, Math.min(LONGEST, MINUTES_IN_A_DAY - start))
 }
 
-/** A free slot chosen from a quarter to another, either way, through the last; clicked, half an hour. */
+/** A free slot chosen from one quarter hour to another, in either direction, including the last one. A click gives half an hour. */
 export function slotBetween(day: Date, from: number, to: number): Slot {
   const start = Math.min(from, to)
   const end = Math.max(from, to) + STEP_IN_MINUTES
@@ -67,7 +67,7 @@ export function slotBetween(day: Date, from: number, to: number): Slot {
   }
 }
 
-/** The calendar as it shows while an exchange is dragged or stretched: at its new moment, for its new duration. */
+/** The calendar as it shows while an exchange is dragged or stretched: at its new moment, with its new duration. */
 export function withTheGesture(
   items: CalendarExchange[],
   moved: { id: string; occurredAt: Date; durationInMinutes: number | null } | null,

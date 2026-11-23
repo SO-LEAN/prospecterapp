@@ -17,7 +17,7 @@ type Props = {
   onCancel: () => void
 }
 
-/** The place of a meeting, or the link of a video call, the first Meet, Teams or Zoom link of an invitation pasted. */
+/** Corrects a meeting's place, or a video call's link. A pasted invitation gives its first Meet, Teams or Zoom link. */
 export function VenueCorrectionForm({ exchange, onSubmit, onCancel }: Props) {
   const { t } = useTranslation()
   const [globalErrors, setGlobalErrors] = useState<string[]>([])

@@ -67,7 +67,7 @@ const aPlannedCall = (occurredAt: Date): CalendarExchange => ({
   },
 })
 
-/** The box the route gives each to-do: a feature never imports another. */
+/** The box that the route gives each to-do, because a feature never imports another. */
 const theBoxOf = (toDo: CalendarToDo) => (
   <input type="checkbox" aria-label={`La case de ${toDo.text}`} defaultChecked={Boolean(toDo.doneAt)} />
 )
@@ -100,7 +100,7 @@ async function showTheCalendar(view: View, calendar: Partial<Calendar>) {
   return reviseToDo
 }
 
-/** What a browser carries from the to-do dragged to where it is dropped. */
+/** What a browser carries from the dragged to-do to where it is dropped. */
 function aDrag() {
   const carried = new Map<string, string>()
   return {

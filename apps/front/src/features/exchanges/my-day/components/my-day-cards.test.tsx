@@ -17,7 +17,7 @@ const theApi = vi.hoisted(() => {
   return fetch
 })
 
-/** The toaster follows the theme of the system, which jsdom does not tell. */
+/** The toaster follows the system's theme, which jsdom does not provide. */
 vi.hoisted(() => {
   window.matchMedia = (query: string) =>
     ({
@@ -32,7 +32,7 @@ vi.mock('@/shared/auth/session', () => ({
   session: { accessToken: async () => null, renewedAccessToken: async () => null },
 }))
 
-/** Friday 13 November 2026, 10:00 in the time of the browser. */
+/** Friday 13 November 2026, 10:00 in the browser's time zone. */
 const NOW = new Date(2026, 10, 13, 10, 0)
 const ADA = '0190a1c0-0000-7000-8000-00000000a000'
 const ACME = '0190a1c0-0000-7000-8000-00000000ac00'
@@ -50,7 +50,7 @@ const linksOf = (id: string, toHandle: boolean) => ({
   }),
 })
 
-/** An exchange planned with Ada Lovelace of ACME, to handle once its time has come, as the API tells it. */
+/** An exchange planned with ACME's Ada Lovelace, to handle once its time has come, as the API returns it. */
 function planned(
   channel: DayExchange['exchange']['channel'],
   occurredAt: Date,
@@ -107,7 +107,7 @@ const aDayOf = (today: DayExchange[], next: DayExchange[] = [], links = { search
   _links: { self: DAY_SELF, ...links },
 })
 
-/** The detail of each exchange, by its path; my day read again, empty; an empty timeline for any other reading. */
+/** Each exchange's detail, by its path. My day read again, empty. An empty timeline for any other reading. */
 function theApiAnswers(details: Record<string, ExchangeDetail> = {}) {
   theApi.mockImplementation(async (input) => {
     const request = input as Request

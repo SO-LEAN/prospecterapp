@@ -16,10 +16,10 @@ const NINE = 9
 const MONDAY = 1
 const WEEK = 7
 
-/** The durations given in one click, in minutes. */
+/** The durations that one click sets, in minutes. */
 export const QUICK_DURATIONS = [15, 30, 60, 120] as const
 
-/** The next quarter of an hour: what is planned now starts then. */
+/** The next quarter hour. An exchange planned now starts then. */
 export const nextQuarterHour = (now: Date) =>
   new Date(Math.ceil((now.getTime() + 1) / QUARTER_MS) * QUARTER_MS)
 
@@ -28,7 +28,7 @@ const atNine = (day: Date) => new Date(day.getFullYear(), day.getMonth(), day.ge
 const daysAfter = (day: Date, days: number) =>
   new Date(day.getFullYear(), day.getMonth(), day.getDate() + days, day.getHours(), day.getMinutes())
 
-/** The moments a shortcut sets: tomorrow at 9, next Monday at 9, a week from the next quarter of an hour. */
+/** The moments that a shortcut sets: tomorrow at 9, next Monday at 9, and a week after the next quarter hour. */
 export const SHORTCUTS = {
   tomorrowAt9: (now: Date) => atNine(daysAfter(now, 1)),
   mondayAt9: (now: Date) => atNine(daysAfter(now, ((MONDAY - now.getDay() + WEEK - 1) % WEEK) + 1)),
@@ -38,8 +38,8 @@ export const SHORTCUTS = {
 const momentOf = (values: { date: string; time: string }) => new Date(`${values.date}T${values.time}`)
 
 /**
- * Mirrors `PlannedExchangeInput` of the API: a call, a meeting or a video call, to come, from 5 minutes to 8 hours;
- * the place of a meeting, the link of a video call, a web address.
+ * Mirrors the API's `PlannedExchangeInput`: an upcoming call, meeting or video call, from 5 minutes to 8 hours long.
+ * A meeting has a place. A video call has a link, which is a web address.
  */
 export const planSchema = z
   .object({
@@ -75,7 +75,7 @@ export const planFields = [
   'personId',
 ] as const
 
-/** Mirrors `MomentInput` of the API: another moment to come, its duration kept (none sent). */
+/** Mirrors the API's `MomentInput`: another upcoming moment. The duration stays the same, so the form sends none. */
 export const moveSchema = z
   .object({
     date: z.string().min(1, { error: () => i18n.t('validation.required') }),
@@ -95,18 +95,18 @@ export const toMoment = (values: MoveValues): Moment => ({
   durationInMinutes: null,
 })
 
-/** The date and the time of the inputs of a moment, in the time of the browser. */
+/** The date and the time for a moment's inputs, in the browser's time zone. */
 export const dateAndTimeOf = (moment: Date) => {
   const [date = '', time = ''] = localMoment(moment).split('T')
   return { date, time }
 }
 
-/** A moment and how long from it: what is chosen in the calendar to plan. */
+/** A moment and a duration from it: what the member chooses in the calendar to plan an exchange. */
 export type Slot = { startsAt: Date; durationInMinutes: number }
 
 /**
- * Quick to plan: the next quarter of an hour, half an hour, or the slot chosen; the place proposed for a meeting, a
- * Meet link for a video call; only the channel is to choose.
+ * Quick to plan: the next quarter hour for half an hour, or the chosen slot. A meeting gets the proposed place, and a
+ * video call gets a Meet link. Only the channel remains to choose.
  */
 export const newPlan = (
   now: Date,
@@ -122,7 +122,7 @@ export const newPlan = (
   personId: ITSELF,
 })
 
-/** When the values name a moment, its slot, to warn of those it overlaps. */
+/** The slot of the moment that the values name, if any. The form warns of the exchanges it overlaps. */
 export const slotOf = (values: Partial<PlanValues>) => {
   if (!values.date || !values.time) {
     return null
@@ -136,7 +136,8 @@ export const slotOf = (values: Partial<PlanValues>) => {
 }
 
 /**
- * A Meet link is asked only for a video call without a link, its box offered while Google is connected (ADR 0137).
+ * A Meet link is requested only for a video call without a link. Its box is offered while Google is connected
+ * (ADR 0137).
  */
 export const isAMeetLinkOffered = (values: Pick<PlanValues, 'channel' | 'link'>, googleConnected: boolean) =>
   googleConnected && values.channel === 'videoCall' && values.link.trim() === ''

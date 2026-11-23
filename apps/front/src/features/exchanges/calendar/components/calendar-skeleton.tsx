@@ -2,7 +2,7 @@ import { Skeleton } from '@/shared/ui/skeleton'
 
 const CELLS = 35
 
-/** The calendar while its period loads: its header, its toolbar and a grid, never an empty screen. */
+/** The calendar while its period loads: its header, its toolbar and a grid. The screen is never empty. */
 export function CalendarSkeleton() {
   return (
     <div className="space-y-4" aria-busy="true">

@@ -14,14 +14,14 @@ import { CalendarToDoChip, type toDoDrop } from './calendar-to-do'
 
 const HOURS = Array.from({ length: 24 }, (_, hour) => hour)
 const MINUTES_IN_AN_HOUR = 60
-/** The working day the grid opens on, the other hours a scroll away. */
+/** The grid opens on the working day. The other hours are a scroll away. */
 const FIRST_HOUR_SHOWN = 8
 const dayFormat = new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: 'numeric' })
 const longDayFormat = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'full' })
 
 /**
- * Where something stands in the grid is data, not a style: it is passed to the classes of the grid as custom
- * properties, in hours from midnight and in lanes.
+ * Where something is in the grid is data, not a style. It goes to the grid's classes as custom properties, in hours
+ * from midnight and in lanes.
  */
 const placed = (properties: Record<`--${string}`, number>) => properties as CSSProperties
 
@@ -29,7 +29,7 @@ type Props = {
   period: Period
   items: CalendarExchange[]
   toDos: CalendarToDo[]
-  /** The ids of the exchanges and of the to-dos late, as the API says. */
+  /** The ids of the late exchanges and to-dos, as the API says. */
   late: ReadonlySet<string>
   /** Where a to-do is dropped to change its day. */
   dropOn: ReturnType<typeof toDoDrop>
@@ -37,16 +37,16 @@ type Props = {
   onOpenDay?: (day: Date) => void
   onOpen: (item: CalendarExchange) => void
   onMove: (move: CalendarMove) => void
-  /** Absent when the member may not plan: no free slot is chosen. */
+  /** Absent when the member may not plan. No free slot can then be chosen. */
   onChooseSlot?: (slot: Slot) => void
 }
 
 /**
- * The hours of a week or of a day, each exchange at its moment for its duration, those overlapping side by side; the
- * to-dos of a day without an hour in a band above them, those with an hour at it, without a duration (ADR 0134); the
- * line of now on today. It opens on the working hours, the others a scroll away. An exchange the API lets move is
- * dragged to another moment or stretched by its end, a to-do to another day; a free slot clicked, or dragged for its
- * duration, is planned when the member may plan.
+ * A week's or a day's hours. Each exchange is at its moment for its duration, and overlapping ones are side by side.
+ * A day's to-dos without an hour are in a band above them, and those with an hour are at that hour, without a duration
+ * (ADR 0134). Today shows the line of now. The view opens on the working hours, and the others are a scroll away. An
+ * exchange that the API lets move can be dragged to another moment or stretched by its end. A to-do can be dragged
+ * to another day. When the member may plan, a click on a free slot, or a drag over its duration, plans there.
  */
 export function TimeGridView({
   period,

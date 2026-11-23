@@ -3,8 +3,8 @@ import { Badge } from '@/shared/ui/badge'
 import type { Exchange } from '../queries'
 
 /**
- * « À rattacher » beside an exchange whose contact waits to be attached, as the API says, in the timeline, the calendar
- * and the day (ADR 0146).
+ * « À rattacher » beside an exchange whose contact waits to be attached, as the API says. It shows in the timeline,
+ * the calendar and the day (ADR 0146).
  */
 export function ToAttachBadge({ exchange }: { exchange: Partial<Pick<Exchange, 'contactToAttach'>> }) {
   const { t } = useTranslation()

@@ -5,7 +5,7 @@ import type { Exchange } from '../queries'
 
 type Props = { exchange: Pick<Exchange, 'status' | 'link'> }
 
-/** A video call still to come is joined in one click, in a new tab; nothing without its link. */
+/** One click joins an upcoming video call in a new tab. It shows nothing without the call's link. */
 export function JoinTheVideoCall({ exchange }: Props) {
   const { t } = useTranslation()
 

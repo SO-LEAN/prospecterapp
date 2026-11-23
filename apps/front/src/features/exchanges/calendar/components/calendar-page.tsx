@@ -47,21 +47,22 @@ type Props = {
   view: View
   day: Date
   onShow: (view: View, day: Date) => void
-  /** Who a contact is, their card in short, in the exchange opened: told by the page composing the contacts. */
+  /** Who a contact is, a short version of their card, in the opened exchange. The page that composes the contacts gives it. */
   contactSummary: (contactId: string) => ReactNode
-  /** The search of who to plan with in a free slot: told by the page composing the contacts and organizations. */
+  /** The search for who to plan with in a free slot. The page that composes the contacts and organizations gives it. */
   interlocutorSearch: InterlocutorSearch
-  /** The box ticking a to-do off or unticking it: told by the page composing the to-dos. */
+  /** The box that ticks a to-do off or unticks it. The page that composes the to-dos gives it. */
   toDoBox: (toDo: CalendarToDo) => ReactNode
-  /** Revises a to-do dropped on another day: told by the page composing the to-dos. */
+  /** Revises a to-do dropped on another day. The page that composes the to-dos gives it. */
   reviseToDo: ReviseToDo
 }
 
 /**
- * My calendar: the view and the day shown come from the URL, each change goes back to it; the period shown is read
- * alone, the next and the previous ones read on the hover of their arrow, the days around a day read ahead. It shows
- * my exchanges and my to-dos, or one of them, what is late flagged. An exchange opens in a dialog; one to come is
- * dragged, a to-do to another day, a free slot planned when the API offers the search of the contacts to plan with.
+ * My calendar. The shown view and day come from the URL, and each change goes back to it. Only the shown period is
+ * read. The next and the previous ones are read when the member hovers their arrow, and the days around a day are
+ * read ahead. It shows my exchanges and my to-dos, or one of them, and flags what is late. An exchange opens in a
+ * dialog. An upcoming exchange can be dragged, and a to-do can be dragged to another day. A free slot can be planned
+ * when the API offers the search for contacts to plan with.
  */
 export function CalendarPage({
   view,

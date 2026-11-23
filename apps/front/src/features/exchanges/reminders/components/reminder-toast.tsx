@@ -16,8 +16,8 @@ type Props = {
 }
 
 /**
- * The reminder of an exchange, until it is closed: a click opens it; it offers to join, call or go there, to be
- * reminded again five minutes later.
+ * An exchange's reminder, shown until it is closed. A click opens the exchange. The reminder offers to join, call or
+ * go there, or to remind again five minutes later.
  */
 export function ReminderToast({ item, title, onOpen, onRemindAgain, onClose }: Props) {
   const { t } = useTranslation()

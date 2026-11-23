@@ -23,7 +23,7 @@ import { NoteExchangeDialog, PlanExchangeDialog, ProposedExchangeDialog, Timelin
 type Props = {
   organizationId: string
   interlocutors: Interlocutors
-  /** Its address on one line, where a meeting is proposed to be held. */
+  /** The organization's address on one line, where the form proposes to hold a meeting. */
   meetingPlace?: string
   className?: string
 }
@@ -31,13 +31,13 @@ type Props = {
 type ProposedProps = {
   organizationId: string
   interlocutors: Interlocutors
-  /** The contact chosen, none for the organization itself. */
+  /** The chosen contact, or none for the organization itself. */
   personId: string | null
   open: boolean
   onClose: () => void
 }
 
-/** The exchange with the organization or one of its contacts a gesture led to, noted now when the member accepts to. */
+/** The exchange with the organization or one of its contacts that a gesture led to. It is logged now when the member accepts. */
 export function NoteTheExchangeWithTheOrganization({
   organizationId,
   interlocutors,
@@ -66,9 +66,9 @@ export function NoteTheExchangeWithTheOrganization({
 }
 
 /**
- * The timeline of the organization: its exchanges and those of its contacts, each with who communicated, what is
- * to come the soonest first, then the past, the most recent first (ADR 0076); narrowed to those to make conform, their contact forgotten, by the badge
- * counting them (ADR 0079).
+ * The organization's timeline: its exchanges and its contacts' exchanges, each with who communicated. The upcoming
+ * ones come first, the soonest first, then the past ones, the most recent first (ADR 0076). The badge that counts the
+ * exchanges to redact, because their contact was forgotten, narrows the timeline to them (ADR 0079).
  */
 export function OrganizationExchangesSection({
   organizationId,
@@ -168,7 +168,7 @@ export function OrganizationExchangesSection({
 
 type BadgeProps = { count: number; pressed: boolean; onPress: (pressed: boolean) => void }
 
-/** How many exchanges are to make conform: pressed, the timeline shows only them. */
+/** How many exchanges are to redact. When it is pressed, the timeline shows only them. */
 function ToMakeConformBadge({ count, pressed, onPress }: BadgeProps) {
   const { t } = useTranslation()
 

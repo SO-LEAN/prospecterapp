@@ -16,7 +16,7 @@ const theApi = vi.hoisted(() => {
   return fetch
 })
 
-/** The toaster follows the theme of the system, which jsdom does not tell. */
+/** The toaster follows the system's theme, which jsdom does not provide. */
 vi.hoisted(() => {
   window.matchMedia = (query: string) =>
     ({
@@ -36,7 +36,7 @@ const ADA = '0190a1c0-0000-7000-8000-000000000001'
 const ACME = '0190a1c0-0000-7000-8000-000000000002'
 const self = { href: `/api/exchanges/${EXCHANGE}`, method: 'GET' }
 const ITS_TIME_HAS_COME = '2026-11-10T13:00:00+00:00'
-/** A moment before the one of the planned exchange: moved to its own moment, it is still to come. */
+/** A moment before the planned exchange's moment. An exchange moved to its own moment is still to come. */
 const BEFORE_ITS_MOMENT = '2026-11-16T09:00:00+00:00'
 const handling = {
   markDone: { href: `${self.href}/done`, method: 'POST' },
@@ -95,8 +95,8 @@ async function renderTheDetail(exchange: ExchangeDetail) {
 }
 
 /**
- * The requests the API received for the gestures: their method, their path and their body; where the push into Google
- * stands, read again while the reactions to a gesture run, is no gesture.
+ * The requests that the API received for the gestures: their method, their path and their body. Reading the push into
+ * Google again, while a gesture's reactions run, is not a gesture.
  */
 type Sent = [method: string, path: string, body: Record<string, unknown> | null]
 
@@ -113,7 +113,7 @@ async function requestsToTheApi(): Promise<Sent[]> {
   )
 }
 
-/** What the API was asked to join to the exchange, once the storage received the file. */
+/** What the API was asked to join to the exchange once the storage received the file. */
 async function joinedToTheExchange() {
   const joining = theApi.mock.calls
     .map(([request]) => request)
@@ -457,7 +457,7 @@ describe('handling a planned exchange', () => {
   })
 })
 
-/** The planning the API received, among the readings of what it overlaps. */
+/** The planning that the API received, among the readings of the exchanges it overlaps. */
 async function planningSent() {
   const planning = (await requestsToTheApi()).find(
     ([method, path]) => method === 'POST' && path.endsWith('/upcoming-exchanges'),
@@ -465,7 +465,7 @@ async function planningSent() {
   return planning && { path: planning[1], body: planning[2] }
 }
 
-/** Its report saved as it was planned, the API answering the gesture then a planning. */
+/** Saves the exchange's report as it was planned. The API answers the gesture, then a planning. */
 async function renderTheReport(exchange: ExchangeDetail) {
   theApi.mockImplementation(async (request) =>
     new URL((request as Request).url).pathname.endsWith('/done')

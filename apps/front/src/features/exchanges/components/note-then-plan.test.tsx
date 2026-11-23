@@ -29,7 +29,7 @@ const ADA = '0190a1c0-0000-7000-8000-000000000001'
 const ACME = '0190a1c0-0000-7000-8000-000000000002'
 const NOTED = '0190a1c0-0000-7000-8000-000000000010'
 
-/** A timeline of nothing yet, offering to note and to plan. */
+/** A timeline with no exchange yet, which offers to log and to plan. */
 const anEmptyTimeline = (path: string): Timeline => ({
   items: [],
   _links: {
@@ -39,7 +39,7 @@ const anEmptyTimeline = (path: string): Timeline => ({
   },
 })
 
-/** The API notes and plans; any other reading answers nothing. */
+/** The API logs and plans. Any other reading returns nothing. */
 function theApiAnswers() {
   theApi.mockImplementation(async (request) => {
     const { method, url } = request as Request
@@ -58,7 +58,7 @@ async function renderWith(card: ReactNode, queryClient: QueryClient) {
   return userEvent.setup()
 }
 
-/** The meeting noted, then what follows planned for tomorrow at 9. */
+/** Logs the meeting, then plans what follows for tomorrow at 9. */
 async function noteThenPlan(user: ReturnType<typeof userEvent.setup>) {
   await user.click(screen.getByRole('button', { name: 'Noter un échange' }))
   await user.click(screen.getByLabelText('Rendez-vous'))
@@ -68,7 +68,7 @@ async function noteThenPlan(user: ReturnType<typeof userEvent.setup>) {
   await user.click(screen.getByRole('button', { name: 'Enregistrer' }))
 }
 
-/** The planning the API received, after the noting. */
+/** The planning that the API received after the logging. */
 async function planningSent() {
   const planning = theApi.mock.calls
     .map(([request]) => request as Request)

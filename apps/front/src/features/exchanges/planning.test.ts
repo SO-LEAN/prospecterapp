@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { nextQuarterHour, SHORTCUTS, slotOf } from './planning'
 
-/** Friday 13 November 2026, 10:05, in the time of the browser. */
+/** Friday 13 November 2026, 10:05, in the browser's time zone. */
 const FRIDAY = new Date('2026-11-13T10:05')
 
 describe('the planning', () => {

@@ -20,10 +20,10 @@ import {
 type Props = { settings: ReminderSettings }
 
 /**
- * The reminders of my to-dos of the day, read among what I have to process, while the application is open: one with
- * an hour at the delay of the exchanges, one without at 9:00, or once the application opens later that day (ADR
- * 0134); a toast until it is closed, once whatever the tabs open, a notification and a blinking title in the
- * background.
+ * The reminders of my to-dos due today, read from what I have to process, while the application is open. A to-do
+ * with an hour gets its reminder with the exchanges' delay. A to-do without an hour gets it at 9:00, or when the
+ * application opens later that day (ADR 0134). Each reminder shows a toast until it is closed, once, however many
+ * tabs are open. In the background, it also shows a notification and a blinking title.
  */
 export function ToDoReminders({ settings }: Props) {
   const { data } = useQuery(exchangesToProcessQuery())
@@ -55,7 +55,7 @@ export function ToDoReminders({ settings }: Props) {
   return null
 }
 
-/** Shows the reminder of a to-do: a toast opening its day in the calendar, and the tab in the background blinking. */
+/** Shows a to-do's reminder: a toast that opens its day in the calendar, and a blinking background tab. */
 function useRemind(wakeUp: () => void) {
   const { t } = useTranslation()
   const navigate = useNavigate()

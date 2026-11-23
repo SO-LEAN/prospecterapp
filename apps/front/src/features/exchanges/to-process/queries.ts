@@ -7,12 +7,12 @@ export type ExchangeToProcess = ExchangesToProcess['items'][number]
 export type ToDoToProcess = ExchangesToProcess['toDos'][number]
 export type ContactsToAttach = ExchangesToProcess['contactsToAttach']
 
-/** What passed meanwhile, its end reached while the page stays open, is told without a gesture. */
+/** An exchange whose end passes while the page stays open shows up without a gesture. */
 const READ_AGAIN_EVERY_MS = 5 * 60_000
 
 /**
- * What I planned whose end has passed and I have not handled yet, the oldest first; my to-dos of the day on my clock
- * and those late, the most overdue first.
+ * The exchanges I planned whose end has passed and that I have not handled yet, the oldest first. Then my to-dos due
+ * today on my clock and the late ones, the most overdue first.
  */
 export const exchangesToProcessQuery = () =>
   api.queryOptions(
@@ -22,6 +22,6 @@ export const exchangesToProcessQuery = () =>
     { refetchInterval: READ_AGAIN_EVERY_MS },
   )
 
-/** What is left to process: the exchanges, the to-dos and the contacts to attach (ADR 0146). */
+/** How much is left to process: the exchanges, the to-dos and the contacts to attach (ADR 0146). */
 export const countOf = (toProcess: ExchangesToProcess) =>
   toProcess.items.length + toProcess.toDos.length + toProcess.contactsToAttach.length

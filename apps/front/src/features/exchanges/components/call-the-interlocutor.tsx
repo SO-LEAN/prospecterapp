@@ -5,7 +5,7 @@ import { telUrl } from '@/shared/lib/format'
 import { Button } from '@/shared/ui/button'
 import { exchangeQuery } from '../queries'
 
-/** The number of the interlocutor, as the detail of the exchange gives it to its reader; nothing without one. */
+/** The interlocutor's number, as the exchange's detail gives it to its reader. It shows nothing without one. */
 export function CallTheInterlocutor({ exchangeId }: { exchangeId: string }) {
   const { t } = useTranslation()
   const numberToCall = useQuery(exchangeQuery(exchangeId)).data?.phoneNumber

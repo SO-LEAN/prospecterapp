@@ -31,28 +31,28 @@ import {
 import { CHANNEL_ICONS, INTERLOCUTOR_ICONS } from './exchange-line'
 import { MadeConformField } from './made-conform-field'
 
-/** Who may be chosen from the card of an organization: itself, first and by default, or one of its contacts. */
+/** Who the member can choose on an organization's card: the organization itself, first and by default, or one of its contacts. */
 export type Interlocutors = { organization: string; contacts: { id: string; name: string }[] }
 
 type Props = {
-  /** The person chosen, null for the organization itself or on the card of a contact; the files to join to it. */
+  /** Gets the chosen person, null for the organization itself or on a contact's card, and the files to join. */
   onSubmit: (facts: ExchangeFacts, personId: string | null, files: File[]) => Promise<unknown>
   onCancel: () => void
   interlocutors?: Interlocutors
-  /** The exchange to correct; a new one is received, now, by default. */
+  /** The exchange to correct. By default, a new exchange is received, now. */
   defaultValues?: DefaultValues<ExchangeValues>
-  /** A new exchange comes with the files received or sent with it; those of an exchange noted are in its detail. */
+  /** A new exchange comes with the files received or sent with it. A logged exchange's files are in its detail. */
   withFiles?: boolean
-  /** Its contact forgotten, the correction may declare it made conform. */
+  /** Once its contact is forgotten, the correction may declare the exchange redacted. */
   mayDeclareConform?: boolean
 }
 
 const DIRECTION_ICONS = { inbound: ArrowDownLeft, outbound: ArrowUpRight }
 
-/** A file chosen to join, the same file possibly chosen twice. */
+/** A file chosen to join. The same file may be chosen twice. */
 export type ChosenFile = { key: string; file: File }
 
-/** Noted in a few seconds: received and now by default, the channel to choose, then save; or corrected. */
+/** Logs an exchange in a few seconds, or corrects one. By default it is received, now: the member chooses the channel, then saves. */
 export function ExchangeForm({
   onSubmit,
   onCancel,
@@ -191,7 +191,7 @@ export function Choices({
 
 type ChoiceProps = UseFormRegisterReturn & { icon: LucideIcon; label: string; value: string }
 
-/** A radio button looking like a button: the input, transparent over its label, is what is clicked and read. */
+/** A radio button that looks like a button. The input lies transparent over its label, and it receives the click and the reading. */
 export function Choice({ icon: Icon, label, ...radio }: ChoiceProps) {
   return (
     <label className="relative inline-flex cursor-pointer items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm transition-colors hover:bg-accent has-checked:border-primary has-checked:bg-primary has-checked:text-primary-foreground has-focus-visible:ring-[3px] has-focus-visible:ring-ring/50">
@@ -202,7 +202,7 @@ export function Choice({ icon: Icon, label, ...radio }: ChoiceProps) {
   )
 }
 
-/** The files chosen to join to an exchange, one removed in a click, more dropped or chosen. */
+/** The files chosen to join to an exchange. One click removes one. The member drops or chooses more. */
 export function FilesField({
   files,
   onChange,

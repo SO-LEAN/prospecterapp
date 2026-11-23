@@ -7,7 +7,7 @@ import { pauseBeforeReadingAgain } from './awaited-push'
 
 export type Timeline = components['schemas']['TimelineResource']
 export type Exchange = components['schemas']['ExchangeResource']
-/** Where an AI read a message (ADR 0166): the screen notes by hand, without it. */
+/** Where an AI read a message (ADR 0166). The screen logs by hand and sends none of it. */
 type ReferenceOfAnAi = 'messageId' | 'linkedInConversation'
 export type ExchangeInput = Omit<components['schemas']['ExchangeInput'], ReferenceOfAnAi>
 export const NOTED_BY_HAND: Pick<components['schemas']['ExchangeInput'], ReferenceOfAnAi> = {
@@ -29,7 +29,7 @@ export type OrganizationExchange = components['schemas']['OrganizationExchangeRe
 export type Interlocutor = OrganizationExchange['interlocutor']
 export type ContactPresence = NonNullable<Interlocutor['presence']>
 type Correction = components['schemas']['CorrectionInput']
-/** What happened, all of it: what noting and correcting an exchange send; a correction may declare it made conform. */
+/** All the facts of what happened: what logging and correcting an exchange send. A correction may also declare it redacted. */
 export type ExchangeFacts = Omit<Correction, 'redacted'> & Partial<Pick<Correction, 'redacted'>>
 export type ExchangeDetail = components['schemas']['ExchangeDetailResource']
 export type GoogleSync = components['schemas']['ExchangeSyncResource']
@@ -52,7 +52,7 @@ export const CHANNELS = [
   'videoCall',
   'other',
 ] as const satisfies readonly Channel[]
-/** Only a call, a meeting or a video call is planned, or missed: a message is just sent. */
+/** Only a call, a meeting or a video call can be planned or missed. A message is just sent. */
 export const PLANNED_CHANNELS = ['call', 'meeting', 'videoCall'] as const satisfies readonly Channel[]
 
 export type PlannedChannel = (typeof PLANNED_CHANNELS)[number]
@@ -61,7 +61,7 @@ export const isAgreedUpon = (channel: Channel | undefined): channel is PlannedCh
   PLANNED_CHANNELS.some((planned) => planned === channel)
 export const DIRECTIONS = ['inbound', 'outbound'] as const satisfies readonly Direction[]
 
-/** The words saying who made the first move: a message is sent, a call is made, a meeting or a video call is someone's initiative. */
+/** The words that say who made the first move: someone sends a message, makes a call, or takes the initiative of a meeting or a video call. */
 export type DirectionWords = 'message' | 'call' | 'encounter'
 
 export const directionWordsOf = (channel: Channel | undefined): DirectionWords => {
@@ -69,7 +69,7 @@ export const directionWordsOf = (channel: Channel | undefined): DirectionWords =
   return isAgreedUpon(channel) ? 'encounter' : 'message'
 }
 
-/** The exchanges with a contact, the most recent first, a slice after the other (ADR 0049, 0074). */
+/** The exchanges with a contact, the most recent first, one slice at a time (ADR 0049, 0074). */
 export const timelineQuery = (contactId: string) =>
   infiniteQueryOptions({
     queryKey: [...timelineKeys.ofContacts, { params: { path: { id: contactId } } }, 'slices'],
@@ -84,7 +84,7 @@ export const timelineQuery = (contactId: string) =>
     getNextPageParam: (slice) => nextSliceOf(slice._links),
   })
 
-/** The exchanges with an organization and with its contacts, each with who communicated (ADR 0076). */
+/** The exchanges with an organization and with its contacts. Each one says who communicated (ADR 0076). */
 export const organizationTimelineQuery = (organizationId: string) =>
   infiniteQueryOptions({
     queryKey: [
@@ -104,7 +104,7 @@ export const organizationTimelineQuery = (organizationId: string) =>
     getNextPageParam: (slice) => nextSliceOf(slice._links),
   })
 
-/** Only the exchanges of the organization to make conform, their contact forgotten (ADR 0079). */
+/** Only the organization's exchanges to redact, because their contact was forgotten (ADR 0079). */
 export const exchangesToMakeConformQuery = (organizationId: string) =>
   infiniteQueryOptions({
     queryKey: [...timelineKeys.toMakeConform, { params: { path: { id: organizationId } } }, 'slices'],
@@ -119,7 +119,7 @@ export const exchangesToMakeConformQuery = (organizationId: string) =>
     getNextPageParam: (slice) => nextSliceOf(slice._links),
   })
 
-/** The exchanges to come with a contact, the soonest first, a slice after the other: the first is the next one. */
+/** The upcoming exchanges with a contact, the soonest first, one slice at a time. The first one is the next exchange. */
 export const upcomingQuery = (contactId: string) =>
   infiniteQueryOptions({
     queryKey: [...timelineKeys.upcomingOfContacts, { params: { path: { id: contactId } } }, 'slices'],
@@ -134,7 +134,7 @@ export const upcomingQuery = (contactId: string) =>
     getNextPageParam: (slice) => nextSliceOf(slice._links),
   })
 
-/** The exchanges to come with an organization and with its contacts, the soonest first, a slice after the other. */
+/** The upcoming exchanges with an organization and with its contacts, the soonest first, one slice at a time. */
 export const organizationUpcomingQuery = (organizationId: string) =>
   infiniteQueryOptions({
     queryKey: [
@@ -153,11 +153,11 @@ export const organizationUpcomingQuery = (organizationId: string) =>
     getNextPageParam: (slice) => nextSliceOf(slice._links),
   })
 
-/** The exchanges I planned overlapping a slot, before I plan another one in it. */
+/** The exchanges I planned that overlap a slot, read before I plan another one in it. */
 export const overlappingQuery = (startsAt: string, durationInMinutes: number) =>
   api.queryOptions('get', '/api/me/planned-exchanges', { params: { query: { startsAt, durationInMinutes } } })
 
-/** An exchange noted on one card shows in the timelines of the other cards: those of contacts and of organizations. */
+/** An exchange logged on one card shows in the other cards' timelines: the contacts' and the organizations'. */
 export const timelineKeys = {
   ofContacts: ['get', '/api/contacts/{id}/exchanges'],
   ofOrganizations: queryKeys.organizationTimelines,
@@ -170,10 +170,10 @@ export const timelineKeys = {
   toProcess: queryKeys.exchangesToProcess,
 } as const
 
-/** Where the push of an exchange into my Google calendar stands, changed by the reactions to its gestures. */
+/** Where an exchange's push into my Google calendar stands. The reactions to the exchange's gestures change it. */
 export const googleSyncKey = ['get', '/api/exchanges/{id}/google-sync'] as const
 
-/** Where the push of an exchange stands, read again a few times while it awaits its push, as its link (ADR 0137). */
+/** Where an exchange's push stands. Like its link, it is read again a few times while the exchange awaits its push (ADR 0137). */
 export const googleSyncQuery = (id: string) =>
   queryOptions({
     ...api.queryOptions('get', '/api/exchanges/{id}/google-sync', { params: { path: { id } } }),
@@ -181,11 +181,11 @@ export const googleSyncQuery = (id: string) =>
       pauseBeforeReadingAgain(awaitsItsPush(query.state.data), query.state.dataUpdateCount),
   })
 
-/** Pending for no reason of mine, its push is on its way; awaiting my reconnection, nothing comes until I act. */
+/** A push pending for no reason on my side is on its way. A push awaiting my reconnection brings nothing until I act. */
 const awaitsItsPush = (sync: GoogleSync | undefined) =>
   sync?.sync?.state === 'pending' && sync.sync.reason === null
 
-/** An exchange, read again a few times while it awaits the link its calendar creates (ADR 0137). */
+/** An exchange, read again a few times while it awaits the link that its calendar creates (ADR 0137). */
 export const exchangeQuery = (id: string) =>
   queryOptions({
     ...api.queryOptions('get', '/api/exchanges/{id}', { params: { path: { id } } }),
@@ -194,8 +194,8 @@ export const exchangeQuery = (id: string) =>
   })
 
 /**
- * My connections as the banner of the app keeps them, the same query, read from its cache and never asked again by a
- * form: a Meet link is offered while Google is connected.
+ * My connections as the app's banner keeps them. It is the same query, read from its cache, and a form never asks
+ * for it again. A form offers a Meet link while Google is connected.
  */
 export const myConnectionsQuery = () => ({
   ...api.queryOptions('get', '/api/me/connections'),
@@ -206,6 +206,6 @@ export const isGoogleConnected = (connections: Connections | undefined) =>
   connections?.connections.some(({ provider, state }) => provider === 'google' && state === 'connected') ??
   false
 
-/** Where to meet a contact: the address of their organization, proposed while planning a meeting. */
+/** Where to meet a contact: their organization's address, proposed while the member plans a meeting. */
 export const meetingPlaceQuery = (contactId: string) =>
   api.queryOptions('get', '/api/contacts/{id}/meeting-place', { params: { path: { id: contactId } } })

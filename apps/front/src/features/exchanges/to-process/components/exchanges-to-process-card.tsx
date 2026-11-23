@@ -23,23 +23,23 @@ import {
 
 type Opened = { item: ExchangeToProcess; startWith?: StartWith }
 
-/** The line of a to-do, ticked off in place, told by the page composing the to-dos: a feature never imports another. */
+/** A to-do's line, ticked off in place. The page that composes the to-dos gives it, because a feature never imports another. */
 export type ToDoLineOf = (toDo: ToDoToProcess['toDo'], now: Date, onTickedOff: () => void) => ReactNode
 
 type Props = {
-  /** Who a contact is, their card in short, in the exchange opened: told by the page composing the contacts. */
+  /** Who a contact is, a short version of their card, in the opened exchange. The page that composes the contacts gives it. */
   contactSummary: (contactId: string) => ReactNode
   toDoLine: ToDoLineOf
-  /** The contacts I hold to attach, told by the page composing them (ADR 0146). */
+  /** The contacts I hold to attach. The page that composes them gives them (ADR 0146). */
   contactsToAttach?: (contacts: ContactsToAttach) => ReactNode
 }
 
 /**
- * What I planned whose end has passed and I have not handled yet, my to-dos of the day and late, and the contacts I
- * hold to attach, on the dashboard
- * while there is some: each exchange marked done from its report, missed or cancelled at once, taken back by its
- * toast, or moved; each to-do ticked off in place. The dialog of an exchange outlives the card, so that what follows
- * its report is planned once the last one is done.
+ * On the dashboard, while there are any: the exchanges I planned whose end has passed and that I have not handled
+ * yet, my to-dos due today and the late ones, and the contacts I hold to attach. I mark each exchange done from its
+ * report, or missed or cancelled at once, which its toast can take back. I can also move it. I tick each to-do off in
+ * place. An exchange's dialog outlives the card, so I can plan what follows its report once the last exchange is
+ * done.
  */
 export function ExchangesToProcessCard({ contactSummary, toDoLine, contactsToAttach }: Props) {
   const { t } = useTranslation()
@@ -90,7 +90,7 @@ export function ExchangesToProcessCard({ contactSummary, toDoLine, contactsToAtt
   )
 }
 
-/** My to-dos of the day and late, the most overdue first, each saying since when. */
+/** My to-dos due today and the late ones, the most overdue first. Each one says since when. */
 type ToDosProps = { toDos: ToDoToProcess[]; toDoLine: ToDoLineOf; onTickedOff: () => void }
 
 function ToDosToProcess({ toDos, toDoLine, onTickedOff }: ToDosProps) {
@@ -122,13 +122,13 @@ function ToDosToProcess({ toDos, toDoLine, onTickedOff }: ToDosProps) {
   )
 }
 
-/** The lines handled, taken away at once while their gesture may still be taken back. */
+/** The handled lines, taken away at once while their gesture can still be taken back. */
 function useLeavingLines() {
   const [leaving, setLeaving] = useState<ReadonlySet<string>>(new Set())
 
   return {
     has: (id: string) => leaving.has(id),
-    /** Takes it away; what is given back puts it back, its gesture taken back. */
+    /** Takes the line away. The returned function puts it back when its gesture is taken back. */
     add: (id: string) => {
       setLeaving((ids) => new Set(ids).add(id))
       return () =>
@@ -141,7 +141,7 @@ function useLeavingLines() {
   }
 }
 
-/** « Tout est à jour 🎉 », once what I started processing on the page leaves nothing to process. */
+/** « Tout est à jour 🎉 », once what I processed on the page leaves nothing to process. */
 function useEverythingProcessedTold(nothingLeft: boolean) {
   const { t } = useTranslation()
   const [processing, setProcessing] = useState(false)
@@ -159,11 +159,11 @@ type LineProps = {
   item: ExchangeToProcess
   leaving: boolean
   onOpen: (startWith?: StartWith) => void
-  /** Takes the line away, and gives back what puts it back. */
+  /** Takes the line away, and returns the function that puts it back. */
   onLeave: () => () => void
 }
 
-/** When it was, its channel, with whom and their organization; what it offers at hand. */
+/** When the exchange was, its channel, who it was with and their organization, and the gestures it offers at hand. */
 function ExchangeToProcessLine({ item, leaving, onOpen, onLeave }: LineProps) {
   const { t } = useTranslation()
   const { exchange, interlocutor, organization } = item
@@ -216,7 +216,7 @@ function ExchangeToProcessLine({ item, leaving, onOpen, onLeave }: LineProps) {
 
 type GestureProps = { exchangeId: string; onLeave: LineProps['onLeave'] }
 
-/** Marked missed once its toast no longer lets it be taken back, the line taken away meanwhile, back when refused. */
+/** Marks the exchange missed once its toast no longer lets the member take it back. The line goes away meanwhile, and comes back on a refusal. */
 function MarkMissed({ exchangeId, onLeave }: GestureProps) {
   const { t } = useTranslation()
   const markMissed = useMarkExchangeMissed()
@@ -241,8 +241,8 @@ function MarkMissed({ exchangeId, onLeave }: GestureProps) {
 }
 
 /**
- * Cancelled without saying by whom, once its toast no longer lets it be taken back, the line taken away meanwhile,
- * back when refused.
+ * Cancels the exchange, without saying who called it off, once its toast no longer lets the member take it back. The
+ * line goes away meanwhile, and comes back on a refusal.
  */
 function Cancel({ exchangeId, onLeave }: GestureProps) {
   const { t } = useTranslation()

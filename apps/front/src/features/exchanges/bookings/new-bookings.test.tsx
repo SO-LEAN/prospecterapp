@@ -7,7 +7,7 @@ import { renderInARouter } from '@/test/render-in-a-router'
 import type { CalendarExchange } from '../calendar/queries'
 import { NewBookings, READ_AGAIN_MS } from './new-bookings'
 
-/** Told of a booking made by my public link, the application open: at the next reading of my agenda. */
+/** The application, while open, tells me of a booking made through my public link at my agenda's next reading. */
 
 const theApi = vi.hoisted(() => {
   const fetch = vi.fn<typeof globalThis.fetch>()
@@ -15,7 +15,7 @@ const theApi = vi.hoisted(() => {
   return fetch
 })
 
-/** The toaster follows the theme of the system, which jsdom does not tell. */
+/** The toaster follows the system's theme, which jsdom does not provide. */
 vi.hoisted(() => {
   window.matchMedia = (query: string) =>
     ({
@@ -36,7 +36,7 @@ const ADA = '0190a1c0-0000-7000-8000-00000000a000'
 let lastId = 0
 const nextId = () => `0190a1c0-0000-7000-8000-${String(++lastId).padStart(12, '0')}`
 
-/** An exchange to come with Ada Lovelace, on Tuesday 24 November at 9:00 on the clock of the browser, booked by my link or not. */
+/** An upcoming exchange with Ada Lovelace, on Tuesday 24 November at 9:00 on the browser's clock, booked through my link or not. */
 function anExchange(
   bookedByLink: boolean,
   channel: CalendarExchange['exchange']['channel'] = 'videoCall',

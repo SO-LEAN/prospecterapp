@@ -9,7 +9,7 @@ const DAYS_IN_A_WEEK = 7
 const relativeFormat = new Intl.RelativeTimeFormat('fr-FR', { style: 'short' })
 const weekdayFormat = new Intl.DateTimeFormat('fr-FR', { weekday: 'long' })
 
-/** "dans 25 min", "dans 2 h": what is left before it starts; nothing once it started. */
+/** "dans 25 min", "dans 2 h": the time left before the exchange starts. Nothing once it has started. */
 export function startsIn(occurredAt: string, now: Date): string | null {
   const minutes = Math.ceil((new Date(occurredAt).getTime() - now.getTime()) / MINUTE_MS)
 
@@ -20,7 +20,7 @@ export function startsIn(occurredAt: string, now: Date): string | null {
     : relativeFormat.format(Math.floor(minutes / MINUTES_IN_AN_HOUR), 'hour')
 }
 
-/** From its start until the end of its duration; an exchange without a duration is never in progress. */
+/** From its start until the end of its duration. An exchange without a duration is never in progress. */
 export function isInProgress(
   { occurredAt, durationInMinutes }: Pick<Exchange, 'occurredAt' | 'durationInMinutes'>,
   now: Date,
@@ -31,7 +31,7 @@ export function isInProgress(
   return start <= now.getTime() && now.getTime() < end
 }
 
-/** "demain 9h00", "lundi 14h00" within the week, then "ven. 20 nov. 14h00" ("jeu. 7 janv. 2027 9h00" in another year), in the time of the browser. */
+/** "demain 9h00", "lundi 14h00" within the week, then "ven. 20 nov. 14h00" ("jeu. 7 janv. 2027 9h00" in another year), in the browser's time zone. */
 export function whenToCome(occurredAt: string, now: Date): string {
   const moment = new Date(occurredAt)
   const today = startOfDay(now)

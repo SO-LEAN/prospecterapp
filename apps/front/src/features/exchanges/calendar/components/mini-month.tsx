@@ -9,7 +9,7 @@ const monthFormat = new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'num
 const weekdayFormat = new Intl.DateTimeFormat('fr-FR', { weekday: 'narrow' })
 const longDayFormat = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'full' })
 
-/** A small month to jump to a day: its own months browsed apart from the calendar, the day shown and today marked. */
+/** A small month to jump to a day. The member browses its months apart from the calendar. The shown day and today are marked. */
 export function MiniMonth({
   selected,
   today,

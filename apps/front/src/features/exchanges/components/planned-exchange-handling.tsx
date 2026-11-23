@@ -28,8 +28,9 @@ import { type ChosenFile, FilesField } from './exchange-form'
 type ActionsProps = { exchange: ExchangeDetail; onReport: () => void; onMove: () => void }
 
 /**
- * What its holder does of a planned exchange, as its links offer it: done or missed once its time has come, moved,
- * cancelled; missed and cancelled are carried out once their toast no longer lets them be taken back.
+ * What its holder can do with a planned exchange, as its links offer it. Once its time has come, they mark it done
+ * or missed. They also move it or cancel it. Marking it missed and cancelling it run once their toast no longer lets
+ * the holder take them back.
  */
 export function PlannedExchangeActions({ exchange, onReport, onMove }: ActionsProps) {
   const { t } = useTranslation()
@@ -62,12 +63,12 @@ export function PlannedExchangeActions({ exchange, onReport, onMove }: ActionsPr
   )
 }
 
-/** Who called it off, when the prospector wishes to say it. */
+/** Who called it off, when the prospector wants to say so. */
 const CANCELLERS: readonly Canceller[] = ['prospector', 'contact']
 const NOT_SAID = ''
 const CANCELLER_CHOICES: readonly (Canceller | typeof NOT_SAID)[] = [NOT_SAID, ...CANCELLERS]
 
-/** Cancelled once confirmed, saying who called it off if wished: it stays struck through in the timeline. */
+/** Cancels the exchange once confirmed, and says who called it off if the prospector wants. It stays struck through in the timeline. */
 function CancelExchange({ exchangeId }: { exchangeId: string }) {
   const { t } = useTranslation()
   const cancel = useCancelExchange()
@@ -130,7 +131,7 @@ type ReportProps = {
   onCancel: () => void
 }
 
-/** Its report, written from its agenda, the moment it really took place, and the files it brought. */
+/** The exchange's report, written from its agenda, with the moment it really took place and the files it brought. */
 export function ReportForm({ exchange, onSubmit, onCancel }: ReportProps) {
   const { t } = useTranslation()
   const [globalErrors, setGlobalErrors] = useState<string[]>([])
@@ -180,7 +181,7 @@ type MoveProps = {
   onCancel: () => void
 }
 
-/** Another moment to come, from its own or a shortcut; its duration stays. */
+/** Moves the exchange to another upcoming moment, from its own moment or a shortcut. Its duration stays. */
 export function MoveForm({ exchange, onSubmit, onCancel }: MoveProps) {
   const { t } = useTranslation()
   const [globalErrors, setGlobalErrors] = useState<string[]>([])

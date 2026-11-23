@@ -23,13 +23,13 @@ import { type DayExchange, myDayQuery } from '../queries'
 type Opened = { item: DayExchange; startWith?: 'report' }
 
 type Props = {
-  /** Who a contact is, their card in short, in the exchange opened: told by the page composing the contacts. */
+  /** Who a contact is, a short version of their card, in the opened exchange. The page that composes the contacts gives it. */
   contactSummary: (contactId: string) => ReactNode
 }
 
 /**
- * My day on the dashboard: what I planned today, the one in progress set apart, those whose hour passed to handle,
- * then the next five to come; an exchange opens in the dialog of the calendar.
+ * My day on the dashboard: what I planned today, with the exchange in progress set apart and those whose hour has
+ * passed to handle. Then the next five upcoming exchanges. An exchange opens in the calendar's dialog.
  */
 export function MyDayCards({ contactSummary }: Props) {
   const now = useNow()
@@ -57,7 +57,7 @@ export function MyDayCards({ contactSummary }: Props) {
 
 const CARDS = ['today', 'upcoming'] as const
 
-/** The two cards while my day is read, the rest of the dashboard already shown. */
+/** The two cards while my day is being read. The rest of the dashboard already shows. */
 export function MyDaySkeleton() {
   return CARDS.map((card) => (
     <Card key={card}>
@@ -112,7 +112,7 @@ function TodayCard({ items, now, mayPlan, onOpen }: CardProps & { mayPlan: boole
   )
 }
 
-/** Its hour, its channel, who it is with and when it starts; what it offers at hand: join, call, done, missed. */
+/** The exchange's hour, its channel, who it is with and when it starts. It offers its gestures at hand: join, call, done, missed. */
 function TodayExchange({ item, now, onOpen }: { item: DayExchange; now: Date; onOpen: CardProps['onOpen'] }) {
   const { t } = useTranslation()
   const { exchange } = item
@@ -145,7 +145,7 @@ function TodayExchange({ item, now, onOpen }: { item: DayExchange; now: Date; on
   )
 }
 
-/** Marked missed once its toast no longer lets it be taken back, as from its detail. */
+/** Marks the exchange missed once its toast no longer lets the member take it back, as from its detail. */
 function MarkMissed({ exchangeId }: { exchangeId: string }) {
   const { t } = useTranslation()
   const markMissed = useMarkExchangeMissed()
@@ -204,7 +204,7 @@ function UpcomingCard({ items, now, onOpen }: CardProps) {
 
 type SummaryProps = { item: DayExchange; when: string; onOpen: () => void; children?: ReactNode }
 
-/** When, by which channel, with whom and their organization: a click opens it. */
+/** When, on which channel, with whom and their organization. A click opens the exchange. */
 function ExchangeSummary({ item, when, onOpen, children }: SummaryProps) {
   const { t } = useTranslation()
   const { exchange, interlocutor, organization } = item

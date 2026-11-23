@@ -8,8 +8,8 @@ import type { Exchange } from '../queries'
 type Campaign = components['schemas']['CampaignOfExchangeResource']
 
 /**
- * The campaign an exchange was noted in, as Campaigns names it now (ADR 0145): leading to it when the reader may read
- * it, said erased once the operations erased it (ADR 0152).
+ * The campaign that an exchange was logged in, with its current name in Campaigns (ADR 0145). It links to the
+ * campaign when the reader may read it. It says the campaign is erased once the operations erased it (ADR 0152).
  */
 export function CampaignOfTheExchange({ campaign, linked }: { campaign: Campaign; linked: boolean }) {
   const { t } = useTranslation()
@@ -35,7 +35,7 @@ export function CampaignOfTheExchange({ campaign, linked }: { campaign: Campaign
   )
 }
 
-/** The campaign of an exchange of a timeline, leading to it when the api links it. */
+/** The campaign of an exchange in a timeline. It links to the campaign when the API gives the link. */
 export function CampaignOfTheLine({ exchange }: { exchange: Pick<Exchange, 'campaign' | '_links'> }) {
   return exchange.campaign ? (
     <CampaignOfTheExchange campaign={exchange.campaign} linked={Boolean(exchange._links.campaign)} />

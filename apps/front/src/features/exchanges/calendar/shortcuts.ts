@@ -3,7 +3,7 @@ import type { View } from './dates'
 
 export type Shortcut = { kind: 'today' } | { kind: 'step'; step: 1 | -1 } | { kind: 'view'; view: View }
 
-/** The keys of the calendar: T today, ← → the previous and the next period, M S J A the views, in French. */
+/** The calendar's keys: T for today, ← → for the previous and the next period, M S J A for the views, in French. */
 const SHORTCUTS: Record<string, Shortcut> = {
   t: { kind: 'today' },
   ArrowLeft: { kind: 'step', step: -1 },
@@ -16,12 +16,12 @@ const SHORTCUTS: Record<string, Shortcut> = {
 
 const FIELDS = ['INPUT', 'TEXTAREA', 'SELECT']
 const EDITABLE = '[contenteditable=""], [contenteditable="true"]'
-/** A dialog over the calendar, not the popover of its small month, which its keys drive too. */
+/** A dialog over the calendar. It excludes the small month's popover, which the calendar's keys also drive. */
 const A_DIALOG = '[data-slot="dialog-content"], [data-slot="alert-dialog-content"]'
 
 /**
- * None while the member types, nor combined with a modifier: those keys belong to the field or to the browser; none
- * in a dialog open over the calendar, an exchange or a planning, whose keys are its own.
+ * No shortcut while the member types, or with a modifier, because those keys belong to the field or to the browser.
+ * No shortcut in a dialog open over the calendar, such as an exchange or a planning, because its keys are its own.
  */
 export function shortcutOf(event: Pick<KeyboardEvent, 'key' | 'target' | 'altKey' | 'ctrlKey' | 'metaKey'>) {
   if (event.altKey || event.ctrlKey || event.metaKey || isTyping(event.target) || inADialog(event.target))
@@ -29,7 +29,7 @@ export function shortcutOf(event: Pick<KeyboardEvent, 'key' | 'target' | 'altKey
   return SHORTCUTS[event.key.length === 1 ? event.key.toLowerCase() : event.key]
 }
 
-/** Listens once, the latest `onShortcut` called. */
+/** Listens once and calls the latest `onShortcut`. */
 export function useCalendarShortcuts(onShortcut: (shortcut: Shortcut) => void) {
   const onShortcutNow = useEffectEvent(onShortcut)
 

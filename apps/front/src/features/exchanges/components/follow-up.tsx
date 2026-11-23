@@ -7,13 +7,13 @@ import { ExchangeForm, type Interlocutors } from './exchange-form'
 import { PlanForm } from './plan-form'
 
 type Props = {
-  /** The channel of the exchange it follows, proposed again when it is planned. */
+  /** The previous exchange's channel, proposed again for the follow-up. */
   channel: Channel
   plan: (exchange: PlannedExchangeInput) => Promise<unknown>
   onDone: () => void
 }
 
-/** Right after an exchange, what follows is planned with the same interlocutor, or left in a click. */
+/** Right after an exchange, plans what follows with the same interlocutor. One click skips it. */
 export function FollowUp({ channel, plan, onDone }: Props) {
   const { t } = useTranslation()
   const [planning, setPlanning] = useState(false)
@@ -46,19 +46,19 @@ export function FollowUp({ channel, plan, onDone }: Props) {
   )
 }
 
-/** The exchange noted, with whom: the person, null for the organization itself or on the card of a contact. */
+/** The logged exchange and who it was with: the person, null for the organization itself or on a contact's card. */
 type Noted = { channel: Channel; personId: string | null }
 
 type NoteProps = {
-  /** Notes the exchange, then joins its files. */
+  /** Logs the exchange, then joins its files. */
   note: (facts: ExchangeFacts, personId: string | null, files: File[]) => Promise<unknown>
-  /** Plans with the same interlocutor; absent when planning is not offered. */
+  /** Plans with the same interlocutor. It is absent when planning is not offered. */
   plan?: (exchange: PlannedExchangeInput, personId: string | null) => Promise<unknown>
   interlocutors?: Interlocutors
   close: () => void
 }
 
-/** An exchange noted, then what follows proposed with the same interlocutor when planning is offered. */
+/** Logs an exchange. When planning is offered, it then proposes what follows with the same interlocutor. */
 export function NoteThenFollowUp({ note, plan, interlocutors, close }: NoteProps) {
   const [noted, setNoted] = useState<Noted | null>(null)
 

@@ -58,7 +58,7 @@ describe('periodOf', () => {
   })
 })
 
-/** The time of Paris, which goes from summer to winter at 1:00 UTC on 25 October 2026, whatever the machine runs in. */
+/** Paris time switches from summer to winter time at 1:00 UTC on 25 October 2026, whatever time zone the machine runs in. */
 const END_OF_SUMMER_TIME = Date.UTC(2026, 9, 25, 1)
 const PARIS_IN_SUMMER = -120
 const PARIS_IN_WINTER = -60

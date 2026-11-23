@@ -10,7 +10,7 @@ import { exchangeQuery } from '../queries'
 import { withTheGesture } from './gestures'
 import type { CalendarExchange } from './queries'
 
-/** Where an exchange of the calendar goes, for how long, and whether it comes back where it was from the toast. */
+/** Where a calendar exchange goes, for how long, and whether the toast moves it back where it was. */
 export type CalendarMove = {
   item: CalendarExchange
   occurredAt: Date
@@ -20,21 +20,22 @@ export type CalendarMove = {
 
 type Calendar = { items: CalendarExchange[] }
 
-/** The one toast offering to move back the last exchange moved: the next move takes its place. */
+/** The single toast that offers to move back the last moved exchange. The next move takes its place. */
 const LAST_MOVE_TOAST = 'last-move-in-the-calendar'
 
-/** An exchange opened may be moved from its dialog: moving it back from before would undo that move unsaid. */
+/** An opened exchange may be moved from its dialog. Moving it back to the earlier moment would silently undo that move. */
 export function withdrawTheOfferToMoveBack() {
   toast.dismiss(LAST_MOVE_TOAST)
 }
 
 /**
- * An exchange dragged or stretched in the calendar: shown at once where it was dropped, set back where it was when
- * the API refuses, the refusal told by the toast of every mutation (`query-client.ts`), the calendar read again
- * either way; once moved, its toast offers to move it back when the API links it (`_links.moveBack`, its former moment
- * to come), however long the member takes, until another exchange is moved or opened or the calendar is left, a move
- * answered once it is left told without the offer. What follows is in
- * the options of the mutation, the toast outliving any component.
+ * Moves an exchange dragged or stretched in the calendar. It shows at once where it was dropped. When the API refuses,
+ * it goes back where it was, and the toast of every mutation shows the refusal (`query-client.ts`). Either way, the
+ * calendar is read again. Once the exchange is moved, its toast offers to move it back when the API gives the link
+ * (`_links.moveBack`, when its former moment is still to come). The offer stays however long the member takes. It
+ * ends when another exchange is moved or opened, or when the member leaves the calendar. A move answered after the
+ * member left shows its toast without the offer. What follows is in the mutation's options, because the toast
+ * outlives any component.
  */
 export function useMoveInTheCalendar() {
   const queryClient = useQueryClient()

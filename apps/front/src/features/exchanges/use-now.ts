@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 
 const MINUTE_MS = 60_000
 
-/** The moment of the screen, again each minute: the line of now moves, what passed becomes to handle. */
+/** The screen's current moment, refreshed each minute. The line of now moves, and the exchanges that have passed become ones to handle. */
 export function useNow(): Date {
   const [now, setNow] = useState(() => new Date())
   useEffect(() => {

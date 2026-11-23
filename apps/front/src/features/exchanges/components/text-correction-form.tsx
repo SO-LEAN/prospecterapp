@@ -13,13 +13,13 @@ import { MadeConformField } from './made-conform-field'
 
 type Props = {
   text: string | null | undefined
-  /** Its contact forgotten, the correction may declare it made conform. */
+  /** Once its contact is forgotten, the correction may declare the exchange redacted. */
   mayDeclareConform: boolean
   onSubmit: (correction: TextCorrection) => Promise<unknown>
   onCancel: () => void
 }
 
-/** The text of an exchange alone, to make it conform; its other facts stay. */
+/** Corrects only an exchange's text, to redact it. Its other facts stay. */
 export function TextCorrectionForm({ text, mayDeclareConform, onSubmit, onCancel }: Props) {
   const { t } = useTranslation()
   const [globalErrors, setGlobalErrors] = useState<string[]>([])

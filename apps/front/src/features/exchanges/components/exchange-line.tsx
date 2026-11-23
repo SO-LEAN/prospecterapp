@@ -62,9 +62,10 @@ export const INTERLOCUTOR_ICONS: Record<Interlocutor['kind'], LucideIcon> = {
 }
 
 /**
- * One exchange of the timeline: who communicated in the timeline of an organization, its summary, the
- * beginning of its text and how many files are joined to it; what is to make conform once its contact was
- * forgotten; the campaign it was noted in, unless shown beside the line, out of the button opening its detail.
+ * One exchange in the timeline. It shows who communicated, in an organization's timeline, its summary, the start of
+ * its text and how many files are joined to it. Once its contact is forgotten, it shows what is to redact. It shows
+ * the campaign it was logged in, unless that campaign shows beside the line, outside the button that opens its
+ * detail.
  */
 export function ExchangeLine({
   exchange,
@@ -97,9 +98,9 @@ export function ExchangeLine({
 }
 
 /**
- * Who communicated, when said, a link to their card when given, its channel, its direction, or what became of it
- * (missed, cancelled, struck through, by whom when said), and when, then what follows; planned, when it is to come
- * from now and how long it lasts.
+ * Who communicated, when known, with a link to their card when given. Then the exchange's channel and direction, or
+ * what became of it (missed, or cancelled and struck through, with who cancelled it when known), and when. Then the
+ * content given as its children. A planned exchange shows how soon it comes and how long it lasts.
  */
 export function ExchangeSummary({
   exchange,
@@ -184,7 +185,7 @@ export function formatDuration(minutes: number, t: TFunction): string {
     : t('exchanges.hoursAndMinutes', { hours, minutes: String(rest).padStart(2, '0') })
 }
 
-/** Its name, struck through once the contact left the organization; "Contact effacé" once forgotten. */
+/** The interlocutor's name, struck through once the contact has left the organization. It reads "Contact effacé" once the contact is forgotten. */
 function InterlocutorName({
   interlocutor,
   linkedToTheCard,
@@ -233,7 +234,7 @@ function CardLink({ interlocutor, className, children }: CardLinkProps) {
   )
 }
 
-/** The mark of Gmail on the channel of an exchange imported from it, said on hover and to a screen reader. */
+/** The Gmail mark on the channel of an exchange imported from Gmail. A hover and a screen reader say it. */
 function ImportedFromGmail() {
   const { t } = useTranslation()
 
@@ -248,7 +249,7 @@ function ImportedFromGmail() {
   )
 }
 
-/** Its files still to make conform, its text made so or none. */
+/** The exchange's files are still to redact, while its text is redacted or empty. */
 function ToMakeConform() {
   const { t } = useTranslation()
 

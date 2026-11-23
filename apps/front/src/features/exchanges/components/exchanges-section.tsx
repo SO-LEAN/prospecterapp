@@ -15,14 +15,14 @@ import { NoteExchangeDialog, PlanExchangeDialog, ProposedExchangeDialog, Timelin
 type Props = {
   contactId: string
   contactName: string
-  /** The contact links the catch-up of the e-mails exchanged with them. */
+  /** The contact gives the link to catch up the e-mails exchanged with them. */
   mayCatchUpGmail?: boolean
   className?: string
 }
 
 type ProposedProps = { contactId: string; contactName: string; open: boolean; onClose: () => void }
 
-/** The exchange with the contact a gesture led to, noted now when the member accepts to. */
+/** The exchange with the contact that a gesture led to. It is logged now when the member accepts. */
 export function NoteTheExchangeWithTheContact({ contactId, contactName, open, onClose }: ProposedProps) {
   const note = useNoteExchange()
   const attach = useAttachFiles()
@@ -42,7 +42,7 @@ export function NoteTheExchangeWithTheContact({ contactId, contactName, open, on
   )
 }
 
-/** The timeline of the contact: what is to come, the soonest first, then the past, the most recent first, what follows loaded on scrolling. */
+/** The contact's timeline: the upcoming exchanges, the soonest first, then the past ones, the most recent first. Scrolling loads more. */
 export function ExchangesSection({ contactId, contactName, mayCatchUpGmail = false, className }: Props) {
   const timeline = useInfiniteQuery(timelineQuery(contactId))
   const upcoming = useInfiniteQuery(upcomingQuery(contactId))
@@ -116,7 +116,7 @@ type ContactPlanFormProps = {
   slot?: Slot
 }
 
-/** Planned once the place to meet the contact is known: the address of their organization, asked when planning. */
+/** Plans once the place to meet the contact is known. That place is their organization's address, read when planning. */
 export function ContactPlanForm({ contactId, onSubmit, onCancel, slot }: ContactPlanFormProps) {
   const meetingPlace = useQuery(meetingPlaceQuery(contactId))
 
