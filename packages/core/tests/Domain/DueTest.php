@@ -33,7 +33,7 @@ final class DueTest extends TestCase
     #[DataProvider('noDays')]
     public function testOnADayOfTheCalendar(string $day): void
     {
-        $this->expectExceptionObject(InvalidDue::because('A to-do is due on a day', 'dueOn'));
+        $this->expectExceptionObject(InvalidDue::because('A to-do must be due on a valid day', 'dueOn'));
 
         new Due($day);
     }
@@ -53,7 +53,7 @@ final class DueTest extends TestCase
     #[DataProvider('noHours')]
     public function testAtAnHourOfItsDay(string $time): void
     {
-        $this->expectExceptionObject(InvalidDue::because('A to-do is due at an hour of its day', 'dueAt'));
+        $this->expectExceptionObject(InvalidDue::because('A to-do must be due at a valid hour of its day', 'dueAt'));
 
         new Due('2026-11-14', $time);
     }

@@ -20,4 +20,4 @@ Fonctionnalité: Modifier une action à faire
 
   Scénario: Une action modifiée garde un texte
     Quand je la modifie en "" pour le 21/11/2026
-    Alors c'est refusé : "A to-do has a text"
+    Alors c'est refusé : "A to-do needs a text"

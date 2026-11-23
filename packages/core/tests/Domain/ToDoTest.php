@@ -55,7 +55,7 @@ final class ToDoTest extends TestCase
 
     public function testItIsNeverNotedWithoutAText(): void
     {
-        $this->expectExceptionObject(ToDoWithoutText::because('A to-do has a text', 'text'));
+        $this->expectExceptionObject(ToDoWithoutText::because('A to-do needs a text', 'text'));
 
         $this->noted(text: ' ');
     }

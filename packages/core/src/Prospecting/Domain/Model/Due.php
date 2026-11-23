@@ -21,11 +21,11 @@ final readonly class Due
     public function __construct(public string $day, public ?string $time = null)
     {
         if (!self::isADay($day)) {
-            throw InvalidDue::because('A to-do is due on a day', 'dueOn');
+            throw InvalidDue::because('A to-do must be due on a valid day', 'dueOn');
         }
 
         if (null !== $time && 1 !== preg_match(self::TIME, $time)) {
-            throw InvalidDue::because('A to-do is due at an hour of its day', 'dueAt');
+            throw InvalidDue::because('A to-do must be due at a valid hour of its day', 'dueAt');
         }
     }
 

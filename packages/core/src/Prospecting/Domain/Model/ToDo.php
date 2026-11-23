@@ -75,7 +75,7 @@ final class ToDo implements ReleasesEvents
     {
         $said = trim($text);
 
-        return '' === $said ? throw ToDoWithoutText::because('A to-do has a text', 'text') : $said;
+        return '' === $said ? throw ToDoWithoutText::because('A to-do needs a text', 'text') : $said;
     }
 
     public function id(): ToDoId
@@ -170,6 +170,6 @@ final class ToDo implements ReleasesEvents
             return;
         }
 
-        throw NotPossibleInItsState::because(ToDoIntent::TickOffToDo === $intent ? 'A to-do done is not ticked off again' : 'Only a to-do done is unticked');
+        throw NotPossibleInItsState::because(ToDoIntent::TickOffToDo === $intent ? 'This to-do is already done' : 'This to-do is not done yet');
     }
 }

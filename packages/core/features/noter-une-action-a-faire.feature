@@ -23,7 +23,7 @@ Fonctionnalité: Noter une action à faire
 
   Scénario: Une action à faire a un texte
     Quand je note à faire pour "Ada Lovelace" "" pour le 14/11/2026
-    Alors c'est refusé : "A to-do has a text"
+    Alors c'est refusé : "A to-do needs a text"
 
   Scénario: Une action à faire pour une organisation
     Quand je note à faire pour "ACME" "Préparer la proposition" pour le 20/11/2026

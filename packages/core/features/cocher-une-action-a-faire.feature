@@ -31,11 +31,11 @@ Fonctionnalité: Cocher une action à faire
   Scénario: Une action faite ne se coche pas deux fois
     Soit je l'ai cochée
     Quand je la coche
-    Alors c'est refusé : "A to-do done is not ticked off again"
+    Alors c'est refusé : "This to-do is already done"
 
   Scénario: Une action à faire ne se décoche pas
     Quand je la décoche
-    Alors c'est refusé : "Only a to-do done is unticked"
+    Alors c'est refusé : "This to-do is not done yet"
 
   Scénario: Une action à faire se modifie, se coche ou se supprime
     Quand je la consulte
