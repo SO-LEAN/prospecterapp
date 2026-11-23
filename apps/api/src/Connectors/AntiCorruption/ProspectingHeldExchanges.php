@@ -21,8 +21,8 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Anticorruption layer (ADR 0045, 0089): Connectors reads an exchange as it is now from
- * Prospecting, asked about a set of one (ADR 0127), and those its holder planned from a moment on (ADR 0133).
+ * Anticorruption layer (ADR 0045, 0089). Connectors reads an exchange's current state from Prospecting, which it asks
+ * about a set of one (ADR 0127). It also reads the exchanges that a holder planned from a given moment on (ADR 0133).
  */
 final readonly class ProspectingHeldExchanges implements HeldExchanges
 {

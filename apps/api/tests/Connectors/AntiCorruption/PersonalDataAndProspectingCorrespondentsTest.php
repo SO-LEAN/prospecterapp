@@ -35,14 +35,14 @@ class PersonalDataAndProspectingCorrespondentsTest extends TestCase
     {
         $this->correspondents()->contactWithEmail(new AccountId(self::ACCOUNT), new Email('inconnu@exemple.fr'));
 
-        $this->assertSame([['level' => 'info', 'message' => 'The sender of a message is no contact of the account', 'context' => ['account' => self::ACCOUNT]]], $this->logger->records);
+        $this->assertSame([['level' => 'info', 'message' => 'The message\'s sender is not a contact of the account', 'context' => ['account' => self::ACCOUNT]]], $this->logger->records);
     }
 
     public function testAnAddressNoOrganizationHasIsLoggedWithoutTheAddress(): void
     {
         $this->correspondents()->organizationWithEmail(new AccountId(self::ACCOUNT), new Email('inconnu@exemple.fr'));
 
-        $this->assertSame([['level' => 'info', 'message' => 'The sender of a message is no organization of the account', 'context' => ['account' => self::ACCOUNT]]], $this->logger->records);
+        $this->assertSame([['level' => 'info', 'message' => 'The message\'s sender is not an organization of the account', 'context' => ['account' => self::ACCOUNT]]], $this->logger->records);
     }
 
     /**
