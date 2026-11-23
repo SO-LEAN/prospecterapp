@@ -228,7 +228,7 @@
     "context": "connectors",
     "sources": ["prospecter.personal-data"],
     "events": ["ContactForgotten.v1"],
-    "handler": "Prospecter\\Core\\Connectors\\Application\\UnnameForgottenContact\\UnnameForgottenContactHandler",
+    "policy": "Prospecter\\Core\\Connectors\\Application\\Policy\\UnnameForgottenContactPolicy",
     "inbox": true
   },
   "campaigns-forget-tags-of-unprospected-organization": {

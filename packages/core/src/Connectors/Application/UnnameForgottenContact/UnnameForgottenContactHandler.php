@@ -9,8 +9,7 @@ use Prospecter\Core\Connectors\Domain\Model\CalendarEntry;
 use Prospecter\Core\Connectors\Domain\Model\ContactId;
 use Prospecter\Core\Connectors\Domain\Port\HeldExchanges;
 use Prospecter\Core\Connectors\Domain\Repository\CalendarEntryRepository;
-use Prospecter\Core\PersonalData\Contract\Event\ContactForgotten;
-use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
 use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
@@ -18,7 +17,7 @@ use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
  * their name, and it leads to its organization. Prospecting cancels the upcoming exchanges, and then they are
  * withdrawn.
  */
-final readonly class UnnameForgottenContactHandler implements EventHandler
+final readonly class UnnameForgottenContactHandler implements CommandHandler
 {
     public function __construct(
         private HeldExchanges $exchanges,
@@ -27,12 +26,12 @@ final readonly class UnnameForgottenContactHandler implements EventHandler
     ) {
     }
 
-    public function __invoke(ContactForgotten $forgotten): void
+    public function __invoke(UnnameForgottenContact $command): void
     {
-        $accountId = new AccountId($forgotten->accountId);
+        $accountId = new AccountId($command->accountId);
 
-        foreach ($this->entries->ofContact(new ContactId($forgotten->personId)) as $entry) {
-            $this->unname($entry, $accountId, $forgotten->occurredAt);
+        foreach ($this->entries->ofContact(new ContactId($command->contactId)) as $entry) {
+            $this->unname($entry, $accountId, $command->executedAt);
         }
     }
 
