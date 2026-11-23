@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Identification\Mcp;
 
 /**
- * What a synchronization of LinkedIn brings into Prospecter: the contacts only, or the messages with their contacts.
+ * What a LinkedIn sync brings into Prospecter: the contacts only, or the messages with their contacts.
  */
 enum WhatLinkedInSynchronizes: string
 {

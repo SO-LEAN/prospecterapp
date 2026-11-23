@@ -41,16 +41,16 @@ use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Symfony\Component\Clock\ClockInterface;
 
 /**
- * Records a contact and the organization they work for in one gesture of an AI, composed of the use cases of
- * Prospecting and PersonalData (ADR 0177): everything read first, what exists found by its keys, then what lacks
- * created, what is empty completed, the contact attached, each use case in its own unit of work.
+ * Records a contact and the organization they work for, in one AI gesture. It composes Prospecting's and
+ * PersonalData's use cases (ADR 0177). It reads everything first and finds what exists by its keys. Then it creates
+ * what is missing, completes what is empty and attaches the contact. Each use case runs in its own unit of work.
  *
  * @phpstan-type RecordedPerson array{firstName?: string, lastName?: string, title?: string, jobTitle?: string, email?: string, phoneNumber?: string, links?: list<string>}
  * @phpstan-type RecordedOrganization array{name?: string, siret?: string, links?: list<string>, website?: string, email?: string, phoneNumber?: string, city?: string}
  */
 final readonly class ContactRecorder
 {
-    /** How one addresses a person no clue says how. */
+    /** A person's title when no clue says how to address them. */
     private const string UNKNOWN_CIVILITY = 'x';
 
     public function __construct(
@@ -69,7 +69,7 @@ final readonly class ContactRecorder
     /**
      * @param RecordedPerson       $person
      * @param RecordedOrganization $organization
-     * @param Designation          $theOrganization the access to the one retained checked
+     * @param Designation          $theOrganization the caller has already checked the access to the retained organization
      */
     public function record(string $memberId, array $person, array $organization, Designation $theOrganization, Designation $thePerson): RecordingResource
     {
@@ -88,8 +88,9 @@ final readonly class ContactRecorder
     }
 
     /**
-     * The organization created, then the contact written: a step failing, the organization the call created stops
-     * being prospected, by the gesture of the domain that erases it, and the failure goes on (ADR 0177).
+     * Creates the organization, then writes the contact. When a step fails, the account stops prospecting the
+     * organization the call created, through the domain gesture that erases it. The failure is then thrown again
+     * (ADR 0177).
      *
      * @param RecordedOrganization               $organization
      * @param \Closure(string): RecordedResource $contactWrite
@@ -112,8 +113,8 @@ final readonly class ContactRecorder
     }
 
     /**
-     * The write of the contact for their organization, everything it reads read and its input checked before any
-     * write: a person given badly creates nothing to undo.
+     * Prepares the contact's write for their organization. It reads everything it needs and checks its input before
+     * any write. So an invalid person creates nothing to undo.
      *
      * @param RecordedPerson $person
      *
@@ -141,7 +142,8 @@ final readonly class ContactRecorder
     }
 
     /**
-     * The organization as the call designates it, nothing written: known, new, or to confirm among its candidates.
+     * Reads the organization as the call designates it, and writes nothing. The organization is known, new, or to
+     * confirm among its candidates.
      *
      * @param RecordedOrganization $organization
      */
@@ -162,7 +164,7 @@ final readonly class ContactRecorder
     }
 
     /**
-     * The person as the call designates them, among the contacts of the organization first, nothing written.
+     * Reads the person as the call designates them, among the organization's contacts first, and writes nothing.
      *
      * @param RecordedPerson $person
      */
@@ -222,7 +224,7 @@ final readonly class ContactRecorder
     }
 
     /**
-     * The SIRET of an organization created, which its start does not take.
+     * Logs the SIRET of a created organization. Starting to prospect an organization does not take a SIRET.
      *
      * @param RecordedOrganization $organization
      */

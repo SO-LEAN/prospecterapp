@@ -7,8 +7,8 @@ namespace App\Identification\Mcp;
 use Mcp\Server\Capability\Attribute\McpPrompt;
 
 /**
- * The steps an AI follows to log the e-mails its member exchanged with the people Prospecter knows, each once. The AI
- * reads the mailbox with its own tools; the member asks for it in their own words.
+ * The steps an AI follows to log, once each, the e-mails its member exchanged with the people Prospecter knows. The AI
+ * reads the mailbox with its own tools. The member asks for the sync in their own words.
  */
 final readonly class SynchronizeMailboxPrompt
 {

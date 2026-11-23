@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Identification\Mcp;
 
 /**
- * How far back a sync reads, in the member's own words, or a request to ask them when they did not say it clearly: a
- * client may split the arguments at the spaces and pass "7" for "7 days".
+ * Tells the AI how far back a sync reads, in the member's own words. When the member did not say it clearly, it tells
+ * the AI to ask them. A client may split the arguments at the spaces and pass "7" for "7 days".
  */
 final readonly class SynchronizedSince
 {

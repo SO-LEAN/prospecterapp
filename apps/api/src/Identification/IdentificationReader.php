@@ -20,9 +20,9 @@ use Prospecter\Core\Prospecting\Application\IdentifyOrganizations\OrganizationCl
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 
 /**
- * Which persons and organizations of the account clues designate, composed of two contexts (ADR 0173): Prospecting
- * identifies the organizations first, then PersonalData the persons, each person among the organizations the one
- * they work for was identified as.
+ * Finds which of the account's persons and organizations the clues designate. It composes two contexts (ADR 0173).
+ * Prospecting identifies the organizations first. Then PersonalData identifies the persons. It searches each person
+ * among the organizations that their own organization was identified as.
  *
  * @phpstan-type OrganizationCluesArray array{name?: string, siret?: string, links?: list<string>, website?: string, emails?: list<string>, city?: string}
  * @phpstan-type PersonCluesArray array{firstName?: string, lastName?: string, links?: list<string>, emails?: list<string>, phoneNumbers?: list<string>, organization?: int}
@@ -80,8 +80,8 @@ final readonly class IdentificationReader
     }
 
     /**
-     * A person names the organization they work for by its position in the organizations of the call: those it was
-     * identified as; a position out of the list designates none.
+     * A person names the organization they work for by its position in the call's organizations. The result is the
+     * organizations it was identified as. A position outside the list designates none.
      *
      * @param PersonCluesArray                 $person
      * @param list<OrganizationIdentification> $organizations
