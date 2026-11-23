@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\ConsultExchange;
 
 /**
- * A file joined to an exchange, its size in bytes; read by `DownloadAttachment`. To make conform, its contact
- * forgotten, it is removed.
+ * A file attached to an exchange, with its size in bytes. `DownloadAttachment` reads it. Once the contact is
+ * forgotten, the file must be redacted, and a member does so by removing it.
  */
 final readonly class AttachmentDetail
 {
