@@ -36,8 +36,8 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
  * - its tags by name, without their `#`. The targeted tags are derived from them and from the channel, and are never
  *   kept;
  * - once frozen, its recipients in the order added, none in a draft. Each one has its id and status. A processed
- *   recipient has whether the call went through, the exchange that processed them (ADR 0145, 0152), and when. A
- *   dismissed one has the reason;
+ *   recipient records whether the call went through, the exchange that processed them (ADR 0145, 0152), and when.
+ *   A dismissed one records the reason;
  * - when it was started, stopped and ended, null before;
  * - how an AI treats its message, `asIs` for an item written before the mode was kept;
  * - its daily cap.

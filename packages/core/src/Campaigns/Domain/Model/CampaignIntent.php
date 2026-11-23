@@ -9,7 +9,7 @@ namespace Prospecter\Core\Campaigns\Domain\Model;
  */
 enum CampaignIntent
 {
-    /** Change its name and message. A draft also changes its channel and tags. */
+    /** Change its name and message. While it is a draft, also change its channel and tags. */
     case ReviseCampaign;
     /** Discard it before it ever starts. */
     case DiscardCampaign;

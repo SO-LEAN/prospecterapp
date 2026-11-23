@@ -13,8 +13,8 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
  * when they were processed, for the campaign's daily cap.
  *
  * PersonalData may erase the contact from a started campaign. The recipient is then kept without their name (ADR 0145).
- * What the team did with them stays: processed, missed or dismissed. A recipient still to handle no longer is. Neither
- * the exchange nor the reason stays, because both may say something about the person.
+ * What the team did with them stays: processed, missed or dismissed. A recipient who was still to handle is no longer
+ * to handle. The exchange and the reason do not stay, because both may say something about the person.
  */
 final readonly class Recipient
 {

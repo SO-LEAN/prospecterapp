@@ -172,7 +172,7 @@ final class Campaign implements ReleasesEvents
     }
 
     /**
-     * Processes a recipient when Prospecting tells that an exchange was logged for them in the campaign. This is a
+     * Processes a recipient when Prospecting reports that an exchange was logged for them in the campaign. This is a
      * system reaction, and it records nothing. A recipient already handled, or a campaign no longer running, stays as
      * it is.
      */
@@ -187,7 +187,7 @@ final class Campaign implements ReleasesEvents
     }
 
     /**
-     * Puts a recipient back to handle when Prospecting tells that the exchange that processed them was erased (ADR
+     * Puts a recipient back to handle when Prospecting reports that the exchange that processed them was erased (ADR
      * 0152). An ended campaign runs again. A stopped one stays stopped. This is a system reaction, and it records
      * nothing. An exchange that processed nobody changes nothing.
      */
@@ -217,8 +217,8 @@ final class Campaign implements ReleasesEvents
     }
 
     /**
-     * Its cap changes at any time until the campaign is stopped or ended, even once it has started. No cap takes the
-     * cap off.
+     * Its cap changes at any time until the campaign is stopped or ended, even once it has started. A null cap takes
+     * the cap off.
      *
      * @throws NotPossibleInItsState
      */

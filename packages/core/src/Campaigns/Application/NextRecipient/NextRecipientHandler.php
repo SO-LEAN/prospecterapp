@@ -15,9 +15,9 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 /**
  * Asks the campaign itself, restored by its repository, as `RenderCampaignMessage` does. Its next recipient and its
  * message are the aggregate's rules. The campaign is read again at each call, so a recipient handled meanwhile on the
- * screen is no longer the next one. Neither is a recipient that Prospecting logged an exchange of the campaign with
- * before its reaction processes them (ADR 0195). Once the daily cap is reached on the member's clock, the recipient is
- * still given, with a warning: the cap is only a guard.
+ * screen is no longer the next one. A recipient with whom Prospecting logged an exchange of the campaign is not the
+ * next one either, even before the reaction processes them (ADR 0195). Once the daily cap is reached on the member's
+ * clock, the recipient is still given, with a warning: the cap is only a guard.
  */
 final readonly class NextRecipientHandler implements QueryHandler
 {
