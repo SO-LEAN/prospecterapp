@@ -7,9 +7,7 @@ namespace Prospecter\Core\Campaigns\Domain\Exception;
 use Prospecter\Core\Campaigns\Domain\Model\Tag;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
-/**
- * Prospecter sets this tag by itself: a member never puts it by hand (ADR 0138).
- */
+/** Prospecter sets this tag by itself. A member never puts it by hand (ADR 0138). */
 final class AutomaticTag extends BusinessRuleViolation
 {
     public static function named(Tag $tag): self

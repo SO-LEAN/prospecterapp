@@ -8,7 +8,8 @@ use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotFound;
 
 /**
- * No campaign of the account has this identity: discarded, of another account, or never prepared.
+ * No campaign of the account has this id. The campaign was discarded, belongs to another account, or was never
+ * prepared.
  */
 final class UnknownCampaign extends NotFound
 {

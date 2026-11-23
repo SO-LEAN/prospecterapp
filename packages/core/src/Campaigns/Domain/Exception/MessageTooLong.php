@@ -6,9 +6,7 @@ namespace Prospecter\Core\Campaigns\Domain\Exception;
 
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
-/**
- * The message of a campaign is a message, not a document: too long, it is refused.
- */
+/** A campaign's message is a message, not a document. A message that is too long is refused. */
 final class MessageTooLong extends BusinessRuleViolation
 {
     public static function longerThan(int $max): self

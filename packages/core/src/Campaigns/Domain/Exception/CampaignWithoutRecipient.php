@@ -7,7 +7,7 @@ namespace Prospecter\Core\Campaigns\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
 /**
- * A frozen campaign keeps someone to contact: it is not frozen empty, its last recipient is not taken off.
+ * A frozen campaign keeps someone to contact. An empty campaign is not frozen, and its last recipient is not removed.
  */
 final class CampaignWithoutRecipient extends BusinessRuleViolation
 {

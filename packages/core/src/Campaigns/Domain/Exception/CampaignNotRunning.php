@@ -7,7 +7,8 @@ namespace Prospecter\Core\Campaigns\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 
 /**
- * Only a started campaign is led, recipient after recipient: neither one still prepared, nor one stopped or ended.
+ * Only a started campaign is run, one recipient after another. A campaign still in preparation, stopped or ended is not
+ * run.
  */
 final class CampaignNotRunning extends NotPossibleInItsState
 {

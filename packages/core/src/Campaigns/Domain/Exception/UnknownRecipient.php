@@ -7,9 +7,7 @@ namespace Prospecter\Core\Campaigns\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotFound;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
-/**
- * This contact is no recipient of the campaign: never added, or taken off already.
- */
+/** This contact is not a recipient of the campaign. They were never added, or were already removed. */
 final class UnknownRecipient extends NotFound
 {
     public static function identifiedBy(PersonId $id): self

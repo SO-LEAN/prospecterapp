@@ -6,9 +6,7 @@ namespace Prospecter\Core\Campaigns\Domain\Exception;
 
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
-/**
- * A team contacts a few hundred persons by hand in a campaign, not more.
- */
+/** A team contacts a few hundred people by hand in a campaign, not more. */
 final class TooManyRecipients extends BusinessRuleViolation
 {
     public static function beyond(int $max): self

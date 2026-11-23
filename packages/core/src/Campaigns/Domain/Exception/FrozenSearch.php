@@ -7,7 +7,8 @@ namespace Prospecter\Core\Campaigns\Domain\Exception;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
 /**
- * Its recipients kept, a frozen campaign no longer follows its channel nor its tags: they stay as it was frozen.
+ * A frozen campaign keeps its recipients. Its channel and tags no longer change: they stay as they were when it was
+ * frozen.
  */
 final class FrozenSearch extends BusinessRuleViolation
 {

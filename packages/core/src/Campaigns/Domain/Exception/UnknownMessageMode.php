@@ -6,9 +6,7 @@ namespace Prospecter\Core\Campaigns\Domain\Exception;
 
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
-/**
- * An AI sends the message of a campaign as it is rendered, or adapted to each person, nothing else.
- */
+/** An AI sends a campaign's message as rendered, or adapted to each person, and nothing else. */
 final class UnknownMessageMode extends BusinessRuleViolation
 {
     public static function named(string $name): self

@@ -6,9 +6,7 @@ namespace Prospecter\Core\Campaigns\Domain\Exception;
 
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
 
-/**
- * A campaign that started stays visible to the team: it is stopped, never discarded by a member.
- */
+/** A campaign that has started stays visible to the team. A member stops it, and never discards it. */
 final class StartedCampaignNotDiscarded extends NotPossibleInItsState
 {
     public static function stoppedInstead(): self

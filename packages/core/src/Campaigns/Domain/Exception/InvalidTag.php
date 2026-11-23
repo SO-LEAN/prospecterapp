@@ -6,9 +6,7 @@ namespace Prospecter\Core\Campaigns\Domain\Exception;
 
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
-/**
- * What was typed makes no tag: nothing but separators, or more than 30 characters once written.
- */
+/** The typed text makes no tag. It holds only separators, or it has more than 30 characters once written as a tag. */
 final class InvalidTag extends BusinessRuleViolation
 {
     public static function written(string $typed): self

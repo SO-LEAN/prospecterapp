@@ -6,9 +6,7 @@ namespace Prospecter\Core\Campaigns\Domain\Exception;
 
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
-/**
- * The name of a campaign is read in a list: too long, it is refused.
- */
+/** A campaign's name is read in a list, so a name that is too long is refused. */
 final class CampaignNameTooLong extends BusinessRuleViolation
 {
     public static function longerThan(int $max): self

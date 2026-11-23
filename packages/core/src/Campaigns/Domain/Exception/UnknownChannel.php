@@ -6,9 +6,7 @@ namespace Prospecter\Core\Campaigns\Domain\Exception;
 
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 
-/**
- * A campaign is run by e-mail, call, SMS or LinkedIn, nothing else.
- */
+/** A campaign runs by e-mail, call, SMS or LinkedIn, and nothing else. */
 final class UnknownChannel extends BusinessRuleViolation
 {
     public static function named(string $name): self
