@@ -13,9 +13,7 @@ use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
-/**
- * A member of the team takes a recipient off a frozen campaign, never the last one.
- */
+/** A team member removes a recipient from a frozen campaign, but never the last one. */
 final readonly class RemoveRecipientHandler implements CommandHandler
 {
     use PublishesEvents;
