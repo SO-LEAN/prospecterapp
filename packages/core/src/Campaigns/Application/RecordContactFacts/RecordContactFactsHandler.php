@@ -13,8 +13,8 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Keeps how a contact is reached, which sets its automatic tags (ADR 0141). A fact published before its reach was
- * tells none: the rebuild reads it again.
+ * Keeps how a contact is reached, which sets its automatic tags (ADR 0141). A fact published before the facts carried
+ * the reach tells nothing about it. The rebuild reads it again.
  */
 final readonly class RecordContactFactsHandler implements EventHandler
 {
