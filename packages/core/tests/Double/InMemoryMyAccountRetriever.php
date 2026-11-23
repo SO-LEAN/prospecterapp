@@ -20,8 +20,7 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Reads the members and the accounts the in-memory repositories saved, as the adapter reads the items of the
- * table.
+ * Reads the members and the accounts that the in-memory repositories saved, as the adapter reads the table's items.
  */
 final readonly class InMemoryMyAccountRetriever implements MyAccountRetriever
 {

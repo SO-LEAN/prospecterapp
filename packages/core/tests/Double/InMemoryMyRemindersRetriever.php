@@ -11,7 +11,7 @@ use Prospecter\Core\Accounts\Domain\Model\Reminders;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * Reads the reminders of the members the in-memory repository saved, as the adapter reads the item of the member.
+ * Reads the reminders of the members that the in-memory repository saved, as the adapter reads the member's item.
  */
 final readonly class InMemoryMyRemindersRetriever implements MyRemindersRetriever
 {

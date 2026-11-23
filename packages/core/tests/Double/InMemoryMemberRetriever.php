@@ -16,7 +16,7 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Reads the members the in-memory repository saved, as the adapter reads the items of the table.
+ * Reads the members that the in-memory repository saved, as the adapter reads the table's items.
  */
 final readonly class InMemoryMemberRetriever implements MemberRetriever
 {

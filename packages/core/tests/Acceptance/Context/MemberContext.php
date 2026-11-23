@@ -20,7 +20,7 @@ use Tests\Core\Acceptance\Vocabulary;
 use Tests\Core\Double\StateOf;
 
 /**
- * The members of an account: who registers them, with which roles, under which profile.
+ * An account's members: who registers them, with which roles and under which profile.
  */
 final class MemberContext implements Context
 {
@@ -86,7 +86,7 @@ final class MemberContext implements Context
     }
 
     /**
-     * As the other contexts learn it, by the published query of Accounts.
+     * Reads the right as the other contexts learn it, through the query that Accounts publishes.
      */
     private function hasThePersonalDataRight(string $name): bool
     {
