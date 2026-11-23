@@ -15,8 +15,8 @@ use Prospecter\Core\Accounts\Domain\Policy\PersonalDataRight;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * Reads the items `MEMBER#<id>` / `MEMBER` that `DynamoMemberRepository` writes as the other contexts know the
- * members, in one batch, without restoring them (ADR 0088, 0089).
+ * Reads the `MEMBER#<id>` / `MEMBER` items that `DynamoMemberRepository` writes. It returns the members as the other
+ * contexts know them, in one batch, without restoring them (ADR 0088, 0089).
  */
 final readonly class DynamoMemberRetriever implements MemberRetriever
 {
@@ -45,11 +45,11 @@ final readonly class DynamoMemberRetriever implements MemberRetriever
     }
 
     /**
-     * The corporate names of the accounts of these members, read once each.
+     * Reads the corporate names of these members' accounts, each account once.
      *
      * @param list<array<string, mixed>> $members
      *
-     * @return array<string, ?string> by the id of the account
+     * @return array<string, ?string> by account id
      */
     private function accountNamesOf(array $members): array
     {

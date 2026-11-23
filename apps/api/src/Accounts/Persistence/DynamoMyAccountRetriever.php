@@ -18,8 +18,8 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * Reads the items of the member (`MEMBER#<id>` / `MEMBER`) and of their account (`ACCOUNT#<id>` / `ACCOUNT`) the
- * repositories write, without restoring them (ADR 0088).
+ * Reads the member's item (`MEMBER#<id>` / `MEMBER`) and their account's item (`ACCOUNT#<id>` / `ACCOUNT`) that the
+ * repositories write. It restores neither of them (ADR 0088).
  */
 final readonly class DynamoMyAccountRetriever implements MyAccountRetriever
 {
