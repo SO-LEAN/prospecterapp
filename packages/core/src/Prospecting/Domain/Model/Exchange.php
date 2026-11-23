@@ -615,8 +615,8 @@ final class Exchange implements ReleasesEvents
 
         throw match ($intent) {
             ExchangeIntent::CorrectVenue => NotPossibleInItsState::because('Only a meeting or a video call can have a venue'),
-            ExchangeIntent::AttachFile => NoRoomForAnAttachment::because(sprintf('An exchange holds %d attachments at most', self::MOST_ATTACHMENTS)),
-            ExchangeIntent::MakeConform => NothingToRedact::because('Only an exchange with a forgotten contact is to redact'),
+            ExchangeIntent::AttachFile => NoRoomForAnAttachment::because(sprintf('An exchange can hold at most %d attachments', self::MOST_ATTACHMENTS)),
+            ExchangeIntent::MakeConform => NothingToRedact::because('Only an exchange with a forgotten contact can be redacted'),
             ExchangeIntent::MarkExchangeDone, ExchangeIntent::MarkExchangeMissed, ExchangeIntent::MoveExchange, ExchangeIntent::CancelExchange => $this->whyNotHandledBy($by),
             ExchangeIntent::CorrectExchange => NotPossibleInItsState::because('Only an exchange that took place can be corrected'),
             default => NotPossibleInItsState::because(sprintf('%s is not possible now', $intent->name)),

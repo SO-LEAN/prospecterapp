@@ -25,7 +25,7 @@ final readonly class Attachment
         public string $file,
     ) {
         if ($size > self::HEAVIEST) {
-            throw AttachmentTooHeavy::because('An attachment weighs 10 MB at most', 'file', context: ['name' => $name]);
+            throw AttachmentTooHeavy::because('An attachment can weigh at most 10 MB', 'file', context: ['name' => $name]);
         }
     }
 }
