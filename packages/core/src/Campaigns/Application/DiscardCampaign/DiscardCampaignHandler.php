@@ -12,9 +12,7 @@ use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
-/**
- * A member of the team discards a draft campaign of their account, never started.
- */
+/** A team member discards a campaign of their account that never started. */
 final readonly class DiscardCampaignHandler implements CommandHandler
 {
     use PublishesEvents;
