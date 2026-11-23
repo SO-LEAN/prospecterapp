@@ -90,6 +90,7 @@ use Prospecter\Core\Campaigns\Application\NextRecipient\RecipientToHandle;
 use Prospecter\Core\Campaigns\Application\Policy\ForgetRecipientOfForgottenContactPolicy;
 use Prospecter\Core\Campaigns\Application\Policy\ForgetTagsOfForgottenContactPolicy;
 use Prospecter\Core\Campaigns\Application\Policy\ForgetTagsOfUnprospectedOrganizationPolicy;
+use Prospecter\Core\Campaigns\Application\Policy\ProcessRecipientOfCampaignExchangePolicy;
 use Prospecter\Core\Campaigns\Application\PrepareCampaign\PrepareCampaignHandler;
 use Prospecter\Core\Campaigns\Application\ProcessRecipientOfCampaignExchange\ProcessRecipientOfCampaignExchangeHandler;
 use Prospecter\Core\Campaigns\Application\PutTags\PutTagsHandler;
@@ -1370,6 +1371,7 @@ final class Application
     private function commandHandlers(): array
     {
         return [
+            new ProcessRecipientOfCampaignExchangeHandler($this->campaigns),
             new ForgetTagsOfUnprospectedOrganizationHandler($this->taggings),
             new ForgetRecipientOfForgottenContactHandler($this->campaigns),
             new ForgetTagsOfForgottenContactHandler($this->taggings),
@@ -1796,7 +1798,7 @@ final class Application
             new ForgetTagsOfUnprospectedOrganizationPolicy(),
             new ForgetTagsOfForgottenContactPolicy(),
             new ForgetRecipientOfForgottenContactPolicy(),
-            new ProcessRecipientOfCampaignExchangeHandler($this->campaigns),
+            new ProcessRecipientOfCampaignExchangePolicy(),
             new ReopenRecipientOfErasedExchangeHandler($this->campaigns),
             new ForgetAppointmentOfErasedExchangePolicy(),
             new RecordOrganizationFactsInCampaignsHandler($this->campaignsFactRecorder),

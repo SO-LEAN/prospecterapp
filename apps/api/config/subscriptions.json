@@ -258,7 +258,7 @@
     "sources": ["prospecter.prospecting"],
     "events": ["ExchangeFactsChanged.v3", "ExchangeFactsChanged.v4"],
     "payload": {"present": [true], "status": ["done", "missed"]},
-    "handler": "Prospecter\\Core\\Campaigns\\Application\\ProcessRecipientOfCampaignExchange\\ProcessRecipientOfCampaignExchangeHandler",
+    "policy": "Prospecter\\Core\\Campaigns\\Application\\Policy\\ProcessRecipientOfCampaignExchangePolicy",
     "inbox": false
   },
   "campaigns-reopen-recipient": {
