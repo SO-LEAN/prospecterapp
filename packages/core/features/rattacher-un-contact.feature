@@ -21,7 +21,7 @@ Fonctionnalité: Rattacher un contact existant à une organisation
   Scénario: Un contact déjà rattaché ne l'est pas deux fois
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
     Quand je rattache le contact "Ada Lovelace" à "Groupe ACME"
-    Alors c'est refusé : "This person is a contact of the organization already"
+    Alors c'est refusé : "This person is already a contact of the organization"
 
   Scénario: Le contact d'un autre compte est introuvable
     Soit l'organisation "Concurrent" qui utilise Prospecter

@@ -48,7 +48,7 @@ Fonctionnalité: La timeline d'une organisation
     Soit l'organisation "Globex" appartient à "SOLEAN IT"
     Et le contact "Grace Hopper" de "Globex"
     Quand je note depuis "ACME" un e-mail envoyé à "Grace Hopper"
-    Alors c'est refusé : "This person is no contact of the organization"
+    Alors c'est refusé : "This person is not a contact of the organization"
 
   Scénario: La timeline se lit par tranches
     Soit j'ai noté 30 échanges avec "ACME" elle-même

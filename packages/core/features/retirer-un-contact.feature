@@ -30,4 +30,4 @@ Fonctionnalité: Retirer un contact d'une organisation
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
     Et le contact "Grace Hopper" de "Groupe ACME" a l'adresse e-mail "grace@navy.test"
     Quand je retire le contact "Grace Hopper" de "ACME"
-    Alors c'est refusé : "This person is no contact of the organization"
+    Alors c'est refusé : "This person is not a contact of the organization"
