@@ -8,32 +8,26 @@ use Prospecter\Core\Campaigns\Application\FactRecorder;
 use Prospecter\Core\Campaigns\Domain\Model\ContactFact;
 use Prospecter\Core\Campaigns\Domain\Model\ContactId;
 use Prospecter\Core\Campaigns\Domain\Model\Reach;
-use Prospecter\Core\PersonalData\Contract\Event\ContactFactsChanged;
-use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
 use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
- * Keeps how a contact is reached, which sets its automatic tags (ADR 0141). A fact published before the facts carried
- * the reach tells nothing about it. The rebuild reads it again.
+ * Keeps how a contact is reached, which sets its automatic tags (ADR 0141).
  */
-final readonly class RecordContactFactsHandler implements EventHandler
+final readonly class RecordContactFactsHandler implements CommandHandler
 {
     public function __construct(private FactRecorder $recorder)
     {
     }
 
-    public function __invoke(ContactFactsChanged $event): void
+    public function __invoke(RecordContactFacts $command): void
     {
-        if (null === $event->hasEmail || null === $event->hasPhone || null === $event->hasMobile || null === $event->hasLinkedIn) {
-            return;
-        }
-
         $this->recorder->record(new ContactFact(
-            new AccountId($event->accountId),
-            new ContactId($event->personId),
-            $event->revision,
-            $event->present,
-            new Reach($event->hasEmail, $event->hasPhone, $event->hasMobile, $event->hasLinkedIn),
+            new AccountId($command->accountId),
+            new ContactId($command->contactId),
+            $command->revision,
+            $command->present,
+            new Reach($command->hasEmail, $command->hasPhone, $command->hasMobile, $command->hasLinkedIn),
         ));
     }
 }

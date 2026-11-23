@@ -281,11 +281,7 @@
     "context": "campaigns",
     "sources": ["prospecter.prospecting", "prospecter.personal-data"],
     "events": ["OrganizationFactsChanged.v2", "OrganizationFactsChanged.v3", "ContactFactsChanged.v2"],
-    "handlers": {
-      "OrganizationFactsChanged.v2": "Prospecter\\Core\\Campaigns\\Application\\RecordOrganizationFacts\\RecordOrganizationFactsHandler",
-      "OrganizationFactsChanged.v3": "Prospecter\\Core\\Campaigns\\Application\\RecordOrganizationFacts\\RecordOrganizationFactsHandler",
-      "ContactFactsChanged.v2": "Prospecter\\Core\\Campaigns\\Application\\RecordContactFacts\\RecordContactFactsHandler"
-    },
+    "policy": "Prospecter\\Core\\Campaigns\\Application\\Policy\\RecordFactsPolicy",
     "inbox": false
   },
   "personal-data-forget-contact-left-unattached": {
