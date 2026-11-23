@@ -24,7 +24,7 @@ final readonly class ConsultMyGoogleClientTool
     /**
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'get-google-client', description: 'The Google client of the account, as its administrator configured it, without its secret, and the notifications of Gmail; for an administrator.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'get-google-client', description: 'Get the account\'s Google client as its administrator configured it. Only an administrator can use this tool. Returns the client without its secret, and its Gmail notifications.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(): array
     {
         $this->access->denyUnlessGranted('ROLE_ADMIN');

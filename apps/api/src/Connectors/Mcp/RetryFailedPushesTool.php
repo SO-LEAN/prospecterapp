@@ -15,7 +15,7 @@ use Prospecter\Core\Connectors\Application\RetryFailedPushes\RetryFailedPushes;
 use Symfony\Component\Clock\ClockInterface;
 
 /**
- * `POST /api/me/connections/google/retries`, for an AI (ADR 0163): it reaches the calendar of its member at Google.
+ * `POST /api/me/connections/google/retries`, for an AI (ADR 0163). It reaches its member's calendar at Google.
  */
 #[Adapts('api_me_connections_google_retry_failed')]
 final readonly class RetryFailedPushesTool
@@ -32,7 +32,7 @@ final readonly class RetryFailedPushesTool
     /**
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'retry-failed-google-syncs', description: 'Push again into the calendar of the member at Google every exchange of theirs Google refused. Answers their connections, how many exchanges are synced and failed.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true))]
+    #[McpTool(name: 'retry-failed-google-syncs', description: 'Push again into the member\'s Google calendar each of their exchanges that Google refused. Returns their connections, with how many exchanges are synced and failed.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true))]
     public function __invoke(): array
     {
         $this->access->denyUnlessGranted('ROLE_USER');
