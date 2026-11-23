@@ -10,7 +10,7 @@ use Symfony\Component\Mime\Part\DataPart;
 use Symfony\Component\Mime\Part\Multipart\FormDataPart;
 
 /**
- * The storage app keeps the files (ADR 0033): the API sends them on its internal entry and keeps their public URL.
+ * The storage app keeps the files (ADR 0033). The API sends them to its internal entry and keeps their public URL.
  */
 final readonly class StorageClient implements Storage
 {

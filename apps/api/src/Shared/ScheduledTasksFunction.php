@@ -8,9 +8,9 @@ use Bref\Context\Context;
 use Bref\Event\Handler;
 
 /**
- * The function the daily schedule of an instance calls: every task run without a member at its origin, the erasure of
- * the contacts left unattached (ADR 0146) and the renewal of the watches of Gmail (ADR 0154) among them. A task failing
- * fails not the invocation: logged, it is named in the answer, which the logs of the function keep.
+ * The function an instance's daily schedule calls. It runs every task that no member starts, among them the erasure of
+ * unattached contacts (ADR 0146) and the renewal of the Gmail watches (ADR 0154). A failing task does not fail the
+ * invocation. The function logs it and names it in the answer, which the function's logs keep.
  */
 final readonly class ScheduledTasksFunction implements Handler
 {

@@ -10,8 +10,8 @@ use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 /**
- * Translates a service out of reach, of AWS or outside, into a problem+json 503 (`UnavailabilityProblems`), once Symfony logged its
- * cause (its listener logging the exceptions runs at the priority 0).
+ * Translates an unreachable service, on AWS or outside, into a problem+json 503 (`UnavailabilityProblems`). It runs
+ * after Symfony logs the cause: Symfony's exception logging listener runs at priority 0.
  */
 #[AsEventListener(priority: self::AFTER_THE_LOG)]
 final readonly class ServiceUnavailableListener

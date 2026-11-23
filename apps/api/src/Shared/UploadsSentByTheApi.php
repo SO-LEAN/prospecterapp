@@ -14,10 +14,10 @@ use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
- * The files the API sends to the private bucket with the form of an upload, as a browser does (ADR 0172): to the
- * bucket at the address the API reaches it at, in place of the origin of the form (its signature covers its policy,
- * not its host), or at the address of the form when none is given (S3 itself); the form sent whole, with its length,
- * S3 refusing one sent in chunks.
+ * Sends files to the private bucket with an upload form, as a browser does (ADR 0172). It sends them to the address
+ * where the API reaches the bucket, in place of the form's origin: the form's signature covers its policy, not its
+ * host. Without such an address (on S3 itself), it sends them to the form's address. It sends the form whole, with its
+ * length, because S3 refuses a form sent in chunks.
  */
 final readonly class UploadsSentByTheApi implements UploadSender
 {
@@ -46,7 +46,8 @@ final readonly class UploadsSentByTheApi implements UploadSender
     }
 
     /**
-     * The bucket out of reach, failing or limiting the requests: any other refusal is of the form the API sent.
+     * Whether the bucket is unreachable, fails or limits the requests. Any other refusal comes from the form that the
+     * API sent.
      */
     private static function isUnavailability(ExceptionInterface $failure): bool
     {

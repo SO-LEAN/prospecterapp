@@ -12,15 +12,15 @@ use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
- * Geocoding by the French State (IGN Géoplateforme, Base Adresse Nationale): free, no key, addresses in France only.
- * Each result names the INSEE code of its municipality (`citycode`, ADR 0142), that of the arrondissement in Paris, Lyon
- * and Marseille.
+ * Geocodes addresses with the French State's service (IGN Géoplateforme, Base Adresse Nationale). The service is free,
+ * needs no key and covers addresses in France only. Each result gives its municipality's INSEE code (`citycode`, ADR
+ * 0142). In Paris, Lyon and Marseille, it gives the arrondissement's code.
  *
  * @see https://geoservices.ign.fr/documentation/services/services-geoplateforme/geocodage
  */
 final readonly class GeoplateformeGeoLocation implements GeoLocation
 {
-    /** Below this relevance the best match is another place (the service always answers with its closest address). */
+    /** Below this relevance, the best match is another place. The service always answers with its closest address. */
     private const float MIN_SCORE = 0.5;
 
     public function __construct(
@@ -50,7 +50,7 @@ final readonly class GeoplateformeGeoLocation implements GeoLocation
     }
 
     /**
-     * @return array<string, mixed>|null the first feature the service answers, its geometry and its properties
+     * @return array<string, mixed>|null the service's first feature, with its geometry and its properties
      */
     private function bestMatch(string $address): ?array
     {

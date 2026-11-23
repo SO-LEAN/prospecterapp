@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Shared;
 
 /**
- * A value a library, a document of DynamoDB or a JSON body gives untyped, taken as the type the API expects of it, any
- * other refused.
+ * Takes an untyped value from a library, a DynamoDB document or a JSON body as the type the API expects. It refuses any
+ * other type.
  */
 final class Typed
 {

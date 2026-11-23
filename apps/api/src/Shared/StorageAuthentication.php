@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Shared;
 
 /**
- * How the api proves itself to the internal entry of the storage, beyond the token of the services (ADR 0068).
+ * How the API proves its identity to the storage's internal entry, beyond the services' token (ADR 0068).
  */
 interface StorageAuthentication
 {

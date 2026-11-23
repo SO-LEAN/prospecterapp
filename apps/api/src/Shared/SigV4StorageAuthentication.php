@@ -10,8 +10,8 @@ use GuzzleHttp\Psr7\Request;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
- * On AWS, the internal entry of the storage is a function URL answering only the requests signed by a role allowed
- * to call it (ADR 0068): the api signs each request with the credentials of its function.
+ * On AWS, the storage's internal entry is a function URL. It answers only the requests signed by a role allowed to call
+ * it (ADR 0068). The API signs each request with its function's credentials.
  */
 final readonly class SigV4StorageAuthentication implements StorageAuthentication
 {

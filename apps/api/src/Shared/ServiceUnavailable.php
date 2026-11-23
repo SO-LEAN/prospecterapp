@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Shared;
 
 /**
- * A service the api needs, of AWS or outside, refuses or fails: the gesture cannot be done for now, whatever the
- * member asked, named by its reason for the client to word it (ADR 0073).
+ * A service the API needs, on AWS or outside, refuses or fails. The member cannot complete the action for now, whatever
+ * they asked. The exception carries a reason, and the client words it (ADR 0073).
  */
 final class ServiceUnavailable extends \RuntimeException
 {
