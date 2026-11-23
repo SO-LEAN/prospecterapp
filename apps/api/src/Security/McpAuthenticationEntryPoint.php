@@ -12,9 +12,9 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationFailureHandlerI
 use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface;
 
 /**
- * A call to the MCP server without a valid access token: 401 naming the metadata of the protected resource, where
- * the AI finds the server to sign its member in on (RFC 9728), the only answer on which Claude starts its sign-in; a
- * token refused says so (RFC 6750).
+ * Answers a call to the MCP server without a valid access token. The 401 names the protected resource's metadata,
+ * where the AI finds the server that signs its member in (RFC 9728). Claude starts its sign-in on this answer only.
+ * The answer to a refused token says so (RFC 6750).
  */
 final readonly class McpAuthenticationEntryPoint implements AuthenticationEntryPointInterface, AuthenticationFailureHandlerInterface
 {

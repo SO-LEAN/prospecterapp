@@ -25,10 +25,10 @@ use Symfony\Component\Security\Http\AccessToken\AccessTokenHandlerInterface;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 
 /**
- * The API is a resource server (ADR 0052): an access token of the user pool is a JWT signed with one of its
- * published keys, issued by it for one of the clients the firewall opens to (the SPA; the AIs too on the MCP server,
- * ADR 0157), not expired; its user name is the member id. Checked without calling Cognito, but for its keys, read
- * once and cached.
+ * The API is a resource server (ADR 0052). A valid access token is a JWT that the user pool signed with one of its
+ * published keys. The pool issued it for one of the clients that the firewall opens to: the SPA, and the AIs' client
+ * on the MCP server (ADR 0157). The token has not expired, and its user name is the member id. The handler checks it
+ * without calling Cognito, except to read the pool's keys once and cache them.
  */
 final readonly class AccessTokenHandler implements AccessTokenHandlerInterface
 {

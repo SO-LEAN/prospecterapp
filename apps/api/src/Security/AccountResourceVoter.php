@@ -9,9 +9,10 @@ use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 /**
- * Decides whether the signed-in member reaches a resource, from its read model (ADR 0081): one of their account,
- * or one they do not even learn exists (404, `ApiAccessDeniedHandler`). The rights an intention needs are roles
- * on its controller, and the presenter of the resource shows its link only when they are granted.
+ * Decides from a resource's read model whether the signed-in member reaches it (ADR 0081). They reach their own
+ * account's resources. They do not even learn that another account's resource exists (404,
+ * `ApiAccessDeniedHandler`). The rights that an intent needs are roles on its controller. The resource's presenter
+ * shows the intent's link only when the member holds them.
  *
  * @template TResource of object
  *
@@ -20,7 +21,7 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 abstract class AccountResourceVoter extends Voter
 {
     /**
-     * Set in the extra data of the vote, the reason of a 404 when the resource belongs to another account.
+     * The vote's extra-data key that holds the 404's reason when the resource belongs to another account.
      */
     public const string UNKNOWN = 'unknown';
 
@@ -54,7 +55,7 @@ abstract class AccountResourceVoter extends Voter
     abstract protected function accountOf(object $subject): string;
 
     /**
-     * The reason of the 404, as the core names an unknown resource of its kind (`unknownOrganization`).
+     * The 404's reason, as the core names an unknown resource of this kind (`unknownOrganization`).
      */
     abstract protected function unknownReason(): string;
 }

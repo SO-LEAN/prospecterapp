@@ -9,8 +9,9 @@ use Symfony\Component\Security\Core\Authorization\AccessDecision;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
- * Who calls a tool of the MCP server, and what the attributes `#[IsGranted]` of the controller it adapts check
- * (ADR 0163): the role of the member, their access to a resource by its voter, refused as the endpoint refuses it.
+ * Tells who calls an MCP server tool, and makes the checks that the `#[IsGranted]` attributes make on the adapted
+ * controller (ADR 0163). It checks the member's role and, through a resource's voter, their access to it. It refuses
+ * as the endpoint refuses.
  */
 final readonly class ToolAccess
 {
