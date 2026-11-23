@@ -190,11 +190,11 @@ describe('ExchangeForm', () => {
       vi.fn().mockRejectedValue({
         title: 'Validation Failed',
         status: 422,
-        detail: 'An exchange is never in the future',
+        detail: 'A logged exchange cannot be in the future',
         violations: [
           {
             propertyPath: 'occurredAt',
-            title: 'An exchange is never in the future',
+            title: 'A logged exchange cannot be in the future',
             reason: 'exchangeInTheFuture',
           },
         ],

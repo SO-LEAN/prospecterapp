@@ -96,7 +96,7 @@ class ExchangeVenueApiTest extends ApiTestCase
         $this->assertArrayNotHasKey('correctVenue', self::recordAt($this->requestJson('GET', '/api/exchanges/'.$call), '_links'));
         $refused = $this->requestJson('PATCH', '/api/exchanges/'.$call.'/venue', ['place' => 'Café de Flore']);
         $this->assertResponseStatusCodeSame(409);
-        $this->assertSame('Only a meeting or a video call takes place somewhere', $refused['detail']);
+        $this->assertSame('Only a meeting or a video call can have a venue', $refused['detail']);
     }
 
     public function testTheVenueOfAnExchangeOfAnotherAccountIsNotFound(): void

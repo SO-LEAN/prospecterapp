@@ -43,7 +43,7 @@ Fonctionnalité: Corriger un échange
     Et nous sommes le 16/10/2026 à 10h00
     Quand je corrige cet échange :
       | moment | 17/10/2026 10:00 |
-    Alors c'est refusé : "An exchange is never in the future"
+    Alors c'est refusé : "A logged exchange cannot be in the future"
 
   Scénario: Un échange planifié ne se corrige pas en entier, son texte si
     Soit nous sommes le 16/10/2026 à 10h00
@@ -60,14 +60,14 @@ Fonctionnalité: Corriger un échange
       | annuler                     |
     Quand je corrige cet échange :
       | canal | Appel |
-    Alors c'est refusé : "Only an exchange that took place is corrected"
+    Alors c'est refusé : "Only an exchange that took place can be corrected"
 
   Scénario: Seuls un appel, un rendez-vous ou une visio corrigés sont manqués
     Soit je suis connecté en tant que "Michel"
     Quand je corrige cet échange :
       | canal      | SMS |
       | non abouti | oui |
-    Alors c'est refusé : "Only a call, a meeting or a video call may be missed"
+    Alors c'est refusé : "Only a call, a meeting or a video call can be missed"
 
   Scénario: Un échange corrigé non abouti est manqué
     Soit je suis connecté en tant que "Michel"

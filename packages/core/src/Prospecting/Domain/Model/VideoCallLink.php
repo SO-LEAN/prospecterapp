@@ -19,7 +19,7 @@ final readonly class VideoCallLink
     public function __construct(public string $url)
     {
         if (!self::isAWebAddress($url)) {
-            throw InvalidVideoCallLink::because('A video call link is a web address', 'link');
+            throw InvalidVideoCallLink::because('A video call link must be a web address', 'link');
         }
     }
 

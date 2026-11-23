@@ -157,7 +157,7 @@ final class Exchange implements ReleasesEvents
     private static function ensureHappenedBefore(ExchangeFacts $facts, \DateTimeImmutable $at): void
     {
         if ($facts->occurredAt > $at) {
-            throw ExchangeInTheFuture::because('An exchange is never in the future', 'occurredAt');
+            throw ExchangeInTheFuture::because('A logged exchange cannot be in the future', 'occurredAt');
         }
     }
 
@@ -167,7 +167,7 @@ final class Exchange implements ReleasesEvents
     private static function ensureToCome(\DateTimeImmutable $plannedAt, \DateTimeImmutable $at): void
     {
         if (!self::isAMomentToCome($plannedAt, $at)) {
-            throw PlannedExchangeInThePast::because('A planned exchange is in the future', 'occurredAt');
+            throw PlannedExchangeInThePast::because('A planned exchange must be in the future', 'occurredAt');
         }
     }
 
@@ -614,11 +614,11 @@ final class Exchange implements ReleasesEvents
         }
 
         throw match ($intent) {
-            ExchangeIntent::CorrectVenue => NotPossibleInItsState::because('Only a meeting or a video call takes place somewhere'),
+            ExchangeIntent::CorrectVenue => NotPossibleInItsState::because('Only a meeting or a video call can have a venue'),
             ExchangeIntent::AttachFile => NoRoomForAnAttachment::because(sprintf('An exchange holds %d attachments at most', self::MOST_ATTACHMENTS)),
             ExchangeIntent::MakeConform => NothingToRedact::because('Only an exchange with a forgotten contact is to redact'),
             ExchangeIntent::MarkExchangeDone, ExchangeIntent::MarkExchangeMissed, ExchangeIntent::MoveExchange, ExchangeIntent::CancelExchange => $this->whyNotHandledBy($by),
-            ExchangeIntent::CorrectExchange => NotPossibleInItsState::because('Only an exchange that took place is corrected'),
+            ExchangeIntent::CorrectExchange => NotPossibleInItsState::because('Only an exchange that took place can be corrected'),
             default => NotPossibleInItsState::because(sprintf('%s is not possible now', $intent->name)),
         };
     }
@@ -629,9 +629,9 @@ final class Exchange implements ReleasesEvents
     private function whyNotHandledBy(MemberId $by): NotUpcoming|NotTheHolder|NotYetDue
     {
         return match (true) {
-            ExchangeStatus::Planned !== $this->status => NotUpcoming::because('Only an upcoming exchange may change'),
-            !$this->createdBy->equals($by) => NotTheHolder::because('Only its holder handles a planned exchange'),
-            default => NotYetDue::because('A planned exchange is done or missed once its time has come'),
+            ExchangeStatus::Planned !== $this->status => NotUpcoming::because('Only an upcoming exchange can change'),
+            !$this->createdBy->equals($by) => NotTheHolder::because('Only its holder can handle a planned exchange'),
+            default => NotYetDue::because('A planned exchange can be marked done or missed only once its time has come'),
         };
     }
 }

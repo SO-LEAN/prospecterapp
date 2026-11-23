@@ -374,7 +374,7 @@ describe('dragging an exchange to come', () => {
         await refused
         return {
           status: 409,
-          body: { type: 'about:blank', title: 'Only an upcoming exchange may change', status: 409 },
+          body: { type: 'about:blank', title: 'Only an upcoming exchange can change', status: 409 },
         }
       },
       'GET /api/me/calendar': () => ({ body: aCalendarOf([visio]) }),
@@ -388,7 +388,7 @@ describe('dragging an exchange to come', () => {
       await within(theDayOf('mercredi 18 novembre 2026')).findByRole('button', { name: /9h00, Visio/ }),
     ).toBeInTheDocument()
     refuse()
-    expect(await screen.findByText('Only an upcoming exchange may change')).toBeInTheDocument()
+    expect(await screen.findByText('Only an upcoming exchange can change')).toBeInTheDocument()
     expect(
       await within(theDayOf('mardi 17 novembre 2026')).findByRole('button', { name: /14h00, Visio/ }),
     ).toBeInTheDocument()
