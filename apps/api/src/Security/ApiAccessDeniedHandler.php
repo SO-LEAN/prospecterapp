@@ -11,8 +11,9 @@ use Symfony\Component\Security\Http\Authorization\AccessDeniedHandlerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 /**
- * A signed-in member denied an intention gets a problem+json, like every other API error: a 404 for a resource of
- * another account, which they do not even learn exists (ADR 0081), a 403 for a role or a right they lack.
+ * A signed-in member who is denied an intent gets a problem+json, like every other API error. It is a 404 for another
+ * account's resource, so they do not even learn that it exists (ADR 0081). It is a 403 for a role or a right they
+ * lack.
  */
 final readonly class ApiAccessDeniedHandler implements AccessDeniedHandlerInterface
 {

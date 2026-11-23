@@ -11,8 +11,8 @@ use Lcobucci\JWT\Validation\Constraint;
 use Lcobucci\JWT\Validation\ConstraintViolation;
 
 /**
- * A token tells when it expires: the moments of LooseValidAt are only checked when present, and an access
- * token of Cognito has no "not before" for StrictValidAt.
+ * A token must tell when it expires. LooseValidAt checks its time claims only when they are present, and a Cognito
+ * access token has no "not before" claim for StrictValidAt.
  */
 final readonly class Expires implements Constraint
 {

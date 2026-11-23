@@ -16,7 +16,7 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Uid\Uuid;
 
 /**
- * The member an access token names (its subject is the member id), as Symfony security sees it.
+ * Loads the member that an access token names (its subject is the member id), as Symfony security sees them.
  *
  * @implements UserProviderInterface<User>
  */

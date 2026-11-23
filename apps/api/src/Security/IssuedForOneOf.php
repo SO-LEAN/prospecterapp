@@ -10,8 +10,8 @@ use Lcobucci\JWT\Validation\Constraint;
 use Lcobucci\JWT\Validation\ConstraintViolation;
 
 /**
- * An access token of Cognito names the client of the pool it was issued for (`client_id`): one of those the firewall
- * opens to.
+ * A Cognito access token names the pool's client that it was issued for (`client_id`). That client must be one of
+ * those the firewall opens to.
  */
 final readonly class IssuedForOneOf implements Constraint
 {

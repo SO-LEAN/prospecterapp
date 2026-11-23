@@ -11,12 +11,12 @@ use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
- * The problem a member denied an intention reads: a 404 for a resource of another account, which they do not even
- * learn exists (ADR 0081), a 403 for a role or a right they lack.
+ * The problem that a member reads when they are denied an intent. It is a 404 for another account's resource, so they do not even
+ * learn that it exists (ADR 0081). It is a 403 for a role or a right they lack.
  */
 final readonly class AccessProblems
 {
-    /** Named as the refusal of the domain would be, for the SPA to word it (ADR 0073). */
+    /** Named the way a domain refusal would be, so that the SPA words it (ADR 0073). */
     public const string ROLE_NOT_ALLOWED = 'roleNotAllowed';
 
     public function of(AccessDeniedException $denial): ProblemResource
