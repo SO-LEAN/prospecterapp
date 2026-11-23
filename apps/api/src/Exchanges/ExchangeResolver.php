@@ -17,8 +17,8 @@ use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 
 /**
- * The exchange a route names by its `id`, as the signed-in member reads it: the subject `ExchangeVoter` decides
- * on before the controller runs (ADR 0081). An unknown one is refused by the core (404).
+ * Resolves the exchange that a route names by its `id`, as the signed-in member reads it. `ExchangeVoter` decides
+ * on it before the controller runs (ADR 0081). The core refuses an unknown exchange (404).
  */
 final readonly class ExchangeResolver implements ValueResolverInterface
 {
@@ -41,8 +41,7 @@ final readonly class ExchangeResolver implements ValueResolverInterface
     }
 
     /**
-     * The exchange of this id as its reader reads it, for the voter, whatever its account; an unknown one refused by
-     * the core.
+     * Reads the exchange with this id for the voter, whatever its account. The core refuses an unknown exchange.
      */
     public function read(User $reader, string $id): ExchangeDetail
     {

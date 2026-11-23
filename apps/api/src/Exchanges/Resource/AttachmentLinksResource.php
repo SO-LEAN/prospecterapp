@@ -10,7 +10,7 @@ use OpenApi\Attributes as OA;
 final readonly class AttachmentLinksResource
 {
     public function __construct(
-        #[OA\Property(description: 'Answers a link reading the file for a moment; it needs the access token, the link it answers does not')]
+        #[OA\Property(description: 'Answers a link that reads the file for a short time. This call needs the access token. The link it answers does not')]
         public LinkResource $download,
         #[OA\Property(nullable: false)]
         public ?LinkResource $removeAttachment = null,

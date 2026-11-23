@@ -7,7 +7,7 @@ namespace App\Exchanges\Resource;
 use OpenApi\Attributes as OA;
 
 /**
- * When a member did something to the exchange, and who.
+ * When a member acted on the exchange, and who.
  */
 final readonly class StampResource
 {

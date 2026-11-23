@@ -37,12 +37,12 @@ final class MarkExchangeDoneController extends AbstractController
 
     #[Route('/api/exchanges/{id}/done', name: 'api_exchanges_mark_done', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
     #[IsGranted(ExchangeVoter::ACCESS, subject: 'exchange')]
-    #[OA\Post(summary: 'Mark done a planned exchange whose time has come, with its report and the moment it really took place; by its holder')]
+    #[OA\Post(summary: 'Mark a planned exchange done once its time has come, with its report and the moment it really took place. Only its holder can mark it')]
     #[OA\Response(response: 200, description: 'The exchange, done', content: new Model(type: ExchangeDetailResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
-    #[OA\Response(response: 403, description: 'Not a prospector, or not the holder of the exchange', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 403, description: 'Not a prospector, or not the exchange\'s holder', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'Unknown exchange, or one of another account', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 409, description: 'No longer to come, or its time not come', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 409, description: 'The exchange is no longer planned, or its time has not come', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 422, description: 'Invalid report: too long, or a moment in the future', content: new Model(type: ProblemResource::class))]
     public function __invoke(ExchangeDetail $exchange, #[MapRequestPayload] ReportInput $input, #[CurrentUser] User $user): JsonResponse
     {

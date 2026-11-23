@@ -23,7 +23,7 @@ final class PrepareUploadController extends AbstractController
     }
 
     #[Route('/api/uploads', name: 'api_uploads_prepare', methods: ['POST'])]
-    #[OA\Post(summary: 'A form the browser sends one private file with, itself, before joining it to an exchange')]
+    #[OA\Post(summary: 'A form that the browser uses to send one private file itself, before attaching it to an exchange')]
     #[OA\Response(response: 201, description: 'The form, signed for a few minutes', content: new Model(type: UploadResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector')]

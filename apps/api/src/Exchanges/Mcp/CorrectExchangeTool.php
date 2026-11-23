@@ -24,18 +24,18 @@ final readonly class CorrectExchangeTool
     }
 
     /**
-     * @param string      $id         the id of the exchange
+     * @param string      $id         the exchange's id
      * @param string      $channel    call, sms, email, linkedIn, malt, meeting, videoCall or other
      * @param string      $direction  inbound (the contact reached out) or outbound
-     * @param string      $occurredAt when it happened (ISO 8601); never in the future
+     * @param string      $occurredAt when it happened (ISO 8601), never in the future
      * @param string|null $text       what was said or written
-     * @param bool        $missed     the contact did not answer or come: a call, a meeting or a video call only
-     * @param bool        $redacted   declares the exchange redacted, its contact forgotten; only while its link redact is offered
-     * @param ?int        $revision   the exchange's `revision` as you read it: if it changed since, the change is refused (changedMeanwhile) and you read it again
+     * @param bool        $missed     the contact did not answer or did not come. Only a call, a meeting or a video call can be missed
+     * @param bool        $redacted   declares the exchange redacted once its contact is forgotten. Allowed only while its `redact` link is offered
+     * @param ?int        $revision   the exchange's `revision` as you read it. If the exchange changed since, the change is refused (changedMeanwhile): read it again
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'update-exchange', description: 'Correct every fact of an exchange that took place, its channel, direction, moment, text and whether it was missed; its contact stays. Needs the right to manage the personal data. Answers the exchange.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
+    #[McpTool(name: 'update-exchange', description: 'Correct all the facts of an exchange that took place: its channel, direction, moment, text, and whether it was missed. Its contact stays the same. Needs the right to manage personal data. Returns the exchange.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
     public function __invoke(string $id, string $channel, string $direction, string $occurredAt, ?string $text = null, bool $missed = false, bool $redacted = false, ?int $revision = null): array
     {
         return $this->writes->writeOnRevision(

@@ -8,8 +8,8 @@ use App\Contacts\Resource\InterlocutorResource;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 
 /**
- * Who took part in an exchange, read in the other contexts: its interlocutor and the number they are called at,
- * and the persons of the members who noted, corrected and made it conform.
+ * Who took part in an exchange, as the other contexts know them. It holds the interlocutor and the number to call
+ * them at. It also holds the persons of the members who logged, corrected and redacted the exchange.
  */
 final readonly class ExchangeParticipants
 {

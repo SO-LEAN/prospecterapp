@@ -8,8 +8,9 @@ use App\Exchanges\Resource\NotingResource;
 use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
 
 /**
- * What a tool noting an exchange answers the AI: the exchange noted, or, refused as noted before, why it is not noted
- * again, as a result and not as the error of the tool (ADR 0166).
+ * What a tool that logs an exchange answers the AI. It answers the logged exchange. When the core refuses the
+ * exchange as logged before, it answers why the exchange is not logged again. That answer is a result, not a tool
+ * error (ADR 0166).
  */
 final readonly class NotedOnceAnswers
 {
@@ -22,7 +23,7 @@ final readonly class NotedOnceAnswers
     }
 
     /**
-     * @param \Closure(): void $note the noting of the exchange by the member
+     * @param \Closure(): void $note logs the exchange as the member
      */
     public function of(string $member, string $exchange, \Closure $note): NotingResource
     {
@@ -30,11 +31,11 @@ final readonly class NotedOnceAnswers
     }
 
     /**
-     * As the noting of a sending to the recipient of a campaign, whose exchange may be the one noted first, joining
-     * the campaign (ADR 0195): it is known once the noting is done.
+     * The same, for a sending logged for a campaign's recipient. The exchange may be one logged earlier that joins the
+     * campaign (ADR 0195). So its id is known only once the logging is done.
      *
-     * @param \Closure(): string $exchange the exchange noted, asked once it is
-     * @param \Closure(): void   $note     the noting of the exchange by the member
+     * @param \Closure(): string $exchange gives the logged exchange's id, called once the exchange is logged
+     * @param \Closure(): void   $note     logs the exchange as the member
      */
     public function ofNoted(string $member, \Closure $exchange, \Closure $note): NotingResource
     {

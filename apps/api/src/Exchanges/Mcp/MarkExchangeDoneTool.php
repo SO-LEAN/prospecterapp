@@ -23,13 +23,13 @@ final readonly class MarkExchangeDoneTool
     }
 
     /**
-     * @param string      $id         the id of the exchange
+     * @param string      $id         the exchange's id
      * @param string|null $text       its report, which replaces its agenda
-     * @param string|null $occurredAt when it really took place (ISO 8601), its planned moment when left out; never in the future
+     * @param string|null $occurredAt when it really took place (ISO 8601), never in the future. The planned moment when left out
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'mark-exchange-done', description: 'Mark done a planned exchange whose time has come, with its report and the moment it really took place; by its holder. It is no longer to process. Answers the exchange.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'mark-exchange-done', description: 'Mark a planned exchange done once its time has come, with its report and the moment it really took place. Only its holder can mark it. The exchange then leaves the list to process. Returns the exchange.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id, ?string $text = null, ?string $occurredAt = null): array
     {
         return $this->writes->write(

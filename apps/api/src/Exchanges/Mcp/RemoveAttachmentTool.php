@@ -12,8 +12,8 @@ use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
 use Prospecter\Core\Prospecting\Application\RemoveAttachment\RemoveAttachment;
 
 /**
- * `DELETE /api/exchanges/{id}/attachments/{attachmentId}`, for an AI (ADR 0163), which asks its member before
- * calling it.
+ * `DELETE /api/exchanges/{id}/attachments/{attachmentId}`, for an AI (ADR 0163). The AI asks its member before it
+ * calls this tool.
  */
 #[Adapts('api_exchanges_remove_attachment')]
 final readonly class RemoveAttachmentTool
@@ -23,12 +23,12 @@ final readonly class RemoveAttachmentTool
     }
 
     /**
-     * @param string $id           the id of the exchange
-     * @param string $attachmentId the id of the file joined to it
+     * @param string $id           the exchange's id
+     * @param string $attachmentId the id of the file attached to it
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'delete-attachment', description: 'Remove a file joined to an exchange, and forget it; needs the right to manage the personal data. Answers the exchange.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'delete-attachment', description: 'Remove a file attached to an exchange, and forget it. Needs the right to manage personal data. Returns the exchange.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id, string $attachmentId): array
     {
         return $this->writes->change(

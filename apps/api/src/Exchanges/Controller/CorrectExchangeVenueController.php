@@ -41,13 +41,13 @@ final class CorrectExchangeVenueController extends AbstractController
 
     #[Route('/api/exchanges/{id}/venue', name: 'api_exchanges_correct_venue', requirements: ['id' => Requirement::UUID], methods: ['PATCH'])]
     #[IsGranted(ExchangeVoter::ACCESS, subject: 'exchange')]
-    #[OA\Patch(summary: 'Correct where a meeting is held, or the link of a video call, planned or done; open to every prospector of the account')]
+    #[OA\Patch(summary: 'Correct a meeting\'s place or a video call\'s link, planned or done. Every prospector of the account can do it')]
     #[OA\Parameter(name: 'revision', in: 'query', description: RevisionDescription::OF_A_CHANGE)]
     #[OA\Response(response: 200, description: 'The corrected exchange', content: new Model(type: ExchangeDetailResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'Unknown exchange, or one of another account', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 409, description: 'Neither a meeting nor a video call, or changed since the revision sent was read', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 409, description: 'Neither a meeting nor a video call, or changed since the client read the revision it sent', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 422, description: 'A link that is no web address, a place for a video call, a link for a meeting', content: new Model(type: ProblemResource::class))]
     public function __invoke(ExchangeDetail $exchange, #[MapRequestPayload] VenueCorrectionInput $input, #[CurrentUser] User $user, #[MapQueryParameter(options: ['min_range' => 0], validationFailedStatusCode: 422)] ?int $revision = null): JsonResponse
     {

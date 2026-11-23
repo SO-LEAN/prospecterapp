@@ -28,11 +28,12 @@ use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Symfony\Component\Clock\ClockInterface;
 
 /**
- * An exchange as the API shows it: read in Prospecting, with the organization itself when it was with no contact,
- * its contact and the members who noted, corrected and made it conform named by PersonalData under the person ids
- * Accounts gives them, then presented to the presenter it builds for the call (ADR 0085). A controller calls it after
- * a command, which returns nothing, to answer with the fresh resource; after a move, from the moment it was moved
- * from, to offer moving it back there.
+ * An exchange as the API shows it. The reader reads the exchange in Prospecting, with the organization itself when
+ * the exchange has no contact. PersonalData names its contact and the members who logged, corrected and redacted it.
+ * Accounts gives those members' person ids. The reader then gives the exchange to a presenter it builds for the call
+ * (ADR 0085). A command returns nothing, so a controller calls the reader after it to answer with the fresh resource.
+ * After a move, the controller passes the moment the exchange was moved from, so that the resource offers to move it
+ * back there.
  */
 final readonly class ExchangeReader
 {
@@ -58,7 +59,7 @@ final readonly class ExchangeReader
     }
 
     /**
-     * The exchange already read, its interlocutor and its authors named.
+     * Presents an exchange already read, with its interlocutor and its authors named.
      */
     public function resourceOf(string $prospector, ExchangeDetail $exchange): ExchangeDetailResource
     {
@@ -69,7 +70,7 @@ final readonly class ExchangeReader
     }
 
     /**
-     * A member of the account who did something to an exchange, named as its authors are.
+     * A member of the account who acted on an exchange, named the same way as the exchange's authors.
      */
     public function memberNamed(string $prospector, string $member): AuthorResource
     {
@@ -99,7 +100,7 @@ final readonly class ExchangeReader
     }
 
     /**
-     * A contact is called at their number read in clear only: a masked one calls nobody.
+     * Only a number read in clear can be called. A masked number calls nobody.
      */
     private static function numberToCall(?PersonCard $contact): ?string
     {
@@ -107,7 +108,7 @@ final readonly class ExchangeReader
     }
 
     /**
-     * The organization itself, the only one an exchange with no contact is kept for.
+     * An exchange with no contact is kept for the organization itself only.
      */
     private function organizationOf(string $id): OrganizationSheet
     {
@@ -118,7 +119,7 @@ final readonly class ExchangeReader
     }
 
     /**
-     * Asked to Accounts once for all of them (ADR 0089).
+     * Asks Accounts once for all the members (ADR 0089).
      *
      * @param array<string> $members
      *
