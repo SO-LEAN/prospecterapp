@@ -152,6 +152,7 @@ use Prospecter\Core\Connectors\Application\ImportMail\ImportMailHandler;
 use Prospecter\Core\Connectors\Application\NoteMailboxNotification\NoteMailboxNotificationHandler;
 use Prospecter\Core\Connectors\Application\Policy\ImportMailPolicy;
 use Prospecter\Core\Connectors\Application\Policy\PushExchangePolicy;
+use Prospecter\Core\Connectors\Application\Policy\PushUpcomingExchangesPolicy;
 use Prospecter\Core\Connectors\Application\Policy\UnnameForgottenContactPolicy;
 use Prospecter\Core\Connectors\Application\PublishVideoCallLinkCreated\PublishVideoCallLinkCreatedHandler;
 use Prospecter\Core\Connectors\Application\PushExchange\PushExchangeHandler;
@@ -1376,6 +1377,7 @@ final class Application
     private function commandHandlers(): array
     {
         return [
+            new PushUpcomingExchangesHandler($this->heldExchanges, $this->calendarPusher),
             new ImportMailHandler($this->connections, $this->clients, $this->mailboxes, new PersonalDataAndProspectingCorrespondents($this->whichContactsHaveTheseEmailsService, $this->whichOrganizationsHaveTheseEmailsService), $this->events),
             new PushExchangeHandler($this->calendarPusher),
             new UnnameForgottenContactHandler($this->heldExchanges, $this->calendarEntries, $this->calendarPusher),
@@ -1802,7 +1804,7 @@ final class Application
             new DiscardAttachmentsOfErasedExchangeHandler($this->privateStorage),
             new RecordFactsPolicy(),
             new PushExchangePolicy(),
-            new PushUpcomingExchangesHandler($this->heldExchanges, $this->calendarPusher),
+            new PushUpcomingExchangesPolicy(),
             new ReadMailboxHistoryHandler($this->connections, $this->clients, $this->mailboxes, $this->connectingMembers, $this->events),
             new ImportMailPolicy(),
             new UnnameForgottenContactPolicy(),
