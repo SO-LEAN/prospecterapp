@@ -24,8 +24,8 @@ final readonly class ConsultCalendarHandler implements QueryHandler
     }
 
     /**
-     * Every exchange of the calendar is held by its reader: what it offers them is what its state offers its holder.
-     * The exchanges are at their instant, the to-dos on the days written, never converted (ADR 0134).
+     * The reader holds every exchange in the calendar. So an exchange offers them what its state offers its holder.
+     * The exchanges show at their instant. The to-dos show on their written days, never converted (ADR 0134).
      */
     public function __invoke(ConsultCalendar $query, ConsultCalendarOutput $output): void
     {
