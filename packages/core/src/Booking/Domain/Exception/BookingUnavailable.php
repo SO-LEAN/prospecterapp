@@ -14,6 +14,6 @@ final class BookingUnavailable extends BusinessRuleViolation
 {
     public static function refused(): self
     {
-        return self::because('This booking link offers no slot');
+        return self::because('This booking link offers no slots');
     }
 }

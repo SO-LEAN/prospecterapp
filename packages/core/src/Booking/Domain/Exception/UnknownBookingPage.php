@@ -15,6 +15,6 @@ final class UnknownBookingPage extends NotFound
 {
     public static function of(MemberId $host): self
     {
-        return new self(sprintf('No booking page for host %s', $host));
+        return new self(sprintf('Host %s has no booking page', $host));
     }
 }

@@ -13,6 +13,6 @@ final class InvalidBookingCode extends BusinessRuleViolation
 {
     public static function refused(): self
     {
-        return self::because('A booking code has 22 random base-62 characters', 'code');
+        return self::because('A booking code must be 22 random base-62 characters long', 'code');
     }
 }
