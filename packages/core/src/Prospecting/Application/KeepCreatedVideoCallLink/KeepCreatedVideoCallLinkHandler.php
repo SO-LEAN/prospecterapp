@@ -14,8 +14,9 @@ use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 
 /**
- * A video call keeps the link the calendar of its holder created for it (ADR 0137). Erased meanwhile, the reaction
- * has nothing left to do; delivered again, the exchange no longer asks one.
+ * A video call keeps the link that its holder's calendar created for it (ADR 0137). When the exchange was erased
+ * meanwhile, the reaction has nothing left to do. When the event is delivered again, the exchange no longer requests
+ * a link.
  */
 final readonly class KeepCreatedVideoCallLinkHandler implements EventHandler
 {
