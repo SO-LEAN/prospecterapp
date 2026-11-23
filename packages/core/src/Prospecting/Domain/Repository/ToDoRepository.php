@@ -30,7 +30,7 @@ interface ToDoRepository
     public function keptFor(OrganizationId $organization): array;
 
     /**
-     * The to-dos of the account for the contact.
+     * The account's to-dos for the contact.
      *
      * @return list<ToDo>
      */
