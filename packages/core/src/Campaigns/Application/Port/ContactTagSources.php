@@ -10,18 +10,19 @@ use Prospecter\Core\Campaigns\Domain\Model\Reach;
 use Prospecter\Core\Campaigns\Domain\Model\Tag;
 
 /**
- * What the tags of a contact are derived from, as the table keeps it (ADR 0141): its tagging, the taggings of the
- * organizations whose fact names it and where their facts say they are (ADR 0142), and how its fact says it is reached.
+ * What a contact's tags are derived from, as the table keeps it (ADR 0141). It holds the contact's tagging, and the
+ * taggings of the organizations whose fact names it. It holds where those organizations' facts say they are (ADR 0142),
+ * and how the contact's fact says it is reached.
  */
 final readonly class ContactTagSources
 {
     /**
-     * @param list<string>                                                       $own            the names of its tags, without their mark
-     * @param array<string, list<string>>                                        $byOrganization the names of the tags of each organization naming it, by its
-     *                                                                                           identity
-     * @param array{email: bool, phone: bool, mobile: bool, linkedIn: bool}|null $reach          null without a fact of it
-     * @param array<string, array{municipalityCode: ?string, country: ?string}>  $localities     where each organization
-     *                                                                                           naming it is, by its identity
+     * @param list<string>                                                       $own            its tags' names, without their `#`
+     * @param array<string, list<string>>                                        $byOrganization the tag names of each organization that names it,
+     *                                                                                           by organization id
+     * @param array{email: bool, phone: bool, mobile: bool, linkedIn: bool}|null $reach          null without a fact about it
+     * @param array<string, array{municipalityCode: ?string, country: ?string}>  $localities     where each organization that
+     *                                                                                           names it is, by organization id
      */
     public function __construct(
         public string $contactId,
@@ -39,7 +40,7 @@ final readonly class ContactTagSources
     }
 
     /**
-     * @return array<string, list<Tag>> those put by hand on each organization naming it, and those of where it is
+     * @return array<string, list<Tag>> the tags put by hand on each organization that names it, and the tags for where it is
      */
     private function inheritable(): array
     {
