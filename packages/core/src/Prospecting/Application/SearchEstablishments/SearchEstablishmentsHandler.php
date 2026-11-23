@@ -12,7 +12,8 @@ use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
- * The establishments named like the organization, those of its municipality first, then those of anywhere, each once.
+ * Finds the establishments named like the organization: those of its municipality first, then those anywhere, each
+ * once.
  */
 final readonly class SearchEstablishmentsHandler implements QueryHandler
 {
