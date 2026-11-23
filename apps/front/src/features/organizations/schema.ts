@@ -15,7 +15,7 @@ import {
 } from './organization-contact-details'
 import type { Organization, ReviseLegalIdentityInput, StartProspectingInput } from './queries'
 
-/** What is known when prospecting starts; the same rule as the API: a corporate name or an email. */
+/** What a member knows when prospecting starts. As in the API, it needs a corporate name or an email. */
 export const startProspectingSchema = z
   .object({
     legalIdentity: legalIdentitySchema,
@@ -30,7 +30,7 @@ export const startProspectingSchema = z
 
 export type StartProspectingValues = z.infer<typeof startProspectingSchema>
 
-/** Field paths, as the API reports them in its violations. */
+/** The field paths that the API's violations report. */
 export const startProspectingFields = [
   'legalIdentity.corporateName',
   'legalIdentity.form',
@@ -64,7 +64,7 @@ export const toStartProspectingInput = (values: StartProspectingValues): StartPr
   holdingId: null,
 })
 
-/** The identity of a prospected organization: the shared fields and the SIRET of its establishment, checked by the API. */
+/** A prospected organization's identity: the shared fields and its establishment's SIRET. The API checks the SIRET. */
 export const organizationIdentitySchema = legalIdentitySchema.extend({ siret: text(20) })
 
 export type OrganizationIdentityValues = z.infer<typeof organizationIdentitySchema>

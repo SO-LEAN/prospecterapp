@@ -16,9 +16,9 @@ import {
 } from './queries'
 
 /**
- * Every intention returns the fresh organization: it goes straight into the detail cache (no refetch),
- * while lists are marked stale and refetched when displayed, and the dashboard read again once the reactions to
- * the gesture counted it.
+ * Every intention returns the fresh organization. It goes straight into the detail cache, without a refetch. The
+ * lists are marked stale and refetched when displayed. The dashboard is read again once the gesture's reactions
+ * counted it.
  */
 function useStoreOrganization(confirmation: (organization: Organization) => string) {
   const queryClient = useQueryClient()
@@ -43,8 +43,8 @@ function useStoreChangedOrganization() {
 const formIntention = { meta: { silentValidation: true } }
 
 /**
- * Where an organization is sets its geographic tags and those its contacts inherit (ADR 0142): the reactions to its
- * creation or to its move record it.
+ * An organization's location sets its geographic tags and the tags its contacts inherit (ADR 0142). The reactions to
+ * its creation or to its move record them.
  */
 function readTheTagsOfWhereItIsAgain(queryClient: QueryClient) {
   readAgainAfterTheReactions(queryClient, queryKeys.organizationTags, queryKeys.contactTags)
@@ -111,7 +111,7 @@ export function useDetachFromHolding() {
 }
 
 /**
- * The other organization is no longer flagged either once the reaction to the gesture changed it.
+ * Once the gesture's reaction has run, the other organization is no longer flagged either.
  */
 export function useDismissPossibleDuplicate() {
   const queryClient = useQueryClient()
@@ -132,8 +132,8 @@ export function useRemoveLogo() {
 }
 
 /**
- * The organization changes, and so do the list of its contacts and the contacts: one left alone is erased by the
- * reactions to the gesture, one attached or removed inherits its tags or loses them.
+ * The organization changes, and so do its contact list and the contacts. The gesture's reactions erase a contact left
+ * alone. An attached contact inherits the organization's tags, and a removed one loses them.
  */
 function useStoreOrganizationAndItsContacts() {
   const queryClient = useQueryClient()
@@ -152,8 +152,9 @@ function useStoreOrganizationAndItsContacts() {
 }
 
 /**
- * A new contact names its organizations, which a reaction attaches it to, maybe later than the reactions are awaited
- * on an instance: it is shown in each of them at once, from the answer, until it is read there attached.
+ * A new contact names its organizations, and a reaction attaches it to them. On an instance, that reaction may run
+ * later than the front waits for the reactions. So each organization shows the contact at once, from the answer,
+ * until a reading shows it attached there.
  */
 export function useCollectContact() {
   const queryClient = useQueryClient()
@@ -184,14 +185,14 @@ function showInTheOrganization(queryClient: QueryClient, organizationId: string,
   )
 }
 
-/** The waits between two readings of the contacts of the organization, until the reaction attached the new one. */
+/** The waits between two readings of the organization's contacts, until the reaction has attached the new one. */
 const UNTIL_THE_CONTACT_IS_ATTACHED_MS = [1_000, 1_500, 2_500, 5_000, 10_000] as const
 
 /**
- * The contacts of the organization, read apart from their cache until they hold the new contact: a reading without
- * it would erase it from the card, a reading failing is tried again at the next wait. Then the cache takes them, with
- * what the attachment offers (removing the contact, its exchanges and to-dos), and the organization, the contact and
- * its organizations are read again.
+ * Reads the organization's contacts outside their cache until they hold the new contact. A reading without it would
+ * erase it from the card. A failed reading is tried again at the next wait. Then the cache takes the contacts, with
+ * what the attachment offers (removing the contact, its exchanges and its to-dos). The organization, the contact and
+ * the contact's organizations are then read again.
  */
 async function readAgainOnceAttached(
   queryClient: QueryClient,
@@ -219,8 +220,8 @@ function readTheContactAgain(queryClient: QueryClient, id: string) {
 }
 
 /**
- * The organization is gone; its contacts left alone are erased with it, and the exchanges it kept alone, by the
- * reactions to the gesture.
+ * The organization is gone. The gesture's reactions erase the contacts it leaves alone, and the exchanges that only
+ * it kept.
  */
 export function useStopProspecting() {
   const queryClient = useQueryClient()

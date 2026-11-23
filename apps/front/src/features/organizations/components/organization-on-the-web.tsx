@@ -17,7 +17,7 @@ function OpenedInANewTab({ href, icon, children }: { href: string; icon: ReactNo
   )
 }
 
-/** The website of the organization, opened in a new tab in a click. */
+/** The organization's website. One click opens it in a new tab. */
 export function Website({ site }: { site: string }) {
   return (
     <OpenedInANewTab href={site} icon={<Globe className="size-4 shrink-0" aria-hidden />}>

@@ -26,7 +26,7 @@ type Props = {
   onCancel: () => void
 }
 
-/** A new contact, collected for this organization. */
+/** Collects a new contact for this organization. */
 export function CollectContactForm({ organizationId, onSubmit, onCancel }: Props) {
   const { t } = useTranslation()
   const [globalErrors, setGlobalErrors] = useState<string[]>([])

@@ -17,7 +17,7 @@ vi.mock('@/shared/auth/session', () => ({
 const ADA = '0190a1c0-0000-7000-8000-00000000a000'
 const ADAM = '0190a1c0-0000-7000-8000-00000000b000'
 
-/** The contacts and the organizations whose name starts with the text searched. */
+/** The contacts and the organizations whose name starts with the searched text. */
 function theApiFinds(contacts: unknown[], organizations: unknown[]) {
   theApi.mockImplementation(async (input) => {
     const { pathname } = new URL((input as Request).url)

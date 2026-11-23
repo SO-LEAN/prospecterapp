@@ -11,8 +11,8 @@ import { contactCandidatesQuery, fullNameOf, organizationsQuery } from '../queri
 export type Interlocutor = { kind: 'person' | 'organization'; id: string; name: string }
 
 /**
- * A contact or an organization searched as everywhere, by the start of their name or of their email, the contacts
- * first; one chosen in a click.
+ * Searches a contact or an organization as everywhere else, by the start of their name or their email. The contacts
+ * come first. One click chooses one.
  */
 export function InterlocutorSearch({ onChoose }: { onChoose: (interlocutor: Interlocutor) => void }) {
   const { t } = useTranslation()

@@ -4,7 +4,7 @@ import { PossibleDuplicatesNote, possibleDuplicateLinkStyle } from '@/shared/ui/
 import { useDismissPossibleDuplicate } from '../mutations'
 import type { Organization } from '../queries'
 
-/** The organizations of the account it resembles, by its name and its city: perhaps the same, entered twice. */
+/** The account's organizations that it resembles by name and city. They may be the same organization, entered twice. */
 export function PossibleDuplicates({ organization }: { organization: Organization }) {
   const { t } = useTranslation()
   const dismiss = useDismissPossibleDuplicate()

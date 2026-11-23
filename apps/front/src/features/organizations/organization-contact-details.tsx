@@ -18,7 +18,7 @@ import { Input } from '@/shared/ui/input'
 type OrganizationContactDetailsResource = components['schemas']['OrganizationContactDetailsResource']
 type OrganizationContactDetailsInput = components['schemas']['OrganizationContactDetailsInput']
 
-/** The contact details of an organization: those of a person, its links to the tools outside and its website, checked by the API. */
+/** An organization's contact details: a person's fields, its links to outside tools and its website. The API checks them. */
 export const organizationContactDetailsSchema = contactDetailsSchema.extend({
   links: linksSchema,
   website: text(255),
