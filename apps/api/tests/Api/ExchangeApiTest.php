@@ -74,6 +74,7 @@ class ExchangeApiTest extends ApiTestCase
         $this->assertSame('missed', self::valueAt($timeline, 'items', 0, 'status'));
     }
 
+    #[Group('core-rule')]
     public function testTheExchangeIsKeptForTheOrganizationsOfTheContact(): void
     {
         $organization = $this->anOrganization('ACME');
@@ -125,6 +126,7 @@ class ExchangeApiTest extends ApiTestCase
         $this->assertSame('channelNotMissed', $problem['reason']);
     }
 
+    #[Group('core-rule')]
     public function testAnExchangeIsNeverInTheFuture(): void
     {
         $problem = $this->note($this->aContactOf($this->anOrganization('ACME')), ['channel' => 'email', 'direction' => 'inbound', 'occurredAt' => '2026-10-15T09:00:01+00:00']);
@@ -150,6 +152,7 @@ class ExchangeApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(404);
     }
 
+    #[Group('core-rule')]
     public function testOnlyAnEMailIsNotedWithItsMessageId(): void
     {
         $problem = $this->note($this->aContactOf($this->anOrganization('ACME')), ['channel' => 'call', 'direction' => 'inbound', 'messageId' => '<abc@acme.fr>']);

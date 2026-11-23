@@ -55,6 +55,7 @@ class CampaignRecipientsApiTest extends ApiTestCase
         $this->assertSame(['href' => '/api/campaigns/'.$id.'/recipients/'.$this->ada, 'method' => 'DELETE'], self::valueAt($recipients, 'items', 0, '_links', 'remove'));
     }
 
+    #[Group('core-rule')]
     public function testFrozenItNoLongerFollowsTheTags(): void
     {
         $id = $this->aFrozenCampaign();

@@ -75,6 +75,7 @@ class HandlePlannedExchangeApiTest extends ApiTestCase
         $this->assertSame([[$this->planned, 'done']], array_map(static fn (array $exchange): array => [$exchange['id'], $exchange['status']], self::recordsAt($this->requestJson('GET', '/api/contacts/'.$this->contact.'/exchanges'), 'items')));
     }
 
+    #[Group('core-rule')]
     public function testMarkedDoneItsPlannedMomentStaysWhenNoneIsGiven(): void
     {
         $this->theClockShows('2026-10-20 15:00 UTC');
@@ -138,6 +139,7 @@ class HandlePlannedExchangeApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(422);
     }
 
+    #[Group('core-rule')]
     public function testMovedForANewDurationItLastsIt(): void
     {
         $stretched = $this->requestJson('PATCH', '/api/exchanges/'.$this->planned.'/moment', ['occurredAt' => '2026-10-21T09:00:00+00:00', 'durationInMinutes' => 90]);

@@ -131,6 +131,7 @@ class ExchangeVenueApiTest extends ApiTestCase
         $this->assertSame(['street' => '12 rue de la Paix', 'postalCode' => '75002', 'city' => 'Paris', 'country' => 'FR'], $proposed['address']);
     }
 
+    #[Group('core-rule')]
     public function testNoPlaceIsProposedWithoutAnAddress(): void
     {
         $ada = $this->aContactOf($this->anOrganization(['legalIdentity' => ['corporateName' => 'ACME']]));

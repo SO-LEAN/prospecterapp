@@ -106,6 +106,7 @@ class ContactApiTest extends ApiTestCase
         $this->assertSame([['links'], 'referenceOfAnotherKind'], [$this->violatedFields($problem), $problem['reason']], 'the field the core names');
     }
 
+    #[Group('core-rule')]
     public function testALinkAnotherContactHoldsIsRefusedNamingThem(): void
     {
         $organization = $this->anOrganization('ACME');
@@ -132,6 +133,7 @@ class ContactApiTest extends ApiTestCase
         $this->assertStringNotContainsString('Lovelace', (string) json_encode($problem));
     }
 
+    #[Group('core-rule')]
     public function testAContactCollectedWithALinkAnotherContactHoldsIsRefusedNamingThem(): void
     {
         $organization = $this->anOrganization('ACME');
@@ -186,6 +188,7 @@ class ContactApiTest extends ApiTestCase
         $this->assertNotContains($ada, array_column(self::recordsAt($this->requestJson('GET', '/api/contacts?q=ada@analytical'), 'items'), 'id'));
     }
 
+    #[Group('core-rule')]
     public function testTwoContactsDoNotShareAnEmail(): void
     {
         $organization = $this->anOrganization('ACME');

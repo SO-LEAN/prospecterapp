@@ -110,6 +110,7 @@ class RunCampaignApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(409);
     }
 
+    #[Group('core-rule')]
     public function testAStoppedCampaignIsNotRun(): void
     {
         $id = $this->aStartedCampaign();

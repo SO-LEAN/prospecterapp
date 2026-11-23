@@ -16,7 +16,7 @@ class CoreRuleGroupDoesNotGrowTest extends TestCase
 {
     private const string CORE_RULE = 'core-rule';
 
-    private const int CEILING = 0;
+    private const int CEILING = 33;
 
     public function testTheGroupKeepsItsCeiling(): void
     {

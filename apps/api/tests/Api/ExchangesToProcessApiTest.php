@@ -88,6 +88,7 @@ class ExchangesToProcessApiTest extends ApiTestCase
         ], array_intersect_key($links, ['move' => true, 'markDone' => true, 'markMissed' => true, 'cancel' => true]));
     }
 
+    #[Group('core-rule')]
     public function testAnExchangeHandledIsNoLongerToProcess(): void
     {
         $done = $this->plannedBy($this->memberIdOf('prospector-user'), '2026-10-15T07:00:00+00:00');
@@ -182,6 +183,7 @@ class ExchangesToProcessApiTest extends ApiTestCase
     /**
      * 9:00 UTC on the 15th is still the 14th in Honolulu.
      */
+    #[Group('core-rule')]
     public function testTheDayIsThatOfTheClockOfItsReader(): void
     {
         $this->noteToDo($this->ada(), 'Envoyer mon CV', '2026-10-15');

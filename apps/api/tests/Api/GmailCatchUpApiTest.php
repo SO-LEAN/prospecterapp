@@ -144,6 +144,7 @@ class GmailCatchUpApiTest extends ApiTestCase
         $this->assertSame('mailImportNotActive', $problem['reason']);
     }
 
+    #[Group('core-rule')]
     public function testAContactWithoutEMailHasNothingToCatchUp(): void
     {
         $this->login();

@@ -273,6 +273,7 @@ class CalendarApiTest extends ApiTestCase
     /**
      * 9:00 UTC is 2:00 in Los Angeles: a to-do of 8:00 is late on the clock of a reader in Paris, not yet on theirs.
      */
+    #[Group('core-rule')]
     public function testWhatIsLateIsReadOnTheClockOfItsReader(): void
     {
         $this->noteToDo($this->ada(), 'Appeler la RH', '2026-10-15', '08:00');
@@ -292,6 +293,7 @@ class CalendarApiTest extends ApiTestCase
     /**
      * A planned exchange whose slot has ended and not processed is late; one to come is not.
      */
+    #[Group('core-rule')]
     public function testAnExchangePlannedEndedAndNotProcessedIsLate(): void
     {
         $organization = self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']]), 'id');
@@ -324,6 +326,7 @@ class CalendarApiTest extends ApiTestCase
         $this->assertSame([['to'], 'calendarPeriodTooLong'], [$this->violatedFields($tooLong), $tooLong['reason']]);
     }
 
+    #[Group('core-rule')]
     public function testAPeriodEndsAfterItStarts(): void
     {
         $reversed = $this->requestJson('GET', '/api/me/calendar?from=2026-11-08T00:00:00%2B01:00&to=2026-11-01T00:00:00%2B01:00');

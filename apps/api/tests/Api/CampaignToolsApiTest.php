@@ -234,6 +234,7 @@ class CampaignToolsApiTest extends ApiTestCase
         );
     }
 
+    #[Group('core-rule')]
     public function testBelowTheDailyCapTheAiIsNotWarned(): void
     {
         $started = $this->aStartedCampaign();

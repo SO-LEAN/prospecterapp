@@ -164,6 +164,7 @@ class ContactsToAttachApiTest extends ApiTestCase
         $this->assertSame(['organization' => ['id' => $acme, 'name' => 'ACME']], $this->requestJson('GET', '/api/contacts/'.$this->grace.'/proposed-organization'));
     }
 
+    #[Group('core-rule')]
     public function testAPublicMailboxProposesNoOrganization(): void
     {
         $this->login();
