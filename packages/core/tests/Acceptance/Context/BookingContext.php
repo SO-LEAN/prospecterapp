@@ -24,7 +24,7 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Tests\Core\Acceptance\Expect;
 
 /**
- * The booking page of the member signed in: when they may be booked, how, and the public link they give (#177).
+ * The signed-in member's booking page: when they are bookable, how, and the public link they give (#177).
  */
 final class BookingContext implements Context
 {
@@ -36,7 +36,7 @@ final class BookingContext implements Context
     private const string FIRST_DAY = '(?<first>\d{2}\/\d{2}\/\d{4})';
     private const string LAST_DAY = '(?<last>\d{2}\/\d{2}\/\d{4})';
 
-    /** @var array<string, string> the inactive periods added, by their days as the scenario writes them */
+    /** @var array<string, string> the added inactive periods, keyed by their days as the scenario writes them */
     private array $periods = [];
     private ?string $formerCode = null;
     private ?PublicBookingPage $opened = null;
@@ -371,7 +371,7 @@ final class BookingContext implements Context
     }
 
     /**
-     * @return list<string> each slot written as the scenarios do, `mardi 24/11/2026 09:00`, on the clock of the host
+     * @return list<string> each slot written as the scenarios do, `mardi 24/11/2026 09:00`, on the host's clock
      */
     private function slotsOffered(): array
     {

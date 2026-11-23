@@ -11,7 +11,7 @@ use Prospecter\Core\Booking\Domain\Repository\AppointmentRepository;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * The DynamoDB repository in the scenarios: an appointment holds its slot of its host, under a condition.
+ * Stands in for the DynamoDB repository in the scenarios. An appointment holds its host's slot, under a condition.
  */
 final readonly class InMemoryAppointmentRepository implements AppointmentRepository
 {

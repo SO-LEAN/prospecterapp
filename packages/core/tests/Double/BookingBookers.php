@@ -14,8 +14,8 @@ use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 /**
- * Anticorruption layer of the API, in the scenarios (ADR 0045, 0089): PersonalData knows who booked an appointment
- * from Booking, asked about a set of one.
+ * Anticorruption layer of the API, in the scenarios (ADR 0045, 0089). PersonalData learns from Booking who booked an
+ * appointment, by asking about a set of one.
  */
 final readonly class BookingBookers implements Bookers
 {

@@ -18,7 +18,7 @@ use Prospecter\Core\Booking\Domain\Model\Window;
 use Prospecter\Core\Booking\Domain\Policy\FreeSlots;
 
 /**
- * The free slots of a host: their windows cut by 15 minutes, from tomorrow on their clock and for 14 days.
+ * A host's free slots: their windows cut into 15-minute slots, for 14 days from tomorrow on their clock.
  */
 final class FreeSlotsTest extends TestCase
 {
