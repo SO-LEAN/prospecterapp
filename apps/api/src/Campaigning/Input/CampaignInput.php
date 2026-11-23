@@ -10,7 +10,8 @@ use Prospecter\Core\Campaigns\Application\ReviseCampaign\ReviseCampaign;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * A campaign as the member leaves it, prepared or revised whole: the core decides what makes one (ADR 0144).
+ * A campaign as the member leaves it, prepared or revised as a whole. The core decides what makes a valid campaign (ADR
+ * 0144).
  */
 final readonly class CampaignInput
 {
@@ -25,16 +26,16 @@ final readonly class CampaignInput
         public ?string $channel = null,
         #[Assert\NotNull]
         #[Assert\All([new Assert\Type('string')])]
-        #[OA\Property(description: 'The tags chosen, the tag of the channel counting with them in the 5 tags of the target', type: 'array', items: new OA\Items(type: 'string'))]
+        #[OA\Property(description: 'The chosen tags. The channel\'s tag counts with them within the target\'s 5 tags', type: 'array', items: new OA\Items(type: 'string'))]
         public ?array $tags = null,
         #[Assert\NotNull]
-        #[OA\Property(description: 'The message reminded for each contact, its variables {title}, {firstName}, {lastName}, {organization} and {jobTitle}')]
+        #[OA\Property(description: 'The message shown for each contact, with the variables {title}, {firstName}, {lastName}, {organization} and {jobTitle}')]
         public ?string $message = null,
-        #[OA\Property(description: 'The subject of an e-mail')]
+        #[OA\Property(description: 'An e-mail\'s subject')]
         public ?string $subject = null,
-        #[OA\Property(description: 'How an AI leading it treats the message for each person: sent as rendered, or adapted to them, its idea kept; as is when left out', enum: ['asIs', 'adapted'])]
+        #[OA\Property(description: 'How an AI running the campaign treats the message for each person: it sends it as rendered, or adapts it to them and keeps its idea. `asIs` when left out', enum: ['asIs', 'adapted'])]
         public ?string $messageMode = null,
-        #[OA\Property(description: 'The most recipients processed a day, a guard only; none when left out. Read as it is prepared: it changes then by its own endpoint')]
+        #[OA\Property(description: 'The most recipients processed in a day, only a guard; no cap when left out. Read only when the campaign is prepared: afterwards, it changes through its own endpoint')]
         public ?int $dailyCap = null,
     ) {
     }
