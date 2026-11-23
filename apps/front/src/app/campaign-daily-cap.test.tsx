@@ -6,7 +6,7 @@ import type { Account } from '@/features/account/mutations'
 import type { Campaign } from '@/features/campaigns/queries'
 import { renderTheSpaAt } from '@/test/render-the-spa'
 
-/** The daily cap of a campaign: a guard set on its sheet, its recipients processed today shown while it is led. */
+/** A campaign's daily cap. The member sets this guard on the campaign's sheet. While the campaign runs, the page shows the recipients processed today. */
 
 const theApi = vi.hoisted(() => {
   const fetch = vi.fn<typeof globalThis.fetch>()

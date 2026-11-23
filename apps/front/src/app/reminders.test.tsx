@@ -9,7 +9,7 @@ import type { ExchangeDetail } from '@/features/exchanges/queries'
 import type { Organization } from '@/features/organizations/queries'
 import { renderTheSpaAt } from '@/test/render-the-spa'
 
-/** A reminder of an exchange, on the routes of the SPA: whatever the page, a click opens the exchange on the card of its contact. */
+/** An exchange's reminder, on the SPA's routes. On any page, a click opens the exchange on its contact's card. */
 
 const theApi = vi.hoisted(() => {
   const fetch = vi.fn<typeof globalThis.fetch>()
@@ -108,8 +108,8 @@ const acme: Organization = {
 }
 
 /**
- * The api: my account, my reminders ten minutes before, my day with the video call, Ada, ACME and the detail of the
- * call.
+ * The API serves my account, my reminders ten minutes ahead, my day with the video call, Ada, ACME and the call's
+ * details.
  */
 function theApiAnswers(today: DayExchange = theVideoCall) {
   theApi.mockImplementation(async (input) => {
@@ -139,7 +139,7 @@ function theApiAnswers(today: DayExchange = theVideoCall) {
   })
 }
 
-/** The notifications of the browser, allowed: the click of each. */
+/** The browser's notifications, allowed. Returns a click for each notification shown. */
 function theBrowserNotifies() {
   const clicks: (() => void)[] = []
   class Shown {
@@ -173,8 +173,8 @@ describe('a reminder of an exchange in the application', () => {
   })
 
   /**
-   * The SPA is taken down while time is still faked: an answer of the API arriving between the real time restored and
-   * the end of the test would notify its observers on a real timer outliving the document of the file.
+   * The SPA is unmounted while time is still faked. Otherwise an API answer could arrive after real time is restored
+   * and before the test ends. It would then notify its observers on a real timer that outlives the file's document.
    */
   afterEach(() => {
     act(() => toast.dismiss())

@@ -6,7 +6,7 @@ import type { Contact, ContactInList } from '@/features/contacts/queries'
 import type { ContactTags, SuggestedTags } from '@/features/tags/queries'
 import { renderTheSpaAt } from '@/test/render-the-spa'
 
-/** The contacts carrying every tag chosen, on the routes of the SPA: the filter kept in the url, the count. */
+/** The contacts that carry every chosen tag, on the SPA's routes. The URL keeps the filter, and the page shows the count. */
 
 const theApi = vi.hoisted(() => {
   const fetch = vi.fn<typeof globalThis.fetch>()
@@ -56,7 +56,7 @@ const suggested: SuggestedTags = {
   automatic: ['#EMAIL', '#PHONE', '#SMS', '#LINKEDIN'],
 }
 
-/** Who carries which tags: the api answers those carrying every tag asked, newest first, counted. */
+/** Who carries which tags. The API returns the contacts that carry every requested tag, newest first, with their count. */
 const TAGGED: Record<string, ContactInList[]> = { ESN: [grace, ada], 'ESN,EMAIL': [ada], EMAIL: [ada] }
 
 const theCard: Contact = {
@@ -84,7 +84,7 @@ const itsTags: ContactTags = {
   },
 }
 
-/** The api: my account, the whole list of the contacts, those tagged, the tags proposed, the card of Ada. */
+/** The API serves my account, the full contact list, the tagged contacts, the suggested tags and Ada's card. */
 function theApiAnswers() {
   const tagsAsked: string[] = []
   theApi.mockImplementation(async (input) => {

@@ -6,7 +6,7 @@ import type { Contact } from '@/features/contacts/queries'
 import type { Exchange } from '@/features/exchanges/queries'
 import { renderTheSpaAt } from '@/test/render-the-spa'
 
-/** The header of the card of a contact, on the routes of the SPA: what its reader may see of it, what comes next. */
+/** A contact's card header, on the SPA's routes: what its reader may see, and what comes next. */
 
 const theApi = vi.hoisted(() => {
   const fetch = vi.fn<typeof globalThis.fetch>()
@@ -70,7 +70,7 @@ const aVideoCallTomorrowAt9: Exchange = {
 const withItsExchanges = { exchanges: { href: `/api/contacts/${ADA}/exchanges`, method: 'GET' } }
 
 const ADA_ON_LINKEDIN = 'https://www.linkedin.com/in/ada-lovelace'
-/** The api: my account, the contact, what is to come with them; nothing in their other lists. */
+/** The API serves my account, the contact and the upcoming exchanges with them. Their other lists are empty. */
 function theApiAnswers(contact: Contact, upcoming: Exchange[]) {
   theApi.mockImplementation(async (input) => {
     const { pathname } = new URL(input instanceof Request ? input.url : String(input))

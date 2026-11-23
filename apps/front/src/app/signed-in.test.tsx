@@ -5,8 +5,8 @@ import type { Account } from '@/features/account/mutations'
 import { renderTheSpaAt } from '@/test/render-the-spa'
 
 /**
- * The layout every page of a member signed in goes through (`routes/_app.tsx`), on the routes of the SPA: what it shows
- * while their profile is being prepared, once it is, and when their account cannot be read.
+ * The layout of every signed-in member's page (`routes/_app.tsx`), on the SPA's routes. It shows one thing while the
+ * member's profile is being prepared, another once it is ready, and another when their account cannot be read.
  */
 
 const theApi = vi.hoisted(() => {
@@ -67,8 +67,9 @@ const anEmptyDashboard = {
 }
 
 /**
- * The api: my account answered in turn by `myAccount`, the last one kept, named once my name is given; what I sign
- * in with; my contact details given; an empty dashboard, an empty day and nothing to process; nothing else.
+ * The API answers my account with each `myAccount` answer in turn, then keeps the last one. My account gets a name
+ * once I give it. The API also serves what I sign in with, accepts my contact details, and serves an empty dashboard,
+ * an empty day and nothing to process. It serves nothing else.
  */
 function theApiAnswers(...myAccount: Answer[]) {
   theApi.mockImplementation(async (input) => {

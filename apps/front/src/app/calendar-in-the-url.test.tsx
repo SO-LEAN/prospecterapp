@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Account } from '@/features/account/mutations'
 import { renderTheSpaAt } from '@/test/render-the-spa'
 
-/** The calendar on the routes of the SPA: its view and its day in the URL, which the back button goes back through. */
+/** The calendar on the SPA's routes. The URL holds its view and its day, and the back button goes back through them. */
 
 const theApi = vi.hoisted(() => {
   const fetch = vi.fn<typeof globalThis.fetch>()
@@ -30,7 +30,7 @@ const me: Account = {
 
 const A_DAY = '2026-11-16'
 
-/** The api: my account, no connection, an empty calendar for any period. */
+/** The API serves my account, no connection, and an empty calendar for any period. */
 function theApiAnswersAnEmptyCalendar() {
   theApi.mockImplementation(async (input) => {
     const { pathname } = new URL(input instanceof Request ? input.url : String(input))
