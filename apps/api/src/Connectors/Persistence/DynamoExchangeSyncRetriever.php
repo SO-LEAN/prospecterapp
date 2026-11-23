@@ -14,8 +14,8 @@ use Prospecter\Core\Connectors\Domain\Model\SyncState;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * Reads where the push of an exchange stands in the item `EXCHANGE#<exchange>` that `DynamoCalendarEntryRepository`
- * writes, without restoring it (ADR 0088, 0133); an entry written before ADR 0133 synced.
+ * Reads an exchange's push state in the `EXCHANGE#<exchange>` item that `DynamoCalendarEntryRepository` writes,
+ * without restoring the entry (ADR 0088, 0133). An entry written before ADR 0133 reads as synced.
  */
 final readonly class DynamoExchangeSyncRetriever implements ExchangeSyncRetriever
 {

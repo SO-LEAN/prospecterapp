@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace App\Connectors\Persistence;
 
 /**
- * The keys of the items of the table of Connectors, written by the repositories and read by the retriever
- * (ADR 0088): one format for both.
+ * The Connectors table's item keys. The repositories write them and the retrievers read them (ADR 0088), in one
+ * format for both.
  */
 final class ConnectorsKeys
 {
     public const string AUTHORIZATION = 'AUTHORIZATION';
-    /** the imports of the e-mails active in every account, in `GSI1` (ADR 0154) */
+    /** the active e-mail imports of every account, in `GSI1` (ADR 0154) */
     public const string MAIL_IMPORTS = 'MAIL_IMPORTS';
     private const string MEMBER = 'MEMBER';
     private const string CONNECTION = 'CONNECTION';
@@ -59,7 +59,7 @@ final class ConnectorsKeys
     }
 
     /**
-     * The entries of a member, in `GSI1`, by the moment their exchange starts (ADR 0133).
+     * A member's entries, in `GSI1`, by their exchange's start (ADR 0133).
      */
     public static function entriesOf(string $member): string
     {
@@ -67,7 +67,7 @@ final class ConnectorsKeys
     }
 
     /**
-     * The mailbox a member of an account imports, in `GSI2` (ADR 0154).
+     * The mailbox that an account's member imports, in `GSI2` (ADR 0154).
      */
     public static function mailbox(string $account, string $provider, string $address): string
     {

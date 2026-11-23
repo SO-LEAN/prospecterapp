@@ -18,12 +18,14 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * The exchanges pushed into the calendars of their holders, in the table of Connectors (ADR 0127):
- * `EXCHANGE#<exchange>` / `ENTRY#<provider>`, the entry as a document, listed under its member in `GSI1`
- * (`ENTRIES#<member>`, by the moment its exchange starts, ADR 0133), and for an exchange with a contact its link
- * `CONTACT#<person>` / `ENTRY#<exchange>#<provider>`, the same document, to find the entries of a contact forgotten.
- * An entry written before ADR 0133 has neither state nor moment: synced since its exchange was pushed; one written
- * before ADR 0175 invites nobody.
+ * The exchanges pushed into their holders' calendars, in the Connectors table (ADR 0127). The key is
+ * `EXCHANGE#<exchange>` / `ENTRY#<provider>`, and the item holds the entry as a document. The entry is listed under its
+ * member in `GSI1` (`ENTRIES#<member>`, by its exchange's start, ADR 0133). An exchange with a contact also has a link
+ * item, `CONTACT#<person>` / `ENTRY#<exchange>#<provider>`, with the same document. The link finds a forgotten
+ * contact's entries.
+ *
+ * An entry written before ADR 0133 has no state and no moment. It reads as synced since its exchange was pushed. An
+ * entry written before ADR 0175 invites nobody.
  */
 final readonly class DynamoCalendarEntryRepository implements CalendarEntryRepository
 {

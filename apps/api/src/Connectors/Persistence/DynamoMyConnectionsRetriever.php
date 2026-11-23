@@ -14,9 +14,9 @@ use Prospecter\Core\Connectors\Domain\Model\SyncState;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * Reads the connections of a member in the items `MEMBER#<member>` that `DynamoConnectionRepository` writes,
- * without restoring them (ADR 0088), their tokens left where they are; and counts the entries of their exchanges to
- * come by their state, listed under the member in `GSI1` (`ENTRIES#<member>`, ADR 0133).
+ * Reads a member's connections in the `MEMBER#<member>` items that `DynamoConnectionRepository` writes. It does not
+ * restore them (ADR 0088), and it leaves their tokens unread. It also counts the entries of the member's upcoming
+ * exchanges by state. They are listed under the member in `GSI1` (`ENTRIES#<member>`, ADR 0133).
  */
 final readonly class DynamoMyConnectionsRetriever implements MyConnectionsRetriever
 {
