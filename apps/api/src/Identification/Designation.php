@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace App\Identification;
 
 /**
- * How a call designates the organization or the person it records (ADR 0177): by its clues, Prospecter identifying
- * them, or, answering a former call to confirm, the one the member retained, or another one, to create.
+ * How a call designates the organization or the person it records (ADR 0177). Usually the call gives clues, and
+ * Prospecter identifies them. A call that answers an earlier one to confirm gives the candidate the member picked,
+ * or says it is another one, to create.
  */
 final readonly class Designation
 {
@@ -30,7 +31,7 @@ final readonly class Designation
     }
 
     /**
-     * As a tool receives it: the id retained wins over saying it is another one.
+     * Builds the designation as a tool receives it. A picked id wins over saying it is another one.
      */
     public static function of(?string $retained, bool $anotherOne): self
     {

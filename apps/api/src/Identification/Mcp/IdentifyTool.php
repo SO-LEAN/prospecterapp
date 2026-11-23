@@ -12,8 +12,8 @@ use Mcp\Server\Capability\Attribute\McpTool;
 use Mcp\Server\Capability\Attribute\Schema;
 
 /**
- * Which persons and organizations Prospecter knows, before an AI creates any (ADR 0173): no endpoint, the screens
- * not asking it yet, as `get-me`.
+ * Tells which persons and organizations Prospecter knows, before an AI creates any (ADR 0173). Like `get-me`, it has
+ * no endpoint, because no screen needs it yet.
  *
  * @phpstan-import-type PersonCluesArray from IdentificationReader
  * @phpstan-import-type OrganizationCluesArray from IdentificationReader
@@ -21,7 +21,7 @@ use Mcp\Server\Capability\Attribute\Schema;
 final readonly class IdentifyTool
 {
     /**
-     * What one call identifies at most, of each.
+     * The most persons, and the most organizations, that one call identifies.
      */
     private const int AT_MOST = 100;
 
@@ -35,8 +35,8 @@ final readonly class IdentifyTool
             'lastName' => self::TEXT,
             'links' => self::TEXTS + ['description' => 'The addresses of their pages on any tool: LinkedIn, Malt, Welcome to the Jungle or any other site.'],
             'emails' => self::TEXTS,
-            'phoneNumbers' => self::TEXTS + ['description' => 'Their numbers, international (+33 6 12 34 56 78) or national in France; only a mobile identifies them.'],
-            'organization' => ['type' => 'integer', 'minimum' => 0, 'description' => 'The position, from 0, in `organizations` of the organization they work for: its homonyms come first among the candidates.'],
+            'phoneNumbers' => self::TEXTS + ['description' => 'Their numbers, in the international format (+33 6 12 34 56 78) or the French national format. Only a mobile number identifies them.'],
+            'organization' => ['type' => 'integer', 'minimum' => 0, 'description' => 'The position in `organizations` of the organization they work for, starting at 0. Namesakes in that organization come first among the candidates.'],
         ],
         'additionalProperties' => false,
     ];
@@ -48,8 +48,8 @@ final readonly class IdentifyTool
             'siret' => self::TEXT,
             'links' => self::TEXTS + ['description' => 'The addresses of its pages on any tool: LinkedIn, Welcome to the Jungle or any other site.'],
             'website' => self::TEXT,
-            'emails' => self::TEXTS + ['description' => 'Its addresses, or those of persons working there: the domain of an address designates the organization of that website, but a public mailbox.'],
-            'city' => self::TEXT + ['description' => 'Its city: the organizations named alike there come first among the candidates.'],
+            'emails' => self::TEXTS + ['description' => 'Its addresses, or the addresses of people working there. The domain of an address designates the organization with that website, unless it is a public mailbox provider.'],
+            'city' => self::TEXT + ['description' => 'Its city. Organizations with a similar name in that city come first among the candidates.'],
         ],
         'additionalProperties' => false,
     ];
@@ -64,7 +64,7 @@ final readonly class IdentifyTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'identify', description: 'Before creating persons or organizations, which ones Prospecter knows: each is known (its id), new, or to confirm among candidates (ask your member), in the order given; nothing is written. A person is identified by a link, an email or a mobile, then by their first and last names (by their names only without the right to manage the personal data); an organization by its SIRET, a link, its website, its email or the domain of an email, then by its name.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'identify', description: 'Find which persons and organizations Prospecter already knows, before you create any. The answer follows the order given. Each one is known (with its id), new, or to confirm among candidates (ask your member). Nothing is written. A person is identified by a link, an email or a mobile number, then by their first and last names. Without the right to manage personal data, a person is identified by their names only. An organization is identified by its SIRET, a link, its website, its email or an email domain, then by its name.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(
         #[Schema(definition: ['type' => 'array', 'items' => self::PERSON, 'maxItems' => self::AT_MOST])]
         array $persons = [],

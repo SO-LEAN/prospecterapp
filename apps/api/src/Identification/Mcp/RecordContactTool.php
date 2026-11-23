@@ -16,8 +16,8 @@ use Mcp\Server\Capability\Attribute\McpTool;
 use Mcp\Server\Capability\Attribute\Schema;
 
 /**
- * Records in one call a contact and the organization they work for, finding what Prospecter knows already (ADR 0177):
- * no endpoint, the screens not asking it, as `identify`.
+ * Records a contact and the organization they work for in one call, and finds what Prospecter already knows
+ * (ADR 0177). Like `identify`, it has no endpoint, because no screen needs it.
  *
  * @phpstan-import-type RecordedPerson from ContactRecorder
  * @phpstan-import-type RecordedOrganization from ContactRecorder
@@ -32,10 +32,10 @@ final readonly class RecordContactTool
         'properties' => [
             'firstName' => self::TEXT,
             'lastName' => self::TEXT,
-            'title' => ['type' => 'string', 'enum' => ['ms', 'mr', 'x'], 'description' => 'How one addresses them: ms, mr, or x when unknown.'],
+            'title' => ['type' => 'string', 'enum' => ['ms', 'mr', 'x'], 'description' => 'How to address them: ms, mr, or x when unknown.'],
             'jobTitle' => self::TEXT,
             'email' => self::TEXT,
-            'phoneNumber' => self::TEXT + ['description' => 'Their number, international (+33 6 12 34 56 78) or national in France.'],
+            'phoneNumber' => self::TEXT + ['description' => 'Their number, in the international format (+33 6 12 34 56 78) or the French national format.'],
             'links' => self::TEXTS + ['description' => 'The addresses of their pages on any tool: LinkedIn, Malt or any other site.'],
         ],
         'additionalProperties' => false,
@@ -61,15 +61,15 @@ final readonly class RecordContactTool
 
     /**
      * @param RecordedPerson       $person          the person as you see them, each part optional
-     * @param RecordedOrganization $organization    the organization they work for as you see it, each part optional
-     * @param ?string              $organizationId  the organization your member retained among those to confirm, which wins over `newOrganization`
-     * @param bool                 $newOrganization true when your member said it is none of those to confirm
-     * @param ?string              $personId        the contact your member retained among those to confirm, which wins over `newPerson`
-     * @param bool                 $newPerson       true when your member said they are none of those to confirm
+     * @param RecordedOrganization $organization    the organization they work for, as you see it, each part optional
+     * @param ?string              $organizationId  the organization your member picked among the candidates to confirm; it wins over `newOrganization`
+     * @param bool                 $newOrganization true when your member said it is none of the candidates to confirm
+     * @param ?string              $personId        the contact your member picked among the candidates to confirm; it wins over `newPerson`
+     * @param bool                 $newPerson       true when your member said they are none of the candidates to confirm
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'record-contact', description: 'Record a person and the organization they work for, in one call: Prospecter finds them by their keys (as `identify`), creates what it does not know, fills what is empty without changing what is noted, and attaches the contact to the organization; calling twice creates nothing more. Answers for each `created`, `known` with the fields completed and those you gave otherwise than noted, or `toConfirm` with candidates (nothing written: ask your member, then call again naming the one retained or saying it is another one). Needs the right to manage the personal data.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
+    #[McpTool(name: 'record-contact', description: 'Record a person and the organization they work for, in one call. Prospecter finds them by their keys, as `identify` does. It creates what it does not know. It fills empty fields and never changes what is already logged. It then attaches the contact to the organization. A second identical call creates nothing more. For each of the two, the answer is `created`, `known` or `toConfirm`. `known` lists the fields completed and the fields you gave with a value other than the one logged. `toConfirm` lists the candidates, and nothing is written: ask your member, then call again with the one they picked, or saying it is someone else. Needs the right to manage personal data.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
     public function __invoke(
         #[Schema(definition: self::PERSON)]
         array $person,

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Identification\Resource;
 
 /**
- * The persons and the organizations identified, each in the order given.
+ * The identified persons and organizations, each list in the order given.
  */
 final readonly class IdentificationsResource
 {

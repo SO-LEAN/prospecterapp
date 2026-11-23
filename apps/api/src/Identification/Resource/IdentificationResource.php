@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Identification\Resource;
 
 /**
- * What the clues of a person or an organization designate: `known` (its one candidate), `new` (none) or `toConfirm`
- * (its candidates, for the member to choose).
+ * What a person's or an organization's clues designate: `known` (one candidate), `new` (none) or `toConfirm`
+ * (several candidates, for the member to choose from).
  */
 final readonly class IdentificationResource
 {
