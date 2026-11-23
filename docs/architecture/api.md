@@ -104,7 +104,10 @@ This document states the rules in force. The decision records (`docs/adr`) expla
 
     `ExchangeReader` names the exchange's interlocutor: the contact, through PersonalData, or the organization itself, through Prospecting. Through PersonalData, it also names the members who logged, corrected and redacted the exchange. It names them under the person ids that Accounts' `ConsultMembersService` gives them, asked once for all of them.
   - A contact is collected with its `organizationIds` (ADR 0042).
-- Controllers extend `AbstractController`.
+- A controller is a `final readonly` class that extends nothing (ADR 0198). It receives its dependencies through its constructor (ADR 0044). `tests/Architecture/ControllersExtendNothingTest` fails otherwise.
+  - It answers JSON through `Shared\JsonResponses`, which writes the data with the Serializer and the encoding options of a `JsonResponse`. No controller calls `json_encode` or the Serializer itself.
+  - It builds a URL, such as a `Location` header, with `UrlGeneratorInterface`, and a redirection with `new RedirectResponse()`.
+  - A right that depends on the resource is checked with `AuthorizationCheckerInterface`, and refused with an `AccessDeniedException` (`Prospecting\Controller\StopProspectingController`). Any other right is an `#[IsGranted]` attribute.
   - A change dispatches its command on `Shared\CommandBus`. The bus is synchronous, and it throws the core's refusals back as they are.
   - Then the change returns the fresh resource, read by a query (`Prospecting\OrganizationReader`, or `Me\MyAccountReader`, which composes Accounts and PersonalData). Commands return nothing (ADR 0029).
   - A command is flat (ADR 0035). The controller passes the input's fields, the new resource's id from `Shared\Identities` (UUID v7), and `executedAt` from the Symfony clock (ADR 0036).
