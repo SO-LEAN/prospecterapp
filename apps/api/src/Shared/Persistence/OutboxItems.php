@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Shared\Persistence;
 
 /**
- * The items of outbox the tables of the contexts still keep, the week before they forget them.
+ * The outbox items that the contexts' tables still keep, during the week before the tables forget them.
  */
 final readonly class OutboxItems
 {
@@ -14,7 +14,7 @@ final readonly class OutboxItems
     }
 
     /**
-     * @return list<OutboxItem> those of the commits since the moment, in no particular order
+     * @return list<OutboxItem> the items of the commits since the given time, in no particular order
      */
     public function since(\DateTimeImmutable $moment): array
     {

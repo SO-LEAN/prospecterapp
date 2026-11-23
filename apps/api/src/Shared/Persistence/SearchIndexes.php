@@ -9,16 +9,16 @@ use Prospecter\Core\SharedKernel\Domain\SearchKey;
 use Prospecter\Core\SharedKernel\Domain\SearchKeys;
 
 /**
- * What finds an aggregate of a context: its search keys (ADR 0071) and its phone number (ADR 0072), carried
- * within a scope (an account, an account and a purpose) as the keys of the indexes `NAME`, `EMAIL` and
- * `PHONE`, left out when it has none; a second key of its name, the first name of a person, on an item beside it
- * (ADR 0149). A search reads the keys of what begins with it in `NAME` and `EMAIL`,
- * a call the keys of the number in `PHONE`, then the aggregates found.
+ * What finds a context's aggregate: its search keys (ADR 0071) and its phone number (ADR 0072). They are carried
+ * within a scope (an account, or an account and a purpose) as the keys of the `NAME`, `EMAIL` and `PHONE` indexes,
+ * and left out when the aggregate has none. A second key for the name, a person's first name, goes on an item beside
+ * it (ADR 0149). A search reads the keys that begin with it in `NAME` and `EMAIL`. A call reads the number's keys in
+ * `PHONE`. Then both read the aggregates found.
  */
 final class SearchIndexes
 {
     /**
-     * The attributes the item of an aggregate carries for the indexes.
+     * The attributes that an aggregate's item carries for the indexes.
      *
      * @return array{NAMEPK?: string, NAMESK?: string, EMAILPK?: string, EMAILSK?: string, PHONEPK?: string, PHONESK?: string}
      */
@@ -30,8 +30,8 @@ final class SearchIndexes
     }
 
     /**
-     * The attributes putting an item in the index `NAME` under a key: the name of an aggregate on its item, or the
-     * first name of a person on an item beside it, of the same partition key (ADR 0149).
+     * The attributes that put an item in the `NAME` index under a key. The key is an aggregate's name on its item, or a
+     * person's first name on an item beside it, with the same partition key (ADR 0149).
      *
      * @return array{NAMEPK: string, NAMESK: string}
      */
@@ -41,7 +41,7 @@ final class SearchIndexes
     }
 
     /**
-     * The partition keys of the aggregates of the scope having the phone number.
+     * The partition keys of the scope's aggregates that have the phone number.
      *
      * @return list<string>
      */
@@ -51,7 +51,7 @@ final class SearchIndexes
     }
 
     /**
-     * The partition keys of the aggregates found in the scope, newest first (UUID v7 keys descending), those
+     * The partition keys of the aggregates found in the scope, newest first (UUID v7 keys descending). It returns those
      * below the cursor, at most `max`.
      *
      * @return list<string>
@@ -62,7 +62,7 @@ final class SearchIndexes
     }
 
     /**
-     * As `found()`, by the name alone: for a reader who does not search the emails (ADR 0129).
+     * Like `found()`, by the name alone: for a reader who does not search the emails (ADR 0129).
      *
      * @return list<string>
      */

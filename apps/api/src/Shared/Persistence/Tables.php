@@ -8,10 +8,11 @@ use Aws\DynamoDb\DynamoDbClient;
 use Aws\DynamoDb\Exception\DynamoDbException;
 
 /**
- * The tables of the bounded contexts (ADR 0038, 0048), all of the same shape: `PK`/`SK`, the indexes
- * `GSI1` and `GSI2`, and those finding an aggregate, `NAME` and `EMAIL` (ADR 0071) and `PHONE` (ADR 0072), keeping only the keys; billed by
- * request; their new items given to a stream, which the relay of the outbox reads, an item forgotten past its
- * `expiresAt`. Locally they live in MiniStack; on AWS Terraform makes them alike (`infra/tables.tf`).
+ * The bounded contexts' tables (ADR 0038, 0048). They all have the same shape: `PK`/`SK`, the `GSI1` and `GSI2`
+ * indexes, and the indexes that find an aggregate, `NAME` and `EMAIL` (ADR 0071) and `PHONE` (ADR 0072), which keep
+ * only the keys. They are billed by request. A stream receives their new items, and the outbox relay reads it. The
+ * table forgets an item past its `expiresAt`. Locally, the tables live in MiniStack. On AWS, Terraform creates them
+ * alike (`infra/tables.tf`).
  */
 final readonly class Tables
 {
@@ -32,8 +33,8 @@ final readonly class Tables
     }
 
     /**
-     * Drops the tables and creates them empty, and forgets the secrets the accounts gave (ADR 0125), whose items are
-     * gone with them.
+     * Drops the tables and creates them empty. It also forgets the secrets that the accounts gave (ADR 0125), since their
+     * items are gone with the tables.
      */
     public function recreate(): void
     {

@@ -7,10 +7,10 @@ namespace App\Shared\Persistence;
 use App\Shared\Typed;
 
 /**
- * The revision of an aggregate, written in its item by its repository at each save (`revision`) and read by the
- * retrievers of its facts: a matter of persistence, the aggregate does not know it (ADR 0048). Its save and its
- * removal hold to the revision its unit of work read (`RevisionLock`, ADR 0181). An item written before it has none:
- * the revision 0, until its next save.
+ * An aggregate's revision. Its repository writes it in the aggregate's item at each save (`revision`), and the
+ * retrievers of its facts read it. It is a persistence matter: the aggregate does not know it (ADR 0048). The
+ * aggregate's save and removal hold to the revision that its unit of work read (`RevisionLock`, ADR 0181). An item
+ * written before revisions existed has none: it is at revision 0 until its next save.
  */
 final class Revision
 {
@@ -26,9 +26,9 @@ final class Revision
     }
 
     /**
-     * The revision the next save of the aggregate writes.
+     * The revision that the aggregate's next save writes.
      *
-     * @param array<string, mixed>|null $stored the item as the table keeps it, null before the first save
+     * @param array<string, mixed>|null $stored the item as the table keeps it, or null before the first save
      */
     public static function after(?array $stored): int
     {

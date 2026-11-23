@@ -8,12 +8,12 @@ use App\Shared\Messaging\TransportedEvent;
 use App\Shared\Typed;
 
 /**
- * What a commit published in a context, written with what it changed, in the table of the context: the stream of
- * the table gives the new item to the relay, which publishes its events on the bus. The table forgets it a week
- * later, long after the relay published it.
+ * What a commit published in a context. It is written with what the commit changed, in the context's table. The
+ * table's stream gives the new item to the relay, which publishes its events on the bus. The table forgets the item
+ * a week later, long after the relay published it.
  *
  * PK `OUTBOX#<commit>`, SK `OUTBOX`, `events` the list of the events as they travel (a JSON string), `occurredAt`
- * the moment of the commit, `expiresAt` the epoch the table forgets it at.
+ * the commit's time, `expiresAt` the epoch at which the table forgets it.
  */
 final readonly class OutboxItem
 {
@@ -44,7 +44,7 @@ final readonly class OutboxItem
     /**
      * @return array{PK: string, SK: string, events: string, occurredAt: string, expiresAt: int}
      *
-     * @throws \LogicException when its events are over the size of an item: a transaction is never split
+     * @throws \LogicException when its events exceed an item's size. A transaction is never split.
      */
     public function document(): array
     {

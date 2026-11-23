@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Shared\Persistence;
 
 /**
- * Which items of a partition a query reads, and in which order: below a sort key, the greatest first; above one,
- * or between two, the smallest first. A range between two keys is read by DynamoDB alone, never filtered after the
- * query.
+ * Which items of a partition a query reads, and in which order. Below a sort key, the greatest comes first. Above
+ * one, or between two, the smallest comes first. DynamoDB reads a range between two keys by itself: the query
+ * results are never filtered afterwards.
  */
 final readonly class SortKeyRange
 {
@@ -29,7 +29,7 @@ final readonly class SortKeyRange
     }
 
     /**
-     * Both bounds included, as DynamoDB reads them.
+     * Both bounds are included, as DynamoDB reads them.
      */
     public static function between(string $lower, string $upper): self
     {
@@ -37,7 +37,7 @@ final readonly class SortKeyRange
     }
 
     /**
-     * The key condition of DynamoDB on the sort key, none for every item.
+     * DynamoDB's key condition on the sort key, or none for every item.
      */
     public function condition(string $sortKey): ?string
     {
@@ -67,7 +67,7 @@ final readonly class SortKeyRange
     }
 
     /**
-     * The order of two sort keys in the range.
+     * How two sort keys are ordered in the range.
      */
     public function compare(string $one, string $other): int
     {
