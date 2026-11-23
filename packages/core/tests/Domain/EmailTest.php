@@ -19,7 +19,7 @@ class EmailTest extends TestCase
     #[DataProvider('notEmails')]
     public function testAnInvalidAddressIsRefusedOnTheEmailField(string $notAnEmail): void
     {
-        $this->expectExceptionObject(BusinessRuleViolation::because(sprintf('Email "%s" is not valid', $notAnEmail), 'email'));
+        $this->expectExceptionObject(BusinessRuleViolation::because(sprintf('E-mail address "%s" is not valid', $notAnEmail), 'email'));
 
         new Email($notAnEmail);
     }
