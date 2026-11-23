@@ -221,8 +221,8 @@ final class BookingPage implements ReleasesEvents
     {
         return match ($intent) {
             BookingPageIntent::ChangeBookingLink => BookingPageWithoutLink::doesNotChangeIt(),
-            BookingPageIntent::OpenBooking => NotPossibleInItsState::because('An open booking page cannot open again'),
-            BookingPageIntent::CloseBooking => NotPossibleInItsState::because('A closed booking page cannot close again'),
+            BookingPageIntent::OpenBooking => NotPossibleInItsState::because('The booking page is already open'),
+            BookingPageIntent::CloseBooking => NotPossibleInItsState::because('The booking page is already closed'),
         };
     }
 }
