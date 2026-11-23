@@ -9,7 +9,8 @@ use Symfony\Component\Messenger\Middleware\MiddlewareInterface;
 use Symfony\Component\Messenger\Middleware\StackInterface;
 
 /**
- * Every event a command and its reactions publish carries the same correlation, given when the command is sent.
+ * Every event that a command and its reactions publish carries the same correlation. The correlation is set when the
+ * command is sent.
  */
 final readonly class CorrelatedCommands implements MiddlewareInterface
 {

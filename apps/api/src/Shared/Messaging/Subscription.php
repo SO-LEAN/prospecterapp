@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Shared\Messaging;
 
 /**
- * A subscription of `config/subscriptions.json` as the worker runs it: the context of its reaction, whose table
- * keeps its inbox when it has one.
+ * A subscription from `config/subscriptions.json`, as the worker runs it: the context of its reaction. That context's
+ * table keeps the subscription's inbox when it has one.
  */
 final readonly class Subscription
 {

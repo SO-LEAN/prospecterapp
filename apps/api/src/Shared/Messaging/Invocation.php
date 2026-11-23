@@ -7,8 +7,8 @@ namespace App\Shared\Messaging;
 use App\Shared\Typed;
 
 /**
- * What the rule of a subscription gives the worker, by its input transformer: the name of the subscription, and
- * the event as it travelled, `{"subscription", "source", "detailType", "detail"}`.
+ * What a subscription's rule sends the worker, through its input transformer: the subscription's name, and the event
+ * as it travelled, `{"subscription", "source", "detailType", "detail"}`.
  */
 final readonly class Invocation
 {
@@ -38,7 +38,7 @@ final readonly class Invocation
     }
 
     /**
-     * What identifies the event in the logs, read as far as it can be from what the worker was given.
+     * What identifies the event in the logs, read as far as the worker's input allows.
      *
      * @return array{subscription: mixed, eventId: mixed, correlationId: mixed}
      */

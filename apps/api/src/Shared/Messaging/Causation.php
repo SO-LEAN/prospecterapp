@@ -20,7 +20,7 @@ final class Causation implements ResetInterface
     }
 
     /**
-     * Outside a command, what is published is a command of its own.
+     * Outside a command, a publication counts as a command of its own.
      */
     public function current(): Cause
     {

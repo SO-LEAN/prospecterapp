@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace App\Shared\Messaging;
 
 /**
- * Delivers an event at once, within the command that published it, as it would travel: through JSON, then decoded
- * for each reaction listening to it, the internal ones included; no inbox, a reaction runs once.
+ * Delivers an event at once, within the command that published it. The event goes through JSON as if it travelled.
+ * Then it is decoded for each reaction that listens to it, internal ones included. There is no inbox: a reaction
+ * runs once.
  */
 final readonly class SynchronousDelivery implements Delivery
 {

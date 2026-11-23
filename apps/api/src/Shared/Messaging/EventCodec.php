@@ -8,8 +8,8 @@ use App\Shared\Identities;
 use App\Shared\Typed;
 
 /**
- * Encodes an event to travel, and decodes it back, the domain events and the integration events alike: only
- * their lists differ, and their sources tell them apart when they bear the same name.
+ * Encodes an event for transport, and decodes it back. Domain events and integration events work alike: only their
+ * lists differ. Their sources tell them apart when they have the same name.
  */
 final readonly class EventCodec
 {

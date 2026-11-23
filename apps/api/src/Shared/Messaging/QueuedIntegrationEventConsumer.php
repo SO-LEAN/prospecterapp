@@ -10,17 +10,19 @@ use Bref\Event\Sqs\SqsEvent;
 use Bref\Event\Sqs\SqsRecord;
 
 /**
- * The worker of the local stack (ADR 0131): MiniStack refuses an invocation beyond the reserved concurrency of the
- * worker, and a rule does not retry it, where AWS keeps it until the worker has room. Locally, the rules put the
- * invocations in a queue, whose mapping gives them to the worker as many at once as its concurrency: each is applied
- * as the rule gives it on AWS, and an invocation given directly (app:integration:redrive) as it comes.
+ * The local stack's worker (ADR 0131). MiniStack refuses an invocation beyond the worker's reserved concurrency, and
+ * a rule does not retry it. AWS keeps the invocation until the worker has room. So locally, the rules put the
+ * invocations in a queue. The queue's mapping gives them to the worker as many at once as its concurrency allows.
+ * Each invocation is applied as the rule gives it on AWS. An invocation sent directly (app:integration:redrive) is
+ * applied as it comes.
  *
- * A failure the worker throws is given again by the queue, then, at its last receive, kept in the failures as Lambda
- * keeps what it gives up after its two retries; a body it cannot decode is given to the worker as null, which refuses it.
+ * When the worker throws a failure, the queue delivers the invocation again. At the last receive, the invocation goes
+ * to the failures, the way Lambda keeps what it gives up after its two retries. When this consumer cannot decode a
+ * body, it gives the worker null, and the worker refuses it.
  */
 final readonly class QueuedIntegrationEventConsumer implements Handler
 {
-    /** the first attempt and the two retries of Lambda */
+    /** the first attempt and Lambda's two retries */
     private const int RECEIVES_OF_AN_INVOCATION = 3;
 
     public function __construct(private IntegrationEventConsumer $worker, private IntegrationFailures $failures)
@@ -41,7 +43,7 @@ final readonly class QueuedIntegrationEventConsumer implements Handler
     }
 
     /**
-     * @throws \Throwable the failure the queue gives again
+     * @throws \Throwable the failure that the queue delivers again
      */
     private function apply(SqsRecord $record, Context $context): void
     {

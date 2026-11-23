@@ -11,18 +11,19 @@ use Bref\Context\Context;
 use Psr\Clock\ClockInterface;
 
 /**
- * The queue of SQS keeping the events the worker could not apply, 14 days, without a consumer: those Lambda gave up
- * after its retries, by the destination of the failures of the worker, and those the worker refused itself, in the
- * same envelope (`requestPayload` the invocation received), so that app:integration:redrive gives both again.
+ * The SQS queue that keeps the events the worker could not apply, for 14 days, without a consumer. It holds the
+ * events that Lambda gave up on after its retries, through the worker's failure destination. It also holds the events
+ * that the worker refused itself. Both share one envelope (`requestPayload` is what the invocation received), so that
+ * app:integration:redrive sends both again.
  */
 final readonly class IntegrationFailures
 {
     public const string REFUSED = 'Refused';
     public const string RETRIES_EXHAUSTED = 'RetriesExhausted';
     private const int MOST_MESSAGES_OF_A_RECEIVE = 10;
-    /** long enough for the redrive to give each one again before it is received again */
+    /** long enough for the redrive to send each message again before the queue delivers it again */
     private const int HIDDEN_FOR_SECONDS = 300;
-    /** long polling: an empty answer is an empty queue, not a sample of its servers that held nothing */
+    /** long polling: an empty answer means an empty queue, not a sample of servers that held nothing */
     private const int WAITED_FOR_SECONDS = 1;
 
     public function __construct(private SqsClient $client, private string $name, private ClockInterface $clock)
@@ -30,7 +31,7 @@ final readonly class IntegrationFailures
     }
 
     /**
-     * Keeps an invocation the worker refused, or the local stack gave up, as Lambda keeps one it gave up.
+     * Keeps an invocation that the worker refused or the local stack gave up on, as Lambda keeps one it gave up on.
      */
     public function keep(mixed $invocation, \Throwable $refusal, Context $context, string $condition = self::REFUSED): void
     {
@@ -50,7 +51,7 @@ final readonly class IntegrationFailures
     }
 
     /**
-     * @return list<FailedInvocation> the next ones, none when the queue is empty
+     * @return list<FailedInvocation> the next messages, or none when the queue is empty
      */
     public function next(): array
     {

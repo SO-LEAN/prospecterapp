@@ -7,8 +7,8 @@ namespace App\Shared\Messaging;
 use App\Shared\Typed;
 
 /**
- * A message of the queue of the failures: the invocation of the worker it keeps (`requestPayload`, null when the
- * message is not in the envelope of the failures of Lambda), and the receipt to delete it with.
+ * A message in the failures queue. It holds the worker's invocation (`requestPayload`, null when the message is not
+ * in Lambda's failure envelope) and the receipt that deletes the message.
  */
 final readonly class FailedInvocation
 {
@@ -20,7 +20,7 @@ final readonly class FailedInvocation
     }
 
     /**
-     * A message of the queue, as SQS gives it untyped.
+     * A queue message, untyped as SQS gives it.
      */
     public static function of(mixed $message): self
     {
@@ -37,7 +37,7 @@ final readonly class FailedInvocation
     }
 
     /**
-     * The error of the reaction, or the condition the invocation failed on.
+     * The reaction's error, or the condition that the invocation failed on.
      *
      * @param array<mixed> $body
      */

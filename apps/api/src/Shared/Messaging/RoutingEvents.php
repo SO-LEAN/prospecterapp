@@ -10,10 +10,10 @@ use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * The events the use cases and the reactions publish: a domain event goes to the translators of its context on
- * the event bus, which publish it for the other contexts, then, like an integration event, to the delivery of the
- * subscriptions. A refusal or a failure of a reaction comes back as it was thrown, so that the command that
- * published refuses or fails with it.
+ * Routes the events that the use cases and the reactions publish. A domain event first goes to its context's
+ * translators on the event bus, which publish it for the other contexts. Then it goes to the subscriptions' delivery,
+ * like an integration event. A reaction's refusal or failure comes back as it was thrown, so that the command that
+ * published the event refuses or fails with it.
  */
 final readonly class RoutingEvents implements Events
 {

@@ -14,9 +14,10 @@ use Symfony\Component\TypeInfo\Type\ObjectType;
 use Symfony\Component\TypeInfo\TypeResolver\TypeResolverInterface;
 
 /**
- * An event as plain data, by the parameters of its constructor, each the name of a public property: an identity
- * as its string, a moment in the format of the documents, a list element by element; and back, each value typed
- * by its parameter and its docblock (`list<PersonId>`), one its former version did not carry by its default.
+ * An event as plain data, built from its constructor's parameters. Each parameter names a public property. An id
+ * becomes its string, a time takes the documents' format, and a list goes element by element. The way back types
+ * each value by its parameter and its docblock (`list<PersonId>`). A value that the event's former version did not
+ * carry takes its default.
  */
 final readonly class Payloads
 {
@@ -62,7 +63,7 @@ final readonly class Payloads
     }
 
     /**
-     * A parameter the former version of the event did not carry takes its default, null when it has none.
+     * A parameter that the event's former version did not carry takes its default, or null when it has none.
      *
      * @param array<string, mixed> $payload
      */
