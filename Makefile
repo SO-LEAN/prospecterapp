@@ -39,15 +39,14 @@ start: deploy ## Start the stack, the API and the storage in their Lambdas: http
 	@echo "SPA: https://prospecter.localhost$(PUBLIC_PORT_SUFFIX)  API doc: https://api.prospecter.localhost$(PUBLIC_PORT_SUFFIX)/api/doc"
 
 deploy: ## Start the stack and (re)deploy the Lambdas of the API and the storage on MiniStack
-	@$(DC) up -d --build
-	@$(DC) run --rm --build lambda-deploy
+	@$(call timed,Stack/images built and containers started,$(DC) up -d --build)
+	@$(call timed,Stack/Lambdas deployed,$(DC) run --rm --build lambda-deploy)
 
 # the functions a MiniStack runs carry its host name: those of the stacks of the other checkouts stay up
 STACK_FUNCTIONS = for ministack in $$($(DC) ps -aq ministack); do \
 	docker ps -aq --filter label=ministack.instance=$$(docker inspect -f '{{.Config.Hostname}}' $$ministack):4566; done
 stop: ## Stop the stack of this checkout, the MiniStack of its tests and the functions its MiniStack runs
-	@$(STACK_FUNCTIONS) | xargs -r docker rm -f >/dev/null
-	@$(DC) --profile test stop
+	@$(call timed,Stack/stopped,$(STACK_FUNCTIONS) | xargs -r docker rm -f >/dev/null && $(DC) --profile test stop)
 
 down: ## Remove the stack of this checkout, its functions and its data, the caches shared by the checkouts kept: once a worktree is done with (ADR 0116)
 	@$(STACK_FUNCTIONS) | xargs -r docker rm -f >/dev/null
@@ -155,12 +154,12 @@ check-e2e: ## Run the journeys on the stack of this worktree as it runs, stoppin
 check-e2e-locked: export FAIL_FAST = 1
 check-e2e-locked:
 	@$(if $(FROM_NOTHING),$(MAKE) stop && $(MAKE) deploy && $(MAKE) db FIGURES=later && mkdir -p $(dir $(FIGURES_LOG)),echo "On the stack running, as it is (FRESH=1 from nothing)")
-	@$(if $(FROM_NOTHING),{ $(API_CONSOLE)app:reporting:rebuild >$(FIGURES_LOG) 2>&1; } & figures=$$!;,figures=;) \
-	$(E2E_SETUP) && $(FRONT_E2E) E2E_ARGS="--project='together*'" E2E_RESULTS=together; together=$$?; \
+	@$(if $(FROM_NOTHING),{ $(call timed,API/figures counted,$(API_CONSOLE)app:reporting:rebuild >$(FIGURES_LOG) 2>&1); } & figures=$$!;,figures=;) \
+	$(E2E_SETUP) && $(call timed,Journeys/together,$(FRONT_E2E) E2E_ARGS="--project='together*'" E2E_RESULTS=together); together=$$?; \
 	test -z "$$figures" || wait $$figures || { echo "The figures were not counted:"; cat $(FIGURES_LOG); exit 1; }; \
 	test $$together -eq 0 || { echo "A journey running together failed: those running alone are not run"; exit $$together; }; \
-	$(FRONT_E2E) E2E_ARGS="--project=alone --no-deps" E2E_RESULTS=alone && \
-	$(FRONT_E2E) E2E_ARGS="--project=alone-dashboard --no-deps" E2E_RESULTS=alone-dashboard
+	$(call timed,Journeys/main journey,$(FRONT_E2E) E2E_ARGS="--project=alone --no-deps" E2E_RESULTS=alone) && \
+	$(call timed,Journeys/dashboard,$(FRONT_E2E) E2E_ARGS="--project=alone-dashboard --no-deps" E2E_RESULTS=alone-dashboard)
 
 check-core: ## Lint and test the core
 	@$(MAKE) -C packages/core lint test
@@ -216,8 +215,8 @@ CONSOLE_GESTURES = $(API_CONSOLE)"app:account:open 'E2E $(E2E_RUN)' founder-$(E2
 # the three at once: the double of the geocoder, and the functions of the API it recycled, beside the others; the
 # service of the IGN given back once the double is set, whatever stops the journeys
 E2E_SETUP = geocoder= && trap 'test -z "$$geocoder" || wait $$geocoder 2>/dev/null; $(API_GEOCODER)' EXIT && trap 'exit 130' INT TERM \
-	&& { $(API_GEOCODER) $(GEOCODER_DOUBLE) $(API_FUNCTIONS_AT_ONCE) & geocoder=$$!; } \
-	&& $(WARM_REACTIONS) && $(CONSOLE_GESTURES) && wait $$geocoder
+	&& { $(call timed,Journeys/geocoder doubled,$(API_GEOCODER) $(GEOCODER_DOUBLE) $(API_FUNCTIONS_AT_ONCE)) & geocoder=$$!; } \
+	&& $(call timed,Journeys/reactions warmed,$(WARM_REACTIONS)) && $(call timed,Journeys/console gestures,$(CONSOLE_GESTURES)) && wait $$geocoder
 FRONT_E2E = $(MAKE) -C apps/front e2e E2E_RUN=$(E2E_RUN)
 e2e: ## Run the Playwright journeys against the running stack, the API on the double of the geocoder meanwhile, once those of another checkout are done; FAILED=1 those that failed last, FAIL_FAST=1 stops at the first failure
 	@$(WITH_E2E_LOCK) $(MAKE) e2e-locked

@@ -13,16 +13,16 @@ vendor: ## Install the Composer dependencies of the API
 
 db: ministack ## Recreate in MiniStack the tables and the user pool, with the demo data (destroys local data), the queues of the failures emptied, the relay of the outbox on their new streams, the tags of the contacts rebuilt, the figures counted
 	@echo "API/Emptying the queues of the failures, whose messages are about the data recreated..."
-	@$(DC) --progress quiet run --rm --build lambda-deploy purge
+	@$(call timed,API/queues of the failures emptied,$(DC) --progress quiet run --rm --build lambda-deploy purge)
 	@echo "API/Creating the DynamoDB table of each bounded context with the data of the demonstration..."
-	@$(PHP) sh -c 'bin/console cache:clear >/dev/null && bin/console app:tables:recreate --demo'
+	@$(call timed,API/tables recreated with the demonstration,$(PHP) sh -c 'bin/console cache:clear >/dev/null && bin/console app:tables:recreate --demo')
 	@echo "API/Creating the Cognito user pool with the members of the demonstration..."
-	@$(PHP) bin/console app:user-pool:recreate --demo
+	@$(call timed,API/user pool recreated with the members,$(PHP) bin/console app:user-pool:recreate --demo)
 	@echo "API/Relaying the outbox of the new tables to the bus..."
-	@$(DC) --progress quiet run --rm --build lambda-deploy relay
+	@$(call timed,API/relay on the new streams,$(DC) --progress quiet run --rm --build lambda-deploy relay)
 	@echo "API/Rebuilding the tags of the contacts of the demonstration..."
-	@$(PHP) bin/console app:tags:rebuild
-	@$(if $(filter later,$(FIGURES)),echo "API/The figures are counted later (FIGURES=later)",echo "API/Counting the figures of the demonstration..." && $(PHP) bin/console app:reporting:rebuild)
+	@$(call timed,API/tags rebuilt,$(PHP) bin/console app:tags:rebuild)
+	@$(if $(filter later,$(FIGURES)),echo "API/The figures are counted later (FIGURES=later)",echo "API/Counting the figures of the demonstration..." && $(call timed,API/figures counted,$(PHP) bin/console app:reporting:rebuild))
 
 # the tests recreate their tables and their user pool once in each process, each test then getting the data and the
 # members of the demonstration back (ADR 0180): shared among a few processes, each with its own on MiniStack
