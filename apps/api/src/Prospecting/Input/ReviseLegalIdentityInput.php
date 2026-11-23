@@ -7,8 +7,8 @@ namespace App\Prospecting\Input;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * The legal identity of a prospected organization, with the SIRET of its establishment: its spaces aside, what a SIRET
- * is, the core says.
+ * A prospected organization's legal identity, with its establishment's SIRET. Apart from its spaces, the core decides
+ * what a valid SIRET is.
  */
 final readonly class ReviseLegalIdentityInput
 {

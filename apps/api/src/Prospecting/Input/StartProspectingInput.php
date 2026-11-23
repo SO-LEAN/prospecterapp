@@ -10,7 +10,7 @@ use Prospecter\Core\Prospecting\Application\StartProspecting\StartProspecting;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * What is known of an organization when its prospecting starts (the shape of OrganizationResource).
+ * What is known about an organization when its prospecting starts, shaped like OrganizationResource.
  */
 final readonly class StartProspectingInput
 {
@@ -29,7 +29,8 @@ final readonly class StartProspectingInput
     }
 
     /**
-     * The prospecting of this organization by a prospector, under this id, the same from the screen and from an AI.
+     * A prospector starts prospecting this organization under this id. The command is the same from the screen and from
+     * an AI.
      */
     public function commandOf(string $prospectorId, string $id, \DateTimeImmutable $executedAt): StartProspecting
     {
@@ -37,7 +38,7 @@ final readonly class StartProspectingInput
     }
 
     /**
-     * The same prospecting, by an AI acting as the prospector.
+     * The same command, by an AI acting as the prospector.
      */
     public function commandOfAnAI(string $prospectorId, string $id, \DateTimeImmutable $executedAt): StartProspecting
     {

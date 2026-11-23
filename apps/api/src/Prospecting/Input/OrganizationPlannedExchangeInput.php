@@ -13,7 +13,7 @@ final readonly class OrganizationPlannedExchangeInput
         #[Assert\Valid]
         public PlannedExchangeInput $exchange = new PlannedExchangeInput(),
         #[Assert\Uuid]
-        #[OA\Property(description: 'The contact of the organization it is planned with; left out, with the organization itself')]
+        #[OA\Property(description: 'The organization\'s contact it is planned with. When left out, it is planned with the organization itself')]
         public ?string $personId = null,
     ) {
     }

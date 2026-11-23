@@ -1834,7 +1834,7 @@ export interface components {
             /** @default null */
             email: string | null;
             /**
-             * @description In the international format (+33 3 88 11 22 33) or in the national format of France (03 88 11 22 33); kept in E.164, refused when it is no valid number
+             * @description In the international format (+33 3 88 11 22 33) or in France's national format (03 88 11 22 33). It is kept in E.164 and refused when it is not a valid number
              * @default null
              * @example 03 88 11 22 33
              */
@@ -1842,7 +1842,7 @@ export interface components {
             /** @default null */
             language: string | null;
             /**
-             * @description The addresses of its pages on the tools outside (a company on LinkedIn or Welcome to the Jungle, any other site), five at most; each recognized by its source and an identifier, refused when it is no address of a web page, a page of a known tool designating a person or none it recognizes, or the one of another organization of the account
+             * @description The addresses of its pages on outside tools (a company on LinkedIn or Welcome to the Jungle, or any other site), five at most. Each one is recognized by its source and an identifier. A link is refused when it is not a web page's address, when it is a known tool's page that designates a person or that Prospecter does not recognize, or when another organization in the account has it
              * @default []
              * @example [
              *       "https://www.welcometothejungle.com/fr/companies/acme"
@@ -1850,7 +1850,7 @@ export interface components {
              */
             links: string[];
             /**
-             * @description The address of a site on the web, with or without its scheme; kept as its origin (https when typed without), refused when it is no address of a site, or when another organization of the account has a site of the same domain (its host without www)
+             * @description A website's address, with or without its scheme. It is kept as its origin, with https when typed without a scheme. It is refused when it is not a site's address, or when another organization in the account has a website with the same domain (its host without www)
              * @default null
              * @example www.acme.fr
              */
@@ -1859,24 +1859,24 @@ export interface components {
         CampaignExchangeInput: {
             /**
              * Format: date-time
-             * @description When it happened, now when left out; never in the future
+             * @description When it happened. Now when left out. Never in the future
              * @default null
              */
             occurredAt: string | null;
             /** @default null */
             text: string | null;
             /**
-             * @description Missed: the contact did not answer; a call only, its status then missed
+             * @description Missed: the contact did not answer. Only for a call. Its status is then missed
              * @default false
              */
             missed: boolean;
             /**
-             * @description The header Message-ID of the e-mail sent: an e-mail of the same Message-ID is noted once in the account; an e-mail only
+             * @description The sent e-mail's Message-ID header. The account logs an e-mail with a given Message-ID only once. Only for an e-mail
              * @default null
              */
             messageId: string | null;
             /**
-             * @description The conversation of the LinkedIn message sent, its identifier or the address of its thread (linkedin.com/messaging/thread/<id>/): a message of the same conversation, minute, direction and text is noted once in the account; a LinkedIn message only
+             * @description The sent LinkedIn message's conversation: its identifier or its thread's address (linkedin.com/messaging/thread/<id>/). The account logs a message only once for a given conversation, minute, direction and text. Only for a LinkedIn message
              * @default null
              */
             linkedInConversation: string | null;
@@ -1894,43 +1894,43 @@ export interface components {
             direction: "inbound" | "outbound";
             /**
              * Format: date-time
-             * @description When it happened, now when left out; never in the future
+             * @description When it happened. Now when left out. Never in the future
              * @default null
              */
             occurredAt: string | null;
             /** @default null */
             text: string | null;
             /**
-             * @description Missed: the contact did not answer or come; a call, a meeting or a video call only, its status then missed
+             * @description Missed: the contact did not answer or did not come. Only for a call, a meeting or a video call. Its status is then missed
              * @default false
              */
             missed: boolean;
             /**
-             * @description The header Message-ID of an e-mail, where it was read: an e-mail of the same Message-ID is noted once in the account; an e-mail only
+             * @description An e-mail's Message-ID header, where it was read. The account logs an e-mail with a given Message-ID only once. Only for an e-mail
              * @default null
              */
             messageId: string | null;
             /**
-             * @description The conversation of a LinkedIn message, its identifier or the address of its thread (linkedin.com/messaging/thread/<id>/): a message of the same conversation, minute, direction and text is noted once in the account; a LinkedIn message only
+             * @description A LinkedIn message's conversation: its identifier or its thread's address (linkedin.com/messaging/thread/<id>/). The account logs a message only once for a given conversation, minute, direction and text. Only for a LinkedIn message
              * @default null
              */
             linkedInConversation: string | null;
         };
         PlannedExchangeInput: {
             /**
-             * @description Only a call, a meeting or a video call is planned, any other channel refused by the rule of the core
+             * @description Only a call, a meeting or a video call can be planned. The core's rule refuses any other channel
              * @default
              * @enum {string}
              */
             channel: "call" | "sms" | "email" | "linkedIn" | "malt" | "meeting" | "videoCall" | "other";
             /**
              * Format: date-time
-             * @description When it is to happen; in the future
+             * @description When it will happen, in the future
              * @default null
              */
             occurredAt: string | null;
             /**
-             * @description How long it lasts, from 5 minutes to 8 hours; 30 when left out
+             * @description How long it lasts, from 5 minutes to 8 hours. 30 when left out
              * @default null
              */
             durationInMinutes: number | null;
@@ -1940,17 +1940,17 @@ export interface components {
              */
             text: string | null;
             /**
-             * @description Where a meeting is held, written freely; a meeting only
+             * @description Where a meeting is held, written freely. Only for a meeting
              * @default null
              */
             place: string | null;
             /**
-             * @description The web address a video call is joined by, optional: it may be added later; a video call only
+             * @description The web address that joins a video call. It is optional and may be added later. Only for a video call
              * @default null
              */
             link: string | null;
             /**
-             * @description A video call without a link asks one of the calendar of the member it is pushed into, a Google Meet link; a video call only
+             * @description A video call without a link requests a Google Meet link from the calendar of the member it is pushed into. Only for a video call
              * @default false
              */
             linkRequested: boolean;
@@ -2018,7 +2018,7 @@ export interface components {
         OrganizationExchangeInput: {
             exchange?: components["schemas"]["ExchangeInput"];
             /**
-             * @description The contact of the organization it was with; left out, it was with the organization itself
+             * @description The organization's contact it was with. When left out, it was with the organization itself
              * @default null
              */
             personId: string | null;
@@ -2026,7 +2026,7 @@ export interface components {
         OrganizationPlannedExchangeInput: {
             exchange?: components["schemas"]["PlannedExchangeInput"];
             /**
-             * @description The contact of the organization it is planned with; left out, with the organization itself
+             * @description The organization's contact it is planned with. When left out, it is planned with the organization itself
              * @default null
              */
             personId: string | null;
