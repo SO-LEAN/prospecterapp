@@ -12,8 +12,8 @@ use Prospecter\Core\SharedKernel\Application\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * The contacts of the account of the member carrying every tag chosen, their own, inherited or automatic: every
- * prospector searches them, tags being no personal data.
+ * The contacts of the member's account that carry every chosen tag, as their own, inherited or automatic tags. Every
+ * prospector searches them, because tags are not personal data.
  */
 final readonly class SearchContactsByTagsHandler implements QueryHandler
 {
