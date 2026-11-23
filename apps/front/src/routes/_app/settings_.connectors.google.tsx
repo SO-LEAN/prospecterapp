@@ -9,7 +9,7 @@ const searchSchema = z.object({
   error: z.string().optional().catch(undefined),
 })
 
-/** The redirect URI of the OAuth client of the instance: Google brings the member back here (ADR 0120). */
+/** The redirect URI of the instance's OAuth client. Google brings the member back here (ADR 0120). */
 export const Route = createFileRoute('/_app/settings_/connectors/google')({
   validateSearch: zodValidator(searchSchema),
   component: GoogleAnswer,

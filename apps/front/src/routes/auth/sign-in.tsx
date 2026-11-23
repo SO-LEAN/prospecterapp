@@ -7,8 +7,8 @@ import type { SignInValues } from '@/features/sign-in/schema'
 import { safeReturnTo } from '@/shared/auth/sign-in-page'
 
 /**
- * The sign-in screen of the SPA (ADR 0037, 0052): an anonymous visitor is sent here with the page it asked
- * for, and goes back to it once signed in.
+ * The SPA's sign-in screen (ADR 0037, 0052). An anonymous visitor lands here with the page they requested.
+ * Once signed in, they go back to that page.
  */
 export const Route = createFileRoute('/auth/sign-in')({
   validateSearch: (search: Record<string, unknown>) => ({ returnTo: safeReturnTo(search.returnTo) }),

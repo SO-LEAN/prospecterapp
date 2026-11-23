@@ -18,7 +18,7 @@ const searchSchema = z.object({
   status: z.enum(CAMPAIGN_FILTERS).catch('running').default('running'),
 })
 
-/** The campaigns of my team, read whole (ADR 0144), shown by status, those running by default, and the way to prepare one. */
+/** My team's campaigns, read as a whole (ADR 0144) and shown by status, the running ones by default. The page offers to prepare one. */
 export const Route = createFileRoute('/_app/campaigns/')({
   validateSearch: zodValidator(searchSchema),
   loader: ({ context }) => context.queryClient.ensureQueryData(campaignsQuery()),

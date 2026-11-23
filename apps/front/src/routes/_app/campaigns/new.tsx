@@ -12,7 +12,7 @@ import { ErrorState } from '@/shared/ui/feedback/error-state'
 import { PageHeader } from '@/shared/ui/page-header'
 import { PageSkeleton } from '@/shared/ui/page-skeleton'
 
-/** The form opens only to whom the api lets read the campaigns: the others are told their role does not allow it. */
+/** The form opens only for members whom the API lets read the campaigns. The others learn that their role does not allow it. */
 export const Route = createFileRoute('/_app/campaigns/new')({
   loader: ({ context }) => context.queryClient.ensureQueryData(campaignsQuery()),
   pendingComponent: () => <PageSkeleton rows={4} />,
@@ -21,9 +21,9 @@ export const Route = createFileRoute('/_app/campaigns/new')({
 })
 
 /**
- * A campaign prepared as a draft, its form at the left, at the right the contacts it targets as it is typed; the
- * preview of its message comes once it is prepared, on its own page: the core renders the message saved, never the
- * screen.
+ * A campaign prepared as a draft. Its form is on the left. On the right, the page shows the contacts it targets as the
+ * member types. The message's preview comes once the campaign is prepared, on its own page: the core renders the
+ * saved message, never the screen.
  */
 function NewCampaign() {
   const { t } = useTranslation()

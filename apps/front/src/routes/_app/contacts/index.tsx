@@ -23,9 +23,10 @@ const searchSchema = z.object({
 })
 
 /**
- * The persons my organization prospects, with their organizations, a slice after the other. The search lives in the
- * URL: by text, offered only with the right to manage personal data (the links of the page), or by the tags the
- * contacts must all carry, counted, never both at once. A contact is collected from an organization, never here.
+ * The persons my organization prospects, with their organizations, one slice after another. The URL holds the search.
+ * The search is by text or by tags, never both at once. The page's links offer the text search only with the right
+ * to manage personal data. The tag search finds the contacts that carry all the tags, and counts them. A contact is
+ * collected from an organization, never here.
  */
 export const Route = createFileRoute('/_app/contacts/')({
   validateSearch: zodValidator(searchSchema),
@@ -112,8 +113,8 @@ function Contacts() {
 }
 
 /**
- * The contacts by text, or those carrying every tag chosen once one is, then counted; the search by text is offered
- * while no tag is chosen, as the links of the whole list say.
+ * The contacts found by text, or, once a tag is chosen, the contacts that carry every chosen tag, with their count.
+ * The text search is offered while no tag is chosen, as the full list's links say.
  */
 function useContactList(q: string, tags: string) {
   const byText = useInfiniteQuery({

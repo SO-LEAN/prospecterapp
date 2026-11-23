@@ -114,8 +114,8 @@ function OrganizationPage() {
 const nameOf = (organization: Organization) => organization.name || organization.contactDetails.email || ''
 
 /**
- * Its to-dos then its timeline, noted with the organization itself or with one of its contacts; a to-do ticked off
- * proposes to note the exchange it led to.
+ * The organization's to-dos, then its timeline: the exchanges logged with the organization or with one of its
+ * contacts. A completed to-do offers to log the exchange it led to.
  */
 function ToDosAndExchanges({ organization, name }: { organization: Organization; name: string }) {
   const contacts = useQuery(organizationContactsQuery(organization.id))

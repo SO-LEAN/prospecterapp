@@ -19,13 +19,13 @@ const searchSchema = z.object({
 
 type Shown = { view: View; day: Date }
 
-/** What the URL says, else the view of the screen on today. */
+/** What the URL says, or else the view that suits the screen, on today. */
 const shownBy = ({ view, date }: z.infer<typeof searchSchema>): Shown => ({
   view: view ?? defaultView(),
   day: parseDay(date ?? ''),
 })
 
-/** My calendar, its view and its day in the URL: the back button and a reload keep them. */
+/** My calendar. The URL holds its view and its day, so the back button and a reload keep them. */
 export const Route = createFileRoute('/_app/calendar')({
   validateSearch: zodValidator(searchSchema),
   loaderDeps: ({ search }) => search,

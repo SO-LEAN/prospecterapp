@@ -12,7 +12,7 @@ export const Route = createFileRoute('/_app/organizations/new')({
   component: NewOrganization,
 })
 
-/** A tag refused once the organization exists is told by the toast of its refusal: the page of the organization opens all the same. */
+/** A toast reports a tag refused after the organization was created. The organization's page opens anyway. */
 const keepingTheOrganization = () => undefined
 
 function NewOrganization() {
