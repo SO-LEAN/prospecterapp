@@ -12,8 +12,8 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
- * An organization the account no longer prospects takes its tags with it (ADR 0138): its terminal fact, the
- * subscription passing those only; delivered again, nothing is left to forget.
+ * An organization that the account no longer prospects takes its tags with it (ADR 0138). The handler reacts to its
+ * terminal fact: the subscription passes only those. When the event is delivered again, nothing is left to forget.
  */
 final readonly class ForgetTagsOfUnprospectedOrganizationHandler implements EventHandler
 {
