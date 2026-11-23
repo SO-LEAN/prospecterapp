@@ -8,7 +8,7 @@ use OpenApi\Attributes as OA;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * An exchange noted with a contact, shaped like `ExchangeResource`.
+ * An exchange logged with a contact, shaped like `ExchangeResource`.
  */
 final readonly class ExchangeInput
 {
@@ -24,17 +24,17 @@ final readonly class ExchangeInput
         #[Assert\NotBlank]
         #[Assert\Choice(choices: self::DIRECTIONS)]
         public string $direction = '',
-        #[OA\Property(format: 'date-time', description: 'When it happened, now when left out; never in the future')]
+        #[OA\Property(format: 'date-time', description: 'When it happened. Now when left out. Never in the future')]
         public ?\DateTimeImmutable $occurredAt = null,
         #[Assert\Length(max: self::MAX_TEXT)]
         public ?string $text = null,
-        #[OA\Property(description: 'Missed: the contact did not answer or come; a call, a meeting or a video call only, its status then missed')]
+        #[OA\Property(description: 'Missed: the contact did not answer or did not come. Only for a call, a meeting or a video call. Its status is then missed')]
         public bool $missed = false,
         #[Assert\Length(max: self::MAX_REFERENCE)]
-        #[OA\Property(description: 'The header Message-ID of an e-mail, where it was read: an e-mail of the same Message-ID is noted once in the account; an e-mail only')]
+        #[OA\Property(description: 'An e-mail\'s Message-ID header, where it was read. The account logs an e-mail with a given Message-ID only once. Only for an e-mail')]
         public ?string $messageId = null,
         #[Assert\Length(max: self::MAX_REFERENCE)]
-        #[OA\Property(description: 'The conversation of a LinkedIn message, its identifier or the address of its thread (linkedin.com/messaging/thread/<id>/): a message of the same conversation, minute, direction and text is noted once in the account; a LinkedIn message only')]
+        #[OA\Property(description: 'A LinkedIn message\'s conversation: its identifier or its thread\'s address (linkedin.com/messaging/thread/<id>/). The account logs a message only once for a given conversation, minute, direction and text. Only for a LinkedIn message')]
         public ?string $linkedInConversation = null,
     ) {
     }

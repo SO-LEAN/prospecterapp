@@ -7,7 +7,7 @@ namespace App\Prospecting\Input;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * The person to attach, among the contacts of my organization.
+ * The person to add, among my account's contacts.
  */
 final readonly class ContactInput
 {
