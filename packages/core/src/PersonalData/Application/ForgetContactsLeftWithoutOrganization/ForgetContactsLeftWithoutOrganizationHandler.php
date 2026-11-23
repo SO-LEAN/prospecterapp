@@ -8,9 +8,9 @@ use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\PersonalData\Domain\Port\Readers;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
 use Prospecter\Core\Prospecting\Contract\Event\ContactsLeftWithoutOrganization;
-use Prospecter\Core\SharedKernel\Application\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\PublishesEvents;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
-use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**

@@ -10,7 +10,7 @@ use Prospecter\Core\Connectors\Domain\Model\ExchangeId;
 use Prospecter\Core\Connectors\Domain\Port\HeldExchanges;
 use Prospecter\Core\Connectors\Domain\Port\Members;
 use Prospecter\Core\Connectors\Domain\Repository\CalendarEntryRepository;
-use Prospecter\Core\SharedKernel\Application\CommandHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
 use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 

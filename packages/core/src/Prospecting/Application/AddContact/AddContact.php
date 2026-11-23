@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\AddContact;
 
-use Prospecter\Core\SharedKernel\Application\Addition;
+use Prospecter\Core\SharedKernel\Application\Handler\Addition;
 
 /**
  * Attaches a contact to an organization. The contact is a person the account prospects, collected beforehand in

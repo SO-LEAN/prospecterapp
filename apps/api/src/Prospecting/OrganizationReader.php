@@ -12,7 +12,7 @@ use App\Shared\ImageResourceFactory;
 use App\Shared\Links;
 use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganization;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 
 /**
  * Reads an organization as the API shows it. The core's query reads it, and a presenter built for the call presents

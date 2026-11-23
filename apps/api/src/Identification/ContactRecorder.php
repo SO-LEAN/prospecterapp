@@ -36,8 +36,8 @@ use Prospecter\Core\Prospecting\Application\IdentifyOrganizations\IdentifyOrgani
 use Prospecter\Core\Prospecting\Application\IdentifyOrganizations\KeptIdentifications as KeptOrganizationIdentifications;
 use Prospecter\Core\Prospecting\Application\IdentifyOrganizations\OrganizationClues;
 use Prospecter\Core\Prospecting\Application\StopProspecting\StopProspecting;
-use Prospecter\Core\SharedKernel\Application\Comparison;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Response\Comparison;
 use Symfony\Component\Clock\ClockInterface;
 
 /**

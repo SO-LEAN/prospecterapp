@@ -9,7 +9,7 @@ use Prospecter\Core\Campaigns\Contract\Service\NameCampaigns\NameCampaigns;
 use Prospecter\Core\Campaigns\Contract\Service\NameCampaigns\NameCampaignsOutput;
 use Prospecter\Core\Campaigns\Contract\Service\NameCampaigns\NameCampaignsService;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignId;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 final readonly class NameCampaignsHandler implements QueryHandler, NameCampaignsService

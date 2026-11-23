@@ -17,7 +17,7 @@ use Prospecter\Core\Connectors\Application\AskToImportMail\AskToImportMail;
 use Prospecter\Core\Connectors\Application\ConsultMyConnections\ConsultMyConnections;
 use Prospecter\Core\Connectors\Application\ConsultMyConnections\KeptConnections;
 use Prospecter\Core\Connectors\Application\MyConnection;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;

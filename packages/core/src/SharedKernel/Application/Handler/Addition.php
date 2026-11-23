@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Prospecter\Core\SharedKernel\Application;
+namespace Prospecter\Core\SharedKernel\Application\Handler;
 
 /**
  * A command that only adds something and contradicts nothing its client read: it creates a record, or attaches a

@@ -6,9 +6,9 @@ namespace Prospecter\Core\Connectors\Application\NoteMailboxNotification;
 
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Repository\ConnectionRepository;
-use Prospecter\Core\SharedKernel\Application\CommandHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\PublishesEvents;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
-use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\Contact\Email;
 use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 

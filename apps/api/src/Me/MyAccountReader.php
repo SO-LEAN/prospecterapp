@@ -11,7 +11,7 @@ use App\Shared\Links;
 use Prospecter\Core\Accounts\Application\ConsultMyAccount\ConsultMyAccount;
 use Prospecter\Core\Accounts\Application\ConsultMyAccount\KeptAccount;
 use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPerson;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 
 /**
  * Reads my account as the API shows it. It reads my membership in Accounts and my profile in PersonalData, under my

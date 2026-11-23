@@ -7,9 +7,9 @@ namespace Prospecter\Core\Prospecting\Application\EraseExchangeLeftWithoutOrgani
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeLeftWithoutOrganization;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownExchange;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
-use Prospecter\Core\SharedKernel\Application\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\PublishesEvents;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
-use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 
 /**
  * Erases an exchange kept for no organization, with the personal data its text and its files may hold

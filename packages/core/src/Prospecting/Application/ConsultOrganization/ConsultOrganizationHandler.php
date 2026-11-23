@@ -6,7 +6,7 @@ namespace Prospecter\Core\Prospecting\Application\ConsultOrganization;
 
 use Prospecter\Core\Prospecting\Application\Port\OrganizationSheetRetriever;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 
 final readonly class ConsultOrganizationHandler implements QueryHandler
 {

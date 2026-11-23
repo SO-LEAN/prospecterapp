@@ -11,9 +11,9 @@ use Prospecter\Core\Booking\Domain\Model\Weekday;
 use Prospecter\Core\Booking\Domain\Model\WeeklyWindows;
 use Prospecter\Core\Booking\Domain\Model\Window;
 use Prospecter\Core\Booking\Domain\Repository\BookingPageRepository;
-use Prospecter\Core\SharedKernel\Application\CommandHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\PublishesEvents;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
-use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 

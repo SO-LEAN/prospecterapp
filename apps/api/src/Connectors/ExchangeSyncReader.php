@@ -7,7 +7,7 @@ namespace App\Connectors;
 use App\Connectors\Resource\ExchangeSyncResource;
 use App\Shared\Links;
 use Prospecter\Core\Connectors\Application\ConsultExchangeSync\ConsultExchangeSync;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Symfony\Component\Clock\ClockInterface;
 
 /**

@@ -10,7 +10,7 @@ use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Port\CampaignNames;
 use Prospecter\Core\Prospecting\Domain\Port\Prospectors;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**

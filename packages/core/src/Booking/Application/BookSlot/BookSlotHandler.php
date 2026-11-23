@@ -17,9 +17,9 @@ use Prospecter\Core\Booking\Domain\Repository\AppointmentRepository;
 use Prospecter\Core\Booking\Domain\Repository\BookingPageRepository;
 use Prospecter\Core\Booking\Domain\Service\BusyPeriods;
 use Prospecter\Core\Booking\Domain\Service\LinkAvailability;
-use Prospecter\Core\SharedKernel\Application\CommandHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\PublishesEvents;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
-use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 
 final readonly class BookSlotHandler implements CommandHandler
 {

@@ -9,7 +9,7 @@ use App\Connectors\Resource\GoogleClientResource;
 use App\Security\User;
 use App\Shared\Links;
 use Prospecter\Core\Connectors\Application\ConsultMyAccountClients\ConsultMyAccountClients;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 
 final readonly class GoogleClientReader
 {

@@ -10,7 +10,7 @@ use Prospecter\Core\Prospecting\Domain\Model\MessageReference;
 use Prospecter\Core\Prospecting\Domain\Port\CampaignRecipients;
 use Prospecter\Core\Prospecting\Domain\Port\Prospectors;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**

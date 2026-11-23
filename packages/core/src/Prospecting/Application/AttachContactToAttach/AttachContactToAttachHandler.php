@@ -6,9 +6,9 @@ namespace Prospecter\Core\Prospecting\Application\AttachContactToAttach;
 
 use Prospecter\Core\Prospecting\Domain\Event\ContactAdded;
 use Prospecter\Core\Prospecting\Domain\Repository\ContactToAttachRepository;
-use Prospecter\Core\SharedKernel\Application\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\PublishesEvents;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
-use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 
 /**
  * Once a member adds a contact to attach to an organization, the contact is no longer to attach (ADR 0146). The

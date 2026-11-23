@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Accounts\Application\ConsultMyReminders;
 
 use Prospecter\Core\Accounts\Application\MyReminders;
-use Prospecter\Core\SharedKernel\Application\OutputPort;
+use Prospecter\Core\SharedKernel\Application\Handler\OutputPort;
 
 interface ConsultMyRemindersOutput extends OutputPort
 {

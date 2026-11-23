@@ -17,41 +17,31 @@ A context's `Domain` is grouped by kind of building block (ADR 0086):
 - `Port/`: what the context asks of the others, implemented by an anticorruption layer (ADR 0045);
 - `Event/` and `Exception/`.
 
-A folder exists only when it holds something. The shared kernel is only model, so it stays flat, except for `Event/` and `Exception/`.
+A folder exists only when it holds something.
 
-- `src/SharedKernel/{Domain,Application}`: what several contexts share, kept small. A class that serves a single context, directly or through another class of the shared kernel, belongs in that context: `tests/Architecture/SharedKernelServesSeveralContextsTest` fails and names it. The classes that only the API uses around every context's handlers are named in the test. Prospecting keeps the `PrivateStorage` port of its attachments (ADR 0077):
-  - the identities `AccountId` and `MemberId`, the account and the member who acts, which mean the same in every context (ADR 0197);
-  - `DomainEvent`, the base class of every domain event (in `Domain/Event`), and `ReleasesEvents` and `RecordsEvents`;
-  - `Email` (lower case), `PhoneNumber` (E.164, ADR 0072), `ContactDetails`;
-  - links to outside tools (ADR 0165):
+- `src/SharedKernel/{Domain,Application}`: what several contexts share, kept small. A class that serves a single context, directly or through another class of the shared kernel, belongs in that context: `tests/Architecture/SharedKernelServesSeveralContextsTest` fails and names it. The classes that only the API uses around every context's handlers are named in the test. So Prospecting keeps the `PrivateStorage` port of its attachments (ADR 0077). The domain is grouped by concept, each concept with its own refusals:
+  - `Identity/`: `Uuid`, and the identities `AccountId` and `MemberId`, the account and the member who acts, which mean the same in every context (ADR 0197);
+  - `Event/`: `DomainEvent`, the base class of every domain event, and `ReleasesEvents` and `RecordsEvents`;
+  - `Exception/`: the generic business exceptions `BusinessException`, `NotFound`, `BusinessRuleViolation` (naming the faulty field), `NotPossibleInItsState`, `NotAllowed` and its `PersonalDataManagersOnly`, and `ChangedMeanwhile`. The API throws `ChangedMeanwhile` when another command changed what a command changes since the command read it (ADR 0181);
+  - `Contact/`: `Email` (lower case) and its refusals `InvalidEmail` and `EmailAlreadyUsed`, `PhoneNumber` (E.164, ADR 0072) and its `InvalidPhoneNumber`, `ContactDetails`, and `Address`;
+  - `Link/`, the links to outside tools (ADR 0165):
     - `ExternalReference` holds a source (a `KnownSource` or the address's host) and the identifier of what it points to there. It recognizes the link and keeps the pasted address to open it.
     - `Designated` is a person or an organization.
     - `ExternalReferences` holds each link once, five at most.
     - The refusals are `NotAWebAddress`, `ReferenceOfAnotherKind`, `UnrecognizedPage` and `TooManyLinks`;
-  - `LegalIdentity` and its `Siret` (fourteen digits checked by Luhn, or by their sum for La Poste, ADR 0158);
-  - `Address` and its `GeoPoint`;
-  - `Location`, where the geocoder finds an address: its `GeoPoint` and its municipality's INSEE code (ADR 0142);
-  - `File`;
-  - `Origin`: how an organization, a contact or an exchange was created, by hand or by an AI through the MCP server (ADR 0185);
-  - `Gesture`: who acts, in which account, when, and the act's `Origin`. It is the argument object of the aggregates' factories (ADR 0191). The exception is an actor who carries a right that its aggregate checks: PersonalData's `Reader`, the administrator registering a member (ADR 0193);
-  - `Completion`: what a client knows about a person or an organization, compared with what is recorded. It lists the fields it would fill, empty until then, and the fields where it gives something else (ADR 0177);
-  - `Slice`: a list, newest first, with the cursor to what follows (ADR 0049);
-  - `SearchKey` and `SearchKeys`: an aggregate is found by the start of its name or email, ignoring accents, case, spaces and punctuation (ADR 0071);
-  - `Uuid`;
-  - the business exceptions in `Domain/Exception`: `BusinessException`, `NotFound`, `BusinessRuleViolation` (naming the faulty field), `NotPossibleInItsState`, `NotAllowed`, and `ChangedMeanwhile`. The API throws `ChangedMeanwhile` when another command changed what a command changes since the command read it (ADR 0181);
-  - in the application:
-    - `CommandHandler`, `QueryHandler`;
-    - the marker `OutputPort` for query output ports;
-    - the marker `Addition` for a command that only adds and contradicts nothing its client read (a contact collected or attached). When what such a command read changed meanwhile, the API runs it again instead of refusing it (ADR 0181);
-    - `EventHandler`, `PublishesEvents`;
-    - the decorators `RefusalTranslatingCommandHandler`, `RefusalTranslatingQueryHandler`, `RefusalTranslatingEventHandler`, `TransactionalCommandHandler` and `TransactionalEventHandler`;
-    - the `Events` port and the `UnitOfWork` port;
-    - `UseCaseRefused` and its `ErrorType`;
-    - `FileResponse`;
-    - `ExternalLink` (a link as the use cases return it);
-    - `Comparison` (a `Completion` as the queries return it, ADR 0177);
-    - the `Storage` port and `FileStore`;
-    - the `GeoLocation` port and `GeoLocalizer`.
+  - `Company/`: `LegalIdentity` and its `Siret` (fourteen digits checked by Luhn, or by their sum for La Poste, ADR 0158), refused by `InvalidSiret`;
+  - `Location/`: `GeoPoint`, and `Location`, where the geocoder finds an address: its `GeoPoint` and its municipality's INSEE code (ADR 0142);
+  - `Search/`: `SearchKey` and `SearchKeys`, by which an aggregate is found by the start of its name or email, ignoring accents, case, spaces and punctuation (ADR 0071), with `Decomposed`. And `Slice`: a list, newest first, with the cursor to what follows (ADR 0049);
+  - `File/`: `File`;
+  - `Gesture/`: `Gesture`, who acts, in which account, when, and the act's `Origin`. It is the argument object of the aggregates' factories (ADR 0191). The exception is an actor who carries a right that its aggregate checks: PersonalData's `Reader`, the administrator registering a member (ADR 0193). `Origin` says how an organization, a contact or an exchange was created, by hand or by an AI through the MCP server (ADR 0185);
+  - `Completion/`: `Completion`, what a client knows about a person or an organization, compared with what is recorded. It lists the fields it would fill, empty until then, and the fields where it gives something else (ADR 0177).
+
+  The application is grouped by role:
+  - `Handler/`: `CommandHandler`, `QueryHandler` and `EventHandler`; the marker `OutputPort` for query output ports; the marker `Addition` for a command that only adds and contradicts nothing its client read (a contact collected or attached). When what such a command read changed meanwhile, the API runs it again instead of refusing it (ADR 0181). `PublishesEvents`, by which a handler publishes its aggregate's events. The decorators `RefusalTranslatingCommandHandler`, `RefusalTranslatingQueryHandler`, `RefusalTranslatingEventHandler`, `TransactionalCommandHandler` and `TransactionalEventHandler`;
+  - `Port/`: `Events`, `UnitOfWork`, `Storage` and `GeoLocation`;
+  - `Service/`: `FileStore` on the `Storage` port, and `GeoLocalizer` on the `GeoLocation` port;
+  - `Response/`: `FileResponse`, `ExternalLink` (a link as the use cases return it), and `Comparison` (a `Completion` as the queries return it, ADR 0177);
+  - `Exception/`: `UseCaseRefused` and its `ErrorType`.
 
   Each context keeps its own exceptions in `Domain/Exception` (`UnknownOrganization`...).
 

@@ -7,7 +7,7 @@ namespace Prospecter\Core\Booking\Application\ForgetAppointmentOfErasedExchange;
 use Prospecter\Core\Booking\Domain\Model\AppointmentId;
 use Prospecter\Core\Booking\Domain\Repository\AppointmentRepository;
 use Prospecter\Core\Prospecting\Contract\Event\ExchangeFactsChanged;
-use Prospecter\Core\SharedKernel\Application\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
 
 /**
  * An appointment lives as long as the exchange it became, which has the same id (ADR 0171). A member may erase the

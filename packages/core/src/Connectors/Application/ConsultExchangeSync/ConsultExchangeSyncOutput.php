@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Connectors\Application\ConsultExchangeSync;
 
 use Prospecter\Core\Connectors\Application\ExchangeSync;
-use Prospecter\Core\SharedKernel\Application\OutputPort;
+use Prospecter\Core\SharedKernel\Application\Handler\OutputPort;
 
 interface ConsultExchangeSyncOutput extends OutputPort
 {

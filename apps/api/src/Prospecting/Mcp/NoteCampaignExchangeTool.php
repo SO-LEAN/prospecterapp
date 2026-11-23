@@ -19,7 +19,7 @@ use Prospecter\Core\Prospecting\Application\NoteCampaignExchange\NoteCampaignExc
 use Prospecter\Core\Prospecting\Application\SendingNoted\KeptSendingNoted;
 use Prospecter\Core\Prospecting\Application\SendingNoted\SendingNoted;
 use Prospecter\Core\Prospecting\Application\SendingNoted\SendingNotedOutput;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Symfony\Component\Clock\ClockInterface;
 
 /**

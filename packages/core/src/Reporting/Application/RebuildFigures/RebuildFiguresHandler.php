@@ -7,7 +7,7 @@ namespace Prospecter\Core\Reporting\Application\RebuildFigures;
 use Prospecter\Core\Reporting\Application\FactRecorder;
 use Prospecter\Core\Reporting\Application\Port\ProjectionVersions;
 use Prospecter\Core\Reporting\Application\Port\RecordingsInFlight;
-use Prospecter\Core\SharedKernel\Application\CommandHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\UnitOfWork;
 
 /**

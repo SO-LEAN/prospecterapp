@@ -10,7 +10,7 @@ use Prospecter\Core\Connectors\Domain\Model\ContactId;
 use Prospecter\Core\Connectors\Domain\Port\HeldExchanges;
 use Prospecter\Core\Connectors\Domain\Repository\CalendarEntryRepository;
 use Prospecter\Core\PersonalData\Contract\Event\ContactForgotten;
-use Prospecter\Core\SharedKernel\Application\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
 use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**

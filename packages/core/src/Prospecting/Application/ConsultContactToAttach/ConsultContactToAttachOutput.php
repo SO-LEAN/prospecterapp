@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\ConsultContactToAttach;
 
 use Prospecter\Core\Prospecting\Application\ContactToAttachInList;
-use Prospecter\Core\SharedKernel\Application\OutputPort;
+use Prospecter\Core\SharedKernel\Application\Handler\OutputPort;
 
 interface ConsultContactToAttachOutput extends OutputPort
 {

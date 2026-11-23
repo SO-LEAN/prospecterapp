@@ -8,7 +8,7 @@ use Prospecter\Core\Reporting\Application\Port\FiguresRetriever;
 use Prospecter\Core\Reporting\Application\Port\ProjectionVersions;
 use Prospecter\Core\Reporting\Domain\Model\Month;
 use Prospecter\Core\Reporting\Domain\Port\SourceAccounts;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**

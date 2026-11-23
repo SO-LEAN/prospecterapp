@@ -11,7 +11,7 @@ use Prospecter\Core\Booking\Contract\Service\ConsultAppointments\ConsultAppointm
 use Prospecter\Core\Booking\Domain\Model\Appointment;
 use Prospecter\Core\Booking\Domain\Model\AppointmentId;
 use Prospecter\Core\Booking\Domain\Repository\AppointmentRepository;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 
 final readonly class ConsultAppointmentsHandler implements QueryHandler, ConsultAppointmentsService
 {

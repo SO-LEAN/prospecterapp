@@ -7,7 +7,7 @@ namespace Prospecter\Core\Prospecting\Application\ForgetFingerprintsOfForgottenC
 use Prospecter\Core\PersonalData\Contract\Event\ContactForgotten;
 use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
-use Prospecter\Core\SharedKernel\Application\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
 use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**

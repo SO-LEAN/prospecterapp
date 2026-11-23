@@ -10,7 +10,7 @@ use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPerson;
 use Prospecter\Core\PersonalData\Application\ConsultPerson\KeptPerson;
 use Prospecter\Core\Prospecting\Application\ProposeOrganizationToAttach\KeptProposedOrganization;
 use Prospecter\Core\Prospecting\Application\ProposeOrganizationToAttach\ProposeOrganizationToAttach;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 
 /**
  * Reads the organization proposed to attach a contact to, from two contexts (ADR 0146). PersonalData reads the

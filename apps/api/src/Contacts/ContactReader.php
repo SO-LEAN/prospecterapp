@@ -15,7 +15,7 @@ use Prospecter\Core\Prospecting\Application\ConsultContactToAttach\ConsultContac
 use Prospecter\Core\Prospecting\Application\ConsultContactToAttach\KeptContactToAttach;
 use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\ConsultTimelineIntents;
 use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\KeptTimelineIntents;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 
 /**
  * Reads a contact as the API shows it. PersonalData reads the person. Prospecting says what the reader may do with

@@ -20,8 +20,8 @@ use Prospecter\Core\Connectors\Domain\Port\ProviderCalendar;
 use Prospecter\Core\Connectors\Domain\Repository\CalendarEntryRepository;
 use Prospecter\Core\Connectors\Domain\Repository\ConnectionRepository;
 use Prospecter\Core\Connectors\Domain\Repository\ProviderClientRepository;
+use Prospecter\Core\SharedKernel\Application\Handler\PublishesEvents;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
-use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 

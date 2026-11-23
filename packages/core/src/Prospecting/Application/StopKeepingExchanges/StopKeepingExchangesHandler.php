@@ -6,9 +6,9 @@ namespace Prospecter\Core\Prospecting\Application\StopKeepingExchanges;
 
 use Prospecter\Core\Prospecting\Domain\Event\ProspectingStopped;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
-use Prospecter\Core\SharedKernel\Application\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\PublishesEvents;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
-use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 
 /**
  * An organization that is no longer prospected takes its exchanges along. Those still kept for another organization

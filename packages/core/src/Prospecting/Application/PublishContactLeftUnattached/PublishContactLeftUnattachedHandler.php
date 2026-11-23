@@ -6,7 +6,7 @@ namespace Prospecter\Core\Prospecting\Application\PublishContactLeftUnattached;
 
 use Prospecter\Core\Prospecting\Contract\Event as Published;
 use Prospecter\Core\Prospecting\Domain\Event\ContactLeftUnattached;
-use Prospecter\Core\SharedKernel\Application\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 
 /**

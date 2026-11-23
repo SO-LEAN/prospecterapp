@@ -8,7 +8,7 @@ use Prospecter\Core\PersonalData\Application\Port\ContactFactsRetriever;
 use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\ListContactFacts;
 use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\ListContactFactsOutput;
 use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\ListContactFactsService;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 final readonly class ListContactFactsHandler implements QueryHandler, ListContactFactsService

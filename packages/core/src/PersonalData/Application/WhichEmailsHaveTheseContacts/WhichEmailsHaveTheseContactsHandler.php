@@ -12,7 +12,7 @@ use Prospecter\Core\PersonalData\Contract\Service\WhichEmailsHaveTheseContacts\W
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownReader;
 use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\PersonalData\Domain\Port\Readers;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**

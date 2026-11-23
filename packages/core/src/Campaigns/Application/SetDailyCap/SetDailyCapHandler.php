@@ -8,9 +8,9 @@ use Prospecter\Core\Campaigns\Domain\Model\CampaignId;
 use Prospecter\Core\Campaigns\Domain\Model\DailyCap;
 use Prospecter\Core\Campaigns\Domain\Port\Campaigners;
 use Prospecter\Core\Campaigns\Domain\Repository\CampaignRepository;
-use Prospecter\Core\SharedKernel\Application\CommandHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\PublishesEvents;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
-use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /** A team member sets the daily cap of a campaign of their account, or takes it off, even while the campaign runs. */

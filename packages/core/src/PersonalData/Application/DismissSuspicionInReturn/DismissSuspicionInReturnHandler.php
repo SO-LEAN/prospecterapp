@@ -7,9 +7,9 @@ namespace Prospecter\Core\PersonalData\Application\DismissSuspicionInReturn;
 use Prospecter\Core\PersonalData\Domain\Event\DuplicateSuspicionDismissed;
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
-use Prospecter\Core\SharedKernel\Application\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\PublishesEvents;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
-use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 
 /**
  * A member checked that a contact is not a duplicate of another one. In return, the other contact is not a duplicate

@@ -8,7 +8,7 @@ use Prospecter\Core\Accounts\Domain\Event\AccountOpened;
 use Prospecter\Core\Accounts\Domain\Model\Member;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\Accounts\Domain\Repository\MemberRepository;
-use Prospecter\Core\SharedKernel\Application\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
 
 /**
  * An account's founder is its first member and has every role.

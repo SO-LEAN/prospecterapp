@@ -9,7 +9,7 @@ use Prospecter\Core\Campaigns\Domain\Model\ContactFact;
 use Prospecter\Core\Campaigns\Domain\Model\ContactId;
 use Prospecter\Core\Campaigns\Domain\Model\Reach;
 use Prospecter\Core\PersonalData\Contract\Event\ContactFactsChanged;
-use Prospecter\Core\SharedKernel\Application\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
 use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**

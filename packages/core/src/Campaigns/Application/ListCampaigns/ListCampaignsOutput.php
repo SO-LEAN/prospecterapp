@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Campaigns\Application\ListCampaigns;
 
 use Prospecter\Core\Campaigns\Application\CampaignSheet;
-use Prospecter\Core\SharedKernel\Application\OutputPort;
+use Prospecter\Core\SharedKernel\Application\Handler\OutputPort;
 
 interface ListCampaignsOutput extends OutputPort
 {

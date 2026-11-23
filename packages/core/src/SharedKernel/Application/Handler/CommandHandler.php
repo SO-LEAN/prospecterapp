@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Prospecter\Core\SharedKernel\Application;
+namespace Prospecter\Core\SharedKernel\Application\Handler;
 
 /**
  * Carries out one command. It changes the application's state and returns nothing. Only a query reads that state

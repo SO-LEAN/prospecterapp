@@ -7,7 +7,7 @@ namespace App\Exchanges;
 use App\Exchanges\Resource\AttachmentDownloadResource;
 use Prospecter\Core\Prospecting\Application\DownloadAttachment\DownloadAttachment;
 use Prospecter\Core\Prospecting\Application\DownloadAttachment\KeptDownload;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 
 /**
  * Where to read a file attached to an exchange. The link is signed for a short time (ADR 0077).

@@ -6,11 +6,11 @@ namespace Tests\Core\Architecture;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\SharedKernel\Application\CommandHandler;
-use Prospecter\Core\SharedKernel\Application\EventHandler;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
-use Prospecter\Core\SharedKernel\Application\RefusalTranslatingCommandHandler;
-use Prospecter\Core\SharedKernel\Application\RefusalTranslatingQueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\RefusalTranslatingCommandHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\RefusalTranslatingQueryHandler;
 
 /**
  * The domain does not cross the application (ADR 0035). What a client sends (requests) and receives (responses,

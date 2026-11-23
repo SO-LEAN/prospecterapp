@@ -6,7 +6,7 @@ namespace Prospecter\Core\Booking\Application\PublishSlotBooked;
 
 use Prospecter\Core\Booking\Contract\Event as Published;
 use Prospecter\Core\Booking\Domain\Event\SlotBooked;
-use Prospecter\Core\SharedKernel\Application\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 
 /**

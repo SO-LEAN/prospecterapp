@@ -11,7 +11,7 @@ use Prospecter\Core\Campaigns\Application\RecipientInSheet;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignId;
 use Prospecter\Core\Campaigns\Domain\Port\Campaigners;
 use Prospecter\Core\Campaigns\Domain\Rule\CampaignProgress;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 final readonly class ConsultCampaignHandler implements QueryHandler

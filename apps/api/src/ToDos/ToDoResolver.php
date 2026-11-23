@@ -7,7 +7,7 @@ namespace App\ToDos;
 use Prospecter\Core\Prospecting\Application\ConsultToDo\ConsultToDo;
 use Prospecter\Core\Prospecting\Application\ConsultToDo\KeptToDo;
 use Prospecter\Core\Prospecting\Application\ToDoInList;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;

@@ -6,7 +6,7 @@ namespace Prospecter\Core\Connectors\Application\ConsultMailboxPusher;
 
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Repository\ProviderClientRepository;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 final readonly class ConsultMailboxPusherHandler implements QueryHandler

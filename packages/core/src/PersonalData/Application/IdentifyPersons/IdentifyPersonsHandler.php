@@ -15,7 +15,7 @@ use Prospecter\Core\PersonalData\Domain\Model\PersonResemblanceKey;
 use Prospecter\Core\PersonalData\Domain\Model\Reader;
 use Prospecter\Core\PersonalData\Domain\Port\OrganizationsOfContacts;
 use Prospecter\Core\PersonalData\Domain\Port\Readers;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\Contact\Email;
 use Prospecter\Core\SharedKernel\Domain\Contact\PhoneNumber;
 use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;

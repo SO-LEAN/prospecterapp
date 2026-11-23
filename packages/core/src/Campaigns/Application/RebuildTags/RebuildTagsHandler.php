@@ -8,7 +8,7 @@ use Prospecter\Core\Campaigns\Application\FactRecorder;
 use Prospecter\Core\Campaigns\Domain\Port\ContactsReach;
 use Prospecter\Core\Campaigns\Domain\Port\OrganizationsAndTheirContacts;
 use Prospecter\Core\Campaigns\Domain\Port\TaggedAccounts;
-use Prospecter\Core\SharedKernel\Application\CommandHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\UnitOfWork;
 use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 

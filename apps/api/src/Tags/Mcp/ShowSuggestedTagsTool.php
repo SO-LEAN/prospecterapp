@@ -11,7 +11,7 @@ use App\Tags\SuggestedTagsPresenter;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
 use Prospecter\Core\Campaigns\Application\ConsultSuggestedTags\ConsultSuggestedTags;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 
 /**
  * `GET /api/tags`, for an AI (ADR 0163).

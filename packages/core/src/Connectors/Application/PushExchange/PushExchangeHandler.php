@@ -7,7 +7,7 @@ namespace Prospecter\Core\Connectors\Application\PushExchange;
 use Prospecter\Core\Connectors\Application\CalendarPusher;
 use Prospecter\Core\Connectors\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Contract\Event\ExchangeFactsChanged;
-use Prospecter\Core\SharedKernel\Application\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
 use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**

@@ -11,7 +11,7 @@ use App\Shared\Mcp\ToolResults;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
 use Prospecter\Core\Prospecting\Application\ProposeMeetingPlace\ProposeMeetingPlace;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 
 /**
  * `GET /api/contacts/{id}/meeting-place`, for an AI (ADR 0163).

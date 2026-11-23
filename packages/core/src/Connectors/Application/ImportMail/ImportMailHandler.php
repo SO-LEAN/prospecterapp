@@ -15,7 +15,7 @@ use Prospecter\Core\Connectors\Domain\Port\Correspondents;
 use Prospecter\Core\Connectors\Domain\Port\ProviderMailbox;
 use Prospecter\Core\Connectors\Domain\Repository\ConnectionRepository;
 use Prospecter\Core\Connectors\Domain\Repository\ProviderClientRepository;
-use Prospecter\Core\SharedKernel\Application\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Domain\Contact\Email;
 

@@ -10,7 +10,7 @@ use App\Shared\Typed;
 use Prospecter\Core\PersonalData\Application\Port\MemberPresentationRetriever;
 use Prospecter\Core\PersonalData\Application\PresentMembers\MemberPresentation;
 use Prospecter\Core\PersonalData\Domain\Model\PersonId;
-use Prospecter\Core\SharedKernel\Application\FileResponse;
+use Prospecter\Core\SharedKernel\Application\Response\FileResponse;
 
 /**
  * Reads the items `PERSON#<id>` / `PERSON` that `DynamoPersonRepository` writes. It does not restore the persons

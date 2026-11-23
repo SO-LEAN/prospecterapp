@@ -8,7 +8,7 @@ use Prospecter\Core\PersonalData\Contract\Event\ContactFactsChanged;
 use Prospecter\Core\Reporting\Application\FactRecorder;
 use Prospecter\Core\Reporting\Domain\Model\ContactFact;
 use Prospecter\Core\Reporting\Domain\Model\ContactId;
-use Prospecter\Core\SharedKernel\Application\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
 use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**

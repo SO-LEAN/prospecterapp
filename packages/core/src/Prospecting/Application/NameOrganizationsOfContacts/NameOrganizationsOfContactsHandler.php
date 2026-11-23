@@ -10,7 +10,7 @@ use Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\Nam
 use Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\NameOrganizationsOfContactsService;
 use Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\OrganizationsOfContactResponse;
 use Prospecter\Core\Prospecting\Domain\Model\ContactId;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 final readonly class NameOrganizationsOfContactsHandler implements QueryHandler, NameOrganizationsOfContactsService

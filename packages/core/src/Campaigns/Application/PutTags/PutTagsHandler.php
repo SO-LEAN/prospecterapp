@@ -10,9 +10,9 @@ use Prospecter\Core\Campaigns\Domain\Model\Tagging;
 use Prospecter\Core\Campaigns\Domain\Port\Taggers;
 use Prospecter\Core\Campaigns\Domain\Repository\TaggingRepository;
 use Prospecter\Core\Campaigns\Domain\Service\TaggableHolders;
-use Prospecter\Core\SharedKernel\Application\CommandHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\PublishesEvents;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
-use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Prospecter\Core\SharedKernel\Application;
+namespace Prospecter\Core\SharedKernel\Application\Handler;
 
 /**
  * The port a query presents its answer to (ADR 0085). Each query declares its own port, which extends this one. An

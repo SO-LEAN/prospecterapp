@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\PersonalData\Application\PresentMembers;
 
-use Prospecter\Core\SharedKernel\Application\FileResponse;
+use Prospecter\Core\SharedKernel\Application\Response\FileResponse;
 
 /**
  * A person as they would present themselves to someone they give a link to. It holds their unmasked name and picture.

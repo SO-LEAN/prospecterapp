@@ -12,7 +12,7 @@ use Prospecter\Core\Prospecting\Application\Port\FoundOrganizationRetriever;
 use Prospecter\Core\Prospecting\Application\PossibleDuplicate;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\FoundOrganization;
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\FoundOrganizationPage;
-use Prospecter\Core\SharedKernel\Application\FileResponse;
+use Prospecter\Core\SharedKernel\Application\Response\FileResponse;
 use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Search\SearchKey;
 

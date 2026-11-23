@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\App\Double;
 
 use Prospecter\Core\Prospecting\Domain\Event\ObservationsWritten;
-use Prospecter\Core\SharedKernel\Application\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
 
 /**
  * A reaction to written observations, a subscription of the tests (`prospecting-failing-reaction`), that throws

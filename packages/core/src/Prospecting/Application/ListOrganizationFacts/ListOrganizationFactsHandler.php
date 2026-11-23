@@ -8,7 +8,7 @@ use Prospecter\Core\Prospecting\Application\Port\OrganizationFactsRetriever;
 use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\ListOrganizationFacts;
 use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\ListOrganizationFactsOutput;
 use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\ListOrganizationFactsService;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 final readonly class ListOrganizationFactsHandler implements QueryHandler, ListOrganizationFactsService

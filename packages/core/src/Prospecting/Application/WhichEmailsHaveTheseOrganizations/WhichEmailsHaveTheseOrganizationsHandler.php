@@ -10,7 +10,7 @@ use Prospecter\Core\Prospecting\Contract\Service\WhichEmailsHaveTheseOrganizatio
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 final readonly class WhichEmailsHaveTheseOrganizationsHandler implements QueryHandler, WhichEmailsHaveTheseOrganizationsService

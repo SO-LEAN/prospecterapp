@@ -21,7 +21,7 @@ use Lcobucci\JWT\Validation\Constraint\SignedWith;
 use Lcobucci\JWT\Validation\Validator;
 use Prospecter\Core\Connectors\Application\ConsultMailboxPusher\ConsultMailboxPusher;
 use Prospecter\Core\Connectors\Application\ConsultMailboxPusher\KeptMailboxPusher;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;

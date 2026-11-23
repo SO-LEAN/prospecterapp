@@ -7,9 +7,9 @@ namespace Prospecter\Core\PersonalData\Application\SuspectDuplicateInReturn;
 use Prospecter\Core\PersonalData\Domain\Event\DuplicateSuspected;
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
-use Prospecter\Core\SharedKernel\Application\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\PublishesEvents;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
-use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 
 /**
  * A newcomer resembles a contact. In return, that contact is suspected of being the newcomer's duplicate. When the

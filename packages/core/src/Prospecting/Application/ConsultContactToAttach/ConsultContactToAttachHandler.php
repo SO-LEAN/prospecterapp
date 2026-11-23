@@ -6,7 +6,7 @@ namespace Prospecter\Core\Prospecting\Application\ConsultContactToAttach;
 
 use Prospecter\Core\Prospecting\Application\Port\ContactsToAttachRetriever;
 use Prospecter\Core\Prospecting\Domain\Model\ContactId;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 final readonly class ConsultContactToAttachHandler implements QueryHandler

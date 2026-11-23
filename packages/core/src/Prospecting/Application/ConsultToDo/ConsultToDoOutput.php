@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\ConsultToDo;
 
 use Prospecter\Core\Prospecting\Application\ToDoInList;
-use Prospecter\Core\SharedKernel\Application\OutputPort;
+use Prospecter\Core\SharedKernel\Application\Handler\OutputPort;
 
 interface ConsultToDoOutput extends OutputPort
 {

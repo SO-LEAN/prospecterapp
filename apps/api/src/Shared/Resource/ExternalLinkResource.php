@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Shared\Resource;
 
 use OpenApi\Attributes as OA;
-use Prospecter\Core\SharedKernel\Application\ExternalLink;
+use Prospecter\Core\SharedKernel\Application\Response\ExternalLink;
 
 /**
  * A person's or an organization's link to an outside tool.

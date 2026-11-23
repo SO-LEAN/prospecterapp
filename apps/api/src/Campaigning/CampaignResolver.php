@@ -8,7 +8,7 @@ use App\Security\User;
 use Prospecter\Core\Campaigns\Application\CampaignSheet;
 use Prospecter\Core\Campaigns\Application\ConsultCampaign\ConsultCampaign;
 use Prospecter\Core\Campaigns\Application\ConsultCampaign\KeptCampaign;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\Request;

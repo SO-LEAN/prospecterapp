@@ -13,7 +13,7 @@ use Prospecter\Core\Accounts\Domain\Exception\UnknownAccount;
 use Prospecter\Core\Accounts\Domain\Exception\UnknownMember;
 use Prospecter\Core\Accounts\Domain\Model\AccountIntent;
 use Prospecter\Core\Accounts\Domain\Rule\AccountPossibilities;
-use Prospecter\Core\SharedKernel\Application\FileResponse;
+use Prospecter\Core\SharedKernel\Application\Response\FileResponse;
 use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 

@@ -6,10 +6,10 @@ namespace Prospecter\Core\Prospecting\Application\ChangeLogo;
 
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
-use Prospecter\Core\SharedKernel\Application\CommandHandler;
-use Prospecter\Core\SharedKernel\Application\FileStore;
+use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\PublishesEvents;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
-use Prospecter\Core\SharedKernel\Application\PublishesEvents;
+use Prospecter\Core\SharedKernel\Application\Service\FileStore;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 final readonly class ChangeLogoHandler implements CommandHandler

@@ -7,11 +7,11 @@ namespace Tests\Core\Architecture;
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\SharedKernel\Application\Exception\ErrorType;
 use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
-use Prospecter\Core\SharedKernel\Application\RefusalTranslatingCommandHandler;
-use Prospecter\Core\SharedKernel\Application\RefusalTranslatingEventHandler;
-use Prospecter\Core\SharedKernel\Application\RefusalTranslatingQueryHandler;
-use Prospecter\Core\SharedKernel\Application\TransactionalCommandHandler;
-use Prospecter\Core\SharedKernel\Application\TransactionalEventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\RefusalTranslatingCommandHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\RefusalTranslatingEventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\RefusalTranslatingQueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\TransactionalCommandHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\TransactionalEventHandler;
 use Prospecter\Core\SharedKernel\Domain\Exception\ChangedMeanwhile;
 
 /**

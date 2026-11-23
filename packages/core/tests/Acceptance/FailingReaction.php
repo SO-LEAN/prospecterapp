@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Core\Acceptance;
 
 use Prospecter\Core\Accounts\Contract\Event\AccountOpened;
-use Prospecter\Core\SharedKernel\Application\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
 
 /**
  * Another context's reaction to an account's opening. It writes what it is given to write, then throws.

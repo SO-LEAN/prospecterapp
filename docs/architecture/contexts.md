@@ -9,7 +9,7 @@ The bounded contexts are:
 - Connectors, which connects members to outside services (ADR 0120);
 - Campaigns, which tags organizations and contacts, downstream of them (ADR 0138);
 - Booking, each member's booking page, read without signing in (ADR 0148);
-- the shared kernel, holding what they all share (`core.md`).
+- the shared kernel, holding what several of them share (`core.md`).
 
 Each context's language and rules are in `docs/domain/accounts.md`, `personal-data.md`, `prospecting.md`, `reporting.md`, `connectors.md`, `campaigns.md`, `booking.md`.
 

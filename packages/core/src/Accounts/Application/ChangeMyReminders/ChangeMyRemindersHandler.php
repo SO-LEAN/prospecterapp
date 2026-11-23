@@ -7,9 +7,9 @@ namespace Prospecter\Core\Accounts\Application\ChangeMyReminders;
 use Prospecter\Core\Accounts\Domain\Model\ReminderDelay;
 use Prospecter\Core\Accounts\Domain\Model\Reminders;
 use Prospecter\Core\Accounts\Domain\Repository\MemberRepository;
-use Prospecter\Core\SharedKernel\Application\CommandHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\PublishesEvents;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
-use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 final readonly class ChangeMyRemindersHandler implements CommandHandler

@@ -7,7 +7,7 @@ namespace App\Contacts;
 use Prospecter\Core\Campaigns\Application\ConsultContactTags\ConsultContactTags;
 use Prospecter\Core\Campaigns\Application\ConsultContactTags\ContactTagsResponse;
 use Prospecter\Core\Campaigns\Application\ConsultContactTags\KeptContactTags;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 
 /**
  * Reads the tags contacts carry in Campaigns, in one batch: their own tags, the inherited ones and the automatic ones

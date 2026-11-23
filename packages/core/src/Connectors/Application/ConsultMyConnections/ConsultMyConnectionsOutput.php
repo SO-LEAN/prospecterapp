@@ -6,7 +6,7 @@ namespace Prospecter\Core\Connectors\Application\ConsultMyConnections;
 
 use Prospecter\Core\Connectors\Application\AccountClient;
 use Prospecter\Core\Connectors\Application\MyConnection;
-use Prospecter\Core\SharedKernel\Application\OutputPort;
+use Prospecter\Core\SharedKernel\Application\Handler\OutputPort;
 
 interface ConsultMyConnectionsOutput extends OutputPort
 {

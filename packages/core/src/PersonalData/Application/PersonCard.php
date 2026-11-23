@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\PersonalData\Application;
 
-use Prospecter\Core\SharedKernel\Application\ExternalLink;
-use Prospecter\Core\SharedKernel\Application\FileResponse;
+use Prospecter\Core\SharedKernel\Application\Response\ExternalLink;
+use Prospecter\Core\SharedKernel\Application\Response\FileResponse;
 
 /**
  * A person as the reader may see them, unmasked or masked. A masked person has no picture. A contact's name and title

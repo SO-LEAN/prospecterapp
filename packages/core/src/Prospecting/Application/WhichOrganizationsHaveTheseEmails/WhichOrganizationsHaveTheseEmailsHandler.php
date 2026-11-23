@@ -9,7 +9,7 @@ use Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsHaveTheseEmai
 use Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsHaveTheseEmails\WhichOrganizationsHaveTheseEmailsService;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
-use Prospecter\Core\SharedKernel\Application\QueryHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\Contact\Email;
 use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 

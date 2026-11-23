@@ -8,9 +8,9 @@ use Prospecter\Core\Booking\Application\BookingPages;
 use Prospecter\Core\Booking\Domain\Model\Channel;
 use Prospecter\Core\Booking\Domain\Model\OfferedChannels;
 use Prospecter\Core\Booking\Domain\Repository\BookingPageRepository;
-use Prospecter\Core\SharedKernel\Application\CommandHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\PublishesEvents;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
-use Prospecter\Core\SharedKernel\Application\PublishesEvents;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
