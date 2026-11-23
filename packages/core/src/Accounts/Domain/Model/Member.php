@@ -65,7 +65,7 @@ final class Member implements ReleasesEvents
     private static function ensureAWorkingRoleAmong(array $roles): void
     {
         if ([] === array_diff(array_map(static fn (Role $role): string => $role->value, $roles), [Role::User->value])) {
-            throw MemberWithoutRole::because('A member needs a role among prospector, personal data and administrator', 'roles');
+            throw MemberWithoutRole::because('A member needs at least one role: prospector, personal data or administrator', 'roles');
         }
     }
 
@@ -106,7 +106,7 @@ final class Member implements ReleasesEvents
     private function ensureAdministrator(): void
     {
         if (!$this->isAdministrator()) {
-            throw AdministratorsOnly::because('Only an administrator of the account may register a member');
+            throw AdministratorsOnly::because('Only the account\'s administrators can register a member');
         }
     }
 }
