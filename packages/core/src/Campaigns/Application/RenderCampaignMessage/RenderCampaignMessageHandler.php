@@ -12,9 +12,7 @@ use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
-/**
- * The core renders the message, for the screen of the member as for every other client reading a campaign.
- */
+/** The core renders the message, for the member's screen and for every other client that reads a campaign. */
 final readonly class RenderCampaignMessageHandler implements QueryHandler
 {
     public function __construct(
