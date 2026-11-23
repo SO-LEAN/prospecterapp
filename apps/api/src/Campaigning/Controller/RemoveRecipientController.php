@@ -33,7 +33,7 @@ final class RemoveRecipientController extends AbstractController
     #[Route('/api/campaigns/{id}/recipients/{contactId}', name: 'api_campaigns_remove_recipient', requirements: ['id' => Requirement::UUID, 'contactId' => Requirement::UUID], methods: ['DELETE'])]
     #[IsGranted(CampaignVoter::ACCESS, subject: 'campaign')]
     #[IsGranted(User::PERSONAL_DATA)]
-    #[OA\Delete(summary: 'Take a recipient off a frozen campaign, never the last one')]
+    #[OA\Delete(summary: 'Remove a recipient from a frozen campaign, but never the last one')]
     #[OA\Response(response: 204, description: 'Removed')]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]

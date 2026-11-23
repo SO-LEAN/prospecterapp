@@ -38,7 +38,7 @@ final class SetDailyCapController extends AbstractController
     #[Route('/api/campaigns/{id}/daily-cap', name: 'api_campaigns_set_daily_cap', requirements: ['id' => Requirement::UUID], methods: ['PATCH'])]
     #[IsGranted(CampaignVoter::ACCESS, subject: 'campaign')]
     #[IsGranted(User::PERSONAL_DATA)]
-    #[OA\Patch(summary: 'Set the daily cap of a campaign, or take it off, until it is stopped or ended')]
+    #[OA\Patch(summary: 'Set a campaign\'s daily cap, or take it off, until the campaign is stopped or ended')]
     #[OA\Response(response: 200, description: 'The campaign with its daily cap', content: new Model(type: CampaignResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]

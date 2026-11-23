@@ -6384,7 +6384,7 @@
                 "tags": [
                     "Tags"
                 ],
-                "summary": "The tags of the contact: put on it by hand, inherited from its organizations, set from how it is reached",
+                "summary": "Get the contact's tags: its own tags, the tags it inherits from its organizations, and the automatic tags for how it is reached",
                 "operationId": "get_api_contacts_tags",
                 "parameters": [
                     {
@@ -6437,7 +6437,7 @@
                 "tags": [
                     "Tags"
                 ],
-                "summary": "Put tags on the contact, a tag it carries already carried once; every prospector, with or without the right to manage personal data",
+                "summary": "Put tags on the contact. A tag it already carries is kept once. Every prospector may do it, with or without the right to manage personal data",
                 "operationId": "post_api_contacts_tag",
                 "parameters": [
                     {
@@ -6512,7 +6512,7 @@
                 "tags": [
                     "Tags"
                 ],
-                "summary": "The tags put by hand on the organization",
+                "summary": "Get the tags put by hand on the organization",
                 "operationId": "get_api_organizations_tags",
                 "parameters": [
                     {
@@ -6565,7 +6565,7 @@
                 "tags": [
                     "Tags"
                 ],
-                "summary": "Put tags on the organization, a tag it carries already carried once",
+                "summary": "Put tags on the organization. A tag it already carries is kept once",
                 "operationId": "post_api_organizations_tag",
                 "parameters": [
                     {
@@ -6640,7 +6640,7 @@
                 "tags": [
                     "Tags"
                 ],
-                "summary": "The tags proposed to my account: the predefined ones by family, then those its organizations and contacts carry",
+                "summary": "Get the tags proposed to my account: the predefined tags by family, then the tags its organizations and contacts carry",
                 "operationId": "get_api_tags",
                 "responses": {
                     "200": {
@@ -6674,7 +6674,7 @@
                 "tags": [
                     "Tags"
                 ],
-                "summary": "Take a tag off the contact, named without its mark",
+                "summary": "Take a tag off the contact. The tag is named without its `#`",
                 "operationId": "delete_api_contacts_take_off_tag",
                 "parameters": [
                     {
@@ -6737,7 +6737,7 @@
                 "tags": [
                     "Tags"
                 ],
-                "summary": "Take a tag off the organization, named without its mark",
+                "summary": "Take a tag off the organization. The tag is named without its `#`",
                 "operationId": "delete_api_organizations_take_off_tag",
                 "parameters": [
                     {
@@ -6800,7 +6800,7 @@
                 "tags": [
                     "Campaigns"
                 ],
-                "summary": "The recipients a campaign keeps, in the order they were added, none in a draft",
+                "summary": "List the recipients a campaign keeps, in the order added. A draft has none",
                 "operationId": "get_api_campaigns_recipients",
                 "parameters": [
                     {
@@ -6853,7 +6853,7 @@
                 "tags": [
                     "Campaigns"
                 ],
-                "summary": "Add a contact chosen to the recipients of a frozen campaign, kept once",
+                "summary": "Add a chosen contact to a frozen campaign's recipients. A contact is kept once",
                 "operationId": "post_api_campaigns_add_recipient",
                 "parameters": [
                     {
@@ -6938,7 +6938,7 @@
                 "tags": [
                     "Campaigns"
                 ],
-                "summary": "Add to the recipients of a frozen campaign the contacts carrying every tag chosen and that of its channel, those already kept kept once",
+                "summary": "Add to a frozen campaign's recipients the contacts that carry every chosen tag and the channel's tag. A contact already kept is kept once",
                 "operationId": "post_api_campaigns_add_recipients_by_tags",
                 "parameters": [
                     {
@@ -7023,7 +7023,7 @@
                 "tags": [
                     "Campaigns"
                 ],
-                "summary": "A campaign of my team, and what may be done with it",
+                "summary": "Get a campaign of my team, and what can be done with it",
                 "operationId": "get_api_campaigns_show",
                 "parameters": [
                     {
@@ -7100,7 +7100,7 @@
                 "tags": [
                     "Campaigns"
                 ],
-                "summary": "Discard a campaign never started",
+                "summary": "Discard a campaign that never started",
                 "operationId": "delete_api_campaigns_discard",
                 "parameters": [
                     {
@@ -7156,7 +7156,7 @@
                 "tags": [
                     "Campaigns"
                 ],
-                "summary": "Change the name, the channel, the tags and the message of a draft campaign",
+                "summary": "Change a draft campaign's name, channel, tags and message",
                 "operationId": "patch_api_campaigns_revise",
                 "parameters": [
                     {
@@ -7241,7 +7241,7 @@
                 "tags": [
                     "Campaigns"
                 ],
-                "summary": "Dismiss a recipient of a started campaign without an exchange: the campaign ends once nobody is left to handle",
+                "summary": "Dismiss a started campaign's recipient without an exchange. The campaign ends once nobody is left to handle",
                 "operationId": "post_api_campaigns_dismiss_recipient",
                 "parameters": [
                     {
@@ -7318,7 +7318,7 @@
                 "tags": [
                     "Campaigns"
                 ],
-                "summary": "Keep the contacts a draft campaign targets now as its recipients, for good: its channel and its tags no longer change",
+                "summary": "Freeze a draft campaign: the contacts it targets now become its recipients for good, and its channel and tags no longer change",
                 "operationId": "post_api_campaigns_freeze",
                 "parameters": [
                     {
@@ -7393,7 +7393,7 @@
                 "tags": [
                     "Campaigns"
                 ],
-                "summary": "The campaigns of my team, the newest first, each with the contacts it targets counted",
+                "summary": "List my team's campaigns, newest first, each with its target count",
                 "operationId": "get_api_campaigns_list",
                 "responses": {
                     "200": {
@@ -7425,7 +7425,7 @@
                 "tags": [
                     "Campaigns"
                 ],
-                "summary": "Prepare a campaign of my team, as a draft",
+                "summary": "Prepare a team campaign as a draft",
                 "operationId": "post_api_campaigns_prepare",
                 "requestBody": {
                     "required": true,
@@ -7479,7 +7479,7 @@
                 "tags": [
                     "Campaigns"
                 ],
-                "summary": "Take a recipient off a frozen campaign, never the last one",
+                "summary": "Remove a recipient from a frozen campaign, but never the last one",
                 "operationId": "delete_api_campaigns_remove_recipient",
                 "parameters": [
                     {
@@ -7556,7 +7556,7 @@
                 "tags": [
                     "Campaigns"
                 ],
-                "summary": "The message of a campaign as I send or say it to one of my contacts",
+                "summary": "Get a campaign's message as I send or say it to one of my contacts",
                 "operationId": "get_api_campaigns_message",
                 "parameters": [
                     {
@@ -7620,7 +7620,7 @@
                 "tags": [
                     "Campaigns"
                 ],
-                "summary": "Set the daily cap of a campaign, or take it off, until it is stopped or ended",
+                "summary": "Set a campaign's daily cap, or take it off, until the campaign is stopped or ended",
                 "operationId": "patch_api_campaigns_set_daily_cap",
                 "parameters": [
                     {
@@ -7705,7 +7705,7 @@
                 "tags": [
                     "Campaigns"
                 ],
-                "summary": "Start a frozen campaign: its recipients, its message and its channel no longer change, and it is stopped, never discarded",
+                "summary": "Start a frozen campaign. Its recipients, message and channel no longer change. From then on it is stopped, never discarded",
                 "operationId": "post_api_campaigns_start",
                 "parameters": [
                     {
@@ -7780,7 +7780,7 @@
                 "tags": [
                     "Campaigns"
                 ],
-                "summary": "Stop a started campaign, kept for the team to read",
+                "summary": "Stop a started campaign for good. It stays for the team to read",
                 "operationId": "post_api_campaigns_stop",
                 "parameters": [
                     {

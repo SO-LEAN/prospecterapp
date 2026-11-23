@@ -26,7 +26,7 @@ final class ShowContactTagsController extends AbstractController
     }
 
     #[Route('/api/contacts/{id}/tags', name: 'api_contacts_tags', requirements: ['id' => Requirement::UUID], methods: ['GET'])]
-    #[OA\Get(summary: 'The tags of the contact: put on it by hand, inherited from its organizations, set from how it is reached')]
+    #[OA\Get(summary: 'Get the contact\'s tags: its own tags, the tags it inherits from its organizations, and the automatic tags for how it is reached')]
     #[OA\Response(response: 200, description: 'The contact\'s tags', content: new Model(type: ContactTagsResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector', content: new Model(type: ProblemResource::class))]

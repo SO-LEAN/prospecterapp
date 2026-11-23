@@ -38,7 +38,7 @@ final class AddRecipientsByTagsController extends AbstractController
     #[Route('/api/campaigns/{id}/recipients/by-tags', name: 'api_campaigns_add_recipients_by_tags', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
     #[IsGranted(CampaignVoter::ACCESS, subject: 'campaign')]
     #[IsGranted(User::PERSONAL_DATA)]
-    #[OA\Post(summary: 'Add to the recipients of a frozen campaign the contacts carrying every tag chosen and that of its channel, those already kept kept once')]
+    #[OA\Post(summary: 'Add to a frozen campaign\'s recipients the contacts that carry every chosen tag and the channel\'s tag. A contact already kept is kept once')]
     #[OA\Response(response: 200, description: 'The campaign, with its recipient count', content: new Model(type: CampaignResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]

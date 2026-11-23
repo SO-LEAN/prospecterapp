@@ -31,7 +31,7 @@ final class RenderCampaignMessageController extends AbstractController
     #[Route('/api/campaigns/{id}/messages/{contactId}', name: 'api_campaigns_message', requirements: ['id' => Requirement::UUID, 'contactId' => Requirement::UUID], methods: ['GET'])]
     #[IsGranted(CampaignVoter::ACCESS, subject: 'campaign')]
     #[IsGranted(User::PERSONAL_DATA)]
-    #[OA\Get(summary: 'The message of a campaign as I send or say it to one of my contacts')]
+    #[OA\Get(summary: 'Get a campaign\'s message as I send or say it to one of my contacts')]
     #[OA\Response(response: 200, description: 'The message rendered for the contact', content: new Model(type: CampaignMessageResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]

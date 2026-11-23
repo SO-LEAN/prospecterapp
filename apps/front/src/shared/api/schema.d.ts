@@ -1343,10 +1343,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** The tags of the contact: put on it by hand, inherited from its organizations, set from how it is reached */
+        /** Get the contact's tags: its own tags, the tags it inherits from its organizations, and the automatic tags for how it is reached */
         get: operations["get_api_contacts_tags"];
         put?: never;
-        /** Put tags on the contact, a tag it carries already carried once; every prospector, with or without the right to manage personal data */
+        /** Put tags on the contact. A tag it already carries is kept once. Every prospector may do it, with or without the right to manage personal data */
         post: operations["post_api_contacts_tag"];
         delete?: never;
         options?: never;
@@ -1361,10 +1361,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** The tags put by hand on the organization */
+        /** Get the tags put by hand on the organization */
         get: operations["get_api_organizations_tags"];
         put?: never;
-        /** Put tags on the organization, a tag it carries already carried once */
+        /** Put tags on the organization. A tag it already carries is kept once */
         post: operations["post_api_organizations_tag"];
         delete?: never;
         options?: never;
@@ -1379,7 +1379,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** The tags proposed to my account: the predefined ones by family, then those its organizations and contacts carry */
+        /** Get the tags proposed to my account: the predefined tags by family, then the tags its organizations and contacts carry */
         get: operations["get_api_tags"];
         put?: never;
         post?: never;
@@ -1399,7 +1399,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /** Take a tag off the contact, named without its mark */
+        /** Take a tag off the contact. The tag is named without its `#` */
         delete: operations["delete_api_contacts_take_off_tag"];
         options?: never;
         head?: never;
@@ -1416,7 +1416,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /** Take a tag off the organization, named without its mark */
+        /** Take a tag off the organization. The tag is named without its `#` */
         delete: operations["delete_api_organizations_take_off_tag"];
         options?: never;
         head?: never;
@@ -1430,10 +1430,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** The recipients a campaign keeps, in the order they were added, none in a draft */
+        /** List the recipients a campaign keeps, in the order added. A draft has none */
         get: operations["get_api_campaigns_recipients"];
         put?: never;
-        /** Add a contact chosen to the recipients of a frozen campaign, kept once */
+        /** Add a chosen contact to a frozen campaign's recipients. A contact is kept once */
         post: operations["post_api_campaigns_add_recipient"];
         delete?: never;
         options?: never;
@@ -1450,7 +1450,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Add to the recipients of a frozen campaign the contacts carrying every tag chosen and that of its channel, those already kept kept once */
+        /** Add to a frozen campaign's recipients the contacts that carry every chosen tag and the channel's tag. A contact already kept is kept once */
         post: operations["post_api_campaigns_add_recipients_by_tags"];
         delete?: never;
         options?: never;
@@ -1465,15 +1465,15 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** A campaign of my team, and what may be done with it */
+        /** Get a campaign of my team, and what can be done with it */
         get: operations["get_api_campaigns_show"];
         put?: never;
         post?: never;
-        /** Discard a campaign never started */
+        /** Discard a campaign that never started */
         delete: operations["delete_api_campaigns_discard"];
         options?: never;
         head?: never;
-        /** Change the name, the channel, the tags and the message of a draft campaign */
+        /** Change a draft campaign's name, channel, tags and message */
         patch: operations["patch_api_campaigns_revise"];
         trace?: never;
     };
@@ -1486,7 +1486,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Dismiss a recipient of a started campaign without an exchange: the campaign ends once nobody is left to handle */
+        /** Dismiss a started campaign's recipient without an exchange. The campaign ends once nobody is left to handle */
         post: operations["post_api_campaigns_dismiss_recipient"];
         delete?: never;
         options?: never;
@@ -1503,7 +1503,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Keep the contacts a draft campaign targets now as its recipients, for good: its channel and its tags no longer change */
+        /** Freeze a draft campaign: the contacts it targets now become its recipients for good, and its channel and tags no longer change */
         post: operations["post_api_campaigns_freeze"];
         delete?: never;
         options?: never;
@@ -1518,10 +1518,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** The campaigns of my team, the newest first, each with the contacts it targets counted */
+        /** List my team's campaigns, newest first, each with its target count */
         get: operations["get_api_campaigns_list"];
         put?: never;
-        /** Prepare a campaign of my team, as a draft */
+        /** Prepare a team campaign as a draft */
         post: operations["post_api_campaigns_prepare"];
         delete?: never;
         options?: never;
@@ -1539,7 +1539,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /** Take a recipient off a frozen campaign, never the last one */
+        /** Remove a recipient from a frozen campaign, but never the last one */
         delete: operations["delete_api_campaigns_remove_recipient"];
         options?: never;
         head?: never;
@@ -1553,7 +1553,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** The message of a campaign as I send or say it to one of my contacts */
+        /** Get a campaign's message as I send or say it to one of my contacts */
         get: operations["get_api_campaigns_message"];
         put?: never;
         post?: never;
@@ -1576,7 +1576,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Set the daily cap of a campaign, or take it off, until it is stopped or ended */
+        /** Set a campaign's daily cap, or take it off, until the campaign is stopped or ended */
         patch: operations["patch_api_campaigns_set_daily_cap"];
         trace?: never;
     };
@@ -1589,7 +1589,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Start a frozen campaign: its recipients, its message and its channel no longer change, and it is stopped, never discarded */
+        /** Start a frozen campaign. Its recipients, message and channel no longer change. From then on it is stopped, never discarded */
         post: operations["post_api_campaigns_start"];
         delete?: never;
         options?: never;
@@ -1606,7 +1606,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Stop a started campaign, kept for the team to read */
+        /** Stop a started campaign for good. It stays for the team to read */
         post: operations["post_api_campaigns_stop"];
         delete?: never;
         options?: never;

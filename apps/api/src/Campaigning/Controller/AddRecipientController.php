@@ -38,7 +38,7 @@ final class AddRecipientController extends AbstractController
     #[Route('/api/campaigns/{id}/recipients', name: 'api_campaigns_add_recipient', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
     #[IsGranted(CampaignVoter::ACCESS, subject: 'campaign')]
     #[IsGranted(User::PERSONAL_DATA)]
-    #[OA\Post(summary: 'Add a contact chosen to the recipients of a frozen campaign, kept once')]
+    #[OA\Post(summary: 'Add a chosen contact to a frozen campaign\'s recipients. A contact is kept once')]
     #[OA\Response(response: 200, description: 'The campaign, with its recipient count', content: new Model(type: CampaignResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]

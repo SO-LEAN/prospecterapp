@@ -33,7 +33,7 @@ final class ShowCampaignController extends AbstractController
     #[Route('/api/campaigns/{id}', name: 'api_campaigns_show', requirements: ['id' => Requirement::UUID], methods: ['GET'])]
     #[IsGranted(CampaignVoter::ACCESS, subject: 'campaign')]
     #[IsGranted(User::PERSONAL_DATA)]
-    #[OA\Get(summary: 'A campaign of my team, and what may be done with it')]
+    #[OA\Get(summary: 'Get a campaign of my team, and what can be done with it')]
     #[OA\Response(response: 200, description: 'The campaign', content: new Model(type: CampaignResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]
