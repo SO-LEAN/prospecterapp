@@ -32,6 +32,7 @@ Run these from the repository root. `make` alone lists the commands. A new targe
 - `make test`: runs the core's scenarios and unit tests, then the API, storage and front tests.
 - `make test-core`: runs the business rules only.
 - `make test-<core|api|storage|front> FILTER=<name>`: runs only the matching scenarios and tests, or the front's matching test files.
+  - `make test`, `make test-api` and `make check-api` leave out the API tests that re-test a core rule (the `core-rule` group, ADR 0204). `ALL=1` runs them too, and so does `make ci ALL=1`. A test named by `FILTER` runs whatever its group.
   - `FAILED=1` reruns what failed last. `FAIL_FAST=1` stops at the first failure. Both also work with `make e2e`.
   - `CLOCK_SHIFT=+365d` runs the core, the storage and the front on a clock one year ahead. The API stays on the real clock (ADR 0150).
 - `make e2e`: runs Playwright on the checkout's running stack, once every part of it answers and its functions are warm. It uses doubles of the services outside the stack (ADR 0092).

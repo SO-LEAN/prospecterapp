@@ -9,8 +9,8 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
 /**
- * The tests of the API re-testing a rule its core proves form the group core-rule, which a branch's check does not
- * run. The group does not grow: a new rule is tested in the core. A test leaving the group lowers CEILING.
+ * The API tests re-testing a rule the core proves form the core-rule group, which a branch's check does not run
+ * (ADR 0204). The group does not grow: a new rule is tested in the core. A test leaving the group lowers CEILING.
  */
 class CoreRuleGroupDoesNotGrowTest extends TestCase
 {
@@ -20,14 +20,14 @@ class CoreRuleGroupDoesNotGrowTest extends TestCase
 
     public function testTheGroupKeepsItsCeiling(): void
     {
-        $this->assertSame(self::CEILING, count($this->methodsInTheGroup()), 'A new test of the API does not re-test a rule of the core; a test leaving the group lowers CEILING');
+        $this->assertSame(self::CEILING, count($this->methodsInTheGroup()), 'A new API test does not re-test a core rule. A test leaving the group lowers CEILING.');
     }
 
     public function testNoClassIsInTheGroupAsAWhole(): void
     {
         $classesInTheGroup = array_filter($this->testClasses(), self::isInTheGroup(...));
 
-        $this->assertSame([], array_values(array_map(static fn (\ReflectionClass $class): string => $class->getName(), $classesInTheGroup)), 'The group core-rule is on test methods only: a class keeps its nominal cases out of it');
+        $this->assertSame([], array_values(array_map(static fn (\ReflectionClass $class): string => $class->getName(), $classesInTheGroup)), 'The core-rule group is on test methods only: a class keeps its nominal cases out of it');
     }
 
     /**
