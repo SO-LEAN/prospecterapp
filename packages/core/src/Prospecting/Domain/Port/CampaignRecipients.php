@@ -7,7 +7,7 @@ namespace Prospecter\Core\Prospecting\Domain\Port;
 use Prospecter\Core\Prospecting\Domain\Model\CampaignId;
 use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\RecipientInCampaign;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * Port: a contact as one of the account's campaigns keeps them. Campaigns keeps the campaigns, and Prospecting never

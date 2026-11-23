@@ -6,7 +6,7 @@ namespace Prospecter\Core\Reporting\Domain\Port;
 
 use Prospecter\Core\Reporting\Domain\Model\ExchangeFact;
 use Prospecter\Core\Reporting\Domain\Model\OrganizationFact;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * Port: the current facts of an account's organizations and exchanges, translated from Prospecting through its

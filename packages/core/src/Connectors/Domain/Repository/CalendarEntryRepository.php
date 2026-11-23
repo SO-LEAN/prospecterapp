@@ -7,7 +7,7 @@ namespace Prospecter\Core\Connectors\Domain\Repository;
 use Prospecter\Core\Connectors\Domain\Model\CalendarEntry;
 use Prospecter\Core\Connectors\Domain\Model\ContactId;
 use Prospecter\Core\Connectors\Domain\Model\ExchangeId;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * The exchanges pushed into their holders' calendars, found by their exchange.

@@ -6,8 +6,8 @@ namespace Tests\Core\Domain;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\SharedKernel\Domain\Exception\InvalidSiret;
-use Prospecter\Core\SharedKernel\Domain\Siret;
+use Prospecter\Core\SharedKernel\Domain\Company\InvalidSiret;
+use Prospecter\Core\SharedKernel\Domain\Company\Siret;
 
 class SiretTest extends TestCase
 {

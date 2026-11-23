@@ -6,7 +6,7 @@ namespace Tests\Core\Domain;
 
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 class IdentityTest extends TestCase
 {

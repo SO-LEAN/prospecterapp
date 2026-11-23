@@ -8,7 +8,7 @@ use Prospecter\Core\PersonalData\Domain\Exception\ReferenceAlreadyUsed;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
-use Prospecter\Core\SharedKernel\Domain\ExternalReference;
+use Prospecter\Core\SharedKernel\Domain\Link\ExternalReference;
 
 /**
  * A link to an outside tool designates one contact in an account, through their current or former links. Another

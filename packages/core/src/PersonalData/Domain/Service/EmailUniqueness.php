@@ -6,7 +6,7 @@ namespace Prospecter\Core\PersonalData\Domain\Service;
 
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
-use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
+use Prospecter\Core\SharedKernel\Domain\Contact\EmailAlreadyUsed;
 
 /**
  * Two persons that the same account keeps for the same purpose cannot share an email. Other accounts and other purposes

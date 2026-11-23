@@ -8,7 +8,7 @@ use Prospecter\Core\Booking\Domain\Exception\SlotNotFree;
 use Prospecter\Core\Booking\Domain\Model\Appointment;
 use Prospecter\Core\Booking\Domain\Model\AppointmentId;
 use Prospecter\Core\Booking\Domain\Repository\AppointmentRepository;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Stands in for the DynamoDB repository in the scenarios. An appointment holds its host's slot, under a condition.

@@ -9,14 +9,14 @@ use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\FoundO
 use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\FoundOrganizationPage;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\SharedKernel\Application\FileResponse;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\Address;
-use Prospecter\Core\SharedKernel\Domain\File;
-use Prospecter\Core\SharedKernel\Domain\GeoPoint;
-use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
-use Prospecter\Core\SharedKernel\Domain\SearchKey;
-use Prospecter\Core\SharedKernel\Domain\SearchKeys;
-use Prospecter\Core\SharedKernel\Domain\Slice;
+use Prospecter\Core\SharedKernel\Domain\Company\LegalIdentity;
+use Prospecter\Core\SharedKernel\Domain\Contact\Address;
+use Prospecter\Core\SharedKernel\Domain\File\File;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Location\GeoPoint;
+use Prospecter\Core\SharedKernel\Domain\Search\SearchKey;
+use Prospecter\Core\SharedKernel\Domain\Search\SearchKeys;
+use Prospecter\Core\SharedKernel\Domain\Search\Slice;
 
 /**
  * Reads the organizations that the in-memory repository saved, as the adapter reads the table's items.

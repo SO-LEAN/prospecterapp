@@ -9,7 +9,7 @@ use Prospecter\Core\Connectors\Application\Port\AccountClientsRetriever;
 use Prospecter\Core\Connectors\Domain\Model\ClientCredentials;
 use Prospecter\Core\Connectors\Domain\Model\MailboxNotifications;
 use Prospecter\Core\Connectors\Domain\Model\ProviderClient;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * Reads the clients that the in-memory repository saved, as the adapter reads their items, without their secret.

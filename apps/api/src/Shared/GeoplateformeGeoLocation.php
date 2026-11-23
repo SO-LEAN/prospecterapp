@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Shared;
 
 use Prospecter\Core\SharedKernel\Application\Port\GeoLocation;
-use Prospecter\Core\SharedKernel\Domain\GeoPoint;
-use Prospecter\Core\SharedKernel\Domain\Location;
+use Prospecter\Core\SharedKernel\Domain\Location\GeoPoint;
+use Prospecter\Core\SharedKernel\Domain\Location\Location;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;

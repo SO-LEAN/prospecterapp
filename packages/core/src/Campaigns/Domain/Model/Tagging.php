@@ -8,11 +8,11 @@ use Prospecter\Core\Campaigns\Domain\Event\ContactTagsChanged;
 use Prospecter\Core\Campaigns\Domain\Event\OrganizationTagsChanged;
 use Prospecter\Core\Campaigns\Domain\Exception\AutomaticTag;
 use Prospecter\Core\Campaigns\Domain\Exception\TagNotCarried;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Event\DomainEvent;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
-use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
+use Prospecter\Core\SharedKernel\Domain\Event\RecordsEvents;
+use Prospecter\Core\SharedKernel\Domain\Event\ReleasesEvents;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Aggregate root: the tags that an account's members put by hand on one of its organizations or contacts. It is

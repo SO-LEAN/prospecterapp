@@ -10,7 +10,7 @@ use Prospecter\Core\Prospecting\Domain\Model\CalendarPeriod;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeIntent;
 use Prospecter\Core\Prospecting\Domain\Port\Prospectors;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 final readonly class ConsultMyDayHandler implements QueryHandler
 {

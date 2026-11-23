@@ -11,8 +11,8 @@ use Prospecter\Core\PersonalData\Domain\Model\ContactsIntent;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\PersonalData\Domain\Model\Reader;
-use Prospecter\Core\SharedKernel\Domain\SearchKey;
-use Prospecter\Core\SharedKernel\Domain\SearchKeys;
+use Prospecter\Core\SharedKernel\Domain\Search\SearchKey;
+use Prospecter\Core\SharedKernel\Domain\Search\SearchKeys;
 
 /**
  * Reads the contacts that the in-memory repository saved, as the adapter reads the table's items.

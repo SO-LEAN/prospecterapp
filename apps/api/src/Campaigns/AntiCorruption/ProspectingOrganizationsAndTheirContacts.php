@@ -13,7 +13,7 @@ use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\KeptOrgan
 use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\ListOrganizationFacts;
 use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\ListOrganizationFactsService;
 use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\OrganizationFactsResponse;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * Anticorruption layer (ADR 0045, 0089, 0141): the facts that Prospecting gives again, one slice after another, in

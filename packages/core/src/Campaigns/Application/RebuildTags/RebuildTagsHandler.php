@@ -10,7 +10,7 @@ use Prospecter\Core\Campaigns\Domain\Port\OrganizationsAndTheirContacts;
 use Prospecter\Core\Campaigns\Domain\Port\TaggedAccounts;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Port\UnitOfWork;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * Records again the facts about each account's organizations and contacts, as Prospecting and PersonalData give them

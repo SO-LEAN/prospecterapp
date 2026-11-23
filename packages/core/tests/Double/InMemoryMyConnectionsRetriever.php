@@ -12,8 +12,8 @@ use Prospecter\Core\Connectors\Domain\Model\ConnectionState;
 use Prospecter\Core\Connectors\Domain\Model\MailImport;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Model\SyncState;
-use Prospecter\Core\SharedKernel\Domain\Email;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Contact\Email;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Reads the connections that the in-memory repository saved, as the adapter reads their items. It also reads their

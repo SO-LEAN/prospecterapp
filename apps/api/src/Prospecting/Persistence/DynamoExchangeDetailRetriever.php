@@ -22,7 +22,7 @@ use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Rule\ExchangeConformity;
 use Prospecter\Core\Prospecting\Domain\Rule\ExchangePossibilities;
 use Prospecter\Core\Prospecting\Domain\Rule\ExchangeReading;
-use Prospecter\Core\SharedKernel\Domain\Origin;
+use Prospecter\Core\SharedKernel\Domain\Gesture\Origin;
 
 /**
  * Reads an exchange's detail from the item `EXCHANGE#<id>` / `EXCHANGE` that `DynamoExchangeRepository` writes,

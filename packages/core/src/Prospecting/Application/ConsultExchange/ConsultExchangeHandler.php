@@ -11,7 +11,7 @@ use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Port\CampaignNames;
 use Prospecter\Core\Prospecting\Domain\Port\Prospectors;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Reads an exchange's detail. The campaign it was logged in has the name Campaigns gives it now (ADR 0145, 0152).

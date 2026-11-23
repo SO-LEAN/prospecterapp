@@ -9,7 +9,7 @@ use Prospecter\Core\Connectors\Application\Port\ExchangeSyncRetriever;
 use Prospecter\Core\Connectors\Domain\Model\ExchangeId;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Model\SyncState;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Reads the entries that the in-memory repository saved, as the adapter reads their items.

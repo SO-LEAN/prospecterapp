@@ -9,7 +9,7 @@ use Prospecter\Core\Campaigns\Application\Port\TaggedContactsRetriever;
 use Prospecter\Core\Campaigns\Domain\Model\TagSelection;
 use Prospecter\Core\Campaigns\Domain\Port\Taggers;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * The contacts of the member's account that carry every chosen tag, as their own, inherited or automatic tags. Every

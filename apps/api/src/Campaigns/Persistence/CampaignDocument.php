@@ -27,8 +27,8 @@ use Prospecter\Core\Campaigns\Domain\Model\TagSelection;
 use Prospecter\Core\Campaigns\Domain\Model\Targeting;
 use Prospecter\Core\Campaigns\Domain\Rule\CampaignPossibilities;
 use Prospecter\Core\Campaigns\Domain\Rule\CampaignProgress;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * A campaign as its item keeps it (ADR 0048, 0144):

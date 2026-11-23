@@ -8,7 +8,7 @@ use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Table;
 use App\Shared\Typed;
 use Prospecter\Core\Accounts\Application\Port\AccountListRetriever;
-use Prospecter\Core\SharedKernel\Domain\Slice;
+use Prospecter\Core\SharedKernel\Domain\Search\Slice;
 
 /**
  * Reads the accounts' ids in the `ACCOUNT#<id>` / `ACCOUNT` items that `DynamoAccountRepository` writes. `GSI1`

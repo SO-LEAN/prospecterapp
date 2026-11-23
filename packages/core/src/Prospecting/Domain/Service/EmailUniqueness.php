@@ -6,7 +6,7 @@ namespace Prospecter\Core\Prospecting\Domain\Service;
 
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
-use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
+use Prospecter\Core\SharedKernel\Domain\Contact\EmailAlreadyUsed;
 
 /**
  * Two organizations in an account's prospecting base cannot share an email. Other accounts may prospect the same

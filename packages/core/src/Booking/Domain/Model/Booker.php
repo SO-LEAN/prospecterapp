@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Prospecter\Core\Booking\Domain\Model;
 
 use Prospecter\Core\Booking\Domain\Exception\IncompleteBooker;
-use Prospecter\Core\SharedKernel\Domain\Email;
-use Prospecter\Core\SharedKernel\Domain\Exception\InvalidEmail;
-use Prospecter\Core\SharedKernel\Domain\Exception\InvalidPhoneNumber;
-use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
+use Prospecter\Core\SharedKernel\Domain\Contact\Email;
+use Prospecter\Core\SharedKernel\Domain\Contact\InvalidEmail;
+use Prospecter\Core\SharedKernel\Domain\Contact\InvalidPhoneNumber;
+use Prospecter\Core\SharedKernel\Domain\Contact\PhoneNumber;
 
 /**
  * The person who books a slot, as they describe themselves. The host meets them by phone, or through the invitation

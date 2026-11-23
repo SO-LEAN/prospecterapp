@@ -12,8 +12,8 @@ use Prospecter\Core\Accounts\Domain\Model\Reminders;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\Accounts\Domain\Rule\AdministrationRight;
 use Prospecter\Core\Accounts\Domain\Rule\PersonalDataRight;
-use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Company\LegalIdentity;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Reads the members that the in-memory repository saved, as the adapter reads the table's items.

@@ -8,7 +8,7 @@ use Prospecter\Core\Booking\Domain\Exception\UnknownBookingPage;
 use Prospecter\Core\Booking\Domain\Model\BookingCode;
 use Prospecter\Core\Booking\Domain\Model\BookingPage;
 use Prospecter\Core\Booking\Domain\Repository\BookingPageRepository;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Stands in for the DynamoDB repository in the scenarios. It keeps each host's booking page and finds it by its current

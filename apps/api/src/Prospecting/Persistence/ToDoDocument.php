@@ -15,8 +15,8 @@ use Prospecter\Core\Prospecting\Domain\Model\ToDo;
 use Prospecter\Core\Prospecting\Domain\Model\ToDoId;
 use Prospecter\Core\Prospecting\Domain\Model\ToDoIntent;
 use Prospecter\Core\Prospecting\Domain\Rule\ToDoPossibilities;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Turns a to-do into a plain document for its DynamoDB item, and back (ADR 0048). Its recorded events are never

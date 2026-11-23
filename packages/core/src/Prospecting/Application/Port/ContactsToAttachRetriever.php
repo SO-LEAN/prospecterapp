@@ -6,7 +6,7 @@ namespace Prospecter\Core\Prospecting\Application\Port;
 
 use Prospecter\Core\Prospecting\Application\ContactToAttachInList;
 use Prospecter\Core\Prospecting\Domain\Model\ContactId;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Reads the contacts to attach as their holders and their erasure see them, without restoring them (ADR 0088, 0146).

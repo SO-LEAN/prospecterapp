@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Booking\Domain\Event;
 
 use Prospecter\Core\Booking\Domain\Model\InactivePeriodId;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * The host added days when nobody can book them.

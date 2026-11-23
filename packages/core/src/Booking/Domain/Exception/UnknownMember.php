@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Booking\Domain\Exception;
 
 use Prospecter\Core\SharedKernel\Domain\Exception\NotFound;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Accounts knows no member with this id, so nobody can set up a booking page for them.

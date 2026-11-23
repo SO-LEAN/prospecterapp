@@ -8,7 +8,7 @@ use App\Shared\Persistence\Table;
 use App\Shared\Typed;
 use Prospecter\Core\Connectors\Application\AccountClient;
 use Prospecter\Core\Connectors\Application\Port\AccountClientsRetriever;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * Reads an account's clients from their items alone, without their secrets.

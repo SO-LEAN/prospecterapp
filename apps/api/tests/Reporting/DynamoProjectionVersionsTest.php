@@ -9,7 +9,7 @@ use Prospecter\Core\Reporting\Application\FactRecorder;
 use Prospecter\Core\Reporting\Application\Port\ProjectionVersions;
 use Prospecter\Core\Reporting\Domain\Model\OrganizationFact;
 use Prospecter\Core\Reporting\Domain\Model\OrganizationId;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 use Tests\App\Base\ApiTestCase;
 
 /**

@@ -8,7 +8,7 @@ use App\Shared\Typed;
 use EmailReplyParser\EmailReplyParser;
 use Prospecter\Core\Connectors\Domain\Model\MailboxAttachment;
 use Prospecter\Core\Connectors\Domain\Model\MailboxMail;
-use Prospecter\Core\SharedKernel\Domain\Email;
+use Prospecter\Core\SharedKernel\Domain\Contact\Email;
 use Soundasleep\Html2Text;
 
 /**

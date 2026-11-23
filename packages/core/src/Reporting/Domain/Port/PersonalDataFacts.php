@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Reporting\Domain\Port;
 
 use Prospecter\Core\Reporting\Domain\Model\ContactFact;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * Port: the current facts of an account's contacts, translated from PersonalData through its published service

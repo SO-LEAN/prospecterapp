@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Reporting\Domain\Port;
 
 use Prospecter\Core\Reporting\Domain\Exception\UnknownMember;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Port: the accounts whose figures Reporting keeps, translated from Accounts, the context that knows them, through its

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Campaigns\Domain\Port;
 
 use Prospecter\Core\Campaigns\Domain\Model\OrganizationFact;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * Port: the organizations an account prospects now and the contacts each one names (ADR 0045, 0089, 0141). It reads the

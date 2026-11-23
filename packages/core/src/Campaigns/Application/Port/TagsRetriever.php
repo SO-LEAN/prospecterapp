@@ -6,7 +6,7 @@ namespace Prospecter\Core\Campaigns\Application\Port;
 
 use Prospecter\Core\Campaigns\Domain\Model\Holder;
 use Prospecter\Core\Campaigns\Domain\Model\OrganizationId;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * Reads the tags put by hand, written with their `#`, without restoring the taggings (ADR 0088). It also reads where

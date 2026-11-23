@@ -8,7 +8,7 @@ use Prospecter\Core\Prospecting\Application\Port\ToDoListRetriever;
 use Prospecter\Core\Prospecting\Application\ToDoList;
 use Prospecter\Core\Prospecting\Application\ToDoListOutput;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 final readonly class ConsultMyToDosHandler implements QueryHandler
 {

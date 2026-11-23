@@ -9,7 +9,7 @@ use Prospecter\Core\Campaigns\Contract\Service\NameCampaigns\NameCampaigns;
 use Prospecter\Core\Campaigns\Contract\Service\NameCampaigns\NameCampaignsService;
 use Prospecter\Core\Prospecting\Domain\Model\CampaignId;
 use Prospecter\Core\Prospecting\Domain\Port\CampaignNames;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * The API's anticorruption layer, in the scenarios (ADR 0045, 0089, 0145). A timeline names its exchanges' campaigns

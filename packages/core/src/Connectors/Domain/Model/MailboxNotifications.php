@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Connectors\Domain\Model;
 
 use Prospecter\Core\Connectors\Domain\Exception\InvalidTopic;
-use Prospecter\Core\SharedKernel\Domain\Email;
+use Prospecter\Core\SharedKernel\Domain\Contact\Email;
 
 /**
  * How an account's members' mailboxes notify Prospecter of their changes, through the account's space at the provider

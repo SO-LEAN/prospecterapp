@@ -7,7 +7,7 @@ namespace App\Booking\Persistence;
 use App\Shared\Persistence\Table;
 use Prospecter\Core\Booking\Application\MyBookingPage;
 use Prospecter\Core\Booking\Application\Port\MyBookingPageRetriever;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Reads a host's booking page from its item, without restoring it (ADR 0088). A page that was never set up is closed

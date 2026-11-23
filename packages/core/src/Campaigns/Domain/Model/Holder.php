@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Campaigns\Domain\Model;
 
-use Prospecter\Core\SharedKernel\Domain\Uuid;
+use Prospecter\Core\SharedKernel\Domain\Identity\Uuid;
 
 /** What carries tags: an organization or a contact, by its id in the context that keeps it. */
 final readonly class Holder

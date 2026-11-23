@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Connectors\Domain\Event;
 
 use Prospecter\Core\Connectors\Domain\Model\ExchangeId;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * The member's calendar at the provider created the link of a video call that the member holds. The video call had

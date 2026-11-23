@@ -6,7 +6,7 @@ namespace Prospecter\Core\Accounts\Application\ConsultMyAccount;
 
 use Prospecter\Core\Accounts\Application\Port\MyAccountRetriever;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 final readonly class ConsultMyAccountHandler implements QueryHandler
 {

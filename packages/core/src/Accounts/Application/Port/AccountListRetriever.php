@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Accounts\Application\Port;
 
-use Prospecter\Core\SharedKernel\Domain\Slice;
+use Prospecter\Core\SharedKernel\Domain\Search\Slice;
 
 /**
  * Reads the accounts' ids without restoring the accounts (ADR 0088).

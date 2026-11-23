@@ -13,8 +13,8 @@ use Prospecter\Core\Connectors\Domain\Port\Members;
 use Prospecter\Core\PersonalData\Contract\Service\PresentMembers\KeptMemberPresentations;
 use Prospecter\Core\PersonalData\Contract\Service\PresentMembers\PresentMembers;
 use Prospecter\Core\PersonalData\Contract\Service\PresentMembers\PresentMembersService;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Anticorruption layer (ADR 0045, 0089). Connectors gets a member's account from Accounts. It gets the first name that

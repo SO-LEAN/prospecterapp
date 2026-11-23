@@ -8,7 +8,7 @@ use Prospecter\Core\PersonalData\Contract\Event\ContactForgotten;
 use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * Once a contact is forgotten, Prospecter no longer keeps the fingerprints of their exchanges, erased or not.

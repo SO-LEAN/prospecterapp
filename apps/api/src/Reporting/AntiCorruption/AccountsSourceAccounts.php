@@ -12,8 +12,8 @@ use Prospecter\Core\Accounts\Contract\Service\ListAccounts\ListAccounts;
 use Prospecter\Core\Accounts\Contract\Service\ListAccounts\ListAccountsService;
 use Prospecter\Core\Reporting\Domain\Exception\UnknownMember;
 use Prospecter\Core\Reporting\Domain\Port\SourceAccounts;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Anticorruption layer (ADR 0045, 0089). Reporting counts accounts. Accounts publishes them and each account's

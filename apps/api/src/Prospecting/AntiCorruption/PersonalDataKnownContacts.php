@@ -9,7 +9,7 @@ use Prospecter\Core\PersonalData\Contract\Service\WhichAreContacts\WhichAreConta
 use Prospecter\Core\PersonalData\Contract\Service\WhichAreContacts\WhichAreContactsService;
 use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Port\KnownContacts;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * Anticorruption layer (ADR 0045, 0089). Prospecting knows the persons it prospects. PersonalData tells which persons

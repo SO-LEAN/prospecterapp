@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Connectors\Domain\Model;
 
-use Prospecter\Core\SharedKernel\Domain\Uuid;
+use Prospecter\Core\SharedKernel\Domain\Identity\Uuid;
 
 /**
  * A Prospecting exchange's identity, as Connectors pushes the exchange into a calendar.

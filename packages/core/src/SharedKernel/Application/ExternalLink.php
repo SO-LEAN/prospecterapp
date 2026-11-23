@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\SharedKernel\Application;
 
-use Prospecter\Core\SharedKernel\Domain\ExternalReference;
-use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
+use Prospecter\Core\SharedKernel\Domain\Link\ExternalReference;
+use Prospecter\Core\SharedKernel\Domain\Link\ExternalReferences;
 
 /**
  * A link to an outside tool, as the use cases return it: its source, the identifier of what it points to there, and

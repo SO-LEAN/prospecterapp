@@ -8,7 +8,7 @@ use Prospecter\Core\Connectors\Application\Port\AccountClientsRetriever;
 use Prospecter\Core\Connectors\Application\Port\MyConnectionsRetriever;
 use Prospecter\Core\Connectors\Domain\Port\Members;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * My connections, with how many of my upcoming exchanges are synced and how many failed. Also the providers offered

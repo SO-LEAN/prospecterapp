@@ -9,8 +9,8 @@ use App\Accounts\Persistence\DynamoAccountRepository;
 use Prospecter\Core\Accounts\Application\Port\AccountListRetriever;
 use Prospecter\Core\Accounts\Domain\Model\Account;
 use Prospecter\Core\Accounts\Domain\Repository\AccountRepository;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
+use Prospecter\Core\SharedKernel\Domain\Company\LegalIdentity;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 use Tests\App\Base\ApiTestCase;
 
 /**

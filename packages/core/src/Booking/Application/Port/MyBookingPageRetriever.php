@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Booking\Application\Port;
 
 use Prospecter\Core\Booking\Application\MyBookingPage;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Port: reads a host's booking page without restoring it (ADR 0088).

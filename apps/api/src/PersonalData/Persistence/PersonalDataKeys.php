@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\PersonalData\Persistence;
 
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\ExternalReference;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Link\ExternalReference;
 
 /**
  * The keys of the persons' items. `DynamoPersonRepository` writes them and the retrievers read them (ADR 0088).

@@ -6,7 +6,7 @@ namespace Tests\Core\Double;
 
 use Prospecter\Core\Campaigns\Domain\Model\Fact;
 use Prospecter\Core\Campaigns\Domain\Repository\FactRepository;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * The facts that Campaigns keeps in the InMemoryDatabase, by account then by aggregate, as its table keeps them. A

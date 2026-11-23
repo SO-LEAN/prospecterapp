@@ -11,7 +11,7 @@ use Prospecter\Core\Prospecting\Contract\Event\ContactLeftUnattached;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Erases a contact that nobody attached in time (ADR 0146). The member who held the contact erases them, as this

@@ -15,9 +15,9 @@ use Prospecter\Core\PersonalData\Contract\Service\WhichEmailsHaveTheseContacts\W
 use Prospecter\Core\Prospecting\Contract\Service\WhichEmailsHaveTheseOrganizations\KeptEmailsOfOrganizations;
 use Prospecter\Core\Prospecting\Contract\Service\WhichEmailsHaveTheseOrganizations\WhichEmailsHaveTheseOrganizations;
 use Prospecter\Core\Prospecting\Contract\Service\WhichEmailsHaveTheseOrganizations\WhichEmailsHaveTheseOrganizationsService;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\Email;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Contact\Email;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * The API's anticorruption layer, in the scenarios (ADR 0045, 0089). Connectors learns a contact's address from

@@ -10,7 +10,7 @@ use Prospecter\Core\Booking\Domain\Exception\SlotNotFree;
 use Prospecter\Core\Booking\Domain\Model\Appointment;
 use Prospecter\Core\Booking\Domain\Model\AppointmentId;
 use Prospecter\Core\Booking\Domain\Repository\AppointmentRepository;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 use Symfony\Component\Clock\ClockInterface;
 
 /**

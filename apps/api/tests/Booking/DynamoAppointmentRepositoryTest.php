@@ -12,8 +12,8 @@ use Prospecter\Core\Booking\Domain\Model\Booker;
 use Prospecter\Core\Booking\Domain\Model\BookerId;
 use Prospecter\Core\Booking\Domain\Model\Channel;
 use Prospecter\Core\Booking\Domain\Repository\AppointmentRepository;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 use Tests\App\Base\ApiTestCase;
 
 /**

@@ -12,7 +12,7 @@ use Prospecter\Core\Reporting\Application\Port\ProjectionVersions;
 use Prospecter\Core\Reporting\Application\RebuildFigures\RebuildFigures;
 use Prospecter\Core\Reporting\Application\RebuildFigures\RebuildFiguresHandler;
 use Prospecter\Core\Reporting\Domain\Model\Month;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 use Tests\App\Base\ApiTestCase;
 
 /**

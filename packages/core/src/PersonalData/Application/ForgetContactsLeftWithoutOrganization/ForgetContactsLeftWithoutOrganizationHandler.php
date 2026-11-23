@@ -11,7 +11,7 @@ use Prospecter\Core\Prospecting\Contract\Event\ContactsLeftWithoutOrganization;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Application\PublishesEvents;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * A contact is never alone (ADR 0042). So the handler erases the persons that no organization names any more. The

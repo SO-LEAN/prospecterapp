@@ -11,8 +11,8 @@ use App\Shared\Typed;
 use Prospecter\Core\Prospecting\Application\Port\ExchangeFactsRetriever;
 use Prospecter\Core\Prospecting\Contract\Service\ListExchangeFacts\ExchangeFactsResponse;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\Slice;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Search\Slice;
 
 /**
  * Reads the exchanges' facts, with their revision, from the items `EXCHANGE#<id>` / `EXCHANGE` that

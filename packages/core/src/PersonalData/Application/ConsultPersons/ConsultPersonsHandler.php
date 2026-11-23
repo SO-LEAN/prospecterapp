@@ -8,7 +8,7 @@ use Prospecter\Core\PersonalData\Application\Port\PersonCardRetriever;
 use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\PersonalData\Domain\Port\Readers;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 final readonly class ConsultPersonsHandler implements QueryHandler
 {

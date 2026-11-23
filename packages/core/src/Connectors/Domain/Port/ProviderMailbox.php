@@ -12,7 +12,7 @@ use Prospecter\Core\Connectors\Domain\Model\MailboxChanges;
 use Prospecter\Core\Connectors\Domain\Model\MailboxMail;
 use Prospecter\Core\Connectors\Domain\Model\MailboxWatch;
 use Prospecter\Core\Connectors\Domain\Model\RefreshToken;
-use Prospecter\Core\SharedKernel\Domain\Email;
+use Prospecter\Core\SharedKernel\Domain\Contact\Email;
 
 /**
  * Port: a member's mailbox at the provider (ADR 0154). Connectors reaches it with the member's token, through their

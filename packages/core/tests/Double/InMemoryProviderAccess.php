@@ -11,7 +11,7 @@ use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Model\RefreshToken;
 use Prospecter\Core\Connectors\Domain\Model\Scope;
 use Prospecter\Core\Connectors\Domain\Port\ProviderAccess;
-use Prospecter\Core\SharedKernel\Domain\Email;
+use Prospecter\Core\SharedKernel\Domain\Contact\Email;
 
 /**
  * A provider as the scenarios script it. A client serves the account unless a scenario takes it away. A code that the

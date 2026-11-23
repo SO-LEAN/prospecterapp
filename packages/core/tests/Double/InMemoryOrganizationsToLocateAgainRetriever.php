@@ -6,7 +6,7 @@ namespace Tests\Core\Double;
 
 use Prospecter\Core\Prospecting\Application\Port\OrganizationsToLocateAgainRetriever;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
-use Prospecter\Core\SharedKernel\Domain\GeoPoint;
+use Prospecter\Core\SharedKernel\Domain\Location\GeoPoint;
 
 /**
  * The organizations that the in-memory repository saved with a position but without a municipality. The adapter

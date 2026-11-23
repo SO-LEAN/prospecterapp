@@ -11,7 +11,7 @@ use Prospecter\Core\Connectors\Application\ExchangeSync;
 use Prospecter\Core\Connectors\Application\Port\ExchangeSyncRetriever;
 use Prospecter\Core\Connectors\Domain\Model\ExchangeId;
 use Prospecter\Core\Connectors\Domain\Model\SyncState;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Reads an exchange's push state in the `EXCHANGE#<exchange>` item that `DynamoCalendarEntryRepository` writes,

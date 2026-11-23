@@ -9,7 +9,7 @@ use Prospecter\Core\Reporting\Application\FactRecorder;
 use Prospecter\Core\Reporting\Domain\Model\ContactFact;
 use Prospecter\Core\Reporting\Domain\Model\ContactId;
 use Prospecter\Core\SharedKernel\Application\EventHandler;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * Counts an account's contacts from the facts that PersonalData publishes (ADR 0099).

@@ -21,8 +21,8 @@ use Prospecter\Core\Booking\Domain\Rule\FreeSlots;
 use Prospecter\Core\Booking\Domain\Service\BusyPeriods;
 use Prospecter\Core\Booking\Domain\Service\LinkAvailability;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 final readonly class ConsultPublicBookingPageHandler implements QueryHandler
 {

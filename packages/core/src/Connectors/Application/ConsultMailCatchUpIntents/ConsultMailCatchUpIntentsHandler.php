@@ -14,7 +14,7 @@ use Prospecter\Core\Connectors\Domain\Port\CorrespondentAddresses;
 use Prospecter\Core\Connectors\Domain\Port\Members;
 use Prospecter\Core\Connectors\Domain\Repository\ConnectionRepository;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * A reader who manages the personal data may reimport the e-mails exchanged with a correspondent. The reader's import

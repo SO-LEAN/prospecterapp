@@ -6,7 +6,7 @@ namespace Prospecter\Core\Campaigns\Application;
 
 use Prospecter\Core\Campaigns\Application\Port\TaggedContactsRetriever;
 use Prospecter\Core\Campaigns\Domain\Model\ContactTags;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * The tags of every contact in an account, derived once from the account's partition, as the tag search derives them

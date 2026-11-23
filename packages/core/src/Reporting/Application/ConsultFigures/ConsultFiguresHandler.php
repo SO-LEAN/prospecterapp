@@ -9,7 +9,7 @@ use Prospecter\Core\Reporting\Application\Port\ProjectionVersions;
 use Prospecter\Core\Reporting\Domain\Model\Month;
 use Prospecter\Core\Reporting\Domain\Port\SourceAccounts;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Presents the member's account figures from the active version. Before the first rebuild, every figure is zero.

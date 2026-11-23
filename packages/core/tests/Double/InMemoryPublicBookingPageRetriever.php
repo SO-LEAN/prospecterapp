@@ -12,8 +12,8 @@ use Prospecter\Core\Booking\Domain\Model\InactivePeriod;
 use Prospecter\Core\Booking\Domain\Model\OfferedChannels;
 use Prospecter\Core\Booking\Domain\Model\WeeklyWindows;
 use Prospecter\Core\Booking\Domain\Model\Window;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Stands in for the DynamoDB retriever in the scenarios. It finds the page that a code currently leads to, and reads it

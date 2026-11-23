@@ -15,7 +15,7 @@ use PHPStan\Rules\Properties\ReadWritePropertiesExtension;
  */
 final class AggregateStateIsReadByItsRepository implements ReadWritePropertiesExtension
 {
-    private const string AGGREGATE = 'Prospecter\\Core\\SharedKernel\\Domain\\ReleasesEvents';
+    private const string AGGREGATE = 'Prospecter\\Core\\SharedKernel\\Domain\\Event\\ReleasesEvents';
 
     public function isAlwaysRead(PropertyReflection $property, string $propertyName): bool
     {

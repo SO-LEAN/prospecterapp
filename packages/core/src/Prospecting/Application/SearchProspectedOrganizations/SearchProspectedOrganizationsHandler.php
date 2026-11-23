@@ -7,8 +7,8 @@ namespace Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations;
 use Prospecter\Core\Prospecting\Application\Port\FoundOrganizationRetriever;
 use Prospecter\Core\Prospecting\Domain\Port\Prospectors;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\SearchKey;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Search\SearchKey;
 
 final readonly class SearchProspectedOrganizationsHandler implements QueryHandler
 {

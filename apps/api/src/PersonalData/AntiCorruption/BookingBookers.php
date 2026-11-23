@@ -10,8 +10,8 @@ use Prospecter\Core\Booking\Contract\Service\ConsultAppointments\KeptAppointment
 use Prospecter\Core\PersonalData\Domain\Model\Booker;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\PersonalData\Domain\Port\Bookers;
-use Prospecter\Core\SharedKernel\Domain\Email;
-use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
+use Prospecter\Core\SharedKernel\Domain\Contact\Email;
+use Prospecter\Core\SharedKernel\Domain\Contact\PhoneNumber;
 
 /**
  * Anticorruption layer (ADR 0045, 0089). PersonalData learns from Booking who booked an appointment. It asks

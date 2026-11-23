@@ -8,7 +8,7 @@ use Prospecter\Core\Connectors\Domain\Exception\NoClient;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Model\ProviderClient;
 use Prospecter\Core\Connectors\Domain\Repository\ProviderClientRepository;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 final readonly class InMemoryProviderClientRepository implements ProviderClientRepository
 {

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\SharedKernel\Application;
 
 use Prospecter\Core\SharedKernel\Application\Port\Storage;
-use Prospecter\Core\SharedKernel\Domain\File;
+use Prospecter\Core\SharedKernel\Domain\File\File;
 
 final readonly class FileStore
 {

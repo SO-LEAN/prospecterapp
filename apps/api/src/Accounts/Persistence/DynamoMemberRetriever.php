@@ -12,7 +12,7 @@ use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\MemberResponse;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\Accounts\Domain\Rule\AdministrationRight;
 use Prospecter\Core\Accounts\Domain\Rule\PersonalDataRight;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Reads the `MEMBER#<id>` / `MEMBER` items that `DynamoMemberRepository` writes. It returns the members as the other

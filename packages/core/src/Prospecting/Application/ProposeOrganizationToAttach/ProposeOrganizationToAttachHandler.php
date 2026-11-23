@@ -8,8 +8,8 @@ use Prospecter\Core\Prospecting\Application\Port\ProposedOrganizationRetriever;
 use Prospecter\Core\Prospecting\Domain\Port\Prospectors;
 use Prospecter\Core\Prospecting\Domain\Rule\PublicMailDomains;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
-use Prospecter\Core\SharedKernel\Domain\Email;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Contact\Email;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 final readonly class ProposeOrganizationToAttachHandler implements QueryHandler
 {

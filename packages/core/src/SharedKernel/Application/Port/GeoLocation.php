@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\SharedKernel\Application\Port;
 
-use Prospecter\Core\SharedKernel\Domain\Location;
+use Prospecter\Core\SharedKernel\Domain\Location\Location;
 
 interface GeoLocation
 {

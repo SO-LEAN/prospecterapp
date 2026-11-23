@@ -13,7 +13,7 @@ use Prospecter\Core\PersonalData\Application\SearchContacts\ContactPage;
 use Prospecter\Core\PersonalData\Domain\Model\ContactsIntent;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
 use Prospecter\Core\PersonalData\Domain\Model\Reader;
-use Prospecter\Core\SharedKernel\Domain\SearchKey;
+use Prospecter\Core\SharedKernel\Domain\Search\SearchKey;
 
 /**
  * Reads an account's contacts as cards (`PersonCards`) in the items that `DynamoPersonRepository` writes. It does not

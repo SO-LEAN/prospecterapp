@@ -10,8 +10,8 @@ use Prospecter\Core\PersonalData\Contract\Service\WhichContactsHaveTheseEmails\W
 use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\Email;
+use Prospecter\Core\SharedKernel\Domain\Contact\Email;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 final readonly class WhichContactsHaveTheseEmailsHandler implements QueryHandler, WhichContactsHaveTheseEmailsService
 {

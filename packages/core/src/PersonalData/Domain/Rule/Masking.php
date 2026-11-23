@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\PersonalData\Domain\Rule;
 
-use Prospecter\Core\SharedKernel\Domain\ExternalReferences;
-use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
+use Prospecter\Core\SharedKernel\Domain\Contact\PhoneNumber;
+use Prospecter\Core\SharedKernel\Domain\Link\ExternalReferences;
 
 /**
  * Personal data shown to a reader without the right to read it unmasked. It is a fixed number of stars, so that the

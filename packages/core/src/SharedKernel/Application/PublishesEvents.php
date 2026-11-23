@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\SharedKernel\Application;
 
-use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
+use Prospecter\Core\SharedKernel\Domain\Event\ReleasesEvents;
 
 /**
  * The use case's side of the domain events (ADR 0043). Once the handler saves an aggregate, it releases the

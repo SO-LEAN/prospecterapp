@@ -7,7 +7,7 @@ namespace Prospecter\Core\Connectors\Domain\Repository;
 use Prospecter\Core\Connectors\Domain\Exception\NoClient;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\Connectors\Domain\Model\ProviderClient;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * The clients that the accounts created at the providers, with their secrets.

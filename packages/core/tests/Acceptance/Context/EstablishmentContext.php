@@ -12,7 +12,7 @@ use Behat\Step\When;
 use Prospecter\Core\Prospecting\Application\SearchEstablishments\FoundEstablishment;
 use Prospecter\Core\Prospecting\Application\SearchEstablishments\SearchEstablishments;
 use Prospecter\Core\Prospecting\Domain\Model\Establishment;
-use Prospecter\Core\SharedKernel\Domain\Siret;
+use Prospecter\Core\SharedKernel\Domain\Company\Siret;
 use Tests\Core\Acceptance\Expect;
 
 final class EstablishmentContext implements Context

@@ -11,9 +11,9 @@ use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
 use Prospecter\Core\SharedKernel\Application\Port\UnitOfWork;
 use Prospecter\Core\SharedKernel\Application\RefusalTranslatingCommandHandler;
 use Prospecter\Core\SharedKernel\Application\TransactionalCommandHandler;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\Exception\EmailAlreadyUsed;
-use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
+use Prospecter\Core\SharedKernel\Domain\Company\LegalIdentity;
+use Prospecter\Core\SharedKernel\Domain\Contact\EmailAlreadyUsed;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 use Tests\Core\Double\InMemoryDatabase;
 use Tests\Core\Double\InMemoryUnitOfWork;
 

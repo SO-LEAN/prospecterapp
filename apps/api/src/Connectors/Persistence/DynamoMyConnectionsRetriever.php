@@ -11,7 +11,7 @@ use Prospecter\Core\Connectors\Application\MyConnection;
 use Prospecter\Core\Connectors\Application\Port\MyConnectionsRetriever;
 use Prospecter\Core\Connectors\Domain\Model\MailImport;
 use Prospecter\Core\Connectors\Domain\Model\SyncState;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Reads a member's connections in the `MEMBER#<member>` items that `DynamoConnectionRepository` writes. It does not

@@ -27,13 +27,13 @@ use Prospecter\Core\Campaigns\Domain\Exception\UnknownRecipient;
 use Prospecter\Core\Campaigns\Domain\Exception\UnreachableContact;
 use Prospecter\Core\Campaigns\Domain\Rule\CampaignPossibilities;
 use Prospecter\Core\Campaigns\Domain\Rule\CampaignProgress;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Event\RecordsEvents;
+use Prospecter\Core\SharedKernel\Domain\Event\ReleasesEvents;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
-use Prospecter\Core\SharedKernel\Domain\Gesture;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
-use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
+use Prospecter\Core\SharedKernel\Domain\Gesture\Gesture;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Aggregate root: a communication campaign that an account's team prepares (ADR 0144). The members contact each person

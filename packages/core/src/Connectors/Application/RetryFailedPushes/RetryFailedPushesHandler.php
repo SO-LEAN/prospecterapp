@@ -9,7 +9,7 @@ use Prospecter\Core\Connectors\Domain\Model\CalendarEntry;
 use Prospecter\Core\Connectors\Domain\Port\Members;
 use Prospecter\Core\Connectors\Domain\Repository\CalendarEntryRepository;
 use Prospecter\Core\SharedKernel\Application\CommandHandler;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * The member pushes again each of their exchanges that the provider refused (ADR 0133).

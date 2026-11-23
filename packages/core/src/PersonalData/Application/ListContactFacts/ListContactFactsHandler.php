@@ -9,7 +9,7 @@ use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\ListContactFa
 use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\ListContactFactsOutput;
 use Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\ListContactFactsService;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 final readonly class ListContactFactsHandler implements QueryHandler, ListContactFactsService
 {

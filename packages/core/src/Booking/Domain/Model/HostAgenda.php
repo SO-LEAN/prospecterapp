@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Booking\Domain\Model;
 
-use Prospecter\Core\SharedKernel\Domain\Email;
+use Prospecter\Core\SharedKernel\Domain\Contact\Email;
 
 /**
  * When a host is already busy from a given moment, and the upcoming appointments that bookers made through the host's

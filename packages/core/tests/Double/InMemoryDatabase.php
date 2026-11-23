@@ -27,8 +27,8 @@ use Prospecter\Core\Prospecting\Domain\Model\Fingerprinted;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\ToDo;
 use Prospecter\Core\Reporting\Domain\Model\Fact;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
+use Prospecter\Core\SharedKernel\Domain\Event\ReleasesEvents;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * The tables behind the in-memory repositories, with the real tables' constraints. An email is unique among an

@@ -12,7 +12,7 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use Prospecter\Core\Connectors\Domain\Model\CalendarEvent;
 use Prospecter\Core\Prospecting\Contract\Event\ExchangeFactsChanged;
-use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
+use Prospecter\Core\SharedKernel\Domain\Contact\PhoneNumber;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 

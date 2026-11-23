@@ -15,7 +15,7 @@ use Prospecter\Core\Campaigns\Domain\Model\OrganizationFact;
 use Prospecter\Core\Campaigns\Domain\Model\OrganizationId;
 use Prospecter\Core\Campaigns\Domain\Model\Reach;
 use Prospecter\Core\Campaigns\Domain\Repository\FactRepository;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 use Tests\App\Base\ApiTestCase;
 
 /**

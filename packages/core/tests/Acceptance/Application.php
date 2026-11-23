@@ -444,7 +444,7 @@ use Prospecter\Core\SharedKernel\Application\RefusalTranslatingQueryHandler;
 use Prospecter\Core\SharedKernel\Application\TransactionalCommandHandler;
 use Prospecter\Core\SharedKernel\Application\TransactionalEventHandler;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessException;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 use Tests\Core\Double\AccountsAndPersonalDataHosts;
 use Tests\Core\Double\AccountsAndPersonalDataMembers;
 use Tests\Core\Double\AccountsCampaigners;

@@ -8,7 +8,7 @@ use Prospecter\Core\Accounts\Contract\Service\ListAccounts\KeptAccounts;
 use Prospecter\Core\Accounts\Contract\Service\ListAccounts\ListAccounts;
 use Prospecter\Core\Accounts\Contract\Service\ListAccounts\ListAccountsService;
 use Prospecter\Core\Campaigns\Domain\Port\TaggedAccounts;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * The API's anticorruption layer in the scenarios (ADR 0045, 0089): the accounts that Accounts lists, one slice after

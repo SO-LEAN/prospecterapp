@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Booking\Domain\Port;
 
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Port: whether a host's calendar is connected. That calendar invites the bookers. The adapter translates the answer of

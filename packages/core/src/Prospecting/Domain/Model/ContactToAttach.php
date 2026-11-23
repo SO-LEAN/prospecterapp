@@ -10,11 +10,11 @@ use Prospecter\Core\Prospecting\Domain\Event\ContactToAttachHandedOver;
 use Prospecter\Core\Prospecting\Domain\Event\ContactToAttachMet;
 use Prospecter\Core\Prospecting\Domain\Event\ContactToAttachMetAgain;
 use Prospecter\Core\Prospecting\Domain\Rule\UnattachedErasure;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Event\RecordsEvents;
+use Prospecter\Core\SharedKernel\Domain\Event\ReleasesEvents;
 use Prospecter\Core\SharedKernel\Domain\Exception\NotPossibleInItsState;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
-use Prospecter\Core\SharedKernel\Domain\RecordsEvents;
-use Prospecter\Core\SharedKernel\Domain\ReleasesEvents;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Aggregate root: a contact of the account that no organization names yet. The person took a meeting with a member

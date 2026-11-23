@@ -6,8 +6,8 @@ namespace Tests\Core\Domain;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Prospecter\Core\SharedKernel\Domain\Contact\PhoneNumber;
 use Prospecter\Core\SharedKernel\Domain\Exception\BusinessRuleViolation;
-use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 class PhoneNumberTest extends TestCase
 {

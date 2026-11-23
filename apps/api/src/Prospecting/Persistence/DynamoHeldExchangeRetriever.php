@@ -10,8 +10,8 @@ use App\Shared\Typed;
 use Prospecter\Core\Prospecting\Application\ConsultHeldExchanges\HeldExchange;
 use Prospecter\Core\Prospecting\Application\Port\HeldExchangeRetriever;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Reads the items `EXCHANGE#<id>` / `EXCHANGE` that `DynamoExchangeRepository` writes, as their holders hold them. It

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Booking\Domain\Model;
 
-use Prospecter\Core\SharedKernel\Domain\Uuid;
+use Prospecter\Core\SharedKernel\Domain\Identity\Uuid;
 
 /**
  * An inactive period's id. The client that adds the period gives it.

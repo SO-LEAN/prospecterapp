@@ -7,8 +7,8 @@ namespace Tests\Core\Double;
 use Prospecter\Core\Prospecting\Application\Port\ProposedOrganizationRetriever;
 use Prospecter\Core\Prospecting\Application\ProposeOrganizationToAttach\ProposedOrganization;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
-use Prospecter\Core\SharedKernel\Domain\AccountId;
-use Prospecter\Core\SharedKernel\Domain\LegalIdentity;
+use Prospecter\Core\SharedKernel\Domain\Company\LegalIdentity;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**
  * Reads the organizations that the in-memory repository saved, by their email's domain. The adapter reads the

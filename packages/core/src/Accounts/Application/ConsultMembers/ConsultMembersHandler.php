@@ -9,7 +9,7 @@ use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\ConsultMembers;
 use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\ConsultMembersOutput;
 use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\ConsultMembersService;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
-use Prospecter\Core\SharedKernel\Domain\MemberId;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 final readonly class ConsultMembersHandler implements QueryHandler, ConsultMembersService
 {
