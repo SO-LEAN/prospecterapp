@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\ConsultToDos;
 
 /**
- * The to-dos for a contact, those to do then those done.
+ * Reads a contact's to-dos. The to-dos still to do come first, then those done.
  */
 final readonly class ConsultToDos
 {
