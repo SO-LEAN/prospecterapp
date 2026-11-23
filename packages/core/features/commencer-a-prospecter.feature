@@ -43,7 +43,7 @@ Fonctionnalité: Commencer à prospecter une organisation
   Scénario: Il faut au moins une raison sociale ou un e-mail
     Quand je commence à prospecter l'organisation :
       | ville | Strasbourg |
-    Alors c'est refusé : "At least one is mandatory : corporate name or email"
+    Alors c'est refusé : "An organization needs a corporate name or an e-mail address"
     Et l'organisation "SOLEAN IT" compte 0 organisation active
 
   Scénario: L'e-mail ne peut pas être celui d'une autre organisation de ma base
@@ -79,7 +79,7 @@ Fonctionnalité: Commencer à prospecter une organisation
     Quand je commence à prospecter l'organisation :
       | raison sociale | ACME                            |
       | liens          | linkedin.com/company/acme-corp/ |
-    Alors c'est refusé : "Link already the one of ACME Lyon"
+    Alors c'est refusé : "ACME Lyon already has this link"
     Et l'organisation "SOLEAN IT" compte 1 organisation active
 
   Scénario: Le domaine du site d'une autre organisation de ma base est refusé, en la nommant
@@ -88,7 +88,7 @@ Fonctionnalité: Commencer à prospecter une organisation
     Quand je commence à prospecter l'organisation :
       | raison sociale | ACME                 |
       | site web       | https://acme.fr/blog |
-    Alors c'est refusé : "Website already the one of ACME Lyon"
+    Alors c'est refusé : "ACME Lyon already has this website"
     Et l'organisation "SOLEAN IT" compte 1 organisation active
 
   Scénario: Le lien d'une personne est refusé

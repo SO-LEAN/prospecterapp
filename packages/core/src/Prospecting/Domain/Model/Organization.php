@@ -539,7 +539,7 @@ final class Organization implements ReleasesEvents
     private static function ensureItCanBeNamed(LegalIdentity $legalIdentity, ContactDetails $contactDetails): void
     {
         if (!$legalIdentity->hasCorporateName() && null === $contactDetails->email) {
-            throw OrganizationWithoutNameNorEmail::because('At least one is mandatory : corporate name or email');
+            throw OrganizationWithoutNameNorEmail::because('An organization needs a corporate name or an e-mail address');
         }
     }
 }

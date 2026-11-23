@@ -52,21 +52,21 @@ Fonctionnalité: Compléter une organisation sans rien écraser
       | SIRET | 55210055400013 |
     Quand je complète l'organisation "ACME" :
       | SIRET | 55210055400013 |
-    Alors c'est refusé : "SIRET already the one of ACME Lyon"
+    Alors c'est refusé : "ACME Lyon already has this SIRET"
 
   Scénario: Un lien d'une autre organisation est refusé
     Soit l'organisation "ACME Lyon" fait partie de mes organisations avec :
       | liens | https://www.linkedin.com/company/acme |
     Quand je complète l'organisation "ACME" :
       | liens | https://www.linkedin.com/company/acme |
-    Alors c'est refusé : "Link already the one of ACME Lyon"
+    Alors c'est refusé : "ACME Lyon already has this link"
 
   Scénario: Le site d'une autre organisation est refusé
     Soit l'organisation "ACME Lyon" fait partie de mes organisations avec :
       | site web | https://www.acme.fr |
     Quand je complète l'organisation "ACME" :
       | site web | https://acme.fr/contact |
-    Alors c'est refusé : "Website already the one of ACME Lyon"
+    Alors c'est refusé : "ACME Lyon already has this website"
 
   Scénario: L'adresse e-mail d'une autre organisation est refusée
     Soit l'organisation "ACME Lyon" fait partie de mes organisations avec :

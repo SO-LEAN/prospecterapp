@@ -30,7 +30,7 @@ Fonctionnalité: Réviser l'identité légale d'une organisation
     Soit l'organisation "Globex" fait partie de mes organisations
     Quand je révise l'identité de "Globex" :
       | raison sociale | |
-    Alors c'est refusé : "At least one is mandatory : corporate name or email"
+    Alors c'est refusé : "An organization needs a corporate name or an e-mail address"
     Et l'organisation "Globex" est enregistrée avec :
       | raison sociale | Globex |
 
@@ -56,7 +56,7 @@ Fonctionnalité: Réviser l'identité légale d'une organisation
     Soit l'organisation "ACME Lyon" fait partie de mes organisations avec :
       | SIRET | 55210055400013 |
     Quand je note le SIRET "552 100 554 00013" sur "ACME"
-    Alors c'est refusé : "SIRET already the one of ACME Lyon"
+    Alors c'est refusé : "ACME Lyon already has this SIRET"
     Et l'organisation "ACME" est enregistrée avec :
       | SIRET | |
 
