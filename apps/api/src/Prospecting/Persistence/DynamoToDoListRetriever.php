@@ -48,8 +48,8 @@ final readonly class DynamoToDoListRetriever implements ToDoListRetriever
     }
 
     /**
-     * The links of the calendar of the holder between the first and the last days of the period, in one query; a
-     * to-do erased meanwhile is left out.
+     * Reads the links in the holder's calendar between the period's first and last days, in one query. It leaves out a
+     * to-do erased meanwhile.
      */
     public function dueIn(MemberId $holder, CalendarPeriod $period): array
     {

@@ -13,7 +13,7 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 
 /**
  * Reads the links `CONTACT#<person>` / `ORGANIZATION#<id>` that `DynamoOrganizationRepository` writes, then the
- * organizations they name, without restoring them (ADR 0088): one batch for all the contacts.
+ * organizations they name. It does not restore them (ADR 0088). One batch reads them for all the contacts.
  */
 final readonly class DynamoOrganizationOfContactRetriever implements OrganizationOfContactRetriever
 {
@@ -36,9 +36,9 @@ final readonly class DynamoOrganizationOfContactRetriever implements Organizatio
     }
 
     /**
-     * @param list<string> $keys partition keys of organizations
+     * @param list<string> $keys the organizations' partition keys
      *
-     * @return array<string, OrganizationOfContact> by key
+     * @return array<string, OrganizationOfContact> indexed by key
      */
     private function organizationsNamed(array $keys): array
     {

@@ -28,22 +28,22 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\Siret;
 
 /**
- * The organizations in the table of Prospecting (ADR 0048):
- * - `ORGANIZATION#<id>` / `ORGANIZATION`: the organization, listed by account in `GSI1` (`ACCOUNT#<id>`, its id)
- *   and by holding in `GSI2` (`HOLDING#<id>`, its id);
- * - `EMAIL#<account>#<email>` / `EMAIL`: the email an organization holds in its account, the safety net of
- *   EmailUniqueness (ADR 0039, 0048): two organizations taking it at once, the second transaction is cancelled;
- * - `SIRET#<account>#<siret>` / `SIRET`: the establishment an organization is in its account, the safety net of
- *   SiretUniqueness, as for the email;
- * - `REFERENCE#<account>#<source>#<identifier>` / `REFERENCE` and `WEBSITE#<account>#<domain>` / `WEBSITE`: each
- *   link and the domain of the website an organization has in its account, the safety nets of ReferenceUniqueness
- *   and WebsiteUniqueness, as for the SIRET;
- * - `CONTACT#<person>` / `ORGANIZATION#<id>`: the organizations naming a contact;
- * - `EMAIL_DOMAIN#<account>#<domain>` / `ORGANIZATION#<id>`: the organizations of an account by the domain of their
- *   email, the one to attach a contact of that domain to proposed first (ADR 0146).
- * The organization carries its search keys and its phone number among the organizations of its account
- * (`SearchIndexes`), and its `revision`, incremented at each save: the revision of its facts, which the aggregate
- * does not know, and the one its save and its removal hold to, as their unit of work read it (ADR 0181).
+ * Stores the organizations in Prospecting's table (ADR 0048):
+ * - `ORGANIZATION#<id>` / `ORGANIZATION`: the organization. `GSI1` lists it by account (`ACCOUNT#<id>`, by its id),
+ *   and `GSI2` lists it by holding (`HOLDING#<id>`, by its id).
+ * - `EMAIL#<account>#<email>` / `EMAIL`: the email an organization holds in its account. It is EmailUniqueness's
+ *   safety net (ADR 0039, 0048): when two organizations take the email at once, the second transaction is cancelled.
+ * - `SIRET#<account>#<siret>` / `SIRET`: the establishment an organization is in its account. It is SiretUniqueness's
+ *   safety net, like the email's.
+ * - `REFERENCE#<account>#<source>#<identifier>` / `REFERENCE` and `WEBSITE#<account>#<domain>` / `WEBSITE`: each link
+ *   and the website's domain that an organization has in its account. They are the safety nets of ReferenceUniqueness
+ *   and WebsiteUniqueness, like the SIRET's.
+ * - `CONTACT#<person>` / `ORGANIZATION#<id>`: the organizations that name a contact.
+ * - `EMAIL_DOMAIN#<account>#<domain>` / `ORGANIZATION#<id>`: an account's organizations by their email's domain. The
+ *   first one is proposed to attach a contact with an email in that domain (ADR 0146).
+ * The organization carries its search keys and its phone number among its account's organizations (`SearchIndexes`).
+ * It also carries its `revision`, which each save increments. It is the revision of its facts, which the aggregate
+ * does not know. Its save and its removal also require the revision that their unit of work read (ADR 0181).
  */
 final readonly class DynamoOrganizationRepository implements OrganizationRepository
 {
@@ -74,7 +74,7 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
     }
 
     /**
-     * Found by the reservations of their emails in the account, without reading the organizations.
+     * Finds the organizations through their emails' reservations in the account, without reading the organizations.
      *
      * @param list<Email> $emails
      */
@@ -180,10 +180,10 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
     }
 
     /**
-     * Writes again the item of every organization, its search keys and its keys in its lists with it, the link of
-     * the domain of its email (ADR 0146), the link of its resemblance key and the reservations of its links and of the domain of its website, and forgets
-     * the items of the search before ADR 0071 and the reservations of the LinkedIn pages before the links: what a table
-     * written before them needs once.
+     * Writes again every organization's item, with its search keys and its keys in its lists. It also writes its email
+     * domain's link (ADR 0146), its resemblance key's link, and the reservations of its links and of its website's
+     * domain. It forgets the search items from before ADR 0071, and the LinkedIn pages' reservations from before the
+     * links. A table written before these keys needs this once.
      */
     public function writeTheKeysAgain(): int
     {
@@ -207,7 +207,8 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
     }
 
     /**
-     * The reservations of links no organization holds any more, once recognized again under another reference.
+     * The reservations of links that no organization holds any more, once the links are recognized again under another
+     * reference.
      *
      * @param list<array<string, string>> $reservations
      *
@@ -279,7 +280,7 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
     }
 
     /**
-     * The links to write and to delete so that the contacts of the document are those named by the table.
+     * Returns the links to write and to delete, so that the table names the document's contacts.
      *
      * @param array<string, mixed> $document
      * @param list<string>         $storedContacts
@@ -299,8 +300,9 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
     }
 
     /**
-     * The reservations of what designates one organization of its account, its SIRET, its links and the domain of its
-     * website, between the document stored and the one to store: none for an organization no longer prospected.
+     * Returns the reservations of what designates one organization in its account: its SIRET, its links and its
+     * website's domain. They go from the stored document to the one to store. An organization no longer prospected has
+     * none.
      *
      * @param array<string, mixed>|null $document
      * @param array<string, mixed>|null $stored
@@ -331,8 +333,8 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
     }
 
     /**
-     * The reservation of a value only one organization of the account may have, taken when it changes, the former one
-     * released.
+     * Returns the reservation of a value that only one organization of the account may have. The new value is taken
+     * when it changes, and the former one is released.
      *
      * @param array<string, mixed>                         $owner
      * @param \Closure(ConditionFailed): BusinessException $takenMeanwhile
@@ -352,7 +354,7 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
     }
 
     /**
-     * The reservations of the links taken, those of the links dropped released.
+     * Returns the reservations of the links taken, and releases those of the links dropped.
      *
      * @param array<string, mixed> $owner
      * @param list<string>         $keys
@@ -388,7 +390,7 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
     }
 
     /**
-     * The reservations of what designates the organization of the document in its account.
+     * Returns the reservations of what designates the document's organization in its account.
      *
      * @param array<string, mixed> $document
      *
@@ -430,8 +432,8 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
     }
 
     /**
-     * The link of the domain of its email written when the domain changes, the former one deleted: an email changed
-     * within its domain keeps it.
+     * Writes its email domain's link when the domain changes, and deletes the former link. An email changed within its
+     * domain keeps the link.
      *
      * @return list<Write>
      */
@@ -451,7 +453,7 @@ final readonly class DynamoOrganizationRepository implements OrganizationReposit
     }
 
     /**
-     * The link of its resemblance key written when the key changes, the former one deleted.
+     * Writes its resemblance key's link when the key changes, and deletes the former link.
      *
      * @param array<string, mixed> $document
      *

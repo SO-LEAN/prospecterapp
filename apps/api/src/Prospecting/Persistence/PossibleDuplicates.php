@@ -10,15 +10,15 @@ use App\Shared\Typed;
 use Prospecter\Core\Prospecting\Application\PossibleDuplicate;
 
 /**
- * The organizations the organizations of documents may be duplicates of, by their name, read in one batch from the
- * items `DynamoOrganizationRepository` writes: one no longer prospected is absent.
+ * Reads the organizations that the documents' organizations may duplicate, with their names. It reads them in one
+ * batch from the items that `DynamoOrganizationRepository` writes. An organization no longer prospected is absent.
  */
 final class PossibleDuplicates
 {
     /**
      * @param list<array<string, mixed>> $documents
      *
-     * @return array<string, list<PossibleDuplicate>> those of each document, by its id
+     * @return array<string, list<PossibleDuplicate>> each document's possible duplicates, indexed by its id
      */
     public static function of(Table $prospectingTable, array $documents): array
     {

@@ -21,9 +21,9 @@ use Prospecter\Core\SharedKernel\Domain\Origin;
 use Prospecter\Core\SharedKernel\Domain\PhoneNumber;
 
 /**
- * Reads the items `ORGANIZATION#<id>` / `ORGANIZATION` that `DynamoOrganizationRepository` writes as sheets,
- * without restoring the organizations (ADR 0088); a calling organization by the index of the phone numbers
- * (ADR 0072).
+ * Reads the items `ORGANIZATION#<id>` / `ORGANIZATION` that `DynamoOrganizationRepository` writes, as sheets. It does
+ * not restore the organizations (ADR 0088). It finds a calling organization through the phone numbers' index (ADR
+ * 0072).
  */
 final readonly class DynamoOrganizationSheetRetriever implements OrganizationSheetRetriever
 {

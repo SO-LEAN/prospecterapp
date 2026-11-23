@@ -15,9 +15,9 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Slice;
 
 /**
- * Reads the facts of the exchanges in the items `EXCHANGE#<id>` / `EXCHANGE` that `DynamoExchangeRepository`
- * writes, their revision with them, without restoring them (ADR 0088): by key, as the open unit of work is about
- * to write them, and listed by account in `GSI2` (`ExchangeKeys::ofAccount()`).
+ * Reads the exchanges' facts, with their revision, from the items `EXCHANGE#<id>` / `EXCHANGE` that
+ * `DynamoExchangeRepository` writes. It does not restore the exchanges (ADR 0088). A read by key sees what the open
+ * unit of work is about to write. A list reads an account's exchanges in `GSI2` (`ExchangeKeys::ofAccount()`).
  */
 final readonly class DynamoExchangeFactsRetriever implements ExchangeFactsRetriever
 {

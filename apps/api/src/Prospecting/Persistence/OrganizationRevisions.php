@@ -8,7 +8,8 @@ use App\Shared\Persistence\RevisionRead;
 use App\Shared\Persistence\Table;
 
 /**
- * An organization's revision: exposed with the organization, and sent back by a client with its change (ADR 0187).
+ * An organization's revision. The API exposes it with the organization, and a client sends it back with its change
+ * (ADR 0187).
  */
 final readonly class OrganizationRevisions
 {

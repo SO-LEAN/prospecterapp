@@ -19,7 +19,8 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * A to-do as a plain document of its DynamoDB item, and back (ADR 0048), its recorded events never.
+ * Turns a to-do into a plain document for its DynamoDB item, and back (ADR 0048). Its recorded events are never
+ * stored.
  */
 final class ToDoDocument
 {

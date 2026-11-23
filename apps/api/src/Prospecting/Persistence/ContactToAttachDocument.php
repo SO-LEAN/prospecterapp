@@ -15,8 +15,8 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * A contact to attach as a plain document of its DynamoDB item, and back (ADR 0048), its recorded events never; the
- * clock of its last meeting by the name of its zone (ADR 0146).
+ * Turns a contact to attach into a plain document for its DynamoDB item, and back (ADR 0048). Its recorded events are
+ * never stored. The clock of its last meeting is stored as its time zone's name (ADR 0146).
  */
 final class ContactToAttachDocument
 {

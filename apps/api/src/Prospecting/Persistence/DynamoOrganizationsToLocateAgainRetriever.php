@@ -9,9 +9,9 @@ use App\Shared\Typed;
 use Prospecter\Core\Prospecting\Application\Port\OrganizationsToLocateAgainRetriever;
 
 /**
- * The organizations located before their municipality was kept (ADR 0142), read from the items of
- * `DynamoOrganizationRepository` without restoring them (ADR 0088): a scan of the table, for a command run once on
- * an instance, never by a request.
+ * Reads the organizations located before Prospecter kept their municipality (ADR 0142). It reads them from the items
+ * that `DynamoOrganizationRepository` writes, without restoring them (ADR 0088). It scans the table, so only a command
+ * run once on an instance uses it, never a request.
  */
 final readonly class DynamoOrganizationsToLocateAgainRetriever implements OrganizationsToLocateAgainRetriever
 {

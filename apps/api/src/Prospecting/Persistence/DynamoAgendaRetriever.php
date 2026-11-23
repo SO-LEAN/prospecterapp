@@ -13,8 +13,8 @@ use Prospecter\Core\Prospecting\Domain\Model\ContactPresence;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 
 /**
- * Reads the agenda of a member in `GSI1` of the links `DynamoExchangeRepository` writes while an exchange is
- * planned (`AGENDA#<member>`), without restoring the exchanges (ADR 0088).
+ * Reads a member's agenda in `GSI1`, from the links that `DynamoExchangeRepository` writes while an exchange is planned
+ * (`AGENDA#<member>`). It does not restore the exchanges (ADR 0088).
  */
 final readonly class DynamoAgendaRetriever implements AgendaRetriever
 {
@@ -38,7 +38,7 @@ final readonly class DynamoAgendaRetriever implements AgendaRetriever
     }
 
     /**
-     * Read below the position of `until`, the latest first, then given back the oldest first.
+     * Reads the exchanges below the position of `until`, the latest first, then returns them oldest first.
      */
     public function plannedBefore(Prospector $holder, \DateTimeImmutable $until): array
     {

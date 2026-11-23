@@ -15,9 +15,9 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\Slice;
 
 /**
- * Reads the facts of the organizations in the items `ORGANIZATION#<id>` / `ORGANIZATION` that
- * `DynamoOrganizationRepository` writes, their revision with them, without restoring them (ADR 0088): by key, as
- * the open unit of work is about to write them, and listed by account in `GSI1`.
+ * Reads the organizations' facts, with their revision, from the items `ORGANIZATION#<id>` / `ORGANIZATION` that
+ * `DynamoOrganizationRepository` writes. It does not restore the organizations (ADR 0088). A read by key sees what the
+ * open unit of work is about to write. A list reads an account's organizations in `GSI1`.
  */
 final readonly class DynamoOrganizationFactsRetriever implements OrganizationFactsRetriever
 {

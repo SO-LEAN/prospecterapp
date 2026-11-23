@@ -21,10 +21,10 @@ use Prospecter\Core\SharedKernel\Domain\Origin;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Reads the timelines in the indexes `DynamoExchangeRepository` writes (`ExchangeKeys`), without restoring the
- * exchanges (ADR 0088): the timeline of a contact in `GSI1` of the exchanges, that of an organization in `GSI1`
- * of its links, those to redact in `GSI2`, counted there (ADR 0074, 0076, 0079); the past below the position
- * of the moment of the reading, the most recent first, what is to come above it, the soonest first.
+ * Reads the timelines in the indexes that `DynamoExchangeRepository` writes (`ExchangeKeys`). It does not restore the
+ * exchanges (ADR 0088). A contact's timeline is in the exchanges' `GSI1`. An organization's timeline is in its links'
+ * `GSI1`. The exchanges to redact are in `GSI2`, which also counts them (ADR 0074, 0076, 0079). The past is below the
+ * reading moment's position, the most recent first. What is to come is above it, the soonest first.
  */
 final readonly class DynamoTimelineRetriever implements TimelineRetriever
 {
@@ -73,7 +73,7 @@ final readonly class DynamoTimelineRetriever implements TimelineRetriever
     }
 
     /**
-     * The items of the exchanges the links name, in the order of the links.
+     * Reads the items of the exchanges that the links name, in the links' order.
      *
      * @param list<array<string, mixed>> $links
      *
@@ -85,7 +85,7 @@ final readonly class DynamoTimelineRetriever implements TimelineRetriever
     }
 
     /**
-     * @param list<array<string, mixed>>                         $items one more than a slice tells whether another follows
+     * @param list<array<string, mixed>>                         $items a slice and one more item, which tells whether another slice follows
      * @param \Closure(array<string, mixed>): ExchangeInTimeline $read
      */
     private function timelineOf(array $items, int $max, int $toMakeConform, \Closure $read): Timeline

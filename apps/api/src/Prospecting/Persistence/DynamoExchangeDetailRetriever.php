@@ -25,9 +25,9 @@ use Prospecter\Core\Prospecting\Domain\Policy\ExchangeReading;
 use Prospecter\Core\SharedKernel\Domain\Origin;
 
 /**
- * Reads the item `EXCHANGE#<id>` / `EXCHANGE` that `DynamoExchangeRepository` writes as the detail of the
- * exchange, without restoring it (ADR 0088): as its reader may read it, with what is to redact and what
- * its state offers its reader at the moment of the reading, asked to the policies of the core.
+ * Reads an exchange's detail from the item `EXCHANGE#<id>` / `EXCHANGE` that `DynamoExchangeRepository` writes,
+ * without restoring the exchange (ADR 0088). It reads the exchange as its reader may read it. It adds what is to
+ * redact, and what the exchange's state offers the reader at the moment of reading. The core's policies decide both.
  */
 final readonly class DynamoExchangeDetailRetriever implements ExchangeDetailRetriever
 {

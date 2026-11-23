@@ -14,9 +14,9 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * Reads the items `EXCHANGE#<id>` / `EXCHANGE` that `DynamoExchangeRepository` writes as their holders hold them, in
- * one batch, without restoring them (ADR 0088, 0127); those a holder still has planned by the links of their agenda
- * (`AGENDA#<member>` in `GSI1`, ADR 0133).
+ * Reads the items `EXCHANGE#<id>` / `EXCHANGE` that `DynamoExchangeRepository` writes, as their holders hold them. It
+ * reads them in one batch and does not restore them (ADR 0088, 0127). It finds the exchanges a holder still has
+ * planned through the links in their agenda (`AGENDA#<member>` in `GSI1`, ADR 0133).
  */
 final readonly class DynamoHeldExchangeRetriever implements HeldExchangeRetriever
 {
@@ -45,7 +45,7 @@ final readonly class DynamoHeldExchangeRetriever implements HeldExchangeRetrieve
     /**
      * @param list<array<string, mixed>> $documents
      *
-     * @return list<HeldExchange> those of the account
+     * @return list<HeldExchange> the account's exchanges
      */
     private static function heldOf(AccountId $accountId, array $documents): array
     {
