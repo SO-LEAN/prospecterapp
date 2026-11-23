@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Connectors\Application\AskForAuthorization;
 
 /**
- * I am about to ask a provider for the access to my account there: the `state` it will give back with its answer,
- * and the verifier of its code (PKCE), both drawn by the client, are kept for me while I answer it.
+ * I am about to ask a provider for access to my account there. The client draws the `state` that the provider gives
+ * back with its answer, and the code verifier (PKCE). Both are kept for me while I answer the provider.
  */
 final readonly class AskForAuthorization
 {
