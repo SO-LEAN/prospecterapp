@@ -29,11 +29,11 @@ Fonctionnalité: Taguer mes organisations et mes contacts
 
   Scénario: Un tag sans lettre ni chiffre est refusé
     Quand je tague "ACME" avec "#!?"
-    Alors c'est refusé : "A tag holds 1 to 30 capital letters, digits or underscores"
+    Alors c'est refusé : "A tag must have 1 to 30 capital letters, digits or underscores"
 
   Scénario: Un tag de plus de 30 caractères est refusé
     Quand je tague "ACME" avec "#UN_TAG_BIEN_TROP_LONG_POUR_ETRE_LU"
-    Alors c'est refusé : "A tag holds 1 to 30 capital letters, digits or underscores"
+    Alors c'est refusé : "A tag must have 1 to 30 capital letters, digits or underscores"
 
   Scénario: Je retire un tag
     Soit "ACME" est tagué "#ESN"
