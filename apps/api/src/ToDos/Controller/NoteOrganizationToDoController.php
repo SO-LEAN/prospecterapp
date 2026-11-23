@@ -41,12 +41,12 @@ final class NoteOrganizationToDoController extends AbstractController
     #[Route('/api/organizations/{id}/to-dos', name: 'api_organizations_note_to_do', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
     #[IsGranted(OrganizationVoter::ACCESS, subject: 'organization')]
     #[IsGranted(User::PERSONAL_DATA)]
-    #[OA\Post(summary: 'Note a to-do for the organization itself')]
+    #[OA\Post(summary: 'Log a to-do for the organization itself')]
     #[OA\Response(response: 201, description: 'The new to-do', content: new Model(type: ToDoResource::class), headers: [new OA\Header(header: 'Location', description: 'The new to-do', schema: new OA\Schema(type: 'string'))])]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]
     #[OA\Response(response: 404, description: 'Unknown organization, or one of another account', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 422, description: 'Invalid to-do: without a text, due on no day or at no hour', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 422, description: 'Invalid to-do: no text, or an invalid due day or hour', content: new Model(type: ProblemResource::class))]
     public function __invoke(OrganizationSheet $organization, #[MapRequestPayload] ToDoInput $input, #[CurrentUser] User $user): JsonResponse
     {
         $toDo = $this->identities->next();

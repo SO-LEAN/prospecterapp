@@ -30,7 +30,7 @@ final class ShowToDoController extends AbstractController
     #[Route('/api/to-dos/{id}', name: 'api_to_dos_show', requirements: ['id' => Requirement::UUID], methods: ['GET'])]
     #[IsGranted(ToDoVoter::ACCESS, subject: 'toDo')]
     #[IsGranted(User::PERSONAL_DATA)]
-    #[OA\Get(summary: 'A to-do, and what may be done with it')]
+    #[OA\Get(summary: 'A to-do, and what the member can do with it')]
     #[OA\Response(response: 200, description: 'The to-do', content: new Model(type: ToDoResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]

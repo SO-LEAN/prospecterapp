@@ -16,9 +16,9 @@ use Prospecter\Core\Prospecting\Application\ToDoInList;
 use Symfony\Component\Clock\ClockInterface;
 
 /**
- * What every tool writing a to-do does as its controller (ADR 0163): the to-do of the route read, the member refused
- * unless a prospector with access to it and the right to manage the personal data, then the input of the endpoint
- * checked, its command dispatched, the to-do answered as the screen then reads it.
+ * What every tool that writes a to-do does, the way its controller does (ADR 0163). It reads the route's to-do. It
+ * refuses the member unless they are a prospector with access to the to-do and the right to manage personal data. It
+ * then checks the endpoint's input and dispatches its command. It answers the to-do as the screen then reads it.
  */
 final readonly class ToDoWrites
 {
@@ -36,8 +36,8 @@ final readonly class ToDoWrites
     /**
      * @template TInput of object
      *
-     * @param TInput                                                           $input   the input of the endpoint
-     * @param \Closure(TInput, ToDoInList, string, \DateTimeImmutable): object $command the command of the endpoint, from its input, for the to-do, by the member, at this moment
+     * @param TInput                                                           $input   the endpoint's input
+     * @param \Closure(TInput, ToDoInList, string, \DateTimeImmutable): object $command builds the endpoint's command from its input, for the to-do, by the member, at this moment
      *
      * @return array<string, mixed>
      */
@@ -49,7 +49,7 @@ final readonly class ToDoWrites
     /**
      * It does the same as write() for an endpoint without an input.
      *
-     * @param \Closure(ToDoInList, string, \DateTimeImmutable): object $command the command of the endpoint, for the to-do, by the member, at this moment
+     * @param \Closure(ToDoInList, string, \DateTimeImmutable): object $command builds the endpoint's command for the to-do, by the member, at this moment
      *
      * @return array<string, mixed>
      */
@@ -59,7 +59,7 @@ final readonly class ToDoWrites
     }
 
     /**
-     * The command dispatched, nothing answered.
+     * Dispatches the command and answers nothing to the AI.
      *
      * @template TInput of object
      *
@@ -77,7 +77,7 @@ final readonly class ToDoWrites
     /**
      * It does the same as dispatched() for an endpoint without an input.
      *
-     * @param \Closure(ToDoInList, string, \DateTimeImmutable): object $command the command of the endpoint, for the to-do, by the member, at this moment
+     * @param \Closure(ToDoInList, string, \DateTimeImmutable): object $command builds the endpoint's command for the to-do, by the member, at this moment
      */
     public function changed(string $id, \Closure $command): ToDoInList
     {
@@ -97,7 +97,7 @@ final readonly class ToDoWrites
 
     /**
      * Reads the route's to-do. It refuses the member unless they are a prospector with access to it and the right to
-     * manage the personal data.
+     * manage personal data.
      */
     private function writable(string $id): ToDoInList
     {

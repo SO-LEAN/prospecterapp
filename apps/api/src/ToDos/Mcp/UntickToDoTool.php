@@ -11,8 +11,8 @@ use Prospecter\Core\Prospecting\Application\ToDoInList;
 use Prospecter\Core\Prospecting\Application\UntickToDo\UntickToDo;
 
 /**
- * `DELETE /api/to-dos/{id}/done`, for an AI (ADR 0163), which asks its member before calling it, as for every
- * removal.
+ * `DELETE /api/to-dos/{id}/done`, for an AI (ADR 0163). As for every removal, the AI asks its member before it calls
+ * this tool.
  */
 #[Adapts('api_to_dos_untick')]
 final readonly class UntickToDoTool
@@ -22,11 +22,11 @@ final readonly class UntickToDoTool
     }
 
     /**
-     * @param string $id the id of the to-do
+     * @param string $id the to-do's id
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'reopen-todo', description: 'Untick a to-do ticked off by mistake: it is to do again, the moment it was done forgotten; needs the right to manage the personal data. Answers the to-do.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'reopen-todo', description: 'Untick a to-do ticked off by mistake. It is to do again, and the moment it was done is forgotten. Needs the right to manage personal data. Returns the to-do.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id): array
     {
         return $this->writes->change(

@@ -17,8 +17,8 @@ use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\Prospecting\Application\ToDoInList;
 
 /**
- * A to-do as the API shows it, its holder and its contact named; each of its intentions needs the right to manage
- * personal data, its text possibly holding some.
+ * A to-do as the API shows it, with its holder and its contact named. Its text may hold personal data, so each of
+ * its intents needs the right to manage personal data.
  */
 final readonly class ToDoResourceFactory
 {
@@ -37,8 +37,8 @@ final readonly class ToDoResourceFactory
     }
 
     /**
-     * @param array<string, PersonCard> $persons        by person id, the contacts and the holders
-     * @param array<string, string>     $personOfMember by member id, the person id of each holder
+     * @param array<string, PersonCard> $persons        the contacts and the holders, by person id
+     * @param array<string, string>     $personOfMember each holder's person id, by member id
      */
     public function of(ToDoInList $toDo, array $persons, array $personOfMember): ToDoResource
     {

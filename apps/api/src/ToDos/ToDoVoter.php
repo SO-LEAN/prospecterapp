@@ -8,7 +8,7 @@ use App\Security\AccountResourceVoter;
 use Prospecter\Core\Prospecting\Application\ToDoInList;
 
 /**
- * Whether the signed-in member reaches a to-do: one of their account (ADR 0081).
+ * Decides whether the signed-in member can reach a to-do. They reach their own account's to-dos (ADR 0081).
  *
  * @extends AccountResourceVoter<ToDoInList>
  */

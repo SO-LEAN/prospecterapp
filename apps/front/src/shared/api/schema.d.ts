@@ -1011,7 +1011,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** A to-do, and what may be done with it */
+        /** A to-do, and what the member can do with it */
         get: operations["get_api_to_dos_show"];
         put?: never;
         post?: never;
@@ -1019,7 +1019,7 @@ export interface paths {
         delete: operations["delete_api_to_dos_erase"];
         options?: never;
         head?: never;
-        /** Change the text of a to-do and when it is due */
+        /** Change a to-do's text and when it is due */
         patch: operations["patch_api_to_dos_revise"];
         trace?: never;
     };
@@ -1030,10 +1030,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** The to-dos kept for the organization, for it or for its contacts, those to do the soonest due first, then those done */
+        /** The to-dos kept for the organization, for itself or for its contacts. Those still to do come first, the soonest due first. Those done follow */
         get: operations["get_api_organizations_to_dos"];
         put?: never;
-        /** Note a to-do for the organization itself */
+        /** Log a to-do for the organization itself */
         post: operations["post_api_organizations_note_to_do"];
         delete?: never;
         options?: never;
@@ -1048,10 +1048,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** The to-dos for the contact, those to do the soonest due first, then those done */
+        /** The contact's to-dos. Those still to do come first, the soonest due first. Those done follow */
         get: operations["get_api_contacts_to_dos"];
         put?: never;
-        /** Note a to-do for the contact, kept for the organizations the contact is part of */
+        /** Log a to-do for the contact. It is kept for the organizations the contact is part of */
         post: operations["post_api_contacts_note_to_do"];
         delete?: never;
         options?: never;
@@ -1066,7 +1066,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** The to-dos the signed-in member holds that are still to do, the soonest due first */
+        /** The to-dos that the signed-in member holds and still has to do, the soonest due first */
         get: operations["get_api_me_to_dos"];
         put?: never;
         post?: never;
@@ -1085,9 +1085,9 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Tick a to-do off, done now */
+        /** Tick a to-do off, as done now */
         post: operations["post_api_to_dos_tick_off"];
-        /** Untick a to-do ticked off by mistake: it is to do again */
+        /** Untick a to-do ticked off by mistake. It is to do again */
         delete: operations["delete_api_to_dos_untick"];
         options?: never;
         head?: never;
@@ -2213,7 +2213,7 @@ export interface components {
              */
             dueOn: string | null;
             /**
-             * @description The hour of that day, `H:i`, when said
+             * @description The hour of that day, `H:i`, when given
              * @default null
              * @example 08:30
              */
@@ -2922,17 +2922,17 @@ export interface components {
              */
             dueOn: string;
             /**
-             * @description The hour of that day, `H:i`, when said
+             * @description The hour of that day, `H:i`, when given
              * @example 08:30
              */
             dueAt?: string | null;
             /**
              * Format: date-time
-             * @description When it was ticked off, none while it is to do
+             * @description When it was ticked off. None while it is still to do
              */
             doneAt?: string | null;
             heldBy: components["schemas"]["AuthorResource"];
-            /** @description Its contact, none for the organization itself */
+            /** @description Its contact. None for a to-do for the organization itself */
             contact?: components["schemas"]["ToDoContactResource"] | null;
             _links: components["schemas"]["ToDoLinksResource"];
         };
@@ -7588,7 +7588,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Invalid to-do: without a text, due on no day or at no hour */
+            /** @description Invalid to-do: no text, or an invalid due day or hour */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -7697,7 +7697,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Invalid to-do: without a text, due on no day or at no hour */
+            /** @description Invalid to-do: no text, or an invalid due day or hour */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -7806,7 +7806,7 @@ export interface operations {
                     "application/json": components["schemas"]["ProblemResource"];
                 };
             };
-            /** @description Invalid to-do: without a text, due on no day or at no hour */
+            /** @description Invalid to-do: no text, or an invalid due day or hour */
             422: {
                 headers: {
                     [name: string]: unknown;

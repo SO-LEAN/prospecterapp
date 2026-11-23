@@ -13,7 +13,7 @@ use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 
 /**
- * The to-do of the route, read in Prospecting, for its voter to decide whether the member reaches it (ADR 0081).
+ * Reads the route's to-do in Prospecting, so that its voter decides whether the member reaches it (ADR 0081).
  */
 final readonly class ToDoResolver implements ValueResolverInterface
 {
@@ -34,7 +34,7 @@ final readonly class ToDoResolver implements ValueResolverInterface
     }
 
     /**
-     * The to-do of this id, for the voter, whatever its account; an unknown one refused by the core.
+     * Reads the to-do with this id for the voter, whatever its account. The core refuses an unknown to-do.
      */
     public function read(string $id): ToDoInList
     {

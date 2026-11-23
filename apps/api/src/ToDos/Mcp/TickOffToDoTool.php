@@ -21,11 +21,11 @@ final readonly class TickOffToDoTool
     }
 
     /**
-     * @param string $id the id of the to-do
+     * @param string $id the to-do's id
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'complete-todo', description: 'Tick a to-do off, done now; needs the right to manage the personal data. Answers the to-do.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'complete-todo', description: 'Tick a to-do off, as done now. Needs the right to manage personal data. Returns the to-do.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id): array
     {
         return $this->writes->change(

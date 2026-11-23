@@ -26,7 +26,7 @@ final class ShowMyToDosController extends AbstractController
 
     #[Route('/api/me/to-dos', name: 'api_me_to_dos', methods: ['GET'])]
     #[IsGranted(User::PERSONAL_DATA)]
-    #[OA\Get(summary: 'The to-dos the signed-in member holds that are still to do, the soonest due first')]
+    #[OA\Get(summary: 'The to-dos that the signed-in member holds and still has to do, the soonest due first')]
     #[OA\Response(response: 200, description: 'My to-dos', content: new Model(type: ToDoListResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]

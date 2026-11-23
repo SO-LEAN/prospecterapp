@@ -8,7 +8,7 @@ use OpenApi\Attributes as OA;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * A to-do noted or revised, shaped like `ToDoResource`.
+ * A logged or revised to-do, with the same shape as `ToDoResource`.
  */
 final readonly class ToDoInput
 {
@@ -23,7 +23,7 @@ final readonly class ToDoInput
         #[OA\Property(description: 'The day it is due, `Y-m-d`', format: 'date')]
         public ?string $dueOn = null,
         #[Assert\Regex('/^([01]\d|2[0-3]):[0-5]\d$/', message: 'This value is not a valid time.')]
-        #[OA\Property(description: 'The hour of that day, `H:i`, when said', example: '08:30')]
+        #[OA\Property(description: 'The hour of that day, `H:i`, when given', example: '08:30')]
         public ?string $dueAt = null,
     ) {
     }
