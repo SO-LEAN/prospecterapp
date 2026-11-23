@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Prospecter\Core\SharedKernel\Domain\Exception;
 
 /**
- * A business rule refuses the change, naming the faulty field when there is one, and what it is about (the
- * value refused...) by name, for a client to word it in its own language. A rule worth its own wording gets
- * its own class, which names the refusal (ADR 0073).
+ * A business rule refuses the change. The refusal names the faulty field when there is one. It also gives what it
+ * is about by name (the refused value, for example), so that a client can word it in its own language. A rule that
+ * deserves its own wording gets its own class, which names the refusal (ADR 0073).
  */
 class BusinessRuleViolation extends BusinessException
 {

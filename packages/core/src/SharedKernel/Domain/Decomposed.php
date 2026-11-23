@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\SharedKernel\Domain;
 
 /**
- * A text with its accented letters decomposed into a letter and its accent (Unicode NFD), so that the accent can be
- * removed; empty when the text is no valid UTF-8.
+ * A text whose accented letters are split into a letter and its accent (Unicode NFD), so that the accent can be
+ * removed. It is empty when the text is not valid UTF-8.
  */
 final class Decomposed
 {

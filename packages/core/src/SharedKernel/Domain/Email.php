@@ -7,7 +7,7 @@ namespace Prospecter\Core\SharedKernel\Domain;
 use Prospecter\Core\SharedKernel\Domain\Exception\InvalidEmail;
 
 /**
- * In lower case: an address is one whatever the case it was typed in.
+ * Kept in lower case: an address is the same whatever case it was typed in.
  */
 final readonly class Email implements \Stringable
 {
@@ -27,7 +27,7 @@ final readonly class Email implements \Stringable
     }
 
     /**
-     * What follows the @: the domain of the mailbox.
+     * The mailbox's domain, after the @.
      */
     public function domain(): string
     {

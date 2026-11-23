@@ -10,8 +10,8 @@ use Prospecter\Core\SharedKernel\Domain\Exception\TooManyLinks;
 use Prospecter\Core\SharedKernel\Domain\Exception\UnrecognizedPage;
 
 /**
- * The links of a person or of an organization, each reference once, a few at most: they are optional, a sheet may have
- * none.
+ * A person's or an organization's links: each reference once, and a few at most. They are optional: a record may
+ * have none.
  */
 final readonly class ExternalReferences
 {
@@ -40,7 +40,7 @@ final readonly class ExternalReferences
     }
 
     /**
-     * Each reference once, the first given kept.
+     * Keeps each reference once: the first one given wins.
      *
      * @param list<ExternalReference> $references
      *
@@ -67,7 +67,7 @@ final readonly class ExternalReferences
     }
 
     /**
-     * Those given they do not hold, each once (ADR 0177).
+     * The given references that these links do not hold, each once (ADR 0177).
      *
      * @param list<ExternalReference> $given
      *
@@ -87,7 +87,7 @@ final readonly class ExternalReferences
     }
 
     /**
-     * Those given they do not hold, while there is room for them beside theirs (ADR 0177).
+     * The given references that these links do not hold, as many as there is room for beside them (ADR 0177).
      *
      * @param list<ExternalReference> $given
      *
@@ -99,7 +99,8 @@ final readonly class ExternalReferences
     }
 
     /**
-     * Whether one of them is of this source: a person is reached on LinkedIn by their profile there.
+     * Whether one of the links comes from this source. For example, a member reaches a person on LinkedIn through
+     * their profile there.
      */
     public function hasOneOf(KnownSource $source): bool
     {

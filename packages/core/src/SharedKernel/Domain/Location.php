@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\SharedKernel\Domain;
 
 /**
- * Where the geocoder finds an address: its position, and the INSEE code of its municipality (ADR 0142), that of an
- * arrondissement of Paris, Lyon or Marseille as the geocoder gives it.
+ * Where the geocoder places an address: its position and its municipality's INSEE code (ADR 0142). In Paris, Lyon
+ * and Marseille, the geocoder gives the arrondissement's code.
  */
 final readonly class Location
 {

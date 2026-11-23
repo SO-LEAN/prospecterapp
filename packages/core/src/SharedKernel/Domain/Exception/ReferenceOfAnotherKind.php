@@ -8,8 +8,8 @@ use Prospecter\Core\SharedKernel\Domain\Designated;
 use Prospecter\Core\SharedKernel\Domain\KnownSource;
 
 /**
- * The address is a page of a known source that designates another kind than the one it is noted on: a profile of a
- * person on an organization, the page of a company on a person.
+ * The address is a known source's page that points to another kind than the record it is added to: a person's
+ * profile on an organization, or a company's page on a person.
  */
 final class ReferenceOfAnotherKind extends BusinessRuleViolation
 {

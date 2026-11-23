@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\SharedKernel\Domain\Exception;
 
 /**
- * Unknown, or not reachable by who asks: they do not even learn that it exists.
+ * The aggregate is unknown, or the caller cannot reach it. The caller does not even learn that it exists.
  */
 abstract class NotFound extends BusinessException
 {

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\SharedKernel\Domain\Exception;
 
 /**
- * A person or an organization has a few links at most: each costs a write when they are forgotten.
+ * A person or an organization has a few links at most: forgetting them costs a write per link.
  */
 final class TooManyLinks extends BusinessRuleViolation
 {

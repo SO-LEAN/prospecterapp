@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\SharedKernel\Domain;
 
 /**
- * The header `Message-ID` of an e-mail, the same in every mailbox it reached: Connectors reads it from a mailbox,
- * Prospecting from what an AI gives, and both identify the e-mail alike (ADR 0154, 0166).
+ * An e-mail's `Message-ID` header, the same in every mailbox the e-mail reached. Connectors reads it from a mailbox.
+ * Prospecting reads it from what an AI gives. Both identify the e-mail the same way (ADR 0154, 0166).
  */
 final readonly class MessageId
 {
@@ -25,7 +25,7 @@ final readonly class MessageId
     }
 
     /**
-     * Hashed, so that what the e-mail says stays in the mailbox.
+     * The header is hashed, so that the e-mail's content stays in the mailbox.
      */
     public function identity(): string
     {

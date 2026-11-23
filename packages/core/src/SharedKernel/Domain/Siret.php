@@ -7,8 +7,8 @@ namespace Prospecter\Core\SharedKernel\Domain;
 use Prospecter\Core\SharedKernel\Domain\Exception\InvalidSiret;
 
 /**
- * The number INSEE gives an establishment: its SIREN, then five digits, keyed by Luhn; the establishments of La Poste,
- * too many for it, are keyed by the sum of their digits, a multiple of 5.
+ * The number that INSEE gives an establishment: its SIREN, then five digits, with a Luhn check digit. La Poste has
+ * too many establishments for Luhn. For them, the sum of the digits is a multiple of 5.
  */
 final readonly class Siret
 {

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\SharedKernel\Domain;
 
 /**
- * A text as the search compares it (ADR 0071): lower case, without accents, and only its letters and digits,
- * so that "De la FO" begins "de La Fontaine" (`delafo`, `delafontaine`).
+ * A text in the form the search compares (ADR 0071): lower case, without accents, with only its letters and
+ * digits. So "de La Fontaine" begins with "De la FO" (`delafontaine`, `delafo`).
  */
 final readonly class SearchKey implements \Stringable
 {
@@ -17,7 +17,7 @@ final readonly class SearchKey implements \Stringable
     }
 
     /**
-     * Null when the text has no letter nor digit: nothing to compare.
+     * Null when the text has no letter and no digit: there is nothing to compare.
      */
     #[\NoDiscard]
     public static function of(?string $text): ?self

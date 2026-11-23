@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\SharedKernel\Domain;
 
 /**
- * What an external reference designates: a natural person, or an organization.
+ * What an external reference points to: a natural person or an organization.
  */
 enum Designated: string
 {

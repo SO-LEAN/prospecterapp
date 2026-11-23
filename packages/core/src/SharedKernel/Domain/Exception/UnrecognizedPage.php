@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\SharedKernel\Domain\Exception;
 
 /**
- * The address is on the site of a known source, but none of the pages it recognizes (the page of a school or a
- * showcase page on LinkedIn, a search): it designates no person nor organization.
+ * The address is on a known source's site but is not one of the pages that Prospecter recognizes there (a school's
+ * page or a showcase page on LinkedIn, a search). It points to no person and no organization.
  */
 final class UnrecognizedPage extends BusinessRuleViolation
 {
