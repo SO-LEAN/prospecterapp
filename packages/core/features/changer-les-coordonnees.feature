@@ -51,7 +51,7 @@ Fonctionnalité: Changer les coordonnées d'une organisation
     Soit l'organisation sans raison sociale "contact@globex.test" fait partie de mes organisations
     Quand je change les coordonnées de "contact@globex.test" :
       | e-mail | |
-    Alors c'est refusé : "At least one is mandatory : corporate name or email"
+    Alors c'est refusé : "An organization needs a corporate name or an e-mail address"
 
   Scénario: Une adresse d'une source connue est gardée sous une seule forme
     Quand j'ajoute à "ACME" le lien "HTTPS://www.Welcometothejungle.com/fr/companies/ACME/jobs?page=2"
@@ -81,7 +81,7 @@ Fonctionnalité: Changer les coordonnées d'une organisation
   Scénario: Une référence ne désigne qu'une organisation du compte
     Soit "ACME Lyon" fait partie de mes organisations avec le lien "https://www.welcometothejungle.com/fr/companies/acme"
     Quand j'ajoute à "ACME" le lien "https://www.welcometothejungle.com/en/companies/acme"
-    Alors c'est refusé : "Link already the one of ACME Lyon"
+    Alors c'est refusé : "ACME Lyon already has this link"
 
   Scénario: Une organisation garde ses liens en changeant ses coordonnées
     Soit "ACME Lyon" fait partie de mes organisations avec le lien "https://www.welcometothejungle.com/fr/companies/acme"
@@ -106,7 +106,7 @@ Fonctionnalité: Changer les coordonnées d'une organisation
       | site web | https://www.acme.fr |
     Quand je change les coordonnées de "ACME" :
       | site web | https://acme.fr/blog |
-    Alors c'est refusé : "Website already the one of ACME Lyon"
+    Alors c'est refusé : "ACME Lyon already has this website"
 
   Scénario: Une organisation garde son site en changeant ses coordonnées
     Soit l'organisation "ACME Lyon" fait partie de mes organisations avec :

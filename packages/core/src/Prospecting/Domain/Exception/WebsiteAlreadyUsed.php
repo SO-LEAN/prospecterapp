@@ -13,11 +13,11 @@ final class WebsiteAlreadyUsed extends BusinessRuleViolation
 {
     public static function by(string $organization): self
     {
-        return self::because(sprintf('Website already the one of %s', $organization), 'website', context: ['organization' => $organization]);
+        return self::because(sprintf('%s already has this website', $organization), 'website', context: ['organization' => $organization]);
     }
 
     public static function byAnother(?\Throwable $detectedBy = null): self
     {
-        return self::because('Website already the one of another organization', 'website', $detectedBy);
+        return self::because('Another organization already has this website', 'website', $detectedBy);
     }
 }

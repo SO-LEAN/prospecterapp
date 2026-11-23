@@ -139,7 +139,7 @@ describe('the legal identity of an organization', () => {
           violations: [
             {
               propertyPath: 'siret',
-              title: 'SIRET already the one of ACME Lyon',
+              title: 'ACME Lyon already has this SIRET',
               reason: 'siretAlreadyUsed',
               context: { organization: 'ACME Lyon' },
             },

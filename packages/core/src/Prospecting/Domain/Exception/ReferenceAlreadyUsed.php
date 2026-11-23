@@ -13,11 +13,11 @@ final class ReferenceAlreadyUsed extends BusinessRuleViolation
 {
     public static function by(string $organization): self
     {
-        return self::because(sprintf('Link already the one of %s', $organization), 'links', context: ['holder' => $organization]);
+        return self::because(sprintf('%s already has this link', $organization), 'links', context: ['holder' => $organization]);
     }
 
     public static function byAnother(?\Throwable $detectedBy = null): self
     {
-        return self::because('Link already the one of another organization', 'links', $detectedBy);
+        return self::because('Another organization already has this link', 'links', $detectedBy);
     }
 }
