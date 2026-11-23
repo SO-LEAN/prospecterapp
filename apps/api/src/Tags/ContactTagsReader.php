@@ -9,8 +9,8 @@ use Prospecter\Core\Campaigns\Application\ConsultContactTags\ConsultContactTags;
 use Prospecter\Core\SharedKernel\Application\QueryHandler;
 
 /**
- * The tags of a contact, its own, inherited and automatic, as the API shows them (ADR 0141); a controller calls it
- * after a command, which returns nothing, to answer with the fresh resource.
+ * A contact's own, inherited and automatic tags, as the API shows them (ADR 0141). A controller calls it after a
+ * command, which returns nothing, to answer with the fresh resource.
  */
 final readonly class ContactTagsReader
 {

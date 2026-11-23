@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tags;
 
-/**
- * What is tagged, by the kind the core names it, and the routes of its tags.
- */
+/** What is tagged, by the kind the core gives it, and the routes of its tags. */
 enum TagRoutes: string
 {
     case Organization = 'organization';

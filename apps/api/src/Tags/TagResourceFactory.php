@@ -10,8 +10,8 @@ use App\Tags\Resource\TagResource;
 use App\Tags\Resource\TagsLinksResource;
 
 /**
- * The tags put by hand on an organization or a contact as the API shows them: each taken off by its name without its
- * mark, and the links of the tags of what they are put on.
+ * The tags put by hand on an organization or a contact, as the API shows them. Each tag is taken off by its name
+ * without its `#`. The factory also gives the links of the holder's tags.
  */
 final readonly class TagResourceFactory
 {
