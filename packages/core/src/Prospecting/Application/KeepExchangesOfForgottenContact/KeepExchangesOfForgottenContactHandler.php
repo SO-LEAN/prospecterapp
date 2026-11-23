@@ -14,8 +14,9 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * The exchanges of an erased contact stay in the timelines of their organizations, the commercial history of
- * the account, their text and their files to make conform (ADR 0079), by the member who erased it.
+ * An erased contact's exchanges stay in their organizations' timelines, because they are the account's commercial
+ * history. Their text and their files must be redacted (ADR 0079). The member who erased the contact is the change's
+ * author.
  */
 final readonly class KeepExchangesOfForgottenContactHandler implements EventHandler
 {
