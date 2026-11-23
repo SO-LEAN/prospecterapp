@@ -9,9 +9,9 @@ use Prospecter\Core\Campaigns\Domain\Policy\AutomaticTags;
 use Prospecter\Core\SharedKernel\Domain\Decomposed;
 
 /**
- * A tag, written one way whatever a member typed (ADR 0138): a `#` then 1 to 30 capital letters without accents,
- * digits and underscores, the accents removed and every other run of characters an underscore (`Café owners` is
- * #CAFE_OWNERS).
+ * A tag, written one way whatever a member typed (ADR 0138). It is a `#` followed by 1 to 30 unaccented capital
+ * letters, digits and underscores. Accents are removed, and every other run of characters becomes an underscore (`Café
+ * owners` is #CAFE_OWNERS).
  */
 final readonly class Tag implements \Stringable
 {

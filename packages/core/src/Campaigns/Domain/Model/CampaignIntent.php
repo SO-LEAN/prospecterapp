@@ -9,22 +9,22 @@ namespace Prospecter\Core\Campaigns\Domain\Model;
  */
 enum CampaignIntent
 {
-    /** Change its name and its message, its channel and its tags too while a draft. */
+    /** Change its name and message. A draft also changes its channel and tags. */
     case ReviseCampaign;
-    /** Discard it, never started. */
+    /** Discard it before it ever starts. */
     case DiscardCampaign;
     /** Keep the contacts its search finds now as its recipients. */
     case FreezeCampaign;
-    /** Add recipients, found by tags or chosen. */
+    /** Add recipients, found by tags or chosen one by one. */
     case AddRecipients;
-    /** Take a recipient off. */
+    /** Remove a recipient. */
     case RemoveRecipient;
-    /** Lead it, its recipients and its message as they were frozen. */
+    /** Start it, with its recipients and message as they were frozen. */
     case StartCampaign;
-    /** Stop leading it, kept for the team to read. */
+    /** Stop running it. The campaign stays for the team to read. */
     case StopCampaign;
-    /** Lead it: note the exchange of a recipient, or dismiss them. */
+    /** Run it: log a recipient's exchange, or dismiss them. */
     case RunCampaign;
-    /** Set the most recipients processed a day, or take that cap off. */
+    /** Set the most recipients processed in a day, or take that cap off. */
     case SetDailyCap;
 }

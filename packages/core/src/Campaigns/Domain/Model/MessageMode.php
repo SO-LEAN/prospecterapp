@@ -7,8 +7,8 @@ namespace Prospecter\Core\Campaigns\Domain\Model;
 use Prospecter\Core\Campaigns\Domain\Exception\UnknownMessageMode;
 
 /**
- * How an AI leading the campaign treats its message for each person: sent as it is rendered for them, or adapted to
- * them, the idea of the message kept.
+ * How an AI running the campaign treats its message for each person. The AI sends it as rendered for them, or adapts it
+ * to them and keeps the message's idea.
  */
 enum MessageMode: string
 {
@@ -16,7 +16,7 @@ enum MessageMode: string
     case Adapted = 'adapted';
 
     /**
-     * As is when the member does not say.
+     * As is when the member does not choose.
      *
      * @throws UnknownMessageMode
      */

@@ -9,8 +9,8 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * An organization as Prospecting publishes it: whether the account prospects it, the contacts it names, who inherit
- * its tags, and where it is, which sets its geographic tags (ADR 0142).
+ * An organization as Prospecting publishes it. It says whether the account prospects it and which contacts it names.
+ * These contacts inherit its tags. It also says where the organization is, which sets its geographic tags (ADR 0142).
  */
 final readonly class OrganizationFact implements Fact
 {

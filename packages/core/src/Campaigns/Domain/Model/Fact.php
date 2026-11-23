@@ -8,8 +8,8 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Uuid;
 
 /**
- * The state of an aggregate of another context as Campaigns derives the tags from it, with its revision (ADR 0099,
- * 0141); a terminal fact, absent, ends the aggregate.
+ * The state of another context's aggregate that Campaigns derives tags from, with its revision (ADR 0099, 0141). A
+ * terminal fact, absent, ends the aggregate.
  */
 interface Fact
 {

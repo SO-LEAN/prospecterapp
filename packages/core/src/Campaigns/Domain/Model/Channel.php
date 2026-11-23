@@ -7,8 +7,8 @@ namespace Prospecter\Core\Campaigns\Domain\Model;
 use Prospecter\Core\Campaigns\Domain\Exception\UnknownChannel;
 
 /**
- * How the member contacts each person of a campaign themselves: each channel needs the means its automatic tag says
- * the contact has.
+ * How the member contacts each person in a campaign themselves. Each channel needs the means that its automatic tag
+ * stands for.
  */
 enum Channel: string
 {
@@ -36,9 +36,7 @@ enum Channel: string
         });
     }
 
-    /**
-     * The means a contact needs to be reached this way, in words.
-     */
+    /** In words, the means a contact needs to be reached this way. */
     #[\NoDiscard]
     public function means(): string
     {

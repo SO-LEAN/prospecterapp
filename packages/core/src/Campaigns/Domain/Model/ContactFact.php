@@ -7,9 +7,7 @@ namespace Prospecter\Core\Campaigns\Domain\Model;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
-/**
- * A contact as PersonalData publishes it: whether the account keeps it, and how it is reached.
- */
+/** A contact as PersonalData publishes it: whether the account keeps it, and how the contact is reached. */
 final readonly class ContactFact implements Fact
 {
     public function __construct(

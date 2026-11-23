@@ -8,8 +8,8 @@ use Prospecter\Core\Campaigns\Domain\Exception\InvalidTag;
 use Prospecter\Core\Campaigns\Domain\Exception\InvalidTagSelection;
 
 /**
- * The tags a member chooses to find the contacts carrying every one of them: 1 to 5, each written as a tag, a tag
- * typed twice chosen once.
+ * The tags a member chooses to find the contacts that carry every one of them. It holds 1 to 5 tags, each written as a
+ * tag. A tag typed twice is chosen once.
  */
 final readonly class TagSelection
 {

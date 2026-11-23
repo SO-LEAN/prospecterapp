@@ -8,10 +8,10 @@ use Prospecter\Core\Campaigns\Domain\Exception\MessageTooLong;
 use Prospecter\Core\Campaigns\Domain\Exception\SubjectOnlyForAnEmail;
 
 /**
- * The message the member writes once for every contact of a campaign (ADR 0144): the text of an e-mail, a SMS or a
- * LinkedIn message, or the pitch of a call, 5,000 characters at most, and the subject of an e-mail. Its variables are
- * replaced by what is known of each contact, by nothing when nothing is. An AI leading the campaign sends it as it is
- * rendered, unless it is to be adapted to each person.
+ * The message that the member writes once for every contact in a campaign (ADR 0144). It is the text of an e-mail, an
+ * SMS or a LinkedIn message, or a call's pitch, 5,000 characters at most. An e-mail also has a subject. Each variable
+ * is replaced by what is known of each contact, or by nothing when nothing is known. An AI running the campaign sends
+ * the message as rendered, unless the message is to be adapted to each person.
  */
 final readonly class MessageTemplate
 {

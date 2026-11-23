@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Campaigns\Domain\Model;
 
 /**
- * How a contact is reached, as PersonalData tells it without its details (ADR 0141): the automatic tags it sets.
+ * How a contact is reached, as PersonalData tells it without the details themselves (ADR 0141). It sets the contact's
+ * automatic tags.
  */
 final readonly class Reach
 {
@@ -25,7 +26,7 @@ final readonly class Reach
     }
 
     /**
-     * Every tag a reach may set, in the order of the means: #EMAIL, #PHONE, #SMS, #LINKEDIN.
+     * Every tag a reach may set, in this order: #EMAIL, #PHONE, #SMS, #LINKEDIN.
      *
      * @return list<Tag>
      */
