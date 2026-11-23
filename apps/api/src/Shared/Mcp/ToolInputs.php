@@ -9,8 +9,8 @@ use Symfony\Component\Validator\Exception\ValidationFailedException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * The arguments of a tool of the MCP server, checked by the input of the endpoint it adapts, as `#[MapQueryString]`
- * checks them (ADR 0163): the AI is refused with the same violations.
+ * Checks an MCP tool's arguments with the input of the endpoint that the tool adapts, as `#[MapQueryString]` checks
+ * them (ADR 0163). The AI gets the same violations.
  */
 final readonly class ToolInputs
 {
@@ -19,12 +19,13 @@ final readonly class ToolInputs
     }
 
     /**
-     * The input built from the arguments as the query string of the endpoint would be, those left out by default.
+     * Builds the input from the arguments, as the endpoint's query string would. The arguments left out take their
+     * default.
      *
      * @template TInput of object
      *
      * @param class-string<TInput>                             $input
-     * @param array<string, scalar|array<string, scalar>|null> $arguments those of an input within it grouped as its property
+     * @param array<string, scalar|array<string, scalar>|null> $arguments a nested input's arguments, grouped under its property
      *
      * @return TInput
      */

@@ -15,15 +15,15 @@ use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
- * The files an AI gives by their address on the web, downloaded in place of those the screen sends (ADR 0168): never
- * on a private network (the client given), in 5 seconds, without following a redirect, no heavier than the screen
- * takes; the file downloaded removed once used.
+ * The files an AI gives by their web address. They are downloaded in place of the files the screen sends (ADR 0168).
+ * The download never reaches a private network (the given client sees to that). It lasts 5 seconds at most, follows no
+ * redirect, and stops at the size the screen accepts. The downloaded file is removed once used.
  */
 final readonly class FilesOnTheWeb
 {
     private const float SECONDS = 5.0;
 
-    /** Unauthorized, forbidden: what a file served to those signed in only answers the others */
+    /** Unauthorized and forbidden: what a file served only to signed-in users answers the others. */
     private const array SIGN_IN_REQUIRED = [401, 403];
 
     public function __construct(private HttpClientInterface $http)
@@ -33,11 +33,11 @@ final readonly class FilesOnTheWeb
     /**
      * @template TResult
      *
-     * @param \Closure(File): TResult $use what is done with the file, in a file named with the extension of its type, kept by then (the commands run within the request)
+     * @param \Closure(File): TResult $use what to do with the file, which is named with its type's extension and kept until then (the commands run within the request)
      *
      * @return TResult
      *
-     * @throws ValidationFailedException the file out of reach, or heavier than the bytes it may weigh
+     * @throws ValidationFailedException when the file is unreachable, or larger than the allowed bytes
      */
     public function whileDownloaded(WebAddressInput $address, int $heaviest, \Closure $use): mixed
     {
@@ -70,8 +70,8 @@ final readonly class FilesOnTheWeb
     }
 
     /**
-     * Why the file could not be downloaded, a file behind a sign-in said so, or a redirect, which may lead to one: the
-     * AI then knows to give an address served to anyone, Prospecter signing in nowhere for its member.
+     * Why the download failed. It says so when the file is behind a sign-in, or behind a redirect, which may lead to
+     * one. The AI then knows to give an address served to anyone, because Prospecter signs in nowhere for its member.
      */
     private static function why(ExceptionInterface $failure): string
     {
@@ -88,7 +88,7 @@ final readonly class FilesOnTheWeb
     }
 
     /**
-     * The file named with the extension of its type, as the storage keeps it.
+     * Names the file with its type's extension, as the storage keeps it.
      */
     private static function named(File $file): File
     {

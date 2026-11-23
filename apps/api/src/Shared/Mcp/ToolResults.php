@@ -9,8 +9,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\SerializerInterface;
 
 /**
- * What a tool of the MCP server answers: the resource of the endpoint it adapts, serialized as the endpoint
- * serializes it, its links included, for the AI to go from one resource to another (ADR 0163).
+ * What an MCP tool answers: the resource of the endpoint that the tool adapts. It is serialized as the endpoint
+ * serializes it, links included, so the AI can go from one resource to another (ADR 0163).
  */
 final readonly class ToolResults
 {
