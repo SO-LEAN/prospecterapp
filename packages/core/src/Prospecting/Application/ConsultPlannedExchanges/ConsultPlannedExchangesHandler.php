@@ -14,8 +14,8 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * The exchanges a member still has planned from a moment on, the soonest first, for the calendar they are pushed into
- * (ADR 0133).
+ * Reads the exchanges a member still has planned from a given moment, the soonest first. Prospecter pushes them into
+ * the member's calendar (ADR 0133).
  */
 final readonly class ConsultPlannedExchangesHandler implements QueryHandler, ConsultPlannedExchangesService
 {
