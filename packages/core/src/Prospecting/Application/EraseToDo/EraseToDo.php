@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\EraseToDo;
 
 /**
- * Erases a to-do noted by mistake, or left without purpose.
+ * Erases a to-do logged by mistake, or one that no longer has a purpose.
  */
 final readonly class EraseToDo
 {
