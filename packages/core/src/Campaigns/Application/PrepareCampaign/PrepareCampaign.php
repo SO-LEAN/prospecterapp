@@ -8,10 +8,10 @@ final readonly class PrepareCampaign
 {
     /**
      * @param string       $channel     `email`, `call`, `sms` or `linkedIn`
-     * @param list<string> $tags        the tags chosen, as the member typed them
-     * @param string|null  $subject     the subject of an e-mail
-     * @param string|null  $messageMode how an AI treats the message for each person: `asIs` or `adapted`, as is when not said
-     * @param int|null     $dailyCap    the most recipients processed a day, a guard only; none when not said
+     * @param list<string> $tags        the chosen tags, as the member typed them
+     * @param string|null  $subject     an e-mail's subject
+     * @param string|null  $messageMode how an AI treats the message for each person: `asIs` or `adapted`, `asIs` when not given
+     * @param int|null     $dailyCap    the most recipients processed in a day, only a guard; null when not given
      */
     public function __construct(
         public string $memberId,

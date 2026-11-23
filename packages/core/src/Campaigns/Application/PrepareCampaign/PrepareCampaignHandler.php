@@ -21,9 +21,7 @@ use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\Gesture;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
-/**
- * A member prepares a campaign of their account, as a draft.
- */
+/** A member prepares a campaign for their account, as a draft. */
 final readonly class PrepareCampaignHandler implements CommandHandler
 {
     use PublishesEvents;
