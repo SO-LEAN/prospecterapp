@@ -36,12 +36,12 @@ interface OrganizationRepository
     public function ofIds(array $ids): array;
 
     /**
-     * Whether another organization of the prospecting base of the account has this email.
+     * Whether another organization in the account's prospecting base has this email.
      */
     public function isEmailUsed(AccountId $accountId, Email $email, OrganizationId $except): bool;
 
     /**
-     * The organizations of the prospecting base of the account having these emails.
+     * The organizations in the account's prospecting base that have these emails.
      *
      * @param list<Email> $emails
      *
@@ -50,22 +50,22 @@ interface OrganizationRepository
     public function havingEmails(AccountId $accountId, array $emails): array;
 
     /**
-     * The other organization of the prospecting base of the account having this SIRET, if any.
+     * The other organization in the account's prospecting base that has this SIRET, if any.
      */
     public function withSiret(AccountId $accountId, Siret $siret, OrganizationId $except): ?Organization;
 
     /**
-     * The other organization of the prospecting base of the account having this link, if any.
+     * The other organization in the account's prospecting base that has this link, if any.
      */
     public function withReference(AccountId $accountId, ExternalReference $reference, OrganizationId $except): ?Organization;
 
     /**
-     * The other organization of the prospecting base of the account whose website has the domain of this one, if any.
+     * The other organization in the account's prospecting base whose website has this website's domain, if any.
      */
     public function withWebsiteOfDomain(AccountId $accountId, Website $website, OrganizationId $except): ?Organization;
 
     /**
-     * The other organizations of the prospecting base of the account having this resemblance key.
+     * The other organizations in the account's prospecting base that have this resemblance key.
      *
      * @return list<OrganizationId>
      */
@@ -89,7 +89,7 @@ interface OrganizationRepository
     public function subsidiariesOf(OrganizationId $holding): array;
 
     /**
-     * The organizations of the account naming any of these persons as a contact.
+     * The account's organizations that name any of these persons as a contact.
      *
      * @param list<PersonId> $contacts
      *

@@ -10,7 +10,7 @@ use Prospecter\Core\SharedKernel\Domain\PersonId;
 interface ContactToAttachRepository
 {
     /**
-     * None once attached or erased, or for a person who never was one.
+     * Returns null once the contact is attached or erased, or for a person who never was a contact to attach.
      */
     public function find(PersonId $contact): ?ContactToAttach;
 

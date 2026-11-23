@@ -26,12 +26,12 @@ interface ExchangeRepository
     public function remove(Exchange $exchange): void;
 
     /**
-     * The exchange the account noted under this fingerprint, erased since or not (ADR 0166).
+     * The exchange the account logged under this fingerprint, whether erased since or not (ADR 0166).
      */
     public function fingerprinted(AccountId $accountId, ExchangeFingerprint $fingerprint): ?Fingerprinted;
 
     /**
-     * The fingerprints of the exchanges of the account with the contact, erased or not, forgotten with them.
+     * The fingerprints of the account's exchanges with the contact, erased or not. They are forgotten with the contact.
      */
     public function forgetFingerprintsOf(AccountId $accountId, PersonId $contact): void;
 
@@ -43,14 +43,14 @@ interface ExchangeRepository
     public function keptFor(OrganizationId $organization): array;
 
     /**
-     * The exchanges of the account with the contact.
+     * The account's exchanges with the contact.
      *
      * @return list<Exchange>
      */
     public function withContact(PersonId $contact, AccountId $accountId): array;
 
     /**
-     * Those of these contacts the account has an exchange of the campaign with (ADR 0195).
+     * The contacts, among these, with whom the account has an exchange in the campaign (ADR 0195).
      *
      * @param list<PersonId> $contacts
      *
