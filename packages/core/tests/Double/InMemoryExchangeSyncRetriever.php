@@ -12,7 +12,7 @@ use Prospecter\Core\Connectors\Domain\Model\SyncState;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * Reads the entries the in-memory repository saved, as the adapter reads their items.
+ * Reads the entries that the in-memory repository saved, as the adapter reads their items.
  */
 final readonly class InMemoryExchangeSyncRetriever implements ExchangeSyncRetriever
 {

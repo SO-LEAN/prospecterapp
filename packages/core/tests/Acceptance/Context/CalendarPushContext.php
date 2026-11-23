@@ -17,8 +17,8 @@ use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 
 /**
- * The calendar « Prospecter » of the member at Google, as the exchanges they plan are pushed into it (ADR 0127):
- * « l'événement » of the scenarios is that of the last exchange planned.
+ * The member's calendar « Prospecter » at Google, as the exchanges they plan are pushed into it (ADR 0127). The
+ * scenarios' « l'événement » is the event of the last exchange planned.
  */
 final class CalendarPushContext implements Context
 {
@@ -98,7 +98,7 @@ final class CalendarPushContext implements Context
     }
 
     /**
-     * What Google sends the guests is read from the gesture of the scenario on: its first step « Quand ».
+     * What Google sends the guests is read from the scenario's gesture on, that is from its first step « Quand ».
      */
     #[BeforeStep]
     public function markTheNoticesSentBeforeTheGesture(BeforeStepScope $scope): void
@@ -177,8 +177,8 @@ final class CalendarPushContext implements Context
     }
 
     /**
-     * As the adapter of Google words it: « Visio · Ada Lovelace (ACME) », or « Rendez-vous · ACME » with the
-     * organization itself.
+     * The title as Google's adapter words it: « Visio · Ada Lovelace (ACME) ». With the organization itself, it is
+     * « Rendez-vous · ACME ».
      */
     private function titleOf(CalendarEvent $event): string
     {

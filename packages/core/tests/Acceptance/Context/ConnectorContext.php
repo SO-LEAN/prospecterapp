@@ -24,8 +24,8 @@ use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 
 /**
- * The connections of the members to Google: the authorization asked, Google answering with a code, as the SPA
- * brings it back to the API (ADR 0120).
+ * The members' connections to Google. A member asks for an authorization, and Google answers with a code. The SPA
+ * brings the code back to the API (ADR 0120).
  */
 final class ConnectorContext implements Context
 {
@@ -36,12 +36,12 @@ final class ConnectorContext implements Context
     private const string CODE_GOOGLE_NEVER_GAVE = 'a-code-google-never-gave';
     private const array STATES = ['connectée' => 'connected', 'à reconnecter' => 'toReconnect'];
 
-    /** @var array{state: string, code: string}|null the authorization asked last, and the code Google answers it with */
+    /** @var array{state: string, code: string}|null the last authorization asked, and the code that Google answers it with */
     private ?array $pending = null;
-    /** @var list<string> the tokens Google granted me, the latest last */
+    /** @var list<string> the tokens that Google granted me, the latest last */
     private array $myTokens = [];
     private ?KeptConnections $myConnections = null;
-    /** @var array<string, string> the prospector of each account, by its name, who connects in the scenario */
+    /** @var array<string, string> each account's prospector who connects in the scenario, by the account's name */
     private array $prospectors = [];
 
     #[When('je connecte mon compte Google :account et que Google accorde l\'accès')]
@@ -152,7 +152,7 @@ final class ConnectorContext implements Context
     }
 
     /**
-     * As the page of the connectors does when it opens.
+     * As the connectors page does when it opens.
      */
     #[When('mes connexions sont vérifiées')]
     public function myConnectionsAreChecked(): void

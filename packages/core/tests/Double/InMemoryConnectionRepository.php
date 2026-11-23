@@ -14,8 +14,8 @@ use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * The connections as the scenarios keep them, a read answering a connection as it was read before when a scenario
- * says so: a push that read it before a change writes after it.
+ * Keeps the connections as the scenarios do. When a scenario says so, a read answers a connection as it was read
+ * before. So a push that read the connection before a change writes after that change.
  */
 final class InMemoryConnectionRepository implements ConnectionRepository
 {
@@ -26,7 +26,7 @@ final class InMemoryConnectionRepository implements ConnectionRepository
     }
 
     /**
-     * The next read of a connection of its member answers it as given, read before what happens since.
+     * The next read of the member's connection answers the given connection, as it was read before the later changes.
      */
     public function answerTheNextReadWith(Connection $readBefore): void
     {

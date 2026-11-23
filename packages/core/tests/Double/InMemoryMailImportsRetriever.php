@@ -9,7 +9,8 @@ use Prospecter\Core\Connectors\Domain\Model\Connection;
 use Prospecter\Core\Connectors\Domain\Model\MailImport;
 
 /**
- * Reads the connections the in-memory repository saved, as the adapter reads the keys of those importing the mail.
+ * Reads the connections that the in-memory repository saved, as the adapter reads the keys of the connections that
+ * import the mail.
  */
 final readonly class InMemoryMailImportsRetriever implements MailImportsRetriever
 {

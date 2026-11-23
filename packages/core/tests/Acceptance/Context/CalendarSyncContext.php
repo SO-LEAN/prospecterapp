@@ -22,8 +22,8 @@ use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 
 /**
- * Whether each exchange I planned is in my calendar « Prospecter » at Google, a push refused pushed again, and my
- * exchanges to come pushed when I connect (ADR 0133): « elle » of the scenarios is the last exchange planned.
+ * Whether each exchange that I planned is in my calendar « Prospecter » at Google. A refused push is pushed again, and
+ * my upcoming exchanges are pushed when I connect (ADR 0133). The scenarios' « elle » is the last exchange planned.
  */
 final class CalendarSyncContext implements Context
 {
@@ -31,7 +31,7 @@ final class CalendarSyncContext implements Context
 
     private const array STATES = ['en attente' => 'pending', 'synchronisée' => 'synced', 'en échec' => 'failed'];
 
-    /** @var array{CalendarToFill, Connection}|null the push of my exchanges to come under way: what it fills, the connection it read */
+    /** @var array{CalendarToFill, Connection}|null the current push of my upcoming exchanges: what it fills, and the connection it read */
     private ?array $pushUnderWay = null;
 
     #[Given('mes échanges à venir sont en cours de poussée')]
@@ -43,7 +43,7 @@ final class CalendarSyncContext implements Context
     }
 
     /**
-     * The push under way writes what it did with the connection it read when it started.
+     * The current push writes what it did with the connection that it read when it started.
      */
     #[When('la poussée de mes échanges à venir se termine')]
     public function thePushOfMyUpcomingExchangesEnds(): void
@@ -134,8 +134,8 @@ final class CalendarSyncContext implements Context
     }
 
     /**
-     * « du 17/11/2026 à 14h00, du 18/11/2026 à 9h00 et du 19/11/2026 à 9h00 »: the moments of the events, whatever
-     * their order in Google.
+     * « du 17/11/2026 à 14h00, du 18/11/2026 à 9h00 et du 19/11/2026 à 9h00 » are the events' moments, whatever their
+     * order in Google.
      */
     #[Then('/^mon agenda Google a les événements (?<moments>du .+)$/u')]
     public function myCalendarHasTheEventsOf(string $moments): void

@@ -20,7 +20,7 @@ use Prospecter\Core\SharedKernel\Domain\MemberId;
 use Tests\Core\Acceptance\Expect;
 
 /**
- * The client of Prospecter at Google an account configures (ADR 0125).
+ * The Prospecter client that an account configures at Google (ADR 0125).
  */
 final class GoogleClientContext implements Context
 {
@@ -61,7 +61,7 @@ final class GoogleClientContext implements Context
     }
 
     /**
-     * Its secret is never answered, only the id of the client.
+     * The answer gives only the client's id, never its secret.
      */
     #[Then('le client Google de mon compte est :id, son secret renseigné')]
     public function myClientIs(string $id): void

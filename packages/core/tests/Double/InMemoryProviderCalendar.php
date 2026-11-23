@@ -14,15 +14,16 @@ use Prospecter\Core\Connectors\Domain\Model\RefreshToken;
 use Prospecter\Core\Connectors\Domain\Port\ProviderCalendar;
 
 /**
- * The calendars « Prospecter » Google keeps, as the scenarios see them (ADR 0127): created for a token, an event by
- * its exchange, put again in place of itself, removed; a token the provider refuses reaches nothing, a calendar its
- * member deleted is gone; Google not answering a while, or refusing every event for good, as a scenario says (ADR 0133).
+ * The calendars « Prospecter » that Google keeps, as the scenarios see them (ADR 0127). A calendar is created for a
+ * token. It keeps one event per exchange. An event put again replaces itself, and an event may be removed. A token
+ * that the provider refuses reaches nothing. A calendar that its member deleted is gone. When a scenario says so,
+ * Google does not answer for a while, or refuses every event for good (ADR 0133).
  */
 final class InMemoryProviderCalendar implements ProviderCalendar
 {
     private const int BAD_REQUEST = 400;
 
-    /** @var array<string, array<string, CalendarEvent>> the events of each calendar still there, by exchange */
+    /** @var array<string, array<string, CalendarEvent>> each remaining calendar's events, by exchange */
     private array $calendars = [];
     private int $created = 0;
     /** @var list<string> the exchanges whose event was removed */
@@ -32,7 +33,7 @@ final class InMemoryProviderCalendar implements ProviderCalendar
     /** @var array<string, string> the Meet links created, by exchange */
     private array $links = [];
     private int $linksAsked = 0;
-    /** @var list<array{string, string}> what Google sent the guests: the notice and to whom */
+    /** @var list<array{string, string}> what Google sent the guests: the notice, and to whom */
     private array $notices = [];
 
     public function __construct(private readonly InMemoryProviderAccess $access)
@@ -62,8 +63,8 @@ final class InMemoryProviderCalendar implements ProviderCalendar
     }
 
     /**
-     * As Google does for an event inviting someone, when asked to tell them: the invitation when they were not invited
-     * yet, an update otherwise.
+     * As Google does for an event that invites someone, when the push asks it to tell them. Google sends the invitation
+     * when they were not invited yet, and an update otherwise.
      */
     private function tellTheGuestOf(CalendarEvent $event, ?CalendarEvent $before): void
     {
@@ -76,7 +77,8 @@ final class InMemoryProviderCalendar implements ProviderCalendar
     }
 
     /**
-     * As Google does for the request of a conference identified by its exchange: created once, answered each time.
+     * As Google does for a conference request that its exchange identifies. The conference is created once, and each
+     * request gets it.
      */
     private function conferenceOf(ExchangeId $exchange): string
     {
@@ -104,7 +106,7 @@ final class InMemoryProviderCalendar implements ProviderCalendar
     }
 
     /**
-     * A failure that may pass, thrown as it is to be tried again, as a 5xx of Google.
+     * A temporary failure, thrown to be tried again, like a 5xx from Google.
      */
     private function ensureAnswering(): void
     {
@@ -155,7 +157,7 @@ final class InMemoryProviderCalendar implements ProviderCalendar
     }
 
     /**
-     * As a member does in Google: the calendar goes with its events.
+     * As a member does in Google. The calendar goes, with its events.
      */
     public function deleteEveryCalendar(): void
     {
@@ -163,7 +165,7 @@ final class InMemoryProviderCalendar implements ProviderCalendar
     }
 
     /**
-     * @return array<string, CalendarEvent> the events of every calendar still there, by exchange
+     * @return array<string, CalendarEvent> every remaining calendar's events, by exchange
      */
     public function events(): array
     {
@@ -189,7 +191,7 @@ final class InMemoryProviderCalendar implements ProviderCalendar
     }
 
     /**
-     * @return list<array{string, string}> each notice Google sent a guest, `invitation`, `update` or `cancellation`, and to whom
+     * @return list<array{string, string}> each notice that Google sent a guest (`invitation`, `update` or `cancellation`), and to whom
      */
     public function noticesSent(): array
     {

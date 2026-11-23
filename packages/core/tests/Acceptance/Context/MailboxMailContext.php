@@ -43,7 +43,7 @@ use Tests\Core\Acceptance\Vocabulary;
 use Tests\Core\Double\StateOf;
 
 /**
- * The e-mails a member receives in their mailbox, or sends from it, imported as exchanges (ADR 0154).
+ * The e-mails that a member receives in their mailbox, or sends from it, are imported as exchanges (ADR 0154).
  */
 final class MailboxMailContext implements Context
 {
@@ -61,7 +61,7 @@ final class MailboxMailContext implements Context
     private const int ELEVENTH = 11;
 
     private int $messages = 0;
-    /** @var array<string, MailboxMail> the message received last, by mailbox */
+    /** @var array<string, MailboxMail> the last message received, by mailbox */
     private array $lastReceived = [];
     private ?MailboxMail $oldestReceived = null;
     private int $attachmentsSent = 0;
@@ -89,7 +89,7 @@ final class MailboxMailContext implements Context
     }
 
     /**
-     * As the worker may deliver it once more (ADR 0182).
+     * The worker may deliver the attachment once more (ADR 0182).
      */
     #[When('la pièce jointe importée est délivrée une fois de plus')]
     public function theImportedAttachmentIsDeliveredAgain(): void
@@ -161,7 +161,7 @@ final class MailboxMailContext implements Context
     }
 
     /**
-     * "Cet échange" of the scenarios: the one the e-mail became.
+     * The scenarios' "Cet échange" is the exchange that the e-mail became.
      */
     #[Given('j\'ai importé l\'e-mail :subject reçu de :sender')]
     public function iImportedTheEMail(string $subject, string $sender): void
@@ -232,8 +232,8 @@ final class MailboxMailContext implements Context
     }
 
     /**
-     * The e-mails a mailbox keeps before anything notifies Prospecter of them: the import was not active, or their
-     * correspondent not known yet.
+     * The e-mails that a mailbox keeps before anything notifies Prospecter of them. The import was not active, or their
+     * correspondent was not known yet.
      */
     #[Given('ma boîte Gmail contenait avant l\'import :')]
     #[Given('ma boîte Gmail contient :')]
@@ -384,7 +384,7 @@ final class MailboxMailContext implements Context
     }
 
     /**
-     * The message of the mailbox that imported it, which the provider opens.
+     * The provider opens the message in the mailbox that imported it.
      */
     #[Then('il m\'est proposé d\'ouvrir l\'e-mail d\'origine dans ma boîte Gmail')]
     public function iMayOpenTheOriginalEMail(): void
@@ -449,8 +449,8 @@ final class MailboxMailContext implements Context
     }
 
     /**
-     * What Connectors tells, its files already sent to the storage, beyond what it imports itself: Prospecting holds
-     * what an exchange holds (ADR 0182).
+     * Publishes the event that Connectors tells, with its files already sent to the storage. The event may hold more
+     * than Connectors' own import gives. Prospecting keeps what the exchange holds (ADR 0182).
      */
     #[When('l\'import me dit échangé avec :contact un e-mail dont :count fichiers sont envoyés au stockage')]
     public function theImportTellsAnEMailWithFilesSent(string $contact, int $count): void
@@ -516,7 +516,8 @@ final class MailboxMailContext implements Context
     }
 
     /**
-     * What is not imported is no failure of a reaction, which the worker would try again and keep.
+     * A message that is not imported does not fail the reaction. The worker would try a failed reaction again and keep
+     * it.
      */
     private function expectNoFailure(): void
     {
@@ -554,7 +555,7 @@ final class MailboxMailContext implements Context
     }
 
     /**
-     * Its contact, or else the organization it was exchanged with itself.
+     * The exchange's contact, or else the organization itself that it was exchanged with.
      */
     private function correspondentOf(Exchange $exchange): string
     {
@@ -619,7 +620,7 @@ final class MailboxMailContext implements Context
     }
 
     /**
-     * Each e-mail arrives a minute after the one before, the clock with it.
+     * Each e-mail arrives a minute after the one before, and the clock moves with it.
      */
     private function aMinuteLater(): \DateTimeImmutable
     {
@@ -634,7 +635,7 @@ final class MailboxMailContext implements Context
     }
 
     /**
-     * A size as the scenarios write it, « 300 Ko » or « 25 Mo ».
+     * A size as the scenarios write it: « 300 Ko » or « 25 Mo ».
      */
     private static function bytesOf(string $size): int
     {

@@ -12,7 +12,7 @@ use Prospecter\Core\Connectors\Domain\Model\ProviderClient;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 
 /**
- * Reads the clients the in-memory repository saved, as the adapter reads their items: without their secret.
+ * Reads the clients that the in-memory repository saved, as the adapter reads their items, without their secret.
  */
 final readonly class InMemoryAccountClientsRetriever implements AccountClientsRetriever
 {

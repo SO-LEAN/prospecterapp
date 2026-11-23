@@ -19,8 +19,8 @@ use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * Each gesture on the client of an account records what happened; a client has its id and its secret, configured by
- * an administrator of the account only.
+ * Each gesture on an account's client records what happened. A client has its id and its secret. Only an
+ * administrator of the account configures it.
  */
 final class ProviderClientTest extends TestCase
 {

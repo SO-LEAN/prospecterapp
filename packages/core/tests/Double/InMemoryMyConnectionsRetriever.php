@@ -16,8 +16,8 @@ use Prospecter\Core\SharedKernel\Domain\Email;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * Reads the connections the in-memory repository saved, as the adapter reads their items, and the entries of their
- * member.
+ * Reads the connections that the in-memory repository saved, as the adapter reads their items. It also reads their
+ * member's entries.
  */
 final readonly class InMemoryMyConnectionsRetriever implements MyConnectionsRetriever
 {

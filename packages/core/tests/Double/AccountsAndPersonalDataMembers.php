@@ -17,9 +17,9 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * Anticorruption layer of the API, in the scenarios (ADR 0045, 0089): Connectors knows the account of a member, and
- * whether they administer it, and how long before their exchanges they are reminded, from Accounts, and their first
- * name as they present themselves, from PersonalData, asked about a set of one.
+ * The API's anticorruption layer, in the scenarios (ADR 0045, 0089). From Accounts, Connectors learns a member's
+ * account, whether they administer it, and how long before their exchanges they are reminded. From PersonalData, it
+ * learns their first name as they present themselves. Each one is asked about a set of one.
  */
 final readonly class AccountsAndPersonalDataMembers implements Members
 {
