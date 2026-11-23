@@ -35,5 +35,5 @@ Fonctionnalité: Une commande écrit tout ou rien
   Scénario: Un geste refusé n'a pas de suite
     Quand j'ouvre le compte de mon organisation :
       | forme juridique | SARL |
-    Alors c'est refusé : "An account needs the corporate name of its organization"
+    Alors c'est refusé : "An account needs its organization's corporate name"
     Et rien n'est écrit

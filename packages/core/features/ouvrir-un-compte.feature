@@ -29,4 +29,4 @@ Fonctionnalité: Ouvrir un compte
   Scénario: Une organisation sans raison sociale n'ouvre pas de compte
     Quand j'ouvre le compte de mon organisation :
       | forme juridique | SARL |
-    Alors c'est refusé : "An account needs the corporate name of its organization"
+    Alors c'est refusé : "An account needs its organization's corporate name"
