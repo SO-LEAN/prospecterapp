@@ -18,4 +18,4 @@ Fonctionnalité: Changer de lien
 
   Scénario: Sans lien encore, je n'en change pas
     Quand je change de lien
-    Alors c'est refusé : "A booking page without a link does not change it"
+    Alors c'est refusé : "The booking page has no link to change yet"
