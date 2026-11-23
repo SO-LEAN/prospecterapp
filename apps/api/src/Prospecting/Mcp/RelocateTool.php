@@ -22,16 +22,14 @@ final readonly class RelocateTool
     }
 
     /**
-     * @param string  $id         the id of the organization
-     * @param ?string $street     the number and the street
-     * @param ?string $postalCode the postal code
-     * @param ?string $city       the city
-     * @param ?string $country    the country, its code (FR, BE…)
-     * @param ?int    $revision   the organization's `revision` as you read it: if it changed since, the change is refused (changedMeanwhile) and you read it again
+     * @param string  $id       the id of the organization
+     * @param ?string $street   the number and the street
+     * @param ?string $country  the country's code (FR, BE…)
+     * @param ?int    $revision the organization's `revision` as you read it. If it has changed since, the change is refused (changedMeanwhile): read the organization again
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'set-organization-address', description: 'Move an organization to an address, located again as on the screen; an address left empty removes it. Answers the organization.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
+    #[McpTool(name: 'set-organization-address', description: 'Move an organization to an address. Prospecter locates it again, as on the screen. An empty address removes the address. Returns the organization.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
     public function __invoke(string $id, ?string $street = null, ?string $postalCode = null, ?string $city = null, ?string $country = null, ?int $revision = null): array
     {
         return $this->writes->writeOnRevision(

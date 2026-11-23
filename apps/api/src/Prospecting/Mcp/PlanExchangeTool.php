@@ -18,8 +18,8 @@ use Prospecter\Core\Prospecting\Application\PlanExchange\PlanExchange;
 use Symfony\Component\Clock\ClockInterface;
 
 /**
- * `POST /api/contacts/{id}/upcoming-exchanges`, for an AI (ADR 0163): pushed into the calendar of its member at
- * Google as one planned on the screen.
+ * `POST /api/contacts/{id}/upcoming-exchanges`, for an AI (ADR 0163). Like an exchange planned on
+ * the screen, it is pushed into the member's Google calendar.
  */
 #[Adapts('api_contacts_plan_exchange')]
 final readonly class PlanExchangeTool
@@ -38,16 +38,16 @@ final readonly class PlanExchangeTool
     /**
      * @param string      $id                the id of the contact
      * @param string      $channel           call, meeting or videoCall
-     * @param string      $occurredAt        when it is to happen (ISO 8601), in the future
-     * @param int|null    $durationInMinutes how long it lasts, from 5 minutes to 8 hours; 30 when left out
+     * @param string      $occurredAt        when it will happen (ISO 8601), in the future
+     * @param int|null    $durationInMinutes how long it lasts, from 5 minutes to 8 hours. 30 when left out
      * @param string|null $text              its agenda
-     * @param string|null $place             where a meeting is held, written freely; a meeting only
-     * @param string|null $link              the web address a video call is joined by; a video call only
-     * @param bool        $linkRequested     a video call without a link asks a Google Meet link of the calendar of the member
+     * @param string|null $place             where a meeting is held, written freely. A meeting only
+     * @param string|null $link              the web address that joins a video call. A video call only
+     * @param bool        $linkRequested     true to request a Google Meet link from the member's calendar, for a video call without a link
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'schedule-contact-exchange', description: 'Plan a call, a meeting or a video call with a contact, held by the member, kept for the organizations the contact is part of, and pushed into their calendar at Google when connected. Answers the exchanges to come with the contact.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'schedule-contact-exchange', description: 'Plan a call, a meeting or a video call with a contact. The member holds it. It is kept for the organizations the contact is part of. It is pushed into the member\'s Google calendar when they are connected. Returns the contact\'s upcoming exchanges.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id, string $channel, string $occurredAt, ?int $durationInMinutes = null, ?string $text = null, ?string $place = null, ?string $link = null, bool $linkRequested = false): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');

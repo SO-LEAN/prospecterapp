@@ -28,12 +28,12 @@ final readonly class SearchOrganizationsTool
     }
 
     /**
-     * @param string  $q     the start of the corporate name, or the email, of the organizations searched; all when empty
-     * @param ?string $after the cursor of the next slice, read in the link `next` of the slice before
+     * @param string  $q     the start of the searched organizations' corporate name, or their email. All organizations when empty
+     * @param ?string $after the cursor of the next slice, read in the previous slice's `next` link
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'search-organizations', description: 'The organizations the account of the member prospects, by the start of their corporate name or their e-mail, the most recent first, by slices.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'search-organizations', description: 'Search the organizations that the member\'s account prospects, by the start of their corporate name or by their e-mail. Returns them in slices, the most recent first.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $q = '', ?string $after = null): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');

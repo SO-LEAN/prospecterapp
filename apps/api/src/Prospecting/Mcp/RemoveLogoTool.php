@@ -11,7 +11,8 @@ use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\RemoveLogo\RemoveLogo;
 
 /**
- * `DELETE /api/organizations/{id}/logo`, for an AI (ADR 0163), which asks its member before calling it.
+ * `DELETE /api/organizations/{id}/logo`, for an AI (ADR 0163). The AI asks its member
+ * before it calls the tool.
  */
 #[Adapts('api_organizations_remove_logo')]
 final readonly class RemoveLogoTool
@@ -25,7 +26,7 @@ final readonly class RemoveLogoTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'delete-organization-logo', description: 'Remove the logo of an organization. Answers the organization.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'delete-organization-logo', description: 'Remove an organization\'s logo. Returns the organization.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id): array
     {
         return $this->writes->change(

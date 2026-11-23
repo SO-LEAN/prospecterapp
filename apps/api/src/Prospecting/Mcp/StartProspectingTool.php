@@ -37,24 +37,20 @@ final readonly class StartProspectingTool
     }
 
     /**
-     * @param ?string      $corporateName its corporate name; a corporate name or an e-mail at least
+     * @param ?string      $corporateName its corporate name. Give at least a corporate name or an e-mail
      * @param ?string      $form          its legal form (SAS, SARL…)
-     * @param ?string      $type          its type
-     * @param ?string      $email         its e-mail
-     * @param ?string      $phoneNumber   its phone number, international (+33 3 88 11 22 33) or national in France (03 88 11 22 33)
-     * @param ?string      $language      the country of the language spoken with it (FR, GB…)
-     * @param list<string> $links         the addresses of its pages on the tools outside (a company on LinkedIn or Welcome to the Jungle, any other site), five at most
-     * @param ?string      $website       the address of its site, with or without its scheme
+     * @param ?string      $phoneNumber   its phone number, in international format (+33 3 88 11 22 33) or in French national format (03 88 11 22 33)
+     * @param ?string      $language      the country code of the language spoken with it (FR, GB…)
+     * @param list<string> $links         the addresses of its pages on outside tools (a company on LinkedIn or Welcome to the Jungle, or any other site), five at most
+     * @param ?string      $website       its website's address, with or without the scheme
      * @param ?string      $street        the number and the street of its address
-     * @param ?string      $postalCode    its postal code
-     * @param ?string      $city          its city
-     * @param ?string      $country       its country, its code (FR, BE…)
-     * @param ?string      $observations  what the members note on it, 255 characters at most
-     * @param ?string      $holdingId     the id of its holding, an organization the account prospects
+     * @param ?string      $country       its country's code (FR, BE…)
+     * @param ?string      $observations  the members' notes about it, 255 characters at most
+     * @param ?string      $holdingId     the id of its holding, an organization that the account prospects
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'start-prospecting', description: 'Start prospecting an organization, owned by the account of the member, located by its address as on the screen. Answers the new organization, and the organizations it may duplicate.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'start-prospecting', description: 'Start prospecting an organization. The member\'s account owns it. Prospecter locates it by its address, as on the screen. Returns the new organization and the organizations it may duplicate.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false))]
     public function __invoke(
         ?string $corporateName = null,
         ?string $form = null,

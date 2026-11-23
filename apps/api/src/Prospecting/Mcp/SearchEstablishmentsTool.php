@@ -34,7 +34,7 @@ final readonly class SearchEstablishmentsTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'search-company-directory', description: 'The establishments of an organization the public directory of the companies proposes, by its name: SIRET, address, activity, closed or not.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'search-company-directory', description: 'Search the public company directory for an organization\'s establishments, by its name. Returns each establishment\'s SIRET, address and activity, and whether it has closed.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $id): array
     {
         $organization = $this->organizations->read($id);
