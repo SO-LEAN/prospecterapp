@@ -8,8 +8,8 @@ use OpenApi\Attributes as OA;
 use Symfony\Component\Serializer\Attribute\SerializedName;
 
 /**
- * The tags of an organization: those put by hand, in the order of their names (ADR 0138), and the automatic ones of
- * where it is (ADR 0142).
+ * An organization's tags: the tags put by hand, sorted by name (ADR 0138), and the automatic tags for where it is (ADR
+ * 0142).
  */
 final readonly class TagsResource
 {
@@ -19,7 +19,7 @@ final readonly class TagsResource
      */
     public function __construct(
         public array $tags,
-        #[OA\Property(description: 'Set from where the organization is: the big city around, its department and its region, the city first', items: new OA\Items(type: 'string', example: '#STRASBOURG'))]
+        #[OA\Property(description: 'Set from where the organization is: the surrounding big city, its department and its region, in that order', items: new OA\Items(type: 'string', example: '#STRASBOURG'))]
         public array $automatic,
         #[SerializedName('_links')]
         public TagsLinksResource $links,

@@ -34,10 +34,10 @@ final class TakeContactTagOffController extends AbstractController
 
     #[Route('/api/contacts/{id}/tags/{tag}', name: 'api_contacts_take_off_tag', requirements: ['id' => Requirement::UUID], methods: ['DELETE'])]
     #[OA\Delete(summary: 'Take a tag off the contact, named without its mark')]
-    #[OA\Response(response: 200, description: 'Its tags now', content: new Model(type: ContactTagsResource::class))]
+    #[OA\Response(response: 200, description: 'The contact\'s tags now', content: new Model(type: ContactTagsResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 404, description: 'No contact of my account (`unknownContact`), or a tag it does not carry (`tagNotCarried`)', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 404, description: 'Not a contact of my account (`unknownContact`), or a tag the contact does not carry (`tagNotCarried`)', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $id, string $tag, #[CurrentUser] User $user): JsonResponse
     {
         $this->commandBus->dispatch(new TakeOffTag(memberId: $user->memberId(), holder: TagRoutes::Contact->value, holderId: $id, tag: $tag, executedAt: $this->clock->now()));

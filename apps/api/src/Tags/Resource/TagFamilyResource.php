@@ -14,7 +14,7 @@ final readonly class TagFamilyResource
     public function __construct(
         #[OA\Property(enum: ['organizationType', 'relationship', 'technology'])]
         public string $family,
-        #[OA\Property(description: 'In the order they are proposed', example: ['#APPORTEUR', '#ESN'])]
+        #[OA\Property(description: 'In the order proposed', example: ['#APPORTEUR', '#ESN'])]
         public array $tags,
     ) {
     }

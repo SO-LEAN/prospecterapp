@@ -27,10 +27,10 @@ final class ShowContactTagsController extends AbstractController
 
     #[Route('/api/contacts/{id}/tags', name: 'api_contacts_tags', requirements: ['id' => Requirement::UUID], methods: ['GET'])]
     #[OA\Get(summary: 'The tags of the contact: put on it by hand, inherited from its organizations, set from how it is reached')]
-    #[OA\Response(response: 200, description: 'Its tags', content: new Model(type: ContactTagsResource::class))]
+    #[OA\Response(response: 200, description: 'The contact\'s tags', content: new Model(type: ContactTagsResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 404, description: 'No contact of my account (`unknownContact`)', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 404, description: 'Not a contact of my account (`unknownContact`)', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $id, #[CurrentUser] User $user): JsonResponse
     {
         return $this->json($this->contactTagsReader->read($user->memberId(), $id));

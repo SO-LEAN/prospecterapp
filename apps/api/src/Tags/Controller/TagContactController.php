@@ -36,11 +36,11 @@ final class TagContactController extends AbstractController
 
     #[Route('/api/contacts/{id}/tags', name: 'api_contacts_tag', requirements: ['id' => Requirement::UUID], methods: ['POST'])]
     #[OA\Post(summary: 'Put tags on the contact, a tag it carries already carried once; every prospector, with or without the right to manage personal data')]
-    #[OA\Response(response: 200, description: 'Its tags now', content: new Model(type: ContactTagsResource::class))]
+    #[OA\Response(response: 200, description: 'The contact\'s tags now', content: new Model(type: ContactTagsResource::class))]
     #[OA\Response(response: 401, description: 'Missing or invalid access token')]
     #[OA\Response(response: 403, description: 'Not a prospector', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 404, description: 'No contact of my account (`unknownContact`)', content: new Model(type: ProblemResource::class))]
-    #[OA\Response(response: 422, description: 'No tag, one that makes no tag (`invalidTag`), or an automatic one (`automaticTag`)', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 404, description: 'Not a contact of my account (`unknownContact`)', content: new Model(type: ProblemResource::class))]
+    #[OA\Response(response: 422, description: 'No tag, text that makes no tag (`invalidTag`), or an automatic tag (`automaticTag`)', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $id, #[MapRequestPayload] TagsInput $input, #[CurrentUser] User $user): JsonResponse
     {
         $this->commandBus->dispatch(new PutTags(memberId: $user->memberId(), holder: TagRoutes::Contact->value, holderId: $id, tags: $input->tags, executedAt: $this->clock->now()));
