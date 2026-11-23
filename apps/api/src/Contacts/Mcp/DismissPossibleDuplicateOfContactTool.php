@@ -36,7 +36,7 @@ final readonly class DismissPossibleDuplicateOfContactTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'dismiss-possible-duplicate-contact', description: 'Says, once checked, that a contact is not a duplicate of the one they resemble. Neither of them is flagged for the other any more. It needs the right to manage personal data. It returns the contact.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
+    #[McpTool(name: 'dismiss-possible-duplicate-contact', description: 'Say, once checked, that a contact is not a duplicate of the one they resemble. Neither of them is flagged for the other any more. It needs the right to manage personal data. Returns the contact.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false))]
     public function __invoke(string $id, string $duplicateId): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');

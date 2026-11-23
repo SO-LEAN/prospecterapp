@@ -14,7 +14,7 @@ use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * The API's anticorruption adapter, with the same code. It sees only the service that Prospecting publishes.
+ * The anticorruption adapter of the API, same code: it sees of Prospecting only the service it publishes.
  */
 final readonly class ProspectingOrganizationsOfContacts implements OrganizationsOfContacts
 {

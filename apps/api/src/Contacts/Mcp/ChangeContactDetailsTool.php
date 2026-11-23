@@ -44,7 +44,7 @@ final readonly class ChangeContactDetailsTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'update-contact-details', description: 'Changes a contact\'s e-mail, phone number, language and links, their LinkedIn profile among them. Whatever you leave out is removed. It needs the right to manage personal data. It returns the contact.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
+    #[McpTool(name: 'update-contact-details', description: 'Change a contact\'s e-mail, phone number, language and links, their LinkedIn profile among them. Whatever you leave out is removed. It needs the right to manage personal data. Returns the contact.', annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false))]
     public function __invoke(string $id, ?string $email = null, ?string $phoneNumber = null, ?string $language = null, array $links = [], ?int $revision = null): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');

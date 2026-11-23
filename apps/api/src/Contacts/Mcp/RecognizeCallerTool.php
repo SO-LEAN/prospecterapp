@@ -26,7 +26,7 @@ final readonly class RecognizeCallerTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'get-caller', description: 'Tells who calls: the account\'s organizations and contacts that have this number. It needs the right to manage personal data.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'get-caller', description: 'Find who is calling: the account\'s organizations and contacts that have this number. It needs the right to manage personal data.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $phoneNumber): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');

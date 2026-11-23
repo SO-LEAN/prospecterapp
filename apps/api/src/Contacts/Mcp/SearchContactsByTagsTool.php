@@ -33,7 +33,7 @@ final readonly class SearchContactsByTagsTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'search-contacts-by-tags', description: 'Lists and counts the contacts that carry every chosen tag, with their organizations and tags, the most recent first, by slices. Choose 1 to 5 tags, by their names without their mark, separated by commas. list-suggested-tags gives the proposed tags.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'search-contacts-by-tags', description: 'List and count the contacts that carry every chosen tag, with their organizations and tags, the most recent first, by slices. Choose 1 to 5 tags, by their names without their mark, separated by commas. list-suggested-tags gives the proposed tags.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $tags, ?string $after = null): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');

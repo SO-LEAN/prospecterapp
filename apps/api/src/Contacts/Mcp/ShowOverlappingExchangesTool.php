@@ -33,7 +33,7 @@ final readonly class ShowOverlappingExchangesTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'list-overlapping-exchanges', description: 'Lists the planned exchanges in the member\'s agenda that overlap a slot, before you plan one in it.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'list-overlapping-exchanges', description: 'List the planned exchanges in the member\'s agenda that overlap a slot, before you plan one in it.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(string $startsAt, ?int $durationInMinutes = null): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');

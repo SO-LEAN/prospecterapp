@@ -34,7 +34,7 @@ final readonly class ShowExchangesToProcessTool
      *
      * @return array<string, mixed>
      */
-    #[McpTool(name: 'list-exchanges-to-handle', description: 'Lists what the member has to process: their planned exchanges that have ended and are still unhandled, the oldest first.', annotations: new ToolAnnotations(readOnlyHint: true))]
+    #[McpTool(name: 'list-exchanges-to-handle', description: 'List what the member has to process: their planned exchanges that have ended and are still unhandled, the oldest first.', annotations: new ToolAnnotations(readOnlyHint: true))]
     public function __invoke(?string $timeZone = null): array
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');
