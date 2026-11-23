@@ -8,9 +8,7 @@ use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Component\Serializer\Attribute\SerializedName;
 
-/**
- * Every recipient of a frozen campaign, in the order they were added, 500 at most: read whole.
- */
+/** Every recipient of a frozen campaign, in the order added, 500 at most. The list is read as a whole. */
 final readonly class RecipientListResource
 {
     /**

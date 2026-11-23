@@ -10,8 +10,9 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
 /**
- * The recipient an AI leading a campaign handles next, how it reaches them, the message it sends them itself and how
- * it treats it, and how many are left (ADR 0144): `get-next-recipient`, a tool without an endpoint.
+ * The recipient that an AI running a campaign handles next (ADR 0144). It holds how the AI reaches them, the message
+ * the AI sends them itself and how to treat it, and how many recipients are left. `get-next-recipient` returns it, a
+ * tool without an endpoint.
  */
 final readonly class NextRecipientResource
 {
@@ -19,9 +20,9 @@ final readonly class NextRecipientResource
      * @param string            $channel     `email`, `call`, `sms` or `linkedIn`
      * @param string            $messageMode `asIs` or `adapted`
      * @param string            $instruction what the AI does with the message, worded for it
-     * @param int               $pending     the recipients still to handle, this one included
-     * @param ?DailyCapResource $dailyCap    the daily cap of the campaign, none without one
-     * @param ?string           $warning     what the AI does once the daily cap is reached, worded for it; none before
+     * @param int               $pending     the count of recipients still to handle, this one included
+     * @param ?DailyCapResource $dailyCap    the campaign's daily cap, null without one
+     * @param ?string           $warning     what the AI does once the daily cap is reached, worded for it; null before
      */
     public function __construct(
         public string $campaignId,
