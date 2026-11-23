@@ -6,16 +6,16 @@ import { daysBeforeErasure, urgencyOf } from '../erasure'
 import { type ContactToAttach, nameOf } from '../queries'
 import { AttachDialog } from './attach-dialog'
 
-/** Shared by the tabs of the browser: a reminder one of them showed, the others do not show it again. */
+/** The browser's tabs share it. When one tab has shown a reminder, the others do not show it again. */
 const STORAGE_KEY = 'prospecter.erasure-reminders'
 
-/** When the browser keeps nothing (a private window, its storage refused), the tab remembers on its own. */
+/** When the browser keeps nothing (a private window, or its storage refused), the tab remembers on its own. */
 let keptByTheTab: string[] = []
 
 /**
- * The reminders before the erasure of a contact I hold to attach, read among what I have to process: once a week
- * before, once the day before, whatever the tabs open; a click opens their attachment with the right to manage
- * personal data, which attaching needs, their page otherwise (ADR 0146).
+ * The reminders before a contact I hold to attach is erased, read from what I have to process. One comes a week
+ * before, and one comes the day before, however many tabs are open. With the right to manage personal data, which
+ * attaching needs, a click opens their attachment. Without it, a click opens their page (ADR 0146).
  */
 export function ErasureReminders({ contacts }: { contacts: ContactToAttach[] }) {
   const { t } = useTranslation()
@@ -69,6 +69,6 @@ function markShown(reminder: string) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(keptByTheTab))
   } catch {
-    // the browser keeps nothing: the tab remembers on its own
+    // the browser keeps nothing, so the tab remembers on its own
   }
 }

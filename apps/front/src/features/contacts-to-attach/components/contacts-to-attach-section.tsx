@@ -16,9 +16,9 @@ const URGENCY_LOOKS: Record<Urgency, string> = {
 }
 
 /**
- * The contacts waiting for me to attach them, among what I have to process, the first erased first: each named, its
- * email, its last meeting, and the days left before its erasure, orange from a week, red the day before; attached
- * from there with the right to manage personal data (ADR 0146).
+ * The contacts who wait for me to attach them, among what I have to process. The first to be erased comes first.
+ * Each shows its name, its email, its last meeting and the days left before its erasure. The days turn orange a
+ * week before and red the day before. With the right to manage personal data, I attach them from here (ADR 0146).
  */
 export function ContactsToAttachSection({ contacts }: { contacts: ContactToAttach[] }) {
   const { t } = useTranslation()

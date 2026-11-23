@@ -13,8 +13,8 @@ type Attachment = { contactId: string } & (
 )
 
 /**
- * Attaches a contact to an organization of mine, or to the one created for them first; their exchanges and to-dos
- * follow them by the reactions to the gesture (ADR 0146): what shows them is read again once they ran.
+ * Attaches a contact to one of my organizations, or first creates one for them. The gesture's reactions move their
+ * exchanges and to-dos with them (ADR 0146). What shows them is read again once the reactions have run.
  */
 export function useAttach(onAttached: () => void) {
   const { t } = useTranslation()
