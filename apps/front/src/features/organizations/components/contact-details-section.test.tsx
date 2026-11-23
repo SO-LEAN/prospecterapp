@@ -137,7 +137,7 @@ describe('the contact details of an organization', () => {
     const user = renderTheSection(anOrganization())
     theApi.mockResolvedValue(
       Response.json(
-        { title: 'Changed meanwhile', status: 409, reason: 'changedMeanwhile' },
+        { title: 'Someone else changed this since it was read', status: 409, reason: 'changedMeanwhile' },
         { status: 409, headers: { 'Content-Type': 'application/problem+json' } },
       ),
     )

@@ -12,6 +12,6 @@ final class ChangedMeanwhile extends NotPossibleInItsState
 {
     public static function sinceRead(\Throwable $detectedBy): self
     {
-        return self::because('Changed meanwhile, since it was read', previous: $detectedBy);
+        return self::because('Someone else changed this since it was read', previous: $detectedBy);
     }
 }
