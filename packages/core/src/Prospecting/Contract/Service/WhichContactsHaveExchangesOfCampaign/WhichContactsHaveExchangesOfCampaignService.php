@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Contract\Service\WhichContactsHaveExchangesOfCampaign;
 
 /**
- * The service Prospecting offers the other contexts (ADR 0045, 0195): it refuses nothing, what is unknown is absent.
+ * A service Prospecting offers the other contexts (ADR 0045, 0195). It refuses nothing. Its answer leaves out what
+ * is unknown.
  */
 interface WhichContactsHaveExchangesOfCampaignService
 {

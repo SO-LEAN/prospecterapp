@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Contract\Service\ListExchangeFacts;
 
 /**
- * The facts of the exchanges an account keeps, newest noted first, a slice after a cursor (ADR 0049): what
- * another context needs to count them again from the state.
+ * Asks for the facts of the exchanges an account keeps, the most recently logged first, one slice after a cursor
+ * (ADR 0049). Another context needs them to count the exchanges again from the state.
  */
 final readonly class ListExchangeFacts
 {

@@ -7,8 +7,9 @@ namespace Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContac
 interface NameOrganizationsOfContactsOutput
 {
     /**
-     * @param list<OrganizationsOfContactResponse> $contacts those an organization the account prospects names, in the
-     *                                                       order asked; a contact no organization names is absent
+     * @param list<OrganizationsOfContactResponse> $contacts the contacts that an organization the account prospects
+     *                                                       names, in the order asked. A contact that no organization
+     *                                                       names is absent
      */
     public function present(array $contacts): void;
 }

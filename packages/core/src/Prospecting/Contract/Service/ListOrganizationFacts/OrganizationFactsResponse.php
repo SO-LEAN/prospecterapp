@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts;
 
 /**
- * The facts of an organization, what another context counts of it: whether the account prospects it, whether it
- * is placed on the map, the persons it names as its contacts, the INSEE code of the municipality its geocoding gave
- * and the country of its address (ADR 0142), and the revision of its state, incremented at each change.
+ * An organization's facts, the part another context counts. They say whether the account prospects it and whether
+ * it is placed on the map. They give the persons it names as its contacts. They give the INSEE code of the
+ * municipality its geocoding found and its address's country (ADR 0142). They give its state's revision, which each
+ * change increments.
  */
 final readonly class OrganizationFactsResponse
 {
@@ -28,7 +29,7 @@ final readonly class OrganizationFactsResponse
     }
 
     /**
-     * An organization the account no longer prospects: the last of its facts.
+     * The last facts of an organization the account no longer prospects.
      */
     public static function absent(string $organizationId): self
     {

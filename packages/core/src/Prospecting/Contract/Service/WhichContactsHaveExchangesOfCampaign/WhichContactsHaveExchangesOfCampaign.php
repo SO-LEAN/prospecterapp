@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Contract\Service\WhichContactsHaveExchangesOfCampaign;
 
 /**
- * Which of these contacts have an exchange of the campaign that the account keeps (ADR 0195): asked by Campaigns for
- * its recipients still to handle, before it processes them from the facts of their exchange.
+ * Asks which of these contacts have an exchange in the campaign that the account keeps (ADR 0195). Campaigns asks it
+ * for its recipients that still need handling, before it processes them from their exchange's facts.
  */
 final readonly class WhichContactsHaveExchangesOfCampaign
 {

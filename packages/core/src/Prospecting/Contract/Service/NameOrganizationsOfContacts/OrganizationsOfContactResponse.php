@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts;
 
 /**
- * The published language of the organizations naming a contact (ADR 0045, 0144): their full names, the first one
- * first, as Prospecting lists them.
+ * The published language of the organizations that name a contact (ADR 0045, 0144). It gives their full names in
+ * the order Prospecting lists them, the first organization first.
  */
 final readonly class OrganizationsOfContactResponse
 {
