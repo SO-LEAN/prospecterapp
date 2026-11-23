@@ -13,6 +13,6 @@ final class PeriodEndsBeforeItStarts extends BusinessRuleViolation
 {
     public static function refused(): self
     {
-        return self::because('An inactive period ends on or after its first day', 'lastDay');
+        return self::because('An inactive period cannot end before its first day', 'lastDay');
     }
 }
