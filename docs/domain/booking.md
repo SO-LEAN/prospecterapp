@@ -79,11 +79,15 @@ It forgets an appointment on its exchange's terminal fact (`ExchangeFactsChanged
   - the rules `BookingPagePossibilities`, `FreeSlots`, `BookingSuspension`;
   - the repositories `BookingPageRepository` and `AppointmentRepository`;
   - the ports `Hosts`, `ConnectedCalendars` and `HostAgendas`, implemented by the API.
-- `src/Booking/Application`:
-  - `SetWeeklyWindows`, `AddInactivePeriod`, `RemoveInactivePeriod`, `OfferChannels`, `OpenBooking`, `CloseBooking`, `ChangeBookingLink`, through `BookingPages` (a host's page, set up by their first action on it);
-  - `ConsultMyBookingPage` (`MyBookingPage`, the port `MyBookingPageRetriever`);
-  - `ConsultPublicBookingPage` (`PublicBookingPage`, `PublicHost`, the port `PublicBookingPageRetriever` reading a `BookingSchedule`);
-  - `BookSlot`;
-  - `ConsultAppointments`, the published service;
-  - `PublishSlotBooked`, its translator;
-  - `ForgetAppointmentOfErasedExchange`, the command that `Policy/ForgetAppointmentOfErasedExchangePolicy` sends when an exchange is erased (ADR 0203).
+- `src/Booking/Application`, in three modules (ADR 0206):
+  - `BookingPage`, the host sets up their page:
+    - `SetWeeklyWindows`, `AddInactivePeriod`, `RemoveInactivePeriod`, `OfferChannels`, `OpenBooking`, `CloseBooking`, `ChangeBookingLink`, through `BookingPages` (a host's page, set up by their first action on it);
+    - `ConsultMyBookingPage` (`MyBookingPage`, the port `MyBookingPageRetriever`);
+  - `PublicLink`, anyone holding the link:
+    - `ConsultPublicBookingPage` (`PublicBookingPage`, `PublicHost`, the port `PublicBookingPageRetriever` reading a `BookingSchedule`);
+    - `BookSlot`;
+  - `Appointment`, what was booked, until its exchange is erased:
+    - `ConsultAppointments`, the published service;
+    - `PublishSlotBooked`, its translator;
+    - `ForgetAppointmentOfErasedExchange`, the command that `Policy/ForgetAppointmentOfErasedExchangePolicy` sends when an exchange is erased (ADR 0203);
+  - at the application's root, the ports (`Port/`) and the policy (`Policy/`).

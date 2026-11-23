@@ -208,3 +208,4 @@ Why the project is shaped the way it is: one record per decision, in the order t
 | [0203](0203-a-reaction-is-a-policy-that-turns-an-event-into-a-command-and-a-use-case-does-the-work.md) | A reaction is a policy that turns an event into a command, and an ordinary use case does the work | architecture | Accepted | 2026-11-23 |
 | [0204](0204-the-api-tests-re-testing-a-core-rule-run-after-the-merge-only.md) | The API tests re-testing a core rule run after the merge only | architecture | Accepted | 2026-11-23 |
 | [0205](0205-the-journeys-of-a-branch-start-from-the-demonstration-given-back-to-the-running-stack.md) | The journeys of a branch start from the demonstration given back to the running stack | architecture | Accepted | 2026-11-23 |
+| [0206](0206-a-context-groups-its-use-cases-in-modules.md) | A context groups its use cases in modules | architecture | Accepted | 2026-11-24 |

@@ -138,7 +138,7 @@ A subscription that listens to some payloads only names them in `payload` (ADR 0
   - Campaigns' reactions that forget a tagging or record a fact;
   - Reporting's reactions, where a fact's revision makes the second application harmless.
 - A test service can be a subscription declared by its `app.subscription` tag (`Tests\App\Double\FailingReaction`), unknown to the infrastructure.
-- A translator (`Application/Publish…/Publish…Handler`) is not a subscription: it stays on the event bus and publishes a domain event for the other contexts.
+- A translator (`Application/Publish…/Publish…Handler`, or `Application/<Module>/Publish…/Publish…Handler`) is not a subscription: it stays on the event bus and publishes a domain event for the other contexts.
 - `tests/Architecture/ReactionsAreSubscribedTest` fails when:
   - a core policy is not a subscription;
   - a subscription names an unknown policy, or listens to a detail-type that its policy's signature does not take;
