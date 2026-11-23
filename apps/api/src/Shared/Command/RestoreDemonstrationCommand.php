@@ -30,7 +30,7 @@ final readonly class RestoreDemonstrationCommand
         $this->demoData->addAContactToAttach();
         $this->demoMembers->restore();
 
-        $io->success(sprintf('The demonstration given back to the tables %s and to the user pool.', implode(', ', $this->tables->names())));
+        $io->success(sprintf('Gave the tables %s and the user pool the demonstration back.', implode(', ', $this->tables->names())));
 
         return Command::SUCCESS;
     }

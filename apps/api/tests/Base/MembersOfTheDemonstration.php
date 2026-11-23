@@ -10,7 +10,7 @@ use App\SignIn\UserPool;
 
 /**
  * The user pool every API test starts from (ADR 0052): recreated once in each process of the tests, with the members of
- * the demonstration. Each test after gets them back as they were, the pool kept (DemoMembers).
+ * the demonstration. Each later test gets them back as they were, and the pool is kept (DemoMembers).
  */
 final class MembersOfTheDemonstration
 {

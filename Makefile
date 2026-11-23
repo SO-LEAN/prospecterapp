@@ -136,21 +136,21 @@ check-contract: contract ## Check the OpenAPI contract and the front types again
 E2E_LOCK = $(GIT_COMMON_DIR)/prospecter-e2e.lock
 WITH_E2E_LOCK = { flock -n $(E2E_LOCK) true || echo "The journeys of another checkout run: waiting for them..."; } && flock $(E2E_LOCK)
 
-# In a worktree, never on the data of the main checkout (ADR 0118, 0121, 0205). On the stack running, the journeys of a
-# branch start from the demonstration all the same: the functions of the API and the storage deployed again, the relay
-# and the worker recycled, the queues of the failures emptied, the tables and the user pool given the demonstration back
-# (make -C apps/api restore), the containers, the images, the relay's mappings, the rules of the bus and the buckets kept.
-# From nothing, with FRESH=1, no stack running or a change of what defines the stack since it was made (STACK_DEFINITION):
-# the stack started again (MiniStack without the memory a former run left it), deployed, its data recreated. Either
-# way the figures are counted (two minutes, ADR 0106) while the journeys reading none run together. Those running alone
-# run once the others are done (ADR 0117), the main journey then the dashboard, one after the other (ADR 0136), and not
-# when one before failed: the first failure stops them (FAIL_FAST). The relay and the worker warmed, the gestures of
-# the console made and the geocoder doubled once for both. Each step says how long it took, and so does the whole
+# In a worktree, never on the data of the main checkout (ADR 0118, 0121, 0205). On the running stack, a branch's journeys
+# still start from the demonstration. The check deploys the API's and the storage's functions again, recycles the relay
+# and the worker, empties the failure queues, and gives the tables and the user pool the demonstration back
+# (make -C apps/api restore). It keeps the containers, the images, the relay's mappings, the bus rules and the buckets.
+# It starts from nothing with FRESH=1, when no stack runs, or when what defines the stack changed since it was made
+# (STACK_DEFINITION). It then starts the stack again (MiniStack without the memory a former run left it), deploys it and
+# recreates its data. Either way the figures are counted (two minutes, ADR 0106) while the journeys reading none run
+# together. Those running alone run once the others are done (ADR 0117), the main journey then the dashboard, one after
+# the other (ADR 0136), and not when one before failed: the first failure stops them (FAIL_FAST). The relay and the
+# worker are warmed, the console's gestures made and the geocoder doubled once for both. Each step prints how long it
+# took, and so does the whole run
 FIGURES_LOG = $(ROOT)/.cache/reporting-rebuild.log
 STACK_RUNNING = $(shell $(DC) ps -q --status running nginx 2>/dev/null)
-# what the restore of a running stack does not make again: the containers and their images, the tables, the user pool,
-# the buckets, the relay and the rules of the subscriptions. The digest of the definition the stack was made from is
-# kept beside it
+# what a running stack's restore does not make again: the containers and their images, the tables, the user pool, the
+# buckets, the relay and the subscriptions' rules. The stack keeps the digest of the definition it was made from
 STACK_DEFINITION = docker-compose.yml docker-compose.agents.yml docker/php docker/node docker/nginx docker/lambda \
 	apps/api/config/subscriptions.json apps/api/src/Shared/Persistence/Tables.php apps/api/src/SignIn/UserPool.php \
 	apps/storage/src/Bucket.php
@@ -159,7 +159,7 @@ STACK_MADE = $(ROOT)/.cache/stack-made-from
 STACK_CHANGED = $(if $(filter $(STACK_DEFINITION_DIGEST),$(file < $(STACK_MADE))),,1)
 FROM_NOTHING = $(or $(FRESH),$(if $(STACK_RUNNING),,1),$(STACK_CHANGED))
 MAKE_THE_STACK = $(MAKE) stop && $(MAKE) deploy && $(MAKE) db FIGURES=later && echo $(STACK_DEFINITION_DIGEST) >$(STACK_MADE)
-RESTORE_THE_STACK = echo "On the stack running, its demonstration given back (FRESH=1 from nothing)" \
+RESTORE_THE_STACK = echo "Giving the running stack its demonstration back (FRESH=1 starts from nothing)" \
 	&& $(call timed,Stack/API and storage deployed and reactions recycled,$(DC) --progress quiet run --rm --build lambda-deploy apps) \
 	&& $(MAKE) -C apps/api restore FIGURES=later
 check-e2e: ## Run the journeys on the stack of this worktree, its demonstration given back first, stopping at the first failure; FRESH=1 (or no stack running, or a change of what defines it): started again, deployed and its data recreated first (ADR 0117, 0121, 0205)
