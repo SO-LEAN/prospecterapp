@@ -10,8 +10,8 @@ use Prospecter\Core\SharedKernel\Application\OutputPort;
 interface ListCampaignsOutput extends OutputPort
 {
     /**
-     * @param list<CampaignSheet> $campaigns the newest first
-     * @param array<string, int>  $targeted  the contacts each targets, by campaign identity
+     * @param list<CampaignSheet> $campaigns newest first
+     * @param array<string, int>  $targeted  the count of contacts each campaign targets, by campaign id
      */
     public function present(array $campaigns, array $targeted): void;
 }
