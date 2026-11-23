@@ -24,7 +24,7 @@
     "context": "personal-data",
     "sources": ["prospecter.accounts"],
     "events": ["AccountOpened.v1"],
-    "handler": "Prospecter\\Core\\PersonalData\\Application\\CollectTheFounderProfile\\CollectTheFounderProfileHandler",
+    "policy": "Prospecter\\Core\\PersonalData\\Application\\Policy\\CollectTheFounderProfilePolicy",
     "inbox": true
   },
   "personal-data-collect-member-profile": {

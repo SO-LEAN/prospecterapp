@@ -202,6 +202,7 @@ use Prospecter\Core\PersonalData\Application\LiftSuspicionInReturn\LiftSuspicion
 use Prospecter\Core\PersonalData\Application\ListContactFacts\ListContactFactsHandler;
 use Prospecter\Core\PersonalData\Application\NameContacts\NameContactsHandler;
 use Prospecter\Core\PersonalData\Application\PersonCard;
+use Prospecter\Core\PersonalData\Application\Policy\CollectTheFounderProfilePolicy;
 use Prospecter\Core\PersonalData\Application\PresentMembers\PresentMembersHandler;
 use Prospecter\Core\PersonalData\Application\PublishBookerIdentified\PublishBookerIdentifiedHandler;
 use Prospecter\Core\PersonalData\Application\PublishContactCollected\PublishContactCollectedHandler;
@@ -1378,6 +1379,7 @@ final class Application
     private function commandHandlers(): array
     {
         return [
+            new CollectTheFounderProfileHandler($this->persons),
             new ReadMailboxHistoryHandler($this->connections, $this->clients, $this->mailboxes, $this->connectingMembers, $this->events),
             new PushUpcomingExchangesHandler($this->heldExchanges, $this->calendarPusher),
             new ImportMailHandler($this->connections, $this->clients, $this->mailboxes, new PersonalDataAndProspectingCorrespondents($this->whichContactsHaveTheseEmailsService, $this->whichOrganizationsHaveTheseEmailsService), $this->events),
@@ -1793,7 +1795,7 @@ final class Application
             new IdentifyBookerHandler($this->persons, new BookingBookers($this->consultAppointmentsService), $this->readers, $this->events),
             new PlanBookedAppointmentHandler($this->exchanges, $this->contactsToAttach, $this->contactOrganizations, new BookingBookedAppointments($this->consultAppointmentsService), $this->prospectors, $this->events),
             new RegisterTheFounderPolicy(),
-            new CollectTheFounderProfileHandler($this->persons),
+            new CollectTheFounderProfilePolicy(),
             new CollectTheMemberProfileHandler($this->persons),
             new StopKeepingExchangesHandler($this->exchanges, $this->events),
             new EraseExchangeLeftWithoutOrganizationHandler($this->exchanges, $this->events),
