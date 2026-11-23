@@ -7,8 +7,8 @@ namespace App\Connectors\Resource;
 use OpenApi\Attributes as OA;
 
 /**
- * An authorization asked of Google: the browser of the member goes to its address, Google bringing it back to the
- * SPA with a code and the state of the request, for ten minutes.
+ * An authorization requested from Google. The member's browser goes to its address. Google brings the browser back to
+ * the SPA with a code and the request's state. The authorization lasts ten minutes.
  */
 final readonly class AuthorizationResource
 {

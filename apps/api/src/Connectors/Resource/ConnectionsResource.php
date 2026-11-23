@@ -9,7 +9,7 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
 /**
- * My connections to the services outside, Google the one so far: none until I connect.
+ * My connections to outside services. Google is the only one so far. There is none until I connect.
  */
 final readonly class ConnectionsResource
 {

@@ -9,8 +9,8 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
 /**
- * Where the push of an exchange into my calendar at Google stands (ADR 0133), none while it is not pushed into mine:
- * without a connection, an exchange of another member, or one past never pushed.
+ * An exchange's push state in my Google calendar (ADR 0133). There is none while the exchange is not pushed into my
+ * calendar: I have no connection, the exchange is another member's, or it is past and was never pushed.
  */
 final readonly class ExchangeSyncResource
 {

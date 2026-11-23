@@ -3180,18 +3180,18 @@ export interface components {
             account: string;
             /** Format: date-time */
             connectedAt: string;
-            /** @description My exchanges to come in my calendar at the provider */
+            /** @description My upcoming exchanges in my calendar at the provider */
             synced: number;
-            /** @description My exchanges to come the provider refused */
+            /** @description My upcoming exchanges that the provider refused */
             failed: number;
             /**
-             * @description Where the import of my e-mails of Gmail stands: off, active, or to reconnect once Google refused to renew it (ADR 0154)
+             * @description My Gmail e-mail import's state: off, active, or to reconnect once Google refused to renew it (ADR 0154)
              * @enum {string}
              */
             gmailImport: "off" | "active" | "toReconnect";
             /**
              * Format: date-time
-             * @description When my mailbox last notified Prospecter of a change, none while the import is off
+             * @description When my mailbox last notified Prospecter of a change. None while the import is off
              */
             lastGmailNotificationAt?: string | null;
             _links: components["schemas"]["ConnectionLinksResource"];
@@ -3214,15 +3214,15 @@ export interface components {
             removeGmailNotifications?: components["schemas"]["LinkResource"];
         };
         GmailNotificationsResource: {
-            /** @description The topic, in full: projects/<project>/topics/<topic> */
+            /** @description The topic's full name: projects/<project>/topics/<topic> */
             topic: string;
             /** Format: email */
             pushAccount: string;
         };
         GoogleClientResource: {
-            /** @description The id of the client at Google, none while the account has no client */
+            /** @description The client's id at Google. None while the account has no client */
             clientId?: string | null;
-            /** @description Whether its secret is set: it is never answered */
+            /** @description Whether its secret is set. The secret is never returned */
             secretSet: boolean;
             /**
              * Format: uri
@@ -3231,7 +3231,7 @@ export interface components {
             redirectUri: string;
             /**
              * Format: uri
-             * @description The endpoint the subscription of the account at Google pushes the notifications of Gmail to, its audience the same
+             * @description The endpoint that the account's Google subscription pushes Gmail notifications to. It is also the tokens' audience
              */
             gmailNotificationEndpoint: string;
             _links: components["schemas"]["GoogleClientLinksResource"];
@@ -3244,12 +3244,12 @@ export interface components {
             state: "pending" | "synced" | "failed";
             /**
              * Format: date-time
-             * @description Since when it stands so; none for an exchange never pushed
+             * @description Since when the push has this state. None for an exchange never pushed
              * @default null
              */
             at: string | null;
             /**
-             * @description Why: the provider refused it (`calendarRefusedThePush`), or my connection is to reconnect (`toReconnect`)
+             * @description Why: the provider refused the push (`calendarRefusedThePush`), or my connection is to reconnect (`toReconnect`)
              * @default null
              * @enum {string|null}
              */
