@@ -216,7 +216,7 @@ class ReactionsAreSubscribedTest extends TestCase
         $root = dirname(__DIR__, 2).'/vendor/prospecter/core/src/';
         $handlers = [];
 
-        foreach (glob($root.self::SERVED_CONTEXTS.'/Application/*/*Handler.php', \GLOB_BRACE) ?: [] as $file) {
+        foreach (glob($root.self::SERVED_CONTEXTS.'/Application/{*,*/*}/*Handler.php', \GLOB_BRACE) ?: [] as $file) {
             $class = 'Prospecter\\Core\\'.str_replace(['/', '.php'], ['\\', ''], substr($file, strlen($root)));
 
             if (is_a($class, EventHandler::class, true)) {
