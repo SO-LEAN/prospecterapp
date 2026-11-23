@@ -110,7 +110,7 @@ final class ContactToAttach implements ReleasesEvents
     public function eraseLeftUnattached(\DateTimeImmutable $at): void
     {
         if (!$this->isLeftUnattachedAt($at)) {
-            throw NotPossibleInItsState::because('A contact to attach is erased from the 30th day after their last meeting');
+            throw NotPossibleInItsState::because('A contact to attach can be erased only from the 30th day after their last meeting');
         }
 
         $this->modifiedAt = $at;

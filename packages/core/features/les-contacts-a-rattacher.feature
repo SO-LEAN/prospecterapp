@@ -38,7 +38,7 @@ Fonctionnalité: Les contacts à rattacher
     Soit "Ada Lovelace" (ada@acme.fr) a pris une visio avec moi le 20/11/2026 à 14h00
     Et je suis connecté en tant qu'un autre prospecteur de "SOLEAN IT"
     Quand je planifie un appel avec "Ada Lovelace" le 25/11/2026 à 9h00
-    Alors c'est refusé : "A contact to attach is dealt with by the member they met until attached"
+    Alors c'est refusé : "Until a contact is attached, only the member who met them can deal with them"
 
   Scénario: Le prospecteur qui a le rendez-vous note et planifie depuis la fiche d'un contact à rattacher
     Soit "Ada Lovelace" (ada@acme.fr) a pris une visio avec moi le 20/11/2026 à 14h00
@@ -66,5 +66,5 @@ Fonctionnalité: Les contacts à rattacher
     Soit "Ada Lovelace" (ada@acme.fr) a pris une visio avec moi le 20/11/2026 à 14h00
     Et je suis connecté en tant qu'un autre prospecteur de "SOLEAN IT"
     Quand je note à faire pour "Ada Lovelace" "Envoyer la proposition" pour le 25/11/2026
-    Alors c'est refusé : "A contact to attach is dealt with by the member they met until attached"
+    Alors c'est refusé : "Until a contact is attached, only the member who met them can deal with them"
 

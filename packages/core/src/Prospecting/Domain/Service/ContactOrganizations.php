@@ -87,7 +87,7 @@ final readonly class ContactOrganizations
     private function ensureHeldBy(ContactToAttach $contactToAttach, Prospector $prospector): void
     {
         if (!$contactToAttach->isHeldBy($prospector->id)) {
-            throw ContactToAttachOfAnother::because('A contact to attach is dealt with by the member they met until attached');
+            throw ContactToAttachOfAnother::because('Until a contact is attached, only the member who met them can deal with them');
         }
     }
 
