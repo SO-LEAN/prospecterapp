@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Connectors\Application\StopMailImport;
 
 /**
- * I stop the import of my e-mails: my mailbox no longer notifies Prospecter, the e-mails already imported stay, my
+ * I stop my e-mail import. My mailbox no longer notifies Prospecter. The e-mails already imported stay, and my
  * calendar stays connected (ADR 0154).
  */
 final readonly class StopMailImport
