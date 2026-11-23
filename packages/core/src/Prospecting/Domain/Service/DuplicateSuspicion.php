@@ -9,8 +9,8 @@ use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
- * The organizations of the prospecting base of an account an organization resembles, by its name and its city:
- * a rule on the whole base, out of reach of one organization alone.
+ * The organizations in an account's prospecting base that an organization resembles by its name and its city. The rule
+ * covers the whole base, out of one organization's reach.
  */
 final readonly class DuplicateSuspicion
 {

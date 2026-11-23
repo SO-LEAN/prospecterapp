@@ -9,8 +9,8 @@ use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 
 /**
- * An establishment is one organization of the prospecting base of an account; other accounts may prospect it too. A
- * rule on the whole base, out of reach of one organization alone.
+ * An establishment is one organization in an account's prospecting base. Other accounts may prospect it too. The rule
+ * covers the whole base, out of one organization's reach.
  */
 final readonly class SiretUniqueness
 {

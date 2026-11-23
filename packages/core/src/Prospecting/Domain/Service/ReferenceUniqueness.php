@@ -9,8 +9,8 @@ use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 
 /**
- * A link to a tool outside designates one organization of the prospecting base of an account; other accounts may
- * note it too. A rule on the whole base, out of reach of one organization alone.
+ * A link to an outside tool designates one organization in an account's prospecting base. Other accounts may record it
+ * too. The rule covers the whole base, out of one organization's reach.
  */
 final readonly class ReferenceUniqueness
 {
