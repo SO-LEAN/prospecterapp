@@ -8,8 +8,8 @@ use Prospecter\Core\Campaigns\Domain\Model\OrganizationFact;
 use Prospecter\Core\SharedKernel\Domain\AccountId;
 
 /**
- * Port: the organizations an account prospects and the contacts each names, as they are now, from the facts
- * Prospecting gives again through its published service `ListOrganizationFactsService` (ADR 0045, 0089, 0141).
+ * Port: the organizations an account prospects now and the contacts each one names (ADR 0045, 0089, 0141). It reads the
+ * facts that Prospecting gives again through its published service `ListOrganizationFactsService`.
  */
 interface OrganizationsAndTheirContacts
 {

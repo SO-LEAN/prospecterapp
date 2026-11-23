@@ -9,8 +9,8 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * Port: the members who tag, and the account they tag for, translated from the context that knows them (Accounts),
- * through its published service `ConsultMembersService` (ADR 0045, 0089).
+ * Port: the members who tag, and the account they tag for. It translates what Accounts publishes through its service
+ * `ConsultMembersService` (ADR 0045, 0089).
  */
 interface Taggers
 {

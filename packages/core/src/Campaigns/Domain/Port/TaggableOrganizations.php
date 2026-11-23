@@ -8,8 +8,8 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\OrganizationId;
 
 /**
- * Port: whether an account prospects an organization, asked of Prospecting through its published service
- * `WhichAreProspectedService` (ADR 0045, 0089).
+ * Port: whether an account prospects an organization (ADR 0045, 0089). It asks Prospecting through its published
+ * service `WhichAreProspectedService`.
  */
 interface TaggableOrganizations
 {

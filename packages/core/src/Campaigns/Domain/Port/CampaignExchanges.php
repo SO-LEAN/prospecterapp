@@ -9,8 +9,9 @@ use Prospecter\Core\SharedKernel\Domain\CampaignId;
 use Prospecter\Core\SharedKernel\Domain\PersonId;
 
 /**
- * Port: which recipients Prospecting already noted an exchange of the campaign with, asked of it through its published
- * service `WhichContactsHaveExchangesOfCampaignService`, before Campaigns processes them from its facts (ADR 0195).
+ * Port: the recipients that Prospecting has already logged an exchange of the campaign with, before Campaigns processes
+ * them from its facts (ADR 0195). It asks Prospecting through its published service
+ * `WhichContactsHaveExchangesOfCampaignService`.
  */
 interface CampaignExchanges
 {

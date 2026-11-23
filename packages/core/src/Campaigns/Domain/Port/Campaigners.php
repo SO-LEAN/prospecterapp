@@ -9,9 +9,8 @@ use Prospecter\Core\SharedKernel\Domain\AccountId;
 use Prospecter\Core\SharedKernel\Domain\MemberId;
 
 /**
- * Port: the members who run campaigns, and the account they run them for, translated from the context that knows
- * them (Accounts), through its published service `ConsultMembersService` (ADR 0045, 0089). Who may run them is the
- * business of the API (ADR 0081).
+ * Port: the members who run campaigns, and the account they run them for. It translates what Accounts publishes through
+ * its service `ConsultMembersService` (ADR 0045, 0089). The API decides who may run them (ADR 0081).
  */
 interface Campaigners
 {
