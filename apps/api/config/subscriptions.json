@@ -73,7 +73,7 @@
     "context": "prospecting",
     "sources": ["prospecter.personal-data"],
     "events": ["ContactForgotten.v1"],
-    "handler": "Prospecter\\Core\\Prospecting\\Application\\DetachForgottenContact\\DetachForgottenContactHandler",
+    "policy": "Prospecter\\Core\\Prospecting\\Application\\Policy\\DetachForgottenContactPolicy",
     "inbox": true
   },
   "prospecting-keep-exchanges-of-forgotten-contact": {
