@@ -208,10 +208,11 @@ Why the project is shaped the way it is: one record per decision, in the order t
 | [0203](0203-a-reaction-is-a-policy-that-turns-an-event-into-a-command-and-a-use-case-does-the-work.md) | A reaction is a policy that turns an event into a command, and an ordinary use case does the work | architecture | Accepted | 2026-11-23 |
 | [0204](0204-the-api-tests-re-testing-a-core-rule-run-after-the-merge-only.md) | The API tests re-testing a core rule run after the merge only | architecture | Accepted | 2026-11-23 |
 | [0205](0205-the-journeys-of-a-branch-start-from-the-demonstration-given-back-to-the-running-stack.md) | The journeys of a branch start from the demonstration given back to the running stack | architecture | Accepted | 2026-11-23 |
-| [0206](0206-a-context-groups-its-use-cases-in-modules.md) | A context groups its use cases in modules | architecture | Accepted | 2026-11-24 |
+| [0206](0206-a-context-groups-its-use-cases-in-modules.md) | A context groups its use cases in modules | architecture | Accepted, a module as one view of the event storming superseded by [0213](0213-the-event-storming-is-one-wall-per-context-with-a-lane-per-module.md) | 2026-11-24 |
 | [0207](0207-the-front-tests-run-in-vm-threads.md) | The front's tests run in VM threads | architecture | Accepted | 2026-11-24 |
 | [0208](0208-a-new-api-test-proves-only-the-adaptation.md) | A new API test proves only the adaptation, and each kind of refusal is translated once | architecture | Accepted | 2026-11-24 |
 | [0209](0209-the-demonstration-s-load-counts-its-figures-without-waiting-for-the-worker.md) | The demonstration's load counts its figures without waiting for the worker | architecture | Accepted | 2026-11-24 |
 | [0210](0210-the-front-tools-tests-run-in-forks.md) | The tests of the front's tools run in forks, apart from the SPA's | architecture | Accepted | 2026-11-24 |
 | [0211](0211-an-mcp-tool-is-tested-by-what-it-adds-to-its-endpoint.md) | An MCP tool is tested by what it adds to its endpoint | architecture | Accepted | 2026-11-24 |
 | [0212](0212-the-rights-of-every-endpoint-are-proven-by-one-test.md) | The rights of every endpoint are proven by one test | architecture | Accepted | 2026-11-24 |
+| [0213](0213-the-event-storming-is-one-wall-per-context-with-a-lane-per-module.md) | The event storming is one wall per context, with a lane per module | architecture | Accepted | 2026-11-24 |

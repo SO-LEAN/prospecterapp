@@ -91,3 +91,11 @@ It forgets an appointment on its exchange's terminal fact (`ExchangeFactsChanged
     - `PublishSlotBooked`, its translator;
     - `ForgetAppointmentOfErasedExchange`, the command that `Policy/ForgetAppointmentOfErasedExchangePolicy` sends when an exchange is erased (ADR 0203);
   - at the application's root, the ports (`Port/`) and the policy (`Policy/`).
+
+## The wall
+
+The context's event storming, drawn from its code (`make event-storming CONTEXT=Booking`, `docs/architecture/event-storming.md`). The interactive page is served under `/docs/event-storming/booking/` on the instances that open it.
+
+![Booking's event storming wall](../event-storming/booking/wall.svg)
+
+Each lane alone: [Booking page](../event-storming/booking/booking-page.svg), [Public link](../event-storming/booking/public-link.svg), [Appointment](../event-storming/booking/appointment.svg).
