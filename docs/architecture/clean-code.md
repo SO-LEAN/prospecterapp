@@ -108,7 +108,7 @@ This guide is alive: rules get added and sharpened as the code is improved, iter
   - No cycle between packages (ADP).
   - Depend in the direction of stability (SDP): the front and the API depend on the stable core.
   - The more stable a component, the more abstract it is (SAP): the core exposes ports.
-- **Screaming architecture**: the folders say what the application does, not which framework it uses (`Prospecting/Application/StartProspecting`, `Accounts/Domain/Model/Account`, `features/organizations`). They are grouped by bounded context first, by layer inside (ADR 0030).
+- **Screaming architecture**: the folders say what the application does, not which framework it uses (`Prospecting/Application/Organization/StartProspecting`, `Accounts/Domain/Model/Account`, `features/organizations`). They are grouped by bounded context first, by layer inside (ADR 0030).
 - **Keep options open**: decisions on frameworks, databases and delivery are deferred and isolated behind boundaries (ADR 0029, 0048, 0052).
 
 ## 12. Simplicity
