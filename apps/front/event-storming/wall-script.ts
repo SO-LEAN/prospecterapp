@@ -403,8 +403,11 @@ export function runTheWall(data: WallData): void {
     at?: number
     lane?: number
   }
+  /** A wall of more use cases than a screen holds opens folded: its link then always says which lanes are. */
+  const USE_CASES_OF_AN_UNFOLDED_WALL = 40
+  const large = data.lanes.reduce((sum, lane) => sum + lane.useCases, 0) > USE_CASES_OF_AN_UNFOLDED_WALL
   const foldPart = (): string =>
-    (folded.size > 0
+    (folded.size > 0 || large
       ? `&fold=${[...folded].map((lane) => encodeURIComponent(data.lanes[lane]?.name ?? '')).join(',')}`
       : '') + (density === 'compact' ? '&rows=compact' : '')
   function hashOf(spot: Spot): string {
@@ -425,6 +428,7 @@ export function runTheWall(data: WallData): void {
       const lane = button.dataset.lane === '' ? undefined : Number(button.dataset.lane)
       button.setAttribute('aria-pressed', String(spot.at === undefined && lane === spot.lane))
     }
+    unfoldTheLaneOf(spot)
     pin(spot.at ?? null)
     if (options.keep === true) return
     const camera =
@@ -438,6 +442,13 @@ export function runTheWall(data: WallData): void {
             ? firstLook()
             : wholeWall()
     fly(camera, options.instant)
+  }
+  /** A post-it shown in a folded lane would be a small square: its lane unfolds. */
+  function unfoldTheLaneOf(spot: Spot): void {
+    const lane = spot.at === undefined ? undefined : notes[spot.at]?.lane
+    if (lane === undefined || !folded.has(lane)) return
+    folded.delete(lane)
+    redraw()
   }
   function go(spot: Spot, options: { keep?: boolean } = {}): void {
     depth += 1
@@ -684,13 +695,21 @@ export function runTheWall(data: WallData): void {
   })
 
   /* ───── The first look ───── */
-  for (const name of (hash().get('fold') ?? '').split(',')) {
-    const lane = data.lanes.findIndex((candidate) => candidate.name === name)
-    if (lane >= 0) folded.add(lane)
+  if (hash().has('fold')) {
+    for (const name of (hash().get('fold') ?? '').split(',')) {
+      const lane = data.lanes.findIndex((candidate) => candidate.name === name)
+      if (lane >= 0) folded.add(lane)
+    }
+  } else if (large) {
+    const at = placeOfHash().at
+    const open = at === undefined ? -1 : notes[at]?.lane
+    data.lanes.forEach((_, lane) => {
+      if (lane !== open) folded.add(lane)
+    })
   }
   place()
   element('dense').setAttribute('aria-pressed', String(density === 'compact'))
-  history.replaceState({ depth: 0 }, '', location.hash || '#')
+  history.replaceState({ depth: 0 }, '', large ? hashOf(placeOfHash()) : location.hash || '#')
   show(placeOfHash(), { instant: true, first: true })
   const asked = new URLSearchParams(location.search)
   const question = asked.get('q')
