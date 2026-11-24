@@ -22,6 +22,18 @@ const reactCompiler = babel({ presets: [reactCompilerPreset()] })
 /** A form typed key by key takes seconds when `make ci` runs the other checks beside the tests (ADR 0109). */
 const TIMEOUT_OF_A_TEST_SHARING_THE_MACHINE = 20_000
 
+/**
+ * One jsdom per worker instead of one per file, which took 30 % of the run. Each file still gets its own window and its
+ * own modules, in a VM context of its own.
+ */
+const ONE_DOM_PER_WORKER = 'vmThreads'
+
+/**
+ * A worker in a VM context frees its memory less reliably: it is started again once it holds half of the container's
+ * memory. A worktree's worker reached 1.25 GB of its 2 GB, beside a test that runs TypeScript on a copy of the front.
+ */
+const MEMORY_A_WORKER_HOLDS_BEFORE_ITS_RESTART = '50%'
+
 /** The chunk of the map, MapLibre itself, loaded with the map only (`geo-map.tsx`): beyond it, a chunk is warned. */
 const SIZE_OF_THE_MAP_LOADED_ON_DEMAND_KB = 1_200
 
@@ -70,6 +82,8 @@ export default defineConfig({
   },
   test: {
     environment: 'jsdom',
+    pool: ONE_DOM_PER_WORKER,
+    vmMemoryLimit: MEMORY_A_WORKER_HOLDS_BEFORE_ITS_RESTART,
     setupFiles: ['./src/test/setup.ts'],
     include: ['src/**/*.test.{ts,tsx}', 'lint/**/*.test.ts'],
     css: false,

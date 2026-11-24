@@ -212,7 +212,7 @@ test-api: ## Run the tests of the API (on MiniStack: tables, user pool), but tho
 test-storage: ## Run the tests of the storage (on MiniStack); FILTER= a test by name; FAILED=1 those that failed last first, FAIL_FAST=1 stops at the first failure
 	@$(MAKE) -C apps/storage test
 
-test-front: ## Run the tests of the front (Vitest); FILTER= a test file by its path or a part of it, FAIL_FAST=1 stops at the first failure
+test-front: ## Run the tests of the front (Vitest); FILTER= a test file by its path or a part of it, FAIL_FAST=1 stops at the first failure; TEST_WORKERS= the workers (one processor fewer than the container has by default)
 	@$(MAKE) -C apps/front test
 
 # the journeys depend on no service outside the stack: the API asks the double of the geocoder of nginx while they
