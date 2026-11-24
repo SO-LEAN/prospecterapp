@@ -143,6 +143,7 @@ describe('the views of an event storming', () => {
         label: 'IdentifyBookerPolicy',
         name: 'IdentifyBookerPolicy',
         hover: 'Core\\IdentifyBookerPolicy',
+        detail: 'PersonalData',
         faded: true,
       },
       { from: 'event:SlotBooked', to: 'policy:IdentifyBookerPolicy', certain: true },
@@ -184,6 +185,24 @@ describe('the views of an event storming', () => {
         { from: 'policy:ForgetAppointmentPolicy', to: 'module:Appointment', certain: false },
       ],
     ])
+  })
+
+  it('names the context a post-it of another context comes from', () => {
+    const erased = {
+      ...sticky('event', 'ExchangeFactsChanged', null, 'Prospecting'),
+      detail: 'Événement publié',
+    }
+    const policy = sticky('policy', 'ForgetAppointmentPolicy')
+    const model: Model = {
+      context: 'Booking',
+      modules: [],
+      stickies: [erased, policy],
+      links: [link(erased, policy)],
+    }
+
+    const [overview] = viewsOf(model)
+
+    expect(overview?.nodes[0]?.detail).toBe('Prospecting · Événement publié')
   })
 
   it('puts the actor before a use case and the external systems it asks after it', () => {

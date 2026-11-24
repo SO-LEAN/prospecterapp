@@ -7,6 +7,7 @@ export interface ViewNode {
   label: string
   name: string
   hover: string
+  detail: string | null
   faded: boolean
 }
 
@@ -119,7 +120,11 @@ class ViewUnderConstruction {
   private readonly nodes = new Map<string, ViewNode>()
   private readonly edges: ViewEdge[] = []
 
-  constructor(private readonly model: Model) {}
+  private readonly model: Model
+
+  constructor(model: Model) {
+    this.model = model
+  }
 
   sticky(id: string): Sticky {
     const found = this.model.stickies.find((sticky) => sticky.id === id)
@@ -165,6 +170,7 @@ class ViewUnderConstruction {
       label: module,
       name,
       hover: name,
+      detail: null,
       faded: false,
     })
   }
@@ -172,7 +178,10 @@ class ViewUnderConstruction {
   add(key: string, sticky: Sticky, faded = false): void {
     if (this.nodes.has(key)) return
     const hover = [sticky.class ?? sticky.name, sticky.detail].filter((part) => part !== null).join(' — ')
-    this.nodes.set(key, { key, type: sticky.type, label: sticky.label, name: sticky.name, hover, faded })
+    const { type, label, name } = sticky
+    const elsewhere = sticky.context === this.model.context ? null : sticky.context
+    const detail = [elsewhere, sticky.detail].filter((part) => part !== null).join(' · ') || null
+    this.nodes.set(key, { key, type, label, name, hover, detail, faded })
   }
 
   connect(from: string, to: string, certain: boolean): void {

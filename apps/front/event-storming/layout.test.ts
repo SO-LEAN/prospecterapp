@@ -3,7 +3,7 @@ import { layOut } from './layout.ts'
 import type { View, ViewNode } from './views.ts'
 
 function node(key: string, type: ViewNode['type']): ViewNode {
-  return { key, type, label: key, name: key, hover: key, faded: false }
+  return { key, type, label: key, name: key, hover: key, detail: null, faded: false }
 }
 
 const chain: View = {
