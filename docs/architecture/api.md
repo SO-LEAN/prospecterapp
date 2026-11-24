@@ -138,6 +138,7 @@ This document states the rules in force. The decision records (`docs/adr`) expla
 - Links: a resource carries `_links` (HAL, plus `method`). Its presenter builds them from the possible intents in the core's response (`Shared\Links`).
   - Prospecting's links appear only when the member holds the role that their controller requires. The presenter's table declares that role next to the route (`Security\IntentLinks`, ADR 0081, 0088).
   - A link's key is absent when the intent is not possible right now, and the call would then fail (`SKIP_NULL_VALUES` on `_links`, optional in the contract).
+  - Such a link is a nullable parameter of the links resource, written `?LinkResource`. Its `#[OA\Property(description:)]` says what the link does, then when it is offered, in a sentence that starts with "Offered only": `Open the page. Offered only while the page is closed`. The event storming reads that sentence to draw the view's offer (`event-storming.md`). Without it, the wall says "only in some states".
   - Document a new intent as a new link.
 - Errors: a use case refuses with `UseCaseRefused`. `Shared\UseCaseExceptionListener` turns it into an RFC 9457 `application/problem+json` according to its `ErrorType`:
   - `NotFound`: 404;

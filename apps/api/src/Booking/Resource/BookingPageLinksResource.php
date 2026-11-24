@@ -18,11 +18,11 @@ final readonly class BookingPageLinksResource
         public LinkResource $setWindows,
         public LinkResource $addInactivePeriod,
         public LinkResource $offerChannels,
-        #[OA\Property(description: 'Open the page, while it is closed', nullable: false)]
+        #[OA\Property(description: 'Open the page. Offered only while the page is closed', nullable: false)]
         public ?LinkResource $open = null,
-        #[OA\Property(description: 'Close the page at once, while it is open', nullable: false)]
+        #[OA\Property(description: 'Close the page at once. Offered only while the page is open', nullable: false)]
         public ?LinkResource $close = null,
-        #[OA\Property(description: 'Draw a new code for the page\'s link, once it has one', nullable: false)]
+        #[OA\Property(description: 'Draw a new code for the page\'s link. Offered only once the page has a link', nullable: false)]
         public ?LinkResource $changeLink = null,
     ) {
     }
