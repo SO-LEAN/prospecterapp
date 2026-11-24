@@ -53,11 +53,20 @@ describe('the overview of the contexts', () => {
     expect(link?.getAttribute('href')).toBe('booking/#at=published%3ASlotBooked')
   })
 
-  it('draws each context, and an arrow from one context to another it publishes to or asks', () => {
-    expect([
-      document.querySelectorAll('#map .context').length,
-      document.querySelectorAll('#map .relation').length > 0,
-    ]).toEqual([7, true])
+  it('draws each context', () => {
+    expect(document.querySelectorAll('#map .context').length).toBe(7)
+  })
+
+  it('draws an arrow from a context to another one whose policies hear its events', () => {
+    expect(document.querySelector('#map .relation.events title')?.textContent).toMatch(
+      /^\w[\w ]* publishes to \w[\w ]*: \d+$/,
+    )
+  })
+
+  it('draws an arrow from a context to another one whose published services it asks', () => {
+    expect(document.querySelector('#map .relation.services title')?.textContent).toMatch(
+      /^\w[\w ]* asks \w[\w ]*: \d+$/,
+    )
   })
 
   it('loads nothing from outside', () => {
