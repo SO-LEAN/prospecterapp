@@ -9,7 +9,7 @@ GITLEAKS = docker run --rm -u $(UID):$(GID) -e GIT_INDEX_FILE -v $(CURDIR):$(CUR
 	-w $(CURDIR) ghcr.io/gitleaks/gitleaks:v8.30.1
 INFRA_APPS = api storage front
 
-.PHONY: install hooks build vendor db aws ca front-install check-secrets check-infra check-contract check-core check-api check-storage check-front check-e2e check-e2e-locked check-e2e-run e2e-locked front-lint front-tested-build changed-checks infra-target infra-init infra-plan infra-apply infra-lint changed-apps package-api package-storage package-front release-front console start deploy stop down images-prune agents-slice logs ps google-down google-up ci test test-api test-storage test-front e2e test-core mutation mutation-api lint adr-references adr-index adr-index-check fix front-build api-doc contract event-storming commands profiler-clear exec-api exec-front secrets secrets-branch
+.PHONY: install hooks build vendor db aws ca front-install check-secrets check-infra check-contract check-event-storming check-core check-api check-storage check-front check-e2e check-e2e-locked check-e2e-run e2e-locked front-lint front-tested-build changed-checks infra-target infra-init infra-plan infra-apply infra-lint changed-apps package-api package-storage package-front release-front console start deploy stop down images-prune agents-slice logs ps google-down google-up ci test test-api test-storage test-front e2e test-core mutation mutation-api lint adr-references adr-index adr-index-check fix front-build api-doc contract event-storming commands profiler-clear exec-api exec-front secrets secrets-branch
 
 ##@ Setup
 install: hooks build vendor db front-install ## Build the images, install the dependencies, create the tables, the bucket and the user pool, install the Git hooks
@@ -113,7 +113,7 @@ google-up: ## Make the double of Google of the running stack answer again
 # (.github/workflows/ci.yml). The journeys are neither a check of the CI nor of make ci (ADR 0118, 0121): make check-e2e
 # runs them, in a worktree, once its development is done
 BASE ?= origin/dev
-ALL_CHECKS = secrets infra core api storage front contract e2e
+ALL_CHECKS = secrets infra core api storage front contract event-storming e2e
 CHANGED_FILES = { git diff --name-only $$(git merge-base $(BASE) HEAD); git ls-files --others --exclude-standard; }
 CHECKS = $(if $(ALL),$(ALL_CHECKS),$(shell $(CHANGED_FILES) | make/changed-checks.sh))
 ci: export FAIL_FAST = 1
@@ -121,15 +121,20 @@ ci: ## Run the checks of the integration the changes since BASE (origin/dev) nee
 	@echo "Checks: $(CHECKS)$(if $(ALL),, (those of the changes since $(BASE); ALL=1 for every one))"
 	@$(MAKE) build vendor front-install
 	@$(if $(filter contract,$(CHECKS)),$(MAKE) check-contract)
+# the walls written again before the tests of the front, which read their models
+	@$(if $(filter event-storming,$(CHECKS)),$(MAKE) check-event-storming)
 # the MiniStack of the tests, shared by those of the API and the storage: started once, before they would both create it
 	@$(if $(filter api storage,$(CHECKS)),$(MAKE) ministack-test)
-	@$(MAKE) -j --output-sync=recurse $(addprefix check-,$(filter-out contract e2e,$(CHECKS)))
+	@$(MAKE) -j --output-sync=recurse $(addprefix check-,$(filter-out contract event-storming e2e,$(CHECKS)))
 	@$(if $(filter e2e,$(CHECKS)),echo "These changes need the journeys too: make check-e2e in a worktree once the development is done")
 
 # make -j runs together the prerequisites of each check, and the targets each runs in its project
 check-secrets: secrets-branch adr-references adr-index-check ## Check the commits of the branch for secrets, the references to the records, their index
 check-infra: infra-lint ## Check the Terraform of the apps
 check-contract: contract ## Check the OpenAPI contract and the front types against the code
+check-event-storming: event-storming ## Fail when a committed wall, its page or its SVGs differ from the code, naming the files to write again
+	@changed=$$(git status --porcelain -- $(EVENT_STORMING_FILES)); \
+	if [ -n "$$changed" ]; then echo "The walls do not follow the code: run make event-storming, then commit these files:"; echo "$$changed"; exit 1; fi
 
 # The journeys of the machine run one checkout at a time (ADR 0121): beside those of another, they outlast their waits.
 # The lock is in the git directory every checkout shares; a run waiting for it says so
@@ -239,7 +244,7 @@ e2e: ## Run the Playwright journeys against the running stack, the API on the do
 e2e-locked:
 	@$(E2E_SETUP) && $(FRONT_E2E)
 
-mutation: ## Mutate the lines the branch adds since BASE (origin/dev) in the core and the front, list the mutants their tests let survive; fail when the core skips one (ADR 0091, 0196)
+mutation: ## Mutate the lines the branch adds since BASE (origin/dev) in the core, the front and the event storming's generator, list the mutants their tests let survive; fail when the core skips one (ADR 0091, 0196)
 	@$(MAKE) -C packages/core mutation
 	@$(MAKE) -C apps/front mutation
 
