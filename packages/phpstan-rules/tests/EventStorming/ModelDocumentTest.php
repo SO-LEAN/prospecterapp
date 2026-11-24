@@ -25,6 +25,17 @@ final class ModelDocumentTest extends TestCase
         self::assertSame([['Shop', 'command:'.self::ADD_ITEM], ['Till', 'command:'.self::PAY]], self::contextsAndFirstStickiesOf($document));
     }
 
+    public function testTheDocumentWarnsOfTheUseCasesNoFeatureNamesAndOfTheFeaturesThatNameNone(): void
+    {
+        $document = (array) json_decode(self::document()->of(self::facts(), []), true, flags: \JSON_THROW_ON_ERROR);
+
+        self::assertSame([
+            'Shop: no feature names the use case AddItem',
+            'Till: no feature names the use case Pay',
+            'No use case is named by the tags of the feature payer.feature',
+        ], $document['warnings'] ?? null);
+    }
+
     public function testAnAnalysisThatReadNoFactsGivesNoDocument(): void
     {
         $this->expectException(UnreadableCode::class);

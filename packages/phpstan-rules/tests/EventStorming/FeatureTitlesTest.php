@@ -18,4 +18,9 @@ final class FeatureTitlesTest extends TestCase
             new FeatureTitles(self::FEATURES)->byUseCase(),
         );
     }
+
+    public function testAFeatureThatNamesNoUseCaseIsUntagged(): void
+    {
+        self::assertSame(['payer.feature'], new FeatureTitles(self::FEATURES)->untagged());
+    }
 }

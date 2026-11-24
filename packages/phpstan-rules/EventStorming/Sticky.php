@@ -35,6 +35,11 @@ final readonly class Sticky implements \JsonSerializable
     ) {
     }
 
+    public function isAUseCase(): bool
+    {
+        return \in_array($this->type, [StickyType::Command, StickyType::ReadModel], true);
+    }
+
     /**
      * @return array<string, string|list<string>|list<Elsewhere>|null>
      */
