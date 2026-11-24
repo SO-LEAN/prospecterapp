@@ -1,4 +1,5 @@
-import { readdirSync, readFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import type { Model } from './model.ts'
 import { svgsOf } from './svg.ts'
@@ -7,6 +8,17 @@ import { svgsOf } from './svg.ts'
 const BOOKING = JSON.parse(readFileSync('public/docs/event-storming/booking/model.json', 'utf8')) as Model
 
 const svgs = svgsOf(BOOKING, 'AAAA')
+
+/**
+ * The repository's folder of the walls' SVGs, found up from where the tests run: the front's folder, or a copy of it
+ * deeper down, as Stryker makes one.
+ */
+function svgFolder(from = process.cwd()): string {
+  const folder = join(from, 'docs/event-storming')
+  if (existsSync(folder)) return folder
+  if (dirname(from) === from) throw new Error('No docs/event-storming above the tests')
+  return svgFolder(dirname(from))
+}
 
 describe('the SVGs of a wall', () => {
   it('draws the whole wall and each of its lanes', () => {
@@ -27,7 +39,7 @@ describe('the SVGs of a wall', () => {
     )
   })
 
-  for (const folder of readdirSync('../../docs/event-storming')) {
+  for (const folder of readdirSync(svgFolder())) {
     it(`draws the wall of ${folder} the repository holds, which make event-storming wrote`, () => {
       const model = JSON.parse(
         readFileSync(`public/docs/event-storming/${folder}/model.json`, 'utf8'),
@@ -35,7 +47,7 @@ describe('the SVGs of a wall', () => {
       const font = readFileSync('event-storming/font/patrick-hand.woff2').toString('base64')
 
       expect(svgsOf(model, font)['wall.svg']).toBe(
-        readFileSync(`../../docs/event-storming/${folder}/wall.svg`, 'utf8'),
+        readFileSync(join(svgFolder(), folder, 'wall.svg'), 'utf8'),
       )
     })
   }
