@@ -17,8 +17,8 @@ use App\Shared\Links;
 use App\Shared\Resource\LinkResource;
 use Prospecter\Core\Campaigns\Application\CampaignSheet;
 use Prospecter\Core\Campaigns\Application\RecipientInSheet;
-use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersons;
-use Prospecter\Core\PersonalData\Application\ConsultPersons\KeptPersons;
+use Prospecter\Core\PersonalData\Application\Person\ConsultPersons\ConsultPersons;
+use Prospecter\Core\PersonalData\Application\Person\ConsultPersons\KeptPersons;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 

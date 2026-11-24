@@ -8,7 +8,7 @@ use App\PersonalData\Input\PersonContactDetailsInput;
 use App\Shared\Mcp\Adapts;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
-use Prospecter\Core\PersonalData\Application\ChangePersonContactDetails\ChangePersonContactDetails;
+use Prospecter\Core\PersonalData\Application\Person\ChangePersonContactDetails\ChangePersonContactDetails;
 
 /**
  * `PATCH /api/me/contact-details`, for an AI (ADR 0163).

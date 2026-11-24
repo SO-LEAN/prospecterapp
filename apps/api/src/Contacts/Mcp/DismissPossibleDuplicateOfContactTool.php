@@ -11,7 +11,7 @@ use App\Shared\Mcp\Adapts;
 use App\Shared\Mcp\ToolResults;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
-use Prospecter\Core\PersonalData\Application\DismissPossibleDuplicate\DismissPossibleDuplicate;
+use Prospecter\Core\PersonalData\Application\Duplicate\DismissPossibleDuplicate\DismissPossibleDuplicate;
 use Symfony\Component\Clock\ClockInterface;
 
 /**

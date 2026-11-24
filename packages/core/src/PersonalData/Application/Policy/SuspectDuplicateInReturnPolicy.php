@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\PersonalData\Application\Policy;
 
-use Prospecter\Core\PersonalData\Application\SuspectDuplicateInReturn\SuspectDuplicateInReturn;
+use Prospecter\Core\PersonalData\Application\Duplicate\SuspectDuplicateInReturn\SuspectDuplicateInReturn;
 use Prospecter\Core\PersonalData\Domain\Event\DuplicateSuspected;
 use Prospecter\Core\SharedKernel\Application\Handler\Policy;
 

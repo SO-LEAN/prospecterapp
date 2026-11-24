@@ -9,7 +9,7 @@ use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\PersonalData\Application\Port\ContactPageRetriever;
 use Prospecter\Core\PersonalData\Application\Port\MemberPresentationRetriever;
 use Prospecter\Core\PersonalData\Application\Port\PersonCardRetriever;
-use Prospecter\Core\PersonalData\Application\PresentMembers\MemberPresentation;
+use Prospecter\Core\PersonalData\Application\Profile\MemberPresentation;
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
 use Prospecter\Core\PersonalData\Domain\Model\ContactCard;
 use Prospecter\Core\PersonalData\Domain\Model\ContactsIntent;

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\PersonalData\Application\Policy;
 
-use Prospecter\Core\PersonalData\Application\ForgetContactsLeftWithoutOrganization\ForgetContactsLeftWithoutOrganization;
+use Prospecter\Core\PersonalData\Application\Contact\ForgetContactsLeftWithoutOrganization\ForgetContactsLeftWithoutOrganization;
 use Prospecter\Core\Prospecting\Contract\Event\ContactsLeftWithoutOrganization;
 use Prospecter\Core\SharedKernel\Application\Handler\Policy;
 

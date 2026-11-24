@@ -6,8 +6,8 @@ namespace Tests\App\Api;
 
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Model\Role;
-use Prospecter\Core\PersonalData\Application\CollectContact\CollectContact;
-use Prospecter\Core\PersonalData\Application\CompleteContact\CompleteContact;
+use Prospecter\Core\PersonalData\Application\Contact\CollectContact\CollectContact;
+use Prospecter\Core\PersonalData\Application\Contact\CompleteContact\CompleteContact;
 use Prospecter\Core\Prospecting\Application\AddContact\AddContact;
 use Prospecter\Core\Prospecting\Application\CompleteOrganization\CompleteOrganization;
 use Prospecter\Core\Prospecting\Application\StartProspecting\StartProspecting;

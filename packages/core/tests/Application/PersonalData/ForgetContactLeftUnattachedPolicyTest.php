@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Core\Application\PersonalData;
 
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\PersonalData\Application\ForgetContactLeftUnattached\ForgetContactLeftUnattached;
+use Prospecter\Core\PersonalData\Application\Contact\ForgetContactLeftUnattached\ForgetContactLeftUnattached;
 use Prospecter\Core\PersonalData\Application\Policy\ForgetContactLeftUnattachedPolicy;
 use Prospecter\Core\Prospecting\Contract\Event\ContactLeftUnattached;
 

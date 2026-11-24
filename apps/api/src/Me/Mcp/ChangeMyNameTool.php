@@ -8,7 +8,7 @@ use App\PersonalData\Input\PersonNameInput;
 use App\Shared\Mcp\Adapts;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
-use Prospecter\Core\PersonalData\Application\RenamePerson\RenamePerson;
+use Prospecter\Core\PersonalData\Application\Person\RenamePerson\RenamePerson;
 
 /**
  * `PATCH /api/me/name`, for an AI (ADR 0163).

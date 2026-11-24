@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\PersonalData\Application\Port;
 
-use Prospecter\Core\PersonalData\Application\SearchContacts\ContactPage;
+use Prospecter\Core\PersonalData\Application\Contact\ContactPage;
 use Prospecter\Core\PersonalData\Domain\Model\Reader;
 use Prospecter\Core\SharedKernel\Domain\Search\SearchKey;
 

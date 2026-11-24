@@ -17,7 +17,7 @@ use App\Shared\Resource\AddressResource;
 use App\Shared\Resource\LegalIdentityResource;
 use App\Shared\Resource\LocationResource;
 use Prospecter\Core\Accounts\Application\Account\MyAccount;
-use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPersonOutput;
+use Prospecter\Core\PersonalData\Application\Person\ConsultPerson\ConsultPersonOutput;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 
 /**

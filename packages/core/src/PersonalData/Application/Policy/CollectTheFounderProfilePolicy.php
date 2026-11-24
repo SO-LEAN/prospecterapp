@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\PersonalData\Application\Policy;
 
 use Prospecter\Core\Accounts\Contract\Event\AccountOpened;
-use Prospecter\Core\PersonalData\Application\CollectTheFounderProfile\CollectTheFounderProfile;
+use Prospecter\Core\PersonalData\Application\Profile\CollectTheFounderProfile\CollectTheFounderProfile;
 use Prospecter\Core\SharedKernel\Application\Handler\Policy;
 
 /**

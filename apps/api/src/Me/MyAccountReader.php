@@ -10,7 +10,7 @@ use App\Shared\ImageResourceFactory;
 use App\Shared\Links;
 use Prospecter\Core\Accounts\Application\Account\ConsultMyAccount\ConsultMyAccount;
 use Prospecter\Core\Accounts\Application\Account\ConsultMyAccount\KeptAccount;
-use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPerson;
+use Prospecter\Core\PersonalData\Application\Person\ConsultPerson\ConsultPerson;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 
 /**

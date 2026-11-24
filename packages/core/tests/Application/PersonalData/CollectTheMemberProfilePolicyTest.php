@@ -6,8 +6,8 @@ namespace Tests\Core\Application\PersonalData;
 
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Accounts\Contract\Event\MemberRegistered;
-use Prospecter\Core\PersonalData\Application\CollectTheMemberProfile\CollectTheMemberProfile;
 use Prospecter\Core\PersonalData\Application\Policy\CollectTheMemberProfilePolicy;
+use Prospecter\Core\PersonalData\Application\Profile\CollectTheMemberProfile\CollectTheMemberProfile;
 
 class CollectTheMemberProfilePolicyTest extends TestCase
 {

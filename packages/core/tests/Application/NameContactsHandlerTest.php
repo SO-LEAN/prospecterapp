@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Core\Application;
 
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\PersonalData\Application\NameContacts\NameContactsHandler;
+use Prospecter\Core\PersonalData\Application\Contact\NameContacts\NameContactsHandler;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\PersonalData\Application\Port\PersonCardRetriever;
 use Prospecter\Core\PersonalData\Contract\Service\NameContacts\ContactNameResponse;
