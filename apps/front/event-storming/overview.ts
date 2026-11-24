@@ -29,7 +29,7 @@ const MAP = { width: 760, height: 560, radius: 210, box: { w: 150, h: 52 } } as 
  * contexts that hear its events.
  */
 export function overviewOf(models: Model[], assets: Assets): string {
-  const sorted = [...models].sort((a, b) => a.context.localeCompare(b.context))
+  const sorted = [...models].sort((a, b) => a.context.localeCompare(b.context, 'en'))
   const published = sorted.flatMap(publishedBy)
   const asked = sorted.flatMap(askedBy)
   return `<!doctype html>
@@ -70,7 +70,7 @@ function publishedBy(model: Model): Published[] {
         pair.policy.context !== model.context,
     )
     .map(({ event, policy }) => ({ from: model.context, event, to: policy.context, policy }))
-    .sort((a, b) => `${a.event.label}|${a.to}`.localeCompare(`${b.event.label}|${b.to}`))
+    .sort((a, b) => `${a.event.label}|${a.to}`.localeCompare(`${b.event.label}|${b.to}`, 'en'))
 }
 
 function askedBy(model: Model): Asked[] {
@@ -90,7 +90,7 @@ function askedBy(model: Model): Asked[] {
             ],
       ),
     )
-    .sort((a, b) => `${a.port.label}|${a.to}`.localeCompare(`${b.port.label}|${b.to}`))
+    .sort((a, b) => `${a.port.label}|${a.to}`.localeCompare(`${b.port.label}|${b.to}`, 'en'))
 }
 
 function contextOf(model: Model): string {
