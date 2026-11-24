@@ -9,8 +9,10 @@ use Prospecter\Core\Booking\Application\Appointment\ConsultAppointments\ConsultA
 use Prospecter\Core\Booking\Application\Appointment\ForgetAppointmentOfErasedExchange\ForgetAppointmentOfErasedExchange;
 use Prospecter\Core\Booking\Application\Appointment\PublishSlotBooked\PublishSlotBookedHandler;
 use Prospecter\Core\Booking\Application\BookingPage\ConsultMyBookingPage\ConsultMyBookingPage;
+use Prospecter\Core\Booking\Application\BookingPage\ConsultMyBookingPage\ConsultMyBookingPageOutput;
 use Prospecter\Core\Booking\Application\BookingPage\MyBookingPage;
 use Prospecter\Core\Booking\Application\BookingPage\OpenBooking\OpenBooking;
+use Prospecter\Core\Booking\Application\BookingPage\SetWeeklyWindows\SetWeeklyWindows;
 use Prospecter\Core\Booking\Application\Policy\ForgetAppointmentOfErasedExchangePolicy;
 use Prospecter\Core\Booking\Application\PublicLink\BookSlot\BookSlot;
 use Prospecter\Core\Booking\Contract\Event as Published;
@@ -29,6 +31,7 @@ use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Handler\Policy;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
+use Prospecter\PHPStan\EventStorming\Argument;
 use Prospecter\PHPStan\EventStorming\Call;
 use Prospecter\PHPStan\EventStorming\ClassFacts;
 use Prospecter\PHPStan\EventStorming\ContextStorming;
@@ -93,6 +96,20 @@ final class ContextStormingTest extends TestCase
 
     private const string EXCHANGE_FACTS_CHANGED = ExchangeFactsChanged::class;
 
+    private const string SET_WEEKLY_WINDOWS = SetWeeklyWindows::class;
+
+    private const string MY_BOOKING_PAGE_OUTPUT = ConsultMyBookingPageOutput::class;
+
+    private const string MY_BOOKING_PAGE_PRESENTER = 'App\Booking\BookingPageResourcePresenter';
+
+    private const string MY_BOOKING_PAGE_LINKS = 'App\Booking\Resource\BookingPageLinksResource';
+
+    private const string SET_WINDOWS_CONTROLLER = 'App\Booking\Controller\SetWeeklyWindowsController';
+
+    private const string SET_WINDOWS_ROUTE = 'api_booking_page_set_windows';
+
+    private const string OPEN_ROUTE = 'api_booking_page_open';
+
     public function testACommandIsTheMessageOfItsHandlerInItsModule(): void
     {
         $model = self::modelOf(new Facts([self::handlerOf(self::OPEN_BOOKING)], []));
@@ -119,8 +136,8 @@ final class ContextStormingTest extends TestCase
         ]));
 
         self::assertSame([
-            ['from' => 'aggregate:'.self::BOOKING_PAGE, 'to' => 'event:'.self::BOOKING_OPENED, 'via' => 'open', 'certain' => true],
-            ['from' => 'command:'.self::OPEN_BOOKING, 'to' => 'aggregate:'.self::BOOKING_PAGE, 'via' => 'open', 'certain' => true],
+            ['from' => 'aggregate:'.self::BOOKING_PAGE, 'to' => 'event:'.self::BOOKING_OPENED, 'via' => 'open', 'certain' => true, 'when' => null],
+            ['from' => 'command:'.self::OPEN_BOOKING, 'to' => 'aggregate:'.self::BOOKING_PAGE, 'via' => 'open', 'certain' => true, 'when' => null],
         ], self::linksOf($model));
     }
 
@@ -141,7 +158,7 @@ final class ContextStormingTest extends TestCase
         ]));
 
         self::assertSame(
-            ['from' => 'aggregate:'.self::BOOKING_PAGE, 'to' => 'event:'.self::BOOKING_OPENED, 'via' => 'open', 'certain' => false],
+            ['from' => 'aggregate:'.self::BOOKING_PAGE, 'to' => 'event:'.self::BOOKING_OPENED, 'via' => 'open', 'certain' => false, 'when' => null],
             self::linksOf($model)[0] ?? null,
         );
     }
@@ -156,8 +173,8 @@ final class ContextStormingTest extends TestCase
         ]));
 
         self::assertSame([
-            ['from' => 'aggregate:'.self::BOOKING_PAGE, 'to' => 'event:'.self::SLOT_BOOKED, 'via' => 'book', 'certain' => true],
-            ['from' => 'command:'.self::BOOK_SLOT, 'to' => 'aggregate:'.self::BOOKING_PAGE, 'via' => 'book', 'certain' => true],
+            ['from' => 'aggregate:'.self::BOOKING_PAGE, 'to' => 'event:'.self::SLOT_BOOKED, 'via' => 'book', 'certain' => true, 'when' => null],
+            ['from' => 'command:'.self::BOOK_SLOT, 'to' => 'aggregate:'.self::BOOKING_PAGE, 'via' => 'book', 'certain' => true, 'when' => null],
         ], self::linksOf($model));
     }
 
@@ -166,8 +183,8 @@ final class ContextStormingTest extends TestCase
         $model = self::modelOf(new Facts([new ClassFacts(self::FORGET_POLICY, interfaces: [self::POLICY], parameters: [[self::EXCHANGE_FACTS_CHANGED]], returns: [self::FORGET_APPOINTMENT])], []));
 
         self::assertSame([
-            ['from' => 'event:'.self::EXCHANGE_FACTS_CHANGED, 'to' => 'policy:'.self::FORGET_POLICY, 'via' => null, 'certain' => true],
-            ['from' => 'policy:'.self::FORGET_POLICY, 'to' => 'command:'.self::FORGET_APPOINTMENT, 'via' => null, 'certain' => true],
+            ['from' => 'event:'.self::EXCHANGE_FACTS_CHANGED, 'to' => 'policy:'.self::FORGET_POLICY, 'via' => null, 'certain' => true, 'when' => null],
+            ['from' => 'policy:'.self::FORGET_POLICY, 'to' => 'command:'.self::FORGET_APPOINTMENT, 'via' => null, 'certain' => true, 'when' => null],
         ], self::linksOf($model));
     }
 
@@ -176,7 +193,7 @@ final class ContextStormingTest extends TestCase
         $model = self::modelOf(new Facts([new ClassFacts(self::FORGET_POLICY, interfaces: [self::POLICY], parameters: [[self::EXCHANGE_FACTS_CHANGED]], returns: [self::FORGET_APPOINTMENT], mayReturnNothing: true)], []));
 
         self::assertSame(
-            ['from' => 'policy:'.self::FORGET_POLICY, 'to' => 'command:'.self::FORGET_APPOINTMENT, 'via' => null, 'certain' => false],
+            ['from' => 'policy:'.self::FORGET_POLICY, 'to' => 'command:'.self::FORGET_APPOINTMENT, 'via' => null, 'certain' => false, 'when' => null],
             self::linksOf($model)[1] ?? null,
         );
     }
@@ -188,8 +205,8 @@ final class ContextStormingTest extends TestCase
         ]));
 
         self::assertSame([
-            ['from' => 'event:'.self::SLOT_BOOKED, 'to' => 'policy:'.self::PUBLISH_SLOT_BOOKED, 'via' => null, 'certain' => true],
-            ['from' => 'policy:'.self::PUBLISH_SLOT_BOOKED, 'to' => 'event:'.self::PUBLISHED_SLOT_BOOKED, 'via' => null, 'certain' => true],
+            ['from' => 'event:'.self::SLOT_BOOKED, 'to' => 'policy:'.self::PUBLISH_SLOT_BOOKED, 'via' => null, 'certain' => true, 'when' => null],
+            ['from' => 'policy:'.self::PUBLISH_SLOT_BOOKED, 'to' => 'event:'.self::PUBLISHED_SLOT_BOOKED, 'via' => null, 'certain' => true, 'when' => null],
         ], self::linksOf($model));
     }
 
@@ -248,7 +265,7 @@ final class ContextStormingTest extends TestCase
         self::assertSame(
             [
                 ['id' => 'externalSystem:'.self::CONNECTED_CALENDARS, 'slug' => 'externalSystem:ConnectedCalendars', 'type' => 'externalSystem', 'label' => 'Connected calendars', 'feature' => null, 'name' => 'ConnectedCalendars', 'class' => self::CONNECTED_CALENDARS, 'context' => 'Booking', 'module' => null, 'detail' => 'ConnectorsConnectedCalendars', 'answeredBy' => ['Connectors']],
-                ['from' => 'command:'.self::OPEN_BOOKING, 'to' => 'externalSystem:'.self::CONNECTED_CALENDARS, 'via' => null, 'certain' => true],
+                ['from' => 'command:'.self::OPEN_BOOKING, 'to' => 'externalSystem:'.self::CONNECTED_CALENDARS, 'via' => null, 'certain' => true, 'when' => null],
             ],
             [self::stickyOf($model, 'externalSystem:'.self::CONNECTED_CALENDARS), self::linksOf($model)[0] ?? null],
         );
@@ -262,7 +279,7 @@ final class ContextStormingTest extends TestCase
         ], []));
 
         self::assertSame(
-            [['from' => 'readModel:'.self::CONSULT_MY_BOOKING_PAGE, 'to' => 'externalSystem:'.self::HOST_AGENDAS, 'via' => null, 'certain' => true]],
+            [['from' => 'readModel:'.self::CONSULT_MY_BOOKING_PAGE, 'to' => 'externalSystem:'.self::HOST_AGENDAS, 'via' => null, 'certain' => true, 'when' => null]],
             self::linksOf($model),
         );
     }
@@ -277,7 +294,7 @@ final class ContextStormingTest extends TestCase
         self::assertSame(
             [
                 ['id' => 'actor:ROLE_USER', 'slug' => 'actor:ROLE_USER', 'type' => 'actor', 'label' => 'Member', 'feature' => null, 'name' => 'ROLE_USER', 'class' => null, 'context' => 'Booking', 'module' => null, 'detail' => null, 'answeredBy' => []],
-                ['from' => 'actor:ROLE_USER', 'to' => 'command:'.self::OPEN_BOOKING, 'via' => null, 'certain' => true],
+                ['from' => 'actor:ROLE_USER', 'to' => 'command:'.self::OPEN_BOOKING, 'via' => null, 'certain' => true, 'when' => null],
             ],
             [self::stickyOf($model, 'actor:ROLE_USER'), self::linksOf($model)[0] ?? null],
         );
@@ -293,7 +310,7 @@ final class ContextStormingTest extends TestCase
         self::assertSame(
             [
                 ['id' => 'actor:public', 'slug' => 'actor:public', 'type' => 'actor', 'label' => 'Anyone with the link', 'feature' => null, 'name' => 'public', 'class' => null, 'context' => 'Booking', 'module' => null, 'detail' => null, 'answeredBy' => []],
-                ['from' => 'actor:public', 'to' => 'command:'.self::BOOK_SLOT, 'via' => null, 'certain' => true],
+                ['from' => 'actor:public', 'to' => 'command:'.self::BOOK_SLOT, 'via' => null, 'certain' => true, 'when' => null],
             ],
             [self::stickyOf($model, 'actor:public'), self::linksOf($model)[0] ?? null],
         );
@@ -309,7 +326,7 @@ final class ContextStormingTest extends TestCase
             new Call(self::MY_BOOKING_PAGE_READER, 'read', self::CONSULT_MY_BOOKING_PAGE, Call::CREATION),
         ]));
 
-        self::assertSame([['from' => 'actor:ROLE_USER', 'to' => 'readModel:'.self::CONSULT_MY_BOOKING_PAGE, 'via' => null, 'certain' => true]], self::linksOf($model));
+        self::assertSame([['from' => 'actor:ROLE_USER', 'to' => 'readModel:'.self::CONSULT_MY_BOOKING_PAGE, 'via' => null, 'certain' => true, 'when' => null]], self::linksOf($model));
     }
 
     public function testAToolOfTheMcpServerIsTheMembersAi(): void
@@ -322,10 +339,47 @@ final class ContextStormingTest extends TestCase
         self::assertSame(
             [
                 ['id' => 'actor:mcp', 'slug' => 'actor:mcp', 'type' => 'actor', 'label' => 'Member\'s AI', 'feature' => null, 'name' => 'mcp', 'class' => null, 'context' => 'Booking', 'module' => null, 'detail' => null, 'answeredBy' => []],
-                ['from' => 'actor:mcp', 'to' => 'command:'.self::OPEN_BOOKING, 'via' => null, 'certain' => true],
+                ['from' => 'actor:mcp', 'to' => 'command:'.self::OPEN_BOOKING, 'via' => null, 'certain' => true, 'when' => null],
             ],
             [self::stickyOf($model, 'actor:mcp'), self::linksOf($model)[0] ?? null],
         );
+    }
+
+    public function testAViewOffersTheCommandsItsPresenterLinksTo(): void
+    {
+        $model = self::modelOf(self::myBookingPageOffering(['setWindows' => self::SET_WINDOWS_ROUTE]));
+
+        self::assertContains(
+            ['from' => 'readModel:'.self::CONSULT_MY_BOOKING_PAGE, 'to' => 'command:'.self::SET_WEEKLY_WINDOWS, 'via' => 'setWindows', 'certain' => true, 'when' => null],
+            self::linksOf($model),
+        );
+    }
+
+    public function testAViewOffersACommandOnlyWhileItsLinksResourceSaysSo(): void
+    {
+        $model = self::modelOf(self::myBookingPageOffering(['open' => self::OPEN_ROUTE], ['open' => 'Open the page. Offered only while the page is closed']));
+
+        self::assertContains(
+            ['from' => 'readModel:'.self::CONSULT_MY_BOOKING_PAGE, 'to' => 'command:'.self::OPEN_BOOKING, 'via' => 'open', 'certain' => false, 'when' => 'while the page is closed'],
+            self::linksOf($model),
+        );
+    }
+
+    public function testAConditionTheLinksResourceDoesNotWriteIsUnknown(): void
+    {
+        $model = self::modelOf(self::myBookingPageOffering(['open' => self::OPEN_ROUTE], ['open' => 'Open the page, while it is closed']));
+
+        self::assertContains(
+            ['from' => 'readModel:'.self::CONSULT_MY_BOOKING_PAGE, 'to' => 'command:'.self::OPEN_BOOKING, 'via' => 'open', 'certain' => false, 'when' => null],
+            self::linksOf($model),
+        );
+    }
+
+    public function testATextThatNamesNoRouteOffersNothing(): void
+    {
+        $model = self::modelOf(self::myBookingPageOffering(['setWindows' => 'a week']));
+
+        self::assertSame([], array_values(array_filter(self::linksOf($model), static fn (array $link): bool => str_starts_with($link['from'], 'readModel:'))));
     }
 
     public function testTheOtherContextsReactToAPublishedEventByTheirSubscriptions(): void
@@ -343,7 +397,7 @@ final class ContextStormingTest extends TestCase
         self::assertSame(
             [
                 ['id' => 'policy:'.self::IDENTIFY_BOOKER, 'slug' => 'PersonalData/policy:IdentifyBookerPolicy', 'type' => 'policy', 'label' => 'Identify booker', 'feature' => null, 'name' => 'IdentifyBookerPolicy', 'class' => self::IDENTIFY_BOOKER, 'context' => 'PersonalData', 'module' => null, 'detail' => null, 'answeredBy' => []],
-                ['from' => 'event:'.self::PUBLISHED_SLOT_BOOKED, 'to' => 'policy:'.self::IDENTIFY_BOOKER, 'via' => null, 'certain' => true],
+                ['from' => 'event:'.self::PUBLISHED_SLOT_BOOKED, 'to' => 'policy:'.self::IDENTIFY_BOOKER, 'via' => null, 'certain' => true, 'when' => null],
             ],
             [self::stickyOf($model, 'policy:'.self::IDENTIFY_BOOKER), self::linksOf($model)[0] ?? null],
         );
@@ -380,6 +434,30 @@ final class ContextStormingTest extends TestCase
     }
 
     /**
+     * The member's booking page, its presenter offering a link on each parameter of its links resource to a route,
+     * and the controller of each route sending its command.
+     *
+     * @param array<string, string> $routes   the route of each link, by the links resource's parameter
+     * @param array<string, string> $optional the description of each link the resource may go without
+     */
+    private static function myBookingPageOffering(array $routes, array $optional = []): Facts
+    {
+        $controllers = [self::SET_WINDOWS_ROUTE => [self::SET_WINDOWS_CONTROLLER, self::SET_WEEKLY_WINDOWS], self::OPEN_ROUTE => [self::OPEN_BOOKING_CONTROLLER, self::OPEN_BOOKING]];
+        $classes = [
+            new ClassFacts(self::CONSULT_MY_BOOKING_PAGE.'Handler', interfaces: [self::QUERY_HANDLER], parameters: [[self::CONSULT_MY_BOOKING_PAGE], [self::MY_BOOKING_PAGE_OUTPUT]], outputPorts: [self::MY_BOOKING_PAGE_OUTPUT]),
+            new ClassFacts(self::MY_BOOKING_PAGE_PRESENTER, interfaces: [self::MY_BOOKING_PAGE_OUTPUT]),
+            new ClassFacts(self::MY_BOOKING_PAGE_LINKS, optionalParameters: $optional),
+            self::handlerOf(self::SET_WEEKLY_WINDOWS),
+            self::handlerOf(self::OPEN_BOOKING),
+            ...array_map(static fn (string $route, array $controller): ClassFacts => new ClassFacts($controller[0], roles: ['ROLE_USER'], routes: [$route]), array_keys($controllers), $controllers),
+        ];
+        $calls = array_map(static fn (array $controller): Call => new Call($controller[0], '__invoke', $controller[1], Call::CREATION), array_values($controllers));
+        $arguments = array_map(static fn (string $parameter, string $route): Argument => new Argument(self::MY_BOOKING_PAGE_PRESENTER, self::MY_BOOKING_PAGE_LINKS, $parameter, [$route]), array_keys($routes), $routes);
+
+        return new Facts($classes, $calls, $arguments);
+    }
+
+    /**
      * @param list<string> $dependencies
      */
     private static function handlerOf(string $command, array $dependencies = []): ClassFacts
@@ -405,7 +483,7 @@ final class ContextStormingTest extends TestCase
     }
 
     /**
-     * @return list<array{from: string, to: string, via: string|null, certain: bool}>
+     * @return list<array{from: string, to: string, via: string|null, certain: bool, when: string|null}>
      */
     private static function linksOf(Model $model): array
     {
