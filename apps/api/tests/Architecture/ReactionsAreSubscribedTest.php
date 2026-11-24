@@ -15,8 +15,8 @@ use Prospecter\Core\SharedKernel\Application\Handler\Policy;
 /**
  * The reactions live in one list, `config/subscriptions.json`, read by Symfony and by the infrastructure. Every policy
  * of the core is a subscription of that list, which listens only to the events its signature takes (ADR 0203). An
- * event handler of the core is either a translator publishing a domain event to the other contexts, or a subscription
- * of that list, until it becomes a policy. A domain event never leaves its context (ADR 0046).
+ * event handler of the core only translates: it publishes a domain event to the other contexts. A domain event never
+ * leaves its context (ADR 0046).
  */
 class ReactionsAreSubscribedTest extends TestCase
 {
@@ -25,15 +25,11 @@ class ReactionsAreSubscribedTest extends TestCase
     /** The contexts the API serves, whose handlers `config/services.yaml` loads. */
     private const string SERVED_CONTEXTS = '{Accounts,Booking,Campaigns,Connectors,PersonalData,Prospecting,Reporting}';
 
-    public function testEveryEventHandlerIsATranslatorOrASubscription(): void
+    public function testEveryEventHandlerIsATranslator(): void
     {
-        $subscribed = $this->handlersOfTheSubscriptions();
-        $undeclared = array_filter(
-            $this->eventHandlersOfTheCore(),
-            static fn (string $handler): bool => !preg_match(SubscriptionsPass::TRANSLATOR, $handler) && !in_array($handler, $subscribed, true),
-        );
+        $reactions = array_filter($this->eventHandlersOfTheCore(), static fn (string $handler): bool => !preg_match(SubscriptionsPass::TRANSLATOR, $handler));
 
-        $this->assertSame([], array_values($undeclared), 'reactions missing from config/subscriptions.json');
+        $this->assertSame([], array_values($reactions), 'event handlers that react instead of a policy');
     }
 
     public function testEveryPolicyIsSubscribed(): void
@@ -52,10 +48,6 @@ class ReactionsAreSubscribedTest extends TestCase
     public function testASubscriptionListensToTheEventsItsPolicyTakes(): void
     {
         foreach ($this->subscriptions() as $name => $subscription) {
-            if (!isset($subscription['policy'])) {
-                continue;
-            }
-
             $taken = self::eventsTakenBy($subscription['policy']);
 
             foreach ($subscription['events'] as $detailType) {
@@ -65,29 +57,12 @@ class ReactionsAreSubscribedTest extends TestCase
         }
     }
 
-    public function testASubscriptionNamesAKnownReaction(): void
-    {
-        $reactions = array_filter($this->eventHandlersOfTheCore(), static fn (string $handler): bool => !preg_match(SubscriptionsPass::TRANSLATOR, $handler));
-        $unknown = array_diff($this->handlersOfTheSubscriptions(), $reactions, $this->policiesOfTheCore());
-
-        $this->assertSame([], array_values($unknown));
-    }
-
     public function testASubscriptionIsNamedAfterTheContextOfItsReaction(): void
     {
         foreach ($this->subscriptions() as $name => $subscription) {
-            foreach (self::handlersOf($subscription) as $handler) {
-                $this->assertSame(self::contextOf($handler), $subscription['context'], $name);
-            }
+            $this->assertSame(self::contextOf($subscription['policy']), $subscription['context'], $name);
 
             $this->assertStringStartsWith($subscription['context'].'-', $name);
-        }
-    }
-
-    public function testASubscriptionNamesItsPolicyOrItsHandler(): void
-    {
-        foreach ($this->subscriptions() as $name => $subscription) {
-            $this->assertNotSame(isset($subscription['handler']), isset($subscription['policy']), $name);
         }
     }
 
@@ -127,16 +102,6 @@ class ReactionsAreSubscribedTest extends TestCase
     }
 
     /**
-     * @param array{events: list<string>, handler?: string, policy?: string} $subscription
-     *
-     * @return list<string> its reaction: its policy, or its event handler
-     */
-    private static function handlersOf(array $subscription): array
-    {
-        return [$subscription['handler'] ?? $subscription['policy'] ?? ''];
-    }
-
-    /**
      * @param list<string> $sources
      *
      * @return list<string> the classes a detail-type is read as, from any of the sources
@@ -170,7 +135,7 @@ class ReactionsAreSubscribedTest extends TestCase
      */
     private function policiesOfTheSubscriptions(): array
     {
-        return array_values(array_filter(array_column($this->subscriptions(), 'policy')));
+        return array_column($this->subscriptions(), 'policy');
     }
 
     /**
@@ -193,15 +158,7 @@ class ReactionsAreSubscribedTest extends TestCase
     }
 
     /**
-     * @return list<string>
-     */
-    private function handlersOfTheSubscriptions(): array
-    {
-        return array_merge(...array_values(array_map(self::handlersOf(...), $this->subscriptions())));
-    }
-
-    /**
-     * @return array<string, array{context: string, sources: list<string>, events: list<string>, handler?: string, policy?: string, inbox: bool}>
+     * @return array<string, array{context: string, sources: list<string>, events: list<string>, policy: string, inbox: bool}>
      */
     private function subscriptions(): array
     {
