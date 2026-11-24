@@ -95,12 +95,21 @@ Natural persons' personal data, and who reads it. Code: `packages/core/src/Perso
 
 - `src/PersonalData/{Domain,Application}`: natural persons' personal data. A `Person` has an account, a `Purpose`, a `PersonName`, a `Civility`, a job title, contact details, links (`ExternalReferences`) and former links, and a picture. A `Reader` reads it unmasked or masked (`PersonReading`, `Masking`). The port `Readers` gives the `Reader` (`readerFrom()`).
 - A profile is collected by the `Gesture` of the member who opens the account or registers the newcomer (`Person::collect()`). A contact is collected by a `Reader` with the right, from a `NewContact`: the person, their `ContactCard` and their organizations (`collectAsContact()`). A contact to attach is collected from their `ContactCard` (`collectToAttach()`). The `Reader` stands for the `Gesture` of the other contexts (ADR 0193).
-- Queries:
-  - `ConsultPerson`, `ConsultPersons` (batch);
-  - `SearchContacts` (by name, and by email with the right to manage personal data);
-  - `RecognizeCallingContact` (which contact has a number, with the right to manage personal data);
-  - `IdentifyPersons` (which contacts the clues designate, read through the port `DesignatedContactRetriever`, ADR 0173).
-- Commands that change a person (`ChangeCivility` for a contact only). Two commands concern the persons an account prospects, the contacts (ADR 0041, 0042). They need the right to manage personal data (ADR 0031). `CollectContact` collects a contact for at least one organization, checked through the port `ProspectedOrganizations`. `ForgetContact` forgets one.
+- `src/PersonalData/Application`, in six modules (ADR 0206):
+  - `Profile`, a member's own profile: `CollectTheFounderProfile`, `CollectTheMemberProfile`, and `PresentMembers` (the service it publishes, with `MemberPresentation` and the port `MemberPresentationRetriever`);
+  - `Person`, a person's data, read and changed, whether a contact or a member's own profile: `RenamePerson`, `ChangeCivility` (for a contact only), `ChangeJobTitle`, `ChangePersonContactDetails`, `ChangePersonPicture`, and the queries `ConsultPerson` and `ConsultPersons` (batch);
+  - `Contact`, a contact's life in the account. Its commands concern the persons an account prospects (ADR 0041, 0042). They need the right to manage personal data (ADR 0031):
+    - `CollectContact` collects a contact for at least one organization, checked through the port `ProspectedOrganizations`. `ForgetContact` forgets one. `ForgetContactLeftUnattached` and `ForgetContactsLeftWithoutOrganization` forget them for Prospecting;
+    - `CompareWithContact`, `CompleteContact` (ADR 0177);
+    - `SearchContacts`, by name, and by email with the right to manage personal data (`ContactPage`, the port `ContactPageRetriever`);
+    - the services it publishes, `WhichAreContacts`, `WhichContactsHaveTheseEmails`, `WhichEmailsHaveTheseContacts` and `NameContacts`, and the translators `PublishContactCollected` and `PublishContactForgotten`;
+  - `Facts`, the contacts' facts published to the other contexts (ADR 0099): `ListContactFacts`, `PublishContactFacts`;
+  - `Duplicate`, the possible duplicates (ADR 0170): `DismissPossibleDuplicate`, `SuspectDuplicateInReturn`, `LiftSuspicionInReturn`, `DismissSuspicionInReturn`;
+  - `Identification`, which contact a clue designates:
+    - `IdentifyPersons`, read through the port `DesignatedContactRetriever` (ADR 0173);
+    - `RecognizeCallingContact`, which contact has a number, with the right to manage personal data;
+    - `IdentifyBooker` and its translator `PublishBookerIdentified` (ADR 0164);
+  - at the application's root, `PersonCard` and its `PossibleDuplicate`, which several modules read, the policies of `Policy/` and the ports of `Port/`.
 - Policies, in `Application/Policy`, turn the other contexts' events and PersonalData's own into commands (ADR 0203):
   - Prospecting's `ContactsLeftWithoutOrganization` sends `ForgetContactsLeftWithoutOrganization`. Its `ContactLeftUnattached` sends `ForgetContactLeftUnattached`.
   - An account's opening sends `CollectTheFounderProfile`. A member's registration sends `CollectTheMemberProfile`. Each one collects the member's own empty profile (ADR 0064, 0075).
