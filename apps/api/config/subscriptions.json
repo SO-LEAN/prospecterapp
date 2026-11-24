@@ -80,7 +80,7 @@
     "context": "prospecting",
     "sources": ["prospecter.personal-data"],
     "events": ["ContactForgotten.v1"],
-    "handler": "Prospecter\\Core\\Prospecting\\Application\\KeepExchangesOfForgottenContact\\KeepExchangesOfForgottenContactHandler",
+    "policy": "Prospecter\\Core\\Prospecting\\Application\\Policy\\KeepExchangesOfForgottenContactPolicy",
     "inbox": true
   },
   "prospecting-forget-fingerprints-of-forgotten-contact": {
