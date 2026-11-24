@@ -1,9 +1,8 @@
-# The analysis that writes a context's event storming (docs/architecture/event-storming.md): no rule of a level, only
-# the collectors of its facts, formatted by --error-format=eventStorming. Run from apps/api, whose vendor knows the
-# core and the delivery: make event-storming CONTEXT=Booking
+# The analysis that writes every context's event storming (docs/architecture/event-storming.md): no rule of a level,
+# only the collectors of its facts, formatted by --error-format=eventStorming. Run from apps/api, whose vendor knows
+# the core and the delivery: make event-storming
 parametersSchema:
     eventStorming: structure([
-        context: string(),
         features: string(),
         subscriptions: string(),
     ])
@@ -12,7 +11,6 @@ parameters:
     customRulesetUsed: true
     tmpDir: %currentWorkingDirectory%/var/cache/phpstan-event-storming
     eventStorming:
-        context: %env.EVENT_STORMING_CONTEXT%
         features: %currentWorkingDirectory%/../../packages/core/features
         subscriptions: %currentWorkingDirectory%/config/subscriptions.json
 
@@ -39,7 +37,6 @@ services:
     -
         class: Prospecter\PHPStan\EventStorming\ModelDocument
         arguments:
-            context: %eventStorming.context%
             features: %eventStorming.features%
             subscriptions: %eventStorming.subscriptions%
     errorFormatter.eventStorming:

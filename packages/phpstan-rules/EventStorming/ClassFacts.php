@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace Prospecter\PHPStan\EventStorming;
 
+use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\Policy;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
+
 /**
  * What the analysis reads of one class: what it implements, what its __invoke takes and returns, what its
  * constructor depends on, the roles and the routes its attributes declare, what its output port presents, and the
@@ -11,6 +16,8 @@ namespace Prospecter\PHPStan\EventStorming;
  */
 final readonly class ClassFacts
 {
+    private const array HANDLERS = [CommandHandler::class, QueryHandler::class, EventHandler::class, Policy::class];
+
     /**
      * @param list<string>          $interfaces
      * @param list<list<string>>    $parameters         the classes of each parameter of __invoke
@@ -41,6 +48,11 @@ final readonly class ClassFacts
     public function implements(string $interface): bool
     {
         return \in_array($interface, $this->interfaces, true);
+    }
+
+    public function handlesAMessage(): bool
+    {
+        return array_any(self::HANDLERS, $this->implements(...));
     }
 
     /**

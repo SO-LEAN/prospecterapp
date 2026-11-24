@@ -9,6 +9,8 @@ namespace Prospecter\PHPStan\EventStorming;
  */
 final readonly class Facts
 {
+    private const string SHARED_KERNEL = 'SharedKernel';
+
     /** @var array<string, ClassFacts> */
     private array $classes;
 
@@ -98,6 +100,20 @@ final readonly class Facts
     public function callsFrom(string $class, string $method): array
     {
         return array_values(array_filter($this->calls, static fn (Call $call): bool => $call->caller === $class && $call->callerMethod === $method));
+    }
+
+    /**
+     * @return list<string> the contexts whose application handles a message, the shared kernel aside, sorted
+     */
+    public function contexts(): array
+    {
+        $contexts = array_unique(array_filter(array_map(
+            static fn (ClassFacts $class): ?string => $class->handlesAMessage() ? new ClassName($class->name)->context() : null,
+            $this->classes(),
+        )));
+        sort($contexts);
+
+        return array_values(array_diff($contexts, [self::SHARED_KERNEL]));
     }
 
     public function find(string $class): ?ClassFacts
