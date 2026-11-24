@@ -57,7 +57,7 @@ final class RefusalTranslatingHandlersPass implements CompilerPassInterface
      *
      * @return string the id of the outermost
      */
-    public static function decorate(ContainerBuilder $container, string $id, array $decorators): string
+    private static function decorate(ContainerBuilder $container, string $id, array $decorators): string
     {
         $decorated = $id;
 

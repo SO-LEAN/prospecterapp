@@ -7,7 +7,6 @@ namespace Prospecter\Core\Prospecting\Application\AttachContactToAttach;
 final readonly class AttachContactToAttach
 {
     public function __construct(
-        public string $accountId,
         public string $memberId,
         public string $organizationId,
         public string $contactId,

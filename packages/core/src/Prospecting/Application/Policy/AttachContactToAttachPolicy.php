@@ -16,7 +16,6 @@ final readonly class AttachContactToAttachPolicy implements Policy
     public function __invoke(ContactAdded $event): AttachContactToAttach
     {
         return new AttachContactToAttach(
-            accountId: $event->accountId->value,
             memberId: $event->by->value,
             organizationId: $event->organization->value,
             contactId: $event->contact->value,

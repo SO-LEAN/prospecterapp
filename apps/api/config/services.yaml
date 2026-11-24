@@ -29,9 +29,9 @@ services:
         # its intent: QueryHandler $consultOrganization
         Prospecter\Core\SharedKernel\Application\Handler\QueryHandler:
             tags: [app.query_handler]
-        # every event handler of the core reacts through the translation of its refusals, within the unit of work of
-        # the command that published: a translator on the event bus, any other as the subscription naming it in
-        # config/subscriptions.json (App\Shared\DependencyInjection\SubscriptionsPass)
+        # every event handler of the core is a translator, on the event bus as it is, within the decorators of the
+        # command that publishes (ADR 0203); a reaction is a policy that config/subscriptions.json names
+        # (App\Shared\DependencyInjection\SubscriptionsPass)
         Prospecter\Core\SharedKernel\Application\Handler\EventHandler:
             tags: [app.event_handler]
 

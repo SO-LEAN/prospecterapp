@@ -26,7 +26,6 @@ class AttachContactToAttachPolicyTest extends TestCase
         $event = new ContactAdded(new AccountId(self::ACCOUNT), new MemberId(self::MEMBER), new OrganizationId(self::ORGANIZATION), new ContactId(self::CONTACT), new \DateTimeImmutable(self::AT));
 
         $this->assertEquals(new AttachContactToAttach(
-            accountId: self::ACCOUNT,
             memberId: self::MEMBER,
             organizationId: self::ORGANIZATION,
             contactId: self::CONTACT,
