@@ -1,5 +1,5 @@
 import { lean } from './marker.ts'
-import type { Link, Model, Sticky, StickyType } from './model.ts'
+import { type Elsewhere, folderOf, type Link, type Model, type Sticky, type StickyType } from './model.ts'
 
 /** The post-its of the wall: the seven of the model, and the hotspot that says something is missing. */
 export type Kind = StickyType | 'hotspot'
@@ -42,9 +42,13 @@ export interface Note {
   jumps: Jump[]
 }
 
-/** A pictogram on a post-it that says the story goes on elsewhere on the wall, or who answers a port. */
+/**
+ * A pictogram on a post-it that says the story goes on elsewhere on the wall, on another context's wall (its
+ * address), or who answers a port.
+ */
 export interface Jump {
   to: Note | null
+  href: string | null
   back: boolean
   tip: string
 }
@@ -360,9 +364,12 @@ class WallUnderConstruction {
         { x: node.x + 6 + (index % 2) * 7, y: node.y + SIZE.sticky - 3 + index * (SIZE.port.h + 2) },
         { port: true, owner: node, slot: index, z: 1 },
       )
-      if (sticky.answeredBy.length > 0) {
+      if (sticky.answers.length > 0) {
+        for (const service of sticky.answers) port.jumps.push(away(service, 'Answered by'))
+      } else if (sticky.answeredBy.length > 0) {
         port.jumps.push({
           to: null,
+          href: null,
           back: false,
           tip: `Answered by ${sticky.answeredBy.map(sentenceOf).join(', ')}`,
         })
@@ -377,6 +384,7 @@ class WallUnderConstruction {
       const event = this.sticky(heard.from)
       if (this.isMadeHere(event)) continue
       const node = this.put(step, event, 'event', { x, y: 0 })
+      node.jumps.push(away(foreignOf(event), 'Heard from'))
       this.heardBefore.set(step, [
         ...(this.heardBefore.get(step) ?? []),
         { event: node, policy, certain: heard.certain },
@@ -420,6 +428,7 @@ class WallUnderConstruction {
           { whenever: event.label },
         )
         this.link(event, policy, heard.certain, true)
+        event.jumps.push(away(foreignOf(this.sticky(heard.to)), 'Heard by'))
         right = policy.x + SIZE.sticky + 12
       })
     return right
@@ -596,6 +605,8 @@ class WallUnderConstruction {
     const asked = this.into(readModel.id, 'actor').length > 0
     const step = this.step('read', lane, asked ? 0 : 4)
     const node = this.put(step, readModel, 'readModel', { x: 0, y: 0 }, { z: 3 })
+    for (const reader of readModel.readBy)
+      if (reader.context !== null) node.jumps.push(away(reader, 'Read by'))
     step.main = node
     this.badgesOf(step, readModel, node)
     this.portsOf(step, readModel, node)
@@ -627,11 +638,13 @@ class WallUnderConstruction {
       this.link(from, to, wait.certain, true)
       from.jumps.push({
         to,
+        href: null,
         back: false,
         tip: `${to.kind === 'policy' ? 'Heard by' : 'Sends'} “${to.label}” · ${sentenceOf(to.step.lane)}`,
       })
       to.jumps.push({
         to: from,
+        href: null,
         back: true,
         tip: `${from.kind === 'event' ? 'Hears' : 'Sent by'} “${from.label}” · ${sentenceOf(from.step.lane)}`,
       })
@@ -830,6 +843,22 @@ class WallUnderConstruction {
     )
     this.link(command, step.gap, true, false)
   }
+}
+
+/** A jump to a post-it of another context's wall: its address, its label and its context on the pictogram. */
+function away(elsewhere: Elsewhere, verb: string): Jump {
+  const context = elsewhere.context ?? ''
+  return {
+    to: null,
+    href: `../${folderOf(context)}/#at=${encodeURIComponent(elsewhere.slug ?? '')}`,
+    back: false,
+    tip: `${verb} “${elsewhere.label}” · ${sentenceOf(context)}`,
+  }
+}
+
+/** A post-it of another context, as its own wall names it: its slug without its context. */
+function foreignOf(sticky: Sticky): Elsewhere {
+  return { context: sticky.context, slug: sticky.slug.replace(/^[^/]*\//, ''), label: sticky.label }
 }
 
 function sizeOf(kind: Kind, extra: Partial<Note>): { w: number; h: number } {
