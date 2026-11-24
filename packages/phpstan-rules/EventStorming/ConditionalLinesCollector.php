@@ -42,7 +42,7 @@ final readonly class ConditionalLinesCollector implements Collector
     private static function conditionalPartsOf(Node $node, int $endOfTheMethod): array
     {
         return match (true) {
-            $node instanceof Stmt\If_ => [...self::spansOf([...$node->stmts, ...$node->elseifs, ...($node->else?->stmts ?? [])]), ...self::afterAnEarlyReturn($node, $endOfTheMethod)],
+            $node instanceof Stmt\If_ => [...self::spansOf([...$node->stmts, ...$node->elseifs, ...($node->else->stmts ?? [])]), ...self::afterAnEarlyReturn($node, $endOfTheMethod)],
             $node instanceof Stmt\Foreach_, $node instanceof Stmt\For_, $node instanceof Stmt\While_, $node instanceof Stmt\Do_, $node instanceof Stmt\Catch_ => self::spansOf($node->stmts),
             $node instanceof Expr\Ternary => self::spansOf(array_filter([$node->if, $node->else])),
             $node instanceof Expr\Match_ => self::spansOf(array_map(static fn (Node\MatchArm $arm): Expr => $arm->body, $node->arms)),
@@ -57,7 +57,7 @@ final readonly class ConditionalLinesCollector implements Collector
      */
     private static function afterAnEarlyReturn(Stmt\If_ $if, int $endOfTheMethod): array
     {
-        $returns = new NodeFinder()->findFirstInstanceOf([...$if->stmts, ...($if->else?->stmts ?? [])], Stmt\Return_::class);
+        $returns = new NodeFinder()->findFirstInstanceOf([...$if->stmts, ...($if->else->stmts ?? [])], Stmt\Return_::class);
 
         return null === $returns ? [] : [[$if->getEndLine() + 1, $endOfTheMethod]];
     }

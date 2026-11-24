@@ -118,6 +118,6 @@ final readonly class ClassFactsCollector implements Collector
      */
     private static function classesOf(Type $type): array
     {
-        return array_values($type->getObjectClassNames());
+        return $type->getObjectClassNames();
     }
 }

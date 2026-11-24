@@ -16,6 +16,8 @@ parameters:
     paths:
         - src/
         - tests/
+        # the generator of the event storming, the one part of packages/phpstan-rules no rule of PHPStan tests
+        - ../phpstan-rules/EventStorming/
     # as many workers as the php container has processors (2, docker-compose.agents.yml), not as the host shows it
     parallel:
         maximumNumberOfProcesses: 2
