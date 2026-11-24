@@ -16,7 +16,8 @@
     "isolatedModules": true,
     "skipLibCheck": true,
     "noEmit": true,
+    "allowImportingTsExtensions": true,
     "paths": { "@/*": ["./src/*"] }
   },
-  "include": ["src", "e2e", "lint", "vite.config.ts", "playwright.config.ts"]
+  "include": ["src", "e2e", "lint", "event-storming", "vite.config.ts", "playwright.config.ts"]
 }
