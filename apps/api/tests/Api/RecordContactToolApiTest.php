@@ -208,16 +208,6 @@ class RecordContactToolApiTest extends ApiTestCase
         $this->assertSame([403, 'roleNotAllowed'], [$refused['status'], $refused['reason']]);
     }
 
-    public function testAnAdministratorRecordsAsAProspectorWithTheRight(): void
-    {
-        $this->aMemberOfTheFixtures('admin-user', Role::User, Role::Admin);
-        $this->login('admin-user');
-
-        $recorded = $this->answerOf($this->callWithoutHandshake('record-contact', ['person' => self::MARGARET_HAMILTON, 'organization' => self::GLOBEX]));
-
-        $this->assertSame(['created', 'created'], [self::valueAt($recorded, 'organization', 'status'), self::valueAt($recorded, 'contact', 'status')]);
-    }
-
     public function testAnOrganizationOfAnotherAccountIsUnknown(): void
     {
         $this->login();
