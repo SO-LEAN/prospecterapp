@@ -45,13 +45,16 @@ function pageIn(html: string): Document {
 }
 
 describe('the page of an event storming', () => {
-  it('shows a use case on a post-it of its colour, its class on hover', () => {
+  it('shows a use case on a post-it of its colour', () => {
     const sticky = pageIn(pageOf('Booking', [overview])).querySelector('[data-key="command:OpenBooking"]')
 
-    expect([sticky?.getAttribute('class'), sticky?.querySelector('title')?.textContent]).toEqual([
-      'sticky type-command',
-      'Core\\OpenBooking',
-    ])
+    expect(sticky?.getAttribute('class')).toBe('sticky type-command')
+  })
+
+  it('names the class of a post-it on hover', () => {
+    const sticky = pageIn(pageOf('Booking', [overview])).querySelector('[data-key="command:OpenBooking"]')
+
+    expect(sticky?.querySelector('title')?.textContent).toBe('Core\\OpenBooking')
   })
 
   it('fades a post-it of another module or context', () => {

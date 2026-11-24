@@ -40,12 +40,17 @@ describe('the function choosing the release of the front', () => {
   })
 
   it('does not find a document on an instance that does not serve them', () => {
-    const answers = [
-      '/docs/event-storming/booking/',
-      '/releases/0123456789ab/docs/event-storming/booking/model.json',
-    ].map((uri) => releaseFunctionOf(false)(asked(uri)).statusCode)
+    const answer = releaseFunctionOf(false)(asked('/docs/event-storming/booking/'))
 
-    expect(answers).toEqual([404, 404])
+    expect(answer.statusCode).toBe(404)
+  })
+
+  it('does not find a document asked by the path of its release either', () => {
+    const answer = releaseFunctionOf(false)(
+      asked('/releases/0123456789ab/docs/event-storming/booking/model.json'),
+    )
+
+    expect(answer.statusCode).toBe(404)
   })
 
   it('still answers a page of the SPA by its index.html', () => {
