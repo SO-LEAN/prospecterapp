@@ -375,6 +375,7 @@ use Prospecter\Core\Prospecting\Application\Policy\EraseToDoLeftWithoutOrganizat
 use Prospecter\Core\Prospecting\Application\Policy\EraseToDosOfForgottenContactPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\ForgetFingerprintsOfForgottenContactPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\KeepCreatedVideoCallLinkPolicy;
+use Prospecter\Core\Prospecting\Application\Policy\KeepExchangesOfAttachedContactPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\KeepExchangesOfForgottenContactPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\KeepImportedAttachmentPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\LiftSuspicionInReturnPolicy;
@@ -1405,6 +1406,7 @@ final class Application
     private function commandHandlers(): array
     {
         return [
+            new KeepExchangesOfAttachedContactHandler($this->exchanges, $this->events),
             new AttachContactToAttachHandler($this->contactsToAttach, $this->events),
             new EraseExchangesOfContactLeftUnattachedHandler($this->exchanges, $this->events),
             new AttachCollectedContactHandler($this->organizations, $this->events),
@@ -1841,7 +1843,7 @@ final class Application
             new ForgetContactLeftUnattachedPolicy(),
             new EraseExchangesOfContactLeftUnattachedPolicy(),
             new AttachContactToAttachPolicy(),
-            new KeepExchangesOfAttachedContactHandler($this->exchanges, $this->events),
+            new KeepExchangesOfAttachedContactPolicy(),
             new KeepToDosOfAttachedContactHandler($this->toDos, $this->events),
             new PushBackErasureOfContactToAttachHandler($this->exchanges, $this->contactsToAttach, $this->events),
             new IdentifyBookerPolicy(),
