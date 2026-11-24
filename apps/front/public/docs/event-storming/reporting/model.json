@@ -1,0 +1,336 @@
+{
+    "context": "Reporting",
+    "modules": [],
+    "stickies": [
+        {
+            "id": "actor:ROLE_PROSPECTOR",
+            "slug": "actor:ROLE_PROSPECTOR",
+            "type": "actor",
+            "label": "Prospector",
+            "feature": null,
+            "name": "ROLE_PROSPECTOR",
+            "class": null,
+            "context": "Reporting",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "actor:mcp",
+            "slug": "actor:mcp",
+            "type": "actor",
+            "label": "Member's AI",
+            "feature": null,
+            "name": "mcp",
+            "class": null,
+            "context": "Reporting",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\Reporting\\Application\\RebuildFigures\\RebuildFigures",
+            "slug": "command:RebuildFigures",
+            "type": "command",
+            "label": "Rebuild figures",
+            "feature": null,
+            "name": "RebuildFigures",
+            "class": "Prospecter\\Core\\Reporting\\Application\\RebuildFigures\\RebuildFigures",
+            "context": "Reporting",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\Reporting\\Application\\RecordContactFacts\\RecordContactFacts",
+            "slug": "command:RecordContactFacts",
+            "type": "command",
+            "label": "Record contact facts",
+            "feature": null,
+            "name": "RecordContactFacts",
+            "class": "Prospecter\\Core\\Reporting\\Application\\RecordContactFacts\\RecordContactFacts",
+            "context": "Reporting",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\Reporting\\Application\\RecordExchangeFacts\\RecordExchangeFacts",
+            "slug": "command:RecordExchangeFacts",
+            "type": "command",
+            "label": "Record exchange facts",
+            "feature": null,
+            "name": "RecordExchangeFacts",
+            "class": "Prospecter\\Core\\Reporting\\Application\\RecordExchangeFacts\\RecordExchangeFacts",
+            "context": "Reporting",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\Reporting\\Application\\RecordOrganizationFacts\\RecordOrganizationFacts",
+            "slug": "command:RecordOrganizationFacts",
+            "type": "command",
+            "label": "Record organization facts",
+            "feature": null,
+            "name": "RecordOrganizationFacts",
+            "class": "Prospecter\\Core\\Reporting\\Application\\RecordOrganizationFacts\\RecordOrganizationFacts",
+            "context": "Reporting",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactFactsChanged",
+            "slug": "PersonalData/published:ContactFactsChanged",
+            "type": "event",
+            "label": "Contact facts changed",
+            "feature": null,
+            "name": "ContactFactsChanged",
+            "class": "Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactFactsChanged",
+            "context": "PersonalData",
+            "module": null,
+            "detail": "Published to the other contexts",
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\ExchangeFactsChanged",
+            "slug": "Prospecting/published:ExchangeFactsChanged",
+            "type": "event",
+            "label": "Exchange facts changed",
+            "feature": null,
+            "name": "ExchangeFactsChanged",
+            "class": "Prospecter\\Core\\Prospecting\\Contract\\Event\\ExchangeFactsChanged",
+            "context": "Prospecting",
+            "module": null,
+            "detail": "Published to the other contexts",
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\OrganizationFactsChanged",
+            "slug": "Prospecting/published:OrganizationFactsChanged",
+            "type": "event",
+            "label": "Organization facts changed",
+            "feature": null,
+            "name": "OrganizationFactsChanged",
+            "class": "Prospecter\\Core\\Prospecting\\Contract\\Event\\OrganizationFactsChanged",
+            "context": "Prospecting",
+            "module": null,
+            "detail": "Published to the other contexts",
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "externalSystem:Prospecter\\Core\\Reporting\\Domain\\Port\\PersonalDataFacts",
+            "slug": "externalSystem:PersonalDataFacts",
+            "type": "externalSystem",
+            "label": "Personal data facts",
+            "feature": null,
+            "name": "PersonalDataFacts",
+            "class": "Prospecter\\Core\\Reporting\\Domain\\Port\\PersonalDataFacts",
+            "context": "Reporting",
+            "module": null,
+            "detail": "PersonalDataFactsFromPersonalData",
+            "answeredBy": [
+                "PersonalData"
+            ],
+            "answers": [
+                {
+                    "context": "PersonalData",
+                    "slug": "readModel:ListContactFacts",
+                    "label": "List contact facts"
+                }
+            ],
+            "readBy": []
+        },
+        {
+            "id": "externalSystem:Prospecter\\Core\\Reporting\\Domain\\Port\\ProspectingFacts",
+            "slug": "externalSystem:ProspectingFacts",
+            "type": "externalSystem",
+            "label": "Prospecting facts",
+            "feature": null,
+            "name": "ProspectingFacts",
+            "class": "Prospecter\\Core\\Reporting\\Domain\\Port\\ProspectingFacts",
+            "context": "Reporting",
+            "module": null,
+            "detail": "ProspectingFactsFromProspecting",
+            "answeredBy": [
+                "Prospecting"
+            ],
+            "answers": [
+                {
+                    "context": "Prospecting",
+                    "slug": "readModel:ListExchangeFacts",
+                    "label": "List exchange facts"
+                },
+                {
+                    "context": "Prospecting",
+                    "slug": "readModel:ListOrganizationFacts",
+                    "label": "List organization facts"
+                }
+            ],
+            "readBy": []
+        },
+        {
+            "id": "externalSystem:Prospecter\\Core\\Reporting\\Domain\\Port\\SourceAccounts",
+            "slug": "externalSystem:SourceAccounts",
+            "type": "externalSystem",
+            "label": "Source accounts",
+            "feature": null,
+            "name": "SourceAccounts",
+            "class": "Prospecter\\Core\\Reporting\\Domain\\Port\\SourceAccounts",
+            "context": "Reporting",
+            "module": null,
+            "detail": "AccountsSourceAccounts",
+            "answeredBy": [
+                "Accounts"
+            ],
+            "answers": [
+                {
+                    "context": "Accounts",
+                    "slug": "readModel:ConsultMembers",
+                    "label": "Members"
+                },
+                {
+                    "context": "Accounts",
+                    "slug": "readModel:ListAccounts",
+                    "label": "List accounts"
+                }
+            ],
+            "readBy": []
+        },
+        {
+            "id": "policy:Prospecter\\Core\\Reporting\\Application\\Policy\\RecordFactsPolicy",
+            "slug": "policy:RecordFactsPolicy",
+            "type": "policy",
+            "label": "Record facts",
+            "feature": null,
+            "name": "RecordFactsPolicy",
+            "class": "Prospecter\\Core\\Reporting\\Application\\Policy\\RecordFactsPolicy",
+            "context": "Reporting",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "readModel:Prospecter\\Core\\Reporting\\Application\\ConsultFigures\\ConsultFigures",
+            "slug": "readModel:ConsultFigures",
+            "type": "readModel",
+            "label": "Figures response",
+            "feature": null,
+            "name": "ConsultFigures",
+            "class": "Prospecter\\Core\\Reporting\\Application\\ConsultFigures\\ConsultFigures",
+            "context": "Reporting",
+            "module": null,
+            "detail": "FiguresResponse",
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        }
+    ],
+    "links": [
+        {
+            "from": "actor:ROLE_PROSPECTOR",
+            "to": "readModel:Prospecter\\Core\\Reporting\\Application\\ConsultFigures\\ConsultFigures",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:mcp",
+            "to": "readModel:Prospecter\\Core\\Reporting\\Application\\ConsultFigures\\ConsultFigures",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Reporting\\Application\\RebuildFigures\\RebuildFigures",
+            "to": "externalSystem:Prospecter\\Core\\Reporting\\Domain\\Port\\PersonalDataFacts",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Reporting\\Application\\RebuildFigures\\RebuildFigures",
+            "to": "externalSystem:Prospecter\\Core\\Reporting\\Domain\\Port\\ProspectingFacts",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Reporting\\Application\\RebuildFigures\\RebuildFigures",
+            "to": "externalSystem:Prospecter\\Core\\Reporting\\Domain\\Port\\SourceAccounts",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactFactsChanged",
+            "to": "policy:Prospecter\\Core\\Reporting\\Application\\Policy\\RecordFactsPolicy",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\ExchangeFactsChanged",
+            "to": "policy:Prospecter\\Core\\Reporting\\Application\\Policy\\RecordFactsPolicy",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\OrganizationFactsChanged",
+            "to": "policy:Prospecter\\Core\\Reporting\\Application\\Policy\\RecordFactsPolicy",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "policy:Prospecter\\Core\\Reporting\\Application\\Policy\\RecordFactsPolicy",
+            "to": "command:Prospecter\\Core\\Reporting\\Application\\RecordContactFacts\\RecordContactFacts",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "policy:Prospecter\\Core\\Reporting\\Application\\Policy\\RecordFactsPolicy",
+            "to": "command:Prospecter\\Core\\Reporting\\Application\\RecordExchangeFacts\\RecordExchangeFacts",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "policy:Prospecter\\Core\\Reporting\\Application\\Policy\\RecordFactsPolicy",
+            "to": "command:Prospecter\\Core\\Reporting\\Application\\RecordOrganizationFacts\\RecordOrganizationFacts",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Reporting\\Application\\ConsultFigures\\ConsultFigures",
+            "to": "externalSystem:Prospecter\\Core\\Reporting\\Domain\\Port\\SourceAccounts",
+            "via": null,
+            "certain": true,
+            "when": null
+        }
+    ]
+}
