@@ -6,7 +6,8 @@ namespace Prospecter\PHPStan\EventStorming;
 
 /**
  * What the analysis reads of one class: what it implements, what its __invoke takes and returns, what its
- * constructor depends on, the roles its attributes require, and what its output port presents.
+ * constructor depends on, the roles and the routes its attributes declare, what its output port presents, and the
+ * parameters of its constructor that may be null.
  */
 final readonly class ClassFacts
 {
@@ -16,7 +17,11 @@ final readonly class ClassFacts
      * @param list<string>       $returns      the classes __invoke returns
      * @param list<string>       $dependencies the classes its constructor takes
      * @param list<string>       $roles
-     * @param list<string>       $presents     the classes its output port presents, for a query handler
+     * @param list<string>          $presents           the classes its output port presents, for a query handler
+     * @param list<string>          $routes             the names of the routes it answers, for a controller
+     * @param array<string, string> $optionalParameters the description of each parameter of its constructor that
+     *                                                  may be null, by name
+     * @param list<string>          $outputPorts        the classes its __invoke presents its answer to
      */
     public function __construct(
         public string $name,
@@ -27,6 +32,9 @@ final readonly class ClassFacts
         public array $dependencies = [],
         public array $roles = [],
         public array $presents = [],
+        public array $routes = [],
+        public array $optionalParameters = [],
+        public array $outputPorts = [],
     ) {
     }
 

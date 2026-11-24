@@ -5,6 +5,11 @@ declare(strict_types=1);
 namespace Prospecter\PHPStan\EventStorming;
 
 use PhpParser\Node;
+use PhpParser\Node\Arg;
+use PhpParser\Node\Attribute;
+use PhpParser\Node\Expr\Variable;
+use PhpParser\Node\NullableType;
+use PhpParser\Node\Param;
 use PhpParser\Node\Scalar\String_;
 use PhpParser\Node\Stmt\ClassLike;
 use PHPStan\Analyser\Scope;
@@ -19,7 +24,7 @@ use PHPStan\Type\TypeCombinator;
 /**
  * Reads what the event storming needs of each class (ClassFacts).
  *
- * @implements Collector<InClassNode, array{name: string, interfaces: list<string>, parameters: list<list<string>>, returns: list<string>, mayReturnNothing: bool, dependencies: list<string>, roles: list<string>, presents: list<string>}>
+ * @implements Collector<InClassNode, array{name: string, interfaces: list<string>, parameters: list<list<string>>, returns: list<string>, mayReturnNothing: bool, dependencies: list<string>, roles: list<string>, routes: list<string>, optionalParameters: array<string, string>, outputPorts: list<string>, presents: list<string>}>
  */
 final readonly class ClassFactsCollector implements Collector
 {
@@ -31,6 +36,16 @@ final readonly class ClassFactsCollector implements Collector
     private const string PRESENT = 'present';
 
     private const string IS_GRANTED = 'IsGranted';
+
+    private const string ROUTE = 'Route';
+
+    private const string ROUTE_NAME = 'name';
+
+    private const string CONSTRUCTOR = '__construct';
+
+    private const string PROPERTY = 'Property';
+
+    private const string DESCRIPTION = 'description';
 
     public function getNodeType(): string
     {
@@ -55,6 +70,9 @@ final readonly class ClassFactsCollector implements Collector
             'mayReturnNothing' => null !== $returned && TypeCombinator::containsNull($returned),
             'dependencies' => self::dependenciesOf($class),
             'roles' => self::rolesRequiredBy($node->getOriginalNode()),
+            'routes' => self::routesDeclaredBy($node->getOriginalNode()),
+            'optionalParameters' => self::optionalParametersOf($node->getOriginalNode()),
+            'outputPorts' => $parameters[self::OUTPUT_PORT] ?? [],
             'presents' => null === $entry ? [] : self::presentedThrough($entry),
         ];
     }
@@ -76,26 +94,89 @@ final readonly class ClassFactsCollector implements Collector
     }
 
     /**
-     * The roles the IsGranted attributes of a class and of its methods require, as written: the attribute's class
-     * need not be known to the analysis.
+     * The roles the IsGranted attributes of a class and of its methods require.
      *
      * @return list<string>
      */
     private static function rolesRequiredBy(ClassLike $class): array
     {
-        $roles = [];
-        foreach ([$class, ...$class->getMethods()] as $node) {
-            foreach ($node->attrGroups as $group) {
-                foreach ($group->attrs as $attribute) {
-                    $role = $attribute->args[0]->value ?? null;
-                    if (self::IS_GRANTED === $attribute->name->getLast() && $role instanceof String_) {
-                        $roles[] = $role->value;
-                    }
+        return array_values(array_filter(array_map(
+            static fn (Attribute $attribute): ?string => self::textOf($attribute->args[0] ?? null),
+            self::attributesOf($class, self::IS_GRANTED),
+        )));
+    }
+
+    /**
+     * The names of the routes the Route attributes of a class and of its methods declare.
+     *
+     * @return list<string>
+     */
+    private static function routesDeclaredBy(ClassLike $class): array
+    {
+        return array_values(array_filter(array_map(
+            static fn (Attribute $attribute): ?string => self::argumentNamed($attribute, self::ROUTE_NAME),
+            self::attributesOf($class, self::ROUTE),
+        )));
+    }
+
+    /**
+     * The parameters of a class's constructor that may be null, by name, with the description their OpenAPI Property
+     * attribute gives (empty without one): a links resource offers a link under a condition this way.
+     *
+     * @return array<string, string>
+     */
+    private static function optionalParametersOf(ClassLike $class): array
+    {
+        $optional = [];
+        foreach ($class->getMethod(self::CONSTRUCTOR)->params ?? [] as $parameter) {
+            if ($parameter->type instanceof NullableType && $parameter->var instanceof Variable && \is_string($parameter->var->name)) {
+                $optional[$parameter->var->name] = self::descriptionOf($parameter);
+            }
+        }
+
+        return $optional;
+    }
+
+    private static function descriptionOf(Param $parameter): string
+    {
+        foreach ($parameter->attrGroups as $group) {
+            foreach ($group->attrs as $attribute) {
+                $description = self::PROPERTY === $attribute->name->getLast() ? self::argumentNamed($attribute, self::DESCRIPTION) : null;
+                if (null !== $description) {
+                    return $description;
                 }
             }
         }
 
-        return $roles;
+        return '';
+    }
+
+    private static function argumentNamed(Attribute $attribute, string $name): ?string
+    {
+        return self::textOf(array_find($attribute->args, static fn (Arg $argument): bool => $name === $argument->name?->toString()));
+    }
+
+    /**
+     * The attributes of a class and of its methods of a short name, as written: the attribute's class need not be
+     * known to the analysis.
+     *
+     * @return list<Attribute>
+     */
+    private static function attributesOf(ClassLike $class, string $shortName): array
+    {
+        $attributes = [];
+        foreach ([$class, ...$class->getMethods()] as $node) {
+            foreach ($node->attrGroups as $group) {
+                $attributes = [...$attributes, ...array_filter($group->attrs, static fn (Attribute $attribute): bool => $shortName === $attribute->name->getLast())];
+            }
+        }
+
+        return array_values($attributes);
+    }
+
+    private static function textOf(?Arg $argument): ?string
+    {
+        return $argument?->value instanceof String_ ? $argument->value->value : null;
     }
 
     /**
