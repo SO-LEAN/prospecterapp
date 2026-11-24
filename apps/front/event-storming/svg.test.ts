@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs'
+import { readdirSync, readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import type { Model } from './model.ts'
 import { svgsOf } from './svg.ts'
@@ -26,6 +26,19 @@ describe('the SVGs of a wall', () => {
       'url(data:font/woff2;base64,AAAA)',
     )
   })
+
+  for (const folder of readdirSync('../../docs/event-storming')) {
+    it(`draws the wall of ${folder} the repository holds, which make event-storming wrote`, () => {
+      const model = JSON.parse(
+        readFileSync(`public/docs/event-storming/${folder}/model.json`, 'utf8'),
+      ) as Model
+      const font = readFileSync('event-storming/font/patrick-hand.woff2').toString('base64')
+
+      expect(svgsOf(model, font)['wall.svg']).toBe(
+        readFileSync(`../../docs/event-storming/${folder}/wall.svg`, 'utf8'),
+      )
+    })
+  }
 
   it('draws the same SVGs from the same model', () => {
     expect(svgsOf(BOOKING, 'AAAA')).toEqual(svgs)
