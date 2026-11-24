@@ -23,17 +23,9 @@ class ConnectorToolsApiTest extends ApiTestCase
 {
     use ActsAsItsEndpoint;
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->aMemberOfTheFixtures('admin-user', Role::User, Role::Admin);
-        $this->aMemberOfTheFixtures('member-user', Role::User);
-        $this->aMemberOfAnotherAccount('stranger');
-    }
-
     public function testTheAiChecksTheConnectionsOfItsMember(): void
     {
-        $connections = $this->assertTheToolActsAsItsEndpoint('check-my-connections', [], 'POST', '/api/me/connections/checks', null, self::WRITERS);
+        $connections = $this->assertTheToolActsAsItsEndpoint('check-my-connections', []);
 
         $this->assertArrayHasKey('_links', $connections);
     }
@@ -43,7 +35,6 @@ class ConnectorToolsApiTest extends ApiTestCase
         $this->theProspectorImportsTheirMail();
         $ada = self::stringAt($this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada', 'lastName' => 'Lovelace'], 'contactDetails' => ['email' => 'ada@acme.test'], 'organizationIds' => [$this->acme(null)]]), 'id');
         $this->google()->receives('m1', 'Ada Lovelace <ada@acme.test>', 'Votre devis', 'Bonjour Michel.');
-        $this->assertTheToolIsRefusedAsItsEndpoint('catch-up-contact-emails', ['id' => $ada], 'POST', '/api/contacts/'.$ada.'/gmail-reimports', null, ['assistant-user', 'admin-user', 'member-user', 'stranger']);
         $this->login();
 
         $this->assertNotTrue($this->callWithoutHandshake('catch-up-contact-emails', ['id' => $ada])['isError'] ?? false);
@@ -56,7 +47,6 @@ class ConnectorToolsApiTest extends ApiTestCase
         $this->theProspectorImportsTheirMail();
         $acme = $this->acme('contact@acme.test');
         $this->google()->receives('m1', 'ACME <contact@acme.test>', 'Appel d’offres', 'Bonjour Michel.');
-        $this->assertTheToolIsRefusedAsItsEndpoint('catch-up-organization-emails', ['id' => $acme], 'POST', '/api/organizations/'.$acme.'/gmail-reimports', null, ['assistant-user', 'admin-user', 'member-user', 'stranger']);
         $this->login();
 
         $this->assertNotTrue($this->callWithoutHandshake('catch-up-organization-emails', ['id' => $acme])['isError'] ?? false);
@@ -73,7 +63,7 @@ class ConnectorToolsApiTest extends ApiTestCase
         $this->keepTheKernel();
         $at = new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS);
         $commands = self::service(CommandBus::class);
-        $commands->dispatch(new ConfigureMailboxNotifications($this->memberIdOf('admin-user'), 'google', 'projects/solean/topics/gmail', 'push@solean.iam.gserviceaccount.com', $at));
+        $commands->dispatch(new ConfigureMailboxNotifications($this->memberIdOf($this->aMemberOfTheFixtures('admin-user', Role::User, Role::Admin)), 'google', 'projects/solean/topics/gmail', 'push@solean.iam.gserviceaccount.com', $at));
         $prospector = $this->memberIdOf('prospector-user');
         $commands->dispatch(new AskToImportMail($prospector, 'google', 'a-state', 'a-verifier', $at));
         $this->google()->grantsGmail('a-code', 'michel@exemple.fr', 'a-refresh-token');

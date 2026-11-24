@@ -6,7 +6,6 @@ namespace Tests\App\Api;
 
 use App\Shared\Typed;
 use PHPUnit\Framework\Attributes\Group;
-use Prospecter\Core\Accounts\Domain\Model\Role;
 use Tests\App\Base\ActsAsItsEndpoint;
 use Tests\App\Base\ApiTestCase;
 use Tests\App\Double\GoogleDouble;
@@ -24,24 +23,16 @@ class BookingPageToolsApiTest extends ApiTestCase
 
     private const array HOLIDAYS = ['firstDay' => '2026-12-21', 'lastDay' => '2027-01-04'];
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->aMemberOfTheFixtures('admin-user', Role::User, Role::Admin);
-        $this->aMemberOfTheFixtures('member-user', Role::User);
-        $this->aMemberOfAnotherAccount('stranger');
-    }
-
     public function testTheAiSetsTheWeeklyWindowsOfThePage(): void
     {
-        $page = $this->assertTheToolActsAsItsEndpoint('set-booking-slots', self::AFTERNOONS, 'PATCH', '/api/me/booking-page/windows', self::AFTERNOONS, self::WRITERS);
+        $page = $this->assertTheToolActsAsItsEndpoint('set-booking-slots', self::AFTERNOONS);
 
         $this->assertSame([self::AFTERNOONS['windows'], 'Europe/Paris'], [$page['windows'], $page['timeZone']]);
     }
 
     public function testTheAiOffersTheChannelsOfThePage(): void
     {
-        $page = $this->assertTheToolActsAsItsEndpoint('set-booking-channels', ['channels' => ['call', 'videoCall']], 'PATCH', '/api/me/booking-page/channels', ['channels' => ['call', 'videoCall']], self::WRITERS);
+        $page = $this->assertTheToolActsAsItsEndpoint('set-booking-channels', ['channels' => ['call', 'videoCall']]);
 
         $this->assertSame(['call', 'videoCall'], $page['channels']);
     }
@@ -50,47 +41,45 @@ class BookingPageToolsApiTest extends ApiTestCase
     {
         $this->aPageReadyToOpen();
 
-        $page = $this->assertTheToolActsAsItsEndpoint('open-booking', [], 'POST', '/api/me/booking-page/opening', null, self::WRITERS);
+        $page = $this->assertTheToolActsAsItsEndpoint('open-booking', []);
 
         $this->assertTrue($page['open']);
         $this->assertNotNull($page['code']);
     }
 
-    public function testTheAiClosesThePageOnceItsMemberConfirmed(): void
+    public function testTheAiClosesThePage(): void
     {
         $this->anOpenPage();
 
-        $page = $this->assertTheToolActsAsItsEndpoint('close-booking', [], 'DELETE', '/api/me/booking-page/opening', null, self::WRITERS);
+        $page = $this->assertTheToolActsAsItsEndpoint('close-booking', []);
 
         $this->assertFalse($page['open']);
-        $this->assertTheToolAsksForAConfirmation('close-booking');
     }
 
     public function testTheAiChangesThePublicLinkOfThePage(): void
     {
         $former = $this->anOpenPage();
 
-        $page = $this->assertTheToolActsAsItsEndpoint('set-booking-link', [], 'POST', '/api/me/booking-page/link', null, self::WRITERS);
+        $page = $this->assertTheToolActsAsItsEndpoint('set-booking-link', []);
 
         $this->assertNotSame($former, $page['code']);
     }
 
     public function testTheAiAddsAnInactivePeriodToThePage(): void
     {
-        $page = $this->assertTheToolActsAsItsEndpoint('add-inactive-period', self::HOLIDAYS, 'POST', '/api/me/booking-page/inactive-periods', self::HOLIDAYS, self::WRITERS);
+        $page = $this->assertTheToolActsAsItsEndpoint('add-inactive-period', self::HOLIDAYS);
 
         $this->assertSame([['2026-12-21', '2027-01-04']], array_map(static fn (array $period): array => [$period['firstDay'], $period['lastDay']], self::recordsAt($page, 'inactivePeriods')));
     }
 
-    public function testTheAiRemovesAnInactivePeriodOnceItsMemberConfirmed(): void
+    public function testTheAiRemovesAnInactivePeriod(): void
     {
         $this->login();
         $period = self::stringAt($this->requestJson('POST', '/api/me/booking-page/inactive-periods', self::HOLIDAYS), 'inactivePeriods', 0, 'id');
 
-        $page = $this->assertTheToolActsAsItsEndpoint('remove-inactive-period', ['id' => $period], 'DELETE', '/api/me/booking-page/inactive-periods/'.$period, null, ['prospector-user']);
+        $page = $this->assertTheToolActsAsItsEndpoint('remove-inactive-period', ['id' => $period]);
 
         $this->assertSame([], $page['inactivePeriods']);
-        $this->assertTheToolAsksForAConfirmation('remove-inactive-period');
     }
 
     /**

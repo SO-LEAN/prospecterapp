@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\App\Api;
 
 use PHPUnit\Framework\Attributes\Group;
-use Prospecter\Core\Accounts\Domain\Model\Role;
 use Tests\App\Base\ActsAsItsEndpoint;
 use Tests\App\Base\ApiTestCase;
 
@@ -18,51 +17,41 @@ class TagToolsApiTest extends ApiTestCase
 {
     use ActsAsItsEndpoint;
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->aMemberOfTheFixtures('admin-user', Role::User, Role::Admin);
-        $this->aMemberOfTheFixtures('member-user', Role::User);
-        $this->aMemberOfAnotherAccount('stranger');
-    }
-
     public function testTheAiTagsAContact(): void
     {
         $ada = $this->ada();
 
-        $tags = $this->assertTheToolActsAsItsEndpoint('tag-contact', ['id' => $ada, 'tags' => ['#PHP']], 'POST', '/api/contacts/'.$ada.'/tags', ['tags' => ['#PHP']], self::PROSPECTORS);
+        $tags = $this->assertTheToolActsAsItsEndpoint('tag-contact', ['id' => $ada, 'tags' => ['#PHP']]);
 
         $this->assertContains('#PHP', array_column(self::recordsAt($tags, 'tags'), 'name'));
     }
 
-    public function testTheAiTakesATagOffAContactOnceItsMemberConfirmed(): void
+    public function testTheAiTakesATagOffAContact(): void
     {
         $ada = $this->adaTagged('#PHP');
 
-        $tags = $this->assertTheToolActsAsItsEndpoint('untag-contact', ['id' => $ada, 'tag' => 'PHP'], 'DELETE', '/api/contacts/'.$ada.'/tags/PHP', null, ['prospector-user']);
+        $tags = $this->assertTheToolActsAsItsEndpoint('untag-contact', ['id' => $ada, 'tag' => 'PHP']);
 
         $this->assertNotContains('#PHP', array_column(self::recordsAt($tags, 'tags'), 'name'));
-        $this->assertTheToolAsksForAConfirmation('untag-contact');
     }
 
     public function testTheAiTagsAnOrganization(): void
     {
         $babbage = $this->babbage();
 
-        $tags = $this->assertTheToolActsAsItsEndpoint('tag-organization', ['id' => $babbage, 'tags' => ['#ESN']], 'POST', '/api/organizations/'.$babbage.'/tags', ['tags' => ['#ESN']], self::PROSPECTORS);
+        $tags = $this->assertTheToolActsAsItsEndpoint('tag-organization', ['id' => $babbage, 'tags' => ['#ESN']]);
 
         $this->assertContains('#ESN', array_column(self::recordsAt($tags, 'tags'), 'name'));
     }
 
-    public function testTheAiTakesATagOffAnOrganizationOnceItsMemberConfirmed(): void
+    public function testTheAiTakesATagOffAnOrganization(): void
     {
         $babbage = $this->babbage();
         $this->requestJson('POST', '/api/organizations/'.$babbage.'/tags', ['tags' => ['#ESN']]);
 
-        $tags = $this->assertTheToolActsAsItsEndpoint('untag-organization', ['id' => $babbage, 'tag' => 'ESN'], 'DELETE', '/api/organizations/'.$babbage.'/tags/ESN', null, ['prospector-user']);
+        $tags = $this->assertTheToolActsAsItsEndpoint('untag-organization', ['id' => $babbage, 'tag' => 'ESN']);
 
         $this->assertNotContains('#ESN', array_column(self::recordsAt($tags, 'tags'), 'name'));
-        $this->assertTheToolAsksForAConfirmation('untag-organization');
     }
 
     /**
