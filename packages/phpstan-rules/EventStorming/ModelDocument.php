@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Prospecter\PHPStan\EventStorming;
 
 /**
- * The JSON document of a context's model, written from the facts the analysis read. An analysis that read no facts,
- * or could not read the code, gives no document.
+ * The JSON document of every context's model, written from the facts the analysis read in the whole code. An analysis
+ * that read no facts, or could not read the code, gives no document.
  */
 final readonly class ModelDocument
 {
     private const int JSON = \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE | \JSON_THROW_ON_ERROR;
 
-    public function __construct(private string $context, private string $features, private string $subscriptions)
+    public function __construct(private string $features, private string $subscriptions)
     {
     }
 
@@ -27,9 +27,11 @@ final readonly class ModelDocument
         if (null === $facts || [] !== $failures) {
             throw UnreadableCode::because($failures);
         }
-        $model = new ContextStorming(Facts::read($facts), new FeatureTitles($this->features)->byUseCase(), $this->readSubscriptions())->model($this->context);
+        $facts = Facts::read($facts);
+        $storming = new ContextStorming($facts, new FeatureTitles($this->features)->byUseCase(), $this->readSubscriptions());
+        $models = array_map($storming->model(...), $facts->contexts());
 
-        return json_encode($model, self::JSON)."\n";
+        return json_encode(['models' => $models], self::JSON)."\n";
     }
 
     /**

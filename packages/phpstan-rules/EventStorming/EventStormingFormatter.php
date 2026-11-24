@@ -11,7 +11,7 @@ use PHPStan\Command\ErrorFormatter\ErrorFormatter;
 use PHPStan\Command\Output;
 
 /**
- * Writes a context's model (ModelDocument) from what the analysis gives (event-storming.neon). The errors of the
+ * Writes every context's model (ModelDocument) from what the analysis gives (event-storming.neon). The errors of the
  * other rules an extension brings are lint's business, and are left out.
  */
 final readonly class EventStormingFormatter implements ErrorFormatter

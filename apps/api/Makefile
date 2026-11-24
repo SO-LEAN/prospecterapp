@@ -91,12 +91,13 @@ commands: ## List the commands of the core and their handlers
 profiler-clear: ## Empty the history of the requests kept by the profiler of the API, locally
 	@$(PHP) rm -rf var/profiler
 
-# the context's event storming, read by PHPStan from the core and the delivery (docs/architecture/event-storming.md):
-# CONTEXT= its name in the code (Booking), OUTPUT= the file of its model
-EVENT_STORMING_PATHS = ../../packages/core/src/$(CONTEXT) src/$(CONTEXT)
-event-storming-model: ## Write the model of a context's event storming: CONTEXT=Booking OUTPUT=<file>
-	@test -n "$(CONTEXT)" -a -n "$(OUTPUT)" || { echo "make event-storming-model CONTEXT=<context> OUTPUT=<file>"; exit 1; }
-	@$(PHP) env EVENT_STORMING_CONTEXT=$(CONTEXT) vendor/bin/phpstan analyse --no-progress --memory-limit=1G \
+# every context's event storming, read by PHPStan from the whole core and the whole delivery, where the callers of a
+# context's published services and many of its controllers sit (docs/architecture/event-storming.md): OUTPUT= the file
+# of the document of the models
+EVENT_STORMING_PATHS = ../../packages/core/src src
+event-storming-model: ## Write the document of every context's event storming model: OUTPUT=<file>
+	@test -n "$(OUTPUT)" || { echo "make event-storming-model OUTPUT=<file>"; exit 1; }
+	@$(PHP) vendor/bin/phpstan analyse --no-progress --memory-limit=1G \
 		-c ../../packages/phpstan-rules/EventStorming/event-storming.neon --error-format=eventStorming $(EVENT_STORMING_PATHS) > $(OUTPUT).tmp \
 		&& mv $(OUTPUT).tmp $(OUTPUT) || { cat $(OUTPUT).tmp; rm -f $(OUTPUT).tmp; exit 1; }
 

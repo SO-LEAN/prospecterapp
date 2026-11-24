@@ -16,11 +16,13 @@ final class ModelDocumentTest extends TestCase
 
     private const string ADD_ITEM = AddItem::class;
 
-    public function testTheDocumentIsTheModelOfTheContextFromTheFacts(): void
+    private const string PAY = 'Prospecter\Core\Till\Application\Pay\Pay';
+
+    public function testTheDocumentHoldsTheModelOfEachContextOfTheFacts(): void
     {
         $document = (array) json_decode(self::document()->of(self::facts(), []), true, flags: \JSON_THROW_ON_ERROR);
 
-        self::assertSame(['Shop', 'command:'.self::ADD_ITEM], [$document['context'] ?? null, self::firstStickyOf($document)]);
+        self::assertSame([['Shop', 'command:'.self::ADD_ITEM], ['Till', 'command:'.self::PAY]], self::contextsAndFirstStickiesOf($document));
     }
 
     public function testAnAnalysisThatReadNoFactsGivesNoDocument(): void
@@ -39,7 +41,7 @@ final class ModelDocumentTest extends TestCase
 
     private static function document(): ModelDocument
     {
-        return new ModelDocument('Shop', self::FIXTURES.'/features', self::FIXTURES.'/subscriptions.json');
+        return new ModelDocument(self::FIXTURES.'/features', self::FIXTURES.'/subscriptions.json');
     }
 
     /**
@@ -47,19 +49,31 @@ final class ModelDocumentTest extends TestCase
      */
     private static function facts(): array
     {
-        $handler = ['name' => self::ADD_ITEM.'Handler', 'interfaces' => [CommandHandler::class], 'parameters' => [[self::ADD_ITEM]], 'returns' => [], 'mayReturnNothing' => false, 'dependencies' => [], 'roles' => [], 'presents' => []];
+        return ['classes' => [self::handlerOf(self::PAY), self::handlerOf(self::ADD_ITEM)], 'calls' => []];
+    }
 
-        return ['classes' => [$handler], 'calls' => []];
+    /**
+     * @return array<string, mixed>
+     */
+    private static function handlerOf(string $command): array
+    {
+        return ['name' => $command.'Handler', 'interfaces' => [CommandHandler::class], 'parameters' => [[$command]], 'returns' => [], 'mayReturnNothing' => false, 'dependencies' => [], 'roles' => [], 'presents' => []];
     }
 
     /**
      * @param array<mixed> $document
+     *
+     * @return list<array{mixed, mixed}>
      */
-    private static function firstStickyOf(array $document): mixed
+    private static function contextsAndFirstStickiesOf(array $document): array
     {
-        $stickies = \is_array($document['stickies'] ?? null) ? $document['stickies'] : [];
-        $first = $stickies[0] ?? null;
+        $models = \is_array($document['models'] ?? null) ? array_values(array_filter($document['models'], \is_array(...))) : [];
 
-        return \is_array($first) ? ($first['id'] ?? null) : null;
+        return array_map(static function (array $model): array {
+            $stickies = \is_array($model['stickies'] ?? null) ? $model['stickies'] : [];
+            $first = $stickies[0] ?? null;
+
+            return [$model['context'] ?? null, \is_array($first) ? ($first['id'] ?? null) : null];
+        }, $models);
     }
 }
