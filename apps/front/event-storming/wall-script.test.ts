@@ -129,4 +129,65 @@ describe('the wall in the browser', () => {
 
     expect(location.hash).toBe('#at=policy%3APublishSlotBookedHandler')
   })
+
+  it('steps closer on Ctrl and the wheel', () => {
+    const before = document.querySelector('#zoomPct')?.textContent
+    document
+      .querySelector('#stage')
+      ?.dispatchEvent(
+        new WheelEvent('wheel', { deltaY: -100, ctrlKey: true, bubbles: true, cancelable: true }),
+      )
+
+    expect(document.querySelector('#zoomPct')?.textContent).not.toBe(before)
+  })
+
+  it('walks along the wall on the wheel, and the minimap follows', () => {
+    const world = document.querySelector<HTMLElement>('#world')
+    const view = (): string | undefined => document.querySelector<HTMLElement>('#mini .view')?.style.top
+    const [transform, top] = [world?.style.transform, view()]
+    document
+      .querySelector('#stage')
+      ?.dispatchEvent(new WheelEvent('wheel', { deltaY: 200, bubbles: true, cancelable: true }))
+
+    expect([world?.style.transform !== transform, view() !== top]).toEqual([true, true])
+  })
+
+  it('comes back from a jump with Back', async () => {
+    const booked = data.notes.findIndex((note) => note.slug === 'event:SlotBooked' && note.jumps.length > 0)
+    go(`#at=${encodeURIComponent('event:SlotBooked')}`)
+    document.querySelector<HTMLElement>(`[data-node="${booked}"] .jump`)?.click()
+    const back = new Promise((resolve) => addEventListener('popstate', resolve, { once: true }))
+    history.back()
+    await back
+
+    expect([
+      location.hash,
+      document.querySelector(`[data-node="${booked}"]`)?.classList.contains('pinned'),
+    ]).toEqual(['#at=event%3ASlotBooked', true])
+  })
+
+  it('opens the wall on a lane from its link', () => {
+    go('#lane=PublicLink')
+
+    expect(document.querySelector('#lanes [aria-pressed="true"]')?.textContent).toBe('Public link')
+  })
+
+  it('finds a post-it by its label and by its class', () => {
+    const found = (asked: string): string[] => {
+      const search = document.querySelector<HTMLInputElement>('#q') as HTMLInputElement
+      search.value = asked
+      search.dispatchEvent(new Event('input'))
+      return [...document.querySelectorAll('#results button')].map(
+        (button) => button.firstElementChild?.nextSibling?.firstChild?.textContent ?? '',
+      )
+    }
+
+    expect([found('book slot')[0], found('PublicLink\\BookSlot')]).toEqual(['Book slot', ['Book slot']])
+  })
 })
+
+/** Follows a link to the wall, as the browser does when its address changes. */
+function go(hash: string): void {
+  history.pushState(null, '', hash)
+  dispatchEvent(new PopStateEvent('popstate', { state: { depth: 1 } }))
+}
