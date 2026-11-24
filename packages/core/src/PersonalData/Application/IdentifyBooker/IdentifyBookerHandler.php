@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\PersonalData\Application\IdentifyBooker;
 
-use Prospecter\Core\Booking\Contract\Event\SlotBooked;
 use Prospecter\Core\PersonalData\Domain\Model\Booker;
 use Prospecter\Core\PersonalData\Domain\Model\ContactCard;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
@@ -12,7 +11,7 @@ use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\PersonalData\Domain\Port\Bookers;
 use Prospecter\Core\PersonalData\Domain\Port\Readers;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
-use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Handler\PublishesEvents;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Domain\Exception\PersonalDataManagersOnly;
@@ -24,7 +23,7 @@ use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
  * Otherwise, it collects a contact to attach for the host from what they typed, as ADR 0146 says. When the appointment
  * is gone meanwhile, there is nothing to do.
  */
-final readonly class IdentifyBookerHandler implements EventHandler
+final readonly class IdentifyBookerHandler implements CommandHandler
 {
     use PublishesEvents;
 
@@ -39,16 +38,16 @@ final readonly class IdentifyBookerHandler implements EventHandler
     /**
      * @throws PersonalDataManagersOnly when the host may not collect a contact
      */
-    public function __invoke(SlotBooked $event): void
+    public function __invoke(IdentifyBooker $command): void
     {
-        $booker = $this->bookers->bookerOf($event->appointmentId);
+        $booker = $this->bookers->bookerOf($command->appointmentId);
         if (null === $booker) {
             return;
         }
 
-        $host = new MemberId($event->hostId);
-        $contact = $this->persons->contactWithEmail(new AccountId($event->accountId), $booker->email) ?? $this->collect($booker, $host, new PersonId($event->bookerId), $event->occurredAt);
-        $contact->identifyAsBookerOf($event->appointmentId, $host, $event->occurredAt);
+        $host = new MemberId($command->hostId);
+        $contact = $this->persons->contactWithEmail(new AccountId($command->accountId), $booker->email) ?? $this->collect($booker, $host, new PersonId($command->bookerId), $command->executedAt);
+        $contact->identifyAsBookerOf($command->appointmentId, $host, $command->executedAt);
         $this->publishWhatHappenedTo($contact);
     }
 

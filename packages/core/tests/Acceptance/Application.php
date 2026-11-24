@@ -202,6 +202,14 @@ use Prospecter\Core\PersonalData\Application\LiftSuspicionInReturn\LiftSuspicion
 use Prospecter\Core\PersonalData\Application\ListContactFacts\ListContactFactsHandler;
 use Prospecter\Core\PersonalData\Application\NameContacts\NameContactsHandler;
 use Prospecter\Core\PersonalData\Application\PersonCard;
+use Prospecter\Core\PersonalData\Application\Policy\CollectTheFounderProfilePolicy;
+use Prospecter\Core\PersonalData\Application\Policy\CollectTheMemberProfilePolicy;
+use Prospecter\Core\PersonalData\Application\Policy\DismissSuspicionInReturnPolicy as DismissContactSuspicionInReturnPolicy;
+use Prospecter\Core\PersonalData\Application\Policy\ForgetContactLeftUnattachedPolicy;
+use Prospecter\Core\PersonalData\Application\Policy\ForgetContactsLeftWithoutOrganizationPolicy;
+use Prospecter\Core\PersonalData\Application\Policy\IdentifyBookerPolicy;
+use Prospecter\Core\PersonalData\Application\Policy\LiftSuspicionInReturnPolicy as LiftContactSuspicionInReturnPolicy;
+use Prospecter\Core\PersonalData\Application\Policy\SuspectDuplicateInReturnPolicy as SuspectContactDuplicateInReturnPolicy;
 use Prospecter\Core\PersonalData\Application\PresentMembers\PresentMembersHandler;
 use Prospecter\Core\PersonalData\Application\PublishBookerIdentified\PublishBookerIdentifiedHandler;
 use Prospecter\Core\PersonalData\Application\PublishContactCollected\PublishContactCollectedHandler;
@@ -1378,6 +1386,14 @@ final class Application
     private function commandHandlers(): array
     {
         return [
+            new DismissContactSuspicionInReturnHandler($this->persons, $this->events),
+            new LiftContactSuspicionInReturnHandler($this->persons, $this->events),
+            new SuspectContactDuplicateInReturnHandler($this->persons, $this->events),
+            new IdentifyBookerHandler($this->persons, new BookingBookers($this->consultAppointmentsService), $this->readers, $this->events),
+            new ForgetContactLeftUnattachedHandler($this->persons, $this->readers, $this->events),
+            new ForgetContactsLeftWithoutOrganizationHandler($this->persons, $this->readers, $this->events),
+            new CollectTheMemberProfileHandler($this->persons),
+            new CollectTheFounderProfileHandler($this->persons),
             new ReadMailboxHistoryHandler($this->connections, $this->clients, $this->mailboxes, $this->connectingMembers, $this->events),
             new PushUpcomingExchangesHandler($this->heldExchanges, $this->calendarPusher),
             new ImportMailHandler($this->connections, $this->clients, $this->mailboxes, new PersonalDataAndProspectingCorrespondents($this->whichContactsHaveTheseEmailsService, $this->whichOrganizationsHaveTheseEmailsService), $this->events),
@@ -1778,23 +1794,23 @@ final class Application
             new KeepCreatedVideoCallLinkHandler($this->exchanges, $this->events),
             new SuspectDuplicateInReturnHandler($this->organizations, $this->events),
             new LiftSuspicionInReturnHandler($this->organizations, $this->events),
-            new SuspectContactDuplicateInReturnHandler($this->persons, $this->events),
-            new LiftContactSuspicionInReturnHandler($this->persons, $this->events),
-            new DismissContactSuspicionInReturnHandler($this->persons, $this->events),
+            new SuspectContactDuplicateInReturnPolicy(),
+            new LiftContactSuspicionInReturnPolicy(),
+            new DismissContactSuspicionInReturnPolicy(),
             new DismissSuspicionInReturnHandler($this->organizations, $this->events),
             new NoteImportedEmailHandler($this->exchanges, $this->organizations, $this->prospectors, $this->contactOrganizations, new NotedOnce($this->exchanges), $this->privateStorage, $this->events),
-            new ForgetContactsLeftWithoutOrganizationHandler($this->persons, $this->readers, $this->events),
-            new ForgetContactLeftUnattachedHandler($this->persons, $this->readers, $this->events),
+            new ForgetContactsLeftWithoutOrganizationPolicy(),
+            new ForgetContactLeftUnattachedPolicy(),
             new EraseExchangesOfContactLeftUnattachedHandler($this->exchanges, $this->events),
             new AttachContactToAttachHandler($this->contactsToAttach, $this->events),
             new KeepExchangesOfAttachedContactHandler($this->exchanges, $this->events),
             new KeepToDosOfAttachedContactHandler($this->toDos, $this->events),
             new PushBackErasureOfContactToAttachHandler($this->exchanges, $this->contactsToAttach, $this->events),
-            new IdentifyBookerHandler($this->persons, new BookingBookers($this->consultAppointmentsService), $this->readers, $this->events),
+            new IdentifyBookerPolicy(),
             new PlanBookedAppointmentHandler($this->exchanges, $this->contactsToAttach, $this->contactOrganizations, new BookingBookedAppointments($this->consultAppointmentsService), $this->prospectors, $this->events),
             new RegisterTheFounderPolicy(),
-            new CollectTheFounderProfileHandler($this->persons),
-            new CollectTheMemberProfileHandler($this->persons),
+            new CollectTheFounderProfilePolicy(),
+            new CollectTheMemberProfilePolicy(),
             new StopKeepingExchangesHandler($this->exchanges, $this->events),
             new EraseExchangeLeftWithoutOrganizationHandler($this->exchanges, $this->events),
             new StopKeepingToDosHandler($this->toDos, $this->events),

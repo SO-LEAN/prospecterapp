@@ -4,19 +4,20 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\PersonalData\Application\LiftSuspicionInReturn;
 
-use Prospecter\Core\PersonalData\Domain\Event\DuplicateSuspicionLifted;
 use Prospecter\Core\PersonalData\Domain\Exception\UnknownPerson;
+use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
-use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Handler\PublishesEvents;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * A contact no longer resembles another one, or was forgotten. In return, the other contact is no longer suspected of
- * being their duplicate. When the other contact was forgotten meanwhile, the reaction has nothing left to do. When it
+ * being their duplicate. When the other contact was forgotten meanwhile, the command has nothing left to do. When it
  * no longer suspects them, it records nothing.
  */
-final readonly class LiftSuspicionInReturnHandler implements EventHandler
+final readonly class LiftSuspicionInReturnHandler implements CommandHandler
 {
     use PublishesEvents;
 
@@ -26,15 +27,15 @@ final readonly class LiftSuspicionInReturnHandler implements EventHandler
     ) {
     }
 
-    public function __invoke(DuplicateSuspicionLifted $event): void
+    public function __invoke(LiftSuspicionInReturn $command): void
     {
         try {
-            $contact = $this->persons->get($event->duplicate);
+            $contact = $this->persons->get(new PersonId($command->contactId));
         } catch (UnknownPerson) {
             return;
         }
 
-        $contact->liftSuspicionOf($event->person, by: $event->by, at: $event->occurredAt);
+        $contact->liftSuspicionOf(new PersonId($command->duplicateId), by: new MemberId($command->memberId), at: $command->executedAt);
         $this->persons->save($contact);
         $this->publishWhatHappenedTo($contact);
     }

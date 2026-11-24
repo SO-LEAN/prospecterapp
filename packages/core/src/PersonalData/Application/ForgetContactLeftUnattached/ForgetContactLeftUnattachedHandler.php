@@ -7,18 +7,16 @@ namespace Prospecter\Core\PersonalData\Application\ForgetContactLeftUnattached;
 use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\PersonalData\Domain\Port\Readers;
 use Prospecter\Core\PersonalData\Domain\Repository\PersonRepository;
-use Prospecter\Core\Prospecting\Contract\Event\ContactLeftUnattached;
-use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Handler\PublishesEvents;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Erases a contact that nobody attached in time (ADR 0146). The member who held the contact erases them, as this
- * member collected them. The handler reacts to the integration event Prospecting publishes, translated into
- * PersonalData's words (ADR 0046). It does nothing when the person is already gone.
+ * member collected them. It does nothing when the person is already gone.
  */
-final readonly class ForgetContactLeftUnattachedHandler implements EventHandler
+final readonly class ForgetContactLeftUnattachedHandler implements CommandHandler
 {
     use PublishesEvents;
 
@@ -26,12 +24,12 @@ final readonly class ForgetContactLeftUnattachedHandler implements EventHandler
     {
     }
 
-    public function __invoke(ContactLeftUnattached $event): void
+    public function __invoke(ForgetContactLeftUnattached $command): void
     {
-        $holder = $this->readers->readerFrom(new MemberId($event->memberId));
+        $holder = $this->readers->readerFrom(new MemberId($command->holderId));
 
-        foreach ($this->persons->ofIds([new PersonId($event->personId)]) as $contact) {
-            $contact->forget(by: $holder, at: $event->occurredAt);
+        foreach ($this->persons->ofIds([new PersonId($command->contactId)]) as $contact) {
+            $contact->forget(by: $holder, at: $command->executedAt);
             $this->persons->remove($contact);
             $this->publishWhatHappenedTo($contact);
         }

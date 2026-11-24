@@ -24,42 +24,42 @@
     "context": "personal-data",
     "sources": ["prospecter.accounts"],
     "events": ["AccountOpened.v1"],
-    "handler": "Prospecter\\Core\\PersonalData\\Application\\CollectTheFounderProfile\\CollectTheFounderProfileHandler",
+    "policy": "Prospecter\\Core\\PersonalData\\Application\\Policy\\CollectTheFounderProfilePolicy",
     "inbox": true
   },
   "personal-data-collect-member-profile": {
     "context": "personal-data",
     "sources": ["prospecter.accounts"],
     "events": ["MemberRegistered.v1"],
-    "handler": "Prospecter\\Core\\PersonalData\\Application\\CollectTheMemberProfile\\CollectTheMemberProfileHandler",
+    "policy": "Prospecter\\Core\\PersonalData\\Application\\Policy\\CollectTheMemberProfilePolicy",
     "inbox": true
   },
   "personal-data-forget-contacts-left-without-organization": {
     "context": "personal-data",
     "sources": ["prospecter.prospecting"],
     "events": ["ContactsLeftWithoutOrganization.v1"],
-    "handler": "Prospecter\\Core\\PersonalData\\Application\\ForgetContactsLeftWithoutOrganization\\ForgetContactsLeftWithoutOrganizationHandler",
+    "policy": "Prospecter\\Core\\PersonalData\\Application\\Policy\\ForgetContactsLeftWithoutOrganizationPolicy",
     "inbox": true
   },
   "personal-data-suspect-duplicate-in-return": {
     "context": "personal-data",
     "sources": ["prospecter.personal-data.internal"],
     "events": ["DuplicateSuspected.v1"],
-    "handler": "Prospecter\\Core\\PersonalData\\Application\\SuspectDuplicateInReturn\\SuspectDuplicateInReturnHandler",
+    "policy": "Prospecter\\Core\\PersonalData\\Application\\Policy\\SuspectDuplicateInReturnPolicy",
     "inbox": true
   },
   "personal-data-lift-suspicion-in-return": {
     "context": "personal-data",
     "sources": ["prospecter.personal-data.internal"],
     "events": ["DuplicateSuspicionLifted.v1"],
-    "handler": "Prospecter\\Core\\PersonalData\\Application\\LiftSuspicionInReturn\\LiftSuspicionInReturnHandler",
+    "policy": "Prospecter\\Core\\PersonalData\\Application\\Policy\\LiftSuspicionInReturnPolicy",
     "inbox": true
   },
   "personal-data-dismiss-suspicion-in-return": {
     "context": "personal-data",
     "sources": ["prospecter.personal-data.internal"],
     "events": ["DuplicateSuspicionDismissed.v1"],
-    "handler": "Prospecter\\Core\\PersonalData\\Application\\DismissSuspicionInReturn\\DismissSuspicionInReturnHandler",
+    "policy": "Prospecter\\Core\\PersonalData\\Application\\Policy\\DismissSuspicionInReturnPolicy",
     "inbox": true
   },
   "prospecting-attach-collected-contact": {
@@ -94,7 +94,7 @@
     "context": "personal-data",
     "sources": ["prospecter.booking"],
     "events": ["SlotBooked.v1"],
-    "handler": "Prospecter\\Core\\PersonalData\\Application\\IdentifyBooker\\IdentifyBookerHandler",
+    "policy": "Prospecter\\Core\\PersonalData\\Application\\Policy\\IdentifyBookerPolicy",
     "inbox": true
   },
   "prospecting-plan-booked-appointment": {
@@ -288,7 +288,7 @@
     "context": "personal-data",
     "sources": ["prospecter.prospecting"],
     "events": ["ContactLeftUnattached.v1"],
-    "handler": "Prospecter\\Core\\PersonalData\\Application\\ForgetContactLeftUnattached\\ForgetContactLeftUnattachedHandler",
+    "policy": "Prospecter\\Core\\PersonalData\\Application\\Policy\\ForgetContactLeftUnattachedPolicy",
     "inbox": true
   },
   "prospecting-erase-exchanges-of-contact-left-unattached": {
