@@ -356,14 +356,14 @@ class WallUnderConstruction {
       })
   }
 
-  /** The ports of a command go down under the aggregates of its later changes when these stand in their column. */
+  /**
+   * The ports of a command go down under the aggregates of its later changes, which stand in their column: the first
+   * aggregate ends above them.
+   */
   private lowerThePortsUnderTheChanges(step: Step, node: Note): void {
     const under = node.y + SIZE.sticky - 3
-    const right = node.x + PORTS.left + PORTS.stagger + SIZE.port.w
-    const inTheColumn = step.notes.filter(
-      (note) => note.kind === 'aggregate' && note.x < right && note.y + note.h > under,
-    )
-    const lower = Math.max(under, ...inTheColumn.map((note) => note.y + note.h + PORTS.room)) - under
+    const aggregates = step.notes.filter((note) => note.kind === 'aggregate')
+    const lower = Math.max(under, ...aggregates.map((note) => note.y + note.h + PORTS.room)) - under
     for (const port of step.notes.filter((note) => note.port)) port.y += lower
   }
 

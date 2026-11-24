@@ -701,10 +701,8 @@ export function runTheWall(data: WallData): void {
       if (lane >= 0) folded.add(lane)
     }
   } else if (large) {
-    const at = placeOfHash().at
-    const open = at === undefined ? -1 : notes[at]?.lane
     data.lanes.forEach((_, lane) => {
-      if (lane !== open) folded.add(lane)
+      folded.add(lane)
     })
   }
   place()
