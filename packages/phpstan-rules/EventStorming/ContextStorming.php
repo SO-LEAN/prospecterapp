@@ -178,17 +178,20 @@ final readonly class ContextStorming
      */
     private function servicesTakenBy(ClassFacts $adapter): array
     {
-        $services = [];
-        foreach ($adapter->dependencies as $dependency) {
-            foreach ($this->handlersImplementing($dependency) as $handler) {
-                foreach ($handler->firstParameter() as $query) {
-                    $name = new ClassName($query);
-                    $services[] = new Elsewhere($name->context(), StickyType::ReadModel->value.':'.$name->short(), Wording::ofReadModel($name->short(), self::presentedBy($handler)));
-                }
-            }
-        }
+        $handlers = array_merge(...array_map($this->handlersImplementing(...), $adapter->dependencies));
 
-        return $services;
+        return array_merge(...array_map(self::servicesAnsweredBy(...), $handlers));
+    }
+
+    /**
+     * @return list<Elsewhere> the read model of each query a handler of a published service answers
+     */
+    private static function servicesAnsweredBy(ClassFacts $handler): array
+    {
+        return array_map(
+            static fn (string $query): Elsewhere => new Elsewhere(new ClassName($query)->context(), StickyType::ReadModel->value.':'.new ClassName($query)->short(), Wording::ofReadModel(new ClassName($query)->short(), self::presentedBy($handler))),
+            $handler->firstParameter(),
+        );
     }
 
     /**
