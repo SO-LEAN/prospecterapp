@@ -448,9 +448,12 @@ export function runTheWall(data: WallData): void {
   function follow(to: number | null): void {
     if (to !== null) go({ at: to })
   }
+  /** A wall opened from a pictogram of another wall goes back to it. */
+  const cameFromAWall = /\/docs\/event-storming\//.test(document.referrer)
+  back.disabled = !cameFromAWall
   addEventListener('popstate', (event) => {
     depth = (event.state as { depth?: number } | null)?.depth ?? 0
-    back.disabled = depth === 0
+    back.disabled = depth === 0 && !cameFromAWall
     show(placeOfHash())
   })
   back.addEventListener('click', () => history.back())

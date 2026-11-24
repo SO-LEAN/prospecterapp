@@ -157,11 +157,45 @@ describe('the wall of a context', () => {
     ]).toEqual([[published], [[booked, true]]])
   })
 
-  it('names on a pictogram the other contexts that answer a port', () => {
+  it('names on a pictogram the other contexts that answer a port, when no published service is seen answering', () => {
+    const unanswered = wallOf({
+      ...BOOKING,
+      stickies: BOOKING.stickies.map((sticky) => ({ ...sticky, answers: [] })),
+    })
+    const hosts = unanswered.notes.find((note) => note.slug === 'externalSystem:Hosts')
+
+    expect(hosts?.jumps.map((jump) => [jump.href, jump.tip])).toEqual([
+      [null, 'Answered by Accounts, Personal data'],
+    ])
+  })
+
+  it('jumps from a port to the published services that answer it, on their wall', () => {
     const hosts = wall.notes.find((note) => note.slug === 'externalSystem:Hosts')
 
-    expect(hosts?.jumps.map((jump) => [jump.to, jump.tip])).toEqual([
-      [null, 'Answered by Accounts, Personal data'],
+    expect(hosts?.jumps.map((jump) => [jump.href, jump.tip])).toEqual([
+      ['../accounts/#at=readModel%3AConsultMembers', 'Answered by “Members” · Accounts'],
+      ['../personal-data/#at=readModel%3APresentMembers', 'Answered by “Present members” · Personal data'],
+    ])
+  })
+
+  it('jumps from a published service to the ports that read it, on their wall', () => {
+    expect(noteOf('readModel:ConsultAppointments').jumps.map((jump) => jump.href)).toEqual([
+      '../personal-data/#at=externalSystem%3ABookers',
+      '../prospecting/#at=externalSystem%3ABookedAppointments',
+    ])
+  })
+
+  it('jumps from a published event to the policies of the other contexts that hear it, on their wall', () => {
+    const published = wall.notes.find((note) => note.slug === 'published:SlotBooked')
+
+    expect(published?.jumps.map((jump) => [jump.href, jump.tip])).toEqual([
+      ['../personal-data/#at=policy%3AIdentifyBookerPolicy', 'Heard by “Identify booker” · Personal data'],
+    ])
+  })
+
+  it('jumps from the event of another context a policy hears to that event, on its wall', () => {
+    expect(noteOf('Prospecting/published:ExchangeFactsChanged').jumps.map((jump) => jump.href)).toEqual([
+      '../prospecting/#at=published%3AExchangeFactsChanged',
     ])
   })
 

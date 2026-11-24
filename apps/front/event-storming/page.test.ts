@@ -43,6 +43,15 @@ describe('the page of a wall', () => {
     expect(stickyOf('Slot booked', '.role-stamp')?.textContent).toBe('PUBLISHED')
   })
 
+  it('links a pictogram to the post-it of another wall it jumps to', () => {
+    const jump = stickyOf('Slot booked', 'a.jump')
+
+    expect([jump?.getAttribute('href'), jump?.getAttribute('aria-label')]).toEqual([
+      '../personal-data/#at=policy%3AIdentifyBookerPolicy',
+      'Heard by “Identify booker” · Personal data',
+    ])
+  })
+
   it('tells the wall as text without its script', () => {
     expect(document.querySelector('#story')?.textContent).toContain('Anyone with the link asks to Book slot')
   })

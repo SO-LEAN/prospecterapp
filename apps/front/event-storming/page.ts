@@ -146,7 +146,10 @@ function jumpsOf(note: Note): string {
         ? `left:${-9 + index * 26}px`
         : `right:${note.port ? 4 + index * 21 : -9 + index * 25}px`
       const icon = away ? ICONS.away : jump.back ? ICONS.back : ICONS.on
-      return `<button class="jump${away ? ' away' : ''}" style="${side}" data-jump="${index}" data-tip="${escaped(jump.tip)}" aria-label="${escaped(jump.tip)}" tabindex="-1">${icon}</button>`
+      const attributes = `style="${side}" data-jump="${index}" data-tip="${escaped(jump.tip)}" aria-label="${escaped(jump.tip)}" tabindex="-1"`
+      if (jump.href !== null)
+        return `<a class="jump away" href="${escaped(jump.href)}" ${attributes}>${icon}</a>`
+      return `<button class="jump${away ? ' away' : ''}" ${attributes}>${icon}</button>`
     })
     .join('')
 }
