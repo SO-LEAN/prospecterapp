@@ -53,7 +53,6 @@
 
 
 
-
 <g transform="translate(665 1780) rotate(1.53 66 66)"><rect width="132" height="132" rx="1" fill="#7cc4f8" stroke="#000" stroke-opacity="0.12"/><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="21" fill="#1b2030" text-anchor="middle"><tspan x="66" y="70.5">Book slot</tspan></text></g>
 <g transform="translate(671 1909) rotate(-0.37 80 23.5)"><rect width="160" height="47" rx="1" fill="#ffb5d0" stroke="#000" stroke-opacity="0.12"/><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="16" fill="#1b2030"><tspan x="10" y="25.8">Connected calendars</tspan></text><text font-family='system-ui, sans-serif' font-size="9.5" fill="#5e6270"><tspan x="10" y="38.2">asks Connectors</tspan></text></g>
 <g transform="translate(678 1958) rotate(-0.84 80 23.5)"><rect width="160" height="47" rx="1" fill="#ffb5d0" stroke="#000" stroke-opacity="0.12"/><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="16" fill="#1b2030"><tspan x="10" y="25.8">Host agendas</tspan></text><text font-family='system-ui, sans-serif' font-size="9.5" fill="#5e6270"><tspan x="10" y="38.2">asks Prospecting</tspan></text></g>
