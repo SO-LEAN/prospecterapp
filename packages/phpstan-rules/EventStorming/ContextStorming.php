@@ -33,6 +33,8 @@ final readonly class ContextStorming
 
     private const string SOURCE = 'prospecter.';
 
+    private const string PUBLISHED = 'Événement publié';
+
     private const string ENTRY = '__invoke';
 
     /**
@@ -232,7 +234,7 @@ final readonly class ContextStorming
         foreach ($this->handlersOf($context, self::QUERY_HANDLER) as $handler) {
             $presented = implode(', ', array_map(static fn (string $class): string => new ClassName($class)->short(), $handler->presents));
             foreach ($handler->firstParameter() as $query) {
-                $sticky = $this->useCaseOf(StickyType::ReadModel, $query, '' === $presented ? null : $presented);
+                $sticky = $this->useCaseOf(StickyType::ReadModel, $query, '' === $presented ? null : $presented, new ClassName($handler->name)->module());
                 $board->stick($sticky);
                 $this->tellWhatItAsks($board, $sticky, $handler, $context);
             }
@@ -309,17 +311,17 @@ final readonly class ContextStorming
         ));
     }
 
-    private function useCaseOf(StickyType $type, string $class, ?string $detail = null): Sticky
+    private function useCaseOf(StickyType $type, string $class, ?string $detail = null, ?string $module = null): Sticky
     {
         $name = new ClassName($class);
-
-        return new Sticky($type->value.':'.$class, $type, $this->titles[$name->short()] ?? $name->short(), $name->short(), $class, (string) $name->context(), $name->module(), $detail);
+        return new Sticky($type->value.':'.$class, $type, $this->titles[$name->short()] ?? $name->short(), $name->short(), $class, (string) $name->context(), $module ?? $name->module(), $detail);
     }
 
     private static function stickyOf(StickyType $type, string $class): Sticky
     {
         $name = new ClassName($class);
+        $detail = StickyType::Event === $type && $name->isAPublishedEvent() ? self::PUBLISHED : null;
 
-        return new Sticky($type->value.':'.$class, $type, $name->short(), $name->short(), $class, (string) $name->context(), $name->module());
+        return new Sticky($type->value.':'.$class, $type, $name->short(), $name->short(), $class, (string) $name->context(), $name->module(), $detail);
     }
 }

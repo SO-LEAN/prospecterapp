@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Core\PHPStan\EventStorming;
 
 use PHPUnit\Framework\TestCase;
+use Prospecter\Core\Booking\Application\Appointment\ConsultAppointments\ConsultAppointmentsHandler;
 use Prospecter\Core\Booking\Application\Appointment\ForgetAppointmentOfErasedExchange\ForgetAppointmentOfErasedExchange;
 use Prospecter\Core\Booking\Application\Appointment\PublishSlotBooked\PublishSlotBookedHandler;
 use Prospecter\Core\Booking\Application\BookingPage\ConsultMyBookingPage\ConsultMyBookingPage;
@@ -13,6 +14,7 @@ use Prospecter\Core\Booking\Application\BookingPage\OpenBooking\OpenBooking;
 use Prospecter\Core\Booking\Application\Policy\ForgetAppointmentOfErasedExchangePolicy;
 use Prospecter\Core\Booking\Application\PublicLink\BookSlot\BookSlot;
 use Prospecter\Core\Booking\Contract\Event as Published;
+use Prospecter\Core\Booking\Contract\Service\ConsultAppointments\ConsultAppointments;
 use Prospecter\Core\Booking\Domain\Event\BookingOpened;
 use Prospecter\Core\Booking\Domain\Event\SlotBooked;
 use Prospecter\Core\Booking\Domain\Model\Appointment;
@@ -198,6 +200,22 @@ final class ContextStormingTest extends TestCase
             ['id' => 'readModel:'.self::CONSULT_MY_BOOKING_PAGE, 'type' => 'readModel', 'label' => 'Consulter ma prise de rendez-vous', 'name' => 'ConsultMyBookingPage', 'class' => self::CONSULT_MY_BOOKING_PAGE, 'context' => 'Booking', 'module' => 'BookingPage', 'detail' => 'MyBookingPage'],
             self::stickyOf($model, 'readModel:'.self::CONSULT_MY_BOOKING_PAGE),
         );
+    }
+
+    public function testAPublishedServiceIsAReadModelOfTheModuleOfItsHandler(): void
+    {
+        $model = self::modelOf(new Facts([new ClassFacts(ConsultAppointmentsHandler::class, interfaces: [self::QUERY_HANDLER], parameters: [[ConsultAppointments::class]])], []));
+
+        self::assertSame('Appointment', self::stickyOf($model, 'readModel:'.ConsultAppointments::class)['module'] ?? null);
+    }
+
+    public function testAPublishedEventSaysSo(): void
+    {
+        $model = self::modelOf(new Facts([new ClassFacts(self::PUBLISH_SLOT_BOOKED, interfaces: [self::EVENT_HANDLER], parameters: [[self::SLOT_BOOKED]])], [
+            new Call(self::PUBLISH_SLOT_BOOKED, '__invoke', self::PUBLISHED_SLOT_BOOKED, Call::CREATION),
+        ]));
+
+        self::assertSame('Événement publié', self::stickyOf($model, 'event:'.self::PUBLISHED_SLOT_BOOKED)['detail'] ?? null);
     }
 
     public function testAPortOfTheDomainIsAnExternalSystemNamedAfterWhatItsAdapterReads(): void
