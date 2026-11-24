@@ -189,7 +189,11 @@ final readonly class ContextStorming
     private static function servicesAnsweredBy(ClassFacts $handler): array
     {
         return array_map(
-            static fn (string $query): Elsewhere => new Elsewhere(new ClassName($query)->context(), StickyType::ReadModel->value.':'.new ClassName($query)->short(), Wording::ofReadModel(new ClassName($query)->short(), self::presentedBy($handler))),
+            static function (string $query) use ($handler): Elsewhere {
+                $name = new ClassName($query);
+
+                return new Elsewhere($name->context(), StickyType::ReadModel->value.':'.$name->short(), Wording::ofReadModel($name->short(), self::presentedBy($handler)));
+            },
             $handler->firstParameter(),
         );
     }
