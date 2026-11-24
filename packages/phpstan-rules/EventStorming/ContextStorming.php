@@ -30,15 +30,11 @@ final readonly class ContextStorming
 
     private const string AI = 'mcp';
 
-    private const array ACTORS = [
-        'ROLE_USER' => 'Membre',
-        self::ANYONE => 'Quiconque a le lien',
-        self::AI => 'L\'IA du membre',
-    ];
-
     private const string SOURCE = 'prospecter.';
 
     private const string PUBLISHED = 'Événement publié';
+
+    private const string PUBLISHED_SLUG = 'published';
 
     private const string ENTRY = '__invoke';
 
@@ -67,7 +63,7 @@ final readonly class ContextStorming
     {
         foreach ($this->handlersOf($context, self::COMMAND_HANDLER) as $handler) {
             foreach ($handler->firstParameter() as $command) {
-                $sticky = $this->useCaseOf(StickyType::Command, $command);
+                $sticky = $this->useCaseOf(StickyType::Command, $command, $context);
                 $board->stick($sticky);
                 $this->tellWhatItChanges($board, $sticky, $handler->name, $context);
                 $this->tellWhatItAsks($board, $sticky, $handler, $context);
@@ -79,18 +75,18 @@ final readonly class ContextStorming
     {
         foreach ($this->reachedFrom($handler, self::ENTRY, $context, Layer::Application) as $intention) {
             if (new ClassName($intention->class)->isAnEvent()) {
-                $this->stickTheEvent($board, $useCase, $intention);
+                $this->stickTheEvent($board, $useCase, $intention, $context);
                 continue;
             }
             $events = $this->reachedFrom($intention->class, $intention->method, $context, Layer::Domain);
             if ([] === $events) {
                 continue;
             }
-            $aggregate = self::stickyOf(StickyType::Aggregate, $intention->class);
+            $aggregate = $this->stickyOf(StickyType::Aggregate, $intention->class, $context);
             $board->stick($aggregate);
             $board->link(new Link($useCase->id, $aggregate->id, $intention->method, $intention->certain));
             foreach ($events as $event) {
-                $this->stickTheEvent($board, $aggregate, $event, $intention->method);
+                $this->stickTheEvent($board, $aggregate, $event, $context, $intention->method);
             }
         }
     }
@@ -123,9 +119,9 @@ final readonly class ContextStorming
         return $reached;
     }
 
-    private function stickTheEvent(Board $board, Sticky $cause, Reached $event, ?string $via = null): void
+    private function stickTheEvent(Board $board, Sticky $cause, Reached $event, string $context, ?string $via = null): void
     {
-        $sticky = self::stickyOf(StickyType::Event, $event->class);
+        $sticky = $this->stickyOf(StickyType::Event, $event->class, $context);
         $board->stick($sticky);
         $board->link(new Link($cause->id, $sticky->id, $via, $event->certain));
     }
@@ -143,7 +139,7 @@ final readonly class ContextStorming
             $name = new ClassName($dependency);
             $facts = $this->facts->find($dependency);
             if ($name->isAPort() && $name->isOf($context)) {
-                $system = $this->externalSystemOf($dependency);
+                $system = $this->externalSystemOf($dependency, $context);
                 $board->stick($system);
                 $board->link(new Link($useCase->id, $system->id));
             } elseif ($name->isOf($context) && null !== $facts && !isset($visited[$dependency])) {
@@ -153,9 +149,9 @@ final readonly class ContextStorming
     }
 
     /**
-     * An external system is named after the contexts its adapters read, or after its port when they read none.
+     * An external system is named after its port, and answered by the contexts its adapters read.
      */
-    private function externalSystemOf(string $port): Sticky
+    private function externalSystemOf(string $port, string $context): Sticky
     {
         $adapters = array_values(array_filter($this->facts->classes(), static fn (ClassFacts $class): bool => $class->implements($port)));
         $read = array_unique(array_filter(array_map(
@@ -166,27 +162,27 @@ final readonly class ContextStorming
         $name = new ClassName($port);
         $detail = implode(', ', array_map(static fn (ClassFacts $adapter): string => new ClassName($adapter->name)->short(), $adapters));
 
-        return new Sticky(StickyType::ExternalSystem->value.':'.$port, StickyType::ExternalSystem, [] === $read ? $name->short() : implode(', ', $read), $name->short(), $port, (string) $name->context(), null, '' === $detail ? null : $detail);
+        return new Sticky(StickyType::ExternalSystem->value.':'.$port, self::slugOf(StickyType::ExternalSystem, $name, $context), StickyType::ExternalSystem, Wording::ofIntention($name->short()), null, $name->short(), $port, (string) $name->context(), null, '' === $detail ? null : $detail, array_values($read));
     }
 
     private function stickThePolicies(Board $board, string $context): void
     {
         foreach ($this->handlersOf($context, self::POLICY) as $policy) {
-            $sticky = $this->reactionOf($board, $policy);
+            $sticky = $this->reactionOf($board, $policy, $context);
             foreach ($policy->returns as $command) {
-                $sent = $this->useCaseOf(StickyType::Command, $command);
+                $sent = $this->useCaseOf(StickyType::Command, $command, $context);
                 $board->stick($sent);
                 $board->link(new Link($sticky->id, $sent->id, certain: !$policy->mayReturnNothing));
             }
         }
     }
 
-    private function reactionOf(Board $board, ClassFacts $reaction): Sticky
+    private function reactionOf(Board $board, ClassFacts $reaction, string $context): Sticky
     {
-        $sticky = self::stickyOf(StickyType::Policy, $reaction->name);
+        $sticky = $this->stickyOf(StickyType::Policy, $reaction->name, $context);
         $board->stick($sticky);
         foreach ($reaction->firstParameter() as $event) {
-            $heard = self::stickyOf(StickyType::Event, $event);
+            $heard = $this->stickyOf(StickyType::Event, $event, $context);
             $board->stick($heard);
             $board->link(new Link($heard->id, $sticky->id));
         }
@@ -197,7 +193,7 @@ final readonly class ContextStorming
     private function stickTheReactions(Board $board, string $context): void
     {
         foreach ($this->handlersOf($context, self::EVENT_HANDLER) as $handler) {
-            $this->tellWhatItChanges($board, $this->reactionOf($board, $handler), $handler->name, $context);
+            $this->tellWhatItChanges($board, $this->reactionOf($board, $handler, $context), $handler->name, $context);
         }
     }
 
@@ -214,7 +210,7 @@ final readonly class ContextStorming
             foreach ($this->subscriptions as $subscription) {
                 $reaction = $subscription['policy'] ?? $subscription['handler'] ?? null;
                 if (\is_string($reaction) && self::listensTo($subscription, $source, $event->name)) {
-                    $subscriber = self::stickyOf(StickyType::Policy, $reaction);
+                    $subscriber = $this->stickyOf(StickyType::Policy, $reaction, $context);
                     $board->stick($subscriber);
                     $board->link(new Link($event->id, $subscriber->id));
                 }
@@ -239,7 +235,7 @@ final readonly class ContextStorming
         foreach ($this->handlersOf($context, self::QUERY_HANDLER) as $handler) {
             $presented = implode(', ', array_map(static fn (string $class): string => new ClassName($class)->short(), $handler->presents));
             foreach ($handler->firstParameter() as $query) {
-                $sticky = $this->useCaseOf(StickyType::ReadModel, $query, '' === $presented ? null : $presented, new ClassName($handler->name)->module());
+                $sticky = $this->useCaseOf(StickyType::ReadModel, $query, $context, '' === $presented ? null : $presented, new ClassName($handler->name)->module());
                 $board->stick($sticky);
                 $this->tellWhatItAsks($board, $sticky, $handler, $context);
             }
@@ -257,7 +253,7 @@ final readonly class ContextStorming
             $calls = array_values(array_filter($this->facts->calls, static fn (Call $call): bool => $call->caller === $entrance->name));
             foreach ([] === $actors ? [] : $this->useCasesSentBy($board, $calls) as $useCase) {
                 foreach ($actors as $role) {
-                    $actor = new Sticky(StickyType::Actor->value.':'.$role, StickyType::Actor, self::ACTORS[$role] ?? $role, $role, null, $context, null);
+                    $actor = new Sticky(StickyType::Actor->value.':'.$role, StickyType::Actor->value.':'.$role, StickyType::Actor, Wording::ofActor($role), null, $role, null, $context, null);
                     $board->stick($actor);
                     $board->link(new Link($actor->id, $useCase));
                 }
@@ -316,18 +312,34 @@ final readonly class ContextStorming
         ));
     }
 
-    private function useCaseOf(StickyType $type, string $class, ?string $detail = null, ?string $module = null): Sticky
+    private function useCaseOf(StickyType $type, string $class, string $context, ?string $detail = null, ?string $module = null): Sticky
     {
         $name = new ClassName($class);
+        $feature = $this->titles[$name->short()] ?? null;
+        $label = StickyType::ReadModel === $type ? Wording::ofReadModel($name->short(), $detail) : Wording::ofIntention($name->short());
 
-        return new Sticky($type->value.':'.$class, $type, $this->titles[$name->short()] ?? $name->short(), $name->short(), $class, (string) $name->context(), $module ?? $name->module(), $detail);
+        return new Sticky($type->value.':'.$class, self::slugOf($type, $name, $context), $type, $label, $feature, $name->short(), $class, (string) $name->context(), $module ?? $name->module(), $detail);
     }
 
-    private static function stickyOf(StickyType $type, string $class): Sticky
+    private function stickyOf(StickyType $type, string $class, string $context): Sticky
     {
         $name = new ClassName($class);
         $detail = StickyType::Event === $type && $name->isAPublishedEvent() ? self::PUBLISHED : null;
 
-        return new Sticky($type->value.':'.$class, $type, $name->short(), $name->short(), $class, (string) $name->context(), $name->module(), $detail);
+        $label = StickyType::Policy === $type ? Wording::ofReaction($name->short()) : Wording::ofIntention($name->short());
+
+        return new Sticky($type->value.':'.$class, self::slugOf($type, $name, $context), $type, $label, null, $name->short(), $class, (string) $name->context(), $name->module(), $detail);
+    }
+
+    /**
+     * A post-it's short name in a link to its wall: its type and its class's short name. A published event is
+     * stamped, and a post-it of another context names that context first.
+     */
+    private static function slugOf(StickyType $type, ClassName $name, string $context): string
+    {
+        $kind = StickyType::Event === $type && $name->isAPublishedEvent() ? self::PUBLISHED_SLUG : $type->value;
+        $wall = $name->isOf($context) ? '' : $name->context().'/';
+
+        return $wall.$kind.':'.$name->short();
     }
 }

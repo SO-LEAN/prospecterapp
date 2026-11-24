@@ -98,16 +98,17 @@ final class ContextStormingTest extends TestCase
         $model = self::modelOf(new Facts([self::handlerOf(self::OPEN_BOOKING)], []));
 
         self::assertSame(
-            ['id' => 'command:'.self::OPEN_BOOKING, 'type' => 'command', 'label' => 'OpenBooking', 'name' => 'OpenBooking', 'class' => self::OPEN_BOOKING, 'context' => 'Booking', 'module' => 'BookingPage', 'detail' => null],
+            ['id' => 'command:'.self::OPEN_BOOKING, 'slug' => 'command:OpenBooking', 'type' => 'command', 'label' => 'Open booking', 'feature' => null, 'name' => 'OpenBooking', 'class' => self::OPEN_BOOKING, 'context' => 'Booking', 'module' => 'BookingPage', 'detail' => null, 'answeredBy' => []],
             self::stickyOf($model, 'command:'.self::OPEN_BOOKING),
         );
     }
 
-    public function testACommandIsLabelledByTheTitleOfTheFeatureOfItsUseCase(): void
+    public function testACommandKeepsTheTitleOfItsUseCasesFeatureApart(): void
     {
         $model = self::modelOf(new Facts([self::handlerOf(self::OPEN_BOOKING)], []), ['OpenBooking' => 'Activer et couper ma prise de rendez-vous']);
+        $sticky = self::stickyOf($model, 'command:'.self::OPEN_BOOKING);
 
-        self::assertSame('Activer et couper ma prise de rendez-vous', self::stickyOf($model, 'command:'.self::OPEN_BOOKING)['label'] ?? null);
+        self::assertSame(['Open booking', 'Activer et couper ma prise de rendez-vous'], [$sticky['label'] ?? null, $sticky['feature'] ?? null]);
     }
 
     public function testACommandLeadsToTheEventsTheIntentionOfItsAggregateRecords(): void
@@ -197,7 +198,7 @@ final class ContextStormingTest extends TestCase
         $model = self::modelOf(new Facts([new ClassFacts(self::CONSULT_MY_BOOKING_PAGE.'Handler', interfaces: [self::QUERY_HANDLER], parameters: [[self::CONSULT_MY_BOOKING_PAGE]], presents: [self::MY_BOOKING_PAGE])], []), ['ConsultMyBookingPage' => 'Consulter ma prise de rendez-vous']);
 
         self::assertSame(
-            ['id' => 'readModel:'.self::CONSULT_MY_BOOKING_PAGE, 'type' => 'readModel', 'label' => 'Consulter ma prise de rendez-vous', 'name' => 'ConsultMyBookingPage', 'class' => self::CONSULT_MY_BOOKING_PAGE, 'context' => 'Booking', 'module' => 'BookingPage', 'detail' => 'MyBookingPage'],
+            ['id' => 'readModel:'.self::CONSULT_MY_BOOKING_PAGE, 'slug' => 'readModel:ConsultMyBookingPage', 'type' => 'readModel', 'label' => 'My booking page', 'feature' => 'Consulter ma prise de rendez-vous', 'name' => 'ConsultMyBookingPage', 'class' => self::CONSULT_MY_BOOKING_PAGE, 'context' => 'Booking', 'module' => 'BookingPage', 'detail' => 'MyBookingPage', 'answeredBy' => []],
             self::stickyOf($model, 'readModel:'.self::CONSULT_MY_BOOKING_PAGE),
         );
     }
@@ -218,7 +219,26 @@ final class ContextStormingTest extends TestCase
         self::assertSame('Événement publié', self::stickyOf($model, 'event:'.self::PUBLISHED_SLOT_BOOKED)['detail'] ?? null);
     }
 
-    public function testAPortOfTheDomainIsAnExternalSystemNamedAfterWhatItsAdapterReads(): void
+    public function testAPublishedEventIsStampedInItsSlug(): void
+    {
+        $model = self::modelOf(new Facts([new ClassFacts(self::PUBLISH_SLOT_BOOKED, interfaces: [self::EVENT_HANDLER], parameters: [[self::SLOT_BOOKED]])], [
+            new Call(self::PUBLISH_SLOT_BOOKED, '__invoke', self::PUBLISHED_SLOT_BOOKED, Call::CREATION),
+        ]));
+
+        self::assertSame(['published:SlotBooked', 'event:SlotBooked'], [self::stickyOf($model, 'event:'.self::PUBLISHED_SLOT_BOOKED)['slug'] ?? null, self::stickyOf($model, 'event:'.self::SLOT_BOOKED)['slug'] ?? null]);
+    }
+
+    public function testAnEventAndItsAggregateReadInEnglish(): void
+    {
+        $model = self::modelOf(new Facts([self::handlerOf(self::OPEN_BOOKING)], [
+            new Call(self::OPEN_BOOKING.'Handler', '__invoke', self::BOOKING_PAGE, 'open'),
+            new Call(self::BOOKING_PAGE, 'open', self::BOOKING_OPENED, Call::CREATION),
+        ]));
+
+        self::assertSame(['Booking page', 'Booking opened'], [self::stickyOf($model, 'aggregate:'.self::BOOKING_PAGE)['label'] ?? null, self::stickyOf($model, 'event:'.self::BOOKING_OPENED)['label'] ?? null]);
+    }
+
+    public function testAPortOfTheDomainIsAnExternalSystemAnsweredByWhatItsAdapterReads(): void
     {
         $model = self::modelOf(new Facts([
             self::handlerOf(self::OPEN_BOOKING, [self::CONNECTED_CALENDARS]),
@@ -227,7 +247,7 @@ final class ContextStormingTest extends TestCase
 
         self::assertSame(
             [
-                ['id' => 'externalSystem:'.self::CONNECTED_CALENDARS, 'type' => 'externalSystem', 'label' => 'Connectors', 'name' => 'ConnectedCalendars', 'class' => self::CONNECTED_CALENDARS, 'context' => 'Booking', 'module' => null, 'detail' => 'ConnectorsConnectedCalendars'],
+                ['id' => 'externalSystem:'.self::CONNECTED_CALENDARS, 'slug' => 'externalSystem:ConnectedCalendars', 'type' => 'externalSystem', 'label' => 'Connected calendars', 'feature' => null, 'name' => 'ConnectedCalendars', 'class' => self::CONNECTED_CALENDARS, 'context' => 'Booking', 'module' => null, 'detail' => 'ConnectorsConnectedCalendars', 'answeredBy' => ['Connectors']],
                 ['from' => 'command:'.self::OPEN_BOOKING, 'to' => 'externalSystem:'.self::CONNECTED_CALENDARS, 'via' => null, 'certain' => true],
             ],
             [self::stickyOf($model, 'externalSystem:'.self::CONNECTED_CALENDARS), self::linksOf($model)[0] ?? null],
@@ -256,7 +276,7 @@ final class ContextStormingTest extends TestCase
 
         self::assertSame(
             [
-                ['id' => 'actor:ROLE_USER', 'type' => 'actor', 'label' => 'Membre', 'name' => 'ROLE_USER', 'class' => null, 'context' => 'Booking', 'module' => null, 'detail' => null],
+                ['id' => 'actor:ROLE_USER', 'slug' => 'actor:ROLE_USER', 'type' => 'actor', 'label' => 'Member', 'feature' => null, 'name' => 'ROLE_USER', 'class' => null, 'context' => 'Booking', 'module' => null, 'detail' => null, 'answeredBy' => []],
                 ['from' => 'actor:ROLE_USER', 'to' => 'command:'.self::OPEN_BOOKING, 'via' => null, 'certain' => true],
             ],
             [self::stickyOf($model, 'actor:ROLE_USER'), self::linksOf($model)[0] ?? null],
@@ -272,7 +292,7 @@ final class ContextStormingTest extends TestCase
 
         self::assertSame(
             [
-                ['id' => 'actor:public', 'type' => 'actor', 'label' => 'Quiconque a le lien', 'name' => 'public', 'class' => null, 'context' => 'Booking', 'module' => null, 'detail' => null],
+                ['id' => 'actor:public', 'slug' => 'actor:public', 'type' => 'actor', 'label' => 'Anyone with the link', 'feature' => null, 'name' => 'public', 'class' => null, 'context' => 'Booking', 'module' => null, 'detail' => null, 'answeredBy' => []],
                 ['from' => 'actor:public', 'to' => 'command:'.self::BOOK_SLOT, 'via' => null, 'certain' => true],
             ],
             [self::stickyOf($model, 'actor:public'), self::linksOf($model)[0] ?? null],
@@ -301,7 +321,7 @@ final class ContextStormingTest extends TestCase
 
         self::assertSame(
             [
-                ['id' => 'actor:mcp', 'type' => 'actor', 'label' => 'L\'IA du membre', 'name' => 'mcp', 'class' => null, 'context' => 'Booking', 'module' => null, 'detail' => null],
+                ['id' => 'actor:mcp', 'slug' => 'actor:mcp', 'type' => 'actor', 'label' => 'Member\'s AI', 'feature' => null, 'name' => 'mcp', 'class' => null, 'context' => 'Booking', 'module' => null, 'detail' => null, 'answeredBy' => []],
                 ['from' => 'actor:mcp', 'to' => 'command:'.self::OPEN_BOOKING, 'via' => null, 'certain' => true],
             ],
             [self::stickyOf($model, 'actor:mcp'), self::linksOf($model)[0] ?? null],
@@ -322,7 +342,7 @@ final class ContextStormingTest extends TestCase
 
         self::assertSame(
             [
-                ['id' => 'policy:'.self::IDENTIFY_BOOKER, 'type' => 'policy', 'label' => 'IdentifyBookerPolicy', 'name' => 'IdentifyBookerPolicy', 'class' => self::IDENTIFY_BOOKER, 'context' => 'PersonalData', 'module' => null, 'detail' => null],
+                ['id' => 'policy:'.self::IDENTIFY_BOOKER, 'slug' => 'PersonalData/policy:IdentifyBookerPolicy', 'type' => 'policy', 'label' => 'Identify booker', 'feature' => null, 'name' => 'IdentifyBookerPolicy', 'class' => self::IDENTIFY_BOOKER, 'context' => 'PersonalData', 'module' => null, 'detail' => null, 'answeredBy' => []],
                 ['from' => 'event:'.self::PUBLISHED_SLOT_BOOKED, 'to' => 'policy:'.self::IDENTIFY_BOOKER, 'via' => null, 'certain' => true],
             ],
             [self::stickyOf($model, 'policy:'.self::IDENTIFY_BOOKER), self::linksOf($model)[0] ?? null],
@@ -340,6 +360,16 @@ final class ContextStormingTest extends TestCase
         ];
 
         self::assertEquals(self::modelOf(new Facts($classes, $calls)), self::modelOf(new Facts(array_reverse($classes), array_reverse($calls))));
+    }
+
+    public function testTwoGenerationsOfTheSameCodeWriteTheSameModel(): void
+    {
+        $facts = new Facts([self::handlerOf(self::OPEN_BOOKING), self::handlerOf(self::BOOK_SLOT)], [
+            new Call(self::OPEN_BOOKING.'Handler', '__invoke', self::BOOKING_PAGE, 'open'),
+            new Call(self::BOOKING_PAGE, 'open', self::BOOKING_OPENED, Call::CREATION),
+        ]);
+
+        self::assertSame(json_encode(self::modelOf($facts)), json_encode(self::modelOf($facts)));
     }
 
     public function testTheModulesAreThoseOfTheUseCasesOfTheContext(): void
@@ -367,7 +397,7 @@ final class ContextStormingTest extends TestCase
     }
 
     /**
-     * @return array<string, string|null>|null
+     * @return array<string, string|list<string>|null>|null
      */
     private static function stickyOf(Model $model, string $id): ?array
     {
