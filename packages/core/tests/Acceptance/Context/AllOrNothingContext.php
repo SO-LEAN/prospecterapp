@@ -18,6 +18,8 @@ use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\FailingReaction;
+use Tests\Core\Acceptance\FailingReactionHandler;
+use Tests\Core\Acceptance\ReactToTheOpening;
 
 final class AllOrNothingContext implements Context
 {
@@ -28,21 +30,21 @@ final class AllOrNothingContext implements Context
     #[Given('une réaction à l\'ouverture d\'un compte qui refuse : :message')]
     public function aReactionToTheOpeningOfAnAccountRefuses(string $message): void
     {
-        $this->application->alsoReactWith(new FailingReaction(BusinessRuleViolation::because($message)));
+        $this->application->alsoReactWith(new FailingReaction(), new FailingReactionHandler(BusinessRuleViolation::because($message)));
     }
 
     #[Given('une réaction à l\'ouverture d\'un compte qui échoue')]
     public function aReactionToTheOpeningOfAnAccountFails(): void
     {
-        $this->application->alsoReactWith(new FailingReaction(new \RuntimeException('The reaction failed')));
+        $this->application->alsoReactWith(new FailingReaction(), new FailingReactionHandler(new \RuntimeException('The reaction failed')));
     }
 
     #[Given('une réaction à l\'ouverture d\'un compte qui prospecte :name puis échoue')]
     public function aReactionToTheOpeningOfAnAccountProspectsThenFails(string $name): void
     {
         $this->prospectedByTheReaction = $id = new OrganizationId($this->application->newIdentity());
-        $this->application->alsoReactWith(new FailingReaction(new \RuntimeException('The reaction failed'), function (AccountOpened $event) use ($id, $name): void {
-            $founder = new Gesture(new AccountId($event->accountId), new MemberId($event->founderId), $event->occurredAt);
+        $this->application->alsoReactWith(new FailingReaction(), new FailingReactionHandler(new \RuntimeException('The reaction failed'), function (ReactToTheOpening $command) use ($id, $name): void {
+            $founder = new Gesture(new AccountId($command->accountId), new MemberId($command->founderId), $command->executedAt);
             $this->application->organizations->save(Organization::prospectedBy($founder, $id, new LegalIdentity($name), new ContactDetails()));
         }));
     }

@@ -844,8 +844,8 @@ final class Application
             $this->events->translateWith($translator, calledThrough: new RefusalTranslatingEventHandler(new TransactionalEventHandler($translator, $this->unitOfWork)));
         }
 
-        foreach ($this->reactions() as $reaction) {
-            $reaction instanceof Policy ? $this->events->subscribePolicy($reaction, $this->sendWithinAReaction(...)) : $this->alsoReactWith($reaction);
+        foreach ($this->policies() as $policy) {
+            $this->events->subscribePolicy($policy, $this->sendWithinAReaction(...));
         }
 
         foreach ($this->commandHandlers() as $handler) {
@@ -863,12 +863,14 @@ final class Application
     }
 
     /**
-     * Subscribes a reaction after the existing ones. The scenario calls it the way the API's worker does: through
-     * the translation of its refusals, in its own unit of work, once the command that published has succeeded.
+     * Subscribes a policy after the existing ones, with the handler of its command. The scenario sends the command the
+     * way the API's worker does: through the command decorators, in its own unit of work, once the command that
+     * published has succeeded.
      */
-    public function alsoReactWith(EventHandler $reaction): void
+    public function alsoReactWith(Policy $policy, CommandHandler $handler): void
     {
-        $this->events->subscribe($reaction, calledThrough: new RefusalTranslatingEventHandler(new TransactionalEventHandler($reaction, $this->unitOfWork)));
+        $this->handlers[$this->commandOf($handler)] = new RefusalTranslatingCommandHandler(new TransactionalCommandHandler($handler, $this->unitOfWork));
+        $this->events->subscribePolicy($policy, $this->sendWithinAReaction(...));
     }
 
     /**
@@ -1827,12 +1829,12 @@ final class Application
     }
 
     /**
-     * The reactions, internal or from the other contexts: the policies, and the event handlers that are not
-     * translators. The scenarios run them after the command, as the API's worker runs the subscriptions.
+     * The policies, internal or from the other contexts. The scenarios run them after the command, as the API's
+     * worker runs the subscriptions.
      *
-     * @return list<EventHandler|Policy>
+     * @return list<Policy>
      */
-    private function reactions(): array
+    private function policies(): array
     {
         return [
             new AttachCollectedContactPolicy(),
