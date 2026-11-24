@@ -32,7 +32,7 @@ final readonly class ContextStorming
 
     private const string SOURCE = 'prospecter.';
 
-    private const string PUBLISHED = 'Événement publié';
+    private const string PUBLISHED = 'Published to the other contexts';
 
     private const string PUBLISHED_SLUG = 'published';
 
