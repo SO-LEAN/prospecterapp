@@ -1,12 +1,14 @@
 /**
  * Writes every context's wall from the document of the models the analysis read: its model and its page, and, for
- * the repository's documents, an SVG per module and one of the whole wall. With a context, only that context's wall.
+ * the repository's documents, an SVG per module and one of the whole wall; then the overview of the contexts, the
+ * contents of the pages. With a context, only that context's wall.
  * node event-storming/generate.ts <document.json> <pages folder> <svgs folder> [context] (make event-storming,
  * docs/architecture/event-storming.md).
  */
 import { mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { type Document, folderOf } from './model.ts'
+import { overviewOf } from './overview.ts'
 import { pageOf } from './page.ts'
 import { svgsOf } from './svg.ts'
 
@@ -32,4 +34,6 @@ for (const model of models) {
   for (const gone of (await readdir(svgs)).filter((name) => name.endsWith('.svg'))) await rm(join(svgs, gone))
   for (const [name, svg] of Object.entries(svgsOf(model, font))) await writeFile(join(svgs, name), svg)
 }
+if (context === undefined)
+  await writeFile(join(pagesFolder, 'index.html'), overviewOf(document.models, { style, font }))
 for (const warning of document.warnings) process.stderr.write(`${warning}\n`)
