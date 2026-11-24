@@ -87,7 +87,7 @@
     "context": "prospecting",
     "sources": ["prospecter.personal-data"],
     "events": ["ContactForgotten.v1"],
-    "handler": "Prospecter\\Core\\Prospecting\\Application\\ForgetFingerprintsOfForgottenContact\\ForgetFingerprintsOfForgottenContactHandler",
+    "policy": "Prospecter\\Core\\Prospecting\\Application\\Policy\\ForgetFingerprintsOfForgottenContactPolicy",
     "inbox": true
   },
   "personal-data-identify-booker": {
