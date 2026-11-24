@@ -10,11 +10,11 @@ JsStringLiteralExpression() as $label where {
       register_diagnostic(span=$label, message="A French label puts a narrow no-break space (U+202F) before a semicolon, a question mark or an exclamation mark (docs/architecture/front.md).", fix_kind="safe"),
       $label => raw`$before $after`
     },
-    $label <: r"(?s)(.*«)[^\S\x{00A0}]?(\S.*)"($before, $after) where {
+    $label <: r"(?s)(.*«)[^\S\x{00A0}]*(\S.*)"($before, $after) where {
       register_diagnostic(span=$label, message="A French label puts a no-break space (U+00A0) inside French quotation marks (docs/architecture/front.md).", fix_kind="safe"),
       $label => raw`$before $after`
     },
-    $label <: r"(?s)(.*\S)[^\S\x{00A0}]?(».*)"($before, $after) where {
+    $label <: r"(?s)(.*\S)[^\S\x{00A0}]*(».*)"($before, $after) where {
       register_diagnostic(span=$label, message="A French label puts a no-break space (U+00A0) inside French quotation marks (docs/architecture/front.md).", fix_kind="safe"),
       $label => raw`$before $after`
     }

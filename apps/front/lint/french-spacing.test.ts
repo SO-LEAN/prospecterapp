@@ -90,8 +90,10 @@ describe('the rule of the spaces of the French labels', () => {
   const BADLY_QUOTED = [
     ['an opening mark followed by a space', `« Membre${NO_BREAK_SPACE}»`],
     ['an opening mark followed by no space', `«Membre${NO_BREAK_SPACE}»`],
+    ['an opening mark followed by two spaces', `«  Membre${NO_BREAK_SPACE}»`],
     ['a closing mark after a space', `«${NO_BREAK_SPACE}Membre »`],
     ['a closing mark after no space', `«${NO_BREAK_SPACE}Membre»`],
+    ['a closing mark after two spaces', `«${NO_BREAK_SPACE}Membre  »`],
   ]
 
   it.each(BADLY_QUOTED)('refuses %s, naming the no-break space it takes', (_, label) => {
