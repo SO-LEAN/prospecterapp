@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Core\Application\Connectors;
 
 use PHPUnit\Framework\TestCase;
+use Prospecter\Core\Connectors\Application\MailImport\ReadMailboxHistory\ReadMailboxHistory;
 use Prospecter\Core\Connectors\Application\Policy\ReadMailboxHistoryPolicy;
-use Prospecter\Core\Connectors\Application\ReadMailboxHistory\ReadMailboxHistory;
 use Prospecter\Core\Connectors\Domain\Event\MailboxChanged;
 use Prospecter\Core\Connectors\Domain\Event\MailWatchRenewed;
 use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;

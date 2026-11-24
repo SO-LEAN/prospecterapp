@@ -7,8 +7,8 @@ namespace App\Connectors;
 use App\Shared\CommandBus;
 use App\Shared\ScheduledTask;
 use Monolog\Attribute\WithMonologChannel;
+use Prospecter\Core\Connectors\Application\MailImport\RenewMailWatch\RenewMailWatch;
 use Prospecter\Core\Connectors\Application\Port\MailImportsRetriever;
-use Prospecter\Core\Connectors\Application\RenewMailWatch\RenewMailWatch;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Clock\ClockInterface;
 

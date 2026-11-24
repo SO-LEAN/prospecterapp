@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Connectors\Application\Policy;
 
-use Prospecter\Core\Connectors\Application\ImportMail\ImportMail;
+use Prospecter\Core\Connectors\Application\MailImport\ImportMail\ImportMail;
 use Prospecter\Core\Connectors\Domain\Event\MailboxMessageAdded;
 use Prospecter\Core\SharedKernel\Application\Handler\Policy;
 

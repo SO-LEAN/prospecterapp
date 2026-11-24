@@ -12,7 +12,7 @@ use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Connectors\Application\StopMailImport\StopMailImport;
+use Prospecter\Core\Connectors\Application\MailImport\StopMailImport\StopMailImport;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;

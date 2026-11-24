@@ -7,7 +7,7 @@ namespace App\Connectors;
 use App\Connectors\Resource\ConnectionsResource;
 use App\Security\IntentLinks;
 use App\Shared\Links;
-use Prospecter\Core\Connectors\Application\ConsultMyConnections\ConsultMyConnections;
+use Prospecter\Core\Connectors\Application\Connection\ConsultMyConnections\ConsultMyConnections;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Symfony\Component\Clock\ClockInterface;
 

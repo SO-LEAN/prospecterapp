@@ -10,7 +10,7 @@ use App\Shared\CommandBus;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Connectors\Application\CatchUpMailHistory\CatchUpMailHistory;
+use Prospecter\Core\Connectors\Application\MailImport\CatchUpMailHistory\CatchUpMailHistory;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\Response;

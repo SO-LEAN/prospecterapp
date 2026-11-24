@@ -8,7 +8,7 @@ use App\Connectors\Input\PubSubPushInput;
 use App\Shared\CommandBus;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Connectors\Application\NoteMailboxNotification\NoteMailboxNotification;
+use Prospecter\Core\Connectors\Application\MailImport\NoteMailboxNotification\NoteMailboxNotification;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;

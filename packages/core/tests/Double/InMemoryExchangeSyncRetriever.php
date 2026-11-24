@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\Double;
 
-use Prospecter\Core\Connectors\Application\ExchangeSync;
+use Prospecter\Core\Connectors\Application\Calendar\ExchangeSync;
 use Prospecter\Core\Connectors\Application\Port\ExchangeSyncRetriever;
 use Prospecter\Core\Connectors\Domain\Model\ExchangeId;
 use Prospecter\Core\Connectors\Domain\Model\Provider;

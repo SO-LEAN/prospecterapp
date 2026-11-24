@@ -7,7 +7,7 @@ namespace App\Connectors\Persistence;
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Table;
 use App\Shared\Typed;
-use Prospecter\Core\Connectors\Application\ExchangeSync;
+use Prospecter\Core\Connectors\Application\Calendar\ExchangeSync;
 use Prospecter\Core\Connectors\Application\Port\ExchangeSyncRetriever;
 use Prospecter\Core\Connectors\Domain\Model\ExchangeId;
 use Prospecter\Core\Connectors\Domain\Model\SyncState;

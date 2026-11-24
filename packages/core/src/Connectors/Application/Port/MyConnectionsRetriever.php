@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Connectors\Application\Port;
 
-use Prospecter\Core\Connectors\Application\MyConnection;
+use Prospecter\Core\Connectors\Application\Connection\MyConnection;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**

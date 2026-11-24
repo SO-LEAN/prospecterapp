@@ -10,7 +10,7 @@ use App\Shared\CommandBus;
 use App\Shared\Mcp\Adapts;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
-use Prospecter\Core\Connectors\Application\CatchUpMailHistory\CatchUpMailHistory;
+use Prospecter\Core\Connectors\Application\MailImport\CatchUpMailHistory\CatchUpMailHistory;
 use Symfony\Component\Clock\ClockInterface;
 
 /**

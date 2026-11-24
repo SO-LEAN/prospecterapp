@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\Double;
 
-use Prospecter\Core\Connectors\Application\MyConnection;
+use Prospecter\Core\Connectors\Application\Connection\MyConnection;
 use Prospecter\Core\Connectors\Application\Port\MyConnectionsRetriever;
 use Prospecter\Core\Connectors\Domain\Model\CalendarEntry;
 use Prospecter\Core\Connectors\Domain\Model\Connection;

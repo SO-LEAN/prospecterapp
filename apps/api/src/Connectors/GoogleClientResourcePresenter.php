@@ -9,7 +9,7 @@ use App\Connectors\Resource\GoogleClientLinksResource;
 use App\Connectors\Resource\GoogleClientResource;
 use App\Shared\Links;
 use Prospecter\Core\Connectors\Application\AccountClient;
-use Prospecter\Core\Connectors\Application\ConsultMyAccountClients\ConsultMyAccountClientsOutput;
+use Prospecter\Core\Connectors\Application\Client\ConsultMyAccountClients\ConsultMyAccountClientsOutput;
 
 /**
  * Presents the Google client among my account's clients. It says whether the secret is set, but never gives it

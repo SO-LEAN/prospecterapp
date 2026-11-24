@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Core\Application\Connectors;
 
 use PHPUnit\Framework\TestCase;
+use Prospecter\Core\Connectors\Application\Calendar\PushUpcomingExchanges\PushUpcomingExchanges;
 use Prospecter\Core\Connectors\Application\Policy\PushUpcomingExchangesPolicy;
-use Prospecter\Core\Connectors\Application\PushUpcomingExchanges\PushUpcomingExchanges;
 use Prospecter\Core\Connectors\Domain\Event\CalendarRecreated;
 use Prospecter\Core\Connectors\Domain\Event\Connected;
 use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Core\Application\Connectors;
 
 use PHPUnit\Framework\TestCase;
+use Prospecter\Core\Connectors\Application\Calendar\UnnameForgottenContact\UnnameForgottenContact;
 use Prospecter\Core\Connectors\Application\Policy\UnnameForgottenContactPolicy;
-use Prospecter\Core\Connectors\Application\UnnameForgottenContact\UnnameForgottenContact;
 use Prospecter\Core\PersonalData\Contract\Event\ContactForgotten;
 
 class UnnameForgottenContactPolicyTest extends TestCase
