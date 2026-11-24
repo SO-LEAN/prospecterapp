@@ -57,6 +57,14 @@ describe('the page of an event storming', () => {
     expect(sticky?.querySelector('title')?.textContent).toBe('Core\\OpenBooking')
   })
 
+  it('places a post-it to a tenth of a point, so that the page reads the same from one generation to the next', () => {
+    const placed = { ...overview, nodes: [{ ...overview.nodes[0], x: 24.333333333333332 }] } as LaidOutView
+
+    const sticky = pageIn(pageOf('Booking', [placed])).querySelector('[data-key="command:OpenBooking"]')
+
+    expect(sticky?.getAttribute('transform')).toBe('translate(24.3,24)')
+  })
+
   it('fades a post-it of another module or context', () => {
     const sticky = pageIn(pageOf('Booking', [overview])).querySelector(`[data-key="${bookingPage.key}"]`)
 

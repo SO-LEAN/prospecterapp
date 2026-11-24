@@ -74,7 +74,9 @@ ${laidOut.nodes.map(stickyOf).join('\n')}
 
 function arrowOf(routed: RoutedEdge, viewId: string, kindOf: Map<string, Kind>): string {
   const { edge, points } = routed
-  const path = points.map((point, index) => `${index === 0 ? 'M' : 'L'}${point.x},${point.y}`).join(' ')
+  const path = points
+    .map((point, index) => `${index === 0 ? 'M' : 'L'}${tenths(point.x)},${tenths(point.y)}`)
+    .join(' ')
   const classes = ['link', ...(edge.certain ? [] : ['uncertain'])].join(' ')
   return `<path class="${classes}" d="${path}" data-from="${escaped(edge.from)}" data-to="${escaped(edge.to)}" data-from-kind="${kindOf.get(edge.from)}" data-to-kind="${kindOf.get(edge.to)}" marker-end="url(#arrow-${escaped(viewId)})"/>`
 }
@@ -88,7 +90,7 @@ function stickyOf(placed: PlacedNode): string {
     node.name === node.label
       ? (node.detail ?? KINDS.find(([kind]) => kind === node.type)?.[1] ?? '')
       : node.name
-  return `<g class="${classes}" data-key="${escaped(node.key)}" transform="translate(${x},${y})" tabindex="0"><title>${escaped(node.hover)}</title>
+  return `<g class="${classes}" data-key="${escaped(node.key)}" transform="translate(${tenths(x)},${tenths(y)})" tabindex="0"><title>${escaped(node.hover)}</title>
 <rect width="${width}" height="${height}" rx="3"/>
 ${lines.map((line, index) => `<text class="label" x="${width / 2}" y="${top + index * LINE_HEIGHT}">${escaped(line)}</text>`).join('')}
 <text class="caption" x="${width / 2}" y="${top + lines.length * LINE_HEIGHT + 4}"${caption.length > CAPTION_CHARACTERS ? ` textLength="${width - 2 * CAPTION_MARGIN}" lengthAdjust="spacingAndGlyphs"` : ''}>${escaped(caption)}</text></g>`
@@ -115,6 +117,11 @@ function piecesOf(label: string): { text: string; glued: boolean }[] {
         ? [{ text: word, glued: false }]
         : word.split(/(?<=[a-z])(?=[A-Z])/).map((part, index) => ({ text: part, glued: index > 0 })),
     )
+}
+
+/** ELK places to a fraction of a point: a tenth is enough to draw, and reads the same from one generation to the next. */
+function tenths(coordinate: number): number {
+  return Math.round(coordinate * 10) / 10
 }
 
 function escaped(text: string): string {
