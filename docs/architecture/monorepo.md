@@ -7,7 +7,7 @@ apps/front/      React SPA (pnpm, its own package.json)
 apps/api/        Symfony API, resource server of the Cognito user pool (Composer), the only user of the core
 apps/storage/    Symfony file storage (Composer)
 packages/core/   prospecter/core library (Composer)
-packages/phpstan-rules/ PHPStan rules shared by the three PHP codebases (autoload-dev of each, ADR 0044)
+packages/phpstan-rules/ PHPStan rules shared by the three PHP codebases (autoload-dev of each, ADR 0044), and the event storming's generator (EventStorming/, docs/architecture/event-storming.md)
 apps/*/infra/    each app's Terraform on AWS (docs/architecture/infra.md, ADR 0059)
 make/            the fragments the Makefiles include (ADR 0080)
 .githooks/       the pre-commit hook (gitleaks, ADR 0059), installed by make hooks

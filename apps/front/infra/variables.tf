@@ -31,7 +31,7 @@ variable "code_version" {
 }
 
 variable "serves_the_documents" {
-  description = "Whether the instance serves the documents generated from the code, under /docs/ of the SPA (the event storming of the contexts): dev does, prod answers 404"
+  description = "Whether the instance serves the documents generated from the code, under the SPA's /docs/ path (the event storming of the contexts): dev does, prod answers 404"
   type        = bool
   default     = false
 }

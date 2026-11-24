@@ -25,7 +25,7 @@ const CAPTION_MARGIN = 8
 
 /**
  * The page of a context's event storming: one board per view, a filter by type of post-it, and on hover the
- * arrows of a post-it lit. It stands alone: no script nor stylesheet outside it, no build of the SPA.
+ * arrows of a post-it lit. It stands alone: it loads no outside script or stylesheet, and needs no build of the SPA.
  */
 export function pageOf(context: string, views: LaidOutView[]): string {
   return `<!doctype html>

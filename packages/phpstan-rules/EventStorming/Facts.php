@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\PHPStan\EventStorming;
 
 /**
- * Everything the analysis read of the code: its classes and their calls.
+ * Everything the analysis read in the code: its classes and their calls.
  */
 final readonly class Facts
 {

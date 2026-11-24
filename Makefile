@@ -351,7 +351,7 @@ contract: api-doc ## Fail when the committed OpenAPI contract or the front types
 # that open it (docs/architecture/event-storming.md)
 EVENT_STORMING_CONTEXT = $(or $(CONTEXT),Booking)
 EVENT_STORMING_DIR = public/docs/event-storming/$(shell echo '$(EVENT_STORMING_CONTEXT)' | sed -E 's/([a-z])([A-Z])/\1-\2/g' | tr A-Z a-z)
-event-storming: ## Write a context's event storming from its code, its model and its page: CONTEXT= its name in the code (Booking)
+event-storming: ## Read a context's code and write its event storming, its model and its page: CONTEXT= its name in the code (Booking)
 	@mkdir -p apps/front/$(EVENT_STORMING_DIR)
 	@$(MAKE) -C apps/api event-storming-model CONTEXT=$(EVENT_STORMING_CONTEXT) OUTPUT=../front/$(EVENT_STORMING_DIR)/model.json
 	@$(MAKE) -C apps/front event-storming-page MODEL=$(EVENT_STORMING_DIR)/model.json PAGE=$(EVENT_STORMING_DIR)/index.html

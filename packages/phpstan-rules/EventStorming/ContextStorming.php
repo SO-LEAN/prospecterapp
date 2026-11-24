@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\PHPStan\EventStorming;
 
 /**
- * Tells the event storming of one context from the facts the analysis read of the code.
+ * Tells one context's event storming from the facts the analysis read in its code.
  */
 final readonly class ContextStorming
 {
