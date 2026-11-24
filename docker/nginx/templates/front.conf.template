@@ -16,6 +16,14 @@ server {
     # (net::ERR_FAILED), leaving the page blank
     keepalive_requests 100000;
 
+    # The documents generated from the code, in the public folder of the front (docs/architecture/event-storming.md):
+    # a folder is its index.html, which the dev server would answer with the SPA
+    location ~ ^/docs/.*/$ {
+        rewrite ^(.*)/$ $1/index.html break;
+        proxy_pass http://${FRONT_HOST}:5173;
+        proxy_set_header Host $host;
+    }
+
     location / {
         proxy_pass http://${FRONT_HOST}:5173;
         proxy_http_version 1.1;

@@ -30,6 +30,12 @@ variable "code_version" {
   default     = "none"
 }
 
+variable "serves_the_documents" {
+  description = "Whether the instance serves the documents generated from the code, under /docs/ of the SPA (the event storming of the contexts): dev does, prod answers 404"
+  type        = bool
+  default     = false
+}
+
 # tflint-ignore: terraform_unused_declarations
 variable "permissions_boundary" {
   description = "The permissions boundary every role of the app will carry, when the account requires one"

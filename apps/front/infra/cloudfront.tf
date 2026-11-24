@@ -32,6 +32,7 @@ resource "aws_cloudfront_function" "release" {
     version              = local.release
     config               = jsonencode({ apiUrl = local.api_url })
     origin_secret_digest = local.origin_secret_digest
+    serves_the_documents = var.serves_the_documents
   })
 }
 

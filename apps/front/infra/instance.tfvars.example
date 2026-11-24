@@ -2,5 +2,7 @@
 instance       = "dev"
 aws_account_id = "123456789012"
 region         = "eu-west-3"
+# the documents generated from the code, under /docs/ (dev only: prod leaves it out and answers 404)
+serves_the_documents = true
 # when the account requires every role of an app to carry a permissions boundary
 permissions_boundary = "arn:aws:iam::123456789012:policy/my-boundary"

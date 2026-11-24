@@ -2,11 +2,15 @@
 // the index.html of the current release, a file at the root is looked for in it, and config.js is the configuration
 // of the instance. The files of a release are asked by their path, a page opened on a former release included.
 // Behind an edge (ADR 0067), only the requests carrying its secret are answered, compared by their digest.
+// The documents generated from the code, under /docs/ in every release, are served only by the instances that
+// open them (docs/architecture/event-storming.md): a folder is its index.html; elsewhere they are not found.
 import crypto from 'crypto'
 
 const release = '/releases/${version}'
 const config = ${config}
 const originSecretDigest = '${origin_secret_digest}'
+const servesTheDocuments = ${serves_the_documents}
+const aDocument = /^(\/releases\/[^/]+)?\/docs\//
 
 function handler(event) {
   const request = event.request
@@ -22,6 +26,14 @@ function handler(event) {
         'cache-control': { value: 'no-cache' },
       },
       body: { encoding: 'text', data: 'window.prospecter = ' + JSON.stringify(config) + '\n' },
+    }
+  }
+  if (aDocument.test(request.uri)) {
+    if (!servesTheDocuments) {
+      return { statusCode: 404, statusDescription: 'Not Found' }
+    }
+    if (request.uri.endsWith('/')) {
+      request.uri += 'index.html'
     }
   }
   if (!request.uri.startsWith('/releases/')) {
