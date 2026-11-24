@@ -36,6 +36,8 @@ final readonly class ContextStorming
 
     private const string PUBLISHED_SLUG = 'published';
 
+    private const string OFFERED_ONLY = '/Offered only ([^.]+)/';
+
     private const string ENTRY = '__invoke';
 
     /**
@@ -55,6 +57,7 @@ final readonly class ContextStorming
         $this->stickTheSubscribers($board, $context);
         $this->stickTheReadModels($board, $context);
         $this->stickTheActors($board, $context);
+        $this->stickTheOffers($board, $context);
 
         return $board->model($context);
     }
@@ -259,6 +262,65 @@ final readonly class ContextStorming
                 }
             }
         }
+    }
+
+    /**
+     * A view offers the commands its presenter links to: each text the presenter writes in an argument of an object it
+     * creates that names a controller's route leads to the commands that controller sends. The link is offered under
+     * a condition when its parameter may be null.
+     */
+    private function stickTheOffers(Board $board, string $context): void
+    {
+        foreach ($this->handlersOf($context, self::QUERY_HANDLER) as $handler) {
+            foreach ($handler->firstParameter() as $query) {
+                foreach ($this->argumentsOfThePresentersOf($handler) as $argument) {
+                    $condition = $this->facts->find($argument->created)?->optionalParameters[$argument->parameter] ?? null;
+                    foreach ($this->commandsRoutedBy($board, $argument->texts) as $command) {
+                        $board->link(new Link(StickyType::ReadModel->value.':'.$query, $command, $argument->parameter, null === $condition, self::whenOf($condition)));
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * The condition a links resource gives a link in the description of its parameter: the words after
+     * "Offered only", up to the end of the sentence (docs/architecture/api.md).
+     */
+    private static function whenOf(?string $description): ?string
+    {
+        return null !== $description && 1 === preg_match(self::OFFERED_ONLY, $description, $condition) ? $condition[1] : null;
+    }
+
+    /**
+     * @return list<Argument>
+     */
+    private function argumentsOfThePresentersOf(ClassFacts $handler): array
+    {
+        $presenters = array_map(
+            static fn (ClassFacts $presenter): string => $presenter->name,
+            array_filter($this->facts->classes(), static fn (ClassFacts $class): bool => array_any($handler->outputPorts, $class->implements(...))),
+        );
+
+        return array_values(array_filter($this->facts->arguments, static fn (Argument $argument): bool => \in_array($argument->caller, $presenters, true)));
+    }
+
+    /**
+     * @param list<string> $routes
+     *
+     * @return list<string> the ids of the commands the controllers of these routes send
+     */
+    private function commandsRoutedBy(Board $board, array $routes): array
+    {
+        $commands = [];
+        foreach ($this->facts->classes() as $controller) {
+            if (array_any($routes, static fn (string $route): bool => \in_array($route, $controller->routes, true))) {
+                $calls = array_values(array_filter($this->facts->calls, static fn (Call $call): bool => $call->caller === $controller->name));
+                $commands = [...$commands, ...array_filter($this->useCasesSentBy($board, $calls), static fn (string $id): bool => str_starts_with($id, StickyType::Command->value.':'))];
+            }
+        }
+
+        return array_values($commands);
     }
 
     /**
