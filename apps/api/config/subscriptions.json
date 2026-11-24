@@ -302,7 +302,7 @@
     "context": "prospecting",
     "sources": ["prospecter.prospecting.internal"],
     "events": ["ContactAdded.v1"],
-    "handler": "Prospecter\\Core\\Prospecting\\Application\\AttachContactToAttach\\AttachContactToAttachHandler",
+    "policy": "Prospecter\\Core\\Prospecting\\Application\\Policy\\AttachContactToAttachPolicy",
     "inbox": true
   },
   "prospecting-keep-exchanges-of-attached-contact": {

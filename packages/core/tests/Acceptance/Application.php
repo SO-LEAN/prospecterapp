@@ -363,6 +363,7 @@ use Prospecter\Core\Prospecting\Application\PlanBookedAppointment\PlanBookedAppo
 use Prospecter\Core\Prospecting\Application\PlanExchange\PlanExchangeHandler;
 use Prospecter\Core\Prospecting\Application\PlanOrganizationExchange\PlanOrganizationExchangeHandler;
 use Prospecter\Core\Prospecting\Application\Policy\AttachCollectedContactPolicy;
+use Prospecter\Core\Prospecting\Application\Policy\AttachContactToAttachPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\DetachForgottenContactPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\DiscardAttachmentsOfErasedExchangePolicy;
 use Prospecter\Core\Prospecting\Application\Policy\DiscardRemovedAttachmentPolicy;
@@ -1404,6 +1405,7 @@ final class Application
     private function commandHandlers(): array
     {
         return [
+            new AttachContactToAttachHandler($this->contactsToAttach, $this->events),
             new EraseExchangesOfContactLeftUnattachedHandler($this->exchanges, $this->events),
             new AttachCollectedContactHandler($this->organizations, $this->events),
             new EraseToDosOfForgottenContactHandler($this->toDos, $this->events),
@@ -1838,7 +1840,7 @@ final class Application
             new ForgetContactsLeftWithoutOrganizationPolicy(),
             new ForgetContactLeftUnattachedPolicy(),
             new EraseExchangesOfContactLeftUnattachedPolicy(),
-            new AttachContactToAttachHandler($this->contactsToAttach, $this->events),
+            new AttachContactToAttachPolicy(),
             new KeepExchangesOfAttachedContactHandler($this->exchanges, $this->events),
             new KeepToDosOfAttachedContactHandler($this->toDos, $this->events),
             new PushBackErasureOfContactToAttachHandler($this->exchanges, $this->contactsToAttach, $this->events),
