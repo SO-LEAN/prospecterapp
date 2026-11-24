@@ -483,10 +483,8 @@ use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Handler\Policy;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Prospecter\Core\SharedKernel\Application\Handler\RefusalTranslatingCommandHandler;
-use Prospecter\Core\SharedKernel\Application\Handler\RefusalTranslatingEventHandler;
 use Prospecter\Core\SharedKernel\Application\Handler\RefusalTranslatingQueryHandler;
 use Prospecter\Core\SharedKernel\Application\Handler\TransactionalCommandHandler;
-use Prospecter\Core\SharedKernel\Application\Handler\TransactionalEventHandler;
 use Prospecter\Core\SharedKernel\Application\Response\Comparison;
 use Prospecter\Core\SharedKernel\Application\Service\FileStore;
 use Prospecter\Core\SharedKernel\Application\Service\GeoLocalizer;
@@ -841,7 +839,7 @@ final class Application
         $this->consultAppointmentsService = new ConsultAppointmentsHandler($this->appointments);
 
         foreach ($this->translators() as $translator) {
-            $this->events->translateWith($translator, calledThrough: new RefusalTranslatingEventHandler(new TransactionalEventHandler($translator, $this->unitOfWork)));
+            $this->events->translateWith($translator);
         }
 
         foreach ($this->policies() as $policy) {

@@ -10,8 +10,8 @@ use Prospecter\Core\SharedKernel\Application\Port\Events;
 
 /**
  * Delivers the events the way the API delivers them. It finds each translator or policy by its __invoke()'s types, the
- * event's parent classes included. A translator runs at once, through its decorators, inside the command that
- * publishes, like the API's event bus. A policy reacts once the command has succeeded, like the worker: each command
+ * event's parent classes included. A translator runs at once, inside the command that publishes and its
+ * decorators, like the API's event bus. A policy reacts once the command has succeeded, like the worker: each command
  * it returns is sent through its handler's decorators, in its own unit, in the order the policies subscribed. Then
  * the policies react to what those commands published, until nothing is left. A command that fails delivers nothing. A reaction that fails publishes
  * nothing, and its event joins the failures.
@@ -32,9 +32,9 @@ final class SynchronousEvents implements Events
     /** @var list<array{object, \Throwable}> each event a reaction failed on, with its failure */
     private array $failures = [];
 
-    public function translateWith(EventHandler $translator, EventHandler $calledThrough): void
+    public function translateWith(EventHandler $translator): void
     {
-        $this->translators[] = [$this->eventsOf($translator)[0], $calledThrough];
+        $this->translators[] = [$this->eventsOf($translator)[0], $translator];
         $this->subscribers[] = $translator::class;
     }
 
