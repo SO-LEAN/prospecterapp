@@ -30,5 +30,5 @@ mutation: ## Mutate the lines the branch adds in src since BASE (origin/dev), ki
 
 lint: lint-phpstan lint-style lint-rector ## Check the code of the core: PHPStan, php-cs-fixer, Rector; FILTER= paths of the project, for php-cs-fixer and Rector
 
-fix: ## Fix the style of the code of the core: php-cs-fixer
-	@$(PHP) vendor/bin/php-cs-fixer fix
+fix: ## Fix the style of the code of the core: php-cs-fixer; FILTER= paths of the project
+	@$(PHP) vendor/bin/php-cs-fixer fix --show-progress=none $(if $(FILTER),--path-mode=intersection $(FILTER))
