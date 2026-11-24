@@ -54,6 +54,11 @@ final readonly class ClassName
         return ['Contract', 'Event'] === \array_slice($this->segmentsInTheCore(), 1, 2);
     }
 
+    public function isAPublishedService(): bool
+    {
+        return ['Contract', 'Service'] === \array_slice($this->segmentsInTheCore(), 1, 2);
+    }
+
     public function isAnEvent(): bool
     {
         return \in_array(\array_slice($this->segmentsInTheCore(), 1, 2), [['Domain', 'Event'], ['Contract', 'Event']], true);

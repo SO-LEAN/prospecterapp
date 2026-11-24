@@ -165,7 +165,45 @@ final readonly class ContextStorming
         $name = new ClassName($port);
         $detail = implode(', ', array_map(static fn (ClassFacts $adapter): string => new ClassName($adapter->name)->short(), $adapters));
 
-        return new Sticky(StickyType::ExternalSystem->value.':'.$port, self::slugOf(StickyType::ExternalSystem, $name, $context), StickyType::ExternalSystem, Wording::ofIntention($name->short()), null, $name->short(), $port, (string) $name->context(), null, '' === $detail ? null : $detail, $read);
+        $answers = Elsewhere::sorted(array_merge(...array_map($this->servicesTakenBy(...), $adapters)));
+
+        return new Sticky(StickyType::ExternalSystem->value.':'.$port, self::slugOf(StickyType::ExternalSystem, $name, $context), StickyType::ExternalSystem, Wording::ofIntention($name->short()), null, $name->short(), $port, (string) $name->context(), null, '' === $detail ? null : $detail, $read, $answers);
+    }
+
+    /**
+     * The published services an adapter takes, each a read model on the wall of its context: the query its handler
+     * answers.
+     *
+     * @return list<Elsewhere>
+     */
+    private function servicesTakenBy(ClassFacts $adapter): array
+    {
+        $services = [];
+        foreach ($adapter->dependencies as $dependency) {
+            foreach ($this->handlersImplementing($dependency) as $handler) {
+                foreach ($handler->firstParameter() as $query) {
+                    $name = new ClassName($query);
+                    $services[] = new Elsewhere($name->context(), StickyType::ReadModel->value.':'.$name->short(), Wording::ofReadModel($name->short(), self::presentedBy($handler)));
+                }
+            }
+        }
+
+        return $services;
+    }
+
+    /**
+     * @return list<ClassFacts>
+     */
+    private function handlersImplementing(string $service): array
+    {
+        return array_values(array_filter($this->facts->classes(), static fn (ClassFacts $class): bool => $class->implements(self::QUERY_HANDLER) && $class->implements($service)));
+    }
+
+    private static function presentedBy(ClassFacts $handler): ?string
+    {
+        $presented = implode(', ', array_map(static fn (string $class): string => new ClassName($class)->short(), $handler->presents));
+
+        return '' === $presented ? null : $presented;
     }
 
     private function stickThePolicies(Board $board, string $context): void
@@ -236,13 +274,37 @@ final readonly class ContextStorming
     private function stickTheReadModels(Board $board, string $context): void
     {
         foreach ($this->handlersOf($context, self::QUERY_HANDLER) as $handler) {
-            $presented = implode(', ', array_map(static fn (string $class): string => new ClassName($class)->short(), $handler->presents));
             foreach ($handler->firstParameter() as $query) {
-                $sticky = $this->useCaseOf(StickyType::ReadModel, $query, $context, '' === $presented ? null : $presented, new ClassName($handler->name)->module());
+                $sticky = $this->useCaseOf(StickyType::ReadModel, $query, $context, self::presentedBy($handler), new ClassName($handler->name)->module(), $this->readersOf($handler));
                 $board->stick($sticky);
                 $this->tellWhatItAsks($board, $sticky, $handler, $context);
             }
         }
+    }
+
+    /**
+     * What takes the published services a query handler implements: the port of each adapter, on the wall of its
+     * context, or the class itself when it implements no port.
+     *
+     * @return list<Elsewhere>
+     */
+    private function readersOf(ClassFacts $handler): array
+    {
+        $services = array_filter($handler->interfaces, static fn (string $interface): bool => new ClassName($interface)->isAPublishedService());
+        $readers = array_filter($this->facts->classes(), static fn (ClassFacts $class): bool => [] !== array_intersect($services, $class->dependencies));
+
+        return Elsewhere::sorted(array_values(array_map(self::readerOf(...), $readers)));
+    }
+
+    private static function readerOf(ClassFacts $reader): Elsewhere
+    {
+        $port = array_find($reader->interfaces, static fn (string $interface): bool => new ClassName($interface)->isAPort());
+        if (null === $port) {
+            return new Elsewhere(null, null, new ClassName($reader->name)->short());
+        }
+        $name = new ClassName($port);
+
+        return new Elsewhere($name->context(), StickyType::ExternalSystem->value.':'.$name->short(), Wording::ofIntention($name->short()));
     }
 
     /**
@@ -374,13 +436,16 @@ final readonly class ContextStorming
         ));
     }
 
-    private function useCaseOf(StickyType $type, string $class, string $context, ?string $detail = null, ?string $module = null): Sticky
+    /**
+     * @param list<Elsewhere> $readBy
+     */
+    private function useCaseOf(StickyType $type, string $class, string $context, ?string $detail = null, ?string $module = null, array $readBy = []): Sticky
     {
         $name = new ClassName($class);
         $feature = $this->titles[$name->short()] ?? null;
         $label = StickyType::ReadModel === $type ? Wording::ofReadModel($name->short(), $detail) : Wording::ofIntention($name->short());
 
-        return new Sticky($type->value.':'.$class, self::slugOf($type, $name, $context), $type, $label, $feature, $name->short(), $class, (string) $name->context(), $module ?? $name->module(), $detail);
+        return new Sticky($type->value.':'.$class, self::slugOf($type, $name, $context), $type, $label, $feature, $name->short(), $class, (string) $name->context(), $module ?? $name->module(), $detail, readBy: $readBy);
     }
 
     private function stickyOf(StickyType $type, string $class, string $context): Sticky

@@ -8,12 +8,15 @@ namespace Prospecter\PHPStan\EventStorming;
  * A post-it of the event storming. Its slug names it in a link to the wall. Its label is in English, from its name,
  * that of its class or role. Its feature is the title of its use case's feature, in French. A post-it of another
  * context, or of none of the context's modules, shows where a chain comes from or goes to. An external system is
- * answered by the contexts its adapters read.
+ * answered by the contexts its adapters read, and by the published services they take. A published service is read by
+ * what takes it in the other contexts.
  */
 final readonly class Sticky implements \JsonSerializable
 {
     /**
-     * @param list<string> $answeredBy
+     * @param list<string>    $answeredBy
+     * @param list<Elsewhere> $answers
+     * @param list<Elsewhere> $readBy
      */
     public function __construct(
         public string $id,
@@ -27,11 +30,13 @@ final readonly class Sticky implements \JsonSerializable
         public ?string $module,
         public ?string $detail = null,
         public array $answeredBy = [],
+        public array $answers = [],
+        public array $readBy = [],
     ) {
     }
 
     /**
-     * @return array<string, string|list<string>|null>
+     * @return array<string, string|list<string>|list<Elsewhere>|null>
      */
     public function jsonSerialize(): array
     {
@@ -47,6 +52,8 @@ final readonly class Sticky implements \JsonSerializable
             'module' => $this->module,
             'detail' => $this->detail,
             'answeredBy' => $this->answeredBy,
+            'answers' => $this->answers,
+            'readBy' => $this->readBy,
         ];
     }
 }
