@@ -9,7 +9,7 @@ GITLEAKS = docker run --rm -u $(UID):$(GID) -e GIT_INDEX_FILE -v $(CURDIR):$(CUR
 	-w $(CURDIR) ghcr.io/gitleaks/gitleaks:v8.30.1
 INFRA_APPS = api storage front
 
-.PHONY: install hooks build vendor db aws ca front-install check-secrets check-infra check-contract check-core check-api check-storage check-front check-e2e check-e2e-locked check-e2e-run e2e-locked front-lint front-tested-build changed-checks infra-target infra-init infra-plan infra-apply infra-lint changed-apps package-api package-storage package-front release-front console start deploy stop down images-prune agents-slice logs ps google-down google-up ci test test-api test-storage test-front e2e test-core mutation mutation-api lint adr-references adr-index adr-index-check fix front-build api-doc contract commands profiler-clear exec-api exec-front secrets secrets-branch
+.PHONY: install hooks build vendor db aws ca front-install check-secrets check-infra check-contract check-core check-api check-storage check-front check-e2e check-e2e-locked check-e2e-run e2e-locked front-lint front-tested-build changed-checks infra-target infra-init infra-plan infra-apply infra-lint changed-apps package-api package-storage package-front release-front console start deploy stop down images-prune agents-slice logs ps google-down google-up ci test test-api test-storage test-front e2e test-core mutation mutation-api lint adr-references adr-index adr-index-check fix front-build api-doc contract event-storming commands profiler-clear exec-api exec-front secrets secrets-branch
 
 ##@ Setup
 install: hooks build vendor db front-install ## Build the images, install the dependencies, create the tables, the bucket and the user pool, install the Git hooks
@@ -347,6 +347,15 @@ contract: api-doc ## Fail when the committed OpenAPI contract or the front types
 	@git diff --exit-code -- apps/api/openapi.json apps/front/src/shared/api/schema.d.ts
 
 ##@ Tools
+# the page of a context, served under /docs/event-storming/<context>/ in the release of the front, on the instances
+# that open it (docs/architecture/event-storming.md)
+EVENT_STORMING_CONTEXT = $(or $(CONTEXT),Booking)
+EVENT_STORMING_DIR = public/docs/event-storming/$(shell echo '$(EVENT_STORMING_CONTEXT)' | sed -E 's/([a-z])([A-Z])/\1-\2/g' | tr A-Z a-z)
+event-storming: ## Write a context's event storming from its code, its model and its page: CONTEXT= its name in the code (Booking)
+	@mkdir -p apps/front/$(EVENT_STORMING_DIR)
+	@$(MAKE) -C apps/api event-storming-model CONTEXT=$(EVENT_STORMING_CONTEXT) OUTPUT=../front/$(EVENT_STORMING_DIR)/model.json
+	@$(MAKE) -C apps/front event-storming-page MODEL=$(EVENT_STORMING_DIR)/model.json PAGE=$(EVENT_STORMING_DIR)/index.html
+
 commands: ## List the commands of the core and their handlers
 	@$(MAKE) -C apps/api commands
 

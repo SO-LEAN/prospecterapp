@@ -1,6 +1,6 @@
 include ../../make/common.mk ../../make/aws.mk ../../make/mutation.mk
 
-.PHONY: install test mutation lint fix build api-types e2e shell package release
+.PHONY: install test mutation lint fix build api-types event-storming-page e2e shell package release
 
 ##@ Front
 install: ## Install the pnpm dependencies of the front
@@ -34,6 +34,10 @@ build: ## Build the front for production (TypeScript, Vite)
 
 api-types: ## Generate the types of the API from its OpenAPI contract (src/shared/api/schema.d.ts)
 	@$(NODE) pnpm api:types
+
+event-storming-page: ## Write the page of a context's event storming from its model: MODEL=<model.json> PAGE=<index.html>, paths of the front
+	@test -n "$(MODEL)" -a -n "$(PAGE)" || { echo "make event-storming-page MODEL=<model.json> PAGE=<index.html>"; exit 1; }
+	@$(NODE) node event-storming/generate.ts $(MODEL) $(PAGE)
 
 # Playwright runs in its official image, in the network of the stack, the local hosts resolved to its nginx (by its
 # /etc/hosts for Node, by STACK_ADDRESS for Chromium, playwright.config.ts): on the network of the host, its Chromium
