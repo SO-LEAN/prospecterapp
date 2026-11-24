@@ -6,6 +6,9 @@ namespace Tests\App\Shared\Messaging;
 
 use App\Shared\CommandBus;
 use App\Shared\Messaging\PolicyReaction;
+use App\Shared\Persistence\ConditionFailed;
+use Aws\Command;
+use Aws\DynamoDb\Exception\DynamoDbException;
 use Prospecter\Core\Accounts\Application\Member\RegisterTheFounder\RegisterTheFounder;
 use Prospecter\Core\Accounts\Application\Policy\RegisterTheFounderPolicy;
 use Prospecter\Core\Accounts\Domain\Event\AccountOpened;
@@ -23,7 +26,7 @@ use Tests\App\Double\FailingCommands;
 
 /**
  * A policy's commands go to the command bus, each through the decorators of its handler (ADR 0203). The tests fail a
- * command before its use case runs, to see it sent.
+ * command before its use case runs, to see it sent, or to see what the reaction does with its failure.
  */
 class PolicyReactionTest extends ApiTestCase
 {
@@ -53,6 +56,20 @@ class PolicyReactionTest extends ApiTestCase
 
         $this->expectExceptionObject($notSentYet);
         self::service(CommandBus::class)->dispatch(new ForgetAppointmentOfErasedExchange(self::newIdentity(), self::now()));
+    }
+
+    /**
+     * A conflict reaches the worker as it was thrown, so that the worker applies the event again (ADR 0104). The
+     * client's bus would refuse the command instead.
+     */
+    public function testAConflictComesBackAsItWasThrown(): void
+    {
+        $conflict = ConditionFailed::in(new DynamoDbException('Transaction cancelled', new Command('TransactWriteItems'), ['code' => 'TransactionCanceledException', 'body' => ['CancellationReasons' => [['Code' => 'TransactionConflict']]]]));
+        self::service(FailingCommands::class)->failTheNext(RegisterTheFounder::class, $conflict);
+
+        $this->expectExceptionObject($conflict);
+
+        $this->react(new RegisterTheFounderPolicy(), new AccountOpened(new AccountId(self::newIdentity()), new MemberId(self::newIdentity()), new ProfileId(self::newIdentity()), self::now()));
     }
 
     /**
