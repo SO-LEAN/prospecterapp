@@ -8,6 +8,11 @@ const BOOKING = JSON.parse(readFileSync('public/docs/event-storming/booking/mode
 
 const wall = wallOf(BOOKING)
 
+/** A model of the code as the generator last read it, by the folder of its context. */
+function modelOf(folder: string): Model {
+  return JSON.parse(readFileSync(`public/docs/event-storming/${folder}/model.json`, 'utf8')) as Model
+}
+
 function noteOf(slug: string, kind?: Note['kind']): Note {
   const note = wall.notes.find(
     (candidate) => candidate.slug === slug && (kind === undefined || candidate.kind === kind),
@@ -19,6 +24,10 @@ function noteOf(slug: string, kind?: Note['kind']): Note {
 describe('the wall of a context', () => {
   it('gives each module a lane, a module that hears another one under it', () => {
     expect(wall.lanes.map((lane) => lane.label)).toEqual(['Booking page', 'Public link', 'Appointment'])
+  })
+
+  it('gives a context without modules one lane, named after it', () => {
+    expect(wallOf(modelOf('reporting')).lanes.map((lane) => lane.label)).toEqual(['Reporting'])
   })
 
   it('puts a root policy in the lane of the command it sends', () => {

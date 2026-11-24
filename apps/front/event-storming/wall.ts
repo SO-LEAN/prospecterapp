@@ -175,7 +175,10 @@ export const HEAD = VIEW + SIZE.sticky + 86
 /** The actors that call a use case through a tool, without looking at a screen: a badge on each use case. */
 const TOOLS = new Set(['mcp'])
 
-/** The lane of the use cases at the application's root, which belong to no module. */
+/**
+ * The lane of the use cases at the application's root, which belong to no module. A context without modules has
+ * only this lane, named after the context.
+ */
 const ROOT = 'Application'
 
 export function wallOf(model: Model): Wall {
@@ -205,14 +208,15 @@ class WallUnderConstruction {
   }
 
   built(): Wall {
+    const root = this.model.modules.length === 0 ? this.model.context : ROOT
     const mine = (type: StickyType): Sticky[] =>
       this.model.stickies.filter((sticky) => sticky.type === type && sticky.context === this.model.context)
-    for (const readModel of mine('readModel')) this.readStep(readModel, readModel.module ?? ROOT)
-    for (const command of mine('command')) this.commandStep(command, command.module ?? ROOT)
+    for (const readModel of mine('readModel')) this.readStep(readModel, readModel.module ?? root)
+    for (const command of mine('command')) this.commandStep(command, command.module ?? root)
     for (const policy of mine('policy')) {
       if (this.notes.some((note) => note.sticky === policy)) continue
       const sent = this.out(policy.id, 'command')[0]
-      this.policyStep(policy, policy.module ?? (sent ? this.sticky(sent.to).module : null) ?? ROOT)
+      this.policyStep(policy, policy.module ?? (sent ? this.sticky(sent.to).module : null) ?? root)
     }
     this.wireTheReactions()
     const lanes = this.lanes()
