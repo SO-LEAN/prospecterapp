@@ -49,7 +49,7 @@ final readonly class ModelDocument
 
     private static function untagged(string $feature): string
     {
-        return \sprintf('No use case is named by the tags of the feature %s', $feature);
+        return \sprintf('The feature %s names no use case in its tags', $feature);
     }
 
     /**
