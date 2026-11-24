@@ -30,7 +30,8 @@ class Kernel extends BrefKernel
 
     protected function build(ContainerBuilder $container): void
     {
-        // The reactions leave the event bus before the translators join it.
+        // The subscriptions check that every event handler of the core translates, before the translators join the
+        // event bus.
         $container->addCompilerPass(new SubscriptionsPass(), priority: 20);
         $container->addCompilerPass(new RefusalTranslatingHandlersPass(), priority: 10);
         $container->addCompilerPass(new RefusingToolsPass(), priority: -10);

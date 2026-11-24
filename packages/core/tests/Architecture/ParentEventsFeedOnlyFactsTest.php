@@ -8,9 +8,8 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * A parent event's handler also receives every child event added later. That suits a handler that publishes
- * facts, because the facts must follow anything that happens to their subject. A business reaction, a policy or an
- * event handler not moved yet, names its events one by one, so that a new event never reaches it unless someone
- * decides so (ADR 0203).
+ * facts, because the facts must follow anything that happens to their subject. A policy names its events one by one,
+ * so that a new event never reaches it unless someone decides so (ADR 0203).
  */
 class ParentEventsFeedOnlyFactsTest extends TestCase
 {
