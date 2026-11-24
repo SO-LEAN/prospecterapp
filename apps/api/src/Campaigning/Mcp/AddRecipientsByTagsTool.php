@@ -8,8 +8,8 @@ use App\Campaigning\Input\RecipientSearchInput;
 use App\Shared\Mcp\Adapts;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
-use Prospecter\Core\Campaigns\Application\AddRecipientsByTags\AddRecipientsByTags;
 use Prospecter\Core\Campaigns\Application\CampaignSheet;
+use Prospecter\Core\Campaigns\Application\Recipient\AddRecipientsByTags\AddRecipientsByTags;
 
 /**
  * `POST /api/campaigns/{id}/recipients/by-tags`, for an AI (ADR 0163).

@@ -10,7 +10,7 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 use Prospecter\Core\Accounts\Domain\Model\Role;
-use Prospecter\Core\Campaigns\Application\SearchContactsByTags\SearchContactsByTags;
+use Prospecter\Core\Campaigns\Application\Tagging\SearchContactsByTags\SearchContactsByTags;
 use Prospecter\Core\PersonalData\Application\ChangeCivility\ChangeCivility;
 use Prospecter\Core\PersonalData\Application\ChangeJobTitle\ChangeJobTitle;
 use Prospecter\Core\PersonalData\Application\CollectContact\CollectContact;

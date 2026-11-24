@@ -14,7 +14,7 @@ use App\Tags\TagRoutes;
 use App\Tags\TagsReader;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Campaigns\Application\TakeOffTag\TakeOffTag;
+use Prospecter\Core\Campaigns\Application\Tagging\TakeOffTag\TakeOffTag;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;

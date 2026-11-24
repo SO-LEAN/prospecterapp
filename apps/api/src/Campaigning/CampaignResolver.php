@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Campaigning;
 
 use App\Security\User;
+use Prospecter\Core\Campaigns\Application\Campaign\ConsultCampaign\ConsultCampaign;
+use Prospecter\Core\Campaigns\Application\Campaign\ConsultCampaign\KeptCampaign;
 use Prospecter\Core\Campaigns\Application\CampaignSheet;
-use Prospecter\Core\Campaigns\Application\ConsultCampaign\ConsultCampaign;
-use Prospecter\Core\Campaigns\Application\ConsultCampaign\KeptCampaign;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Clock\ClockInterface;

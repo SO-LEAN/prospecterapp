@@ -7,9 +7,9 @@ namespace App\Tags;
 use App\Tags\Resource\ContactTagsResource;
 use App\Tags\Resource\InheritedTagResource;
 use App\Tags\Resource\TagResource;
-use Prospecter\Core\Campaigns\Application\ConsultContactTags\ConsultContactTagsOutput;
-use Prospecter\Core\Campaigns\Application\ConsultContactTags\ContactTagsResponse;
-use Prospecter\Core\Campaigns\Application\ConsultContactTags\InheritedTagResponse;
+use Prospecter\Core\Campaigns\Application\Tagging\ConsultContactTags\ConsultContactTagsOutput;
+use Prospecter\Core\Campaigns\Application\Tagging\ConsultContactTags\ContactTagsResponse;
+use Prospecter\Core\Campaigns\Application\Tagging\ConsultContactTags\InheritedTagResponse;
 
 /**
  * Presents one contact's tags as the API shows them. The presenter is an object of the call (ADR 0085). Only the

@@ -8,7 +8,7 @@ use App\Shared\Mcp\Adapts;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
 use Prospecter\Core\Campaigns\Application\CampaignSheet;
-use Prospecter\Core\Campaigns\Application\RemoveRecipient\RemoveRecipient;
+use Prospecter\Core\Campaigns\Application\Recipient\RemoveRecipient\RemoveRecipient;
 
 /**
  * `DELETE /api/campaigns/{id}/recipients/{contactId}`, for an AI (ADR 0163). The AI asks its member before it calls

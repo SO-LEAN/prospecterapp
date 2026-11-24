@@ -6,7 +6,7 @@ namespace Tests\Core\Application\Campaigns;
 
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Campaigns\Application\Policy\ReopenRecipientOfErasedExchangePolicy;
-use Prospecter\Core\Campaigns\Application\ReopenRecipientOfErasedExchange\ReopenRecipientOfErasedExchange;
+use Prospecter\Core\Campaigns\Application\Recipient\ReopenRecipientOfErasedExchange\ReopenRecipientOfErasedExchange;
 use Prospecter\Core\Prospecting\Contract\Event\ExchangeFactsChanged;
 
 class ReopenRecipientOfErasedExchangePolicyTest extends TestCase

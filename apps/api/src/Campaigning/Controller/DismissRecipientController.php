@@ -12,7 +12,7 @@ use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Campaigns\Application\CampaignSheet;
-use Prospecter\Core\Campaigns\Application\DismissRecipient\DismissRecipient;
+use Prospecter\Core\Campaigns\Application\Recipient\DismissRecipient\DismissRecipient;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;

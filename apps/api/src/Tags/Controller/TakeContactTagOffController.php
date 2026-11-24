@@ -13,7 +13,7 @@ use App\Tags\Resource\ContactTagsResource;
 use App\Tags\TagRoutes;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Campaigns\Application\TakeOffTag\TakeOffTag;
+use Prospecter\Core\Campaigns\Application\Tagging\TakeOffTag\TakeOffTag;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;

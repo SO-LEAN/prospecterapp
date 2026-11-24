@@ -7,8 +7,8 @@ namespace App\Campaigning\Mcp;
 use App\Shared\Mcp\Adapts;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
+use Prospecter\Core\Campaigns\Application\Campaign\StopCampaign\StopCampaign;
 use Prospecter\Core\Campaigns\Application\CampaignSheet;
-use Prospecter\Core\Campaigns\Application\StopCampaign\StopCampaign;
 
 /**
  * `POST /api/campaigns/{id}/stop`, for an AI (ADR 0163). The AI asks its member before it calls this tool, because a

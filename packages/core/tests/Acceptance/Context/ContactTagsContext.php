@@ -8,10 +8,10 @@ use Behat\Behat\Context\Context;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use Prospecter\Core\Campaigns\Application\ConsultContactTags\ConsultContactTags;
-use Prospecter\Core\Campaigns\Application\ConsultContactTags\ContactTagsResponse;
-use Prospecter\Core\Campaigns\Application\ConsultContactTags\InheritedTagResponse;
-use Prospecter\Core\Campaigns\Application\RebuildTags\RebuildTags;
+use Prospecter\Core\Campaigns\Application\Tagging\ConsultContactTags\ConsultContactTags;
+use Prospecter\Core\Campaigns\Application\Tagging\ConsultContactTags\ContactTagsResponse;
+use Prospecter\Core\Campaigns\Application\Tagging\ConsultContactTags\InheritedTagResponse;
+use Prospecter\Core\Campaigns\Application\Tagging\RebuildTags\RebuildTags;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Tests\Core\Acceptance\Expect;
 

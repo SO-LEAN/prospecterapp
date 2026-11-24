@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Contacts;
 
-use Prospecter\Core\Campaigns\Application\ConsultContactTags\ConsultContactTags;
-use Prospecter\Core\Campaigns\Application\ConsultContactTags\ContactTagsResponse;
-use Prospecter\Core\Campaigns\Application\ConsultContactTags\KeptContactTags;
+use Prospecter\Core\Campaigns\Application\Tagging\ConsultContactTags\ConsultContactTags;
+use Prospecter\Core\Campaigns\Application\Tagging\ConsultContactTags\ContactTagsResponse;
+use Prospecter\Core\Campaigns\Application\Tagging\ConsultContactTags\KeptContactTags;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 
 /**

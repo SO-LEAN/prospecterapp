@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Core\Application\Campaigns;
 
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\Campaigns\Application\ForgetTagsOfUnprospectedOrganization\ForgetTagsOfUnprospectedOrganization;
 use Prospecter\Core\Campaigns\Application\Policy\ForgetTagsOfUnprospectedOrganizationPolicy;
+use Prospecter\Core\Campaigns\Application\Tagging\ForgetTagsOfUnprospectedOrganization\ForgetTagsOfUnprospectedOrganization;
 use Prospecter\Core\Prospecting\Contract\Event\OrganizationFactsChanged;
 
 class ForgetTagsOfUnprospectedOrganizationPolicyTest extends TestCase

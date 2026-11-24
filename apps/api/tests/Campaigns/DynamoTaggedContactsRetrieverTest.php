@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\App\Campaigns;
 
-use Prospecter\Core\Campaigns\Application\FactRecorder;
 use Prospecter\Core\Campaigns\Application\Port\ContactTagSources;
 use Prospecter\Core\Campaigns\Application\Port\TaggedContactsRetriever;
+use Prospecter\Core\Campaigns\Application\Tagging\FactRecorder;
 use Prospecter\Core\Campaigns\Domain\Model\ContactFact;
 use Prospecter\Core\Campaigns\Domain\Model\ContactId;
 use Prospecter\Core\Campaigns\Domain\Model\Holder;
