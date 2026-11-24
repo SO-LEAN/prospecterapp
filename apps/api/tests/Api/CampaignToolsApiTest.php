@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\App\Api;
 
 use PHPUnit\Framework\Attributes\Group;
+use Prospecter\Core\Accounts\Domain\Model\Role;
 use Symfony\Component\Clock\MockClock;
 use Tests\App\Base\ActsAsItsEndpoint;
 use Tests\App\Base\ApiTestCase;
@@ -237,6 +238,21 @@ class CampaignToolsApiTest extends ApiTestCase
         );
     }
 
+    public function testAnAssistantWithoutTheRightToManageThePersonalDataIsRefusedTheNextRecipient(): void
+    {
+        $this->assertTheNextRecipientIsRefusedAsTheMessageOfTheCampaign('assistant-user');
+    }
+
+    public function testAMemberWhoIsNoProspectorIsRefusedTheNextRecipient(): void
+    {
+        $this->assertTheNextRecipientIsRefusedAsTheMessageOfTheCampaign($this->aMemberOfTheFixtures('member-user', Role::User, Role::PersonalData));
+    }
+
+    public function testAMemberOfAnotherAccountIsRefusedTheNextRecipient(): void
+    {
+        $this->assertTheNextRecipientIsRefusedAsTheMessageOfTheCampaign($this->aMemberOfAnotherAccount('stranger'));
+    }
+
     public function testThePromptToLeadACampaignIsListedWithTheCampaignToRun(): void
     {
         $this->login();
@@ -333,6 +349,20 @@ class CampaignToolsApiTest extends ApiTestCase
 
         $this->requestJson('GET', '/api/campaigns/'.$draft);
         $this->assertResponseStatusCodeSame(404);
+    }
+
+    /**
+     * The tool has no endpoint: it refuses this member as the message of the campaign's first recipient refuses them.
+     */
+    private function assertTheNextRecipientIsRefusedAsTheMessageOfTheCampaign(string $member): void
+    {
+        $started = $this->aStartedCampaign();
+        $this->login($member);
+
+        $refusal = $this->callWithoutHandshake('get-next-recipient', ['id' => $started]);
+
+        $this->assertTrue($refusal['isError'] ?? false);
+        $this->assertSame($this->requestJson('GET', '/api/campaigns/'.$started.'/messages/'.$this->ada), $this->answerOf($refusal));
     }
 
     private function theClockShows(string $moment): void
