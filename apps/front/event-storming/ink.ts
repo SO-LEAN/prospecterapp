@@ -7,9 +7,17 @@ export type Font = 'hand' | 'ui' | 'mono'
 const AVERAGE_ADVANCE: Record<Exclude<Font, 'hand'>, number> = { ui: 0.56, mono: 0.62 }
 const UNKNOWN_LETTER = 0.5
 
+/**
+ * A browser draws the handwriting at a small size with each letter on whole pixels, wider than the font's advances
+ * add up to: "Publish slot booked" measures 113 px from them at 16.5 px, and Chromium draws it on 120. So each letter
+ * counts its advance rounded up to the next pixel.
+ */
 export function widthOf(text: string, size: number, font: Font): number {
   if (font !== 'hand') return text.length * AVERAGE_ADVANCE[font] * size
-  return [...text].reduce((width, letter) => width + (HAND_ADVANCES[letter] ?? UNKNOWN_LETTER), 0) * size
+  return [...text].reduce(
+    (width, letter) => width + Math.ceil((HAND_ADVANCES[letter] ?? UNKNOWN_LETTER) * size),
+    0,
+  )
 }
 
 /**

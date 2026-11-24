@@ -47,7 +47,7 @@ const SIZES = {
   answered: 9.5,
   hotspot: 15,
   bang: 22,
-  actor: 13.5,
+  actor: 12.5,
 }
 /** The stamp's frame around its letters, and its place in the corner. */
 const STAMP = { padding: 6, line: 1.3, right: 5, top: 7, letterSpacing: 0.12 }
