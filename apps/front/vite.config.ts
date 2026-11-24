@@ -34,6 +34,14 @@ const ONE_DOM_PER_WORKER = 'vmThreads'
  */
 const MEMORY_A_WORKER_HOLDS_BEFORE_ITS_RESTART = '50%'
 
+/**
+ * The code beside the SPA: the event storming's generator, whose ELK holds hundreds of megabytes, and the CloudFront
+ * function. A VM worker beside the SPA's tests kept that memory and outgrew the container, so each of their files runs
+ * in a process of its own, which gives its memory back when it ends.
+ */
+const TOOLS_TESTED_APART = ['event-storming/**/*.test.ts', 'infra/**/*.test.ts']
+const A_PROCESS_PER_FILE = 'forks'
+
 /** The chunk of the map, MapLibre itself, loaded with the map only (`geo-map.tsx`): beyond it, a chunk is warned. */
 const SIZE_OF_THE_MAP_LOADED_ON_DEMAND_KB = 1_200
 
@@ -82,16 +90,23 @@ export default defineConfig({
   },
   test: {
     environment: 'jsdom',
-    pool: ONE_DOM_PER_WORKER,
-    vmMemoryLimit: MEMORY_A_WORKER_HOLDS_BEFORE_ITS_RESTART,
     setupFiles: ['./src/test/setup.ts'],
-    include: [
-      'src/**/*.test.{ts,tsx}',
-      'lint/**/*.test.ts',
-      'event-storming/**/*.test.ts',
-      'infra/**/*.test.ts',
-    ],
     css: false,
     testTimeout: TIMEOUT_OF_A_TEST_SHARING_THE_MACHINE,
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: 'spa',
+          include: ['src/**/*.test.{ts,tsx}', 'lint/**/*.test.ts'],
+          pool: ONE_DOM_PER_WORKER,
+          vmMemoryLimit: MEMORY_A_WORKER_HOLDS_BEFORE_ITS_RESTART,
+        },
+      },
+      {
+        extends: true,
+        test: { name: 'tools', include: TOOLS_TESTED_APART, pool: A_PROCESS_PER_FILE },
+      },
+    ],
   },
 })
