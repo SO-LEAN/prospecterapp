@@ -32,9 +32,11 @@ services:
         class: Prospecter\PHPStan\EventStorming\ConditionalLinesCollector
         tags:
             - phpstan.collector
-    errorFormatter.eventStorming:
-        class: Prospecter\PHPStan\EventStorming\EventStormingFormatter
+    -
+        class: Prospecter\PHPStan\EventStorming\ModelDocument
         arguments:
             context: %eventStorming.context%
             features: %eventStorming.features%
             subscriptions: %eventStorming.subscriptions%
+    errorFormatter.eventStorming:
+        class: Prospecter\PHPStan\EventStorming\EventStormingFormatter

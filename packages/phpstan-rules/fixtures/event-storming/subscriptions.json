@@ -1,0 +1,9 @@
+{
+  "shop-add-again": {
+    "context": "shop",
+    "sources": ["prospecter.shop.internal"],
+    "events": ["CartEmptied.v1"],
+    "policy": "Prospecter\\Core\\Shop\\Application\\Policy\\AddAgainPolicy",
+    "inbox": true
+  }
+}
