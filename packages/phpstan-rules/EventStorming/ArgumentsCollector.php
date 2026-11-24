@@ -55,9 +55,9 @@ final readonly class ArgumentsCollector implements Collector
             return [$node->value];
         }
         $texts = [];
-        foreach ($node->getSubNodeNames() as $name) {
+        foreach ($node instanceof New_ ? [] : $node->getSubNodeNames() as $name) {
             foreach (self::nodesIn($node->{$name}) as $child) {
-                $texts = [...$texts, ...($child instanceof New_ ? [] : self::textsIn($child))];
+                $texts = [...$texts, ...self::textsIn($child)];
             }
         }
 
