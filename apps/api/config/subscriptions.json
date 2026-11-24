@@ -115,7 +115,7 @@
     "context": "prospecting",
     "sources": ["prospecter.prospecting.internal"],
     "events": ["DuplicateSuspected.v1"],
-    "handler": "Prospecter\\Core\\Prospecting\\Application\\SuspectDuplicateInReturn\\SuspectDuplicateInReturnHandler",
+    "policy": "Prospecter\\Core\\Prospecting\\Application\\Policy\\SuspectDuplicateInReturnPolicy",
     "inbox": true
   },
   "prospecting-lift-suspicion-in-return": {
