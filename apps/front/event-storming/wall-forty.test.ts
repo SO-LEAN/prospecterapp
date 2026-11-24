@@ -37,4 +37,12 @@ describe('a wall of forty use cases', () => {
 
     expect(document.querySelector<HTMLButtonElement>('#back')?.disabled).toBe(true)
   })
+
+  it('turns Back on again once gone forward', async () => {
+    const forward = new Promise((resolve) => addEventListener('popstate', resolve, { once: true }))
+    history.forward()
+    await forward
+
+    expect(document.querySelector<HTMLButtonElement>('#back')?.disabled).toBe(false)
+  })
 })
