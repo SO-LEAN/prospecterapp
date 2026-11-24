@@ -164,7 +164,7 @@
     "context": "prospecting",
     "sources": ["prospecter.prospecting.internal"],
     "events": ["AttachmentImported.v1"],
-    "handler": "Prospecter\\Core\\Prospecting\\Application\\KeepImportedAttachment\\KeepImportedAttachmentHandler",
+    "policy": "Prospecter\\Core\\Prospecting\\Application\\Policy\\KeepImportedAttachmentPolicy",
     "inbox": false
   },
   "prospecting-discard-removed-attachment": {
