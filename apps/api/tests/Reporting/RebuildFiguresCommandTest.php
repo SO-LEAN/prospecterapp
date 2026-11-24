@@ -17,6 +17,7 @@ use Prospecter\Core\Reporting\Domain\Model\Month;
 use Prospecter\Core\SharedKernel\Domain\Company\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Console\Tester\CommandTester;
 use Tests\App\Base\ApiTestCase;
 use Tests\App\Double\ConflictingFactRepository;
@@ -35,6 +36,16 @@ class RebuildFiguresCommandTest extends ApiTestCase
 
         $this->assertSame(1, $this->versions()->active());
         $this->assertEquals(new FiguresResponse(activeOrganizations: 1, locatedOrganizations: 1, contacts: 1, exchanges: 2, exchangesThisMonth: 2), $this->figuresOfTheDemonstration());
+    }
+
+    public function testTheRebuildWaitsTwiceForTheRecordingsOfTheWorker(): void
+    {
+        $clock = self::service(MockClock::class, 'clock');
+        $before = $clock->now();
+
+        $this->rebuild();
+
+        $this->assertEquals($before->modify('+5 minutes'), $clock->now());
     }
 
     public function testARebuildRemovesTheFormerVersion(): void
