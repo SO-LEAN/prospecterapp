@@ -80,6 +80,15 @@
   },
   "overrides": [
     {
+      "includes": ["event-storming/wall.css"],
+      "linter": {
+        "rules": {
+          "complexity": { "noImportantStyles": "off" },
+          "style": { "noDescendingSpecificity": "off" }
+        }
+      }
+    },
+    {
       "includes": ["e2e/**", "!e2e/fixtures.ts"],
       "linter": {
         "rules": {
