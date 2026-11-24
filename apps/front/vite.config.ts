@@ -24,7 +24,7 @@ const TIMEOUT_OF_A_TEST_SHARING_THE_MACHINE = 20_000
 
 /**
  * One jsdom per worker instead of one per file, which took 30 % of the run. Each file still gets its own window and its
- * own modules, in a VM context of its own.
+ * own modules, in a VM context of its own (ADR 0207).
  */
 const ONE_DOM_PER_WORKER = 'vmThreads'
 

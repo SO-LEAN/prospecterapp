@@ -134,7 +134,7 @@ Check that a scenario really protects its rule: break the rule in `src`, see the
 
 ## Front tests
 
-Vitest runs the front's tests under jsdom (`apps/front/vite.config.ts`, the `test` block).
+Vitest runs the front's tests under jsdom (`apps/front/vite.config.ts`, the `test` block, ADR 0207).
 
 - **The pool**: `vmThreads` creates one jsdom per worker, not one per file. Each file still gets its own window and its own modules, in a VM context of its own. So no test depends on what another file left. Creating jsdom for each file took 30 % of a run. A test running in a VM context may meet a cross-realm `instanceof` (an object made outside the context). A worker in a VM context also frees its memory less reliably. Vitest starts a worker again once it holds half of the container's memory (`vmMemoryLimit`), per worker, whatever the number of workers. In a worktree, the worker reached 1.25 GB of its 2 GB, and `lint/labels-headroom.test.ts` adds about 1 GB for a few seconds while it runs TypeScript.
 - **The workers**: Vitest keeps one of the container's processors for itself, its default. So a worktree runs one worker (the `node` bound is 2 processors, `docker-compose.agents.yml`), and the CI's runner runs 3. Two workers in a worktree ran the suite in 141 s instead of 197 s on an idle machine. Under `make ci`, the PHP checks take the processors, and each test then ran up to twice as slow as with one worker: a test of `booking-section.test.tsx` passed the 20 s timeout. `make test-front TEST_WORKERS=<n or n%>` sets another number.
