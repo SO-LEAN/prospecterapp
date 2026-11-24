@@ -7,6 +7,7 @@ namespace Tests\PHPStan\EventStorming;
 use App\Shop\CartResourcePresenter;
 use App\Shop\Controller\AddItemController;
 use App\Shop\Resource\CartLinksResource;
+use App\Shop\Resource\CartResource;
 use PhpParser\Node;
 use PHPStan\Analyser\Error;
 use PHPStan\Collectors\Collector;
@@ -110,6 +111,11 @@ final class EventStormingFactsRuleTest extends RuleTestCase
             ['caller' => CartResourcePresenter::class, 'created' => CartLinksResource::class, 'parameter' => 'addItem', 'texts' => ['api_cart_add_item']],
             ['caller' => CartResourcePresenter::class, 'created' => CartLinksResource::class, 'parameter' => 'checkOut', 'texts' => ['api_cart_check_out']],
         ], array_values(array_filter($this->shopFacts()['arguments'], static fn (mixed $argument): bool => \is_array($argument) && CartLinksResource::class === $argument['created'])));
+    }
+
+    public function testTheTextsOfAnObjectCreatedInAnArgumentAreItsOwn(): void
+    {
+        self::assertSame([], array_values(array_filter($this->shopFacts()['arguments'], static fn (mixed $argument): bool => \is_array($argument) && CartResource::class === $argument['created'])));
     }
 
     public function testAClassTellsTheRolesItsAttributesRequire(): void
