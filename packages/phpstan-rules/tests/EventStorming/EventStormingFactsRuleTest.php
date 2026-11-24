@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\PHPStan\EventStorming;
 
+use App\Shop\CartResourcePresenter;
 use App\Shop\Controller\AddItemController;
+use App\Shop\Resource\CartLinksResource;
 use PhpParser\Node;
 use PHPStan\Analyser\Error;
 use PHPStan\Collectors\Collector;
@@ -14,11 +16,13 @@ use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
 use Prospecter\Core\Shop\Application\Cart\AddItem\AddItem;
 use Prospecter\Core\Shop\Application\Cart\ConsultCart\CartView;
 use Prospecter\Core\Shop\Application\Cart\ConsultCart\ConsultCart;
+use Prospecter\Core\Shop\Application\Cart\ConsultCart\ConsultCartOutput;
 use Prospecter\Core\Shop\Application\Policy\AddAgainPolicy;
 use Prospecter\Core\Shop\Domain\Event\CartClosed;
 use Prospecter\Core\Shop\Domain\Event\CartEmptied;
 use Prospecter\Core\Shop\Domain\Model\Cart;
 use Prospecter\Core\Shop\Domain\Port\Stock;
+use Prospecter\PHPStan\EventStorming\ArgumentsCollector;
 use Prospecter\PHPStan\EventStorming\CallsCollector;
 use Prospecter\PHPStan\EventStorming\ClassFactsCollector;
 use Prospecter\PHPStan\EventStorming\ConditionalLinesCollector;
@@ -31,9 +35,8 @@ final class EventStormingFactsRuleTest extends RuleTestCase
 {
     private const string FIXTURES = __DIR__.'/Fixtures/src';
 
-    private const string SHOP = self::FIXTURES.'/Shop';
-
-    private const string SHOP_NAMESPACE = 'Prospecter\\Core\\Shop\\';
+    /** The folder of each namespace of the fixture's context and of its delivery. */
+    private const array SHOP = ['Prospecter\\Core\\Shop\\' => self::FIXTURES.'/Shop', 'App\\Shop\\' => self::FIXTURES.'/App/Shop'];
 
     private const string ADD_ITEM = AddItem::class;
 
@@ -51,13 +54,13 @@ final class EventStormingFactsRuleTest extends RuleTestCase
      */
     protected function getCollectors(): array
     {
-        return [new ClassFactsCollector(), new CallsCollector(), new ConditionalLinesCollector()];
+        return [new ClassFactsCollector(), new CallsCollector(), new ConditionalLinesCollector(), new ArgumentsCollector()];
     }
 
     public function testAHandlerTellsWhatItHandlesAndDependsOn(): void
     {
         self::assertContains(
-            ['name' => self::ADD_ITEM.'Handler', 'interfaces' => [CommandHandler::class], 'parameters' => [[self::ADD_ITEM]], 'returns' => [], 'mayReturnNothing' => false, 'dependencies' => [Stock::class, Cart::class], 'roles' => [], 'presents' => []],
+            ['name' => self::ADD_ITEM.'Handler', 'interfaces' => [CommandHandler::class], 'parameters' => [[self::ADD_ITEM]], 'returns' => [], 'mayReturnNothing' => false, 'dependencies' => [Stock::class, Cart::class], 'roles' => [], 'routes' => [], 'optionalParameters' => [], 'outputPorts' => [], 'presents' => []],
             $this->shopFacts()['classes'],
         );
     }
@@ -91,9 +94,32 @@ final class EventStormingFactsRuleTest extends RuleTestCase
         self::assertSame([CartView::class], $this->classFactsOf(self::CONSULT_CART.'Handler')['presents'] ?? null);
     }
 
+    public function testAQueryHandlerTellsItsOutputPort(): void
+    {
+        self::assertSame([ConsultCartOutput::class], $this->classFactsOf(self::CONSULT_CART.'Handler')['outputPorts'] ?? null);
+    }
+
+    public function testAClassTellsTheDescriptionOfEachParameterItMayGoWithout(): void
+    {
+        self::assertSame(['checkOut' => 'Check the cart out. Offered only while it holds an item', 'share' => ''], $this->classFactsOf(CartLinksResource::class)['optionalParameters'] ?? null);
+    }
+
+    public function testAnObjectIsCreatedWithTheTextsWrittenInEachOfItsArguments(): void
+    {
+        self::assertSame([
+            ['caller' => CartResourcePresenter::class, 'created' => CartLinksResource::class, 'parameter' => 'addItem', 'texts' => ['api_cart_add_item']],
+            ['caller' => CartResourcePresenter::class, 'created' => CartLinksResource::class, 'parameter' => 'checkOut', 'texts' => ['api_cart_check_out']],
+        ], array_values(array_filter($this->shopFacts()['arguments'], static fn (mixed $argument): bool => \is_array($argument) && CartLinksResource::class === $argument['created'])));
+    }
+
     public function testAClassTellsTheRolesItsAttributesRequire(): void
     {
         self::assertSame(['ROLE_USER', 'ROLE_PROSPECTOR'], $this->classFactsOf(AddItemController::class)['roles'] ?? null);
+    }
+
+    public function testAControllerTellsTheNameOfItsRoute(): void
+    {
+        self::assertSame(['api_cart_add_item'], $this->classFactsOf(AddItemController::class)['routes'] ?? null);
     }
 
     public function testAPolicyTellsTheCommandItMaySend(): void
@@ -114,7 +140,7 @@ final class EventStormingFactsRuleTest extends RuleTestCase
     }
 
     /**
-     * @return array{classes: list<mixed>, calls: list<mixed>}
+     * @return array{classes: list<mixed>, calls: list<mixed>, arguments: list<mixed>}
      */
     private function shopFacts(): array
     {
@@ -124,19 +150,21 @@ final class EventStormingFactsRuleTest extends RuleTestCase
         $facts = array_find($errors, static fn (Error $error): bool => EventStormingFactsRule::IDENTIFIER === $error->getIdentifier());
         self::assertNotNull($facts, implode("\n", array_map(static fn (Error $error): string => $error->getMessage(), $errors)));
 
-        /** @var array{classes: list<mixed>, calls: list<mixed>} */
+        /** @var array{classes: list<mixed>, calls: list<mixed>, arguments: list<mixed>} */
         return $facts->getMetadata();
     }
 
     /**
-     * The reflection of PHPStan finds the classes an autoloader knows: the fixture's context gets one.
+     * The reflection of PHPStan finds the classes an autoloader knows: the fixture's context and its delivery get one.
      */
     private static function autoloadTheShop(): void
     {
         spl_autoload_register(static function (string $class): void {
-            $file = self::SHOP.'/'.str_replace('\\', '/', substr($class, \strlen(self::SHOP_NAMESPACE))).'.php';
-            if (str_starts_with($class, self::SHOP_NAMESPACE) && is_file($file)) {
-                require_once $file;
+            foreach (self::SHOP as $namespace => $folder) {
+                $file = $folder.'/'.str_replace('\\', '/', substr($class, \strlen($namespace))).'.php';
+                if (str_starts_with($class, $namespace) && is_file($file)) {
+                    require_once $file;
+                }
             }
         });
     }
