@@ -39,7 +39,7 @@ Run these from the repository root. `make` alone lists the commands. A new targe
 - `make e2e`: runs Playwright on the checkout's running stack, once every part of it answers and its functions are warm. It uses doubles of the services outside the stack (ADR 0092).
 - `make mutation`: mutates the lines a branch adds since `origin/dev` in the core and the front, and lists the mutants its tests let survive (ADR 0091). The definition of done runs it, with a threshold of 80 % per project (ADR 0202). It prints the number of mutants the core skipped, and fails before the front runs when there is one (ADR 0196). `make mutation-api` does the same for the API, on demand only: it takes minutes per mutant.
 - `make lint`: `FILTER=<paths from the root>` lints only those paths, each with its project's tools. The PHP lint caches live in each project's `var/cache/` and take a few seconds once warm (`docs/architecture/monorepo.md`).
-- `make fix`: fixes what the linters can fix.
+- `make fix`: fixes what the linters can fix, the spaces of the French labels included (`docs/architecture/front.md`). `FILTER=<paths from the root>` fixes only those paths, each with its project's tools. Without it, `make fix` fixes every project.
 
 ## Decision records and the API contract
 

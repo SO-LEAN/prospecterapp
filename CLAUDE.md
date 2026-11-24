@@ -26,7 +26,7 @@ Everything runs in Docker. You only need Docker and make on the host. Run these 
 - `make check-<secrets|infra|core|api|storage|front|contract|e2e>`: runs one check.
 - `make test`, `make test-core`, `make test-<core|api|storage|front> FILTER=<name>`: run the tests. `FAILED=1` reruns what failed. `FAIL_FAST=1` stops at the first failure. `CLOCK_SHIFT=+365d` runs them on a clock one year ahead.
 - `make e2e`: runs Playwright on the checkout's running stack.
-- `make lint` (`FILTER=<paths from the root>`), `make fix`.
+- `make lint` and `make fix`, both with `FILTER=<paths from the root>`.
 - `make adr-index`: run it after adding a record or changing its status, and after rebasing a branch that touches the index. Commit the index when it changed.
 - `make api-doc`: run it after changing an endpoint, then commit the contract and the front's types.
 - `make db`: recreates the local tables, user pool and bucket (destroys local data).
