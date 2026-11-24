@@ -21,9 +21,13 @@ export interface Note {
   h: number
   /** Which post-it lies on top of which: the higher paints over the lower. */
   z: number
+  /** What its lean comes from: its slug, and where its copy stands, never its rank on the wall. */
+  seed: string
   tilt: number
-  /** An external system tucked under its use case, a narrow strip. */
+  /** An external system tucked under its use case, a narrow strip: the use case and its rank under it. */
   port: boolean
+  owner: Note | null
+  slot: number
   /** The member's AI, a small round badge on each use case it calls through its tool. */
   badge: boolean
   /** A post-it of another context, on a piece of its paper. */
@@ -264,8 +268,11 @@ class WallUnderConstruction {
       ...at,
       ...size,
       z: 2,
+      seed: '',
       tilt: 0,
       port: false,
+      owner: null,
+      slot: 0,
       badge: false,
       foreign,
       published: sticky?.slug.includes('published:') ?? false,
@@ -275,6 +282,7 @@ class WallUnderConstruction {
       jumps: [],
       ...extra,
     }
+    note.seed = seedOf(note)
     note.tilt = tiltOf(note)
     step.notes.push(note)
     this.notes.push(note)
@@ -329,7 +337,7 @@ class WallUnderConstruction {
         sticky,
         'externalSystem',
         { x: node.x + 6 + (index % 2) * 7, y: node.y + SIZE.sticky - 3 + index * (SIZE.port.h + 2) },
-        { port: true, z: 1 },
+        { port: true, owner: node, slot: index, z: 1 },
       )
       if (sticky.answeredBy.length > 0) {
         port.jumps.push({
@@ -759,12 +767,18 @@ function sizeOf(kind: Kind, extra: Partial<Note>): { w: number; h: number } {
   return { w: SIZE.sticky, h: SIZE.sticky }
 }
 
-/** How much a post-it leans comes from its slug and where it stands, never from chance. */
+function seedOf(note: Note): string {
+  const copy = [note.via, note.owner?.slug, note.badge ? note.step.main?.slug : null].filter(
+    (part) => part !== null && part !== undefined,
+  )
+  return [note.slug, note.step.lane, ...copy].join('|')
+}
+
+/** How much a post-it leans comes from its seed, never from chance. */
 function tiltOf(note: Note): number {
-  if (note.badge) return lean(note.key, 8)
+  if (note.badge) return lean(note.seed, 8)
   const amplitude = note.kind === 'actor' ? 4 : note.kind === 'hotspot' ? 2 : 2.3
-  const name = note.sticky !== null ? `${note.slug}${note.via ?? ''}${note.step.lane}` : note.slug
-  return lean(name, amplitude) + (note.kind === 'hotspot' ? -6 : 0)
+  return lean(note.seed, amplitude) + (note.kind === 'hotspot' ? -6 : 0)
 }
 
 function slugOfHotspot(label: string): string {
