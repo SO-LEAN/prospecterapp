@@ -4,7 +4,7 @@ An organization using Prospecter, and the members working in it. Code: `packages
 
 ## The wall
 
-![Accounts's event storming wall](../event-storming/accounts/wall.svg)
+![Accounts' event storming wall](../event-storming/accounts/wall.svg)
 
 Each lane alone: [Account](../event-storming/accounts/account.svg), [Member](../event-storming/accounts/member.svg), [Reminders](../event-storming/accounts/reminders.svg). The wall is drawn from the code (`make event-storming`, `docs/architecture/event-storming.md`). Its interactive page is served under `/docs/event-storming/accounts/`: https://prospecter.localhost/docs/event-storming/accounts/ locally, the same path on dev.
 
