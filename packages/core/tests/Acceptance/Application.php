@@ -362,6 +362,7 @@ use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\PlanBookedAppointment\PlanBookedAppointmentHandler;
 use Prospecter\Core\Prospecting\Application\PlanExchange\PlanExchangeHandler;
 use Prospecter\Core\Prospecting\Application\PlanOrganizationExchange\PlanOrganizationExchangeHandler;
+use Prospecter\Core\Prospecting\Application\Policy\DiscardRemovedAttachmentPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\DiscardRemovedLogoPolicy;
 use Prospecter\Core\Prospecting\Application\ProposeMeetingPlace\KeptMeetingPlace;
 use Prospecter\Core\Prospecting\Application\ProposeMeetingPlace\MeetingPlace;
@@ -1387,6 +1388,7 @@ final class Application
     private function commandHandlers(): array
     {
         return [
+            new DiscardRemovedAttachmentHandler($this->privateStorage),
             new DiscardRemovedLogoHandler($this->storage),
             new DismissContactSuspicionInReturnHandler($this->persons, $this->events),
             new LiftContactSuspicionInReturnHandler($this->persons, $this->events),
@@ -1819,7 +1821,7 @@ final class Application
             new EraseToDoLeftWithoutOrganizationHandler($this->toDos, $this->events),
             new EraseToDosOfForgottenContactHandler($this->toDos, $this->events),
             new DiscardRemovedLogoPolicy(),
-            new DiscardRemovedAttachmentHandler($this->privateStorage),
+            new DiscardRemovedAttachmentPolicy(),
             new KeepImportedAttachmentHandler($this->privateStorage),
             new DiscardAttachmentsOfErasedExchangeHandler($this->privateStorage),
             new RecordFactsPolicy(),

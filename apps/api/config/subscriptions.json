@@ -171,7 +171,7 @@
     "context": "prospecting",
     "sources": ["prospecter.prospecting.internal"],
     "events": ["AttachmentRemoved.v1"],
-    "handler": "Prospecter\\Core\\Prospecting\\Application\\DiscardRemovedAttachment\\DiscardRemovedAttachmentHandler",
+    "policy": "Prospecter\\Core\\Prospecting\\Application\\Policy\\DiscardRemovedAttachmentPolicy",
     "inbox": false
   },
   "prospecting-discard-attachments-of-erased-exchange": {
