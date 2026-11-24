@@ -8,323 +8,426 @@
     "stickies": [
         {
             "id": "actor:ROLE_USER",
+            "slug": "actor:ROLE_USER",
             "type": "actor",
-            "label": "Membre",
+            "label": "Member",
+            "feature": null,
             "name": "ROLE_USER",
             "class": null,
             "context": "Booking",
             "module": null,
-            "detail": null
+            "detail": null,
+            "answeredBy": []
         },
         {
             "id": "actor:mcp",
+            "slug": "actor:mcp",
             "type": "actor",
-            "label": "L'IA du membre",
+            "label": "Member's AI",
+            "feature": null,
             "name": "mcp",
             "class": null,
             "context": "Booking",
             "module": null,
-            "detail": null
+            "detail": null,
+            "answeredBy": []
         },
         {
             "id": "actor:public",
+            "slug": "actor:public",
             "type": "actor",
-            "label": "Quiconque a le lien",
+            "label": "Anyone with the link",
+            "feature": null,
             "name": "public",
             "class": null,
             "context": "Booking",
             "module": null,
-            "detail": null
+            "detail": null,
+            "answeredBy": []
         },
         {
             "id": "aggregate:Prospecter\\Core\\Booking\\Domain\\Model\\BookingPage",
+            "slug": "aggregate:BookingPage",
             "type": "aggregate",
-            "label": "BookingPage",
+            "label": "Booking page",
+            "feature": null,
             "name": "BookingPage",
             "class": "Prospecter\\Core\\Booking\\Domain\\Model\\BookingPage",
             "context": "Booking",
             "module": null,
-            "detail": null
+            "detail": null,
+            "answeredBy": []
         },
         {
             "id": "command:Prospecter\\Core\\Booking\\Application\\Appointment\\ForgetAppointmentOfErasedExchange\\ForgetAppointmentOfErasedExchange",
+            "slug": "command:ForgetAppointmentOfErasedExchange",
             "type": "command",
-            "label": "Libérer le rendez-vous d'un échange effacé",
+            "label": "Forget appointment of erased exchange",
+            "feature": "Libérer le rendez-vous d'un échange effacé",
             "name": "ForgetAppointmentOfErasedExchange",
             "class": "Prospecter\\Core\\Booking\\Application\\Appointment\\ForgetAppointmentOfErasedExchange\\ForgetAppointmentOfErasedExchange",
             "context": "Booking",
             "module": "Appointment",
-            "detail": null
+            "detail": null,
+            "answeredBy": []
         },
         {
             "id": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\AddInactivePeriod\\AddInactivePeriod",
+            "slug": "command:AddInactivePeriod",
             "type": "command",
-            "label": "Ajouter une période inactive",
+            "label": "Add inactive period",
+            "feature": "Ajouter une période inactive",
             "name": "AddInactivePeriod",
             "class": "Prospecter\\Core\\Booking\\Application\\BookingPage\\AddInactivePeriod\\AddInactivePeriod",
             "context": "Booking",
             "module": "BookingPage",
-            "detail": null
+            "detail": null,
+            "answeredBy": []
         },
         {
             "id": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\ChangeBookingLink\\ChangeBookingLink",
+            "slug": "command:ChangeBookingLink",
             "type": "command",
-            "label": "Changer de lien",
+            "label": "Change booking link",
+            "feature": "Changer de lien",
             "name": "ChangeBookingLink",
             "class": "Prospecter\\Core\\Booking\\Application\\BookingPage\\ChangeBookingLink\\ChangeBookingLink",
             "context": "Booking",
             "module": "BookingPage",
-            "detail": null
+            "detail": null,
+            "answeredBy": []
         },
         {
             "id": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\CloseBooking\\CloseBooking",
+            "slug": "command:CloseBooking",
             "type": "command",
-            "label": "Activer et couper ma prise de rendez-vous",
+            "label": "Close booking",
+            "feature": "Activer et couper ma prise de rendez-vous",
             "name": "CloseBooking",
             "class": "Prospecter\\Core\\Booking\\Application\\BookingPage\\CloseBooking\\CloseBooking",
             "context": "Booking",
             "module": "BookingPage",
-            "detail": null
+            "detail": null,
+            "answeredBy": []
         },
         {
             "id": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\OfferChannels\\OfferChannels",
+            "slug": "command:OfferChannels",
             "type": "command",
-            "label": "Proposer des canaux",
+            "label": "Offer channels",
+            "feature": "Proposer des canaux",
             "name": "OfferChannels",
             "class": "Prospecter\\Core\\Booking\\Application\\BookingPage\\OfferChannels\\OfferChannels",
             "context": "Booking",
             "module": "BookingPage",
-            "detail": null
+            "detail": null,
+            "answeredBy": []
         },
         {
             "id": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\OpenBooking\\OpenBooking",
+            "slug": "command:OpenBooking",
             "type": "command",
-            "label": "Activer et couper ma prise de rendez-vous",
+            "label": "Open booking",
+            "feature": "Activer et couper ma prise de rendez-vous",
             "name": "OpenBooking",
             "class": "Prospecter\\Core\\Booking\\Application\\BookingPage\\OpenBooking\\OpenBooking",
             "context": "Booking",
             "module": "BookingPage",
-            "detail": null
+            "detail": null,
+            "answeredBy": []
         },
         {
             "id": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\RemoveInactivePeriod\\RemoveInactivePeriod",
+            "slug": "command:RemoveInactivePeriod",
             "type": "command",
-            "label": "Ajouter une période inactive",
+            "label": "Remove inactive period",
+            "feature": "Ajouter une période inactive",
             "name": "RemoveInactivePeriod",
             "class": "Prospecter\\Core\\Booking\\Application\\BookingPage\\RemoveInactivePeriod\\RemoveInactivePeriod",
             "context": "Booking",
             "module": "BookingPage",
-            "detail": null
+            "detail": null,
+            "answeredBy": []
         },
         {
             "id": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\SetWeeklyWindows\\SetWeeklyWindows",
+            "slug": "command:SetWeeklyWindows",
             "type": "command",
-            "label": "Régler mes plages",
+            "label": "Set weekly windows",
+            "feature": "Régler mes plages",
             "name": "SetWeeklyWindows",
             "class": "Prospecter\\Core\\Booking\\Application\\BookingPage\\SetWeeklyWindows\\SetWeeklyWindows",
             "context": "Booking",
             "module": "BookingPage",
-            "detail": null
+            "detail": null,
+            "answeredBy": []
         },
         {
             "id": "command:Prospecter\\Core\\Booking\\Application\\PublicLink\\BookSlot\\BookSlot",
+            "slug": "command:BookSlot",
             "type": "command",
-            "label": "Réserver un créneau",
+            "label": "Book slot",
+            "feature": "Réserver un créneau",
             "name": "BookSlot",
             "class": "Prospecter\\Core\\Booking\\Application\\PublicLink\\BookSlot\\BookSlot",
             "context": "Booking",
             "module": "PublicLink",
-            "detail": null
+            "detail": null,
+            "answeredBy": []
         },
         {
             "id": "event:Prospecter\\Core\\Booking\\Contract\\Event\\SlotBooked",
+            "slug": "published:SlotBooked",
             "type": "event",
-            "label": "SlotBooked",
+            "label": "Slot booked",
+            "feature": null,
             "name": "SlotBooked",
             "class": "Prospecter\\Core\\Booking\\Contract\\Event\\SlotBooked",
             "context": "Booking",
             "module": null,
-            "detail": "Événement publié"
+            "detail": "Published to the other contexts",
+            "answeredBy": []
         },
         {
             "id": "event:Prospecter\\Core\\Booking\\Domain\\Event\\BookingClosed",
+            "slug": "event:BookingClosed",
             "type": "event",
-            "label": "BookingClosed",
+            "label": "Booking closed",
+            "feature": null,
             "name": "BookingClosed",
             "class": "Prospecter\\Core\\Booking\\Domain\\Event\\BookingClosed",
             "context": "Booking",
             "module": null,
-            "detail": null
+            "detail": null,
+            "answeredBy": []
         },
         {
             "id": "event:Prospecter\\Core\\Booking\\Domain\\Event\\BookingLinkChanged",
+            "slug": "event:BookingLinkChanged",
             "type": "event",
-            "label": "BookingLinkChanged",
+            "label": "Booking link changed",
+            "feature": null,
             "name": "BookingLinkChanged",
             "class": "Prospecter\\Core\\Booking\\Domain\\Event\\BookingLinkChanged",
             "context": "Booking",
             "module": null,
-            "detail": null
+            "detail": null,
+            "answeredBy": []
         },
         {
             "id": "event:Prospecter\\Core\\Booking\\Domain\\Event\\BookingOpened",
+            "slug": "event:BookingOpened",
             "type": "event",
-            "label": "BookingOpened",
+            "label": "Booking opened",
+            "feature": null,
             "name": "BookingOpened",
             "class": "Prospecter\\Core\\Booking\\Domain\\Event\\BookingOpened",
             "context": "Booking",
             "module": null,
-            "detail": null
+            "detail": null,
+            "answeredBy": []
         },
         {
             "id": "event:Prospecter\\Core\\Booking\\Domain\\Event\\ChannelsOffered",
+            "slug": "event:ChannelsOffered",
             "type": "event",
-            "label": "ChannelsOffered",
+            "label": "Channels offered",
+            "feature": null,
             "name": "ChannelsOffered",
             "class": "Prospecter\\Core\\Booking\\Domain\\Event\\ChannelsOffered",
             "context": "Booking",
             "module": null,
-            "detail": null
+            "detail": null,
+            "answeredBy": []
         },
         {
             "id": "event:Prospecter\\Core\\Booking\\Domain\\Event\\InactivePeriodAdded",
+            "slug": "event:InactivePeriodAdded",
             "type": "event",
-            "label": "InactivePeriodAdded",
+            "label": "Inactive period added",
+            "feature": null,
             "name": "InactivePeriodAdded",
             "class": "Prospecter\\Core\\Booking\\Domain\\Event\\InactivePeriodAdded",
             "context": "Booking",
             "module": null,
-            "detail": null
+            "detail": null,
+            "answeredBy": []
         },
         {
             "id": "event:Prospecter\\Core\\Booking\\Domain\\Event\\InactivePeriodRemoved",
+            "slug": "event:InactivePeriodRemoved",
             "type": "event",
-            "label": "InactivePeriodRemoved",
+            "label": "Inactive period removed",
+            "feature": null,
             "name": "InactivePeriodRemoved",
             "class": "Prospecter\\Core\\Booking\\Domain\\Event\\InactivePeriodRemoved",
             "context": "Booking",
             "module": null,
-            "detail": null
+            "detail": null,
+            "answeredBy": []
         },
         {
             "id": "event:Prospecter\\Core\\Booking\\Domain\\Event\\SlotBooked",
+            "slug": "event:SlotBooked",
             "type": "event",
-            "label": "SlotBooked",
+            "label": "Slot booked",
+            "feature": null,
             "name": "SlotBooked",
             "class": "Prospecter\\Core\\Booking\\Domain\\Event\\SlotBooked",
             "context": "Booking",
             "module": null,
-            "detail": null
+            "detail": null,
+            "answeredBy": []
         },
         {
             "id": "event:Prospecter\\Core\\Booking\\Domain\\Event\\WindowsSet",
+            "slug": "event:WindowsSet",
             "type": "event",
-            "label": "WindowsSet",
+            "label": "Windows set",
+            "feature": null,
             "name": "WindowsSet",
             "class": "Prospecter\\Core\\Booking\\Domain\\Event\\WindowsSet",
             "context": "Booking",
             "module": null,
-            "detail": null
+            "detail": null,
+            "answeredBy": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\ExchangeFactsChanged",
+            "slug": "Prospecting/published:ExchangeFactsChanged",
             "type": "event",
-            "label": "ExchangeFactsChanged",
+            "label": "Exchange facts changed",
+            "feature": null,
             "name": "ExchangeFactsChanged",
             "class": "Prospecter\\Core\\Prospecting\\Contract\\Event\\ExchangeFactsChanged",
             "context": "Prospecting",
             "module": null,
-            "detail": "Événement publié"
+            "detail": "Published to the other contexts",
+            "answeredBy": []
         },
         {
             "id": "externalSystem:Prospecter\\Core\\Booking\\Domain\\Port\\ConnectedCalendars",
+            "slug": "externalSystem:ConnectedCalendars",
             "type": "externalSystem",
-            "label": "Connectors",
+            "label": "Connected calendars",
+            "feature": null,
             "name": "ConnectedCalendars",
             "class": "Prospecter\\Core\\Booking\\Domain\\Port\\ConnectedCalendars",
             "context": "Booking",
             "module": null,
-            "detail": "ConnectorsConnectedCalendars"
+            "detail": "ConnectorsConnectedCalendars",
+            "answeredBy": [
+                "Connectors"
+            ]
         },
         {
             "id": "externalSystem:Prospecter\\Core\\Booking\\Domain\\Port\\HostAgendas",
+            "slug": "externalSystem:HostAgendas",
             "type": "externalSystem",
-            "label": "Prospecting",
+            "label": "Host agendas",
+            "feature": null,
             "name": "HostAgendas",
             "class": "Prospecter\\Core\\Booking\\Domain\\Port\\HostAgendas",
             "context": "Booking",
             "module": null,
-            "detail": "ProspectingHostAgendas"
+            "detail": "ProspectingHostAgendas",
+            "answeredBy": [
+                "Prospecting"
+            ]
         },
         {
             "id": "externalSystem:Prospecter\\Core\\Booking\\Domain\\Port\\Hosts",
+            "slug": "externalSystem:Hosts",
             "type": "externalSystem",
-            "label": "Accounts, PersonalData",
+            "label": "Hosts",
+            "feature": null,
             "name": "Hosts",
             "class": "Prospecter\\Core\\Booking\\Domain\\Port\\Hosts",
             "context": "Booking",
             "module": null,
-            "detail": "AccountsAndPersonalDataHosts"
+            "detail": "AccountsAndPersonalDataHosts",
+            "answeredBy": [
+                "Accounts",
+                "PersonalData"
+            ]
         },
         {
             "id": "policy:Prospecter\\Core\\Booking\\Application\\Appointment\\PublishSlotBooked\\PublishSlotBookedHandler",
+            "slug": "policy:PublishSlotBookedHandler",
             "type": "policy",
-            "label": "PublishSlotBookedHandler",
+            "label": "Publish slot booked",
+            "feature": null,
             "name": "PublishSlotBookedHandler",
             "class": "Prospecter\\Core\\Booking\\Application\\Appointment\\PublishSlotBooked\\PublishSlotBookedHandler",
             "context": "Booking",
             "module": "Appointment",
-            "detail": null
+            "detail": null,
+            "answeredBy": []
         },
         {
             "id": "policy:Prospecter\\Core\\Booking\\Application\\Policy\\ForgetAppointmentOfErasedExchangePolicy",
+            "slug": "policy:ForgetAppointmentOfErasedExchangePolicy",
             "type": "policy",
-            "label": "ForgetAppointmentOfErasedExchangePolicy",
+            "label": "Forget appointment of erased exchange",
+            "feature": null,
             "name": "ForgetAppointmentOfErasedExchangePolicy",
             "class": "Prospecter\\Core\\Booking\\Application\\Policy\\ForgetAppointmentOfErasedExchangePolicy",
             "context": "Booking",
             "module": null,
-            "detail": null
+            "detail": null,
+            "answeredBy": []
         },
         {
             "id": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\IdentifyBookerPolicy",
+            "slug": "PersonalData/policy:IdentifyBookerPolicy",
             "type": "policy",
-            "label": "IdentifyBookerPolicy",
+            "label": "Identify booker",
+            "feature": null,
             "name": "IdentifyBookerPolicy",
             "class": "Prospecter\\Core\\PersonalData\\Application\\Policy\\IdentifyBookerPolicy",
             "context": "PersonalData",
             "module": null,
-            "detail": null
+            "detail": null,
+            "answeredBy": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Booking\\Application\\BookingPage\\ConsultMyBookingPage\\ConsultMyBookingPage",
+            "slug": "readModel:ConsultMyBookingPage",
             "type": "readModel",
-            "label": "Consulter ma prise de rendez-vous",
+            "label": "My booking page",
+            "feature": "Consulter ma prise de rendez-vous",
             "name": "ConsultMyBookingPage",
             "class": "Prospecter\\Core\\Booking\\Application\\BookingPage\\ConsultMyBookingPage\\ConsultMyBookingPage",
             "context": "Booking",
             "module": "BookingPage",
-            "detail": "MyBookingPage"
+            "detail": "MyBookingPage",
+            "answeredBy": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Booking\\Application\\PublicLink\\ConsultPublicBookingPage\\ConsultPublicBookingPage",
+            "slug": "readModel:ConsultPublicBookingPage",
             "type": "readModel",
-            "label": "Consulter une page de prise de rendez-vous",
+            "label": "Public booking page",
+            "feature": "Consulter une page de prise de rendez-vous",
             "name": "ConsultPublicBookingPage",
             "class": "Prospecter\\Core\\Booking\\Application\\PublicLink\\ConsultPublicBookingPage\\ConsultPublicBookingPage",
             "context": "Booking",
             "module": "PublicLink",
-            "detail": "PublicBookingPage"
+            "detail": "PublicBookingPage",
+            "answeredBy": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Booking\\Contract\\Service\\ConsultAppointments\\ConsultAppointments",
+            "slug": "readModel:ConsultAppointments",
             "type": "readModel",
-            "label": "ConsultAppointments",
+            "label": "Appointments",
+            "feature": null,
             "name": "ConsultAppointments",
             "class": "Prospecter\\Core\\Booking\\Contract\\Service\\ConsultAppointments\\ConsultAppointments",
             "context": "Booking",
             "module": "Appointment",
-            "detail": null
+            "detail": null,
+            "answeredBy": []
         }
     ],
     "links": [
@@ -332,319 +435,421 @@
             "from": "actor:ROLE_USER",
             "to": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\AddInactivePeriod\\AddInactivePeriod",
             "via": null,
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "actor:ROLE_USER",
             "to": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\ChangeBookingLink\\ChangeBookingLink",
             "via": null,
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "actor:ROLE_USER",
             "to": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\CloseBooking\\CloseBooking",
             "via": null,
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "actor:ROLE_USER",
             "to": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\OfferChannels\\OfferChannels",
             "via": null,
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "actor:ROLE_USER",
             "to": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\OpenBooking\\OpenBooking",
             "via": null,
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "actor:ROLE_USER",
             "to": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\RemoveInactivePeriod\\RemoveInactivePeriod",
             "via": null,
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "actor:ROLE_USER",
             "to": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\SetWeeklyWindows\\SetWeeklyWindows",
             "via": null,
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "actor:ROLE_USER",
             "to": "readModel:Prospecter\\Core\\Booking\\Application\\BookingPage\\ConsultMyBookingPage\\ConsultMyBookingPage",
             "via": null,
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\AddInactivePeriod\\AddInactivePeriod",
             "via": null,
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\ChangeBookingLink\\ChangeBookingLink",
             "via": null,
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\CloseBooking\\CloseBooking",
             "via": null,
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\OfferChannels\\OfferChannels",
             "via": null,
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\OpenBooking\\OpenBooking",
             "via": null,
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\RemoveInactivePeriod\\RemoveInactivePeriod",
             "via": null,
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "actor:mcp",
             "to": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\SetWeeklyWindows\\SetWeeklyWindows",
             "via": null,
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Booking\\Application\\BookingPage\\ConsultMyBookingPage\\ConsultMyBookingPage",
             "via": null,
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "actor:public",
             "to": "command:Prospecter\\Core\\Booking\\Application\\PublicLink\\BookSlot\\BookSlot",
             "via": null,
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "actor:public",
             "to": "readModel:Prospecter\\Core\\Booking\\Application\\PublicLink\\ConsultPublicBookingPage\\ConsultPublicBookingPage",
             "via": null,
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Booking\\Domain\\Model\\BookingPage",
             "to": "event:Prospecter\\Core\\Booking\\Domain\\Event\\BookingClosed",
             "via": "close",
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Booking\\Domain\\Model\\BookingPage",
             "to": "event:Prospecter\\Core\\Booking\\Domain\\Event\\BookingLinkChanged",
             "via": "changeLink",
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Booking\\Domain\\Model\\BookingPage",
             "to": "event:Prospecter\\Core\\Booking\\Domain\\Event\\BookingOpened",
             "via": "open",
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Booking\\Domain\\Model\\BookingPage",
             "to": "event:Prospecter\\Core\\Booking\\Domain\\Event\\ChannelsOffered",
             "via": "offer",
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Booking\\Domain\\Model\\BookingPage",
             "to": "event:Prospecter\\Core\\Booking\\Domain\\Event\\InactivePeriodAdded",
             "via": "addInactivePeriod",
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Booking\\Domain\\Model\\BookingPage",
             "to": "event:Prospecter\\Core\\Booking\\Domain\\Event\\InactivePeriodRemoved",
             "via": "removeInactivePeriod",
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Booking\\Domain\\Model\\BookingPage",
             "to": "event:Prospecter\\Core\\Booking\\Domain\\Event\\SlotBooked",
             "via": "book",
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "aggregate:Prospecter\\Core\\Booking\\Domain\\Model\\BookingPage",
             "to": "event:Prospecter\\Core\\Booking\\Domain\\Event\\WindowsSet",
             "via": "setWindows",
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\AddInactivePeriod\\AddInactivePeriod",
             "to": "aggregate:Prospecter\\Core\\Booking\\Domain\\Model\\BookingPage",
             "via": "addInactivePeriod",
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\AddInactivePeriod\\AddInactivePeriod",
             "to": "externalSystem:Prospecter\\Core\\Booking\\Domain\\Port\\Hosts",
             "via": null,
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\ChangeBookingLink\\ChangeBookingLink",
             "to": "aggregate:Prospecter\\Core\\Booking\\Domain\\Model\\BookingPage",
             "via": "changeLink",
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\ChangeBookingLink\\ChangeBookingLink",
             "to": "externalSystem:Prospecter\\Core\\Booking\\Domain\\Port\\Hosts",
             "via": null,
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\CloseBooking\\CloseBooking",
             "to": "aggregate:Prospecter\\Core\\Booking\\Domain\\Model\\BookingPage",
             "via": "close",
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\CloseBooking\\CloseBooking",
             "to": "externalSystem:Prospecter\\Core\\Booking\\Domain\\Port\\Hosts",
             "via": null,
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\OfferChannels\\OfferChannels",
             "to": "aggregate:Prospecter\\Core\\Booking\\Domain\\Model\\BookingPage",
             "via": "offer",
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\OfferChannels\\OfferChannels",
             "to": "externalSystem:Prospecter\\Core\\Booking\\Domain\\Port\\Hosts",
             "via": null,
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\OpenBooking\\OpenBooking",
             "to": "aggregate:Prospecter\\Core\\Booking\\Domain\\Model\\BookingPage",
             "via": "open",
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\OpenBooking\\OpenBooking",
             "to": "externalSystem:Prospecter\\Core\\Booking\\Domain\\Port\\ConnectedCalendars",
             "via": null,
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\OpenBooking\\OpenBooking",
             "to": "externalSystem:Prospecter\\Core\\Booking\\Domain\\Port\\Hosts",
             "via": null,
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\RemoveInactivePeriod\\RemoveInactivePeriod",
             "to": "aggregate:Prospecter\\Core\\Booking\\Domain\\Model\\BookingPage",
             "via": "removeInactivePeriod",
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\SetWeeklyWindows\\SetWeeklyWindows",
             "to": "aggregate:Prospecter\\Core\\Booking\\Domain\\Model\\BookingPage",
             "via": "setWindows",
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\SetWeeklyWindows\\SetWeeklyWindows",
             "to": "externalSystem:Prospecter\\Core\\Booking\\Domain\\Port\\Hosts",
             "via": null,
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "command:Prospecter\\Core\\Booking\\Application\\PublicLink\\BookSlot\\BookSlot",
             "to": "aggregate:Prospecter\\Core\\Booking\\Domain\\Model\\BookingPage",
             "via": "book",
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "command:Prospecter\\Core\\Booking\\Application\\PublicLink\\BookSlot\\BookSlot",
             "to": "externalSystem:Prospecter\\Core\\Booking\\Domain\\Port\\ConnectedCalendars",
             "via": null,
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "command:Prospecter\\Core\\Booking\\Application\\PublicLink\\BookSlot\\BookSlot",
             "to": "externalSystem:Prospecter\\Core\\Booking\\Domain\\Port\\HostAgendas",
             "via": null,
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "command:Prospecter\\Core\\Booking\\Application\\PublicLink\\BookSlot\\BookSlot",
             "to": "externalSystem:Prospecter\\Core\\Booking\\Domain\\Port\\Hosts",
             "via": null,
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "event:Prospecter\\Core\\Booking\\Contract\\Event\\SlotBooked",
             "to": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\IdentifyBookerPolicy",
             "via": null,
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "event:Prospecter\\Core\\Booking\\Domain\\Event\\SlotBooked",
             "to": "policy:Prospecter\\Core\\Booking\\Application\\Appointment\\PublishSlotBooked\\PublishSlotBookedHandler",
             "via": null,
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\ExchangeFactsChanged",
             "to": "policy:Prospecter\\Core\\Booking\\Application\\Policy\\ForgetAppointmentOfErasedExchangePolicy",
             "via": null,
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "policy:Prospecter\\Core\\Booking\\Application\\Appointment\\PublishSlotBooked\\PublishSlotBookedHandler",
             "to": "event:Prospecter\\Core\\Booking\\Contract\\Event\\SlotBooked",
             "via": null,
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "policy:Prospecter\\Core\\Booking\\Application\\Policy\\ForgetAppointmentOfErasedExchangePolicy",
             "to": "command:Prospecter\\Core\\Booking\\Application\\Appointment\\ForgetAppointmentOfErasedExchange\\ForgetAppointmentOfErasedExchange",
             "via": null,
-            "certain": false
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Booking\\Application\\BookingPage\\ConsultMyBookingPage\\ConsultMyBookingPage",
+            "to": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\AddInactivePeriod\\AddInactivePeriod",
+            "via": "addInactivePeriod",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Booking\\Application\\BookingPage\\ConsultMyBookingPage\\ConsultMyBookingPage",
+            "to": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\ChangeBookingLink\\ChangeBookingLink",
+            "via": "changeLink",
+            "certain": false,
+            "when": "once the page has a link"
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Booking\\Application\\BookingPage\\ConsultMyBookingPage\\ConsultMyBookingPage",
+            "to": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\CloseBooking\\CloseBooking",
+            "via": "close",
+            "certain": false,
+            "when": "while the page is open"
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Booking\\Application\\BookingPage\\ConsultMyBookingPage\\ConsultMyBookingPage",
+            "to": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\OfferChannels\\OfferChannels",
+            "via": "offerChannels",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Booking\\Application\\BookingPage\\ConsultMyBookingPage\\ConsultMyBookingPage",
+            "to": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\OpenBooking\\OpenBooking",
+            "via": "open",
+            "certain": false,
+            "when": "while the page is closed"
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Booking\\Application\\BookingPage\\ConsultMyBookingPage\\ConsultMyBookingPage",
+            "to": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\RemoveInactivePeriod\\RemoveInactivePeriod",
+            "via": "remove",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Booking\\Application\\BookingPage\\ConsultMyBookingPage\\ConsultMyBookingPage",
+            "to": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\SetWeeklyWindows\\SetWeeklyWindows",
+            "via": "setWindows",
+            "certain": true,
+            "when": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Booking\\Application\\BookingPage\\ConsultMyBookingPage\\ConsultMyBookingPage",
             "to": "externalSystem:Prospecter\\Core\\Booking\\Domain\\Port\\ConnectedCalendars",
             "via": null,
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Booking\\Application\\PublicLink\\ConsultPublicBookingPage\\ConsultPublicBookingPage",
             "to": "externalSystem:Prospecter\\Core\\Booking\\Domain\\Port\\ConnectedCalendars",
             "via": null,
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Booking\\Application\\PublicLink\\ConsultPublicBookingPage\\ConsultPublicBookingPage",
             "to": "externalSystem:Prospecter\\Core\\Booking\\Domain\\Port\\HostAgendas",
             "via": null,
-            "certain": true
+            "certain": true,
+            "when": null
         },
         {
             "from": "readModel:Prospecter\\Core\\Booking\\Application\\PublicLink\\ConsultPublicBookingPage\\ConsultPublicBookingPage",
             "to": "externalSystem:Prospecter\\Core\\Booking\\Domain\\Port\\Hosts",
             "via": null,
-            "certain": true
+            "certain": true,
+            "when": null
         }
     ]
 }
