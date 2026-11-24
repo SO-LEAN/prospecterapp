@@ -214,7 +214,7 @@
     "context": "prospecting",
     "sources": ["prospecter.connectors"],
     "events": ["EmailExchanged.v1", "EmailExchanged.v2", "EmailExchanged.v3"],
-    "handler": "Prospecter\\Core\\Prospecting\\Application\\NoteImportedEmail\\NoteImportedEmailHandler",
+    "policy": "Prospecter\\Core\\Prospecting\\Application\\Policy\\NoteImportedEmailPolicy",
     "inbox": true
   },
   "connectors-push-upcoming-exchanges": {

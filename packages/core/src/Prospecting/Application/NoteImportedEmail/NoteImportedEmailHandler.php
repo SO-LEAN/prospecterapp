@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\NoteImportedEmail;
 
-use Prospecter\Core\Connectors\Contract\Event\EmailExchanged;
 use Prospecter\Core\Prospecting\Application\Port\PrivateStorage;
 use Prospecter\Core\Prospecting\Domain\Exception\AttachmentTooHeavy;
 use Prospecter\Core\Prospecting\Domain\Exception\ContactToAttachOfAnother;
@@ -33,7 +32,7 @@ use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 use Prospecter\Core\Prospecting\Domain\Rule\AttachmentLeftOut;
 use Prospecter\Core\Prospecting\Domain\Service\ContactOrganizations;
 use Prospecter\Core\Prospecting\Domain\Service\NotedOnce;
-use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Handler\PublishesEvents;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Domain\Gesture\Gesture;
@@ -43,7 +42,7 @@ use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
  * A member's mailbox exchanged an e-mail with a contact, or with an organization itself. The e-mail is logged as an
  * exchange by that member (ADR 0154).
  */
-final readonly class NoteImportedEmailHandler implements EventHandler
+final readonly class NoteImportedEmailHandler implements CommandHandler
 {
     use PublishesEvents;
 
@@ -58,7 +57,7 @@ final readonly class NoteImportedEmailHandler implements EventHandler
     ) {
     }
 
-    public function __invoke(EmailExchanged $email): void
+    public function __invoke(NoteImportedEmail $email): void
     {
         $prospector = $this->prospectors->prospectorFrom(new MemberId($email->memberId));
         $correspondent = null === $email->contactId ? new OrganizationId((string) $email->organizationId) : new ContactId($email->contactId);
@@ -70,7 +69,7 @@ final readonly class NoteImportedEmailHandler implements EventHandler
         }
 
         foreach ($attachments as $attachment) {
-            $exchange->importAttachment($attachment, by: $prospector->id, at: $email->occurredAt);
+            $exchange->importAttachment($attachment, by: $prospector->id, at: $email->executedAt);
         }
         $this->exchanges->save($exchange);
         $this->publishWhatHappenedTo($exchange);
@@ -84,7 +83,7 @@ final readonly class NoteImportedEmailHandler implements EventHandler
      *
      * @return array{list<Attachment>, list<array{name: string, size: int}>}
      */
-    private function attachmentsOf(EmailExchanged $email, ExchangeId $exchange): array
+    private function attachmentsOf(NoteImportedEmail $email, ExchangeId $exchange): array
     {
         $attachments = [];
         $leftOut = $email->attachmentsLeftOut;
@@ -136,7 +135,7 @@ final readonly class NoteImportedEmailHandler implements EventHandler
      * read. It also returns none for a contact to attach that another member holds, because only that member met them
      * (ADR 0146).
      */
-    private function exchangeWith(ContactId|OrganizationId $correspondent, ExchangeId $id, Prospector $prospector, EmailExchanged $email, ExchangeFacts $facts): ?Exchange
+    private function exchangeWith(ContactId|OrganizationId $correspondent, ExchangeId $id, Prospector $prospector, NoteImportedEmail $email, ExchangeFacts $facts): ?Exchange
     {
         try {
             return $correspondent instanceof ContactId
@@ -147,22 +146,22 @@ final readonly class NoteImportedEmailHandler implements EventHandler
         }
     }
 
-    private function withAContact(ExchangeId $id, ContactId $contact, Prospector $prospector, EmailExchanged $email, ExchangeFacts $facts): Exchange
+    private function withAContact(ExchangeId $id, ContactId $contact, Prospector $prospector, NoteImportedEmail $email, ExchangeFacts $facts): Exchange
     {
         return Exchange::noted(
-            new Gesture($prospector->accountId, $prospector->id, $email->occurredAt),
+            new Gesture($prospector->accountId, $prospector->id, $email->executedAt),
             $id,
             new ContactCorrespondent($contact, $this->contactOrganizations->keepersOf($contact, $prospector)),
             Noting::imported($facts, self::importedFrom($email)),
         );
     }
 
-    private function withTheOrganization(ExchangeId $id, OrganizationId $organizationId, Prospector $prospector, EmailExchanged $email, ExchangeFacts $facts): Exchange
+    private function withTheOrganization(ExchangeId $id, OrganizationId $organizationId, Prospector $prospector, NoteImportedEmail $email, ExchangeFacts $facts): Exchange
     {
         $organization = $this->organizations->get($organizationId);
 
         return Exchange::noted(
-            new Gesture($organization->accountId(), $prospector->id, $email->occurredAt),
+            new Gesture($organization->accountId(), $prospector->id, $email->executedAt),
             $id,
             new OrganizationCorrespondent($organization->id()),
             Noting::imported($facts, self::importedFrom($email)),
@@ -175,14 +174,14 @@ final readonly class NoteImportedEmailHandler implements EventHandler
      *
      * @param list<array{name: string, size: int}> $leftOut
      */
-    private static function factsOf(EmailExchanged $email, array $leftOut): ExchangeFacts
+    private static function factsOf(NoteImportedEmail $email, array $leftOut): ExchangeFacts
     {
         $mentions = array_map(static fn (array $attachment): string => "\n".AttachmentLeftOut::mention($attachment['name'], $attachment['size']), $leftOut);
 
         return new ExchangeFacts(Channel::Email, Direction::from($email->direction), $email->exchangedAt, sprintf("%s\n\n%s", $email->subject, $email->text).implode('', $mentions));
     }
 
-    private static function importedFrom(EmailExchanged $email): ImportedEmail
+    private static function importedFrom(NoteImportedEmail $email): ImportedEmail
     {
         return new ImportedEmail($email->provider, $email->emailId, $email->providerMessageId);
     }
