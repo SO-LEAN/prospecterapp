@@ -4,18 +4,19 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\StopKeepingToDos;
 
-use Prospecter\Core\Prospecting\Domain\Event\ProspectingStopped;
+use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\Repository\ToDoRepository;
-use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Handler\PublishesEvents;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * An organization that is no longer prospected takes its to-dos along, as it does its exchanges. Those still kept for
- * another organization are saved. Each of the others is left to its own reaction, which erases it
+ * another organization are saved. Each of the others is left to its own policy, which erases it
  * (EraseToDoLeftWithoutOrganization), because one transaction holds a bounded number of writes.
  */
-final readonly class StopKeepingToDosHandler implements EventHandler
+final readonly class StopKeepingToDosHandler implements CommandHandler
 {
     use PublishesEvents;
 
@@ -25,10 +26,12 @@ final readonly class StopKeepingToDosHandler implements EventHandler
     ) {
     }
 
-    public function __invoke(ProspectingStopped $event): void
+    public function __invoke(StopKeepingToDos $command): void
     {
-        foreach ($this->toDos->keptFor($event->organization) as $toDo) {
-            $toDo->stopKeepingFor($event->organization, by: $event->by, at: $event->occurredAt);
+        $organization = new OrganizationId($command->organizationId);
+
+        foreach ($this->toDos->keptFor($organization) as $toDo) {
+            $toDo->stopKeepingFor($organization, by: new MemberId($command->memberId), at: $command->executedAt);
 
             if ($toDo->isKeptForAnOrganization()) {
                 $this->toDos->save($toDo);

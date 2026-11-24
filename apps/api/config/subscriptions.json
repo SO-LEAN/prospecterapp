@@ -136,7 +136,7 @@
     "context": "prospecting",
     "sources": ["prospecter.prospecting.internal"],
     "events": ["ProspectingStopped.v1"],
-    "handler": "Prospecter\\Core\\Prospecting\\Application\\StopKeepingToDos\\StopKeepingToDosHandler",
+    "policy": "Prospecter\\Core\\Prospecting\\Application\\Policy\\StopKeepingToDosPolicy",
     "inbox": true
   },
   "prospecting-erase-to-do": {
