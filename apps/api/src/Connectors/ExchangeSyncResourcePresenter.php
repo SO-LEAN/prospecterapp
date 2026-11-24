@@ -8,8 +8,8 @@ use App\Connectors\Resource\ExchangeSyncLinksResource;
 use App\Connectors\Resource\ExchangeSyncResource;
 use App\Connectors\Resource\SyncResource;
 use App\Shared\Links;
-use Prospecter\Core\Connectors\Application\ConsultExchangeSync\ConsultExchangeSyncOutput;
-use Prospecter\Core\Connectors\Application\ExchangeSync;
+use Prospecter\Core\Connectors\Application\Calendar\ConsultExchangeSync\ConsultExchangeSyncOutput;
+use Prospecter\Core\Connectors\Application\Calendar\ExchangeSync;
 
 /**
  * Presents an exchange's push state as the API shows it. It is built for each call (ADR 0085). The exchange can be

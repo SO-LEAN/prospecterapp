@@ -13,8 +13,8 @@ use App\Security\User;
 use App\Shared\Links;
 use App\Shared\Resource\LinkResource;
 use Prospecter\Core\Connectors\Application\AccountClient;
-use Prospecter\Core\Connectors\Application\ConsultMyConnections\ConsultMyConnectionsOutput;
-use Prospecter\Core\Connectors\Application\MyConnection;
+use Prospecter\Core\Connectors\Application\Connection\ConsultMyConnections\ConsultMyConnectionsOutput;
+use Prospecter\Core\Connectors\Application\Connection\MyConnection;
 
 /**
  * Presents my connections as the API shows them. It is built for each call (ADR 0085). Google is connected or

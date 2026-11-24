@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Connectors\Application\Policy;
 
-use Prospecter\Core\Connectors\Application\ReadMailboxHistory\ReadMailboxHistory;
+use Prospecter\Core\Connectors\Application\MailImport\ReadMailboxHistory\ReadMailboxHistory;
 use Prospecter\Core\Connectors\Domain\Event\MailboxChanged;
 use Prospecter\Core\Connectors\Domain\Event\MailWatchRenewed;
 use Prospecter\Core\SharedKernel\Application\Handler\Policy;

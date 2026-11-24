@@ -12,7 +12,7 @@ use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Connectors\Application\CheckMyConnections\CheckMyConnections;
+use Prospecter\Core\Connectors\Application\Connection\CheckMyConnections\CheckMyConnections;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;

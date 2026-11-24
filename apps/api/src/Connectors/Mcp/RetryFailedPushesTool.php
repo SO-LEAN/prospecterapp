@@ -11,7 +11,7 @@ use App\Shared\Mcp\Adapts;
 use App\Shared\Mcp\ToolResults;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
-use Prospecter\Core\Connectors\Application\RetryFailedPushes\RetryFailedPushes;
+use Prospecter\Core\Connectors\Application\Calendar\RetryFailedPushes\RetryFailedPushes;
 use Symfony\Component\Clock\ClockInterface;
 
 /**

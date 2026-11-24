@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Connectors\Application\Policy;
 
-use Prospecter\Core\Connectors\Application\PushExchange\PushExchange;
+use Prospecter\Core\Connectors\Application\Calendar\PushExchange\PushExchange;
 use Prospecter\Core\Prospecting\Contract\Event\ExchangeFactsChanged;
 use Prospecter\Core\SharedKernel\Application\Handler\Policy;
 

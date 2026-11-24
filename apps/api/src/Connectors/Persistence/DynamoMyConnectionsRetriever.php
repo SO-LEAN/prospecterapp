@@ -7,7 +7,7 @@ namespace App\Connectors\Persistence;
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Table;
 use App\Shared\Typed;
-use Prospecter\Core\Connectors\Application\MyConnection;
+use Prospecter\Core\Connectors\Application\Connection\MyConnection;
 use Prospecter\Core\Connectors\Application\Port\MyConnectionsRetriever;
 use Prospecter\Core\Connectors\Domain\Model\MailImport;
 use Prospecter\Core\Connectors\Domain\Model\SyncState;

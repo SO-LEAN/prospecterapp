@@ -13,7 +13,7 @@ use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Connectors\Application\RetryPush\RetryPush;
+use Prospecter\Core\Connectors\Application\Calendar\RetryPush\RetryPush;
 use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;

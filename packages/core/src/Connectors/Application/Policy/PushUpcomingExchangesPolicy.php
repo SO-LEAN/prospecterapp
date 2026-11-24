@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Connectors\Application\Policy;
 
-use Prospecter\Core\Connectors\Application\PushUpcomingExchanges\PushUpcomingExchanges;
+use Prospecter\Core\Connectors\Application\Calendar\PushUpcomingExchanges\PushUpcomingExchanges;
 use Prospecter\Core\Connectors\Domain\Event\CalendarRecreated;
 use Prospecter\Core\Connectors\Domain\Event\Connected;
 use Prospecter\Core\SharedKernel\Application\Handler\Policy;

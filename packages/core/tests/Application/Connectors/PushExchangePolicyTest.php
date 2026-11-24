@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Core\Application\Connectors;
 
 use PHPUnit\Framework\TestCase;
+use Prospecter\Core\Connectors\Application\Calendar\PushExchange\PushExchange;
 use Prospecter\Core\Connectors\Application\Policy\PushExchangePolicy;
-use Prospecter\Core\Connectors\Application\PushExchange\PushExchange;
 use Prospecter\Core\Prospecting\Contract\Event\ExchangeFactsChanged;
 
 class PushExchangePolicyTest extends TestCase
