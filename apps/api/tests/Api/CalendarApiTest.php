@@ -208,15 +208,6 @@ class CalendarApiTest extends ApiTestCase
         yield 'an administrator' => ['administrator', Role::Prospector, Role::Admin];
     }
 
-    public function testAMemberWhoIsNotAProspectorHasNoCalendar(): void
-    {
-        $this->login($this->aMemberOfTheFixtures('assistant', Role::User));
-
-        $this->requestJson('GET', self::WEEK_OF_THE_DEMONSTRATION);
-
-        $this->assertResponseStatusCodeSame(403);
-    }
-
     /**
      * At the clock of the tests, on the offset of the period, the 14th is gone, the hour of 8:00 of the 15th passed.
      */

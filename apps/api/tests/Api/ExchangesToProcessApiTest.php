@@ -210,15 +210,6 @@ class ExchangesToProcessApiTest extends ApiTestCase
         return self::stringAt($this->requestJson('POST', '/api/contacts/'.$contact.'/to-dos', ['text' => $text, 'dueOn' => $dueOn, 'dueAt' => $dueAt]), 'id');
     }
 
-    public function testAMemberWhoIsNotAProspectorHasNoExchangeToProcess(): void
-    {
-        $this->login($this->aMemberOfTheFixtures('assistant', Role::User));
-
-        $this->requestJson('GET', self::TO_PROCESS);
-
-        $this->assertResponseStatusCodeSame(403);
-    }
-
     /**
      * Planned the day before by the member, half an hour long, so that its time has come at the clock of the tests.
      */

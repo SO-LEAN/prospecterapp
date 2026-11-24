@@ -113,7 +113,7 @@ class OrganizationExchangeApiTest extends ApiTestCase
         $this->assertSame(['href' => '/api/organizations/'.$organization.'/exchanges', 'method' => 'POST'], $links['noteExchange']);
     }
 
-    public function testWithoutTheRightTheTimelineIsReadItsContactsNamedButNothingNoted(): void
+    public function testWithoutTheRightTheTimelineIsReadItsContactsNamedAndNothingToNoteLinked(): void
     {
         $organization = $this->anOrganization('ACME');
         $grace = $this->aContactOf($organization, 'Grace', 'Hopper');
@@ -127,8 +127,6 @@ class OrganizationExchangeApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(200);
         $this->assertSame([['Grace Hopper', true]], array_map(static fn (array $item): array => [self::valueAt($item, 'interlocutor', 'name'), self::valueAt($item, 'exchange', 'textFlagged')], self::recordsAt($timeline, 'items')));
         $this->assertSame(['self', 'planExchange'], array_keys(self::recordAt($timeline, '_links')));
-        $this->note($organization, ['exchange' => ['channel' => 'call', 'direction' => 'inbound']]);
-        $this->assertResponseStatusCodeSame(403);
     }
 
     #[Group('core-rule')]

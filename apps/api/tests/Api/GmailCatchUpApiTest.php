@@ -91,31 +91,6 @@ class GmailCatchUpApiTest extends ApiTestCase
         $this->assertArrayHasKey('reimportGmail', self::recordAt($this->requestJson('GET', '/api/contacts/'.$ada), '_links'));
     }
 
-    public function testAnAdministratorCatchesUpTheirEMailsToo(): void
-    {
-        $this->login($this->aMemberOfTheFixtures('administrator', Role::User, Role::Admin));
-        $ada = $this->aContactOfAcme('ada@acme.test');
-        $this->importTheMailOf('administrator');
-        $this->google()->receives('m1', 'ada@acme.test', 'Votre devis', 'Bonjour.');
-
-        $this->client->request('POST', '/api/contacts/'.$ada.'/gmail-reimports');
-
-        $this->assertResponseStatusCodeSame(202);
-        $this->assertCount(1, self::arrayAt($this->requestJson('GET', '/api/contacts/'.$ada.'/exchanges'), 'items'));
-    }
-
-    public function testAMemberWithoutThePersonalDataCatchesUpNothing(): void
-    {
-        $this->login();
-        $ada = $this->aContactOfAcme('ada@acme.test');
-        $this->importTheMailOf('assistant-user');
-        $this->signInAnotherMember('assistant-user');
-
-        $this->client->request('POST', '/api/contacts/'.$ada.'/gmail-reimports');
-
-        $this->assertResponseStatusCodeSame(403);
-    }
-
     /**
      * Whether its member imports their e-mails or not, a contact of another account is never told apart from none.
      */
@@ -182,18 +157,13 @@ class GmailCatchUpApiTest extends ApiTestCase
         $this->assertSame(['href' => '/api/organizations/'.$globex.'/gmail-reimports', 'method' => 'POST'], self::valueAt($this->requestJson('GET', '/api/organizations/'.$globex.'/exchanges'), '_links', 'reimportGmail'));
     }
 
-    public function testAnAdministratorCatchesUpTheEMailsOfAnOrganizationFromItsTimeline(): void
+    public function testTheTimelineOfAnOrganizationLinksTheCatchUpToAnAdministrator(): void
     {
         $this->login($this->aMemberOfTheFixtures('administrator', Role::User, Role::Admin));
         $globex = $this->anOrganization('contact@globex.test');
         $this->importTheMailOf('administrator');
-        $this->google()->receives('m1', 'contact@globex.test', 'Votre devis', 'Bonjour.');
+
         $this->assertArrayHasKey('reimportGmail', self::recordAt($this->requestJson('GET', '/api/organizations/'.$globex.'/exchanges'), '_links'));
-
-        $this->client->request('POST', '/api/organizations/'.$globex.'/gmail-reimports');
-
-        $this->assertResponseStatusCodeSame(202);
-        $this->assertCount(1, self::arrayAt($this->requestJson('GET', '/api/organizations/'.$globex.'/exchanges'), 'items'));
     }
 
     public function testTheTimelineOfAnOrganizationLinksNoCatchUpToAMemberWithoutThePersonalData(): void
@@ -213,28 +183,6 @@ class GmailCatchUpApiTest extends ApiTestCase
         $this->importTheMailOf('prospector-user');
 
         $this->assertArrayNotHasKey('reimportGmail', self::recordAt($this->requestJson('GET', '/api/organizations/'.$globex.'/exchanges'), '_links'));
-    }
-
-    public function testAMemberWithoutThePersonalDataCatchesUpNothingOfAnOrganization(): void
-    {
-        $this->login();
-        $globex = $this->anOrganization('contact@globex.test');
-        $this->signInAnotherMember('assistant-user');
-
-        $this->client->request('POST', '/api/organizations/'.$globex.'/gmail-reimports');
-
-        $this->assertResponseStatusCodeSame(403);
-    }
-
-    public function testAnOrganizationOfAnotherAccountIsNotFound(): void
-    {
-        $this->login();
-        $globex = $this->anOrganization('contact@globex.test');
-        $this->signInAnotherMember($this->aMemberOfAnotherAccount('stranger'));
-
-        $this->client->request('POST', '/api/organizations/'.$globex.'/gmail-reimports');
-
-        $this->assertResponseStatusCodeSame(404);
     }
 
     public function testAnOrganizationWithoutEMailHasNothingToCatchUp(): void

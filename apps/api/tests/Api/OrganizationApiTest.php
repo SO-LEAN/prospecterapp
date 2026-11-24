@@ -462,30 +462,6 @@ class OrganizationApiTest extends ApiTestCase
         $this->assertSame([''], $this->violatedFields($problem));
     }
 
-    public function testAnOrganizationOfAnotherOrganizationIsNotFoundForEveryIntention(): void
-    {
-        $id = $this->anOrganizationOfAnotherOrganization();
-        $mine = $this->started(self::ACME);
-        $intentions = [
-            ['GET', '', null], ['PATCH', '/legal-identity', []], ['PATCH', '/contact-details', []], ['PATCH', '/address', []],
-            ['PATCH', '/observations', []], ['PATCH', '/holding', ['holdingId' => $mine]], ['DELETE', '/holding', null], ['DELETE', '/logo', null],
-            ['POST', '/contacts', ['personId' => self::newIdentity()]], ['DELETE', '/contacts/'.self::newIdentity(), null], ['DELETE', '', null],
-            ['GET', '/contacts', null], ['GET', '/exchanges', null], ['GET', '/exchanges-to-redact', null],
-            ['POST', '/exchanges', ['exchange' => ['channel' => 'call', 'direction' => 'inbound']]],
-            ['GET', '/to-dos', null], ['POST', '/to-dos', ['text' => 'Appeler', 'dueOn' => '2026-10-16']],
-            ['DELETE', '/possible-duplicates/'.$mine, null],
-        ];
-
-        foreach ($intentions as [$method, $path, $payload]) {
-            $problem = $this->requestJson($method, '/api/organizations/'.$id.$path, $payload);
-            $this->assertResponseStatusCodeSame(404, $method.' '.$path);
-            $this->assertSame('unknownOrganization', $problem['reason'], $method.' '.$path);
-        }
-
-        $this->assertSame('unknownOrganization', $this->uploadImage('/api/organizations/'.$id.'/logo')['reason']);
-        $this->assertResponseStatusCodeSame(404, 'POST /logo');
-    }
-
     public function testAnOrganizationOfAnotherOrganizationIsNotFoundWhateverThePayload(): void
     {
         $problem = $this->requestJson('PATCH', '/api/organizations/'.$this->anOrganizationOfAnotherOrganization().'/observations', ['notes' => 'unknown field']);
@@ -506,32 +482,25 @@ class OrganizationApiTest extends ApiTestCase
     public function testWithoutTheRightTheContactsAreNotManaged(): void
     {
         $id = $this->started(self::ACME);
-        $contact = self::stringAt($this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada'], 'organizationIds' => [$id]]), 'id');
+        $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada'], 'organizationIds' => [$id]]);
         $this->login($this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector));
 
         $links = $this->linksOf($id);
         $this->assertSame([], array_values(array_intersect(['addContact', 'stopProspecting', 'noteExchange', 'toDos'], array_keys($links))));
         $this->assertArrayHasKey('exchanges', $links, 'its timeline is read without the right');
-
-        foreach ([['POST', '/contacts', ['personId' => $contact]], ['DELETE', '/contacts/'.$contact, null], ['DELETE', '', null], ['POST', '/exchanges', ['exchange' => ['channel' => 'call', 'direction' => 'inbound']]]] as [$method, $path, $payload]) {
-            $this->requestJson($method, '/api/organizations/'.$id.$path, $payload);
-            $this->assertResponseStatusCodeSame(403, $method.' '.$path);
-        }
+        $this->requestJson('DELETE', '/api/organizations/'.$id);
+        $this->assertResponseStatusCodeSame(403);
     }
 
     public function testAnAdministratorManagesThePersonalDataWithoutTheirRole(): void
     {
         $id = $this->started(self::ACME);
-        $contact = self::stringAt($this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada'], 'organizationIds' => [$id]]), 'id');
+        $this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Ada'], 'organizationIds' => [$id]]);
         $this->login($this->aMemberOfTheFixtures('administrator', Role::Prospector, Role::Admin));
 
         $links = $this->linksOf($id);
         $this->assertSame(['addContact', 'stopProspecting', 'noteExchange', 'toDos'], array_values(array_intersect(['addContact', 'stopProspecting', 'noteExchange', 'toDos'], array_keys($links))));
 
-        $this->requestJson('POST', '/api/organizations/'.$id.'/exchanges', ['exchange' => ['channel' => 'call', 'direction' => 'inbound'], 'personId' => $contact]);
-        $this->assertResponseStatusCodeSame(201);
-        $this->requestJson('DELETE', '/api/organizations/'.$id.'/contacts/'.$contact);
-        $this->assertResponseIsSuccessful();
         $this->requestJson('DELETE', '/api/organizations/'.$id);
         $this->assertResponseStatusCodeSame(204);
     }

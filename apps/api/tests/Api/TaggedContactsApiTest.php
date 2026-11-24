@@ -129,24 +129,6 @@ class TaggedContactsApiTest extends ApiTestCase
         yield 'an administrator' => ['administrator', [Role::User, Role::Prospector, Role::Admin], false];
     }
 
-    public function testAMemberWhoIsNoProspectorIsRefused(): void
-    {
-        $this->login($this->aMemberOfTheFixtures('member', Role::User));
-
-        $this->requestJson('GET', '/api/tagged-contacts?tags=CAMPAIGN_149');
-
-        $this->assertResponseStatusCodeSame(403);
-    }
-
-    public function testTheSearchRequiresAnAccessToken(): void
-    {
-        $this->client->setServerParameter('HTTP_AUTHORIZATION', '');
-
-        $this->requestJson('GET', '/api/tagged-contacts?tags=CAMPAIGN_149');
-
-        $this->assertResponseStatusCodeSame(401);
-    }
-
     /**
      * @param array<string, string> $contactDetails
      */

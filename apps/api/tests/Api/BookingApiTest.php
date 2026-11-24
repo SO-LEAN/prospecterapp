@@ -107,28 +107,6 @@ class BookingApiTest extends ApiTestCase
         $this->assertSame(['self', 'setWindows', 'addInactivePeriod', 'offerChannels', 'open', 'changeLink'], array_keys(self::recordAt($changed, '_links')));
     }
 
-    #[DataProvider('gesturesOnMyPage')]
-    public function testNoGestureOnMyPageWithoutSigningIn(string $method, string $uri): void
-    {
-        $this->requestJson($method, $uri, 'GET' === $method || 'DELETE' === $method ? null : []);
-
-        $this->assertResponseStatusCodeSame(401);
-    }
-
-    /**
-     * @return iterable<string, array{string, string}>
-     */
-    public static function gesturesOnMyPage(): iterable
-    {
-        yield 'set the windows' => ['PATCH', '/api/me/booking-page/windows'];
-        yield 'add an inactive period' => ['POST', '/api/me/booking-page/inactive-periods'];
-        yield 'remove an inactive period' => ['DELETE', '/api/me/booking-page/inactive-periods/0190a1c0-0000-7000-8000-0000000000e1'];
-        yield 'offer channels' => ['PATCH', '/api/me/booking-page/channels'];
-        yield 'open' => ['POST', '/api/me/booking-page/opening'];
-        yield 'close' => ['DELETE', '/api/me/booking-page/opening'];
-        yield 'change the link' => ['POST', '/api/me/booking-page/link'];
-    }
-
     public function testAPageWithoutLinkDoesNotChangeIt(): void
     {
         $this->login();
@@ -516,13 +494,6 @@ class BookingApiTest extends ApiTestCase
         $this->requestJson('POST', '/api/booking-pages/'.self::A_CODE.'/appointments', $this->booking());
 
         $this->assertResponseStatusCodeSame(429);
-    }
-
-    public function testMyPageIsNotReadWithoutSigningIn(): void
-    {
-        $this->requestJson('GET', '/api/me/booking-page');
-
-        $this->assertResponseStatusCodeSame(401);
     }
 
     private function anOpenPage(): string

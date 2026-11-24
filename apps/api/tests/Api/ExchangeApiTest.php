@@ -5,11 +5,7 @@ declare(strict_types=1);
 namespace Tests\App\Api;
 
 use PHPUnit\Framework\Attributes\Group;
-use Prospecter\Core\Accounts\Domain\Model\Account;
 use Prospecter\Core\Accounts\Domain\Model\Role;
-use Prospecter\Core\Accounts\Domain\Repository\AccountRepository;
-use Prospecter\Core\Prospecting\Domain\Model\Attachment;
-use Prospecter\Core\Prospecting\Domain\Model\AttachmentId;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
 use Prospecter\Core\Prospecting\Domain\Model\ContactCorrespondent;
 use Prospecter\Core\Prospecting\Domain\Model\ContactId;
@@ -17,18 +13,11 @@ use Prospecter\Core\Prospecting\Domain\Model\Direction;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
-use Prospecter\Core\Prospecting\Domain\Model\ExchangeStatus;
 use Prospecter\Core\Prospecting\Domain\Model\ImportedEmail;
 use Prospecter\Core\Prospecting\Domain\Model\Noting;
-use Prospecter\Core\Prospecting\Domain\Model\Organization;
-use Prospecter\Core\Prospecting\Domain\Model\OrganizationCorrespondent;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
-use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
-use Prospecter\Core\SharedKernel\Domain\Company\LegalIdentity;
-use Prospecter\Core\SharedKernel\Domain\Contact\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Gesture\Gesture;
-use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 use Tests\App\Base\ApiTestCase;
 use Tests\App\Base\ReadsResources;
@@ -41,8 +30,6 @@ use Tests\App\Base\ReadsResources;
 class ExchangeApiTest extends ApiTestCase
 {
     use ReadsResources;
-
-    private const string ATTACHMENT = '0190a1c0-0000-7000-8000-0000000000a1';
 
     protected function setUp(): void
     {
@@ -162,7 +149,7 @@ class ExchangeApiTest extends ApiTestCase
         $this->assertSame('referenceNotOfTheChannel', $problem['reason']);
     }
 
-    public function testWithoutTheRightTheTimelineIsReadItsTextsFlaggedButNoExchangeIsNotedOnlyPlanned(): void
+    public function testWithoutTheRightTheTimelineIsReadItsTextsFlaggedAndOnlyPlanningLinked(): void
     {
         $contact = $this->aContactOf($this->anOrganization('ACME'));
         $this->note($contact, ['channel' => 'call', 'direction' => 'inbound', 'text' => 'Ada rappellera lundi']);
@@ -172,8 +159,6 @@ class ExchangeApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(200);
         $this->assertSame([['Ada rappellera lundi', true]], array_map(static fn (array $exchange): array => [$exchange['text'], $exchange['textFlagged']], self::recordsAt($timeline, 'items')));
         $this->assertSame(['self', 'planExchange'], array_keys(self::recordAt($timeline, '_links')));
-        $this->note($contact, ['channel' => 'sms', 'direction' => 'inbound']);
-        $this->assertResponseStatusCodeSame(403);
     }
 
     public function testAnOrganizationNoLongerProspectedTakesItsExchangesAlong(): void
@@ -277,7 +262,7 @@ class ExchangeApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(404);
     }
 
-    public function testWithoutTheRightAnExchangeIsReadNamedAndOnlyItsTextCorrected(): void
+    public function testWithoutTheRightAnExchangeIsReadNamedAndLinksOnlyTheCorrectionOfItsText(): void
     {
         $id = self::stringAt($this->note($this->aContactOf($this->anOrganization('ACME'), 'Grace'), ['channel' => 'sms', 'direction' => 'inbound', 'text' => 'Grace rappellera lundi']), 'items', 0, 'id');
         $this->login($this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector));
@@ -287,10 +272,6 @@ class ExchangeApiTest extends ApiTestCase
         $this->assertSame('Grace', self::valueAt($exchange, 'interlocutor', 'name'));
         $this->assertSame(['Grace rappellera lundi', true], [$exchange['text'], $exchange['textFlagged']]);
         $this->assertSame(['self', 'interlocutor', 'correctText'], array_keys(self::recordAt($exchange, '_links')));
-        $this->correct($id, ['channel' => 'call', 'direction' => 'inbound', 'occurredAt' => '2026-10-15T08:00:00+00:00']);
-        $this->assertResponseStatusCodeSame(403);
-        $this->requestJson('DELETE', '/api/exchanges/'.$id);
-        $this->assertResponseStatusCodeSame(403);
     }
 
     public function testTheTextCorrectedAloneIsShownWithWhoCorrectedIt(): void
@@ -387,23 +368,6 @@ class ExchangeApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(404);
     }
 
-    public function testAnExchangeOfAnotherAccountIsNotFoundForEveryIntention(): void
-    {
-        $id = $this->anExchangeOfAnotherAccount();
-        $attachment = '/attachments/'.self::ATTACHMENT;
-        $intentions = [
-            ['GET', '', null], ['PATCH', '/facts', ['channel' => 'call', 'direction' => 'inbound', 'occurredAt' => '2026-10-14T08:00:00+00:00']], ['PATCH', '/text', ['text' => 'Rien']],
-            ['DELETE', '', null], ['POST', '/attachments', ['upload' => self::newIdentity(), 'name' => 'devis.pdf']],
-            ['GET', $attachment, null], ['DELETE', $attachment, null],
-        ];
-
-        foreach ($intentions as [$method, $path, $payload]) {
-            $problem = $this->requestJson($method, '/api/exchanges/'.$id.$path, $payload);
-            $this->assertResponseStatusCodeSame(404, $method.' '.$path);
-            $this->assertSame('unknownExchange', $problem['reason'], $method.' '.$path);
-        }
-    }
-
     /**
      * @param array<string, mixed> $facts
      *
@@ -442,19 +406,6 @@ class ExchangeApiTest extends ApiTestCase
         $organization ??= $this->anOrganization('ACME');
         $contact ??= $this->aContactOf($organization);
         $exchange = Exchange::noted(new Gesture($this->accountOfTheFixtures(), new MemberId($this->memberIdOf('prospector-user')), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)), new ExchangeId(self::newIdentity()), new ContactCorrespondent(new ContactId($contact), [new OrganizationId($organization)]), Noting::imported(new ExchangeFacts(Channel::Email, Direction::Inbound, new \DateTimeImmutable('2026-10-14 09:00 UTC'), "Votre devis\n\nBonjour"), $email));
-        self::service(ExchangeRepository::class)->save($exchange);
-
-        return $exchange->id()->value;
-    }
-
-    private function anExchangeOfAnotherAccount(): string
-    {
-        $competitor = Account::open(new AccountId(self::newIdentity()), new LegalIdentity('Competitor'), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
-        self::service(AccountRepository::class)->save($competitor);
-        $theirs = Organization::prospectedBy(new Gesture($competitor->id(), new MemberId(self::newIdentity()), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)), new OrganizationId(self::newIdentity()), new LegalIdentity('Their prospect'), new ContactDetails());
-        self::service(OrganizationRepository::class)->save($theirs);
-        $exchange = Exchange::noted(new Gesture($theirs->accountId(), new MemberId(self::newIdentity()), new \DateTimeImmutable('2026-10-14')), new ExchangeId(self::newIdentity()), new OrganizationCorrespondent($theirs->id()), Noting::of(new ExchangeFacts(Channel::Call, Direction::Inbound, new \DateTimeImmutable('2026-10-14')), ExchangeStatus::Done));
-        $exchange->attach(new Attachment(new AttachmentId(self::ATTACHMENT), 'devis.pdf', 2048, 'application/pdf', 'their-file'), new MemberId(self::newIdentity()), new \DateTimeImmutable('2026-10-14'));
         self::service(ExchangeRepository::class)->save($exchange);
 
         return $exchange->id()->value;

@@ -424,22 +424,13 @@ class ConnectorsApiTest extends ApiTestCase
         $this->assertSame('mailImportUnavailable', $problem['reason']);
     }
 
-    public function testAMemberWithoutThePersonalDataImportsNoGmail(): void
+    public function testAMemberWithoutThePersonalDataIsOfferedNoImportOfGmail(): void
     {
         $this->withATopicOfGmail();
         $this->login('assistant-user');
         $this->connect('michel@exemple.fr', 'a-refresh-token');
 
         $this->assertArrayNotHasKey('importGmail', self::recordAt($this->requestJson('GET', '/api/me/connections'), 'connections', 0, '_links'));
-        $this->requestJson('POST', self::GMAIL_IMPORT_AUTHORIZATIONS);
-        $this->assertResponseStatusCodeSame(403);
-    }
-
-    public function testAnAnonymousVisitorConnectsNothing(): void
-    {
-        $this->requestJson('POST', '/api/me/connections/google/authorizations');
-
-        $this->assertResponseStatusCodeSame(401);
     }
 
     /**

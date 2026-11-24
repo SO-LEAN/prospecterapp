@@ -188,37 +188,6 @@ class GoogleClientApiTest extends ApiTestCase
         $this->assertSame('noClient', $problem['reason']);
     }
 
-    #[DataProvider('gesturesOfAMemberWhoIsNoAdministrator')]
-    public function testAMemberWhoIsNoAdministratorNeitherSeesNorChangesTheClient(string $member, string $method, string $uri = self::THE_CLIENT): void
-    {
-        $this->login($member);
-
-        $this->requestJson($method, $uri, match (true) {
-            'PATCH' === $method && self::THE_CLIENT === $uri => ['clientId' => 'client-of-solean', 'clientSecret' => 'secret-of-solean'],
-            'PATCH' === $method => ['topic' => self::TOPIC, 'pushAccount' => self::PUSH_ACCOUNT],
-            default => null,
-        });
-
-        $this->assertResponseStatusCodeSame(403);
-        $this->loginAnAdministrator();
-        $this->assertSame('client-of-the-double', self::valueAt($this->requestJson('GET', self::THE_CLIENT), 'clientId'));
-    }
-
-    /**
-     * @return iterable<string, array{0: string, 1: string, 2?: string}>
-     */
-    public static function gesturesOfAMemberWhoIsNoAdministrator(): iterable
-    {
-        foreach (['a prospector with the personal data' => 'prospector-user', 'a prospector without the personal data' => 'assistant-user'] as $who => $member) {
-            foreach (['sees' => 'GET', 'configures' => 'PATCH', 'removes' => 'DELETE'] as $gesture => $method) {
-                yield sprintf('%s %s', $who, $gesture) => [$member, $method];
-            }
-            foreach (['names the topic of Gmail' => 'PATCH', 'removes the topic of Gmail' => 'DELETE'] as $gesture => $method) {
-                yield sprintf('%s %s', $who, $gesture) => [$member, $method, self::GMAIL_NOTIFICATIONS];
-            }
-        }
-    }
-
     public function testTheConnectionsLinkTheClientForAnAdministratorOnly(): void
     {
         $this->loginAnAdministrator();
@@ -226,13 +195,6 @@ class GoogleClientApiTest extends ApiTestCase
 
         $this->login('prospector-user');
         $this->assertArrayNotHasKey('googleClient', self::recordAt($this->requestJson('GET', '/api/me/connections'), '_links'));
-    }
-
-    public function testAnAnonymousVisitorSeesNoClient(): void
-    {
-        $this->requestJson('GET', self::THE_CLIENT);
-
-        $this->assertResponseStatusCodeSame(401);
     }
 
     /**

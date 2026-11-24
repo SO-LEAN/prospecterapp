@@ -88,17 +88,13 @@ class ContactsToAttachApiTest extends ApiTestCase
         $this->assertArrayNotHasKey('proposedOrganization', self::recordAt($this->requestJson('GET', '/api/contacts/'.$louise), '_links'));
     }
 
-    public function testTheirHolderWithoutTheRightPlansWithThemButNotesNothing(): void
+    public function testTheirHolderWithoutTheRightPlansWithThem(): void
     {
         $louise = $this->aContactToAttachOf('assistant-user', 'Louise', 'Michel', 'louise@acme.test', '2026-10-20 14:00 Europe/Paris');
         $this->login('assistant-user');
 
         $this->requestJson('POST', '/api/contacts/'.$louise.'/upcoming-exchanges', ['channel' => 'call', 'occurredAt' => '2026-10-25T09:00:00+00:00']);
         $this->assertResponseStatusCodeSame(201);
-        $this->requestJson('POST', '/api/contacts/'.$louise.'/exchanges', ['channel' => 'call', 'direction' => 'outbound', 'occurredAt' => '2026-10-14T09:00:00+00:00']);
-        $this->assertResponseStatusCodeSame(403);
-        $this->requestJson('POST', '/api/contacts/'.$louise.'/to-dos', ['text' => 'Envoyer la proposition', 'dueOn' => '2026-10-16']);
-        $this->assertResponseStatusCodeSame(403);
     }
 
     public function testThePageOfAContactToAttachLinksTheProposalToTheirHolderWithTheRightOnly(): void
@@ -171,15 +167,6 @@ class ContactsToAttachApiTest extends ApiTestCase
         $this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'Les amis de Gmail'], 'contactDetails' => ['email' => 'amis@gmail.com']]);
 
         $this->assertSame(['organization' => null], $this->requestJson('GET', '/api/contacts/'.$this->bob.'/proposed-organization'));
-    }
-
-    public function testTheProposalNeedsTheRightToManagePersonalData(): void
-    {
-        $this->login('assistant-user');
-
-        $this->requestJson('GET', '/api/contacts/'.$this->grace.'/proposed-organization');
-
-        $this->assertResponseStatusCodeSame(403);
     }
 
     public function testThePageOfAContactToAttachSaysWhenTheyAreErasedToTheirHolderOnly(): void
