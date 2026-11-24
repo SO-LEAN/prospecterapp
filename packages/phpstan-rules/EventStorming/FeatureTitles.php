@@ -42,9 +42,9 @@ final readonly class FeatureTitles
     {
         preg_match_all(self::TAG, $header, $lines);
 
-        return array_values(array_map(
+        return array_map(
             static fn (string $tag): string => ltrim($tag, '@'),
             array_merge(...array_map(static fn (string $line): array => preg_split('/\s+/', $line) ?: [], $lines[1])),
-        ));
+        );
     }
 }

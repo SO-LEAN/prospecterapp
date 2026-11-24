@@ -58,7 +58,7 @@ final readonly class CallsCollector implements Collector
     private static function targetsOf(CallLike $call, Scope $scope): array
     {
         return match (true) {
-            $call instanceof MethodCall, $call instanceof NullsafeMethodCall => array_values($scope->getType($call->var)->getObjectClassNames()),
+            $call instanceof MethodCall, $call instanceof NullsafeMethodCall => $scope->getType($call->var)->getObjectClassNames(),
             $call instanceof New_, $call instanceof StaticCall => $call->class instanceof Name ? [$scope->resolveName($call->class)] : [],
             default => [],
         };
