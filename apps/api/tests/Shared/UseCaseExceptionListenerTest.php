@@ -88,7 +88,13 @@ final class UseCaseExceptionListenerTest extends KernelTestCase
         $this->assertSame($status, $response->getStatusCode());
         $this->assertSame('application/problem+json', $response->headers->get('Content-Type'));
         $problem = self::record(json_decode((string) $response->getContent(), true));
-        $this->assertSame($expected, array_map(static fn (string $field): mixed => $problem[$field] ?? null, array_combine(array_keys($expected), array_keys($expected))));
+        $answered = [];
+
+        foreach (array_keys($expected) as $field) {
+            $answered[$field] = $problem[$field] ?? null;
+        }
+
+        $this->assertSame($expected, $answered);
     }
 
     /**

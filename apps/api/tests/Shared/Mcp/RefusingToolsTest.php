@@ -42,7 +42,7 @@ class RefusingToolsTest extends TestCase
         }
     }
 
-    public function testACoreRefusalAnswersTheAiTheProblemOfItsEndpoint(): void
+    public function testACoreRefusalAnswersTheAiItsEndpointsProblem(): void
     {
         try {
             $this->tools(UseCaseRefused::because(BookingPageWithoutLink::doesNotChangeIt()), new InMemoryLogger())->handle(new ElementReference(static fn (): null => null), []);
