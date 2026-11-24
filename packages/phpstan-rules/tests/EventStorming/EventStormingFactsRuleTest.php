@@ -2,14 +2,23 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\PHPStan\EventStorming;
+namespace Tests\PHPStan\EventStorming;
 
+use App\Shop\Controller\AddItemController;
 use PhpParser\Node;
 use PHPStan\Analyser\Error;
 use PHPStan\Collectors\Collector;
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
 use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
+use Prospecter\Core\Shop\Application\Cart\AddItem\AddItem;
+use Prospecter\Core\Shop\Application\Cart\ConsultCart\CartView;
+use Prospecter\Core\Shop\Application\Cart\ConsultCart\ConsultCart;
+use Prospecter\Core\Shop\Application\Policy\AddAgainPolicy;
+use Prospecter\Core\Shop\Domain\Event\CartClosed;
+use Prospecter\Core\Shop\Domain\Event\CartEmptied;
+use Prospecter\Core\Shop\Domain\Model\Cart;
+use Prospecter\Core\Shop\Domain\Port\Stock;
 use Prospecter\PHPStan\EventStorming\CallsCollector;
 use Prospecter\PHPStan\EventStorming\ClassFactsCollector;
 use Prospecter\PHPStan\EventStorming\ConditionalLinesCollector;
@@ -20,17 +29,17 @@ use Prospecter\PHPStan\EventStorming\EventStormingFactsRule;
  */
 final class EventStormingFactsRuleTest extends RuleTestCase
 {
-    private const string FIXTURES = __DIR__.'/../../../../phpstan-rules/fixtures/event-storming/src';
+    private const string FIXTURES = __DIR__.'/Fixtures/src';
 
     private const string SHOP = self::FIXTURES.'/Shop';
 
     private const string SHOP_NAMESPACE = 'Prospecter\\Core\\Shop\\';
 
-    private const string ADD_ITEM = 'Prospecter\Core\Shop\Application\Cart\AddItem\AddItem';
+    private const string ADD_ITEM = AddItem::class;
 
-    private const string CONSULT_CART = 'Prospecter\Core\Shop\Application\Cart\ConsultCart\ConsultCart';
+    private const string CONSULT_CART = ConsultCart::class;
 
-    private const string CART = 'Prospecter\Core\Shop\Domain\Model\Cart';
+    private const string CART = Cart::class;
 
     protected function getRule(): Rule
     {
@@ -48,7 +57,7 @@ final class EventStormingFactsRuleTest extends RuleTestCase
     public function testAHandlerTellsWhatItHandlesAndDependsOn(): void
     {
         self::assertContains(
-            ['name' => self::ADD_ITEM.'Handler', 'interfaces' => [CommandHandler::class], 'parameters' => [[self::ADD_ITEM]], 'returns' => [], 'mayReturnNothing' => false, 'dependencies' => ['Prospecter\Core\Shop\Domain\Port\Stock', 'Prospecter\Core\Shop\Domain\Model\Cart'], 'roles' => [], 'presents' => []],
+            ['name' => self::ADD_ITEM.'Handler', 'interfaces' => [CommandHandler::class], 'parameters' => [[self::ADD_ITEM]], 'returns' => [], 'mayReturnNothing' => false, 'dependencies' => [Stock::class, Cart::class], 'roles' => [], 'presents' => []],
             $this->shopFacts()['classes'],
         );
     }
@@ -64,7 +73,7 @@ final class EventStormingFactsRuleTest extends RuleTestCase
     public function testAnObjectCreatedInABranchIsCreatedUnderACondition(): void
     {
         self::assertContains(
-            ['caller' => self::CART, 'callerMethod' => 'empty', 'target' => 'Prospecter\Core\Shop\Domain\Event\CartEmptied', 'targetMethod' => '__construct', 'conditional' => true],
+            ['caller' => self::CART, 'callerMethod' => 'empty', 'target' => CartEmptied::class, 'targetMethod' => '__construct', 'conditional' => true],
             $this->shopFacts()['calls'],
         );
     }
@@ -72,24 +81,24 @@ final class EventStormingFactsRuleTest extends RuleTestCase
     public function testAnObjectCreatedAfterAnEarlyReturnIsCreatedUnderACondition(): void
     {
         self::assertContains(
-            ['caller' => self::CART, 'callerMethod' => 'close', 'target' => 'Prospecter\Core\Shop\Domain\Event\CartClosed', 'targetMethod' => '__construct', 'conditional' => true],
+            ['caller' => self::CART, 'callerMethod' => 'close', 'target' => CartClosed::class, 'targetMethod' => '__construct', 'conditional' => true],
             $this->shopFacts()['calls'],
         );
     }
 
     public function testAQueryHandlerTellsWhatItsOutputPortPresents(): void
     {
-        self::assertSame(['Prospecter\Core\Shop\Application\Cart\ConsultCart\CartView'], $this->classFactsOf(self::CONSULT_CART.'Handler')['presents'] ?? null);
+        self::assertSame([CartView::class], $this->classFactsOf(self::CONSULT_CART.'Handler')['presents'] ?? null);
     }
 
     public function testAClassTellsTheRolesItsAttributesRequire(): void
     {
-        self::assertSame(['ROLE_USER', 'ROLE_PROSPECTOR'], $this->classFactsOf('App\Shop\Controller\AddItemController')['roles'] ?? null);
+        self::assertSame(['ROLE_USER', 'ROLE_PROSPECTOR'], $this->classFactsOf(AddItemController::class)['roles'] ?? null);
     }
 
     public function testAPolicyTellsTheCommandItMaySend(): void
     {
-        $policy = $this->classFactsOf('Prospecter\Core\Shop\Application\Policy\AddAgainPolicy');
+        $policy = $this->classFactsOf(AddAgainPolicy::class);
 
         self::assertSame([[self::ADD_ITEM], true], [$policy['returns'] ?? null, $policy['mayReturnNothing'] ?? null]);
     }

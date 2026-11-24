@@ -33,13 +33,12 @@ final readonly class ModelDocument
     }
 
     /**
-     * @return array<string, array<string, mixed>>
+     * @return array<array<mixed>>
      */
     private function readSubscriptions(): array
     {
         $subscriptions = json_decode((string) file_get_contents($this->subscriptions), true, flags: \JSON_THROW_ON_ERROR);
 
-        /** @var array<string, array<string, mixed>> */
-        return \is_array($subscriptions) ? $subscriptions : [];
+        return \is_array($subscriptions) ? array_filter($subscriptions, \is_array(...)) : [];
     }
 }

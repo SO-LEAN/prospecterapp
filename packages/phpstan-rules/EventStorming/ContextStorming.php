@@ -4,18 +4,23 @@ declare(strict_types=1);
 
 namespace Prospecter\PHPStan\EventStorming;
 
+use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\Policy;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
+
 /**
  * Tells one context's event storming from the facts the analysis read in its code.
  */
 final readonly class ContextStorming
 {
-    private const string COMMAND_HANDLER = 'Prospecter\Core\SharedKernel\Application\Handler\CommandHandler';
+    private const string COMMAND_HANDLER = CommandHandler::class;
 
-    private const string EVENT_HANDLER = 'Prospecter\Core\SharedKernel\Application\Handler\EventHandler';
+    private const string EVENT_HANDLER = EventHandler::class;
 
-    private const string QUERY_HANDLER = 'Prospecter\Core\SharedKernel\Application\Handler\QueryHandler';
+    private const string QUERY_HANDLER = QueryHandler::class;
 
-    private const string POLICY = 'Prospecter\Core\SharedKernel\Application\Handler\Policy';
+    private const string POLICY = Policy::class;
 
     private const string CONTROLLERS = '\\Controller\\';
 
@@ -38,8 +43,8 @@ final readonly class ContextStorming
     private const string ENTRY = '__invoke';
 
     /**
-     * @param array<string, string>               $titles        the title of the feature of each use case, by its short name
-     * @param array<string, array<string, mixed>> $subscriptions the subscriptions of the delivery, by their name
+     * @param array<string, string> $titles        the title of the feature of each use case, by its short name
+     * @param array<array<mixed>>   $subscriptions the subscriptions of the delivery, by their name
      */
     public function __construct(private Facts $facts, private array $titles = [], private array $subscriptions = [])
     {
@@ -218,7 +223,7 @@ final readonly class ContextStorming
     }
 
     /**
-     * @param array<string, mixed> $subscription
+     * @param array<mixed> $subscription
      */
     private static function listensTo(array $subscription, string $source, string $event): bool
     {
@@ -314,6 +319,7 @@ final readonly class ContextStorming
     private function useCaseOf(StickyType $type, string $class, ?string $detail = null, ?string $module = null): Sticky
     {
         $name = new ClassName($class);
+
         return new Sticky($type->value.':'.$class, $type, $this->titles[$name->short()] ?? $name->short(), $name->short(), $class, (string) $name->context(), $module ?? $name->module(), $detail);
     }
 

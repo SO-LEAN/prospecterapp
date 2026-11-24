@@ -12,6 +12,7 @@ use PHPStan\Collectors\Collector;
 use PHPStan\Node\InClassNode;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Reflection\ExtendedMethodReflection;
+use PHPStan\Reflection\ExtendedParameterReflection;
 use PHPStan\Type\Type;
 use PHPStan\Type\TypeCombinator;
 
@@ -65,7 +66,7 @@ final readonly class ClassFactsCollector implements Collector
     {
         $outputPort = $entry->getVariants()[0]->getParameters()[self::OUTPUT_PORT] ?? null;
         $presented = [];
-        foreach (null === $outputPort ? [] : $outputPort->getType()->getObjectClassReflections() as $port) {
+        foreach ($outputPort?->getType()->getObjectClassReflections() ?? [] as $port) {
             if ($port->hasNativeMethod(self::PRESENT)) {
                 $presented = [...$presented, ...(self::parametersOf($port->getNativeMethod(self::PRESENT))[0] ?? [])];
             }
@@ -102,7 +103,7 @@ final readonly class ClassFactsCollector implements Collector
      */
     private static function parametersOf(ExtendedMethodReflection $method): array
     {
-        return array_map(static fn ($parameter): array => self::classesOf($parameter->getType()), $method->getVariants()[0]->getParameters());
+        return array_map(static fn (ExtendedParameterReflection $parameter): array => self::classesOf($parameter->getType()), $method->getVariants()[0]->getParameters());
     }
 
     /**

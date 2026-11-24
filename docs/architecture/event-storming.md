@@ -33,7 +33,7 @@ The code already follows the grammar of the event storming. Each post-it is read
    `EventStormingFactsRule` hands what they collected to `EventStormingFormatter` (`--error-format=eventStorming`), which gives it to `ModelDocument`. An analysis that read no facts, or could not read the code, writes no model and fails. `ContextStorming` follows the calls from each handler to the intentions of the aggregates, then to the events they record, and writes the model. Two generations of the same code give the same file.
 2. `index.html`, the page, written by `apps/front/event-storming/generate.ts`, plain TypeScript that Node runs without a build (`make -C apps/front event-storming-page`). `views.ts` cuts the model into views, `layout.ts` lays each one out with ELK (elkjs, the layered algorithm, from left to right), `page.ts` writes a standalone page. It loads no outside script or stylesheet. It reads in light and dark, filters the post-its by type, and lights the arrows of a post-it on hover. It places the post-its to a tenth of a point.
 
-The PHPUnit tests of the generator run with the core's (`packages/core/tests/PHPStan/EventStorming`), on the fixtures of `packages/phpstan-rules/fixtures/event-storming`. The page's are Vitest tests (`apps/front/event-storming/*.test.ts`).
+The generator's PHPUnit tests sit beside its code, in `packages/phpstan-rules/tests/EventStorming`, with their fixtures in its `Fixtures/`. The core's PHPUnit runs them (its `phpstan-rules` test suite), and its PHPStan, php-cs-fixer and Rector check them, the fixtures aside. The page's tests are Vitest tests (`apps/front/event-storming/*.test.ts`).
 
 ## Where it is served
 

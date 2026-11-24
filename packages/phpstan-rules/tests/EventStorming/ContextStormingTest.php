@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\PHPStan\EventStorming;
+namespace Tests\PHPStan\EventStorming;
 
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Booking\Application\Appointment\ConsultAppointments\ConsultAppointmentsHandler;

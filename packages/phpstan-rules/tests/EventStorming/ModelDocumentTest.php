@@ -2,18 +2,19 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\PHPStan\EventStorming;
+namespace Tests\PHPStan\EventStorming;
 
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
+use Prospecter\Core\Shop\Application\Cart\AddItem\AddItem;
 use Prospecter\PHPStan\EventStorming\ModelDocument;
 use Prospecter\PHPStan\EventStorming\UnreadableCode;
 
 final class ModelDocumentTest extends TestCase
 {
-    private const string FIXTURES = __DIR__.'/../../../../phpstan-rules/fixtures/event-storming';
+    private const string FIXTURES = __DIR__.'/Fixtures';
 
-    private const string ADD_ITEM = 'Prospecter\Core\Shop\Application\Cart\AddItem\AddItem';
+    private const string ADD_ITEM = AddItem::class;
 
     public function testTheDocumentIsTheModelOfTheContextFromTheFacts(): void
     {
