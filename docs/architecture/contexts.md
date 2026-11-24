@@ -121,11 +121,11 @@ The reactions are listed in one place (ADR 0097), `apps/api/config/subscriptions
 The events it listens to are those its policy's signature takes. `reporting-figures` names one policy that takes the facts of an organization, an exchange or a contact, and returns the command recording each kind (`RecordFactsPolicy`). `campaigns-record-facts` does the same for Campaigns. A subscription whose reaction is not a policy yet names it (`handler`):
 
 ```json
-"prospecting-stop-keeping-exchanges": {
+"prospecting-detach-forgotten-contact": {
   "context": "prospecting",
-  "sources": ["prospecter.prospecting.internal"],
-  "events": ["ProspectingStopped.v1"],
-  "handler": "Prospecter\\Core\\Prospecting\\Application\\StopKeepingExchanges\\StopKeepingExchangesHandler",
+  "sources": ["prospecter.personal-data"],
+  "events": ["ContactForgotten.v1"],
+  "handler": "Prospecter\\Core\\Prospecting\\Application\\DetachForgottenContact\\DetachForgottenContactHandler",
   "inbox": true
 }
 ```
