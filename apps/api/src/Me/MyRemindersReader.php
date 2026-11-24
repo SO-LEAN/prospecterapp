@@ -6,7 +6,7 @@ namespace App\Me;
 
 use App\Me\Resource\RemindersResource;
 use App\Shared\Links;
-use Prospecter\Core\Accounts\Application\ConsultMyReminders\ConsultMyReminders;
+use Prospecter\Core\Accounts\Application\Reminders\ConsultMyReminders\ConsultMyReminders;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 
 /**

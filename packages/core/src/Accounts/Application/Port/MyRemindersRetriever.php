@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Accounts\Application\Port;
 
-use Prospecter\Core\Accounts\Application\MyReminders;
+use Prospecter\Core\Accounts\Application\Reminders\MyReminders;
 use Prospecter\Core\Accounts\Domain\Exception\UnknownMember;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 

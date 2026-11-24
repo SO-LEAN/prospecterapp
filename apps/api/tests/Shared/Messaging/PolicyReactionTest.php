@@ -6,8 +6,8 @@ namespace Tests\App\Shared\Messaging;
 
 use App\Shared\CommandBus;
 use App\Shared\Messaging\PolicyReaction;
+use Prospecter\Core\Accounts\Application\Member\RegisterTheFounder\RegisterTheFounder;
 use Prospecter\Core\Accounts\Application\Policy\RegisterTheFounderPolicy;
-use Prospecter\Core\Accounts\Application\RegisterTheFounder\RegisterTheFounder;
 use Prospecter\Core\Accounts\Domain\Event\AccountOpened;
 use Prospecter\Core\Accounts\Domain\Model\ProfileId;
 use Prospecter\Core\Booking\Application\Appointment\ForgetAppointmentOfErasedExchange\ForgetAppointmentOfErasedExchange;

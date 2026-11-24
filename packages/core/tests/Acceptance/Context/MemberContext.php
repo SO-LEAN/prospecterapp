@@ -9,7 +9,7 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use Prospecter\Core\Accounts\Application\RegisterAMember\RegisterAMember;
+use Prospecter\Core\Accounts\Application\Member\RegisterAMember\RegisterAMember;
 use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\ConsultMembers;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\PersonalData\Domain\Model\PersonId;

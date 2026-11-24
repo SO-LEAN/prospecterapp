@@ -7,7 +7,7 @@ namespace App\Accounts\Persistence;
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Table;
 use App\Shared\Typed;
-use Prospecter\Core\Accounts\Application\MyAccount;
+use Prospecter\Core\Accounts\Application\Account\MyAccount;
 use Prospecter\Core\Accounts\Application\Port\MyAccountRetriever;
 use Prospecter\Core\Accounts\Domain\Exception\UnknownAccount;
 use Prospecter\Core\Accounts\Domain\Exception\UnknownMember;

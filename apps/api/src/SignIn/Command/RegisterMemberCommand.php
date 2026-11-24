@@ -7,7 +7,7 @@ namespace App\SignIn\Command;
 use App\Shared\CommandBus;
 use App\Shared\Identities;
 use App\SignIn\Credentials;
-use Prospecter\Core\Accounts\Application\RegisterAMember\RegisterAMember;
+use Prospecter\Core\Accounts\Application\Member\RegisterAMember\RegisterAMember;
 use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\Console\Attribute\Argument;

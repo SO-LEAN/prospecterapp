@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Core\Double;
 
-use Prospecter\Core\Accounts\Application\MyReminders;
 use Prospecter\Core\Accounts\Application\Port\MyRemindersRetriever;
+use Prospecter\Core\Accounts\Application\Reminders\MyReminders;
 use Prospecter\Core\Accounts\Domain\Exception\UnknownMember;
 use Prospecter\Core\Accounts\Domain\Model\Reminders;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;

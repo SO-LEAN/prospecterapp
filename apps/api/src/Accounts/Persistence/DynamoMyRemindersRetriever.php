@@ -6,8 +6,8 @@ namespace App\Accounts\Persistence;
 
 use App\Shared\Persistence\Table;
 use App\Shared\Typed;
-use Prospecter\Core\Accounts\Application\MyReminders;
 use Prospecter\Core\Accounts\Application\Port\MyRemindersRetriever;
+use Prospecter\Core\Accounts\Application\Reminders\MyReminders;
 use Prospecter\Core\Accounts\Domain\Exception\UnknownMember;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 

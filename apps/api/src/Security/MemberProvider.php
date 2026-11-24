@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Security;
 
-use Prospecter\Core\Accounts\Application\ConsultMyAccount\ConsultMyAccount;
-use Prospecter\Core\Accounts\Application\ConsultMyAccount\KeptAccount;
+use Prospecter\Core\Accounts\Application\Account\ConsultMyAccount\ConsultMyAccount;
+use Prospecter\Core\Accounts\Application\Account\ConsultMyAccount\KeptAccount;
 use Prospecter\Core\SharedKernel\Application\Exception\ErrorType;
 use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;

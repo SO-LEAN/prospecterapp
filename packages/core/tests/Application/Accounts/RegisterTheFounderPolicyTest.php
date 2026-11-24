@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Core\Application\Accounts;
 
 use PHPUnit\Framework\TestCase;
+use Prospecter\Core\Accounts\Application\Member\RegisterTheFounder\RegisterTheFounder;
 use Prospecter\Core\Accounts\Application\Policy\RegisterTheFounderPolicy;
-use Prospecter\Core\Accounts\Application\RegisterTheFounder\RegisterTheFounder;
 use Prospecter\Core\Accounts\Domain\Event\AccountOpened;
 use Prospecter\Core\Accounts\Domain\Model\ProfileId;
 use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
