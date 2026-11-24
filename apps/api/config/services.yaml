@@ -100,12 +100,12 @@ services:
     Prospecter\Core\Reporting\Application\FactRecorder: ~
     Prospecter\Core\Reporting\Application\RebuildFigures\SourceFacts: ~
     Prospecter\Core\Connectors\Application\Calendar\CalendarPusher: ~
-    Prospecter\Core\Prospecting\Application\PublishedHeldExchanges: ~
+    Prospecter\Core\Prospecting\Application\Agenda\PublishedHeldExchanges: ~
     Prospecter\Core\Campaigns\Domain\Service\TaggableHolders: ~
     Prospecter\Core\Campaigns\Application\Tagging\FactRecorder: ~
     Prospecter\Core\Campaigns\Application\TagsOfEveryContact: ~
     Prospecter\Core\Campaigns\Application\Campaign\CampaignTargets: ~
-    Prospecter\Core\Prospecting\Application\CampaignsOfTimeline: ~
+    Prospecter\Core\Prospecting\Application\Timeline\CampaignsOfTimeline: ~
     Prospecter\Core\Booking\Application\BookingPage\BookingPages: ~
     Prospecter\Core\Booking\Domain\Service\BusyPeriods: ~
     Prospecter\Core\Booking\Domain\Service\LinkAvailability: ~
@@ -153,20 +153,20 @@ services:
     Prospecter\Core\PersonalData\Contract\Service\WhichAreContacts\WhichAreContactsService: '@Prospecter\Core\PersonalData\Application\Contact\WhichAreContacts\WhichAreContactsHandler'
     Prospecter\Core\PersonalData\Contract\Service\WhichContactsHaveTheseEmails\WhichContactsHaveTheseEmailsService: '@Prospecter\Core\PersonalData\Application\Contact\WhichContactsHaveTheseEmails\WhichContactsHaveTheseEmailsHandler'
     Prospecter\Core\PersonalData\Contract\Service\WhichEmailsHaveTheseContacts\WhichEmailsHaveTheseContactsService: '@Prospecter\Core\PersonalData\Application\Contact\WhichEmailsHaveTheseContacts\WhichEmailsHaveTheseContactsHandler'
-    Prospecter\Core\Prospecting\Contract\Service\WhichAreProspected\WhichAreProspectedService: '@Prospecter\Core\Prospecting\Application\WhichAreProspected\WhichAreProspectedHandler'
-    Prospecter\Core\Prospecting\Contract\Service\WhichContactsHaveExchangesOfCampaign\WhichContactsHaveExchangesOfCampaignService: '@Prospecter\Core\Prospecting\Application\WhichContactsHaveExchangesOfCampaign\WhichContactsHaveExchangesOfCampaignHandler'
-    Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsHaveTheseEmails\WhichOrganizationsHaveTheseEmailsService: '@Prospecter\Core\Prospecting\Application\WhichOrganizationsHaveTheseEmails\WhichOrganizationsHaveTheseEmailsHandler'
-    Prospecter\Core\Prospecting\Contract\Service\WhichEmailsHaveTheseOrganizations\WhichEmailsHaveTheseOrganizationsService: '@Prospecter\Core\Prospecting\Application\WhichEmailsHaveTheseOrganizations\WhichEmailsHaveTheseOrganizationsHandler'
-    Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\ListOrganizationFactsService: '@Prospecter\Core\Prospecting\Application\ListOrganizationFacts\ListOrganizationFactsHandler'
-    Prospecter\Core\Prospecting\Contract\Service\ListExchangeFacts\ListExchangeFactsService: '@Prospecter\Core\Prospecting\Application\ListExchangeFacts\ListExchangeFactsHandler'
+    Prospecter\Core\Prospecting\Contract\Service\WhichAreProspected\WhichAreProspectedService: '@Prospecter\Core\Prospecting\Application\Organization\WhichAreProspected\WhichAreProspectedHandler'
+    Prospecter\Core\Prospecting\Contract\Service\WhichContactsHaveExchangesOfCampaign\WhichContactsHaveExchangesOfCampaignService: '@Prospecter\Core\Prospecting\Application\Exchange\WhichContactsHaveExchangesOfCampaign\WhichContactsHaveExchangesOfCampaignHandler'
+    Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsHaveTheseEmails\WhichOrganizationsHaveTheseEmailsService: '@Prospecter\Core\Prospecting\Application\Organization\WhichOrganizationsHaveTheseEmails\WhichOrganizationsHaveTheseEmailsHandler'
+    Prospecter\Core\Prospecting\Contract\Service\WhichEmailsHaveTheseOrganizations\WhichEmailsHaveTheseOrganizationsService: '@Prospecter\Core\Prospecting\Application\Organization\WhichEmailsHaveTheseOrganizations\WhichEmailsHaveTheseOrganizationsHandler'
+    Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\ListOrganizationFactsService: '@Prospecter\Core\Prospecting\Application\Facts\ListOrganizationFacts\ListOrganizationFactsHandler'
+    Prospecter\Core\Prospecting\Contract\Service\ListExchangeFacts\ListExchangeFactsService: '@Prospecter\Core\Prospecting\Application\Facts\ListExchangeFacts\ListExchangeFactsHandler'
     Prospecter\Core\PersonalData\Contract\Service\ListContactFacts\ListContactFactsService: '@Prospecter\Core\PersonalData\Application\Facts\ListContactFacts\ListContactFactsHandler'
     Prospecter\Core\Accounts\Contract\Service\ListAccounts\ListAccountsService: '@Prospecter\Core\Accounts\Application\Account\ListAccounts\ListAccountsHandler'
-    Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultHeldExchangesService: '@Prospecter\Core\Prospecting\Application\ConsultHeldExchanges\ConsultHeldExchangesHandler'
-    Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultPlannedExchangesService: '@Prospecter\Core\Prospecting\Application\ConsultPlannedExchanges\ConsultPlannedExchangesHandler'
+    Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultHeldExchangesService: '@Prospecter\Core\Prospecting\Application\Agenda\ConsultHeldExchanges\ConsultHeldExchangesHandler'
+    Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultPlannedExchangesService: '@Prospecter\Core\Prospecting\Application\Agenda\ConsultPlannedExchanges\ConsultPlannedExchangesHandler'
     Prospecter\Core\PersonalData\Contract\Service\NameContacts\NameContactsService: '@Prospecter\Core\PersonalData\Application\Contact\NameContacts\NameContactsHandler'
     Prospecter\Core\PersonalData\Contract\Service\PresentMembers\PresentMembersService: '@Prospecter\Core\PersonalData\Application\Profile\PresentMembers\PresentMembersHandler'
-    Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\NameOrganizationsOfContactsService: '@Prospecter\Core\Prospecting\Application\NameOrganizationsOfContacts\NameOrganizationsOfContactsHandler'
-    Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsNameTheseContacts\WhichOrganizationsNameTheseContactsService: '@Prospecter\Core\Prospecting\Application\WhichOrganizationsNameTheseContacts\WhichOrganizationsNameTheseContactsHandler'
+    Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\NameOrganizationsOfContactsService: '@Prospecter\Core\Prospecting\Application\Contact\NameOrganizationsOfContacts\NameOrganizationsOfContactsHandler'
+    Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsNameTheseContacts\WhichOrganizationsNameTheseContactsService: '@Prospecter\Core\Prospecting\Application\Contact\WhichOrganizationsNameTheseContacts\WhichOrganizationsNameTheseContactsHandler'
     Prospecter\Core\Campaigns\Contract\Service\WhichRecipientsArePending\WhichRecipientsArePendingService: '@Prospecter\Core\Campaigns\Application\Recipient\WhichRecipientsArePending\WhichRecipientsArePendingHandler'
     Prospecter\Core\Campaigns\Contract\Service\NameCampaigns\NameCampaignsService: '@Prospecter\Core\Campaigns\Application\Campaign\NameCampaigns\NameCampaignsHandler'
     Prospecter\Core\Connectors\Contract\Service\WhichHaveAConnectedCalendar\WhichHaveAConnectedCalendarService: '@Prospecter\Core\Connectors\Application\Connection\WhichHaveAConnectedCalendar\WhichHaveAConnectedCalendarHandler'

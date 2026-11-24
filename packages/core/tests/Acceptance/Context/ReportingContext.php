@@ -9,7 +9,7 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use Prospecter\Core\Prospecting\Application\StartProspecting\StartProspecting;
+use Prospecter\Core\Prospecting\Application\Organization\StartProspecting\StartProspecting;
 use Prospecter\Core\Prospecting\Contract\Event\OrganizationFactsChanged;
 use Prospecter\Core\Reporting\Application\ConsultFigures\ConsultFigures;
 use Prospecter\Core\Reporting\Application\RebuildFigures\RebuildFigures;

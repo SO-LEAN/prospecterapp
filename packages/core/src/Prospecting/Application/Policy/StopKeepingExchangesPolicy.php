@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\Policy;
 
-use Prospecter\Core\Prospecting\Application\StopKeepingExchanges\StopKeepingExchanges;
+use Prospecter\Core\Prospecting\Application\Exchange\StopKeepingExchanges\StopKeepingExchanges;
 use Prospecter\Core\Prospecting\Domain\Event\ProspectingStopped;
 use Prospecter\Core\SharedKernel\Application\Handler\Policy;
 

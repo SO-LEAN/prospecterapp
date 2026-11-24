@@ -6,7 +6,7 @@ namespace Tests\Core\Application\Prospecting;
 
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\PersonalData\Contract\Event\ContactForgotten;
-use Prospecter\Core\Prospecting\Application\ForgetFingerprintsOfForgottenContact\ForgetFingerprintsOfForgottenContact;
+use Prospecter\Core\Prospecting\Application\Exchange\ForgetFingerprintsOfForgottenContact\ForgetFingerprintsOfForgottenContact;
 use Prospecter\Core\Prospecting\Application\Policy\ForgetFingerprintsOfForgottenContactPolicy;
 
 class ForgetFingerprintsOfForgottenContactPolicyTest extends TestCase

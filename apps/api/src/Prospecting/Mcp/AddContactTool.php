@@ -9,7 +9,7 @@ use App\Security\User;
 use App\Shared\Mcp\Adapts;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
-use Prospecter\Core\Prospecting\Application\AddContact\AddContact;
+use Prospecter\Core\Prospecting\Application\Contact\AddContact\AddContact;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 
 /**

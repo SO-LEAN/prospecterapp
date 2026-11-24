@@ -6,7 +6,7 @@ namespace Tests\Core\Application\Prospecting;
 
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\PersonalData\Contract\Event\ContactForgotten;
-use Prospecter\Core\Prospecting\Application\KeepExchangesOfForgottenContact\KeepExchangesOfForgottenContact;
+use Prospecter\Core\Prospecting\Application\Exchange\KeepExchangesOfForgottenContact\KeepExchangesOfForgottenContact;
 use Prospecter\Core\Prospecting\Application\Policy\KeepExchangesOfForgottenContactPolicy;
 
 class KeepExchangesOfForgottenContactPolicyTest extends TestCase

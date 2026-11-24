@@ -10,7 +10,7 @@ use App\Shared\Resource\ProblemResource;
 use App\ToDos\ToDoVoter;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Prospecting\Application\EraseToDo\EraseToDo;
+use Prospecter\Core\Prospecting\Application\ToDo\EraseToDo\EraseToDo;
 use Prospecter\Core\Prospecting\Application\ToDoInList;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\Response;

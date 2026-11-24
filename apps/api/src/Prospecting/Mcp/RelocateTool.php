@@ -8,8 +8,8 @@ use App\Shared\Input\AddressInput;
 use App\Shared\Mcp\Adapts;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
+use Prospecter\Core\Prospecting\Application\Organization\Relocate\Relocate;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
-use Prospecter\Core\Prospecting\Application\Relocate\Relocate;
 
 /**
  * `PATCH /api/organizations/{id}/address`, for an AI (ADR 0163).

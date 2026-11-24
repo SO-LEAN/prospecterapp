@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\Policy;
 
 use Prospecter\Core\PersonalData\Contract\Event\ContactCollected;
-use Prospecter\Core\Prospecting\Application\AttachCollectedContact\AttachCollectedContact;
+use Prospecter\Core\Prospecting\Application\Contact\AttachCollectedContact\AttachCollectedContact;
 use Prospecter\Core\SharedKernel\Application\Handler\Policy;
 
 /**

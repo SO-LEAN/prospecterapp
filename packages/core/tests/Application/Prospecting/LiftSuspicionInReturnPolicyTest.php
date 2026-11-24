@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Core\Application\Prospecting;
 
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\Prospecting\Application\LiftSuspicionInReturn\LiftSuspicionInReturn;
+use Prospecter\Core\Prospecting\Application\Duplicate\LiftSuspicionInReturn\LiftSuspicionInReturn;
 use Prospecter\Core\Prospecting\Application\Policy\LiftSuspicionInReturnPolicy;
 use Prospecter\Core\Prospecting\Domain\Event\DuplicateSuspicionLifted;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;

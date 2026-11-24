@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\Policy;
 
-use Prospecter\Core\Prospecting\Application\KeepToDosOfAttachedContact\KeepToDosOfAttachedContact;
+use Prospecter\Core\Prospecting\Application\ToDo\KeepToDosOfAttachedContact\KeepToDosOfAttachedContact;
 use Prospecter\Core\Prospecting\Domain\Event\ContactAdded;
 use Prospecter\Core\SharedKernel\Application\Handler\Policy;
 

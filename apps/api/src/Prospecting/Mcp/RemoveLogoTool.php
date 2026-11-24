@@ -7,8 +7,8 @@ namespace App\Prospecting\Mcp;
 use App\Shared\Mcp\Adapts;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
+use Prospecter\Core\Prospecting\Application\Organization\RemoveLogo\RemoveLogo;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
-use Prospecter\Core\Prospecting\Application\RemoveLogo\RemoveLogo;
 
 /**
  * `DELETE /api/organizations/{id}/logo`, for an AI (ADR 0163). The AI asks its member

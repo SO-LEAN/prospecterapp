@@ -15,8 +15,8 @@ use Prospecter\Core\Campaigns\Application\Tagging\ConsultSuggestedTags\ConsultSu
 use Prospecter\Core\Campaigns\Domain\Model\Locality;
 use Prospecter\Core\Campaigns\Domain\Model\OrganizationFact;
 use Prospecter\Core\Campaigns\Domain\Model\OrganizationId as CampaignsOrganizationId;
-use Prospecter\Core\Prospecting\Application\LocateAgain\LocateAgain;
-use Prospecter\Core\Prospecting\Application\Relocate\Relocate;
+use Prospecter\Core\Prospecting\Application\Organization\LocateAgain\LocateAgain;
+use Prospecter\Core\Prospecting\Application\Organization\Relocate\Relocate;
 use Prospecter\Core\Prospecting\Contract\Event\OrganizationFactsChanged;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;

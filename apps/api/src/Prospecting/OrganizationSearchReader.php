@@ -8,7 +8,7 @@ use App\Prospecting\Presenter\OrganizationPagePresenter;
 use App\Prospecting\Resource\OrganizationPageResource;
 use App\Shared\ImageResourceFactory;
 use App\Shared\Links;
-use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\SearchProspectedOrganizations;
+use Prospecter\Core\Prospecting\Application\Organization\SearchProspectedOrganizations\SearchProspectedOrganizations;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 
 /**

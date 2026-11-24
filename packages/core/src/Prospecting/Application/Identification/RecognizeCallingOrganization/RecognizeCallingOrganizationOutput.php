@@ -1,0 +1,16 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Prospecter\Core\Prospecting\Application\Identification\RecognizeCallingOrganization;
+
+use Prospecter\Core\Prospecting\Application\OrganizationSheet;
+use Prospecter\Core\SharedKernel\Application\Handler\OutputPort;
+
+interface RecognizeCallingOrganizationOutput extends OutputPort
+{
+    /**
+     * @param list<OrganizationSheet> $organizations the organizations that have the number
+     */
+    public function present(array $organizations): void;
+}

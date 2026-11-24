@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Core\Application\Prospecting;
 
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\Prospecting\Application\KeepToDosOfAttachedContact\KeepToDosOfAttachedContact;
 use Prospecter\Core\Prospecting\Application\Policy\KeepToDosOfAttachedContactPolicy;
+use Prospecter\Core\Prospecting\Application\ToDo\KeepToDosOfAttachedContact\KeepToDosOfAttachedContact;
 use Prospecter\Core\Prospecting\Domain\Event\ContactAdded;
 use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;

@@ -14,7 +14,7 @@ use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Connectors\Application\Calendar\RetryPush\RetryPush;
-use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
+use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\ExchangeDetail;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;

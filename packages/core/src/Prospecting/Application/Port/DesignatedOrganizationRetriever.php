@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\Port;
 
-use Prospecter\Core\Prospecting\Application\IdentifyOrganizations\Candidate;
+use Prospecter\Core\Prospecting\Application\Identification\IdentifyOrganizations\Candidate;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\Company\Siret;
 use Prospecter\Core\SharedKernel\Domain\Contact\Email;

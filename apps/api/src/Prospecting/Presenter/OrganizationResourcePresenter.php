@@ -18,7 +18,7 @@ use App\Shared\Resource\AddressResource;
 use App\Shared\Resource\LegalIdentityResource;
 use App\Shared\Resource\LinkResource;
 use App\Shared\Resource\LocationResource;
-use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganizationOutput;
+use Prospecter\Core\Prospecting\Application\Organization\ConsultOrganization\ConsultOrganizationOutput;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\PossibleDuplicate;
 

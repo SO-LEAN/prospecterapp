@@ -1,0 +1,18 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Prospecter\Core\Prospecting\Application\Agenda\ConsultOverlappingExchanges;
+
+/**
+ * Keeps the answer unchanged, for a client that reads it instead of showing it (ADR 0085).
+ */
+final class KeptOverlappingExchanges implements ConsultOverlappingExchangesOutput
+{
+    public private(set) OverlappingExchanges $overlapping;
+
+    public function present(OverlappingExchanges $overlapping): void
+    {
+        $this->overlapping = $overlapping;
+    }
+}

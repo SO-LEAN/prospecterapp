@@ -6,7 +6,7 @@ namespace Tests\Core\Application\Prospecting;
 
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\PersonalData\Contract\Event\BookerIdentified;
-use Prospecter\Core\Prospecting\Application\PlanBookedAppointment\PlanBookedAppointment;
+use Prospecter\Core\Prospecting\Application\Exchange\PlanBookedAppointment\PlanBookedAppointment;
 use Prospecter\Core\Prospecting\Application\Policy\PlanBookedAppointmentPolicy;
 
 class PlanBookedAppointmentPolicyTest extends TestCase

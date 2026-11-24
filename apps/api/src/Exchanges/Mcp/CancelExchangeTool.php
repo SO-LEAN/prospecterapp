@@ -8,8 +8,8 @@ use App\Exchanges\Input\CancellationInput;
 use App\Shared\Mcp\Adapts;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
-use Prospecter\Core\Prospecting\Application\CancelExchange\CancelExchange;
-use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
+use Prospecter\Core\Prospecting\Application\Exchange\CancelExchange\CancelExchange;
+use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\ExchangeDetail;
 
 /**
  * `POST /api/exchanges/{id}/cancellation`, for an AI (ADR 0163). The AI asks its member before it calls this tool,

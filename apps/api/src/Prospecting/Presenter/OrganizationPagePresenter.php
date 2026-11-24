@@ -12,10 +12,10 @@ use App\Prospecting\Resource\PossibleDuplicateResource;
 use App\Shared\ImageResourceFactory;
 use App\Shared\Links;
 use App\Shared\Resource\LocationResource;
+use Prospecter\Core\Prospecting\Application\Organization\SearchProspectedOrganizations\FoundOrganization;
+use Prospecter\Core\Prospecting\Application\Organization\SearchProspectedOrganizations\FoundOrganizationPage;
+use Prospecter\Core\Prospecting\Application\Organization\SearchProspectedOrganizations\SearchProspectedOrganizationsOutput;
 use Prospecter\Core\Prospecting\Application\PossibleDuplicate;
-use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\FoundOrganization;
-use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\FoundOrganizationPage;
-use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\SearchProspectedOrganizationsOutput;
 
 /**
  * Presents a slice of the organizations that the member's account prospects, each one summed up. It is built for one

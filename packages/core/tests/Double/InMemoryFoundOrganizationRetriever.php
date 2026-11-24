@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Core\Double;
 
+use Prospecter\Core\Prospecting\Application\Organization\SearchProspectedOrganizations\FoundOrganization;
+use Prospecter\Core\Prospecting\Application\Organization\SearchProspectedOrganizations\FoundOrganizationPage;
 use Prospecter\Core\Prospecting\Application\Port\FoundOrganizationRetriever;
-use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\FoundOrganization;
-use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\FoundOrganizationPage;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\SharedKernel\Application\Response\FileResponse;
 use Prospecter\Core\SharedKernel\Domain\Company\LegalIdentity;

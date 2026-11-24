@@ -8,7 +8,7 @@ use App\Shared\Mcp\Adapts;
 use App\ToDos\Input\ToDoInput;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
-use Prospecter\Core\Prospecting\Application\ReviseToDo\ReviseToDo;
+use Prospecter\Core\Prospecting\Application\ToDo\ReviseToDo\ReviseToDo;
 use Prospecter\Core\Prospecting\Application\ToDoInList;
 
 /**

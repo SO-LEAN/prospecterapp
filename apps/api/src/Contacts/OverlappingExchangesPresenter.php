@@ -9,8 +9,8 @@ use App\Contacts\Resource\OrganizationExchangeResource;
 use App\Contacts\Resource\PlannedExchangesResource;
 use App\Prospecting\TimelineResourceFactory;
 use Prospecter\Core\PersonalData\Application\PersonCard;
-use Prospecter\Core\Prospecting\Application\ConsultOverlappingExchanges\ConsultOverlappingExchangesOutput;
-use Prospecter\Core\Prospecting\Application\ConsultOverlappingExchanges\OverlappingExchanges;
+use Prospecter\Core\Prospecting\Application\Agenda\ConsultOverlappingExchanges\ConsultOverlappingExchangesOutput;
+use Prospecter\Core\Prospecting\Application\Agenda\ConsultOverlappingExchanges\OverlappingExchanges;
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 

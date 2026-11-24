@@ -11,9 +11,9 @@ use App\Prospecting\Resource\OrganizationResource;
 use Prospecter\Core\PersonalData\Application\Identification\RecognizeCallingContact\KeptCallingContacts;
 use Prospecter\Core\PersonalData\Application\Identification\RecognizeCallingContact\RecognizeCallingContact;
 use Prospecter\Core\PersonalData\Application\PersonCard;
+use Prospecter\Core\Prospecting\Application\Identification\RecognizeCallingOrganization\KeptCallingOrganizations;
+use Prospecter\Core\Prospecting\Application\Identification\RecognizeCallingOrganization\RecognizeCallingOrganization;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
-use Prospecter\Core\Prospecting\Application\RecognizeCallingOrganization\KeptCallingOrganizations;
-use Prospecter\Core\Prospecting\Application\RecognizeCallingOrganization\RecognizeCallingOrganization;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 
 /**

@@ -6,9 +6,9 @@ namespace App\Exchanges;
 
 use App\Prospecting\Persistence\ExchangeRevisions;
 use App\Security\User;
-use Prospecter\Core\Prospecting\Application\ConsultExchange\ConsultExchange;
-use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
-use Prospecter\Core\Prospecting\Application\ConsultExchange\KeptExchange;
+use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\ConsultExchange;
+use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\ExchangeDetail;
+use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\KeptExchange;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Clock\ClockInterface;

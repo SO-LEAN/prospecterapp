@@ -6,8 +6,8 @@ namespace Tests\Core\Acceptance\Context;
 
 use Behat\Behat\Context\Context;
 use Behat\Step\Then;
-use Prospecter\Core\Prospecting\Application\ConsultExchange\ConsultExchange;
-use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
+use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\ConsultExchange;
+use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\ExchangeDetail;
 use Tests\Core\Acceptance\Expect;
 
 /**

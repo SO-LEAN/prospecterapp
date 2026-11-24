@@ -8,7 +8,7 @@ use App\Prospecting\Input\HoldingInput;
 use App\Shared\Mcp\Adapts;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
-use Prospecter\Core\Prospecting\Application\AttachToHolding\AttachToHolding;
+use Prospecter\Core\Prospecting\Application\Organization\AttachToHolding\AttachToHolding;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 
 /**

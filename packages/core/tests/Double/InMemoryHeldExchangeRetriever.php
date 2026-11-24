@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\Double;
 
-use Prospecter\Core\Prospecting\Application\ConsultHeldExchanges\HeldExchange;
+use Prospecter\Core\Prospecting\Application\Agenda\ConsultHeldExchanges\HeldExchange;
 use Prospecter\Core\Prospecting\Application\Port\HeldExchangeRetriever;
 use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;

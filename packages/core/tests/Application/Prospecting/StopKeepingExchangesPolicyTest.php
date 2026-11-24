@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Core\Application\Prospecting;
 
 use PHPUnit\Framework\TestCase;
+use Prospecter\Core\Prospecting\Application\Exchange\StopKeepingExchanges\StopKeepingExchanges;
 use Prospecter\Core\Prospecting\Application\Policy\StopKeepingExchangesPolicy;
-use Prospecter\Core\Prospecting\Application\StopKeepingExchanges\StopKeepingExchanges;
 use Prospecter\Core\Prospecting\Domain\Event\ProspectingStopped;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;

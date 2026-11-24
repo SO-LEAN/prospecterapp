@@ -8,8 +8,8 @@ use App\Contacts\Resource\OrganizationProposedResource;
 use App\Contacts\Resource\ProposedOrganizationResource;
 use Prospecter\Core\PersonalData\Application\Person\ConsultPerson\ConsultPerson;
 use Prospecter\Core\PersonalData\Application\Person\ConsultPerson\KeptPerson;
-use Prospecter\Core\Prospecting\Application\ProposeOrganizationToAttach\KeptProposedOrganization;
-use Prospecter\Core\Prospecting\Application\ProposeOrganizationToAttach\ProposeOrganizationToAttach;
+use Prospecter\Core\Prospecting\Application\Contact\ProposeOrganizationToAttach\KeptProposedOrganization;
+use Prospecter\Core\Prospecting\Application\Contact\ProposeOrganizationToAttach\ProposeOrganizationToAttach;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 
 /**

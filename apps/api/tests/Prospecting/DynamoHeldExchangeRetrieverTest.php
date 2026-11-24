@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Prospecting;
 
-use Prospecter\Core\Prospecting\Application\ConsultHeldExchanges\HeldExchange;
+use Prospecter\Core\Prospecting\Application\Agenda\ConsultHeldExchanges\HeldExchange;
 use Prospecter\Core\Prospecting\Application\Port\HeldExchangeRetriever;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
 use Prospecter\Core\Prospecting\Domain\Model\ContactCorrespondent;

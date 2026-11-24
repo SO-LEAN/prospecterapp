@@ -10,8 +10,8 @@ use App\Shared\Mcp\Adapts;
 use App\Shared\Mcp\ToolInputs;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
-use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
-use Prospecter\Core\Prospecting\Application\CorrectExchange\CorrectExchange;
+use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\ExchangeDetail;
+use Prospecter\Core\Prospecting\Application\Exchange\CorrectExchange\CorrectExchange;
 
 /**
  * `PATCH /api/exchanges/{id}/facts`, for an AI (ADR 0163).

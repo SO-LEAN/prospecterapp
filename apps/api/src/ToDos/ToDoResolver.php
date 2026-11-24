@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\ToDos;
 
-use Prospecter\Core\Prospecting\Application\ConsultToDo\ConsultToDo;
-use Prospecter\Core\Prospecting\Application\ConsultToDo\KeptToDo;
+use Prospecter\Core\Prospecting\Application\ToDo\ConsultToDo\ConsultToDo;
+use Prospecter\Core\Prospecting\Application\ToDo\ConsultToDo\KeptToDo;
 use Prospecter\Core\Prospecting\Application\ToDoInList;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Symfony\Component\HttpFoundation\Request;

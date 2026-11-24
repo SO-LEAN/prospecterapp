@@ -7,7 +7,7 @@ namespace App\Prospecting\Persistence;
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Table;
 use App\Shared\Typed;
-use Prospecter\Core\Prospecting\Application\ConsultHeldExchanges\HeldExchange;
+use Prospecter\Core\Prospecting\Application\Agenda\ConsultHeldExchanges\HeldExchange;
 use Prospecter\Core\Prospecting\Application\Port\HeldExchangeRetriever;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;

@@ -10,7 +10,7 @@ use App\Shared\Mcp\ToolInputs;
 use App\Shared\Mcp\WebAddressInput;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
-use Prospecter\Core\Prospecting\Application\ChangeLogo\ChangeLogo;
+use Prospecter\Core\Prospecting\Application\Organization\ChangeLogo\ChangeLogo;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Symfony\Component\HttpFoundation\File\File;
 

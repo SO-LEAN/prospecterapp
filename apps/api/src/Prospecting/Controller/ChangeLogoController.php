@@ -15,7 +15,7 @@ use App\Shared\Resource\ProblemResource;
 use App\Shared\UploadedFileInfo;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Prospecting\Application\ChangeLogo\ChangeLogo;
+use Prospecter\Core\Prospecting\Application\Organization\ChangeLogo\ChangeLogo;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;

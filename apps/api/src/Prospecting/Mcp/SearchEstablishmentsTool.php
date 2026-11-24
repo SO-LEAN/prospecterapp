@@ -12,7 +12,7 @@ use App\Shared\Mcp\Adapts;
 use App\Shared\Mcp\ToolResults;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
-use Prospecter\Core\Prospecting\Application\SearchEstablishments\SearchEstablishments;
+use Prospecter\Core\Prospecting\Application\Organization\SearchEstablishments\SearchEstablishments;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 
 /**

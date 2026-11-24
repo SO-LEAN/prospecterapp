@@ -12,7 +12,7 @@ use App\Security\ToolAccess;
 use App\Shared\CommandBus;
 use App\Shared\Mcp\ToolInputs;
 use App\Shared\Mcp\ToolResults;
-use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
+use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\ExchangeDetail;
 use Symfony\Component\Clock\ClockInterface;
 
 /**

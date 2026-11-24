@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\Policy;
 
-use Prospecter\Core\Prospecting\Application\DiscardRemovedLogo\DiscardRemovedLogo;
+use Prospecter\Core\Prospecting\Application\Organization\DiscardRemovedLogo\DiscardRemovedLogo;
 use Prospecter\Core\Prospecting\Domain\Event\LogoRemoved;
 use Prospecter\Core\SharedKernel\Application\Handler\Policy;
 

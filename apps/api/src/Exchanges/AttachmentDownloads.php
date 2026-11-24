@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Exchanges;
 
 use App\Exchanges\Resource\AttachmentDownloadResource;
-use Prospecter\Core\Prospecting\Application\DownloadAttachment\DownloadAttachment;
-use Prospecter\Core\Prospecting\Application\DownloadAttachment\KeptDownload;
+use Prospecter\Core\Prospecting\Application\Attachment\DownloadAttachment\DownloadAttachment;
+use Prospecter\Core\Prospecting\Application\Attachment\DownloadAttachment\KeptDownload;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 
 /**

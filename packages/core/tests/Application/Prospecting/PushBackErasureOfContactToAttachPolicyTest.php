@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Core\Application\Prospecting;
 
 use PHPUnit\Framework\TestCase;
+use Prospecter\Core\Prospecting\Application\Contact\PushBackErasureOfContactToAttach\PushBackErasureOfContactToAttach;
 use Prospecter\Core\Prospecting\Application\Policy\PushBackErasureOfContactToAttachPolicy;
-use Prospecter\Core\Prospecting\Application\PushBackErasureOfContactToAttach\PushBackErasureOfContactToAttach;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeCorrected;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeMoved;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeNoted;

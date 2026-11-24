@@ -6,8 +6,8 @@ namespace Tests\Core\PHPStan;
 
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
-use Prospecter\Core\Prospecting\Application\ChangeContactDetails\ChangeContactDetails;
-use Prospecter\Core\Prospecting\Application\ConsultTimeline\ConsultTimeline;
+use Prospecter\Core\Prospecting\Application\Organization\ChangeContactDetails\ChangeContactDetails;
+use Prospecter\Core\Prospecting\Application\Timeline\ConsultTimeline\ConsultTimeline;
 use Prospecter\PHPStan\CommandsAndQueriesAreBuiltByNameRule;
 
 /**

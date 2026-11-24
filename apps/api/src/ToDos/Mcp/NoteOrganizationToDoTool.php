@@ -16,7 +16,7 @@ use App\ToDos\Input\ToDoInput;
 use App\ToDos\ToDoReader;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
-use Prospecter\Core\Prospecting\Application\NoteOrganizationToDo\NoteOrganizationToDo;
+use Prospecter\Core\Prospecting\Application\ToDo\NoteOrganizationToDo\NoteOrganizationToDo;
 use Symfony\Component\Clock\ClockInterface;
 
 /**

@@ -6,7 +6,7 @@ namespace Tests\Core\Application\Prospecting;
 
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Prospecting\Application\Policy\StopKeepingToDosPolicy;
-use Prospecter\Core\Prospecting\Application\StopKeepingToDos\StopKeepingToDos;
+use Prospecter\Core\Prospecting\Application\ToDo\StopKeepingToDos\StopKeepingToDos;
 use Prospecter\Core\Prospecting\Domain\Event\ProspectingStopped;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\Policy;
 
 use Prospecter\Core\PersonalData\Contract\Event\BookerIdentified;
-use Prospecter\Core\Prospecting\Application\PlanBookedAppointment\PlanBookedAppointment;
+use Prospecter\Core\Prospecting\Application\Exchange\PlanBookedAppointment\PlanBookedAppointment;
 use Prospecter\Core\SharedKernel\Application\Handler\Policy;
 
 /**

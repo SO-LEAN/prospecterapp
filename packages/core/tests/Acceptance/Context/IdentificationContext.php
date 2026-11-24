@@ -12,10 +12,10 @@ use Prospecter\Core\PersonalData\Application\Identification\IdentifyPersons\Cand
 use Prospecter\Core\PersonalData\Application\Identification\IdentifyPersons\Identification as PersonIdentification;
 use Prospecter\Core\PersonalData\Application\Identification\IdentifyPersons\IdentifyPersons;
 use Prospecter\Core\PersonalData\Application\Identification\IdentifyPersons\PersonClues;
-use Prospecter\Core\Prospecting\Application\IdentifyOrganizations\Candidate;
-use Prospecter\Core\Prospecting\Application\IdentifyOrganizations\Identification;
-use Prospecter\Core\Prospecting\Application\IdentifyOrganizations\IdentifyOrganizations;
-use Prospecter\Core\Prospecting\Application\IdentifyOrganizations\OrganizationClues;
+use Prospecter\Core\Prospecting\Application\Identification\IdentifyOrganizations\Candidate;
+use Prospecter\Core\Prospecting\Application\Identification\IdentifyOrganizations\Identification;
+use Prospecter\Core\Prospecting\Application\Identification\IdentifyOrganizations\IdentifyOrganizations;
+use Prospecter\Core\Prospecting\Application\Identification\IdentifyOrganizations\OrganizationClues;
 use Tests\Core\Acceptance\Expect;
 
 /**

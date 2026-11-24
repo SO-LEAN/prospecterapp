@@ -8,8 +8,8 @@ use App\Prospecting\Input\ReviseLegalIdentityInput;
 use App\Shared\Mcp\Adapts;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
+use Prospecter\Core\Prospecting\Application\Organization\ReviseLegalIdentity\ReviseLegalIdentity;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
-use Prospecter\Core\Prospecting\Application\ReviseLegalIdentity\ReviseLegalIdentity;
 
 /**
  * `PATCH /api/organizations/{id}/legal-identity`, for an AI (ADR 0163).

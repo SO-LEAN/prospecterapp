@@ -14,8 +14,8 @@ use App\Shared\Links;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
-use Prospecter\Core\Prospecting\Application\Timeline;
-use Prospecter\Core\Prospecting\Application\TimelineOutput;
+use Prospecter\Core\Prospecting\Application\Timeline\Timeline;
+use Prospecter\Core\Prospecting\Application\Timeline\TimelineOutput;
 
 /**
  * Presents a slice of an organization's timeline, or of its exchanges to redact. Each exchange names who took part:

@@ -16,10 +16,10 @@ use Prospecter\Core\Booking\Contract\Service\ConsultAppointments\ConsultAppointm
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;
-use Prospecter\Core\Prospecting\Application\AddContact\AddContact;
-use Prospecter\Core\Prospecting\Application\ConsultExchange\ConsultExchange;
-use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
-use Prospecter\Core\Prospecting\Application\EraseExchange\EraseExchange;
+use Prospecter\Core\Prospecting\Application\Contact\AddContact\AddContact;
+use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\ConsultExchange;
+use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\ExchangeDetail;
+use Prospecter\Core\Prospecting\Application\Exchange\EraseExchange\EraseExchange;
 use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeFacts;

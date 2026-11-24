@@ -12,11 +12,11 @@ use Prospecter\Core\PersonalData\Application\Identification\IdentifyPersons\Iden
 use Prospecter\Core\PersonalData\Application\Identification\IdentifyPersons\IdentifyPersons;
 use Prospecter\Core\PersonalData\Application\Identification\IdentifyPersons\KeptIdentifications as KeptPersonIdentifications;
 use Prospecter\Core\PersonalData\Application\Identification\IdentifyPersons\PersonClues;
-use Prospecter\Core\Prospecting\Application\IdentifyOrganizations\Candidate as OrganizationCandidate;
-use Prospecter\Core\Prospecting\Application\IdentifyOrganizations\Identification as OrganizationIdentification;
-use Prospecter\Core\Prospecting\Application\IdentifyOrganizations\IdentifyOrganizations;
-use Prospecter\Core\Prospecting\Application\IdentifyOrganizations\KeptIdentifications as KeptOrganizationIdentifications;
-use Prospecter\Core\Prospecting\Application\IdentifyOrganizations\OrganizationClues;
+use Prospecter\Core\Prospecting\Application\Identification\IdentifyOrganizations\Candidate as OrganizationCandidate;
+use Prospecter\Core\Prospecting\Application\Identification\IdentifyOrganizations\Identification as OrganizationIdentification;
+use Prospecter\Core\Prospecting\Application\Identification\IdentifyOrganizations\IdentifyOrganizations;
+use Prospecter\Core\Prospecting\Application\Identification\IdentifyOrganizations\KeptIdentifications as KeptOrganizationIdentifications;
+use Prospecter\Core\Prospecting\Application\Identification\IdentifyOrganizations\OrganizationClues;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 
 /**

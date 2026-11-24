@@ -6,7 +6,7 @@ namespace Tests\Core\Application\Prospecting;
 
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Connectors\Contract\Event\VideoCallLinkCreated;
-use Prospecter\Core\Prospecting\Application\KeepCreatedVideoCallLink\KeepCreatedVideoCallLink;
+use Prospecter\Core\Prospecting\Application\Exchange\KeepCreatedVideoCallLink\KeepCreatedVideoCallLink;
 use Prospecter\Core\Prospecting\Application\Policy\KeepCreatedVideoCallLinkPolicy;
 
 class KeepCreatedVideoCallLinkPolicyTest extends TestCase

@@ -6,8 +6,8 @@ namespace App\Prospecting;
 
 use App\Prospecting\Presenter\TimelinePresenter;
 use App\Prospecting\Resource\TimelineResource;
-use Prospecter\Core\Prospecting\Application\ConsultTimeline\ConsultTimeline;
-use Prospecter\Core\Prospecting\Application\ConsultUpcomingExchanges\ConsultUpcomingExchanges;
+use Prospecter\Core\Prospecting\Application\Timeline\ConsultTimeline\ConsultTimeline;
+use Prospecter\Core\Prospecting\Application\Timeline\ConsultUpcomingExchanges\ConsultUpcomingExchanges;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Symfony\Component\Clock\ClockInterface;
 

@@ -8,8 +8,8 @@ use App\Security\User;
 use App\Shared\Mcp\Adapts;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
-use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
-use Prospecter\Core\Prospecting\Application\EraseExchange\EraseExchange;
+use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\ExchangeDetail;
+use Prospecter\Core\Prospecting\Application\Exchange\EraseExchange\EraseExchange;
 
 /**
  * `DELETE /api/exchanges/{id}`, for an AI (ADR 0163). The AI asks its member before it calls this tool.

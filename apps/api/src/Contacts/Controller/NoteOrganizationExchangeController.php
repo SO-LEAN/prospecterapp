@@ -15,7 +15,7 @@ use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Prospecting\Application\NoteOrganizationExchange\NoteOrganizationExchange;
+use Prospecter\Core\Prospecting\Application\Exchange\NoteOrganizationExchange\NoteOrganizationExchange;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;

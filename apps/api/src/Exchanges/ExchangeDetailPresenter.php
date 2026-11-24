@@ -18,9 +18,9 @@ use App\Security\IntentLinks;
 use App\Security\User;
 use App\Shared\Links;
 use App\Shared\Resource\LinkResource;
-use Prospecter\Core\Prospecting\Application\ConsultExchange\AttachmentDetail;
-use Prospecter\Core\Prospecting\Application\ConsultExchange\ConsultExchangeOutput;
-use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
+use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\AttachmentDetail;
+use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\ConsultExchangeOutput;
+use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\ExchangeDetail;
 
 /**
  * Presents an exchange's detail. It gives one link for each intent that the exchange's state offers and that the

@@ -6,8 +6,8 @@ namespace App\Prospecting\Presenter;
 
 use App\Prospecting\Resource\MeetingPlaceResource;
 use App\Shared\Resource\AddressResource;
-use Prospecter\Core\Prospecting\Application\ProposeMeetingPlace\MeetingPlace;
-use Prospecter\Core\Prospecting\Application\ProposeMeetingPlace\ProposeMeetingPlaceOutput;
+use Prospecter\Core\Prospecting\Application\Exchange\ProposeMeetingPlace\MeetingPlace;
+use Prospecter\Core\Prospecting\Application\Exchange\ProposeMeetingPlace\ProposeMeetingPlaceOutput;
 
 /**
  * Presents the place proposed to meet a contact. It keeps it for the call that asked for it (ADR 0085).

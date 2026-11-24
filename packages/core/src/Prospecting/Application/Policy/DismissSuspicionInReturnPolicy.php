@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\Policy;
 
-use Prospecter\Core\Prospecting\Application\DismissSuspicionInReturn\DismissSuspicionInReturn;
+use Prospecter\Core\Prospecting\Application\Duplicate\DismissSuspicionInReturn\DismissSuspicionInReturn;
 use Prospecter\Core\Prospecting\Domain\Event\DuplicateSuspicionDismissed;
 use Prospecter\Core\SharedKernel\Application\Handler\Policy;
 

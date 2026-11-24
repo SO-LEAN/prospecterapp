@@ -6,7 +6,7 @@ namespace Tests\Core\Application\Prospecting;
 
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\PersonalData\Contract\Event\ContactCollected;
-use Prospecter\Core\Prospecting\Application\AttachCollectedContact\AttachCollectedContact;
+use Prospecter\Core\Prospecting\Application\Contact\AttachCollectedContact\AttachCollectedContact;
 use Prospecter\Core\Prospecting\Application\Policy\AttachCollectedContactPolicy;
 
 class AttachCollectedContactPolicyTest extends TestCase

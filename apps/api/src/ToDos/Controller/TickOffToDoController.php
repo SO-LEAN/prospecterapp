@@ -13,7 +13,7 @@ use App\ToDos\ToDoReader;
 use App\ToDos\ToDoVoter;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Prospecting\Application\TickOffToDo\TickOffToDo;
+use Prospecter\Core\Prospecting\Application\ToDo\TickOffToDo\TickOffToDo;
 use Prospecter\Core\Prospecting\Application\ToDoInList;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;

@@ -14,7 +14,7 @@ use App\Shared\Mcp\ToolInputs;
 use App\Shared\Mcp\ToolResults;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
-use Prospecter\Core\Prospecting\Application\PlanExchange\PlanExchange;
+use Prospecter\Core\Prospecting\Application\Exchange\PlanExchange\PlanExchange;
 use Symfony\Component\Clock\ClockInterface;
 
 /**

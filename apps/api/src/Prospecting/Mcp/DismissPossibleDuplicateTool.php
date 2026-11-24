@@ -7,7 +7,7 @@ namespace App\Prospecting\Mcp;
 use App\Shared\Mcp\Adapts;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
-use Prospecter\Core\Prospecting\Application\DismissPossibleDuplicate\DismissPossibleDuplicate;
+use Prospecter\Core\Prospecting\Application\Duplicate\DismissPossibleDuplicate\DismissPossibleDuplicate;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 
 /**

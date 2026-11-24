@@ -12,7 +12,7 @@ use App\Shared\Mcp\ToolResults;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
 use Prospecter\Core\Connectors\Application\Calendar\RetryPush\RetryPush;
-use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
+use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\ExchangeDetail;
 
 /**
  * `POST /api/exchanges/{id}/google-sync/retries`, for an AI (ADR 0163). It reaches its member's calendar at Google.

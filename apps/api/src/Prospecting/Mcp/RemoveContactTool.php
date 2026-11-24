@@ -8,8 +8,8 @@ use App\Security\User;
 use App\Shared\Mcp\Adapts;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
+use Prospecter\Core\Prospecting\Application\Contact\RemoveContact\RemoveContact;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
-use Prospecter\Core\Prospecting\Application\RemoveContact\RemoveContact;
 
 /**
  * `DELETE /api/organizations/{id}/contacts/{personId}`, for an AI (ADR 0163). The AI asks its member

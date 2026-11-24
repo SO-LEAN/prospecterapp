@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Prospecting\Command;
 
 use App\Shared\CommandBus;
-use Prospecter\Core\Prospecting\Application\LocateAgain\LocateAgain;
+use Prospecter\Core\Prospecting\Application\Organization\LocateAgain\LocateAgain;
 use Prospecter\Core\Prospecting\Application\Port\OrganizationsToLocateAgainRetriever;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
