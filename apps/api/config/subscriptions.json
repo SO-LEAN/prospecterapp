@@ -10,7 +10,7 @@
     "context": "prospecting",
     "sources": ["prospecter.prospecting.internal"],
     "events": ["ProspectingStopped.v1"],
-    "handler": "Prospecter\\Core\\Prospecting\\Application\\StopKeepingExchanges\\StopKeepingExchangesHandler",
+    "policy": "Prospecter\\Core\\Prospecting\\Application\\Policy\\StopKeepingExchangesPolicy",
     "inbox": true
   },
   "prospecting-erase-exchange": {
