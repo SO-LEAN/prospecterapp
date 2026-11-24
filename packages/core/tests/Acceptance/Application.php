@@ -369,6 +369,7 @@ use Prospecter\Core\Prospecting\Application\Policy\DiscardRemovedLogoPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\DismissSuspicionInReturnPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\EraseExchangeLeftWithoutOrganizationPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\EraseToDoLeftWithoutOrganizationPolicy;
+use Prospecter\Core\Prospecting\Application\Policy\ForgetFingerprintsOfForgottenContactPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\KeepCreatedVideoCallLinkPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\KeepExchangesOfForgottenContactPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\KeepImportedAttachmentPolicy;
@@ -1400,6 +1401,7 @@ final class Application
     private function commandHandlers(): array
     {
         return [
+            new ForgetFingerprintsOfForgottenContactHandler($this->exchanges),
             new KeepExchangesOfForgottenContactHandler($this->exchanges, $this->events),
             new DetachForgottenContactHandler($this->organizations, $this->events, $this->orphans),
             new KeepCreatedVideoCallLinkHandler($this->exchanges, $this->events),
@@ -1818,7 +1820,7 @@ final class Application
             new AttachCollectedContactHandler($this->organizations, $this->events),
             new DetachForgottenContactPolicy(),
             new KeepExchangesOfForgottenContactPolicy(),
-            new ForgetFingerprintsOfForgottenContactHandler($this->exchanges),
+            new ForgetFingerprintsOfForgottenContactPolicy(),
             new KeepCreatedVideoCallLinkPolicy(),
             new SuspectDuplicateInReturnPolicy(),
             new LiftSuspicionInReturnPolicy(),
