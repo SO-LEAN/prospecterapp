@@ -124,7 +124,7 @@ AI (Claude)                         API (api.<domain>)                          
 
   The tool logs with `noteOnce`. So the core refuses what was logged before, by an AI, by the Gmail import or by a member.
 - A refusal is the tool's error (`isError`), with the endpoint's problem+json as its text. A tool that logs an exchange answers « Already noted », « noted meanwhile » and « erased before » as its result instead (above, ADR 0166). `Shared\Mcp\RefusingTools` runs the tools and translates the refusals. `Shared\DependencyInjection\RefusingToolsPass` sets it on the server's builder. It translates:
-  - a core refusal (`Shared\RefusalProblems`, like `UseCaseExceptionListener`);
+  - a core refusal (`Shared\RefusalProblems`, like `UseCaseExceptionListener`). `tests/Shared/Mcp/RefusingToolsTest` proves this once for every tool, so a tool's tests do not re-test a refusal the core proves (ADR 0208);
   - an access denial (`Security\AccessProblems`, like `ApiAccessDeniedHandler`: `roleNotAllowed` 403, `unknown<Resource>` 404 for another account);
   - an unreachable service (`Shared\UnavailabilityProblems`, like `ServiceUnavailableListener`: `directoryUnreachable`, `googleUnreachable`, `secretsUnavailable`, `privateFilesUnavailable` 503). Its cause is logged at the error level, as Symfony logs it for the SPA;
   - the arguments' violations (422).
