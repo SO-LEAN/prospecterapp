@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Campaigning\Input;
 
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Campaigns\Application\PrepareCampaign\PrepareCampaign;
-use Prospecter\Core\Campaigns\Application\ReviseCampaign\ReviseCampaign;
+use Prospecter\Core\Campaigns\Application\Campaign\PrepareCampaign\PrepareCampaign;
+use Prospecter\Core\Campaigns\Application\Campaign\ReviseCampaign\ReviseCampaign;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**

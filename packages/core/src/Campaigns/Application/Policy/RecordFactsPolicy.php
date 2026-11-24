@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Campaigns\Application\Policy;
 
-use Prospecter\Core\Campaigns\Application\RecordContactFacts\RecordContactFacts;
-use Prospecter\Core\Campaigns\Application\RecordOrganizationFacts\RecordOrganizationFacts;
+use Prospecter\Core\Campaigns\Application\Tagging\RecordContactFacts\RecordContactFacts;
+use Prospecter\Core\Campaigns\Application\Tagging\RecordOrganizationFacts\RecordOrganizationFacts;
 use Prospecter\Core\PersonalData\Contract\Event\ContactFactsChanged;
 use Prospecter\Core\Prospecting\Contract\Event\OrganizationFactsChanged;
 use Prospecter\Core\SharedKernel\Application\Handler\Policy;

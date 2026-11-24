@@ -8,8 +8,8 @@ use App\Campaigning\Input\DailyCapInput;
 use App\Shared\Mcp\Adapts;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
+use Prospecter\Core\Campaigns\Application\Campaign\SetDailyCap\SetDailyCap;
 use Prospecter\Core\Campaigns\Application\CampaignSheet;
-use Prospecter\Core\Campaigns\Application\SetDailyCap\SetDailyCap;
 
 /**
  * `PATCH /api/campaigns/{id}/daily-cap`, for an AI (ADR 0163).

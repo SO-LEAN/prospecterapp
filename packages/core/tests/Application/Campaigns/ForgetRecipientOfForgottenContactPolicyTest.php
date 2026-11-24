@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Core\Application\Campaigns;
 
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\Campaigns\Application\ForgetRecipientOfForgottenContact\ForgetRecipientOfForgottenContact;
 use Prospecter\Core\Campaigns\Application\Policy\ForgetRecipientOfForgottenContactPolicy;
+use Prospecter\Core\Campaigns\Application\Recipient\ForgetRecipientOfForgottenContact\ForgetRecipientOfForgottenContact;
 use Prospecter\Core\PersonalData\Contract\Event\ContactForgotten;
 
 class ForgetRecipientOfForgottenContactPolicyTest extends TestCase

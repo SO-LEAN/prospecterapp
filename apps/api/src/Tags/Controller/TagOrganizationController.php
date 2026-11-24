@@ -15,7 +15,7 @@ use App\Tags\TagRoutes;
 use App\Tags\TagsReader;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Campaigns\Application\PutTags\PutTags;
+use Prospecter\Core\Campaigns\Application\Tagging\PutTags\PutTags;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;

@@ -11,7 +11,7 @@ use App\Tags\Resource\SuggestedTagsResource;
 use App\Tags\SuggestedTagsPresenter;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Campaigns\Application\ConsultSuggestedTags\ConsultSuggestedTags;
+use Prospecter\Core\Campaigns\Application\Tagging\ConsultSuggestedTags\ConsultSuggestedTags;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;

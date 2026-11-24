@@ -6,7 +6,7 @@ namespace Tests\Core\Application\Campaigns;
 
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Campaigns\Application\Policy\ProcessRecipientOfCampaignExchangePolicy;
-use Prospecter\Core\Campaigns\Application\ProcessRecipientOfCampaignExchange\ProcessRecipientOfCampaignExchange;
+use Prospecter\Core\Campaigns\Application\Recipient\ProcessRecipientOfCampaignExchange\ProcessRecipientOfCampaignExchange;
 use Prospecter\Core\Prospecting\Contract\Event\ExchangeFactsChanged;
 
 class ProcessRecipientOfCampaignExchangePolicyTest extends TestCase

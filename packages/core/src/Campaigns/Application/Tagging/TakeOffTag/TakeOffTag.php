@@ -1,0 +1,20 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Prospecter\Core\Campaigns\Application\Tagging\TakeOffTag;
+
+final readonly class TakeOffTag
+{
+    /**
+     * @param string $holder what kind of holder is tagged: `organization` or `contact`
+     */
+    public function __construct(
+        public string $memberId,
+        public string $holder,
+        public string $holderId,
+        public string $tag,
+        public \DateTimeImmutable $executedAt,
+    ) {
+    }
+}

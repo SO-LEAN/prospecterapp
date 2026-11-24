@@ -12,7 +12,7 @@ use App\Tags\ContactTagsReader;
 use App\Tags\TagRoutes;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
-use Prospecter\Core\Campaigns\Application\TakeOffTag\TakeOffTag;
+use Prospecter\Core\Campaigns\Application\Tagging\TakeOffTag\TakeOffTag;
 use Symfony\Component\Clock\ClockInterface;
 
 /** `DELETE /api/contacts/{id}/tags/{tag}`, for an AI (ADR 0163). The AI asks its member before it calls this tool. */

@@ -6,7 +6,7 @@ namespace App\Tags;
 
 use App\Tags\Resource\TagResource;
 use App\Tags\Resource\TagsResource;
-use Prospecter\Core\Campaigns\Application\ConsultOrganizationTags\ConsultOrganizationTagsOutput;
+use Prospecter\Core\Campaigns\Application\Tagging\ConsultOrganizationTags\ConsultOrganizationTagsOutput;
 
 /** Presents an organization's tags as the API shows them. The presenter is an object of the call (ADR 0085). */
 final class TagsResourcePresenter implements ConsultOrganizationTagsOutput

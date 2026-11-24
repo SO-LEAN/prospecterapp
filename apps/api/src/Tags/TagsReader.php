@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tags;
 
 use App\Tags\Resource\TagsResource;
-use Prospecter\Core\Campaigns\Application\ConsultOrganizationTags\ConsultOrganizationTags;
+use Prospecter\Core\Campaigns\Application\Tagging\ConsultOrganizationTags\ConsultOrganizationTags;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 
 /**

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Campaigns\Application\Policy;
 
-use Prospecter\Core\Campaigns\Application\ForgetRecipientOfForgottenContact\ForgetRecipientOfForgottenContact;
+use Prospecter\Core\Campaigns\Application\Recipient\ForgetRecipientOfForgottenContact\ForgetRecipientOfForgottenContact;
 use Prospecter\Core\PersonalData\Contract\Event\ContactForgotten;
 use Prospecter\Core\SharedKernel\Application\Handler\Policy;
 

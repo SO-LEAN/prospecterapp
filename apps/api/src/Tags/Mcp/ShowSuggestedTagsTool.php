@@ -10,7 +10,7 @@ use App\Shared\Mcp\ToolResults;
 use App\Tags\SuggestedTagsPresenter;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
-use Prospecter\Core\Campaigns\Application\ConsultSuggestedTags\ConsultSuggestedTags;
+use Prospecter\Core\Campaigns\Application\Tagging\ConsultSuggestedTags\ConsultSuggestedTags;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 
 /**

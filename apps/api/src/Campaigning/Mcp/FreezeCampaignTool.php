@@ -7,8 +7,8 @@ namespace App\Campaigning\Mcp;
 use App\Shared\Mcp\Adapts;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
+use Prospecter\Core\Campaigns\Application\Campaign\FreezeCampaign\FreezeCampaign;
 use Prospecter\Core\Campaigns\Application\CampaignSheet;
-use Prospecter\Core\Campaigns\Application\FreezeCampaign\FreezeCampaign;
 
 /**
  * `POST /api/campaigns/{id}/freeze`, for an AI (ADR 0163).

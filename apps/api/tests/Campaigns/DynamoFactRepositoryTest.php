@@ -7,7 +7,7 @@ namespace Tests\App\Campaigns;
 use App\Shared\Persistence\ConditionFailed;
 use App\Shared\Persistence\Table;
 use App\Shared\Typed;
-use Prospecter\Core\Campaigns\Application\FactRecorder;
+use Prospecter\Core\Campaigns\Application\Tagging\FactRecorder;
 use Prospecter\Core\Campaigns\Domain\Model\ContactFact;
 use Prospecter\Core\Campaigns\Domain\Model\ContactId;
 use Prospecter\Core\Campaigns\Domain\Model\Locality;

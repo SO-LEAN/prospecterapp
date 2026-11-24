@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Campaigns\Application\Policy;
 
-use Prospecter\Core\Campaigns\Application\ProcessRecipientOfCampaignExchange\ProcessRecipientOfCampaignExchange;
+use Prospecter\Core\Campaigns\Application\Recipient\ProcessRecipientOfCampaignExchange\ProcessRecipientOfCampaignExchange;
 use Prospecter\Core\Prospecting\Contract\Event\ExchangeFactsChanged;
 use Prospecter\Core\SharedKernel\Application\Handler\Policy;
 

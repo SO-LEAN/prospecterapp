@@ -6,8 +6,8 @@ namespace App\Campaigns\Command;
 
 use App\Campaigns\AntiCorruption\AccountsTaggedAccounts;
 use App\Shared\Persistence\ConditionFailed;
-use Prospecter\Core\Campaigns\Application\RebuildTags\RebuildTags;
-use Prospecter\Core\Campaigns\Application\RebuildTags\RebuildTagsHandler;
+use Prospecter\Core\Campaigns\Application\Tagging\RebuildTags\RebuildTags;
+use Prospecter\Core\Campaigns\Application\Tagging\RebuildTags\RebuildTagsHandler;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;

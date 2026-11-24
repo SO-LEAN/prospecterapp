@@ -9,7 +9,7 @@ use App\Shared\Mcp\Adapts;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
 use Prospecter\Core\Campaigns\Application\CampaignSheet;
-use Prospecter\Core\Campaigns\Application\DismissRecipient\DismissRecipient;
+use Prospecter\Core\Campaigns\Application\Recipient\DismissRecipient\DismissRecipient;
 
 /**
  * `POST /api/campaigns/{id}/recipients/{contactId}/dismissal`, for an AI (ADR 0163). The AI asks its member before it

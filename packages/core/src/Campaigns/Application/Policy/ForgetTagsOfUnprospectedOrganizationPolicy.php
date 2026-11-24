@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Campaigns\Application\Policy;
 
-use Prospecter\Core\Campaigns\Application\ForgetTagsOfUnprospectedOrganization\ForgetTagsOfUnprospectedOrganization;
+use Prospecter\Core\Campaigns\Application\Tagging\ForgetTagsOfUnprospectedOrganization\ForgetTagsOfUnprospectedOrganization;
 use Prospecter\Core\Prospecting\Contract\Event\OrganizationFactsChanged;
 use Prospecter\Core\SharedKernel\Application\Handler\Policy;
 

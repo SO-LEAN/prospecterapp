@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Campaigns\Command;
 
 use App\Shared\CommandBus;
-use Prospecter\Core\Campaigns\Application\EraseCampaign\EraseCampaign;
+use Prospecter\Core\Campaigns\Application\Campaign\EraseCampaign\EraseCampaign;
 use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
 use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;

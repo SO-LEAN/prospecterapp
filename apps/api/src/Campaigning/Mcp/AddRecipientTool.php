@@ -8,8 +8,8 @@ use App\Campaigning\Input\RecipientInput;
 use App\Shared\Mcp\Adapts;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
-use Prospecter\Core\Campaigns\Application\AddRecipient\AddRecipient;
 use Prospecter\Core\Campaigns\Application\CampaignSheet;
+use Prospecter\Core\Campaigns\Application\Recipient\AddRecipient\AddRecipient;
 
 /**
  * `POST /api/campaigns/{id}/recipients`, for an AI (ADR 0163).

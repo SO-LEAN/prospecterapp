@@ -16,7 +16,7 @@ use App\Tags\TagRoutes;
 use App\Tags\TagsReader;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
-use Prospecter\Core\Campaigns\Application\PutTags\PutTags;
+use Prospecter\Core\Campaigns\Application\Tagging\PutTags\PutTags;
 use Symfony\Component\Clock\ClockInterface;
 
 /**

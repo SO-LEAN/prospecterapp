@@ -56,12 +56,12 @@ services:
         resource: '../vendor/prospecter/core/src/{Accounts,Booking,Campaigns,Connectors,PersonalData,Prospecting,Reporting}/Application/{*,*/*}/*Handler.php'
         exclude:
             - '../vendor/prospecter/core/src/Reporting/Application/RebuildFigures/RebuildFiguresHandler.php'
-            - '../vendor/prospecter/core/src/Campaigns/Application/RebuildTags/RebuildTagsHandler.php'
+            - '../vendor/prospecter/core/src/Campaigns/Application/Tagging/RebuildTags/RebuildTagsHandler.php'
     # its steps commit their own units (ADR 0103): called by app:reporting:rebuild, out of the command bus
     Prospecter\Core\Reporting\Application\RebuildFigures\RebuildFiguresHandler:
         autoconfigure: false
     # each fact commits its own unit (ADR 0141): called by app:tags:rebuild, out of the command bus
-    Prospecter\Core\Campaigns\Application\RebuildTags\RebuildTagsHandler:
+    Prospecter\Core\Campaigns\Application\Tagging\RebuildTags\RebuildTagsHandler:
         autoconfigure: false
 
     # Services of the hexagon, injected in its handlers (ADR 0044)
@@ -83,9 +83,9 @@ services:
     Prospecter\Core\Connectors\Application\CalendarPusher: ~
     Prospecter\Core\Prospecting\Application\PublishedHeldExchanges: ~
     Prospecter\Core\Campaigns\Domain\Service\TaggableHolders: ~
-    Prospecter\Core\Campaigns\Application\FactRecorder: ~
+    Prospecter\Core\Campaigns\Application\Tagging\FactRecorder: ~
     Prospecter\Core\Campaigns\Application\TagsOfEveryContact: ~
-    Prospecter\Core\Campaigns\Application\CampaignTargets: ~
+    Prospecter\Core\Campaigns\Application\Campaign\CampaignTargets: ~
     Prospecter\Core\Prospecting\Application\CampaignsOfTimeline: ~
     Prospecter\Core\Booking\Application\BookingPage\BookingPages: ~
     Prospecter\Core\Booking\Domain\Service\BusyPeriods: ~
@@ -148,8 +148,8 @@ services:
     Prospecter\Core\PersonalData\Contract\Service\PresentMembers\PresentMembersService: '@Prospecter\Core\PersonalData\Application\PresentMembers\PresentMembersHandler'
     Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\NameOrganizationsOfContactsService: '@Prospecter\Core\Prospecting\Application\NameOrganizationsOfContacts\NameOrganizationsOfContactsHandler'
     Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsNameTheseContacts\WhichOrganizationsNameTheseContactsService: '@Prospecter\Core\Prospecting\Application\WhichOrganizationsNameTheseContacts\WhichOrganizationsNameTheseContactsHandler'
-    Prospecter\Core\Campaigns\Contract\Service\WhichRecipientsArePending\WhichRecipientsArePendingService: '@Prospecter\Core\Campaigns\Application\WhichRecipientsArePending\WhichRecipientsArePendingHandler'
-    Prospecter\Core\Campaigns\Contract\Service\NameCampaigns\NameCampaignsService: '@Prospecter\Core\Campaigns\Application\NameCampaigns\NameCampaignsHandler'
+    Prospecter\Core\Campaigns\Contract\Service\WhichRecipientsArePending\WhichRecipientsArePendingService: '@Prospecter\Core\Campaigns\Application\Recipient\WhichRecipientsArePending\WhichRecipientsArePendingHandler'
+    Prospecter\Core\Campaigns\Contract\Service\NameCampaigns\NameCampaignsService: '@Prospecter\Core\Campaigns\Application\Campaign\NameCampaigns\NameCampaignsHandler'
     Prospecter\Core\Connectors\Contract\Service\WhichHaveAConnectedCalendar\WhichHaveAConnectedCalendarService: '@Prospecter\Core\Connectors\Application\WhichHaveAConnectedCalendar\WhichHaveAConnectedCalendarHandler'
     Prospecter\Core\Booking\Contract\Service\ConsultAppointments\ConsultAppointmentsService: '@Prospecter\Core\Booking\Application\Appointment\ConsultAppointments\ConsultAppointmentsHandler'
 

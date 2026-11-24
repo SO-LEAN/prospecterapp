@@ -14,7 +14,7 @@ use App\Tags\TagRoutes;
 use App\Tags\TagsReader;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
-use Prospecter\Core\Campaigns\Application\TakeOffTag\TakeOffTag;
+use Prospecter\Core\Campaigns\Application\Tagging\TakeOffTag\TakeOffTag;
 use Symfony\Component\Clock\ClockInterface;
 
 /**
