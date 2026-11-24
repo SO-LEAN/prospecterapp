@@ -2,6 +2,12 @@
 
 Natural persons' personal data, and who reads it. Code: `packages/core/src/PersonalData`.
 
+## The wall
+
+![Personal data's event storming wall](../event-storming/personal-data/wall.svg)
+
+Each lane alone: [Contact](../event-storming/personal-data/contact.svg), [Duplicate](../event-storming/personal-data/duplicate.svg), [Facts](../event-storming/personal-data/facts.svg), [Identification](../event-storming/personal-data/identification.svg), [Person](../event-storming/personal-data/person.svg), [Profile](../event-storming/personal-data/profile.svg). The wall is drawn from the code (`make event-storming`, `docs/architecture/event-storming.md`). Its interactive page is served under `/docs/event-storming/personal-data/`: https://prospecter.localhost/docs/event-storming/personal-data/ locally, the same path on dev.
+
 ## Language
 
 - **Person** (`Person`): a natural person's personal data, kept for one account and one purpose:

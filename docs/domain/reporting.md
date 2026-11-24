@@ -2,6 +2,12 @@
 
 Each account's figures, kept from the facts the other contexts publish, and counted again from their state when needed (ADR 0103). Code: `packages/core/src/Reporting`.
 
+## The wall
+
+![Reporting's event storming wall](../event-storming/reporting/wall.svg)
+
+Each lane alone: [Reporting](../event-storming/reporting/reporting.svg). The wall is drawn from the code (`make event-storming`, `docs/architecture/event-storming.md`). Its interactive page is served under `/docs/event-storming/reporting/`: https://prospecter.localhost/docs/event-storming/reporting/ locally, the same path on dev.
+
 ## Language
 
 - **Figures**: what an account counts:

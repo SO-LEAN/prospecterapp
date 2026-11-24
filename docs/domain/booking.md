@@ -2,6 +2,12 @@
 
 Each member's booking page: when they may be booked, how, and the public link they give to whoever they want. It is the only part of Prospecter read without signing in (ADR 0148, 0153). Code: `packages/core/src/Booking`.
 
+## The wall
+
+![Booking's event storming wall](../event-storming/booking/wall.svg)
+
+Each lane alone: [Appointment](../event-storming/booking/appointment.svg), [Booking page](../event-storming/booking/booking-page.svg), [Public link](../event-storming/booking/public-link.svg). The wall is drawn from the code (`make event-storming`, `docs/architecture/event-storming.md`). Its interactive page is served under `/docs/event-storming/booking/`: https://prospecter.localhost/docs/event-storming/booking/ locally, the same path on dev.
+
 ## Language
 
 - **Host**: the member who owns the booking page, the one who is booked.
@@ -69,7 +75,7 @@ It forgets an appointment on its exchange's terminal fact (`ExchangeFactsChanged
 
 ## Features
 
-`regler-mes-plages`, `ajouter-une-periode-inactive`, `proposer-des-canaux`, `activer-et-couper-ma-prise-de-rendez-vous`, `changer-de-lien`, `consulter-ma-prise-de-rendez-vous`, `consulter-une-page-de-prise-de-rendez-vous`, `reserver-un-creneau`, `liberer-le-rendez-vous-d-un-echange-efface`. Each is tagged with the use cases it describes. The context's event storming is generated from its code: https://prospecter.localhost/docs/event-storming/booking/ locally, the same path on dev (`docs/architecture/event-storming.md`).
+`regler-mes-plages`, `ajouter-une-periode-inactive`, `proposer-des-canaux`, `activer-et-couper-ma-prise-de-rendez-vous`, `changer-de-lien`, `consulter-ma-prise-de-rendez-vous`, `consulter-une-page-de-prise-de-rendez-vous`, `reserver-un-creneau`, `liberer-le-rendez-vous-d-un-echange-efface`. Each is tagged with the use cases it describes.
 
 ## In the code
 
@@ -91,11 +97,3 @@ It forgets an appointment on its exchange's terminal fact (`ExchangeFactsChanged
     - `PublishSlotBooked`, its translator;
     - `ForgetAppointmentOfErasedExchange`, the command that `Policy/ForgetAppointmentOfErasedExchangePolicy` sends when an exchange is erased (ADR 0203);
   - at the application's root, the ports (`Port/`) and the policy (`Policy/`).
-
-## The wall
-
-The context's event storming, drawn from its code (`make event-storming CONTEXT=Booking`, `docs/architecture/event-storming.md`). The interactive page is served under `/docs/event-storming/booking/` on the instances that open it.
-
-![Booking's event storming wall](../event-storming/booking/wall.svg)
-
-Each lane alone: [Booking page](../event-storming/booking/booking-page.svg), [Public link](../event-storming/booking/public-link.svg), [Appointment](../event-storming/booking/appointment.svg).

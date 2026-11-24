@@ -8,6 +8,12 @@ Connectors connects members to services outside Prospecter. Google Calendar come
 
 Code: `packages/core/src/Connectors`.
 
+## The wall
+
+![Connectors's event storming wall](../event-storming/connectors/wall.svg)
+
+Each lane alone: [Calendar](../event-storming/connectors/calendar.svg), [Client](../event-storming/connectors/client.svg), [Connection](../event-storming/connectors/connection.svg), [Mail import](../event-storming/connectors/mail-import.svg). The wall is drawn from the code (`make event-storming`, `docs/architecture/event-storming.md`). Its interactive page is served under `/docs/event-storming/connectors/`: https://prospecter.localhost/docs/event-storming/connectors/ locally, the same path on dev.
+
 ## Language
 
 - **Client** (`ProviderClient`): an account creates a client at a provider, in its own space there (its Google Cloud). Its members connect through it. It holds:

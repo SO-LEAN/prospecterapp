@@ -212,7 +212,8 @@ Why the project is shaped the way it is: one record per decision, in the order t
 | [0207](0207-the-front-tests-run-in-vm-threads.md) | The front's tests run in VM threads | architecture | Accepted | 2026-11-24 |
 | [0208](0208-a-new-api-test-proves-only-the-adaptation.md) | A new API test proves only the adaptation, and each kind of refusal is translated once | architecture | Accepted | 2026-11-24 |
 | [0209](0209-the-demonstration-s-load-counts-its-figures-without-waiting-for-the-worker.md) | The demonstration's load counts its figures without waiting for the worker | architecture | Accepted | 2026-11-24 |
-| [0210](0210-the-front-tools-tests-run-in-forks.md) | The tests of the front's tools run in forks, apart from the SPA's | architecture | Accepted | 2026-11-24 |
+| [0210](0210-the-front-tools-tests-run-in-forks.md) | The tests of the front's tools run in forks, apart from the SPA's | architecture | Accepted, Stryker looking for the tests in `src/` only superseded by [0214](0214-every-context-has-its-wall-generated-from-the-whole-code-and-checked-in-the-ci.md) | 2026-11-24 |
 | [0211](0211-an-mcp-tool-is-tested-by-what-it-adds-to-its-endpoint.md) | An MCP tool is tested by what it adds to its endpoint | architecture | Accepted | 2026-11-24 |
 | [0212](0212-the-rights-of-every-endpoint-are-proven-by-one-test.md) | The rights of every endpoint are proven by one test | architecture | Accepted | 2026-11-24 |
 | [0213](0213-the-event-storming-is-one-wall-per-context-with-a-lane-per-module.md) | The event storming is one wall per context, with a lane per module | architecture | Accepted | 2026-11-24 |
+| [0214](0214-every-context-has-its-wall-generated-from-the-whole-code-and-checked-in-the-ci.md) | Every context has its wall, generated from the whole code and checked in the CI | architecture | Accepted | 2026-11-24 |
