@@ -16,6 +16,11 @@
             <exclude>tests/Double</exclude>
             <exclude>tests/Mutation</exclude>
         </testsuite>
+        <!-- the tests of the event storming's generator, beside its code (docs/architecture/event-storming.md) -->
+        <testsuite name="phpstan-rules">
+            <directory>../phpstan-rules/tests</directory>
+            <exclude>../phpstan-rules/tests/EventStorming/Fixtures</exclude>
+        </testsuite>
     </testsuites>
 
     <source restrictNotices="true" restrictWarnings="true">

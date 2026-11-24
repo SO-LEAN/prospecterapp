@@ -3,6 +3,8 @@
 $finder = (new PhpCsFixer\Finder())
     ->in(__DIR__)
     ->exclude(['vendor', 'var', 'data'])
+    // the generator of the event storming and its tests, except their fixtures, which are code to analyse
+    ->append((new PhpCsFixer\Finder())->in([__DIR__.'/../phpstan-rules/EventStorming', __DIR__.'/../phpstan-rules/tests'])->exclude('EventStorming/Fixtures'))
 ;
 
 return (new PhpCsFixer\Config())

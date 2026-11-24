@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\PHPStan\EventStorming;
+namespace Tests\PHPStan\EventStorming;
 
 use PHPUnit\Framework\TestCase;
 use Prospecter\PHPStan\EventStorming\FeatureTitles;
 
 final class FeatureTitlesTest extends TestCase
 {
-    private const string FEATURES = __DIR__.'/../../../../phpstan-rules/fixtures/event-storming/features';
+    private const string FEATURES = __DIR__.'/Fixtures/features';
 
     public function testEachUseCaseTaggedOnAFeatureTakesItsTitle(): void
     {
