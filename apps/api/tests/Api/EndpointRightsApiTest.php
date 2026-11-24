@@ -22,18 +22,18 @@ use Tests\App\Base\ApiTestCase;
 use Tests\App\Base\ReadsResources;
 
 /**
- * The rights of every endpoint of a member, proven by one test. Its table is the `#[IsGranted]` attributes of the
- * controllers: the roles a profile needs, and the voter of the resource (ADR 0081). Each endpoint is called in HTTP
- * with each profile, so the request crosses the firewall, the role hierarchy and the real voter. A granted request
+ * Every member endpoint's rights, proven by one test (ADR 0212). Its table is the controllers' `#[IsGranted]`
+ * attributes: the roles a profile needs, and the resource's voter (ADR 0081). Each endpoint is called in HTTP with
+ * each profile, so the request crosses the firewall, the role hierarchy and the real voter. A granted request
  * stops before its controller runs: the test proves the declared rights, and changes nothing. A right that depends on
- * the state of the resource is checked in the controller, and keeps a test of its own.
+ * the resource's state is checked in the controller, and keeps a test of its own.
  */
 class EndpointRightsApiTest extends ApiTestCase
 {
     use ReadsResources;
 
-    /** The firewall the members call the API through, with an access token of the user pool. */
-    private const string FIREWALL_OF_THE_MEMBERS = 'api';
+    /** The firewall the members call the API through, with a user pool's access token. */
+    private const string MEMBERS_FIREWALL = 'api';
 
     /** The answer to a request the rights let through, before its controller would run. */
     private const string GRANTED = 'granted';
@@ -45,8 +45,8 @@ class EndpointRightsApiTest extends ApiTestCase
     private const string REFUSED = '403 '.AccessProblems::ROLE_NOT_ALLOWED;
 
     /**
-     * The answer to a member of another account, by the beginning of the path of the resource: the resource is
-     * unknown to them.
+     * The answer to another account's member, keyed by the start of the resource's path. The resource is unknown
+     * to them.
      */
     private const array UNKNOWN = [
         '/api/organizations/{id}' => '404 unknownOrganization',
@@ -55,15 +55,15 @@ class EndpointRightsApiTest extends ApiTestCase
         '/api/campaigns/{id}' => '404 unknownCampaign',
     ];
 
-    /** Between the attributes of the controller (`#[IsGranted]` included) and the resolution of its input. */
+    /** After the controller's attribute listeners, `#[IsGranted]` included, and before its input is resolved. */
     private const int BEFORE_THE_INPUT = -10050;
 
-    /** The values of the variables of a path that name no resource of the account. */
+    /** Path variable values that name none of the account's resources. */
     private const array VARIABLES = ['tag' => 'ESN', 'phoneNumber' => '0612345678'];
 
     /**
-     * The profiles of the members: the roles a member is registered with, and the roles they hold. An administrator
-     * may do what any member may.
+     * The members' profiles: the roles a member is registered with, and the roles they hold. An administrator
+     * holds every role.
      *
      * @return iterable<string, array{list<Role>, list<Role>}>
      */
@@ -82,12 +82,12 @@ class EndpointRightsApiTest extends ApiTestCase
     #[DataProvider('profiles')]
     public function testEachEndpointLetsThroughTheProfilesItsAttributesGrantAndRefusesTheOthers(array $registered, array $held): void
     {
-        $paths = $this->pathsOfTheResourcesOfTheAccount();
+        $paths = $this->accountResourcePaths();
         $this->login($this->aMemberOfTheFixtures('profile', ...$registered));
         $this->stopEachGrantedRequestBeforeItsController();
         $roles = array_map(static fn (Role $role): string => $role->value, $held);
 
-        $endpoints = self::endpointsOfTheMembers();
+        $endpoints = self::memberEndpoints();
         $this->assertNotEmpty($endpoints);
 
         $this->assertSame(array_map(static fn (Route $route): string => [] === array_diff(self::rolesOf($route), $roles) ? self::GRANTED : self::REFUSED, $endpoints), array_map(fn (Route $route): string => $this->answerTo($route, $paths), $endpoints));
@@ -95,11 +95,11 @@ class EndpointRightsApiTest extends ApiTestCase
 
     public function testEachEndpointOfAResourceDoesNotFindTheResourceOfAnotherAccount(): void
     {
-        $paths = $this->pathsOfTheResourcesOfTheAccount();
+        $paths = $this->accountResourcePaths();
         $this->login($this->aMemberOfAnotherAccount('competitor'));
         $this->stopEachGrantedRequestBeforeItsController();
 
-        $ofAResource = array_filter(self::endpointsOfTheMembers(), static fn (Route $route): bool => [] !== self::votersOf($route));
+        $ofAResource = array_filter(self::memberEndpoints(), static fn (Route $route): bool => [] !== self::votersOf($route));
         $this->assertNotEmpty($ofAResource);
 
         $this->assertSame(array_map(self::unknownTo(...), $ofAResource), array_map(fn (Route $route): string => $this->answerTo($route, $paths), $ofAResource));
@@ -107,28 +107,28 @@ class EndpointRightsApiTest extends ApiTestCase
 
     public function testEachEndpointOfAMemberRefusesWhoeverIsNotSignedIn(): void
     {
-        $paths = $this->pathsOfTheResourcesOfTheAccount();
+        $paths = $this->accountResourcePaths();
         $this->client->setServerParameter('HTTP_AUTHORIZATION', '');
         $this->stopEachGrantedRequestBeforeItsController();
-        $endpoints = self::endpointsOfTheMembers();
+        $endpoints = self::memberEndpoints();
 
         $this->assertSame(array_map(static fn (): string => self::NOT_SIGNED_IN, $endpoints), array_map(fn (Route $route): string => $this->answerTo($route, $paths), $endpoints));
     }
 
     public function testEachEndpointOfAMemberDeclaresItsRights(): void
     {
-        $withoutRights = array_filter(self::endpointsOfTheMembers(), static fn (Route $route): bool => [] === self::isGrantedOf($route));
+        $withoutRights = array_filter(self::memberEndpoints(), static fn (Route $route): bool => [] === self::isGrantedOf($route));
 
         $this->assertSame([], array_keys($withoutRights), 'Endpoints of a member whose controller declares no #[IsGranted]');
     }
 
     /**
-     * The resources of the account of the demonstration that the paths name by their `id`: Babbage & Co, its contact
+     * The demonstration account's resources that the paths name by their `id`: Babbage & Co, its contact
      * Ada Lovelace, an exchange with her, a to-do and a campaign.
      *
      * @return array<string, string> the id by the beginning of the path
      */
-    private function pathsOfTheResourcesOfTheAccount(): array
+    private function accountResourcePaths(): array
     {
         $this->login();
         $babbage = self::stringAt($this->requestJson('GET', '/api/organizations?q=Babbage'), 'items', 0, 'id');
@@ -145,8 +145,8 @@ class EndpointRightsApiTest extends ApiTestCase
     }
 
     /**
-     * A request the rights let through gets its status at once: its controller does not run, nor does the
-     * validation of its input.
+     * A request the rights let through gets its status at once: neither its controller nor its input's
+     * validation runs.
      */
     private function stopEachGrantedRequestBeforeItsController(): void
     {
@@ -202,14 +202,14 @@ class EndpointRightsApiTest extends ApiTestCase
     }
 
     /**
-     * @return array<string, Route> the routes the members call through their firewall, by the name of the route
+     * @return array<string, Route> the routes the members call through their firewall, by route name
      */
-    private static function endpointsOfTheMembers(): array
+    private static function memberEndpoints(): array
     {
         $routes = Typed::object(self::getContainer()->get(RouterInterface::class), RouterInterface::class)->getRouteCollection()->all();
         $security = self::service(Security::class, 'security.helper');
 
-        return array_filter($routes, static fn (Route $route): bool => str_starts_with(Typed::string($route->getDefault('_controller')), 'App\\') && self::FIREWALL_OF_THE_MEMBERS === $security->getFirewallConfig(Request::create($route->getPath()))?->getName());
+        return array_filter($routes, static fn (Route $route): bool => str_starts_with(Typed::string($route->getDefault('_controller')), 'App\\') && self::MEMBERS_FIREWALL === $security->getFirewallConfig(Request::create($route->getPath()))?->getName());
     }
 
     /**
@@ -229,7 +229,7 @@ class EndpointRightsApiTest extends ApiTestCase
     }
 
     /**
-     * @return list<string> the attributes of the `#[IsGranted]` of the controller's class and of its `__invoke`
+     * @return list<string> the `#[IsGranted]` attributes on the controller's class and on its `__invoke`
      */
     private static function isGrantedOf(Route $route): array
     {
