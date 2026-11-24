@@ -16,12 +16,13 @@ Every member endpoint has its tool (ADR 0163). The tool does what its controller
 - A tool's API tests keep one nominal case through the server, as a prospector: its arguments become its endpoint's input, and its answer is its endpoint's. They also prove what its endpoint does not have: a revision that the AI gives, a file downloaded from the web, an answer of its own, a refusal of the server.
 - A tool's test that replays a case of its endpoint's tests or of the core is removed: a member's role, another account's resource, a core refusal, its annotations (`EveryEndpointHasItsToolTest` checks those).
 - Each refusal the server translates is proven once, on a reading tool: a member's role, another account's resource, an argument's violations and a service out of reach.
-- A tool without an endpoint (`identify`, `record-contact`) is tested like an endpoint, its rights per role included.
+- A tool without an endpoint (`identify`, `record-contact`, `get-next-recipient`, `get-me`) is tested like an endpoint, its rights per role included.
 
 ## Consequences
 
 - A new tool adds one nominal API test, and tests for what it adds only.
 - The wiring test reads the sources, not the behaviour. A tool calling the right methods with the wrong arguments (another resource, a right checked on another subject) passes it. The nominal case catches a wrong input, not a wrong subject of a right.
+- A right that a tool checks under a condition (`stop-prospecting` needs the personal data only for an organization with contacts) passes the wiring test whatever the condition. Such a tool keeps a test of its condition.
 - The wiring test follows the calls on `$this`, on the injected services, on the helpers of an `Mcp` namespace and on the inputs. A tool that reaches its use case another way needs the test extended.
 
 ## Alternatives considered
