@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Event storming · Booking</title>
+<style>
+:root {
+  color-scheme: light dark;
+  --paper: #f6f5f1;
+  --ink: #23262b;
+  --muted: #5d6470;
+  --line: #59606b;
+  --panel: #ffffff;
+  --border: #d9d7d0;
+  --accent: #2f6fde;
+  --actor: #ffe27a;
+  --command: #8cc8f5;
+  --aggregate: #fff3b0;
+  --event: #ffad5c;
+  --policy: #d2b4f0;
+  --readModel: #b2e09c;
+  --externalSystem: #f6b3cb;
+  --module: #e7e4dc;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #17191d;
+    --ink: #e8e6e1;
+    --muted: #a3a9b3;
+    --line: #9aa2ad;
+    --panel: #22252b;
+    --border: #3a3e46;
+    --accent: #7aa7ff;
+    --module: #3a3e46;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+header { padding: 20px 16px 12px; max-width: 1200px; }
+h1 { margin: 0 0 6px; font-size: 22px; font-weight: 650; }
+h1 span { color: var(--accent); }
+header p { margin: 0 0 14px; color: var(--muted); max-width: 72ch; }
+nav { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+nav button { font: inherit; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--border); background: var(--panel); color: var(--ink); cursor: pointer; }
+nav button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--paper); }
+fieldset { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 0; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--panel); }
+legend { padding: 0 4px; color: var(--muted); font-size: 13px; }
+fieldset label { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; cursor: pointer; }
+.swatch { width: 14px; height: 14px; border-radius: 2px; border: 1px solid rgb(0 0 0 / 0.2); }
+.board { padding: 0 16px 24px; }
+.board h2 { font-size: 16px; font-weight: 600; margin: 8px 0; }
+.scroll { overflow: auto; border: 1px solid var(--border); border-radius: 8px; background: var(--panel); }
+svg { display: block; max-width: none; }
+.link { fill: none; stroke: var(--line); stroke-width: 1.5; transition: opacity 0.15s; }
+.link.uncertain { stroke-dasharray: 6 5; }
+marker path { fill: var(--line); }
+.sticky rect { stroke: rgb(0 0 0 / 0.18); filter: drop-shadow(0 1px 1.5px rgb(0 0 0 / 0.22)); }
+.sticky text { text-anchor: middle; fill: #1f2328; }
+.sticky .label { font-size: 14px; font-weight: 560; }
+.sticky .caption { font-size: 11px; fill: #4a4f57; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.type-module text { fill: var(--ink); }
+.type-module .caption { fill: var(--muted); }
+.sticky { cursor: default; outline: none; }
+.sticky:focus-visible rect { stroke: var(--accent); stroke-width: 3; }
+.type-actor rect, .swatch.type-actor { fill: var(--actor); background: var(--actor); }
+.type-command rect, .swatch.type-command { fill: var(--command); background: var(--command); }
+.type-aggregate rect, .swatch.type-aggregate { fill: var(--aggregate); background: var(--aggregate); }
+.type-event rect, .swatch.type-event { fill: var(--event); background: var(--event); }
+.type-policy rect, .swatch.type-policy { fill: var(--policy); background: var(--policy); }
+.type-readModel rect, .swatch.type-readModel { fill: var(--readModel); background: var(--readModel); }
+.type-externalSystem rect, .swatch.type-externalSystem { fill: var(--externalSystem); background: var(--externalSystem); }
+.type-module rect, .swatch.type-module { fill: var(--module); background: var(--module); }
+.type-actor.faded rect { fill: var(--panel); stroke: var(--actor); stroke-width: 2.5; stroke-dasharray: 6 4; filter: none; }
+.type-command.faded rect { fill: var(--panel); stroke: var(--command); stroke-width: 2.5; stroke-dasharray: 6 4; filter: none; }
+.type-aggregate.faded rect { fill: var(--panel); stroke: var(--aggregate); stroke-width: 2.5; stroke-dasharray: 6 4; filter: none; }
+.type-event.faded rect { fill: var(--panel); stroke: var(--event); stroke-width: 2.5; stroke-dasharray: 6 4; filter: none; }
+.type-policy.faded rect { fill: var(--panel); stroke: var(--policy); stroke-width: 2.5; stroke-dasharray: 6 4; filter: none; }
+.type-readModel.faded rect { fill: var(--panel); stroke: var(--readModel); stroke-width: 2.5; stroke-dasharray: 6 4; filter: none; }
+.type-externalSystem.faded rect { fill: var(--panel); stroke: var(--externalSystem); stroke-width: 2.5; stroke-dasharray: 6 4; filter: none; }
+.type-module.faded rect { fill: var(--panel); stroke: var(--module); stroke-width: 2.5; stroke-dasharray: 6 4; filter: none; }
+.sticky.faded text { fill: var(--muted); }
+.focusing .link:not(.lit) { opacity: 0.12; }
+.focusing .link.lit { stroke: var(--accent); stroke-width: 2.5; }
+.without-actor .type-actor:not(.swatch), .without-actor [data-from-kind="actor"], .without-actor [data-to-kind="actor"] { display: none; }
+.without-command .type-command:not(.swatch), .without-command [data-from-kind="command"], .without-command [data-to-kind="command"] { display: none; }
+.without-aggregate .type-aggregate:not(.swatch), .without-aggregate [data-from-kind="aggregate"], .without-aggregate [data-to-kind="aggregate"] { display: none; }
+.without-event .type-event:not(.swatch), .without-event [data-from-kind="event"], .without-event [data-to-kind="event"] { display: none; }
+.without-policy .type-policy:not(.swatch), .without-policy [data-from-kind="policy"], .without-policy [data-to-kind="policy"] { display: none; }
+.without-readModel .type-readModel:not(.swatch), .without-readModel [data-from-kind="readModel"], .without-readModel [data-to-kind="readModel"] { display: none; }
+.without-externalSystem .type-externalSystem:not(.swatch), .without-externalSystem [data-from-kind="externalSystem"], .without-externalSystem [data-to-kind="externalSystem"] { display: none; }
+.without-module .type-module:not(.swatch), .without-module [data-from-kind="module"], .without-module [data-to-kind="module"] { display: none; }
+</style>
+</head>
+<body>
+<header>
+<h1>Event storming <span>Booking</span></h1>
+<p>Généré depuis le code : chaque commande porte le titre de la feature de son cas d'usage. Une flèche en pointillé ne se produit que sous condition. Les post-its estompés viennent d'un autre module ou d'un autre contexte.</p>
+<nav aria-label="Vues"><button type="button" data-view="overview" aria-pressed="true">Vue d'ensemble</button><button type="button" data-view="module:Appointment" aria-pressed="false">Appointment</button><button type="button" data-view="module:BookingPage" aria-pressed="false">BookingPage</button><button type="button" data-view="module:PublicLink" aria-pressed="false">PublicLink</button></nav>
+<fieldset><legend>Types</legend><label><input type="checkbox" data-kind="actor" checked><span class="swatch type-actor"></span>Acteur</label><label><input type="checkbox" data-kind="command" checked><span class="swatch type-command"></span>Commande</label><label><input type="checkbox" data-kind="aggregate" checked><span class="swatch type-aggregate"></span>Agrégat</label><label><input type="checkbox" data-kind="event" checked><span class="swatch type-event"></span>Événement</label><label><input type="checkbox" data-kind="policy" checked><span class="swatch type-policy"></span>Réaction</label><label><input type="checkbox" data-kind="readModel" checked><span class="swatch type-readModel"></span>Modèle de lecture</label><label><input type="checkbox" data-kind="externalSystem" checked><span class="swatch type-externalSystem"></span>Système externe</label><label><input type="checkbox" data-kind="module" checked><span class="swatch type-module"></span>Module</label></fieldset>
+</header>
+<main><section class="board" data-view="overview">
+<h2>Vue d'ensemble</h2>
+<div class="scroll"><svg viewBox="0 0 1312 472" width="1312" height="472" role="img" aria-label="Vue d'ensemble">
+<defs><marker id="arrow-overview" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<path class="link" d="M808,270.66666666666663 L872,270.66666666666663" data-from="module:Appointment" data-to="event:Prospecter\Core\Booking\Contract\Event\SlotBooked" data-from-kind="module" data-to-kind="event" marker-end="url(#arrow-overview)"/>
+<path class="link" d="M1048,270.66666666666663 L1112,270.66666666666663" data-from="event:Prospecter\Core\Booking\Contract\Event\SlotBooked" data-to="policy:Prospecter\Core\PersonalData\Application\Policy\IdentifyBookerPolicy" data-from-kind="event" data-to-kind="policy" marker-end="url(#arrow-overview)"/>
+<path class="link" d="M264,248 L328,248" data-from="module:PublicLink" data-to="event:Prospecter\Core\Booking\Domain\Event\SlotBooked" data-from-kind="module" data-to-kind="event" marker-end="url(#arrow-overview)"/>
+<path class="link" d="M504,248 L568,248" data-from="event:Prospecter\Core\Booking\Domain\Event\SlotBooked" data-to="module:Appointment" data-from-kind="event" data-to-kind="module" marker-end="url(#arrow-overview)"/>
+<path class="link" d="M264,396 L328,396" data-from="event:Prospecter\Core\Prospecting\Contract\Event\ExchangeFactsChanged" data-to="policy:Prospecter\Core\Booking\Application\Policy\ForgetAppointmentOfErasedExchangePolicy" data-from-kind="event" data-to-kind="policy" marker-end="url(#arrow-overview)"/>
+<path class="link uncertain" d="M504,396 L514,396 L514,293.33333333333337 L568,293.3333333333333" data-from="policy:Prospecter\Core\Booking\Application\Policy\ForgetAppointmentOfErasedExchangePolicy" data-to="module:Appointment" data-from-kind="policy" data-to-kind="module" marker-end="url(#arrow-overview)"/>
+<g class="sticky type-module" data-key="module:Appointment" transform="translate(568,202.66666666666666)" tabindex="0"><title>3 cas d'usage</title>
+<rect width="240" height="136" rx="3"/>
+<text class="label" x="120" y="68">Appointment</text>
+<text class="caption" x="120" y="89">3 cas d'usage</text></g>
+<g class="sticky type-module" data-key="module:BookingPage" transform="translate(24,24)" tabindex="0"><title>8 cas d'usage</title>
+<rect width="240" height="136" rx="3"/>
+<text class="label" x="120" y="68">BookingPage</text>
+<text class="caption" x="120" y="89">8 cas d'usage</text></g>
+<g class="sticky type-module" data-key="module:PublicLink" transform="translate(24,180)" tabindex="0"><title>2 cas d'usage</title>
+<rect width="240" height="136" rx="3"/>
+<text class="label" x="120" y="68">PublicLink</text>
+<text class="caption" x="120" y="89">2 cas d'usage</text></g>
+<g class="sticky type-event" data-key="event:Prospecter\Core\Booking\Contract\Event\SlotBooked" transform="translate(872,218.66666666666666)" tabindex="0"><title>Prospecter\Core\Booking\Contract\Event\SlotBooked — Événement publié</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="52">SlotBooked</text>
+<text class="caption" x="88" y="73">Événement publié</text></g>
+<g class="sticky type-policy faded" data-key="policy:Prospecter\Core\PersonalData\Application\Policy\IdentifyBookerPolicy" transform="translate(1112,218.66666666666666)" tabindex="0"><title>Prospecter\Core\PersonalData\Application\Policy\IdentifyBookerPolicy</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="52">IdentifyBookerPolicy</text>
+<text class="caption" x="88" y="73">PersonalData</text></g>
+<g class="sticky type-event" data-key="event:Prospecter\Core\Booking\Domain\Event\SlotBooked" transform="translate(328,196)" tabindex="0"><title>Prospecter\Core\Booking\Domain\Event\SlotBooked</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="52">SlotBooked</text>
+<text class="caption" x="88" y="73">Événement</text></g>
+<g class="sticky type-event faded" data-key="event:Prospecter\Core\Prospecting\Contract\Event\ExchangeFactsChanged" transform="translate(88,344)" tabindex="0"><title>Prospecter\Core\Prospecting\Contract\Event\ExchangeFactsChanged — Événement publié</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="52">ExchangeFactsChanged</text>
+<text class="caption" x="88" y="73" textLength="160" lengthAdjust="spacingAndGlyphs">Prospecting · Événement publié</text></g>
+<g class="sticky type-policy" data-key="policy:Prospecter\Core\Booking\Application\Policy\ForgetAppointmentOfErasedExchangePolicy" transform="translate(328,344)" tabindex="0"><title>Prospecter\Core\Booking\Application\Policy\ForgetAppointmentOfErasedExchangePolicy</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="43.5">ForgetAppointmentOf</text><text class="label" x="88" y="60.5">ErasedExchangePolicy</text>
+<text class="caption" x="88" y="81.5">Réaction</text></g>
+</svg></div>
+</section>
+<section class="board" data-view="module:Appointment" hidden>
+<h2>Appointment</h2>
+<div class="scroll"><svg viewBox="0 0 944 276" width="944" height="276" role="img" aria-label="Appointment">
+<defs><marker id="arrow-module:Appointment" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<path class="link" d="M396,76 L460,76" data-from="event:Prospecter\Core\Prospecting\Contract\Event\ExchangeFactsChanged" data-to="policy:Prospecter\Core\Booking\Application\Policy\ForgetAppointmentOfErasedExchangePolicy" data-from-kind="event" data-to-kind="policy" marker-end="url(#arrow-module:Appointment)"/>
+<path class="link uncertain" d="M636,76 L700,76" data-from="policy:Prospecter\Core\Booking\Application\Policy\ForgetAppointmentOfErasedExchangePolicy" data-to="command:Prospecter\Core\Booking\Application\Appointment\ForgetAppointmentOfErasedExchange\ForgetAppointmentOfErasedExchange" data-from-kind="policy" data-to-kind="command" marker-end="url(#arrow-module:Appointment)"/>
+<path class="link" d="M200,200 L264,200" data-from="event:Prospecter\Core\Booking\Domain\Event\SlotBooked" data-to="policy:Prospecter\Core\Booking\Application\Appointment\PublishSlotBooked\PublishSlotBookedHandler" data-from-kind="event" data-to-kind="policy" marker-end="url(#arrow-module:Appointment)"/>
+<path class="link" d="M440,200 L504,200" data-from="policy:Prospecter\Core\Booking\Application\Appointment\PublishSlotBooked\PublishSlotBookedHandler" data-to="event:Prospecter\Core\Booking\Contract\Event\SlotBooked" data-from-kind="policy" data-to-kind="event" marker-end="url(#arrow-module:Appointment)"/>
+<path class="link" d="M680,200 L744,200" data-from="event:Prospecter\Core\Booking\Contract\Event\SlotBooked" data-to="policy:Prospecter\Core\PersonalData\Application\Policy\IdentifyBookerPolicy" data-from-kind="event" data-to-kind="policy" marker-end="url(#arrow-module:Appointment)"/>
+<g class="sticky type-event faded" data-key="event:Prospecter\Core\Prospecting\Contract\Event\ExchangeFactsChanged" transform="translate(220,24)" tabindex="0"><title>Prospecter\Core\Prospecting\Contract\Event\ExchangeFactsChanged — Événement publié</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="52">ExchangeFactsChanged</text>
+<text class="caption" x="88" y="73" textLength="160" lengthAdjust="spacingAndGlyphs">Prospecting · Événement publié</text></g>
+<g class="sticky type-policy faded" data-key="policy:Prospecter\Core\Booking\Application\Policy\ForgetAppointmentOfErasedExchangePolicy" transform="translate(460,24)" tabindex="0"><title>Prospecter\Core\Booking\Application\Policy\ForgetAppointmentOfErasedExchangePolicy</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="43.5">ForgetAppointmentOf</text><text class="label" x="88" y="60.5">ErasedExchangePolicy</text>
+<text class="caption" x="88" y="81.5">Réaction</text></g>
+<g class="sticky type-command" data-key="command:Prospecter\Core\Booking\Application\Appointment\ForgetAppointmentOfErasedExchange\ForgetAppointmentOfErasedExchange" transform="translate(700,24)" tabindex="0"><title>Prospecter\Core\Booking\Application\Appointment\ForgetAppointmentOfErasedExchange\ForgetAppointmentOfErasedExchange</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="35">Libérer le</text><text class="label" x="88" y="52">rendez-vous d'un</text><text class="label" x="88" y="69">échange effacé</text>
+<text class="caption" x="88" y="90" textLength="160" lengthAdjust="spacingAndGlyphs">ForgetAppointmentOfErasedExchange</text></g>
+<g class="sticky type-event faded" data-key="event:Prospecter\Core\Booking\Domain\Event\SlotBooked" transform="translate(24,148)" tabindex="0"><title>Prospecter\Core\Booking\Domain\Event\SlotBooked</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="52">SlotBooked</text>
+<text class="caption" x="88" y="73">Événement</text></g>
+<g class="sticky type-policy" data-key="policy:Prospecter\Core\Booking\Application\Appointment\PublishSlotBooked\PublishSlotBookedHandler" transform="translate(264,148)" tabindex="0"><title>Prospecter\Core\Booking\Application\Appointment\PublishSlotBooked\PublishSlotBookedHandler</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="43.5">PublishSlotBooked</text><text class="label" x="88" y="60.5">Handler</text>
+<text class="caption" x="88" y="81.5">Réaction</text></g>
+<g class="sticky type-event" data-key="event:Prospecter\Core\Booking\Contract\Event\SlotBooked" transform="translate(504,148)" tabindex="0"><title>Prospecter\Core\Booking\Contract\Event\SlotBooked — Événement publié</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="52">SlotBooked</text>
+<text class="caption" x="88" y="73">Événement publié</text></g>
+<g class="sticky type-readModel" data-key="readModel:Prospecter\Core\Booking\Contract\Service\ConsultAppointments\ConsultAppointments" transform="translate(24,24)" tabindex="0"><title>Prospecter\Core\Booking\Contract\Service\ConsultAppointments\ConsultAppointments</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="52">ConsultAppointments</text>
+<text class="caption" x="88" y="73">Modèle de lecture</text></g>
+<g class="sticky type-policy faded" data-key="policy:Prospecter\Core\PersonalData\Application\Policy\IdentifyBookerPolicy" transform="translate(744,148)" tabindex="0"><title>Prospecter\Core\PersonalData\Application\Policy\IdentifyBookerPolicy</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="52">IdentifyBookerPolicy</text>
+<text class="caption" x="88" y="73">PersonalData</text></g>
+</svg></div>
+</section>
+<section class="board" data-view="module:BookingPage" hidden>
+<h2>BookingPage</h2>
+<div class="scroll"><svg viewBox="0 0 1030 1225.3333333333333" width="1030" height="1225.3333333333333" role="img" aria-label="BookingPage">
+<defs><marker id="arrow-module:BookingPage" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<path class="link" d="M200,99.11111111111111 L320,99.11111111111111 L320,340 L350,340" data-from="actor:ROLE_USER" data-to="command:Prospecter\Core\Booking\Application\BookingPage\AddInactivePeriod\AddInactivePeriod" data-from-kind="actor" data-to-kind="command" marker-end="url(#arrow-module:BookingPage)"/>
+<path class="link" d="M200,254.2222222222222 L300,254.2222222222222 L300,374.66666666666663 L350,374.66666666666663" data-from="actor:mcp" data-to="command:Prospecter\Core\Booking\Application\BookingPage\AddInactivePeriod\AddInactivePeriod" data-from-kind="actor" data-to-kind="command" marker-end="url(#arrow-module:BookingPage)"/>
+<path class="link" d="M526,374.66666666666663 L536,374.66666666666663 L536,464.57142857142856 L590,464.57142857142856" data-from="command:Prospecter\Core\Booking\Application\BookingPage\AddInactivePeriod\AddInactivePeriod" data-to="externalSystem:Prospecter\Core\Booking\Domain\Port\Hosts" data-from-kind="command" data-to-kind="externalSystem" marker-end="url(#arrow-module:BookingPage)"/>
+<path class="link" d="M526,340 L590,340" data-from="command:Prospecter\Core\Booking\Application\BookingPage\AddInactivePeriod\AddInactivePeriod" data-to="aggregate:Prospecter\Core\Booking\Domain\Model\BookingPage@command:Prospecter\Core\Booking\Application\BookingPage\AddInactivePeriod\AddInactivePeriod" data-from-kind="command" data-to-kind="aggregate" marker-end="url(#arrow-module:BookingPage)"/>
+<path class="link" d="M766,340 L830,340" data-from="aggregate:Prospecter\Core\Booking\Domain\Model\BookingPage@command:Prospecter\Core\Booking\Application\BookingPage\AddInactivePeriod\AddInactivePeriod" data-to="event:Prospecter\Core\Booking\Domain\Event\InactivePeriodAdded" data-from-kind="aggregate" data-to-kind="event" marker-end="url(#arrow-module:BookingPage)"/>
+<path class="link" d="M200,87.55555555555556 L340,87.55555555555556 L340,208 L350,208" data-from="actor:ROLE_USER" data-to="command:Prospecter\Core\Booking\Application\BookingPage\ChangeBookingLink\ChangeBookingLink" data-from-kind="actor" data-to-kind="command" marker-end="url(#arrow-module:BookingPage)"/>
+<path class="link" d="M200,242.66666666666666 L350,242.66666666666666" data-from="actor:mcp" data-to="command:Prospecter\Core\Booking\Application\BookingPage\ChangeBookingLink\ChangeBookingLink" data-from-kind="actor" data-to-kind="command" marker-end="url(#arrow-module:BookingPage)"/>
+<path class="link" d="M526,242.66666666666666 L546,242.66666666666666 L546,449.7142857142857 L590,449.7142857142857" data-from="command:Prospecter\Core\Booking\Application\BookingPage\ChangeBookingLink\ChangeBookingLink" data-to="externalSystem:Prospecter\Core\Booking\Domain\Port\Hosts" data-from-kind="command" data-to-kind="externalSystem" marker-end="url(#arrow-module:BookingPage)"/>
+<path class="link" d="M526,208 L590,208" data-from="command:Prospecter\Core\Booking\Application\BookingPage\ChangeBookingLink\ChangeBookingLink" data-to="aggregate:Prospecter\Core\Booking\Domain\Model\BookingPage@command:Prospecter\Core\Booking\Application\BookingPage\ChangeBookingLink\ChangeBookingLink" data-from-kind="command" data-to-kind="aggregate" marker-end="url(#arrow-module:BookingPage)"/>
+<path class="link" d="M766,208 L830,208" data-from="aggregate:Prospecter\Core\Booking\Domain\Model\BookingPage@command:Prospecter\Core\Booking\Application\BookingPage\ChangeBookingLink\ChangeBookingLink" data-to="event:Prospecter\Core\Booking\Domain\Event\BookingLinkChanged" data-from-kind="aggregate" data-to-kind="event" marker-end="url(#arrow-module:BookingPage)"/>
+<path class="link" d="M200,76 L350,76" data-from="actor:ROLE_USER" data-to="command:Prospecter\Core\Booking\Application\BookingPage\CloseBooking\CloseBooking" data-from-kind="actor" data-to-kind="command" marker-end="url(#arrow-module:BookingPage)"/>
+<path class="link" d="M200,231.1111111111111 L330,231.1111111111111 L330,110.66666666666667 L350,110.66666666666667" data-from="actor:mcp" data-to="command:Prospecter\Core\Booking\Application\BookingPage\CloseBooking\CloseBooking" data-from-kind="actor" data-to-kind="command" marker-end="url(#arrow-module:BookingPage)"/>
+<path class="link" d="M526,110.66666666666667 L556,110.66666666666667 L556,434.85714285714283 L590,434.85714285714283" data-from="command:Prospecter\Core\Booking\Application\BookingPage\CloseBooking\CloseBooking" data-to="externalSystem:Prospecter\Core\Booking\Domain\Port\Hosts" data-from-kind="command" data-to-kind="externalSystem" marker-end="url(#arrow-module:BookingPage)"/>
+<path class="link" d="M526,76 L590,76" data-from="command:Prospecter\Core\Booking\Application\BookingPage\CloseBooking\CloseBooking" data-to="aggregate:Prospecter\Core\Booking\Domain\Model\BookingPage@command:Prospecter\Core\Booking\Application\BookingPage\CloseBooking\CloseBooking" data-from-kind="command" data-to-kind="aggregate" marker-end="url(#arrow-module:BookingPage)"/>
+<path class="link" d="M766,76 L830,76" data-from="aggregate:Prospecter\Core\Booking\Domain\Model\BookingPage@command:Prospecter\Core\Booking\Application\BookingPage\CloseBooking\CloseBooking" data-to="event:Prospecter\Core\Booking\Domain\Event\BookingClosed" data-from-kind="aggregate" data-to-kind="event" marker-end="url(#arrow-module:BookingPage)"/>
+<path class="link" d="M200,110.66666666666666 L310,110.66666666666666 L310,479.42857142857144 L350,479.42857142857144" data-from="actor:ROLE_USER" data-to="command:Prospecter\Core\Booking\Application\BookingPage\OfferChannels\OfferChannels" data-from-kind="actor" data-to-kind="command" marker-end="url(#arrow-module:BookingPage)"/>
+<path class="link" d="M200,265.77777777777777 L280,265.77777777777777 L280,514.0952380952381 L350,514.0952380952381" data-from="actor:mcp" data-to="command:Prospecter\Core\Booking\Application\BookingPage\OfferChannels\OfferChannels" data-from-kind="actor" data-to-kind="command" marker-end="url(#arrow-module:BookingPage)"/>
+<path class="link" d="M526,479.42857142857144 L590,479.42857142857144" data-from="command:Prospecter\Core\Booking\Application\BookingPage\OfferChannels\OfferChannels" data-to="externalSystem:Prospecter\Core\Booking\Domain\Port\Hosts" data-from-kind="command" data-to-kind="externalSystem" marker-end="url(#arrow-module:BookingPage)"/>
+<path class="link" d="M526,514.0952380952381 L536,514.0952380952381 L536,604 L590,604" data-from="command:Prospecter\Core\Booking\Application\BookingPage\OfferChannels\OfferChannels" data-to="aggregate:Prospecter\Core\Booking\Domain\Model\BookingPage@command:Prospecter\Core\Booking\Application\BookingPage\OfferChannels\OfferChannels" data-from-kind="command" data-to-kind="aggregate" marker-end="url(#arrow-module:BookingPage)"/>
+<path class="link" d="M766,604 L830,604" data-from="aggregate:Prospecter\Core\Booking\Domain\Model\BookingPage@command:Prospecter\Core\Booking\Application\BookingPage\OfferChannels\OfferChannels" data-to="event:Prospecter\Core\Booking\Domain\Event\ChannelsOffered" data-from-kind="aggregate" data-to-kind="event" marker-end="url(#arrow-module:BookingPage)"/>
+<path class="link" d="M200,145.33333333333331 L250,145.33333333333331 L250,982.6666666666666 L350,982.6666666666666" data-from="actor:ROLE_USER" data-to="command:Prospecter\Core\Booking\Application\BookingPage\OpenBooking\OpenBooking" data-from-kind="actor" data-to-kind="command" marker-end="url(#arrow-module:BookingPage)"/>
+<path class="link" d="M200,300.44444444444446 L220,300.44444444444446 L220,1017.3333333333334 L350,1017.3333333333334" data-from="actor:mcp" data-to="command:Prospecter\Core\Booking\Application\BookingPage\OpenBooking\OpenBooking" data-from-kind="actor" data-to-kind="command" marker-end="url(#arrow-module:BookingPage)"/>
+<path class="link" d="M526,1026 L536,1026 L536,1114.6666666666667 L590,1114.6666666666667" data-from="command:Prospecter\Core\Booking\Application\BookingPage\OpenBooking\OpenBooking" data-to="externalSystem:Prospecter\Core\Booking\Domain\Port\ConnectedCalendars" data-from-kind="command" data-to-kind="externalSystem" marker-end="url(#arrow-module:BookingPage)"/>
+<path class="link" d="M526,974 L556,974 L556,509.14285714285717 L590,509.14285714285717" data-from="command:Prospecter\Core\Booking\Application\BookingPage\OpenBooking\OpenBooking" data-to="externalSystem:Prospecter\Core\Booking\Domain\Port\Hosts" data-from-kind="command" data-to-kind="externalSystem" marker-end="url(#arrow-module:BookingPage)"/>
+<path class="link" d="M526,1000 L590,1000" data-from="command:Prospecter\Core\Booking\Application\BookingPage\OpenBooking\OpenBooking" data-to="aggregate:Prospecter\Core\Booking\Domain\Model\BookingPage@command:Prospecter\Core\Booking\Application\BookingPage\OpenBooking\OpenBooking" data-from-kind="command" data-to-kind="aggregate" marker-end="url(#arrow-module:BookingPage)"/>
+<path class="link" d="M766,1000 L830,1000" data-from="aggregate:Prospecter\Core\Booking\Domain\Model\BookingPage@command:Prospecter\Core\Booking\Application\BookingPage\OpenBooking\OpenBooking" data-to="event:Prospecter\Core\Booking\Domain\Event\BookingOpened" data-from-kind="aggregate" data-to-kind="event" marker-end="url(#arrow-module:BookingPage)"/>
+<path class="link" d="M200,133.77777777777777 L270,133.77777777777777 L270,850.6666666666666 L350,850.6666666666666" data-from="actor:ROLE_USER" data-to="command:Prospecter\Core\Booking\Application\BookingPage\RemoveInactivePeriod\RemoveInactivePeriod" data-from-kind="actor" data-to-kind="command" marker-end="url(#arrow-module:BookingPage)"/>
+<path class="link" d="M200,288.88888888888886 L240,288.88888888888886 L240,885.3333333333334 L350,885.3333333333334" data-from="actor:mcp" data-to="command:Prospecter\Core\Booking\Application\BookingPage\RemoveInactivePeriod\RemoveInactivePeriod" data-from-kind="actor" data-to-kind="command" marker-end="url(#arrow-module:BookingPage)"/>
+<path class="link" d="M526,868 L590,868" data-from="command:Prospecter\Core\Booking\Application\BookingPage\RemoveInactivePeriod\RemoveInactivePeriod" data-to="aggregate:Prospecter\Core\Booking\Domain\Model\BookingPage@command:Prospecter\Core\Booking\Application\BookingPage\RemoveInactivePeriod\RemoveInactivePeriod" data-from-kind="command" data-to-kind="aggregate" marker-end="url(#arrow-module:BookingPage)"/>
+<path class="link" d="M766,868 L830,868" data-from="aggregate:Prospecter\Core\Booking\Domain\Model\BookingPage@command:Prospecter\Core\Booking\Application\BookingPage\RemoveInactivePeriod\RemoveInactivePeriod" data-to="event:Prospecter\Core\Booking\Domain\Event\InactivePeriodRemoved" data-from-kind="aggregate" data-to-kind="event" marker-end="url(#arrow-module:BookingPage)"/>
+<path class="link" d="M200,122.22222222222223 L290,122.22222222222223 L290,701.3333333333333 L350,701.3333333333333" data-from="actor:ROLE_USER" data-to="command:Prospecter\Core\Booking\Application\BookingPage\SetWeeklyWindows\SetWeeklyWindows" data-from-kind="actor" data-to-kind="command" marker-end="url(#arrow-module:BookingPage)"/>
+<path class="link" d="M200,277.3333333333333 L260,277.3333333333333 L260,736 L350,736" data-from="actor:mcp" data-to="command:Prospecter\Core\Booking\Application\BookingPage\SetWeeklyWindows\SetWeeklyWindows" data-from-kind="actor" data-to-kind="command" marker-end="url(#arrow-module:BookingPage)"/>
+<path class="link" d="M526,701.3333333333333 L546,701.3333333333333 L546,494.2857142857143 L590,494.2857142857143" data-from="command:Prospecter\Core\Booking\Application\BookingPage\SetWeeklyWindows\SetWeeklyWindows" data-to="externalSystem:Prospecter\Core\Booking\Domain\Port\Hosts" data-from-kind="command" data-to-kind="externalSystem" marker-end="url(#arrow-module:BookingPage)"/>
+<path class="link" d="M526,736 L590,736" data-from="command:Prospecter\Core\Booking\Application\BookingPage\SetWeeklyWindows\SetWeeklyWindows" data-to="aggregate:Prospecter\Core\Booking\Domain\Model\BookingPage@command:Prospecter\Core\Booking\Application\BookingPage\SetWeeklyWindows\SetWeeklyWindows" data-from-kind="command" data-to-kind="aggregate" marker-end="url(#arrow-module:BookingPage)"/>
+<path class="link" d="M766,736 L830,736" data-from="aggregate:Prospecter\Core\Booking\Domain\Model\BookingPage@command:Prospecter\Core\Booking\Application\BookingPage\SetWeeklyWindows\SetWeeklyWindows" data-to="event:Prospecter\Core\Booking\Domain\Event\WindowsSet" data-from-kind="aggregate" data-to-kind="event" marker-end="url(#arrow-module:BookingPage)"/>
+<path class="link" d="M200,156.88888888888889 L230,156.88888888888889 L230,1132 L350,1132" data-from="actor:ROLE_USER" data-to="readModel:Prospecter\Core\Booking\Application\BookingPage\ConsultMyBookingPage\ConsultMyBookingPage" data-from-kind="actor" data-to-kind="readModel" marker-end="url(#arrow-module:BookingPage)"/>
+<path class="link" d="M200,312 L210,312 L210,1166.6666666666665 L350,1166.6666666666665" data-from="actor:mcp" data-to="readModel:Prospecter\Core\Booking\Application\BookingPage\ConsultMyBookingPage\ConsultMyBookingPage" data-from-kind="actor" data-to-kind="readModel" marker-end="url(#arrow-module:BookingPage)"/>
+<path class="link" d="M526,1149.3333333333333 L590,1149.3333333333333" data-from="readModel:Prospecter\Core\Booking\Application\BookingPage\ConsultMyBookingPage\ConsultMyBookingPage" data-to="externalSystem:Prospecter\Core\Booking\Domain\Port\ConnectedCalendars" data-from-kind="readModel" data-to-kind="externalSystem" marker-end="url(#arrow-module:BookingPage)"/>
+<g class="sticky type-actor" data-key="actor:ROLE_USER" transform="translate(24,64.44444444444444)" tabindex="0"><title>ROLE_USER</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="52">Membre</text>
+<text class="caption" x="88" y="73">ROLE_USER</text></g>
+<g class="sticky type-actor" data-key="actor:mcp" transform="translate(24,219.55555555555554)" tabindex="0"><title>mcp</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="52">L'IA du membre</text>
+<text class="caption" x="88" y="73">mcp</text></g>
+<g class="sticky type-command" data-key="command:Prospecter\Core\Booking\Application\BookingPage\AddInactivePeriod\AddInactivePeriod" transform="translate(350,305.3333333333333)" tabindex="0"><title>Prospecter\Core\Booking\Application\BookingPage\AddInactivePeriod\AddInactivePeriod</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="43.5">Ajouter une période</text><text class="label" x="88" y="60.5">inactive</text>
+<text class="caption" x="88" y="81.5">AddInactivePeriod</text></g>
+<g class="sticky type-externalSystem" data-key="externalSystem:Prospecter\Core\Booking\Domain\Port\Hosts" transform="translate(590,420)" tabindex="0"><title>Prospecter\Core\Booking\Domain\Port\Hosts — AccountsAndPersonalDataHosts</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="43.5">Accounts,</text><text class="label" x="88" y="60.5">PersonalData</text>
+<text class="caption" x="88" y="81.5">Hosts</text></g>
+<g class="sticky type-aggregate" data-key="aggregate:Prospecter\Core\Booking\Domain\Model\BookingPage@command:Prospecter\Core\Booking\Application\BookingPage\AddInactivePeriod\AddInactivePeriod" transform="translate(590,288)" tabindex="0"><title>Prospecter\Core\Booking\Domain\Model\BookingPage</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="52">BookingPage</text>
+<text class="caption" x="88" y="73">Agrégat</text></g>
+<g class="sticky type-event" data-key="event:Prospecter\Core\Booking\Domain\Event\InactivePeriodAdded" transform="translate(830,288)" tabindex="0"><title>Prospecter\Core\Booking\Domain\Event\InactivePeriodAdded</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="52">InactivePeriodAdded</text>
+<text class="caption" x="88" y="73">Événement</text></g>
+<g class="sticky type-command" data-key="command:Prospecter\Core\Booking\Application\BookingPage\ChangeBookingLink\ChangeBookingLink" transform="translate(350,173.33333333333331)" tabindex="0"><title>Prospecter\Core\Booking\Application\BookingPage\ChangeBookingLink\ChangeBookingLink</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="52">Changer de lien</text>
+<text class="caption" x="88" y="73">ChangeBookingLink</text></g>
+<g class="sticky type-aggregate" data-key="aggregate:Prospecter\Core\Booking\Domain\Model\BookingPage@command:Prospecter\Core\Booking\Application\BookingPage\ChangeBookingLink\ChangeBookingLink" transform="translate(590,156)" tabindex="0"><title>Prospecter\Core\Booking\Domain\Model\BookingPage</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="52">BookingPage</text>
+<text class="caption" x="88" y="73">Agrégat</text></g>
+<g class="sticky type-event" data-key="event:Prospecter\Core\Booking\Domain\Event\BookingLinkChanged" transform="translate(830,156)" tabindex="0"><title>Prospecter\Core\Booking\Domain\Event\BookingLinkChanged</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="52">BookingLinkChanged</text>
+<text class="caption" x="88" y="73">Événement</text></g>
+<g class="sticky type-command" data-key="command:Prospecter\Core\Booking\Application\BookingPage\CloseBooking\CloseBooking" transform="translate(350,41.33333333333333)" tabindex="0"><title>Prospecter\Core\Booking\Application\BookingPage\CloseBooking\CloseBooking</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="43.5">Activer et couper ma</text><text class="label" x="88" y="60.5">prise de rendez-vous</text>
+<text class="caption" x="88" y="81.5">CloseBooking</text></g>
+<g class="sticky type-aggregate" data-key="aggregate:Prospecter\Core\Booking\Domain\Model\BookingPage@command:Prospecter\Core\Booking\Application\BookingPage\CloseBooking\CloseBooking" transform="translate(590,24)" tabindex="0"><title>Prospecter\Core\Booking\Domain\Model\BookingPage</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="52">BookingPage</text>
+<text class="caption" x="88" y="73">Agrégat</text></g>
+<g class="sticky type-event" data-key="event:Prospecter\Core\Booking\Domain\Event\BookingClosed" transform="translate(830,24)" tabindex="0"><title>Prospecter\Core\Booking\Domain\Event\BookingClosed</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="52">BookingClosed</text>
+<text class="caption" x="88" y="73">Événement</text></g>
+<g class="sticky type-command" data-key="command:Prospecter\Core\Booking\Application\BookingPage\OfferChannels\OfferChannels" transform="translate(350,444.76190476190476)" tabindex="0"><title>Prospecter\Core\Booking\Application\BookingPage\OfferChannels\OfferChannels</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="52">Proposer des canaux</text>
+<text class="caption" x="88" y="73">OfferChannels</text></g>
+<g class="sticky type-aggregate" data-key="aggregate:Prospecter\Core\Booking\Domain\Model\BookingPage@command:Prospecter\Core\Booking\Application\BookingPage\OfferChannels\OfferChannels" transform="translate(590,552)" tabindex="0"><title>Prospecter\Core\Booking\Domain\Model\BookingPage</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="52">BookingPage</text>
+<text class="caption" x="88" y="73">Agrégat</text></g>
+<g class="sticky type-event" data-key="event:Prospecter\Core\Booking\Domain\Event\ChannelsOffered" transform="translate(830,552)" tabindex="0"><title>Prospecter\Core\Booking\Domain\Event\ChannelsOffered</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="52">ChannelsOffered</text>
+<text class="caption" x="88" y="73">Événement</text></g>
+<g class="sticky type-command" data-key="command:Prospecter\Core\Booking\Application\BookingPage\OpenBooking\OpenBooking" transform="translate(350,948)" tabindex="0"><title>Prospecter\Core\Booking\Application\BookingPage\OpenBooking\OpenBooking</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="43.5">Activer et couper ma</text><text class="label" x="88" y="60.5">prise de rendez-vous</text>
+<text class="caption" x="88" y="81.5">OpenBooking</text></g>
+<g class="sticky type-externalSystem" data-key="externalSystem:Prospecter\Core\Booking\Domain\Port\ConnectedCalendars" transform="translate(590,1080)" tabindex="0"><title>Prospecter\Core\Booking\Domain\Port\ConnectedCalendars — ConnectorsConnectedCalendars</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="52">Connectors</text>
+<text class="caption" x="88" y="73">ConnectedCalendars</text></g>
+<g class="sticky type-aggregate" data-key="aggregate:Prospecter\Core\Booking\Domain\Model\BookingPage@command:Prospecter\Core\Booking\Application\BookingPage\OpenBooking\OpenBooking" transform="translate(590,948)" tabindex="0"><title>Prospecter\Core\Booking\Domain\Model\BookingPage</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="52">BookingPage</text>
+<text class="caption" x="88" y="73">Agrégat</text></g>
+<g class="sticky type-event" data-key="event:Prospecter\Core\Booking\Domain\Event\BookingOpened" transform="translate(830,948)" tabindex="0"><title>Prospecter\Core\Booking\Domain\Event\BookingOpened</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="52">BookingOpened</text>
+<text class="caption" x="88" y="73">Événement</text></g>
+<g class="sticky type-command" data-key="command:Prospecter\Core\Booking\Application\BookingPage\RemoveInactivePeriod\RemoveInactivePeriod" transform="translate(350,816)" tabindex="0"><title>Prospecter\Core\Booking\Application\BookingPage\RemoveInactivePeriod\RemoveInactivePeriod</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="43.5">Ajouter une période</text><text class="label" x="88" y="60.5">inactive</text>
+<text class="caption" x="88" y="81.5">RemoveInactivePeriod</text></g>
+<g class="sticky type-aggregate" data-key="aggregate:Prospecter\Core\Booking\Domain\Model\BookingPage@command:Prospecter\Core\Booking\Application\BookingPage\RemoveInactivePeriod\RemoveInactivePeriod" transform="translate(590,816)" tabindex="0"><title>Prospecter\Core\Booking\Domain\Model\BookingPage</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="52">BookingPage</text>
+<text class="caption" x="88" y="73">Agrégat</text></g>
+<g class="sticky type-event" data-key="event:Prospecter\Core\Booking\Domain\Event\InactivePeriodRemoved" transform="translate(830,816)" tabindex="0"><title>Prospecter\Core\Booking\Domain\Event\InactivePeriodRemoved</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="43.5">InactivePeriod</text><text class="label" x="88" y="60.5">Removed</text>
+<text class="caption" x="88" y="81.5">Événement</text></g>
+<g class="sticky type-command" data-key="command:Prospecter\Core\Booking\Application\BookingPage\SetWeeklyWindows\SetWeeklyWindows" transform="translate(350,666.6666666666666)" tabindex="0"><title>Prospecter\Core\Booking\Application\BookingPage\SetWeeklyWindows\SetWeeklyWindows</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="52">Régler mes plages</text>
+<text class="caption" x="88" y="73">SetWeeklyWindows</text></g>
+<g class="sticky type-aggregate" data-key="aggregate:Prospecter\Core\Booking\Domain\Model\BookingPage@command:Prospecter\Core\Booking\Application\BookingPage\SetWeeklyWindows\SetWeeklyWindows" transform="translate(590,684)" tabindex="0"><title>Prospecter\Core\Booking\Domain\Model\BookingPage</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="52">BookingPage</text>
+<text class="caption" x="88" y="73">Agrégat</text></g>
+<g class="sticky type-event" data-key="event:Prospecter\Core\Booking\Domain\Event\WindowsSet" transform="translate(830,684)" tabindex="0"><title>Prospecter\Core\Booking\Domain\Event\WindowsSet</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="52">WindowsSet</text>
+<text class="caption" x="88" y="73">Événement</text></g>
+<g class="sticky type-readModel" data-key="readModel:Prospecter\Core\Booking\Application\BookingPage\ConsultMyBookingPage\ConsultMyBookingPage" transform="translate(350,1097.3333333333333)" tabindex="0"><title>Prospecter\Core\Booking\Application\BookingPage\ConsultMyBookingPage\ConsultMyBookingPage — MyBookingPage</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="43.5">Consulter ma prise</text><text class="label" x="88" y="60.5">de rendez-vous</text>
+<text class="caption" x="88" y="81.5">ConsultMyBookingPage</text></g>
+</svg></div>
+</section>
+<section class="board" data-view="module:PublicLink" hidden>
+<h2>PublicLink</h2>
+<div class="scroll"><svg viewBox="0 0 1184 548" width="1184" height="548" role="img" aria-label="PublicLink">
+<defs><marker id="arrow-module:PublicLink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<path class="link" d="M200,107.2 L264,107.2" data-from="actor:public" data-to="command:Prospecter\Core\Booking\Application\PublicLink\BookSlot\BookSlot" data-from-kind="actor" data-to-kind="command" marker-end="url(#arrow-module:PublicLink)"/>
+<path class="link" d="M440,138.4 L470,138.4 L470,454.6666666666667 L504,454.6666666666667" data-from="command:Prospecter\Core\Booking\Application\PublicLink\BookSlot\BookSlot" data-to="externalSystem:Prospecter\Core\Booking\Domain\Port\ConnectedCalendars" data-from-kind="command" data-to-kind="externalSystem" marker-end="url(#arrow-module:PublicLink)"/>
+<path class="link" d="M440,96.80000000000001 L490,96.80000000000001 L490,190.66666666666669 L504,190.66666666666669" data-from="command:Prospecter\Core\Booking\Application\PublicLink\BookSlot\BookSlot" data-to="externalSystem:Prospecter\Core\Booking\Domain\Port\HostAgendas" data-from-kind="command" data-to-kind="externalSystem" marker-end="url(#arrow-module:PublicLink)"/>
+<path class="link" d="M440,117.60000000000001 L480,117.60000000000001 L480,322.6666666666667 L504,322.6666666666667" data-from="command:Prospecter\Core\Booking\Application\PublicLink\BookSlot\BookSlot" data-to="externalSystem:Prospecter\Core\Booking\Domain\Port\Hosts" data-from-kind="command" data-to-kind="externalSystem" marker-end="url(#arrow-module:PublicLink)"/>
+<path class="link" d="M440,76 L504,76" data-from="command:Prospecter\Core\Booking\Application\PublicLink\BookSlot\BookSlot" data-to="aggregate:Prospecter\Core\Booking\Domain\Model\BookingPage@command:Prospecter\Core\Booking\Application\PublicLink\BookSlot\BookSlot" data-from-kind="command" data-to-kind="aggregate" marker-end="url(#arrow-module:PublicLink)"/>
+<path class="link" d="M680,76 L744,76" data-from="aggregate:Prospecter\Core\Booking\Domain\Model\BookingPage@command:Prospecter\Core\Booking\Application\PublicLink\BookSlot\BookSlot" data-to="event:Prospecter\Core\Booking\Domain\Event\SlotBooked" data-from-kind="aggregate" data-to-kind="event" marker-end="url(#arrow-module:PublicLink)"/>
+<path class="link" d="M200,141.86666666666667 L210,141.86666666666667 L210,251.33333333333334 L264,251.33333333333334" data-from="actor:public" data-to="readModel:Prospecter\Core\Booking\Application\PublicLink\ConsultPublicBookingPage\ConsultPublicBookingPage" data-from-kind="actor" data-to-kind="readModel" marker-end="url(#arrow-module:PublicLink)"/>
+<path class="link" d="M440,277.33333333333337 L450,277.33333333333337 L450,489.33333333333337 L504,489.33333333333337" data-from="readModel:Prospecter\Core\Booking\Application\PublicLink\ConsultPublicBookingPage\ConsultPublicBookingPage" data-to="externalSystem:Prospecter\Core\Booking\Domain\Port\ConnectedCalendars" data-from-kind="readModel" data-to-kind="externalSystem" marker-end="url(#arrow-module:PublicLink)"/>
+<path class="link" d="M440,225.33333333333334 L504,225.33333333333334" data-from="readModel:Prospecter\Core\Booking\Application\PublicLink\ConsultPublicBookingPage\ConsultPublicBookingPage" data-to="externalSystem:Prospecter\Core\Booking\Domain\Port\HostAgendas" data-from-kind="readModel" data-to-kind="externalSystem" marker-end="url(#arrow-module:PublicLink)"/>
+<path class="link" d="M440,251.33333333333334 L460,251.33333333333334 L460,357.33333333333337 L504,357.33333333333337" data-from="readModel:Prospecter\Core\Booking\Application\PublicLink\ConsultPublicBookingPage\ConsultPublicBookingPage" data-to="externalSystem:Prospecter\Core\Booking\Domain\Port\Hosts" data-from-kind="readModel" data-to-kind="externalSystem" marker-end="url(#arrow-module:PublicLink)"/>
+<path class="link" d="M920,76 L984,76" data-from="event:Prospecter\Core\Booking\Domain\Event\SlotBooked" data-to="policy:Prospecter\Core\Booking\Application\Appointment\PublishSlotBooked\PublishSlotBookedHandler" data-from-kind="event" data-to-kind="policy" marker-end="url(#arrow-module:PublicLink)"/>
+<g class="sticky type-actor" data-key="actor:public" transform="translate(24,72.53333333333333)" tabindex="0"><title>public</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="52">Quiconque a le lien</text>
+<text class="caption" x="88" y="73">public</text></g>
+<g class="sticky type-command" data-key="command:Prospecter\Core\Booking\Application\PublicLink\BookSlot\BookSlot" transform="translate(264,55.2)" tabindex="0"><title>Prospecter\Core\Booking\Application\PublicLink\BookSlot\BookSlot</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="52">Réserver un créneau</text>
+<text class="caption" x="88" y="73">BookSlot</text></g>
+<g class="sticky type-externalSystem" data-key="externalSystem:Prospecter\Core\Booking\Domain\Port\ConnectedCalendars" transform="translate(504,420)" tabindex="0"><title>Prospecter\Core\Booking\Domain\Port\ConnectedCalendars — ConnectorsConnectedCalendars</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="52">Connectors</text>
+<text class="caption" x="88" y="73">ConnectedCalendars</text></g>
+<g class="sticky type-externalSystem" data-key="externalSystem:Prospecter\Core\Booking\Domain\Port\HostAgendas" transform="translate(504,156)" tabindex="0"><title>Prospecter\Core\Booking\Domain\Port\HostAgendas — ProspectingHostAgendas</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="52">Prospecting</text>
+<text class="caption" x="88" y="73">HostAgendas</text></g>
+<g class="sticky type-externalSystem" data-key="externalSystem:Prospecter\Core\Booking\Domain\Port\Hosts" transform="translate(504,288)" tabindex="0"><title>Prospecter\Core\Booking\Domain\Port\Hosts — AccountsAndPersonalDataHosts</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="43.5">Accounts,</text><text class="label" x="88" y="60.5">PersonalData</text>
+<text class="caption" x="88" y="81.5">Hosts</text></g>
+<g class="sticky type-aggregate" data-key="aggregate:Prospecter\Core\Booking\Domain\Model\BookingPage@command:Prospecter\Core\Booking\Application\PublicLink\BookSlot\BookSlot" transform="translate(504,24)" tabindex="0"><title>Prospecter\Core\Booking\Domain\Model\BookingPage</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="52">BookingPage</text>
+<text class="caption" x="88" y="73">Agrégat</text></g>
+<g class="sticky type-event" data-key="event:Prospecter\Core\Booking\Domain\Event\SlotBooked" transform="translate(744,24)" tabindex="0"><title>Prospecter\Core\Booking\Domain\Event\SlotBooked</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="52">SlotBooked</text>
+<text class="caption" x="88" y="73">Événement</text></g>
+<g class="sticky type-readModel" data-key="readModel:Prospecter\Core\Booking\Application\PublicLink\ConsultPublicBookingPage\ConsultPublicBookingPage" transform="translate(264,199.33333333333334)" tabindex="0"><title>Prospecter\Core\Booking\Application\PublicLink\ConsultPublicBookingPage\ConsultPublicBookingPage — PublicBookingPage</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="35">Consulter une page</text><text class="label" x="88" y="52">de prise de</text><text class="label" x="88" y="69">rendez-vous</text>
+<text class="caption" x="88" y="90">ConsultPublicBookingPage</text></g>
+<g class="sticky type-policy faded" data-key="policy:Prospecter\Core\Booking\Application\Appointment\PublishSlotBooked\PublishSlotBookedHandler" transform="translate(984,24)" tabindex="0"><title>Prospecter\Core\Booking\Application\Appointment\PublishSlotBooked\PublishSlotBookedHandler</title>
+<rect width="176" height="104" rx="3"/>
+<text class="label" x="88" y="43.5">PublishSlotBooked</text><text class="label" x="88" y="60.5">Handler</text>
+<text class="caption" x="88" y="81.5">Réaction</text></g>
+</svg></div>
+</section></main>
+<script>
+const boards = document.querySelectorAll('.board')
+const tabs = document.querySelectorAll('nav button')
+function show(id) {
+  if (![...boards].some((board) => board.dataset.view === id)) return
+  for (const board of boards) board.hidden = board.dataset.view !== id
+  for (const tab of tabs) tab.setAttribute('aria-pressed', String(tab.dataset.view === id))
+}
+for (const tab of tabs) tab.addEventListener('click', () => { show(tab.dataset.view); history.replaceState(null, '', '#' + tab.dataset.view) })
+show(decodeURIComponent(location.hash.slice(1)))
+for (const filter of document.querySelectorAll('fieldset input')) {
+  filter.addEventListener('change', () => document.body.classList.toggle('without-' + filter.dataset.kind, !filter.checked))
+}
+for (const sticky of document.querySelectorAll('.sticky')) {
+  const light = (on) => {
+    document.body.classList.toggle('focusing', on)
+    for (const link of sticky.closest('svg').querySelectorAll('.link')) {
+      link.classList.toggle('lit', on && (link.dataset.from === sticky.dataset.key || link.dataset.to === sticky.dataset.key))
+    }
+  }
+  for (const [event, on] of [['mouseenter', true], ['mouseleave', false], ['focus', true], ['blur', false]]) sticky.addEventListener(event, () => light(on))
+}
+</script>
+</body>
+</html>

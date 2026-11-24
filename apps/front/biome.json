@@ -11,6 +11,7 @@
       "!src/app/routeTree.gen.ts",
       "!src/shared/api/schema.d.ts",
       "!src/shared/api/auth-schema.d.ts",
+      "!public/docs",
       "!playwright-report",
       "!test-results"
     ]
