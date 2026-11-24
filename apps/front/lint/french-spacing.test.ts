@@ -9,8 +9,8 @@ const THE_RULE = join(import.meta.dirname, 'french-spacing.grit')
 const ONLY_THE_RULE = { linter: { rules: { recommended: false } }, plugins: [THE_RULE] }
 const NO_BREAK_SPACE = '\u00a0'
 const NARROW_NO_BREAK_SPACE = '\u202f'
-/** A fix that refuses its own result, Biome applies again and again. */
-const A_FIX_THAT_NEVER_ENDS = 3_000
+/** A rule that refuses its own fix makes Biome apply it again and again. The run stops after this long, so that its test fails instead of hanging. */
+const BIOME_RUN_LIMIT_MS = 15_000
 const ANNOTATION = /^::error title=plugin,file=([^,]+),line=(\d+),[^:]*::(.*)$/
 
 type Refusal = { file: string; line: number; message: string }
@@ -24,7 +24,7 @@ function lintAlone(labels: string, ...options: string[]): { output: string; labe
     const lint = spawnSync(BIOME, ['lint', ...options, 'fr.ts'], {
       cwd: project,
       encoding: 'utf8',
-      timeout: A_FIX_THAT_NEVER_ENDS,
+      timeout: BIOME_RUN_LIMIT_MS,
     })
     return { output: lint.stdout, labels: readFileSync(join(project, 'fr.ts'), 'utf8') }
   } finally {
