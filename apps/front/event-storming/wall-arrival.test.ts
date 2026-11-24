@@ -35,4 +35,13 @@ describe('a wall opened from another wall', () => {
   it('lets Back return to the wall it came from', () => {
     expect(document.querySelector<HTMLButtonElement>('#back')?.disabled).toBe(false)
   })
+
+  it('keeps Back to the wall it came from once back where it opened', async () => {
+    document.querySelector<HTMLElement>('.sticky.k-command')?.click()
+    const back = new Promise((resolve) => addEventListener('popstate', resolve, { once: true }))
+    history.back()
+    await back
+
+    expect(document.querySelector<HTMLButtonElement>('#back')?.disabled).toBe(false)
+  })
 })

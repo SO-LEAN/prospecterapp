@@ -52,6 +52,18 @@ describe('the page of a wall', () => {
     ])
   })
 
+  it('marks a pictogram that leads nowhere as pointing away', () => {
+    const unanswered = new DOMParser().parseFromString(
+      pageOf(
+        { ...BOOKING, stickies: BOOKING.stickies.map((sticky) => ({ ...sticky, answers: [] })) },
+        ASSETS,
+      ),
+      'text/html',
+    )
+
+    expect(unanswered.querySelector('button.jump.away')?.getAttribute('aria-label')).toMatch(/^Answered by /)
+  })
+
   it('tells the wall as text without its script', () => {
     expect(document.querySelector('#story')?.textContent).toContain('Anyone with the link asks to Book slot')
   })
