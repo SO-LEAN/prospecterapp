@@ -124,6 +124,14 @@ describe('the wall of a context', () => {
     ]).toEqual([[published], [[booked, true]]])
   })
 
+  it('names on a pictogram the other contexts that answer a port', () => {
+    const hosts = wall.notes.find((note) => note.slug === 'externalSystem:Hosts')
+
+    expect(hosts?.jumps.map((jump) => [jump.to, jump.tip])).toEqual([
+      [null, 'Answered by Accounts, Personal data'],
+    ])
+  })
+
   it("lays another context's post-it on a piece of its paper", () => {
     const identify = noteOf('PersonalData/policy:IdentifyBookerPolicy')
 
