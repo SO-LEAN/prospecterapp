@@ -40,7 +40,7 @@ describe('the page of a wall', () => {
   })
 
   it('stamps an event published to the other contexts', () => {
-    expect(stickyOf('Slot booked', '.r-stamp')?.textContent).toBe('PUBLISHED')
+    expect(stickyOf('Slot booked', '.role-stamp')?.textContent).toBe('PUBLISHED')
   })
 
   it('tells the wall as text without its script', () => {
@@ -56,7 +56,7 @@ describe('the page of a wall', () => {
 function stickyOf(label: string, inside?: string): HTMLElement | null | undefined {
   const sticky = [...document.querySelectorAll<HTMLElement>('.sticky')].find(
     (candidate) =>
-      candidate.querySelector('.r-label')?.textContent === label &&
+      candidate.querySelector('.role-label')?.textContent === label &&
       (inside === undefined || candidate.querySelector(inside) !== null),
   )
   return inside === undefined ? sticky : sticky?.querySelector<HTMLElement>(inside)

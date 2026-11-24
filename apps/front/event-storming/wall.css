@@ -542,17 +542,17 @@ svg.ink {
 }
 
 /* From the back of the room, only colours and big titles read. */
-#world[data-zoom="far"] .r-cap,
-#world[data-zoom="far"] .r-via,
-#world[data-zoom="far"] .r-whenever,
-#world[data-zoom="far"] .r-answered,
-#world[data-zoom="far"] .r-stamp,
+#world[data-zoom="far"] .role-cap,
+#world[data-zoom="far"] .role-via,
+#world[data-zoom="far"] .role-whenever,
+#world[data-zoom="far"] .role-answered,
+#world[data-zoom="far"] .role-stamp,
 #world[data-zoom="far"] .lane-count,
 #world[data-zoom="far"] .lane-fold,
 #world[data-zoom="far"] .k-actor .t {
   visibility: hidden;
 }
-#world[data-zoom="far"] .r-label {
+#world[data-zoom="far"] .role-label {
   opacity: 0.75;
 }
 
@@ -1138,28 +1138,28 @@ kbd {
 .t.center {
   text-align: center;
 }
-.f-hand {
+.font-hand {
   font-family: var(--hand);
 }
-.f-ui {
+.font-ui {
   font-family: var(--ui);
 }
-.f-mono {
+.font-mono {
   font-family: var(--mono);
 }
-.r-whenever,
-.r-via,
-.r-answered,
-.r-cap {
+.role-whenever,
+.role-via,
+.role-answered,
+.role-cap {
   color: var(--ink-soft);
 }
-.r-cap {
+.role-cap {
   letter-spacing: 0.08em;
 }
-.r-bang {
+.role-bang {
   font-weight: 700;
 }
-.r-stamp {
+.role-stamp {
   border: 1.5px solid #9c1f1f;
   color: #9c1f1f;
   border-radius: 3px;
