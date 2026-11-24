@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Shared\Command;
 
 use App\Demo\DemoData;
+use App\Demo\DemoFigures;
 use App\Demo\DemoMembers;
-use App\Reporting\RebuildOfTheFigures;
 use App\Shared\Persistence\Tables;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -25,7 +25,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 #[AsCommand(name: 'app:demo:restore', description: 'Give the tables and the user pool the demonstration back, without recreating them')]
 final readonly class RestoreDemonstrationCommand
 {
-    public function __construct(private Tables $tables, private DemoData $demoData, private DemoMembers $demoMembers, private RebuildOfTheFigures $countFigures)
+    public function __construct(private Tables $tables, private DemoData $demoData, private DemoMembers $demoMembers, private DemoFigures $demoFigures)
     {
     }
 
@@ -35,7 +35,7 @@ final readonly class RestoreDemonstrationCommand
         $this->demoData->load();
         $this->demoData->addAContactToAttach();
         $this->demoMembers->restore();
-        $this->countFigures->run($io);
+        $this->demoFigures->count($io);
 
         $io->success(sprintf('Gave the tables %s and the user pool the demonstration back.', implode(', ', $this->tables->names())));
 

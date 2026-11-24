@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Shared\Command;
 
 use App\Demo\DemoData;
-use App\Reporting\RebuildOfTheFigures;
+use App\Demo\DemoFigures;
 use App\Shared\Persistence\Tables;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Attribute\Option;
@@ -19,7 +19,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 #[AsCommand(name: 'app:tables:recreate', description: 'Drop and create the bounded contexts\' DynamoDB tables (destroys their data)')]
 final readonly class CreateTablesCommand
 {
-    public function __construct(private Tables $tables, private DemoData $demoData, private RebuildOfTheFigures $countFigures)
+    public function __construct(private Tables $tables, private DemoData $demoData, private DemoFigures $demoFigures)
     {
     }
 
@@ -40,6 +40,6 @@ final readonly class CreateTablesCommand
     {
         $this->demoData->load();
         $this->demoData->addAContactToAttach();
-        $this->countFigures->run($io);
+        $this->demoFigures->count($io);
     }
 }

@@ -77,10 +77,8 @@ services:
         arguments:
             $firstAttempt: '@app.reporting.rebuild_figures_alone'
             $retry: '@Prospecter\Core\Reporting\Application\RebuildFigures\RebuildFiguresHandler'
-    App\Shared\Command\RestoreDemonstrationCommand:
-        arguments: { $countFigures: '@app.reporting.rebuild_of_the_figures_alone' }
-    App\Shared\Command\CreateTablesCommand:
-        arguments: { $countFigures: '@app.reporting.rebuild_of_the_figures_alone' }
+    App\Demo\DemoFigures:
+        arguments: { $rebuild: '@app.reporting.rebuild_of_the_figures_alone' }
     # each fact commits its own unit (ADR 0141): called by app:tags:rebuild, out of the command bus
     Prospecter\Core\Campaigns\Application\Tagging\RebuildTags\RebuildTagsHandler:
         autoconfigure: false
