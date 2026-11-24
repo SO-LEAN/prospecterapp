@@ -57,9 +57,30 @@ services:
         exclude:
             - '../vendor/prospecter/core/src/Reporting/Application/RebuildFigures/RebuildFiguresHandler.php'
             - '../vendor/prospecter/core/src/Campaigns/Application/Tagging/RebuildTags/RebuildTagsHandler.php'
-    # its steps commit their own units (ADR 0103): called by app:reporting:rebuild, out of the command bus
+    # its steps commit their own units (ADR 0103): called through App\Reporting\RebuildOfTheFigures, out of the command
+    # bus. It waits for the worker's recordings in flight (ADR 0106)
     Prospecter\Core\Reporting\Application\RebuildFigures\RebuildFiguresHandler:
         autoconfigure: false
+    # the same for a command that loads the demonstration, the only one to write: it waits for no recording (ADR 0209)
+    app.reporting.rebuild_figures_alone:
+        class: Prospecter\Core\Reporting\Application\RebuildFigures\RebuildFiguresHandler
+        autoconfigure: false
+        arguments: { $recordingsInFlight: '@App\Reporting\NoRecordingsInFlight' }
+    # app:reporting:rebuild waits for the worker at each attempt; the demonstration's commands count their first attempt
+    # alone, and wait for the worker only on a retry after a conflict (ADR 0209)
+    App\Reporting\RebuildOfTheFigures:
+        arguments:
+            $firstAttempt: '@Prospecter\Core\Reporting\Application\RebuildFigures\RebuildFiguresHandler'
+            $retry: '@Prospecter\Core\Reporting\Application\RebuildFigures\RebuildFiguresHandler'
+    app.reporting.rebuild_of_the_figures_alone:
+        class: App\Reporting\RebuildOfTheFigures
+        arguments:
+            $firstAttempt: '@app.reporting.rebuild_figures_alone'
+            $retry: '@Prospecter\Core\Reporting\Application\RebuildFigures\RebuildFiguresHandler'
+    App\Shared\Command\RestoreDemonstrationCommand:
+        arguments: { $countFigures: '@app.reporting.rebuild_of_the_figures_alone' }
+    App\Shared\Command\CreateTablesCommand:
+        arguments: { $countFigures: '@app.reporting.rebuild_of_the_figures_alone' }
     # each fact commits its own unit (ADR 0141): called by app:tags:rebuild, out of the command bus
     Prospecter\Core\Campaigns\Application\Tagging\RebuildTags\RebuildTagsHandler:
         autoconfigure: false
