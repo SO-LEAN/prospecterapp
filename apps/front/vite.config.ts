@@ -37,7 +37,7 @@ const MEMORY_A_WORKER_HOLDS_BEFORE_ITS_RESTART = '50%'
 /**
  * The code beside the SPA: the event storming's generator, whose ELK holds hundreds of megabytes, and the CloudFront
  * function. A VM worker beside the SPA's tests kept that memory and outgrew the container, so each of their files runs
- * in a process of its own, which gives its memory back when it ends.
+ * in a process of its own, which gives its memory back when it ends (ADR 0210).
  */
 const TOOLS_TESTED_APART = ['event-storming/**/*.test.ts', 'infra/**/*.test.ts']
 const A_PROCESS_PER_FILE = 'forks'
