@@ -13,8 +13,8 @@ use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * An organization that is no longer prospected takes its exchanges along. Those still kept for another organization
- * are saved. Each of the others is left to its own policy, which erases it (EraseExchangeLeftWithoutOrganization,
- * ADR 0074), because one transaction holds a bounded number of writes.
+ * are saved. Each of the others is erased by its own command (EraseExchangeLeftWithoutOrganization, ADR 0074),
+ * because one transaction holds a bounded number of writes.
  */
 final readonly class StopKeepingExchangesHandler implements CommandHandler
 {

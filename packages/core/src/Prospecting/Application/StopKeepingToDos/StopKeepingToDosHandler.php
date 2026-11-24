@@ -13,8 +13,8 @@ use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * An organization that is no longer prospected takes its to-dos along, as it does its exchanges. Those still kept for
- * another organization are saved. Each of the others is left to its own policy, which erases it
- * (EraseToDoLeftWithoutOrganization), because one transaction holds a bounded number of writes.
+ * another organization are saved. Each of the others is erased by its own command (EraseToDoLeftWithoutOrganization),
+ * because one transaction holds a bounded number of writes.
  */
 final readonly class StopKeepingToDosHandler implements CommandHandler
 {
