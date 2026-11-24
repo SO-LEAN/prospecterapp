@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\PushBackErasureOfContactToAttach;
 
-use Prospecter\Core\Prospecting\Domain\Event\SetsTheMomentOfAnExchange;
 use Prospecter\Core\Prospecting\Domain\Exception\UnknownExchange;
 use Prospecter\Core\Prospecting\Domain\Model\Exchange;
+use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\Prospecting\Domain\Repository\ContactToAttachRepository;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
-use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Handler\PublishesEvents;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 
@@ -18,7 +18,7 @@ use Prospecter\Core\SharedKernel\Application\Port\Events;
  * happens for an exchange kept for an organization, for an exchange gone meanwhile, or for one whose contact is
  * already attached or erased.
  */
-final readonly class PushBackErasureOfContactToAttachHandler implements EventHandler
+final readonly class PushBackErasureOfContactToAttachHandler implements CommandHandler
 {
     use PublishesEvents;
 
@@ -26,23 +26,23 @@ final readonly class PushBackErasureOfContactToAttachHandler implements EventHan
     {
     }
 
-    public function __invoke(SetsTheMomentOfAnExchange $event): void
+    public function __invoke(PushBackErasureOfContactToAttach $command): void
     {
-        $exchange = $this->exchangeOf($event);
+        $exchange = $this->exchangeOf(new ExchangeId($command->exchangeId));
         $contact = $exchange?->contactToAttach();
         $contactToAttach = null === $contact ? null : $this->contactsToAttach->find($contact);
 
         if (null !== $exchange && null !== $contactToAttach) {
-            $contactToAttach->meetAgainAt($exchange->happensAt(), at: $event->occurredAt);
+            $contactToAttach->meetAgainAt($exchange->happensAt(), at: $command->executedAt);
             $this->contactsToAttach->save($contactToAttach);
             $this->publishWhatHappenedTo($contactToAttach);
         }
     }
 
-    private function exchangeOf(SetsTheMomentOfAnExchange $event): ?Exchange
+    private function exchangeOf(ExchangeId $id): ?Exchange
     {
         try {
-            return $this->exchanges->get($event->subject());
+            return $this->exchanges->get($id);
         } catch (UnknownExchange) {
             return null;
         }
