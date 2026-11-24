@@ -9,19 +9,18 @@ use Prospecter\Core\SharedKernel\Application\Handler\Policy;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 
 /**
- * Delivers the events the way the API delivers them. It finds each handler or policy by its __invoke()'s types, the
+ * Delivers the events the way the API delivers them. It finds each translator or policy by its __invoke()'s types, the
  * event's parent classes included. A translator runs at once, through its decorators, inside the command that
- * publishes, like the API's event bus. A reaction runs once the command has succeeded, like the worker. Each
- * reaction runs in its own unit, in the order they subscribed: a policy's commands are sent through their handlers'
- * decorators, a reaction that is still an event handler is called through its own. Then the reactions to what the
- * reactions published run, until none is left. A command that fails delivers nothing. A reaction that fails publishes
+ * publishes, like the API's event bus. A policy reacts once the command has succeeded, like the worker: each command
+ * it returns is sent through its handler's decorators, in its own unit, in the order the policies subscribed. Then
+ * the policies react to what those commands published, until nothing is left. A command that fails delivers nothing. A reaction that fails publishes
  * nothing, and its event joins the failures.
  */
 final class SynchronousEvents implements Events
 {
     /** @var list<array{class-string, EventHandler}> each translator with the type of event it takes */
     private array $translators = [];
-    /** @var list<array{list<class-string>, \Closure(object): void}> each reaction with the types of event it takes, in subscription order */
+    /** @var list<array{list<class-string>, \Closure(object): void}> each policy's reaction with the types of event it takes, in subscription order */
     private array $reactions = [];
     /** @var list<class-string<EventHandler|Policy>> */
     private array $subscribers = [];
@@ -37,12 +36,6 @@ final class SynchronousEvents implements Events
     {
         $this->translators[] = [$this->eventsOf($translator)[0], $calledThrough];
         $this->subscribers[] = $translator::class;
-    }
-
-    public function subscribe(EventHandler $reaction, EventHandler $calledThrough): void
-    {
-        $this->reactions[] = [$this->eventsOf($reaction), static fn (object $event) => Invocable::call($calledThrough, $event)];
-        $this->subscribers[] = $reaction::class;
     }
 
     /**

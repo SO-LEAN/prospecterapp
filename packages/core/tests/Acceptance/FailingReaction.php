@@ -5,24 +5,15 @@ declare(strict_types=1);
 namespace Tests\Core\Acceptance;
 
 use Prospecter\Core\Accounts\Contract\Event\AccountOpened;
-use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\Policy;
 
 /**
- * Another context's reaction to an account's opening. It writes what it is given to write, then throws.
+ * Another context's policy on an account's opening. Its command's handler fails (FailingReactionHandler).
  */
-final readonly class FailingReaction implements EventHandler
+final readonly class FailingReaction implements Policy
 {
-    /**
-     * @param (\Closure(AccountOpened): void)|null $writing what it writes before it throws
-     */
-    public function __construct(private \Throwable $failure, private ?\Closure $writing = null)
+    public function __invoke(AccountOpened $event): ReactToTheOpening
     {
-    }
-
-    public function __invoke(AccountOpened $event): never
-    {
-        $this->writing?->__invoke($event);
-
-        throw $this->failure;
+        return new ReactToTheOpening($event->accountId, $event->founderId, $event->occurredAt);
     }
 }
