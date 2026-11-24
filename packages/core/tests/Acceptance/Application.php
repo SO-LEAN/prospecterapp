@@ -365,6 +365,7 @@ use Prospecter\Core\Prospecting\Application\PlanOrganizationExchange\PlanOrganiz
 use Prospecter\Core\Prospecting\Application\Policy\DiscardAttachmentsOfErasedExchangePolicy;
 use Prospecter\Core\Prospecting\Application\Policy\DiscardRemovedAttachmentPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\DiscardRemovedLogoPolicy;
+use Prospecter\Core\Prospecting\Application\Policy\DismissSuspicionInReturnPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\KeepImportedAttachmentPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\LiftSuspicionInReturnPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\SuspectDuplicateInReturnPolicy;
@@ -1392,6 +1393,7 @@ final class Application
     private function commandHandlers(): array
     {
         return [
+            new DismissSuspicionInReturnHandler($this->organizations, $this->events),
             new LiftSuspicionInReturnHandler($this->organizations, $this->events),
             new SuspectDuplicateInReturnHandler($this->organizations, $this->events),
             new KeepImportedAttachmentHandler($this->privateStorage),
@@ -1809,7 +1811,7 @@ final class Application
             new SuspectContactDuplicateInReturnPolicy(),
             new LiftContactSuspicionInReturnPolicy(),
             new DismissContactSuspicionInReturnPolicy(),
-            new DismissSuspicionInReturnHandler($this->organizations, $this->events),
+            new DismissSuspicionInReturnPolicy(),
             new NoteImportedEmailHandler($this->exchanges, $this->organizations, $this->prospectors, $this->contactOrganizations, new NotedOnce($this->exchanges), $this->privateStorage, $this->events),
             new ForgetContactsLeftWithoutOrganizationPolicy(),
             new ForgetContactLeftUnattachedPolicy(),
