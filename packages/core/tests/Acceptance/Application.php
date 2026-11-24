@@ -368,6 +368,7 @@ use Prospecter\Core\Prospecting\Application\Policy\DiscardRemovedLogoPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\DismissSuspicionInReturnPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\KeepImportedAttachmentPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\LiftSuspicionInReturnPolicy;
+use Prospecter\Core\Prospecting\Application\Policy\StopKeepingExchangesPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\SuspectDuplicateInReturnPolicy;
 use Prospecter\Core\Prospecting\Application\ProposeMeetingPlace\KeptMeetingPlace;
 use Prospecter\Core\Prospecting\Application\ProposeMeetingPlace\MeetingPlace;
@@ -1393,6 +1394,7 @@ final class Application
     private function commandHandlers(): array
     {
         return [
+            new StopKeepingExchangesHandler($this->exchanges, $this->events),
             new DismissSuspicionInReturnHandler($this->organizations, $this->events),
             new LiftSuspicionInReturnHandler($this->organizations, $this->events),
             new SuspectDuplicateInReturnHandler($this->organizations, $this->events),
@@ -1825,7 +1827,7 @@ final class Application
             new RegisterTheFounderPolicy(),
             new CollectTheFounderProfilePolicy(),
             new CollectTheMemberProfilePolicy(),
-            new StopKeepingExchangesHandler($this->exchanges, $this->events),
+            new StopKeepingExchangesPolicy(),
             new EraseExchangeLeftWithoutOrganizationHandler($this->exchanges, $this->events),
             new StopKeepingToDosHandler($this->toDos, $this->events),
             new EraseToDoLeftWithoutOrganizationHandler($this->toDos, $this->events),
