@@ -85,7 +85,7 @@ export default defineConfig({
     pool: ONE_DOM_PER_WORKER,
     vmMemoryLimit: MEMORY_A_WORKER_HOLDS_BEFORE_ITS_RESTART,
     setupFiles: ['./src/test/setup.ts'],
-    include: ['src/**/*.test.{ts,tsx}', 'lint/**/*.test.ts'],
+    include: ['src/**/*.test.{ts,tsx}', 'lint/**/*.test.ts', 'event-storming/**/*.test.ts'],
     css: false,
     testTimeout: TIMEOUT_OF_A_TEST_SHARING_THE_MACHINE,
   },
