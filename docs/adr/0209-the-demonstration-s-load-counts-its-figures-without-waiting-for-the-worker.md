@@ -4,7 +4,7 @@
 - Type: architecture
 - Status: Accepted
 - Supersedes: for "`make db` runs it after the data of the demonstration", [0104](0104-reporting-keeps-its-figures-by-additions-its-rebuild-run-from-the-console.md); for "the figures are counted beside the journeys running together", [0205](0205-the-journeys-of-a-branch-start-from-the-demonstration-given-back-to-the-running-stack.md)
-- Implemented by: `apps/api/src/Reporting/RebuildOfTheFigures.php`, `apps/api/src/Reporting/NoRecordingsInFlight.php`, `apps/api/config/services.yaml`, `apps/api/src/Shared/Command/RestoreDemonstrationCommand.php`, `apps/api/src/Shared/Command/CreateTablesCommand.php`, `Makefile` (`check-e2e-run`), `apps/api/Makefile` (`db`, `restore`)
+- Implemented by: `apps/api/src/Reporting/RebuildOfTheFigures.php`, `apps/api/src/Reporting/NoRecordingsInFlight.php`, `apps/api/src/Demo/DemoFigures.php`, `apps/api/config/services.yaml`, `apps/api/src/Shared/Command/RestoreDemonstrationCommand.php`, `apps/api/src/Shared/Command/CreateTablesCommand.php`, `Makefile` (`check-e2e-run`), `apps/api/Makefile` (`db`, `restore`)
 
 ## Context
 
@@ -14,7 +14,7 @@ The demonstration's load empties every table, Reporting's included, so no versio
 
 ## Decision
 
-- The commands that load the demonstration, `app:demo:restore` and `app:tables:recreate --demo`, count its figures at their end, before any gesture. Their first attempt waits for no recording in flight: `RebuildFiguresHandler` is wired for them with `App\Reporting\NoRecordingsInFlight`.
+- The commands that load the demonstration, `app:demo:restore` and `app:tables:recreate --demo`, count its figures at their end, before any gesture. They count through `App\Demo\DemoFigures`. Their first attempt waits for no recording in flight: `RebuildFiguresHandler` is wired for them with `App\Reporting\NoRecordingsInFlight`.
 - A step cancelled by a conflict shows that the worker records in the version being built. So a retry goes through the handler that waits for the worker (`RecordingsOfTheWorker`). ADR 0106 holds entirely.
 - `app:reporting:rebuild` waits at each attempt, as before, on an instance and locally.
 - No flag and no environment chooses. The command's wiring does: it is the command that knows it is the only one to write.
