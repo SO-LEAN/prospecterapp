@@ -17,7 +17,9 @@
             "context": "Booking",
             "module": null,
             "detail": null,
-            "answeredBy": []
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
         },
         {
             "id": "actor:mcp",
@@ -30,7 +32,9 @@
             "context": "Booking",
             "module": null,
             "detail": null,
-            "answeredBy": []
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
         },
         {
             "id": "actor:public",
@@ -43,7 +47,9 @@
             "context": "Booking",
             "module": null,
             "detail": null,
-            "answeredBy": []
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
         },
         {
             "id": "aggregate:Prospecter\\Core\\Booking\\Domain\\Model\\BookingPage",
@@ -56,7 +62,9 @@
             "context": "Booking",
             "module": null,
             "detail": null,
-            "answeredBy": []
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
         },
         {
             "id": "command:Prospecter\\Core\\Booking\\Application\\Appointment\\ForgetAppointmentOfErasedExchange\\ForgetAppointmentOfErasedExchange",
@@ -69,7 +77,9 @@
             "context": "Booking",
             "module": "Appointment",
             "detail": null,
-            "answeredBy": []
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
         },
         {
             "id": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\AddInactivePeriod\\AddInactivePeriod",
@@ -82,7 +92,9 @@
             "context": "Booking",
             "module": "BookingPage",
             "detail": null,
-            "answeredBy": []
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
         },
         {
             "id": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\ChangeBookingLink\\ChangeBookingLink",
@@ -95,7 +107,9 @@
             "context": "Booking",
             "module": "BookingPage",
             "detail": null,
-            "answeredBy": []
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
         },
         {
             "id": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\CloseBooking\\CloseBooking",
@@ -108,7 +122,9 @@
             "context": "Booking",
             "module": "BookingPage",
             "detail": null,
-            "answeredBy": []
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
         },
         {
             "id": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\OfferChannels\\OfferChannels",
@@ -121,7 +137,9 @@
             "context": "Booking",
             "module": "BookingPage",
             "detail": null,
-            "answeredBy": []
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
         },
         {
             "id": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\OpenBooking\\OpenBooking",
@@ -134,7 +152,9 @@
             "context": "Booking",
             "module": "BookingPage",
             "detail": null,
-            "answeredBy": []
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
         },
         {
             "id": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\RemoveInactivePeriod\\RemoveInactivePeriod",
@@ -147,7 +167,9 @@
             "context": "Booking",
             "module": "BookingPage",
             "detail": null,
-            "answeredBy": []
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
         },
         {
             "id": "command:Prospecter\\Core\\Booking\\Application\\BookingPage\\SetWeeklyWindows\\SetWeeklyWindows",
@@ -160,7 +182,9 @@
             "context": "Booking",
             "module": "BookingPage",
             "detail": null,
-            "answeredBy": []
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
         },
         {
             "id": "command:Prospecter\\Core\\Booking\\Application\\PublicLink\\BookSlot\\BookSlot",
@@ -173,7 +197,9 @@
             "context": "Booking",
             "module": "PublicLink",
             "detail": null,
-            "answeredBy": []
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
         },
         {
             "id": "event:Prospecter\\Core\\Booking\\Contract\\Event\\SlotBooked",
@@ -186,7 +212,9 @@
             "context": "Booking",
             "module": null,
             "detail": "Published to the other contexts",
-            "answeredBy": []
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
         },
         {
             "id": "event:Prospecter\\Core\\Booking\\Domain\\Event\\BookingClosed",
@@ -199,7 +227,9 @@
             "context": "Booking",
             "module": null,
             "detail": null,
-            "answeredBy": []
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
         },
         {
             "id": "event:Prospecter\\Core\\Booking\\Domain\\Event\\BookingLinkChanged",
@@ -212,7 +242,9 @@
             "context": "Booking",
             "module": null,
             "detail": null,
-            "answeredBy": []
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
         },
         {
             "id": "event:Prospecter\\Core\\Booking\\Domain\\Event\\BookingOpened",
@@ -225,7 +257,9 @@
             "context": "Booking",
             "module": null,
             "detail": null,
-            "answeredBy": []
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
         },
         {
             "id": "event:Prospecter\\Core\\Booking\\Domain\\Event\\ChannelsOffered",
@@ -238,7 +272,9 @@
             "context": "Booking",
             "module": null,
             "detail": null,
-            "answeredBy": []
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
         },
         {
             "id": "event:Prospecter\\Core\\Booking\\Domain\\Event\\InactivePeriodAdded",
@@ -251,7 +287,9 @@
             "context": "Booking",
             "module": null,
             "detail": null,
-            "answeredBy": []
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
         },
         {
             "id": "event:Prospecter\\Core\\Booking\\Domain\\Event\\InactivePeriodRemoved",
@@ -264,7 +302,9 @@
             "context": "Booking",
             "module": null,
             "detail": null,
-            "answeredBy": []
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
         },
         {
             "id": "event:Prospecter\\Core\\Booking\\Domain\\Event\\SlotBooked",
@@ -277,7 +317,9 @@
             "context": "Booking",
             "module": null,
             "detail": null,
-            "answeredBy": []
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
         },
         {
             "id": "event:Prospecter\\Core\\Booking\\Domain\\Event\\WindowsSet",
@@ -290,7 +332,9 @@
             "context": "Booking",
             "module": null,
             "detail": null,
-            "answeredBy": []
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
         },
         {
             "id": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\ExchangeFactsChanged",
@@ -303,7 +347,9 @@
             "context": "Prospecting",
             "module": null,
             "detail": "Published to the other contexts",
-            "answeredBy": []
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
         },
         {
             "id": "externalSystem:Prospecter\\Core\\Booking\\Domain\\Port\\ConnectedCalendars",
@@ -318,7 +364,15 @@
             "detail": "ConnectorsConnectedCalendars",
             "answeredBy": [
                 "Connectors"
-            ]
+            ],
+            "answers": [
+                {
+                    "context": "Connectors",
+                    "slug": "readModel:WhichHaveAConnectedCalendar",
+                    "label": "Which have a connected calendar"
+                }
+            ],
+            "readBy": []
         },
         {
             "id": "externalSystem:Prospecter\\Core\\Booking\\Domain\\Port\\HostAgendas",
@@ -333,7 +387,15 @@
             "detail": "ProspectingHostAgendas",
             "answeredBy": [
                 "Prospecting"
-            ]
+            ],
+            "answers": [
+                {
+                    "context": "Prospecting",
+                    "slug": "readModel:ConsultPlannedExchanges",
+                    "label": "Planned exchanges"
+                }
+            ],
+            "readBy": []
         },
         {
             "id": "externalSystem:Prospecter\\Core\\Booking\\Domain\\Port\\Hosts",
@@ -349,7 +411,20 @@
             "answeredBy": [
                 "Accounts",
                 "PersonalData"
-            ]
+            ],
+            "answers": [
+                {
+                    "context": "Accounts",
+                    "slug": "readModel:ConsultMembers",
+                    "label": "Members"
+                },
+                {
+                    "context": "PersonalData",
+                    "slug": "readModel:PresentMembers",
+                    "label": "Present members"
+                }
+            ],
+            "readBy": []
         },
         {
             "id": "policy:Prospecter\\Core\\Booking\\Application\\Appointment\\PublishSlotBooked\\PublishSlotBookedHandler",
@@ -362,7 +437,9 @@
             "context": "Booking",
             "module": "Appointment",
             "detail": null,
-            "answeredBy": []
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
         },
         {
             "id": "policy:Prospecter\\Core\\Booking\\Application\\Policy\\ForgetAppointmentOfErasedExchangePolicy",
@@ -375,7 +452,9 @@
             "context": "Booking",
             "module": null,
             "detail": null,
-            "answeredBy": []
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
         },
         {
             "id": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\IdentifyBookerPolicy",
@@ -388,7 +467,9 @@
             "context": "PersonalData",
             "module": null,
             "detail": null,
-            "answeredBy": []
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Booking\\Application\\BookingPage\\ConsultMyBookingPage\\ConsultMyBookingPage",
@@ -401,7 +482,9 @@
             "context": "Booking",
             "module": "BookingPage",
             "detail": "MyBookingPage",
-            "answeredBy": []
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Booking\\Application\\PublicLink\\ConsultPublicBookingPage\\ConsultPublicBookingPage",
@@ -414,7 +497,9 @@
             "context": "Booking",
             "module": "PublicLink",
             "detail": "PublicBookingPage",
-            "answeredBy": []
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
         },
         {
             "id": "readModel:Prospecter\\Core\\Booking\\Contract\\Service\\ConsultAppointments\\ConsultAppointments",
@@ -427,7 +512,20 @@
             "context": "Booking",
             "module": "Appointment",
             "detail": null,
-            "answeredBy": []
+            "answeredBy": [],
+            "answers": [],
+            "readBy": [
+                {
+                    "context": "PersonalData",
+                    "slug": "externalSystem:Bookers",
+                    "label": "Bookers"
+                },
+                {
+                    "context": "Prospecting",
+                    "slug": "externalSystem:BookedAppointments",
+                    "label": "Booked appointments"
+                }
+            ]
         }
     ],
     "links": [

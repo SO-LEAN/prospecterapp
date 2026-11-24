@@ -1,0 +1,740 @@
+{
+    "context": "Accounts",
+    "modules": [
+        "Account",
+        "Member",
+        "Reminders"
+    ],
+    "stickies": [
+        {
+            "id": "actor:ROLE_PROSPECTOR",
+            "slug": "actor:ROLE_PROSPECTOR",
+            "type": "actor",
+            "label": "Prospector",
+            "feature": null,
+            "name": "ROLE_PROSPECTOR",
+            "class": null,
+            "context": "Accounts",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "actor:ROLE_USER",
+            "slug": "actor:ROLE_USER",
+            "type": "actor",
+            "label": "Member",
+            "feature": null,
+            "name": "ROLE_USER",
+            "class": null,
+            "context": "Accounts",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "actor:mcp",
+            "slug": "actor:mcp",
+            "type": "actor",
+            "label": "Member's AI",
+            "feature": null,
+            "name": "mcp",
+            "class": null,
+            "context": "Accounts",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "aggregate:Prospecter\\Core\\Accounts\\Domain\\Model\\Account",
+            "slug": "aggregate:Account",
+            "type": "aggregate",
+            "label": "Account",
+            "feature": null,
+            "name": "Account",
+            "class": "Prospecter\\Core\\Accounts\\Domain\\Model\\Account",
+            "context": "Accounts",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "aggregate:Prospecter\\Core\\Accounts\\Domain\\Model\\Member",
+            "slug": "aggregate:Member",
+            "type": "aggregate",
+            "label": "Member",
+            "feature": null,
+            "name": "Member",
+            "class": "Prospecter\\Core\\Accounts\\Domain\\Model\\Member",
+            "context": "Accounts",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\Accounts\\Application\\Account\\ChangeMyOrganizationLogo\\ChangeMyOrganizationLogo",
+            "slug": "command:ChangeMyOrganizationLogo",
+            "type": "command",
+            "label": "Change my organization logo",
+            "feature": null,
+            "name": "ChangeMyOrganizationLogo",
+            "class": "Prospecter\\Core\\Accounts\\Application\\Account\\ChangeMyOrganizationLogo\\ChangeMyOrganizationLogo",
+            "context": "Accounts",
+            "module": "Account",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\Accounts\\Application\\Account\\OpenAccount\\OpenAccount",
+            "slug": "command:OpenAccount",
+            "type": "command",
+            "label": "Open account",
+            "feature": null,
+            "name": "OpenAccount",
+            "class": "Prospecter\\Core\\Accounts\\Application\\Account\\OpenAccount\\OpenAccount",
+            "context": "Accounts",
+            "module": "Account",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\Accounts\\Application\\Account\\RelocateMyOrganization\\RelocateMyOrganization",
+            "slug": "command:RelocateMyOrganization",
+            "type": "command",
+            "label": "Relocate my organization",
+            "feature": null,
+            "name": "RelocateMyOrganization",
+            "class": "Prospecter\\Core\\Accounts\\Application\\Account\\RelocateMyOrganization\\RelocateMyOrganization",
+            "context": "Accounts",
+            "module": "Account",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\Accounts\\Application\\Account\\ReviseMyOrganizationIdentity\\ReviseMyOrganizationIdentity",
+            "slug": "command:ReviseMyOrganizationIdentity",
+            "type": "command",
+            "label": "Revise my organization identity",
+            "feature": null,
+            "name": "ReviseMyOrganizationIdentity",
+            "class": "Prospecter\\Core\\Accounts\\Application\\Account\\ReviseMyOrganizationIdentity\\ReviseMyOrganizationIdentity",
+            "context": "Accounts",
+            "module": "Account",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\Accounts\\Application\\Member\\RegisterAMember\\RegisterAMember",
+            "slug": "command:RegisterAMember",
+            "type": "command",
+            "label": "Register a member",
+            "feature": null,
+            "name": "RegisterAMember",
+            "class": "Prospecter\\Core\\Accounts\\Application\\Member\\RegisterAMember\\RegisterAMember",
+            "context": "Accounts",
+            "module": "Member",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\Accounts\\Application\\Member\\RegisterTheFounder\\RegisterTheFounder",
+            "slug": "command:RegisterTheFounder",
+            "type": "command",
+            "label": "Register the founder",
+            "feature": null,
+            "name": "RegisterTheFounder",
+            "class": "Prospecter\\Core\\Accounts\\Application\\Member\\RegisterTheFounder\\RegisterTheFounder",
+            "context": "Accounts",
+            "module": "Member",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\Accounts\\Application\\Reminders\\ChangeMyReminders\\ChangeMyReminders",
+            "slug": "command:ChangeMyReminders",
+            "type": "command",
+            "label": "Change my reminders",
+            "feature": null,
+            "name": "ChangeMyReminders",
+            "class": "Prospecter\\Core\\Accounts\\Application\\Reminders\\ChangeMyReminders\\ChangeMyReminders",
+            "context": "Accounts",
+            "module": "Reminders",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\Accounts\\Contract\\Event\\AccountOpened",
+            "slug": "published:AccountOpened",
+            "type": "event",
+            "label": "Account opened",
+            "feature": null,
+            "name": "AccountOpened",
+            "class": "Prospecter\\Core\\Accounts\\Contract\\Event\\AccountOpened",
+            "context": "Accounts",
+            "module": null,
+            "detail": "Published to the other contexts",
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\Accounts\\Contract\\Event\\MemberRegistered",
+            "slug": "published:MemberRegistered",
+            "type": "event",
+            "label": "Member registered",
+            "feature": null,
+            "name": "MemberRegistered",
+            "class": "Prospecter\\Core\\Accounts\\Contract\\Event\\MemberRegistered",
+            "context": "Accounts",
+            "module": null,
+            "detail": "Published to the other contexts",
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\Accounts\\Domain\\Event\\AccountIdentityRevised",
+            "slug": "event:AccountIdentityRevised",
+            "type": "event",
+            "label": "Account identity revised",
+            "feature": null,
+            "name": "AccountIdentityRevised",
+            "class": "Prospecter\\Core\\Accounts\\Domain\\Event\\AccountIdentityRevised",
+            "context": "Accounts",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\Accounts\\Domain\\Event\\AccountLogoChanged",
+            "slug": "event:AccountLogoChanged",
+            "type": "event",
+            "label": "Account logo changed",
+            "feature": null,
+            "name": "AccountLogoChanged",
+            "class": "Prospecter\\Core\\Accounts\\Domain\\Event\\AccountLogoChanged",
+            "context": "Accounts",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\Accounts\\Domain\\Event\\AccountOpened",
+            "slug": "event:AccountOpened",
+            "type": "event",
+            "label": "Account opened",
+            "feature": null,
+            "name": "AccountOpened",
+            "class": "Prospecter\\Core\\Accounts\\Domain\\Event\\AccountOpened",
+            "context": "Accounts",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\Accounts\\Domain\\Event\\AccountRelocated",
+            "slug": "event:AccountRelocated",
+            "type": "event",
+            "label": "Account relocated",
+            "feature": null,
+            "name": "AccountRelocated",
+            "class": "Prospecter\\Core\\Accounts\\Domain\\Event\\AccountRelocated",
+            "context": "Accounts",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\Accounts\\Domain\\Event\\MemberRegistered",
+            "slug": "event:MemberRegistered",
+            "type": "event",
+            "label": "Member registered",
+            "feature": null,
+            "name": "MemberRegistered",
+            "class": "Prospecter\\Core\\Accounts\\Domain\\Event\\MemberRegistered",
+            "context": "Accounts",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\Accounts\\Domain\\Event\\RemindersChanged",
+            "slug": "event:RemindersChanged",
+            "type": "event",
+            "label": "Reminders changed",
+            "feature": null,
+            "name": "RemindersChanged",
+            "class": "Prospecter\\Core\\Accounts\\Domain\\Event\\RemindersChanged",
+            "context": "Accounts",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "policy:Prospecter\\Core\\Accounts\\Application\\Account\\PublishAccountOpened\\PublishAccountOpenedHandler",
+            "slug": "policy:PublishAccountOpenedHandler",
+            "type": "policy",
+            "label": "Publish account opened",
+            "feature": null,
+            "name": "PublishAccountOpenedHandler",
+            "class": "Prospecter\\Core\\Accounts\\Application\\Account\\PublishAccountOpened\\PublishAccountOpenedHandler",
+            "context": "Accounts",
+            "module": "Account",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "policy:Prospecter\\Core\\Accounts\\Application\\Member\\PublishMemberRegistered\\PublishMemberRegisteredHandler",
+            "slug": "policy:PublishMemberRegisteredHandler",
+            "type": "policy",
+            "label": "Publish member registered",
+            "feature": null,
+            "name": "PublishMemberRegisteredHandler",
+            "class": "Prospecter\\Core\\Accounts\\Application\\Member\\PublishMemberRegistered\\PublishMemberRegisteredHandler",
+            "context": "Accounts",
+            "module": "Member",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "policy:Prospecter\\Core\\Accounts\\Application\\Policy\\RegisterTheFounderPolicy",
+            "slug": "policy:RegisterTheFounderPolicy",
+            "type": "policy",
+            "label": "Register the founder",
+            "feature": null,
+            "name": "RegisterTheFounderPolicy",
+            "class": "Prospecter\\Core\\Accounts\\Application\\Policy\\RegisterTheFounderPolicy",
+            "context": "Accounts",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\CollectTheFounderProfilePolicy",
+            "slug": "PersonalData/policy:CollectTheFounderProfilePolicy",
+            "type": "policy",
+            "label": "Collect the founder profile",
+            "feature": null,
+            "name": "CollectTheFounderProfilePolicy",
+            "class": "Prospecter\\Core\\PersonalData\\Application\\Policy\\CollectTheFounderProfilePolicy",
+            "context": "PersonalData",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\CollectTheMemberProfilePolicy",
+            "slug": "PersonalData/policy:CollectTheMemberProfilePolicy",
+            "type": "policy",
+            "label": "Collect the member profile",
+            "feature": null,
+            "name": "CollectTheMemberProfilePolicy",
+            "class": "Prospecter\\Core\\PersonalData\\Application\\Policy\\CollectTheMemberProfilePolicy",
+            "context": "PersonalData",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "readModel:Prospecter\\Core\\Accounts\\Application\\Account\\ConsultMyAccount\\ConsultMyAccount",
+            "slug": "readModel:ConsultMyAccount",
+            "type": "readModel",
+            "label": "My account",
+            "feature": null,
+            "name": "ConsultMyAccount",
+            "class": "Prospecter\\Core\\Accounts\\Application\\Account\\ConsultMyAccount\\ConsultMyAccount",
+            "context": "Accounts",
+            "module": "Account",
+            "detail": "MyAccount",
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "readModel:Prospecter\\Core\\Accounts\\Application\\Reminders\\ConsultMyReminders\\ConsultMyReminders",
+            "slug": "readModel:ConsultMyReminders",
+            "type": "readModel",
+            "label": "My reminders",
+            "feature": null,
+            "name": "ConsultMyReminders",
+            "class": "Prospecter\\Core\\Accounts\\Application\\Reminders\\ConsultMyReminders\\ConsultMyReminders",
+            "context": "Accounts",
+            "module": "Reminders",
+            "detail": "MyReminders",
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "readModel:Prospecter\\Core\\Accounts\\Contract\\Service\\ConsultMembers\\ConsultMembers",
+            "slug": "readModel:ConsultMembers",
+            "type": "readModel",
+            "label": "Members",
+            "feature": null,
+            "name": "ConsultMembers",
+            "class": "Prospecter\\Core\\Accounts\\Contract\\Service\\ConsultMembers\\ConsultMembers",
+            "context": "Accounts",
+            "module": "Member",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": [
+                {
+                    "context": null,
+                    "slug": null,
+                    "label": "CampaignReader"
+                },
+                {
+                    "context": null,
+                    "slug": null,
+                    "label": "ExchangeReader"
+                },
+                {
+                    "context": null,
+                    "slug": null,
+                    "label": "ToDoReader"
+                },
+                {
+                    "context": "Booking",
+                    "slug": "externalSystem:Hosts",
+                    "label": "Hosts"
+                },
+                {
+                    "context": "Campaigns",
+                    "slug": "externalSystem:Campaigners",
+                    "label": "Campaigners"
+                },
+                {
+                    "context": "Campaigns",
+                    "slug": "externalSystem:Taggers",
+                    "label": "Taggers"
+                },
+                {
+                    "context": "Connectors",
+                    "slug": "externalSystem:Members",
+                    "label": "Members"
+                },
+                {
+                    "context": "PersonalData",
+                    "slug": "externalSystem:Readers",
+                    "label": "Readers"
+                },
+                {
+                    "context": "Prospecting",
+                    "slug": "externalSystem:Prospectors",
+                    "label": "Prospectors"
+                },
+                {
+                    "context": "Reporting",
+                    "slug": "externalSystem:SourceAccounts",
+                    "label": "Source accounts"
+                }
+            ]
+        },
+        {
+            "id": "readModel:Prospecter\\Core\\Accounts\\Contract\\Service\\ListAccounts\\ListAccounts",
+            "slug": "readModel:ListAccounts",
+            "type": "readModel",
+            "label": "List accounts",
+            "feature": null,
+            "name": "ListAccounts",
+            "class": "Prospecter\\Core\\Accounts\\Contract\\Service\\ListAccounts\\ListAccounts",
+            "context": "Accounts",
+            "module": "Account",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": [
+                {
+                    "context": "Campaigns",
+                    "slug": "externalSystem:TaggedAccounts",
+                    "label": "Tagged accounts"
+                },
+                {
+                    "context": "Reporting",
+                    "slug": "externalSystem:SourceAccounts",
+                    "label": "Source accounts"
+                }
+            ]
+        }
+    ],
+    "links": [
+        {
+            "from": "actor:ROLE_PROSPECTOR",
+            "to": "readModel:Prospecter\\Core\\Accounts\\Application\\Account\\ConsultMyAccount\\ConsultMyAccount",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PROSPECTOR",
+            "to": "readModel:Prospecter\\Core\\Accounts\\Contract\\Service\\ConsultMembers\\ConsultMembers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_USER",
+            "to": "command:Prospecter\\Core\\Accounts\\Application\\Account\\ChangeMyOrganizationLogo\\ChangeMyOrganizationLogo",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_USER",
+            "to": "command:Prospecter\\Core\\Accounts\\Application\\Account\\RelocateMyOrganization\\RelocateMyOrganization",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_USER",
+            "to": "command:Prospecter\\Core\\Accounts\\Application\\Account\\ReviseMyOrganizationIdentity\\ReviseMyOrganizationIdentity",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_USER",
+            "to": "command:Prospecter\\Core\\Accounts\\Application\\Reminders\\ChangeMyReminders\\ChangeMyReminders",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_USER",
+            "to": "readModel:Prospecter\\Core\\Accounts\\Application\\Account\\ConsultMyAccount\\ConsultMyAccount",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_USER",
+            "to": "readModel:Prospecter\\Core\\Accounts\\Application\\Reminders\\ConsultMyReminders\\ConsultMyReminders",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:mcp",
+            "to": "command:Prospecter\\Core\\Accounts\\Application\\Reminders\\ChangeMyReminders\\ChangeMyReminders",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:mcp",
+            "to": "readModel:Prospecter\\Core\\Accounts\\Application\\Account\\ConsultMyAccount\\ConsultMyAccount",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:mcp",
+            "to": "readModel:Prospecter\\Core\\Accounts\\Application\\Reminders\\ConsultMyReminders\\ConsultMyReminders",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:mcp",
+            "to": "readModel:Prospecter\\Core\\Accounts\\Contract\\Service\\ConsultMembers\\ConsultMembers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\Accounts\\Domain\\Model\\Account",
+            "to": "event:Prospecter\\Core\\Accounts\\Domain\\Event\\AccountIdentityRevised",
+            "via": "reviseLegalIdentity",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\Accounts\\Domain\\Model\\Account",
+            "to": "event:Prospecter\\Core\\Accounts\\Domain\\Event\\AccountLogoChanged",
+            "via": "changeLogo",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\Accounts\\Domain\\Model\\Account",
+            "to": "event:Prospecter\\Core\\Accounts\\Domain\\Event\\AccountOpened",
+            "via": "openBy",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\Accounts\\Domain\\Model\\Account",
+            "to": "event:Prospecter\\Core\\Accounts\\Domain\\Event\\AccountRelocated",
+            "via": "relocateTo",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\Accounts\\Domain\\Model\\Member",
+            "to": "event:Prospecter\\Core\\Accounts\\Domain\\Event\\MemberRegistered",
+            "via": "registerBy",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\Accounts\\Domain\\Model\\Member",
+            "to": "event:Prospecter\\Core\\Accounts\\Domain\\Event\\RemindersChanged",
+            "via": "changeReminders",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Accounts\\Application\\Account\\ChangeMyOrganizationLogo\\ChangeMyOrganizationLogo",
+            "to": "aggregate:Prospecter\\Core\\Accounts\\Domain\\Model\\Account",
+            "via": "changeLogo",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Accounts\\Application\\Account\\OpenAccount\\OpenAccount",
+            "to": "aggregate:Prospecter\\Core\\Accounts\\Domain\\Model\\Account",
+            "via": "openBy",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Accounts\\Application\\Account\\RelocateMyOrganization\\RelocateMyOrganization",
+            "to": "aggregate:Prospecter\\Core\\Accounts\\Domain\\Model\\Account",
+            "via": "relocateTo",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Accounts\\Application\\Account\\ReviseMyOrganizationIdentity\\ReviseMyOrganizationIdentity",
+            "to": "aggregate:Prospecter\\Core\\Accounts\\Domain\\Model\\Account",
+            "via": "reviseLegalIdentity",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Accounts\\Application\\Member\\RegisterAMember\\RegisterAMember",
+            "to": "aggregate:Prospecter\\Core\\Accounts\\Domain\\Model\\Member",
+            "via": "registerBy",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Accounts\\Application\\Reminders\\ChangeMyReminders\\ChangeMyReminders",
+            "to": "aggregate:Prospecter\\Core\\Accounts\\Domain\\Model\\Member",
+            "via": "changeReminders",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "event:Prospecter\\Core\\Accounts\\Contract\\Event\\AccountOpened",
+            "to": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\CollectTheFounderProfilePolicy",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "event:Prospecter\\Core\\Accounts\\Contract\\Event\\MemberRegistered",
+            "to": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\CollectTheMemberProfilePolicy",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "event:Prospecter\\Core\\Accounts\\Domain\\Event\\AccountOpened",
+            "to": "policy:Prospecter\\Core\\Accounts\\Application\\Account\\PublishAccountOpened\\PublishAccountOpenedHandler",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "event:Prospecter\\Core\\Accounts\\Domain\\Event\\AccountOpened",
+            "to": "policy:Prospecter\\Core\\Accounts\\Application\\Policy\\RegisterTheFounderPolicy",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "event:Prospecter\\Core\\Accounts\\Domain\\Event\\MemberRegistered",
+            "to": "policy:Prospecter\\Core\\Accounts\\Application\\Member\\PublishMemberRegistered\\PublishMemberRegisteredHandler",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "policy:Prospecter\\Core\\Accounts\\Application\\Account\\PublishAccountOpened\\PublishAccountOpenedHandler",
+            "to": "event:Prospecter\\Core\\Accounts\\Contract\\Event\\AccountOpened",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "policy:Prospecter\\Core\\Accounts\\Application\\Member\\PublishMemberRegistered\\PublishMemberRegisteredHandler",
+            "to": "event:Prospecter\\Core\\Accounts\\Contract\\Event\\MemberRegistered",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "policy:Prospecter\\Core\\Accounts\\Application\\Policy\\RegisterTheFounderPolicy",
+            "to": "command:Prospecter\\Core\\Accounts\\Application\\Member\\RegisterTheFounder\\RegisterTheFounder",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Accounts\\Application\\Reminders\\ConsultMyReminders\\ConsultMyReminders",
+            "to": "command:Prospecter\\Core\\Accounts\\Application\\Reminders\\ChangeMyReminders\\ChangeMyReminders",
+            "via": "changeMyReminders",
+            "certain": true,
+            "when": null
+        }
+    ]
+}

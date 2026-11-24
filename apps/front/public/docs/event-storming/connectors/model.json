@@ -1,0 +1,2136 @@
+{
+    "context": "Connectors",
+    "modules": [
+        "Calendar",
+        "Client",
+        "Connection",
+        "MailImport"
+    ],
+    "stickies": [
+        {
+            "id": "actor:ROLE_ADMIN",
+            "slug": "actor:ROLE_ADMIN",
+            "type": "actor",
+            "label": "Admin",
+            "feature": null,
+            "name": "ROLE_ADMIN",
+            "class": null,
+            "context": "Connectors",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "actor:ROLE_PROSPECTOR",
+            "slug": "actor:ROLE_PROSPECTOR",
+            "type": "actor",
+            "label": "Prospector",
+            "feature": null,
+            "name": "ROLE_PROSPECTOR",
+            "class": null,
+            "context": "Connectors",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "actor:ROLE_USER",
+            "slug": "actor:ROLE_USER",
+            "type": "actor",
+            "label": "Member",
+            "feature": null,
+            "name": "ROLE_USER",
+            "class": null,
+            "context": "Connectors",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "actor:mcp",
+            "slug": "actor:mcp",
+            "type": "actor",
+            "label": "Member's AI",
+            "feature": null,
+            "name": "mcp",
+            "class": null,
+            "context": "Connectors",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "actor:public",
+            "slug": "actor:public",
+            "type": "actor",
+            "label": "Anyone with the link",
+            "feature": null,
+            "name": "public",
+            "class": null,
+            "context": "Connectors",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
+            "slug": "aggregate:Connection",
+            "type": "aggregate",
+            "label": "Connection",
+            "feature": null,
+            "name": "Connection",
+            "class": "Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
+            "context": "Connectors",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\ProviderClient",
+            "slug": "aggregate:ProviderClient",
+            "type": "aggregate",
+            "label": "Provider client",
+            "feature": null,
+            "name": "ProviderClient",
+            "class": "Prospecter\\Core\\Connectors\\Domain\\Model\\ProviderClient",
+            "context": "Connectors",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushExchange\\PushExchange",
+            "slug": "command:PushExchange",
+            "type": "command",
+            "label": "Push exchange",
+            "feature": null,
+            "name": "PushExchange",
+            "class": "Prospecter\\Core\\Connectors\\Application\\Calendar\\PushExchange\\PushExchange",
+            "context": "Connectors",
+            "module": "Calendar",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushUpcomingExchanges\\PushUpcomingExchanges",
+            "slug": "command:PushUpcomingExchanges",
+            "type": "command",
+            "label": "Push upcoming exchanges",
+            "feature": null,
+            "name": "PushUpcomingExchanges",
+            "class": "Prospecter\\Core\\Connectors\\Application\\Calendar\\PushUpcomingExchanges\\PushUpcomingExchanges",
+            "context": "Connectors",
+            "module": "Calendar",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryFailedPushes\\RetryFailedPushes",
+            "slug": "command:RetryFailedPushes",
+            "type": "command",
+            "label": "Retry failed pushes",
+            "feature": null,
+            "name": "RetryFailedPushes",
+            "class": "Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryFailedPushes\\RetryFailedPushes",
+            "context": "Connectors",
+            "module": "Calendar",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryPush\\RetryPush",
+            "slug": "command:RetryPush",
+            "type": "command",
+            "label": "Retry push",
+            "feature": null,
+            "name": "RetryPush",
+            "class": "Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryPush\\RetryPush",
+            "context": "Connectors",
+            "module": "Calendar",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\UnnameForgottenContact\\UnnameForgottenContact",
+            "slug": "command:UnnameForgottenContact",
+            "type": "command",
+            "label": "Unname forgotten contact",
+            "feature": null,
+            "name": "UnnameForgottenContact",
+            "class": "Prospecter\\Core\\Connectors\\Application\\Calendar\\UnnameForgottenContact\\UnnameForgottenContact",
+            "context": "Connectors",
+            "module": "Calendar",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\Connectors\\Application\\Client\\ConfigureClient\\ConfigureClient",
+            "slug": "command:ConfigureClient",
+            "type": "command",
+            "label": "Configure client",
+            "feature": null,
+            "name": "ConfigureClient",
+            "class": "Prospecter\\Core\\Connectors\\Application\\Client\\ConfigureClient\\ConfigureClient",
+            "context": "Connectors",
+            "module": "Client",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\Connectors\\Application\\Client\\ConfigureMailboxNotifications\\ConfigureMailboxNotifications",
+            "slug": "command:ConfigureMailboxNotifications",
+            "type": "command",
+            "label": "Configure mailbox notifications",
+            "feature": null,
+            "name": "ConfigureMailboxNotifications",
+            "class": "Prospecter\\Core\\Connectors\\Application\\Client\\ConfigureMailboxNotifications\\ConfigureMailboxNotifications",
+            "context": "Connectors",
+            "module": "Client",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\Connectors\\Application\\Client\\RemoveClient\\RemoveClient",
+            "slug": "command:RemoveClient",
+            "type": "command",
+            "label": "Remove client",
+            "feature": null,
+            "name": "RemoveClient",
+            "class": "Prospecter\\Core\\Connectors\\Application\\Client\\RemoveClient\\RemoveClient",
+            "context": "Connectors",
+            "module": "Client",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\Connectors\\Application\\Client\\RemoveMailboxNotifications\\RemoveMailboxNotifications",
+            "slug": "command:RemoveMailboxNotifications",
+            "type": "command",
+            "label": "Remove mailbox notifications",
+            "feature": null,
+            "name": "RemoveMailboxNotifications",
+            "class": "Prospecter\\Core\\Connectors\\Application\\Client\\RemoveMailboxNotifications\\RemoveMailboxNotifications",
+            "context": "Connectors",
+            "module": "Client",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\AskForAuthorization\\AskForAuthorization",
+            "slug": "command:AskForAuthorization",
+            "type": "command",
+            "label": "Ask for authorization",
+            "feature": null,
+            "name": "AskForAuthorization",
+            "class": "Prospecter\\Core\\Connectors\\Application\\Connection\\AskForAuthorization\\AskForAuthorization",
+            "context": "Connectors",
+            "module": "Connection",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\CheckMyConnections\\CheckMyConnections",
+            "slug": "command:CheckMyConnections",
+            "type": "command",
+            "label": "Check my connections",
+            "feature": null,
+            "name": "CheckMyConnections",
+            "class": "Prospecter\\Core\\Connectors\\Application\\Connection\\CheckMyConnections\\CheckMyConnections",
+            "context": "Connectors",
+            "module": "Connection",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\Connect\\Connect",
+            "slug": "command:Connect",
+            "type": "command",
+            "label": "Connect",
+            "feature": null,
+            "name": "Connect",
+            "class": "Prospecter\\Core\\Connectors\\Application\\Connection\\Connect\\Connect",
+            "context": "Connectors",
+            "module": "Connection",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\Disconnect\\Disconnect",
+            "slug": "command:Disconnect",
+            "type": "command",
+            "label": "Disconnect",
+            "feature": null,
+            "name": "Disconnect",
+            "class": "Prospecter\\Core\\Connectors\\Application\\Connection\\Disconnect\\Disconnect",
+            "context": "Connectors",
+            "module": "Connection",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\AskToImportMail\\AskToImportMail",
+            "slug": "command:AskToImportMail",
+            "type": "command",
+            "label": "Ask to import mail",
+            "feature": null,
+            "name": "AskToImportMail",
+            "class": "Prospecter\\Core\\Connectors\\Application\\MailImport\\AskToImportMail\\AskToImportMail",
+            "context": "Connectors",
+            "module": "MailImport",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\CatchUpMailHistory\\CatchUpMailHistory",
+            "slug": "command:CatchUpMailHistory",
+            "type": "command",
+            "label": "Catch up mail history",
+            "feature": null,
+            "name": "CatchUpMailHistory",
+            "class": "Prospecter\\Core\\Connectors\\Application\\MailImport\\CatchUpMailHistory\\CatchUpMailHistory",
+            "context": "Connectors",
+            "module": "MailImport",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\ImportMail\\ImportMail",
+            "slug": "command:ImportMail",
+            "type": "command",
+            "label": "Import mail",
+            "feature": null,
+            "name": "ImportMail",
+            "class": "Prospecter\\Core\\Connectors\\Application\\MailImport\\ImportMail\\ImportMail",
+            "context": "Connectors",
+            "module": "MailImport",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\NoteMailboxNotification\\NoteMailboxNotification",
+            "slug": "command:NoteMailboxNotification",
+            "type": "command",
+            "label": "Note mailbox notification",
+            "feature": null,
+            "name": "NoteMailboxNotification",
+            "class": "Prospecter\\Core\\Connectors\\Application\\MailImport\\NoteMailboxNotification\\NoteMailboxNotification",
+            "context": "Connectors",
+            "module": "MailImport",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\ReadMailboxHistory\\ReadMailboxHistory",
+            "slug": "command:ReadMailboxHistory",
+            "type": "command",
+            "label": "Read mailbox history",
+            "feature": null,
+            "name": "ReadMailboxHistory",
+            "class": "Prospecter\\Core\\Connectors\\Application\\MailImport\\ReadMailboxHistory\\ReadMailboxHistory",
+            "context": "Connectors",
+            "module": "MailImport",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\RenewMailWatch\\RenewMailWatch",
+            "slug": "command:RenewMailWatch",
+            "type": "command",
+            "label": "Renew mail watch",
+            "feature": null,
+            "name": "RenewMailWatch",
+            "class": "Prospecter\\Core\\Connectors\\Application\\MailImport\\RenewMailWatch\\RenewMailWatch",
+            "context": "Connectors",
+            "module": "MailImport",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\StopMailImport\\StopMailImport",
+            "slug": "command:StopMailImport",
+            "type": "command",
+            "label": "Stop mail import",
+            "feature": null,
+            "name": "StopMailImport",
+            "class": "Prospecter\\Core\\Connectors\\Application\\MailImport\\StopMailImport\\StopMailImport",
+            "context": "Connectors",
+            "module": "MailImport",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\Connectors\\Contract\\Event\\EmailExchanged",
+            "slug": "published:EmailExchanged",
+            "type": "event",
+            "label": "Email exchanged",
+            "feature": null,
+            "name": "EmailExchanged",
+            "class": "Prospecter\\Core\\Connectors\\Contract\\Event\\EmailExchanged",
+            "context": "Connectors",
+            "module": null,
+            "detail": "Published to the other contexts",
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\Connectors\\Contract\\Event\\VideoCallLinkCreated",
+            "slug": "published:VideoCallLinkCreated",
+            "type": "event",
+            "label": "Video call link created",
+            "feature": null,
+            "name": "VideoCallLinkCreated",
+            "class": "Prospecter\\Core\\Connectors\\Contract\\Event\\VideoCallLinkCreated",
+            "context": "Connectors",
+            "module": null,
+            "detail": "Published to the other contexts",
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\CalendarRecreated",
+            "slug": "event:CalendarRecreated",
+            "type": "event",
+            "label": "Calendar recreated",
+            "feature": null,
+            "name": "CalendarRecreated",
+            "class": "Prospecter\\Core\\Connectors\\Domain\\Event\\CalendarRecreated",
+            "context": "Connectors",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\ClientConfigured",
+            "slug": "event:ClientConfigured",
+            "type": "event",
+            "label": "Client configured",
+            "feature": null,
+            "name": "ClientConfigured",
+            "class": "Prospecter\\Core\\Connectors\\Domain\\Event\\ClientConfigured",
+            "context": "Connectors",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\ClientRemoved",
+            "slug": "event:ClientRemoved",
+            "type": "event",
+            "label": "Client removed",
+            "feature": null,
+            "name": "ClientRemoved",
+            "class": "Prospecter\\Core\\Connectors\\Domain\\Event\\ClientRemoved",
+            "context": "Connectors",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\Connected",
+            "slug": "event:Connected",
+            "type": "event",
+            "label": "Connected",
+            "feature": null,
+            "name": "Connected",
+            "class": "Prospecter\\Core\\Connectors\\Domain\\Event\\Connected",
+            "context": "Connectors",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\ConnectionLost",
+            "slug": "event:ConnectionLost",
+            "type": "event",
+            "label": "Connection lost",
+            "feature": null,
+            "name": "ConnectionLost",
+            "class": "Prospecter\\Core\\Connectors\\Domain\\Event\\ConnectionLost",
+            "context": "Connectors",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\Disconnected",
+            "slug": "event:Disconnected",
+            "type": "event",
+            "label": "Disconnected",
+            "feature": null,
+            "name": "Disconnected",
+            "class": "Prospecter\\Core\\Connectors\\Domain\\Event\\Disconnected",
+            "context": "Connectors",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\MailImportLost",
+            "slug": "event:MailImportLost",
+            "type": "event",
+            "label": "Mail import lost",
+            "feature": null,
+            "name": "MailImportLost",
+            "class": "Prospecter\\Core\\Connectors\\Domain\\Event\\MailImportLost",
+            "context": "Connectors",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\MailImportStarted",
+            "slug": "event:MailImportStarted",
+            "type": "event",
+            "label": "Mail import started",
+            "feature": null,
+            "name": "MailImportStarted",
+            "class": "Prospecter\\Core\\Connectors\\Domain\\Event\\MailImportStarted",
+            "context": "Connectors",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\MailImportStopped",
+            "slug": "event:MailImportStopped",
+            "type": "event",
+            "label": "Mail import stopped",
+            "feature": null,
+            "name": "MailImportStopped",
+            "class": "Prospecter\\Core\\Connectors\\Domain\\Event\\MailImportStopped",
+            "context": "Connectors",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\MailWatchRenewed",
+            "slug": "event:MailWatchRenewed",
+            "type": "event",
+            "label": "Mail watch renewed",
+            "feature": null,
+            "name": "MailWatchRenewed",
+            "class": "Prospecter\\Core\\Connectors\\Domain\\Event\\MailWatchRenewed",
+            "context": "Connectors",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\MailboxChanged",
+            "slug": "event:MailboxChanged",
+            "type": "event",
+            "label": "Mailbox changed",
+            "feature": null,
+            "name": "MailboxChanged",
+            "class": "Prospecter\\Core\\Connectors\\Domain\\Event\\MailboxChanged",
+            "context": "Connectors",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\MailboxMessageAdded",
+            "slug": "event:MailboxMessageAdded",
+            "type": "event",
+            "label": "Mailbox message added",
+            "feature": null,
+            "name": "MailboxMessageAdded",
+            "class": "Prospecter\\Core\\Connectors\\Domain\\Event\\MailboxMessageAdded",
+            "context": "Connectors",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\VideoCallLinkCreated",
+            "slug": "event:VideoCallLinkCreated",
+            "type": "event",
+            "label": "Video call link created",
+            "feature": null,
+            "name": "VideoCallLinkCreated",
+            "class": "Prospecter\\Core\\Connectors\\Domain\\Event\\VideoCallLinkCreated",
+            "context": "Connectors",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactForgotten",
+            "slug": "PersonalData/published:ContactForgotten",
+            "type": "event",
+            "label": "Contact forgotten",
+            "feature": null,
+            "name": "ContactForgotten",
+            "class": "Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactForgotten",
+            "context": "PersonalData",
+            "module": null,
+            "detail": "Published to the other contexts",
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\ExchangeFactsChanged",
+            "slug": "Prospecting/published:ExchangeFactsChanged",
+            "type": "event",
+            "label": "Exchange facts changed",
+            "feature": null,
+            "name": "ExchangeFactsChanged",
+            "class": "Prospecter\\Core\\Prospecting\\Contract\\Event\\ExchangeFactsChanged",
+            "context": "Prospecting",
+            "module": null,
+            "detail": "Published to the other contexts",
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ContactNames",
+            "slug": "externalSystem:ContactNames",
+            "type": "externalSystem",
+            "label": "Contact names",
+            "feature": null,
+            "name": "ContactNames",
+            "class": "Prospecter\\Core\\Connectors\\Domain\\Port\\ContactNames",
+            "context": "Connectors",
+            "module": null,
+            "detail": "PersonalDataContactNames",
+            "answeredBy": [
+                "PersonalData"
+            ],
+            "answers": [
+                {
+                    "context": "PersonalData",
+                    "slug": "readModel:NameContacts",
+                    "label": "Name contacts"
+                }
+            ],
+            "readBy": []
+        },
+        {
+            "id": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\CorrespondentAddresses",
+            "slug": "externalSystem:CorrespondentAddresses",
+            "type": "externalSystem",
+            "label": "Correspondent addresses",
+            "feature": null,
+            "name": "CorrespondentAddresses",
+            "class": "Prospecter\\Core\\Connectors\\Domain\\Port\\CorrespondentAddresses",
+            "context": "Connectors",
+            "module": null,
+            "detail": "PersonalDataAndProspectingCorrespondentAddresses",
+            "answeredBy": [
+                "PersonalData",
+                "Prospecting"
+            ],
+            "answers": [
+                {
+                    "context": "PersonalData",
+                    "slug": "readModel:WhichEmailsHaveTheseContacts",
+                    "label": "Which emails have these contacts"
+                },
+                {
+                    "context": "Prospecting",
+                    "slug": "readModel:WhichEmailsHaveTheseOrganizations",
+                    "label": "Which emails have these organizations"
+                }
+            ],
+            "readBy": []
+        },
+        {
+            "id": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Correspondents",
+            "slug": "externalSystem:Correspondents",
+            "type": "externalSystem",
+            "label": "Correspondents",
+            "feature": null,
+            "name": "Correspondents",
+            "class": "Prospecter\\Core\\Connectors\\Domain\\Port\\Correspondents",
+            "context": "Connectors",
+            "module": null,
+            "detail": "PersonalDataAndProspectingCorrespondents",
+            "answeredBy": [
+                "PersonalData",
+                "Prospecting"
+            ],
+            "answers": [
+                {
+                    "context": "PersonalData",
+                    "slug": "readModel:WhichContactsHaveTheseEmails",
+                    "label": "Which contacts have these emails"
+                },
+                {
+                    "context": "Prospecting",
+                    "slug": "readModel:WhichOrganizationsHaveTheseEmails",
+                    "label": "Which organizations have these emails"
+                }
+            ],
+            "readBy": []
+        },
+        {
+            "id": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\HeldExchanges",
+            "slug": "externalSystem:HeldExchanges",
+            "type": "externalSystem",
+            "label": "Held exchanges",
+            "feature": null,
+            "name": "HeldExchanges",
+            "class": "Prospecter\\Core\\Connectors\\Domain\\Port\\HeldExchanges",
+            "context": "Connectors",
+            "module": null,
+            "detail": "ProspectingHeldExchanges",
+            "answeredBy": [
+                "Prospecting"
+            ],
+            "answers": [
+                {
+                    "context": "Prospecting",
+                    "slug": "readModel:ConsultHeldExchanges",
+                    "label": "Held exchanges"
+                },
+                {
+                    "context": "Prospecting",
+                    "slug": "readModel:ConsultPlannedExchanges",
+                    "label": "Planned exchanges"
+                }
+            ],
+            "readBy": []
+        },
+        {
+            "id": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "slug": "externalSystem:Members",
+            "type": "externalSystem",
+            "label": "Members",
+            "feature": null,
+            "name": "Members",
+            "class": "Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "context": "Connectors",
+            "module": null,
+            "detail": "AccountsAndPersonalDataMembers",
+            "answeredBy": [
+                "Accounts",
+                "PersonalData"
+            ],
+            "answers": [
+                {
+                    "context": "Accounts",
+                    "slug": "readModel:ConsultMembers",
+                    "label": "Members"
+                },
+                {
+                    "context": "PersonalData",
+                    "slug": "readModel:PresentMembers",
+                    "label": "Present members"
+                }
+            ],
+            "readBy": []
+        },
+        {
+            "id": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ProviderAccess",
+            "slug": "externalSystem:ProviderAccess",
+            "type": "externalSystem",
+            "label": "Provider access",
+            "feature": null,
+            "name": "ProviderAccess",
+            "class": "Prospecter\\Core\\Connectors\\Domain\\Port\\ProviderAccess",
+            "context": "Connectors",
+            "module": null,
+            "detail": "GoogleProviderAccess",
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ProviderCalendar",
+            "slug": "externalSystem:ProviderCalendar",
+            "type": "externalSystem",
+            "label": "Provider calendar",
+            "feature": null,
+            "name": "ProviderCalendar",
+            "class": "Prospecter\\Core\\Connectors\\Domain\\Port\\ProviderCalendar",
+            "context": "Connectors",
+            "module": null,
+            "detail": "GoogleCalendar",
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ProviderMailbox",
+            "slug": "externalSystem:ProviderMailbox",
+            "type": "externalSystem",
+            "label": "Provider mailbox",
+            "feature": null,
+            "name": "ProviderMailbox",
+            "class": "Prospecter\\Core\\Connectors\\Domain\\Port\\ProviderMailbox",
+            "context": "Connectors",
+            "module": null,
+            "detail": "GoogleMailbox",
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "policy:Prospecter\\Core\\Connectors\\Application\\Calendar\\PublishVideoCallLinkCreated\\PublishVideoCallLinkCreatedHandler",
+            "slug": "policy:PublishVideoCallLinkCreatedHandler",
+            "type": "policy",
+            "label": "Publish video call link created",
+            "feature": null,
+            "name": "PublishVideoCallLinkCreatedHandler",
+            "class": "Prospecter\\Core\\Connectors\\Application\\Calendar\\PublishVideoCallLinkCreated\\PublishVideoCallLinkCreatedHandler",
+            "context": "Connectors",
+            "module": "Calendar",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "policy:Prospecter\\Core\\Connectors\\Application\\Policy\\ImportMailPolicy",
+            "slug": "policy:ImportMailPolicy",
+            "type": "policy",
+            "label": "Import mail",
+            "feature": null,
+            "name": "ImportMailPolicy",
+            "class": "Prospecter\\Core\\Connectors\\Application\\Policy\\ImportMailPolicy",
+            "context": "Connectors",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "policy:Prospecter\\Core\\Connectors\\Application\\Policy\\PushExchangePolicy",
+            "slug": "policy:PushExchangePolicy",
+            "type": "policy",
+            "label": "Push exchange",
+            "feature": null,
+            "name": "PushExchangePolicy",
+            "class": "Prospecter\\Core\\Connectors\\Application\\Policy\\PushExchangePolicy",
+            "context": "Connectors",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "policy:Prospecter\\Core\\Connectors\\Application\\Policy\\PushUpcomingExchangesPolicy",
+            "slug": "policy:PushUpcomingExchangesPolicy",
+            "type": "policy",
+            "label": "Push upcoming exchanges",
+            "feature": null,
+            "name": "PushUpcomingExchangesPolicy",
+            "class": "Prospecter\\Core\\Connectors\\Application\\Policy\\PushUpcomingExchangesPolicy",
+            "context": "Connectors",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "policy:Prospecter\\Core\\Connectors\\Application\\Policy\\ReadMailboxHistoryPolicy",
+            "slug": "policy:ReadMailboxHistoryPolicy",
+            "type": "policy",
+            "label": "Read mailbox history",
+            "feature": null,
+            "name": "ReadMailboxHistoryPolicy",
+            "class": "Prospecter\\Core\\Connectors\\Application\\Policy\\ReadMailboxHistoryPolicy",
+            "context": "Connectors",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "policy:Prospecter\\Core\\Connectors\\Application\\Policy\\UnnameForgottenContactPolicy",
+            "slug": "policy:UnnameForgottenContactPolicy",
+            "type": "policy",
+            "label": "Unname forgotten contact",
+            "feature": null,
+            "name": "UnnameForgottenContactPolicy",
+            "class": "Prospecter\\Core\\Connectors\\Application\\Policy\\UnnameForgottenContactPolicy",
+            "context": "Connectors",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\KeepCreatedVideoCallLinkPolicy",
+            "slug": "Prospecting/policy:KeepCreatedVideoCallLinkPolicy",
+            "type": "policy",
+            "label": "Keep created video call link",
+            "feature": null,
+            "name": "KeepCreatedVideoCallLinkPolicy",
+            "class": "Prospecter\\Core\\Prospecting\\Application\\Policy\\KeepCreatedVideoCallLinkPolicy",
+            "context": "Prospecting",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\NoteImportedEmailPolicy",
+            "slug": "Prospecting/policy:NoteImportedEmailPolicy",
+            "type": "policy",
+            "label": "Note imported email",
+            "feature": null,
+            "name": "NoteImportedEmailPolicy",
+            "class": "Prospecter\\Core\\Prospecting\\Application\\Policy\\NoteImportedEmailPolicy",
+            "context": "Prospecting",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "readModel:Prospecter\\Core\\Connectors\\Application\\Calendar\\ConsultExchangeSync\\ConsultExchangeSync",
+            "slug": "readModel:ConsultExchangeSync",
+            "type": "readModel",
+            "label": "Exchange sync",
+            "feature": null,
+            "name": "ConsultExchangeSync",
+            "class": "Prospecter\\Core\\Connectors\\Application\\Calendar\\ConsultExchangeSync\\ConsultExchangeSync",
+            "context": "Connectors",
+            "module": "Calendar",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "readModel:Prospecter\\Core\\Connectors\\Application\\Client\\ConsultMailboxPusher\\ConsultMailboxPusher",
+            "slug": "readModel:ConsultMailboxPusher",
+            "type": "readModel",
+            "label": "Mailbox pusher",
+            "feature": null,
+            "name": "ConsultMailboxPusher",
+            "class": "Prospecter\\Core\\Connectors\\Application\\Client\\ConsultMailboxPusher\\ConsultMailboxPusher",
+            "context": "Connectors",
+            "module": "Client",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "readModel:Prospecter\\Core\\Connectors\\Application\\Client\\ConsultMyAccountClients\\ConsultMyAccountClients",
+            "slug": "readModel:ConsultMyAccountClients",
+            "type": "readModel",
+            "label": "My account clients",
+            "feature": null,
+            "name": "ConsultMyAccountClients",
+            "class": "Prospecter\\Core\\Connectors\\Application\\Client\\ConsultMyAccountClients\\ConsultMyAccountClients",
+            "context": "Connectors",
+            "module": "Client",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "readModel:Prospecter\\Core\\Connectors\\Application\\Connection\\ConsultMyConnections\\ConsultMyConnections",
+            "slug": "readModel:ConsultMyConnections",
+            "type": "readModel",
+            "label": "My connections",
+            "feature": null,
+            "name": "ConsultMyConnections",
+            "class": "Prospecter\\Core\\Connectors\\Application\\Connection\\ConsultMyConnections\\ConsultMyConnections",
+            "context": "Connectors",
+            "module": "Connection",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "readModel:Prospecter\\Core\\Connectors\\Application\\MailImport\\ConsultMailCatchUpIntents\\ConsultMailCatchUpIntents",
+            "slug": "readModel:ConsultMailCatchUpIntents",
+            "type": "readModel",
+            "label": "Mail catch up intents",
+            "feature": null,
+            "name": "ConsultMailCatchUpIntents",
+            "class": "Prospecter\\Core\\Connectors\\Application\\MailImport\\ConsultMailCatchUpIntents\\ConsultMailCatchUpIntents",
+            "context": "Connectors",
+            "module": "MailImport",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "readModel:Prospecter\\Core\\Connectors\\Contract\\Service\\WhichHaveAConnectedCalendar\\WhichHaveAConnectedCalendar",
+            "slug": "readModel:WhichHaveAConnectedCalendar",
+            "type": "readModel",
+            "label": "Which have a connected calendar",
+            "feature": null,
+            "name": "WhichHaveAConnectedCalendar",
+            "class": "Prospecter\\Core\\Connectors\\Contract\\Service\\WhichHaveAConnectedCalendar\\WhichHaveAConnectedCalendar",
+            "context": "Connectors",
+            "module": "Connection",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": [
+                {
+                    "context": "Booking",
+                    "slug": "externalSystem:ConnectedCalendars",
+                    "label": "Connected calendars"
+                }
+            ]
+        }
+    ],
+    "links": [
+        {
+            "from": "actor:ROLE_ADMIN",
+            "to": "command:Prospecter\\Core\\Connectors\\Application\\Client\\ConfigureClient\\ConfigureClient",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_ADMIN",
+            "to": "command:Prospecter\\Core\\Connectors\\Application\\Client\\ConfigureMailboxNotifications\\ConfigureMailboxNotifications",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_ADMIN",
+            "to": "command:Prospecter\\Core\\Connectors\\Application\\Client\\RemoveClient\\RemoveClient",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_ADMIN",
+            "to": "command:Prospecter\\Core\\Connectors\\Application\\Client\\RemoveMailboxNotifications\\RemoveMailboxNotifications",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_ADMIN",
+            "to": "readModel:Prospecter\\Core\\Connectors\\Application\\Client\\ConsultMyAccountClients\\ConsultMyAccountClients",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PROSPECTOR",
+            "to": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryPush\\RetryPush",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PROSPECTOR",
+            "to": "readModel:Prospecter\\Core\\Connectors\\Application\\Calendar\\ConsultExchangeSync\\ConsultExchangeSync",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_USER",
+            "to": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryFailedPushes\\RetryFailedPushes",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_USER",
+            "to": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\AskForAuthorization\\AskForAuthorization",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_USER",
+            "to": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\CheckMyConnections\\CheckMyConnections",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_USER",
+            "to": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\Connect\\Connect",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_USER",
+            "to": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\Disconnect\\Disconnect",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_USER",
+            "to": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\StopMailImport\\StopMailImport",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_USER",
+            "to": "readModel:Prospecter\\Core\\Connectors\\Application\\Connection\\ConsultMyConnections\\ConsultMyConnections",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:mcp",
+            "to": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryFailedPushes\\RetryFailedPushes",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:mcp",
+            "to": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryPush\\RetryPush",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:mcp",
+            "to": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\CheckMyConnections\\CheckMyConnections",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:mcp",
+            "to": "readModel:Prospecter\\Core\\Connectors\\Application\\Calendar\\ConsultExchangeSync\\ConsultExchangeSync",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:mcp",
+            "to": "readModel:Prospecter\\Core\\Connectors\\Application\\Client\\ConsultMyAccountClients\\ConsultMyAccountClients",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:mcp",
+            "to": "readModel:Prospecter\\Core\\Connectors\\Application\\Connection\\ConsultMyConnections\\ConsultMyConnections",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:public",
+            "to": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\AskToImportMail\\AskToImportMail",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:public",
+            "to": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\NoteMailboxNotification\\NoteMailboxNotification",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:public",
+            "to": "readModel:Prospecter\\Core\\Connectors\\Application\\Connection\\ConsultMyConnections\\ConsultMyConnections",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
+            "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\CalendarRecreated",
+            "via": "push",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
+            "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\Connected",
+            "via": "establish",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
+            "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\Connected",
+            "via": "renew",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
+            "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\ConnectionLost",
+            "via": "cancel",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
+            "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\ConnectionLost",
+            "via": "check",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
+            "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\ConnectionLost",
+            "via": "push",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
+            "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\ConnectionLost",
+            "via": "withdraw",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
+            "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\Disconnected",
+            "via": "disconnect",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
+            "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\MailImportLost",
+            "via": "catchUpMailWith",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
+            "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\MailImportLost",
+            "via": "readMailboxHistory",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
+            "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\MailImportLost",
+            "via": "renewMailWatch",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
+            "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\MailImportStarted",
+            "via": "importMail",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
+            "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\MailImportStopped",
+            "via": "readMailboxHistory",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
+            "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\MailImportStopped",
+            "via": "renew",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
+            "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\MailImportStopped",
+            "via": "stopMailImport",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
+            "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\MailWatchRenewed",
+            "via": "renewMailWatch",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
+            "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\MailboxChanged",
+            "via": "noteMailboxChange",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
+            "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\MailboxMessageAdded",
+            "via": "catchUpMailWith",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
+            "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\MailboxMessageAdded",
+            "via": "readMailboxHistory",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
+            "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\VideoCallLinkCreated",
+            "via": "push",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\ProviderClient",
+            "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\ClientConfigured",
+            "via": "configure",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\ProviderClient",
+            "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\ClientConfigured",
+            "via": "notifyMailboxesThrough",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\ProviderClient",
+            "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\ClientConfigured",
+            "via": "replaceBy",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\ProviderClient",
+            "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\ClientConfigured",
+            "via": "stopMailboxNotificationsBy",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\ProviderClient",
+            "to": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\ClientRemoved",
+            "via": "removeBy",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushExchange\\PushExchange",
+            "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
+            "via": "cancel",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushExchange\\PushExchange",
+            "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
+            "via": "push",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushExchange\\PushExchange",
+            "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
+            "via": "withdraw",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushExchange\\PushExchange",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ContactNames",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushExchange\\PushExchange",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\HeldExchanges",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushExchange\\PushExchange",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushExchange\\PushExchange",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ProviderCalendar",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushUpcomingExchanges\\PushUpcomingExchanges",
+            "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
+            "via": "push",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushUpcomingExchanges\\PushUpcomingExchanges",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ContactNames",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushUpcomingExchanges\\PushUpcomingExchanges",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\HeldExchanges",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushUpcomingExchanges\\PushUpcomingExchanges",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushUpcomingExchanges\\PushUpcomingExchanges",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ProviderCalendar",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryFailedPushes\\RetryFailedPushes",
+            "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
+            "via": "cancel",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryFailedPushes\\RetryFailedPushes",
+            "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
+            "via": "push",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryFailedPushes\\RetryFailedPushes",
+            "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
+            "via": "withdraw",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryFailedPushes\\RetryFailedPushes",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ContactNames",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryFailedPushes\\RetryFailedPushes",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\HeldExchanges",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryFailedPushes\\RetryFailedPushes",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryFailedPushes\\RetryFailedPushes",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ProviderCalendar",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryPush\\RetryPush",
+            "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
+            "via": "cancel",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryPush\\RetryPush",
+            "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
+            "via": "push",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryPush\\RetryPush",
+            "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
+            "via": "withdraw",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryPush\\RetryPush",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ContactNames",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryPush\\RetryPush",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\HeldExchanges",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryPush\\RetryPush",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryPush\\RetryPush",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ProviderCalendar",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\UnnameForgottenContact\\UnnameForgottenContact",
+            "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
+            "via": "push",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\UnnameForgottenContact\\UnnameForgottenContact",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ContactNames",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\UnnameForgottenContact\\UnnameForgottenContact",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\HeldExchanges",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\UnnameForgottenContact\\UnnameForgottenContact",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\UnnameForgottenContact\\UnnameForgottenContact",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ProviderCalendar",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Client\\ConfigureClient\\ConfigureClient",
+            "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\ProviderClient",
+            "via": "configure",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Client\\ConfigureClient\\ConfigureClient",
+            "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\ProviderClient",
+            "via": "replaceBy",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Client\\ConfigureClient\\ConfigureClient",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Client\\ConfigureMailboxNotifications\\ConfigureMailboxNotifications",
+            "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\ProviderClient",
+            "via": "notifyMailboxesThrough",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Client\\ConfigureMailboxNotifications\\ConfigureMailboxNotifications",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Client\\RemoveClient\\RemoveClient",
+            "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\ProviderClient",
+            "via": "removeBy",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Client\\RemoveClient\\RemoveClient",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Client\\RemoveMailboxNotifications\\RemoveMailboxNotifications",
+            "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\ProviderClient",
+            "via": "stopMailboxNotificationsBy",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Client\\RemoveMailboxNotifications\\RemoveMailboxNotifications",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\AskForAuthorization\\AskForAuthorization",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\CheckMyConnections\\CheckMyConnections",
+            "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
+            "via": "check",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\CheckMyConnections\\CheckMyConnections",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\CheckMyConnections\\CheckMyConnections",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ProviderAccess",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\Connect\\Connect",
+            "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
+            "via": "establish",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\Connect\\Connect",
+            "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
+            "via": "importMail",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\Connect\\Connect",
+            "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
+            "via": "renew",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\Connect\\Connect",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\Connect\\Connect",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ProviderAccess",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\Connect\\Connect",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ProviderMailbox",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\Disconnect\\Disconnect",
+            "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
+            "via": "disconnect",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\Disconnect\\Disconnect",
+            "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
+            "via": "stopMailImport",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\Disconnect\\Disconnect",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\Disconnect\\Disconnect",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ProviderAccess",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\Disconnect\\Disconnect",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ProviderMailbox",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\AskToImportMail\\AskToImportMail",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\CatchUpMailHistory\\CatchUpMailHistory",
+            "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
+            "via": "catchUpMailWith",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\CatchUpMailHistory\\CatchUpMailHistory",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\CorrespondentAddresses",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\CatchUpMailHistory\\CatchUpMailHistory",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\CatchUpMailHistory\\CatchUpMailHistory",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ProviderMailbox",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\ImportMail\\ImportMail",
+            "to": "event:Prospecter\\Core\\Connectors\\Contract\\Event\\EmailExchanged",
+            "via": null,
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\ImportMail\\ImportMail",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Correspondents",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\ImportMail\\ImportMail",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ProviderMailbox",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\NoteMailboxNotification\\NoteMailboxNotification",
+            "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
+            "via": "noteMailboxChange",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\ReadMailboxHistory\\ReadMailboxHistory",
+            "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
+            "via": "readMailboxHistory",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\ReadMailboxHistory\\ReadMailboxHistory",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\ReadMailboxHistory\\ReadMailboxHistory",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ProviderMailbox",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\RenewMailWatch\\RenewMailWatch",
+            "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
+            "via": "renewMailWatch",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\RenewMailWatch\\RenewMailWatch",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\RenewMailWatch\\RenewMailWatch",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ProviderMailbox",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\StopMailImport\\StopMailImport",
+            "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
+            "via": "stopMailImport",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\StopMailImport\\StopMailImport",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\StopMailImport\\StopMailImport",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ProviderMailbox",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "event:Prospecter\\Core\\Connectors\\Contract\\Event\\EmailExchanged",
+            "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\NoteImportedEmailPolicy",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "event:Prospecter\\Core\\Connectors\\Contract\\Event\\VideoCallLinkCreated",
+            "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\KeepCreatedVideoCallLinkPolicy",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\CalendarRecreated",
+            "to": "policy:Prospecter\\Core\\Connectors\\Application\\Policy\\PushUpcomingExchangesPolicy",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\Connected",
+            "to": "policy:Prospecter\\Core\\Connectors\\Application\\Policy\\PushUpcomingExchangesPolicy",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\MailWatchRenewed",
+            "to": "policy:Prospecter\\Core\\Connectors\\Application\\Policy\\ReadMailboxHistoryPolicy",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\MailboxChanged",
+            "to": "policy:Prospecter\\Core\\Connectors\\Application\\Policy\\ReadMailboxHistoryPolicy",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\MailboxMessageAdded",
+            "to": "policy:Prospecter\\Core\\Connectors\\Application\\Policy\\ImportMailPolicy",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "event:Prospecter\\Core\\Connectors\\Domain\\Event\\VideoCallLinkCreated",
+            "to": "policy:Prospecter\\Core\\Connectors\\Application\\Calendar\\PublishVideoCallLinkCreated\\PublishVideoCallLinkCreatedHandler",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactForgotten",
+            "to": "policy:Prospecter\\Core\\Connectors\\Application\\Policy\\UnnameForgottenContactPolicy",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\ExchangeFactsChanged",
+            "to": "policy:Prospecter\\Core\\Connectors\\Application\\Policy\\PushExchangePolicy",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "policy:Prospecter\\Core\\Connectors\\Application\\Calendar\\PublishVideoCallLinkCreated\\PublishVideoCallLinkCreatedHandler",
+            "to": "event:Prospecter\\Core\\Connectors\\Contract\\Event\\VideoCallLinkCreated",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "policy:Prospecter\\Core\\Connectors\\Application\\Policy\\ImportMailPolicy",
+            "to": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\ImportMail\\ImportMail",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "policy:Prospecter\\Core\\Connectors\\Application\\Policy\\PushExchangePolicy",
+            "to": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushExchange\\PushExchange",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "policy:Prospecter\\Core\\Connectors\\Application\\Policy\\PushUpcomingExchangesPolicy",
+            "to": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushUpcomingExchanges\\PushUpcomingExchanges",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "policy:Prospecter\\Core\\Connectors\\Application\\Policy\\ReadMailboxHistoryPolicy",
+            "to": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\ReadMailboxHistory\\ReadMailboxHistory",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "policy:Prospecter\\Core\\Connectors\\Application\\Policy\\UnnameForgottenContactPolicy",
+            "to": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\UnnameForgottenContact\\UnnameForgottenContact",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Connectors\\Application\\Calendar\\ConsultExchangeSync\\ConsultExchangeSync",
+            "to": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryPush\\RetryPush",
+            "via": "retry",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Connectors\\Application\\Calendar\\ConsultExchangeSync\\ConsultExchangeSync",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\HeldExchanges",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Connectors\\Application\\Calendar\\ConsultExchangeSync\\ConsultExchangeSync",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Connectors\\Application\\Client\\ConsultMyAccountClients\\ConsultMyAccountClients",
+            "to": "command:Prospecter\\Core\\Connectors\\Application\\Client\\ConfigureClient\\ConfigureClient",
+            "via": "configure",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Connectors\\Application\\Client\\ConsultMyAccountClients\\ConsultMyAccountClients",
+            "to": "command:Prospecter\\Core\\Connectors\\Application\\Client\\ConfigureMailboxNotifications\\ConfigureMailboxNotifications",
+            "via": "configureGmailNotifications",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Connectors\\Application\\Client\\ConsultMyAccountClients\\ConsultMyAccountClients",
+            "to": "command:Prospecter\\Core\\Connectors\\Application\\Client\\RemoveClient\\RemoveClient",
+            "via": "remove",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Connectors\\Application\\Client\\ConsultMyAccountClients\\ConsultMyAccountClients",
+            "to": "command:Prospecter\\Core\\Connectors\\Application\\Client\\RemoveMailboxNotifications\\RemoveMailboxNotifications",
+            "via": "removeGmailNotifications",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Connectors\\Application\\Client\\ConsultMyAccountClients\\ConsultMyAccountClients",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Connectors\\Application\\Connection\\ConsultMyConnections\\ConsultMyConnections",
+            "to": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryFailedPushes\\RetryFailedPushes",
+            "via": "retryFailed",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Connectors\\Application\\Connection\\ConsultMyConnections\\ConsultMyConnections",
+            "to": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\CheckMyConnections\\CheckMyConnections",
+            "via": "check",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Connectors\\Application\\Connection\\ConsultMyConnections\\ConsultMyConnections",
+            "to": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\Disconnect\\Disconnect",
+            "via": "disconnect",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Connectors\\Application\\Connection\\ConsultMyConnections\\ConsultMyConnections",
+            "to": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\StopMailImport\\StopMailImport",
+            "via": "stopGmailImport",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Connectors\\Application\\Connection\\ConsultMyConnections\\ConsultMyConnections",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Connectors\\Application\\MailImport\\ConsultMailCatchUpIntents\\ConsultMailCatchUpIntents",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\CorrespondentAddresses",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Connectors\\Application\\MailImport\\ConsultMailCatchUpIntents\\ConsultMailCatchUpIntents",
+            "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\Members",
+            "via": null,
+            "certain": true,
+            "when": null
+        }
+    ]
+}

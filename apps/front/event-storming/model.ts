@@ -24,6 +24,17 @@ export interface Sticky {
   detail: string | null
   /** The contexts an external system's adapters read. */
   answeredBy: string[]
+  /** The published services of the other contexts an external system's adapters take. */
+  answers: Elsewhere[]
+  /** What takes a published service in the other contexts. */
+  readBy: Elsewhere[]
+}
+
+/** A post-it of another wall: its context and its slug there. A class of the delivery stands on no wall. */
+export interface Elsewhere {
+  context: string | null
+  slug: string | null
+  label: string
 }
 
 export interface Link {
@@ -33,6 +44,17 @@ export interface Link {
   certain: boolean
   /** When an uncertain link happens, in English, if the code writes it. */
   when: string | null
+}
+
+/** What the analysis of the whole code writes: every context's model, and what it warns of. */
+export interface Document {
+  models: Model[]
+  warnings: string[]
+}
+
+/** "PersonalData" lives in the folder `personal-data`. */
+export function folderOf(context: string): string {
+  return context.replace(/(?<=[a-z])(?=[A-Z])/g, '-').toLowerCase()
 }
 
 export interface Model {

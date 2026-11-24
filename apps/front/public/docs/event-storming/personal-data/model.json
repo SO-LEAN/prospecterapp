@@ -1,0 +1,2201 @@
+{
+    "context": "PersonalData",
+    "modules": [
+        "Contact",
+        "Duplicate",
+        "Facts",
+        "Identification",
+        "Person",
+        "Profile"
+    ],
+    "stickies": [
+        {
+            "id": "actor:ROLE_PROSPECTOR",
+            "slug": "actor:ROLE_PROSPECTOR",
+            "type": "actor",
+            "label": "Prospector",
+            "feature": null,
+            "name": "ROLE_PROSPECTOR",
+            "class": null,
+            "context": "PersonalData",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "actor:ROLE_USER",
+            "slug": "actor:ROLE_USER",
+            "type": "actor",
+            "label": "Member",
+            "feature": null,
+            "name": "ROLE_USER",
+            "class": null,
+            "context": "PersonalData",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "actor:mcp",
+            "slug": "actor:mcp",
+            "type": "actor",
+            "label": "Member's AI",
+            "feature": null,
+            "name": "mcp",
+            "class": null,
+            "context": "PersonalData",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
+            "slug": "aggregate:Person",
+            "type": "aggregate",
+            "label": "Person",
+            "feature": null,
+            "name": "Person",
+            "class": "Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
+            "context": "PersonalData",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\CollectContact\\CollectContact",
+            "slug": "command:CollectContact",
+            "type": "command",
+            "label": "Collect contact",
+            "feature": null,
+            "name": "CollectContact",
+            "class": "Prospecter\\Core\\PersonalData\\Application\\Contact\\CollectContact\\CollectContact",
+            "context": "PersonalData",
+            "module": "Contact",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\CompleteContact\\CompleteContact",
+            "slug": "command:CompleteContact",
+            "type": "command",
+            "label": "Complete contact",
+            "feature": null,
+            "name": "CompleteContact",
+            "class": "Prospecter\\Core\\PersonalData\\Application\\Contact\\CompleteContact\\CompleteContact",
+            "context": "PersonalData",
+            "module": "Contact",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\ForgetContactLeftUnattached\\ForgetContactLeftUnattached",
+            "slug": "command:ForgetContactLeftUnattached",
+            "type": "command",
+            "label": "Forget contact left unattached",
+            "feature": null,
+            "name": "ForgetContactLeftUnattached",
+            "class": "Prospecter\\Core\\PersonalData\\Application\\Contact\\ForgetContactLeftUnattached\\ForgetContactLeftUnattached",
+            "context": "PersonalData",
+            "module": "Contact",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\ForgetContact\\ForgetContact",
+            "slug": "command:ForgetContact",
+            "type": "command",
+            "label": "Forget contact",
+            "feature": null,
+            "name": "ForgetContact",
+            "class": "Prospecter\\Core\\PersonalData\\Application\\Contact\\ForgetContact\\ForgetContact",
+            "context": "PersonalData",
+            "module": "Contact",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\ForgetContactsLeftWithoutOrganization\\ForgetContactsLeftWithoutOrganization",
+            "slug": "command:ForgetContactsLeftWithoutOrganization",
+            "type": "command",
+            "label": "Forget contacts left without organization",
+            "feature": null,
+            "name": "ForgetContactsLeftWithoutOrganization",
+            "class": "Prospecter\\Core\\PersonalData\\Application\\Contact\\ForgetContactsLeftWithoutOrganization\\ForgetContactsLeftWithoutOrganization",
+            "context": "PersonalData",
+            "module": "Contact",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\PersonalData\\Application\\Duplicate\\DismissPossibleDuplicate\\DismissPossibleDuplicate",
+            "slug": "command:DismissPossibleDuplicate",
+            "type": "command",
+            "label": "Dismiss possible duplicate",
+            "feature": null,
+            "name": "DismissPossibleDuplicate",
+            "class": "Prospecter\\Core\\PersonalData\\Application\\Duplicate\\DismissPossibleDuplicate\\DismissPossibleDuplicate",
+            "context": "PersonalData",
+            "module": "Duplicate",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\PersonalData\\Application\\Duplicate\\DismissSuspicionInReturn\\DismissSuspicionInReturn",
+            "slug": "command:DismissSuspicionInReturn",
+            "type": "command",
+            "label": "Dismiss suspicion in return",
+            "feature": null,
+            "name": "DismissSuspicionInReturn",
+            "class": "Prospecter\\Core\\PersonalData\\Application\\Duplicate\\DismissSuspicionInReturn\\DismissSuspicionInReturn",
+            "context": "PersonalData",
+            "module": "Duplicate",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\PersonalData\\Application\\Duplicate\\LiftSuspicionInReturn\\LiftSuspicionInReturn",
+            "slug": "command:LiftSuspicionInReturn",
+            "type": "command",
+            "label": "Lift suspicion in return",
+            "feature": null,
+            "name": "LiftSuspicionInReturn",
+            "class": "Prospecter\\Core\\PersonalData\\Application\\Duplicate\\LiftSuspicionInReturn\\LiftSuspicionInReturn",
+            "context": "PersonalData",
+            "module": "Duplicate",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\PersonalData\\Application\\Duplicate\\SuspectDuplicateInReturn\\SuspectDuplicateInReturn",
+            "slug": "command:SuspectDuplicateInReturn",
+            "type": "command",
+            "label": "Suspect duplicate in return",
+            "feature": null,
+            "name": "SuspectDuplicateInReturn",
+            "class": "Prospecter\\Core\\PersonalData\\Application\\Duplicate\\SuspectDuplicateInReturn\\SuspectDuplicateInReturn",
+            "context": "PersonalData",
+            "module": "Duplicate",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\PersonalData\\Application\\Identification\\IdentifyBooker\\IdentifyBooker",
+            "slug": "command:IdentifyBooker",
+            "type": "command",
+            "label": "Identify booker",
+            "feature": null,
+            "name": "IdentifyBooker",
+            "class": "Prospecter\\Core\\PersonalData\\Application\\Identification\\IdentifyBooker\\IdentifyBooker",
+            "context": "PersonalData",
+            "module": "Identification",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangeCivility\\ChangeCivility",
+            "slug": "command:ChangeCivility",
+            "type": "command",
+            "label": "Change civility",
+            "feature": null,
+            "name": "ChangeCivility",
+            "class": "Prospecter\\Core\\PersonalData\\Application\\Person\\ChangeCivility\\ChangeCivility",
+            "context": "PersonalData",
+            "module": "Person",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangeJobTitle\\ChangeJobTitle",
+            "slug": "command:ChangeJobTitle",
+            "type": "command",
+            "label": "Change job title",
+            "feature": null,
+            "name": "ChangeJobTitle",
+            "class": "Prospecter\\Core\\PersonalData\\Application\\Person\\ChangeJobTitle\\ChangeJobTitle",
+            "context": "PersonalData",
+            "module": "Person",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangePersonContactDetails\\ChangePersonContactDetails",
+            "slug": "command:ChangePersonContactDetails",
+            "type": "command",
+            "label": "Change person contact details",
+            "feature": null,
+            "name": "ChangePersonContactDetails",
+            "class": "Prospecter\\Core\\PersonalData\\Application\\Person\\ChangePersonContactDetails\\ChangePersonContactDetails",
+            "context": "PersonalData",
+            "module": "Person",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangePersonPicture\\ChangePersonPicture",
+            "slug": "command:ChangePersonPicture",
+            "type": "command",
+            "label": "Change person picture",
+            "feature": null,
+            "name": "ChangePersonPicture",
+            "class": "Prospecter\\Core\\PersonalData\\Application\\Person\\ChangePersonPicture\\ChangePersonPicture",
+            "context": "PersonalData",
+            "module": "Person",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\RenamePerson\\RenamePerson",
+            "slug": "command:RenamePerson",
+            "type": "command",
+            "label": "Rename person",
+            "feature": null,
+            "name": "RenamePerson",
+            "class": "Prospecter\\Core\\PersonalData\\Application\\Person\\RenamePerson\\RenamePerson",
+            "context": "PersonalData",
+            "module": "Person",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\PersonalData\\Application\\Profile\\CollectTheFounderProfile\\CollectTheFounderProfile",
+            "slug": "command:CollectTheFounderProfile",
+            "type": "command",
+            "label": "Collect the founder profile",
+            "feature": null,
+            "name": "CollectTheFounderProfile",
+            "class": "Prospecter\\Core\\PersonalData\\Application\\Profile\\CollectTheFounderProfile\\CollectTheFounderProfile",
+            "context": "PersonalData",
+            "module": "Profile",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "command:Prospecter\\Core\\PersonalData\\Application\\Profile\\CollectTheMemberProfile\\CollectTheMemberProfile",
+            "slug": "command:CollectTheMemberProfile",
+            "type": "command",
+            "label": "Collect the member profile",
+            "feature": null,
+            "name": "CollectTheMemberProfile",
+            "class": "Prospecter\\Core\\PersonalData\\Application\\Profile\\CollectTheMemberProfile\\CollectTheMemberProfile",
+            "context": "PersonalData",
+            "module": "Profile",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\Accounts\\Contract\\Event\\AccountOpened",
+            "slug": "Accounts/published:AccountOpened",
+            "type": "event",
+            "label": "Account opened",
+            "feature": null,
+            "name": "AccountOpened",
+            "class": "Prospecter\\Core\\Accounts\\Contract\\Event\\AccountOpened",
+            "context": "Accounts",
+            "module": null,
+            "detail": "Published to the other contexts",
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\Accounts\\Contract\\Event\\MemberRegistered",
+            "slug": "Accounts/published:MemberRegistered",
+            "type": "event",
+            "label": "Member registered",
+            "feature": null,
+            "name": "MemberRegistered",
+            "class": "Prospecter\\Core\\Accounts\\Contract\\Event\\MemberRegistered",
+            "context": "Accounts",
+            "module": null,
+            "detail": "Published to the other contexts",
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\Booking\\Contract\\Event\\SlotBooked",
+            "slug": "Booking/published:SlotBooked",
+            "type": "event",
+            "label": "Slot booked",
+            "feature": null,
+            "name": "SlotBooked",
+            "class": "Prospecter\\Core\\Booking\\Contract\\Event\\SlotBooked",
+            "context": "Booking",
+            "module": null,
+            "detail": "Published to the other contexts",
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\BookerIdentified",
+            "slug": "published:BookerIdentified",
+            "type": "event",
+            "label": "Booker identified",
+            "feature": null,
+            "name": "BookerIdentified",
+            "class": "Prospecter\\Core\\PersonalData\\Contract\\Event\\BookerIdentified",
+            "context": "PersonalData",
+            "module": null,
+            "detail": "Published to the other contexts",
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactCollected",
+            "slug": "published:ContactCollected",
+            "type": "event",
+            "label": "Contact collected",
+            "feature": null,
+            "name": "ContactCollected",
+            "class": "Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactCollected",
+            "context": "PersonalData",
+            "module": null,
+            "detail": "Published to the other contexts",
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactFactsChanged",
+            "slug": "published:ContactFactsChanged",
+            "type": "event",
+            "label": "Contact facts changed",
+            "feature": null,
+            "name": "ContactFactsChanged",
+            "class": "Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactFactsChanged",
+            "context": "PersonalData",
+            "module": null,
+            "detail": "Published to the other contexts",
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactForgotten",
+            "slug": "published:ContactForgotten",
+            "type": "event",
+            "label": "Contact forgotten",
+            "feature": null,
+            "name": "ContactForgotten",
+            "class": "Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactForgotten",
+            "context": "PersonalData",
+            "module": null,
+            "detail": "Published to the other contexts",
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\BookerIdentified",
+            "slug": "event:BookerIdentified",
+            "type": "event",
+            "label": "Booker identified",
+            "feature": null,
+            "name": "BookerIdentified",
+            "class": "Prospecter\\Core\\PersonalData\\Domain\\Event\\BookerIdentified",
+            "context": "PersonalData",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\ContactCollected",
+            "slug": "event:ContactCollected",
+            "type": "event",
+            "label": "Contact collected",
+            "feature": null,
+            "name": "ContactCollected",
+            "class": "Prospecter\\Core\\PersonalData\\Domain\\Event\\ContactCollected",
+            "context": "PersonalData",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\ContactCompleted",
+            "slug": "event:ContactCompleted",
+            "type": "event",
+            "label": "Contact completed",
+            "feature": null,
+            "name": "ContactCompleted",
+            "class": "Prospecter\\Core\\PersonalData\\Domain\\Event\\ContactCompleted",
+            "context": "PersonalData",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\ContactForgotten",
+            "slug": "event:ContactForgotten",
+            "type": "event",
+            "label": "Contact forgotten",
+            "feature": null,
+            "name": "ContactForgotten",
+            "class": "Prospecter\\Core\\PersonalData\\Domain\\Event\\ContactForgotten",
+            "context": "PersonalData",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\DuplicateSuspected",
+            "slug": "event:DuplicateSuspected",
+            "type": "event",
+            "label": "Duplicate suspected",
+            "feature": null,
+            "name": "DuplicateSuspected",
+            "class": "Prospecter\\Core\\PersonalData\\Domain\\Event\\DuplicateSuspected",
+            "context": "PersonalData",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\DuplicateSuspicionDismissed",
+            "slug": "event:DuplicateSuspicionDismissed",
+            "type": "event",
+            "label": "Duplicate suspicion dismissed",
+            "feature": null,
+            "name": "DuplicateSuspicionDismissed",
+            "class": "Prospecter\\Core\\PersonalData\\Domain\\Event\\DuplicateSuspicionDismissed",
+            "context": "PersonalData",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\DuplicateSuspicionLifted",
+            "slug": "event:DuplicateSuspicionLifted",
+            "type": "event",
+            "label": "Duplicate suspicion lifted",
+            "feature": null,
+            "name": "DuplicateSuspicionLifted",
+            "class": "Prospecter\\Core\\PersonalData\\Domain\\Event\\DuplicateSuspicionLifted",
+            "context": "PersonalData",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\JobTitleChanged",
+            "slug": "event:JobTitleChanged",
+            "type": "event",
+            "label": "Job title changed",
+            "feature": null,
+            "name": "JobTitleChanged",
+            "class": "Prospecter\\Core\\PersonalData\\Domain\\Event\\JobTitleChanged",
+            "context": "PersonalData",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\PersonContactDetailsChanged",
+            "slug": "event:PersonContactDetailsChanged",
+            "type": "event",
+            "label": "Person contact details changed",
+            "feature": null,
+            "name": "PersonContactDetailsChanged",
+            "class": "Prospecter\\Core\\PersonalData\\Domain\\Event\\PersonContactDetailsChanged",
+            "context": "PersonalData",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\PersonEvent",
+            "slug": "event:PersonEvent",
+            "type": "event",
+            "label": "Person event",
+            "feature": null,
+            "name": "PersonEvent",
+            "class": "Prospecter\\Core\\PersonalData\\Domain\\Event\\PersonEvent",
+            "context": "PersonalData",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\PersonPictureChanged",
+            "slug": "event:PersonPictureChanged",
+            "type": "event",
+            "label": "Person picture changed",
+            "feature": null,
+            "name": "PersonPictureChanged",
+            "class": "Prospecter\\Core\\PersonalData\\Domain\\Event\\PersonPictureChanged",
+            "context": "PersonalData",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\PersonRenamed",
+            "slug": "event:PersonRenamed",
+            "type": "event",
+            "label": "Person renamed",
+            "feature": null,
+            "name": "PersonRenamed",
+            "class": "Prospecter\\Core\\PersonalData\\Domain\\Event\\PersonRenamed",
+            "context": "PersonalData",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\TitleChanged",
+            "slug": "event:TitleChanged",
+            "type": "event",
+            "label": "Title changed",
+            "feature": null,
+            "name": "TitleChanged",
+            "class": "Prospecter\\Core\\PersonalData\\Domain\\Event\\TitleChanged",
+            "context": "PersonalData",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\ContactLeftUnattached",
+            "slug": "Prospecting/published:ContactLeftUnattached",
+            "type": "event",
+            "label": "Contact left unattached",
+            "feature": null,
+            "name": "ContactLeftUnattached",
+            "class": "Prospecter\\Core\\Prospecting\\Contract\\Event\\ContactLeftUnattached",
+            "context": "Prospecting",
+            "module": null,
+            "detail": "Published to the other contexts",
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\ContactsLeftWithoutOrganization",
+            "slug": "Prospecting/published:ContactsLeftWithoutOrganization",
+            "type": "event",
+            "label": "Contacts left without organization",
+            "feature": null,
+            "name": "ContactsLeftWithoutOrganization",
+            "class": "Prospecter\\Core\\Prospecting\\Contract\\Event\\ContactsLeftWithoutOrganization",
+            "context": "Prospecting",
+            "module": null,
+            "detail": "Published to the other contexts",
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Bookers",
+            "slug": "externalSystem:Bookers",
+            "type": "externalSystem",
+            "label": "Bookers",
+            "feature": null,
+            "name": "Bookers",
+            "class": "Prospecter\\Core\\PersonalData\\Domain\\Port\\Bookers",
+            "context": "PersonalData",
+            "module": null,
+            "detail": "BookingBookers",
+            "answeredBy": [
+                "Booking"
+            ],
+            "answers": [
+                {
+                    "context": "Booking",
+                    "slug": "readModel:ConsultAppointments",
+                    "label": "Appointments"
+                }
+            ],
+            "readBy": []
+        },
+        {
+            "id": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\OrganizationsOfContacts",
+            "slug": "externalSystem:OrganizationsOfContacts",
+            "type": "externalSystem",
+            "label": "Organizations of contacts",
+            "feature": null,
+            "name": "OrganizationsOfContacts",
+            "class": "Prospecter\\Core\\PersonalData\\Domain\\Port\\OrganizationsOfContacts",
+            "context": "PersonalData",
+            "module": null,
+            "detail": "ProspectingOrganizationsOfContacts",
+            "answeredBy": [
+                "Prospecting"
+            ],
+            "answers": [
+                {
+                    "context": "Prospecting",
+                    "slug": "readModel:WhichOrganizationsNameTheseContacts",
+                    "label": "Which organizations name these contacts"
+                }
+            ],
+            "readBy": []
+        },
+        {
+            "id": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\ProspectedOrganizations",
+            "slug": "externalSystem:ProspectedOrganizations",
+            "type": "externalSystem",
+            "label": "Prospected organizations",
+            "feature": null,
+            "name": "ProspectedOrganizations",
+            "class": "Prospecter\\Core\\PersonalData\\Domain\\Port\\ProspectedOrganizations",
+            "context": "PersonalData",
+            "module": null,
+            "detail": "ProspectingOrganizations",
+            "answeredBy": [
+                "Prospecting"
+            ],
+            "answers": [
+                {
+                    "context": "Prospecting",
+                    "slug": "readModel:WhichAreProspected",
+                    "label": "Which are prospected"
+                }
+            ],
+            "readBy": []
+        },
+        {
+            "id": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
+            "slug": "externalSystem:Readers",
+            "type": "externalSystem",
+            "label": "Readers",
+            "feature": null,
+            "name": "Readers",
+            "class": "Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
+            "context": "PersonalData",
+            "module": null,
+            "detail": "AccountsReaders",
+            "answeredBy": [
+                "Accounts"
+            ],
+            "answers": [
+                {
+                    "context": "Accounts",
+                    "slug": "readModel:ConsultMembers",
+                    "label": "Members"
+                }
+            ],
+            "readBy": []
+        },
+        {
+            "id": "policy:Prospecter\\Core\\Campaigns\\Application\\Policy\\ForgetRecipientOfForgottenContactPolicy",
+            "slug": "Campaigns/policy:ForgetRecipientOfForgottenContactPolicy",
+            "type": "policy",
+            "label": "Forget recipient of forgotten contact",
+            "feature": null,
+            "name": "ForgetRecipientOfForgottenContactPolicy",
+            "class": "Prospecter\\Core\\Campaigns\\Application\\Policy\\ForgetRecipientOfForgottenContactPolicy",
+            "context": "Campaigns",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "policy:Prospecter\\Core\\Campaigns\\Application\\Policy\\ForgetTagsOfForgottenContactPolicy",
+            "slug": "Campaigns/policy:ForgetTagsOfForgottenContactPolicy",
+            "type": "policy",
+            "label": "Forget tags of forgotten contact",
+            "feature": null,
+            "name": "ForgetTagsOfForgottenContactPolicy",
+            "class": "Prospecter\\Core\\Campaigns\\Application\\Policy\\ForgetTagsOfForgottenContactPolicy",
+            "context": "Campaigns",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "policy:Prospecter\\Core\\Campaigns\\Application\\Policy\\RecordFactsPolicy",
+            "slug": "Campaigns/policy:RecordFactsPolicy",
+            "type": "policy",
+            "label": "Record facts",
+            "feature": null,
+            "name": "RecordFactsPolicy",
+            "class": "Prospecter\\Core\\Campaigns\\Application\\Policy\\RecordFactsPolicy",
+            "context": "Campaigns",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "policy:Prospecter\\Core\\Connectors\\Application\\Policy\\UnnameForgottenContactPolicy",
+            "slug": "Connectors/policy:UnnameForgottenContactPolicy",
+            "type": "policy",
+            "label": "Unname forgotten contact",
+            "feature": null,
+            "name": "UnnameForgottenContactPolicy",
+            "class": "Prospecter\\Core\\Connectors\\Application\\Policy\\UnnameForgottenContactPolicy",
+            "context": "Connectors",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "policy:Prospecter\\Core\\PersonalData\\Application\\Contact\\PublishContactCollected\\PublishContactCollectedHandler",
+            "slug": "policy:PublishContactCollectedHandler",
+            "type": "policy",
+            "label": "Publish contact collected",
+            "feature": null,
+            "name": "PublishContactCollectedHandler",
+            "class": "Prospecter\\Core\\PersonalData\\Application\\Contact\\PublishContactCollected\\PublishContactCollectedHandler",
+            "context": "PersonalData",
+            "module": "Contact",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "policy:Prospecter\\Core\\PersonalData\\Application\\Contact\\PublishContactForgotten\\PublishContactForgottenHandler",
+            "slug": "policy:PublishContactForgottenHandler",
+            "type": "policy",
+            "label": "Publish contact forgotten",
+            "feature": null,
+            "name": "PublishContactForgottenHandler",
+            "class": "Prospecter\\Core\\PersonalData\\Application\\Contact\\PublishContactForgotten\\PublishContactForgottenHandler",
+            "context": "PersonalData",
+            "module": "Contact",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "policy:Prospecter\\Core\\PersonalData\\Application\\Facts\\PublishContactFacts\\PublishContactFactsHandler",
+            "slug": "policy:PublishContactFactsHandler",
+            "type": "policy",
+            "label": "Publish contact facts",
+            "feature": null,
+            "name": "PublishContactFactsHandler",
+            "class": "Prospecter\\Core\\PersonalData\\Application\\Facts\\PublishContactFacts\\PublishContactFactsHandler",
+            "context": "PersonalData",
+            "module": "Facts",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "policy:Prospecter\\Core\\PersonalData\\Application\\Identification\\PublishBookerIdentified\\PublishBookerIdentifiedHandler",
+            "slug": "policy:PublishBookerIdentifiedHandler",
+            "type": "policy",
+            "label": "Publish booker identified",
+            "feature": null,
+            "name": "PublishBookerIdentifiedHandler",
+            "class": "Prospecter\\Core\\PersonalData\\Application\\Identification\\PublishBookerIdentified\\PublishBookerIdentifiedHandler",
+            "context": "PersonalData",
+            "module": "Identification",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\CollectTheFounderProfilePolicy",
+            "slug": "policy:CollectTheFounderProfilePolicy",
+            "type": "policy",
+            "label": "Collect the founder profile",
+            "feature": null,
+            "name": "CollectTheFounderProfilePolicy",
+            "class": "Prospecter\\Core\\PersonalData\\Application\\Policy\\CollectTheFounderProfilePolicy",
+            "context": "PersonalData",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\CollectTheMemberProfilePolicy",
+            "slug": "policy:CollectTheMemberProfilePolicy",
+            "type": "policy",
+            "label": "Collect the member profile",
+            "feature": null,
+            "name": "CollectTheMemberProfilePolicy",
+            "class": "Prospecter\\Core\\PersonalData\\Application\\Policy\\CollectTheMemberProfilePolicy",
+            "context": "PersonalData",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\DismissSuspicionInReturnPolicy",
+            "slug": "policy:DismissSuspicionInReturnPolicy",
+            "type": "policy",
+            "label": "Dismiss suspicion in return",
+            "feature": null,
+            "name": "DismissSuspicionInReturnPolicy",
+            "class": "Prospecter\\Core\\PersonalData\\Application\\Policy\\DismissSuspicionInReturnPolicy",
+            "context": "PersonalData",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\ForgetContactLeftUnattachedPolicy",
+            "slug": "policy:ForgetContactLeftUnattachedPolicy",
+            "type": "policy",
+            "label": "Forget contact left unattached",
+            "feature": null,
+            "name": "ForgetContactLeftUnattachedPolicy",
+            "class": "Prospecter\\Core\\PersonalData\\Application\\Policy\\ForgetContactLeftUnattachedPolicy",
+            "context": "PersonalData",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\ForgetContactsLeftWithoutOrganizationPolicy",
+            "slug": "policy:ForgetContactsLeftWithoutOrganizationPolicy",
+            "type": "policy",
+            "label": "Forget contacts left without organization",
+            "feature": null,
+            "name": "ForgetContactsLeftWithoutOrganizationPolicy",
+            "class": "Prospecter\\Core\\PersonalData\\Application\\Policy\\ForgetContactsLeftWithoutOrganizationPolicy",
+            "context": "PersonalData",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\IdentifyBookerPolicy",
+            "slug": "policy:IdentifyBookerPolicy",
+            "type": "policy",
+            "label": "Identify booker",
+            "feature": null,
+            "name": "IdentifyBookerPolicy",
+            "class": "Prospecter\\Core\\PersonalData\\Application\\Policy\\IdentifyBookerPolicy",
+            "context": "PersonalData",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\LiftSuspicionInReturnPolicy",
+            "slug": "policy:LiftSuspicionInReturnPolicy",
+            "type": "policy",
+            "label": "Lift suspicion in return",
+            "feature": null,
+            "name": "LiftSuspicionInReturnPolicy",
+            "class": "Prospecter\\Core\\PersonalData\\Application\\Policy\\LiftSuspicionInReturnPolicy",
+            "context": "PersonalData",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\SuspectDuplicateInReturnPolicy",
+            "slug": "policy:SuspectDuplicateInReturnPolicy",
+            "type": "policy",
+            "label": "Suspect duplicate in return",
+            "feature": null,
+            "name": "SuspectDuplicateInReturnPolicy",
+            "class": "Prospecter\\Core\\PersonalData\\Application\\Policy\\SuspectDuplicateInReturnPolicy",
+            "context": "PersonalData",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\AttachCollectedContactPolicy",
+            "slug": "Prospecting/policy:AttachCollectedContactPolicy",
+            "type": "policy",
+            "label": "Attach collected contact",
+            "feature": null,
+            "name": "AttachCollectedContactPolicy",
+            "class": "Prospecter\\Core\\Prospecting\\Application\\Policy\\AttachCollectedContactPolicy",
+            "context": "Prospecting",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\DetachForgottenContactPolicy",
+            "slug": "Prospecting/policy:DetachForgottenContactPolicy",
+            "type": "policy",
+            "label": "Detach forgotten contact",
+            "feature": null,
+            "name": "DetachForgottenContactPolicy",
+            "class": "Prospecter\\Core\\Prospecting\\Application\\Policy\\DetachForgottenContactPolicy",
+            "context": "Prospecting",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\EraseToDosOfForgottenContactPolicy",
+            "slug": "Prospecting/policy:EraseToDosOfForgottenContactPolicy",
+            "type": "policy",
+            "label": "Erase to dos of forgotten contact",
+            "feature": null,
+            "name": "EraseToDosOfForgottenContactPolicy",
+            "class": "Prospecter\\Core\\Prospecting\\Application\\Policy\\EraseToDosOfForgottenContactPolicy",
+            "context": "Prospecting",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\ForgetFingerprintsOfForgottenContactPolicy",
+            "slug": "Prospecting/policy:ForgetFingerprintsOfForgottenContactPolicy",
+            "type": "policy",
+            "label": "Forget fingerprints of forgotten contact",
+            "feature": null,
+            "name": "ForgetFingerprintsOfForgottenContactPolicy",
+            "class": "Prospecter\\Core\\Prospecting\\Application\\Policy\\ForgetFingerprintsOfForgottenContactPolicy",
+            "context": "Prospecting",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\KeepExchangesOfForgottenContactPolicy",
+            "slug": "Prospecting/policy:KeepExchangesOfForgottenContactPolicy",
+            "type": "policy",
+            "label": "Keep exchanges of forgotten contact",
+            "feature": null,
+            "name": "KeepExchangesOfForgottenContactPolicy",
+            "class": "Prospecter\\Core\\Prospecting\\Application\\Policy\\KeepExchangesOfForgottenContactPolicy",
+            "context": "Prospecting",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\PlanBookedAppointmentPolicy",
+            "slug": "Prospecting/policy:PlanBookedAppointmentPolicy",
+            "type": "policy",
+            "label": "Plan booked appointment",
+            "feature": null,
+            "name": "PlanBookedAppointmentPolicy",
+            "class": "Prospecter\\Core\\Prospecting\\Application\\Policy\\PlanBookedAppointmentPolicy",
+            "context": "Prospecting",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "policy:Prospecter\\Core\\Reporting\\Application\\Policy\\RecordFactsPolicy",
+            "slug": "Reporting/policy:RecordFactsPolicy",
+            "type": "policy",
+            "label": "Record facts",
+            "feature": null,
+            "name": "RecordFactsPolicy",
+            "class": "Prospecter\\Core\\Reporting\\Application\\Policy\\RecordFactsPolicy",
+            "context": "Reporting",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "readModel:Prospecter\\Core\\PersonalData\\Application\\Contact\\CompareWithContact\\CompareWithContact",
+            "slug": "readModel:CompareWithContact",
+            "type": "readModel",
+            "label": "Comparison",
+            "feature": null,
+            "name": "CompareWithContact",
+            "class": "Prospecter\\Core\\PersonalData\\Application\\Contact\\CompareWithContact\\CompareWithContact",
+            "context": "PersonalData",
+            "module": "Contact",
+            "detail": "Comparison",
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "readModel:Prospecter\\Core\\PersonalData\\Application\\Contact\\SearchContacts\\SearchContacts",
+            "slug": "readModel:SearchContacts",
+            "type": "readModel",
+            "label": "Contact page",
+            "feature": null,
+            "name": "SearchContacts",
+            "class": "Prospecter\\Core\\PersonalData\\Application\\Contact\\SearchContacts\\SearchContacts",
+            "context": "PersonalData",
+            "module": "Contact",
+            "detail": "ContactPage",
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "readModel:Prospecter\\Core\\PersonalData\\Application\\Identification\\IdentifyPersons\\IdentifyPersons",
+            "slug": "readModel:IdentifyPersons",
+            "type": "readModel",
+            "label": "Identify persons",
+            "feature": null,
+            "name": "IdentifyPersons",
+            "class": "Prospecter\\Core\\PersonalData\\Application\\Identification\\IdentifyPersons\\IdentifyPersons",
+            "context": "PersonalData",
+            "module": "Identification",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "readModel:Prospecter\\Core\\PersonalData\\Application\\Identification\\RecognizeCallingContact\\RecognizeCallingContact",
+            "slug": "readModel:RecognizeCallingContact",
+            "type": "readModel",
+            "label": "Recognize calling contact",
+            "feature": null,
+            "name": "RecognizeCallingContact",
+            "class": "Prospecter\\Core\\PersonalData\\Application\\Identification\\RecognizeCallingContact\\RecognizeCallingContact",
+            "context": "PersonalData",
+            "module": "Identification",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "readModel:Prospecter\\Core\\PersonalData\\Application\\Person\\ConsultPerson\\ConsultPerson",
+            "slug": "readModel:ConsultPerson",
+            "type": "readModel",
+            "label": "Person card",
+            "feature": null,
+            "name": "ConsultPerson",
+            "class": "Prospecter\\Core\\PersonalData\\Application\\Person\\ConsultPerson\\ConsultPerson",
+            "context": "PersonalData",
+            "module": "Person",
+            "detail": "PersonCard",
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "readModel:Prospecter\\Core\\PersonalData\\Application\\Person\\ConsultPersons\\ConsultPersons",
+            "slug": "readModel:ConsultPersons",
+            "type": "readModel",
+            "label": "Persons",
+            "feature": null,
+            "name": "ConsultPersons",
+            "class": "Prospecter\\Core\\PersonalData\\Application\\Person\\ConsultPersons\\ConsultPersons",
+            "context": "PersonalData",
+            "module": "Person",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "readModel:Prospecter\\Core\\PersonalData\\Contract\\Service\\ListContactFacts\\ListContactFacts",
+            "slug": "readModel:ListContactFacts",
+            "type": "readModel",
+            "label": "List contact facts",
+            "feature": null,
+            "name": "ListContactFacts",
+            "class": "Prospecter\\Core\\PersonalData\\Contract\\Service\\ListContactFacts\\ListContactFacts",
+            "context": "PersonalData",
+            "module": "Facts",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": [
+                {
+                    "context": "Campaigns",
+                    "slug": "externalSystem:ContactsReach",
+                    "label": "Contacts reach"
+                },
+                {
+                    "context": "Reporting",
+                    "slug": "externalSystem:PersonalDataFacts",
+                    "label": "Personal data facts"
+                }
+            ]
+        },
+        {
+            "id": "readModel:Prospecter\\Core\\PersonalData\\Contract\\Service\\NameContacts\\NameContacts",
+            "slug": "readModel:NameContacts",
+            "type": "readModel",
+            "label": "Name contacts",
+            "feature": null,
+            "name": "NameContacts",
+            "class": "Prospecter\\Core\\PersonalData\\Contract\\Service\\NameContacts\\NameContacts",
+            "context": "PersonalData",
+            "module": "Contact",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": [
+                {
+                    "context": "Campaigns",
+                    "slug": "externalSystem:Addressees",
+                    "label": "Addressees"
+                },
+                {
+                    "context": "Connectors",
+                    "slug": "externalSystem:ContactNames",
+                    "label": "Contact names"
+                }
+            ]
+        },
+        {
+            "id": "readModel:Prospecter\\Core\\PersonalData\\Contract\\Service\\PresentMembers\\PresentMembers",
+            "slug": "readModel:PresentMembers",
+            "type": "readModel",
+            "label": "Present members",
+            "feature": null,
+            "name": "PresentMembers",
+            "class": "Prospecter\\Core\\PersonalData\\Contract\\Service\\PresentMembers\\PresentMembers",
+            "context": "PersonalData",
+            "module": "Profile",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": [
+                {
+                    "context": "Booking",
+                    "slug": "externalSystem:Hosts",
+                    "label": "Hosts"
+                },
+                {
+                    "context": "Connectors",
+                    "slug": "externalSystem:Members",
+                    "label": "Members"
+                }
+            ]
+        },
+        {
+            "id": "readModel:Prospecter\\Core\\PersonalData\\Contract\\Service\\WhichAreContacts\\WhichAreContacts",
+            "slug": "readModel:WhichAreContacts",
+            "type": "readModel",
+            "label": "Which are contacts",
+            "feature": null,
+            "name": "WhichAreContacts",
+            "class": "Prospecter\\Core\\PersonalData\\Contract\\Service\\WhichAreContacts\\WhichAreContacts",
+            "context": "PersonalData",
+            "module": "Contact",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": [
+                {
+                    "context": "Campaigns",
+                    "slug": "externalSystem:TaggableContacts",
+                    "label": "Taggable contacts"
+                },
+                {
+                    "context": "Prospecting",
+                    "slug": "externalSystem:KnownContacts",
+                    "label": "Known contacts"
+                }
+            ]
+        },
+        {
+            "id": "readModel:Prospecter\\Core\\PersonalData\\Contract\\Service\\WhichContactsHaveTheseEmails\\WhichContactsHaveTheseEmails",
+            "slug": "readModel:WhichContactsHaveTheseEmails",
+            "type": "readModel",
+            "label": "Which contacts have these emails",
+            "feature": null,
+            "name": "WhichContactsHaveTheseEmails",
+            "class": "Prospecter\\Core\\PersonalData\\Contract\\Service\\WhichContactsHaveTheseEmails\\WhichContactsHaveTheseEmails",
+            "context": "PersonalData",
+            "module": "Contact",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": [
+                {
+                    "context": "Connectors",
+                    "slug": "externalSystem:Correspondents",
+                    "label": "Correspondents"
+                }
+            ]
+        },
+        {
+            "id": "readModel:Prospecter\\Core\\PersonalData\\Contract\\Service\\WhichEmailsHaveTheseContacts\\WhichEmailsHaveTheseContacts",
+            "slug": "readModel:WhichEmailsHaveTheseContacts",
+            "type": "readModel",
+            "label": "Which emails have these contacts",
+            "feature": null,
+            "name": "WhichEmailsHaveTheseContacts",
+            "class": "Prospecter\\Core\\PersonalData\\Contract\\Service\\WhichEmailsHaveTheseContacts\\WhichEmailsHaveTheseContacts",
+            "context": "PersonalData",
+            "module": "Contact",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": [
+                {
+                    "context": "Connectors",
+                    "slug": "externalSystem:CorrespondentAddresses",
+                    "label": "Correspondent addresses"
+                }
+            ]
+        }
+    ],
+    "links": [
+        {
+            "from": "actor:ROLE_PROSPECTOR",
+            "to": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\CollectContact\\CollectContact",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PROSPECTOR",
+            "to": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\ForgetContact\\ForgetContact",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PROSPECTOR",
+            "to": "command:Prospecter\\Core\\PersonalData\\Application\\Duplicate\\DismissPossibleDuplicate\\DismissPossibleDuplicate",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PROSPECTOR",
+            "to": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangeCivility\\ChangeCivility",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PROSPECTOR",
+            "to": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangeJobTitle\\ChangeJobTitle",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PROSPECTOR",
+            "to": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangePersonContactDetails\\ChangePersonContactDetails",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PROSPECTOR",
+            "to": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\RenamePerson\\RenamePerson",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PROSPECTOR",
+            "to": "readModel:Prospecter\\Core\\PersonalData\\Application\\Contact\\SearchContacts\\SearchContacts",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PROSPECTOR",
+            "to": "readModel:Prospecter\\Core\\PersonalData\\Application\\Identification\\RecognizeCallingContact\\RecognizeCallingContact",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PROSPECTOR",
+            "to": "readModel:Prospecter\\Core\\PersonalData\\Application\\Person\\ConsultPerson\\ConsultPerson",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PROSPECTOR",
+            "to": "readModel:Prospecter\\Core\\PersonalData\\Application\\Person\\ConsultPersons\\ConsultPersons",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_USER",
+            "to": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangePersonContactDetails\\ChangePersonContactDetails",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_USER",
+            "to": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangePersonPicture\\ChangePersonPicture",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_USER",
+            "to": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\RenamePerson\\RenamePerson",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_USER",
+            "to": "readModel:Prospecter\\Core\\PersonalData\\Application\\Person\\ConsultPerson\\ConsultPerson",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:mcp",
+            "to": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\CollectContact\\CollectContact",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:mcp",
+            "to": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\CompleteContact\\CompleteContact",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:mcp",
+            "to": "command:Prospecter\\Core\\PersonalData\\Application\\Duplicate\\DismissPossibleDuplicate\\DismissPossibleDuplicate",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:mcp",
+            "to": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangeCivility\\ChangeCivility",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:mcp",
+            "to": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangeJobTitle\\ChangeJobTitle",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:mcp",
+            "to": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangePersonContactDetails\\ChangePersonContactDetails",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:mcp",
+            "to": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangePersonPicture\\ChangePersonPicture",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:mcp",
+            "to": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\RenamePerson\\RenamePerson",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:mcp",
+            "to": "readModel:Prospecter\\Core\\PersonalData\\Application\\Contact\\CompareWithContact\\CompareWithContact",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:mcp",
+            "to": "readModel:Prospecter\\Core\\PersonalData\\Application\\Contact\\SearchContacts\\SearchContacts",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:mcp",
+            "to": "readModel:Prospecter\\Core\\PersonalData\\Application\\Identification\\IdentifyPersons\\IdentifyPersons",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:mcp",
+            "to": "readModel:Prospecter\\Core\\PersonalData\\Application\\Identification\\RecognizeCallingContact\\RecognizeCallingContact",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:mcp",
+            "to": "readModel:Prospecter\\Core\\PersonalData\\Application\\Person\\ConsultPerson\\ConsultPerson",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:mcp",
+            "to": "readModel:Prospecter\\Core\\PersonalData\\Application\\Person\\ConsultPersons\\ConsultPersons",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
+            "to": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\BookerIdentified",
+            "via": "identifyAsBookerOf",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
+            "to": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\ContactCollected",
+            "via": "collectAsContact",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
+            "to": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\ContactCollected",
+            "via": "collectToAttach",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
+            "to": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\ContactCompleted",
+            "via": "completeWith",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
+            "to": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\ContactForgotten",
+            "via": "forget",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
+            "to": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\DuplicateSuspected",
+            "via": "reconsiderDuplicates",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
+            "to": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\DuplicateSuspected",
+            "via": "suspectDuplicateOf",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
+            "to": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\DuplicateSuspicionDismissed",
+            "via": "dismissSuspicionOf",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
+            "to": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\DuplicateSuspicionDismissed",
+            "via": "knowItIsNoDuplicateOf",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
+            "to": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\DuplicateSuspicionLifted",
+            "via": "forget",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
+            "to": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\DuplicateSuspicionLifted",
+            "via": "liftSuspicionOf",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
+            "to": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\DuplicateSuspicionLifted",
+            "via": "reconsiderDuplicates",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
+            "to": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\JobTitleChanged",
+            "via": "changeJobTitle",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
+            "to": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\PersonContactDetailsChanged",
+            "via": "changeContactDetails",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
+            "to": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\PersonPictureChanged",
+            "via": "changePicture",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
+            "to": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\PersonRenamed",
+            "via": "rename",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
+            "to": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\TitleChanged",
+            "via": "changeCivility",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\CollectContact\\CollectContact",
+            "to": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
+            "via": "collectAsContact",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\CollectContact\\CollectContact",
+            "to": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
+            "via": "reconsiderDuplicates",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\CollectContact\\CollectContact",
+            "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\OrganizationsOfContacts",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\CollectContact\\CollectContact",
+            "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\ProspectedOrganizations",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\CollectContact\\CollectContact",
+            "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\CompleteContact\\CompleteContact",
+            "to": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
+            "via": "completeWith",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\CompleteContact\\CompleteContact",
+            "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\ForgetContactLeftUnattached\\ForgetContactLeftUnattached",
+            "to": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
+            "via": "forget",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\ForgetContactLeftUnattached\\ForgetContactLeftUnattached",
+            "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\ForgetContact\\ForgetContact",
+            "to": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
+            "via": "forget",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\ForgetContact\\ForgetContact",
+            "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\ForgetContactsLeftWithoutOrganization\\ForgetContactsLeftWithoutOrganization",
+            "to": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
+            "via": "forget",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\ForgetContactsLeftWithoutOrganization\\ForgetContactsLeftWithoutOrganization",
+            "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\PersonalData\\Application\\Duplicate\\DismissPossibleDuplicate\\DismissPossibleDuplicate",
+            "to": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
+            "via": "dismissSuspicionOf",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\PersonalData\\Application\\Duplicate\\DismissPossibleDuplicate\\DismissPossibleDuplicate",
+            "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\PersonalData\\Application\\Duplicate\\DismissSuspicionInReturn\\DismissSuspicionInReturn",
+            "to": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
+            "via": "knowItIsNoDuplicateOf",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\PersonalData\\Application\\Duplicate\\LiftSuspicionInReturn\\LiftSuspicionInReturn",
+            "to": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
+            "via": "liftSuspicionOf",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\PersonalData\\Application\\Duplicate\\SuspectDuplicateInReturn\\SuspectDuplicateInReturn",
+            "to": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
+            "via": "suspectDuplicateOf",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\PersonalData\\Application\\Identification\\IdentifyBooker\\IdentifyBooker",
+            "to": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
+            "via": "collectToAttach",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\PersonalData\\Application\\Identification\\IdentifyBooker\\IdentifyBooker",
+            "to": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
+            "via": "identifyAsBookerOf",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\PersonalData\\Application\\Identification\\IdentifyBooker\\IdentifyBooker",
+            "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Bookers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\PersonalData\\Application\\Identification\\IdentifyBooker\\IdentifyBooker",
+            "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangeCivility\\ChangeCivility",
+            "to": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
+            "via": "changeCivility",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangeCivility\\ChangeCivility",
+            "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangeJobTitle\\ChangeJobTitle",
+            "to": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
+            "via": "changeJobTitle",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangeJobTitle\\ChangeJobTitle",
+            "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangePersonContactDetails\\ChangePersonContactDetails",
+            "to": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
+            "via": "changeContactDetails",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangePersonContactDetails\\ChangePersonContactDetails",
+            "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangePersonPicture\\ChangePersonPicture",
+            "to": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
+            "via": "changePicture",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangePersonPicture\\ChangePersonPicture",
+            "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\RenamePerson\\RenamePerson",
+            "to": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
+            "via": "reconsiderDuplicates",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\RenamePerson\\RenamePerson",
+            "to": "aggregate:Prospecter\\Core\\PersonalData\\Domain\\Model\\Person",
+            "via": "rename",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\RenamePerson\\RenamePerson",
+            "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\OrganizationsOfContacts",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\RenamePerson\\RenamePerson",
+            "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "event:Prospecter\\Core\\Accounts\\Contract\\Event\\AccountOpened",
+            "to": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\CollectTheFounderProfilePolicy",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "event:Prospecter\\Core\\Accounts\\Contract\\Event\\MemberRegistered",
+            "to": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\CollectTheMemberProfilePolicy",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "event:Prospecter\\Core\\Booking\\Contract\\Event\\SlotBooked",
+            "to": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\IdentifyBookerPolicy",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\BookerIdentified",
+            "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\PlanBookedAppointmentPolicy",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactCollected",
+            "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\AttachCollectedContactPolicy",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactFactsChanged",
+            "to": "policy:Prospecter\\Core\\Campaigns\\Application\\Policy\\RecordFactsPolicy",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactFactsChanged",
+            "to": "policy:Prospecter\\Core\\Reporting\\Application\\Policy\\RecordFactsPolicy",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactForgotten",
+            "to": "policy:Prospecter\\Core\\Campaigns\\Application\\Policy\\ForgetRecipientOfForgottenContactPolicy",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactForgotten",
+            "to": "policy:Prospecter\\Core\\Campaigns\\Application\\Policy\\ForgetTagsOfForgottenContactPolicy",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactForgotten",
+            "to": "policy:Prospecter\\Core\\Connectors\\Application\\Policy\\UnnameForgottenContactPolicy",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactForgotten",
+            "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\DetachForgottenContactPolicy",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactForgotten",
+            "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\EraseToDosOfForgottenContactPolicy",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactForgotten",
+            "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\ForgetFingerprintsOfForgottenContactPolicy",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactForgotten",
+            "to": "policy:Prospecter\\Core\\Prospecting\\Application\\Policy\\KeepExchangesOfForgottenContactPolicy",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\BookerIdentified",
+            "to": "policy:Prospecter\\Core\\PersonalData\\Application\\Identification\\PublishBookerIdentified\\PublishBookerIdentifiedHandler",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\ContactCollected",
+            "to": "policy:Prospecter\\Core\\PersonalData\\Application\\Contact\\PublishContactCollected\\PublishContactCollectedHandler",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\ContactForgotten",
+            "to": "policy:Prospecter\\Core\\PersonalData\\Application\\Contact\\PublishContactForgotten\\PublishContactForgottenHandler",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\DuplicateSuspected",
+            "to": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\SuspectDuplicateInReturnPolicy",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\DuplicateSuspicionDismissed",
+            "to": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\DismissSuspicionInReturnPolicy",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\DuplicateSuspicionLifted",
+            "to": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\LiftSuspicionInReturnPolicy",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "event:Prospecter\\Core\\PersonalData\\Domain\\Event\\PersonEvent",
+            "to": "policy:Prospecter\\Core\\PersonalData\\Application\\Facts\\PublishContactFacts\\PublishContactFactsHandler",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\ContactLeftUnattached",
+            "to": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\ForgetContactLeftUnattachedPolicy",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "event:Prospecter\\Core\\Prospecting\\Contract\\Event\\ContactsLeftWithoutOrganization",
+            "to": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\ForgetContactsLeftWithoutOrganizationPolicy",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "policy:Prospecter\\Core\\PersonalData\\Application\\Contact\\PublishContactCollected\\PublishContactCollectedHandler",
+            "to": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactCollected",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "policy:Prospecter\\Core\\PersonalData\\Application\\Contact\\PublishContactForgotten\\PublishContactForgottenHandler",
+            "to": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactForgotten",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "policy:Prospecter\\Core\\PersonalData\\Application\\Facts\\PublishContactFacts\\PublishContactFactsHandler",
+            "to": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\ContactFactsChanged",
+            "via": null,
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "policy:Prospecter\\Core\\PersonalData\\Application\\Identification\\PublishBookerIdentified\\PublishBookerIdentifiedHandler",
+            "to": "event:Prospecter\\Core\\PersonalData\\Contract\\Event\\BookerIdentified",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\CollectTheFounderProfilePolicy",
+            "to": "command:Prospecter\\Core\\PersonalData\\Application\\Profile\\CollectTheFounderProfile\\CollectTheFounderProfile",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\CollectTheMemberProfilePolicy",
+            "to": "command:Prospecter\\Core\\PersonalData\\Application\\Profile\\CollectTheMemberProfile\\CollectTheMemberProfile",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\DismissSuspicionInReturnPolicy",
+            "to": "command:Prospecter\\Core\\PersonalData\\Application\\Duplicate\\DismissSuspicionInReturn\\DismissSuspicionInReturn",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\ForgetContactLeftUnattachedPolicy",
+            "to": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\ForgetContactLeftUnattached\\ForgetContactLeftUnattached",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\ForgetContactsLeftWithoutOrganizationPolicy",
+            "to": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\ForgetContactsLeftWithoutOrganization\\ForgetContactsLeftWithoutOrganization",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\IdentifyBookerPolicy",
+            "to": "command:Prospecter\\Core\\PersonalData\\Application\\Identification\\IdentifyBooker\\IdentifyBooker",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\LiftSuspicionInReturnPolicy",
+            "to": "command:Prospecter\\Core\\PersonalData\\Application\\Duplicate\\LiftSuspicionInReturn\\LiftSuspicionInReturn",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "policy:Prospecter\\Core\\PersonalData\\Application\\Policy\\SuspectDuplicateInReturnPolicy",
+            "to": "command:Prospecter\\Core\\PersonalData\\Application\\Duplicate\\SuspectDuplicateInReturn\\SuspectDuplicateInReturn",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\PersonalData\\Application\\Contact\\CompareWithContact\\CompareWithContact",
+            "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\PersonalData\\Application\\Contact\\SearchContacts\\SearchContacts",
+            "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\PersonalData\\Application\\Identification\\IdentifyPersons\\IdentifyPersons",
+            "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\OrganizationsOfContacts",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\PersonalData\\Application\\Identification\\IdentifyPersons\\IdentifyPersons",
+            "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\PersonalData\\Application\\Identification\\RecognizeCallingContact\\RecognizeCallingContact",
+            "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\PersonalData\\Application\\Person\\ConsultPerson\\ConsultPerson",
+            "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\PersonalData\\Application\\Person\\ConsultPersons\\ConsultPersons",
+            "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\PersonalData\\Contract\\Service\\NameContacts\\NameContacts",
+            "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\PersonalData\\Contract\\Service\\WhichEmailsHaveTheseContacts\\WhichEmailsHaveTheseContacts",
+            "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
+            "via": null,
+            "certain": true,
+            "when": null
+        }
+    ]
+}
