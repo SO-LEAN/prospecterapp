@@ -155,10 +155,11 @@ Its domain events stay in the context: `OrganizationTagsChanged`, `ContactTagsCh
     - from PersonalData and Prospecting: `Addressees` (what a message calls a contact);
     - from Prospecting: `TaggableOrganizations`, `OrganizationsAndTheirContacts`, and `CampaignExchanges` (which recipients have an exchange of the campaign, ADR 0195);
     - from PersonalData: `TaggableContacts` and `ContactsReach`.
-- `src/Campaigns/Application`:
-  - `PutTags`, `TakeOffTag`, `ConsultOrganizationTags`, `ConsultContactTags`, `ConsultSuggestedTags` (`SuggestedTags`), `SearchContactsByTags` (`TaggedContactPage`), `FactRecorder`, `RebuildTags` without a command's unit of work;
-  - `PrepareCampaign`, `ReviseCampaign`, `DiscardCampaign`, `ListCampaigns`, `ConsultCampaign` (`CampaignSheet`, `CampaignTargets`), `RenderCampaignMessage` (`CampaignMessage`), `NextRecipient` (`RecipientToHandle`), `FreezeCampaign`, `AddRecipientsByTags`, `AddRecipient`, `RemoveRecipient`, `StartCampaign`, `StopCampaign`, `SetDailyCap`, `DismissRecipient`, `EraseCampaign`, `TagsOfEveryContact`;
-  - the published queries `WhichRecipientsArePending` and `NameCampaigns`;
+- `src/Campaigns/Application`, in three modules (ADR 0206):
+  - `Tagging`, the tags on organizations and contacts: `PutTags`, `TakeOffTag`, `ConsultOrganizationTags`, `ConsultContactTags`, `ConsultSuggestedTags` (`SuggestedTags`), `SearchContactsByTags` (`TaggedContactPage`), `RecordOrganizationFacts` and `RecordContactFacts` through `FactRecorder`, `RebuildTags` without a command's unit of work, `ForgetTagsOfUnprospectedOrganization` and `ForgetTagsOfForgottenContact`;
+  - `Campaign`, a campaign's life: `PrepareCampaign`, `ReviseCampaign`, `DiscardCampaign`, `ListCampaigns` and `ConsultCampaign` (`CampaignTargets`), `RenderCampaignMessage` (`CampaignMessage`), `FreezeCampaign`, `StartCampaign`, `StopCampaign`, `SetDailyCap`, `EraseCampaign`, and the published query `NameCampaigns`;
+  - `Recipient`, who a campaign reaches and how each is handled: `AddRecipientsByTags`, `AddRecipient`, `RemoveRecipient`, `DismissRecipient`, `NextRecipient` (`RecipientToHandle`), `ProcessRecipientOfCampaignExchange`, `ReopenRecipientOfErasedExchange`, `ForgetRecipientOfForgottenContact`, and the published query `WhichRecipientsArePending`;
+  - at the application's root, what both `Campaign` and `Recipient` read: `CampaignSheet` and its `RecipientInSheet`, and `TagsOfEveryContact`;
   - the policies of `Policy/`, which turn the other contexts' events into the commands `ForgetTagsOfUnprospectedOrganization`, `ForgetTagsOfForgottenContact`, `ForgetRecipientOfForgottenContact`, `ProcessRecipientOfCampaignExchange`, `ReopenRecipientOfErasedExchange`, `RecordOrganizationFacts` and `RecordContactFacts` (ADR 0203). `RecordFactsPolicy` takes the facts of an organization or a contact;
   - the ports:
     - `TagsRetriever`: the taggings, and where the organizations are (`localityOf()`, `localitiesIn()`);
