@@ -28,10 +28,28 @@ final readonly class ModelDocument
             throw UnreadableCode::because($failures);
         }
         $facts = Facts::read($facts);
-        $storming = new ContextStorming($facts, new FeatureTitles($this->features)->byUseCase(), $this->readSubscriptions());
+        $features = new FeatureTitles($this->features);
+        $storming = new ContextStorming($facts, $features->byUseCase(), $this->readSubscriptions());
         $models = array_map($storming->model(...), $facts->contexts());
+        $warnings = [...array_merge(...array_map(self::untitledIn(...), $models)), ...array_map(self::untagged(...), $features->untagged())];
 
-        return json_encode(['models' => $models], self::JSON)."\n";
+        return json_encode(['models' => $models, 'warnings' => $warnings], self::JSON)."\n";
+    }
+
+    /**
+     * @return list<string> a warning for each use case of a model that no feature names: its post-it has no French title
+     */
+    private static function untitledIn(Model $model): array
+    {
+        return array_values(array_map(
+            static fn (Sticky $useCase): string => \sprintf('%s: no feature names the use case %s', $model->context, $useCase->name),
+            array_filter($model->stickies, static fn (Sticky $sticky): bool => $sticky->isAUseCase() && null === $sticky->feature),
+        ));
+    }
+
+    private static function untagged(string $feature): string
+    {
+        return \sprintf('No use case is named by the tags of the feature %s', $feature);
     }
 
     /**

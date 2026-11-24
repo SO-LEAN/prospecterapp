@@ -23,16 +23,37 @@ final readonly class FeatureTitles
     public function byUseCase(): array
     {
         $titles = [];
-        foreach (glob($this->directory.'/*.feature') ?: [] as $feature) {
-            $text = (string) file_get_contents($feature);
-            if (1 === preg_match(self::TITLE, $text, $title, \PREG_OFFSET_CAPTURE)) {
-                foreach (self::useCasesTaggedIn(substr($text, 0, $title[0][1])) as $useCase) {
-                    $titles[$useCase] = $title[1][0];
-                }
+        foreach ($this->features() as ['title' => $title, 'useCases' => $useCases]) {
+            foreach ($useCases as $useCase) {
+                $titles[$useCase] = $title;
             }
         }
 
         return $titles;
+    }
+
+    /**
+     * @return list<string> the files of the features that name no use case by its tag
+     */
+    public function untagged(): array
+    {
+        return array_keys(array_filter($this->features(), static fn (array $feature): bool => [] === $feature['useCases']));
+    }
+
+    /**
+     * @return array<string, array{title: string, useCases: list<string>}> each feature with a title, by its file
+     */
+    private function features(): array
+    {
+        $features = [];
+        foreach (glob($this->directory.'/*.feature') ?: [] as $feature) {
+            $text = (string) file_get_contents($feature);
+            if (1 === preg_match(self::TITLE, $text, $title, \PREG_OFFSET_CAPTURE)) {
+                $features[basename($feature)] = ['title' => $title[1][0], 'useCases' => self::useCasesTaggedIn(substr($text, 0, $title[0][1]))];
+            }
+        }
+
+        return $features;
     }
 
     /**
