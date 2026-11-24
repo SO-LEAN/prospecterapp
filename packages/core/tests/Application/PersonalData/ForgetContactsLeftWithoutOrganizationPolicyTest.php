@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Core\Application\PersonalData;
 
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\PersonalData\Application\ForgetContactsLeftWithoutOrganization\ForgetContactsLeftWithoutOrganization;
+use Prospecter\Core\PersonalData\Application\Contact\ForgetContactsLeftWithoutOrganization\ForgetContactsLeftWithoutOrganization;
 use Prospecter\Core\PersonalData\Application\Policy\ForgetContactsLeftWithoutOrganizationPolicy;
 use Prospecter\Core\Prospecting\Contract\Event\ContactsLeftWithoutOrganization;
 

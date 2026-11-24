@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\PersonalData\Input;
 
 use OpenApi\Attributes as OA;
-use Prospecter\Core\PersonalData\Application\CollectContact\CollectContact;
+use Prospecter\Core\PersonalData\Application\Contact\CollectContact\CollectContact;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Core\Double;
 
+use Prospecter\Core\PersonalData\Application\Contact\ContactPage;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\PersonalData\Application\Port\ContactPageRetriever;
-use Prospecter\Core\PersonalData\Application\SearchContacts\ContactPage;
 use Prospecter\Core\PersonalData\Domain\Model\ContactsIntent;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;

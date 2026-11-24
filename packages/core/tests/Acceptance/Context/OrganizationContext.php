@@ -9,7 +9,7 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use Prospecter\Core\PersonalData\Application\ChangePersonContactDetails\ChangePersonContactDetails;
+use Prospecter\Core\PersonalData\Application\Person\ChangePersonContactDetails\ChangePersonContactDetails;
 use Prospecter\Core\Prospecting\Application\AddContact\AddContact;
 use Prospecter\Core\Prospecting\Application\AttachToHolding\AttachToHolding;
 use Prospecter\Core\Prospecting\Application\ChangeContactDetails\ChangeContactDetails;

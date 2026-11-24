@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Core\Application\PersonalData;
 
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\PersonalData\Application\DismissSuspicionInReturn\DismissSuspicionInReturn;
+use Prospecter\Core\PersonalData\Application\Duplicate\DismissSuspicionInReturn\DismissSuspicionInReturn;
 use Prospecter\Core\PersonalData\Application\Policy\DismissSuspicionInReturnPolicy;
 use Prospecter\Core\PersonalData\Domain\Event\DuplicateSuspicionDismissed;
 use Prospecter\Core\PersonalData\Domain\Model\PersonId;

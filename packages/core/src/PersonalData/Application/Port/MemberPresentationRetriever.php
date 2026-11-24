@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\PersonalData\Application\Port;
 
-use Prospecter\Core\PersonalData\Application\PresentMembers\MemberPresentation;
+use Prospecter\Core\PersonalData\Application\Profile\MemberPresentation;
 use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 
 /**

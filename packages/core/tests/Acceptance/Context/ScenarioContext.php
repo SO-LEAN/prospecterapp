@@ -12,7 +12,7 @@ use Prospecter\Core\Accounts\Domain\Model\Account;
 use Prospecter\Core\Accounts\Domain\Model\Member;
 use Prospecter\Core\Accounts\Domain\Model\ProfileId;
 use Prospecter\Core\Accounts\Domain\Model\Role;
-use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersons;
+use Prospecter\Core\PersonalData\Application\Person\ConsultPersons\ConsultPersons;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\PersonalData\Domain\Model\Purpose;

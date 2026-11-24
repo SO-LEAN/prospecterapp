@@ -6,8 +6,8 @@ namespace Tests\Core\Application\PersonalData;
 
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Accounts\Contract\Event\AccountOpened;
-use Prospecter\Core\PersonalData\Application\CollectTheFounderProfile\CollectTheFounderProfile;
 use Prospecter\Core\PersonalData\Application\Policy\CollectTheFounderProfilePolicy;
+use Prospecter\Core\PersonalData\Application\Profile\CollectTheFounderProfile\CollectTheFounderProfile;
 
 class CollectTheFounderProfilePolicyTest extends TestCase
 {

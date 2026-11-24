@@ -8,10 +8,10 @@ use App\Contacts\Resource\ContactInListResource;
 use App\Contacts\Resource\ContactListLinksResource;
 use App\Contacts\Resource\ContactListResource;
 use App\Shared\Links;
+use Prospecter\Core\PersonalData\Application\Contact\ContactPage;
+use Prospecter\Core\PersonalData\Application\Contact\SearchContacts\KeptContactPage;
+use Prospecter\Core\PersonalData\Application\Contact\SearchContacts\SearchContacts;
 use Prospecter\Core\PersonalData\Application\PersonCard;
-use Prospecter\Core\PersonalData\Application\SearchContacts\ContactPage;
-use Prospecter\Core\PersonalData\Application\SearchContacts\KeptContactPage;
-use Prospecter\Core\PersonalData\Application\SearchContacts\SearchContacts;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 
 /**

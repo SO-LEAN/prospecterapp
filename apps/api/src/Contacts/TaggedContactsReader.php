@@ -11,8 +11,8 @@ use App\Shared\Links;
 use Prospecter\Core\Campaigns\Application\Tagging\SearchContactsByTags\KeptTaggedContactPage;
 use Prospecter\Core\Campaigns\Application\Tagging\SearchContactsByTags\SearchContactsByTags;
 use Prospecter\Core\Campaigns\Application\Tagging\SearchContactsByTags\TaggedContactPage;
-use Prospecter\Core\PersonalData\Application\ConsultPersons\ConsultPersons;
-use Prospecter\Core\PersonalData\Application\ConsultPersons\KeptPersons;
+use Prospecter\Core\PersonalData\Application\Person\ConsultPersons\ConsultPersons;
+use Prospecter\Core\PersonalData\Application\Person\ConsultPersons\KeptPersons;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 

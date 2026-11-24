@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Core\Application\PersonalData;
 
 use PHPUnit\Framework\TestCase;
+use Prospecter\Core\PersonalData\Application\Duplicate\SuspectDuplicateInReturn\SuspectDuplicateInReturn;
 use Prospecter\Core\PersonalData\Application\Policy\SuspectDuplicateInReturnPolicy;
-use Prospecter\Core\PersonalData\Application\SuspectDuplicateInReturn\SuspectDuplicateInReturn;
 use Prospecter\Core\PersonalData\Domain\Event\DuplicateSuspected;
 use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;

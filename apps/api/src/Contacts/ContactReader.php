@@ -10,7 +10,7 @@ use App\Security\IntentLinks;
 use App\Shared\Links;
 use Prospecter\Core\Connectors\Application\MailImport\ConsultMailCatchUpIntents\ConsultMailCatchUpIntents;
 use Prospecter\Core\Connectors\Application\MailImport\ConsultMailCatchUpIntents\KeptMailCatchUpIntents;
-use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPerson;
+use Prospecter\Core\PersonalData\Application\Person\ConsultPerson\ConsultPerson;
 use Prospecter\Core\Prospecting\Application\ConsultContactToAttach\ConsultContactToAttach;
 use Prospecter\Core\Prospecting\Application\ConsultContactToAttach\KeptContactToAttach;
 use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\ConsultTimelineIntents;

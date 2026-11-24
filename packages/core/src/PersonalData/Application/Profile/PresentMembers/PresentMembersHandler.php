@@ -1,0 +1,36 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Prospecter\Core\PersonalData\Application\Profile\PresentMembers;
+
+use Prospecter\Core\PersonalData\Application\Port\MemberPresentationRetriever;
+use Prospecter\Core\PersonalData\Application\Profile\MemberPresentation;
+use Prospecter\Core\PersonalData\Contract\Service\PresentMembers\MemberPresentationResponse;
+use Prospecter\Core\PersonalData\Contract\Service\PresentMembers\PresentMembers;
+use Prospecter\Core\PersonalData\Contract\Service\PresentMembers\PresentMembersOutput;
+use Prospecter\Core\PersonalData\Contract\Service\PresentMembers\PresentMembersService;
+use Prospecter\Core\PersonalData\Domain\Model\PersonId;
+use Prospecter\Core\PersonalData\Domain\Model\Purpose;
+use Prospecter\Core\PersonalData\Domain\Rule;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
+
+final readonly class PresentMembersHandler implements QueryHandler, PresentMembersService
+{
+    public function __construct(private MemberPresentationRetriever $memberPresentationRetriever)
+    {
+    }
+
+    public function __invoke(PresentMembers $query, PresentMembersOutput $output): void
+    {
+        $persons = $this->memberPresentationRetriever->ofIds(array_map(static fn (string $id): PersonId => new PersonId($id), $query->personIds));
+        $members = array_filter($persons, static fn (MemberPresentation $person): bool => Rule\MemberPresentation::presents(Purpose::from($person->purpose)));
+
+        $output->present(array_values(array_map(self::responseOf(...), $members)));
+    }
+
+    private static function responseOf(MemberPresentation $member): MemberPresentationResponse
+    {
+        return new MemberPresentationResponse($member->personId, $member->firstName, $member->lastName, $member->picture?->url);
+    }
+}

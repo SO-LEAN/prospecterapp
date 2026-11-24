@@ -14,7 +14,7 @@ use App\Shared\Resource\ProblemResource;
 use App\Shared\UploadedFileInfo;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\PersonalData\Application\ChangePersonPicture\ChangePersonPicture;
+use Prospecter\Core\PersonalData\Application\Person\ChangePersonPicture\ChangePersonPicture;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;

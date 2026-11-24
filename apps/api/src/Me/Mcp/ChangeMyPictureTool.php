@@ -10,7 +10,7 @@ use App\Shared\Mcp\ToolInputs;
 use App\Shared\Mcp\WebAddressInput;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
-use Prospecter\Core\PersonalData\Application\ChangePersonPicture\ChangePersonPicture;
+use Prospecter\Core\PersonalData\Application\Person\ChangePersonPicture\ChangePersonPicture;
 use Symfony\Component\HttpFoundation\File\File;
 
 /**

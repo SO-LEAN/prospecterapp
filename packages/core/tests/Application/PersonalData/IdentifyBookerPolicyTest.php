@@ -6,7 +6,7 @@ namespace Tests\Core\Application\PersonalData;
 
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Booking\Contract\Event\SlotBooked;
-use Prospecter\Core\PersonalData\Application\IdentifyBooker\IdentifyBooker;
+use Prospecter\Core\PersonalData\Application\Identification\IdentifyBooker\IdentifyBooker;
 use Prospecter\Core\PersonalData\Application\Policy\IdentifyBookerPolicy;
 
 class IdentifyBookerPolicyTest extends TestCase

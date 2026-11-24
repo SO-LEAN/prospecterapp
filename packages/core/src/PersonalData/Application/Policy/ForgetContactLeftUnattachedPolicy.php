@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\PersonalData\Application\Policy;
 
-use Prospecter\Core\PersonalData\Application\ForgetContactLeftUnattached\ForgetContactLeftUnattached;
+use Prospecter\Core\PersonalData\Application\Contact\ForgetContactLeftUnattached\ForgetContactLeftUnattached;
 use Prospecter\Core\Prospecting\Contract\Event\ContactLeftUnattached;
 use Prospecter\Core\SharedKernel\Application\Handler\Policy;
 

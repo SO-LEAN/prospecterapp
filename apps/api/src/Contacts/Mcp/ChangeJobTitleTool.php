@@ -14,7 +14,7 @@ use App\Shared\Mcp\ToolInputs;
 use App\Shared\Mcp\ToolResults;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
-use Prospecter\Core\PersonalData\Application\ChangeJobTitle\ChangeJobTitle;
+use Prospecter\Core\PersonalData\Application\Person\ChangeJobTitle\ChangeJobTitle;
 use Symfony\Component\Clock\ClockInterface;
 
 /**

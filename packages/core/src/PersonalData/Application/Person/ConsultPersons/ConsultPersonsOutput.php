@@ -1,0 +1,16 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Prospecter\Core\PersonalData\Application\Person\ConsultPersons;
+
+use Prospecter\Core\PersonalData\Application\PersonCard;
+use Prospecter\Core\SharedKernel\Application\Handler\OutputPort;
+
+interface ConsultPersonsOutput extends OutputPort
+{
+    /**
+     * @param array<string, PersonCard> $persons keyed by person id
+     */
+    public function present(array $persons): void;
+}

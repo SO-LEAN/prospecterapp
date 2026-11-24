@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Core\Double;
 
 use Prospecter\Core\PersonalData\Application\Port\MemberPresentationRetriever;
-use Prospecter\Core\PersonalData\Application\PresentMembers\MemberPresentation;
+use Prospecter\Core\PersonalData\Application\Profile\MemberPresentation;
 use Prospecter\Core\PersonalData\Domain\Model\Person;
 use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;

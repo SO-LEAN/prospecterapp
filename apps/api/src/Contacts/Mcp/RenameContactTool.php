@@ -14,7 +14,7 @@ use App\Shared\Mcp\ToolInputs;
 use App\Shared\Mcp\ToolResults;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
-use Prospecter\Core\PersonalData\Application\RenamePerson\RenamePerson;
+use Prospecter\Core\PersonalData\Application\Person\RenamePerson\RenamePerson;
 use Symfony\Component\Clock\ClockInterface;
 
 /**

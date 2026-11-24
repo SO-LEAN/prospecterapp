@@ -8,7 +8,7 @@ use Behat\Behat\Context\Context;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use Prospecter\Core\PersonalData\Application\ChangePersonContactDetails\ChangePersonContactDetails;
+use Prospecter\Core\PersonalData\Application\Person\ChangePersonContactDetails\ChangePersonContactDetails;
 use Prospecter\Core\Prospecting\Application\ChangeContactDetails\ChangeContactDetails;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;

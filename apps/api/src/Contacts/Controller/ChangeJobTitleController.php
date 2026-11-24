@@ -15,7 +15,7 @@ use App\Shared\Resource\ProblemResource;
 use App\Shared\Resource\RevisionDescription;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\PersonalData\Application\ChangeJobTitle\ChangeJobTitle;
+use Prospecter\Core\PersonalData\Application\Person\ChangeJobTitle\ChangeJobTitle;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;

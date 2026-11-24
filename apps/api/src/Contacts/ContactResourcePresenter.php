@@ -16,7 +16,7 @@ use App\Security\IntentLinks;
 use App\Security\User;
 use App\Shared\Links;
 use App\Shared\Resource\LinkResource;
-use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPersonOutput;
+use Prospecter\Core\PersonalData\Application\Person\ConsultPerson\ConsultPersonOutput;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\PersonalData\Application\PossibleDuplicate;
 use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\TimelineIntentsResponse;
