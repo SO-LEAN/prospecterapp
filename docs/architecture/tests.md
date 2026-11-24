@@ -60,7 +60,8 @@ Aggregates, value objects, handlers, services and decorators are the real classe
 ## Layout
 
 ```
-features/*.feature              the business rules, French Gherkin (# language: fr)
+features/*.feature              the business rules, French Gherkin (# language: fr), tagged with the use cases they
+                                describe (@OpenBooking, docs/architecture/event-storming.md)
 tests/Acceptance/Application    the hexagon wired to the doubles; the only place that calls a handler
 tests/Acceptance/Context/       step definitions (ScenarioContext shares the state, SharesTheScenario gathers it)
 tests/Acceptance/Vocabulary     the tables' French labels, and how they read entities and value objects
