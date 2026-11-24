@@ -64,6 +64,10 @@
     {
       "path": "./lint/real-clock.grit",
       "includes": ["**/*.test.ts", "**/*.test.tsx", "**/e2e/**"]
+    },
+    {
+      "path": "./lint/french-spacing.grit",
+      "includes": ["**/src/shared/i18n/fr.ts"]
     }
   ],
   "assist": {
