@@ -17,6 +17,7 @@ use Prospecter\Core\Booking\Application\Policy\ForgetAppointmentOfErasedExchange
 use Prospecter\Core\Booking\Application\PublicLink\BookSlot\BookSlot;
 use Prospecter\Core\Booking\Contract\Event as Published;
 use Prospecter\Core\Booking\Contract\Service\ConsultAppointments\ConsultAppointments;
+use Prospecter\Core\Booking\Contract\Service\ConsultAppointments\ConsultAppointmentsService;
 use Prospecter\Core\Booking\Domain\Event\BookingOpened;
 use Prospecter\Core\Booking\Domain\Event\SlotBooked;
 use Prospecter\Core\Booking\Domain\Model\Appointment;
@@ -24,9 +25,12 @@ use Prospecter\Core\Booking\Domain\Model\BookingPage;
 use Prospecter\Core\Booking\Domain\Port\ConnectedCalendars;
 use Prospecter\Core\Booking\Domain\Port\HostAgendas;
 use Prospecter\Core\Booking\Domain\Service\BusyPeriods;
+use Prospecter\Core\Connectors\Application\Connection\WhichHaveAConnectedCalendar\WhichHaveAConnectedCalendarHandler;
+use Prospecter\Core\Connectors\Contract\Service\WhichHaveAConnectedCalendar\WhichHaveAConnectedCalendar;
 use Prospecter\Core\Connectors\Contract\Service\WhichHaveAConnectedCalendar\WhichHaveAConnectedCalendarService;
 use Prospecter\Core\PersonalData\Application\Policy\IdentifyBookerPolicy;
 use Prospecter\Core\Prospecting\Contract\Event\ExchangeFactsChanged;
+use Prospecter\Core\Prospecting\Domain\Port\BookedAppointments;
 use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Handler\Policy;
@@ -78,6 +82,16 @@ final class ContextStormingTest extends TestCase
 
     private const string CONNECTED_CALENDAR_SERVICE = WhichHaveAConnectedCalendarService::class;
 
+    private const string CONNECTED_CALENDAR = WhichHaveAConnectedCalendar::class;
+
+    private const string CONNECTED_CALENDAR_HANDLER = WhichHaveAConnectedCalendarHandler::class;
+
+    private const string APPOINTMENTS_SERVICE = ConsultAppointmentsService::class;
+
+    private const string BOOKED_APPOINTMENTS = BookedAppointments::class;
+
+    private const string BOOKED_APPOINTMENTS_ADAPTER = 'App\Prospecting\AntiCorruption\BookingBookedAppointments';
+
     private const string BUSY_PERIODS = BusyPeriods::class;
 
     private const string HOST_AGENDAS = HostAgendas::class;
@@ -115,7 +129,7 @@ final class ContextStormingTest extends TestCase
         $model = self::modelOf(new Facts([self::handlerOf(self::OPEN_BOOKING)], []));
 
         self::assertSame(
-            ['id' => 'command:'.self::OPEN_BOOKING, 'slug' => 'command:OpenBooking', 'type' => 'command', 'label' => 'Open booking', 'feature' => null, 'name' => 'OpenBooking', 'class' => self::OPEN_BOOKING, 'context' => 'Booking', 'module' => 'BookingPage', 'detail' => null, 'answeredBy' => []],
+            ['id' => 'command:'.self::OPEN_BOOKING, 'slug' => 'command:OpenBooking', 'type' => 'command', 'label' => 'Open booking', 'feature' => null, 'name' => 'OpenBooking', 'class' => self::OPEN_BOOKING, 'context' => 'Booking', 'module' => 'BookingPage', 'detail' => null, 'answeredBy' => [], 'answers' => [], 'readBy' => []],
             self::stickyOf($model, 'command:'.self::OPEN_BOOKING),
         );
     }
@@ -215,7 +229,7 @@ final class ContextStormingTest extends TestCase
         $model = self::modelOf(new Facts([new ClassFacts(self::CONSULT_MY_BOOKING_PAGE.'Handler', interfaces: [self::QUERY_HANDLER], parameters: [[self::CONSULT_MY_BOOKING_PAGE]], presents: [self::MY_BOOKING_PAGE])], []), ['ConsultMyBookingPage' => 'Consulter ma prise de rendez-vous']);
 
         self::assertSame(
-            ['id' => 'readModel:'.self::CONSULT_MY_BOOKING_PAGE, 'slug' => 'readModel:ConsultMyBookingPage', 'type' => 'readModel', 'label' => 'My booking page', 'feature' => 'Consulter ma prise de rendez-vous', 'name' => 'ConsultMyBookingPage', 'class' => self::CONSULT_MY_BOOKING_PAGE, 'context' => 'Booking', 'module' => 'BookingPage', 'detail' => 'MyBookingPage', 'answeredBy' => []],
+            ['id' => 'readModel:'.self::CONSULT_MY_BOOKING_PAGE, 'slug' => 'readModel:ConsultMyBookingPage', 'type' => 'readModel', 'label' => 'My booking page', 'feature' => 'Consulter ma prise de rendez-vous', 'name' => 'ConsultMyBookingPage', 'class' => self::CONSULT_MY_BOOKING_PAGE, 'context' => 'Booking', 'module' => 'BookingPage', 'detail' => 'MyBookingPage', 'answeredBy' => [], 'answers' => [], 'readBy' => []],
             self::stickyOf($model, 'readModel:'.self::CONSULT_MY_BOOKING_PAGE),
         );
     }
@@ -264,11 +278,62 @@ final class ContextStormingTest extends TestCase
 
         self::assertSame(
             [
-                ['id' => 'externalSystem:'.self::CONNECTED_CALENDARS, 'slug' => 'externalSystem:ConnectedCalendars', 'type' => 'externalSystem', 'label' => 'Connected calendars', 'feature' => null, 'name' => 'ConnectedCalendars', 'class' => self::CONNECTED_CALENDARS, 'context' => 'Booking', 'module' => null, 'detail' => 'ConnectorsConnectedCalendars', 'answeredBy' => ['Connectors']],
+                ['id' => 'externalSystem:'.self::CONNECTED_CALENDARS, 'slug' => 'externalSystem:ConnectedCalendars', 'type' => 'externalSystem', 'label' => 'Connected calendars', 'feature' => null, 'name' => 'ConnectedCalendars', 'class' => self::CONNECTED_CALENDARS, 'context' => 'Booking', 'module' => null, 'detail' => 'ConnectorsConnectedCalendars', 'answeredBy' => ['Connectors'], 'answers' => [], 'readBy' => []],
                 ['from' => 'command:'.self::OPEN_BOOKING, 'to' => 'externalSystem:'.self::CONNECTED_CALENDARS, 'via' => null, 'certain' => true, 'when' => null],
             ],
             [self::stickyOf($model, 'externalSystem:'.self::CONNECTED_CALENDARS), self::linksOf($model)[0] ?? null],
         );
+    }
+
+    public function testAPortIsAnsweredByThePublishedServicesItsAdapterTakes(): void
+    {
+        $model = self::modelOf(new Facts([
+            self::handlerOf(self::OPEN_BOOKING, [self::CONNECTED_CALENDARS]),
+            new ClassFacts(self::CALENDARS_ADAPTER, interfaces: [self::CONNECTED_CALENDARS], dependencies: [self::CONNECTED_CALENDAR_SERVICE]),
+            new ClassFacts(self::CONNECTED_CALENDAR_HANDLER, interfaces: [self::QUERY_HANDLER, self::CONNECTED_CALENDAR_SERVICE], parameters: [[self::CONNECTED_CALENDAR]]),
+        ], []));
+
+        self::assertSame(
+            [['context' => 'Connectors', 'slug' => 'readModel:WhichHaveAConnectedCalendar', 'label' => 'Which have a connected calendar']],
+            self::stickyOf($model, 'externalSystem:'.self::CONNECTED_CALENDARS)['answers'] ?? null,
+        );
+    }
+
+    public function testAPublishedServiceIsReadByThePortsOfTheAdaptersThatTakeIt(): void
+    {
+        $model = self::modelOf(new Facts([
+            new ClassFacts(ConsultAppointmentsHandler::class, interfaces: [self::QUERY_HANDLER, self::APPOINTMENTS_SERVICE], parameters: [[ConsultAppointments::class]]),
+            new ClassFacts(self::BOOKED_APPOINTMENTS_ADAPTER, interfaces: [self::BOOKED_APPOINTMENTS], dependencies: [self::APPOINTMENTS_SERVICE]),
+        ], []));
+
+        self::assertSame(
+            [['context' => 'Prospecting', 'slug' => 'externalSystem:BookedAppointments', 'label' => 'Booked appointments']],
+            self::stickyOf($model, 'readModel:'.ConsultAppointments::class)['readBy'] ?? null,
+        );
+    }
+
+    public function testAPublishedServiceTakenByAClassOfNoPortIsReadByThatClass(): void
+    {
+        $model = self::modelOf(new Facts([
+            new ClassFacts(ConsultAppointmentsHandler::class, interfaces: [self::QUERY_HANDLER, self::APPOINTMENTS_SERVICE], parameters: [[ConsultAppointments::class]]),
+            new ClassFacts('App\Dashboard\AgendaReader', dependencies: [self::APPOINTMENTS_SERVICE]),
+        ], []));
+
+        self::assertSame(
+            [['context' => null, 'slug' => null, 'label' => 'AgendaReader']],
+            self::stickyOf($model, 'readModel:'.ConsultAppointments::class)['readBy'] ?? null,
+        );
+    }
+
+    public function testTheReadersOfAPublishedServiceDependOnNoOrderOfTheCode(): void
+    {
+        $classes = [
+            new ClassFacts(ConsultAppointmentsHandler::class, interfaces: [self::QUERY_HANDLER, self::APPOINTMENTS_SERVICE], parameters: [[ConsultAppointments::class]]),
+            new ClassFacts('App\\Dashboard\\AgendaReader', dependencies: [self::APPOINTMENTS_SERVICE]),
+            new ClassFacts(self::BOOKED_APPOINTMENTS_ADAPTER, interfaces: [self::BOOKED_APPOINTMENTS], dependencies: [self::APPOINTMENTS_SERVICE]),
+        ];
+
+        self::assertEquals(self::modelOf(new Facts($classes, [])), self::modelOf(new Facts(array_reverse($classes), [])));
     }
 
     public function testAReadModelAsksTheExternalSystemsOfTheServicesItsHandlerTakes(): void
@@ -293,7 +358,7 @@ final class ContextStormingTest extends TestCase
 
         self::assertSame(
             [
-                ['id' => 'actor:ROLE_USER', 'slug' => 'actor:ROLE_USER', 'type' => 'actor', 'label' => 'Member', 'feature' => null, 'name' => 'ROLE_USER', 'class' => null, 'context' => 'Booking', 'module' => null, 'detail' => null, 'answeredBy' => []],
+                ['id' => 'actor:ROLE_USER', 'slug' => 'actor:ROLE_USER', 'type' => 'actor', 'label' => 'Member', 'feature' => null, 'name' => 'ROLE_USER', 'class' => null, 'context' => 'Booking', 'module' => null, 'detail' => null, 'answeredBy' => [], 'answers' => [], 'readBy' => []],
                 ['from' => 'actor:ROLE_USER', 'to' => 'command:'.self::OPEN_BOOKING, 'via' => null, 'certain' => true, 'when' => null],
             ],
             [self::stickyOf($model, 'actor:ROLE_USER'), self::linksOf($model)[0] ?? null],
@@ -309,7 +374,7 @@ final class ContextStormingTest extends TestCase
 
         self::assertSame(
             [
-                ['id' => 'actor:public', 'slug' => 'actor:public', 'type' => 'actor', 'label' => 'Anyone with the link', 'feature' => null, 'name' => 'public', 'class' => null, 'context' => 'Booking', 'module' => null, 'detail' => null, 'answeredBy' => []],
+                ['id' => 'actor:public', 'slug' => 'actor:public', 'type' => 'actor', 'label' => 'Anyone with the link', 'feature' => null, 'name' => 'public', 'class' => null, 'context' => 'Booking', 'module' => null, 'detail' => null, 'answeredBy' => [], 'answers' => [], 'readBy' => []],
                 ['from' => 'actor:public', 'to' => 'command:'.self::BOOK_SLOT, 'via' => null, 'certain' => true, 'when' => null],
             ],
             [self::stickyOf($model, 'actor:public'), self::linksOf($model)[0] ?? null],
@@ -338,7 +403,7 @@ final class ContextStormingTest extends TestCase
 
         self::assertSame(
             [
-                ['id' => 'actor:mcp', 'slug' => 'actor:mcp', 'type' => 'actor', 'label' => 'Member\'s AI', 'feature' => null, 'name' => 'mcp', 'class' => null, 'context' => 'Booking', 'module' => null, 'detail' => null, 'answeredBy' => []],
+                ['id' => 'actor:mcp', 'slug' => 'actor:mcp', 'type' => 'actor', 'label' => 'Member\'s AI', 'feature' => null, 'name' => 'mcp', 'class' => null, 'context' => 'Booking', 'module' => null, 'detail' => null, 'answeredBy' => [], 'answers' => [], 'readBy' => []],
                 ['from' => 'actor:mcp', 'to' => 'command:'.self::OPEN_BOOKING, 'via' => null, 'certain' => true, 'when' => null],
             ],
             [self::stickyOf($model, 'actor:mcp'), self::linksOf($model)[0] ?? null],
@@ -396,7 +461,7 @@ final class ContextStormingTest extends TestCase
 
         self::assertSame(
             [
-                ['id' => 'policy:'.self::IDENTIFY_BOOKER, 'slug' => 'PersonalData/policy:IdentifyBookerPolicy', 'type' => 'policy', 'label' => 'Identify booker', 'feature' => null, 'name' => 'IdentifyBookerPolicy', 'class' => self::IDENTIFY_BOOKER, 'context' => 'PersonalData', 'module' => null, 'detail' => null, 'answeredBy' => []],
+                ['id' => 'policy:'.self::IDENTIFY_BOOKER, 'slug' => 'PersonalData/policy:IdentifyBookerPolicy', 'type' => 'policy', 'label' => 'Identify booker', 'feature' => null, 'name' => 'IdentifyBookerPolicy', 'class' => self::IDENTIFY_BOOKER, 'context' => 'PersonalData', 'module' => null, 'detail' => null, 'answeredBy' => [], 'answers' => [], 'readBy' => []],
                 ['from' => 'event:'.self::PUBLISHED_SLOT_BOOKED, 'to' => 'policy:'.self::IDENTIFY_BOOKER, 'via' => null, 'certain' => true, 'when' => null],
             ],
             [self::stickyOf($model, 'policy:'.self::IDENTIFY_BOOKER), self::linksOf($model)[0] ?? null],
@@ -475,11 +540,13 @@ final class ContextStormingTest extends TestCase
     }
 
     /**
-     * @return array<string, string|list<string>|null>|null
+     * @return array<mixed>|null the post-it as the model's document writes it
      */
     private static function stickyOf(Model $model, string $id): ?array
     {
-        return array_find($model->stickies, static fn (Sticky $sticky): bool => $id === $sticky->id)?->jsonSerialize();
+        $sticky = array_find($model->stickies, static fn (Sticky $sticky): bool => $id === $sticky->id);
+
+        return null === $sticky ? null : (array) json_decode((string) json_encode($sticky), true, flags: \JSON_THROW_ON_ERROR);
     }
 
     /**
