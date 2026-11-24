@@ -380,6 +380,7 @@ use Prospecter\Core\Prospecting\Application\Policy\KeepExchangesOfForgottenConta
 use Prospecter\Core\Prospecting\Application\Policy\KeepImportedAttachmentPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\KeepToDosOfAttachedContactPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\LiftSuspicionInReturnPolicy;
+use Prospecter\Core\Prospecting\Application\Policy\PushBackErasureOfContactToAttachPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\StopKeepingExchangesPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\StopKeepingToDosPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\SuspectDuplicateInReturnPolicy;
@@ -1407,6 +1408,7 @@ final class Application
     private function commandHandlers(): array
     {
         return [
+            new PushBackErasureOfContactToAttachHandler($this->exchanges, $this->contactsToAttach, $this->events),
             new KeepToDosOfAttachedContactHandler($this->toDos, $this->events),
             new KeepExchangesOfAttachedContactHandler($this->exchanges, $this->events),
             new AttachContactToAttachHandler($this->contactsToAttach, $this->events),
@@ -1847,7 +1849,7 @@ final class Application
             new AttachContactToAttachPolicy(),
             new KeepExchangesOfAttachedContactPolicy(),
             new KeepToDosOfAttachedContactPolicy(),
-            new PushBackErasureOfContactToAttachHandler($this->exchanges, $this->contactsToAttach, $this->events),
+            new PushBackErasureOfContactToAttachPolicy(),
             new IdentifyBookerPolicy(),
             new PlanBookedAppointmentHandler($this->exchanges, $this->contactsToAttach, $this->contactOrganizations, new BookingBookedAppointments($this->consultAppointmentsService), $this->prospectors, $this->events),
             new RegisterTheFounderPolicy(),

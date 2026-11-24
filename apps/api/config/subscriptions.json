@@ -323,7 +323,7 @@
     "context": "prospecting",
     "sources": ["prospecter.prospecting.internal"],
     "events": ["ExchangePlanned.v1", "ExchangeNoted.v1", "ExchangeMoved.v1", "ExchangeCorrected.v1"],
-    "handler": "Prospecter\\Core\\Prospecting\\Application\\PushBackErasureOfContactToAttach\\PushBackErasureOfContactToAttachHandler",
+    "policy": "Prospecter\\Core\\Prospecting\\Application\\Policy\\PushBackErasureOfContactToAttachPolicy",
     "inbox": true
   }
 }
