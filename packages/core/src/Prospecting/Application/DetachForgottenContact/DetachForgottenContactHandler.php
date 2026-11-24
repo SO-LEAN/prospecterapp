@@ -4,21 +4,19 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\DetachForgottenContact;
 
-use Prospecter\Core\PersonalData\Contract\Event\ContactForgotten;
 use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 use Prospecter\Core\Prospecting\Domain\Service\OrphanContacts;
-use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Handler\PublishesEvents;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
- * Reacts to an erased contact. The contact leaves every organization that names it, and the member who erased it is
- * the author. The reaction translates PersonalData's integration event into Prospecting's words (ADR 0046).
+ * An erased contact leaves every organization that names it, and the member who erased it is the author.
  */
-final readonly class DetachForgottenContactHandler implements EventHandler
+final readonly class DetachForgottenContactHandler implements CommandHandler
 {
     use PublishesEvents;
 
@@ -29,13 +27,13 @@ final readonly class DetachForgottenContactHandler implements EventHandler
     ) {
     }
 
-    public function __invoke(ContactForgotten $event): void
+    public function __invoke(DetachForgottenContact $command): void
     {
-        $author = new MemberId($event->memberId);
-        $contact = new ContactId($event->personId);
+        $author = new MemberId($command->memberId);
+        $contact = new ContactId($command->contactId);
 
-        foreach ($this->organizations->withContacts([$contact], new AccountId($event->accountId)) as $organization) {
-            $organization->removeContact($contact, by: $author, at: $event->occurredAt, orphans: $this->orphans);
+        foreach ($this->organizations->withContacts([$contact], new AccountId($command->accountId)) as $organization) {
+            $organization->removeContact($contact, by: $author, at: $command->executedAt, orphans: $this->orphans);
             $this->organizations->save($organization);
             $this->publishWhatHappenedTo($organization);
         }
