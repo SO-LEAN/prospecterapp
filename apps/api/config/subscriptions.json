@@ -295,7 +295,7 @@
     "context": "prospecting",
     "sources": ["prospecter.prospecting.internal"],
     "events": ["ContactLeftUnattached.v1"],
-    "handler": "Prospecter\\Core\\Prospecting\\Application\\EraseExchangesOfContactLeftUnattached\\EraseExchangesOfContactLeftUnattachedHandler",
+    "policy": "Prospecter\\Core\\Prospecting\\Application\\Policy\\EraseExchangesOfContactLeftUnattachedPolicy",
     "inbox": true
   },
   "prospecting-attach-contact-to-attach": {

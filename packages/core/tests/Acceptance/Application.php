@@ -369,6 +369,7 @@ use Prospecter\Core\Prospecting\Application\Policy\DiscardRemovedAttachmentPolic
 use Prospecter\Core\Prospecting\Application\Policy\DiscardRemovedLogoPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\DismissSuspicionInReturnPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\EraseExchangeLeftWithoutOrganizationPolicy;
+use Prospecter\Core\Prospecting\Application\Policy\EraseExchangesOfContactLeftUnattachedPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\EraseToDoLeftWithoutOrganizationPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\EraseToDosOfForgottenContactPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\ForgetFingerprintsOfForgottenContactPolicy;
@@ -1403,6 +1404,7 @@ final class Application
     private function commandHandlers(): array
     {
         return [
+            new EraseExchangesOfContactLeftUnattachedHandler($this->exchanges, $this->events),
             new AttachCollectedContactHandler($this->organizations, $this->events),
             new EraseToDosOfForgottenContactHandler($this->toDos, $this->events),
             new ForgetFingerprintsOfForgottenContactHandler($this->exchanges),
@@ -1835,7 +1837,7 @@ final class Application
             new NoteImportedEmailHandler($this->exchanges, $this->organizations, $this->prospectors, $this->contactOrganizations, new NotedOnce($this->exchanges), $this->privateStorage, $this->events),
             new ForgetContactsLeftWithoutOrganizationPolicy(),
             new ForgetContactLeftUnattachedPolicy(),
-            new EraseExchangesOfContactLeftUnattachedHandler($this->exchanges, $this->events),
+            new EraseExchangesOfContactLeftUnattachedPolicy(),
             new AttachContactToAttachHandler($this->contactsToAttach, $this->events),
             new KeepExchangesOfAttachedContactHandler($this->exchanges, $this->events),
             new KeepToDosOfAttachedContactHandler($this->toDos, $this->events),
