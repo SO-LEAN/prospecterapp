@@ -15,7 +15,7 @@
 - The API tests of a new or changed endpoint or MCP tool prove its adaptation only: the route, the input (its fields reach the command, its constraints), the persistence, the response and its links, and the rights per role. None re-tests a refusal that the core proves, not even one of each kind.
 - Each translation of a core refusal is proven once for the whole API, on its listener rather than on an endpoint:
   - `UseCaseExceptionListenerTest`: not found (404), a rule on a field (422 with its violation), a rule on the whole request (422), a conflict (409), a missing right (403), and what the listener leaves to Symfony;
-  - `RefusingToolsTest`: a core refusal becomes the tool's error, with the problem of its endpoint;
+  - `RefusingToolsTest`: a core refusal becomes the tool's error, with its endpoint's problem;
   - the input's constraints are Symfony's translation, proven once by `OrganizationApiTest` (`testInvalidInputIsRejectedWithViolations`, `testUnknownFieldsAreRejectedInsteadOfIgnored`).
 - A refusal that the API makes itself is adaptation, and stays tested: the voter's 404 for another account's resource, a role's 403, `changedMeanwhile`, an invalid `revision` or `timeZone`.
 - The reviewer of the definition of done counts an added API test that re-tests a core rule as a deviation. The branch removes it, or shows what it proves beyond the core scenario.
