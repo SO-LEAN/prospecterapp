@@ -178,6 +178,15 @@ describe('the wall of a context', () => {
     ])
   })
 
+  it('points a jump to another wall away, never back', () => {
+    expect(
+      wall.notes
+        .flatMap((note) => note.jumps)
+        .filter((jump) => jump.href !== null)
+        .every((jump) => !jump.back),
+    ).toBe(true)
+  })
+
   it('jumps from a published service to the ports that read it, on their wall', () => {
     expect(noteOf('readModel:ConsultAppointments').jumps.map((jump) => jump.href)).toEqual([
       '../personal-data/#at=externalSystem%3ABookers',

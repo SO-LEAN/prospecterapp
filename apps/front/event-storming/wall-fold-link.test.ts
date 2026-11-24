@@ -28,12 +28,16 @@ beforeAll(() => {
   for (const script of page.body.querySelectorAll('script')) script.remove()
   document.body.innerHTML = page.body.innerHTML
   vi.stubGlobal('matchMedia', () => ({ matches: true }))
-  history.replaceState(null, '', '#fold=Timeline,Agenda')
+  history.replaceState(null, '', '#fold=Timeline,Nowhere,Agenda')
   runTheWall(data)
 })
 
 describe('a large wall opened from a link that names its folded lanes', () => {
   it('folds the lanes its link names, and those only', () => {
     expect(foldedLanes()).toEqual(['Agenda', 'Timeline'])
+  })
+
+  it('keeps in its link the lanes it folds, and forgets a lane it does not hold', () => {
+    expect(new URLSearchParams(location.hash.slice(1)).get('fold')).toBe('Timeline,Agenda')
   })
 })

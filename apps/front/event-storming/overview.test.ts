@@ -1,6 +1,6 @@
 import { readdirSync, readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import type { Model } from './model.ts'
+import type { Link, Model, Sticky } from './model.ts'
 import { overviewOf } from './overview.ts'
 
 /** Every context's model, as the generator last read them from the code. Vitest runs in the front's folder. */
@@ -18,6 +18,82 @@ function rowsOf(table: string): string[] {
     [...row.querySelectorAll('td')].map((cell) => cell.textContent?.trim()).join(' | '),
   )
 }
+
+/** A post-it of a made-up wall, its id its slug. */
+function sticky(
+  type: Sticky['type'],
+  context: string,
+  slug: string,
+  answers: Sticky['answers'] = [],
+): Sticky {
+  return {
+    id: slug,
+    slug,
+    type,
+    label: slug.replace(/^.*:/, ''),
+    feature: null,
+    name: slug,
+    class: null,
+    context,
+    module: null,
+    detail: null,
+    answeredBy: [],
+    answers,
+    readBy: [],
+  }
+}
+
+function link(from: string, to: string): Link {
+  return { from, to, via: null, certain: true, when: null }
+}
+
+/** Alpha's wall, which holds each kind of post-it the overview must leave out beside those it lists. */
+const ALPHA: Model = {
+  context: 'Alpha',
+  modules: [],
+  stickies: [
+    sticky('event', 'Alpha', 'published:Zeta'),
+    sticky('event', 'Alpha', 'published:Eta'),
+    sticky('policy', 'Beta', 'Beta/policy:Hear'),
+    sticky('policy', 'Alpha', 'policy:Own'),
+    sticky('event', 'Beta', 'Beta/published:Theirs'),
+    sticky('command', 'Alpha', 'command:Send'),
+    sticky('externalSystem', 'Alpha', 'externalSystem:Zebras', [
+      { context: 'Beta', slug: 'readModel:Z', label: 'Z' },
+    ]),
+    sticky('externalSystem', 'Alpha', 'externalSystem:Ants', [
+      { context: 'Beta', slug: 'readModel:A', label: 'A' },
+      { context: null, slug: null, label: 'Nowhere' },
+    ]),
+    sticky('externalSystem', 'Beta', 'Beta/externalSystem:Theirs', [
+      { context: 'Alpha', slug: 'readModel:T', label: 'T' },
+    ]),
+    sticky('readModel', 'Alpha', 'readModel:View', [{ context: 'Beta', slug: 'readModel:V', label: 'V' }]),
+  ],
+  links: [
+    link('published:Zeta', 'Beta/policy:Hear'),
+    link('published:Eta', 'Beta/policy:Hear'),
+    link('published:Eta', 'policy:Own'),
+    link('Beta/published:Theirs', 'Beta/policy:Hear'),
+    link('command:Send', 'Beta/policy:Hear'),
+  ],
+}
+
+describe('the overview of a made-up wall', () => {
+  const made = new DOMParser().parseFromString(overviewOf([ALPHA], ASSETS), 'text/html')
+  const rows = (table: string): string[] =>
+    [...made.querySelectorAll(`#${table} tbody tr`)].map((row) =>
+      [...row.querySelectorAll('td')].map((cell) => cell.textContent?.trim()).join(' | '),
+    )
+
+  it('lists only the events of the wall that a policy of another context hears, by their label', () => {
+    expect(rows('events')).toEqual(['Alpha | Eta | Beta | Hear', 'Alpha | Zeta | Beta | Hear'])
+  })
+
+  it('lists only the ports of the wall that a service of another context answers, by their label', () => {
+    expect(rows('services')).toEqual(['Alpha | Ants | Beta | A', 'Alpha | Zebras | Beta | Z'])
+  })
+})
 
 describe('the overview of the contexts', () => {
   it('leads from each context to its wall', () => {
