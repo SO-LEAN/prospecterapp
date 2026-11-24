@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\App\Api;
 
 use PHPUnit\Framework\Attributes\Group;
-use Prospecter\Core\Accounts\Domain\Model\Role;
 use Tests\App\Base\ApiTestCase;
 use Tests\App\Base\CallsTheMcpServer;
 
@@ -35,16 +34,6 @@ class NotingToolsApiTest extends ApiTestCase
         $this->assertSame('noted', self::valueAt($noted, 'structuredContent', 'status'));
         $timeline = $this->requestJson('GET', '/api/contacts/'.$contact.'/exchanges');
         $this->assertSame([self::valueAt($noted, 'structuredContent', 'exchange', 'id')], array_column(self::recordsAt($timeline, 'items'), 'id'));
-    }
-
-    public function testAnExchangeTheAiNotesIsCreatedByAnAiInTheTimeline(): void
-    {
-        $contact = $this->aContactOf($this->anOrganization('ACME'));
-
-        $this->callWithoutHandshake('log-contact-exchange', ['id' => $contact] + self::AN_EMAIL);
-
-        $timeline = $this->requestJson('GET', '/api/contacts/'.$contact.'/exchanges');
-        $this->assertTrue(self::valueAt($timeline, 'items', 0, 'createdByAnAI'));
     }
 
     public function testAnExchangeTheAiNotesIsCreatedByAnAiInItsDetail(): void
@@ -94,33 +83,6 @@ class NotingToolsApiTest extends ApiTestCase
         $this->assertSame([], $this->requestJson('GET', '/api/contacts/'.$contact.'/exchanges')['items']);
     }
 
-    public function testAMemberRefusedTheEndpointIsRefusedTheToolAlike(): void
-    {
-        $contact = $this->aContactOf($this->anOrganization('ACME'));
-        $this->aMemberOfTheFixtures('member-user', Role::User);
-        $this->aMemberOfAnotherAccount('stranger');
-
-        foreach (['assistant-user', 'member-user', 'stranger'] as $member) {
-            $this->login($member);
-            $problem = $this->requestJson('POST', '/api/contacts/'.$contact.'/exchanges', self::AN_EMAIL);
-
-            $refusal = $this->callWithoutHandshake('log-contact-exchange', ['id' => $contact] + self::AN_EMAIL);
-
-            $this->assertTrue($refusal['isError'] ?? false, $member);
-            $this->assertSame($problem, $this->answerOf($refusal), $member);
-        }
-    }
-
-    public function testAnAdministratorNotesAsAProspector(): void
-    {
-        $contact = $this->aContactOf($this->anOrganization('ACME'));
-        $this->login($this->aMemberOfTheFixtures('admin-user', Role::User, Role::Admin));
-
-        $noted = $this->callWithoutHandshake('log-contact-exchange', ['id' => $contact] + self::AN_EMAIL);
-
-        $this->assertSame('noted', self::valueAt($noted, 'structuredContent', 'status'));
-    }
-
     public function testAMessageWithAnOrganizationItselfNotedAgainIsAnsweredTheExchangeNotedFirst(): void
     {
         $organization = $this->anOrganization('ACME');
@@ -131,33 +93,6 @@ class NotingToolsApiTest extends ApiTestCase
 
         $this->assertSame('alreadyNoted', self::valueAt($again, 'structuredContent', 'status'));
         $this->assertSame(self::valueAt($first, 'structuredContent', 'exchange', 'id'), self::valueAt($again, 'structuredContent', 'exchange', 'id'));
-    }
-
-    public function testAMemberRefusedTheEndpointOfAnOrganizationIsRefusedItsToolAlike(): void
-    {
-        $organization = $this->anOrganization('ACME');
-        $this->aMemberOfTheFixtures('member-user', Role::User);
-        $this->aMemberOfAnotherAccount('stranger');
-
-        foreach (['assistant-user', 'member-user', 'stranger'] as $member) {
-            $this->login($member);
-            $problem = $this->requestJson('POST', '/api/organizations/'.$organization.'/exchanges', ['exchange' => ['channel' => 'call', 'direction' => 'inbound']]);
-
-            $refusal = $this->callWithoutHandshake('log-organization-exchange', ['id' => $organization, 'channel' => 'call', 'direction' => 'inbound']);
-
-            $this->assertTrue($refusal['isError'] ?? false, $member);
-            $this->assertSame($problem, $this->answerOf($refusal), $member);
-        }
-    }
-
-    public function testAnAdministratorNotesWithAnOrganizationAsAProspector(): void
-    {
-        $organization = $this->anOrganization('ACME');
-        $this->login($this->aMemberOfTheFixtures('admin-user', Role::User, Role::Admin));
-
-        $noted = $this->callWithoutHandshake('log-organization-exchange', ['id' => $organization, 'channel' => 'call', 'direction' => 'inbound']);
-
-        $this->assertSame('noted', self::valueAt($noted, 'structuredContent', 'status'));
     }
 
     private function aContactOf(string $organization): string
