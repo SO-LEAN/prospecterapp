@@ -18,11 +18,11 @@ Run these from the repository root. `make` alone lists the commands. A new targe
     - `assistant@solean-it.io` / `password`, a prospector without the right to manage personal data;
     - `newcomer@solean-it.io` / `password`, a prospector with an empty profile, completed at sign-in.
   - https://api.prospecter.localhost/api/doc serves the API doc.
-- `make db`: recreates the dev tables, the API's user pool and the storage's bucket in MiniStack. **This destroys local data.** It then:
+- `make db`: recreates the dev tables, the API's user pool and the storage's bucket in MiniStack. **This destroys local data.** It also:
   - empties the relay's and the worker's failure queues, whose messages refer to the destroyed data;
+  - counts the demonstration's figures once it is loaded (`app:tables:recreate --demo`, a few seconds, ADR 0209);
   - deploys the worker, the subscription rules and the outbox relay again, on the new tables' streams (ADR 0098, 0101);
-  - rebuilds the contacts' tags (`app:tags:rebuild`, ADR 0141);
-  - counts the demonstration's figures (`app:reporting:rebuild`, five minutes, ADR 0104, 0106).
+  - rebuilds the contacts' tags (`app:tags:rebuild`, ADR 0141).
 
 ## Checks
 
@@ -63,10 +63,10 @@ Each of the following commands runs one use case. A member completes their profi
 - `app:account:open <corporate name> <login email>`: opens an account and its founder (ADR 0064).
 - `app:member:register <login email of an administrator> <login email>`: registers a member in the administrator's account, as a prospector unless `--personal-data` or `--admin` is given (ADR 0075).
 - `app:campaign:erase <id>`: erases a campaign whatever its status, to clean up after a test or to answer a person's request.
-- `app:demo:restore`: gives the local tables and user pool the demonstration back without recreating them. It empties the tables, loads the demonstration again and gives its members back. It deletes the users and the clients added since. `make check-e2e` runs it through `make -C apps/api restore`. **This destroys local data.**
+- `app:demo:restore`: gives the local tables and user pool the demonstration back without recreating them. It empties the tables, loads the demonstration again and gives its members back. It deletes the users and the clients added since. It then counts the demonstration's figures without waiting for the worker, which only a retry after a conflict does (ADR 0209). `make check-e2e` runs it through `make -C apps/api restore`. **This destroys local data.**
 - `app:integration:redrive`: hands the events in the failure queue back to the worker (ADR 0101).
 - `app:organizations:locate-again`: a one-time command. It geocodes again the organizations that were located before their municipality was stored. Then run `app:tags:rebuild` to give them their geographic tags (ADR 0142).
-- `app:reporting:rebuild`: recounts every account's figures and says how many accounts it counted, after five minutes of waiting (ADR 0106, 0182). Run it on an instance where Reporting is new, after `app:keys:rebuild` (ADR 0104).
+- `app:reporting:rebuild`: recounts every account's figures and says how many accounts it counted, after five minutes of waiting for the worker's recordings (ADR 0106, 0182). The demonstration's commands count without this wait (ADR 0209). Run it on an instance where Reporting is new, after `app:keys:rebuild` (ADR 0104).
 - `app:tags:rebuild [--account=<id>]`: records again the facts that the contacts' tags derive from, without waiting (ADR 0141). Run it on an instance once Campaigns derives them.
 - `app:scheduled-tasks:run`: runs every scheduled task, one after the other. This is what an instance's daily schedule does; run it by hand locally (ADR 0161). Each task can also run alone:
   - `app:contacts:erase-unattached`: erases the contacts to attach that nobody attached within 30 days of their last meeting (ADR 0146, 0147);
