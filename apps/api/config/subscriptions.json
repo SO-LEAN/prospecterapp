@@ -316,7 +316,7 @@
     "context": "prospecting",
     "sources": ["prospecter.prospecting.internal"],
     "events": ["ContactAdded.v1"],
-    "handler": "Prospecter\\Core\\Prospecting\\Application\\KeepToDosOfAttachedContact\\KeepToDosOfAttachedContactHandler",
+    "policy": "Prospecter\\Core\\Prospecting\\Application\\Policy\\KeepToDosOfAttachedContactPolicy",
     "inbox": true
   },
   "prospecting-push-back-erasure-of-contact-to-attach": {
