@@ -205,20 +205,32 @@ describe('the views of an event storming', () => {
     expect(overview?.nodes[0]?.detail).toBe('Prospecting · Événement publié')
   })
 
-  it('puts the actor before a use case and the external systems it asks after it', () => {
+  it('puts the actor before a use case', () => {
     const member = sticky('actor', 'ROLE_USER')
+    const model: Model = {
+      context: 'Booking',
+      modules: [],
+      stickies: [{ ...openBooking, module: null }, member],
+      links: [link(member, openBooking)],
+    }
+
+    const [overview] = viewsOf(model)
+
+    expect(overview?.edges).toEqual([{ from: 'actor:ROLE_USER', to: 'command:OpenBooking', certain: true }])
+  })
+
+  it('puts the external systems a use case asks after it', () => {
     const calendars = sticky('externalSystem', 'ConnectedCalendars')
     const model: Model = {
       context: 'Booking',
       modules: [],
-      stickies: [{ ...openBooking, module: null }, member, calendars],
-      links: [link(member, openBooking), link(openBooking, calendars)],
+      stickies: [{ ...openBooking, module: null }, calendars],
+      links: [link(openBooking, calendars)],
     }
 
     const [overview] = viewsOf(model)
 
     expect(overview?.edges).toEqual([
-      { from: 'actor:ROLE_USER', to: 'command:OpenBooking', certain: true },
       { from: 'command:OpenBooking', to: 'externalSystem:ConnectedCalendars', certain: true },
     ])
   })
