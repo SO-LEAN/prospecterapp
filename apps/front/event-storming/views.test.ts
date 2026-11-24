@@ -5,18 +5,21 @@ import { viewsOf } from './views.ts'
 function sticky(type: StickyType, name: string, module: string | null = null, context = 'Booking'): Sticky {
   return {
     id: `${type}:${name}`,
+    slug: `${type}:${name}`,
     type,
     label: name,
+    feature: null,
     name,
     class: `Core\\${name}`,
     context,
     module,
     detail: null,
+    answeredBy: [],
   }
 }
 
 function link(from: Sticky, to: Sticky, via: string | null = null): Link {
-  return { from: from.id, to: to.id, via, certain: true }
+  return { from: from.id, to: to.id, via, certain: true, when: null }
 }
 
 const openBooking = sticky('command', 'OpenBooking', 'BookingPage')

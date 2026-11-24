@@ -10,13 +10,20 @@ export type StickyType =
 
 export interface Sticky {
   id: string
+  /** Its short name in a link to the wall: `command:BookSlot`, `published:SlotBooked`, `PersonalData/policy:…`. */
+  slug: string
   type: StickyType
+  /** In English, from its name. */
   label: string
+  /** The title of its use case's feature, in French. */
+  feature: string | null
   name: string
   class: string | null
   context: string
   module: string | null
   detail: string | null
+  /** The contexts an external system's adapters read. */
+  answeredBy: string[]
 }
 
 export interface Link {
@@ -24,6 +31,8 @@ export interface Link {
   to: string
   via: string | null
   certain: boolean
+  /** When an uncertain link happens, in English, if the code writes it. */
+  when: string | null
 }
 
 export interface Model {
