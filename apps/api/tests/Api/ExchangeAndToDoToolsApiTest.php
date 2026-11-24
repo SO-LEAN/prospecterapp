@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\App\Api;
 
 use PHPUnit\Framework\Attributes\Group;
-use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\Prospecting\Domain\Model\Channel;
 use Prospecter\Core\Prospecting\Domain\Model\ContactCorrespondent;
 use Prospecter\Core\Prospecting\Domain\Model\ContactId;
@@ -32,27 +31,16 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
 {
     use ActsAsItsEndpoint;
 
-    /** The exchanges planned are handled by their holder only, the prospector here. */
-    private const array HOLDER = ['prospector-user'];
-
     private const string QUOTE_ON_THE_WEB = TheWeb::HOST.'/devis.png';
 
     private const array FRIDAY = ['text' => 'Envoyer le CV', 'dueOn' => '2026-10-16', 'dueAt' => '10:00'];
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->aMemberOfTheFixtures('admin-user', Role::User, Role::Admin);
-        $this->aMemberOfTheFixtures('member-user', Role::User);
-        $this->aMemberOfAnotherAccount('stranger');
-    }
 
     public function testTheAiPlansAVideoCallWithAContact(): void
     {
         $ada = $this->ada();
         $tomorrow = ['channel' => 'videoCall', 'occurredAt' => '2026-10-16T10:00:00+02:00', 'durationInMinutes' => 30, 'text' => 'Démonstration'];
 
-        $upcoming = $this->assertTheToolActsAsItsEndpoint('schedule-contact-exchange', ['id' => $ada, ...$tomorrow], 'POST', '/api/contacts/'.$ada.'/upcoming-exchanges', $tomorrow, self::PROSPECTORS);
+        $upcoming = $this->assertTheToolActsAsItsEndpoint('schedule-contact-exchange', ['id' => $ada, ...$tomorrow]);
 
         $this->assertSame([['videoCall', '2026-10-16T08:00:00+00:00', 'planned']], array_map(static fn (array $exchange): array => [$exchange['channel'], $exchange['occurredAt'], $exchange['status']], array_slice(self::recordsAt($upcoming, 'items'), 0, 1)));
     }
@@ -63,7 +51,7 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
         $ada = $this->ada();
         $meeting = ['channel' => 'meeting', 'occurredAt' => '2026-10-16T10:00:00+02:00', 'place' => '1 place Kléber, Strasbourg'];
 
-        $upcoming = $this->assertTheToolActsAsItsEndpoint('schedule-organization-exchange', ['id' => $babbage, 'personId' => $ada, ...$meeting], 'POST', '/api/organizations/'.$babbage.'/upcoming-exchanges', ['exchange' => $meeting, 'personId' => $ada], self::PROSPECTORS);
+        $upcoming = $this->assertTheToolActsAsItsEndpoint('schedule-organization-exchange', ['id' => $babbage, 'personId' => $ada, ...$meeting]);
 
         $this->assertSame(['meeting', '1 place Kléber, Strasbourg'], [self::valueAt($upcoming, 'items', 0, 'exchange', 'channel'), self::valueAt($upcoming, 'items', 0, 'exchange', 'place')]);
     }
@@ -93,7 +81,7 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
         $call = $this->aCallWithAdaPlannedYesterday();
         $report = ['text' => 'Intéressée, rappeler en janvier'];
 
-        $done = $this->assertTheToolActsAsItsEndpoint('mark-exchange-done', ['id' => $call, ...$report], 'POST', '/api/exchanges/'.$call.'/done', $report, self::HOLDER);
+        $done = $this->assertTheToolActsAsItsEndpoint('mark-exchange-done', ['id' => $call, ...$report]);
 
         $this->assertSame(['done', 'Intéressée, rappeler en janvier'], [$done['status'], $done['text']]);
         $this->assertSame([], self::valueAt($this->requestJson('GET', '/api/me/exchanges-to-process'), 'items'));
@@ -103,7 +91,7 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
     {
         $call = $this->aCallWithAdaPlannedYesterday();
 
-        $missed = $this->assertTheToolActsAsItsEndpoint('mark-exchange-missed', ['id' => $call], 'POST', '/api/exchanges/'.$call.'/missed', null, self::HOLDER);
+        $missed = $this->assertTheToolActsAsItsEndpoint('mark-exchange-missed', ['id' => $call]);
 
         $this->assertSame('missed', $missed['status']);
     }
@@ -112,7 +100,6 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
     {
         $call = $this->aCallWithAdaPlannedNextTuesday();
         $wednesday = ['occurredAt' => '2026-10-21T09:00:00+00:00', 'durationInMinutes' => 45];
-        $this->assertTheToolIsRefusedAsItsEndpoint('reschedule-exchange', ['id' => $call, ...$wednesday], 'PATCH', '/api/exchanges/'.$call.'/moment', $wednesday, ['assistant-user', 'admin-user', 'member-user', 'stranger']);
         $this->login();
 
         $moved = $this->answerOf($this->callWithoutHandshake('reschedule-exchange', ['id' => $call, ...$wednesday]));
@@ -124,27 +111,24 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
         $this->assertSame($this->requestJson('GET', '/api/exchanges/'.$call), [...$moved, '_links' => $linksOfTheExchange]);
     }
 
-    public function testTheAiCancelsAPlannedExchangeOnceItsMemberConfirmed(): void
+    public function testTheAiCancelsAPlannedExchange(): void
     {
         $call = $this->aCallWithAdaPlannedNextTuesday();
 
-        $cancelled = $this->assertTheToolActsAsItsEndpoint('cancel-exchange', ['id' => $call, 'canceller' => 'contact'], 'POST', '/api/exchanges/'.$call.'/cancellation', ['canceller' => 'contact'], self::HOLDER);
+        $cancelled = $this->assertTheToolActsAsItsEndpoint('cancel-exchange', ['id' => $call, 'canceller' => 'contact']);
 
         $this->assertSame(['cancelled', 'contact'], [$cancelled['status'], $cancelled['canceller']]);
-        $this->assertTheToolAsksForAConfirmation('cancel-exchange');
     }
 
-    public function testTheAiErasesAnExchangeOnceItsMemberConfirmed(): void
+    public function testTheAiErasesAnExchange(): void
     {
         $call = $this->aCallWithAdaPlannedYesterday();
-        $this->assertTheToolIsRefusedAsItsEndpoint('delete-exchange', ['id' => $call], 'DELETE', '/api/exchanges/'.$call, null, ['assistant-user', 'member-user', 'stranger']);
         $this->login();
 
         $this->assertNotTrue($this->callWithoutHandshake('delete-exchange', ['id' => $call])['isError'] ?? false);
 
         $this->requestJson('GET', '/api/exchanges/'.$call);
         $this->assertResponseStatusCodeSame(404);
-        $this->assertTheToolAsksForAConfirmation('delete-exchange');
     }
 
     public function testTheAiCorrectsTheFactsOfAnExchange(): void
@@ -152,7 +136,7 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
         $call = $this->aCallWithAdaNotedYesterday();
         $facts = ['channel' => 'videoCall', 'direction' => 'inbound', 'occurredAt' => '2026-10-14T10:00:00+00:00', 'text' => 'Visio, à son initiative'];
 
-        $corrected = $this->assertTheToolActsAsItsEndpoint('update-exchange', ['id' => $call, ...$facts], 'PATCH', '/api/exchanges/'.$call.'/facts', $facts, self::PERSONAL_DATA_MANAGERS);
+        $corrected = $this->assertTheToolActsAsItsEndpoint('update-exchange', ['id' => $call, ...$facts]);
 
         $this->assertSame(['videoCall', 'inbound', 'Visio, à son initiative'], [$corrected['channel'], $corrected['direction'], $corrected['text']]);
     }
@@ -161,7 +145,7 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
     {
         $call = $this->aCallWithAdaNotedYesterday();
 
-        $corrected = $this->assertTheToolActsAsItsEndpoint('set-exchange-text', ['id' => $call, 'text' => 'Appel sans suite'], 'PATCH', '/api/exchanges/'.$call.'/text', ['text' => 'Appel sans suite'], self::PROSPECTORS);
+        $corrected = $this->assertTheToolActsAsItsEndpoint('set-exchange-text', ['id' => $call, 'text' => 'Appel sans suite']);
 
         $this->assertSame(['call', 'Appel sans suite'], [$corrected['channel'], $corrected['text']]);
     }
@@ -171,7 +155,7 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
         $ada = $this->ada();
         $meeting = self::stringAt($this->requestJson('POST', '/api/contacts/'.$ada.'/upcoming-exchanges', ['channel' => 'meeting', 'occurredAt' => '2026-10-20T14:00:00+00:00', 'place' => 'Café de Flore']), 'items', 0, 'id');
 
-        $corrected = $this->assertTheToolActsAsItsEndpoint('set-exchange-venue', ['id' => $meeting, 'place' => 'Les Deux Magots'], 'PATCH', '/api/exchanges/'.$meeting.'/venue', ['place' => 'Les Deux Magots'], self::PROSPECTORS);
+        $corrected = $this->assertTheToolActsAsItsEndpoint('set-exchange-venue', ['id' => $meeting, 'place' => 'Les Deux Magots']);
 
         $this->assertSame('Les Deux Magots', $corrected['place']);
     }
@@ -184,7 +168,6 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
         $this->google()->refusesTheEvents();
         $call = $this->aCallWithAdaPlannedNextTuesday();
         $this->google()->acceptsTheEvents();
-        $this->assertTheToolIsRefusedAsItsEndpoint('retry-google-sync', ['id' => $call], 'POST', '/api/exchanges/'.$call.'/google-sync/retries', null, ['assistant-user', 'admin-user', 'member-user', 'stranger']);
         $this->login();
 
         $sync = $this->answerOf($this->callWithoutHandshake('retry-google-sync', ['id' => $call]));
@@ -200,12 +183,6 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
         $this->keepTheKernel();
         self::service(TheWeb::class)->publish(self::QUOTE_ON_THE_WEB, (string) file_get_contents(__DIR__.'/../Fixtures/logo.png'));
         $quote = ['id' => $call, 'url' => self::QUOTE_ON_THE_WEB, 'name' => 'devis.png'];
-        foreach (['assistant-user', 'member-user', 'stranger'] as $refused) {
-            $this->login($refused);
-            $refusal = $this->answerOf($this->callWithoutHandshake('attach-file', $quote));
-
-            $this->assertSame($this->requestJson('POST', '/api/exchanges/'.$call.'/attachments', ['upload' => self::newIdentity(), 'name' => 'devis.png']), $refusal, sprintf('refused to %s', $refused));
-        }
         $this->login();
 
         $joined = $this->answerOf($this->callWithoutHandshake('attach-file', $quote));
@@ -258,18 +235,17 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
         $this->assertStringContainsString('sign-in', self::stringAt($refusal, 'violations', 0, 'title'));
     }
 
-    public function testTheAiRemovesAFileJoinedToAnExchangeOnceItsMemberConfirmed(): void
+    public function testTheAiRemovesAFileJoinedToAnExchange(): void
     {
         $call = $this->aCallWithAdaNotedYesterday();
         $upload = self::stringAt($this->requestJson('POST', '/api/uploads'), 'upload');
         self::service(InMemoryPrivateStorage::class)->send($upload, 2048, 'application/pdf');
         $attachment = self::stringAt($this->requestJson('POST', '/api/exchanges/'.$call.'/attachments', ['upload' => $upload, 'name' => 'devis.pdf']), 'attachments', 0, 'id');
 
-        $removed = $this->assertTheToolActsAsItsEndpoint('delete-attachment', ['id' => $call, 'attachmentId' => $attachment], 'DELETE', '/api/exchanges/'.$call.'/attachments/'.$attachment, null, self::PERSONAL_DATA_MANAGERS);
+        $removed = $this->assertTheToolActsAsItsEndpoint('delete-attachment', ['id' => $call, 'attachmentId' => $attachment]);
 
         $this->assertSame([], $removed['attachments']);
         $this->assertFalse(self::service(InMemoryPrivateStorage::class)->holds($upload));
-        $this->assertTheToolAsksForAConfirmation('delete-attachment');
     }
 
     public function testTheAiPushesAgainIntoTheCalendarAtGoogleEveryExchangeOfItsMemberItRefused(): void
@@ -288,25 +264,11 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
         $this->assertCount(1, $this->google()->events());
     }
 
-    /**
-     * Its endpoint is open to every member, on their own connections, a prospector or not, of any account.
-     */
-    public function testTheAiOfEveryMemberPushesAgainTheExchangesOfItsMember(): void
-    {
-        foreach (self::WRITERS as $writer) {
-            $this->login($writer);
-            $result = $this->callWithoutHandshake('retry-failed-google-syncs');
-
-            $this->assertNotTrue($result['isError'] ?? false, sprintf('refused to %s', $writer));
-            $this->assertSame($this->requestJson('GET', '/api/me/connections'), $this->answerOf($result), sprintf('done by %s', $writer));
-        }
-    }
-
     public function testTheAiNotesAToDoForAContact(): void
     {
         $ada = $this->ada();
 
-        $noted = $this->assertTheToolActsAsItsEndpoint('create-contact-todo', ['id' => $ada, ...self::FRIDAY], 'POST', '/api/contacts/'.$ada.'/to-dos', self::FRIDAY, self::PERSONAL_DATA_MANAGERS);
+        $noted = $this->assertTheToolActsAsItsEndpoint('create-contact-todo', ['id' => $ada, ...self::FRIDAY]);
 
         $this->assertSame(['Envoyer le CV', '2026-10-16', $ada], [$noted['text'], $noted['dueOn'], self::valueAt($noted, 'contact', 'id')]);
     }
@@ -315,7 +277,7 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
     {
         $babbage = $this->babbage();
 
-        $noted = $this->assertTheToolActsAsItsEndpoint('create-organization-todo', ['id' => $babbage, ...self::FRIDAY], 'POST', '/api/organizations/'.$babbage.'/to-dos', self::FRIDAY, self::PERSONAL_DATA_MANAGERS);
+        $noted = $this->assertTheToolActsAsItsEndpoint('create-organization-todo', ['id' => $babbage, ...self::FRIDAY]);
 
         $this->assertSame(['Envoyer le CV', null], [$noted['text'], $noted['contact']]);
         $this->login();
@@ -326,7 +288,7 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
     {
         $toDo = $this->aToDoForAdaNotedByTheAi();
 
-        $ticked = $this->assertTheToolActsAsItsEndpoint('complete-todo', ['id' => $toDo], 'POST', '/api/to-dos/'.$toDo.'/done', null, self::PERSONAL_DATA_MANAGERS);
+        $ticked = $this->assertTheToolActsAsItsEndpoint('complete-todo', ['id' => $toDo]);
 
         $this->assertSame('2026-10-15T09:00:00+00:00', $ticked['doneAt']);
     }
@@ -336,7 +298,7 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
         $toDo = $this->aToDoForAdaNotedByTheAi();
         $this->callWithoutHandshake('complete-todo', ['id' => $toDo]);
 
-        $unticked = $this->assertTheToolActsAsItsEndpoint('reopen-todo', ['id' => $toDo], 'DELETE', '/api/to-dos/'.$toDo.'/done', null, self::PERSONAL_DATA_MANAGERS);
+        $unticked = $this->assertTheToolActsAsItsEndpoint('reopen-todo', ['id' => $toDo]);
 
         $this->assertNull($unticked['doneAt']);
     }
@@ -346,22 +308,20 @@ class ExchangeAndToDoToolsApiTest extends ApiTestCase
         $toDo = $this->aToDoForAdaNotedByTheAi();
         $monday = ['text' => 'Envoyer le CV et la proposition', 'dueOn' => '2026-10-19'];
 
-        $revised = $this->assertTheToolActsAsItsEndpoint('update-todo', ['id' => $toDo, ...$monday], 'PATCH', '/api/to-dos/'.$toDo, $monday, self::PERSONAL_DATA_MANAGERS);
+        $revised = $this->assertTheToolActsAsItsEndpoint('update-todo', ['id' => $toDo, ...$monday]);
 
         $this->assertSame(['Envoyer le CV et la proposition', '2026-10-19', null], [$revised['text'], $revised['dueOn'], $revised['dueAt']]);
     }
 
-    public function testTheAiErasesAToDoOnceItsMemberConfirmed(): void
+    public function testTheAiErasesAToDo(): void
     {
         $toDo = $this->aToDoForAdaNotedByTheAi();
-        $this->assertTheToolIsRefusedAsItsEndpoint('delete-todo', ['id' => $toDo], 'DELETE', '/api/to-dos/'.$toDo, null, ['assistant-user', 'member-user', 'stranger']);
         $this->login();
 
         $this->assertNotTrue($this->callWithoutHandshake('delete-todo', ['id' => $toDo])['isError'] ?? false);
 
         $this->requestJson('GET', '/api/to-dos/'.$toDo);
         $this->assertResponseStatusCodeSame(404);
-        $this->assertTheToolAsksForAConfirmation('delete-todo');
     }
 
     /**

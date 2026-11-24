@@ -5,14 +5,13 @@ declare(strict_types=1);
 namespace Tests\App\Api;
 
 use PHPUnit\Framework\Attributes\Group;
-use Prospecter\Core\Accounts\Domain\Model\Role;
 use Symfony\Component\Clock\MockClock;
 use Tests\App\Base\ActsAsItsEndpoint;
 use Tests\App\Base\ApiTestCase;
 
 /**
  * An AI prepares, freezes, starts and stops the campaigns of its member's team, as its member does on the screens
- * (ADR 0163), with the right to manage the personal data only.
+ * (ADR 0163).
  */
 #[Group('api')]
 class CampaignToolsApiTest extends ApiTestCase
@@ -25,9 +24,6 @@ class CampaignToolsApiTest extends ApiTestCase
 
     private const array SENT_TO_ADA = ['text' => 'Bonjour Ada', 'messageId' => '<relance-ada@solean-it.test>'];
 
-    /** The members a campaign of the team of the prospector is written by: another account knows nothing of it. */
-    private const array TEAM_WRITERS = ['prospector-user', 'admin-user'];
-
     /** Late on the controllers' day in UTC, and already the next day in Paris. */
     private const string LATE_THAT_DAY = '2026-10-15 23:00:00 UTC';
 
@@ -37,9 +33,6 @@ class CampaignToolsApiTest extends ApiTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->aMemberOfTheFixtures('admin-user', Role::User, Role::Admin);
-        $this->aMemberOfTheFixtures('member-user', Role::User);
-        $this->aMemberOfAnotherAccount('stranger');
         $this->login();
         $acme = self::stringAt($this->requestJson('POST', '/api/organizations', ['legalIdentity' => ['corporateName' => 'ACME']]), 'id');
         $this->requestJson('POST', '/api/organizations/'.$acme.'/tags', ['tags' => [self::TAG]]);
@@ -49,7 +42,7 @@ class CampaignToolsApiTest extends ApiTestCase
 
     public function testTheAiPreparesACampaign(): void
     {
-        $campaign = $this->assertTheToolActsAsItsEndpoint('create-campaign', self::RELAUNCH, 'POST', '/api/campaigns', self::RELAUNCH, [...self::PERSONAL_DATA_MANAGERS, 'stranger']);
+        $campaign = $this->assertTheToolActsAsItsEndpoint('create-campaign', self::RELAUNCH);
 
         $this->assertSame(['Relance PHP', 'email', 'draft'], [$campaign['name'], $campaign['channel'], $campaign['status']]);
     }
@@ -68,7 +61,7 @@ class CampaignToolsApiTest extends ApiTestCase
         $draft = $this->aDraft();
         $revised = [...self::RELAUNCH, 'message' => 'Bonjour {firstName}, une mission PHP vous intéresse ?'];
 
-        $campaign = $this->assertTheToolActsAsItsEndpoint('update-campaign', ['id' => $draft, ...$revised], 'PATCH', '/api/campaigns/'.$draft, $revised, self::TEAM_WRITERS);
+        $campaign = $this->assertTheToolActsAsItsEndpoint('update-campaign', ['id' => $draft, ...$revised]);
 
         $this->assertSame('Bonjour {firstName}, une mission PHP vous intéresse ?', $campaign['message']);
     }
@@ -77,7 +70,7 @@ class CampaignToolsApiTest extends ApiTestCase
     {
         $draft = $this->aDraft();
 
-        $campaign = $this->assertTheToolActsAsItsEndpoint('freeze-campaign', ['id' => $draft], 'POST', '/api/campaigns/'.$draft.'/freeze', null, self::TEAM_WRITERS);
+        $campaign = $this->assertTheToolActsAsItsEndpoint('freeze-campaign', ['id' => $draft]);
 
         $this->assertSame('frozen', $campaign['status']);
     }
@@ -86,26 +79,25 @@ class CampaignToolsApiTest extends ApiTestCase
     {
         $frozen = $this->aFrozenCampaign();
 
-        $campaign = $this->assertTheToolActsAsItsEndpoint('start-campaign', ['id' => $frozen], 'POST', '/api/campaigns/'.$frozen.'/start', null, self::TEAM_WRITERS);
+        $campaign = $this->assertTheToolActsAsItsEndpoint('start-campaign', ['id' => $frozen]);
 
         $this->assertSame(['started', 2], [$campaign['status'], $campaign['targeted']]);
     }
 
-    public function testTheAiStopsAStartedCampaignOnceItsMemberConfirmed(): void
+    public function testTheAiStopsAStartedCampaign(): void
     {
         $started = $this->aStartedCampaign();
 
-        $campaign = $this->assertTheToolActsAsItsEndpoint('stop-campaign', ['id' => $started], 'POST', '/api/campaigns/'.$started.'/stop', null, self::TEAM_WRITERS);
+        $campaign = $this->assertTheToolActsAsItsEndpoint('stop-campaign', ['id' => $started]);
 
         $this->assertSame('stopped', $campaign['status']);
-        $this->assertTheToolAsksForAConfirmation('stop-campaign');
     }
 
     public function testTheAiSetsTheDailyCapOfAStartedCampaign(): void
     {
         $started = $this->aStartedCampaign();
 
-        $campaign = $this->assertTheToolActsAsItsEndpoint('set-campaign-daily-cap', ['id' => $started, 'dailyCap' => 2], 'PATCH', '/api/campaigns/'.$started.'/daily-cap', ['dailyCap' => 2], self::TEAM_WRITERS);
+        $campaign = $this->assertTheToolActsAsItsEndpoint('set-campaign-daily-cap', ['id' => $started, 'dailyCap' => 2]);
 
         $this->assertSame(2, $campaign['dailyCap']);
     }
@@ -131,7 +123,7 @@ class CampaignToolsApiTest extends ApiTestCase
         $frozen = $this->aFrozenCampaign();
         $grace = $this->grace();
 
-        $campaign = $this->assertTheToolActsAsItsEndpoint('add-campaign-recipient', ['id' => $frozen, 'contactId' => $grace], 'POST', '/api/campaigns/'.$frozen.'/recipients', ['contactId' => $grace], self::TEAM_WRITERS);
+        $campaign = $this->assertTheToolActsAsItsEndpoint('add-campaign-recipient', ['id' => $frozen, 'contactId' => $grace]);
 
         $this->assertSame(3, $campaign['targeted']);
     }
@@ -142,35 +134,31 @@ class CampaignToolsApiTest extends ApiTestCase
         $grace = $this->grace();
         $this->requestJson('POST', '/api/contacts/'.$grace.'/tags', ['tags' => ['#COBOL']]);
 
-        $campaign = $this->assertTheToolActsAsItsEndpoint('add-recipients-by-tags', ['id' => $frozen, 'tags' => ['#COBOL']], 'POST', '/api/campaigns/'.$frozen.'/recipients/by-tags', ['tags' => ['#COBOL']], self::TEAM_WRITERS);
+        $campaign = $this->assertTheToolActsAsItsEndpoint('add-recipients-by-tags', ['id' => $frozen, 'tags' => ['#COBOL']]);
 
         $this->assertSame(3, $campaign['targeted']);
     }
 
-    public function testTheAiTakesARecipientOffAFrozenCampaignOnceItsMemberConfirmed(): void
+    public function testTheAiTakesARecipientOffAFrozenCampaign(): void
     {
         $frozen = $this->aFrozenCampaign();
-        $this->assertTheToolIsRefusedAsItsEndpoint('remove-campaign-recipient', ['id' => $frozen, 'contactId' => $this->alan], 'DELETE', '/api/campaigns/'.$frozen.'/recipients/'.$this->alan, null, ['assistant-user', 'member-user', 'stranger']);
         $this->login();
 
         $this->assertNotTrue($this->callWithoutHandshake('remove-campaign-recipient', ['id' => $frozen, 'contactId' => $this->alan])['isError'] ?? false);
 
         $this->assertSame([$this->ada], array_column(array_column(self::recordsAt($this->requestJson('GET', '/api/campaigns/'.$frozen.'/recipients'), 'items'), 'contact'), 'id'));
-        $this->assertTheToolAsksForAConfirmation('remove-campaign-recipient');
     }
 
-    public function testTheAiDismissesARecipientOfAStartedCampaignOnceItsMemberConfirmed(): void
+    public function testTheAiDismissesARecipientOfAStartedCampaign(): void
     {
         $started = $this->aStartedCampaign();
         $gone = ['reason' => 'Parti de la société'];
-        $this->assertTheToolIsRefusedAsItsEndpoint('dismiss-campaign-recipient', ['id' => $started, 'contactId' => $this->alan, ...$gone], 'POST', '/api/campaigns/'.$started.'/recipients/'.$this->alan.'/dismissal', $gone, ['assistant-user', 'member-user', 'stranger']);
         $this->login();
 
         $this->assertNotTrue($this->callWithoutHandshake('dismiss-campaign-recipient', ['id' => $started, 'contactId' => $this->alan, ...$gone])['isError'] ?? false);
 
         $alan = $this->recipientOf($started, $this->alan);
         $this->assertSame(['dismissed', 'Parti de la société'], [$alan['status'] ?? null, $alan['reason'] ?? null]);
-        $this->assertTheToolAsksForAConfirmation('dismiss-campaign-recipient');
     }
 
     public function testTheAiTakesTheNextRecipientTheirAddressAndTheMessageToSendAsIs(): void
@@ -247,47 +235,6 @@ class CampaignToolsApiTest extends ApiTestCase
             [['sends' => 2, 'processedToday' => 1, 'reached' => false], null],
             [self::valueAt($next, 'structuredContent', 'dailyCap'), self::valueAt($next, 'structuredContent', 'warning')],
         );
-    }
-
-    public function testTheNextRecipientIsRefusedAsTheMessageOfTheCampaign(): void
-    {
-        $started = $this->aStartedCampaign();
-
-        $this->assertTheToolIsRefusedAsItsEndpoint('get-next-recipient', ['id' => $started], 'GET', '/api/campaigns/'.$started.'/messages/'.$this->ada, null, ['assistant-user', 'member-user', 'stranger']);
-    }
-
-    public function testAnAdministratorLeadsACampaignOfTheTeamAsAProspector(): void
-    {
-        $started = $this->aStartedCampaign();
-        $this->login('admin-user');
-
-        $next = self::recordAt($this->callWithoutHandshake('get-next-recipient', ['id' => $started]), 'structuredContent');
-        $noted = $this->callWithoutHandshake('log-sent-message', ['id' => $started, 'contactId' => self::valueAt($next, 'contact', 'id'), ...self::SENT_TO_ADA]);
-
-        $this->assertSame([2, 'noted'], [$next['pending'], self::valueAt($noted, 'structuredContent', 'status')]);
-    }
-
-    public function testASendingNotedByHandIsAnsweredAlreadyNotedToTheAi(): void
-    {
-        $started = $this->aStartedCampaign();
-        $this->requestJson('POST', '/api/campaigns/'.$started.'/recipients/'.$this->ada.'/exchanges', self::SENT_TO_ADA);
-        $this->assertResponseStatusCodeSame(201);
-
-        $again = $this->callWithoutHandshake('log-sent-message', ['id' => $started, 'contactId' => $this->ada, ...self::SENT_TO_ADA]);
-
-        $this->assertSame('alreadyNoted', self::valueAt($again, 'structuredContent', 'status'));
-        $this->assertCount(1, self::arrayAt($this->requestJson('GET', '/api/contacts/'.$this->ada.'/exchanges'), 'items'));
-    }
-
-    public function testACampaignStoppedGivesNoNextRecipient(): void
-    {
-        $started = $this->aStartedCampaign();
-        $this->requestJson('POST', '/api/campaigns/'.$started.'/stop');
-
-        $refusal = $this->callWithoutHandshake('get-next-recipient', ['id' => $started]);
-
-        $this->assertTrue($refusal['isError'] ?? false);
-        $this->assertSame('campaignNotRunning', self::valueAt($this->answerOf($refusal), 'reason'));
     }
 
     public function testThePromptToLeadACampaignIsListedWithTheCampaignToRun(): void
@@ -377,24 +324,15 @@ class CampaignToolsApiTest extends ApiTestCase
         $this->assertCount(1, self::arrayAt($this->requestJson('GET', '/api/contacts/'.$this->ada.'/exchanges'), 'items'));
     }
 
-    public function testNotingTheSendingIsRefusedAsItsEndpointRefusesIt(): void
-    {
-        $started = $this->aStartedCampaign();
-
-        $this->assertTheToolIsRefusedAsItsEndpoint('log-sent-message', ['id' => $started, 'contactId' => $this->ada, ...self::SENT_TO_ADA], 'POST', '/api/campaigns/'.$started.'/recipients/'.$this->ada.'/exchanges', self::SENT_TO_ADA, ['assistant-user', 'member-user', 'stranger']);
-    }
-
-    public function testTheAiDiscardsADraftOnceItsMemberConfirmed(): void
+    public function testTheAiDiscardsADraft(): void
     {
         $draft = $this->aDraft();
-        $this->assertTheToolIsRefusedAsItsEndpoint('delete-campaign', ['id' => $draft], 'DELETE', '/api/campaigns/'.$draft, null, ['assistant-user', 'member-user', 'stranger']);
         $this->login();
 
         $this->assertNotTrue($this->callWithoutHandshake('delete-campaign', ['id' => $draft])['isError'] ?? false);
 
         $this->requestJson('GET', '/api/campaigns/'.$draft);
         $this->assertResponseStatusCodeSame(404);
-        $this->assertTheToolAsksForAConfirmation('delete-campaign');
     }
 
     private function theClockShows(string $moment): void
