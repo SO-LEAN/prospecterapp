@@ -7,8 +7,8 @@ namespace App\ToDos\Mcp;
 use App\Shared\Mcp\Adapts;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
+use Prospecter\Core\Prospecting\Application\ToDo\UntickToDo\UntickToDo;
 use Prospecter\Core\Prospecting\Application\ToDoInList;
-use Prospecter\Core\Prospecting\Application\UntickToDo\UntickToDo;
 
 /**
  * `DELETE /api/to-dos/{id}/done`, for an AI (ADR 0163). As for every removal, the AI asks its member before it calls

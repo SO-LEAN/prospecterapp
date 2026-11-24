@@ -8,7 +8,7 @@ use App\Prospecting\Input\OrganizationContactDetailsInput;
 use App\Shared\Mcp\Adapts;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
-use Prospecter\Core\Prospecting\Application\ChangeContactDetails\ChangeContactDetails;
+use Prospecter\Core\Prospecting\Application\Organization\ChangeContactDetails\ChangeContactDetails;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 
 /**

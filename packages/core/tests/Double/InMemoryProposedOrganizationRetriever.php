@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Core\Double;
 
+use Prospecter\Core\Prospecting\Application\Contact\ProposeOrganizationToAttach\ProposedOrganization;
 use Prospecter\Core\Prospecting\Application\Port\ProposedOrganizationRetriever;
-use Prospecter\Core\Prospecting\Application\ProposeOrganizationToAttach\ProposedOrganization;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\SharedKernel\Domain\Company\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;

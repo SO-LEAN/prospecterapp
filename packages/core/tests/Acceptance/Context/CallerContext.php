@@ -9,8 +9,8 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use Prospecter\Core\PersonalData\Application\Identification\RecognizeCallingContact\RecognizeCallingContact;
 use Prospecter\Core\PersonalData\Application\PersonCard;
+use Prospecter\Core\Prospecting\Application\Identification\RecognizeCallingOrganization\RecognizeCallingOrganization;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
-use Prospecter\Core\Prospecting\Application\RecognizeCallingOrganization\RecognizeCallingOrganization;
 use Tests\Core\Acceptance\Expect;
 
 /**

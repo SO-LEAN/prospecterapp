@@ -6,8 +6,8 @@ namespace App\Prospecting\Presenter;
 
 use App\Prospecting\Resource\EstablishmentResource;
 use App\Prospecting\Resource\EstablishmentsResource;
-use Prospecter\Core\Prospecting\Application\SearchEstablishments\FoundEstablishment;
-use Prospecter\Core\Prospecting\Application\SearchEstablishments\SearchEstablishmentsOutput;
+use Prospecter\Core\Prospecting\Application\Organization\SearchEstablishments\FoundEstablishment;
+use Prospecter\Core\Prospecting\Application\Organization\SearchEstablishments\SearchEstablishmentsOutput;
 
 /**
  * Presents the establishments proposed for an organization. It keeps them for the call that asked for them (ADR

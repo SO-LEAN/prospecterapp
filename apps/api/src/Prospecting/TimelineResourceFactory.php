@@ -12,11 +12,11 @@ use App\Security\IntentLinks;
 use App\Security\User;
 use App\Shared\Links;
 use App\Shared\Resource\LinkResource;
-use Prospecter\Core\Prospecting\Application\ConsultCalendar\Calendar;
-use Prospecter\Core\Prospecting\Application\ConsultMyDay\MyDay;
-use Prospecter\Core\Prospecting\Application\ConsultWhatIsToProcess\WhatIsToProcess;
+use Prospecter\Core\Prospecting\Application\Agenda\ConsultCalendar\Calendar;
+use Prospecter\Core\Prospecting\Application\Agenda\ConsultMyDay\MyDay;
+use Prospecter\Core\Prospecting\Application\Agenda\ConsultWhatIsToProcess\WhatIsToProcess;
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
-use Prospecter\Core\Prospecting\Application\Timeline;
+use Prospecter\Core\Prospecting\Application\Timeline\Timeline;
 
 /**
  * Creates what a contact's timeline and an organization's timeline show alike: their exchanges and their links. An

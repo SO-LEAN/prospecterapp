@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\Policy;
 
-use Prospecter\Core\Prospecting\Application\PushBackErasureOfContactToAttach\PushBackErasureOfContactToAttach;
+use Prospecter\Core\Prospecting\Application\Contact\PushBackErasureOfContactToAttach\PushBackErasureOfContactToAttach;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeCorrected;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeMoved;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeNoted;

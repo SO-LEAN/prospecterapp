@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Core\Application\Prospecting;
 
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\Prospecting\Application\EraseToDoLeftWithoutOrganization\EraseToDoLeftWithoutOrganization;
 use Prospecter\Core\Prospecting\Application\Policy\EraseToDoLeftWithoutOrganizationPolicy;
+use Prospecter\Core\Prospecting\Application\ToDo\EraseToDoLeftWithoutOrganization\EraseToDoLeftWithoutOrganization;
 use Prospecter\Core\Prospecting\Domain\Event\ToDoLeftWithoutOrganization;
 use Prospecter\Core\Prospecting\Domain\Model\ToDoId;
 use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;

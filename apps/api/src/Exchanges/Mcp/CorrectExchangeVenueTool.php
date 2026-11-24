@@ -8,8 +8,8 @@ use App\Exchanges\Input\VenueCorrectionInput;
 use App\Shared\Mcp\Adapts;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
-use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
-use Prospecter\Core\Prospecting\Application\CorrectExchangeVenue\CorrectExchangeVenue;
+use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\ExchangeDetail;
+use Prospecter\Core\Prospecting\Application\Exchange\CorrectExchangeVenue\CorrectExchangeVenue;
 
 /**
  * `PATCH /api/exchanges/{id}/venue`, for an AI (ADR 0163).

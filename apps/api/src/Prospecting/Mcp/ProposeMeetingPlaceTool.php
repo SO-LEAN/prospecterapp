@@ -10,7 +10,7 @@ use App\Shared\Mcp\Adapts;
 use App\Shared\Mcp\ToolResults;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
-use Prospecter\Core\Prospecting\Application\ProposeMeetingPlace\ProposeMeetingPlace;
+use Prospecter\Core\Prospecting\Application\Exchange\ProposeMeetingPlace\ProposeMeetingPlace;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 
 /**

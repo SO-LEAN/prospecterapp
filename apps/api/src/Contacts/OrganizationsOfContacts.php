@@ -7,9 +7,9 @@ namespace App\Contacts;
 use App\Contacts\Resource\OrganizationOfContactResource;
 use App\Contacts\Resource\OrganizationsOfContactResource;
 use App\Shared\Links;
-use Prospecter\Core\Prospecting\Application\ConsultOrganizationsOfContacts\ConsultOrganizationsOfContacts;
-use Prospecter\Core\Prospecting\Application\ConsultOrganizationsOfContacts\KeptOrganizationsOfContacts;
-use Prospecter\Core\Prospecting\Application\ConsultOrganizationsOfContacts\OrganizationOfContact;
+use Prospecter\Core\Prospecting\Application\Contact\ConsultOrganizationsOfContacts\ConsultOrganizationsOfContacts;
+use Prospecter\Core\Prospecting\Application\Contact\ConsultOrganizationsOfContacts\KeptOrganizationsOfContacts;
+use Prospecter\Core\Prospecting\Application\Contact\ConsultOrganizationsOfContacts\OrganizationOfContact;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 
 /**

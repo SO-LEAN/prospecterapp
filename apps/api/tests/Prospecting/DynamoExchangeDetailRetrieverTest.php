@@ -8,7 +8,7 @@ use App\Prospecting\Persistence\ExchangeKeys;
 use App\Shared\Persistence\Hydrator;
 use App\Shared\Typed;
 use PHPUnit\Framework\Attributes\DataProvider;
-use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
+use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\ExchangeDetail;
 use Prospecter\Core\Prospecting\Application\Port\ExchangeDetailRetriever;
 use Prospecter\Core\Prospecting\Domain\Model\Attachment;
 use Prospecter\Core\Prospecting\Domain\Model\AttachmentId;

@@ -9,8 +9,8 @@ use App\Shared\Mcp\Adapts;
 use App\Shared\Mcp\ToolInputs;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
-use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
-use Prospecter\Core\Prospecting\Application\MoveExchange\MoveExchange;
+use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\ExchangeDetail;
+use Prospecter\Core\Prospecting\Application\Exchange\MoveExchange\MoveExchange;
 
 /**
  * `PATCH /api/exchanges/{id}/moment`, for an AI (ADR 0163).

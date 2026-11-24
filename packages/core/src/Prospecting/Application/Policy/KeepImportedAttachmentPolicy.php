@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\Policy;
 
-use Prospecter\Core\Prospecting\Application\KeepImportedAttachment\KeepImportedAttachment;
+use Prospecter\Core\Prospecting\Application\Attachment\KeepImportedAttachment\KeepImportedAttachment;
 use Prospecter\Core\Prospecting\Domain\Event\AttachmentImported;
 use Prospecter\Core\SharedKernel\Application\Handler\Policy;
 

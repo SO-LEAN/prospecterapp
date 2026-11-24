@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Core\Application\Prospecting;
 
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\Prospecting\Application\DiscardRemovedLogo\DiscardRemovedLogo;
+use Prospecter\Core\Prospecting\Application\Organization\DiscardRemovedLogo\DiscardRemovedLogo;
 use Prospecter\Core\Prospecting\Application\Policy\DiscardRemovedLogoPolicy;
 use Prospecter\Core\Prospecting\Domain\Event\LogoRemoved;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;

@@ -9,8 +9,8 @@ use App\Shared\Mcp\Adapts;
 use App\Shared\Mcp\ToolInputs;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
-use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
-use Prospecter\Core\Prospecting\Application\MarkExchangeDone\MarkExchangeDone;
+use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\ExchangeDetail;
+use Prospecter\Core\Prospecting\Application\Exchange\MarkExchangeDone\MarkExchangeDone;
 
 /**
  * `POST /api/exchanges/{id}/done`, for an AI (ADR 0163).

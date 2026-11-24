@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Core\Application\Prospecting;
 
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\Prospecting\Application\AttachContactToAttach\AttachContactToAttach;
+use Prospecter\Core\Prospecting\Application\Contact\AttachContactToAttach\AttachContactToAttach;
 use Prospecter\Core\Prospecting\Application\Policy\AttachContactToAttachPolicy;
 use Prospecter\Core\Prospecting\Domain\Event\ContactAdded;
 use Prospecter\Core\Prospecting\Domain\Model\ContactId;

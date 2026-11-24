@@ -6,8 +6,8 @@ namespace App\Prospecting\Presenter;
 
 use App\Prospecting\Resource\TimelineResource;
 use App\Prospecting\TimelineResourceFactory;
-use Prospecter\Core\Prospecting\Application\Timeline;
-use Prospecter\Core\Prospecting\Application\TimelineOutput;
+use Prospecter\Core\Prospecting\Application\Timeline\Timeline;
+use Prospecter\Core\Prospecting\Application\Timeline\TimelineOutput;
 
 /**
  * Presents a slice of a contact's timeline, with a link for each intention the prospector may carry out on it. It is

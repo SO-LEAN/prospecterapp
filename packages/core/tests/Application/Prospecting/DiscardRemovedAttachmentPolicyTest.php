@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Core\Application\Prospecting;
 
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\Prospecting\Application\DiscardRemovedAttachment\DiscardRemovedAttachment;
+use Prospecter\Core\Prospecting\Application\Attachment\DiscardRemovedAttachment\DiscardRemovedAttachment;
 use Prospecter\Core\Prospecting\Application\Policy\DiscardRemovedAttachmentPolicy;
 use Prospecter\Core\Prospecting\Domain\Event\AttachmentRemoved;
 use Prospecter\Core\Prospecting\Domain\Model\AttachmentId;

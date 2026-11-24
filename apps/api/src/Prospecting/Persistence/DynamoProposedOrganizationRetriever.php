@@ -7,8 +7,8 @@ namespace App\Prospecting\Persistence;
 use App\Shared\Persistence\Documents;
 use App\Shared\Persistence\Table;
 use App\Shared\Typed;
+use Prospecter\Core\Prospecting\Application\Contact\ProposeOrganizationToAttach\ProposedOrganization;
 use Prospecter\Core\Prospecting\Application\Port\ProposedOrganizationRetriever;
-use Prospecter\Core\Prospecting\Application\ProposeOrganizationToAttach\ProposedOrganization;
 use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 
 /**

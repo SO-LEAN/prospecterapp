@@ -1,0 +1,12 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Prospecter\Core\Prospecting\Application\Agenda\ConsultOverlappingExchanges;
+
+use Prospecter\Core\SharedKernel\Application\Handler\OutputPort;
+
+interface ConsultOverlappingExchangesOutput extends OutputPort
+{
+    public function present(OverlappingExchanges $overlapping): void;
+}

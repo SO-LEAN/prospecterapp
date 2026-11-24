@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\Policy;
 
 use Prospecter\Core\Connectors\Contract\Event\VideoCallLinkCreated;
-use Prospecter\Core\Prospecting\Application\KeepCreatedVideoCallLink\KeepCreatedVideoCallLink;
+use Prospecter\Core\Prospecting\Application\Exchange\KeepCreatedVideoCallLink\KeepCreatedVideoCallLink;
 use Prospecter\Core\SharedKernel\Application\Handler\Policy;
 
 /**

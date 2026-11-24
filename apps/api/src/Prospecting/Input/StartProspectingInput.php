@@ -6,7 +6,7 @@ namespace App\Prospecting\Input;
 
 use App\Shared\Input\AddressInput;
 use App\Shared\Input\LegalIdentityInput;
-use Prospecter\Core\Prospecting\Application\StartProspecting\StartProspecting;
+use Prospecter\Core\Prospecting\Application\Organization\StartProspecting\StartProspecting;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**

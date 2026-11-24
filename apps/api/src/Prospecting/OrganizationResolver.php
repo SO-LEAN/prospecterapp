@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Prospecting;
 
 use App\Prospecting\Persistence\OrganizationRevisions;
-use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganization;
-use Prospecter\Core\Prospecting\Application\ConsultOrganization\KeptOrganization;
+use Prospecter\Core\Prospecting\Application\Organization\ConsultOrganization\ConsultOrganization;
+use Prospecter\Core\Prospecting\Application\Organization\ConsultOrganization\KeptOrganization;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Symfony\Component\HttpFoundation\Request;

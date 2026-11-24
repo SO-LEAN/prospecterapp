@@ -15,10 +15,10 @@ use App\Shared\Mcp\ToolInputs;
 use App\Shared\Mcp\ToolResults;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
-use Prospecter\Core\Prospecting\Application\NoteCampaignExchange\NoteCampaignExchange;
-use Prospecter\Core\Prospecting\Application\SendingNoted\KeptSendingNoted;
-use Prospecter\Core\Prospecting\Application\SendingNoted\SendingNoted;
-use Prospecter\Core\Prospecting\Application\SendingNoted\SendingNotedOutput;
+use Prospecter\Core\Prospecting\Application\Exchange\NoteCampaignExchange\NoteCampaignExchange;
+use Prospecter\Core\Prospecting\Application\Exchange\SendingNoted\KeptSendingNoted;
+use Prospecter\Core\Prospecting\Application\Exchange\SendingNoted\SendingNoted;
+use Prospecter\Core\Prospecting\Application\Exchange\SendingNoted\SendingNotedOutput;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Symfony\Component\Clock\ClockInterface;
 

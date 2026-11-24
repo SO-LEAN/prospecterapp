@@ -15,7 +15,7 @@ use App\Shared\Mcp\ToolInputs;
 use App\Shared\Mcp\ToolResults;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
-use Prospecter\Core\Prospecting\Application\NoteExchange\NoteExchange;
+use Prospecter\Core\Prospecting\Application\Exchange\NoteExchange\NoteExchange;
 use Symfony\Component\Clock\ClockInterface;
 
 /**

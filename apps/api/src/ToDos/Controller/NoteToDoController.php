@@ -14,7 +14,7 @@ use App\ToDos\Resource\ToDoResource;
 use App\ToDos\ToDoReader;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Prospecting\Application\NoteToDo\NoteToDo;
+use Prospecter\Core\Prospecting\Application\ToDo\NoteToDo\NoteToDo;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;

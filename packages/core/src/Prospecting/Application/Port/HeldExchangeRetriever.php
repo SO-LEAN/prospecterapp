@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\Port;
 
-use Prospecter\Core\Prospecting\Application\ConsultHeldExchanges\HeldExchange;
+use Prospecter\Core\Prospecting\Application\Agenda\ConsultHeldExchanges\HeldExchange;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
 use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;

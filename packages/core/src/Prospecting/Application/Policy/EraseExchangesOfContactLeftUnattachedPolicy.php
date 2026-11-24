@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\Policy;
 
-use Prospecter\Core\Prospecting\Application\EraseExchangesOfContactLeftUnattached\EraseExchangesOfContactLeftUnattached;
+use Prospecter\Core\Prospecting\Application\Exchange\EraseExchangesOfContactLeftUnattached\EraseExchangesOfContactLeftUnattached;
 use Prospecter\Core\Prospecting\Domain\Event\ContactLeftUnattached;
 use Prospecter\Core\SharedKernel\Application\Handler\Policy;
 

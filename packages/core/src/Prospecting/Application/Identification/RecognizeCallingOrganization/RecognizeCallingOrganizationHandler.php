@@ -1,0 +1,25 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Prospecter\Core\Prospecting\Application\Identification\RecognizeCallingOrganization;
+
+use Prospecter\Core\Prospecting\Application\Port\OrganizationSheetRetriever;
+use Prospecter\Core\Prospecting\Domain\Port\Prospectors;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
+use Prospecter\Core\SharedKernel\Domain\Contact\PhoneNumber;
+use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
+
+final readonly class RecognizeCallingOrganizationHandler implements QueryHandler
+{
+    public function __construct(private OrganizationSheetRetriever $organizationSheetRetriever, private Prospectors $prospectors)
+    {
+    }
+
+    public function __invoke(RecognizeCallingOrganization $query, RecognizeCallingOrganizationOutput $output): void
+    {
+        $prospector = $this->prospectors->prospectorFrom(new MemberId($query->prospectorId));
+
+        $output->present($this->organizationSheetRetriever->withPhoneNumber($prospector->accountId, PhoneNumber::of($query->phoneNumber)));
+    }
+}

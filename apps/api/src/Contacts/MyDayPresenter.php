@@ -11,8 +11,8 @@ use App\Contacts\Resource\MyDayResource;
 use App\Contacts\Resource\OrganizationOfContactResource;
 use App\Prospecting\TimelineResourceFactory;
 use Prospecter\Core\PersonalData\Application\PersonCard;
-use Prospecter\Core\Prospecting\Application\ConsultMyDay\ConsultMyDayOutput;
-use Prospecter\Core\Prospecting\Application\ConsultMyDay\MyDay;
+use Prospecter\Core\Prospecting\Application\Agenda\ConsultMyDay\ConsultMyDayOutput;
+use Prospecter\Core\Prospecting\Application\Agenda\ConsultMyDay\MyDay;
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\Policy;
 
 use Prospecter\Core\Connectors\Contract\Event\EmailExchanged;
-use Prospecter\Core\Prospecting\Application\NoteImportedEmail\NoteImportedEmail;
+use Prospecter\Core\Prospecting\Application\Exchange\NoteImportedEmail\NoteImportedEmail;
 use Prospecter\Core\SharedKernel\Application\Handler\Policy;
 
 /**

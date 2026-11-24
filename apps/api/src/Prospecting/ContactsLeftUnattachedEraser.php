@@ -6,7 +6,7 @@ namespace App\Prospecting;
 
 use App\Shared\CommandBus;
 use App\Shared\ScheduledTask;
-use Prospecter\Core\Prospecting\Application\EraseContactLeftUnattached\EraseContactLeftUnattached;
+use Prospecter\Core\Prospecting\Application\Contact\EraseContactLeftUnattached\EraseContactLeftUnattached;
 use Prospecter\Core\Prospecting\Application\Port\ContactsToAttachRetriever;
 use Symfony\Component\Clock\ClockInterface;
 

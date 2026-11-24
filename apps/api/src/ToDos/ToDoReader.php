@@ -16,12 +16,12 @@ use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\KeptMembers;
 use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\MemberResponse;
 use Prospecter\Core\PersonalData\Application\Person\ConsultPersons\ConsultPersons;
 use Prospecter\Core\PersonalData\Application\Person\ConsultPersons\KeptPersons;
-use Prospecter\Core\Prospecting\Application\ConsultMyToDos\ConsultMyToDos;
-use Prospecter\Core\Prospecting\Application\ConsultOrganizationToDos\ConsultOrganizationToDos;
-use Prospecter\Core\Prospecting\Application\ConsultToDo\ConsultToDo;
-use Prospecter\Core\Prospecting\Application\ConsultToDo\KeptToDo;
-use Prospecter\Core\Prospecting\Application\ConsultToDos\ConsultToDos;
-use Prospecter\Core\Prospecting\Application\KeptToDoList;
+use Prospecter\Core\Prospecting\Application\ToDo\ConsultMyToDos\ConsultMyToDos;
+use Prospecter\Core\Prospecting\Application\ToDo\ConsultOrganizationToDos\ConsultOrganizationToDos;
+use Prospecter\Core\Prospecting\Application\ToDo\ConsultToDo\ConsultToDo;
+use Prospecter\Core\Prospecting\Application\ToDo\ConsultToDo\KeptToDo;
+use Prospecter\Core\Prospecting\Application\ToDo\ConsultToDos\ConsultToDos;
+use Prospecter\Core\Prospecting\Application\ToDo\KeptToDoList;
 use Prospecter\Core\Prospecting\Application\ToDoInList;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 

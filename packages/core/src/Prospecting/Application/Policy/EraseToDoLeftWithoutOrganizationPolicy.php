@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\Policy;
 
-use Prospecter\Core\Prospecting\Application\EraseToDoLeftWithoutOrganization\EraseToDoLeftWithoutOrganization;
+use Prospecter\Core\Prospecting\Application\ToDo\EraseToDoLeftWithoutOrganization\EraseToDoLeftWithoutOrganization;
 use Prospecter\Core\Prospecting\Domain\Event\ToDoLeftWithoutOrganization;
 use Prospecter\Core\SharedKernel\Application\Handler\Policy;
 

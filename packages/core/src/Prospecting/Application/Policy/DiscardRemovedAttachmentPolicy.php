@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\Policy;
 
-use Prospecter\Core\Prospecting\Application\DiscardRemovedAttachment\DiscardRemovedAttachment;
+use Prospecter\Core\Prospecting\Application\Attachment\DiscardRemovedAttachment\DiscardRemovedAttachment;
 use Prospecter\Core\Prospecting\Domain\Event\AttachmentRemoved;
 use Prospecter\Core\SharedKernel\Application\Handler\Policy;
 

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Prospecter\Core\Prospecting\Application\ChangeContactDetails\ChangeContactDetails;
+use Prospecter\Core\Prospecting\Application\Organization\ChangeContactDetails\ChangeContactDetails;
 
 $now = new DateTimeImmutable('2026-11-22');
 

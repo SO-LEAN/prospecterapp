@@ -8,8 +8,8 @@ use App\Exchanges\Input\TextCorrectionInput;
 use App\Shared\Mcp\Adapts;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
-use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
-use Prospecter\Core\Prospecting\Application\CorrectExchangeText\CorrectExchangeText;
+use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\ExchangeDetail;
+use Prospecter\Core\Prospecting\Application\Exchange\CorrectExchangeText\CorrectExchangeText;
 
 /**
  * `PATCH /api/exchanges/{id}/text`, for an AI (ADR 0163).

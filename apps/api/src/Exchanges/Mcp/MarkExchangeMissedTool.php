@@ -7,8 +7,8 @@ namespace App\Exchanges\Mcp;
 use App\Shared\Mcp\Adapts;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
-use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
-use Prospecter\Core\Prospecting\Application\MarkExchangeMissed\MarkExchangeMissed;
+use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\ExchangeDetail;
+use Prospecter\Core\Prospecting\Application\Exchange\MarkExchangeMissed\MarkExchangeMissed;
 
 /**
  * `POST /api/exchanges/{id}/missed`, for an AI (ADR 0163).

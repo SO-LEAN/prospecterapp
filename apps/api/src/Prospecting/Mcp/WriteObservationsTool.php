@@ -8,8 +8,8 @@ use App\Prospecting\Input\ObservationsInput;
 use App\Shared\Mcp\Adapts;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
+use Prospecter\Core\Prospecting\Application\Organization\WriteObservations\WriteObservations;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
-use Prospecter\Core\Prospecting\Application\WriteObservations\WriteObservations;
 
 /**
  * `PATCH /api/organizations/{id}/observations`, for an AI (ADR 0163).

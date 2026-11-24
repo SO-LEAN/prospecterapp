@@ -10,7 +10,7 @@ use App\Prospecting\Resource\OrganizationResource;
 use App\Security\IntentLinks;
 use App\Shared\ImageResourceFactory;
 use App\Shared\Links;
-use Prospecter\Core\Prospecting\Application\ConsultOrganization\ConsultOrganization;
+use Prospecter\Core\Prospecting\Application\Organization\ConsultOrganization\ConsultOrganization;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 

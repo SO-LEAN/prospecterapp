@@ -12,8 +12,8 @@ use App\Shared\CommandBus;
 use App\Shared\Mcp\Adapts;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
+use Prospecter\Core\Prospecting\Application\Organization\StopProspecting\StopProspecting;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
-use Prospecter\Core\Prospecting\Application\StopProspecting\StopProspecting;
 use Symfony\Component\Clock\ClockInterface;
 
 /**

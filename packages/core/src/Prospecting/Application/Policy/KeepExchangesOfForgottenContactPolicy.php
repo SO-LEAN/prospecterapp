@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\Policy;
 
 use Prospecter\Core\PersonalData\Contract\Event\ContactForgotten;
-use Prospecter\Core\Prospecting\Application\KeepExchangesOfForgottenContact\KeepExchangesOfForgottenContact;
+use Prospecter\Core\Prospecting\Application\Exchange\KeepExchangesOfForgottenContact\KeepExchangesOfForgottenContact;
 use Prospecter\Core\SharedKernel\Application\Handler\Policy;
 
 /**

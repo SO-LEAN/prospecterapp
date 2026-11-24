@@ -6,7 +6,7 @@ namespace Tests\Core\Application\Prospecting;
 
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\Connectors\Contract\Event\EmailExchanged;
-use Prospecter\Core\Prospecting\Application\NoteImportedEmail\NoteImportedEmail;
+use Prospecter\Core\Prospecting\Application\Exchange\NoteImportedEmail\NoteImportedEmail;
 use Prospecter\Core\Prospecting\Application\Policy\NoteImportedEmailPolicy;
 
 class NoteImportedEmailPolicyTest extends TestCase

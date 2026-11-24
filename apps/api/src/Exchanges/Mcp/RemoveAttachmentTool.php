@@ -8,8 +8,8 @@ use App\Security\User;
 use App\Shared\Mcp\Adapts;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
-use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
-use Prospecter\Core\Prospecting\Application\RemoveAttachment\RemoveAttachment;
+use Prospecter\Core\Prospecting\Application\Attachment\RemoveAttachment\RemoveAttachment;
+use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\ExchangeDetail;
 
 /**
  * `DELETE /api/exchanges/{id}/attachments/{attachmentId}`, for an AI (ADR 0163). The AI asks its member before it

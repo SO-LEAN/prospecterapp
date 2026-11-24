@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Exchanges;
 
 use App\Security\AccountResourceVoter;
-use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
+use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\ExchangeDetail;
 
 /**
  * Decides whether the signed-in member can reach an exchange. They reach their own account's exchanges (ADR 0081).

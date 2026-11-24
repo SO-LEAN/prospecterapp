@@ -13,13 +13,13 @@ use Prospecter\Core\Connectors\Application\MailImport\ConsultMailCatchUpIntents\
 use Prospecter\Core\PersonalData\Application\Person\ConsultPersons\ConsultPersons;
 use Prospecter\Core\PersonalData\Application\Person\ConsultPersons\KeptPersons;
 use Prospecter\Core\PersonalData\Application\PersonCard;
-use Prospecter\Core\Prospecting\Application\ConsultExchangesToMakeConform\ConsultExchangesToMakeConform;
-use Prospecter\Core\Prospecting\Application\ConsultOrganizationTimeline\ConsultOrganizationTimeline;
-use Prospecter\Core\Prospecting\Application\ConsultOrganizationUpcomingExchanges\ConsultOrganizationUpcomingExchanges;
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
-use Prospecter\Core\Prospecting\Application\KeptTimeline;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
-use Prospecter\Core\Prospecting\Application\Timeline;
+use Prospecter\Core\Prospecting\Application\Timeline\ConsultExchangesToMakeConform\ConsultExchangesToMakeConform;
+use Prospecter\Core\Prospecting\Application\Timeline\ConsultOrganizationTimeline\ConsultOrganizationTimeline;
+use Prospecter\Core\Prospecting\Application\Timeline\ConsultOrganizationUpcomingExchanges\ConsultOrganizationUpcomingExchanges;
+use Prospecter\Core\Prospecting\Application\Timeline\KeptTimeline;
+use Prospecter\Core\Prospecting\Application\Timeline\Timeline;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Symfony\Component\Clock\ClockInterface;
 

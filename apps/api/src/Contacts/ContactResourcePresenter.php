@@ -19,8 +19,8 @@ use App\Shared\Resource\LinkResource;
 use Prospecter\Core\PersonalData\Application\Person\ConsultPerson\ConsultPersonOutput;
 use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\PersonalData\Application\PossibleDuplicate;
-use Prospecter\Core\Prospecting\Application\ConsultTimelineIntents\TimelineIntentsResponse;
 use Prospecter\Core\Prospecting\Application\ContactToAttachInList;
+use Prospecter\Core\Prospecting\Application\Timeline\ConsultTimelineIntents\TimelineIntentsResponse;
 
 /**
  * Presents a contact with a link per intent the reader may carry out on the contact or on their timeline. It also

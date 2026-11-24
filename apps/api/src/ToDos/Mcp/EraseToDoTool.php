@@ -7,7 +7,7 @@ namespace App\ToDos\Mcp;
 use App\Shared\Mcp\Adapts;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
-use Prospecter\Core\Prospecting\Application\EraseToDo\EraseToDo;
+use Prospecter\Core\Prospecting\Application\ToDo\EraseToDo\EraseToDo;
 use Prospecter\Core\Prospecting\Application\ToDoInList;
 
 /**

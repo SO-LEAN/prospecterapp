@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Core\Application\Prospecting;
 
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\Prospecting\Application\DiscardAttachmentsOfErasedExchange\DiscardAttachmentsOfErasedExchange;
+use Prospecter\Core\Prospecting\Application\Attachment\DiscardAttachmentsOfErasedExchange\DiscardAttachmentsOfErasedExchange;
 use Prospecter\Core\Prospecting\Application\Policy\DiscardAttachmentsOfErasedExchangePolicy;
 use Prospecter\Core\Prospecting\Domain\Event\ExchangeErased;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;

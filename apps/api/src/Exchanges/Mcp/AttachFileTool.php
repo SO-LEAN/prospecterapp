@@ -15,8 +15,8 @@ use App\Shared\UploadForms;
 use App\Shared\UploadSender;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
-use Prospecter\Core\Prospecting\Application\AttachFile\AttachFile;
-use Prospecter\Core\Prospecting\Application\ConsultExchange\ExchangeDetail;
+use Prospecter\Core\Prospecting\Application\Attachment\AttachFile\AttachFile;
+use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\ExchangeDetail;
 use Symfony\Component\HttpFoundation\File\File;
 
 /**

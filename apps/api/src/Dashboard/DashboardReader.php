@@ -12,7 +12,7 @@ use App\Prospecting\Presenter\OrganizationPagePresenter;
 use App\Prospecting\Resource\OrganizationSummaryResource;
 use App\Shared\ImageResourceFactory;
 use App\Shared\Links;
-use Prospecter\Core\Prospecting\Application\SearchProspectedOrganizations\SearchProspectedOrganizations;
+use Prospecter\Core\Prospecting\Application\Organization\SearchProspectedOrganizations\SearchProspectedOrganizations;
 use Prospecter\Core\Reporting\Application\ConsultFigures\ConsultFigures;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Symfony\Component\Clock\ClockInterface;

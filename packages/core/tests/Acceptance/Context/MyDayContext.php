@@ -8,10 +8,10 @@ use Behat\Behat\Context\Context;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use Prospecter\Core\Prospecting\Application\ConsultMyDay\ConsultMyDay;
-use Prospecter\Core\Prospecting\Application\ConsultMyDay\MyDay;
+use Prospecter\Core\Prospecting\Application\Agenda\ConsultMyDay\ConsultMyDay;
+use Prospecter\Core\Prospecting\Application\Agenda\ConsultMyDay\MyDay;
+use Prospecter\Core\Prospecting\Application\Exchange\PlanExchange\PlanExchange;
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
-use Prospecter\Core\Prospecting\Application\PlanExchange\PlanExchange;
 use Tests\Core\Acceptance\Expect;
 use Tests\Core\Acceptance\Vocabulary;
 
