@@ -5,18 +5,26 @@ declare(strict_types=1);
 namespace Tests\App\Shared;
 
 use App\Demo\DemoCredentials;
+use App\Demo\DemoData;
 use App\Shared\Persistence\Tables;
 use App\Shared\Typed;
 use App\SignIn\UserPool;
 use Aws\CognitoIdentityProvider\CognitoIdentityProviderClient;
 use Aws\DynamoDb\DynamoDbClient;
+use Prospecter\Core\Reporting\Application\ConsultFigures\FiguresResponse;
+use Prospecter\Core\Reporting\Application\Port\FiguresRetriever;
+use Prospecter\Core\Reporting\Application\Port\ProjectionVersions;
+use Prospecter\Core\Reporting\Domain\Model\Month;
+use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Console\Tester\CommandTester;
 use Tests\App\Base\ApiTestCase;
+use Tests\App\Double\ConflictingFactRepository;
 
 /**
  * `app:demo:restore` gives a running stack the demonstration back before its journeys: what they added is removed,
- * what they changed is made again, and the tables and the user pool are kept.
+ * what they changed is made again, the figures are counted, and the tables and the user pool are kept.
  */
 class RestoreDemonstrationCommandTest extends ApiTestCase
 {
@@ -54,6 +62,46 @@ class RestoreDemonstrationCommandTest extends ApiTestCase
         $this->restore();
 
         $this->assertSame($kept, [self::service(UserPool::class)->id(), ...$this->streams()]);
+    }
+
+    public function testTheRestoreCountsTheFiguresOfTheDemonstration(): void
+    {
+        $this->restore();
+
+        $this->assertEquals(new FiguresResponse(activeOrganizations: 1, locatedOrganizations: 1, contacts: 2, exchanges: 2, exchangesThisMonth: 2), $this->figuresOfTheDemonstration());
+    }
+
+    public function testTheRestoreCountsTheFiguresWithoutWaitingForTheWorker(): void
+    {
+        $before = $this->clock()->now();
+
+        $this->restore();
+
+        $this->assertEquals($before, $this->clock()->now());
+    }
+
+    public function testACountCancelledByAConflictStartsAgainAfterWaitingForTheWorker(): void
+    {
+        self::service(ConflictingFactRepository::class)->conflict(times: 1);
+        $before = $this->clock()->now();
+
+        $this->restore();
+
+        $this->assertEquals($before->modify('+5 minutes'), $this->clock()->now());
+        $this->assertEquals(new FiguresResponse(activeOrganizations: 1, locatedOrganizations: 1, contacts: 2, exchanges: 2, exchangesThisMonth: 2), $this->figuresOfTheDemonstration());
+    }
+
+    private function clock(): MockClock
+    {
+        return self::service(MockClock::class, 'clock');
+    }
+
+    private function figuresOfTheDemonstration(): FiguresResponse
+    {
+        $versions = self::service(ProjectionVersions::class);
+        $this->assertNotNull($versions->active(), 'The figures are counted');
+
+        return self::service(FiguresRetriever::class)->of($versions->active(), new AccountId(DemoData::SOLEAN_IT), Month::of(new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)));
     }
 
     /**
