@@ -4,7 +4,7 @@ Members put tags on their organizations and contacts. Later, they find the ones 
 
 ## The wall
 
-![Campaigns's event storming wall](../event-storming/campaigns/wall.svg)
+![Campaigns' event storming wall](../event-storming/campaigns/wall.svg)
 
 Each lane alone: [Campaign](../event-storming/campaigns/campaign.svg), [Recipient](../event-storming/campaigns/recipient.svg), [Tagging](../event-storming/campaigns/tagging.svg). The wall is drawn from the code (`make event-storming`, `docs/architecture/event-storming.md`). Its interactive page is served under `/docs/event-storming/campaigns/`: https://prospecter.localhost/docs/event-storming/campaigns/ locally, the same path on dev.
 

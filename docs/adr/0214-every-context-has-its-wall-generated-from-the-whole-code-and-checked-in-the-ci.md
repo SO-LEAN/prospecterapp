@@ -21,7 +21,7 @@ ADR 0213 drew Booking's wall alone. The other contexts are larger: Prospecting h
 
 ## Consequences
 
-- The analysis reads the whole code: about a minute without its cache, and a change to the core or the API needs the check.
+- The analysis reads the whole code: from 17 s to a minute and a quarter without its cache, measured in a worktree, and a change to the core or the API needs the check.
 - A view or a command that the analysis finds no caller for carries a hotspot. A dynamic call escapes it, so each one is a suspicion to check.
 - The front's mutation has two scores, the SPA's and the generator's.
 - Only Booking's features name their use cases by their tags. The generation lists the others, and warns without failing.
