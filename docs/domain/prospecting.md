@@ -2,6 +2,12 @@
 
 This context holds the organizations an account prospects, their contacts, the exchanges with them, and the to-dos for them. Code: `packages/core/src/Prospecting`.
 
+## The wall
+
+![Prospecting's event storming wall](../event-storming/prospecting/wall.svg)
+
+Each lane alone: [Agenda](../event-storming/prospecting/agenda.svg), [Attachment](../event-storming/prospecting/attachment.svg), [Contact](../event-storming/prospecting/contact.svg), [Duplicate](../event-storming/prospecting/duplicate.svg), [Exchange](../event-storming/prospecting/exchange.svg), [Facts](../event-storming/prospecting/facts.svg), [Identification](../event-storming/prospecting/identification.svg), [Organization](../event-storming/prospecting/organization.svg), [Timeline](../event-storming/prospecting/timeline.svg), [To do](../event-storming/prospecting/to-do.svg). The wall is drawn from the code (`make event-storming`, `docs/architecture/event-storming.md`). Its interactive page is served under `/docs/event-storming/prospecting/`: https://prospecter.localhost/docs/event-storming/prospecting/ locally, the same path on dev.
+
 ## Language
 
 - **Organization** (`Organization`): an organization an account prospects. The account's whole team shares it. It has:

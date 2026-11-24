@@ -2,6 +2,12 @@
 
 Members put tags on their organizations and contacts. Later, they find the ones that carry them. A team prepares communication campaigns from these tags and runs them contact by contact (ADR 0138, 0144, 0145). Campaigns is downstream of Accounts, PersonalData and Prospecting, like Reporting. Code: `packages/core/src/Campaigns`.
 
+## The wall
+
+![Campaigns's event storming wall](../event-storming/campaigns/wall.svg)
+
+Each lane alone: [Campaign](../event-storming/campaigns/campaign.svg), [Recipient](../event-storming/campaigns/recipient.svg), [Tagging](../event-storming/campaigns/tagging.svg). The wall is drawn from the code (`make event-storming`, `docs/architecture/event-storming.md`). Its interactive page is served under `/docs/event-storming/campaigns/`: https://prospecter.localhost/docs/event-storming/campaigns/ locally, the same path on dev.
+
 ## Language
 
 - **Tag** (`Tag`): a `#` followed by 1 to 30 characters. The characters are unaccented capital letters, digits and underscores (#ESN, #SALON_2026). A tag is written one way, whatever was typed. Accents are removed, and every other run of characters becomes an underscore. Nothing is left at either end (`Café owners` is #CAFE_OWNERS). Text that makes no tag is refused (`InvalidTag`).
