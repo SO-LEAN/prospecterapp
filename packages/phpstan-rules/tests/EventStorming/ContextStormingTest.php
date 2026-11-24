@@ -233,7 +233,7 @@ final class ContextStormingTest extends TestCase
             new Call(self::PUBLISH_SLOT_BOOKED, '__invoke', self::PUBLISHED_SLOT_BOOKED, Call::CREATION),
         ]));
 
-        self::assertSame('Événement publié', self::stickyOf($model, 'event:'.self::PUBLISHED_SLOT_BOOKED)['detail'] ?? null);
+        self::assertSame('Published to the other contexts', self::stickyOf($model, 'event:'.self::PUBLISHED_SLOT_BOOKED)['detail'] ?? null);
     }
 
     public function testAPublishedEventIsStampedInItsSlug(): void
