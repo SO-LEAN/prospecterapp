@@ -99,7 +99,7 @@ Natural persons' personal data, and who reads it. Code: `packages/core/src/Perso
   - `Profile`, a member's own profile: `CollectTheFounderProfile`, `CollectTheMemberProfile`, and `PresentMembers` (the service it publishes, with `MemberPresentation` and the port `MemberPresentationRetriever`);
   - `Person`, a person's data, read and changed, whether a contact or a member's own profile: `RenamePerson`, `ChangeCivility` (for a contact only), `ChangeJobTitle`, `ChangePersonContactDetails`, `ChangePersonPicture`, and the queries `ConsultPerson` and `ConsultPersons` (batch);
   - `Contact`, a contact's life in the account. Its commands concern the persons an account prospects (ADR 0041, 0042). They need the right to manage personal data (ADR 0031):
-    - `CollectContact` collects a contact for at least one organization, checked through the port `ProspectedOrganizations`. `ForgetContact` forgets one. `ForgetContactLeftUnattached` and `ForgetContactsLeftWithoutOrganization` forget them for Prospecting;
+    - `CollectContact` collects a contact for at least one organization, checked through the port `ProspectedOrganizations`. `ForgetContact` forgets one. `ForgetContactLeftUnattached` and `ForgetContactsLeftWithoutOrganization` forget a contact when Prospecting reports it left unattached or without an organization;
     - `CompareWithContact`, `CompleteContact` (ADR 0177);
     - `SearchContacts`, by name, and by email with the right to manage personal data (`ContactPage`, the port `ContactPageRetriever`);
     - the services it publishes, `WhichAreContacts`, `WhichContactsHaveTheseEmails`, `WhichEmailsHaveTheseContacts` and `NameContacts`, and the translators `PublishContactCollected` and `PublishContactForgotten`;
@@ -109,7 +109,7 @@ Natural persons' personal data, and who reads it. Code: `packages/core/src/Perso
     - `IdentifyPersons`, read through the port `DesignatedContactRetriever` (ADR 0173);
     - `RecognizeCallingContact`, which contact has a number, with the right to manage personal data;
     - `IdentifyBooker` and its translator `PublishBookerIdentified` (ADR 0164);
-  - at the application's root, `PersonCard` and its `PossibleDuplicate`, which several modules read, the policies of `Policy/` and the ports of `Port/`.
+  - at the application's root, `PersonCard` and its `PossibleDuplicate`, which several modules read, the policies in `Policy/` and the ports in `Port/`.
 - Policies, in `Application/Policy`, turn the other contexts' events and PersonalData's own into commands (ADR 0203):
   - Prospecting's `ContactsLeftWithoutOrganization` sends `ForgetContactsLeftWithoutOrganization`. Its `ContactLeftUnattached` sends `ForgetContactLeftUnattached`.
   - An account's opening sends `CollectTheFounderProfile`. A member's registration sends `CollectTheMemberProfile`. Each one collects the member's own empty profile (ADR 0064, 0075).
