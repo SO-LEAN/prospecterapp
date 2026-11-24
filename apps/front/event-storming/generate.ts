@@ -1,13 +1,14 @@
 /**
- * Writes every context's wall from the document of the models the analysis read: its model and its page, and, for
- * the repository's documents, an SVG per module and one of the whole wall; then the overview of the contexts, the
- * contents of the pages. With a context, only that context's wall.
+ * Writes the walls and the overview `generationOf` decides, from the document of the models the analysis read: each
+ * wall's model and page, and, for the repository's documents, an SVG per module and one of the whole wall. This file
+ * only reads and writes; what it writes is decided and tested in `generation.ts`.
  * node event-storming/generate.ts <document.json> <pages folder> <svgs folder> [context] (make event-storming,
  * docs/architecture/event-storming.md).
  */
 import { mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
-import { type Document, folderOf } from './model.ts'
+import { generationOf, staleSvgsOf } from './generation.ts'
+import type { Document } from './model.ts'
 import { overviewOf } from './overview.ts'
 import { pageOf } from './page.ts'
 import { svgsOf } from './svg.ts'
@@ -22,18 +23,19 @@ const here = new URL('.', import.meta.url)
 const document = JSON.parse(await readFile(documentFile, 'utf8')) as Document
 const style = await readFile(new URL('wall.css', here), 'utf8')
 const font = (await readFile(new URL('font/patrick-hand.woff2', here))).toString('base64')
-const models = document.models.filter((model) => context === undefined || model.context === context)
-if (models.length === 0) throw new Error(`No context ${context} in the code`)
-for (const model of models) {
-  const pages = join(pagesFolder, folderOf(model.context))
-  const svgs = join(svgsFolder, folderOf(model.context))
+const generation = generationOf(document, context)
+for (const { model, folder } of generation.walls) {
+  const pages = join(pagesFolder, folder)
+  const svgs = join(svgsFolder, folder)
   await mkdir(pages, { recursive: true })
   await writeFile(join(pages, 'model.json'), `${JSON.stringify(model, null, 4)}\n`)
   await writeFile(join(pages, 'index.html'), pageOf(model, { style, font }))
   await mkdir(svgs, { recursive: true })
-  for (const gone of (await readdir(svgs)).filter((name) => name.endsWith('.svg'))) await rm(join(svgs, gone))
-  for (const [name, svg] of Object.entries(svgsOf(model, font))) await writeFile(join(svgs, name), svg)
+  const drawn = svgsOf(model, font)
+  for (const stale of staleSvgsOf(await readdir(svgs), Object.keys(drawn))) await rm(join(svgs, stale))
+  for (const [name, svg] of Object.entries(drawn)) await writeFile(join(svgs, name), svg)
 }
-if (context === undefined)
+if (generation.overview) {
   await writeFile(join(pagesFolder, 'index.html'), overviewOf(document.models, { style, font }))
+}
 for (const warning of document.warnings) process.stderr.write(`${warning}\n`)
