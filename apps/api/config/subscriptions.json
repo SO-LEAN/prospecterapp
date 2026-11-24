@@ -101,7 +101,7 @@
     "context": "prospecting",
     "sources": ["prospecter.personal-data"],
     "events": ["BookerIdentified.v1"],
-    "handler": "Prospecter\\Core\\Prospecting\\Application\\PlanBookedAppointment\\PlanBookedAppointmentHandler",
+    "policy": "Prospecter\\Core\\Prospecting\\Application\\Policy\\PlanBookedAppointmentPolicy",
     "inbox": true
   },
   "prospecting-keep-created-video-call-link": {

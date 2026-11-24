@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\PlanBookedAppointment;
 
-use Prospecter\Core\PersonalData\Contract\Event\BookerIdentified;
 use Prospecter\Core\Prospecting\Domain\Model\ContactCorrespondent;
 use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\ContactToAttach;
@@ -16,7 +15,7 @@ use Prospecter\Core\Prospecting\Domain\Port\Prospectors;
 use Prospecter\Core\Prospecting\Domain\Repository\ContactToAttachRepository;
 use Prospecter\Core\Prospecting\Domain\Repository\ExchangeRepository;
 use Prospecter\Core\Prospecting\Domain\Service\ContactOrganizations;
-use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Handler\PublishesEvents;
 use Prospecter\Core\SharedKernel\Application\Port\Events;
 use Prospecter\Core\SharedKernel\Domain\Gesture\Gesture;
@@ -28,7 +27,7 @@ use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
  * knew them, they become a contact to attach, held by the host who meets them (ADR 0146). When the appointment is gone
  * meanwhile, there is nothing to do.
  */
-final readonly class PlanBookedAppointmentHandler implements EventHandler
+final readonly class PlanBookedAppointmentHandler implements CommandHandler
 {
     use PublishesEvents;
 
@@ -47,24 +46,24 @@ final readonly class PlanBookedAppointmentHandler implements EventHandler
     ) {
     }
 
-    public function __invoke(BookerIdentified $event): void
+    public function __invoke(PlanBookedAppointment $command): void
     {
-        $appointment = $this->bookedAppointments->bookedAppointment($event->appointmentId);
+        $appointment = $this->bookedAppointments->bookedAppointment($command->appointmentId);
         if (null === $appointment) {
             return;
         }
 
-        $host = $this->prospectors->prospectorFrom(new MemberId($event->hostId));
-        $contact = new ContactId($event->personId);
+        $host = $this->prospectors->prospectorFrom(new MemberId($command->hostId));
+        $contact = new ContactId($command->contactId);
         $toAttach = $this->contactsToAttach->find($contact);
         $known = $this->contactOrganizations->isAContactOfTheAccount($contact, $host->accountId);
         if (!$known) {
-            $this->meetToAttach($host, $contact, $appointment->startsAt, $event->occurredAt);
+            $this->meetToAttach($host, $contact, $appointment->startsAt, $command->executedAt);
         } elseif (null !== $toAttach && !$toAttach->isHeldBy($host->id)) {
-            $this->handOver($toAttach, $host, $appointment->startsAt, $event->occurredAt);
+            $this->handOver($toAttach, $host, $appointment->startsAt, $command->executedAt);
         }
         $keepers = $known && null === $toAttach ? $this->contactOrganizations->keepersOf($contact, $host) : self::NO_KEEPER_OF_A_CONTACT_TO_ATTACH;
-        $exchange = Exchange::bookedByAContact(new Gesture($host->accountId, $host->id, $event->occurredAt), new ExchangeId($event->appointmentId), new ContactCorrespondent($contact, $keepers), $appointment->facts());
+        $exchange = Exchange::bookedByAContact(new Gesture($host->accountId, $host->id, $command->executedAt), new ExchangeId($command->appointmentId), new ContactCorrespondent($contact, $keepers), $appointment->facts());
         $this->exchanges->save($exchange);
         $this->publishWhatHappenedTo($exchange);
     }
