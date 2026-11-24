@@ -11,31 +11,30 @@ vendor: ## Install the Composer dependencies of the API
 	@echo "API/Installing Composer dependencies..."
 	@$(PHP) make composer-install
 
-# db and restore both empty the failure queues first, because their messages are about the data made again. Once the
-# demonstration is loaded, both rebuild the contacts' tags and count the figures (FIGURES=later: the caller counts
-# them, beside the journeys)
+# db and restore both empty the failure queues first, because their messages are about the data made again. The command
+# loading the demonstration counts its figures, alone, without waiting for the worker (ADR 0209). Both then rebuild the
+# contacts' tags
 PURGE_FAILURES = echo "API/Emptying the failure queues, whose messages are about the data made again..." \
 	&& $(call timed,API/queues of the failures emptied,$(DC) --progress quiet run --rm --build lambda-deploy purge)
-REBUILD_TAGS_AND_FIGURES = echo "API/Rebuilding the tags of the contacts of the demonstration..." \
-	&& $(call timed,API/tags rebuilt,$(PHP) bin/console app:tags:rebuild) \
-	&& $(if $(filter later,$(FIGURES)),echo "API/The figures are counted later (FIGURES=later)",echo "API/Counting the figures of the demonstration..." && $(call timed,API/figures counted,$(PHP) bin/console app:reporting:rebuild))
+REBUILD_TAGS = echo "API/Rebuilding the tags of the contacts of the demonstration..." \
+	&& $(call timed,API/tags rebuilt,$(PHP) bin/console app:tags:rebuild)
 
-db: ministack ## Recreate in MiniStack the tables and the user pool, with the demo data (destroys local data), the queues of the failures emptied, the relay of the outbox on their new streams, the tags of the contacts rebuilt, the figures counted
+db: ministack ## Recreate in MiniStack the tables and the user pool, with the demo data (destroys local data), the queues of the failures emptied, the figures counted, the relay of the outbox on their new streams, the tags of the contacts rebuilt
 	@$(PURGE_FAILURES)
-	@echo "API/Creating the DynamoDB table of each bounded context with the data of the demonstration..."
+	@echo "API/Creating the DynamoDB table of each bounded context with the data of the demonstration, its figures counted..."
 	@$(call timed,API/tables recreated with the demonstration,$(PHP) sh -c 'bin/console cache:clear >/dev/null && bin/console app:tables:recreate --demo')
 	@echo "API/Creating the Cognito user pool with the members of the demonstration..."
 	@$(call timed,API/user pool recreated with the members,$(PHP) bin/console app:user-pool:recreate --demo)
 	@echo "API/Relaying the outbox of the new tables to the bus..."
 	@$(call timed,API/relay on the new streams,$(DC) --progress quiet run --rm --build lambda-deploy relay)
-	@$(REBUILD_TAGS_AND_FIGURES)
+	@$(REBUILD_TAGS)
 
 # the relay already reads the streams of the tables kept, so it publishes the demonstration loaded again
-restore: ministack ## Give the tables and the user pool the demo data back without recreating them (destroys local data). It empties the failure queues, rebuilds the contacts' tags and counts the figures (FIGURES=later: counted by the caller)
+restore: ministack ## Give the tables and the user pool the demo data back without recreating them (destroys local data). It empties the failure queues, counts the figures and rebuilds the contacts' tags
 	@$(PURGE_FAILURES)
-	@echo "API/Giving the tables and the user pool the demonstration back..."
+	@echo "API/Giving the tables and the user pool the demonstration back, its figures counted..."
 	@$(call timed,API/demonstration restored,$(PHP) bin/console app:demo:restore)
-	@$(REBUILD_TAGS_AND_FIGURES)
+	@$(REBUILD_TAGS)
 
 # the tests recreate their tables and their user pool once in each process, each test then getting the data and the
 # members of the demonstration back (ADR 0180): shared among a few processes, each with its own on MiniStack
