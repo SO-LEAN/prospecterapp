@@ -54,8 +54,8 @@ mutation: ministack-test ## Mutate the lines the branch adds in src since BASE (
 
 lint: lint-phpstan lint-style lint-rector ## Check the code of the API: PHPStan, php-cs-fixer, Rector; FILTER= paths of the project, for php-cs-fixer and Rector
 
-fix: ## Fix the style of the code of the API: php-cs-fixer
-	@$(PHP) vendor/bin/php-cs-fixer fix
+fix: ## Fix the style of the code of the API: php-cs-fixer; FILTER= paths of the project
+	@$(PHP) vendor/bin/php-cs-fixer fix --show-progress=none $(if $(FILTER),--path-mode=intersection $(FILTER))
 
 openapi: ## Regenerate the OpenAPI contract of the API (openapi.json) after changing an endpoint
 	@$(PHP) sh -c 'bin/console nelmio:apidoc:dump --format=json > openapi.json'

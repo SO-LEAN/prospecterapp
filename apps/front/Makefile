@@ -26,8 +26,8 @@ mutation: ## Mutate the lines the branch adds in src since BASE (origin/dev), ki
 lint: ## Check the code of the front: Biome, TypeScript; FILTER= paths of the project, for Biome
 	@$(NODE) sh -c 'pnpm exec biome check $(or $(FILTER),.) && pnpm typecheck'
 
-fix: ## Fix the style of the code of the front: Biome
-	@$(NODE) pnpm format
+fix: ## Fix the style of the code of the front: Biome and its rules; FILTER= paths of the project
+	@$(NODE) pnpm exec biome check --write $(or $(FILTER),.)
 
 build: ## Build the front for production (TypeScript, Vite)
 	@$(NODE) pnpm build

@@ -249,12 +249,13 @@ mutation: ## Mutate the lines the branch adds since BASE (origin/dev) in the cor
 mutation-api: ## Mutate the lines the branch adds in the API since BASE (origin/dev), on MiniStack: minutes per mutant, on demand
 	@$(MAKE) -C apps/api mutation
 
-# with FILTER, paths from the root: each project checks those under its directory, a project without any is passed
-# over, and so is the Terraform. The checks of a project run together, as in make ci, each printing its output once it
-# ends
+# With FILTER, paths from the root, each project checks or fixes the paths under its directory. A project without any
+# is passed over. The Terraform is passed over too. A project's checks run together, as in make ci. Each prints its
+# output once it ends.
 paths-in = $(patsubst $(1)/%,%,$(filter $(1)/%,$(FILTER)))
-lint-in = $(MAKE) -j --output-sync=recurse -C $(1) lint
-lint-project = $(if $(FILTER),$(if $(call paths-in,$(1)),$(call lint-in,$(1)) FILTER="$(call paths-in,$(1))"),$(call lint-in,$(1)))
+on-paths-in = $(if $(FILTER),$(if $(call paths-in,$(1)),$(2) FILTER="$(call paths-in,$(1))"),$(2))
+lint-project = $(call on-paths-in,$(1),$(MAKE) -j --output-sync=recurse -C $(1) lint)
+fix-project = $(call on-paths-in,$(1),$(MAKE) -C $(1) fix)
 
 lint: $(if $(FILTER),,infra-lint) adr-references adr-index-check ## Check the code: PHPStan, php-cs-fixer, Rector, Biome, TypeScript, Terraform, the references to the records, their index; FILTER= paths from the root
 	@$(call lint-project,packages/core)
@@ -280,11 +281,11 @@ adr-index-check: ## Fail while the index of the decision records differs from th
 front-build: ## Build the front for production (TypeScript, Vite)
 	@$(MAKE) -C apps/front build
 
-fix: ## Fix the style of the code: php-cs-fixer, Biome
-	@$(MAKE) -C packages/core fix
-	@$(MAKE) -C apps/api fix
-	@$(MAKE) -C apps/storage fix
-	@$(MAKE) -C apps/front fix
+fix: ## Fix the style of the code: php-cs-fixer, Biome and its rules (the spaces of the French labels); FILTER= paths from the root
+	@$(call fix-project,packages/core)
+	@$(call fix-project,apps/api)
+	@$(call fix-project,apps/storage)
+	@$(call fix-project,apps/front)
 
 infra-lint: ## Check the Terraform of the apps: format, validity, tflint
 	$(call infra-lint,$(INFRA_APPS))

@@ -16,7 +16,7 @@ test: ministack-test ## Run the tests of the storage (on MiniStack); FILTER= a t
 
 lint: lint-phpstan lint-style lint-rector ## Check the code of the storage: PHPStan, php-cs-fixer, Rector; FILTER= paths of the project, for php-cs-fixer and Rector
 
-fix: ## Fix the style of the code of the storage: php-cs-fixer
-	@$(PHP) vendor/bin/php-cs-fixer fix
+fix: ## Fix the style of the code of the storage: php-cs-fixer; FILTER= paths of the project
+	@$(PHP) vendor/bin/php-cs-fixer fix --show-progress=none $(if $(FILTER),--path-mode=intersection $(FILTER))
 
 include ../../make/lambda.mk ../../make/infra.mk
