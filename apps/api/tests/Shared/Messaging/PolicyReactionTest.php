@@ -17,6 +17,7 @@ use Prospecter\Core\Prospecting\Contract\Event\ExchangeFactsChanged;
 use Prospecter\Core\SharedKernel\Application\Handler\Policy;
 use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Tests\App\Base\ApiTestCase;
 use Tests\App\Double\FailingCommands;
 
@@ -67,7 +68,7 @@ class PolicyReactionTest extends ApiTestCase
 
     private function react(Policy $policy, object $event): void
     {
-        new PolicyReaction($policy, self::service(CommandBus::class))($event);
+        new PolicyReaction($policy, self::service(MessageBusInterface::class, 'command.bus'))($event);
     }
 
     /**

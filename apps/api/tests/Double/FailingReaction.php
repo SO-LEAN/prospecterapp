@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Tests\App\Double;
 
-use Prospecter\Core\Prospecting\Domain\Event\ObservationsWritten;
-use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
+use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
 
 /**
- * A reaction to written observations, a subscription of the tests (`prospecting-failing-reaction`), that throws
- * once a test asks it to, the times it says or until it stops; it does nothing otherwise. It counts its calls.
+ * The work of a reaction to written observations, the command of a subscription of the tests
+ * (`prospecting-failing-reaction`, FailingReactionPolicy). It throws once a test asks it to, the times it says or
+ * until it stops; it does nothing otherwise. It counts its calls.
  */
-final class FailingReaction implements EventHandler
+final class FailingReaction implements CommandHandler
 {
     private ?\Throwable $failure = null;
     private int $failuresLeft = 0;
@@ -28,7 +28,7 @@ final class FailingReaction implements EventHandler
         $this->failure = null;
     }
 
-    public function __invoke(ObservationsWritten $event): void
+    public function __invoke(ReactToWrittenObservations $command): void
     {
         ++$this->calls;
 

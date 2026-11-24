@@ -450,11 +450,13 @@ when@test:
         Prospecter\Core\Reporting\Application\Port\FiguresRetriever:
             alias: App\Reporting\Persistence\DynamoFiguresRetriever
             public: true
-        # a reaction that throws when a test asks it to, a subscription like those of the core
-        Tests\App\Double\FailingReaction:
-            public: true
+        # a policy whose command throws when a test asks it to, a subscription like those of the core
+        Tests\App\Double\FailingReactionPolicy:
             tags:
                 - { name: app.subscription, subscription: prospecting-failing-reaction, context: prospecting, source: prospecter.prospecting.internal, event: ObservationsWritten.v1, inbox: true }
+        Tests\App\Double\FailingReaction:
+            public: true
+            tags: [app.command_handler]
         # a command failed when a test asks it to, before its use case runs
         Tests\App\Double\FailingCommands:
             public: true
