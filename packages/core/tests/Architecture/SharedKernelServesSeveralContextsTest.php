@@ -8,10 +8,8 @@ use PHPUnit\Framework\TestCase;
 use Prospecter\Core\SharedKernel\Application\Exception\ErrorType;
 use Prospecter\Core\SharedKernel\Application\Exception\UseCaseRefused;
 use Prospecter\Core\SharedKernel\Application\Handler\RefusalTranslatingCommandHandler;
-use Prospecter\Core\SharedKernel\Application\Handler\RefusalTranslatingEventHandler;
 use Prospecter\Core\SharedKernel\Application\Handler\RefusalTranslatingQueryHandler;
 use Prospecter\Core\SharedKernel\Application\Handler\TransactionalCommandHandler;
-use Prospecter\Core\SharedKernel\Application\Handler\TransactionalEventHandler;
 use Prospecter\Core\SharedKernel\Domain\Exception\ChangedMeanwhile;
 
 /**
@@ -35,9 +33,7 @@ class SharedKernelServesSeveralContextsTest extends TestCase
     private const array USED_BY_THE_API_ONLY = [
         RefusalTranslatingCommandHandler::class,
         RefusalTranslatingQueryHandler::class,
-        RefusalTranslatingEventHandler::class,
         TransactionalCommandHandler::class,
-        TransactionalEventHandler::class,
         UseCaseRefused::class,
         ErrorType::class,
         ChangedMeanwhile::class,

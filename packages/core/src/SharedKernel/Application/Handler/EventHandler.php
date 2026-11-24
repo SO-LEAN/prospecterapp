@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Prospecter\Core\SharedKernel\Application\Handler;
 
 /**
- * Reacts to one event from another context, as the member who acted (the event's executedBy). It reuses the
- * intention methods, so that member's rights still apply. The delivery registers every implementation on its
- * event bus behind RefusalTranslatingEventHandler, then TransactionalEventHandler. So the reaction joins the unit
- * of work of the command that published the event, and can refuse or fail that command.
+ * Translates a domain event into what the other contexts may know: an integration event or an aggregate's facts
+ * (`Publish…Handler`). The delivery registers every implementation on its event bus. So the translator runs within
+ * the command that published the event, inside that command's decorators, and its publication joins the command's
+ * unit of work. A reaction to an event is a Policy, never an event handler (ADR 0203).
  *
  * @method void __invoke(object $event) narrowed by each handler to its event
  */

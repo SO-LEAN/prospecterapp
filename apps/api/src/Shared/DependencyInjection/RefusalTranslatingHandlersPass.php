@@ -7,24 +7,21 @@ namespace App\Shared\DependencyInjection;
 use App\Shared\Typed;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Prospecter\Core\SharedKernel\Application\Handler\RefusalTranslatingCommandHandler;
-use Prospecter\Core\SharedKernel\Application\Handler\RefusalTranslatingEventHandler;
 use Prospecter\Core\SharedKernel\Application\Handler\RefusalTranslatingQueryHandler;
 use Prospecter\Core\SharedKernel\Application\Handler\TransactionalCommandHandler;
-use Prospecter\Core\SharedKernel\Application\Handler\TransactionalEventHandler;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 
 /**
- * Every core handler is reached through its kind's decorators. So a use case refuses with a UseCaseRefused (ADR 0035),
- * writes all or nothing, and nobody builds a handler by hand (ADR 0044). The refusals' translation is outside the unit
- * of work, so a refusal detected at commit time is translated too:
- * - A command handler is registered on the command bus, and a reaction on the event bus. Messenger routes a message
- *   by the type of __invoke()'s argument. The decorators take any object, so the pass names the handled message
- *   explicitly, as it reads it on the handler itself. A reaction is named after the handler it decorates (`alias`).
- *   Messenger skips a handler whose name it already called for a message. Without the alias, the translators of
- *   `ContactsLeftWithoutOrganization` and of its parent `OrganizationEvent` would be one, since both are decorated
- *   alike.
+ * Every core command or query handler is reached through its kind's decorators. So a use case refuses with a
+ * UseCaseRefused (ADR 0035), writes all or nothing, and nobody builds a handler by hand (ADR 0044). The refusals'
+ * translation is outside the unit of work, so a refusal detected at commit time is translated too:
+ * - A command handler is registered on the command bus. Messenger routes a message by the type of __invoke()'s
+ *   argument. The decorators take any object, so the pass names the handled message explicitly, as it reads it on the
+ *   handler itself.
+ * - An event handler, a translator, is registered on the event bus as it is: it runs within the command that
+ *   publishes, inside that command's decorators (ADR 0203).
  * - A query handler is injected as a QueryHandler named after its intent: `QueryHandler $consultOrganization` for
  *   `ConsultOrganizationHandler`.
  */
@@ -37,7 +34,6 @@ final class RefusalTranslatingHandlersPass implements CompilerPassInterface
     /** A command handler's decorators, from the innermost to the outermost, by their id's suffix. */
     private const array COMMAND_DECORATORS = ['transactional' => TransactionalCommandHandler::class, 'refusal_translating' => RefusalTranslatingCommandHandler::class];
     private const array QUERY_DECORATORS = ['refusal_translating' => RefusalTranslatingQueryHandler::class];
-    public const array EVENT_DECORATORS = ['transactional' => TransactionalEventHandler::class, 'refusal_translating' => RefusalTranslatingEventHandler::class];
 
     public function process(ContainerBuilder $container): void
     {
@@ -47,8 +43,8 @@ final class RefusalTranslatingHandlersPass implements CompilerPassInterface
         }
 
         foreach (array_keys($container->findTaggedServiceIds(self::EVENT_HANDLER)) as $id) {
-            $container->getDefinition(self::decorate($container, $id, self::EVENT_DECORATORS))
-                ->addTag('messenger.message_handler', ['bus' => 'event.bus', 'handles' => $this->messageOf(self::classOf($container, $id)), 'alias' => $id]);
+            $container->getDefinition($id)
+                ->addTag('messenger.message_handler', ['bus' => 'event.bus', 'handles' => $this->messageOf(self::classOf($container, $id))]);
         }
 
         foreach (array_keys($container->findTaggedServiceIds(self::QUERY_HANDLER)) as $id) {
