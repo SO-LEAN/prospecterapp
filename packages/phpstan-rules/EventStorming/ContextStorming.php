@@ -165,7 +165,7 @@ final readonly class ContextStorming
         $name = new ClassName($port);
         $detail = implode(', ', array_map(static fn (ClassFacts $adapter): string => new ClassName($adapter->name)->short(), $adapters));
 
-        return new Sticky(StickyType::ExternalSystem->value.':'.$port, self::slugOf(StickyType::ExternalSystem, $name, $context), StickyType::ExternalSystem, Wording::ofIntention($name->short()), null, $name->short(), $port, (string) $name->context(), null, '' === $detail ? null : $detail, array_values($read));
+        return new Sticky(StickyType::ExternalSystem->value.':'.$port, self::slugOf(StickyType::ExternalSystem, $name, $context), StickyType::ExternalSystem, Wording::ofIntention($name->short()), null, $name->short(), $port, (string) $name->context(), null, '' === $detail ? null : $detail, $read);
     }
 
     private function stickThePolicies(Board $board, string $context): void
@@ -320,7 +320,7 @@ final readonly class ContextStorming
             }
         }
 
-        return array_values($commands);
+        return $commands;
     }
 
     /**

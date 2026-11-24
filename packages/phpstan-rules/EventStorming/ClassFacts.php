@@ -12,11 +12,11 @@ namespace Prospecter\PHPStan\EventStorming;
 final readonly class ClassFacts
 {
     /**
-     * @param list<string>       $interfaces
-     * @param list<list<string>> $parameters   the classes of each parameter of __invoke
-     * @param list<string>       $returns      the classes __invoke returns
-     * @param list<string>       $dependencies the classes its constructor takes
-     * @param list<string>       $roles
+     * @param list<string>          $interfaces
+     * @param list<list<string>>    $parameters         the classes of each parameter of __invoke
+     * @param list<string>          $returns            the classes __invoke returns
+     * @param list<string>          $dependencies       the classes its constructor takes
+     * @param list<string>          $roles
      * @param list<string>          $presents           the classes its output port presents, for a query handler
      * @param list<string>          $routes             the names of the routes it answers, for a controller
      * @param array<string, string> $optionalParameters the description of each parameter of its constructor that
