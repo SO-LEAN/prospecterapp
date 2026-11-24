@@ -367,6 +367,7 @@ use Prospecter\Core\Prospecting\Application\Policy\DiscardRemovedAttachmentPolic
 use Prospecter\Core\Prospecting\Application\Policy\DiscardRemovedLogoPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\DismissSuspicionInReturnPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\EraseExchangeLeftWithoutOrganizationPolicy;
+use Prospecter\Core\Prospecting\Application\Policy\EraseToDoLeftWithoutOrganizationPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\KeepImportedAttachmentPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\LiftSuspicionInReturnPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\StopKeepingExchangesPolicy;
@@ -1396,6 +1397,7 @@ final class Application
     private function commandHandlers(): array
     {
         return [
+            new EraseToDoLeftWithoutOrganizationHandler($this->toDos, $this->events),
             new StopKeepingToDosHandler($this->toDos, $this->events),
             new EraseExchangeLeftWithoutOrganizationHandler($this->exchanges, $this->events),
             new StopKeepingExchangesHandler($this->exchanges, $this->events),
@@ -1834,7 +1836,7 @@ final class Application
             new StopKeepingExchangesPolicy(),
             new EraseExchangeLeftWithoutOrganizationPolicy(),
             new StopKeepingToDosPolicy(),
-            new EraseToDoLeftWithoutOrganizationHandler($this->toDos, $this->events),
+            new EraseToDoLeftWithoutOrganizationPolicy(),
             new EraseToDosOfForgottenContactHandler($this->toDos, $this->events),
             new DiscardRemovedLogoPolicy(),
             new DiscardRemovedAttachmentPolicy(),

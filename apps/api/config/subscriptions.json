@@ -143,7 +143,7 @@
     "context": "prospecting",
     "sources": ["prospecter.prospecting.internal"],
     "events": ["ToDoLeftWithoutOrganization.v1"],
-    "handler": "Prospecter\\Core\\Prospecting\\Application\\EraseToDoLeftWithoutOrganization\\EraseToDoLeftWithoutOrganizationHandler",
+    "policy": "Prospecter\\Core\\Prospecting\\Application\\Policy\\EraseToDoLeftWithoutOrganizationPolicy",
     "inbox": true
   },
   "prospecting-erase-to-dos-of-forgotten-contact": {
