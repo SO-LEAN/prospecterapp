@@ -56,7 +56,7 @@ This context holds the organizations an account prospects, their contacts, the e
 - Possible duplicates (ADR 0162):
   - The resemblance key is the corporate name, ignoring case, accents, punctuation and legal form, beside the city typed. An organization without a name or a city raises no suspicion.
   - When an organization is started, renamed or moved, Prospecter suspects it of being a duplicate of each organization of its account with the same resemblance key. It lifts the suspicion on those it no longer resembles (`DuplicateSuspicion`, the events `DuplicateSuspected` and `DuplicateSuspicionLifted`).
-  - A reaction suspects or lifts the other organization in return (`SuspectDuplicateInReturn`, `LiftSuspicionInReturn`). A suspected or lifted organization keeps its modification moment. When the account stops prospecting an organization, its suspicions are lifted.
+  - In return, a policy makes the other organization suspect the newcomer, or lift its suspicion of it (`SuspectDuplicateInReturn`, `LiftSuspicionInReturn`). A suspected or lifted organization keeps its modification moment. When the account stops prospecting an organization, its suspicions are lifted.
   - Every prospector of the account can check a suspicion and state that the organization is no duplicate of the other one (`DismissPossibleDuplicate`). A statement about an organization it is not suspected of is refused (`NotASuspectedDuplicate`). The two organizations are then never suspected of each other again (`DismissSuspicionInReturn`).
   - An organization's sheet and the list name its possible duplicates that are still prospected.
 - A client can complete an organization with what it knows about it (`CompleteOrganization`, ADR 0177):
@@ -103,7 +103,7 @@ This context holds the organizations an account prospects, their contacts, the e
 - Venues:
   - Only a meeting can have a place. Only a video call can have a link, which must be a web address (`ExchangeFacts`).
   - A member may plan a video call without its link and give it later. The video call may instead request a link from its holder's calendar (`linkRequested`). Another channel cannot request one (`LinkOnlyForAVideoCall`).
-  - The system keeps the link created as a correction by nobody, without an author. `KeepCreatedVideoCallLink` reacts to Connectors' `VideoCallLinkCreated` (`Exchange::receiveLink()`, the event `VideoCallLinkReceived`, by its holder, ADR 0137).
+  - The system keeps the link created as a correction by nobody, without an author. Connectors' `VideoCallLinkCreated` sends `KeepCreatedVideoCallLink` (`Exchange::receiveLink()`, the event `VideoCallLinkReceived`, by its holder, ADR 0137).
   - A link given or received ends the request. A link given meanwhile wins. A removed link does not come back.
   - Every prospector of the account corrects a meeting's place or a video call's link, planned or done (`CorrectExchangeVenue`, the intent `CorrectVenue`). Neither is personal data. Neither is to redact once the contact is forgotten (ADR 0114).
   - An exchange corrected as a whole keeps its venue while its channel has one.
@@ -127,7 +127,7 @@ This context holds the organizations an account prospects, their contacts, the e
   - Nothing is imported with a contact forgotten meanwhile, or with an organization no longer prospected. Nothing is imported with a contact that another member holds to attach.
   - Its facts are those of any exchange. Reporting counts it as a logged e-mail (ADR 0154).
   - Connectors sends the e-mail's files to the storage. Prospecting attaches them to the exchange as if its member did (`Exchange::importAttachment()`). Their identity derives from the exchange and the upload (`AttachmentId::ofImportedEmail()`).
-  - Each upload is kept once the exchange is written (`KeepImportedAttachment`, reacting to `AttachmentImported`). An upload already kept leaves nothing to do.
+  - Each upload is kept once the exchange is written (`KeepImportedAttachment`, which its policy sends for `AttachmentImported`). An upload already kept leaves nothing to do.
   - Its text ends with a line for each file the exchange does not hold (`AttachmentLeftOut`, ADR 0182). A file can be left out by the import, when it is over 10 MB or beyond the tenth. It can also be gone from the storage, or beyond what an exchange holds. The line reads « Pièce jointe non importée : video.mp4 (25 Mo), à ouvrir dans Gmail ».
   - The size is rounded in megabytes from one megabyte up, and in kilobytes below it. Below a kilobyte, it reads « moins de 1 Ko ».
 - Fingerprints (ADR 0166):
@@ -152,7 +152,7 @@ This context holds the organizations an account prospects, their contacts, the e
   - Nothing changes it afterwards: neither a correction by hand nor a completion by an AI.
   - The sheet, the timelines and an exchange's detail say it (`createdByAnAI`). An imported exchange keeps its own mark (`importedFrom`).
 - An exchange holds 10 files at most, of 10 MB each at most (`ExchangePossibilities`, ADR 0077). An erased exchange takes its files with it.
-- An exchange is kept for the organizations its contact was part of when it was logged. It is erased with the last of them (ADR 0074). `StopKeepingExchanges` saves the exchanges still kept. `EraseExchangeLeftWithoutOrganization` erases each of the others in its own reaction. Nothing is left to do for an exchange already gone.
+- An exchange is kept for the organizations its contact was part of when it was logged. It is erased with the last of them (ADR 0074). `StopKeepingExchanges` saves the exchanges still kept. `EraseExchangeLeftWithoutOrganization` erases each of the others in its own command, which its policy sends for each `ExchangeLeftWithoutOrganization`. Nothing is left to do for an exchange already gone.
 - A forgotten contact's exchanges stay in their organizations' timelines, to redact. A timeline counts the exchanges to redact (`ExchangeConformity`, ADR 0079).
 - To-dos (ADR 0113):
   - A to-do has a text. Like an exchange, it is kept for the organizations its contact is part of when it is logged, or for the organization itself. It goes with the last of them (`StopKeepingToDos`, then `EraseToDoLeftWithoutOrganization`).
@@ -199,7 +199,7 @@ This context holds the organizations an account prospects, their contacts, the e
   - an organization's possible duplicates (ADR 0162):
     - `ResemblanceKey`, and `DuplicateSuspicion` before the organization is saved;
     - `Organization::reconsiderDuplicates()`, `suspectDuplicateOf()`, `liftSuspicionOf()`, `dismissSuspicionOf()`, `knowItIsNoDuplicateOf()`;
-    - `DismissPossibleDuplicate`, and the reactions in return `SuspectDuplicateInReturn`, `LiftSuspicionInReturn`, `DismissSuspicionInReturn`;
+    - `DismissPossibleDuplicate`, and the commands in return `SuspectDuplicateInReturn`, `LiftSuspicionInReturn`, `DismissSuspicionInReturn`, which their policies send (ADR 0203);
     - read as `PossibleDuplicate`;
   - `ConsultOrganizationsOfContacts` (batch), `RecognizeCallingOrganization` (which organization has a number), and `IdentifyOrganizations` (which organizations clues designate, read through the `DesignatedOrganizationRetriever` port, ADR 0173).
 - Logging and planning exchanges:
@@ -231,13 +231,13 @@ This context holds the organizations an account prospects, their contacts, the e
   - `CorrectExchangeVenue` corrects a meeting's place or a video call's link (`VideoCallLink`), by every prospector of the account;
   - `ProposeMeetingPlace` proposes the address of a contact's first organization that has one;
   - `CorrectExchange` corrects all its facts at once. Its contact stays. The last `Correction` is kept, and earlier versions are kept nowhere (ADR 0096);
-  - `EraseExchange` erases one. Exchanges are erased with their last organization: `StopKeepingExchanges`, then `ExchangeLeftWithoutOrganization` and its reaction `EraseExchangeLeftWithoutOrganization`, one per exchange.
+  - `EraseExchange` erases one. Exchanges are erased with their last organization: `StopKeepingExchanges`, then `ExchangeLeftWithoutOrganization` and the command `EraseExchangeLeftWithoutOrganization` its policy sends, one per exchange.
 - Attachments:
   - the files attached to an exchange (`Attachment`: 10 MB each, 10 per exchange at most, ADR 0077);
   - `AttachFile` takes an upload that the client sent to the storage. It measures it, then keeps it through the `PrivateStorage` port;
   - `RemoveAttachment`, and `DownloadAttachment`: a link signed for a moment, with the right to manage personal data;
   - an imported e-mail's files, attached by `NoteImportedEmail` and kept by `KeepImportedAttachment` (ADR 0182);
-  - an erased exchange takes its files with it. A removed attachment or logo takes its file. A reaction removes each file from the storage once the removal is written (`DiscardAttachmentsOfErasedExchange`, `DiscardRemovedAttachment`, `DiscardRemovedLogo`, ADR 0101).
+  - an erased exchange takes its files with it. A removed attachment or logo takes its file. A command, which a policy sends, removes each file from the storage once the removal is written (`DiscardAttachmentsOfErasedExchange`, `DiscardRemovedAttachment`, `DiscardRemovedLogo`, ADR 0101).
 - A forgotten contact's exchanges stay, to redact. `KeepExchangesOfForgottenContact` reacts to `ContactForgotten` (`Exchange::forgetItsContact()`, ADR 0079). It cancels an exchange still to come (ADR 0112):
   - their text stays until a correction declares it redacted (`madeConform` of `CorrectExchangeText` and `CorrectExchange`, the intent `MakeConform`). Their files stay until a member removes them;
   - in an organization's timeline, an exchange's contact is present, removed from it or forgotten (`ContactPresence`). The timeline counts those to redact. `ConsultExchangesToMakeConform` lists them alone.
