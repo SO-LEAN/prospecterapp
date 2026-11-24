@@ -160,7 +160,11 @@ class GridUnderConstruction {
     const x = this.stepX.get(step) ?? 0
     for (const note of step.notes) {
       const shape = this.shapeOf(note)
-      this.places.set(note, { ...shape, x: x + shape.x, y: rowY + shape.y + lean(`${note.seed}y`, 3.5) })
+      this.places.set(note, {
+        ...shape,
+        x: x + shape.x,
+        y: rowY + shape.y + lean(`${(note.owner ?? note).seed}y`, 3.5),
+      })
     }
     for (const strip of step.strips) {
       this.strips.set(strip, { x: x + strip.x, y: rowY + strip.y, w: strip.w, h: strip.h })
