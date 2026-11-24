@@ -329,6 +329,19 @@ final class ContextStormingTest extends TestCase
         );
     }
 
+    public function testTheSameCodeReadInAnotherOrderGivesTheSameModel(): void
+    {
+        $classes = [self::handlerOf(self::OPEN_BOOKING), self::handlerOf(self::BOOK_SLOT)];
+        $calls = [
+            new Call(self::OPEN_BOOKING.'Handler', '__invoke', self::BOOKING_PAGE, 'open'),
+            new Call(self::BOOKING_PAGE, 'open', self::BOOKING_OPENED, Call::CREATION),
+            new Call(self::BOOK_SLOT.'Handler', '__invoke', self::BOOKING_PAGE, 'book'),
+            new Call(self::BOOKING_PAGE, 'book', self::SLOT_BOOKED, Call::CREATION),
+        ];
+
+        self::assertEquals(self::modelOf(new Facts($classes, $calls)), self::modelOf(new Facts(array_reverse($classes), array_reverse($calls))));
+    }
+
     public function testTheModulesAreThoseOfTheUseCasesOfTheContext(): void
     {
         $model = self::modelOf(new Facts([self::handlerOf(self::BOOK_SLOT), self::handlerOf(self::OPEN_BOOKING), self::handlerOf(self::CONSULT_MY_BOOKING_PAGE)], []));
