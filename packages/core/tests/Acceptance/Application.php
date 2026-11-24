@@ -362,6 +362,7 @@ use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\PlanBookedAppointment\PlanBookedAppointmentHandler;
 use Prospecter\Core\Prospecting\Application\PlanExchange\PlanExchangeHandler;
 use Prospecter\Core\Prospecting\Application\PlanOrganizationExchange\PlanOrganizationExchangeHandler;
+use Prospecter\Core\Prospecting\Application\Policy\AttachCollectedContactPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\DetachForgottenContactPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\DiscardAttachmentsOfErasedExchangePolicy;
 use Prospecter\Core\Prospecting\Application\Policy\DiscardRemovedAttachmentPolicy;
@@ -1402,6 +1403,7 @@ final class Application
     private function commandHandlers(): array
     {
         return [
+            new AttachCollectedContactHandler($this->organizations, $this->events),
             new EraseToDosOfForgottenContactHandler($this->toDos, $this->events),
             new ForgetFingerprintsOfForgottenContactHandler($this->exchanges),
             new KeepExchangesOfForgottenContactHandler($this->exchanges, $this->events),
@@ -1819,7 +1821,7 @@ final class Application
     private function reactions(): array
     {
         return [
-            new AttachCollectedContactHandler($this->organizations, $this->events),
+            new AttachCollectedContactPolicy(),
             new DetachForgottenContactPolicy(),
             new KeepExchangesOfForgottenContactPolicy(),
             new ForgetFingerprintsOfForgottenContactPolicy(),
