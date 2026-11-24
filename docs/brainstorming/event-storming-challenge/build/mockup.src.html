@@ -1,0 +1,1341 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Event storming · Booking wall (mockup)</title>
+<script>
+// The theme is resolved before the first paint: ?theme=dark|light, else the saved choice, else the system's.
+(function () {
+  var asked = new URLSearchParams(location.search).get('theme'), saved = null
+  try { saved = localStorage.getItem('es-theme') } catch (e) {}
+  var theme = asked || saved || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+  document.documentElement.dataset.theme = theme === 'dark' ? 'dark' : 'light'
+})()
+</script>
+<style>
+/* Patrick Hand, (c) Patrick Wagesreiter, SIL Open Font License 1.1 — a Latin subset, embedded so the page loads nothing. */
+@font-face { font-family: "Wall Hand"; src: url(data:font/woff2;base64,__FONT__) format("woff2"); font-display: block; }
+
+:root {
+  --hand: "Wall Hand", "Patrick Hand", "Segoe Print", "Bradley Hand", "Chalkboard SE", system-ui, sans-serif;
+  --ui: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --room: #cfc9bd;
+  --room-2: #b9b2a4;
+  --paper: #fbf9f3;
+  --paper-edge: #e6e1d4;
+  --marker: #252a3a;
+  --marker-soft: rgb(37 42 58 / 0.55);
+  --tape: rgb(240 226 168 / 0.9);
+  --kraft: #cfae7e;
+  --kraft-ink: #4a3516;
+
+  --chrome: rgb(255 255 255 / 0.86);
+  --chrome-solid: #ffffff;
+  --chrome-ink: #1c2130;
+  --chrome-muted: #626a7a;
+  --chrome-border: rgb(20 25 40 / 0.12);
+  --chrome-hover: rgb(20 25 40 / 0.07);
+  --accent: #2456d6;
+  --accent-ink: #ffffff;
+
+  --actor: #ffe257;
+  --command: #7cc4f8;
+  --aggregate: #fff4ad;
+  --event: #ffa348;
+  --policy: #cfb3f3;
+  --readModel: #a9e190;
+  --externalSystem: #ffb5d0;
+  --hotspot: #ff4d9d;
+  --ink: #1b2030;
+  --ink-soft: rgb(27 32 48 / 0.62);
+  --sticky-dim: 1;
+  --shadow: rgb(40 30 10 / 0.34);
+}
+:root[data-theme="dark"] {
+  --room: #0f1114;
+  --room-2: #08090b;
+  --paper: #242930;
+  --paper-edge: #1a1e24;
+  --marker: #ece8dc;
+  --marker-soft: rgb(236 232 220 / 0.55);
+  --tape: rgb(214 199 140 / 0.85);
+  --kraft: #7a6442;
+  --kraft-ink: #f3e6cb;
+
+  --chrome: rgb(28 32 39 / 0.88);
+  --chrome-solid: #1c2027;
+  --chrome-ink: #eceae4;
+  --chrome-muted: #a0a7b4;
+  --chrome-border: rgb(255 255 255 / 0.12);
+  --chrome-hover: rgb(255 255 255 / 0.08);
+  --accent: #8fb2ff;
+  --accent-ink: #0d1424;
+  --sticky-dim: 0.9;
+  --shadow: rgb(0 0 0 / 0.6);
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0; overflow: hidden; color: var(--chrome-ink); font: 14px/1.45 var(--ui);
+  background: radial-gradient(120% 90% at 50% 0%, var(--room) 0%, var(--room-2) 100%);
+}
+button { font: inherit; color: inherit; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+/* ───────── The wall ───────── */
+#stage { position: fixed; inset: 0; overflow: hidden; touch-action: none; cursor: grab; }
+#stage.panning { cursor: grabbing; }
+#world { position: absolute; left: 0; top: 0; transform-origin: 0 0; will-change: transform; }
+#roll {
+  position: absolute; left: 0; top: 0;
+  background-color: var(--paper);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .4 0 0 0 0 .3 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E");
+  box-shadow: 0 2px 0 var(--paper-edge), 0 30px 60px -20px rgb(0 0 0 / 0.45), 0 4px 10px rgb(0 0 0 / 0.18);
+  border-radius: 2px;
+}
+.corner-tape { position: absolute; width: 120px; height: 34px; background: var(--tape); box-shadow: 0 1px 2px rgb(0 0 0 / 0.25); opacity: 0.92; }
+.wall-title { position: absolute; left: 40px; top: 18px; font: 58px/1 var(--hand); color: var(--marker); transform: rotate(-1.2deg); white-space: nowrap; }
+.wall-title small { font-size: 21px; color: var(--marker-soft); margin-left: 16px; }
+svg.ink { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; }
+.ink path { fill: none; stroke: var(--marker); stroke-linecap: round; stroke-linejoin: round; }
+.ink .rule { stroke-width: 2.2; opacity: 0.2; }
+.ink .time { stroke-width: 3; opacity: 0.5; }
+.ink text { font: 22px var(--hand); fill: var(--marker-soft); }
+.ink .flow { stroke-width: 3.4; opacity: 0.86; transition: opacity 0.18s, stroke-width 0.18s; }
+.ink .flow.uncertain { stroke-dasharray: 4 9; }
+.ink .flow.head { stroke-dasharray: none; }
+.ink .hit { pointer-events: stroke; stroke: transparent; stroke-width: 28; cursor: help; outline: none; }
+.ink .hit:focus-visible { stroke: var(--accent); opacity: 0.3; }
+.ink .flow.on { stroke-width: 5; opacity: 1; }
+.ink .maybe { font-size: 17px; fill: var(--marker); opacity: 0.75; }
+
+.lane-tape {
+  position: absolute; left: 30px; padding: 5px 22px 7px; background: var(--tape); color: #2a2512;
+  font: 31px/1.1 var(--hand); white-space: nowrap; transform-origin: 0 0;
+  transform: rotate(-2.2deg) scale(clamp(1, calc(0.62 * var(--inv, 1)), 3.2));
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.28); cursor: pointer; border: 0;
+  clip-path: polygon(0 0, 100% 0, 98.5% 18%, 100% 36%, 98.5% 54%, 100% 72%, 98.5% 90%, 100% 100%, 0 100%, 1.5% 82%, 0 64%, 1.5% 46%, 0 28%, 1.5% 10%);
+}
+.lane-fold { position: absolute; left: 38px; width: 24px; height: 24px; padding: 0; border-radius: 50%; border: 1.5px solid var(--marker-soft); background: transparent; color: var(--marker); cursor: pointer; display: grid; place-items: center; }
+.lane-fold svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.lane-fold:hover, .lane-fold:focus-visible { background: var(--marker); color: var(--paper); outline: none; }
+.sticky.mini .paper > *, .sticky.mini .jump, .sticky.mini::before, .sticky.mini .paper::after { display: none; }
+.sticky.mini .paper { padding: 0; border-radius: 1px; }
+.sticky.dot .paper > *, .sticky.dot .jump, .sticky.dot::before, .sticky.dot .paper::after { display: none; }
+.sticky.dot .paper { padding: 0; border-radius: 1px 1px 6px 1px; }
+.fold-label { position: absolute; font: 16px/1 var(--hand); color: var(--marker); white-space: nowrap; opacity: 0.85; }
+
+.lane-count { position: absolute; left: 70px; font: 17px var(--hand); color: var(--marker-soft); white-space: nowrap; }
+
+/* A neighbour's piece of paper: what sits on it belongs to another context's wall. */
+.strip {
+  position: absolute; background: var(--kraft); transform: rotate(var(--r, 0deg));
+  box-shadow: 0 2px 5px rgb(0 0 0 / 0.28);
+  clip-path: polygon(0 0, 100% 0, 100% 96%, 92% 100%, 84% 96.5%, 75% 100%, 66% 96%, 57% 99.5%, 48% 96%, 39% 100%, 30% 96.5%, 21% 100%, 12% 96%, 5% 99%, 0 96%);
+}
+.strip b { position: absolute; left: 10px; top: 6px; white-space: nowrap; font: 600 10.5px/1.3 var(--ui); letter-spacing: 0.09em; text-transform: uppercase; color: var(--kraft-ink); }
+
+/* ───────── Post-its ───────── */
+.sticky {
+  position: absolute; transform: rotate(var(--r, 0deg)) scale(var(--lift, 1)); outline: none; cursor: pointer;
+  transition: transform 0.18s cubic-bezier(.2,.9,.3,1.3), opacity 0.2s, filter 0.2s; filter: brightness(var(--sticky-dim));
+  -webkit-tap-highlight-color: transparent;
+}
+.sticky::before { /* the shadow of the corner that lifts off the wall */
+  content: ""; position: absolute; left: 10%; right: 3%; bottom: 5px; height: 38%;
+  box-shadow: 0 13px 11px -1px var(--shadow); transform: skewX(-4deg) rotate(2deg); border-radius: 6px;
+}
+.paper {
+  position: absolute; inset: 0; color: var(--ink); overflow: hidden;
+  background:
+    linear-gradient(to bottom, rgb(0 0 0 / 0.07) 0, rgb(0 0 0 / 0) 15%),
+    linear-gradient(140deg, rgb(255 255 255 / 0.34) 0%, rgb(255 255 255 / 0) 42%, rgb(0 0 0 / 0.07) 100%),
+    var(--c);
+  border-radius: 1px 1px 18px 1px / 1px 1px 5px 1px;
+  box-shadow: 0 1px 1px rgb(0 0 0 / 0.16);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+  padding: 13px 9px 15px; gap: 2px;
+}
+.paper::after { /* the curl */
+  content: ""; position: absolute; right: 0; bottom: 0; width: 26px; height: 20px;
+  background: linear-gradient(322deg, rgb(0 0 0 / 0.13) 0%, rgb(255 255 255 / 0.3) 42%, rgb(255 255 255 / 0) 58%);
+}
+.k-actor { --c: var(--actor); } .k-command { --c: var(--command); } .k-aggregate { --c: var(--aggregate); }
+.k-event { --c: var(--event); } .k-policy { --c: var(--policy); } .k-readModel { --c: var(--readModel); }
+.k-externalSystem { --c: var(--externalSystem); } .k-hotspot { --c: var(--hotspot); }
+.txt { font-family: var(--hand); line-height: 1.08; letter-spacing: 0.01em; text-wrap: balance; overflow-wrap: anywhere; }
+.when { font: 12.5px/1.05 var(--hand); color: var(--ink-soft); text-wrap: balance; }
+.cap { position: absolute; left: 0; right: 0; bottom: 5px; font: 9px/1 var(--ui); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
+.via { font: 10.5px/1.15 var(--mono); color: var(--ink-soft); margin-top: 3px; max-width: 100%; overflow-wrap: anywhere; }
+.stamp {
+  position: absolute; right: 5px; top: 7px; padding: 1px 5px; border: 1.5px solid #9c1f1f; color: #9c1f1f; border-radius: 3px;
+  font: 700 8px/1.3 var(--ui); letter-spacing: 0.12em; text-transform: uppercase; transform: rotate(7deg); opacity: 0.78;
+}
+.k-aggregate .paper { justify-content: flex-start; padding: 26px 27px 0 25px; } .k-aggregate .txt { font-size: 18px !important; }
+.k-actor .paper { padding: 5px 3px 4px; justify-content: flex-start; gap: 0; border-radius: 1px 1px 10px 1px / 1px 1px 4px 1px; }
+.k-actor .paper::after { width: 14px; height: 11px; }
+.k-actor svg { width: 30px; height: 30px; flex: none; stroke: var(--ink); fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.k-actor .txt { font-size: 13.5px; line-height: 0.98; }
+.k-actor.badge .paper { border-radius: 50%; padding: 4px; justify-content: center; box-shadow: 0 1px 3px rgb(0 0 0 / 0.4), inset 0 0 0 1.5px rgb(27 32 48 / 0.55); }
+.k-actor.badge .paper::after, .k-actor.badge::before { display: none; }
+.k-actor.badge svg { width: 22px; height: 22px; stroke-width: 2.3; }
+.k-actor::before { height: 30%; box-shadow: 0 7px 6px -1px var(--shadow); }
+.k-externalSystem.port .paper { padding: 13px 6px 3px 10px; justify-content: flex-start; align-items: flex-start; text-align: left; border-radius: 1px 1px 10px 1px / 1px 1px 4px 1px; gap: 0; }
+.k-externalSystem.port .txt { font-size: 16px; line-height: 1.1; white-space: nowrap; }
+.k-externalSystem.port .from { font: 9.5px/1.1 var(--ui); color: var(--ink-soft); white-space: nowrap; }
+.k-externalSystem.port::before { height: 30%; box-shadow: 0 7px 6px -1px var(--shadow); }
+.k-hotspot .paper { padding: 8px; }
+.k-hotspot .txt { font-size: 15px; }
+.k-hotspot .bang { font: 700 22px/0.9 var(--hand); }
+
+.sticky:hover, .sticky:focus-visible { --lift: 1.025; z-index: 30 !important; }
+.sticky:focus-visible .paper { box-shadow: inset 0 0 0 3.5px var(--accent), 0 1px 1px rgb(0 0 0 / 0.16); }
+.sticky.pinned .paper { box-shadow: inset 0 0 0 3.5px var(--marker), 0 1px 1px rgb(0 0 0 / 0.16); }
+.sticky.pinned:focus-visible .paper { box-shadow: inset 0 0 0 3.5px var(--marker), inset 0 0 0 6px var(--accent); }
+
+/* The pictogram that jumps to where the story goes on. */
+.jump {
+  position: absolute; top: -9px; width: 23px; height: 23px; padding: 0; border-radius: 50%; cursor: pointer;
+  border: 1.5px solid var(--marker); background: var(--paper); color: var(--marker);
+  display: grid; place-items: center; box-shadow: 0 1px 3px rgb(0 0 0 / 0.35); z-index: 3;
+  transition: transform 0.12s, background 0.12s, color 0.12s;
+}
+.jump svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.jump:hover, .jump:focus-visible { transform: scale(1.25); background: var(--marker); color: var(--paper); outline: none; }
+.jump.away { border-color: var(--kraft-ink); background: var(--kraft); color: var(--kraft-ink); }
+.jump.away:hover, .jump.away:focus-visible { background: var(--kraft-ink); color: var(--kraft); }
+.port .jump { top: 11px; width: 19px; height: 19px; } .port .jump svg { width: 11px; height: 11px; }
+
+/* Following one story: the rest of the wall steps back. */
+#world.following .sticky:not(.lit), #world.following .strip:not(.lit) { opacity: 0.2; filter: grayscale(0.55) brightness(var(--sticky-dim)); }
+#world.following .flow:not(.lit) { opacity: 0.08; }
+#world.following .flow.lit { stroke-width: 4.4; opacity: 1; }
+#world.following .sticky.lit { --lift: 1.015; }
+#world.searching .sticky:not(.hit), #world.searching .strip { opacity: 0.16; filter: grayscale(0.6); }
+#world.searching .sticky.hit .paper { box-shadow: inset 0 0 0 3.5px var(--accent); }
+.off-actor .k-actor, .off-command .k-command, .off-aggregate .k-aggregate, .off-event .k-event, .off-policy .k-policy,
+.off-readModel .k-readModel, .off-externalSystem .k-externalSystem, .off-hotspot .k-hotspot { opacity: 0.07 !important; pointer-events: none; }
+
+/* From the back of the room, only colours and big titles read. */
+#world[data-zoom="far"] .cap, #world[data-zoom="far"] .via, #world[data-zoom="far"] .when, #world[data-zoom="far"] .from,
+#world[data-zoom="far"] .stamp, #world[data-zoom="far"] .lane-count, #world[data-zoom="far"] .lane-fold, #world[data-zoom="far"] .k-actor .txt { visibility: hidden; }
+#world[data-zoom="far"] .txt { opacity: 0.75; }
+
+/* ───────── The chrome around the wall ───────── */
+.card { background: var(--chrome); border: 1px solid var(--chrome-border); border-radius: 14px; backdrop-filter: blur(14px) saturate(1.3); -webkit-backdrop-filter: blur(14px) saturate(1.3); box-shadow: 0 8px 28px -10px rgb(0 0 0 / 0.4); }
+#bar { position: fixed; left: 12px; right: 12px; top: 12px; display: flex; align-items: center; gap: 6px; padding: 6px 8px; z-index: 50; flex-wrap: wrap; }
+#bar .sep { width: 1px; align-self: stretch; background: var(--chrome-border); margin: 2px 4px; }
+.crumb { color: var(--chrome-muted); padding: 0 2px; white-space: nowrap; }
+.btn { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 11px; border: 0; border-radius: 9px; background: transparent; cursor: pointer; white-space: nowrap; }
+.btn:hover { background: var(--chrome-hover); }
+.btn:focus-visible, .seg button:focus-visible, #q:focus-visible, .chip:focus-visible, .lane-tape:focus-visible { outline: 2.5px solid var(--accent); outline-offset: 1px; }
+.btn[disabled] { opacity: 0.35; cursor: default; background: transparent; }
+.btn.icon { width: 32px; padding: 0; justify-content: center; }
+.btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.btn strong { font-weight: 650; }
+.btn[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.seg { display: inline-flex; background: var(--chrome-hover); border-radius: 10px; padding: 2px; }
+.seg button { height: 28px; padding: 0 11px; border: 0; border-radius: 8px; background: transparent; cursor: pointer; white-space: nowrap; }
+.seg button[aria-pressed="true"] { background: var(--chrome-solid); box-shadow: 0 1px 3px rgb(0 0 0 / 0.22); font-weight: 600; }
+.grow { flex: 1 1 0; }
+.search { position: relative; flex: 0 1 280px; min-width: 150px; }
+#q { width: 100%; height: 32px; padding: 0 34px 0 32px; border-radius: 9px; border: 1px solid var(--chrome-border); background: var(--chrome-solid); color: inherit; font: inherit; }
+.search > svg { position: absolute; left: 9px; top: 8px; width: 16px; height: 16px; stroke: var(--chrome-muted); fill: none; stroke-width: 2; stroke-linecap: round; pointer-events: none; }
+kbd { font: 11px var(--mono); padding: 1px 5px; border: 1px solid var(--chrome-border); border-bottom-width: 2px; border-radius: 5px; color: var(--chrome-muted); background: var(--chrome-solid); }
+.search kbd { position: absolute; right: 8px; top: 7px; }
+#results { position: absolute; left: 0; right: 0; top: 38px; padding: 5px; max-height: 320px; overflow: auto; background: var(--chrome-solid); }
+#results:empty { display: none; }
+#results button, .menu button { display: flex; gap: 9px; align-items: center; width: 100%; text-align: left; border: 0; background: transparent; padding: 6px 8px; border-radius: 8px; cursor: pointer; }
+#results button:hover, #results button.cur, .menu button:hover:not([disabled]) { background: var(--chrome-hover); }
+#results small, .menu small { color: var(--chrome-muted); font: 11px var(--mono); display: block; }
+.go .dot { display: inline-block; vertical-align: -1px; margin-right: 6px; }
+.dot { flex: none; width: 13px; height: 13px; border-radius: 2px; background: var(--c); box-shadow: 0 1px 1.5px rgb(0 0 0 / 0.35); transform: rotate(-4deg); }
+.menu { position: fixed; top: 58px; left: 150px; padding: 6px; width: 290px; z-index: 60; background: var(--chrome-solid); }
+.menu h3 { margin: 6px 8px 4px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--chrome-muted); font-weight: 600; }
+.menu button[disabled] { color: var(--chrome-muted); cursor: default; }
+.menu button .tick { margin-left: auto; color: var(--accent); }
+
+#legend { position: fixed; left: 12px; bottom: 12px; max-width: min(760px, calc(100vw - 300px)); padding: 9px 12px 10px; z-index: 40; }
+#legend h2, #inspector h2, #story h2, #help h2 { margin: 0 0 8px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--chrome-muted); font-weight: 600; display: flex; align-items: center; }
+#legend h2 button, #story h2 button, #inspector .close, #help h2 button { margin-left: auto; }
+.grammar { display: flex; flex-wrap: wrap; gap: 5px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 9px 0 7px; border-radius: 7px; border: 1px solid var(--chrome-border); background: var(--chrome-solid); cursor: pointer; font-size: 12.5px; }
+.chip[aria-pressed="false"] { opacity: 0.45; text-decoration: line-through; }
+.chip.who[aria-pressed="false"] { opacity: 1; text-decoration: none; }
+.chip.who svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
+.chip.who[aria-pressed="true"] { background: var(--actor); color: #1b2030; border-color: transparent; text-decoration: none; opacity: 1; }
+#legend .row { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: var(--chrome-muted); margin-left: 6px; }
+#legend .row svg { flex: none; }
+#legend.folded > :not(h2) { display: none; }
+#legend.folded { padding-bottom: 2px; } #legend.folded h2 { margin: 0; }
+
+#dock { position: fixed; right: 12px; bottom: 12px; z-index: 40; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+#mini { position: relative; align-self: center; background: var(--paper); border-radius: 6px; overflow: hidden; cursor: crosshair; box-shadow: inset 0 0 0 1px var(--chrome-border); }
+#mini i { position: absolute; border-radius: 1px; background: var(--c); }
+#mini .view { position: absolute; border: 2px solid var(--accent); border-radius: 3px; background: rgb(60 110 255 / 0.1); pointer-events: none; }
+#dock .zoom { display: flex; align-items: center; gap: 2px; }
+#dock output { flex: 1; text-align: center; font-variant-numeric: tabular-nums; color: var(--chrome-muted); font-size: 12.5px; }
+
+#inspector { position: fixed; right: 12px; top: 70px; width: 330px; max-height: calc(100vh - 290px); overflow: auto; padding: 14px 16px 16px; z-index: 45; }
+#inspector .name { font: 30px/1.05 var(--hand); margin: 2px 0 2px; }
+#inspector .kind { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--chrome-muted); }
+#inspector code { display: block; font: 11.5px/1.45 var(--mono); color: var(--chrome-muted); overflow-wrap: anywhere; margin-top: 8px; }
+#inspector a { color: var(--accent); }
+#inspector dl { margin: 12px 0 0; display: grid; grid-template-columns: 76px 1fr; gap: 6px 10px; font-size: 13px; }
+#inspector dt { color: var(--chrome-muted); }
+#inspector dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.go { display: inline; font: inherit; border: 0; background: transparent; padding: 1px 4px 1px 0; cursor: pointer; text-align: left; border-radius: 5px; }
+.go:hover { background: var(--chrome-hover); }
+.go:focus-visible { outline: 2px solid var(--accent); }
+.sentence { margin: 12px 0 0; padding: 9px 11px; border-radius: 9px; background: var(--chrome-hover); font-size: 13px; line-height: 1.5; }
+.note { margin-top: 10px; font-size: 12px; color: var(--chrome-muted); }
+
+#story { position: fixed; left: 12px; top: 70px; bottom: 12px; width: min(560px, calc(100vw - 24px)); overflow: auto; padding: 16px 18px; z-index: 55; }
+#story h3 { font: 26px/1 var(--hand); margin: 18px 0 6px; }
+#story ol { margin: 0; padding-left: 20px; }
+#story li { margin: 6px 0; line-height: 1.75; }
+#story .go { padding: 0 6px 0 4px; border: 1px solid var(--chrome-border); border-radius: 6px; background: var(--chrome-solid); vertical-align: baseline; }
+#help { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(480px, calc(100vw - 24px)); padding: 18px 20px; z-index: 70; background: var(--chrome-solid); }
+#help table { border-collapse: collapse; width: 100%; font-size: 13px; }
+#help td { padding: 4px 0; } #help td:first-child { width: 150px; white-space: nowrap; }
+
+#tip { position: fixed; z-index: 90; pointer-events: none; padding: 6px 10px; border-radius: 8px; background: #161a24; color: #f4f2ec; font-size: 12.5px; max-width: 300px; box-shadow: 0 6px 18px rgb(0 0 0 / 0.35); opacity: 0; transition: opacity 0.1s; }
+#tip.on { opacity: 1; }
+#toast { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%) translateY(20px); z-index: 95; padding: 10px 16px; border-radius: 11px; background: #161a24; color: #f4f2ec; font-size: 13px; opacity: 0; transition: opacity 0.2s, transform 0.2s; max-width: min(620px, 90vw); }
+#toast.on { opacity: 1; transform: translateX(-50%); }
+#toast code { font: 12px var(--mono); color: #ffd58a; }
+[hidden] { display: none !important; }
+
+@media (max-width: 900px) { #legend { display: none; } .crumb.wide { display: none; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+@media print {
+  @page { size: A3 landscape; margin: 8mm; }
+  body { background: #fff; overflow: visible; }
+  .card, #tip, #toast { display: none !important; }
+  #stage { position: static; overflow: visible; }
+  #world { position: static; }
+  #roll { box-shadow: none; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+</style>
+</head>
+<body>
+
+<div id="stage" aria-label="The wall">
+  <div id="world"><div id="roll"></div></div>
+</div>
+
+<header id="bar" class="card" role="toolbar" aria-label="Wall navigation">
+  <button class="btn icon" id="back" data-tip="Back to where you were (Alt+←)" aria-label="Back" disabled><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <span class="crumb wide">Event storming</span><span class="crumb wide">›</span>
+  <button class="btn" id="contextBtn" aria-haspopup="true" aria-expanded="false" data-tip="Go to another context's wall"><strong id="contextName"></strong><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
+  <span class="crumb">›</span>
+  <div class="seg" id="lanes" role="group" aria-label="Modules"></div>
+  <span class="grow"></span>
+  <div class="search">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
+    <input id="q" type="search" placeholder="Find a post-it…" aria-label="Find a post-it" autocomplete="off" spellcheck="false">
+    <kbd>/</kbd>
+    <div id="results" class="card" role="listbox"></div>
+  </div>
+  <span class="sep"></span>
+  <button class="btn" id="storyBtn" data-tip="The same wall, told in sentences (T)"><svg viewBox="0 0 24 24"><path d="M5 6h14M5 12h14M5 18h9"/></svg>Read as text</button>
+  <button class="btn icon" id="themeBtn" data-tip="Lights on / lights off (D)" aria-label="Switch between light and dark"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5"/></svg></button>
+  <button class="btn icon" id="helpBtn" data-tip="Keyboard and mouse (?)" aria-label="Help"><svg viewBox="0 0 24 24"><path d="M9.5 9a2.6 2.6 0 1 1 3.6 2.4c-.8.4-1.1 1-1.1 1.9M12 17.2v.3"/><circle cx="12" cy="12" r="9.5"/></svg></button>
+</header>
+
+<div id="contextMenu" class="card menu" hidden></div>
+
+<aside id="legend" class="card" aria-label="How to read the wall">
+  <h2 data-tip="Time runs left to right. Post-its that touch are one step: who asks, the command, what it changes, what happened. Marker arrows are reactions. Kraft paper is another context's wall.">How to read the wall <button class="btn icon" id="legendFold" aria-label="Fold the legend" data-tip="Fold (L)" style="height:22px;width:22px"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button></h2>
+  <div class="grammar" id="kinds"></div>
+  <div class="grammar" style="margin-top:6px"><span class="grammar" id="who"></span>
+  <span class="row"><svg width="44" height="10"><path d="M2 5h34M31 1l6 4-6 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>always<svg width="44" height="10" style="margin-left:10px"><path d="M2 5h34" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="2 7"/><path d="M31 1l6 4-6 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>only sometimes</span></div>
+</aside>
+
+<aside id="dock" class="card" aria-label="Map and zoom">
+  <div id="mini" aria-hidden="true"></div>
+  <div class="zoom">
+    <button class="btn icon" id="zoomOut" aria-label="Zoom out" data-tip="Step back (−)"><svg viewBox="0 0 24 24"><path d="M6 12h12"/></svg></button>
+    <output id="zoomPct">100%</output>
+    <button class="btn icon" id="zoomIn" aria-label="Zoom in" data-tip="Step closer (+)"><svg viewBox="0 0 24 24"><path d="M6 12h12M12 6v12"/></svg></button>
+    <button class="btn" id="dense" aria-pressed="false" data-tip="Compact rows: what a use case asks becomes pink dots (C)">Compact</button>
+    <button class="btn" id="fit" data-tip="See the whole wall (F)">Whole wall</button>
+  </div>
+</aside>
+
+<aside id="inspector" class="card" aria-label="The selected post-it" hidden></aside>
+<section id="story" class="card" aria-label="The wall as text" hidden></section>
+<section id="help" class="card" role="dialog" aria-label="Keyboard and mouse" hidden>
+  <h2>Keyboard and mouse <button class="btn icon" data-close="help" aria-label="Close" style="height:22px;width:22px"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></h2>
+  <table>
+    <tr><td>Drag, or scroll</td><td>Walk along the wall</td></tr>
+    <tr><td><kbd>Ctrl</kbd> + scroll, pinch, <kbd>+</kbd> <kbd>−</kbd></td><td>Step closer or back</td></tr>
+    <tr><td><kbd>F</kbd> &nbsp; <kbd>1</kbd></td><td>Whole wall &nbsp;·&nbsp; real size</td></tr>
+    <tr><td><kbd>/</kbd></td><td>Find a post-it</td></tr>
+    <tr><td><kbd>Tab</kbd> then <kbd>←</kbd><kbd>↑</kbd><kbd>↓</kbd><kbd>→</kbd></td><td>Move from post-it to post-it</td></tr>
+    <tr><td><kbd>Enter</kbd></td><td>Pin the story of a post-it, open its card</td></tr>
+    <tr><td><kbd>J</kbd></td><td>Follow the post-it's jump pictogram</td></tr>
+    <tr><td><kbd>Alt</kbd> + <kbd>←</kbd></td><td>Back to where you were</td></tr>
+    <tr><td><kbd>T</kbd> &nbsp; <kbd>L</kbd> &nbsp; <kbd>D</kbd> &nbsp; <kbd>C</kbd></td><td>Text &nbsp;·&nbsp; legend &nbsp;·&nbsp; lights &nbsp;·&nbsp; compact rows</td></tr>
+    <tr><td><kbd>Esc</kbd></td><td>Let go</td></tr>
+  </table>
+</section>
+<div id="tip" role="tooltip"></div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* The real Booking model, and a small fake one (?model=fixture) for the cases Booking does not hold. */
+const MODELS = { booking: __MODEL__, fixture: __FIXTURE__ }
+const WHICH = new URLSearchParams(location.search).get('model') === 'fixture' ? 'fixture' : 'booking'
+const MODEL = MODELS[WHICH]
+/*
+ * What a read model offers: the links its resource carries to the commands (ADR-style hypermedia of the API).
+ * The generator does not produce this yet. It would, as `readModel → command` links of model.json, from
+ *   - the presenter of the read model's output port: each `$this->links->to('<route name>')`, certain; each
+ *     `$this->offered('<Intent>', $page, '<route name>')`, which returns null in some states, conditional;
+ *   - the controller whose `#[Route(name: '<route name>')]` it is, then the command its handler takes.
+ * For this mockup the Booking links below were read by hand from apps/api/src/Booking:
+ * BookingPageResourcePresenter (and its InactivePeriodLinksResource), PublicBookingPageResourcePresenter
+ * (it builds no link at all), and the ten controllers' route names.
+ */
+const use = (path) => String.raw`Prospecter\Core\Booking\Application` + '\\' + path.replaceAll('/', '\\')
+const MY_PAGE = 'readModel:' + use('BookingPage/ConsultMyBookingPage/ConsultMyBookingPage')
+const offer = (intent, via, route, certain, when = null) => ({ from: MY_PAGE, to: 'command:' + use(`BookingPage/${intent}/${intent}`), via, route, certain, when })
+const OFFERS = {
+  booking: [
+    offer('SetWeeklyWindows', 'setWindows', 'api_booking_page_set_windows', true),
+    offer('AddInactivePeriod', 'addInactivePeriod', 'api_booking_page_add_inactive_period', true),
+    offer('OfferChannels', 'offerChannels', 'api_booking_page_offer_channels', true),
+    offer('RemoveInactivePeriod', 'inactivePeriods[].remove', 'api_booking_page_remove_inactive_period', true),
+    offer('OpenBooking', 'open', 'api_booking_page_open', false, 'while the page is closed'),
+    offer('CloseBooking', 'close', 'api_booking_page_close', false, 'while the page is open'),
+    offer('ChangeBookingLink', 'changeLink', 'api_booking_page_change_link', false, 'once the page has a link'),
+  ],
+  fixture: [
+    { from: 'readModel:ConsultRequests', to: 'command:ApproveRequest', via: 'approve', route: 'api_request_approve', certain: true, when: null },
+    { from: 'readModel:ConsultRequests', to: 'command:WithdrawRequest', via: 'withdraw', route: 'api_request_withdraw', certain: false, when: null },
+  ],
+}[WHICH]
+/*
+ * When a conditional link happens. The model only holds `certain: false` today. The generator would add `when`:
+ *   - for an offer, the words the code already holds: the links resource says "`open` is offered while the page is
+ *     closed, `close` while it is open, and `changeLink` once it has a link" (BookingPageLinksResource and its
+ *     `#[OA\Property(description:)]`), which is what Domain/Rule/BookingPagePossibilities computes;
+ *   - for a reaction, the policy's own condition: ForgetAppointmentOfErasedExchangePolicy returns no command while
+ *     `$event->present`.
+ * Read by hand here. A link without it says "only in some states".
+ */
+const WHEN = {
+  ['policy:' + String.raw`Prospecter\Core\Booking\Application\Policy\ForgetAppointmentOfErasedExchangePolicy` + '>command:' + use('Appointment/ForgetAppointmentOfErasedExchange/ForgetAppointmentOfErasedExchange')]: 'when the exchange was erased',
+}
+const whenOf = (link) => link.when ?? WHEN[`${link.from}>${link.to}`] ?? null
+
+/* ════════════════ 1. From class names to sticky text ════════════════ */
+const CONTEXTS = ['Accounts', 'PersonalData', 'Prospecting', 'Reporting', 'Connectors', 'Campaigns', 'Booking']
+const ACTORS = { ROLE_USER: 'Member', mcp: "Member's AI", public: 'Anyone with the link' }
+const KINDS = [
+  ['actor', 'Actor'], ['command', 'Command'], ['aggregate', 'Aggregate'], ['event', 'Event'], ['policy', 'Policy'],
+  ['readModel', 'Read model'], ['externalSystem', 'External system'], ['hotspot', 'Hotspot'],
+]
+const KIND_NAME = Object.fromEntries(KINDS)
+const ACRONYMS = new Set(['AI', 'API', 'MCP', 'URL', 'ID', 'PDF', 'CSV', 'SIRET', 'SIREN', 'VAT'])
+
+function wordsOf(name) {
+  return name.replace(/([a-z0-9])([A-Z])/g, '$1 $2').replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2').split(/[\s_]+/).filter(Boolean)
+}
+function sentenceOf(name) {
+  const words = wordsOf(name).map((word) => (ACRONYMS.has(word.toUpperCase()) ? word.toUpperCase() : word.toLowerCase()))
+  if (words.length === 0) return name
+  if (!ACRONYMS.has(words[0])) words[0] = words[0][0].toUpperCase() + words[0].slice(1)
+  return words.join(' ')
+}
+function labelOf(sticky) {
+  switch (sticky.type) {
+    case 'actor': return ACTORS[sticky.name] ?? sentenceOf(sticky.name.replace(/^ROLE_/, '').toLowerCase())
+    case 'policy': return sentenceOf(sticky.name.replace(/(Policy|Handler)$/, ''))
+    case 'readModel': return sentenceOf(sticky.detail ?? sticky.name.replace(/^Consult/, ''))
+    default: return sentenceOf(sticky.name)
+  }
+}
+const isPublished = (sticky) => sticky.type === 'event' && /\\Contract\\Event\\/.test(sticky.class ?? '')
+function slugOf(sticky) {
+  const kind = isPublished(sticky) ? 'published' : sticky.type
+  return (sticky.context === MODEL.context ? '' : sticky.context + '/') + kind + ':' + sticky.name
+}
+const kebab = (name) => wordsOf(name).join('-').toLowerCase()
+const esc = (text) => String(text).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c])
+function h32(text) { let h = 2166136261; for (let i = 0; i < text.length; i++) { h ^= text.charCodeAt(i); h = Math.imul(h, 16777619) } return h >>> 0 }
+/** The same post-it leans the same way at each generation: its tilt comes from its name, not from chance. */
+const lean = (key, amplitude, salt = '') => ((h32(key + salt) % 2001) / 1000 - 1) * amplitude
+
+/* ════════════════ 2. From the model to the wall: lanes, steps, post-its ════════════════ */
+const ctx = MODEL.context
+const byId = new Map(MODEL.stickies.map((sticky) => [sticky.id, sticky]))
+const out = (id, type) => MODEL.links.filter((link) => link.from === id && byId.get(link.to).type === type)
+const inn = (id, type) => MODEL.links.filter((link) => link.to === id && byId.get(link.from).type === type)
+
+const S = 132, ACTOR = 70, PORT = { w: 160, h: 47 }, HOT = 104, ARROW = 66, GAP = 92, MARGIN = 250, TOP = 112, BADGE = 32, VIEW = MARGIN + ACTOR - 1, HEAD = VIEW + S + 86
+const nodes = [], edges = [], strips = [], tiles = [], pending = [], brackets = []
+/** The actors that call a use case through a tool, without looking at a screen: a badge on each use case. */
+const TOOLS = new Set(['mcp'])
+const firstOf = new Map()
+
+function tile(kind, lane, order) { const t = { kind, lane, order, nodes: [], strips: [], deps: [], x: 0, w: 0 }; tiles.push(t); return t }
+function put(t, sticky, kind, x, y, extra = {}) {
+  const size = extra.badge ? { w: BADGE, h: BADGE } : kind === 'actor' ? { w: ACTOR, h: ACTOR } : extra.port ? PORT : kind === 'hotspot' ? { w: HOT, h: HOT } : { w: S, h: S }
+  const key = `${t.lane}#${tiles.indexOf(t)}|${sticky ? sticky.id : 'hotspot'}|${extra.via ?? ''}|${t.nodes.length}`
+  const foreign = sticky !== null && sticky.context !== ctx
+  const node = { key, t, sticky, kind, x, y, ...size, foreign, label: sticky ? labelOf(sticky) : extra.label, jumps: [], z: 2, ...extra }
+  node.r = extra.badge ? lean(key, 8) : lean(sticky ? sticky.id + (extra.via ?? '') + t.lane : key, kind === 'actor' ? 4 : kind === 'hotspot' ? 2 : 2.3) + (kind === 'hotspot' ? -6 : 0)
+  t.nodes.push(node); nodes.push(node)
+  if (sticky && !firstOf.has(sticky.id)) firstOf.set(sticky.id, node)
+  if (foreign && !extra.port) {
+    t.strips.push({ node, x: x - 11, y: y - 27, w: S + 22, h: S + 44, context: sticky.context, r: lean(sticky.id, 1.6, 'strip') })
+    node.jumps.push({ away: sticky.context, slug: slugOf(sticky).split('/')[1], tip: `On ${sticky.context}'s wall — go to “${node.label}” there` })
+  }
+  return node
+}
+function link(from, to, certain, drawn, when = null) {
+  edges.push({ from, to, certain, drawn, when: certain ? null : when ?? (from.sticky && to.sticky ? whenOf({ from: from.sticky.id, to: to.sticky.id }) : null) })
+}
+
+function askersOf(t, useCase, node) {
+  t.main = node
+  inn(useCase.id, 'actor').filter((asked) => TOOLS.has(byId.get(asked.from).name)).forEach((asked, index) => {
+    const badge = put(t, byId.get(asked.from), 'actor', node.x - 13 + index * 26, node.y - 14, { z: 5, badge: true })
+    link(badge, node, asked.certain, false)
+  })
+}
+function portsOf(t, useCase, node) {
+  out(useCase.id, 'externalSystem').forEach((asked, index) => {
+    const sticky = byId.get(asked.to)
+    const port = put(t, sticky, 'externalSystem', node.x + 6 + (index % 2) * 7, node.y + S - 3 + index * (PORT.h + 2), { port: true, z: 1, foreign: false, owner: node, slot: index })
+    port.sources = sticky.label.split(/,\s*/)
+    port.sources.filter((source) => CONTEXTS.includes(source)).forEach((source) =>
+      port.jumps.push({ away: source, slug: '', tip: `${source} answers “${port.label}” — go to its wall` }))
+    link(node, port, asked.certain, false)
+  })
+}
+/** Before a policy: the events of other contexts it hears, on their paper. The events of this wall are linked later. */
+function heardBy(t, policy, x) {
+  for (const heard of inn(policy.id, 'event')) {
+    const event = byId.get(heard.from)
+    if (event.context === ctx && MODEL.links.some((made) => made.to === event.id)) continue
+    const node = put(t, event, 'event', x, 0)
+    t.hears = (t.hears ?? []).concat({ node, policy, certain: heard.certain })
+    x += S + ARROW
+  }
+  return x
+}
+function wire(t, policy, node) {
+  for (const { node: event, certain } of (t.hears ?? []).filter((heard) => heard.policy === policy)) link(event, node, certain, true)
+  for (const heard of inn(policy.id, 'event')) {
+    const event = byId.get(heard.from)
+    if (event.context === ctx && MODEL.links.some((made) => made.to === event.id)) {
+      pending.push({ from: event.id, to: node, certain: heard.certain })
+      t.deps.push(event.id)
+    }
+  }
+}
+/** After an event: the policies of other contexts that hear it, on their paper. Returns the right edge. */
+function hearersOf(t, eventNode) {
+  let right = eventNode.x + S
+  out(eventNode.sticky.id, 'policy').filter((heard) => byId.get(heard.to).context !== ctx).forEach((heard, index) => {
+    const policy = put(t, byId.get(heard.to), 'policy', eventNode.x + S + ARROW + 12, eventNode.y + index * (S + 56))
+    policy.when = eventNode.label
+    link(eventNode, policy, heard.certain, true)
+    right = policy.x + S + 12
+  })
+  return right
+}
+const sendsOnly = (policy, command) =>
+  policy.context === ctx && out(policy.id, 'command').length === 1 && out(policy.id, 'event').length === 0 &&
+  (policy.module === null || policy.module === command.module)
+
+function commandStep(command, lane) {
+  const triggers = inn(command.id, 'policy').filter((sent) => sendsOnly(byId.get(sent.from), command))
+  const t = tile('command', lane, triggers.length ? 2 : 1)
+  let x = 0
+  const senders = triggers.map((sent) => {
+    const policy = byId.get(sent.from)
+    x = heardBy(t, policy, x)
+    const node = put(t, policy, 'policy', x, 0)
+    node.when = inn(policy.id, 'event').map((heard) => labelOf(byId.get(heard.from))).join(', ')
+    wire(t, policy, node)
+    x += S + ARROW
+    return { node, certain: sent.certain }
+  })
+  const node = put(t, command, 'command', x, 0, { z: 3 })
+  senders.forEach((sender) => link(sender.node, node, sender.certain, true))
+  askersOf(t, command, node); portsOf(t, command, node)
+  let right = x + S, row = 0
+  for (const change of out(command.id, 'aggregate')) {
+    const aggregate = put(t, byId.get(change.to), 'aggregate', x + S - 15, -13 + row * (S + 14), { via: change.via, z: 1 })
+    link(node, aggregate, change.certain, false)
+    right = Math.max(right, aggregate.x + S)
+    out(change.to, 'event').filter((recorded) => recorded.via === change.via).forEach((recorded) => {
+      const event = put(t, byId.get(recorded.to), 'event', x + 2 * S - 32, 7 + row * 100, { z: 3 })
+      link(aggregate, event, recorded.certain, false)
+      right = Math.max(right, hearersOf(t, event)); row++
+    })
+  }
+  out(command.id, 'event').forEach((published) => {
+    const event = put(t, byId.get(published.to), 'event', x + S - 3, 7 + row * 100, { z: 3 })
+    link(node, event, published.certain, false)
+    right = Math.max(right, hearersOf(t, event)); row++
+  })
+  if (row === 0) {
+    const hotspot = put(t, null, 'hotspot', x + S + 13, 22, { label: 'No event recorded', z: 4,
+      why: 'This command changes no aggregate that records an event: nothing on the wall says what happened. Either an event is missing, or the generator cannot see it.' })
+    link(node, hotspot, true, false)
+    right = hotspot.x + HOT
+  }
+  t.w = right
+  return t
+}
+function policyStep(policy, lane) {
+  const t = tile('policy', lane, 3)
+  const x = heardBy(t, policy, 0)
+  const node = put(t, policy, 'policy', x, 0, { z: 3 })
+  t.main = node
+  node.when = inn(policy.id, 'event').map((heard) => labelOf(byId.get(heard.from))).join(', ')
+  wire(t, policy, node)
+  let right = x + S
+  out(policy.id, 'event').forEach((published, row) => {
+    const event = put(t, byId.get(published.to), 'event', x + S - 3, 9 + row * 100, { z: 3 })
+    link(node, event, published.certain, false)
+    right = Math.max(right, hearersOf(t, event))
+  })
+  out(policy.id, 'command').forEach((sent) => pending.push({ fromNode: node, toId: sent.to, certain: sent.certain }))
+  t.w = right
+  return t
+}
+function readStep(readModel, lane) {
+  const asked = inn(readModel.id, 'actor').length > 0
+  const t = tile('read', lane, asked ? 0 : 4)
+  const node = put(t, readModel, 'readModel', 0, 0, { z: 3 })
+  t.main = node
+  askersOf(t, readModel, node); portsOf(t, readModel, node)
+  t.w = S
+  if (!asked) {
+    const hotspot = put(t, null, 'hotspot', S + 13, 22, { label: 'Who reads this?', z: 4,
+      why: 'A service published to the other contexts. The model does not hold who calls it yet, so no actor and no context stands in front of it.' })
+    link(node, hotspot, true, false)
+    t.w = hotspot.x + HOT
+  }
+  return t
+}
+
+const mine = (type) => MODEL.stickies.filter((sticky) => sticky.type === type && sticky.context === ctx)
+const ROOT = 'Application'
+for (const readModel of mine('readModel')) readStep(readModel, readModel.module ?? ROOT)
+for (const command of mine('command')) commandStep(command, command.module ?? ROOT)
+for (const policy of mine('policy')) {
+  if (nodes.some((node) => node.sticky === policy)) continue
+  const sent = out(policy.id, 'command')[0]
+  policyStep(policy, policy.module ?? (sent ? byId.get(sent.to).module : null) ?? ROOT)
+}
+for (const wait of pending) {
+  const from = wait.fromNode ?? firstOf.get(wait.from), to = wait.to ?? firstOf.get(wait.toId)
+  if (!from || !to) continue
+  link(from, to, wait.certain, true)
+  from.jumps.push({ to, tip: `${to.kind === 'policy' ? 'Heard by' : 'Sends'} “${to.label}” · ${to.t.lane}` })
+  to.jumps.push({ to: from, back: true, tip: `${from.kind === 'event' ? 'Hears' : 'Sent by'} “${from.label}” · ${from.t.lane}` })
+}
+
+/* The lanes: a module that hears another one sits under it. The steps: what waits for an event stands right of it. */
+const laneNames = [...new Set([...MODEL.modules, ...tiles.map((t) => t.lane)])].filter((name) => tiles.some((t) => t.lane === name))
+const rank = Object.fromEntries(laneNames.map((name) => [name, 0]))
+for (let pass = 0; pass < laneNames.length; pass++)
+  for (const edge of edges.filter((e) => e.drawn && e.from.t.lane !== e.to.t.lane))
+    rank[edge.to.t.lane] = Math.min(laneNames.length, Math.max(rank[edge.to.t.lane], rank[edge.from.t.lane] + 1))
+laneNames.sort((a, b) => rank[a] - rank[b] || laneNames.indexOf(a) - laneNames.indexOf(b))
+const lanes = laneNames.map((name) => ({ name, tiles: tiles.filter((t) => t.lane === name) }))
+/**
+ * A person looks at a read model, then decides: in a lane, each human actor stands once, by what it reads there,
+ * at the head of the commands it sends. Without a read model in the lane, it stands alone and the place stays empty.
+ */
+for (const lane of lanes) {
+  lane.groups = []
+  const humansOf = (t) => (t.main?.sticky ? inn(t.main.sticky.id, 'actor').map((asked) => byId.get(asked.from)).filter((actor) => !TOOLS.has(actor.name)) : [])
+  const taken = new Set()
+  let shift = 0
+  for (const actor of MODEL.stickies.filter((sticky) => sticky.type === 'actor' && !TOOLS.has(sticky.name))) {
+    const sent = lane.tiles.filter((t) => t.deps.length === 0 && humansOf(t).includes(actor))
+    if (sent.length === 0) continue
+    const mine = sent.filter((t) => !taken.has(t))
+    const views = sent.filter((t) => t.kind === 'read'), sends = sent.filter((t) => t.kind !== 'read')
+    const reads = mine.filter((t) => t.kind === 'read'), commands = mine.filter((t) => t.kind !== 'read')
+    mine.forEach((t) => taken.add(t))
+    let solo = null, node
+    if (reads[0]) {
+      node = put(reads[0], actor, 'actor', -(ACTOR - 1), 30, { z: 4 })
+    } else {
+      const host = commands[0] ?? (solo = tile('actor', lane.name, 1))
+      if (solo) { lane.tiles.push(solo); solo.w = ACTOR }
+      node = put(host, actor, 'actor', solo ? 0 : host.main.x - (HEAD - MARGIN), 30, { z: 4 })
+    }
+    views.forEach((t) => link(node, t.main, true, false))
+    /* What a view the actor reads offers hangs from that view. */
+    for (const view of reads) {
+      const offered = OFFERS.filter((o) => o.from === view.main.sticky.id).map((o) => ({ o, t: sends.find((t) => t.main.sticky.id === o.to) })).filter((item) => item.t)
+      if (offered.length === 0) continue
+      offered.forEach(({ o, t }) => { link(view.main, t.main, o.certain, false, o.when); (t.offers ??= []).push({ view: view.main, ...o }); (t.senders ??= new Set()).add(node) })
+      brackets.push({ from: view.main, side: 'right', items: offered.map(({ o, t }) => ({ to: t.main, command: t.main, certain: o.certain, tip: o.certain ? null : `Offered only ${o.when ?? 'in some states'}` })), lane, shift: shift++ })
+    }
+    /* What no view of the actor offers hangs from the actor itself. It is a gap only when the actor does read a view here. */
+    const direct = sends.filter((t) => !OFFERS.some((o) => o.to === t.main.sticky.id && views.some((view) => view.main.sticky.id === o.from)))
+    for (const t of direct) {
+      link(node, t.main, true, false); (t.senders ??= new Set()).add(node)
+      if (views.length && !t.gap && commands.includes(t)) {
+        t.shift = HOT + 24
+        t.gap = put(t, null, 'hotspot', t.main.x - t.shift, 14, { label: 'Offered where?', z: 4,
+          why: `${node.label} reads ${views.map((view) => '“' + view.main.label + '”').join(', ')} in this module, and that resource carries no link to this command. The front must know its address by itself. Either a link is missing in the API, or the command is reached another way.` })
+        link(t.main, t.gap, true, false)
+      }
+    }
+    if (direct.length) {
+      if (reads[0]) reads[0].headroom = 30
+      brackets.push({ from: node, side: reads[0] ? 'over' : 'right', beside: reads[0]?.main, items: direct.map((t) => ({ to: t.gap ?? t.main, command: t.main, certain: true })), lane, shift: shift++ })
+    }
+    lane.groups.push({ actor: node, reads, commands, solo })
+  }
+}
+for (const node of nodes) {
+  node.full = { x: node.x, y: node.y, w: node.w, h: node.h }
+  node.tight = node.port ? { x: node.owner.x + 9 + node.slot * 29, y: node.owner.y + S - 5, w: 25, h: 25 } : node.full
+}
+for (const node of nodes) node.w0 = node.w
+for (const t of tiles) {
+  t.feeds = edges.some((edge) => edge.drawn && edge.from.t === t && edge.to.t.lane !== t.lane)
+  t.aggregate = t.nodes.find((node) => node.kind === 'aggregate')?.label ?? ''
+  t.name = t.main?.label ?? t.nodes.find((node) => ['command', 'readModel', 'policy'].includes(node.kind) && !node.foreign)?.label ?? ''
+}
+/**
+ * The horizontal axis is time, so only a cause moves a step to the right. Independent steps stack in rows:
+ * the steps another lane starts on top, then what an actor reads, then the commands by aggregate and by name,
+ * then the steps a reaction of this wall starts, then the rows a lower lane hears, so that their arrow crosses no row.
+ */
+const folded = new Set()
+let dense = new URLSearchParams(location.hash.slice(1)).get('rows') === 'compact'
+let WALL = { w: 0, h: 0 }
+const byRule = (a, b) => (a.feeds - b.feeds) || (a.order - b.order) || a.aggregate.localeCompare(b.aggregate) || a.name.localeCompare(b.name)
+function place() {
+  let y = TOP
+  for (const node of nodes) { Object.assign(node, dense ? node.tight : node.full); node.dot = dense && node.port === true }
+  for (const t of tiles) {
+    t.top = Math.min(...t.nodes.map((node) => node.y), ...t.strips.map((strip) => strip.y)) - (t.headroom ?? 0)
+    t.bottom = Math.max(...t.nodes.map((node) => node.y + node.h), ...t.strips.map((strip) => strip.y + strip.h))
+  }
+  for (const lane of lanes) {
+    const rows = []
+    const makers = (t) => t.deps.map((id) => firstOf.get(id)).filter(Boolean)
+    const far = lane.tiles.filter((t) => makers(t).length && makers(t).every((maker) => maker.t.lane !== lane.name))
+    const near = lane.tiles.filter((t) => makers(t).length && !far.includes(t))
+    const grouped = new Set(lane.groups.flatMap((group) => [...group.reads, ...group.commands]))
+    const free = lane.tiles.filter((t) => !makers(t).length && !grouped.has(t)).sort(byRule)
+    const stack = () => {
+      for (const group of lane.groups) {
+        const commands = [...group.commands].sort(byRule)
+        if (group.solo) { group.solo.x = MARGIN; rows.push({ tiles: [group.solo], right: MARGIN + group.solo.w }) }
+        for (let index = 0; index < Math.max(group.reads.length, commands.length); index++) {
+          const row = { tiles: [group.reads[index], commands[index]].filter(Boolean), right: 0 }
+          if (group.reads[index]) group.reads[index].x = VIEW
+          if (commands[index]) commands[index].x = HEAD + (commands[index].shift ?? 0) - commands[index].main.x
+          row.right = Math.max(...row.tiles.map((t) => t.x + t.w))
+          rows.push(row)
+        }
+      }
+    }
+    for (const t of [...far, null, ...free, ...near]) {
+      if (t === null) { stack(); continue }
+      const policyAt = t.nodes.find((node) => node.kind === 'policy')?.x ?? 0
+      t.x = Math.max(MARGIN, ...makers(t).map((maker) => maker.t.x + maker.x + S + ARROW + 30 - policyAt))
+      let row = null
+      if (near.includes(t)) {
+        row = rows.find((candidate) => makers(t).some((maker) => candidate.tiles.includes(maker.t))) ?? null
+        if (row) t.x = Math.max(t.x, row.right + GAP)
+      } else if (far.includes(t)) row = rows.find((candidate) => candidate.right + GAP <= t.x) ?? null
+      if (!row) rows.push((row = { tiles: [], right: 0 }))
+      row.tiles.push(t); row.right = t.x + t.w
+    }
+    lane.top = y
+    let top = y + 26
+    for (const row of rows) {
+      row.y = top - Math.min(...row.tiles.map((t) => t.top))
+      top = row.y + Math.max(...row.tiles.map((t) => t.bottom)) + (dense ? 20 : 34)
+      for (const t of row.tiles) {
+        for (const node of t.nodes) { node.mini = false; node.X = t.x + node.x; node.Y = row.y + node.y + lean(node.key, 3.5, 'y'); node.lane = lane }
+        for (const strip of t.strips) { strip.X = t.x + strip.x; strip.Y = row.y + strip.y; strip.lane = lane }
+      }
+    }
+    lane.height = Math.max(126, top - y + 8)
+    lane.rows = rows.length; lane.useCases = lane.tiles.filter((t) => t.main).length
+    if (folded.has(lane.name)) {
+      let at = MARGIN, line = 0
+      lane.labels = []
+      for (const t of rows.flatMap((row) => row.tiles)) {
+        const name = t.name || t.nodes[0].label, width = Math.max(t.nodes.length * 20, name.length * 7.4) + 22
+        if (at + width > MARGIN + 1340) { at = MARGIN; line++ }
+        t.nodes.forEach((node, index) => { node.mini = true; node.w = node.h = 17; node.X = at + index * 20; node.Y = y + 30 + line * 58 })
+        lane.labels.push({ x: at, y: y + 51 + line * 58, text: name })
+        at += width
+      }
+      lane.height = Math.max(96, 30 + (line + 1) * 58 + 8)
+    }
+    y += lane.height
+  }
+  strips.length = 0
+  strips.push(...tiles.flatMap((t) => t.strips))
+  WALL = { w: Math.max(1500, ...nodes.map((node) => node.X + node.w), ...strips.map((strip) => strip.X + strip.w)) + 150, h: y + 30 }
+}
+place()
+
+/* ════════════════ 3. Drawing ════════════════ */
+const $ = (id) => document.getElementById(id)
+const world = $('world'), roll = $('roll'), stage = $('stage')
+const FIGURES = {
+  default: '<svg viewBox="0 0 30 30"><circle cx="15" cy="6" r="4"/><path d="M15 10v10M7 14.5h16M15 20l-6 8M15 20l6 8"/></svg>',
+  mcp: '<svg viewBox="0 0 30 30"><rect x="10" y="3" width="10" height="8" rx="2"/><path d="M15 3V.8M13 7h.1M17 7h.1M15 11v9M7 15h16M15 20l-6 8M15 20l6 8"/></svg>',
+  public: '<svg viewBox="0 0 30 30"><circle cx="11" cy="6" r="3.6"/><path d="M11 9.6v10M4.5 14h13M11 19.6l-5 8M11 19.6l5 8"/><circle cx="22" cy="9" r="2.8" opacity=".55"/><path d="M22 12v7.5M18.5 15h8M22 19.5l-3.5 7M22 19.5l3.5 7" opacity=".55"/></svg>',
+}
+const ICON = {
+  on: '<svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></svg>',
+  back: '<svg viewBox="0 0 24 24"><path d="M19 12H6M11 6l-6 6 6 6"/></svg>',
+  away: '<svg viewBox="0 0 24 24"><path d="M8 16L18 6M10 6h8v8"/></svg>',
+}
+function fontOf(node) {
+  const length = node.label.length + (node.when ? 8 : 0)
+  return length <= 13 ? 21 : length <= 22 ? 18.5 : length <= 32 ? 16.5 : 15
+}
+function innerOf(node) {
+  const sticky = node.sticky
+  if (node.badge) return FIGURES[sticky.name] ?? FIGURES.default
+  if (node.kind === 'actor') return (FIGURES[sticky.name] ?? FIGURES.default) + `<span class="txt">${esc(node.label)}</span>`
+  if (node.port) return `<span class="txt">${esc(node.label)}</span><span class="from">asks ${esc(node.sources.join(' · '))}</span>`
+  if (node.kind === 'hotspot') return `<span class="bang">?!</span><span class="txt">${esc(node.label)}</span>`
+  const text = `<span class="txt" style="font-size:${fontOf(node)}px">${esc(node.label)}</span>`
+  if (node.kind === 'aggregate') return text + `<span class="via">${esc(node.via).replace(/([a-z])([A-Z])/g, '$1<wbr>$2')}()</span>`
+  if (node.kind === 'policy') return (node.when ? `<span class="when">whenever ${esc(node.when.toLowerCase())}</span>` : '') + text + '<span class="cap">policy</span>'
+  if (node.kind === 'event') return text + (isPublished(sticky) ? '<span class="stamp">published</span>' : '')
+  return text
+}
+function ariaOf(node) {
+  const before = edges.filter((edge) => edge.to === node).map((edge) => edge.from.label)
+  const after = edges.filter((edge) => edge.from === node).map((edge) => edge.to.label)
+  return [`${KIND_NAME[node.kind]}: ${node.label}`, node.foreign ? `on ${node.sticky.context}'s wall` : `module ${node.t.lane}`,
+    before.length ? `after ${before.join(', ')}` : '', after.length ? `then ${after.join(', ')}` : ''].filter(Boolean).join('. ')
+}
+function tipOf(node) {
+  const text = node.badge ? `${node.label} can call this through its tool, without a screen` : node.dot ? `${node.label} — asks ${node.sources.join(', ')}` : node.mini ? `${KIND_NAME[node.kind]}: ${node.label}` : ''
+  return text ? ` data-tip="${esc(text)}"` : ''
+}
+function jumpsOf(node) {
+  return node.jumps.map((jump, index) => {
+    const side = jump.back ? `left:${-9 + index * 26}px` : `right:${node.port ? 4 + index * 21 : -9 + index * 25}px`
+    return `<button class="jump${jump.away ? ' away' : ''}" style="${side}" data-jump="${index}" data-tip="${esc(jump.tip)}" aria-label="${esc(jump.tip)}" tabindex="-1">${jump.away ? ICON.away : jump.back ? ICON.back : ICON.on}</button>`
+  }).join('')
+}
+function wobbly(x1, y1, x2, y2, seed) {
+  const steps = Math.max(2, Math.round(Math.hypot(x2 - x1, y2 - y1) / 260))
+  let d = `M${x1},${y1}`
+  for (let i = 1; i <= steps; i++) {
+    const t = i / steps, x = x1 + (x2 - x1) * t, yy = y1 + (y2 - y1) * t
+    d += ` Q${(x - (x2 - x1) / steps / 2).toFixed(1)},${(yy + lean(seed + i, 3.2)).toFixed(1)} ${x.toFixed(1)},${(yy + lean(seed + i, 1.4, 'e')).toFixed(1)}`
+  }
+  return d
+}
+let hits = []
+const hitOf = (d, line, tip) => `<path class="hit" d="${d}" data-line="${esc(line)}" tabindex="0" role="img" aria-label="${esc(tip)}" data-tip="${esc(tip)}"/>`
+function arrowOf(edge, index) {
+  const a = edge.from, b = edge.to
+  const x1 = a.X + a.w + 3, y1 = a.Y + a.h / 2 + lean(a.key, 5, 'out'), x2 = b.X - 9, y2 = b.Y + b.h / 2 + lean(b.key, 5, 'in')
+  const reach = Math.max(34, Math.min(180, Math.abs(x2 - x1) * 0.5)), bend = lean(a.key + b.key, 9)
+  const c1 = [x1 + reach, y1 + bend], c2 = [x2 - reach, y2 - bend]
+  const angle = Math.atan2(y2 - c2[1], x2 - c2[0])
+  const barb = (turn) => `M${x2},${y2} L${(x2 - 13 * Math.cos(angle + turn)).toFixed(1)},${(y2 - 13 * Math.sin(angle + turn)).toFixed(1)}`
+  const cls = `flow${edge.certain ? '' : ' uncertain'}`
+  const curve = `M${x1},${y1} C${c1[0].toFixed(1)},${c1[1].toFixed(1)} ${c2[0].toFixed(1)},${c2[1].toFixed(1)} ${x2},${y2}`
+  if (!edge.certain) hits.push(hitOf(curve, `[data-edge="${index}"] path`, `Maybe: only ${edge.when ?? 'in some states'}`))
+  const maybe = edge.certain ? '' : `<text class="maybe" x="${(x1 + x2) / 2}" y="${(y1 + y2) / 2 - 9}" text-anchor="middle" transform="rotate(-4 ${(x1 + x2) / 2} ${(y1 + y2) / 2})">maybe</text>`
+  return `<g data-edge="${index}"><path class="${cls}" d="M${x1},${y1} C${c1[0].toFixed(1)},${c1[1].toFixed(1)} ${c2[0].toFixed(1)},${c2[1].toFixed(1)} ${x2},${y2}"/><path class="flow head" d="${barb(0.48)} ${barb(-0.48)}"/>${maybe}</g>`
+}
+/** From an actor to the commands it sends: one marker line that branches, as a facilitator draws it. */
+function bracketOf(bracket, index) {
+  if (folded.has(bracket.lane.name) || bracket.items.length === 0) return ''
+  const from = bracket.from, spine = HEAD - 50 - bracket.shift * 11, seed = from.key + bracket.shift
+  const ys = bracket.items.map((item) => item.to.Y + item.to.h / 2 + lean(item.to.key + seed, 8, 'in'))
+  let lead, y0
+  if (bracket.side === 'over') {
+    const x = from.X + from.w / 2
+    y0 = Math.min(from.Y, bracket.beside.Y) - 22
+    lead = `${wobbly(x, from.Y - 4, x, y0, seed + 'up')} ${wobbly(x, y0, spine, y0, seed)}`
+  } else {
+    y0 = from.Y + from.h / 2
+    lead = wobbly(from.X + from.w + 4, y0, spine, y0, seed)
+  }
+  const ticks = bracket.items.map((item, at) => {
+    const x = item.to.X - 9, yy = ys[at]
+    if (item.tip) hits.push(hitOf(`M${spine},${yy} L${x},${yy}`, `[data-bracket="${index}"] [data-item="${at}"]`, item.tip))
+    return `<path class="flow${item.certain ? '' : ' uncertain'}" data-item="${at}" d="${wobbly(spine, yy, x, yy, item.to.key)}"/><path class="flow head" data-item="${at}" d="M${x},${yy} l-9,-6 M${x},${yy} l-9,6"/>`
+  }).join('')
+  return `<g data-bracket="${index}"><path class="flow" d="${lead} ${wobbly(spine, Math.min(y0, ...ys), spine, Math.max(y0, ...ys), seed + 's')}"/>${ticks}</g>`
+}
+function draw() {
+  hits = []
+  roll.style.width = WALL.w + 'px'; roll.style.height = WALL.h + 'px'
+  const rules = lanes.slice(1).map((lane) => `<path class="rule" d="${wobbly(26, lane.top, WALL.w - 26, lane.top, lane.name)}"/>`).join('')
+  const time = `<path class="time" d="${wobbly(700, 62, WALL.w - 70, 62, 'time')} M${WALL.w - 70},62 l-17,-10 M${WALL.w - 70},62 l-17,10"/><text x="640" y="69">time</text>`
+  const tapes = lanes.map((lane, index) =>
+    `<button class="lane-tape" style="top:${lane.top + 22}px" data-lane="${esc(lane.name)}" data-tip="Step up to the ${esc(lane.name)} module">${esc(sentenceOf(lane.name))}</button>` +
+    `<button class="lane-fold" style="top:${lane.top + 74}px" data-fold="${esc(lane.name)}" aria-expanded="${!folded.has(lane.name)}" data-tip="${folded.has(lane.name) ? 'Unfold this lane' : 'Fold this lane to a row of dots'}" aria-label="${folded.has(lane.name) ? 'Unfold' : 'Fold'} the ${esc(lane.name)} lane"><svg viewBox="0 0 24 24"><path d="${folded.has(lane.name) ? 'M9 6l6 6-6 6' : 'M6 9l6 6 6-6'}"/></svg></button>` +
+    `<span class="lane-count" style="top:${lane.top + 76}px">${lane.useCases} use case${lane.useCases > 1 ? 's' : ''}</span>` +
+    (folded.has(lane.name) ? lane.labels.map((label) => `<span class="fold-label" style="left:${label.x}px;top:${label.y}px">${esc(label.text)}</span>`).join('') : '')).join('')
+  const kraft = strips.map((strip, index) => folded.has(strip.lane.name) ? '' : `<div class="strip" data-strip="${index}" style="left:${strip.X}px;top:${strip.Y}px;width:${strip.w}px;height:${strip.h}px;--r:${strip.r.toFixed(2)}deg"><b>${esc(sentenceOf(strip.context))}</b></div>`).join('')
+  const arrows = edges.map((edge, index) => (edge.drawn ? arrowOf(edge, index) : '')).join('') + brackets.map(bracketOf).join('')
+  const postIts = nodes.map((node, index) =>
+    `<div class="sticky k-${node.kind}${node.port ? ' port' : ''}${node.mini ? ' mini' : ''}${node.badge ? ' badge' : ''}${node.dot ? ' dot' : ''}" data-node="${index}"${tipOf(node)} role="button" tabindex="${index === 0 ? 0 : -1}" aria-label="${esc(ariaOf(node))}" style="left:${node.X.toFixed(1)}px;top:${node.Y.toFixed(1)}px;width:${node.w}px;height:${node.h}px;--r:${node.r.toFixed(2)}deg;z-index:${node.z}"><div class="paper">${innerOf(node)}</div>${jumpsOf(node)}</div>`).join('')
+  roll.innerHTML =
+    `<span class="corner-tape" style="left:-34px;top:-12px;transform:rotate(-38deg)"></span><span class="corner-tape" style="right:-34px;top:-12px;transform:rotate(38deg)"></span>` +
+    `<div class="wall-title">${esc(sentenceOf(ctx))}<small>event storming, read from the code</small></div>` +
+    `<svg class="ink" width="${WALL.w}" height="${WALL.h}">${rules}${time}</svg>${kraft}<svg class="ink" id="arrows" width="${WALL.w}" height="${WALL.h}">${arrows}</svg>${postIts}${tapes}<svg class="ink hits" width="${WALL.w}" height="${WALL.h}">${hits.join('')}</svg>`
+  nodes.forEach((node, index) => { node.el = roll.querySelector(`[data-node="${index}"]`) })
+  strips.forEach((strip, index) => { strip.el = roll.querySelector(`[data-strip="${index}"]`) })
+  edges.forEach((edge, index) => { edge.el = roll.querySelector(`[data-edge="${index}"]`) })
+  brackets.forEach((bracket, index) => { bracket.el = roll.querySelector(`[data-bracket="${index}"]`) })
+}
+draw()
+
+/* ════════════════ 4. The camera: walking along the wall ════════════════ */
+const camera = { x: 0, y: 0, k: 1 }
+let flight = 0
+const viewport = () => ({ w: stage.clientWidth, h: stage.clientHeight, top: $('bar').getBoundingClientRect().bottom + 10 })
+function apply() {
+  world.style.transform = `translate(${camera.x.toFixed(1)}px, ${camera.y.toFixed(1)}px) scale(${camera.k.toFixed(4)})`
+  world.style.setProperty('--inv', (1 / camera.k).toFixed(3))
+  world.dataset.zoom = camera.k < 0.46 ? 'far' : 'near'
+  $('zoomPct').textContent = Math.round(camera.k * 100) + '%'
+  drawView()
+}
+function fly(target, instant) {
+  cancelAnimationFrame(flight)
+  const from = { ...camera }, started = performance.now()
+  const still = instant || matchMedia('(prefers-reduced-motion: reduce)').matches
+  const span = still ? 0 : 420
+  const step = (now) => {
+    const t = span === 0 ? 1 : Math.min(1, (now - started) / span), e = 1 - Math.pow(1 - t, 3)
+    camera.k = from.k + (target.k - from.k) * e; camera.x = from.x + (target.x - from.x) * e; camera.y = from.y + (target.y - from.y) * e
+    apply()
+    if (t < 1) flight = requestAnimationFrame(step)
+  }
+  step(started)
+}
+function frame(x, y, w, h, pad = 40, most = 1.15) {
+  const view = viewport(), k = Math.min(most, (view.w - 2 * pad) / w, (view.h - view.top - 2 * pad) / h)
+  return { k, x: (view.w - w * k) / 2 - x * k, y: view.top + (view.h - view.top - h * k) / 2 - y * k }
+}
+const wholeWall = () => frame(0, 0, WALL.w, WALL.h, 30, 1)
+function firstLook() {
+  const view = viewport(), k = Math.max(0.55, Math.min(1, (view.w - 48) / WALL.w))
+  return { k, x: Math.max(24, (view.w - WALL.w * k) / 2), y: view.top + 12 }
+}
+function laneFrame(lane) {
+  const view = viewport(), k = Math.max(0.55, Math.min(1.05, (view.w - 68) / WALL.w)), room = view.h - view.top
+  return { k, x: Math.max(24, (view.w - WALL.w * k) / 2), y: view.top + Math.max(14, (room - lane.height * k) / 2) - lane.top * k }
+}
+function centreOn(node, k = Math.max(camera.k, 0.95)) {
+  const view = viewport(), side = $('inspector').hidden ? 0 : 340
+  return { k, x: (view.w - side) / 2 - (node.X + node.w / 2) * k, y: view.top + (view.h - view.top) / 2 - (node.Y + node.h / 2) * k }
+}
+function seen(node) {
+  const view = viewport(), x = node.X * camera.k + camera.x, yy = node.Y * camera.k + camera.y
+  return x > 20 && yy > view.top && x + node.w * camera.k < view.w - 20 && yy + node.h * camera.k < view.h - 20
+}
+function zoomAt(factor, px, py) {
+  const k = Math.max(0.12, Math.min(2.5, camera.k * factor))
+  fly({ k, x: px - ((px - camera.x) / camera.k) * k, y: py - ((py - camera.y) / camera.k) * k }, true)
+}
+stage.addEventListener('wheel', (event) => {
+  event.preventDefault()
+  if (event.ctrlKey || event.metaKey) return zoomAt(Math.exp(-event.deltaY * 0.01), event.clientX, event.clientY)
+  const unit = event.deltaMode === 1 ? 32 : 1
+  fly({ k: camera.k, x: camera.x - (event.shiftKey ? event.deltaY : event.deltaX) * unit, y: camera.y - (event.shiftKey ? 0 : event.deltaY) * unit }, true)
+}, { passive: false })
+const fingers = new Map()
+let drag = null, moved = false
+stage.addEventListener('pointerdown', (event) => {
+  if (event.button !== 0) return
+  fingers.set(event.pointerId, event); moved = false
+  drag = { x: event.clientX, y: event.clientY, cx: camera.x, cy: camera.y, span: 0 }
+})
+stage.addEventListener('pointermove', (event) => {
+  if (!fingers.has(event.pointerId) || !drag) return
+  fingers.set(event.pointerId, event)
+  if (fingers.size === 2) {
+    const [a, b] = [...fingers.values()], span = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY)
+    if (drag.span) zoomAt(span / drag.span, (a.clientX + b.clientX) / 2, (a.clientY + b.clientY) / 2)
+    drag.span = span; moved = true
+    return
+  }
+  const dx = event.clientX - drag.x, dy = event.clientY - drag.y
+  if (!moved && Math.hypot(dx, dy) < 5) return
+  if (!moved) { stage.setPointerCapture(event.pointerId); stage.classList.add('panning') }
+  moved = true
+  cancelAnimationFrame(flight); camera.x = drag.cx + dx; camera.y = drag.cy + dy; apply()
+})
+for (const end of ['pointerup', 'pointercancel']) stage.addEventListener(end, (event) => {
+  fingers.delete(event.pointerId); stage.classList.remove('panning')
+  if (fingers.size === 0) drag = null
+  else { const last = [...fingers.values()][0]; drag = { x: last.clientX, y: last.clientY, cx: camera.x, cy: camera.y, span: 0 } }
+})
+
+/* The minimap: the wall seen from the door. */
+const mini = $('mini')
+let MINI = 1
+function drawMini() {
+  MINI = Math.min(236 / WALL.w, 190 / WALL.h)
+  mini.style.width = WALL.w * MINI + 'px'; mini.style.height = WALL.h * MINI + 'px'
+  mini.innerHTML = nodes.map((node) => `<i style="left:${node.X * MINI}px;top:${node.Y * MINI}px;width:${Math.max(2.5, node.w * MINI)}px;height:${Math.max(2.5, node.h * MINI)}px;--c:var(--${node.kind})"></i>`).join('') + '<div class="view"></div>'
+}
+function drawView() {
+  const rect = mini.querySelector('.view'); if (!rect) return
+  const view = viewport()
+  rect.style.left = (-camera.x / camera.k) * MINI + 'px'; rect.style.top = (-camera.y / camera.k) * MINI + 'px'
+  rect.style.width = (view.w / camera.k) * MINI + 'px'; rect.style.height = (view.h / camera.k) * MINI + 'px'
+}
+function miniTo(event) {
+  const box = mini.getBoundingClientRect(), view = viewport()
+  fly({ k: camera.k, x: view.w / 2 - ((event.clientX - box.left) / MINI) * camera.k, y: view.h / 2 - ((event.clientY - box.top) / MINI) * camera.k }, true)
+}
+mini.addEventListener('pointerdown', (event) => { mini.setPointerCapture(event.pointerId); miniTo(event) })
+mini.addEventListener('pointermove', (event) => { if (event.buttons === 1) miniTo(event) })
+
+/* ════════════════ 5. Following a story ════════════════ */
+let pinned = null
+function storyOf(node) {
+  if (node.kind === 'actor' || node.port) {
+    const twins = nodes.filter((other) => other.sticky === node.sticky)
+    return new Set([...twins, ...edges.filter((edge) => twins.includes(edge.from) || twins.includes(edge.to)).flatMap((edge) => [edge.from, edge.to])])
+  }
+  const lit = new Set([node])
+  const walk = (start, forward) => {
+    const queue = [start]
+    while (queue.length) {
+      const at = queue.pop()
+      for (const edge of edges) {
+        const next = forward ? (edge.from === at ? edge.to : null) : edge.to === at ? edge.from : null
+        if (next && !lit.has(next)) { lit.add(next); if (!(next.port || next.kind === 'actor')) queue.push(next); }
+      }
+    }
+  }
+  walk(node, true); walk(node, false)
+  for (const member of [...lit]) if (member.kind === 'command' || member.kind === 'readModel')
+    for (const edge of edges) if (edge.from === member && edge.to.port) lit.add(edge.to)
+  return lit
+}
+function light(node) {
+  const lit = node ? storyOf(node) : null
+  world.classList.toggle('following', lit !== null)
+  for (const other of nodes) other.el.classList.toggle('lit', lit !== null && lit.has(other))
+  for (const strip of strips) strip.el?.classList.toggle('lit', lit !== null && lit.has(strip.node))
+  for (const bracket of brackets) if (bracket.el) for (const path of bracket.el.children) {
+    const on = (item) => lit !== null && lit.has(bracket.from) && lit.has(item.command)
+    path.classList.toggle('lit', path.dataset.item ? on(bracket.items[path.dataset.item]) : bracket.items.some(on))
+  }
+  for (const edge of edges) if (edge.el) for (const path of edge.el.children) path.classList.toggle('lit', lit !== null && lit.has(edge.from) && lit.has(edge.to))
+}
+function pin(node) {
+  if (pinned) pinned.el.classList.remove('pinned')
+  pinned = node
+  if (node) node.el.classList.add('pinned')
+  light(node); inspect(node)
+}
+roll.addEventListener('pointerover', (event) => { const el = event.target.closest('.sticky'); if (el && !drag) light(nodes[el.dataset.node]) })
+roll.addEventListener('pointerout', (event) => { if (event.target.closest('.sticky') && !event.relatedTarget?.closest?.('.sticky')) light(pinned) })
+roll.addEventListener('focusin', (event) => { const el = event.target.closest('.sticky'); if (el) { const node = nodes[el.dataset.node]; light(node); if (!seen(node)) fly(centreOn(node)) } })
+roll.addEventListener('focusout', () => light(pinned))
+stage.addEventListener('click', (event) => {
+  if (moved) return
+  const jump = event.target.closest('.jump'), el = event.target.closest('.sticky'), tape = event.target.closest('.lane-tape')
+  if (jump) return follow(nodes[el.dataset.node].jumps[jump.dataset.jump])
+  if (tape) return go({ lane: tape.dataset.lane })
+  const fold = event.target.closest('.lane-fold')
+  if (fold) return foldLane(fold.dataset.fold)
+  if (el) { const node = nodes[el.dataset.node]; return node === pinned ? go({}, { keep: true }) : go({ at: node }) }
+  if (pinned) go({}, { keep: true })
+})
+
+function foldLane(name) {
+  folded.has(name) ? folded.delete(name) : folded.add(name)
+  redraw()
+}
+function redraw() {
+  const focused = document.activeElement?.closest?.('.sticky')?.dataset.node
+  place(); draw(); drawMini(); apply()
+  if (pinned) pinned.el.classList.add('pinned')
+  light(pinned)
+  if (focused !== undefined) focusOn(nodes[focused])
+  $('dense').setAttribute('aria-pressed', String(dense))
+  history.replaceState(history.state, '', hashOf(placeOfHash()))
+}
+function densify() { dense = !dense; redraw() }
+
+/* ════════════════ 6. Going somewhere, and coming back ════════════════ */
+let depth = 0
+const nodeOfSlug = (slug) => nodes.find((node) => node.sticky && slugOf(node.sticky) === slug)
+const foldPart = () => (folded.size ? '&fold=' + [...folded].map(encodeURIComponent).join(',') : '') + (dense ? '&rows=compact' : '')
+const hashOf = (place) => (place.at ? '#at=' + encodeURIComponent(slugOf(place.at.sticky ?? { type: 'hotspot', name: place.at.label, context: ctx })) : place.lane ? '#lane=' + encodeURIComponent(place.lane) : '#') + foldPart()
+function show(place, options = {}) {
+  for (const button of $('lanes').children) button.setAttribute('aria-pressed', String((button.dataset.lane ?? '') === (place.lane ?? (place.at ? '-' : ''))))
+  if (place.at) { pin(place.at); if (!options.keep) fly(place.at.kind === 'actor' || place.at.port ? firstLook() : centreOn(place.at), options.instant) }
+  else { pin(null); if (!options.keep) fly(place.lane ? laneFrame(lanes.find((lane) => lane.name === place.lane)) : options.first ? firstLook() : wholeWall(), options.instant) }
+}
+function go(place, options = {}) {
+  history.pushState({ depth: ++depth }, '', hashOf(place))
+  $('back').disabled = false
+  show(place, options)
+}
+function placeOfHash() {
+  const asked = new URLSearchParams(location.hash.slice(1)), at = asked.get('at') && nodeOfSlug(asked.get('at'))
+  return at ? { at } : lanes.some((lane) => lane.name === asked.get('lane')) ? { lane: asked.get('lane') } : {}
+}
+addEventListener('popstate', (event) => { depth = event.state?.depth ?? 0; $('back').disabled = depth === 0; show(placeOfHash()) })
+$('back').addEventListener('click', () => history.back())
+function follow(jump) {
+  if (jump.to) return go({ at: jump.to })
+  const url = `../${kebab(jump.away)}/${jump.slug ? '#at=' + jump.slug : ''}`
+  toast(`This mockup holds one context only. The real page opens <code>${esc(url)}</code>, and Back returns here.`)
+}
+let toastTimer = 0
+function toast(html) { const el = $('toast'); el.innerHTML = html; el.classList.add('on'); clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('on'), 5200) }
+
+/* ════════════════ 7. The card of a post-it ════════════════ */
+const chip = (node, text) => `<button class="go" data-go="${nodes.indexOf(node)}"><span class="dot" style="--c:var(--${node.kind})"></span>${esc(text ?? node.label)}</button>`
+function sentenceAbout(t) {
+  const of = (kind) => t.nodes.filter((node) => node.kind === kind && !node.port)
+  const list = (items, joiner = ' or ') => items.map((node) => chip(node)).join(joiner)
+  const parts = []
+  const main = of('command')[0] ?? of('readModel')[0]
+  for (const policy of of('policy').filter((node) => !node.foreign)) {
+    const heard = edges.filter((edge) => edge.to === policy), sent = edges.filter((edge) => edge.from === policy)
+    parts.push(`Whenever ${heard.map((edge) => chip(edge.from) + (edge.from.foreign ? ` (${esc(edge.from.sticky.context)})` : edge.from.t !== t ? ` (${esc(edge.from.t.lane)})` : '')).join(' or ') || 'something happens'}, ${chip(policy)} ${sent.map((edge) => `${edge.certain ? (edge.to.kind === 'event' ? 'publishes' : 'sends') : 'may send'} ${chip(edge.to)}${edge.certain || !edge.when ? '' : ` (only ${edge.when})`}`).join(' and ')}.`)
+  }
+  if (main) {
+    const actors = [...new Set([...(t.senders ?? []), ...edges.filter((edge) => edge.to === main && edge.from.kind === 'actor').map((edge) => edge.from)])], ports = t.nodes.filter((node) => node.port)
+    const views = (t.offers ?? []).map((o) => `${chip(o.view)}${o.certain ? '' : ` (only ${o.when ?? 'in some states'})`}`)
+    const changes = of('aggregate').map((aggregate) => `${chip(aggregate)} records ${list(edges.filter((edge) => edge.from === aggregate).map((edge) => edge.to), ' and ')}`)
+    if (actors.length || ports.length || changes.length || of('policy').every((node) => node.foreign)) parts.push(`${actors.length ? list(actors) + (views.length ? `, from ${views.join(' or ')},` : '') + (main.kind === 'command' ? ' asks to ' : ' looks at ') : main.kind === 'command' ? 'Then ' : ''}${chip(main)}${ports.length ? `, which asks ${list(ports, ', ')}` : ''}${changes.length ? '. ' + changes.join('. ') : ''}.`)
+  }
+  for (const hearer of of('policy').filter((node) => node.foreign)) parts.push(`${esc(sentenceOf(hearer.sticky.context))} hears it: ${chip(hearer)}.`)
+  for (const hotspot of of('hotspot')) parts.push(`${chip(hotspot, '?! ' + hotspot.label)}`)
+  return parts.join(' ')
+}
+function inspect(node) {
+  const panel = $('inspector')
+  panel.hidden = node === null
+  if (node === null) return
+  const sticky = node.sticky
+  const twins = node.kind === 'actor' || node.port ? nodes.filter((other) => other.sticky === sticky) : [node]
+  const before = edges.filter((edge) => twins.includes(edge.to)).map((edge) => edge.from)
+  const after = edges.filter((edge) => twins.includes(edge.from)).map((edge) => edge.to)
+  const file = sticky?.class?.startsWith('Prospecter\\Core\\') ? 'packages/core/src/' + sticky.class.slice(16).replaceAll('\\', '/') + '.php' : null
+  const feature = sticky && !['actor', 'externalSystem'].includes(sticky.type) && sticky.label !== sticky.name ? sticky.label : null
+  const row = (term, html) => (html ? `<dt>${term}</dt><dd>${html}</dd>` : '')
+  panel.innerHTML =
+    `<h2><span class="kind"><span class="dot" style="--c:var(--${node.kind})"></span>${KIND_NAME[node.kind]}${sticky && isPublished(sticky) ? ' · published to other contexts' : ''}</span><button class="btn icon close" data-close="inspector" aria-label="Close" style="height:22px;width:22px"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></h2>` +
+    `<div class="name">${esc(node.label)}</div>` +
+    (node.why ? `<p class="sentence">${esc(node.why)}</p>` : '') +
+    (sticky?.class ? `<code>${esc(sticky.class)}</code>` : sticky ? `<code>${esc(sticky.name)}</code>` : '') +
+    '<dl>' +
+    row('Where', node.foreign ? `${esc(sticky.context)}'s wall` : node.kind === 'actor' || node.port ? `${twins.length} places on this wall` : `${esc(ctx)} › ${esc(node.t.lane)}`) +
+    row('Feature', feature ? `<span lang="fr">« ${esc(feature)} »</span>` : '') +
+    row('Answered by', node.port ? esc(node.sources.join(', ')) + (sticky.detail ? ` <small style="color:var(--chrome-muted)">(${esc(sticky.detail)})</small>` : '') : '') +
+    row('Before', before.map((other) => chip(other)).join('<br>')) +
+    row(node.kind === 'actor' ? 'Can' : node.port ? '' : 'Then', node.port ? '' : after.map((other) => chip(other)).join('<br>')) +
+    row('Sent by', node.t.main === node && node.t.senders ? [...node.t.senders].map((sender) => chip(sender)).join('<br>') : '') +
+    row('Offered by', node.t.main === node && node.kind === 'command' && node.t.senders ? (node.t.offers ?? []).map((o) => `${chip(o.view)} <small style="color:var(--chrome-muted)">link <code style="display:inline;font-size:11px">${esc(o.via)}</code>${o.certain ? '' : `, only ${esc(o.when ?? 'in some states')}`}</small>`).join('<br>') || '<em>no view the sender reads here</em>' : '') +
+    row('Source', file ? `<a href="https://github.com/SO-LEAN/prospecterapp/blob/dev/${esc(file)}" target="_blank" rel="noopener">${esc(file.split('/').slice(-1)[0])}</a>` : '') +
+    '</dl>' +
+    (node.kind === 'actor' || node.port || node.foreign ? '' : `<p class="sentence">${sentenceAbout(node.t)}</p>`) +
+    edges.filter((edge) => !edge.certain && (edge.from === node || edge.to === node)).map((edge) => `<p class="note">Dashed, from “${esc(edge.from.label)}” to “${esc(edge.to.label)}”: only ${esc(edge.when ?? 'in some states')}.</p>`).join('') +
+    `<p class="note"><button class="go" data-copy>Copy the link to this post-it</button></p>`
+}
+document.addEventListener('click', (event) => {
+  const goTo = event.target.closest('[data-go]'), close = event.target.closest('[data-close]'), copy = event.target.closest('[data-copy]')
+  if (goTo) { $('story').hidden = true; go({ at: nodes[goTo.dataset.go] }) }
+  if (close) { if (close.dataset.close === 'inspector') go({}, { keep: true }); else $(close.dataset.close).hidden = true }
+  if (copy) { navigator.clipboard?.writeText(location.href).then(() => toast('Link copied. It opens the wall on this post-it.'), () => toast(`<code>${esc(location.href)}</code>`)) }
+})
+
+/* ════════════════ 8. The wall as text ════════════════ */
+function tell() {
+  $('story').innerHTML = `<h2>${esc(sentenceOf(ctx))}, told in sentences <button class="btn icon" data-close="story" aria-label="Close" style="height:22px;width:22px"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></h2>` +
+    lanes.map((lane) => `<h3>${esc(sentenceOf(lane.name))}</h3><ol>${lane.tiles.map((t) => `<li>${sentenceAbout(t)}</li>`).join('')}</ol>`).join('')
+}
+$('storyBtn').addEventListener('click', () => { tell(); $('story').hidden = !$('story').hidden })
+
+/* ════════════════ 9. Search, legend, contexts, lights ════════════════ */
+const q = $('q'), results = $('results')
+let found = [], current = 0
+function search() {
+  const asked = q.value.trim().toLowerCase()
+  const seenIds = new Set()
+  found = asked === '' ? [] : nodes.filter((node) => {
+    const sticky = node.sticky, hay = [node.label, sticky?.name, sticky?.label, sticky?.class, sticky?.detail].filter(Boolean).join(' ').toLowerCase()
+    if (!asked.split(/\s+/).every((word) => hay.includes(word))) return false
+    const id = sticky ? sticky.id + (node.via ?? '') : node.key
+    return seenIds.has(id) ? false : (seenIds.add(id), true)
+  })
+  current = 0
+  world.classList.toggle('searching', asked !== '')
+  for (const node of nodes) node.el.classList.toggle('hit', asked !== '' && found.some((hit) => hit.sticky ? hit.sticky === node.sticky : hit === node))
+  results.innerHTML = found.slice(0, 9).map((node, index) => `<button role="option" class="${index === 0 ? 'cur' : ''}" data-hit="${index}"><span class="dot" style="--c:var(--${node.kind})"></span><span>${esc(node.label)}<small>${esc(KIND_NAME[node.kind])} · ${esc(node.foreign ? node.sticky.context : node.t.lane)}${node.sticky && node.sticky.name !== node.label ? ' · ' + esc(node.sticky.name) : ''}</small></span></button>`).join('') ||
+    (asked ? '<button disabled>Nothing on this wall. <small>The search reads labels, class names and feature titles.</small></button>' : '')
+}
+function pick(index) { const node = found[index]; if (!node) return; q.value = ''; search(); q.blur(); go({ at: node }) }
+q.addEventListener('input', search)
+q.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter') pick(current)
+  if (event.key === 'Escape') { q.value = ''; search(); q.blur() }
+  if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+    event.preventDefault(); current = (current + (event.key === 'ArrowDown' ? 1 : -1) + Math.min(9, found.length)) % Math.max(1, Math.min(9, found.length))
+    ;[...results.children].forEach((button, index) => button.classList.toggle('cur', index === current))
+  }
+})
+results.addEventListener('click', (event) => { const hit = event.target.closest('[data-hit]'); if (hit) pick(Number(hit.dataset.hit)) })
+
+$('kinds').innerHTML = KINDS.map(([kind, name]) => `<button class="chip" aria-pressed="true" data-kind="${kind}" data-tip="Show or hide the ${name.toLowerCase()}s"><span class="dot" style="--c:var(--${kind})"></span>${name}</button>`).join('')
+$('kinds').addEventListener('click', (event) => {
+  const button = event.target.closest('[data-kind]'); if (!button) return
+  const on = button.getAttribute('aria-pressed') !== 'true'
+  button.setAttribute('aria-pressed', String(on)); world.classList.toggle('off-' + button.dataset.kind, !on)
+})
+const actors = MODEL.stickies.filter((sticky) => sticky.type === 'actor')
+$('who').innerHTML = actors.map((actor) => `<button class="chip who" aria-pressed="false" data-who="${esc(actor.id)}" data-tip="Light everything ${esc(labelOf(actor))} can do">${FIGURES[actor.name] ?? FIGURES.default}${esc(labelOf(actor))}</button>`).join('')
+$('who').addEventListener('click', (event) => {
+  const button = event.target.closest('[data-who]'); if (!button) return
+  const on = button.getAttribute('aria-pressed') !== 'true'
+  for (const other of $('who').children) other.setAttribute('aria-pressed', 'false')
+  button.setAttribute('aria-pressed', String(on))
+  on ? go({ at: firstOf.get(button.dataset.who) }, { keep: true }) : go({}, { keep: true })
+})
+$('legendFold').addEventListener('click', () => $('legend').classList.toggle('folded'))
+
+$('contextName').textContent = sentenceOf(ctx)
+$('lanes').innerHTML = `<button aria-pressed="true" data-lane="">Whole wall</button>` + lanes.map((lane) => `<button aria-pressed="false" data-lane="${esc(lane.name)}">${esc(sentenceOf(lane.name))}</button>`).join('')
+$('lanes').addEventListener('click', (event) => { const button = event.target.closest('button'); if (button) go(button.dataset.lane ? { lane: button.dataset.lane } : {}) })
+$('contextMenu').innerHTML = '<h3>Big picture</h3><button disabled><span class="dot" style="--c:var(--event)"></span><span>All contexts<small>the events published from one to another</small></span></button><h3>Contexts</h3>' +
+  CONTEXTS.map((name) => `<button ${name === ctx ? '' : 'disabled'}><span class="dot" style="--c:var(--${name === ctx ? 'command' : 'aggregate'})"></span><span>${esc(sentenceOf(name))}<small>../${kebab(name)}/</small></span>${name === ctx ? '<span class="tick">here</span>' : ''}</button>`).join('')
+$('contextBtn').addEventListener('click', (event) => { event.stopPropagation(); const menu = $('contextMenu'); menu.hidden = !menu.hidden; $('contextBtn').setAttribute('aria-expanded', String(!menu.hidden)) })
+document.addEventListener('click', () => { $('contextMenu').hidden = true })
+
+function lights() {
+  const theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'
+  document.documentElement.dataset.theme = theme
+  try { localStorage.setItem('es-theme', theme) } catch (e) {}
+}
+$('themeBtn').addEventListener('click', lights)
+$('helpBtn').addEventListener('click', () => { $('help').hidden = !$('help').hidden })
+$('zoomIn').addEventListener('click', () => zoomAt(1.25, stage.clientWidth / 2, stage.clientHeight / 2))
+$('zoomOut').addEventListener('click', () => zoomAt(0.8, stage.clientWidth / 2, stage.clientHeight / 2))
+$('fit').addEventListener('click', () => go({}))
+$('dense').addEventListener('click', densify)
+
+/* A dashed line says when it happens, under the mouse and under the keyboard's focus. */
+for (const [type, on] of [['pointerover', true], ['pointerout', false], ['focusin', true], ['focusout', false]])
+  roll.addEventListener(type, (event) => { const hit = event.target.closest?.('.hit'); if (hit) for (const path of roll.querySelectorAll(hit.dataset.line)) path.classList.toggle('on', on) })
+
+/* Tooltips, for the mouse and for the keyboard. */
+const tip = $('tip')
+function tipOn(target) {
+  tip.textContent = target.dataset.tip
+  const box = target.getBoundingClientRect(), below = box.top < 90
+  tip.classList.add('on')
+  const width = tip.offsetWidth
+  tip.style.left = Math.max(8, Math.min(innerWidth - width - 8, box.left + box.width / 2 - width / 2)) + 'px'
+  const gap = target.classList.contains('hit') ? 18 : 8
+  tip.style.top = (below ? box.bottom + gap : box.top - tip.offsetHeight - gap) + 'px'
+}
+for (const [on, off] of [['pointerover', 'pointerout'], ['focusin', 'focusout']]) {
+  document.addEventListener(on, (event) => { const target = event.target.closest?.('[data-tip]'); if (target) tipOn(target) })
+  document.addEventListener(off, () => tip.classList.remove('on'))
+}
+
+/* ════════════════ 10. The keyboard ════════════════ */
+function neighbour(node, dx, dy) {
+  let best = null, least = Infinity
+  for (const other of nodes) {
+    if (other === node) continue
+    const along = (other.X + other.w / 2 - node.X - node.w / 2) * dx + (other.Y + other.h / 2 - node.Y - node.h / 2) * dy
+    const across = Math.abs((other.X + other.w / 2 - node.X - node.w / 2) * dy) + Math.abs((other.Y + other.h / 2 - node.Y - node.h / 2) * dx)
+    if (along <= 4) continue
+    const cost = along + across * 2.6
+    if (cost < least) { least = cost; best = other }
+  }
+  return best
+}
+function focusOn(node) { for (const other of nodes) other.el.tabIndex = other === node ? 0 : -1; node.el.focus({ preventScroll: true }) }
+document.addEventListener('keydown', (event) => {
+  if (event.target === q) return
+  const el = document.activeElement?.closest?.('.sticky'), node = el ? nodes[el.dataset.node] : null
+  const arrows = { ArrowRight: [1, 0], ArrowLeft: [-1, 0], ArrowDown: [0, 1], ArrowUp: [0, -1] }
+  if (event.altKey || event.ctrlKey || event.metaKey) return
+  if (arrows[event.key]) {
+    event.preventDefault()
+    const [dx, dy] = arrows[event.key]
+    if (node) { const next = neighbour(node, dx, dy); if (next) focusOn(next) }
+    else fly({ k: camera.k, x: camera.x - dx * 140, y: camera.y - dy * 140 }, true)
+    return
+  }
+  const key = event.key.toLowerCase()
+  if (key === 'enter' || key === ' ') { if (node && event.target === el) { event.preventDefault(); node === pinned ? go({}, { keep: true }) : go({ at: node }, { keep: seen(node) }) } return }
+  if (event.target.closest('input, textarea, select')) return
+  if (key === '/') { event.preventDefault(); q.focus() }
+  else if (key === 'f' || key === '0') go({})
+  else if (key === '1') zoomAt(1 / camera.k, stage.clientWidth / 2, stage.clientHeight / 2)
+  else if (key === '+' || key === '=') zoomAt(1.25, stage.clientWidth / 2, stage.clientHeight / 2)
+  else if (key === '-') zoomAt(0.8, stage.clientWidth / 2, stage.clientHeight / 2)
+  else if (key === 'j' && node?.jumps[0]) follow(node.jumps[0])
+  else if (key === 't') $('storyBtn').click()
+  else if (key === 'l') $('legendFold').click()
+  else if (key === 'd') lights()
+  else if (key === 'c') densify()
+  else if (key === '?') $('helpBtn').click()
+  else if (key === 'escape') { $('help').hidden = true; $('story').hidden = true; $('contextMenu').hidden = true; if (pinned) go({}, { keep: true }) }
+})
+
+/* ════════════════ 11. Paper: the print is the wall, whole, on one A3 sheet ════════════════ */
+let beforePrint = null
+addEventListener('beforeprint', () => {
+  beforePrint = { ...camera }
+  const k = Math.min(1500 / WALL.w, 1020 / WALL.h, 1)
+  world.style.transform = `scale(${k})`; world.style.width = WALL.w * k + 'px'; world.style.height = WALL.h * k + 'px'
+  world.dataset.zoom = 'near'
+})
+addEventListener('afterprint', () => { world.style.width = world.style.height = ''; Object.assign(camera, beforePrint); apply() })
+
+for (const name of (new URLSearchParams(location.hash.slice(1)).get('fold') ?? '').split(',')) if (lanes.some((lane) => lane.name === name)) folded.add(name)
+const firstHash = new URLSearchParams(location.hash.slice(1))
+if (!firstHash.has('fold') && !firstHash.has('at') && !firstHash.has('lane')) {
+  const rowsInAll = lanes.reduce((sum, lane) => sum + lane.rows, 0)
+  if (!firstHash.has('rows') && rowsInAll > 24) { dense = true; place() }
+  if (WALL.h * Math.min(1, (stage.clientWidth - 48) / WALL.w) > 4 * stage.clientHeight) for (const lane of lanes) folded.add(lane.name)
+}
+place(); draw()
+$('dense').setAttribute('aria-pressed', String(dense))
+drawMini()
+history.replaceState({ depth: 0 }, '', location.hash || '#')
+show(placeOfHash(), { instant: true, first: true })
+const asked = new URLSearchParams(location.search)
+if (asked.get('q')) { q.value = asked.get('q'); search() }
+if (asked.get('view') === 'text') $('storyBtn').click()
+addEventListener('resize', drawView)
+</script>
+</body>
+</html>

@@ -1,0 +1,192 @@
+{
+ "context": "Fixture",
+ "modules": [
+  "Desk"
+ ],
+ "stickies": [
+  {
+   "id": "actor:ROLE_USER",
+   "type": "actor",
+   "label": "Membre",
+   "name": "ROLE_USER",
+   "class": null,
+   "context": "Fixture",
+   "module": null,
+   "detail": null
+  },
+  {
+   "id": "actor:ROLE_ADMIN",
+   "type": "actor",
+   "label": "Admin",
+   "name": "ROLE_ADMIN",
+   "class": null,
+   "context": "Fixture",
+   "module": null,
+   "detail": null
+  },
+  {
+   "id": "actor:ROLE_AUDITOR",
+   "type": "actor",
+   "label": "Auditor",
+   "name": "ROLE_AUDITOR",
+   "class": null,
+   "context": "Fixture",
+   "module": null,
+   "detail": null
+  },
+  {
+   "id": "readModel:ConsultRequests",
+   "type": "readModel",
+   "label": "ConsultRequests",
+   "name": "ConsultRequests",
+   "class": null,
+   "context": "Fixture",
+   "module": "Desk",
+   "detail": "Requests"
+  },
+  {
+   "id": "command:ApproveRequest",
+   "type": "command",
+   "label": "ApproveRequest",
+   "name": "ApproveRequest",
+   "class": null,
+   "context": "Fixture",
+   "module": "Desk",
+   "detail": null
+  },
+  {
+   "id": "command:RejectRequest",
+   "type": "command",
+   "label": "RejectRequest",
+   "name": "RejectRequest",
+   "class": null,
+   "context": "Fixture",
+   "module": "Desk",
+   "detail": null
+  },
+  {
+   "id": "aggregate:Request",
+   "type": "aggregate",
+   "label": "Request",
+   "name": "Request",
+   "class": null,
+   "context": "Fixture",
+   "module": null,
+   "detail": null
+  },
+  {
+   "id": "event:RequestApproved",
+   "type": "event",
+   "label": "RequestApproved",
+   "name": "RequestApproved",
+   "class": null,
+   "context": "Fixture",
+   "module": null,
+   "detail": null
+  },
+  {
+   "id": "event:RequestRejected",
+   "type": "event",
+   "label": "RequestRejected",
+   "name": "RequestRejected",
+   "class": null,
+   "context": "Fixture",
+   "module": null,
+   "detail": null
+  },
+  {
+   "id": "command:WithdrawRequest",
+   "type": "command",
+   "label": "WithdrawRequest",
+   "name": "WithdrawRequest",
+   "module": "Desk",
+   "class": null,
+   "context": "Fixture",
+   "detail": null
+  },
+  {
+   "id": "event:RequestWithdrawn",
+   "type": "event",
+   "label": "RequestWithdrawn",
+   "name": "RequestWithdrawn",
+   "module": null,
+   "class": null,
+   "context": "Fixture",
+   "detail": null
+  }
+ ],
+ "links": [
+  {
+   "from": "actor:ROLE_USER",
+   "to": "readModel:ConsultRequests",
+   "via": null,
+   "certain": true
+  },
+  {
+   "from": "actor:ROLE_USER",
+   "to": "command:ApproveRequest",
+   "via": null,
+   "certain": true
+  },
+  {
+   "from": "actor:ROLE_ADMIN",
+   "to": "command:ApproveRequest",
+   "via": null,
+   "certain": true
+  },
+  {
+   "from": "actor:ROLE_ADMIN",
+   "to": "command:RejectRequest",
+   "via": null,
+   "certain": true
+  },
+  {
+   "from": "actor:ROLE_AUDITOR",
+   "to": "command:ApproveRequest",
+   "via": null,
+   "certain": true
+  },
+  {
+   "from": "command:ApproveRequest",
+   "to": "aggregate:Request",
+   "via": "approveAfterASecondLookByTheDesk",
+   "certain": true
+  },
+  {
+   "from": "aggregate:Request",
+   "to": "event:RequestApproved",
+   "via": "approveAfterASecondLookByTheDesk",
+   "certain": true
+  },
+  {
+   "from": "command:RejectRequest",
+   "to": "aggregate:Request",
+   "via": "reject",
+   "certain": true
+  },
+  {
+   "from": "aggregate:Request",
+   "to": "event:RequestRejected",
+   "via": "reject",
+   "certain": true
+  },
+  {
+   "from": "actor:ROLE_USER",
+   "to": "command:WithdrawRequest",
+   "via": null,
+   "certain": true
+  },
+  {
+   "from": "command:WithdrawRequest",
+   "to": "aggregate:Request",
+   "via": "withdraw",
+   "certain": true
+  },
+  {
+   "from": "aggregate:Request",
+   "to": "event:RequestWithdrawn",
+   "via": "withdraw",
+   "certain": true
+  }
+ ]
+}
