@@ -13,14 +13,19 @@ test: ## Run the tests of the front (Vitest); FILTER= a test file by its path or
 # the code of the front a branch may change and a test may protect: neither the tests, the generated files, nor the
 # components of shadcn, whose class names no test reads
 MUTATED_CODE = 'src/*.ts' 'src/*.tsx' ':!*.test.ts' ':!*.test.tsx' ':!*.d.ts' ':!src/test/*' ':!src/app/routeTree.gen.ts' ':!src/shared/ui/*'
+# the event storming's generator, mutated apart, its tests in a Stryker of their own (stryker.event-storming.json): they
+# never share a VM worker with the SPA's (ADR 0210)
+MUTATED_GENERATOR = 'event-storming/*.ts' ':!*.test.ts'
 # Stryker reads no git diff: the hunks of the added lines become its ranges, <file>:<first>-<last>, comma separated
-ADDED_LINE_RANGES = $(call ADDED_LINES,$(MUTATED_CODE)) | awk '/^\+\+\+ b\// { file = substr($$0, 7) } \
+ADDED_LINE_RANGES = $(call ADDED_LINES,$(1)) | awk '/^\+\+\+ b\// { file = substr($$0, 7) } \
 	/^@@/ { split(substr($$3, 2), new, ","); count = new[2] == "" ? 1 : new[2]; \
 	if (count > 0) { printf "%s%s:%d-%d", separator, file, new[1], new[1] + count - 1; separator = "," } }'
 
-mutation: ## Mutate the lines the branch adds in src since BASE (origin/dev), killed by the tests of Vitest; list the survivors
-	@ranges=$$($(ADDED_LINE_RANGES)); \
+mutation: ## Mutate the lines the branch adds in src and in the event storming's generator since BASE (origin/dev), killed by the tests of Vitest; list the survivors
+	@ranges=$$($(call ADDED_LINE_RANGES,$(MUTATED_CODE))); \
 	if [ -n "$$ranges" ]; then $(NODE) pnpm exec stryker run --mutate "$$ranges"; else $(call NO_ADDED_LINE,src); fi
+	@ranges=$$($(call ADDED_LINE_RANGES,$(MUTATED_GENERATOR))); \
+	if [ -n "$$ranges" ]; then $(NODE) pnpm exec stryker run stryker.event-storming.json --mutate "$$ranges"; else $(call NO_ADDED_LINE,event-storming); fi
 
 # TypeScript checks the whole project: the types of a file depend on the others
 lint: ## Check the code of the front: Biome, TypeScript; FILTER= paths of the project, for Biome

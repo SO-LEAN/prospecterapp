@@ -16,9 +16,12 @@ INFECTION_THREADS ?= max
 INFECTION = $(DC) --progress quiet run --rm --no-deps -e XDEBUG_MODE=coverage -v $(GIT_COMMON_DIR):$(GIT_COMMON_DIR):ro -w $(WORKDIR) php \
 	vendor/bin/infection --threads=$(INFECTION_THREADS) --git-diff-lines --git-diff-base=$(SINCE) --show-mutations=max --no-progress
 
-# the mutants of the PHP lines a branch adds in src, its survivors printed with their diff
+# the mutants of the PHP lines a branch adds in the code a project mutates, its survivors printed with their diff: src,
+# and what a project adds to it (MUTATED_PHP, git pathspecs from the project), as Infection's source directories do
+MUTATED_PHP ?= 'src/*.php'
+ADDS_PHP_LINES = git diff -U0 --diff-filter=AM $(SINCE) -- $(MUTATED_PHP) | grep -qE '^@@ -[0-9,]+ \+[0-9]+(,[1-9][0-9]*)? @@'
 define infection-on-added-lines
-	@if $(call ADDS_LINES,'src/*.php'); then $(INFECTION); else $(call NO_ADDED_LINE,src); fi
+	@if $(ADDS_PHP_LINES); then $(INFECTION); else $(call NO_ADDED_LINE,$(MUTATED_PHP)); fi
 endef
 
 # the mutants Infection skipped, their covering tests slower than its timeout in its first run, counted from its summary
