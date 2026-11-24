@@ -168,6 +168,10 @@ const CLUSTER = {
   hotspot: { x: 13, y: 22 },
 } as const
 
+/** What a hotspot of something nothing reaches says of itself. */
+const SUSPICION =
+  'It is a suspicion to check: the analysis follows the calls it reads, and a dynamic call escapes it.'
+
 /** Where a lane's view stands, right of its actor, and where its commands stand, right of the view. */
 export const VIEW = SIZE.margin + SIZE.actor - 1
 export const HEAD = VIEW + SIZE.sticky + 86
@@ -442,8 +446,11 @@ class WallUnderConstruction {
       this.sendsOnly(this.sticky(sent.from), command),
     )
     const step = this.step('command', lane, triggers.length > 0 ? 2 : 1)
-    const { senders, x } = this.sendersOf(step, triggers)
+    const { senders, x: after } = this.sendersOf(step, triggers)
+    const unsent = this.into(command.id, 'actor').length === 0 && this.into(command.id, 'policy').length === 0
+    const x = unsent ? after + SIZE.hotspot + CLUSTER.hotspot.x : after
     const node = this.put(step, command, 'command', { x, y: 0 }, { z: 3 })
+    if (unsent) this.markNobodySends(step, node)
     for (const sender of senders) this.link(sender.node, node, sender.certain, true)
     this.badgesOf(step, command, node)
     this.portsOf(step, command, node)
@@ -544,6 +551,22 @@ class WallUnderConstruction {
     return hotspot.x + SIZE.hotspot
   }
 
+  /** A command no actor and no policy sends gets a hotspot before it. */
+  private markNobodySends(step: Step, node: Note): void {
+    const hotspot = this.put(
+      step,
+      null,
+      'hotspot',
+      { x: node.x - SIZE.hotspot - CLUSTER.hotspot.x, y: CLUSTER.hotspot.y },
+      {
+        label: 'Nobody sends this',
+        z: 4,
+        why: `No controller, no tool of the MCP server and no policy sends this command. ${SUSPICION}`,
+      },
+    )
+    this.link(hotspot, node, true, false)
+  }
+
   private policyStep(policy: Sticky, lane: string): Step {
     const step = this.step('policy', lane, 3)
     const x = this.heardBy(step, policy, 0)
@@ -577,16 +600,16 @@ class WallUnderConstruction {
     this.badgesOf(step, readModel, node)
     this.portsOf(step, readModel, node)
     step.width = SIZE.sticky
-    if (!asked) {
+    if (!asked && readModel.readBy.length === 0) {
       const hotspot = this.put(
         step,
         null,
         'hotspot',
-        { x: SIZE.sticky + 13, y: 22 },
+        { x: SIZE.sticky + CLUSTER.hotspot.x, y: CLUSTER.hotspot.y },
         {
-          label: 'Who reads this?',
+          label: 'Nobody calls this',
           z: 4,
-          why: 'A service published to the other contexts. The model does not hold who calls it yet, so no actor and no context stands in front of it.',
+          why: `No controller, no tool of the MCP server and no class of another context reads this view. ${SUSPICION}`,
         },
       )
       this.link(node, hotspot, true, false)

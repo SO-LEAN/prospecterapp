@@ -46,9 +46,8 @@
 
 
 
-
 <g transform="translate(250 4093.2) rotate(-0.70 66 66)"><rect width="132" height="132" rx="1" fill="#a9e190" stroke="#000" stroke-opacity="0.12"/><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="16.5" fill="#1b2030" text-anchor="middle"><tspan x="66" y="51.5">Pending</tspan><tspan x="66" y="69.3">recipients</tspan><tspan x="66" y="87.1">response</tspan></text></g>
-<g transform="translate(395 4113.3) rotate(-7.37 52 52)"><rect width="104" height="104" rx="1" fill="#ff4d9d" stroke="#000" stroke-opacity="0.12"/><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="22" font-weight="700" fill="#1b2030" text-anchor="middle"><tspan x="52" y="42.5">?!</tspan></text><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="15" fill="#1b2030" text-anchor="middle"><tspan x="52" y="58.7">Who reads</tspan><tspan x="52" y="74.9">this?</tspan></text></g>
+
 
 
 
@@ -120,6 +119,7 @@
 <g transform="translate(448 3906.9) rotate(-2.08 66 66)"><rect width="132" height="132" rx="1" fill="#cfb3f3" stroke="#000" stroke-opacity="0.12"/><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="12.5" fill="#5e6270" text-anchor="middle"><tspan x="66" y="44.7">whenever exchange</tspan><tspan x="66" y="57.8">facts changed</tspan></text><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="15" fill="#1b2030" text-anchor="middle"><tspan x="66" y="74.9">Reopen recipient of</tspan><tspan x="66" y="91.1">erased exchange</tspan></text><text font-family='system-ui, sans-serif' font-size="9" fill="#5e6270" text-anchor="middle"><tspan x="66" y="125.2">POLICY</tspan></text></g>
 <g transform="translate(646 3905.5) rotate(-1.00 66 66)"><rect width="132" height="132" rx="1" fill="#7cc4f8" stroke="#000" stroke-opacity="0.12"/><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="15" fill="#1b2030" text-anchor="middle"><tspan x="66" y="60.8">Reopen recipient of</tspan><tspan x="66" y="77">erased exchange</tspan></text></g>
 <g transform="translate(791 3934.2) rotate(-4.66 52 52)"><rect width="104" height="104" rx="1" fill="#ff4d9d" stroke="#000" stroke-opacity="0.12"/><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="22" font-weight="700" fill="#1b2030" text-anchor="middle"><tspan x="52" y="42.5">?!</tspan></text><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="15" fill="#1b2030" text-anchor="middle"><tspan x="52" y="58.7">No event</tspan><tspan x="52" y="74.9">recorded</tspan></text></g>
+
 
 
 

@@ -111,16 +111,40 @@ describe('the wall of a context', () => {
     expect(noteOf('command:BookSlot').step.gap?.label).toBe('Offered where?')
   })
 
-  it('says when a command records no event, and when nobody is seen reading a view', () => {
+  it('says when a command records no event, and when no view of its actor offers it', () => {
     const hotspots = wall.notes
       .filter((note) => note.kind === 'hotspot')
       .map((note) => `${note.step.main?.label}: ${note.label}`)
 
     expect(hotspots).toEqual([
-      'Appointments: Who reads this?',
       'Forget appointment of erased exchange: No event recorded',
       'Book slot: Offered where?',
     ])
+  })
+
+  it('says nobody sends a command that no actor and no policy sends', () => {
+    const close = 'command:Prospecter\\Core\\Booking\\Application\\BookingPage\\CloseBooking\\CloseBooking'
+    const unsent = wallOf({
+      ...BOOKING,
+      links: BOOKING.links.filter((link) => !(link.to === close && link.from.startsWith('actor:'))),
+    })
+    const command = unsent.notes.find((note) => note.slug === 'command:CloseBooking')
+
+    expect(command?.step.notes.filter((note) => note.kind === 'hotspot').map((note) => note.label)).toEqual([
+      'Nobody sends this',
+    ])
+  })
+
+  it('says nobody calls a read model that no actor reads and nothing takes', () => {
+    const unread = wallOf({
+      ...BOOKING,
+      stickies: BOOKING.stickies.map((sticky) => ({ ...sticky, readBy: [] })),
+    })
+    const appointments = unread.notes.find((note) => note.slug === 'readModel:ConsultAppointments')
+
+    expect(
+      appointments?.step.notes.filter((note) => note.kind === 'hotspot').map((note) => note.label),
+    ).toEqual(['Nobody calls this'])
   })
 
   it('jumps from an event to the policy of this wall that hears it, and back', () => {
