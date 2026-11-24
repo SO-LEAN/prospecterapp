@@ -1,4 +1,5 @@
 # language: fr
+@ForgetAppointmentOfErasedExchange
 Fonctionnalité: Libérer le rendez-vous d'un échange effacé
   En tant que prospecteur
   Je veux qu'une réservation par mon lien public s'efface avec l'échange qu'elle est devenue

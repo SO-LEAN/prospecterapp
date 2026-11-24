@@ -1,4 +1,5 @@
 # language: fr
+@OpenBooking @CloseBooking
 Fonctionnalité: Activer et couper ma prise de rendez-vous
   En tant que prospecteur
   Je veux activer mon lien public de prise de rendez-vous, et le couper du jour au lendemain

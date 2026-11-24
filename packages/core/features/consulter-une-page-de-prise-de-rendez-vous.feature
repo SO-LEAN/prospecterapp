@@ -1,4 +1,5 @@
 # language: fr
+@ConsultPublicBookingPage
 Fonctionnalité: Consulter une page de prise de rendez-vous
   En tant que personne à qui un prospecteur a donné son lien public
   Je veux voir ses créneaux libres de 15 minutes, à partir de demain et sur deux semaines, sans me connecter

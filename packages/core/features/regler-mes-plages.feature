@@ -1,4 +1,5 @@
 # language: fr
+@SetWeeklyWindows
 Fonctionnalité: Régler mes plages
   En tant que prospecteur
   Je veux dire, jour par jour, à quelles heures de la semaine on peut me réserver

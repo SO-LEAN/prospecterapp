@@ -1,4 +1,5 @@
 # language: fr
+@ConsultMyBookingPage
 Fonctionnalité: Consulter ma prise de rendez-vous
   En tant que prospecteur
   Je veux retrouver mes réglages de prise de rendez-vous

@@ -1,4 +1,5 @@
 # language: fr
+@AddInactivePeriod @RemoveInactivePeriod
 Fonctionnalité: Ajouter une période inactive
   En tant que prospecteur
   Je veux dire les jours où je suis absent, mes vacances par exemple
