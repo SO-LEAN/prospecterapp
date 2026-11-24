@@ -108,7 +108,7 @@
     "context": "prospecting",
     "sources": ["prospecter.connectors"],
     "events": ["VideoCallLinkCreated.v1"],
-    "handler": "Prospecter\\Core\\Prospecting\\Application\\KeepCreatedVideoCallLink\\KeepCreatedVideoCallLinkHandler",
+    "policy": "Prospecter\\Core\\Prospecting\\Application\\Policy\\KeepCreatedVideoCallLinkPolicy",
     "inbox": true
   },
   "prospecting-suspect-duplicate-in-return": {
