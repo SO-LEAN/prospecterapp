@@ -9,6 +9,8 @@ const THE_RULE = join(import.meta.dirname, 'french-spacing.grit')
 const ONLY_THE_RULE = { linter: { rules: { recommended: false } }, plugins: [THE_RULE] }
 const NO_BREAK_SPACE = '\u00a0'
 const NARROW_NO_BREAK_SPACE = '\u202f'
+/** A fix that refuses its own result, Biome applies again and again. */
+const A_FIX_THAT_NEVER_ENDS = 3_000
 const ANNOTATION = /^::error title=plugin,file=([^,]+),line=(\d+),[^:]*::(.*)$/
 
 type Refusal = { file: string; line: number; message: string }
@@ -19,7 +21,11 @@ function lintAlone(labels: string, ...options: string[]): { output: string; labe
   try {
     writeFileSync(join(project, 'biome.json'), JSON.stringify(ONLY_THE_RULE))
     writeFileSync(join(project, 'fr.ts'), labels)
-    const lint = spawnSync(BIOME, ['lint', ...options, 'fr.ts'], { cwd: project, encoding: 'utf8' })
+    const lint = spawnSync(BIOME, ['lint', ...options, 'fr.ts'], {
+      cwd: project,
+      encoding: 'utf8',
+      timeout: A_FIX_THAT_NEVER_ENDS,
+    })
     return { output: lint.stdout, labels: readFileSync(join(project, 'fr.ts'), 'utf8') }
   } finally {
     rmSync(project, { recursive: true, force: true })
@@ -65,54 +71,51 @@ describe('the rule of the spaces of the French labels', () => {
     )
   })
 
-  it('refuses a space before a semicolon, a question mark or an exclamation mark, naming the narrow no-break space it takes', () => {
-    const refusals = refusalsOf(labelsOf('Oui ; non', 'Supprimer ?', 'Bravo !'))
-
-    expect(refusals.map(({ line, message }) => ({ line, message }))).toEqual(
-      [2, 3, 4].map((line) => ({
-        line,
+  it.each([';', '?', '!'])('refuses a space before %s, naming the narrow no-break space it takes', (mark) => {
+    expect(refusalsOf(labelsOf(`Oui ${mark}`))).toEqual([
+      {
+        file: expect.stringMatching(/\/fr\.ts$/),
+        line: 2,
         message: expect.stringContaining(
           'narrow no-break space (U+202F) before a semicolon, a question mark or an exclamation mark',
         ),
-      })),
-    )
+      },
+    ])
   })
 
-  it('puts a narrow no-break space before a semicolon, a question mark or an exclamation mark', () => {
-    expect(fixed(labelsOf('Oui ; non ?', 'Bravo !'))).toBe(
-      labelsOf(`Oui${NARROW_NO_BREAK_SPACE}; non${NARROW_NO_BREAK_SPACE}?`, `Bravo${NARROW_NO_BREAK_SPACE}!`),
-    )
+  it.each([';', '?', '!'])('puts a narrow no-break space before %s', (mark) => {
+    expect(fixed(labelsOf(`Oui ${mark}`))).toBe(labelsOf(`Oui${NARROW_NO_BREAK_SPACE}${mark}`))
   })
 
-  it('refuses French quotation marks without a no-break space inside, naming the space they take', () => {
-    const refusals = refusalsOf(labelsOf('« Membre sans nom »', '«Membre»'))
+  const BADLY_QUOTED = [
+    ['an opening mark followed by a space', `« Membre${NO_BREAK_SPACE}»`],
+    ['an opening mark followed by no space', `«Membre${NO_BREAK_SPACE}»`],
+    ['a closing mark after a space', `«${NO_BREAK_SPACE}Membre »`],
+    ['a closing mark after no space', `«${NO_BREAK_SPACE}Membre»`],
+  ]
 
-    expect(refusals.map(({ line, message }) => ({ line, message }))).toEqual(
-      [2, 3].map((line) => ({
-        line,
+  it.each(BADLY_QUOTED)('refuses %s, naming the no-break space it takes', (_, label) => {
+    expect(refusalsOf(labelsOf(label))).toEqual([
+      {
+        file: expect.stringMatching(/\/fr\.ts$/),
+        line: 2,
         message: expect.stringContaining('no-break space (U+00A0) inside French quotation marks'),
-      })),
-    )
+      },
+    ])
   })
 
-  it('accepts the labels spaced as French takes them, and a colon or a mark with no space before it', () => {
-    const labels = labelsOf(
-      `Nom${NO_BREAK_SPACE}:`,
-      `Oui${NARROW_NO_BREAK_SPACE}; non${NARROW_NO_BREAK_SPACE}?`,
-      `«${NO_BREAK_SPACE}Membre${NO_BREAK_SPACE}»`,
-      'https://prospecter.localhost',
-      '{{count}}!',
-    )
-
-    expect(refusalsOf(labels)).toEqual([])
+  it.each(BADLY_QUOTED)('puts a no-break space by %s', (_, label) => {
+    expect(fixed(labelsOf(label))).toBe(labelsOf(`«${NO_BREAK_SPACE}Membre${NO_BREAK_SPACE}»`))
   })
 
-  it('puts a no-break space inside French quotation marks, in place of a space or where none was', () => {
-    expect(fixed(labelsOf('« Membre sans nom »', '«Membre»'))).toBe(
-      labelsOf(
-        `«${NO_BREAK_SPACE}Membre sans nom${NO_BREAK_SPACE}»`,
-        `«${NO_BREAK_SPACE}Membre${NO_BREAK_SPACE}»`,
-      ),
-    )
+  it.each([
+    ['a colon after a no-break space', `Nom${NO_BREAK_SPACE}:`],
+    ['a semicolon after a narrow no-break space', `Oui${NARROW_NO_BREAK_SPACE}; non`],
+    ['a question mark after a narrow no-break space', `Supprimer${NARROW_NO_BREAK_SPACE}?`],
+    ['French quotation marks holding no-break spaces', `«${NO_BREAK_SPACE}Membre${NO_BREAK_SPACE}»`],
+    ['a colon with no space before it', 'https://prospecter.localhost'],
+    ['a mark with no space before it', '{{count}}!'],
+  ])('accepts %s', (_, label) => {
+    expect(refusalsOf(labelsOf(label))).toEqual([])
   })
 })
