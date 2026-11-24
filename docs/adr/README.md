@@ -213,3 +213,4 @@ Why the project is shaped the way it is: one record per decision, in the order t
 | [0208](0208-a-new-api-test-proves-only-the-adaptation.md) | A new API test proves only the adaptation, and each kind of refusal is translated once | architecture | Accepted | 2026-11-24 |
 | [0210](0210-the-front-tools-tests-run-in-forks.md) | The tests of the front's tools run in forks, apart from the SPA's | architecture | Accepted | 2026-11-24 |
 | [0211](0211-an-mcp-tool-is-tested-by-what-it-adds-to-its-endpoint.md) | An MCP tool is tested by what it adds to its endpoint | architecture | Accepted | 2026-11-24 |
+| [0212](0212-the-rights-of-every-endpoint-are-proven-by-one-test.md) | The rights of every endpoint are proven by one test | architecture | Accepted | 2026-11-24 |

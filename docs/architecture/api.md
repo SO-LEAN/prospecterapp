@@ -134,6 +134,7 @@ This document states the rules in force. The decision records (`docs/adr`) expla
   - The voter (`Security\AccountResourceVoter`) only refuses another account's resource. It answers a 404 named like the core's refusal (`unknownOrganization`, through `Security\ApiAccessDeniedHandler`).
   - An intent that needs the right to manage personal data also declares the role, `#[IsGranted(User::PERSONAL_DATA)]` (403). `StopProspecting` needs it only while the organization has contacts, so it asks `AuthorizationCheckerInterface`.
   - The core checks the state (409). It still checks that a contact belongs to the account, and what PersonalData lets its reader do.
+  - The `#[IsGranted]` attributes are the table of the rights. `tests/Api/EndpointRightsApiTest` reads them and calls each endpoint of a member with each profile (`docs/architecture/tests.md`, "API tests"). A new endpoint declares its rights there, and needs no test of its own for them (ADR 0212).
 - Links: a resource carries `_links` (HAL, plus `method`). Its presenter builds them from the possible intents in the core's response (`Shared\Links`).
   - Prospecting's links appear only when the member holds the role that their controller requires. The presenter's table declares that role next to the route (`Security\IntentLinks`, ADR 0081, 0088).
   - A link's key is absent when the intent is not possible right now, and the call would then fail (`SKIP_NULL_VALUES` on `_links`, optional in the contract).
