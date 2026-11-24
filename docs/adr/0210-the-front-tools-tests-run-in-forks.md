@@ -13,7 +13,7 @@ The front now holds code beside the SPA: the event storming's generator (`event-
 ## Decision
 
 - Vitest runs two projects. `spa` (`src/`, `lint/`) keeps the `vmThreads` pool and its `vmMemoryLimit` (ADR 0207). `tools` (`event-storming/`, `infra/`) runs in the `forks` pool: each file in a process of its own, which gives its memory back when it ends.
-- Stryker's Vitest runner gives every project its own pool, `vmThreads`. It looks for the tests in `src/` only (`vitest.dir`): it mutates only `src`, which the tools' tests do not cover.
+- Stryker's Vitest runner forces its own pool, `vmThreads`, on every project. So it looks for the tests in `src/` only (`vitest.dir`): it mutates only `src`, and the tools' tests do not cover it.
 
 ## Consequences
 
@@ -23,7 +23,7 @@ The front now holds code beside the SPA: the event storming's generator (`event-
 
 ## Alternatives considered
 
-None other was weighed: the split keeps ADR 0207 whole for the SPA.
+No other option was weighed: the split keeps ADR 0207 whole for the SPA.
 
 ## Revisit when
 
