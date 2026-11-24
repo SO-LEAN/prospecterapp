@@ -52,3 +52,8 @@ An organization using Prospecter, and the members working in it. Code: `packages
 - `OpenAccount` opens an account with its founder. When an account opens, `RegisterTheFounderPolicy` sends `RegisterTheFounder`, which registers the founder with every role (ADR 0203). The integration event `AccountOpened` announces the account to the other contexts (ADR 0064).
 - `RegisterAMember` registers a member in the acting administrator's account. The member gets at least one role among prospector, personal data and administrator. The use case calls `Member::registerBy()` with the administrator, who stands for the `Gesture`, and a `Newcomer`: the member, their profile and their roles. The aggregate decides who has the right to register (ADR 0193). `MemberRegistered` announces it (ADR 0075).
 - `ChangeMyReminders` changes the acting member's reminders (`RemindersChanged`). `ConsultMyReminders` reads them through `MyRemindersRetriever`, with the defaults for a member who never changed them.
+- `src/Accounts/Application` groups its use cases in three modules (ADR 0206):
+  - `Account`, the organization using Prospecter: `OpenAccount`, `ConsultMyAccount` (`MyAccount`), `ReviseMyOrganizationIdentity`, `RelocateMyOrganization`, `ChangeMyOrganizationLogo`, `ListAccounts` (a published service) and `PublishAccountOpened` (its translator);
+  - `Member`, who belongs to an account and with which roles: `RegisterTheFounder`, `RegisterAMember`, `ConsultMembers` (a published service) and `PublishMemberRegistered` (its translator);
+  - `Reminders`, a member's reminders: `ChangeMyReminders` and `ConsultMyReminders` (`MyReminders`);
+  - at the application's root, the ports (`Port/`) and the policy (`Policy/RegisterTheFounderPolicy`).
