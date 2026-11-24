@@ -20,7 +20,7 @@ describe('the lettering of a post-it', () => {
   it('writes a label on the lines it wraps to', () => {
     const [label] = lettersOf(noteOf('command:ForgetAppointmentOfErasedExchange', 'command'))
 
-    expect(label?.lines).toEqual(['Forget appointment', 'of erased exchange'])
+    expect(label?.lines).toEqual(['Forget', 'appointment of', 'erased exchange'])
   })
 
   it('writes above a policy whenever the event it hears happens', () => {

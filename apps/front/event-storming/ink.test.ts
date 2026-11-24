@@ -2,15 +2,20 @@ import { describe, expect, it } from 'vitest'
 import { linesOf, widthOf } from './ink.ts'
 
 describe('the ink of a post-it', () => {
-  it('measures a handwritten text by the advance of each of its letters', () => {
-    expect(widthOf('mi', 20, 'hand')).toBeCloseTo((0.68 + 0.224) * 20)
+  it('measures a handwritten text by the advance of each of its letters, on whole pixels', () => {
+    expect(widthOf('mi', 20, 'hand')).toBe(14 + 5)
+  })
+
+  it('measures a small handwritten text as wide as a browser draws it, each letter rounded', () => {
+    expect(widthOf('Publish slot booked', 16.5, 'hand')).toBeGreaterThanOrEqual(120)
   })
 
   it('wraps a label at its spaces to fit the post-it', () => {
     expect(linesOf('Forget appointment of erased exchange', 18.5, 'hand', 110)).toEqual([
       'Forget',
       'appointment of',
-      'erased exchange',
+      'erased',
+      'exchange',
     ])
   })
 
