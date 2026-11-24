@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- The tests of mutation (ADR 0091): the unit tests and the scenarios of the features, run by PHPUnit -->
+<!-- The tests of mutation (ADR 0091): the unit tests, the scenarios of the features and the event storming generator's
+     tests, run by PHPUnit -->
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="../../vendor/phpunit/phpunit/phpunit.xsd"
          bootstrap="../../vendor/autoload.php"
@@ -15,11 +16,16 @@
             <exclude>../Acceptance</exclude>
             <exclude>../Double</exclude>
         </testsuite>
+        <testsuite name="event-storming">
+            <directory>../../../phpstan-rules/tests/EventStorming</directory>
+            <exclude>../../../phpstan-rules/tests/EventStorming/Fixtures</exclude>
+        </testsuite>
     </testsuites>
 
     <source restrictNotices="true" restrictWarnings="true">
         <include>
             <directory>../../src</directory>
+            <directory>../../../phpstan-rules/EventStorming</directory>
         </include>
     </source>
 </phpunit>

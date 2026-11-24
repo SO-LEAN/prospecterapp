@@ -22,8 +22,10 @@ test: ## Run the business rules (Behat) and the unit tests of the core; FILTER= 
 
 # the summary Infection writes (infection.json5), removed before each run: a run mutating nothing reads no former one
 MUTATION_SUMMARY = var/mutation-summary.json
+# the event storming's generator, beside the core whose tests run its own (infection.json5)
+MUTATED_PHP = 'src/*.php' '../phpstan-rules/EventStorming/*.php'
 
-mutation: ## Mutate the lines the branch adds in src since BASE (origin/dev), killed by the unit tests and the scenarios; list the survivors, count the skipped mutants and fail when there is one
+mutation: ## Mutate the lines the branch adds in src and in the event storming's generator since BASE (origin/dev), killed by the unit tests, the scenarios and the generator's tests; list the survivors, count the skipped mutants and fail when there is one
 	@rm -f $(MUTATION_SUMMARY)
 	$(infection-on-added-lines)
 	$(call fail-on-skipped-mutants,$(MUTATION_SUMMARY))

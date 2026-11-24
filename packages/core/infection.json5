@@ -1,7 +1,9 @@
-// The tests of mutation of the core (ADR 0091): the unit tests and the scenarios, run by PHPUnit (tests/Mutation)
+// The tests of mutation of the core (ADR 0091): the unit tests, the scenarios and the event storming generator's tests,
+// run by PHPUnit (tests/Mutation)
 {
     "$schema": "vendor/infection/infection/resources/schema.json",
-    "source": {"directories": ["src"]},
+    // the event storming's generator is mutated with the core, whose PHPUnit runs its tests (its phpstan-rules suite)
+    "source": {"directories": ["src", "../phpstan-rules/EventStorming"]},
     "phpUnit": {"configDir": "tests/Mutation"},
     "mutators": {"@default": true},
     // Infection skips a mutant whose covering tests took longer than this in its first run, under Xdebug: above that
