@@ -28,7 +28,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
  * A tool does what its controller does (ADR 0163): it checks the rights of the controller's `#[IsGranted]`, and calls
- * the same reader, query or command. This test reads it in their sources, so that a tool's API tests prove only what
+ * the same reader, query or command. This test reads both in their sources, so that a tool's API tests prove only what
  * the tool adds to its endpoint.
  */
 class EveryToolIsWiredAsItsControllerTest extends KernelTestCase
@@ -61,10 +61,12 @@ class EveryToolIsWiredAsItsControllerTest extends KernelTestCase
 
     public function testEveryToolChecksTheRightsOfItsController(): void
     {
+        $toolsAndControllers = $this->toolsAndControllers();
+        $reader = self::readerOf($toolsAndControllers);
         $differences = [];
-        foreach ($this->toolsAndControllers() as $tool => $controller) {
-            $expected = self::sorted([...self::rightsOf($controller), ...$this->reader()->of($controller, '__invoke')['rights']]);
-            $checked = $this->reader()->of($tool, '__invoke')['rights'];
+        foreach ($toolsAndControllers as $tool => $controller) {
+            $expected = self::sorted([...self::rightsOf($controller), ...$reader->of($controller, '__invoke')['rights']]);
+            $checked = $reader->of($tool, '__invoke')['rights'];
             if ($expected !== $checked) {
                 $differences[$tool] = ['controller' => $expected, 'tool' => $checked];
             }
@@ -75,9 +77,11 @@ class EveryToolIsWiredAsItsControllerTest extends KernelTestCase
 
     public function testEveryToolCallsWhatItsControllerCalls(): void
     {
+        $toolsAndControllers = $this->toolsAndControllers();
+        $reader = self::readerOf($toolsAndControllers);
         $differences = [];
-        foreach ($this->toolsAndControllers() as $tool => $controller) {
-            $missing = array_values(array_diff($this->reader()->of($controller, '__invoke')['calls'], $this->reader()->of($tool, '__invoke')['calls'], self::DONE_OTHERWISE[$tool] ?? []));
+        foreach ($toolsAndControllers as $tool => $controller) {
+            $missing = array_values(array_diff($reader->of($controller, '__invoke')['calls'], $reader->of($tool, '__invoke')['calls'], self::DONE_OTHERWISE[$tool] ?? []));
             if ([] !== $missing) {
                 $differences[$tool] = $missing;
             }
@@ -86,17 +90,14 @@ class EveryToolIsWiredAsItsControllerTest extends KernelTestCase
         $this->assertSame([], $differences, 'Tools that do not call the readers, queries or commands of their controller');
     }
 
-    private function reader(): WhatAMethodCalls
-    {
-        return new WhatAMethodCalls(self::PASSED_BY, $this->everyRight());
-    }
-
     /**
-     * @return list<string>
+     * @param array<class-string, class-string> $toolsAndControllers
      */
-    private function everyRight(): array
+    private static function readerOf(array $toolsAndControllers): WhatAMethodCalls
     {
-        return array_values(array_unique(array_merge(...array_values(array_map(self::rightsOf(...), $this->toolsAndControllers())))));
+        $everyRight = array_values(array_unique(array_merge(...array_values(array_map(self::rightsOf(...), $toolsAndControllers)))));
+
+        return new WhatAMethodCalls(self::PASSED_BY, $everyRight);
     }
 
     /**

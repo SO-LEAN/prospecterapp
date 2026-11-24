@@ -117,6 +117,7 @@
         "brianium/paratest": "^7.28",
         "friendsofphp/php-cs-fixer": "^3.95",
         "infection/infection": "^0.35.8",
+        "nikic/php-parser": "^5.9",
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan": "^2.3",
         "phpunit/phpunit": "^13.4.4",
