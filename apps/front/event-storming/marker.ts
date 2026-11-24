@@ -36,3 +36,81 @@ export function wobbly(from: Point, to: Point, seed: string): string {
   }
   return path
 }
+
+/** A post-it where the wall shows it, and the seed of its lean. */
+export interface Placed {
+  x: number
+  y: number
+  w: number
+  h: number
+  seed: string
+}
+
+export interface Arrow {
+  curve: string
+  head: string
+  /** Where "maybe" is written on an arrow that happens only under a condition. */
+  maybe: Point | null
+}
+
+/** A reaction's marker arrow: from the right of a post-it to the left of the next, slightly bent. */
+export function arrowOf(from: Placed, to: Placed, certain: boolean): Arrow {
+  const x1 = from.x + from.w + 3
+  const y1 = Math.round((from.y + from.h / 2 + lean(`${from.seed}out`, 5)) * 10) / 10
+  const x2 = to.x - 9
+  const y2 = Math.round((to.y + to.h / 2 + lean(`${to.seed}in`, 5)) * 10) / 10
+  const reach = Math.max(34, Math.min(180, Math.abs(x2 - x1) * 0.5))
+  const bend = lean(from.seed + to.seed, 9)
+  const c1 = { x: x1 + reach, y: y1 + bend }
+  const c2 = { x: x2 - reach, y: y2 - bend }
+  const angle = Math.atan2(y2 - c2.y, x2 - c2.x)
+  const barb = (turn: number): string =>
+    `M${x2},${y2} L${(x2 - 13 * Math.cos(angle + turn)).toFixed(1)},${(y2 - 13 * Math.sin(angle + turn)).toFixed(1)}`
+  return {
+    curve: `M${x1},${y1} C${c1.x.toFixed(1)},${c1.y.toFixed(1)} ${c2.x.toFixed(1)},${c2.y.toFixed(1)} ${x2},${y2}`,
+    head: `${barb(0.48)} ${barb(-0.48)}`,
+    maybe: certain ? null : { x: (x1 + x2) / 2, y: (y1 + y2) / 2 - 9 },
+  }
+}
+
+export interface Branch {
+  line: string
+  head: string
+  /** The straight path the dashed line's condition shows on, wide enough for the mouse and the focus. */
+  target: string
+}
+
+export interface Brace {
+  lead: string
+  branches: Branch[]
+}
+
+/**
+ * The marker line from an actor or a view that branches to each command it leads to: it leaves the post-it (on its
+ * right, or over it when a view stands in front), runs down a spine, and ends in a tick at each command.
+ */
+export function braceOf(from: Placed, ends: Placed[], spine: number, over: Placed | null): Brace {
+  const seed = `${from.seed}${spine}`
+  const ys = ends.map((end) => Math.round((end.y + end.h / 2 + lean(`${end.seed}${seed}in`, 8)) * 10) / 10)
+  let lead: string
+  let y0: number
+  if (over !== null) {
+    const x = from.x + from.w / 2
+    y0 = Math.min(from.y, over.y) - 22
+    lead = `${wobbly({ x, y: from.y - 4 }, { x, y: y0 }, `${seed}up`)} ${wobbly({ x, y: y0 }, { x: spine, y: y0 }, seed)}`
+  } else {
+    y0 = from.y + from.h / 2
+    lead = wobbly({ x: from.x + from.w + 4, y: y0 }, { x: spine, y: y0 }, seed)
+  }
+  const down = wobbly({ x: spine, y: Math.min(y0, ...ys) }, { x: spine, y: Math.max(y0, ...ys) }, `${seed}s`)
+  const branches = ends.map((end, index) => {
+    const x = end.x - 9
+    const y = ys[index] ?? end.y
+    return {
+      line: wobbly({ x: spine, y }, { x, y }, end.seed),
+      head: `M${x},${y} l-9,-6 M${x},${y} l-9,6`,
+      target: `M${spine},${y} L${x},${y}`,
+    }
+  })
+  return { lead: `${lead} ${down}`, branches }
+}
