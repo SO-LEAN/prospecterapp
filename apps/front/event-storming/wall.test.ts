@@ -199,6 +199,84 @@ describe('the wall of a context', () => {
     ])
   })
 
+  it('says on the card of a hotspot of what nothing reaches that it is a suspicion to check', () => {
+    const unsent = wallOf({
+      ...BOOKING,
+      links: BOOKING.links.filter(
+        (link) => !(link.from.startsWith('actor:') && link.to.endsWith('\\CloseBooking')),
+      ),
+      stickies: BOOKING.stickies.map((sticky) => ({ ...sticky, readBy: [] })),
+    })
+    const whys = unsent.notes
+      .filter((note) => note.label === 'Nobody sends this' || note.label === 'Nobody calls this')
+      .map((note) => note.why)
+
+    expect(whys).toEqual([
+      'No controller, no tool of the MCP server and no class of another context reads this view. It is a suspicion to check: the analysis follows the calls it reads, and a dynamic call escapes it.',
+      'No controller, no tool of the MCP server and no policy sends this command. It is a suspicion to check: the analysis follows the calls it reads, and a dynamic call escapes it.',
+    ])
+  })
+
+  it('touches the command nobody sends with its hotspot, without an arrow', () => {
+    const unsent = wallOf({
+      ...BOOKING,
+      links: BOOKING.links.filter(
+        (link) => !(link.from.startsWith('actor:') && link.to.endsWith('\\CloseBooking')),
+      ),
+    })
+    const edge = unsent.edges.find((candidate) => candidate.from.label === 'Nobody sends this')
+
+    expect([edge?.to.label, edge?.certain, edge?.drawn]).toEqual(['Close booking', true, false])
+  })
+
+  it('names the wall a published service is read from, and the port that reads it', () => {
+    expect(noteOf('readModel:ConsultAppointments').jumps.map((jump) => jump.tip)).toEqual([
+      'Read by “Bookers” · Personal data',
+      'Read by “Booked appointments” · Prospecting',
+    ])
+  })
+
+  it('jumps from a published service to no wall for a reader of no context', () => {
+    const appointments =
+      'readModel:Prospecter\\Core\\Booking\\Contract\\Service\\ConsultAppointments\\ConsultAppointments'
+    const readByTheDelivery = wallOf({
+      ...BOOKING,
+      stickies: BOOKING.stickies.map((sticky) =>
+        sticky.id === appointments
+          ? { ...sticky, readBy: [{ context: null, slug: null, label: 'AgendaReader' }] }
+          : sticky,
+      ),
+    })
+
+    expect(readByTheDelivery.notes.find((note) => note.sticky?.id === appointments)?.jumps).toEqual([])
+  })
+
+  it('names the wall an event a policy hears comes from', () => {
+    expect(noteOf('Prospecting/published:ExchangeFactsChanged').jumps.map((jump) => jump.tip)).toEqual([
+      'Heard from “Exchange facts changed” · Prospecting',
+    ])
+  })
+
+  it('puts no pictogram on a port that no other context answers', () => {
+    const unanswered = wallOf({
+      ...BOOKING,
+      stickies: BOOKING.stickies.map((sticky) => ({ ...sticky, answers: [], answeredBy: [] })),
+    })
+
+    expect(unanswered.notes.filter((note) => note.port).flatMap((note) => note.jumps)).toEqual([])
+  })
+
+  it('puts a use case of no module of a context with modules in a lane of the application', () => {
+    const rootless = wallOf({
+      ...BOOKING,
+      stickies: BOOKING.stickies.map((sticky) =>
+        sticky.slug === 'command:CloseBooking' ? { ...sticky, module: null } : sticky,
+      ),
+    })
+
+    expect(rootless.lanes.map((lane) => lane.name)).toContain('Application')
+  })
+
   it("lays another context's post-it on a piece of its paper", () => {
     const identify = noteOf('PersonalData/policy:IdentifyBookerPolicy')
 
