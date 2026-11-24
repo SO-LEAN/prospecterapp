@@ -73,6 +73,12 @@ describe('the overview of the contexts', () => {
     expect(document.querySelectorAll('link, script[src], img[src^="http"]').length).toBe(0)
   })
 
+  it('writes the page the repository holds, which make event-storming wrote', () => {
+    const font = readFileSync('event-storming/font/patrick-hand.woff2').toString('base64')
+
+    expect(overviewOf(MODELS, { style: '', font })).toBe(readFileSync(`${WALLS}/index.html`, 'utf8'))
+  })
+
   it('writes the same page from the same models, whatever their order', () => {
     expect(overviewOf([...MODELS].reverse(), ASSETS)).toBe(page)
   })
