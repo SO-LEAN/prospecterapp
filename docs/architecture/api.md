@@ -158,7 +158,7 @@ This document states the rules in force. The decision records (`docs/adr`) expla
 
   The problem and its violation carry the `reason` (the refusal's class, `invalidPhoneNumber`) and its `context`. The SPA words them in French (ADR 0073).
 
-  `tests/Shared/UseCaseExceptionListenerTest` proves each of these translations once for the whole API. An endpoint's tests do not prove them again: they prove its route, its input, its persistence, its response, its links and its rights. None re-tests a refusal the core proves (ADR 0208, `tests.md`).
+  `tests/Shared/UseCaseExceptionListenerTest` proves each of these translations once for the whole API. An endpoint's tests do not prove them again: they prove its route, its input, its persistence, its response and its links. `EndpointRightsApiTest` proves its rights (ADR 0212). None re-tests a refusal the core proves (ADR 0208, `tests.md`).
 
   An AWS service out of reach is a `Shared\ServiceUnavailable`. Once Symfony has logged its cause, `Shared\ServiceUnavailableListener` answers it with a 503 and its `reason`:
   - `secretsUnavailable`: SSM refuses or fails to put, read or delete an account's secret. `Shared\Persistence\AccountSecrets` throws it;
