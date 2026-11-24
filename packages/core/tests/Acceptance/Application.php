@@ -366,6 +366,7 @@ use Prospecter\Core\Prospecting\Application\Policy\DiscardAttachmentsOfErasedExc
 use Prospecter\Core\Prospecting\Application\Policy\DiscardRemovedAttachmentPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\DiscardRemovedLogoPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\KeepImportedAttachmentPolicy;
+use Prospecter\Core\Prospecting\Application\Policy\LiftSuspicionInReturnPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\SuspectDuplicateInReturnPolicy;
 use Prospecter\Core\Prospecting\Application\ProposeMeetingPlace\KeptMeetingPlace;
 use Prospecter\Core\Prospecting\Application\ProposeMeetingPlace\MeetingPlace;
@@ -1391,6 +1392,7 @@ final class Application
     private function commandHandlers(): array
     {
         return [
+            new LiftSuspicionInReturnHandler($this->organizations, $this->events),
             new SuspectDuplicateInReturnHandler($this->organizations, $this->events),
             new KeepImportedAttachmentHandler($this->privateStorage),
             new DiscardAttachmentsOfErasedExchangeHandler($this->privateStorage),
@@ -1803,7 +1805,7 @@ final class Application
             new ForgetFingerprintsOfForgottenContactHandler($this->exchanges),
             new KeepCreatedVideoCallLinkHandler($this->exchanges, $this->events),
             new SuspectDuplicateInReturnPolicy(),
-            new LiftSuspicionInReturnHandler($this->organizations, $this->events),
+            new LiftSuspicionInReturnPolicy(),
             new SuspectContactDuplicateInReturnPolicy(),
             new LiftContactSuspicionInReturnPolicy(),
             new DismissContactSuspicionInReturnPolicy(),
