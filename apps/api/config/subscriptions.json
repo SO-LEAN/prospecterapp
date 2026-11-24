@@ -129,7 +129,7 @@
     "context": "prospecting",
     "sources": ["prospecter.prospecting.internal"],
     "events": ["DuplicateSuspicionDismissed.v1"],
-    "handler": "Prospecter\\Core\\Prospecting\\Application\\DismissSuspicionInReturn\\DismissSuspicionInReturnHandler",
+    "policy": "Prospecter\\Core\\Prospecting\\Application\\Policy\\DismissSuspicionInReturnPolicy",
     "inbox": true
   },
   "prospecting-stop-keeping-to-dos": {
