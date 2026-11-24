@@ -199,6 +199,32 @@ class OrganizationAndContactToolsApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(404);
     }
 
+    /**
+     * The tool checks the right to manage the personal data only for an organization with contacts, a condition the
+     * wiring test does not see.
+     */
+    public function testTheAiOfAProspectorWithoutTheRightToManageThePersonalDataStopsProspectingAnOrganizationWithoutContacts(): void
+    {
+        $holding = $this->aHolding();
+        $this->login('assistant-user');
+
+        $this->assertNotTrue($this->callWithoutHandshake('stop-prospecting', ['id' => $holding])['isError'] ?? false);
+
+        $this->requestJson('GET', '/api/organizations/'.$holding);
+        $this->assertResponseStatusCodeSame(404);
+    }
+
+    public function testTheAiOfAProspectorWithoutTheRightToManageThePersonalDataIsRefusedToStopProspectingAnOrganizationWithContacts(): void
+    {
+        $babbage = $this->babbage();
+        $this->login('assistant-user');
+
+        $refusal = $this->callWithoutHandshake('stop-prospecting', ['id' => $babbage]);
+
+        $this->assertTrue($refusal['isError'] ?? false);
+        $this->assertSame($this->requestJson('DELETE', '/api/organizations/'.$babbage), $this->answerOf($refusal));
+    }
+
     public function testTheAiGivesTheLogoOfAnOrganizationByItsAddressOnTheWeb(): void
     {
         $babbage = $this->babbage();
