@@ -118,35 +118,25 @@ The reactions are listed in one place (ADR 0097), `apps/api/config/subscriptions
 }
 ```
 
-The events it listens to are those its policy's signature takes. `reporting-figures` names one policy that takes the facts of an organization, an exchange or a contact, and returns the command recording each kind (`RecordFactsPolicy`). `campaigns-record-facts` does the same for Campaigns. A subscription whose reaction is not a policy yet names it (`handler`):
-
-```json
-"prospecting-detach-forgotten-contact": {
-  "context": "prospecting",
-  "sources": ["prospecter.personal-data"],
-  "events": ["ContactForgotten.v1"],
-  "handler": "Prospecter\\Core\\Prospecting\\Application\\DetachForgottenContact\\DetachForgottenContactHandler",
-  "inbox": true
-}
-```
+The events it listens to are those its policy's signature takes. `reporting-figures` names one policy that takes the facts of an organization, an exchange or a contact, and returns the command recording each kind (`RecordFactsPolicy`). `campaigns-record-facts` does the same for Campaigns.
 
 A subscription that listens to some payloads only names them in `payload` (ADR 0127). That is an EventBridge pattern on the detail's payload, with `$or` and the values a field may hold. Its bus rule passes only those, and the `sync` delivery reads the pattern the same way (`Shared\Messaging\PayloadPattern`, `tests/Shared/Messaging/SubscriptionsTest`). `connectors-push-exchange` listens to the facts of exchanges that are planned, cancelled or erased, so most facts ask nothing of the worker. `campaigns-forget-tags-of-unprospected-organization` listens to organizations' terminal facts (`{"present": [false]}`).
 
-- Two handlers of one event make two subscriptions.
+- Two policies of one event make two subscriptions.
 - `inbox` (ADR 0102): the worker applies an event once per subscription. A reaction needs it when a second application would change something. These reactions go without one:
   - a reaction that removes a file;
   - Campaigns' reactions that forget a tagging or record a fact;
   - Reporting's reactions, where a fact's revision makes the second application harmless.
-- A test service can be a subscription declared by its `app.subscription` tag (`Tests\App\Double\FailingReaction`), unknown to the infrastructure.
-- A translator (`Application/Publish…/Publish…Handler`, or `Application/<Module>/Publish…/Publish…Handler`) is not a subscription: it stays on the event bus and publishes a domain event for the other contexts.
+- A test service can be a subscription declared by its `app.subscription` tag (`Tests\App\Double\FailingReactionPolicy`, whose command's handler fails when a test asks it to), unknown to the infrastructure.
+- A translator (`Application/Publish…/Publish…Handler`, or `Application/<Module>/Publish…/Publish…Handler`) is not a subscription: it stays on the event bus and publishes a domain event for the other contexts. It is the only kind of event handler of the core (ADR 0203).
 - `tests/Architecture/ReactionsAreSubscribedTest` fails when:
   - a core policy is not a subscription;
   - a subscription names an unknown policy, or listens to a detail-type that its policy's signature does not take;
-  - a core event handler is neither a translator nor a subscription;
-  - a subscription names an unknown reaction, names both or neither of `policy` and `handler`, or lists an event none of its sources publishes;
+  - a core event handler is not a translator;
+  - a subscription lists an event none of its sources publishes;
   - a subscription to a `.internal` source belongs to a different context than the event: a domain event never leaves its context (ADR 0046).
-- `StopKeepingExchanges` publishes one `ExchangeLeftWithoutOrganization` per exchange to erase. `prospecting-erase-exchange` erases each one, so that each erasure fits in its own transaction (`persistence.md`). When the event is delivered again for an exchange already erased, the reaction writes nothing.
-- A removed file leaves the storage in a Prospecting reaction to the event naming it (`prospecting-discard-removed-logo`, `prospecting-discard-removed-attachment`, `prospecting-discard-attachments-of-erased-exchange`), once its removal is written.
+- `StopKeepingExchanges` publishes one `ExchangeLeftWithoutOrganization` per exchange to erase. `prospecting-erase-exchange` erases each one, so that each erasure fits in its own transaction (`persistence.md`). When the event is delivered again for an exchange already erased, its command writes nothing.
+- A removed file leaves the storage through a Prospecting command, which a policy sends for the event naming it (`prospecting-discard-removed-logo`, `prospecting-discard-removed-attachment`, `prospecting-discard-attachments-of-erased-exchange`), once its removal is written.
 - The order of the reactions is not guaranteed.
 
 ## The worker
@@ -157,7 +147,7 @@ The worker is the function `prospecter-<instance>-api-worker` (`App\Shared\Messa
   1. reads the event (`Invocation`, `EventCodec`) and refuses one deeper than 5;
   2. opens a unit of work;
   3. keeps the subscription's inbox when it has one (`Inbox`: PK `INBOX#<subscription>`, SK the `eventId`, `expiresAt` 15 days later, in its context's table, under `attribute_not_exists(SK)`);
-  4. calls the reaction within the event's cause: it sends a policy's commands through the command decorators, and calls an event handler through its own (what the reaction publishes goes one level deeper, `Causation`);
+  4. calls the reaction within the event's cause: it sends the commands of the subscription's policy through the command decorators (what the reaction publishes goes one level deeper, `Causation`);
   5. commits the inbox, what the reaction writes, and the outbox of what it publishes.
 
   An event already applied is detected at the commit (`AlreadyApplied`). The invocation then ends normally and writes nothing. A transaction can be cancelled by a condition that carries no refusal, or by a conflict with another transaction (`ConditionFailed`). It is then applied again from its reads, at most three times, each after a random wait under 100 ms. After that, the failure is thrown (ADR 0104).

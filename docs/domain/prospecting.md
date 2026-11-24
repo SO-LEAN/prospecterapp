@@ -191,6 +191,7 @@ This context holds the organizations an account prospects, their contacts, the e
 
 `src/Prospecting/{Domain,Application}`:
 
+- The reactions are policies, in `Application/Policy`: each one turns an event into the command named below, `<Intent>Policy` for the command `<Intent>` (ADR 0203).
 - Organizations and contacts:
   - the organizations an account prospects (`Organization`), and `StopProspecting`;
   - its contacts (`ContactId`s only, `AddContact` / `RemoveContact`). A contact is never left alone: `OrphanContacts`;
@@ -238,10 +239,10 @@ This context holds the organizations an account prospects, their contacts, the e
   - `RemoveAttachment`, and `DownloadAttachment`: a link signed for a moment, with the right to manage personal data;
   - an imported e-mail's files, attached by `NoteImportedEmail` and kept by `KeepImportedAttachment` (ADR 0182);
   - an erased exchange takes its files with it. A removed attachment or logo takes its file. A command, which a policy sends, removes each file from the storage once the removal is written (`DiscardAttachmentsOfErasedExchange`, `DiscardRemovedAttachment`, `DiscardRemovedLogo`, ADR 0101).
-- A forgotten contact's exchanges stay, to redact. `KeepExchangesOfForgottenContact` reacts to `ContactForgotten` (`Exchange::forgetItsContact()`, ADR 0079). It cancels an exchange still to come (ADR 0112):
+- A forgotten contact's exchanges stay, to redact. `ContactForgotten` sends `KeepExchangesOfForgottenContact` (`Exchange::forgetItsContact()`, ADR 0079). It cancels an exchange still to come (ADR 0112):
   - their text stays until a correction declares it redacted (`madeConform` of `CorrectExchangeText` and `CorrectExchange`, the intent `MakeConform`). Their files stay until a member removes them;
   - in an organization's timeline, an exchange's contact is present, removed from it or forgotten (`ContactPresence`). The timeline counts those to redact. `ConsultExchangesToMakeConform` lists them alone.
 - To-dos (`ToDo`, `Due`, ADR 0113). `ToDo::noted()` creates one from the member's `Gesture`, a contact or organization correspondent, and a `Task` (its text and when it is due):
   - `NoteToDo` for a contact, kept for its organizations, and `NoteOrganizationToDo` for the organization itself. Then `ReviseToDo`, `TickOffToDo`, `UntickToDo` and `EraseToDo`;
   - `ConsultToDo`, `ConsultToDos` (a contact), `ConsultOrganizationToDos` (an organization and its contacts) and `ConsultMyToDos` (those a member still has to do). `ToDoList` orders them, read through the `ToDoListRetriever` port;
-  - they are erased with their last organization (`StopKeepingToDos`, `ToDoLeftWithoutOrganization`, `EraseToDoLeftWithoutOrganization`). They are also erased with their contact (`EraseToDosOfForgottenContact` reacts to `ContactForgotten`).
+  - they are erased with their last organization (`StopKeepingToDos`, `ToDoLeftWithoutOrganization`, `EraseToDoLeftWithoutOrganization`). They are also erased with their contact (`ContactForgotten` sends `EraseToDosOfForgottenContact`).
