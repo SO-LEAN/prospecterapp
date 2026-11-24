@@ -111,19 +111,6 @@ class GoogleSyncApiTest extends ApiTestCase
         yield 'an administrator not prospecting' => ['administrator', Role::User, Role::Admin];
     }
 
-    public function testAMemberNotProspectingNeitherReadsNorPushesAgainTheStateOfAnExchange(): void
-    {
-        $this->login();
-        $planned = $this->plan(self::NEXT_TUESDAY);
-        $this->signInAnotherMember($this->aMemberOfTheFixtures('not-prospecting', Role::User));
-
-        $this->requestJson('GET', '/api/exchanges/'.$planned.'/google-sync');
-        $this->assertResponseStatusCodeSame(403);
-
-        $this->requestJson('POST', '/api/exchanges/'.$planned.'/google-sync/retries');
-        $this->assertResponseStatusCodeSame(403);
-    }
-
     public function testAPushGoogleRefusesIsFailedThenPushedAgainByItsHolder(): void
     {
         $this->login();

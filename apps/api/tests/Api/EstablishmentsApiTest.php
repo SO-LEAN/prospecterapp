@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Api;
 
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
-use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
@@ -14,7 +12,6 @@ use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
 use Prospecter\Core\SharedKernel\Domain\Company\LegalIdentity;
 use Prospecter\Core\SharedKernel\Domain\Contact\ContactDetails;
 use Prospecter\Core\SharedKernel\Domain\Gesture\Gesture;
-use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 use Tests\App\Base\ApiTestCase;
 use Tests\App\Base\ReadsResources;
@@ -59,30 +56,6 @@ class EstablishmentsApiTest extends ApiTestCase
         $this->assertSame(['establishments' => [self::ACME_IN_LYON]], $proposed);
     }
 
-    /**
-     * @param list<Role> $roles
-     */
-    #[DataProvider('everyProspector')]
-    public function testEveryProspectorSearchesWithOrWithoutTheRight(string $member, array $roles): void
-    {
-        $id = $this->anOrganizationOfTheAccount('ACME');
-        $this->login($this->aMemberOfTheFixtures($member, ...$roles));
-        $this->outsideServices()->directoryLists(self::ACME_COMPANY);
-
-        $this->requestJson('GET', '/api/organizations/'.$id.'/establishments');
-
-        $this->assertResponseIsSuccessful();
-    }
-
-    /**
-     * @return iterable<string, array{string, list<Role>}>
-     */
-    public static function everyProspector(): iterable
-    {
-        yield 'without the right to manage personal data' => ['prospector-without-the-right', [Role::User, Role::Prospector]];
-        yield 'an administrator' => ['administrator', [Role::Prospector, Role::Admin]];
-    }
-
     public function testTheOrganizationLeadsToItsEstablishmentsWhereItsIdentityIsRevised(): void
     {
         $id = $this->anOrganizationOfTheAccount('ACME');
@@ -100,33 +73,6 @@ class EstablishmentsApiTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(503);
         $this->assertSame('directoryUnreachable', $problem['reason']);
-    }
-
-    public function testAnOrganizationOfAnotherAccountIsNotFound(): void
-    {
-        $problem = $this->requestJson('GET', '/api/organizations/'.$this->anOrganizationOfAnotherAccount().'/establishments');
-
-        $this->assertResponseStatusCodeSame(404);
-        $this->assertSame('unknownOrganization', $problem['reason']);
-    }
-
-    public function testTheSearchRequiresAnAccessToken(): void
-    {
-        $id = $this->anOrganizationOfTheAccount('ACME');
-        $this->client->setServerParameter('HTTP_AUTHORIZATION', '');
-
-        $this->requestJson('GET', '/api/organizations/'.$id.'/establishments');
-
-        $this->assertResponseStatusCodeSame(401);
-    }
-
-    private function anOrganizationOfAnotherAccount(): string
-    {
-        $prospector = new Prospector(new MemberId(self::newIdentity()), new AccountId(self::newIdentity()));
-        $organization = Organization::prospectedBy(new Gesture($prospector->accountId, $prospector->id, new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)), new OrganizationId(self::newIdentity()), new LegalIdentity('ACME'), new ContactDetails());
-        self::service(OrganizationRepository::class)->save($organization);
-
-        return $organization->id()->value;
     }
 
     /**

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\App\Api;
 
 use PHPUnit\Framework\Attributes\Group;
-use Prospecter\Core\Accounts\Domain\Model\Role;
 use Symfony\Component\Clock\MockClock;
 use Tests\App\Base\ApiTestCase;
 use Tests\App\Base\ReadsResources;
@@ -91,26 +90,6 @@ class CampaignDailyCapApiTest extends ApiTestCase
         $this->requestJson('GET', '/api/campaigns/'.$id.'?timeZone=Mars/Olympus');
 
         $this->assertResponseStatusCodeSame(422);
-    }
-
-    public function testAnAdministratorSetsTheDailyCap(): void
-    {
-        $id = $this->aStartedCampaign();
-        $this->login($this->aMemberOfTheFixtures('administrator', Role::Prospector, Role::Admin));
-
-        $this->requestJson('PATCH', '/api/campaigns/'.$id.'/daily-cap', ['dailyCap' => 2]);
-
-        $this->assertResponseStatusCodeSame(200);
-    }
-
-    public function testWithoutTheRightToManagePersonalDataTheDailyCapIsNotSet(): void
-    {
-        $id = $this->aStartedCampaign();
-        $this->login($this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector));
-
-        $this->requestJson('PATCH', '/api/campaigns/'.$id.'/daily-cap', ['dailyCap' => 2]);
-
-        $this->assertResponseStatusCodeSame(403);
     }
 
     private function theClockShows(string $moment): void

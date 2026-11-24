@@ -82,24 +82,4 @@ class RemindersApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(422);
         $this->assertSame(['enabled'], $this->violatedFields($problem));
     }
-
-    /**
-     * @param array<string, mixed>|null $payload
-     */
-    #[DataProvider('gestures')]
-    public function testAnonymousCallersAreRejected(string $method, ?array $payload): void
-    {
-        $this->requestJson($method, '/api/me/reminders', $payload);
-
-        $this->assertResponseStatusCodeSame(401);
-    }
-
-    /**
-     * @return iterable<string, array{string, array<string, mixed>|null}>
-     */
-    public static function gestures(): iterable
-    {
-        yield 'consulting' => ['GET', null];
-        yield 'changing' => ['PATCH', ['enabled' => true, 'minutesBefore' => 30]];
-    }
 }

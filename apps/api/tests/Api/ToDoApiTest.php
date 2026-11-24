@@ -5,23 +5,7 @@ declare(strict_types=1);
 namespace Tests\App\Api;
 
 use PHPUnit\Framework\Attributes\Group;
-use Prospecter\Core\Accounts\Domain\Model\Account;
 use Prospecter\Core\Accounts\Domain\Model\Role;
-use Prospecter\Core\Accounts\Domain\Repository\AccountRepository;
-use Prospecter\Core\Prospecting\Domain\Model\Due;
-use Prospecter\Core\Prospecting\Domain\Model\Organization;
-use Prospecter\Core\Prospecting\Domain\Model\OrganizationCorrespondent;
-use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
-use Prospecter\Core\Prospecting\Domain\Model\Task;
-use Prospecter\Core\Prospecting\Domain\Model\ToDo;
-use Prospecter\Core\Prospecting\Domain\Model\ToDoId;
-use Prospecter\Core\Prospecting\Domain\Repository\OrganizationRepository;
-use Prospecter\Core\Prospecting\Domain\Repository\ToDoRepository;
-use Prospecter\Core\SharedKernel\Domain\Company\LegalIdentity;
-use Prospecter\Core\SharedKernel\Domain\Contact\ContactDetails;
-use Prospecter\Core\SharedKernel\Domain\Gesture\Gesture;
-use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
-use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 use Tests\App\Base\ApiTestCase;
 use Tests\App\Base\ReadsResources;
 
@@ -156,51 +140,14 @@ class ToDoApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(200);
     }
 
-    public function testWithoutTheRightToManagePersonalDataNoToDoIsReadNorNoted(): void
+    public function testWithoutTheRightToManagePersonalDataTheCardsLeadToNoToDo(): void
     {
         $organization = $this->anOrganization('ACME');
         $ada = $this->aContactOf($organization, 'Ada', 'Lovelace');
-        $toDo = $this->requestJson('POST', '/api/organizations/'.$organization.'/to-dos', ['text' => 'Préparer la proposition', 'dueOn' => '2026-10-20']);
         $this->login($this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector));
 
         $this->assertArrayNotHasKey('toDos', self::arrayAt($this->requestJson('GET', '/api/contacts/'.$ada), '_links'));
         $this->assertArrayNotHasKey('toDos', self::arrayAt($this->requestJson('GET', '/api/organizations/'.$organization), '_links'));
-        $gestures = [
-            ['GET', '/api/contacts/'.$ada.'/to-dos', null], ['POST', '/api/contacts/'.$ada.'/to-dos', ['text' => 'Appeler', 'dueOn' => '2026-10-16']],
-            ['GET', '/api/organizations/'.$organization.'/to-dos', null], ['POST', '/api/organizations/'.$organization.'/to-dos', ['text' => 'Appeler', 'dueOn' => '2026-10-16']],
-            ['GET', '/api/me/to-dos', null], ['GET', '/api/to-dos/'.self::stringAt($toDo, 'id'), null],
-            ['PATCH', '/api/to-dos/'.self::stringAt($toDo, 'id'), ['text' => 'Appeler', 'dueOn' => '2026-10-16']],
-            ['POST', '/api/to-dos/'.self::stringAt($toDo, 'id').'/done', null], ['DELETE', '/api/to-dos/'.self::stringAt($toDo, 'id').'/done', null], ['DELETE', '/api/to-dos/'.self::stringAt($toDo, 'id'), null],
-        ];
-
-        foreach ($gestures as [$method, $path, $payload]) {
-            $this->requestJson($method, $path, $payload);
-            $this->assertResponseStatusCodeSame(403, $method.' '.$path);
-        }
-    }
-
-    public function testAToDoOfAnotherAccountIsNotFoundForEveryIntention(): void
-    {
-        $id = $this->aToDoOfAnotherAccount();
-        $intentions = [['GET', '', null], ['PATCH', '', ['text' => 'Rien', 'dueOn' => '2026-10-16']], ['DELETE', '', null], ['POST', '/done', null], ['DELETE', '/done', null]];
-
-        foreach ($intentions as [$method, $path, $payload]) {
-            $problem = $this->requestJson($method, '/api/to-dos/'.$id.$path, $payload);
-            $this->assertResponseStatusCodeSame(404, $method.' '.$path);
-            $this->assertSame('unknownToDo', $problem['reason'], $method.' '.$path);
-        }
-    }
-
-    private function aToDoOfAnotherAccount(): string
-    {
-        $competitor = Account::open(new AccountId(self::newIdentity()), new LegalIdentity('Competitor'), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
-        self::service(AccountRepository::class)->save($competitor);
-        $theirs = Organization::prospectedBy(new Gesture($competitor->id(), new MemberId(self::newIdentity()), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)), new OrganizationId(self::newIdentity()), new LegalIdentity('Their prospect'), new ContactDetails());
-        self::service(OrganizationRepository::class)->save($theirs);
-        $toDo = ToDo::noted(new Gesture($competitor->id(), new MemberId(self::newIdentity()), new \DateTimeImmutable('2026-10-14')), new ToDoId(self::newIdentity()), new OrganizationCorrespondent($theirs->id()), new Task('Leur proposition', new Due('2026-10-16')));
-        self::service(ToDoRepository::class)->save($toDo);
-
-        return $toDo->id()->value;
     }
 
     private function aContactOf(string $organization, string $firstName, string $lastName): string

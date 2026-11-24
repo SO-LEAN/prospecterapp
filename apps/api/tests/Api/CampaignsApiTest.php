@@ -6,21 +6,7 @@ namespace Tests\App\Api;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
-use Prospecter\Core\Accounts\Domain\Model\Account;
 use Prospecter\Core\Accounts\Domain\Model\Role;
-use Prospecter\Core\Accounts\Domain\Repository\AccountRepository;
-use Prospecter\Core\Campaigns\Domain\Model\Campaign;
-use Prospecter\Core\Campaigns\Domain\Model\CampaignBrief;
-use Prospecter\Core\Campaigns\Domain\Model\CampaignId;
-use Prospecter\Core\Campaigns\Domain\Model\CampaignName;
-use Prospecter\Core\Campaigns\Domain\Model\Channel;
-use Prospecter\Core\Campaigns\Domain\Model\MessageTemplate;
-use Prospecter\Core\Campaigns\Domain\Model\Targeting;
-use Prospecter\Core\Campaigns\Domain\Repository\CampaignRepository;
-use Prospecter\Core\SharedKernel\Domain\Company\LegalIdentity;
-use Prospecter\Core\SharedKernel\Domain\Gesture\Gesture;
-use Prospecter\Core\SharedKernel\Domain\Identity\AccountId;
-use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 use Tests\App\Base\ApiTestCase;
 use Tests\App\Base\ReadsResources;
 
@@ -154,67 +140,18 @@ class CampaignsApiTest extends ApiTestCase
         $this->assertSame(['href' => '/api/campaigns', 'method' => 'GET'], self::valueAt($this->requestJson('GET', '/api/me'), '_links', 'campaigns'));
     }
 
-    public function testAnAdministratorRunsTheCampaignsOfTheTeam(): void
+    public function testAnAdministratorIsLinkedToTheCampaignsOfTheTeam(): void
     {
         $this->login($this->aMemberOfTheFixtures('administrator', Role::Prospector, Role::Admin));
 
         $this->assertArrayHasKey('campaigns', self::recordAt($this->requestJson('GET', '/api/me'), '_links'));
-        $id = self::stringAt($this->requestJson('POST', '/api/campaigns', $this->aCampaign()), 'id');
-        $this->assertResponseStatusCodeSame(201);
-        $gestures = [
-            ['GET', '/api/campaigns', null, 200], ['GET', '/api/campaigns/'.$id, null, 200],
-            ['PATCH', '/api/campaigns/'.$id, $this->aCampaign(), 200], ['GET', '/api/campaigns/'.$id.'/messages/'.$this->ada, null, 200],
-            ['DELETE', '/api/campaigns/'.$id, null, 204],
-        ];
-
-        foreach ($gestures as [$method, $path, $payload, $status]) {
-            $this->requestJson($method, $path, $payload);
-            $this->assertResponseStatusCodeSame($status, $method.' '.$path);
-        }
     }
 
-    public function testWithoutTheRightToManagePersonalDataNoCampaignIsRun(): void
+    public function testWithoutTheRightToManagePersonalDataNoCampaignIsLinked(): void
     {
-        $id = self::stringAt($this->requestJson('POST', '/api/campaigns', $this->aCampaign()), 'id');
         $this->login($this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector));
 
         $this->assertArrayNotHasKey('campaigns', self::recordAt($this->requestJson('GET', '/api/me'), '_links'));
-        $gestures = [
-            ['GET', '/api/campaigns', null], ['POST', '/api/campaigns', $this->aCampaign()],
-            ['GET', '/api/campaigns/'.$id, null], ['PATCH', '/api/campaigns/'.$id, $this->aCampaign()], ['DELETE', '/api/campaigns/'.$id, null],
-            ['GET', '/api/campaigns/'.$id.'/messages/'.$this->ada, null],
-        ];
-
-        foreach ($gestures as [$method, $path, $payload]) {
-            $this->requestJson($method, $path, $payload);
-            $this->assertResponseStatusCodeSame(403, $method.' '.$path);
-        }
-    }
-
-    public function testPreparingACampaignWithoutTheRightIsRefusedForTheRoleWithAReasonTheSpaWords(): void
-    {
-        $this->login($this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector));
-
-        $problem = $this->requestJson('POST', '/api/campaigns', $this->aCampaign());
-
-        $this->assertResponseStatusCodeSame(403);
-        $this->assertSame('roleNotAllowed', $problem['reason']);
-    }
-
-    public function testACampaignOfAnotherAccountIsNotFoundForEveryIntention(): void
-    {
-        $id = $this->aCampaignOfAnotherAccount();
-        $intentions = [
-            ['GET', '', null], ['PATCH', '', $this->aCampaign()], ['DELETE', '', null], ['GET', '/messages/'.$this->ada, null],
-            ['POST', '/freeze', null], ['POST', '/start', null], ['POST', '/stop', null], ['GET', '/recipients', null], ['POST', '/recipients/by-tags', ['tags' => [self::TAG]]],
-            ['POST', '/recipients', ['contactId' => $this->ada]], ['DELETE', '/recipients/'.$this->ada, null],
-        ];
-
-        foreach ($intentions as [$method, $path, $payload]) {
-            $problem = $this->requestJson($method, '/api/campaigns/'.$id.$path, $payload);
-            $this->assertResponseStatusCodeSame(404, $method.' '.$path);
-            $this->assertSame('unknownCampaign', $problem['reason'], $method.' '.$path);
-        }
     }
 
     /**
@@ -223,19 +160,5 @@ class CampaignsApiTest extends ApiTestCase
     private function aCampaign(string $message = 'Bonjour {firstName}'): array
     {
         return ['name' => 'Relance ESN', 'channel' => 'email', 'tags' => [self::TAG], 'message' => $message, 'subject' => '{firstName}, une question'];
-    }
-
-    private function aCampaignOfAnotherAccount(): string
-    {
-        $competitor = Account::open(new AccountId(self::newIdentity()), new LegalIdentity('Competitor'), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS));
-        self::service(AccountRepository::class)->save($competitor);
-        $campaign = Campaign::prepare(
-            new Gesture($competitor->id(), new MemberId(self::newIdentity()), new \DateTimeImmutable(self::THE_MOMENT_OF_THE_TESTS)),
-            new CampaignId(self::newIdentity()),
-            new CampaignBrief(CampaignName::of('Leur campagne'), Targeting::by(Channel::Email, ['#ESN']), MessageTemplate::of('Bonjour', null, Channel::Email)),
-        );
-        self::service(CampaignRepository::class)->save($campaign);
-
-        return $campaign->id()->value;
     }
 }

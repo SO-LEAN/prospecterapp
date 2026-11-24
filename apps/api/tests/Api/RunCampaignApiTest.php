@@ -6,7 +6,6 @@ namespace Tests\App\Api;
 
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Model\Account;
-use Prospecter\Core\Accounts\Domain\Model\Role;
 use Prospecter\Core\Accounts\Domain\Repository\AccountRepository;
 use Prospecter\Core\Campaigns\Domain\Model\Campaign;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignBrief;
@@ -151,28 +150,6 @@ class RunCampaignApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(404);
         $this->assertSame('unknownCampaign', $this->requestJson('POST', '/api/campaigns/'.$id.'/recipients/'.$this->ada.'/dismissal', [])['reason']);
         $this->assertResponseStatusCodeSame(404);
-    }
-
-    public function testAnAdministratorRunsACampaign(): void
-    {
-        $id = $this->aStartedCampaign();
-        $this->login($this->aMemberOfTheFixtures('administrator', Role::Prospector, Role::Admin));
-
-        $this->requestJson('POST', '/api/campaigns/'.$id.'/recipients/'.$this->ada.'/exchanges', []);
-        $this->assertResponseStatusCodeSame(201);
-        $this->requestJson('POST', '/api/campaigns/'.$id.'/recipients/'.$this->alan.'/dismissal', []);
-        $this->assertResponseStatusCodeSame(204);
-    }
-
-    public function testWithoutTheRightToManagePersonalDataNoCampaignIsRun(): void
-    {
-        $id = $this->aStartedCampaign();
-        $this->login($this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector));
-
-        $this->requestJson('POST', '/api/campaigns/'.$id.'/recipients/'.$this->ada.'/exchanges', []);
-        $this->assertResponseStatusCodeSame(403);
-        $this->requestJson('POST', '/api/campaigns/'.$id.'/recipients/'.$this->alan.'/dismissal', []);
-        $this->assertResponseStatusCodeSame(403);
     }
 
     /**

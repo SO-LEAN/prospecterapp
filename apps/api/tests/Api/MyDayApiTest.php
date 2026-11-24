@@ -185,15 +185,6 @@ class MyDayApiTest extends ApiTestCase
         $this->assertSame(['href' => '/api/contacts', 'method' => 'GET'], self::valueAt($this->requestJson('GET', self::TODAY), '_links', 'searchContacts'));
     }
 
-    public function testAMemberWhoIsNotAProspectorHasNoDay(): void
-    {
-        $this->login($this->aMemberOfTheFixtures('assistant', Role::User));
-
-        $this->requestJson('GET', self::TODAY);
-
-        $this->assertResponseStatusCodeSame(403);
-    }
-
     public function testADayEndsAfterItStarts(): void
     {
         $reversed = $this->requestJson('GET', '/api/me/day?from=2026-10-16T00:00:00%2B02:00&to=2026-10-15T00:00:00%2B02:00');

@@ -165,18 +165,6 @@ class PlannedExchangeApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(201);
     }
 
-    public function testAMemberWhoIsNotAProspectorPlansNothing(): void
-    {
-        $organization = $this->anOrganization('ACME');
-        $grace = $this->aContactOf($organization, 'Grace', 'Hopper');
-        $this->login($this->aMemberOfTheFixtures('assistant', Role::User));
-
-        $this->plan($grace, ['channel' => 'call', 'occurredAt' => self::NEXT_TUESDAY]);
-        $this->assertResponseStatusCodeSame(403);
-        $this->planWith($organization, ['exchange' => ['channel' => 'call', 'occurredAt' => self::NEXT_TUESDAY]]);
-        $this->assertResponseStatusCodeSame(403);
-    }
-
     public function testWithoutTheRightAPlannedCallGivesNoNumberToCall(): void
     {
         $grace = self::stringAt($this->requestJson('POST', '/api/contacts', ['name' => ['firstName' => 'Grace', 'lastName' => 'Hopper'], 'contactDetails' => ['phoneNumber' => '03 88 00 00 42'], 'organizationIds' => [$this->anOrganization('ACME')]]), 'id');

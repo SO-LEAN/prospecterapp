@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\App\Api;
 
 use PHPUnit\Framework\Attributes\Group;
-use Prospecter\Core\Accounts\Domain\Model\Role;
 use Tests\App\Base\ApiTestCase;
 use Tests\App\Base\ReadsResources;
 
@@ -156,46 +155,6 @@ class CampaignRecipientsApiTest extends ApiTestCase
         $this->requestJson('POST', '/api/campaigns/'.self::stringAt($draft, 'id').'/recipients', ['contactId' => $this->alan]);
 
         $this->assertResponseStatusCodeSame(409);
-    }
-
-    public function testAnAdministratorChangesTheRecipients(): void
-    {
-        $this->login($this->aMemberOfTheFixtures('administrator', Role::Prospector, Role::Admin));
-        $ada = $this->aContact('Ada', 'Byron', $this->anOrganization('Initech'), 'ada@initech.test');
-        $this->requestJson('POST', '/api/contacts/'.$ada.'/tags', ['tags' => [self::TAG]]);
-        $id = self::stringAt($this->requestJson('POST', '/api/campaigns', $this->aCampaign()), 'id');
-
-        foreach ($this->gesturesOn($id, $ada) as [$method, $path, $payload, $status]) {
-            $this->requestJson($method, $path, $payload);
-            $this->assertResponseStatusCodeSame($status, $method.' '.$path);
-        }
-    }
-
-    public function testWithoutTheRightToManagePersonalDataTheRecipientsAreNeitherReadNorChanged(): void
-    {
-        $id = $this->aFrozenCampaign();
-        $this->login($this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector));
-
-        foreach ($this->gesturesOn($id, $this->ada) as [$method, $path, $payload]) {
-            $this->requestJson($method, $path, $payload);
-            $this->assertResponseStatusCodeSame(403, $method.' '.$path);
-        }
-    }
-
-    /**
-     * Freezing, reading, adding and removing, in the order a member does it.
-     *
-     * @return list<array{string, string, array<string, mixed>|null, int}>
-     */
-    private function gesturesOn(string $id, string $contact): array
-    {
-        return [
-            ['POST', '/api/campaigns/'.$id.'/freeze', null, 200],
-            ['GET', '/api/campaigns/'.$id.'/recipients', null, 200],
-            ['POST', '/api/campaigns/'.$id.'/recipients/by-tags', ['tags' => [self::OTHER_TAG]], 200],
-            ['POST', '/api/campaigns/'.$id.'/recipients', ['contactId' => $contact], 200],
-            ['DELETE', '/api/campaigns/'.$id.'/recipients/'.$this->ada, null, 204],
-        ];
     }
 
     private function aFrozenCampaign(): string

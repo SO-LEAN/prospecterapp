@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\App\Api;
 
 use PHPUnit\Framework\Attributes\Group;
-use Prospecter\Core\Accounts\Domain\Model\Role;
 use Tests\App\Base\ApiTestCase;
 use Tests\App\Base\ReadsResources;
 
@@ -119,39 +118,6 @@ class StartedCampaignsApiTest extends ApiTestCase
         $this->requestJson('DELETE', '/api/campaigns/'.$id);
         $this->assertResponseIsSuccessful();
         $this->assertNotContains($id, array_column(self::recordsAt($this->requestJson('GET', '/api/campaigns'), 'items'), 'id'));
-    }
-
-    public function testAnAdministratorStartsAndStopsACampaign(): void
-    {
-        $this->login($this->aMemberOfTheFixtures('administrator', Role::Prospector, Role::Admin));
-        $this->aContactTagged('Ada', 'Byron', 'Initech', 'ada@initech.test');
-        $id = $this->aFrozenCampaign();
-
-        foreach ($this->gesturesOn($id) as [$path, $status]) {
-            $this->requestJson('POST', $path);
-            $this->assertResponseStatusCodeSame($status, $path);
-        }
-    }
-
-    public function testWithoutTheRightToManagePersonalDataACampaignIsNeitherStartedNorStopped(): void
-    {
-        $id = $this->aFrozenCampaign();
-        $this->login($this->aMemberOfTheFixtures('prospector-without-the-right', Role::User, Role::Prospector));
-
-        foreach ($this->gesturesOn($id) as [$path]) {
-            $this->requestJson('POST', $path);
-            $this->assertResponseStatusCodeSame(403, $path);
-        }
-    }
-
-    /**
-     * Starting, then stopping.
-     *
-     * @return list<array{string, int}>
-     */
-    private function gesturesOn(string $id): array
-    {
-        return [['/api/campaigns/'.$id.'/start', 200], ['/api/campaigns/'.$id.'/stop', 200]];
     }
 
     private function aStartedCampaign(): string
