@@ -378,6 +378,7 @@ use Prospecter\Core\Prospecting\Application\Policy\KeepCreatedVideoCallLinkPolic
 use Prospecter\Core\Prospecting\Application\Policy\KeepExchangesOfAttachedContactPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\KeepExchangesOfForgottenContactPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\KeepImportedAttachmentPolicy;
+use Prospecter\Core\Prospecting\Application\Policy\KeepToDosOfAttachedContactPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\LiftSuspicionInReturnPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\StopKeepingExchangesPolicy;
 use Prospecter\Core\Prospecting\Application\Policy\StopKeepingToDosPolicy;
@@ -1406,6 +1407,7 @@ final class Application
     private function commandHandlers(): array
     {
         return [
+            new KeepToDosOfAttachedContactHandler($this->toDos, $this->events),
             new KeepExchangesOfAttachedContactHandler($this->exchanges, $this->events),
             new AttachContactToAttachHandler($this->contactsToAttach, $this->events),
             new EraseExchangesOfContactLeftUnattachedHandler($this->exchanges, $this->events),
@@ -1844,7 +1846,7 @@ final class Application
             new EraseExchangesOfContactLeftUnattachedPolicy(),
             new AttachContactToAttachPolicy(),
             new KeepExchangesOfAttachedContactPolicy(),
-            new KeepToDosOfAttachedContactHandler($this->toDos, $this->events),
+            new KeepToDosOfAttachedContactPolicy(),
             new PushBackErasureOfContactToAttachHandler($this->exchanges, $this->contactsToAttach, $this->events),
             new IdentifyBookerPolicy(),
             new PlanBookedAppointmentHandler($this->exchanges, $this->contactsToAttach, $this->contactOrganizations, new BookingBookedAppointments($this->consultAppointmentsService), $this->prospectors, $this->events),
