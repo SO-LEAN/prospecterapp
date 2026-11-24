@@ -129,7 +129,7 @@ function figureOf(note: Note): string {
 
 function spanOf(letters: Letters): string {
   const style = `left:${tenth(letters.x)}px;top:${tenth(letters.y)}px;width:${tenth(letters.w) + 1}px;font-size:${letters.size}px;line-height:${letters.lineHeight}`
-  return `<p class="t r-${letters.role} f-${letters.font}${letters.align === 'center' ? ' center' : ''}" style="${style}">${letters.lines.map(escaped).join('<br>')}</p>`
+  return `<p class="t role-${letters.role} font-${letters.font}${letters.align === 'center' ? ' center' : ''}" style="${style}">${letters.lines.map(escaped).join('<br>')}</p>`
 }
 
 function tipOf(note: Note): string | null {
