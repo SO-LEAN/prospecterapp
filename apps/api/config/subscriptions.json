@@ -178,7 +178,7 @@
     "context": "prospecting",
     "sources": ["prospecter.prospecting.internal"],
     "events": ["ExchangeErased.v1", "ExchangeErased.v2", "ExchangeErased.v3"],
-    "handler": "Prospecter\\Core\\Prospecting\\Application\\DiscardAttachmentsOfErasedExchange\\DiscardAttachmentsOfErasedExchangeHandler",
+    "policy": "Prospecter\\Core\\Prospecting\\Application\\Policy\\DiscardAttachmentsOfErasedExchangePolicy",
     "inbox": false
   },
   "reporting-figures": {
