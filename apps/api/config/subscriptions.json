@@ -150,7 +150,7 @@
     "context": "prospecting",
     "sources": ["prospecter.personal-data"],
     "events": ["ContactForgotten.v1"],
-    "handler": "Prospecter\\Core\\Prospecting\\Application\\EraseToDosOfForgottenContact\\EraseToDosOfForgottenContactHandler",
+    "policy": "Prospecter\\Core\\Prospecting\\Application\\Policy\\EraseToDosOfForgottenContactPolicy",
     "inbox": true
   },
   "prospecting-discard-removed-logo": {
