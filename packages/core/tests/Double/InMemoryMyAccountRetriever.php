@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\Double;
 
-use Prospecter\Core\Accounts\Application\MyAccount;
+use Prospecter\Core\Accounts\Application\Account\MyAccount;
 use Prospecter\Core\Accounts\Application\Port\MyAccountRetriever;
 use Prospecter\Core\Accounts\Domain\Exception\UnknownAccount;
 use Prospecter\Core\Accounts\Domain\Exception\UnknownMember;

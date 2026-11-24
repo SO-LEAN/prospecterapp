@@ -7,7 +7,7 @@ namespace Tests\App\Security;
 use App\Security\User;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
-use Prospecter\Core\Accounts\Application\MyAccount;
+use Prospecter\Core\Accounts\Application\Account\MyAccount;
 
 #[Group('unit')]
 class UserTest extends TestCase

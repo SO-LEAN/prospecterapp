@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Accounts\Application\Policy;
 
-use Prospecter\Core\Accounts\Application\RegisterTheFounder\RegisterTheFounder;
+use Prospecter\Core\Accounts\Application\Member\RegisterTheFounder\RegisterTheFounder;
 use Prospecter\Core\Accounts\Domain\Event\AccountOpened;
 use Prospecter\Core\SharedKernel\Application\Handler\Policy;
 

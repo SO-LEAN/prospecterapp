@@ -8,8 +8,8 @@ use App\Me\Resource\AccountResource;
 use App\Security\IntentLinks;
 use App\Shared\ImageResourceFactory;
 use App\Shared\Links;
-use Prospecter\Core\Accounts\Application\ConsultMyAccount\ConsultMyAccount;
-use Prospecter\Core\Accounts\Application\ConsultMyAccount\KeptAccount;
+use Prospecter\Core\Accounts\Application\Account\ConsultMyAccount\ConsultMyAccount;
+use Prospecter\Core\Accounts\Application\Account\ConsultMyAccount\KeptAccount;
 use Prospecter\Core\PersonalData\Application\ConsultPerson\ConsultPerson;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 

@@ -8,8 +8,8 @@ use Behat\Behat\Context\Context;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use Prospecter\Core\Accounts\Application\ChangeMyReminders\ChangeMyReminders;
-use Prospecter\Core\Accounts\Application\MyReminders;
+use Prospecter\Core\Accounts\Application\Reminders\ChangeMyReminders\ChangeMyReminders;
+use Prospecter\Core\Accounts\Application\Reminders\MyReminders;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Tests\Core\Acceptance\Expect;
 

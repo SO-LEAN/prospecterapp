@@ -7,8 +7,8 @@ namespace App\Me;
 use App\Me\Resource\RemindersLinksResource;
 use App\Me\Resource\RemindersResource;
 use App\Shared\Links;
-use Prospecter\Core\Accounts\Application\ConsultMyReminders\ConsultMyRemindersOutput;
-use Prospecter\Core\Accounts\Application\MyReminders;
+use Prospecter\Core\Accounts\Application\Reminders\ConsultMyReminders\ConsultMyRemindersOutput;
+use Prospecter\Core\Accounts\Application\Reminders\MyReminders;
 
 /**
  * Presents my reminders as the API shows them. Each call builds its own presenter (ADR 0085).

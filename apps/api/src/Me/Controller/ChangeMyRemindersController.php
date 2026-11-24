@@ -13,7 +13,7 @@ use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Prospecter\Core\Accounts\Application\ChangeMyReminders\ChangeMyReminders;
+use Prospecter\Core\Accounts\Application\Reminders\ChangeMyReminders\ChangeMyReminders;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;

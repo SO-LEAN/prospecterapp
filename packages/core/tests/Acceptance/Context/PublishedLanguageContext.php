@@ -9,7 +9,7 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use Prospecter\Core\Accounts\Application\ChangeMyReminders\ChangeMyReminders;
+use Prospecter\Core\Accounts\Application\Reminders\ChangeMyReminders\ChangeMyReminders;
 use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\ConsultMembers;
 use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\MemberResponse;
 use Prospecter\Core\Accounts\Contract\Service\ListAccounts\KeptAccounts;

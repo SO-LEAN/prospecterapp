@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Security;
 
 use App\Shared\Typed;
-use Prospecter\Core\Accounts\Application\MyAccount;
+use Prospecter\Core\Accounts\Application\Account\MyAccount;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
