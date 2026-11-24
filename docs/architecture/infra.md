@@ -38,7 +38,7 @@ They stay out of this repository, in a configuration directory, `INFRA_CONFIG`. 
 
 | File | What | Example |
 |---|---|---|
-| `envs/<instance>.tfvars` | the instance, its AWS account, its region, the permissions boundary for the apps' roles if the account requires one, the addresses the alarms e-mail (`alert_emails`, sensitive) | `apps/api/infra/instance.tfvars.example` |
+| `envs/<instance>.tfvars` | the instance, its AWS account, its region, the permissions boundary for the apps' roles if the account requires one, the addresses the alarms e-mail (`alert_emails`, sensitive), whether the front serves the documents generated from the code (`serves_the_documents`, dev only, `docs/architecture/event-storming.md`) | `apps/api/infra/instance.tfvars.example`, `apps/front/infra/instance.tfvars.example` |
 | `envs/<instance>.tfbackend` | its state bucket (S3, versioned, locked by `use_lockfile`) | `apps/api/infra/instance.tfbackend.example` |
 | `envs/<instance>.env` | the AWS SDK environment, such as `AWS_PROFILE` (`~/.aws` is mounted) | `apps/api/infra/instance.env.example` |
 

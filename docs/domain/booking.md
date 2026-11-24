@@ -69,7 +69,7 @@ It forgets an appointment on its exchange's terminal fact (`ExchangeFactsChanged
 
 ## Features
 
-`regler-mes-plages`, `ajouter-une-periode-inactive`, `proposer-des-canaux`, `activer-et-couper-ma-prise-de-rendez-vous`, `changer-de-lien`, `consulter-ma-prise-de-rendez-vous`, `consulter-une-page-de-prise-de-rendez-vous`, `reserver-un-creneau`, `liberer-le-rendez-vous-d-un-echange-efface`.
+`regler-mes-plages`, `ajouter-une-periode-inactive`, `proposer-des-canaux`, `activer-et-couper-ma-prise-de-rendez-vous`, `changer-de-lien`, `consulter-ma-prise-de-rendez-vous`, `consulter-une-page-de-prise-de-rendez-vous`, `reserver-un-creneau`, `liberer-le-rendez-vous-d-un-echange-efface`. Each is tagged with the use cases it describes. The context's event storming is generated from its code: https://prospecter.localhost/docs/event-storming/booking/ locally, the same path on dev (`docs/architecture/event-storming.md`).
 
 ## In the code
 

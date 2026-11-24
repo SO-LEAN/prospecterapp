@@ -45,6 +45,7 @@ Run these from the repository root. `make` alone lists the commands. A new targe
 
 - `make adr-index`: after you add a decision record or change its status, it writes the record's line in the index `docs/adr/README.md` from the record's header. `make ci` fails while they differ. Two branches that each add a record merge their lines without a conflict (ADR 0128). After you rebase a branch that touches the index, run it again before pushing: the union replays the lines the branch changed (`docs/architecture/workflow.md`). Commit the index when it changed.
 - `make api-doc`: after you change an endpoint, it regenerates `apps/api/openapi.json` and the front's API types. `make test` fails while the committed contract differs from the code.
+- `make event-storming CONTEXT=Booking`: writes a context's event storming from its code, its model and its page, in `apps/front/public/docs/event-storming/<context>/` (`docs/architecture/event-storming.md`). Commit both files.
 
 ## Infrastructure on AWS
 

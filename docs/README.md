@@ -21,6 +21,7 @@ Read your subject's document before working on it. It states the rule in force, 
 | The infrastructure on AWS: Terraform, instances, deployment | [architecture/infra.md](architecture/infra.md) |
 | The monorepo and its builds | [architecture/monorepo.md](architecture/monorepo.md) |
 | The workflow: branches, pull requests, CI, the backlog | [architecture/workflow.md](architecture/workflow.md) |
+| The event storming generated from the code: what it shows, how it is generated, where it is served | [architecture/event-storming.md](architecture/event-storming.md) |
 | Clean code | [architecture/clean-code.md](architecture/clean-code.md) |
 | The tests: the core's scenarios and doubles, the API tests, the journeys | [architecture/tests.md](architecture/tests.md) |
 
