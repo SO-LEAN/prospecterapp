@@ -7,8 +7,8 @@ install: ## Install the pnpm dependencies of the front
 	@echo "Front/Installing pnpm dependencies..."
 	@$(NODE) pnpm install
 
-test: ## Run the tests of the front (Vitest); FILTER= a test file by its path or a part of it; FAIL_FAST=1 stops at the first failure
-	@$(NODE) pnpm test --reporter=dot --silent=passed-only $(if $(FAIL_FAST),--bail=1) $(if $(FILTER),'$(FILTER)')
+test: ## Run the tests of the front (Vitest); FILTER= a test file by its path or a part of it; FAIL_FAST=1 stops at the first failure; TEST_WORKERS= the workers (a number or a share of the processors; by default, one processor fewer than the container has)
+	@$(NODE) pnpm test --reporter=dot --silent=passed-only $(if $(FAIL_FAST),--bail=1) $(if $(TEST_WORKERS),--maxWorkers=$(TEST_WORKERS)) $(if $(FILTER),'$(FILTER)')
 
 # the code of the front a branch may change and a test may protect: neither the tests, the generated files, nor the
 # components of shadcn, whose class names no test reads
