@@ -155,6 +155,19 @@ export const SIZE = {
   margin: 250,
 } as const
 
+/**
+ * How the post-its of a step touch, from the command's corner: the aggregate under its right edge, a little higher;
+ * the event it records under the aggregate's right edge; an event the command publishes itself against its right
+ * edge; the next aggregate or event one row lower; a hotspot a little apart.
+ */
+const CLUSTER = {
+  aggregate: { x: SIZE.sticky - 15, y: -13, pitch: SIZE.sticky + 14 },
+  recorded: { x: 2 * SIZE.sticky - 32 },
+  published: { x: SIZE.sticky - 3 },
+  event: { y: 7, pitch: 100 },
+  hotspot: { x: 13, y: 22 },
+} as const
+
 /** Where a lane's view stands, right of its actor, and where its commands stand, right of the view. */
 export const VIEW = SIZE.margin + SIZE.actor - 1
 export const HEAD = VIEW + SIZE.sticky + 86
@@ -425,6 +438,25 @@ class WallUnderConstruction {
       this.sendsOnly(this.sticky(sent.from), command),
     )
     const step = this.step('command', lane, triggers.length > 0 ? 2 : 1)
+    const { senders, x } = this.sendersOf(step, triggers)
+    const node = this.put(step, command, 'command', { x, y: 0 }, { z: 3 })
+    for (const sender of senders) this.link(sender.node, node, sender.certain, true)
+    this.badgesOf(step, command, node)
+    this.portsOf(step, command, node)
+    const changed = this.stickTheChanges(step, command, node)
+    const published = this.stickThePublished(step, command, node, changed.rows)
+    step.width =
+      changed.rows + published.rows === 0
+        ? this.markNoEventRecorded(step, node)
+        : Math.max(x + SIZE.sticky, changed.right, published.right)
+    return step
+  }
+
+  /** The policies that send a command and nothing else stand in line before it, after what they hear. */
+  private sendersOf(
+    step: Step,
+    triggers: Link[],
+  ): { senders: { node: Note; certain: boolean }[]; x: number } {
     let x = 0
     const senders = triggers.map((sent) => {
       const policy = this.sticky(sent.from)
@@ -434,18 +466,19 @@ class WallUnderConstruction {
       x += SIZE.sticky + SIZE.arrow
       return { node, certain: sent.certain }
     })
-    const node = this.put(step, command, 'command', { x, y: 0 }, { z: 3 })
-    for (const sender of senders) this.link(sender.node, node, sender.certain, true)
-    this.badgesOf(step, command, node)
-    this.portsOf(step, command, node)
-    let right = x + SIZE.sticky
-    let row = 0
+    return { senders, x }
+  }
+
+  /** Each aggregate a command changes, under its edge, and the events it records, each on its own row. */
+  private stickTheChanges(step: Step, command: Sticky, node: Note): { rows: number; right: number } {
+    let rows = 0
+    let right = 0
     for (const change of this.out(command.id, 'aggregate')) {
       const aggregate = this.put(
         step,
         this.sticky(change.to),
         'aggregate',
-        { x: x + SIZE.sticky - 15, y: -13 + row * (SIZE.sticky + 14) },
+        { x: node.x + CLUSTER.aggregate.x, y: CLUSTER.aggregate.y + rows * CLUSTER.aggregate.pitch },
         { via: change.via, z: 1 },
       )
       this.link(node, aggregate, change.certain, false)
@@ -455,43 +488,56 @@ class WallUnderConstruction {
           step,
           this.sticky(recorded.to),
           'event',
-          { x: x + 2 * SIZE.sticky - 32, y: 7 + row * 100 },
+          { x: node.x + CLUSTER.recorded.x, y: CLUSTER.event.y + rows * CLUSTER.event.pitch },
           { z: 3 },
         )
         this.link(aggregate, event, recorded.certain, false)
         right = Math.max(right, this.hearersOf(step, event))
-        row++
+        rows++
       }
     }
+    return { rows, right }
+  }
+
+  /** The events a command publishes itself, against its right edge, under those its aggregates record. */
+  private stickThePublished(
+    step: Step,
+    command: Sticky,
+    node: Note,
+    after: number,
+  ): { rows: number; right: number } {
+    let rows = 0
+    let right = 0
     for (const published of this.out(command.id, 'event')) {
       const event = this.put(
         step,
         this.sticky(published.to),
         'event',
-        { x: x + SIZE.sticky - 3, y: 7 + row * 100 },
+        { x: node.x + CLUSTER.published.x, y: CLUSTER.event.y + (after + rows) * CLUSTER.event.pitch },
         { z: 3 },
       )
       this.link(node, event, published.certain, false)
       right = Math.max(right, this.hearersOf(step, event))
-      row++
+      rows++
     }
-    if (row === 0) {
-      const hotspot = this.put(
-        step,
-        null,
-        'hotspot',
-        { x: x + SIZE.sticky + 13, y: 22 },
-        {
-          label: 'No event recorded',
-          z: 4,
-          why: 'This command changes no aggregate that records an event: nothing on the wall says what happened. Either an event is missing, or the generator cannot see it.',
-        },
-      )
-      this.link(node, hotspot, true, false)
-      right = hotspot.x + SIZE.hotspot
-    }
-    step.width = right
-    return step
+    return { rows, right }
+  }
+
+  /** A command that records no event gets a hotspot after it. Returns the step's right edge. */
+  private markNoEventRecorded(step: Step, node: Note): number {
+    const hotspot = this.put(
+      step,
+      null,
+      'hotspot',
+      { x: node.x + SIZE.sticky + CLUSTER.hotspot.x, y: CLUSTER.hotspot.y },
+      {
+        label: 'No event recorded',
+        z: 4,
+        why: 'This command changes no aggregate that records an event: nothing on the wall says what happened. Either an event is missing, or the generator cannot see it.',
+      },
+    )
+    this.link(node, hotspot, true, false)
+    return hotspot.x + SIZE.hotspot
   }
 
   private policyStep(policy: Sticky, lane: string): Step {
