@@ -176,6 +176,9 @@ const CLUSTER = {
 const SUSPICION =
   'It is a suspicion to check: the analysis follows the calls it reads, and a dynamic call escapes it.'
 
+/** The ports under a use case: their left edge, their stagger every other one, the room above them. */
+const PORTS = { left: 6, stagger: 7, room: 4 } as const
+
 /** Where a lane's view stands, right of its actor, and where its commands stand, right of the view. */
 export const VIEW = SIZE.margin + SIZE.actor - 1
 export const HEAD = VIEW + SIZE.sticky + 86
@@ -353,6 +356,17 @@ class WallUnderConstruction {
       })
   }
 
+  /** The ports of a command go down under the aggregates of its later changes when these stand in their column. */
+  private lowerThePortsUnderTheChanges(step: Step, node: Note): void {
+    const under = node.y + SIZE.sticky - 3
+    const right = node.x + PORTS.left + PORTS.stagger + SIZE.port.w
+    const inTheColumn = step.notes.filter(
+      (note) => note.kind === 'aggregate' && note.x < right && note.y + note.h > under,
+    )
+    const lower = Math.max(under, ...inTheColumn.map((note) => note.y + note.h + PORTS.room)) - under
+    for (const port of step.notes.filter((note) => note.port)) port.y += lower
+  }
+
   /** What a use case asks, tucked under it. */
   private portsOf(step: Step, useCase: Sticky, node: Note): void {
     this.out(useCase.id, 'externalSystem').forEach((asked, index) => {
@@ -361,7 +375,10 @@ class WallUnderConstruction {
         step,
         sticky,
         'externalSystem',
-        { x: node.x + 6 + (index % 2) * 7, y: node.y + SIZE.sticky - 3 + index * (SIZE.port.h + 2) },
+        {
+          x: node.x + PORTS.left + (index % 2) * PORTS.stagger,
+          y: node.y + SIZE.sticky - 3 + index * (SIZE.port.h + 2),
+        },
         { port: true, owner: node, slot: index, z: 1 },
       )
       if (sticky.answers.length > 0) {
@@ -465,6 +482,7 @@ class WallUnderConstruction {
     this.portsOf(step, command, node)
     const changed = this.stickTheChanges(step, command, node)
     const published = this.stickThePublished(step, command, node, changed.rows)
+    this.lowerThePortsUnderTheChanges(step, node)
     step.width =
       changed.rows + published.rows === 0
         ? this.markNoEventRecorded(step, node)
