@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs'
+import { readdirSync, readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { type Density, gridOf, type Place } from './grid.ts'
 import { type Letters, lettersOf } from './lettering.ts'
@@ -9,6 +9,13 @@ import { type Note, type Wall, wallOf } from './wall.ts'
 const BOOKING = JSON.parse(readFileSync('public/docs/event-storming/booking/model.json', 'utf8')) as Model
 
 const wall = wallOf(BOOKING)
+
+/** Every context's model, by its context. */
+const WALLS = 'public/docs/event-storming'
+const CONTEXTS = readdirSync(WALLS, { withFileTypes: true })
+  .filter((entry) => entry.isDirectory())
+  .map((entry) => JSON.parse(readFileSync(`${WALLS}/${entry.name}/model.json`, 'utf8')) as Model)
+  .map((model) => [model.context, model] as const)
 
 function noteOf(slug: string, kind: Note['kind']): Note {
   const note = wall.notes.find((candidate) => candidate.slug === slug && candidate.kind === kind)
@@ -47,7 +54,7 @@ describe('the lettering of a post-it', () => {
   })
 
   for (const [name, model] of [
-    ['Booking', BOOKING],
+    ...CONTEXTS,
     ['a method of 32 letters', withAMethod('openTheBookingPageForEveryWindow')],
   ] as const) {
     for (const density of ['roomy', 'compact'] as const) {
