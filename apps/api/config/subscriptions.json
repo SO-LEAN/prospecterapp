@@ -17,7 +17,7 @@
     "context": "prospecting",
     "sources": ["prospecter.prospecting.internal"],
     "events": ["ExchangeLeftWithoutOrganization.v1"],
-    "handler": "Prospecter\\Core\\Prospecting\\Application\\EraseExchangeLeftWithoutOrganization\\EraseExchangeLeftWithoutOrganizationHandler",
+    "policy": "Prospecter\\Core\\Prospecting\\Application\\Policy\\EraseExchangeLeftWithoutOrganizationPolicy",
     "inbox": true
   },
   "personal-data-collect-founder-profile": {
