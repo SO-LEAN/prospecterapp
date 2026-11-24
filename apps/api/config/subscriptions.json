@@ -157,7 +157,7 @@
     "context": "prospecting",
     "sources": ["prospecter.prospecting.internal"],
     "events": ["LogoRemoved.v1"],
-    "handler": "Prospecter\\Core\\Prospecting\\Application\\DiscardRemovedLogo\\DiscardRemovedLogoHandler",
+    "policy": "Prospecter\\Core\\Prospecting\\Application\\Policy\\DiscardRemovedLogoPolicy",
     "inbox": false
   },
   "prospecting-keep-imported-attachment": {
