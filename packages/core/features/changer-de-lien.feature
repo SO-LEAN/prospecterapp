@@ -1,4 +1,5 @@
 # language: fr
+@ChangeBookingLink
 Fonctionnalité: Changer de lien
   En tant que prospecteur
   Je veux changer le code de mon lien public

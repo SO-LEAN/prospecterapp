@@ -1,4 +1,5 @@
 # language: fr
+@BookSlot
 Fonctionnalité: Réserver un créneau
   En tant que personne à qui un prospecteur a donné son lien public
   Je veux réserver un de ses créneaux libres en disant qui je suis, sans me connecter

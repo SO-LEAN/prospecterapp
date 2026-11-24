@@ -1,4 +1,5 @@
 # language: fr
+@OfferChannels
 Fonctionnalité: Proposer des canaux
   En tant que prospecteur
   Je veux choisir comment on peut me rencontrer quand on me réserve : un appel, une visio
