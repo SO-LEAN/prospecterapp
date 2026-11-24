@@ -12,9 +12,11 @@ use Tests\App\Double\InMemoryPrivateStorage;
 use Tests\App\Double\OutsideServices;
 
 /**
- * An AI reads Prospecter as its member reads the screens (ADR 0163): each tool of reading answers what its endpoint
- * answers, the resource and its links, or its refusal, to a prospector, an assistant without the right to manage the
- * personal data, an administrator, a member who is no prospector and a member of another account alike.
+ * An AI reads Prospecter as its member reads the screens (ADR 0163). Each reading tool's arguments become its
+ * endpoint's input, and the tool answers what its endpoint answers, the resource and its links. Its rights and its
+ * reader are its controller's (`Tests\App\Architecture\EveryToolIsWiredAsItsControllerTest`), so a prospector reads
+ * each tool once. Each kind of refusal the server translates is proven once: a member's role, another account's
+ * resource, an argument's violations and a service out of reach.
  */
 #[Group('api')]
 class ReadingToolsApiTest extends ApiTestCase
@@ -26,16 +28,6 @@ class ReadingToolsApiTest extends ApiTestCase
         'nom_complet' => 'BABBAGE & CO',
         'matching_etablissements' => [['siret' => '55210055400021', 'adresse' => '2 RUE DES CLEFS 68000 COLMAR', 'commune' => '68066', 'activite_principale' => '62.02A', 'etat_administratif' => 'A']],
     ];
-
-    private const array READERS = ['prospector-user', 'assistant-user', 'admin-user', 'member-user', 'stranger'];
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->aMemberOfTheFixtures('admin-user', Role::User, Role::Admin);
-        $this->aMemberOfTheFixtures('member-user', Role::User);
-        $this->aMemberOfAnotherAccount('stranger');
-    }
 
     public function testTheAiSearchesTheOrganizationsAsTheScreenOfTheSearch(): void
     {
@@ -49,11 +41,18 @@ class ReadingToolsApiTest extends ApiTestCase
         $this->assertTheToolAnswersAsItsEndpoint('get-organization', ['id' => $babbage], '/api/organizations/'.$babbage);
     }
 
-    public function testAnUnknownResourceIsRefusedAsByItsEndpoint(): void
+    public function testAMemberWhoIsNoProspectorIsRefusedAsByItsEndpoint(): void
     {
-        $unknown = self::newIdentity();
+        $babbage = $this->babbage();
 
-        $this->assertTheToolAnswersAsItsEndpoint('get-organization', ['id' => $unknown], '/api/organizations/'.$unknown);
+        $this->assertTheToolAnswersAsItsEndpoint('get-organization', ['id' => $babbage], '/api/organizations/'.$babbage, $this->aMemberOfTheFixtures('member-user', Role::User));
+    }
+
+    public function testTheResourceOfAnotherAccountIsRefusedAsByItsEndpoint(): void
+    {
+        $babbage = $this->babbage();
+
+        $this->assertTheToolAnswersAsItsEndpoint('get-organization', ['id' => $babbage], '/api/organizations/'.$babbage, $this->aMemberOfAnotherAccount('stranger'));
     }
 
     public function testAnInvalidArgumentIsRefusedWithTheViolationsOfItsEndpoint(): void
@@ -109,18 +108,6 @@ class ReadingToolsApiTest extends ApiTestCase
         $ada = $this->ada();
 
         $this->assertTheToolAnswersAsItsEndpoint('get-contact', ['id' => $ada], '/api/contacts/'.$ada);
-    }
-
-    public function testTheAiOfTheAssistantReadsTheNameInClearAndTheRestMasked(): void
-    {
-        $ada = $this->ada();
-        $this->login('assistant-user');
-
-        $contact = $this->answerOf($this->callWithoutHandshake('get-contact', ['id' => $ada]));
-
-        $this->assertSame(['firstName' => 'Ada', 'lastName' => 'Lovelace'], $contact['name']);
-        $this->assertNotSame('ada@babbage.test', self::valueAt($contact, 'contactDetails', 'email'));
-        $this->assertNotSame('03 88 00 00 42', self::valueAt($contact, 'contactDetails', 'phoneNumber'));
     }
 
     public function testTheAiSearchesTheContacts(): void
@@ -245,7 +232,7 @@ class ReadingToolsApiTest extends ApiTestCase
 
     public function testTheAiOfAnAdministratorReadsTheClientOfGoogleOfItsAccount(): void
     {
-        $this->assertTheToolAnswersAsItsEndpoint('get-google-client', [], '/api/me/organization/clients/google');
+        $this->assertTheToolAnswersAsItsEndpoint('get-google-client', [], '/api/me/organization/clients/google', $this->aMemberOfTheFixtures('admin-user', Role::User, Role::Admin));
     }
 
     public function testTheAiReadsWhatItsMemberStillHasToDo(): void
@@ -401,13 +388,11 @@ class ReadingToolsApiTest extends ApiTestCase
     /**
      * @param array<string, mixed> $arguments
      */
-    private function assertTheToolAnswersAsItsEndpoint(string $tool, array $arguments, string $endpoint): void
+    private function assertTheToolAnswersAsItsEndpoint(string $tool, array $arguments, string $endpoint, string $reader = 'prospector-user'): void
     {
-        foreach (self::READERS as $reader) {
-            $this->login($reader);
-            $answer = $this->requestJson('GET', $endpoint);
+        $this->login($reader);
+        $answer = $this->requestJson('GET', $endpoint);
 
-            $this->assertSame($answer, $this->answerOf($this->callWithoutHandshake($tool, $arguments)), sprintf('%s read by %s', $tool, $reader));
-        }
+        $this->assertSame($answer, $this->answerOf($this->callWithoutHandshake($tool, $arguments)));
     }
 }
