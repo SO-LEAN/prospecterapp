@@ -344,14 +344,15 @@ contract: api-doc ## Fail when the committed OpenAPI contract or the front types
 	@git diff --exit-code -- apps/api/openapi.json apps/front/src/shared/api/schema.d.ts
 
 ##@ Tools
-# the page of a context, served under /docs/event-storming/<context>/ in the release of the front, on the instances
-# that open it (docs/architecture/event-storming.md)
+# the wall of a context: its page, served under /docs/event-storming/<context>/ in the release of the front on the
+# instances that open it, and its SVGs, shown by the repository's documents (docs/architecture/event-storming.md)
 EVENT_STORMING_CONTEXT = $(or $(CONTEXT),Booking)
-EVENT_STORMING_DIR = public/docs/event-storming/$(shell echo '$(EVENT_STORMING_CONTEXT)' | sed -E 's/([a-z])([A-Z])/\1-\2/g' | tr A-Z a-z)
-event-storming: ## Read a context's code and write its event storming, its model and its page: CONTEXT= its name in the code (Booking)
+EVENT_STORMING_NAME = $(shell echo '$(EVENT_STORMING_CONTEXT)' | sed -E 's/([a-z])([A-Z])/\1-\2/g' | tr A-Z a-z)
+EVENT_STORMING_DIR = public/docs/event-storming/$(EVENT_STORMING_NAME)
+event-storming: ## Read a context's code and write its wall: its model, its page and its SVGs: CONTEXT= its name in the code (Booking)
 	@mkdir -p apps/front/$(EVENT_STORMING_DIR)
 	@$(MAKE) -C apps/api event-storming-model CONTEXT=$(EVENT_STORMING_CONTEXT) OUTPUT=../front/$(EVENT_STORMING_DIR)/model.json
-	@$(MAKE) -C apps/front event-storming-page MODEL=$(EVENT_STORMING_DIR)/model.json PAGE=$(EVENT_STORMING_DIR)/index.html
+	@$(MAKE) -C apps/front event-storming-page MODEL=$(EVENT_STORMING_DIR)/model.json PAGE=$(EVENT_STORMING_DIR)/index.html SVG=../../docs/event-storming/$(EVENT_STORMING_NAME)
 
 commands: ## List the commands of the core and their handlers
 	@$(MAKE) -C apps/api commands

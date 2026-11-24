@@ -35,9 +35,9 @@ build: ## Build the front for production (TypeScript, Vite)
 api-types: ## Generate the types of the API from its OpenAPI contract (src/shared/api/schema.d.ts)
 	@$(NODE) pnpm api:types
 
-event-storming-page: ## Write the page of a context's event storming from its model: MODEL=<model.json> PAGE=<index.html>, paths of the front
-	@test -n "$(MODEL)" -a -n "$(PAGE)" || { echo "make event-storming-page MODEL=<model.json> PAGE=<index.html>"; exit 1; }
-	@$(NODE) node event-storming/generate.ts $(MODEL) $(PAGE)
+event-storming-page: ## Write a context's wall from its model, its page and its SVGs: MODEL=<model.json> PAGE=<index.html> SVG=<folder>, paths of the front
+	@test -n "$(MODEL)" -a -n "$(PAGE)" -a -n "$(SVG)" || { echo "make event-storming-page MODEL=<model.json> PAGE=<index.html> SVG=<folder>"; exit 1; }
+	@$(NODE) node event-storming/generate.ts $(MODEL) $(PAGE) $(SVG)
 
 # Playwright runs in its official image, in the network of the stack, the local hosts resolved to its nginx (by its
 # /etc/hosts for Node, by STACK_ADDRESS for Chromium, playwright.config.ts): on the network of the host, its Chromium
