@@ -22,7 +22,7 @@ vendor: ## Install the Composer dependencies of the API, the core and the storag
 	@$(MAKE) -C packages/core vendor
 	@$(MAKE) -C apps/storage vendor
 
-db: ## Recreate in MiniStack the tables and the user pool of the API and the bucket of the storage, with the demo data (destroys local data) and the queues of the failures emptied, the relay of the outbox on their new streams, the figures counted
+db: ## Recreate in MiniStack the tables and the user pool of the API and the bucket of the storage, with the demo data and its figures counted (destroys local data), the queues of the failures emptied, the relay of the outbox on their new streams
 	@$(MAKE) -C apps/api db
 	@$(MAKE) -C apps/storage db
 
@@ -142,12 +142,11 @@ WITH_E2E_LOCK = { flock -n $(E2E_LOCK) true || echo "The journeys of another che
 # (make -C apps/api restore). It keeps the containers, the images, the relay's mappings, the bus rules and the buckets.
 # It starts from nothing with FRESH=1, when no stack runs, or when what defines the stack changed since it was made
 # (STACK_DEFINITION). It then starts the stack again (MiniStack without the memory a former run left it), deploys it and
-# recreates its data. Either way the figures are counted (five minutes, ADR 0106) while the journeys reading none run
-# together. Those running alone run once the others are done (ADR 0117), the main journey then the dashboard, one after
-# the other (ADR 0136), and not when one before failed: the first failure stops them (FAIL_FAST). It warms the relay and
-# the worker, makes the console's gestures and doubles the geocoder once for both projects. Each step prints how long it
-# took, and so does the whole run
-FIGURES_LOG = $(ROOT)/.cache/reporting-rebuild.log
+# recreates its data. Either way the command loading the demonstration counts its figures, alone, in a few seconds,
+# before any console gesture and any journey (ADR 0209). The journeys running alone run once the others are done
+# (ADR 0117), the main journey then the dashboard, one after the other (ADR 0136), and not when one before failed: the
+# first failure stops them (FAIL_FAST). It warms the relay and the worker, makes the console's gestures and doubles the
+# geocoder once for both projects. Each step prints how long it took, and so does the whole run
 STACK_RUNNING = $(shell $(DC) ps -q --status running nginx 2>/dev/null)
 # what a running stack's restore does not make again: the containers and their images, the tables, the user pool, the
 # buckets, the relay and the subscriptions' rules. The stack keeps the digest of the definition it was made from
@@ -158,10 +157,10 @@ STACK_DEFINITION_DIGEST = $(shell cd $(ROOT) && find $(STACK_DEFINITION) -type f
 STACK_MADE = $(ROOT)/.cache/stack-made-from
 STACK_CHANGED = $(if $(filter $(STACK_DEFINITION_DIGEST),$(file < $(STACK_MADE))),,1)
 FROM_NOTHING = $(or $(FRESH),$(if $(STACK_RUNNING),,1),$(STACK_CHANGED))
-MAKE_THE_STACK = $(MAKE) stop && $(MAKE) deploy && $(MAKE) db FIGURES=later && echo $(STACK_DEFINITION_DIGEST) >$(STACK_MADE)
+MAKE_THE_STACK = $(MAKE) stop && $(MAKE) deploy && $(MAKE) db && mkdir -p $(dir $(STACK_MADE)) && echo $(STACK_DEFINITION_DIGEST) >$(STACK_MADE)
 RESTORE_THE_STACK = echo "Giving the running stack its demonstration back (FRESH=1 starts from nothing)" \
 	&& $(call timed,Stack/API and storage deployed and reactions recycled,$(DC) --progress quiet run --rm --build lambda-deploy apps) \
-	&& $(MAKE) -C apps/api restore FIGURES=later
+	&& $(MAKE) -C apps/api restore
 check-e2e: ## Run the journeys on this worktree's stack after giving it the demonstration back, stopping at the first failure. FRESH=1, no running stack or a change of what defines it starts the stack again, deploys it and recreates its data first (ADR 0117, 0121, 0205)
 	@test -n "$(IN_WORKTREE)" || { echo "check-e2e recreates the data of the stack: in a worktree only; make e2e on the running stack"; exit 1; }
 	@$(WITH_E2E_LOCK) $(MAKE) check-e2e-locked FROM_NOTHING=$(FROM_NOTHING)
@@ -171,10 +170,8 @@ check-e2e-locked:
 
 check-e2e-run: export FAIL_FAST = 1
 check-e2e-run:
-	@mkdir -p $(dir $(FIGURES_LOG)) && $(if $(FROM_NOTHING),$(MAKE_THE_STACK),$(RESTORE_THE_STACK))
-	@{ $(call timed,API/figures counted,$(API_CONSOLE)app:reporting:rebuild >$(FIGURES_LOG) 2>&1); } & figures=$$!; \
-	$(E2E_SETUP) && $(call timed,Journeys/together,$(FRONT_E2E) E2E_ARGS="--project='together*'" E2E_RESULTS=together); together=$$?; \
-	wait $$figures || { echo "The figures were not counted:"; cat $(FIGURES_LOG); exit 1; }; \
+	@$(if $(FROM_NOTHING),$(MAKE_THE_STACK),$(RESTORE_THE_STACK))
+	@$(E2E_SETUP) && $(call timed,Journeys/together,$(FRONT_E2E) E2E_ARGS="--project='together*'" E2E_RESULTS=together); together=$$?; \
 	test $$together -eq 0 || { echo "A journey running together failed: those running alone are not run"; exit $$together; }; \
 	$(call timed,Journeys/main journey,$(FRONT_E2E) E2E_ARGS="--project=alone --no-deps" E2E_RESULTS=alone) && \
 	$(call timed,Journeys/dashboard,$(FRONT_E2E) E2E_ARGS="--project=alone-dashboard --no-deps" E2E_RESULTS=alone-dashboard)

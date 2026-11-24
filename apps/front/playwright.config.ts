@@ -4,8 +4,8 @@ import { PUBLIC_HOST, SPA_URL, WORKERS } from './e2e/stack'
 /**
  * The journeys that run once the others are done, one after the other (ADR 0117, 0122, 0136): the main journey signs
  * the demonstration member out, everywhere (Cognito global sign-out), and beside another journey outlasted its minute;
- * the dashboard, after it, reads a figure, which a run from nothing counts only once the journeys running together are
- * done (no figure before the first count).
+ * the dashboard, after it, reads a figure that the worker records live, in the account the console opened for the run
+ * (the demonstration's figures are counted when it is given back, before any journey).
  */
 const MAIN_JOURNEY = /\/journey\.spec\.ts$/
 const DASHBOARD = /\/dashboard-figures\.spec\.ts$/
