@@ -184,21 +184,22 @@ It reacts to the exchanges' facts (`ExchangeFactsChanged`) and to forgotten cont
     - `ProviderCalendar`: create the calendar « Prospecter ». Put an event, and return the link of the conference it asked for. Remove an event, or cancel it for its guest (`AccessRevoked`, `CalendarGone`, `CalendarRefusedThePush`);
     - `ProviderMailbox`: watch a mailbox through a topic, and stop its watch. List the messages added since a history point (`HistoryExpired` once the history is no longer kept). List the messages received or sent after a moment, or exchanged with an address after a moment. Read a message. Send one of its attachments to the private storage;
     - `Correspondents`, `CorrespondentAddresses`, `Members`, `HeldExchanges` and `ContactNames`.
-- `src/Connectors/Application`:
-  - `AskForAuthorization`, `Connect`, `CheckMyConnections`, `Disconnect`, `ConsultMyConnections` (`MyConnection`, the port `MyConnectionsRetriever`), `ConfigureClient`, `RemoveClient`, `ConsultMyAccountClients` (`AccountClient`, the port `AccountClientsRetriever`);
-  - through `CalendarPusher`:
+- `src/Connectors/Application`, in four modules (ADR 0206):
+  - `Connection`, a member's connection at a provider: `AskForAuthorization`, `Connect`, `CheckMyConnections`, `Disconnect`, `ConsultMyConnections` (`MyConnection`, the port `MyConnectionsRetriever`), and `WhichHaveAConnectedCalendar` (the service it publishes, ADR 0148);
+  - `Client`, the account's client at the provider and its mailbox notifications: `ConfigureClient`, `RemoveClient`, `ConsultMyAccountClients` (the port `AccountClientsRetriever`), and, for ADR 0154, `ConfigureMailboxNotifications`, `RemoveMailboxNotifications` and `ConsultMailboxPusher`;
+  - `Calendar`, the exchanges pushed into the holders' calendars, through `CalendarPusher`:
     - `PushExchange`, which its policy sends for `ExchangeFactsChanged` (the subscription `connectors-push-exchange`);
     - `UnnameForgottenContact`, which its policy sends for `ContactForgotten` (`connectors-unname-forgotten-contact`);
     - `PushUpcomingExchanges`, which its policy sends for `Connected` and `CalendarRecreated` (`connectors-push-upcoming-exchanges`);
     - `RetryPush`, `RetryFailedPushes`;
-  - `PublishVideoCallLinkCreated` (the created link's translator, ADR 0137);
-  - `ConsultExchangeSync` (`ExchangeSync`, the port `ExchangeSyncRetriever`);
-  - `WhichHaveAConnectedCalendar` (the service it publishes, ADR 0148);
-  - ADR 0154:
-    - `ConfigureMailboxNotifications`, `RemoveMailboxNotifications`, `ConsultMailboxPusher`, `AskToImportMail`, `StopMailImport`;
+    - `ConsultExchangeSync` (`ExchangeSync`, the port `ExchangeSyncRetriever`);
+    - `PublishVideoCallLinkCreated` (the created link's translator, ADR 0137);
+  - `MailImport`, the import of e-mails from the members' mailboxes (ADR 0154):
+    - `AskToImportMail`, `StopMailImport`;
     - `RenewMailWatch`. The platform gives it each active import (the port `MailImportsRetriever`);
     - `NoteMailboxNotification`;
     - `ReadMailboxHistory`, which its policy sends for `MailboxChanged` and `MailWatchRenewed` (the subscription `connectors-read-mailbox-history`);
     - `ImportMail`, which its policy sends for `MailboxMessageAdded` (`connectors-import-mail`);
-  - `CatchUpMailHistory`, `ConsultMailCatchUpIntents`.
+    - `CatchUpMailHistory`, `ConsultMailCatchUpIntents`;
+  - at the application's root, `AccountClient`, which both `Connection` and `Client` read, the policies of `Policy/` and the ports of `Port/`.
 - In the API: the table and its items are in `docs/architecture/persistence.md`, and the endpoints in `docs/architecture/api.md`. Google and its double are in `docs/architecture/local-stack.md` and `infra.md`.
