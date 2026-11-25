@@ -28,18 +28,29 @@ final class EventStormingFormatterTest extends TestCase
         self::assertSame(1, self::formatter()->formatErrors(self::analysisOf(self::REFUND), $output));
     }
 
+    public function testAnAnalysisThatCouldNotReadTheCodeFailsTheGenerationThatSaysWhy(): void
+    {
+        $output = $this->createMock(Output::class);
+        $output->expects(self::once())->method('writeLineFormatted')->with(self::stringContains('A file could not be parsed'));
+
+        self::assertSame(1, self::formatter()->formatErrors(self::analysisOf(self::REFUND, ['A file could not be parsed']), $output));
+    }
+
     private static function formatter(): EventStormingFormatter
     {
         return new EventStormingFormatter(new ModelDocument(self::FIXTURES.'/features', self::FIXTURES.'/subscriptions.json'));
     }
 
-    private static function analysisOf(string $command): AnalysisResult
+    /**
+     * @param list<string> $failures
+     */
+    private static function analysisOf(string $command, array $failures = []): AnalysisResult
     {
         $handler = ['name' => $command.'Handler', 'interfaces' => [CommandHandler::class], 'parameters' => [[$command]], 'returns' => [], 'mayReturnNothing' => false, 'dependencies' => [], 'roles' => [], 'presents' => []];
         // @phpstan-ignore phpstanApi.constructor (the test gives the formatter what an analysis gives it)
         $facts = new Error('The facts', 'code.php', identifier: EventStormingFactsRule::IDENTIFIER, metadata: ['classes' => [$handler], 'calls' => []]);
 
         // @phpstan-ignore phpstanApi.constructor (the test gives the formatter what an analysis gives it)
-        return new AnalysisResult([$facts], [], [], [], [], false, null, false, 0, false, [], false, 1);
+        return new AnalysisResult([$facts], $failures, [], [], [], false, null, false, 0, false, [], false, 1);
     }
 }

@@ -21,6 +21,8 @@ final class ModelDocumentTest extends TestCase
 
     private const string REFUND = 'Prospecter\Core\Till\Application\Refund\Refund';
 
+    private const string EXCHANGE = 'Prospecter\Core\Till\Application\Exchange\Exchange';
+
     public function testTheDocumentHoldsTheModelOfEachContextOfTheFacts(): void
     {
         $document = (array) json_decode(self::document()->of(self::facts(), []), true, flags: \JSON_THROW_ON_ERROR);
@@ -33,6 +35,18 @@ final class ModelDocumentTest extends TestCase
         $this->expectExceptionObject(UntitledUseCases::named(['Till: Refund']));
 
         self::document()->of(self::facts(self::REFUND), []);
+    }
+
+    public function testTheRefusalNamesEveryUseCaseNoFeatureNames(): void
+    {
+        $this->expectExceptionMessageIsOrContains("No feature names these use cases:\nTill: Exchange\nTill: Refund");
+
+        self::document()->of(self::facts(self::REFUND, self::EXCHANGE), []);
+    }
+
+    public function testTheDocumentEndsItsLastLine(): void
+    {
+        self::assertStringEndsWith("}\n", self::document()->of(self::facts(), []));
     }
 
     public function testTheDocumentWarnsOfEachFeatureThatNamesNoUseCase(): void
