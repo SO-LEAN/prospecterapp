@@ -521,6 +521,73 @@ svg.ink {
   height: 11px;
 }
 
+/* The « +n » in the last place: its hover or its focus lists the pictograms the post-it has no room for. */
+.more {
+  position: absolute;
+  top: -9px;
+  width: 23px;
+  height: 23px;
+  z-index: 4;
+}
+.port .more {
+  top: 11px;
+  width: 19px;
+  height: 19px;
+}
+.more > .jump {
+  top: 0;
+  left: 0;
+  font: 700 11px / 1 var(--ui);
+}
+.more-jumps {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px;
+  border: 1.5px solid var(--marker);
+  border-radius: 6px;
+  background: var(--paper);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.3);
+}
+.more:hover .more-jumps,
+.more:focus-within .more-jumps {
+  display: flex;
+}
+.more-jumps > * {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 6px;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: var(--marker);
+  font: 13px / 1.2 var(--ui);
+  text-align: left;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+}
+.more-jumps > *:hover,
+.more-jumps > *:focus-visible {
+  background: var(--marker);
+  color: var(--paper);
+  outline: none;
+}
+.more-jumps svg {
+  flex: none;
+  width: 13px;
+  height: 13px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 /* Following one story: the rest of the wall steps back. */
 #world.following .sticky:not(.lit),
 #world.following .strip:not(.lit) {
@@ -1245,7 +1312,7 @@ kbd {
 <div class="sticky k-actor badge" data-node="1" role="button" tabindex="-1" aria-label="Actor: Member's AI. module Account. then My account" data-tip="Member's AI can call this through its tool, without a screen" style="left:306px;top:135.5px;width:32px;height:32px;z-index:5;--r:-3.02deg"><div class="paper"><svg class="figure" viewBox="0 0 30 30" aria-hidden="true"><rect x="10" y="3" width="10" height="8" rx="2"/><path d="M15 3V.8M13 7h.1M17 7h.1M15 11v9M7 15h16M15 20l-6 8M15 20l6 8"/></svg></div></div>
 <div class="sticky k-readModel" data-node="2" role="button" tabindex="-1" aria-label="Read model: My reminders. module Reminders. after Member's AI, Member. then Change my reminders" style="left:319px;top:1300.6px;width:132px;height:132px;z-index:3;--r:-0.04deg"><div class="paper"><p class="t role-label font-hand center" style="left:10.5px;top:53.7px;width:112px;font-size:21px;line-height:1.08">My reminders</p></div></div>
 <div class="sticky k-actor badge" data-node="3" role="button" tabindex="-1" aria-label="Actor: Member's AI. module Reminders. then My reminders" data-tip="Member's AI can call this through its tool, without a screen" style="left:306px;top:1289.2px;width:32px;height:32px;z-index:5;--r:1.06deg"><div class="paper"><svg class="figure" viewBox="0 0 30 30" aria-hidden="true"><rect x="10" y="3" width="10" height="8" rx="2"/><path d="M15 3V.8M13 7h.1M17 7h.1M15 11v9M7 15h16M15 20l-6 8M15 20l6 8"/></svg></div></div>
-<div class="sticky k-readModel" data-node="4" role="button" tabindex="-1" aria-label="Read model: Members. module Member. after Member's AI, Prospector" style="left:319px;top:1684.9px;width:132px;height:132px;z-index:3;--r:-1.64deg"><div class="paper"><p class="t role-label font-hand center" style="left:29.5px;top:53.7px;width:74px;font-size:21px;line-height:1.08">Members</p></div><a class="jump away" href="../booking/#at=externalSystem%3AHosts" style="right:-9px" data-jump="0" data-tip="Read by “Hosts” · Booking" aria-label="Read by “Hosts” · Booking" tabindex="-1"><svg viewBox="0 0 24 24"><path d="M8 16L18 6M10 6h8v8"/></svg></a><a class="jump away" href="../campaigns/#at=externalSystem%3ACampaigners" style="right:16px" data-jump="1" data-tip="Read by “Campaigners” · Campaigns" aria-label="Read by “Campaigners” · Campaigns" tabindex="-1"><svg viewBox="0 0 24 24"><path d="M8 16L18 6M10 6h8v8"/></svg></a><a class="jump away" href="../campaigns/#at=externalSystem%3ATaggers" style="right:41px" data-jump="2" data-tip="Read by “Taggers” · Campaigns" aria-label="Read by “Taggers” · Campaigns" tabindex="-1"><svg viewBox="0 0 24 24"><path d="M8 16L18 6M10 6h8v8"/></svg></a><a class="jump away" href="../connectors/#at=externalSystem%3AMembers" style="right:66px" data-jump="3" data-tip="Read by “Members” · Connectors" aria-label="Read by “Members” · Connectors" tabindex="-1"><svg viewBox="0 0 24 24"><path d="M8 16L18 6M10 6h8v8"/></svg></a><a class="jump away" href="../personal-data/#at=externalSystem%3AReaders" style="right:91px" data-jump="4" data-tip="Read by “Readers” · Personal data" aria-label="Read by “Readers” · Personal data" tabindex="-1"><svg viewBox="0 0 24 24"><path d="M8 16L18 6M10 6h8v8"/></svg></a><a class="jump away" href="../prospecting/#at=externalSystem%3AProspectors" style="right:116px" data-jump="5" data-tip="Read by “Prospectors” · Prospecting" aria-label="Read by “Prospectors” · Prospecting" tabindex="-1"><svg viewBox="0 0 24 24"><path d="M8 16L18 6M10 6h8v8"/></svg></a><a class="jump away" href="../reporting/#at=externalSystem%3ASourceAccounts" style="right:141px" data-jump="6" data-tip="Read by “Source accounts” · Reporting" aria-label="Read by “Source accounts” · Reporting" tabindex="-1"><svg viewBox="0 0 24 24"><path d="M8 16L18 6M10 6h8v8"/></svg></a></div>
+<div class="sticky k-readModel" data-node="4" role="button" tabindex="-1" aria-label="Read model: Members. module Member. after Member's AI, Prospector" style="left:319px;top:1684.9px;width:132px;height:132px;z-index:3;--r:-1.64deg"><div class="paper"><p class="t role-label font-hand center" style="left:29.5px;top:53.7px;width:74px;font-size:21px;line-height:1.08">Members</p></div><a class="jump away" href="../booking/#at=externalSystem%3AHosts" style="right:-9px" data-jump="0" data-tip="Read by “Hosts” · Booking" aria-label="Read by “Hosts” · Booking" tabindex="-1"><svg viewBox="0 0 24 24"><path d="M8 16L18 6M10 6h8v8"/></svg></a><a class="jump away" href="../campaigns/#at=externalSystem%3ACampaigners" style="right:16px" data-jump="1" data-tip="Read by “Campaigners” · Campaigns" aria-label="Read by “Campaigners” · Campaigns" tabindex="-1"><svg viewBox="0 0 24 24"><path d="M8 16L18 6M10 6h8v8"/></svg></a><a class="jump away" href="../campaigns/#at=externalSystem%3ATaggers" style="right:41px" data-jump="2" data-tip="Read by “Taggers” · Campaigns" aria-label="Read by “Taggers” · Campaigns" tabindex="-1"><svg viewBox="0 0 24 24"><path d="M8 16L18 6M10 6h8v8"/></svg></a><a class="jump away" href="../connectors/#at=externalSystem%3AMembers" style="right:66px" data-jump="3" data-tip="Read by “Members” · Connectors" aria-label="Read by “Members” · Connectors" tabindex="-1"><svg viewBox="0 0 24 24"><path d="M8 16L18 6M10 6h8v8"/></svg></a><a class="jump away" href="../personal-data/#at=externalSystem%3AReaders" style="right:91px" data-jump="4" data-tip="Read by “Readers” · Personal data" aria-label="Read by “Readers” · Personal data" tabindex="-1"><svg viewBox="0 0 24 24"><path d="M8 16L18 6M10 6h8v8"/></svg></a><span class="more" style="right:116px"><button class="jump more" aria-label="2 more: Read by “Prospectors” · Prospecting, Read by “Source accounts” · Reporting" tabindex="-1">+2</button><span class="more-jumps"><a class="away" href="../prospecting/#at=externalSystem%3AProspectors" data-jump="5" tabindex="-1"><svg viewBox="0 0 24 24"><path d="M8 16L18 6M10 6h8v8"/></svg><span>Read by “Prospectors” · Prospecting</span></a><a class="away" href="../reporting/#at=externalSystem%3ASourceAccounts" data-jump="6" tabindex="-1"><svg viewBox="0 0 24 24"><path d="M8 16L18 6M10 6h8v8"/></svg><span>Read by “Source accounts” · Reporting</span></a></span></span></div>
 <div class="sticky k-actor badge" data-node="5" role="button" tabindex="-1" aria-label="Actor: Member's AI. module Member. then Members" data-tip="Member's AI can call this through its tool, without a screen" style="left:306px;top:1675.6px;width:32px;height:32px;z-index:5;--r:-7.63deg"><div class="paper"><svg class="figure" viewBox="0 0 30 30" aria-hidden="true"><rect x="10" y="3" width="10" height="8" rx="2"/><path d="M15 3V.8M13 7h.1M17 7h.1M15 11v9M7 15h16M15 20l-6 8M15 20l6 8"/></svg></div></div>
 <div class="sticky k-readModel" data-node="6" role="button" tabindex="-1" aria-label="Read model: List accounts. module Account" style="left:250px;top:879.4px;width:132px;height:132px;z-index:3;--r:-1.04deg"><div class="paper"><p class="t role-label font-hand center" style="left:12.5px;top:53.7px;width:108px;font-size:21px;line-height:1.08">List accounts</p></div><a class="jump away" href="../campaigns/#at=externalSystem%3ATaggedAccounts" style="right:-9px" data-jump="0" data-tip="Read by “Tagged accounts” · Campaigns" aria-label="Read by “Tagged accounts” · Campaigns" tabindex="-1"><svg viewBox="0 0 24 24"><path d="M8 16L18 6M10 6h8v8"/></svg></a><a class="jump away" href="../reporting/#at=externalSystem%3ASourceAccounts" style="right:16px" data-jump="1" data-tip="Read by “Source accounts” · Reporting" aria-label="Read by “Source accounts” · Reporting" tabindex="-1"><svg viewBox="0 0 24 24"><path d="M8 16L18 6M10 6h8v8"/></svg></a></div>
 <div class="sticky k-command" data-node="7" role="button" tabindex="-1" aria-label="Command: Change my organization logo. module Account. after Member. then Account, Offered where?" style="left:665px;top:333px;width:132px;height:132px;z-index:3;--r:2.04deg"><div class="paper"><p class="t role-label font-hand center" style="left:10px;top:47.2px;width:113px;font-size:16.5px;line-height:1.08">Change my<br>organization logo</p></div></div>
@@ -1762,7 +1829,8 @@ function braceOf(from        , ends          , spine        , over              
   stage.addEventListener('click', (event) => {
     if (moved) return
     const target = event.target           
-    const jump = target.closest             ('.jump')
+    if (target.closest('.jump.more') !== null) return
+    const jump = target.closest             ('[data-jump]')
     const index = nodeOf(target)
     if (jump !== null && index !== null)
       return follow(notes[index]?.jumps[Number(jump.dataset.jump)]?.to ?? null)

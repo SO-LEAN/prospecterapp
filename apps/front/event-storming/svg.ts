@@ -44,7 +44,8 @@ export function svgsOf(model: Model, font: string): Record<string, string> {
   const wall = wallOf(model)
   const grid = gridOf(wall, 'roomy')
   const data = dataOf(wall, { roomy: grid, compact: gridOf(wall, 'compact') })
-  const drawing = new Drawing(wall.notes, grid, data, font)
+  const widths = wall.lanes.map((lane) => grid.lanes.get(lane)?.width ?? grid.width)
+  const drawing = new Drawing(wall.notes, grid, data, font, widths)
   const svgs: Record<string, string> = { 'wall.svg': drawing.of(null) }
   data.lanes.forEach((lane, index) => {
     svgs[`${kebabOf(lane.name)}.svg`] = drawing.of(index)
@@ -61,20 +62,23 @@ class Drawing {
   private readonly grid: Grid
   private readonly data: WallData
   private readonly font: string
+  /** Each lane's width, by its rank. */
+  private readonly widths: number[]
 
-  constructor(notes: Note[], grid: Grid, data: WallData, font: string) {
+  constructor(notes: Note[], grid: Grid, data: WallData, font: string, widths: number[]) {
     this.notes = notes
     this.grid = grid
     this.data = data
     this.font = font
+    this.widths = widths
   }
 
-  /** The whole wall, or one lane of it. */
+  /** The whole wall, or one lane of it, as wide as that lane. */
   of(lane: number | null): string {
     const shown = (at: number): boolean => lane === null || this.data.notes[at]?.lane === lane
     const top = lane === null ? 0 : (this.data.lanes[lane]?.top.roomy ?? 0)
     const height = lane === null ? this.grid.height : (this.data.lanes[lane]?.height.roomy ?? 0)
-    const width = this.grid.width
+    const width = lane === null ? this.grid.width : (this.widths[lane] ?? this.grid.width)
     const title =
       lane === null
         ? `${this.data.label}, event storming`
