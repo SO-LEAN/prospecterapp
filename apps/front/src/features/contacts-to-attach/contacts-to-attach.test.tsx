@@ -120,6 +120,26 @@ describe('the contacts to attach to process', () => {
     expect(screen.getByText('Effacé dans 1 jour')).toHaveAttribute('data-urgency', 'imminent')
   })
 
+  describe('on a phone, its layout set by its classes that jsdom does not compute', () => {
+    it('keeps the date of the last meeting on one line', async () => {
+      await show(<ContactsToAttachSection contacts={[ada(new Date(2026, 11, 20))]} />)
+
+      expect(screen.getByText('20 nov. 2026, 14:00')).toHaveClass('whitespace-nowrap')
+    })
+
+    it('gives the name and the date the whole width, the days and the attachment wrapping below them', async () => {
+      await show(<ContactsToAttachSection contacts={[ada(new Date(2026, 11, 20))]} />)
+
+      expect(screen.getByText('20 nov. 2026, 14:00').parentElement).toHaveClass('basis-full', 'sm:basis-0')
+    })
+
+    it('offers to attach on a target of 44 pixels', async () => {
+      await show(<ContactsToAttachSection contacts={[ada(new Date(2026, 11, 20))]} />)
+
+      expect(screen.getByRole('button', { name: 'Rattacher' })).toHaveClass('h-11', 'sm:h-8')
+    })
+  })
+
   it('attaches the contact to the organization proposed by the domain of their email', async () => {
     theApiProposes({ id: ACME, name: 'ACME' })
     await show(<ContactsToAttachSection contacts={[ada(new Date(2026, 11, 20))]} />)
