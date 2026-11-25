@@ -45,6 +45,8 @@ final readonly class Facts
                     self::texts($class['outputPorts'] ?? null),
                     true === ($class['console'] ?? null),
                     self::texts($class['changes'] ?? null),
+                    self::textsByName($class['offers'] ?? null),
+                    self::texts($class['holds'] ?? null),
                 ),
                 self::records($collected['classes'] ?? null),
             ),
