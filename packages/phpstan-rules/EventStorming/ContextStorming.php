@@ -405,18 +405,20 @@ final readonly class ContextStorming
     }
 
     /**
-     * A view offers the commands its presenter links to: each text the presenter writes in an argument of an object it
-     * creates that names a controller's route leads to the commands that controller sends. The link is offered under
-     * a condition when its parameter may be null.
+     * A view offers the commands its links resources declare: each class its presenter holds, through the types of
+     * their public properties and of their lists, that declares the route a parameter offers leads to the commands
+     * that route's controller sends. The link is offered under a condition when its parameter may be null.
      */
     private function stickTheOffers(Board $board, string $context): void
     {
         foreach ($this->handlersOf($context, self::QUERY_HANDLER) as $handler) {
             foreach ($handler->firstParameter() as $query) {
-                foreach ($this->argumentsOfThePresentersOf($handler) as $argument) {
-                    $condition = $this->facts->find($argument->created)?->optionalParameters[$argument->parameter] ?? null;
-                    foreach ($this->commandsRoutedBy($board, $argument->texts) as $command) {
-                        $board->link(new Link(StickyType::ReadModel->value.':'.$query, $command, $argument->parameter, null === $condition, self::whenOf($condition)));
+                foreach ($this->classesHeldByThePresentersOf($handler) as $links) {
+                    foreach ($links->offers as $parameter => $route) {
+                        $condition = $links->optionalParameters[$parameter] ?? null;
+                        foreach ($this->commandsRoutedBy($board, [$route]) as $command) {
+                            $board->link(new Link(StickyType::ReadModel->value.':'.$query, $command, $parameter, null === $condition, self::whenOf($condition)));
+                        }
                     }
                 }
             }
@@ -433,16 +435,35 @@ final readonly class ContextStorming
     }
 
     /**
-     * @return list<Argument>
+     * @return list<ClassFacts> the classes the presenters of a query's output port hold, the links resources among them
      */
-    private function argumentsOfThePresentersOf(ClassFacts $handler): array
+    private function classesHeldByThePresentersOf(ClassFacts $handler): array
     {
-        $presenters = array_map(
-            static fn (ClassFacts $presenter): string => $presenter->name,
-            array_filter($this->facts->classes(), static fn (ClassFacts $class): bool => array_any($handler->outputPorts, $class->implements(...))),
-        );
+        $presenters = array_filter($this->facts->classes(), static fn (ClassFacts $class): bool => array_any($handler->outputPorts, $class->implements(...)));
+        $held = [];
+        foreach ($presenters as $presenter) {
+            $held = $this->heldFrom($presenter, $held);
+        }
 
-        return array_values(array_filter($this->facts->arguments, static fn (Argument $argument): bool => \in_array($argument->caller, $presenters, true)));
+        return array_values($held);
+    }
+
+    /**
+     * @param array<string, ClassFacts> $held
+     *
+     * @return array<string, ClassFacts> what a class holds, and what that holds, by name
+     */
+    private function heldFrom(ClassFacts $class, array $held): array
+    {
+        foreach ($class->holds as $name) {
+            $facts = $this->facts->find($name);
+            if (null !== $facts && !isset($held[$name])) {
+                $held[$name] = $facts;
+                $held = $this->heldFrom($facts, $held);
+            }
+        }
+
+        return $held;
     }
 
     /**
