@@ -45,7 +45,7 @@ Each lane alone: [Reporting](../event-storming/reporting/reporting.svg). The wal
 
 ## What it publishes
 
-Nothing: Reporting is downstream of Accounts, PersonalData and Prospecting.
+Nothing: Reporting is downstream of Accounts, PersonalData and Prospecting. It records no event either: its figures are a projection of the other contexts' facts, and its wall draws each of its commands toward the figures it keeps (ADR 0215). `packages/core/tests/Architecture/ReportingRecordsNoEventTest` fails when one of its classes is an event or an aggregate that records events.
 
 ## Features
 
