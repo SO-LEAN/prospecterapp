@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { type Density, gridOf, type Place } from './grid.ts'
 import { type Letters, lettersOf } from './lettering.ts'
 import type { Model } from './model.ts'
+import { pictogramsOf, rowOf } from './pictograms.ts'
 import { type Note, type Wall, wallOf } from './wall.ts'
 
 /** Booking's model, as the generator last read it from the code. Vitest runs in the front's folder. */
@@ -64,6 +65,12 @@ describe('the lettering of a post-it', () => {
     }
   }
 
+  for (const [name, model] of CONTEXTS) {
+    it(`keeps every pictogram on its post-it, on ${name}`, () => {
+      expect(wallOf(model).notes.flatMap(pictogramsOffTheirPostIt)).toEqual([])
+    })
+  }
+
   it('lets a hotspot touch no post-it', () => {
     const grid = gridOf(wall, 'roomy')
     const touching = wall.notes
@@ -84,6 +91,22 @@ describe('the lettering of a post-it', () => {
     expect(touching).toEqual([])
   })
 })
+
+/**
+ * Each pictogram whose centre leaves its post-it, or that covers another pictogram of it, the « +n » included. A
+ * pictogram of a post-it leans out of its corner, never further.
+ */
+function pictogramsOffTheirPostIt(note: Note): string[] {
+  const { size } = rowOf(note)
+  const { shown, more } = pictogramsOf(note)
+  const lefts = [
+    ...shown.map(({ side, offset }) => (side === 'left' ? offset : note.w - offset - size)),
+    ...(more === null ? [] : [note.w - more.offset - size]),
+  ].sort((one, other) => one - other)
+  const off = lefts.filter((left) => left + size / 2 < 0 || left + size / 2 > note.w)
+  const covering = lefts.filter((left, rank) => rank > 0 && left < (lefts[rank - 1] ?? left) + size)
+  return [...off, ...covering].map((left) => `${note.label}: a pictogram at ${left}`)
+}
 
 function withAMethod(method: string): Model {
   return {
