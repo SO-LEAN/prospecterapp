@@ -1,0 +1,3 @@
+#!/bin/sh
+# Refuses a commit whose subject has no conventional type or is over 72 characters (make/commit-subject.sh)
+exec "$(git rev-parse --show-toplevel)/make/commit-subject.sh" "$1"
