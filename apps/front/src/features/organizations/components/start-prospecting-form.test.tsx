@@ -1,12 +1,51 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { StartProspectingForm } from './start-prospecting-form'
 
+const theApi = vi.hoisted(() => {
+  const fetch = vi.fn<typeof globalThis.fetch>()
+  globalThis.fetch = fetch
+  return fetch
+})
+
+vi.mock('@/shared/auth/session', () => ({
+  session: { accessToken: async () => null, renewedAccessToken: async () => null },
+}))
+
+const GROUPE_ACME = '0190a1c0-0000-7000-8000-00000000a000'
+
+/** Searching the organizations finds the holding "Groupe ACME". */
+function theSearchFindsGroupeAcme() {
+  theApi.mockImplementation(async () =>
+    Response.json({
+      items: [{ id: GROUPE_ACME, name: 'Groupe ACME' }],
+      _links: { self: { href: '/api/organizations', method: 'GET' } },
+    }),
+  )
+}
+
+const searched = () => theApi.mock.calls.map(([request]) => new URL((request as Request).url).search)
+
 function renderForm(onSubmit = vi.fn().mockResolvedValue(undefined)) {
-  render(<StartProspectingForm onSubmit={onSubmit} onCancel={vi.fn()} />)
+  render(
+    <QueryClientProvider client={new QueryClient()}>
+      <StartProspectingForm onSubmit={onSubmit} onCancel={vi.fn()} />
+    </QueryClientProvider>,
+  )
   return { onSubmit, user: userEvent.setup() }
 }
+
+async function chooseTheHoldingGroupeAcme(user: ReturnType<typeof userEvent.setup>) {
+  theSearchFindsGroupeAcme()
+  await user.type(screen.getByLabelText(/^Holding/), 'Groupe')
+  await user.click(await screen.findByRole('button', { name: 'Groupe ACME' }))
+}
+
+afterEach(() => {
+  theApi.mockReset()
+})
 
 describe('StartProspectingForm', () => {
   it('sends what is known, empty fields as null', async () => {
@@ -22,8 +61,71 @@ describe('StartProspectingForm', () => {
         contactDetails: { email: null, phoneNumber: null, language: null, links: [], website: null },
         address: expect.objectContaining({ city: 'Paris', street: null }),
         observations: null,
+        holdingId: null,
       }),
     )
+  })
+
+  it('sends the holding chosen by a search among my organizations', async () => {
+    const { onSubmit, user } = renderForm()
+
+    await user.type(screen.getByLabelText('Raison sociale'), 'ACME Est')
+    await chooseTheHoldingGroupeAcme(user)
+    await user.click(screen.getByRole('button', { name: 'Commencer à prospecter' }))
+
+    expect(searched()).toContain('?q=Groupe')
+    expect(onSubmit).toHaveBeenCalledOnce()
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        legalIdentity: expect.objectContaining({ corporateName: 'ACME Est' }),
+        holdingId: GROUPE_ACME,
+      }),
+    )
+  })
+
+  it('searches no holding before a text is typed', async () => {
+    renderForm()
+
+    await userEvent.setup().click(screen.getByLabelText(/^Holding/))
+
+    expect(theApi).not.toHaveBeenCalled()
+    expect(screen.queryByRole('list')).not.toBeInTheDocument()
+  })
+
+  it('shows the holding chosen, and sends none once it is removed', async () => {
+    const { onSubmit, user } = renderForm()
+
+    await user.type(screen.getByLabelText('Raison sociale'), 'ACME Est')
+    await chooseTheHoldingGroupeAcme(user)
+    expect(screen.getByText('Groupe ACME')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Groupe ACME' })).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Retirer la holding' }))
+    await user.click(screen.getByRole('button', { name: 'Commencer à prospecter' }))
+
+    expect(screen.queryByText('Groupe ACME')).not.toBeInTheDocument()
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ holdingId: null }))
+  })
+
+  it('shows the refusal of the holding under its field, and keeps the rest of the form', async () => {
+    const { user } = renderForm(
+      vi.fn().mockRejectedValue({
+        title: 'Not Found',
+        status: 404,
+        detail: `Organization ${GROUPE_ACME} not found`,
+        violations: [],
+        reason: 'unknownOrganization',
+      }),
+    )
+
+    await user.type(screen.getByLabelText('Raison sociale'), 'ACME Est')
+    await chooseTheHoldingGroupeAcme(user)
+    await user.click(screen.getByRole('button', { name: 'Commencer à prospecter' }))
+
+    expect(await screen.findByText('Organisation introuvable.')).toBeInTheDocument()
+    expect(screen.getByLabelText(/^Holding/)).toHaveAttribute('aria-invalid', 'true')
+    expect(screen.getByLabelText(/^Holding/)).toHaveTextContent('Groupe ACME')
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    expect(screen.getByLabelText('Raison sociale')).toHaveValue('ACME Est')
   })
 
   it('sends the links pasted and the website typed', async () => {
