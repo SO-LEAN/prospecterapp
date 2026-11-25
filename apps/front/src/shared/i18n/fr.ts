@@ -932,6 +932,7 @@ export const fr = {
     menu: 'Actions sur « {{text}} »',
     revise: 'Modifier l’action à faire',
     tickedOff: 'Action faite',
+    postpone: 'Reporter',
     noteTheExchange: 'Noter l’échange ?',
     noteTheExchangeAction: 'Noter l’échange',
   },
