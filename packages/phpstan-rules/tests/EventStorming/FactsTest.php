@@ -19,13 +19,13 @@ final class FactsTest extends TestCase
     public function testTheFactsAreReadFromWhatTheCollectorsHandOver(): void
     {
         $facts = Facts::read([
-            'classes' => [['name' => 'A', 'interfaces' => ['I'], 'parameters' => [['B']], 'returns' => ['C'], 'mayReturnNothing' => true, 'dependencies' => ['D'], 'roles' => ['ROLE_USER'], 'routes' => ['api_a'], 'optionalParameters' => ['open' => 'Offered only while it is closed'], 'outputPorts' => ['G'], 'presents' => ['E'], 'console' => true, 'changes' => ['h']]],
+            'classes' => [['name' => 'A', 'interfaces' => ['I'], 'parameters' => [['B']], 'returns' => ['C'], 'mayReturnNothing' => true, 'dependencies' => ['D'], 'roles' => ['ROLE_USER'], 'routes' => ['api_a'], 'optionalParameters' => ['open' => 'Offered only while it is closed'], 'outputPorts' => ['G'], 'presents' => ['E'], 'console' => true, 'changes' => ['h'], 'offers' => ['open' => 'api_open'], 'holds' => ['H']]],
             'calls' => [['caller' => 'A', 'callerMethod' => '__invoke', 'target' => 'F', 'targetMethod' => 'g', 'conditional' => true]],
             'arguments' => [['caller' => 'A', 'created' => 'H', 'parameter' => 'open', 'texts' => ['api_a']]],
         ]);
 
         self::assertEquals(
-            new Facts([new ClassFacts('A', ['I'], [['B']], ['C'], true, ['D'], ['ROLE_USER'], ['E'], ['api_a'], ['open' => 'Offered only while it is closed'], ['G'], console: true, changes: ['h'])], [new Call('A', '__invoke', 'F', 'g', true)], [new Argument('A', 'H', 'open', ['api_a'])]),
+            new Facts([new ClassFacts('A', ['I'], [['B']], ['C'], true, ['D'], ['ROLE_USER'], ['E'], ['api_a'], ['open' => 'Offered only while it is closed'], ['G'], console: true, changes: ['h'], offers: ['open' => 'api_open'], holds: ['H'])], [new Call('A', '__invoke', 'F', 'g', true)], [new Argument('A', 'H', 'open', ['api_a'])]),
             $facts,
         );
     }

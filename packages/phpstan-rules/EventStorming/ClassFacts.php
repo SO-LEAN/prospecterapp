@@ -31,6 +31,9 @@ final readonly class ClassFacts
      *                                                  may be null, by name
      * @param list<string>          $outputPorts        the classes its __invoke presents its answer to
      * @param list<string>          $changes            its public methods that return nothing, which change it
+     * @param array<string, string> $offers             the route each parameter of its constructor declares it
+     *                                                  offers, by name, for a links resource
+     * @param list<string>          $holds              the classes its public properties hold, their lists' included
      */
     public function __construct(
         public string $name,
@@ -46,6 +49,8 @@ final readonly class ClassFacts
         public array $outputPorts = [],
         public bool $console = false,
         public array $changes = [],
+        public array $offers = [],
+        public array $holds = [],
     ) {
     }
 
