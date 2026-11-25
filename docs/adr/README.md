@@ -217,3 +217,4 @@ Why the project is shaped the way it is: one record per decision, in the order t
 | [0212](0212-the-rights-of-every-endpoint-are-proven-by-one-test.md) | The rights of every endpoint are proven by one test | architecture | Accepted | 2026-11-24 |
 | [0213](0213-the-event-storming-is-one-wall-per-context-with-a-lane-per-module.md) | The event storming is one wall per context, with a lane per module | architecture | Accepted | 2026-11-24 |
 | [0214](0214-every-context-has-its-wall-generated-from-the-whole-code-and-checked-in-the-ci.md) | Every context has its wall, generated from the whole code and checked in the CI | architecture | Accepted | 2026-11-24 |
+| [0215](0215-the-event-storming-reads-the-console-the-daily-schedule-and-projections.md) | The event storming reads the console, the daily schedule and projections | architecture | Accepted | 2026-11-25 |
