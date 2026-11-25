@@ -302,7 +302,7 @@ function Exchange({
   )
 }
 
-/** A member planned an exchange to come or cancelled, and noted one that took place or was missed. */
+/** A member plans an exchange that is to come or was cancelled. A member notes one that took place or was missed. */
 const MEMBER_ORIGIN_BY_STATUS = {
   planned: 'exchanges.detail.planned',
   cancelled: 'exchanges.detail.plannedThenCancelled',
