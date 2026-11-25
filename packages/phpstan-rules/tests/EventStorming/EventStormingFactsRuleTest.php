@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\PHPStan\EventStorming;
 
 use App\Shop\CartResourcePresenter;
+use App\Shop\Command\AddABookCommand;
 use App\Shop\Controller\AddItemController;
 use App\Shop\Resource\CartLinksResource;
 use App\Shop\Resource\CartResource;
@@ -61,7 +62,7 @@ final class EventStormingFactsRuleTest extends RuleTestCase
     public function testAHandlerTellsWhatItHandlesAndDependsOn(): void
     {
         self::assertContains(
-            ['name' => self::ADD_ITEM.'Handler', 'interfaces' => [CommandHandler::class], 'parameters' => [[self::ADD_ITEM]], 'returns' => [], 'mayReturnNothing' => false, 'dependencies' => [Stock::class, Cart::class], 'roles' => [], 'routes' => [], 'optionalParameters' => [], 'outputPorts' => [], 'presents' => []],
+            ['name' => self::ADD_ITEM.'Handler', 'interfaces' => [CommandHandler::class], 'parameters' => [[self::ADD_ITEM]], 'returns' => [], 'mayReturnNothing' => false, 'dependencies' => [Stock::class, Cart::class], 'roles' => [], 'routes' => [], 'optionalParameters' => [], 'outputPorts' => [], 'presents' => [], 'console' => false],
             $this->shopFacts()['classes'],
         );
     }
@@ -70,6 +71,14 @@ final class EventStormingFactsRuleTest extends RuleTestCase
     {
         self::assertContains(
             ['caller' => self::ADD_ITEM.'Handler', 'callerMethod' => '__invoke', 'target' => self::CART, 'targetMethod' => 'add', 'conditional' => false],
+            $this->shopFacts()['calls'],
+        );
+    }
+
+    public function testANamedConstructorCreatesItsOwnClass(): void
+    {
+        self::assertContains(
+            ['caller' => self::ADD_ITEM, 'callerMethod' => 'ofABook', 'target' => self::ADD_ITEM, 'targetMethod' => '__construct', 'conditional' => false],
             $this->shopFacts()['calls'],
         );
     }
@@ -121,6 +130,11 @@ final class EventStormingFactsRuleTest extends RuleTestCase
     public function testAClassTellsTheRolesItsAttributesRequire(): void
     {
         self::assertSame(['ROLE_USER', 'ROLE_PROSPECTOR'], $this->classFactsOf(AddItemController::class)['roles'] ?? null);
+    }
+
+    public function testAClassTellsItIsACommandOfTheConsole(): void
+    {
+        self::assertSame([true, false], [$this->classFactsOf(AddABookCommand::class)['console'] ?? null, $this->classFactsOf(AddItemController::class)['console'] ?? null]);
     }
 
     public function testAControllerTellsTheNameOfItsRoute(): void
