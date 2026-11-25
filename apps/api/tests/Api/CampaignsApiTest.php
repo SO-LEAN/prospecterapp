@@ -44,7 +44,15 @@ class CampaignsApiTest extends ApiTestCase
             [$campaign['name'], $campaign['channel'], $campaign['status'], $campaign['tags'], $campaign['targetedTags'], $campaign['message'], $campaign['subject'], $campaign['messageMode'] ?? null, $campaign['targeted']],
         );
         $this->assertSame(['href' => '/api/tagged-contacts?tags=CAMPAIGN_151,EMAIL', 'method' => 'GET'], self::valueAt($campaign, '_links', 'target'));
-        $this->assertSame(['self', 'revise', 'discard', 'freeze', 'setDailyCap', 'target'], array_keys(self::recordAt($campaign, '_links')));
+        $self = '/api/campaigns/'.self::stringAt($campaign, 'id');
+        $this->assertSame([
+            'self' => ['href' => $self, 'method' => 'GET'],
+            'revise' => ['href' => $self, 'method' => 'PATCH'],
+            'discard' => ['href' => $self, 'method' => 'DELETE'],
+            'freeze' => ['href' => $self.'/freeze', 'method' => 'POST'],
+            'setDailyCap' => ['href' => $self.'/daily-cap', 'method' => 'PATCH'],
+            'target' => ['href' => '/api/tagged-contacts?tags=CAMPAIGN_151,EMAIL', 'method' => 'GET'],
+        ], self::recordAt($campaign, '_links'));
         $this->assertSame($campaign, $this->requestJson('GET', '/api/campaigns/'.self::stringAt($campaign, 'id')));
     }
 
@@ -59,7 +67,8 @@ class CampaignsApiTest extends ApiTestCase
         $mine = array_find(self::recordsAt($listed, 'items'), static fn (array $item): bool => $item['id'] === $campaign['id']) ?? throw new \LogicException('The campaign is not listed');
         $this->assertSame(['Relance ESN', 'email', 'draft', ['processed' => 0, 'dismissed' => 0], 1], [$mine['name'], $mine['channel'], $mine['status'], $mine['progress'], $mine['targeted']]);
         $this->assertSame($campaign['author'], $mine['author']);
-        $this->assertSame(['href' => '/api/campaigns', 'method' => 'POST'], self::valueAt($listed, '_links', 'prepare'));
+        $this->assertNull($mine['processedToday']);
+        $this->assertSame(['self' => ['href' => '/api/campaigns', 'method' => 'GET'], 'prepare' => ['href' => '/api/campaigns', 'method' => 'POST']], self::recordAt($listed, '_links'));
     }
 
     public function testADraftIsRevisedThenDiscarded(): void
