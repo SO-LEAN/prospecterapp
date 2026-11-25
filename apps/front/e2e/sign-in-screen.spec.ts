@@ -63,6 +63,39 @@ test('in the dark theme, the ink of the logo and the name stay readable on the b
   expect(contrastBetween(text, background), 'the name').toBeGreaterThanOrEqual(READABLE_TEXT_CONTRAST)
 })
 
+/** The theme chosen in the app, as its preferences keep it in the tab's storage before the page loads. */
+async function chooseBeforeLoading(page: Page, theme: 'light' | 'dark') {
+  await page.addInitScript((chosen) => {
+    localStorage.setItem('prospecter-preferences', JSON.stringify({ state: { theme: chosen }, version: 0 }))
+  }, theme)
+}
+
+async function nativeControlsOf(page: Page) {
+  return page.locator('html').evaluate((html) => getComputedStyle(html).colorScheme)
+}
+
+test('the native controls follow the light theme chosen in the app, not the dark system', async ({
+  page,
+}) => {
+  await page.emulateMedia({ colorScheme: 'dark' })
+  await chooseBeforeLoading(page, 'light')
+  await page.goto('/auth/sign-in')
+  await expect(page.locator('html'), 'the light theme on').not.toHaveClass(/\bdark\b/)
+
+  expect(await nativeControlsOf(page)).toBe('light')
+})
+
+test('the native controls follow the dark theme chosen in the app, not the light system', async ({
+  page,
+}) => {
+  await page.emulateMedia({ colorScheme: 'light' })
+  await chooseBeforeLoading(page, 'dark')
+  await page.goto('/auth/sign-in')
+  await expect(page.locator('html'), 'the dark theme on').toHaveClass(/\bdark\b/)
+
+  expect(await nativeControlsOf(page)).toBe('dark')
+})
+
 test('on a phone, the sign-in screen fits the width without scrolling', async ({ page }) => {
   await page.setViewportSize(PHONE)
   await page.goto('/auth/sign-in')
