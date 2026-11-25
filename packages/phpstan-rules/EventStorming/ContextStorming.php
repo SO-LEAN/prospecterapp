@@ -414,9 +414,9 @@ final readonly class ContextStorming
         foreach ($this->handlersOf($context, self::QUERY_HANDLER) as $handler) {
             foreach ($handler->firstParameter() as $query) {
                 foreach ($this->classesHeldByThePresentersOf($handler) as $links) {
-                    foreach ($links->offers as $parameter => $route) {
+                    foreach ($links->offers as $parameter => $routes) {
                         $condition = $links->optionalParameters[$parameter] ?? null;
-                        foreach ($this->commandsRoutedBy($board, [$route]) as $command) {
+                        foreach ($this->commandsRoutedBy($board, $routes) as $command) {
                             $board->link(new Link(StickyType::ReadModel->value.':'.$query, $command, $parameter, null === $condition, self::whenOf($condition)));
                         }
                     }

@@ -44,7 +44,7 @@ final readonly class Facts
                     self::texts($class['outputPorts'] ?? null),
                     true === ($class['console'] ?? null),
                     self::texts($class['changes'] ?? null),
-                    self::textsByName($class['offers'] ?? null),
+                    self::listsOfTextsByName($class['offers'] ?? null),
                     self::texts($class['holds'] ?? null),
                 ),
                 self::records($collected['classes'] ?? null),
@@ -78,6 +78,21 @@ final readonly class Facts
     private static function textsByName(mixed $texts): array
     {
         return \is_array($texts) ? array_filter($texts, static fn (mixed $text, int|string $name): bool => \is_string($text) && \is_string($name), \ARRAY_FILTER_USE_BOTH) : [];
+    }
+
+    /**
+     * @return array<string, list<string>>
+     */
+    private static function listsOfTextsByName(mixed $lists): array
+    {
+        $byName = [];
+        foreach (\is_array($lists) ? $lists : [] as $name => $texts) {
+            if (\is_string($name)) {
+                $byName[$name] = self::texts($texts);
+            }
+        }
+
+        return $byName;
     }
 
     private static function text(mixed $text): string

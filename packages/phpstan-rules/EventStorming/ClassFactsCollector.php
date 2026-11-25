@@ -34,7 +34,7 @@ use PHPStan\Type\TypeCombinator;
 /**
  * Reads what the event storming needs of each class (ClassFacts).
  *
- * @implements Collector<InClassNode, array{name: string, interfaces: list<string>, parameters: list<list<string>>, returns: list<string>, mayReturnNothing: bool, dependencies: list<string>, roles: list<string>, routes: list<string>, optionalParameters: array<string, string>, offers: array<string, string>, holds: list<string>, outputPorts: list<string>, presents: list<string>, console: bool, changes: list<string>}>
+ * @implements Collector<InClassNode, array{name: string, interfaces: list<string>, parameters: list<list<string>>, returns: list<string>, mayReturnNothing: bool, dependencies: list<string>, roles: list<string>, routes: list<string>, optionalParameters: array<string, string>, offers: array<string, list<string>>, holds: list<string>, outputPorts: list<string>, presents: list<string>, console: bool, changes: list<string>}>
  */
 final readonly class ClassFactsCollector implements Collector
 {
@@ -208,17 +208,17 @@ final readonly class ClassFactsCollector implements Collector
     }
 
     /**
-     * The route each parameter of a links resource's constructor declares it offers, by name (an Offers attribute).
+     * The routes each parameter of a links resource's constructor declares it offers, by name (an Offers attribute).
      *
-     * @return array<string, string>
+     * @return array<string, list<string>>
      */
     private static function offersOf(ClassLike $class): array
     {
         $offers = [];
         foreach ($class->getMethod(self::CONSTRUCTOR)->params ?? [] as $parameter) {
-            $route = self::textOf(self::attributeOf($parameter, self::OFFERS)?->args[0] ?? null);
-            if (null !== $route && $parameter->var instanceof Variable && \is_string($parameter->var->name)) {
-                $offers[$parameter->var->name] = $route;
+            $routes = array_values(array_filter(array_map(self::textOf(...), self::attributeOf($parameter, self::OFFERS)->args ?? [])));
+            if ([] !== $routes && $parameter->var instanceof Variable && \is_string($parameter->var->name)) {
+                $offers[$parameter->var->name] = $routes;
             }
         }
 

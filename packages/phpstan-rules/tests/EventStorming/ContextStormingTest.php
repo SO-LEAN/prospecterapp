@@ -579,7 +579,7 @@ final class ContextStormingTest extends TestCase
 
     public function testAViewOffersTheCommandsItsPresenterLinksTo(): void
     {
-        $model = self::modelOf(self::myBookingPageOffering(['setWindows' => self::SET_WINDOWS_ROUTE]));
+        $model = self::modelOf(self::myBookingPageOffering(['setWindows' => [self::SET_WINDOWS_ROUTE]]));
 
         self::assertContains(
             ['from' => 'readModel:'.self::CONSULT_MY_BOOKING_PAGE, 'to' => 'command:'.self::SET_WEEKLY_WINDOWS, 'via' => 'setWindows', 'certain' => true, 'when' => null],
@@ -589,7 +589,7 @@ final class ContextStormingTest extends TestCase
 
     public function testAViewOffersACommandOnlyWhileItsLinksResourceSaysSo(): void
     {
-        $model = self::modelOf(self::myBookingPageOffering(['open' => self::OPEN_ROUTE], ['open' => 'Open the page. Offered only while the page is closed']));
+        $model = self::modelOf(self::myBookingPageOffering(['open' => [self::OPEN_ROUTE]], ['open' => 'Open the page. Offered only while the page is closed']));
 
         self::assertContains(
             ['from' => 'readModel:'.self::CONSULT_MY_BOOKING_PAGE, 'to' => 'command:'.self::OPEN_BOOKING, 'via' => 'open', 'certain' => false, 'when' => 'while the page is closed'],
@@ -599,7 +599,7 @@ final class ContextStormingTest extends TestCase
 
     public function testAConditionTheLinksResourceDoesNotWriteIsUnknown(): void
     {
-        $model = self::modelOf(self::myBookingPageOffering(['open' => self::OPEN_ROUTE], ['open' => 'Open the page, while it is closed']));
+        $model = self::modelOf(self::myBookingPageOffering(['open' => [self::OPEN_ROUTE]], ['open' => 'Open the page, while it is closed']));
 
         self::assertContains(
             ['from' => 'readModel:'.self::CONSULT_MY_BOOKING_PAGE, 'to' => 'command:'.self::OPEN_BOOKING, 'via' => 'open', 'certain' => false, 'when' => null],
@@ -607,16 +607,26 @@ final class ContextStormingTest extends TestCase
         );
     }
 
+    public function testALinkDeclaringTwoRoutesOffersTheCommandsOfBoth(): void
+    {
+        $model = self::modelOf(self::myBookingPageOffering(['change' => [self::OPEN_ROUTE, self::SET_WINDOWS_ROUTE]]));
+
+        self::assertSame([
+            ['from' => 'readModel:'.self::CONSULT_MY_BOOKING_PAGE, 'to' => 'command:'.self::OPEN_BOOKING, 'via' => 'change', 'certain' => true, 'when' => null],
+            ['from' => 'readModel:'.self::CONSULT_MY_BOOKING_PAGE, 'to' => 'command:'.self::SET_WEEKLY_WINDOWS, 'via' => 'change', 'certain' => true, 'when' => null],
+        ], self::offersOf($model));
+    }
+
     public function testADeclarationThatNamesNoRouteOffersNothing(): void
     {
-        $model = self::modelOf(self::myBookingPageOffering(['setWindows' => 'api_nowhere']));
+        $model = self::modelOf(self::myBookingPageOffering(['setWindows' => ['api_nowhere']]));
 
         self::assertSame([], self::offersOf($model));
     }
 
     public function testAViewOffersWhatTheLinksResourcesNestedInItsResourceDeclare(): void
     {
-        $model = self::modelOf(self::myBookingPageOffering(['open' => self::OPEN_ROUTE], holds: [
+        $model = self::modelOf(self::myBookingPageOffering(['open' => [self::OPEN_ROUTE]], holds: [
             self::MY_BOOKING_PAGE_PRESENTER => [self::MY_BOOKING_PAGE_RESOURCE],
             self::MY_BOOKING_PAGE_RESOURCE => [self::INACTIVE_PERIOD_RESOURCE],
             self::INACTIVE_PERIOD_RESOURCE => [self::MY_BOOKING_PAGE_LINKS],
@@ -627,14 +637,14 @@ final class ContextStormingTest extends TestCase
 
     public function testAViewOffersNothingALinksResourceItsPresenterDoesNotHoldDeclares(): void
     {
-        $model = self::modelOf(self::myBookingPageOffering(['open' => self::OPEN_ROUTE], holds: [self::MY_BOOKING_PAGE_PRESENTER => [self::MY_BOOKING_PAGE_RESOURCE]]));
+        $model = self::modelOf(self::myBookingPageOffering(['open' => [self::OPEN_ROUTE]], holds: [self::MY_BOOKING_PAGE_PRESENTER => [self::MY_BOOKING_PAGE_RESOURCE]]));
 
         self::assertSame([], self::offersOf($model));
     }
 
     public function testAResourceHoldingItselfOffersItsLinksOnce(): void
     {
-        $model = self::modelOf(self::myBookingPageOffering(['open' => self::OPEN_ROUTE], holds: [
+        $model = self::modelOf(self::myBookingPageOffering(['open' => [self::OPEN_ROUTE]], holds: [
             self::MY_BOOKING_PAGE_PRESENTER => [self::MY_BOOKING_PAGE_RESOURCE],
             self::MY_BOOKING_PAGE_RESOURCE => [self::MY_BOOKING_PAGE_RESOURCE, self::MY_BOOKING_PAGE_LINKS],
         ]));
@@ -697,7 +707,7 @@ final class ContextStormingTest extends TestCase
      * The member's booking page, its presenter holding its resource, which holds its links resource, each parameter
      * of which declares the route it offers, and the controller of each route sending its command.
      *
-     * @param array<string, string>       $routes   the route each link offers, by the links resource's parameter
+     * @param array<string, list<string>> $routes   the routes each link offers, by the links resource's parameter
      * @param array<string, string>       $optional the description of each link the resource may go without
      * @param array<string, list<string>> $holds    what the presenter, the resources and the links resources hold
      */
