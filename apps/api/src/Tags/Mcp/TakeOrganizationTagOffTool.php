@@ -10,7 +10,7 @@ use App\Security\ToolAccess;
 use App\Shared\CommandBus;
 use App\Shared\Mcp\Adapts;
 use App\Shared\Mcp\ToolResults;
-use App\Tags\TagRoutes;
+use App\Tags\TagHolder;
 use App\Tags\TagsReader;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
@@ -46,7 +46,7 @@ final readonly class TakeOrganizationTagOffTool
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');
         $this->access->denyUnlessGranted(OrganizationVoter::ACCESS, $organization);
         $memberId = $this->access->member()->memberId();
-        $this->commandBus->dispatch(new TakeOffTag(memberId: $memberId, holder: TagRoutes::Organization->value, holderId: $organization->id, tag: $tag, executedAt: $this->clock->now()));
+        $this->commandBus->dispatch(new TakeOffTag(memberId: $memberId, holder: TagHolder::Organization->value, holderId: $organization->id, tag: $tag, executedAt: $this->clock->now()));
 
         return $this->results->of($this->tagsReader->read($memberId, $organization->id));
     }

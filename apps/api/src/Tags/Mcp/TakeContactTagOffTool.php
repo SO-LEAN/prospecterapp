@@ -9,7 +9,7 @@ use App\Shared\CommandBus;
 use App\Shared\Mcp\Adapts;
 use App\Shared\Mcp\ToolResults;
 use App\Tags\ContactTagsReader;
-use App\Tags\TagRoutes;
+use App\Tags\TagHolder;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
 use Prospecter\Core\Campaigns\Application\Tagging\TakeOffTag\TakeOffTag;
@@ -39,7 +39,7 @@ final readonly class TakeContactTagOffTool
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');
         $memberId = $this->access->member()->memberId();
-        $this->commandBus->dispatch(new TakeOffTag(memberId: $memberId, holder: TagRoutes::Contact->value, holderId: $id, tag: $tag, executedAt: $this->clock->now()));
+        $this->commandBus->dispatch(new TakeOffTag(memberId: $memberId, holder: TagHolder::Contact->value, holderId: $id, tag: $tag, executedAt: $this->clock->now()));
 
         return $this->results->of($this->contactTagsReader->read($memberId, $id));
     }

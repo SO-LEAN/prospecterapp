@@ -10,7 +10,7 @@ use App\Shared\CommandBus;
 use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use App\Tags\Resource\TagsResource;
-use App\Tags\TagRoutes;
+use App\Tags\TagHolder;
 use App\Tags\TagsReader;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
@@ -44,7 +44,7 @@ final readonly class TakeOrganizationTagOffController
     #[OA\Response(response: 404, description: 'Unknown organization, an organization of another account, or a tag the organization does not have (`tagAbsent`)', content: new Model(type: ProblemResource::class))]
     public function __invoke(OrganizationSheet $organization, string $tag, #[CurrentUser] User $user): JsonResponse
     {
-        $this->commandBus->dispatch(new TakeOffTag(memberId: $user->memberId(), holder: TagRoutes::Organization->value, holderId: $organization->id, tag: $tag, executedAt: $this->clock->now()));
+        $this->commandBus->dispatch(new TakeOffTag(memberId: $user->memberId(), holder: TagHolder::Organization->value, holderId: $organization->id, tag: $tag, executedAt: $this->clock->now()));
 
         return $this->jsonResponses->of($this->tagsReader->read($user->memberId(), $organization->id));
     }

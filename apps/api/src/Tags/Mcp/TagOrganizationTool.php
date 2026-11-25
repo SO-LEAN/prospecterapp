@@ -12,7 +12,7 @@ use App\Shared\Mcp\Adapts;
 use App\Shared\Mcp\ToolInputs;
 use App\Shared\Mcp\ToolResults;
 use App\Tags\Input\TagsInput;
-use App\Tags\TagRoutes;
+use App\Tags\TagHolder;
 use App\Tags\TagsReader;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
@@ -50,7 +50,7 @@ final readonly class TagOrganizationTool
         $this->access->denyUnlessGranted(OrganizationVoter::ACCESS, $organization);
         $input = $this->inputs->valid(new TagsInput($tags));
         $memberId = $this->access->member()->memberId();
-        $this->commandBus->dispatch(new PutTags(memberId: $memberId, holder: TagRoutes::Organization->value, holderId: $organization->id, tags: $input->tags, executedAt: $this->clock->now()));
+        $this->commandBus->dispatch(new PutTags(memberId: $memberId, holder: TagHolder::Organization->value, holderId: $organization->id, tags: $input->tags, executedAt: $this->clock->now()));
 
         return $this->results->of($this->tagsReader->read($memberId, $organization->id));
     }

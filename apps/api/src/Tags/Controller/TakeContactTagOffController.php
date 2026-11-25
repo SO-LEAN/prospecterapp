@@ -10,7 +10,7 @@ use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
 use App\Tags\ContactTagsReader;
 use App\Tags\Resource\ContactTagsResource;
-use App\Tags\TagRoutes;
+use App\Tags\TagHolder;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Campaigns\Application\Tagging\TakeOffTag\TakeOffTag;
@@ -41,7 +41,7 @@ final readonly class TakeContactTagOffController
     #[OA\Response(response: 404, description: 'Not a contact of my account (`unknownContact`), or a tag the contact does not have (`tagAbsent`)', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $id, string $tag, #[CurrentUser] User $user): JsonResponse
     {
-        $this->commandBus->dispatch(new TakeOffTag(memberId: $user->memberId(), holder: TagRoutes::Contact->value, holderId: $id, tag: $tag, executedAt: $this->clock->now()));
+        $this->commandBus->dispatch(new TakeOffTag(memberId: $user->memberId(), holder: TagHolder::Contact->value, holderId: $id, tag: $tag, executedAt: $this->clock->now()));
 
         return $this->jsonResponses->of($this->contactTagsReader->read($user->memberId(), $id));
     }
