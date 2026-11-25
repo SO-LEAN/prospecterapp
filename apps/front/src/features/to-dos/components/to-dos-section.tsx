@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { EllipsisVertical, Pencil, Plus, Trash2 } from 'lucide-react'
+import { CalendarClock, EllipsisVertical, Pencil, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { memberName } from '@/shared/lib/member-name'
@@ -193,12 +193,21 @@ function ToDoLines({ label, toDos, ...props }: LinesProps) {
   )
 }
 
-type LineProps = Omit<LinesProps, 'label' | 'toDos'> & { toDo: ToDo }
+type LineProps = Omit<LinesProps, 'label' | 'toDos'> & {
+  toDo: ToDo
+  /** Offers « Reporter », which revises its due day. */
+  postponable?: boolean
+  /** Its toast offers to take the tick back. */
+  undoable?: boolean
+}
 
-/** One click ticks it off or unticks it. Its menu revises or erases it. Its links decide which gestures it allows. */
-export function ToDoLine({ toDo, now, withTheirContact, onTickedOff }: LineProps) {
+/**
+ * One click ticks it off or unticks it. Its menu revises or erases it. « Reporter », where it is offered, opens the same
+ * revision. Its links decide which gestures it allows.
+ */
+export function ToDoLine({ toDo, now, withTheirContact, onTickedOff, postponable, undoable }: LineProps) {
   const { t } = useTranslation()
-  const toggle = useToggle(toDo, { onTickedOff })
+  const toggle = useToggle(toDo, { onTickedOff, undoable })
   const erase = useEraseToDo()
   const revise = useReviseToDo()
   const [revising, setRevising] = useState(false)
@@ -221,6 +230,11 @@ export function ToDoLine({ toDo, now, withTheirContact, onTickedOff }: LineProps
           <span>{t('toDos.heldBy', { name: memberName(toDo.heldBy) })}</span>
         </p>
       </div>
+      {postponable && toDo._links.revise && (
+        <Button variant="outline" size="sm" onClick={() => setRevising(true)}>
+          <CalendarClock aria-hidden /> {t('toDos.postpone')}
+        </Button>
+      )}
       {(toDo._links.revise || toDo._links.erase) && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
