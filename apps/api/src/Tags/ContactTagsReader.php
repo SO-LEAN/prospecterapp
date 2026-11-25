@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tags;
 
+use App\Shared\Links;
 use App\Tags\Resource\ContactTagsResource;
 use Prospecter\Core\Campaigns\Application\Tagging\ConsultContactTags\ConsultContactTags;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
@@ -16,13 +17,13 @@ final readonly class ContactTagsReader
 {
     public function __construct(
         private QueryHandler $consultContactTags,
-        private TagResourceFactory $tags,
+        private Links $links,
     ) {
     }
 
     public function read(string $me, string $contactId): ContactTagsResource
     {
-        $presenter = new ContactTagsResourcePresenter($this->tags, $contactId);
+        $presenter = new ContactTagsResourcePresenter($this->links, $contactId);
         $this->consultContactTags->__invoke(new ConsultContactTags($me, [$contactId]), $presenter);
 
         return $presenter->resource;

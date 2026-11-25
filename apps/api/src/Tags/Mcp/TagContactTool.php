@@ -11,7 +11,7 @@ use App\Shared\Mcp\ToolInputs;
 use App\Shared\Mcp\ToolResults;
 use App\Tags\ContactTagsReader;
 use App\Tags\Input\TagsInput;
-use App\Tags\TagRoutes;
+use App\Tags\TagHolder;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
 use Prospecter\Core\Campaigns\Application\Tagging\PutTags\PutTags;
@@ -45,7 +45,7 @@ final readonly class TagContactTool
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');
         $input = $this->inputs->valid(new TagsInput($tags));
         $memberId = $this->access->member()->memberId();
-        $this->commandBus->dispatch(new PutTags(memberId: $memberId, holder: TagRoutes::Contact->value, holderId: $id, tags: $input->tags, executedAt: $this->clock->now()));
+        $this->commandBus->dispatch(new PutTags(memberId: $memberId, holder: TagHolder::Contact->value, holderId: $id, tags: $input->tags, executedAt: $this->clock->now()));
 
         return $this->results->of($this->contactTagsReader->read($memberId, $id));
     }

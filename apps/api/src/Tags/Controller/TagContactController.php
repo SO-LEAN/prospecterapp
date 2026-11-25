@@ -11,7 +11,7 @@ use App\Shared\Resource\ProblemResource;
 use App\Tags\ContactTagsReader;
 use App\Tags\Input\TagsInput;
 use App\Tags\Resource\ContactTagsResource;
-use App\Tags\TagRoutes;
+use App\Tags\TagHolder;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Prospecter\Core\Campaigns\Application\Tagging\PutTags\PutTags;
@@ -44,7 +44,7 @@ final readonly class TagContactController
     #[OA\Response(response: 422, description: 'No tag, text that makes no tag (`invalidTag`), or an automatic tag (`automaticTag`)', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $id, #[MapRequestPayload] TagsInput $input, #[CurrentUser] User $user): JsonResponse
     {
-        $this->commandBus->dispatch(new PutTags(memberId: $user->memberId(), holder: TagRoutes::Contact->value, holderId: $id, tags: $input->tags, executedAt: $this->clock->now()));
+        $this->commandBus->dispatch(new PutTags(memberId: $user->memberId(), holder: TagHolder::Contact->value, holderId: $id, tags: $input->tags, executedAt: $this->clock->now()));
 
         return $this->jsonResponses->of($this->contactTagsReader->read($user->memberId(), $id));
     }
