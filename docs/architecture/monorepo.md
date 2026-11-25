@@ -30,7 +30,7 @@ The apps are independent projects with their own dependencies. They share only:
 - the AWS services (MiniStack locally): the Cognito user pool the SPA signs in with, whose tokens the API checks;
 - the root tooling: Docker and the fragments of `make/`.
 
-Only the API uses the core.
+Only the API uses the core. [ddd.md](ddd.md), "The core as a package, a legacy", says why the core is a package of its own and what it costs.
 
 Each project has its own `Makefile`. You run it from the project's directory (`cd apps/api && make test`), and `make` alone lists its commands. It includes only the fragments of `make/`. The root `Makefile` is the façade: its targets run the projects' targets (`make test-api` runs `make -C apps/api test`) and hold only what spans several projects (`install`, `ci`, the stack, `api-doc`, the secrets). A project never runs another project's Makefile (ADR 0080).
 
