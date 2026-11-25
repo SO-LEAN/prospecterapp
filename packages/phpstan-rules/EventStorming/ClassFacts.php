@@ -12,7 +12,8 @@ use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 /**
  * What the analysis reads of one class: what it implements, what its __invoke takes and returns, what its
  * constructor depends on, the roles and the routes its attributes declare, what its output port presents, the
- * parameters of its constructor that may be null, and whether it is a command of the console.
+ * parameters of its constructor that may be null, whether it is a command of the console, and the methods that change
+ * it.
  */
 final readonly class ClassFacts
 {
@@ -29,6 +30,7 @@ final readonly class ClassFacts
      * @param array<string, string> $optionalParameters the description of each parameter of its constructor that
      *                                                  may be null, by name
      * @param list<string>          $outputPorts        the classes its __invoke presents its answer to
+     * @param list<string>          $changes            its public methods that return nothing, which change it
      */
     public function __construct(
         public string $name,
@@ -43,6 +45,7 @@ final readonly class ClassFacts
         public array $optionalParameters = [],
         public array $outputPorts = [],
         public bool $console = false,
+        public array $changes = [],
     ) {
     }
 
