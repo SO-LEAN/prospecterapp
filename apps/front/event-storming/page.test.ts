@@ -73,15 +73,7 @@ describe('the page of a wall', () => {
       listed.map((item) => [item.tagName, item.className, item.getAttribute('href')?.startsWith('../')]),
       more?.querySelectorAll('.more-jumps > * > svg').length,
       more?.querySelector('.more-jumps')?.childNodes.length,
-    ]).toEqual([
-      '+2',
-      [
-        ['A', 'away', true],
-        ['A', 'away', true],
-      ],
-      2,
-      2,
-    ])
+    ]).toEqual(['+4', Array(4).fill(['A', 'away', true]), 4, 4])
   })
 
   it('names in the « +n » each pictogram it lists, and its own items by what they lead to', () => {
@@ -91,7 +83,7 @@ describe('the page of a wall', () => {
     expect([
       more?.querySelector('.jump.more')?.getAttribute('aria-label'),
       [...(more?.querySelectorAll('.more-jumps > *') ?? [])].map((item) => item.getAttribute('data-jump')),
-    ]).toEqual([`2 more: ${tips.join(', ')}`, ['5', '6']])
+    ]).toEqual([`4 more: ${tips.join(', ')}`, ['3', '4', '5', '6']])
   })
 
   it('draws a pictogram of this wall plain, with its arrow, and one away with its own', () => {

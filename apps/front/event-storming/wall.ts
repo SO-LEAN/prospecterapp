@@ -176,6 +176,9 @@ const CLUSTER = {
 const SUSPICION =
   'It is a suspicion to check: the analysis follows the calls it reads, and a dynamic call escapes it.'
 
+/** The member's AI's badges on a use case's corner: the first one's left edge, and how far apart they stand. */
+export const BADGE = { left: -13, pitch: 26 } as const
+
 /** The ports under a use case: their left edge, their stagger every other one, the room above them. */
 const PORTS = { left: 6, stagger: 7, room: 4 } as const
 
@@ -349,7 +352,7 @@ class WallUnderConstruction {
           step,
           this.sticky(asked.from),
           'actor',
-          { x: node.x - 13 + index * 26, y: node.y - 14 },
+          { x: node.x + BADGE.left + index * BADGE.pitch, y: node.y - 14 },
           { z: 5, badge: true },
         )
         this.link(badge, node, asked.certain, false)

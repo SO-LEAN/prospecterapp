@@ -93,8 +93,8 @@ describe('the lettering of a post-it', () => {
 })
 
 /**
- * Each pictogram whose centre leaves its post-it, or that covers another of its post-it's pictograms, the « +n » included. A
- * pictogram of a post-it leans out of its corner, never further.
+ * Each pictogram whose centre leaves its post-it, or that covers another pictogram of its post-it or the badge of the
+ * member's AI on its corner, the « +n » included. A pictogram of a post-it leans out of its corner, never further.
  */
 function pictogramsOffTheirPostIt(note: Note): string[] {
   const { size } = rowOf(note)
@@ -103,9 +103,13 @@ function pictogramsOffTheirPostIt(note: Note): string[] {
     ...shown.map(({ side, offset }) => (side === 'left' ? offset : note.w - offset - size)),
     ...(more === null ? [] : [note.w - more.offset - size]),
   ].sort((one, other) => one - other)
+  const badges = note.step.main === note ? note.step.notes.filter((other) => other.badge) : []
   const off = lefts.filter((left) => left + size / 2 < 0 || left + size / 2 > note.w)
   const covering = lefts.filter((left, rank) => rank > 0 && left < (lefts[rank - 1] ?? left) + size)
-  return [...off, ...covering].map((left) => `${note.label}: a pictogram at ${left}`)
+  const onABadge = lefts.filter((left) =>
+    badges.some((badge) => left < badge.x - note.x + badge.w && badge.x - note.x < left + size),
+  )
+  return [...off, ...covering, ...onABadge].map((left) => `${note.label}: a pictogram at ${left}`)
 }
 
 function withAMethod(method: string): Model {

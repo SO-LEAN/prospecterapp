@@ -1,4 +1,4 @@
-import type { Jump, Note } from './wall.ts'
+import { BADGE, type Jump, type Note, SIZE } from './wall.ts'
 
 /** A pictogram where it stands on its post-it: its jump, its rank among the post-it's jumps, its edge and offset. */
 export interface Pictogram {
@@ -55,8 +55,19 @@ function offsetOf(row: Row, side: Pictogram['side'], rank: number): number {
   return row.edge + rank * row.pitch[side]
 }
 
-/** How many pictograms stand from the right edge before they reach the left edge, or the last jump back. */
+/**
+ * How many pictograms stand from the right edge before they reach the left edge, the last jump back, or the last badge
+ * of the member's AI on the post-it's corner.
+ */
 function roomOnTheRight(note: Note, row: Row, back: number): number {
-  const limit = back === 0 ? row.edge : offsetOf(row, 'left', back - 1) + row.size
+  const limit = Math.max(
+    back === 0 ? row.edge : offsetOf(row, 'left', back - 1) + row.size,
+    badgesEndOf(note),
+  )
   return Math.floor((note.w - row.edge - row.size - limit) / row.pitch.right) + 1
+}
+
+function badgesEndOf(note: Note): number {
+  const badges = note.step.main?.key === note.key ? note.step.notes.filter((other) => other.badge).length : 0
+  return badges === 0 ? Number.NEGATIVE_INFINITY : BADGE.left + (badges - 1) * BADGE.pitch + SIZE.badge
 }
