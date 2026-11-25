@@ -45,6 +45,18 @@ describe('the pictograms of a post-it', () => {
     ]).toEqual([[0, 1, 2, 3, 4], 116, [5, 6, 7]])
   })
 
+  it('shows every pictogram that its width just holds, without a « +n »', () => {
+    const pictograms = pictogramsOf({ ...command, jumps: jumps(6) })
+
+    expect([pictograms.shown.length, pictograms.more]).toEqual([6, null])
+  })
+
+  it('holds fewer pictograms on a narrower post-it', () => {
+    const pictograms = pictogramsOf({ ...command, w: 104, jumps: jumps(5) })
+
+    expect([pictograms.shown.length, pictograms.more?.hidden.length]).toEqual([3, 2])
+  })
+
   it('leaves the pictograms back their room on the left', () => {
     const pictograms = pictogramsOf({ ...command, jumps: [...jumps(2, true), ...jumps(6)] })
 

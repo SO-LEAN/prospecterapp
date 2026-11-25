@@ -65,20 +65,63 @@ describe('the page of a wall', () => {
   })
 
   it('lists in a « +n » the pictograms a post-it has no room for, each leading to its wall', () => {
-    const accounts = JSON.parse(
-      readFileSync('public/docs/event-storming/accounts/model.json', 'utf8'),
-    ) as Model
-    const members = [
-      ...new DOMParser().parseFromString(pageOf(accounts, ASSETS), 'text/html').querySelectorAll('.sticky'),
-    ].find((sticky) => sticky.querySelector('.jump.more') !== null)
+    const more = membersOf()?.querySelector('.more')
+    const listed = [...(more?.querySelectorAll('.more-jumps > *') ?? [])]
 
     expect([
-      members?.querySelector('.role-label')?.textContent,
-      members?.querySelector('.jump.more')?.textContent,
-      [...(members?.querySelectorAll('.more-jumps a.away') ?? [])].map((link) =>
-        link.getAttribute('href')?.startsWith('../'),
+      more?.querySelector('.jump.more')?.textContent,
+      listed.map((item) => [item.tagName, item.className, item.getAttribute('href')?.startsWith('../')]),
+      more?.querySelectorAll('.more-jumps > * > svg').length,
+      more?.querySelector('.more-jumps')?.childNodes.length,
+    ]).toEqual([
+      '+2',
+      [
+        ['A', 'away', true],
+        ['A', 'away', true],
+      ],
+      2,
+      2,
+    ])
+  })
+
+  it('names in the « +n » each pictogram it lists, and its own items by what they lead to', () => {
+    const more = membersOf()?.querySelector('.more')
+    const tips = [...(more?.querySelectorAll('.more-jumps > *') ?? [])].map((item) => item.textContent)
+
+    expect([
+      more?.querySelector('.jump.more')?.getAttribute('aria-label'),
+      [...(more?.querySelectorAll('.more-jumps > *') ?? [])].map((item) => item.getAttribute('data-jump')),
+    ]).toEqual([`2 more: ${tips.join(', ')}`, ['5', '6']])
+  })
+
+  it('draws a pictogram of this wall plain, with its arrow, and one away with its own', () => {
+    const on = stickyOf('Slot booked', 'button.jump')
+    const away = stickyOf('Slot booked', 'a.jump')
+
+    expect([
+      on?.className,
+      on?.querySelector('path')?.getAttribute('d'),
+      away?.querySelector('path')?.getAttribute('d'),
+    ]).toEqual(['jump', 'M5 12h13M13 6l6 6-6 6', 'M8 16L18 6M10 6h8v8'])
+  })
+
+  it('draws a pictogram back with its arrow back', () => {
+    const back = [...document.querySelectorAll('.sticky button.jump')].find((jump) =>
+      jump.getAttribute('style')?.startsWith('left:'),
+    )
+
+    expect(back?.querySelector('path')?.getAttribute('d')).toBe('M19 12H6M11 6l-6 6 6 6')
+  })
+
+  it('writes nothing beside a post-it but its paper and its pictograms', () => {
+    const stickies = [...document.querySelectorAll('.sticky'), membersOf()]
+    const besides = stickies.flatMap((sticky) =>
+      [...(sticky?.childNodes ?? [])].map((node) =>
+        node instanceof Element ? (node.className.split(' ')[0] ?? '') : `text ${node.textContent}`,
       ),
-    ]).toEqual(['Members', '+2', [true, true]])
+    )
+
+    expect([...new Set(besides)].sort()).toEqual(['jump', 'more', 'paper'])
   })
 
   it('tells the wall as text without its script', () => {
@@ -91,6 +134,17 @@ describe('the page of a wall', () => {
 })
 
 /** The post-it of a label, or what it holds of a selector. */
+/** Accounts' published service of the members, whose readers outnumber the room of its post-it. */
+function membersOf(): Element | undefined {
+  const accounts = JSON.parse(readFileSync('public/docs/event-storming/accounts/model.json', 'utf8')) as Model
+  const page = new DOMParser().parseFromString(pageOf(accounts, ASSETS), 'text/html')
+  return [...page.querySelectorAll('.sticky')].find(
+    (sticky) =>
+      sticky.querySelector('.role-label')?.textContent === 'Members' &&
+      sticky.querySelector('.more') !== null,
+  )
+}
+
 function stickyOf(label: string, inside?: string): HTMLElement | null | undefined {
   const sticky = [...document.querySelectorAll<HTMLElement>('.sticky')].find(
     (candidate) =>
