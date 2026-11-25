@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs'
+import { readdirSync, readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { gridOf } from './grid.ts'
 import type { Model } from './model.ts'
@@ -45,8 +45,8 @@ describe('the grid of a wall', () => {
     expect(lane === undefined ? undefined : grid.lanes.get(lane)?.width).toBe(Math.max(...rights) + 150)
   })
 
-  it("orders an actor's commands by aggregate, then by name", () => {
-    const commands = wall.lanes[0]?.groups[0]?.commands ?? []
+  it('orders the commands a view offers by aggregate, then by name', () => {
+    const commands = wall.lanes[0]?.blocks[0]?.commands ?? []
     const byHeight = [...commands].sort(
       (a, b) => (grid.places.get(a.main as Note)?.y ?? 0) - (grid.places.get(b.main as Note)?.y ?? 0),
     )
@@ -61,6 +61,26 @@ describe('the grid of a wall', () => {
       'Set weekly windows',
     ])
   })
+
+  for (const folder of readdirSync('public/docs/event-storming', { withFileTypes: true }).filter((entry) =>
+    entry.isDirectory(),
+  )) {
+    it(`puts each command a view offers beside it or under it, so that its line never climbs, on ${folder.name}`, () => {
+      const other = wallOf(
+        JSON.parse(readFileSync(`public/docs/event-storming/${folder.name}/model.json`, 'utf8')) as Model,
+      )
+      const laid = gridOf(other, 'roomy')
+      const climbing = other.brackets.flatMap((bracket) =>
+        bracket.items
+          .filter(
+            (item) => (laid.places.get(item.command)?.y ?? 0) < (laid.places.get(bracket.from)?.y ?? 0) - 10,
+          )
+          .map((item) => `${bracket.from.label} → ${item.command.label}`),
+      )
+
+      expect(climbing).toEqual([])
+    })
+  }
 
   it('puts each lane under the one before', () => {
     const lanes = wall.lanes.map((lane) => grid.lanes.get(lane))

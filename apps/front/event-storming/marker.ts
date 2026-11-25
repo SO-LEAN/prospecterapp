@@ -86,22 +86,14 @@ export interface Brace {
 }
 
 /**
- * The marker line from an actor or a view that branches to each command it leads to: it leaves the post-it (on its
- * right, or over it when a view stands in front), runs down a spine, and ends in a tick at each command.
+ * The marker line from a view that branches to each command it offers: it leaves the view on its right, runs down a
+ * spine, and ends in a tick at each command's actor.
  */
-export function braceOf(from: Placed, ends: Placed[], spine: number, over: Placed | null): Brace {
+export function braceOf(from: Placed, ends: Placed[], spine: number): Brace {
   const seed = `${from.seed}${spine}`
   const ys = ends.map((end) => Math.round((end.y + end.h / 2 + lean(`${end.seed}${seed}in`, 8)) * 10) / 10)
-  let lead: string
-  let y0: number
-  if (over !== null) {
-    const x = from.x + from.w / 2
-    y0 = Math.min(from.y, over.y) - 22
-    lead = `${wobbly({ x, y: from.y - 4 }, { x, y: y0 }, `${seed}up`)} ${wobbly({ x, y: y0 }, { x: spine, y: y0 }, seed)}`
-  } else {
-    y0 = from.y + from.h / 2
-    lead = wobbly({ x: from.x + from.w + 4, y: y0 }, { x: spine, y: y0 }, seed)
-  }
+  const y0 = from.y + from.h / 2
+  const lead = wobbly({ x: from.x + from.w + 4, y: y0 }, { x: spine, y: y0 }, seed)
   const down = wobbly({ x: spine, y: Math.min(y0, ...ys) }, { x: spine, y: Math.max(y0, ...ys) }, `${seed}s`)
   const branches = ends.map((end, index) => {
     const x = end.x - 9

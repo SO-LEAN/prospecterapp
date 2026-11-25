@@ -46,7 +46,7 @@ describe('the marker of the wall', () => {
     const view = { x: 0, y: 0, w: 132, h: 132, seed: 'view' }
     const commands = [0, 200].map((y) => ({ x: 400, y, w: 132, h: 132, seed: `command${y}` }))
 
-    const brace = braceOf(view, commands, 300, null)
+    const brace = braceOf(view, commands, 300)
 
     expect(
       brace.branches.map((branch) => [branch.target.split(' ')[0], branch.head.split(' ')[0]?.split(',')[0]]),
