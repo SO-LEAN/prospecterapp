@@ -44,6 +44,16 @@ final class WordingTest extends TestCase
         self::assertSame('Member', Wording::ofActor('ROLE_USER'));
     }
 
+    public function testTheConsoleIsThePlatformOperator(): void
+    {
+        self::assertSame('Platform operator', Wording::ofActor('operator'));
+    }
+
+    public function testTheDailyTasksAreTheDailySchedule(): void
+    {
+        self::assertSame('Daily schedule', Wording::ofActor('schedule'));
+    }
+
     public function testAnotherRoleIsTheActorItNames(): void
     {
         self::assertSame('Account admin', Wording::ofActor('ROLE_ACCOUNT_ADMIN'));
