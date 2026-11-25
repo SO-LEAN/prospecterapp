@@ -122,6 +122,58 @@ describe('the wall of a context', () => {
     ])
   })
 
+  it('leads a projection to the view it keeps, touching it, instead of saying it records no event', () => {
+    const forget =
+      'command:Prospecter\\Core\\Booking\\Application\\Appointment\\ForgetAppointmentOfErasedExchange\\ForgetAppointmentOfErasedExchange'
+    const page =
+      'readModel:Prospecter\\Core\\Booking\\Application\\BookingPage\\ConsultMyBookingPage\\ConsultMyBookingPage'
+    const projected = wallOf({
+      ...BOOKING,
+      links: [...BOOKING.links, { from: forget, to: page, via: null, certain: true, when: null }],
+    })
+    const command = projected.notes.find((note) => note.slug === 'command:ForgetAppointmentOfErasedExchange')
+    const kept = command?.step.notes.find((note) => note.kind === 'readModel')
+
+    expect([
+      kept?.label,
+      overlaps(command, kept),
+      (kept?.x ?? 0) + (kept?.w ?? 0) <= (command?.step.width ?? 0),
+      command?.step.notes.filter((note) => note.kind === 'hotspot').map((note) => note.label),
+    ]).toEqual(['My booking page', true, true, []])
+  })
+
+  it.each([
+    ['operator', 'Platform operator'],
+    ['schedule', 'Daily schedule'],
+  ])('never asks where a command the %s sends is offered: it looks at no screen', (name, label) => {
+    const windows =
+      'command:Prospecter\\Core\\Booking\\Application\\BookingPage\\SetWeeklyWindows\\SetWeeklyWindows'
+    const page =
+      'readModel:Prospecter\\Core\\Booking\\Application\\BookingPage\\ConsultMyBookingPage\\ConsultMyBookingPage'
+    const actor = `actor:${name}`
+    const unoffered = wallOf({
+      ...BOOKING,
+      stickies: [
+        ...BOOKING.stickies,
+        {
+          ...BOOKING.stickies.find((sticky) => sticky.id === 'actor:ROLE_USER'),
+          id: actor,
+          slug: actor,
+          name,
+          label,
+        } as Model['stickies'][number],
+      ],
+      links: [
+        ...BOOKING.links.filter((link) => link.to !== windows),
+        { from: actor, to: windows, via: null, certain: true, when: null },
+        { from: actor, to: page, via: null, certain: true, when: null },
+      ],
+    })
+    const command = unoffered.notes.find((note) => note.slug === 'command:SetWeeklyWindows')
+
+    expect([command?.step.senders.map((sender) => sender.label), command?.step.gap]).toEqual([[label], null])
+  })
+
   it('says nobody sends a command that no actor and no policy sends', () => {
     const close = 'command:Prospecter\\Core\\Booking\\Application\\BookingPage\\CloseBooking\\CloseBooking'
     const unsent = wallOf({
@@ -222,7 +274,7 @@ describe('the wall of a context', () => {
 
     expect(whys).toEqual([
       'No controller, no tool of the MCP server and no class of another context reads this view. It is a suspicion to check: the analysis follows the calls it reads, and a dynamic call escapes it.',
-      'No controller, no tool of the MCP server and no policy sends this command. It is a suspicion to check: the analysis follows the calls it reads, and a dynamic call escapes it.',
+      'No controller, no command of the console, no daily task, no tool of the MCP server and no policy sends this command. It is a suspicion to check: the analysis follows the calls it reads, and a dynamic call escapes it.',
     ])
   })
 

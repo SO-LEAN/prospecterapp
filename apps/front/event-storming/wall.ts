@@ -190,6 +190,12 @@ export const HEAD = VIEW + SIZE.sticky + 86
 const TOOLS = new Set(['mcp'])
 
 /**
+ * The actors that stand on the wall but look at no screen: the platform operator at the console, and the daily
+ * schedule. No view has to offer what they send.
+ */
+const SCREENLESS = new Set(['operator', 'schedule'])
+
+/**
  * The lane of the use cases at the application's root, which belong to no module. A context without modules has
  * only this lane, named after the context.
  */
@@ -485,12 +491,37 @@ class WallUnderConstruction {
     this.portsOf(step, command, node)
     const changed = this.stickTheChanges(step, command, node)
     const published = this.stickThePublished(step, command, node, changed.rows)
+    const kept = this.stickTheKeptViews(step, command, node, changed.rows + published.rows)
     this.lowerThePortsUnderTheChanges(step, node)
     step.width =
-      changed.rows + published.rows === 0
+      changed.rows + published.rows + kept.rows === 0
         ? this.markNoEventRecorded(step, node)
-        : Math.max(x + SIZE.sticky, changed.right, published.right)
+        : Math.max(x + SIZE.sticky, changed.right, published.right, kept.right)
     return step
+  }
+
+  /**
+   * The views a projection keeps up to date, against its right edge where an event would stand: it records no event,
+   * it keeps another context's facts that these views read.
+   */
+  private stickTheKeptViews(
+    step: Step,
+    command: Sticky,
+    node: Note,
+    after: number,
+  ): { rows: number; right: number } {
+    const views = this.out(command.id, 'readModel')
+    views.forEach((kept, row) => {
+      const view = this.put(
+        step,
+        this.sticky(kept.to),
+        'readModel',
+        { x: node.x + CLUSTER.published.x, y: CLUSTER.event.y + (after + row) * CLUSTER.event.pitch },
+        { z: 3 },
+      )
+      this.link(node, view, kept.certain, false)
+    })
+    return { rows: views.length, right: views.length === 0 ? 0 : node.x + CLUSTER.published.x + SIZE.sticky }
   }
 
   /** The policies that send a command and nothing else stand in line before it, after what they hear. */
@@ -591,7 +622,7 @@ class WallUnderConstruction {
       {
         label: 'Nobody sends this',
         z: 4,
-        why: `No controller, no tool of the MCP server and no policy sends this command. ${SUSPICION}`,
+        why: `No controller, no command of the console, no daily task, no tool of the MCP server and no policy sends this command. ${SUSPICION}`,
       },
     )
     this.link(hotspot, node, true, false)
@@ -826,7 +857,12 @@ class WallUnderConstruction {
       const main = step.main as Note
       this.link(actor, main, true, false)
       step.senders.push(actor)
-      if (views.length > 0 && step.gap === null && commands.includes(step))
+      if (
+        views.length > 0 &&
+        step.gap === null &&
+        commands.includes(step) &&
+        !SCREENLESS.has(actor.sticky?.name ?? '')
+      )
         this.openAGap(step, actor, views, main)
     }
     if (direct.length === 0) return shift
