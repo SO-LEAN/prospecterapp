@@ -142,6 +142,13 @@ final class ContextStormingTest extends TestCase
         self::assertSame(['Open booking', 'Activer et couper ma prise de rendez-vous'], [$sticky['label'] ?? null, $sticky['feature'] ?? null]);
     }
 
+    public function testATagNamingTheContextOfAUseCaseGivesItsTitleOverATagWithoutContext(): void
+    {
+        $model = self::modelOf(new Facts([self::handlerOf(self::OPEN_BOOKING)], []), ['Booking/OpenBooking' => 'Ouvrir ma prise de rendez-vous', 'OpenBooking' => 'Ouvrir un compte']);
+
+        self::assertSame('Ouvrir ma prise de rendez-vous', self::stickyOf($model, 'command:'.self::OPEN_BOOKING)['feature'] ?? null);
+    }
+
     public function testACommandLeadsToTheEventsTheIntentionOfItsAggregateRecords(): void
     {
         $model = self::modelOf(new Facts([self::handlerOf(self::OPEN_BOOKING)], [

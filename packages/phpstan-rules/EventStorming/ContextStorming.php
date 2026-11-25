@@ -41,7 +41,7 @@ final readonly class ContextStorming
     private const string ENTRY = '__invoke';
 
     /**
-     * @param array<string, string> $titles        the title of the feature of each use case, by its short name
+     * @param array<string, string> $titles        the title of the feature of each use case, by its short name or by its context and short name (Booking/OpenBooking)
      * @param array<array<mixed>>   $subscriptions the subscriptions of the delivery, by their name
      */
     public function __construct(private Facts $facts, private array $titles = [], private array $subscriptions = [])
@@ -444,15 +444,22 @@ final readonly class ContextStorming
     }
 
     /**
+     * A tag naming the use case's context wins over a tag without one: two contexts may name a use case alike.
+     */
+    private function titleOf(ClassName $name): ?string
+    {
+        return $this->titles[$name->context().'/'.$name->short()] ?? $this->titles[$name->short()] ?? null;
+    }
+
+    /**
      * @param list<Elsewhere> $readBy
      */
     private function useCaseOf(StickyType $type, string $class, string $context, ?string $detail = null, ?string $module = null, array $readBy = []): Sticky
     {
         $name = new ClassName($class);
-        $feature = $this->titles[$name->short()] ?? null;
         $label = StickyType::ReadModel === $type ? Wording::ofReadModel($name->short(), $detail) : Wording::ofIntention($name->short());
 
-        return new Sticky($type->value.':'.$class, self::slugOf($type, $name, $context), $type, $label, $feature, $name->short(), $class, (string) $name->context(), $module ?? $name->module(), $detail, readBy: $readBy);
+        return new Sticky($type->value.':'.$class, self::slugOf($type, $name, $context), $type, $label, $this->titleOf($name), $name->short(), $class, (string) $name->context(), $module ?? $name->module(), $detail, readBy: $readBy);
     }
 
     private function stickyOf(StickyType $type, string $class, string $context): Sticky

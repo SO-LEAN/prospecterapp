@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Prospecter\PHPStan\EventStorming;
 
 /**
- * The title of the feature of each use case. A feature names its use cases by its tags (@OpenBooking).
+ * The title of the feature of each use case. A feature names its use cases by its tags (@OpenBooking), with their
+ * context when two contexts name a use case alike (@PersonalData/DismissPossibleDuplicate).
  */
 final readonly class FeatureTitles
 {
@@ -18,7 +19,7 @@ final readonly class FeatureTitles
     }
 
     /**
-     * @return array<string, string> the titles by the short name of their use case
+     * @return array<string, string> the titles by their tag: the short name of their use case, its context first when the tag names it
      */
     public function byUseCase(): array
     {
