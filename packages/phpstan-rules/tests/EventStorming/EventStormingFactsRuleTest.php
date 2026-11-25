@@ -120,7 +120,7 @@ final class EventStormingFactsRuleTest extends RuleTestCase
 
     public function testALinksResourceTellsTheRouteEachOfItsParametersOffers(): void
     {
-        self::assertSame(['addItem' => 'api_cart_add_item', 'checkOut' => 'api_cart_check_out'], $this->classFactsOf(CartLinksResource::class)['offers'] ?? null);
+        self::assertSame(['addItem' => ['api_cart_add_item'], 'checkOut' => ['api_cart_check_out', 'api_cart_pay']], $this->classFactsOf(CartLinksResource::class)['offers'] ?? null);
     }
 
     public function testAClassHoldsTheClassesItsPublicPropertiesAndTheirListsAreOf(): void

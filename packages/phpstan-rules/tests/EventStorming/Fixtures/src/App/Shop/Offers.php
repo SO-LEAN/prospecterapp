@@ -7,7 +7,7 @@ namespace App\Shop;
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
 final readonly class Offers
 {
-    public function __construct(public string $route)
+    public function __construct(string ...$routes)
     {
     }
 }

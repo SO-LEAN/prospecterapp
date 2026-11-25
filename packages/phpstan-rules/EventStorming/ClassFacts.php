@@ -20,20 +20,20 @@ final readonly class ClassFacts
     private const array HANDLERS = [CommandHandler::class, QueryHandler::class, EventHandler::class, Policy::class];
 
     /**
-     * @param list<string>          $interfaces
-     * @param list<list<string>>    $parameters         the classes of each parameter of __invoke
-     * @param list<string>          $returns            the classes __invoke returns
-     * @param list<string>          $dependencies       the classes its constructor takes
-     * @param list<string>          $roles
-     * @param list<string>          $presents           the classes its output port presents, for a query handler
-     * @param list<string>          $routes             the names of the routes it answers, for a controller
-     * @param array<string, string> $optionalParameters the description of each parameter of its constructor that
-     *                                                  may be null, by name
-     * @param list<string>          $outputPorts        the classes its __invoke presents its answer to
-     * @param list<string>          $changes            its public methods that return nothing, which change it
-     * @param array<string, string> $offers             the route each parameter of its constructor declares it
-     *                                                  offers, by name, for a links resource
-     * @param list<string>          $holds              the classes its public properties hold, their lists' included
+     * @param list<string>                $interfaces
+     * @param list<list<string>>          $parameters         the classes of each parameter of __invoke
+     * @param list<string>                $returns            the classes __invoke returns
+     * @param list<string>                $dependencies       the classes its constructor takes
+     * @param list<string>                $roles
+     * @param list<string>                $presents           the classes its output port presents, for a query handler
+     * @param list<string>                $routes             the names of the routes it answers, for a controller
+     * @param array<string, string>       $optionalParameters the description of each parameter of its constructor that
+     *                                                        may be null, by name
+     * @param list<string>                $outputPorts        the classes its __invoke presents its answer to
+     * @param list<string>                $changes            its public methods that return nothing, which change it
+     * @param array<string, list<string>> $offers             the routes each parameter of its constructor declares it
+     *                                                        offers, by name, for a links resource
+     * @param list<string>                $holds              the classes its public properties hold, those of their lists included
      */
     public function __construct(
         public string $name,
