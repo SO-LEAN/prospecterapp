@@ -2,7 +2,7 @@
 
 This document states the rules in force. The decision records (`docs/adr`) explain why. Read them only for that, or before changing a rule (ADR 0090).
 
-Prospecter follows Domain-Driven Design. Read the code in its terms: each folder of the core is a pattern of Evans and Vernon. This page names each pattern that Prospecter keeps and says where it lives. The rules are in the documents it links to, and this page does not repeat them.
+Prospecter follows Domain-Driven Design. Read the code in Evans's and Vernon's terms: most of the core's folders hold one of their patterns. This page names each pattern that Prospecter keeps and says where it lives. The rules are in the documents it links to, and this page does not repeat them.
 
 ## Strategic patterns
 
@@ -10,10 +10,10 @@ Prospecter follows Domain-Driven Design. Read the code in its terms: each folder
 |---|---|
 | Bounded context | A folder of `packages/core/src` (`Accounts`, `PersonalData`, `Prospecting`, `Reporting`, `Connectors`, `Campaigns`, `Booking`), and the same folder in `apps/api/src` for its delivery. [contexts.md](contexts.md) lists them, [ADR 0030](../adr/0030-bounded-contexts-accounts-prospecting.md). |
 | Ubiquitous language | Each context's document in [`docs/domain/`](../domain/), its French scenarios in `packages/core/features` ([ADR 0017](../adr/0017-gherkin-acceptance-tests-on-the-core.md)), and the code's names in English. |
-| Context map | The generated overview of the contexts, `apps/front/public/docs/event-storming/index.html` (see "Domain discovery" below), and the tables of [contexts.md](contexts.md), "What each publishes". |
+| Context map | The generated [overview of the contexts](../../apps/front/public/docs/event-storming/index.html) (see "Domain discovery" below), and the tables of [contexts.md](contexts.md), "What each publishes". |
 | Published language | Each context's `Contract/`: the services it answers and the integration events it publishes, as plain data ([ADR 0045](../adr/0045-published-language-between-contexts.md), [0046](../adr/0046-integration-events-between-contexts.md), [0047](../adr/0047-a-contract-per-context.md), [0089](../adr/0089-a-contract-declares-the-service-it-offers.md)). |
 | Anticorruption layer | A port in the context's `Domain/Port`, implemented in `apps/api/src/<Context>/AntiCorruption` from the other context's Contract only ([contexts.md](contexts.md), "What a context sees of another"). |
-| Shared kernel | `packages/core/src/SharedKernel`, kept small: the account's and the member's identities, the base of the events, the generic refusals, and the value objects several contexts share ([core.md](core.md), [ADR 0197](../adr/0197-each-context-has-its-own-identities.md), [0201](../adr/0201-the-shared-kernel-is-grouped-by-concept-in-its-domain-and-by-role-in-its-application.md)). |
+| Shared kernel | `packages/core/src/SharedKernel`, kept small: the account's and the member's identities, the events' base classes, the generic refusals, and the value objects several contexts share ([core.md](core.md), [ADR 0197](../adr/0197-each-context-has-its-own-identities.md), [0201](../adr/0201-the-shared-kernel-is-grouped-by-concept-in-its-domain-and-by-role-in-its-application.md)). |
 
 ## Tactical patterns
 
@@ -44,7 +44,7 @@ Evans groups a context's code by business concept, not by technical kind. Prospe
 
 The core is a package of its own, `packages/core`, with its own `composer.json`. The API is its only user ([monorepo.md](monorepo.md)).
 
-- **Why.** It is a choice of the proof of concept. The business rules cannot reach the framework or the SDKs: these classes are absent from the core's vendor. The package also keeps the application reusable, in another framework or in a command-line application alone.
+- **Why.** The proof of concept chose it. The business rules cannot reach the framework or the SDKs: the framework's and the SDKs' classes are absent from the core's vendor. The package also keeps the application reusable, in another framework or in a command-line application alone.
 - **The hexagon and the package do different things.** The hexagon, the ports and their adapters, makes the use cases independent of the framework. The package lets a second application, in another project, depend on the core without the API. Without the package, a command-line application would live in the API's project, or the core would be extracted the day a second application asked for it.
 - **A legacy.** That second application never came. Most modular monoliths keep each context in the application's `src`, with its layers inside. Next to them, this layout can look heavy.
 - **What it costs.** Each context spans two trees (`packages/core/src/<Context>` and `apps/api/src/<Context>`), Composer needs its `path` repository, and the core has its own lint and test configurations.
@@ -55,7 +55,7 @@ The core is a package of its own, `packages/core`, with its own `composer.json`.
 The event storming is generated from the code ([event-storming.md](event-storming.md), [ADR 0213](../adr/0213-the-event-storming-is-one-wall-per-context-with-a-lane-per-module.md), [0214](../adr/0214-every-context-has-its-wall-generated-from-the-whole-code-and-checked-in-the-ci.md)).
 
 - Each context's wall is the view by concept that the domain's folders do not give: [Accounts](../event-storming/accounts/wall.svg), [Booking](../event-storming/booking/wall.svg), [Campaigns](../event-storming/campaigns/wall.svg), [Connectors](../event-storming/connectors/wall.svg), [Personal data](../event-storming/personal-data/wall.svg), [Prospecting](../event-storming/prospecting/wall.svg), [Reporting](../event-storming/reporting/wall.svg). Its lanes are the context's modules.
-- The overview of the contexts is the context map. It draws an arrow from one context to another when the other's policies hear its events or when its ports ask the other's services. The local stack serves it at https://prospecter.localhost/docs/event-storming/, from `apps/front/public/docs/event-storming/index.html`.
+- The overview of the contexts is the context map. It draws an arrow from one context to another when the other's policies hear its events or when its ports ask the other's services. The local stack serves it at https://prospecter.localhost/docs/event-storming/, from [its page](../../apps/front/public/docs/event-storming/index.html).
 
 ## What Prospecter leaves out, or does otherwise
 
@@ -63,7 +63,7 @@ The event storming is generated from the code ([event-storming.md](event-stormin
 |---|---|
 | Event sourcing | An aggregate is saved as its state, one document in its context's table ([ADR 0048](../adr/0048-dynamodb-one-table-per-context-on-ministack.md)). Its events inform the reactions and the other contexts; they never rebuild it. |
 | Factory classes | The aggregate's named constructors build it ([ADR 0023](../adr/0023-tactical-ddd-in-the-core.md)). |
-| Sagas and process managers | A policy turns an event into a command, and an ordinary use case does the work. One aggregate changes per use case ([ADR 0042](../adr/0042-contacts-never-alone-domain-events.md), [0203](../adr/0203-a-reaction-is-a-policy-that-turns-an-event-into-a-command-and-a-use-case-does-the-work.md)). |
+| Sagas and process managers | A policy turns an event into a command, and an ordinary use case does the work. One aggregate changes per use case ([ADR 0042](../adr/0042-contacts-never-alone-domain-events.md), [0203](../adr/0203-a-reaction-is-a-policy-that-turns-an-event-into-a-command-and-a-use-case-does-the-work.md)). [core.md](core.md), "Rules", names the one exception ([ADR 0164](../adr/0164-a-slot-booked-by-a-public-link-becomes-a-planned-exchange-of-its-host-its-booker-identified-by-personaldata.md)). |
 | Getters for reading | A query reads its read model through a port, from the aggregate's table, without restoring the aggregate ([ADR 0088](../adr/0088-a-query-reads-its-read-model-through-a-port-a-policy-says-what-is-possible.md)). Only Reporting keeps projections ([ADR 0103](../adr/0103-the-reporting-context-and-its-rebuildable-projections.md)). |
 | A model shared between contexts | Each context has its own identities and words. Only integration events and published services cross the contexts ([ADR 0045](../adr/0045-published-language-between-contexts.md), [0197](../adr/0197-each-context-has-its-own-identities.md)). |
 | "Policy" for a domain rule | A pure rule of the domain is a `Rule`. "Policy" keeps the event storming's meaning, a reaction ([ADR 0200](../adr/0200-a-policy-is-a-reaction-as-in-event-storming-a-pure-domain-rule-is-a-rule.md)). |
