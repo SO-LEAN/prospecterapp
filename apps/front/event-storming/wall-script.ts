@@ -106,7 +106,7 @@ export function runTheWall(data: WallData): void {
     const time = `<path class="time" d="${wobbly({ x: 700, y: 62 }, { x: wall.w - 70, y: 62 }, 'time')} M${wall.w - 70},62 l-17,-10 M${wall.w - 70},62 l-17,10"/><text x="640" y="69">time</text>`
     const hits: string[] = []
     const arrows = data.edges.map((edge, index) => {
-      const arrow = arrowOf(placed(edge.from), placed(edge.to), edge.certain)
+      const arrow = arrowOf(placed(edge.from), placed(edge.to), edge.certain, edge.route[density])
       if (edge.tip !== null) hits.push(hitOf(arrow.curve, `[data-edge="${index}"] path`, edge.tip))
       const maybe =
         arrow.maybe === null

@@ -102,7 +102,10 @@ export type StepKind = 'read' | 'command' | 'policy'
 /** A cluster of post-its that touch: who asks, what is asked, what it changes, what happened. */
 export interface Step {
   kind: StepKind
+  /** The lane it stands in: its module's, or the lane of the event it hears when that lane stands lower. */
   lane: string
+  /** The module its use case belongs to. */
+  module: string
   /** The order of its kind among the rows of a lane. */
   order: number
   notes: Note[]
@@ -280,6 +283,7 @@ class WallUnderConstruction {
     const step: Step = {
       kind,
       lane,
+      module: lane,
       order,
       notes: [],
       strips: [],
@@ -747,10 +751,14 @@ class WallUnderConstruction {
     }
   }
 
-  /** A policy waits for an event of this wall (the event comes first), or sends a command of it. */
+  /**
+   * A policy waits for an event of this wall (the event comes first: its first copy outside the policy's step, which
+   * may record it too), or sends a command of it.
+   */
   private pendingFrom(wait: { from: Note; to: string }): Note | undefined {
     return wait.from.kind === 'policy' && this.sticky(wait.to).type === 'event'
-      ? this.firstOf.get(wait.to)
+      ? (this.notes.find((note) => note.sticky?.id === wait.to && note.step !== wait.from.step) ??
+          this.firstOf.get(wait.to))
       : wait.from
   }
 
@@ -760,30 +768,53 @@ class WallUnderConstruction {
       : this.firstOf.get(wait.to)
   }
 
-  /** The lanes: a module that hears another one sits under it, so that the arrows of its reactions point down. */
+  /**
+   * The lanes follow the reactions between them, so that their arrows point down: a lane that no lane left hears
+   * comes first, the modules' order for ties. When lanes hear each other, the one that starts more reactions of the
+   * others comes first. A reaction whose event stands in a lower lane then moves into the event's lane, with its whole
+   * step, and so on until no reaction points to a lane above.
+   */
   private lanes(): Lane[] {
     const names = [...new Set([...this.model.modules, ...this.steps.map((step) => step.lane)])].filter(
       (name) => this.steps.some((step) => step.lane === name),
     )
-    const rank = new Map(names.map((name) => [name, 0]))
-    const rankOf = (name: string): number => rank.get(name) ?? 0
-    for (let pass = 0; pass < names.length; pass++) {
-      for (const edge of this.edges.filter(
-        (edge) => edge.drawn && edge.from.step.lane !== edge.to.step.lane,
-      )) {
-        rank.set(
-          edge.to.step.lane,
-          Math.min(names.length, Math.max(rankOf(edge.to.step.lane), rankOf(edge.from.step.lane) + 1)),
-        )
+    const order = this.orderOfTheLanes(names)
+    for (let moved = true; moved; ) {
+      moved = false
+      for (const edge of this.edges.filter((edge) => edge.drawn)) {
+        if (order.indexOf(edge.to.step.lane) < order.indexOf(edge.from.step.lane)) {
+          edge.to.step.lane = edge.from.step.lane
+          moved = true
+        }
       }
     }
-    const order = [...names].sort((a, b) => rankOf(a) - rankOf(b) || names.indexOf(a) - names.indexOf(b))
     return order.map((name) => ({
       name,
       label: sentenceOf(name),
       steps: this.steps.filter((step) => step.lane === name),
       blocks: this.blocksOf(this.steps.filter((step) => step.lane === name)),
     }))
+  }
+
+  private orderOfTheLanes(names: string[]): string[] {
+    const reactions = new Map<string, Set<Step>>()
+    for (const edge of this.edges.filter((edge) => edge.drawn && edge.from.step.lane !== edge.to.step.lane)) {
+      const pair = `${edge.from.step.lane}>${edge.to.step.lane}`
+      reactions.set(pair, (reactions.get(pair) ?? new Set()).add(edge.to.step))
+    }
+    const weight = (from: string, to: string): number => reactions.get(`${from}>${to}`)?.size ?? 0
+    const order: string[] = []
+    const left = [...names]
+    while (left.length > 0) {
+      const heard = (name: string): number => left.reduce((sum, other) => sum + weight(other, name), 0)
+      const starts = (name: string): number => left.reduce((sum, other) => sum + weight(name, other), 0)
+      const next =
+        left.find((name) => heard(name) === 0) ??
+        left.reduce((best, name) => (starts(name) - heard(name) > starts(best) - heard(best) ? name : best))
+      order.push(next)
+      left.splice(left.indexOf(next), 1)
+    }
+    return order
   }
 
   /**

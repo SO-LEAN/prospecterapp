@@ -1,4 +1,5 @@
 import { type Density, type FoldLabel, type Grid, nameOf, type Place, TOP } from './grid.ts'
+import type { Route } from './marker.ts'
 import { cardOf, KIND_NAMES, storyOf } from './story.ts'
 import { HEAD, type Kind, type Note, sentenceOf, type Wall } from './wall.ts'
 
@@ -46,6 +47,8 @@ export interface EdgeData {
   to: number
   certain: boolean
   tip: string | null
+  /** Its way to a lower row in each density, or none when it runs within its row. */
+  route: Record<Density, Route | null>
 }
 
 export interface BraceData {
@@ -115,6 +118,10 @@ export function dataOf(wall: Wall, grids: Record<Density, Grid>): WallData {
         to: index(edge.to),
         certain: edge.certain,
         tip: edge.certain ? null : `Maybe: only ${edge.when ?? 'in some states'}`,
+        route: {
+          roomy: grids.roomy.routes.get(edge) ?? null,
+          compact: grids.compact.routes.get(edge) ?? null,
+        },
       })),
     braces: wall.brackets.map((bracket) => ({
       from: index(bracket.from),

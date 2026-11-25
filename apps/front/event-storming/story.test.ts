@@ -33,6 +33,19 @@ describe('the story of a post-it', () => {
     )
   })
 
+  it('names on the card of a reaction moved into the lane of its event its own module, and the lane it stands in', () => {
+    const prospecting = wallOf(
+      JSON.parse(readFileSync('public/docs/event-storming/prospecting/model.json', 'utf8')) as Model,
+    )
+    const pushBack = prospecting.notes.find(
+      (note) => note.kind === 'policy' && note.label === 'Push back erasure of contact to attach',
+    )
+
+    expect(pushBack === undefined ? '' : cardOf(prospecting, pushBack)).toContain(
+      '<dt>Where</dt><dd>Prospecting › Contact, in the lane of Exchange, whose event it hears</dd>',
+    )
+  })
+
   it('lights the view that offers a command, and the actor who reads it', () => {
     const story = [...storyOf(wall, noteOf('command:OpenBooking', 'command'))].map((note) => note.label)
 
