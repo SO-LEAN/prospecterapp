@@ -56,8 +56,8 @@ function offsetOf(row: Row, side: Pictogram['side'], rank: number): number {
 }
 
 /**
- * How many pictograms stand from the right edge before they reach the left edge, the last jump back, or the last badge
- * of the member's AI on the post-it's corner.
+ * How many pictograms stand from the right edge before they reach the left edge, the last jump back, or the member's AI's
+ * last badge on the post-it's corner.
  */
 function roomOnTheRight(note: Note, row: Row, back: number): number {
   const limit = Math.max(
