@@ -172,6 +172,9 @@ const CLUSTER = {
   hotspot: { x: 13, y: 22 },
 } as const
 
+/** How far apart the events of other contexts a policy hears stand, one under the other, each on its paper. */
+const HEARD_PITCH = SIZE.sticky + 52
+
 /** What a hotspot of something nothing reaches says of itself. */
 const SUSPICION =
   'It is a suspicion to check: the analysis follows the calls it reads, and a dynamic call escapes it.'
@@ -404,20 +407,22 @@ class WallUnderConstruction {
     })
   }
 
-  /** The events of other contexts a policy hears, before it on their paper. Those of this wall are linked later. */
+  /**
+   * The events of other contexts a policy hears, before it on their paper, one under the other: so that each arrow
+   * runs to the policy past no other event. Those of this wall are linked later.
+   */
   private heardBy(step: Step, policy: Sticky, x: number): number {
-    for (const heard of this.into(policy.id, 'event')) {
+    const foreign = this.into(policy.id, 'event').filter((heard) => !this.isMadeHere(this.sticky(heard.from)))
+    foreign.forEach((heard, row) => {
       const event = this.sticky(heard.from)
-      if (this.isMadeHere(event)) continue
-      const node = this.put(step, event, 'event', { x, y: 0 })
+      const node = this.put(step, event, 'event', { x, y: row * HEARD_PITCH })
       node.jumps.push(away(foreignOf(event), 'Heard from'))
       this.heardBefore.set(step, [
         ...(this.heardBefore.get(step) ?? []),
         { event: node, policy, certain: heard.certain },
       ])
-      x += SIZE.sticky + SIZE.arrow
-    }
-    return x
+    })
+    return foreign.length === 0 ? x : x + SIZE.sticky + SIZE.arrow
   }
 
   private isMadeHere(event: Sticky): boolean {

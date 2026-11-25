@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import type { Model } from './model.ts'
-import { type Note, wallOf } from './wall.ts'
+import { type Note, SIZE, wallOf } from './wall.ts'
 
 /** Booking's model, as the generator last read it from the code. Vitest runs in the front's folder. */
 const BOOKING = JSON.parse(readFileSync('public/docs/event-storming/booking/model.json', 'utf8')) as Model
@@ -71,6 +71,31 @@ describe('the wall of a context', () => {
       'Forget appointment of erased exchange → Forget appointment of erased exchange',
       'Slot booked → Identify booker',
       'Slot booked → Publish slot booked',
+    ])
+  })
+
+  it('stacks the events of other contexts a policy hears one under the other, left of it, each with its arrow', () => {
+    const reporting = wallOf(modelOf('reporting'))
+    const policy = reporting.notes.find((note) => note.kind === 'policy' && note.label === 'Record facts')
+    const heard = policy?.step.notes.filter((note) => note.kind === 'event' && note.foreign) ?? []
+    const strips = policy?.step.strips.filter((strip) => heard.includes(strip.note)) ?? []
+    const arrows = reporting.edges.filter((edge) => edge.drawn && edge.to === policy).map((edge) => edge.from)
+
+    expect([
+      heard.map((event) => event.label),
+      heard.every((event) => event.x === heard[0]?.x),
+      strips.every((strip, index) => {
+        const next = strips[index + 1]
+        return next === undefined || strip.y + strip.h <= next.y
+      }),
+      heard.every((event) => event.x + event.w + SIZE.arrow <= (policy?.x ?? 0)),
+      arrows,
+    ]).toEqual([
+      ['Contact facts changed', 'Exchange facts changed', 'Organization facts changed'],
+      true,
+      true,
+      true,
+      heard,
     ])
   })
 
