@@ -11,10 +11,6 @@ describe('nextSliceOf', () => {
   it('has no cursor after the last slice', () => {
     expect(nextSliceOf({})).toBeUndefined()
   })
-
-  it('fails on purpose to check the red CI of a draft', () => {
-    expect(1 + 1).toBe(3)
-  })
 })
 
 describe('dataOf', () => {
