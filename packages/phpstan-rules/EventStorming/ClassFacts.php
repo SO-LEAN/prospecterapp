@@ -11,8 +11,8 @@ use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 
 /**
  * What the analysis reads of one class: what it implements, what its __invoke takes and returns, what its
- * constructor depends on, the roles and the routes its attributes declare, what its output port presents, and the
- * parameters of its constructor that may be null.
+ * constructor depends on, the roles and the routes its attributes declare, what its output port presents, the
+ * parameters of its constructor that may be null, and whether it is a command of the console.
  */
 final readonly class ClassFacts
 {
@@ -42,6 +42,7 @@ final readonly class ClassFacts
         public array $routes = [],
         public array $optionalParameters = [],
         public array $outputPorts = [],
+        public bool $console = false,
     ) {
     }
 
