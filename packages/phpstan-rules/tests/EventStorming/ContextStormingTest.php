@@ -490,6 +490,36 @@ final class ContextStormingTest extends TestCase
         self::assertSame([['from' => 'actor:ROLE_USER', 'to' => 'command:'.self::OPEN_BOOKING, 'via' => null, 'certain' => true, 'when' => null]], self::linksOf($model));
     }
 
+    public function testAnEntranceSendsTheUseCasesItCreatesAndNothingElseItCreates(): void
+    {
+        $model = self::modelOf(new Facts([
+            self::handlerOf(self::OPEN_BOOKING),
+            new ClassFacts(self::OPEN_BOOKING_CONTROLLER, roles: ['ROLE_USER']),
+        ], [
+            new Call(self::OPEN_BOOKING_CONTROLLER, '__invoke', self::OPEN_BOOKING, Call::CREATION),
+            new Call(self::OPEN_BOOKING_CONTROLLER, '__invoke', self::MY_BOOKING_PAGE_LINKS, Call::CREATION),
+        ]));
+
+        self::assertSame([['from' => 'actor:ROLE_USER', 'to' => 'command:'.self::OPEN_BOOKING, 'via' => null, 'certain' => true, 'when' => null]], self::linksOf($model));
+    }
+
+    public function testAnEntranceFollowsNoClassOfTheCoreButAUseCasesMessageAndEachMethodOnce(): void
+    {
+        $model = self::modelOf(new Facts([
+            self::handlerOf(self::OPEN_BOOKING),
+            self::handlerOf(self::BOOK_SLOT),
+            new ClassFacts(self::OPEN_BOOKING_CONTROLLER, roles: ['ROLE_USER']),
+        ], [
+            new Call(self::OPEN_BOOKING_CONTROLLER, '__invoke', self::MY_BOOKING_PAGE_READER, 'read'),
+            new Call(self::MY_BOOKING_PAGE_READER, 'read', self::MY_BOOKING_PAGE_READER, 'read'),
+            new Call(self::MY_BOOKING_PAGE_READER, 'read', self::OPEN_BOOKING, Call::CREATION),
+            new Call(self::OPEN_BOOKING_CONTROLLER, '__invoke', self::BOOKING_PAGE, 'open'),
+            new Call(self::BOOKING_PAGE, 'open', self::BOOK_SLOT, Call::CREATION),
+        ]));
+
+        self::assertSame([['from' => 'actor:ROLE_USER', 'to' => 'command:'.self::OPEN_BOOKING, 'via' => null, 'certain' => true, 'when' => null]], self::linksOf($model));
+    }
+
     public function testAProjectionLeadsToTheViewItKeeps(): void
     {
         $model = self::modelOf(new Facts([
