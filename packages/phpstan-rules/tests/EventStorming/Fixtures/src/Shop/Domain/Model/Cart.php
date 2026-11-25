@@ -11,7 +11,12 @@ use Prospecter\Core\Shop\Domain\Event\ItemAdded;
 final class Cart
 {
     /** @var list<object> */
-    private array $events = [];
+    private array $events;
+
+    public function __construct()
+    {
+        $this->events = [];
+    }
 
     public function add(string $item): void
     {
@@ -31,6 +36,29 @@ final class Cart
             return;
         }
         $this->events[] = new CartClosed();
+    }
+
+    public function ensureOpen(): void
+    {
+        if ([] === $this->events) {
+            throw new \DomainException('The cart is closed');
+        }
+    }
+
+    public function reopen(): void
+    {
+        $this->forget();
+    }
+
+    /**
+     * @return list<object>
+     */
+    public function release(): array
+    {
+        $events = $this->events;
+        $this->events = [];
+
+        return $events;
     }
 
     public function count(): int

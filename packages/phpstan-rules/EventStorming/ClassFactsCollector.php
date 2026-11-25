@@ -7,11 +7,21 @@ namespace Prospecter\PHPStan\EventStorming;
 use PhpParser\Node;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Attribute;
+use PhpParser\Node\Expr;
+use PhpParser\Node\Expr\ArrayDimFetch;
+use PhpParser\Node\Expr\Assign;
+use PhpParser\Node\Expr\AssignOp;
+use PhpParser\Node\Expr\AssignRef;
+use PhpParser\Node\Expr\MethodCall;
+use PhpParser\Node\Expr\PropertyFetch;
 use PhpParser\Node\Expr\Variable;
+use PhpParser\Node\Identifier;
 use PhpParser\Node\NullableType;
 use PhpParser\Node\Param;
 use PhpParser\Node\Scalar\String_;
 use PhpParser\Node\Stmt\ClassLike;
+use PhpParser\Node\Stmt\ClassMethod;
+use PhpParser\NodeFinder;
 use PHPStan\Analyser\Scope;
 use PHPStan\Collectors\Collector;
 use PHPStan\Node\InClassNode;
@@ -77,24 +87,60 @@ final readonly class ClassFactsCollector implements Collector
             'outputPorts' => $parameters[self::OUTPUT_PORT] ?? [],
             'presents' => null === $entry ? [] : self::presentedThrough($entry),
             'console' => [] !== self::attributesOf($node->getOriginalNode(), self::AS_COMMAND),
-            'changes' => self::changesOf($class),
+            'changes' => self::changesOf($class, $node->getOriginalNode()),
         ];
     }
 
     /**
-     * The public methods that return nothing, its own and those it inherits or takes from a trait: by command-query
-     * separation, each one changes the object.
+     * The public methods that return nothing and write a property of the object, themselves or through its other
+     * methods: by command-query separation, each one changes the object. A guard that only throws returns nothing too,
+     * and changes nothing. Only the methods the class declares are read.
      *
      * @return list<string>
      */
-    private static function changesOf(ClassReflection $class): array
+    private static function changesOf(ClassReflection $class, ClassLike $node): array
     {
+        $methods = [];
+        foreach ($node->getMethods() as $method) {
+            $methods[$method->name->toString()] = $method;
+        }
         $changes = array_filter(
-            $class->getNativeReflection()->getMethods(\ReflectionMethod::IS_PUBLIC),
-            static fn (\ReflectionMethod $method): bool => !$method->isConstructor() && $class->getNativeMethod($method->getName())->getVariants()[0]->getReturnType()->isVoid()->yes(),
+            $node->getMethods(),
+            static fn (ClassMethod $method): bool => $method->isPublic() && self::CONSTRUCTOR !== $method->name->toString()
+                && $class->getNativeMethod($method->name->toString())->getVariants()[0]->getReturnType()->isVoid()->yes()
+                && self::writesItsObject($method, $methods),
         );
 
-        return array_values(array_map(static fn (\ReflectionMethod $method): string => $method->getName(), $changes));
+        return array_values(array_map(static fn (ClassMethod $method): string => $method->name->toString(), $changes));
+    }
+
+    /**
+     * @param array<string, ClassMethod> $methods the methods of its class, by name
+     * @param array<string, true>        $visited
+     */
+    private static function writesItsObject(ClassMethod $method, array $methods, array $visited = []): bool
+    {
+        $visited[$method->name->toString()] = true;
+        $finder = new NodeFinder();
+        if (null !== $finder->findFirst($method->stmts ?? [], static fn (Node $node): bool => ($node instanceof Assign || $node instanceof AssignOp || $node instanceof AssignRef) && self::isAPropertyOfItsObject($node->var))) {
+            return true;
+        }
+
+        return array_any(
+            $finder->findInstanceOf($method->stmts ?? [], MethodCall::class),
+            static fn (MethodCall $call): bool => $call->var instanceof Variable && 'this' === $call->var->name && $call->name instanceof Identifier
+                && isset($methods[$call->name->toString()]) && !isset($visited[$call->name->toString()])
+                && self::writesItsObject($methods[$call->name->toString()], $methods, $visited),
+        );
+    }
+
+    private static function isAPropertyOfItsObject(Expr $target): bool
+    {
+        while ($target instanceof ArrayDimFetch) {
+            $target = $target->var;
+        }
+
+        return $target instanceof PropertyFetch && $target->var instanceof Variable && 'this' === $target->var->name;
     }
 
     /**
