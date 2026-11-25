@@ -47,7 +47,17 @@ class CampaignRecipientsApiTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(200);
         $this->assertSame(['frozen', 1], [$frozen['status'], $frozen['targeted']]);
-        $this->assertSame(['self', 'revise', 'discard', 'addRecipient', 'addRecipientsByTags', 'start', 'setDailyCap', 'recipients'], array_keys(self::recordAt($frozen, '_links')));
+        $self = '/api/campaigns/'.$id;
+        $this->assertSame([
+            'self' => ['href' => $self, 'method' => 'GET'],
+            'revise' => ['href' => $self, 'method' => 'PATCH'],
+            'discard' => ['href' => $self, 'method' => 'DELETE'],
+            'addRecipient' => ['href' => $self.'/recipients', 'method' => 'POST'],
+            'addRecipientsByTags' => ['href' => $self.'/recipients/by-tags', 'method' => 'POST'],
+            'start' => ['href' => $self.'/start', 'method' => 'POST'],
+            'setDailyCap' => ['href' => $self.'/daily-cap', 'method' => 'PATCH'],
+            'recipients' => ['href' => $self.'/recipients', 'method' => 'GET'],
+        ], self::recordAt($frozen, '_links'));
         $recipients = $this->requestJson('GET', self::stringAt($frozen, '_links', 'recipients', 'href'));
         $this->assertResponseStatusCodeSame(200);
         $this->assertSame([[$this->ada, 'Ada', 'pending']], array_map(static fn (array $recipient): array => [self::valueAt($recipient, 'contact', 'id'), self::valueAt($recipient, 'contact', 'name', 'firstName'), $recipient['status']], self::recordsAt($recipients, 'items')));
