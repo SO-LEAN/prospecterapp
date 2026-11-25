@@ -33,6 +33,21 @@
             "readBy": []
         },
         {
+            "id": "actor:operator",
+            "slug": "actor:operator",
+            "type": "actor",
+            "label": "Platform operator",
+            "feature": null,
+            "name": "operator",
+            "class": null,
+            "context": "Reporting",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
             "id": "command:Prospecter\\Core\\Reporting\\Application\\RebuildFigures\\RebuildFigures",
             "slug": "command:RebuildFigures",
             "type": "command",
@@ -263,6 +278,13 @@
             "when": null
         },
         {
+            "from": "actor:operator",
+            "to": "command:Prospecter\\Core\\Reporting\\Application\\RebuildFigures\\RebuildFigures",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
             "from": "command:Prospecter\\Core\\Reporting\\Application\\RebuildFigures\\RebuildFigures",
             "to": "externalSystem:Prospecter\\Core\\Reporting\\Domain\\Port\\PersonalDataFacts",
             "via": null,
@@ -279,6 +301,34 @@
         {
             "from": "command:Prospecter\\Core\\Reporting\\Application\\RebuildFigures\\RebuildFigures",
             "to": "externalSystem:Prospecter\\Core\\Reporting\\Domain\\Port\\SourceAccounts",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Reporting\\Application\\RebuildFigures\\RebuildFigures",
+            "to": "readModel:Prospecter\\Core\\Reporting\\Application\\ConsultFigures\\ConsultFigures",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Reporting\\Application\\RecordContactFacts\\RecordContactFacts",
+            "to": "readModel:Prospecter\\Core\\Reporting\\Application\\ConsultFigures\\ConsultFigures",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Reporting\\Application\\RecordExchangeFacts\\RecordExchangeFacts",
+            "to": "readModel:Prospecter\\Core\\Reporting\\Application\\ConsultFigures\\ConsultFigures",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Reporting\\Application\\RecordOrganizationFacts\\RecordOrganizationFacts",
+            "to": "readModel:Prospecter\\Core\\Reporting\\Application\\ConsultFigures\\ConsultFigures",
             "via": null,
             "certain": true,
             "when": null

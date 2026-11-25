@@ -371,8 +371,8 @@ class WallUnderConstruction {
    */
   private lowerThePortsUnderTheChanges(step: Step, node: Note): void {
     const under = node.y + SIZE.sticky - 3
-    const aggregates = step.notes.filter((note) => note.kind === 'aggregate')
-    const lower = Math.max(under, ...aggregates.map((note) => note.y + note.h + PORTS.room)) - under
+    const changes = step.notes.filter((note) => note.kind === 'aggregate' || note.kind === 'readModel')
+    const lower = Math.max(under, ...changes.map((note) => note.y + note.h + PORTS.room)) - under
     for (const port of step.notes.filter((note) => note.port)) port.y += lower
   }
 

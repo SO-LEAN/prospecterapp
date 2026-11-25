@@ -52,6 +52,21 @@
             "readBy": []
         },
         {
+            "id": "actor:operator",
+            "slug": "actor:operator",
+            "type": "actor",
+            "label": "Platform operator",
+            "feature": null,
+            "name": "operator",
+            "class": null,
+            "context": "Accounts",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
             "id": "aggregate:Prospecter\\Core\\Accounts\\Domain\\Model\\Account",
             "slug": "aggregate:Account",
             "type": "aggregate",
@@ -428,7 +443,7 @@
                 {
                     "context": null,
                     "slug": null,
-                    "label": "CampaignReader"
+                    "label": "CampaignAuthors"
                 },
                 {
                     "context": null,
@@ -585,6 +600,27 @@
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Accounts\\Contract\\Service\\ConsultMembers\\ConsultMembers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:operator",
+            "to": "command:Prospecter\\Core\\Accounts\\Application\\Account\\OpenAccount\\OpenAccount",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:operator",
+            "to": "command:Prospecter\\Core\\Accounts\\Application\\Member\\RegisterAMember\\RegisterAMember",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:operator",
+            "to": "readModel:Prospecter\\Core\\Accounts\\Contract\\Service\\ListAccounts\\ListAccounts",
             "via": null,
             "certain": true,
             "when": null

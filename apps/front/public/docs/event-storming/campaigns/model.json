@@ -37,6 +37,21 @@
             "readBy": []
         },
         {
+            "id": "actor:operator",
+            "slug": "actor:operator",
+            "type": "actor",
+            "label": "Platform operator",
+            "feature": null,
+            "name": "operator",
+            "class": null,
+            "context": "Campaigns",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
             "id": "aggregate:Prospecter\\Core\\Campaigns\\Domain\\Model\\Campaign",
             "slug": "aggregate:Campaign",
             "type": "aggregate",
@@ -1376,6 +1391,20 @@
             "when": null
         },
         {
+            "from": "actor:operator",
+            "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\EraseCampaign\\EraseCampaign",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:operator",
+            "to": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\RebuildTags\\RebuildTags",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
             "from": "aggregate:Prospecter\\Core\\Campaigns\\Domain\\Model\\Campaign",
             "to": "event:Prospecter\\Core\\Campaigns\\Domain\\Event\\CampaignDiscarded",
             "via": "discard",
@@ -1698,6 +1727,90 @@
             "when": null
         },
         {
+            "from": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\RebuildTags\\RebuildTags",
+            "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultContactTags\\ConsultContactTags",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\RebuildTags\\RebuildTags",
+            "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultOrganizationTags\\ConsultOrganizationTags",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\RebuildTags\\RebuildTags",
+            "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultSuggestedTags\\ConsultSuggestedTags",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\RebuildTags\\RebuildTags",
+            "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\SearchContactsByTags\\SearchContactsByTags",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\RecordContactFacts\\RecordContactFacts",
+            "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultContactTags\\ConsultContactTags",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\RecordContactFacts\\RecordContactFacts",
+            "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultOrganizationTags\\ConsultOrganizationTags",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\RecordContactFacts\\RecordContactFacts",
+            "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultSuggestedTags\\ConsultSuggestedTags",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\RecordContactFacts\\RecordContactFacts",
+            "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\SearchContactsByTags\\SearchContactsByTags",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\RecordOrganizationFacts\\RecordOrganizationFacts",
+            "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultContactTags\\ConsultContactTags",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\RecordOrganizationFacts\\RecordOrganizationFacts",
+            "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultOrganizationTags\\ConsultOrganizationTags",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\RecordOrganizationFacts\\RecordOrganizationFacts",
+            "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultSuggestedTags\\ConsultSuggestedTags",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\RecordOrganizationFacts\\RecordOrganizationFacts",
+            "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\SearchContactsByTags\\SearchContactsByTags",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\TakeOffTag\\TakeOffTag",
             "to": "aggregate:Prospecter\\Core\\Campaigns\\Domain\\Model\\Tagging",
             "via": "takeOff",
@@ -1825,8 +1938,71 @@
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ConsultCampaign\\ConsultCampaign",
+            "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\DiscardCampaign\\DiscardCampaign",
+            "via": "discard",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ConsultCampaign\\ConsultCampaign",
+            "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\FreezeCampaign\\FreezeCampaign",
+            "via": "freeze",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ConsultCampaign\\ConsultCampaign",
+            "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ReviseCampaign\\ReviseCampaign",
+            "via": "revise",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ConsultCampaign\\ConsultCampaign",
+            "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\SetDailyCap\\SetDailyCap",
+            "via": "setDailyCap",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ConsultCampaign\\ConsultCampaign",
+            "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\StartCampaign\\StartCampaign",
+            "via": "start",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ConsultCampaign\\ConsultCampaign",
+            "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\StopCampaign\\StopCampaign",
+            "via": "stop",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ConsultCampaign\\ConsultCampaign",
+            "to": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\AddRecipient\\AddRecipient",
+            "via": "addRecipient",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ConsultCampaign\\ConsultCampaign",
+            "to": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\AddRecipientsByTags\\AddRecipientsByTags",
+            "via": "addRecipientsByTags",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ConsultCampaign\\ConsultCampaign",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\Campaigners",
             "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ListCampaigns\\ListCampaigns",
+            "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\PrepareCampaign\\PrepareCampaign",
+            "via": "prepare",
             "certain": true,
             "when": null
         },
@@ -1874,6 +2050,20 @@
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultContactTags\\ConsultContactTags",
+            "to": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\PutTags\\PutTags",
+            "via": "tag",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultContactTags\\ConsultContactTags",
+            "to": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\TakeOffTag\\TakeOffTag",
+            "via": "takeOff",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultContactTags\\ConsultContactTags",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\TaggableContacts",
             "via": null,
             "certain": true,
@@ -1890,6 +2080,20 @@
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultContactTags\\ConsultContactTags",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\Taggers",
             "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultOrganizationTags\\ConsultOrganizationTags",
+            "to": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\PutTags\\PutTags",
+            "via": "tag",
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultOrganizationTags\\ConsultOrganizationTags",
+            "to": "command:Prospecter\\Core\\Campaigns\\Application\\Tagging\\TakeOffTag\\TakeOffTag",
+            "via": "takeOff",
             "certain": true,
             "when": null
         },

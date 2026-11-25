@@ -68,12 +68,42 @@
             "readBy": []
         },
         {
+            "id": "actor:operator",
+            "slug": "actor:operator",
+            "type": "actor",
+            "label": "Platform operator",
+            "feature": null,
+            "name": "operator",
+            "class": null,
+            "context": "Connectors",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
             "id": "actor:public",
             "slug": "actor:public",
             "type": "actor",
             "label": "Anyone with the link",
             "feature": null,
             "name": "public",
+            "class": null,
+            "context": "Connectors",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "actor:schedule",
+            "slug": "actor:schedule",
+            "type": "actor",
+            "label": "Daily schedule",
+            "feature": null,
+            "name": "schedule",
             "class": null,
             "context": "Connectors",
             "module": null,
@@ -1118,6 +1148,13 @@
             "when": null
         },
         {
+            "from": "actor:ROLE_PROSPECTOR",
+            "to": "readModel:Prospecter\\Core\\Connectors\\Application\\MailImport\\ConsultMailCatchUpIntents\\ConsultMailCatchUpIntents",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
             "from": "actor:ROLE_USER",
             "to": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryFailedPushes\\RetryFailedPushes",
             "via": null,
@@ -1148,6 +1185,13 @@
         {
             "from": "actor:ROLE_USER",
             "to": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\Disconnect\\Disconnect",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_USER",
+            "to": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\CatchUpMailHistory\\CatchUpMailHistory",
             "via": null,
             "certain": true,
             "when": null
@@ -1189,6 +1233,13 @@
         },
         {
             "from": "actor:mcp",
+            "to": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\CatchUpMailHistory\\CatchUpMailHistory",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Connectors\\Application\\Calendar\\ConsultExchangeSync\\ConsultExchangeSync",
             "via": null,
             "certain": true,
@@ -1204,6 +1255,20 @@
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Connectors\\Application\\Connection\\ConsultMyConnections\\ConsultMyConnections",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:mcp",
+            "to": "readModel:Prospecter\\Core\\Connectors\\Application\\MailImport\\ConsultMailCatchUpIntents\\ConsultMailCatchUpIntents",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:operator",
+            "to": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\RenewMailWatch\\RenewMailWatch",
             "via": null,
             "certain": true,
             "when": null
@@ -1225,6 +1290,13 @@
         {
             "from": "actor:public",
             "to": "readModel:Prospecter\\Core\\Connectors\\Application\\Connection\\ConsultMyConnections\\ConsultMyConnections",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:schedule",
+            "to": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\RenewMailWatch\\RenewMailWatch",
             "via": null,
             "certain": true,
             "when": null
