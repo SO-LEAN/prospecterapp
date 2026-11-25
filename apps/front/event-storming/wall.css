@@ -526,7 +526,7 @@ svg.ink {
 .more-jumps {
   display: none;
   position: absolute;
-  top: calc(100% + 4px);
+  top: 100%;
   right: 0;
   flex-direction: column;
   gap: 2px;
