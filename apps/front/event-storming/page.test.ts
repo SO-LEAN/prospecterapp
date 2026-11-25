@@ -133,7 +133,6 @@ describe('the page of a wall', () => {
   })
 })
 
-/** The post-it of a label, or what it holds of a selector. */
 /** Accounts' published service of the members, whose readers outnumber the room of its post-it. */
 function membersOf(): Element | undefined {
   const accounts = JSON.parse(readFileSync('public/docs/event-storming/accounts/model.json', 'utf8')) as Model
@@ -145,6 +144,7 @@ function membersOf(): Element | undefined {
   )
 }
 
+/** The post-it of a label, or what it holds of a selector. */
 function stickyOf(label: string, inside?: string): HTMLElement | null | undefined {
   const sticky = [...document.querySelectorAll<HTMLElement>('.sticky')].find(
     (candidate) =>
