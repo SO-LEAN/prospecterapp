@@ -24,7 +24,7 @@ use PHPStan\Type\TypeCombinator;
 /**
  * Reads what the event storming needs of each class (ClassFacts).
  *
- * @implements Collector<InClassNode, array{name: string, interfaces: list<string>, parameters: list<list<string>>, returns: list<string>, mayReturnNothing: bool, dependencies: list<string>, roles: list<string>, routes: list<string>, optionalParameters: array<string, string>, outputPorts: list<string>, presents: list<string>}>
+ * @implements Collector<InClassNode, array{name: string, interfaces: list<string>, parameters: list<list<string>>, returns: list<string>, mayReturnNothing: bool, dependencies: list<string>, roles: list<string>, routes: list<string>, optionalParameters: array<string, string>, outputPorts: list<string>, presents: list<string>, console: bool}>
  */
 final readonly class ClassFactsCollector implements Collector
 {
@@ -38,6 +38,8 @@ final readonly class ClassFactsCollector implements Collector
     private const string IS_GRANTED = 'IsGranted';
 
     private const string ROUTE = 'Route';
+
+    private const string AS_COMMAND = 'AsCommand';
 
     private const string ROUTE_NAME = 'name';
 
@@ -74,6 +76,7 @@ final readonly class ClassFactsCollector implements Collector
             'optionalParameters' => self::optionalParametersOf($node->getOriginalNode()),
             'outputPorts' => $parameters[self::OUTPUT_PORT] ?? [],
             'presents' => null === $entry ? [] : self::presentedThrough($entry),
+            'console' => [] !== self::attributesOf($node->getOriginalNode(), self::AS_COMMAND),
         ];
     }
 
