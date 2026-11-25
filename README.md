@@ -124,7 +124,7 @@ Local overrides go in `apps/<app>/.env.local`. Addresses are geocoded by the Fre
 | `make db` | Reset the API's tables and user pool and the storage's bucket, with the demonstration data and members |
 | `make infra-plan APP=api INSTANCE=dev` / `make infra-apply …` / `make infra-lint` | An app's Terraform on AWS ([infrastructure](docs/architecture/infra.md); its values are internal configuration) |
 | `make package-<api\|storage\|front>` / `make release-front INSTANCE=dev` / `make console INSTANCE=dev CMD=…` | Package an app for AWS, upload the SPA's release, run an API command on an instance ([infrastructure](docs/architecture/infra.md)) |
-| `make hooks` | Install the pre-commit hook that refuses secrets and AWS identifiers (`make install` does it) |
+| `make hooks` | Install the Git hooks: `pre-commit` refuses secrets and AWS identifiers, `commit-msg` refuses a subject without a conventional type or over 72 characters (`make install` does it) |
 | `make commands` | List the core's commands and their handlers |
 | `make exec-api` / `make exec-front` | A shell in the PHP or Node container |
 
