@@ -32,7 +32,7 @@ Radius: `--radius` 0.75 rem (`rounded-lg`), cards `rounded-xl`. Shadow: `shadow-
 
 ## Theme
 
-`shared/stores/preferences.ts` keeps the theme: `light`, `dark` or `system` (which follows the OS). The choice is persisted. A script in `index.html` applies the `dark` class before the first paint (no flash). Maps switch between the OpenFreeMap `positron` and `dark` styles.
+`shared/stores/preferences.ts` keeps the theme: `light`, `dark` or `system` (which follows the OS). The choice is persisted. A script in `index.html` applies the `dark` class before the first paint (no flash). The native controls (check boxes, radios, scroll bars, date fields) follow the app's theme, not the system's: `styles.css` sets `color-scheme` on `:root` and `.dark`. The `color-scheme` and `theme-color` metas follow it too. The script sets them before the first paint, and `useThemeClass` keeps them in sync. Maps switch between the OpenFreeMap `positron` and `dark` styles.
 
 ## Components
 
