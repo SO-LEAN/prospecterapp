@@ -22,6 +22,7 @@ export const startProspectingSchema = z
     contactDetails: organizationContactDetailsSchema,
     address: addressSchema,
     observations: text(255),
+    holding: z.object({ id: z.string(), name: z.string() }).nullable(),
   })
   .refine((values) => values.legalIdentity.corporateName !== '' || values.contactDetails.email !== '', {
     path: ['legalIdentity', 'corporateName'],
@@ -54,6 +55,7 @@ export const emptyStartProspecting = (): StartProspectingValues => ({
   contactDetails: toOrganizationContactDetailsValues({}),
   address: toAddressValues(null),
   observations: '',
+  holding: null,
 })
 
 export const toStartProspectingInput = (values: StartProspectingValues): StartProspectingInput => ({
@@ -61,7 +63,7 @@ export const toStartProspectingInput = (values: StartProspectingValues): StartPr
   contactDetails: toOrganizationContactDetails(values.contactDetails),
   address: toAddress(values.address),
   observations: orNull(values.observations),
-  holdingId: null,
+  holdingId: values.holding?.id ?? null,
 })
 
 /** A prospected organization's identity: the shared fields and its establishment's SIRET. The API checks the SIRET. */

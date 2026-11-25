@@ -1,8 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { applyViolations } from '@/shared/api/problem'
+import { applyViolations, isProblem, messageOf, type Problem } from '@/shared/api/problem'
 import { AddressFields } from '@/shared/forms/address'
 import { FormField } from '@/shared/forms/form-field'
 import { LegalIdentityFields } from '@/shared/forms/legal-identity'
@@ -20,6 +20,7 @@ import {
   startProspectingSchema,
   toStartProspectingInput,
 } from '../schema'
+import { HoldingField } from './holding-field'
 
 type Props = {
   onSubmit: (input: StartProspectingInput) => Promise<unknown>
@@ -42,6 +43,10 @@ export function StartProspectingForm({ onSubmit, onCancel, tags }: Props) {
     try {
       await onSubmit(toStartProspectingInput(values))
     } catch (error) {
+      if (isTheHoldingNotFound(error)) {
+        form.setError('holding', { type: 'server', message: messageOf(error) })
+        return
+      }
       setGlobalErrors(applyViolations(error, form.setError, startProspectingFields))
     }
   })
@@ -65,6 +70,23 @@ export function StartProspectingForm({ onSubmit, onCancel, tags }: Props) {
       </Section>
       <Section title={t('organizations.sections.address')}>
         <AddressFields form={form} path={under<StartProspectingValues>('address')} />
+      </Section>
+      <Section title={t('organizations.sections.holding')}>
+        <Controller
+          control={form.control}
+          name="holding"
+          render={({ field: { value, onChange } }) => (
+            <FormField
+              form={form}
+              name="holding"
+              label={t('organizations.sections.holding')}
+              optional={t('common.optional')}
+              className="sm:col-span-2"
+            >
+              <HoldingField value={value} onChange={onChange} />
+            </FormField>
+          )}
+        />
       </Section>
       {tags && <Section title={t('organizations.sections.tags')}>{tags}</Section>}
       <Section title={t('organizations.sections.observations')}>
@@ -90,6 +112,9 @@ export function StartProspectingForm({ onSubmit, onCancel, tags }: Props) {
     </form>
   )
 }
+
+/** Starting to prospect looks up one organization only, the holding. So a 404 means the API did not find the holding. */
+const isTheHoldingNotFound = (error: unknown): error is Problem => isProblem(error) && error.status === 404
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (

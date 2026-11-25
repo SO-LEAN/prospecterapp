@@ -258,6 +258,7 @@ export const fr = {
     holding: {
       none: 'Rattachée à aucune holding.',
       detach: 'Détacher',
+      remove: 'Retirer la holding',
       search: 'Rechercher une de mes organisations…',
     },
     logo: { change: 'Changer le logo', add: 'Ajouter un logo' },
