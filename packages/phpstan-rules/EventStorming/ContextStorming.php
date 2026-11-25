@@ -298,13 +298,16 @@ final readonly class ContextStorming
     }
 
     /**
-     * A projection records no event: its command keeps the facts of another context, which the views of its module
-     * read. It leads to each of them.
+     * A projection records no event. Its command keeps another context's facts, which its module's views read. It leads
+     * to each of these views.
      */
     private function stickTheProjections(Board $board, string $context): void
     {
         foreach ($this->handlersOf($context, self::COMMAND_HANDLER) as $handler) {
-            foreach ($this->keepsFacts($handler->name, self::ENTRY, $context) ? $handler->firstParameter() : [] as $command) {
+            if (!$this->keepsFacts($handler->name, self::ENTRY, $context)) {
+                continue;
+            }
+            foreach ($handler->firstParameter() as $command) {
                 foreach (self::viewsOfTheModuleOf($board, $command) as $view) {
                     $board->link(new Link(StickyType::Command->value.':'.$command, $view->id));
                 }
@@ -321,8 +324,20 @@ final readonly class ContextStorming
     {
         $visited[$class.'::'.$method] = true;
 
-        return array_any($this->facts->callsFrom($class, $method), fn (Call $call): bool => new ClassName($call->target)->isAFactRepository()
-            || (new ClassName($call->target)->isOf($context) && !isset($visited[$call->target.'::'.$call->targetMethod]) && $this->keepsFacts($call->target, $call->targetMethod, $context, $visited)));
+        return array_any($this->facts->callsFrom($class, $method), fn (Call $call): bool => $this->leadsToFacts($call, $context, $visited));
+    }
+
+    /**
+     * @param array<string, true> $visited
+     */
+    private function leadsToFacts(Call $call, string $context, array $visited): bool
+    {
+        $target = new ClassName($call->target);
+        if ($target->isAFactRepository()) {
+            return true;
+        }
+
+        return $target->isOf($context) && !isset($visited[$call->target.'::'.$call->targetMethod]) && $this->keepsFacts($call->target, $call->targetMethod, $context, $visited);
     }
 
     /**
