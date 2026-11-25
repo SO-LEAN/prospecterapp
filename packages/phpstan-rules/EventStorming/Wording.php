@@ -24,6 +24,8 @@ final readonly class Wording
         'ROLE_USER' => 'Member',
         'public' => 'Anyone with the link',
         'mcp' => 'Member\'s AI',
+        'operator' => 'Platform operator',
+        'schedule' => 'Daily schedule',
     ];
 
     public static function ofIntention(string $name): string
