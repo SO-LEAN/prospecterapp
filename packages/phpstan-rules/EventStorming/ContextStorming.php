@@ -41,7 +41,7 @@ final readonly class ContextStorming
     private const string ENTRY = '__invoke';
 
     /**
-     * @param array<string, string> $titles        the title of the feature of each use case, by its short name or by its context and short name (Booking/OpenBooking)
+     * @param array<string, string> $titles        each use case's feature title, by its short name, or by its context and short name (Booking/OpenBooking)
      * @param array<array<mixed>>   $subscriptions the subscriptions of the delivery, by their name
      */
     public function __construct(private Facts $facts, private array $titles = [], private array $subscriptions = [])
