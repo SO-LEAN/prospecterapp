@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\PHPStan\EventStorming;
 
 /**
- * Everything the analysis read in the code: its classes, their calls, and the arguments of the objects they create.
+ * Everything the analysis read in the code: its classes and their calls.
  */
 final readonly class Facts
 {
@@ -17,9 +17,8 @@ final readonly class Facts
     /**
      * @param list<ClassFacts> $classes
      * @param list<Call>       $calls
-     * @param list<Argument>   $arguments
      */
-    public function __construct(array $classes, public array $calls, public array $arguments = [])
+    public function __construct(array $classes, public array $calls)
     {
         $this->classes = array_column($classes, null, 'name');
     }
@@ -53,10 +52,6 @@ final readonly class Facts
             array_map(
                 static fn (array $call): Call => new Call(self::text($call['caller'] ?? null), self::text($call['callerMethod'] ?? null), self::text($call['target'] ?? null), self::text($call['targetMethod'] ?? null), true === ($call['conditional'] ?? null)),
                 self::records($collected['calls'] ?? null),
-            ),
-            array_map(
-                static fn (array $argument): Argument => new Argument(self::text($argument['caller'] ?? null), self::text($argument['created'] ?? null), self::text($argument['parameter'] ?? null), self::texts($argument['texts'] ?? null)),
-                self::records($collected['arguments'] ?? null),
             ),
         );
     }

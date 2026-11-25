@@ -31,10 +31,6 @@ services:
         tags:
             - phpstan.collector
     -
-        class: Prospecter\PHPStan\EventStorming\ArgumentsCollector
-        tags:
-            - phpstan.collector
-    -
         class: Prospecter\PHPStan\EventStorming\ModelDocument
         arguments:
             features: %eventStorming.features%

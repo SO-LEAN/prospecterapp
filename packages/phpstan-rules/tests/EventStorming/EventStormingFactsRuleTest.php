@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\PHPStan\EventStorming;
 
-use App\Shop\CartResourcePresenter;
 use App\Shop\Command\AddABookCommand;
 use App\Shop\Controller\AddItemController;
 use App\Shop\Resource\CartLineResource;
@@ -25,7 +24,6 @@ use Prospecter\Core\Shop\Domain\Event\CartClosed;
 use Prospecter\Core\Shop\Domain\Event\CartEmptied;
 use Prospecter\Core\Shop\Domain\Model\Cart;
 use Prospecter\Core\Shop\Domain\Port\Stock;
-use Prospecter\PHPStan\EventStorming\ArgumentsCollector;
 use Prospecter\PHPStan\EventStorming\CallsCollector;
 use Prospecter\PHPStan\EventStorming\ClassFactsCollector;
 use Prospecter\PHPStan\EventStorming\ConditionalLinesCollector;
@@ -57,7 +55,7 @@ final class EventStormingFactsRuleTest extends RuleTestCase
      */
     protected function getCollectors(): array
     {
-        return [new ClassFactsCollector(), new CallsCollector(), new ConditionalLinesCollector(), new ArgumentsCollector()];
+        return [new ClassFactsCollector(), new CallsCollector(), new ConditionalLinesCollector()];
     }
 
     public function testAHandlerTellsWhatItHandlesAndDependsOn(): void
@@ -130,19 +128,6 @@ final class EventStormingFactsRuleTest extends RuleTestCase
         self::assertSame([CartLinksResource::class, CartLineResource::class], $this->classFactsOf(CartResource::class)['holds'] ?? null);
     }
 
-    public function testAnObjectIsCreatedWithTheTextsWrittenInEachOfItsArguments(): void
-    {
-        self::assertSame([
-            ['caller' => CartResourcePresenter::class, 'created' => CartLinksResource::class, 'parameter' => 'addItem', 'texts' => ['api_cart_add_item']],
-            ['caller' => CartResourcePresenter::class, 'created' => CartLinksResource::class, 'parameter' => 'checkOut', 'texts' => ['api_cart_check_out']],
-        ], array_values(array_filter($this->shopFacts()['arguments'], static fn (mixed $argument): bool => \is_array($argument) && CartLinksResource::class === $argument['created'])));
-    }
-
-    public function testTheTextsOfAnObjectCreatedInAnArgumentAreItsOwn(): void
-    {
-        self::assertSame([], array_values(array_filter($this->shopFacts()['arguments'], static fn (mixed $argument): bool => \is_array($argument) && CartResource::class === $argument['created'])));
-    }
-
     public function testAClassTellsTheRolesItsAttributesRequire(): void
     {
         self::assertSame(['ROLE_USER', 'ROLE_PROSPECTOR'], $this->classFactsOf(AddItemController::class)['roles'] ?? null);
@@ -176,7 +161,7 @@ final class EventStormingFactsRuleTest extends RuleTestCase
     }
 
     /**
-     * @return array{classes: list<mixed>, calls: list<mixed>, arguments: list<mixed>}
+     * @return array{classes: list<mixed>, calls: list<mixed>}
      */
     private function shopFacts(): array
     {
@@ -186,7 +171,7 @@ final class EventStormingFactsRuleTest extends RuleTestCase
         $facts = array_find($errors, static fn (Error $error): bool => EventStormingFactsRule::IDENTIFIER === $error->getIdentifier());
         self::assertNotNull($facts, implode("\n", array_map(static fn (Error $error): string => $error->getMessage(), $errors)));
 
-        /** @var array{classes: list<mixed>, calls: list<mixed>, arguments: list<mixed>} */
+        /** @var array{classes: list<mixed>, calls: list<mixed>} */
         return $facts->getMetadata();
     }
 
