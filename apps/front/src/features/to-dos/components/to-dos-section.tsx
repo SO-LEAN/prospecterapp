@@ -198,7 +198,7 @@ type LineProps = Omit<LinesProps, 'label' | 'toDos'> & { toDo: ToDo }
 /** One click ticks it off or unticks it. Its menu revises or erases it. Its links decide which gestures it allows. */
 export function ToDoLine({ toDo, now, withTheirContact, onTickedOff }: LineProps) {
   const { t } = useTranslation()
-  const toggle = useToggle(toDo, onTickedOff)
+  const toggle = useToggle(toDo, { onTickedOff })
   const erase = useEraseToDo()
   const revise = useReviseToDo()
   const [revising, setRevising] = useState(false)
