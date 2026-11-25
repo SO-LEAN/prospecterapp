@@ -130,6 +130,30 @@ describe('the wall in the browser', () => {
     expect(location.hash).toBe('#at=policy%3APublishSlotBookedHandler')
   })
 
+  it('follows a pictogram that a « +n » lists', () => {
+    const booked = data.notes.findIndex((note) => note.slug === 'event:SlotBooked' && note.jumps.length > 0)
+    go(`#at=${encodeURIComponent('event:SlotBooked')}`)
+    const listed = document.createElement('span')
+    listed.className = 'more-jumps'
+    listed.innerHTML = '<button data-jump="0" tabindex="-1"><span>Heard by</span></button>'
+    document.querySelector(`[data-node="${booked}"]`)?.append(listed)
+    listed.querySelector<HTMLElement>('span')?.click()
+    listed.remove()
+
+    expect(location.hash).toBe('#at=policy%3APublishSlotBookedHandler')
+  })
+
+  it('opens the list of a « +n » without pinning its post-it', () => {
+    go('#')
+    const more = document.createElement('button')
+    more.className = 'jump more'
+    stickyOf('command:BookSlot', data).append(more)
+    more.click()
+    more.remove()
+
+    expect(document.querySelector('.pinned')).toBeNull()
+  })
+
   it('steps closer on Ctrl and the wheel', () => {
     const before = document.querySelector('#zoomPct')?.textContent
     document

@@ -371,7 +371,8 @@ export function runTheWall(data: WallData): void {
   stage.addEventListener('click', (event) => {
     if (moved) return
     const target = event.target as Element
-    const jump = target.closest<HTMLElement>('.jump')
+    if (target.closest('.jump.more') !== null) return
+    const jump = target.closest<HTMLElement>('[data-jump]')
     const index = nodeOf(target)
     if (jump !== null && index !== null)
       return follow(notes[index]?.jumps[Number(jump.dataset.jump)]?.to ?? null)
