@@ -211,7 +211,7 @@ function tapesOf(data: WallData): string {
 function chromeOf(wall: Wall, data: WallData): string {
   return `<header id="bar" class="card" role="toolbar" aria-label="Wall navigation">
 <button class="btn icon" id="back" data-tip="Back to where you were" aria-label="Back" disabled><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
-<span class="crumb wide">Event storming</span><span class="crumb wide">›</span><strong class="crumb">${escaped(data.label)}</strong><span class="crumb">›</span>
+<a class="crumb wide" href="../" data-tip="Every context, and what goes from one to another">Event storming</a><span class="crumb wide">›</span><strong class="crumb">${escaped(data.label)}</strong><span class="crumb">›</span>
 <div class="seg" id="lanes" role="group" aria-label="Modules"><button aria-pressed="true" data-lane="">Whole wall</button>${data.lanes.map((lane, index) => `<button aria-pressed="false" data-lane="${index}">${escaped(lane.label)}</button>`).join('')}</div>
 <span class="grow"></span>
 <div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><input id="q" type="search" placeholder="Find a post-it…" aria-label="Find a post-it" autocomplete="off" spellcheck="false"><kbd>/</kbd><div id="results" class="card" role="listbox"></div></div>
