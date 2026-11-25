@@ -278,6 +278,10 @@ use Prospecter\Core\Prospecting\Application\Contact\AttachContactToAttach\Attach
 use Prospecter\Core\Prospecting\Application\Contact\ConsultContactToAttach\ConsultContactToAttach;
 use Prospecter\Core\Prospecting\Application\Contact\ConsultContactToAttach\ConsultContactToAttachHandler;
 use Prospecter\Core\Prospecting\Application\Contact\ConsultContactToAttach\KeptContactToAttach;
+use Prospecter\Core\Prospecting\Application\Contact\ConsultOrganizationsOfContacts\ConsultOrganizationsOfContacts;
+use Prospecter\Core\Prospecting\Application\Contact\ConsultOrganizationsOfContacts\ConsultOrganizationsOfContactsHandler;
+use Prospecter\Core\Prospecting\Application\Contact\ConsultOrganizationsOfContacts\KeptOrganizationsOfContacts as KeptOrganizationsOfEachContact;
+use Prospecter\Core\Prospecting\Application\Contact\ConsultOrganizationsOfContacts\OrganizationOfContact;
 use Prospecter\Core\Prospecting\Application\Contact\DetachForgottenContact\DetachForgottenContactHandler;
 use Prospecter\Core\Prospecting\Application\Contact\EraseContactLeftUnattached\EraseContactLeftUnattached;
 use Prospecter\Core\Prospecting\Application\Contact\EraseContactLeftUnattached\EraseContactLeftUnattachedHandler;
@@ -1313,6 +1317,16 @@ final class Application
         $kept = new KeptWhatIsToProcess();
 
         return $this->ask(new ConsultWhatIsToProcessHandler($this->agendaRetriever, $this->toDoListRetriever, $this->prospectors, $this->contactsToAttachRetriever), $query, $kept) ? $kept->toProcess : null;
+    }
+
+    /**
+     * @return array<string, list<OrganizationOfContact>>|null
+     */
+    public function consultOrganizationsOfContacts(ConsultOrganizationsOfContacts $query): ?array
+    {
+        $kept = new KeptOrganizationsOfEachContact();
+
+        return $this->ask(new ConsultOrganizationsOfContactsHandler(new InMemoryOrganizationOfContactRetriever($this->database), $this->prospectors), $query, $kept) ? $kept->organizations : null;
     }
 
     public function consultContactToAttach(ConsultContactToAttach $query): ?ContactToAttachInList
