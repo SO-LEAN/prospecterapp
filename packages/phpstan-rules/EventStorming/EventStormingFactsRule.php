@@ -39,7 +39,7 @@ final readonly class EventStormingFactsRule implements Rule
                 ->identifier(self::IDENTIFIER)
                 ->file($anAnalysedFile)
                 ->line(1)
-                ->metadata(['classes' => $classes, 'calls' => self::callsIn($node), 'arguments' => self::argumentsIn($node)])
+                ->metadata(['classes' => $classes, 'calls' => self::callsIn($node)])
                 ->build(),
         ];
     }
@@ -62,19 +62,6 @@ final readonly class EventStormingFactsRule implements Rule
         }
 
         return $calls;
-    }
-
-    /**
-     * @return list<array{caller: string, created: string, parameter: string, texts: list<string>}>
-     */
-    private static function argumentsIn(CollectedDataNode $node): array
-    {
-        $arguments = [];
-        foreach ($node->get(ArgumentsCollector::class) as $creationsOfAFile) {
-            $arguments = [...$arguments, ...array_merge(...$creationsOfAFile)];
-        }
-
-        return $arguments;
     }
 
     /**
