@@ -22,6 +22,8 @@ export interface FoldLabel {
 export interface LanePlace {
   top: number
   height: number
+  /** As far as its rightmost post-it, and the margin of the wall. */
+  width: number
   rows: number
   useCases: number
   foldedHeight: number
@@ -149,11 +151,17 @@ class GridUnderConstruction {
     this.lanes.set(lane, {
       top,
       height,
+      width: this.rightOf(lane.steps.flatMap((step) => step.notes)) + WALL_RIGHT_MARGIN,
       rows: rows.length,
       useCases: lane.steps.filter((step) => step.main !== null).length,
       ...this.foldedBandOf(rows),
     })
     return height
+  }
+
+  private rightOf(notes: Note[]): number {
+    const places = notes.map((note) => this.places.get(note)).filter((place) => place !== undefined)
+    return Math.max(...places.map((place) => place.x + place.w))
   }
 
   private placeTheStep(step: Step, rowY: number): void {
