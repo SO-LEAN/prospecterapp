@@ -2,7 +2,9 @@ import { readdirSync, readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { type Density, gridOf, type Place } from './grid.ts'
 import { type Letters, lettersOf } from './lettering.ts'
+import { arrowOf } from './marker.ts'
 import type { Model } from './model.ts'
+import { dataOf } from './page-data.ts'
 import { pictogramsOf, rowOf } from './pictograms.ts'
 import { type Note, type Wall, wallOf } from './wall.ts'
 
@@ -66,6 +68,26 @@ describe('the lettering of a post-it', () => {
   }
 
   for (const [name, model] of CONTEXTS) {
+    for (const density of ['roomy', 'compact'] as const) {
+      it(`draws no arrow going left, climbing a row or running under a post-it, on ${name} in ${density} rows`, () => {
+        expect(arrowsBackOf(wallOf(model), density)).toEqual([])
+      })
+    }
+  }
+
+  it('runs an arrow down a corridor between the post-its of the rows it crosses, on a wall where they reach far', () => {
+    const opened = 'event:Prospecter\\Core\\Booking\\Domain\\Event\\BookingOpened'
+    const forget =
+      'policy:Prospecter\\Core\\Booking\\Application\\Policy\\ForgetAppointmentOfErasedExchangePolicy'
+    const far = wallOf({
+      ...BOOKING,
+      links: [...BOOKING.links, { from: opened, to: forget, via: null, certain: true, when: null }],
+    })
+
+    expect(arrowsBackOf(far, 'roomy')).toEqual([])
+  })
+
+  for (const [name, model] of CONTEXTS) {
     it(`keeps every pictogram on its post-it, on ${name}`, () => {
       expect(wallOf(model).notes.flatMap(pictogramsOffTheirPostIt)).toEqual([])
     })
@@ -110,6 +132,88 @@ function pictogramsOffTheirPostIt(note: Note): string[] {
     badges.some((badge) => left < badge.x - note.x + badge.w && badge.x - note.x < left + size),
   )
   return [...off, ...covering, ...onABadge].map((left) => `${note.label}: a pictogram at ${left}`)
+}
+
+/**
+ * Each arrow of a reaction that goes left, ends in a row above the one it starts from, or runs under a post-it other
+ * than its two ends, as the page draws it.
+ */
+function arrowsBackOf(wall: Wall, density: Density): string[] {
+  const grids = { roomy: gridOf(wall, 'roomy'), compact: gridOf(wall, 'compact') }
+  const grid = grids[density]
+  const data = dataOf(wall, grids)
+  const shown = wall.notes.filter((note) => !(density === 'compact' && note.port))
+  return data.edges.flatMap((edge) => {
+    const from = wall.notes[edge.from]
+    const to = wall.notes[edge.to]
+    if (from === undefined || to === undefined) return []
+    const start = placeOf(grid.places, from)
+    const end = placeOf(grid.places, to)
+    const named = `${from.label} → ${to.label}`
+    const left = end.x < start.x + start.w ? [`${named} goes left`] : []
+    const climbs =
+      (grid.rows.get(to.step) ?? 0) < (grid.rows.get(from.step) ?? 0) ? [`${named} climbs a row`] : []
+    const { curve } = arrowOf(
+      { ...start, seed: from.seed },
+      { ...end, seed: to.seed },
+      edge.certain,
+      edge.route[density],
+    )
+    const points = pointsOf(curve)
+    const under = shown
+      .filter((note) => note !== from && note !== to && !note.badge)
+      .filter((note) => {
+        const place = placeOf(grid.places, note)
+        return points.some(
+          (point) =>
+            point.x > place.x + 2 &&
+            point.x < place.x + place.w - 2 &&
+            point.y > place.y + 2 &&
+            point.y < place.y + place.h - 2,
+        )
+      })
+      .map((note) => `${named} runs under ${note.label}`)
+    return [...left, ...climbs, ...under]
+  })
+}
+
+/** Points along a path of moves, lines and curves, a few pixels apart. */
+function pointsOf(path: string): { x: number; y: number }[] {
+  const points: { x: number; y: number }[] = []
+  let at = { x: 0, y: 0 }
+  for (const [, command = '', numbers = ''] of path.matchAll(/([MLCQ])([^MLCQ]*)/g)) {
+    const values = (numbers.match(/-?[\d.]+/g) ?? []).map(Number)
+    const pairs = values.flatMap((value, index) =>
+      index % 2 === 0 ? [{ x: value, y: values[index + 1] ?? 0 }] : [],
+    )
+    const last = pairs.at(-1) ?? at
+    if (command !== 'M') {
+      const steps = Math.max(40, Math.ceil(Math.hypot(last.x - at.x, last.y - at.y) / 6))
+      for (let step = 1; step <= steps; step++) points.push(along(at, pairs, command, step / steps))
+    }
+    at = last
+  }
+  return points
+}
+
+function along(
+  at: { x: number; y: number },
+  pairs: { x: number; y: number }[],
+  command: string,
+  t: number,
+): { x: number; y: number } {
+  const [a = at, b = at, c = at] = pairs
+  const u = 1 - t
+  if (command === 'L') return { x: at.x + (a.x - at.x) * t, y: at.y + (a.y - at.y) * t }
+  if (command === 'Q')
+    return {
+      x: u * u * at.x + 2 * u * t * a.x + t * t * b.x,
+      y: u * u * at.y + 2 * u * t * a.y + t * t * b.y,
+    }
+  return {
+    x: u * u * u * at.x + 3 * u * u * t * a.x + 3 * u * t * t * b.x + t * t * t * c.x,
+    y: u * u * u * at.y + 3 * u * u * t * a.y + 3 * u * t * t * b.y + t * t * t * c.y,
+  }
 }
 
 function withAMethod(method: string): Model {

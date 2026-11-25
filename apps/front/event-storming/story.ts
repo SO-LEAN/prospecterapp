@@ -108,7 +108,11 @@ function row(term: string, html: string): string {
 function whereOf(wall: Wall, note: Note, places: number): string {
   if (note.foreign && note.sticky !== null) return `${escaped(sentenceOf(note.sticky.context))}'s wall`
   if (isShared(note)) return `${places} places on this wall`
-  return `${escaped(wall.context)} › ${escaped(sentenceOf(note.step.lane))}`
+  const { lane, module } = note.step
+  const where = `${escaped(wall.context)} › ${escaped(sentenceOf(module))}`
+  return lane === module
+    ? where
+    : `${where}, in the lane of ${escaped(sentenceOf(lane))}, whose event it hears`
 }
 
 function offersOf(wall: Wall, note: Note): string {

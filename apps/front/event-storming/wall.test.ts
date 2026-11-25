@@ -26,6 +26,36 @@ describe('the wall of a context', () => {
     expect(wall.lanes.map((lane) => lane.label)).toEqual(['Booking page', 'Public link', 'Appointment'])
   })
 
+  it('moves a reaction into the lane of the event it hears when that lane stands lower, the lane that starts more first', () => {
+    const prospecting = wallOf(modelOf('prospecting'))
+    const lanes = prospecting.lanes.map((lane) => lane.name)
+    const pushBack = prospecting.notes.find(
+      (note) => note.kind === 'policy' && note.label === 'Push back erasure of contact to attach',
+    )
+
+    expect([
+      lanes.indexOf('Contact') < lanes.indexOf('Exchange'),
+      lanes.indexOf('Exchange') < lanes.indexOf('Attachment'),
+      pushBack?.step.lane,
+      pushBack?.step.module,
+    ]).toEqual([true, true, 'Exchange', 'Contact'])
+  })
+
+  it('leads a policy from the event it hears in another step, even when its own command records that event', () => {
+    const prospecting = wallOf(modelOf('prospecting'))
+    const inReturn = prospecting.notes.find(
+      (note) => note.kind === 'policy' && note.label === 'Suspect duplicate in return',
+    )
+    const heard = prospecting.edges
+      .filter((edge) => edge.drawn && edge.to === inReturn)
+      .map((edge) => edge.from)
+
+    expect([
+      heard.map((event) => event.label),
+      heard.every((event) => event.step !== inReturn?.step),
+    ]).toEqual([['Duplicate suspected'], true])
+  })
+
   it('gives a context without modules one lane, named after it', () => {
     expect(wallOf(modelOf('reporting')).lanes.map((lane) => lane.label)).toEqual(['Reporting'])
   })

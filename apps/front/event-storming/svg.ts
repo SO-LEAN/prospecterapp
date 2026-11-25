@@ -135,7 +135,7 @@ ${this.data.lanes.map((each, index) => (lane === null || lane === index ? this.t
     const arrows = this.data.edges
       .filter((edge) => shown(edge.from) && shown(edge.to))
       .map((edge) => {
-        const arrow = arrowOf(this.placed(edge.from), this.placed(edge.to), edge.certain)
+        const arrow = arrowOf(this.placed(edge.from), this.placed(edge.to), edge.certain, edge.route.roomy)
         const maybe =
           arrow.maybe === null
             ? ''

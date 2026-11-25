@@ -1,5 +1,15 @@
-import { lean } from './marker.ts'
-import { HEAD, type Lane, type Note, SIZE, type Step, type Strip, VIEW, type Wall } from './wall.ts'
+import { lean, type Route } from './marker.ts'
+import {
+  type Edge,
+  HEAD,
+  type Lane,
+  type Note,
+  SIZE,
+  type Step,
+  type Strip,
+  VIEW,
+  type Wall,
+} from './wall.ts'
 
 /** Roomy rows show what a use case asks as named strips; compact rows show it as small pink squares. */
 export type Density = 'roomy' | 'compact'
@@ -39,6 +49,10 @@ export interface Grid {
   places: Map<Note, Place>
   strips: Map<Strip, Place>
   lanes: Map<Lane, LanePlace>
+  /** The rank of each step's row on the wall, from the top. */
+  rows: Map<Step, number>
+  /** The way of each arrow of a reaction that ends in a lower row. */
+  routes: Map<Edge, Route>
 }
 
 /** The room above the first lane, for the wall's title and the arrow of time. */
@@ -46,8 +60,10 @@ export const TOP = 112
 const LANE_HEAD = 26
 const ROW_GAP: Record<Density, number> = { roomy: 34, compact: 20 }
 const LANE_LEAST_HEIGHT = 126
-/** What a step that waits for an event needs right of it: the arrow and the room of its head. */
-const AFTER_AN_EVENT = SIZE.sticky + SIZE.arrow + 30
+/** What a reaction needs between the post-it it hears and its own: the arrow and the room of its head. */
+const AFTER_ITS_CAUSE = SIZE.arrow + 30
+/** An arrow to a lower row runs down a corridor this far left of the post-it it ends at, after it leaves its start down this far right of it. */
+const CORRIDOR = { before: 40, drop: 18 } as const
 const WALL_LEAST_WIDTH = 1500
 const WALL_RIGHT_MARGIN = 150
 const WALL_BOTTOM_MARGIN = 30
@@ -70,6 +86,9 @@ interface Row {
   steps: Step[]
   right: number
   y: number
+  bottom: number
+  /** Its rank on the wall, from the top. */
+  rank: number
 }
 
 export function gridOf(wall: Wall, density: Density): Grid {
@@ -83,6 +102,10 @@ class GridUnderConstruction {
   private readonly places = new Map<Note, Place>()
   private readonly strips = new Map<Strip, Place>()
   private readonly lanes = new Map<Lane, LanePlace>()
+  private readonly rowRanks = new Map<Step, number>()
+  /** The wall's rows so far, from the top. */
+  private readonly rows: Row[] = []
+  private readonly corridorOf = new Map<Edge, number>()
 
   constructor(wall: Wall, density: Density) {
     this.wall = wall
@@ -100,7 +123,27 @@ class GridUnderConstruction {
       places: this.places,
       strips: this.strips,
       lanes: this.lanes,
+      rows: this.rowRanks,
+      routes: this.routes(),
     }
+  }
+
+  /** Each arrow to a lower row leaves its start down into the gap under its row, then runs down its corridor. */
+  private routes(): Map<Edge, Route> {
+    const routes = new Map<Edge, Route>()
+    for (const edge of this.wall.edges.filter((edge) => edge.drawn)) {
+      const from = this.rankOf(edge.from.step)
+      if (this.rankOf(edge.to.step) <= from) continue
+      const start = this.places.get(edge.from)
+      const row = this.rows[from]
+      if (start === undefined || row === undefined) continue
+      const corridor = this.corridorOf.get(edge) ?? (this.places.get(edge.to)?.x ?? 0) - CORRIDOR.before
+      routes.set(edge, {
+        corridor: Math.max(corridor, start.x + start.w + CORRIDOR.drop),
+        drop: row.bottom + ROW_GAP[this.density] / 2 - start.y,
+      })
+    }
+    return routes
   }
 
   /** The size of a post-it in this density: a port of compact rows is a small square under its use case. */
@@ -128,11 +171,13 @@ class GridUnderConstruction {
     )
   }
 
-  /** The first post-it of the wall for each event a step waits for. */
-  private makersOf(step: Step): Note[] {
-    return step.waitsFor
-      .map((id) => this.wall.notes.find((note) => note.sticky?.id === id))
-      .filter((note): note is Note => note !== undefined)
+  /** The arrows of the reactions that start a step, from the post-its of other steps. */
+  private causesOf(step: Step): Edge[] {
+    return this.wall.edges.filter((edge) => edge.drawn && edge.to.step === step && edge.from.step !== step)
+  }
+
+  private rankOf(step: Step): number {
+    return this.rowRanks.get(step) ?? -1
   }
 
   /** Lays a lane's rows out from its top, and returns its height. */
@@ -141,7 +186,8 @@ class GridUnderConstruction {
     let y = top + LANE_HEAD
     for (const row of rows) {
       row.y = y - Math.min(...row.steps.map((step) => this.topOf(step)))
-      y = row.y + Math.max(...row.steps.map((step) => this.bottomOf(step))) + ROW_GAP[this.density]
+      row.bottom = row.y + Math.max(...row.steps.map((step) => this.bottomOf(step)))
+      y = row.bottom + ROW_GAP[this.density]
       for (const step of row.steps) this.placeTheStep(step, row.y)
     }
     const height = Math.max(LANE_LEAST_HEIGHT, y - top + 8)
@@ -178,21 +224,90 @@ class GridUnderConstruction {
 
   /**
    * The horizontal axis is time, so only a cause moves a step to the right. Independent steps stack in rows: the
-   * steps another lane starts on top, then each actor's group, then the steps no actor sends, then the steps a
-   * reaction of this lane starts, right of the event they wait for.
+   * steps another lane starts on top, then the views and the commands of the lane's actors, then the steps no actor
+   * sends, then the steps a reaction of this lane starts. A reaction stands right of its cause, in its row or lower.
    */
   private rowsOf(lane: Lane): Row[] {
     const rows: Row[] = []
-    const waiting = lane.steps.filter((step) => this.makersOf(step).length > 0)
-    const far = waiting.filter((step) => this.makersOf(step).every((maker) => maker.step.lane !== lane.name))
+    const waiting = lane.steps.filter((step) => this.causesOf(step).length > 0)
+    const far = waiting.filter((step) =>
+      this.causesOf(step).every((cause) => cause.from.step.lane !== lane.name),
+    )
     const near = waiting.filter((step) => !far.includes(step))
     const blocked = new Set(lane.blocks.flatMap((block) => [block.view, ...block.commands]))
     const free = lane.steps.filter((step) => !waiting.includes(step) && !blocked.has(step)).sort(this.byRule)
-    for (const step of far) this.putAfterItsMakers(step, rows, 'far')
+    for (const step of far) this.putAfterItsCauses(step, rows)
     this.stackTheBlocks(lane, rows)
-    for (const step of free) this.putAfterItsMakers(step, rows, 'free')
-    for (const step of near) this.putAfterItsMakers(step, rows, 'near')
+    for (const step of free) this.putInRow(step, this.newRow(rows), SIZE.margin)
+    for (const step of this.byTheirCauses(near)) this.putAfterItsCauses(step, rows)
     return rows
+  }
+
+  /** The reactions of a lane, each after the reactions of the lane that start it. */
+  private byTheirCauses(steps: Step[]): Step[] {
+    const ordered: Step[] = []
+    const left = [...steps]
+    while (left.length > 0) {
+      const ready = left.find((step) =>
+        this.causesOf(step).every((cause) => !left.includes(cause.from.step) || cause.from.step === step),
+      )
+      const next = ready ?? left[0]
+      if (next === undefined) break
+      ordered.push(next)
+      left.splice(left.indexOf(next), 1)
+    }
+    return ordered
+  }
+
+  private newRow(rows: Row[]): Row {
+    const row: Row = { steps: [], right: 0, y: 0, bottom: 0, rank: this.rows.length }
+    this.rows.push(row)
+    rows.push(row)
+    return row
+  }
+
+  private putInRow(step: Step, row: Row, x: number): void {
+    this.stepX.set(step, x)
+    this.rowRanks.set(step, row.rank)
+    row.steps.push(step)
+    row.right = Math.max(row.right, x + this.widthOf(step))
+  }
+
+  /** As far right as its post-its and their paper reach, from the step's left. */
+  private widthOf(step: Step): number {
+    return Math.max(
+      step.width,
+      ...step.notes.map((note) => note.x + note.w),
+      ...step.strips.map((strip) => strip.x + strip.w),
+    )
+  }
+
+  /**
+   * A reaction stands right of what it hears, with room for its arrow: in the row of its lowest cause, or in a lower
+   * row. It takes the place nearest the left.
+   */
+  private putAfterItsCauses(step: Step, rows: Row[]): void {
+    const causes = this.causesOf(step)
+    const least = Math.max(
+      SIZE.margin,
+      ...causes.map((cause) => this.rightOfNote(cause.from) + AFTER_ITS_CAUSE - cause.to.x),
+    )
+    const lowest = Math.max(...causes.map((cause) => this.rankOf(cause.from.step)))
+    const candidates = rows.filter((row) => row.rank >= lowest)
+    const placed = [...candidates, null].map((row) => ({
+      row,
+      x: Math.max(least, row === null ? SIZE.margin : row.right + SIZE.gap),
+    }))
+    const best = placed.reduce((one, other) => (other.x < one.x ? other : one))
+    const row = best.row ?? this.newRow(rows)
+    this.putInRow(step, row, best.x)
+    for (const cause of causes.filter((cause) => this.rankOf(cause.from.step) < row.rank)) {
+      this.corridorOf.set(cause, best.x + cause.to.x - CORRIDOR.before)
+    }
+  }
+
+  private rightOfNote(note: Note): number {
+    return (this.stepX.get(note.step) ?? 0) + note.x + note.w
   }
 
   /** Each view in its column, its first command beside it, its other commands under it, in their column. */
@@ -200,44 +315,16 @@ class GridUnderConstruction {
     for (const block of lane.blocks) {
       const commands = [...block.commands].sort(this.byRule)
       for (let index = 0; index < Math.max(1, commands.length); index++) {
+        const row = this.newRow(rows)
         const view = index === 0 ? block.view : null
         const command = commands[index]
-        if (view !== null) this.stepX.set(view, VIEW - (view.main?.x ?? 0))
-        if (command !== undefined) this.stepX.set(command, HEAD - (command.main?.x ?? 0))
-        const steps = [view, command].filter((step): step is Step => step !== null && step !== undefined)
-        rows.push({
-          steps,
-          right: Math.max(...steps.map((step) => (this.stepX.get(step) ?? 0) + step.width)),
-          y: 0,
-        })
+        if (view !== null) this.putInRow(view, row, VIEW - (view.main?.x ?? 0))
+        if (command !== undefined) this.putInRow(command, row, HEAD - (command.main?.x ?? 0))
       }
     }
   }
 
-  private putAfterItsMakers(step: Step, rows: Row[], kind: 'far' | 'near' | 'free'): void {
-    const makers = this.makersOf(step)
-    const policyAt = step.notes.find((note) => note.kind === 'policy')?.x ?? 0
-    let x = Math.max(
-      SIZE.margin,
-      ...makers.map((maker) => (this.stepX.get(maker.step) ?? 0) + maker.x + AFTER_AN_EVENT - policyAt),
-    )
-    let row: Row | undefined
-    if (kind === 'near') {
-      row = rows.find((candidate) => makers.some((maker) => candidate.steps.includes(maker.step)))
-      if (row !== undefined) x = Math.max(x, row.right + SIZE.gap)
-    } else if (kind === 'far') {
-      row = rows.find((candidate) => candidate.right + SIZE.gap <= x)
-    }
-    if (row === undefined) {
-      row = { steps: [], right: 0, y: 0 }
-      rows.push(row)
-    }
-    this.stepX.set(step, x)
-    row.steps.push(step)
-    row.right = x + step.width
-  }
-
-  /** The rows a lower lane hears go last, so that their arrow leaves downwards and crosses no row. */
+  /** The rows another step hears go last, so that their arrows leave downwards and cross few rows. */
   private readonly byRule = (a: Step, b: Step): number =>
     Number(this.feeds(a)) - Number(this.feeds(b)) ||
     a.order - b.order ||
@@ -245,9 +332,7 @@ class GridUnderConstruction {
     nameOf(a).localeCompare(nameOf(b))
 
   private feeds(step: Step): boolean {
-    return this.wall.edges.some(
-      (edge) => edge.drawn && edge.from.step === step && edge.to.step.lane !== step.lane,
-    )
+    return this.wall.edges.some((edge) => edge.drawn && edge.from.step === step && edge.to.step !== step)
   }
 
   /** A folded lane is a table of contents: each step's squares and its use case's name under them. */

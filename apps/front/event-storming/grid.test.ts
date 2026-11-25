@@ -2,7 +2,7 @@ import { readdirSync, readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { gridOf } from './grid.ts'
 import type { Model } from './model.ts'
-import { type Note, wallOf } from './wall.ts'
+import { type Note, type Step, wallOf } from './wall.ts'
 
 /** Booking's model, as the generator last read it from the code. Vitest runs in the front's folder. */
 const BOOKING = JSON.parse(readFileSync('public/docs/event-storming/booking/model.json', 'utf8')) as Model
@@ -81,6 +81,43 @@ describe('the grid of a wall', () => {
       expect(climbing).toEqual([])
     })
   }
+
+  it('stands the commands of a policy that sends several right of it, one under the other, each with its arrow', () => {
+    const reporting = wallOf(
+      JSON.parse(readFileSync('public/docs/event-storming/reporting/model.json', 'utf8')) as Model,
+    )
+    const laid = gridOf(reporting, 'roomy')
+    const policy = reporting.notes.find((note) => note.kind === 'policy' && note.label === 'Record facts')
+    const sent = reporting.edges.filter((edge) => edge.drawn && edge.from === policy).map((edge) => edge.to)
+    const at = sent.map((command) => laid.places.get(command))
+    const right = (laid.places.get(policy as Note)?.x ?? 0) + (policy?.w ?? 0)
+
+    expect([
+      sent.map((command) => command.label),
+      at.every((place) => Math.abs((place?.x ?? 0) - (at[0]?.x ?? 0)) < 1 && (place?.x ?? 0) > right),
+      at.every((place, index) => index === 0 || (place?.y ?? 0) > (at[index - 1]?.y ?? 0)),
+    ]).toEqual([['Record contact facts', 'Record exchange facts', 'Record organization facts'], true, true])
+  })
+
+  it.each([
+    ['Exchange erased', 'Discard attachments of erased exchange'],
+    ['Duplicate suspected', 'Suspect duplicate in return'],
+  ])('stands a reaction right of the event it hears, in its row or lower: %s, then %s', (heard, reaction) => {
+    const prospecting = wallOf(
+      JSON.parse(readFileSync('public/docs/event-storming/prospecting/model.json', 'utf8')) as Model,
+    )
+    const laid = gridOf(prospecting, 'roomy')
+    const edge = prospecting.edges.find(
+      (candidate) => candidate.drawn && candidate.from.label === heard && candidate.to.label === reaction,
+    )
+    const from = edge === undefined ? undefined : laid.places.get(edge.from)
+    const to = edge === undefined ? undefined : laid.places.get(edge.to)
+
+    expect([
+      (to?.x ?? 0) >= (from?.x ?? 0) + (from?.w ?? 0),
+      (laid.rows.get(edge?.to.step as Step) ?? -1) >= (laid.rows.get(edge?.from.step as Step) ?? 0),
+    ]).toEqual([true, true])
+  })
 
   it('puts each lane under the one before', () => {
     const lanes = wall.lanes.map((lane) => grid.lanes.get(lane))
