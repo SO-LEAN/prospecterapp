@@ -122,6 +122,49 @@ describe('the wall of a context', () => {
     ])
   })
 
+  it('shows the aggregate a command changes without an event, then says no event is recorded', () => {
+    const campaigns = wallOf(modelOf('campaigns'))
+    const reopen = campaigns.notes.find(
+      (note) => note.slug === 'command:ReopenRecipientOfErasedExchange' && note.kind === 'command',
+    )
+    const changed = reopen?.step.notes.filter((note) => note.kind === 'aggregate') ?? []
+    const gaps = reopen?.step.notes.filter((note) => note.kind === 'hotspot') ?? []
+    const facing = changed.map((aggregate) =>
+      gaps.find(
+        (gap) => gap.y < aggregate.y + aggregate.h && aggregate.y < gap.y + gap.h && gap.x > aggregate.x,
+      ),
+    )
+
+    expect([
+      changed.map((aggregate) => `${aggregate.label} · ${aggregate.via}()`),
+      facing.map((gap) => gap?.label),
+      gaps[0]?.why,
+      changed.every((aggregate, index) => !overlaps(aggregate, changed[index + 1])),
+    ]).toEqual([
+      ['Campaign · forgetExchangeGoneWithItsOrganization()', 'Campaign · reopenAfterErasureOf()'],
+      ['No event recorded', 'No event recorded'],
+      'This command changes “Campaign” through forgetExchangeGoneWithItsOrganization(), and that change records no event: nothing on the wall says what happened. Either an event is missing, or the generator cannot see it.',
+      true,
+    ])
+  })
+
+  it('keeps the hotspot alone after a command that changes no aggregate', () => {
+    const erase = wallOf(modelOf('campaigns')).notes.find(
+      (note) => note.slug === 'command:EraseCampaign' && note.kind === 'command',
+    )
+
+    expect(
+      erase?.step.notes
+        .filter((note) => !note.port && note !== erase && note.kind !== 'actor')
+        .map((note) => [note.kind, note.why]),
+    ).toEqual([
+      [
+        'hotspot',
+        'This command changes no aggregate that records an event: nothing on the wall says what happened. Either an event is missing, or the generator cannot see it.',
+      ],
+    ])
+  })
+
   it('leads a projection to the view it keeps, touching it, instead of saying it records no event', () => {
     const forget =
       'command:Prospecter\\Core\\Booking\\Application\\Appointment\\ForgetAppointmentOfErasedExchange\\ForgetAppointmentOfErasedExchange'

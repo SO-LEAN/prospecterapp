@@ -113,6 +113,21 @@
             "readBy": []
         },
         {
+            "id": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\CalendarEntry",
+            "slug": "aggregate:CalendarEntry",
+            "type": "aggregate",
+            "label": "Calendar entry",
+            "feature": null,
+            "name": "CalendarEntry",
+            "class": "Prospecter\\Core\\Connectors\\Domain\\Model\\CalendarEntry",
+            "context": "Connectors",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
             "id": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "slug": "aggregate:Connection",
             "type": "aggregate",
@@ -1478,6 +1493,27 @@
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushExchange\\PushExchange",
+            "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\CalendarEntry",
+            "via": "awaits",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushExchange\\PushExchange",
+            "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\CalendarEntry",
+            "via": "pushed",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushExchange\\PushExchange",
+            "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\CalendarEntry",
+            "via": "refused",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushExchange\\PushExchange",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "via": "cancel",
             "certain": false,
@@ -1527,6 +1563,27 @@
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushUpcomingExchanges\\PushUpcomingExchanges",
+            "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\CalendarEntry",
+            "via": "awaits",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushUpcomingExchanges\\PushUpcomingExchanges",
+            "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\CalendarEntry",
+            "via": "pushed",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushUpcomingExchanges\\PushUpcomingExchanges",
+            "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\CalendarEntry",
+            "via": "refused",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\PushUpcomingExchanges\\PushUpcomingExchanges",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "via": "push",
             "certain": false,
@@ -1558,6 +1615,27 @@
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ProviderCalendar",
             "via": null,
             "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryFailedPushes\\RetryFailedPushes",
+            "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\CalendarEntry",
+            "via": "awaits",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryFailedPushes\\RetryFailedPushes",
+            "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\CalendarEntry",
+            "via": "pushed",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryFailedPushes\\RetryFailedPushes",
+            "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\CalendarEntry",
+            "via": "refused",
+            "certain": false,
             "when": null
         },
         {
@@ -1611,6 +1689,27 @@
         },
         {
             "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryPush\\RetryPush",
+            "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\CalendarEntry",
+            "via": "awaits",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryPush\\RetryPush",
+            "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\CalendarEntry",
+            "via": "pushed",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryPush\\RetryPush",
+            "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\CalendarEntry",
+            "via": "refused",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\RetryPush\\RetryPush",
             "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\Connection",
             "via": "cancel",
             "certain": false,
@@ -1656,6 +1755,27 @@
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\ProviderCalendar",
             "via": null,
             "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\UnnameForgottenContact\\UnnameForgottenContact",
+            "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\CalendarEntry",
+            "via": "awaits",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\UnnameForgottenContact\\UnnameForgottenContact",
+            "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\CalendarEntry",
+            "via": "pushed",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Connectors\\Application\\Calendar\\UnnameForgottenContact\\UnnameForgottenContact",
+            "to": "aggregate:Prospecter\\Core\\Connectors\\Domain\\Model\\CalendarEntry",
+            "via": "refused",
+            "certain": false,
             "when": null
         },
         {

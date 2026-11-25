@@ -1664,6 +1664,20 @@
             "when": null
         },
         {
+            "from": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\ForgetRecipientOfForgottenContact\\ForgetRecipientOfForgottenContact",
+            "to": "aggregate:Prospecter\\Core\\Campaigns\\Domain\\Model\\Campaign",
+            "via": "forget",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\ProcessRecipientOfCampaignExchange\\ProcessRecipientOfCampaignExchange",
+            "to": "aggregate:Prospecter\\Core\\Campaigns\\Domain\\Model\\Campaign",
+            "via": "process",
+            "certain": false,
+            "when": null
+        },
+        {
             "from": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\RemoveRecipient\\RemoveRecipient",
             "to": "aggregate:Prospecter\\Core\\Campaigns\\Domain\\Model\\Campaign",
             "via": "removeRecipient",
@@ -1675,6 +1689,20 @@
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\Campaigners",
             "via": null,
             "certain": true,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\ReopenRecipientOfErasedExchange\\ReopenRecipientOfErasedExchange",
+            "to": "aggregate:Prospecter\\Core\\Campaigns\\Domain\\Model\\Campaign",
+            "via": "forgetExchangeGoneWithItsOrganization",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\ReopenRecipientOfErasedExchange\\ReopenRecipientOfErasedExchange",
+            "to": "aggregate:Prospecter\\Core\\Campaigns\\Domain\\Model\\Campaign",
+            "via": "reopenAfterErasureOf",
+            "certain": false,
             "when": null
         },
         {
