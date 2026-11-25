@@ -1,5 +1,31 @@
 import { describe, expect, it } from 'vitest'
-import { formatHour, formatSize, formatUpcoming, telUrl } from './format'
+import { formatHour, formatSize, formatUpcoming, initials, telUrl } from './format'
+
+describe('initials', () => {
+  it('takes the first letter of the first two words', () => {
+    expect(initials('Ada Lovelace')).toBe('AL')
+  })
+
+  it('keeps two letters at most', () => {
+    expect(initials('Jean Paul Sartre')).toBe('JP')
+  })
+
+  it('leaves out a tag written in brackets', () => {
+    expect(initials('[TEST] Paul Martin')).toBe('PM')
+  })
+
+  it('takes the first letter of a word, never a digit', () => {
+    expect(initials('3M France')).toBe('MF')
+  })
+
+  it('takes an accented letter', () => {
+    expect(initials('Élodie François')).toBe('ÉF')
+  })
+
+  it('shows a question mark for a name without a letter', () => {
+    expect(initials('---')).toBe('?')
+  })
+})
 
 describe('formatUpcoming', () => {
   const now = new Date('2026-11-13T10:00')

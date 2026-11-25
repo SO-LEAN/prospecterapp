@@ -1,12 +1,17 @@
-/** "Ada Lovelace" -> "AL" */
+const TAG = /\[[^\]]*\]/g
+const LETTER = /\p{L}/u
+
+/** "Ada Lovelace" -> "AL", "[TEST] Paul Martin" -> "PM", "3M France" -> "MF" */
 export function initials(name: string): string {
   return (
     name
+      .replace(TAG, ' ')
       .split(/\s+/)
-      .filter(Boolean)
+      .map((word) => word.match(LETTER)?.[0])
+      .filter((letter) => letter !== undefined)
       .slice(0, 2)
-      .map((word) => word[0]?.toUpperCase())
-      .join('') || '?'
+      .join('')
+      .toUpperCase() || '?'
   )
 }
 
