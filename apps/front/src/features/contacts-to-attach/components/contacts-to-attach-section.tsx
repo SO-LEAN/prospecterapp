@@ -51,7 +51,7 @@ function ContactToAttachLine({ contact, onAttach }: { contact: ContactToAttach; 
 
   return (
     <li className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border p-3">
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 grow basis-full sm:basis-0">
         <Link
           to="/contacts/$contactId"
           params={{ contactId: contact.id }}
@@ -60,7 +60,9 @@ function ContactToAttachLine({ contact, onAttach }: { contact: ContactToAttach; 
           {nameOf(contact)}
         </Link>
         {contact.email && <p className="truncate text-muted-foreground text-sm">{contact.email}</p>}
-        <p className="text-muted-foreground text-xs">{formatMoment(contact.lastMeetingAt)}</p>
+        <p className="whitespace-nowrap text-muted-foreground text-xs">
+          {formatMoment(contact.lastMeetingAt)}
+        </p>
       </div>
       <span
         data-urgency={urgency}
@@ -69,7 +71,7 @@ function ContactToAttachLine({ contact, onAttach }: { contact: ContactToAttach; 
         {t('toAttach.erasedIn', { count: days })}
       </span>
       {contact._links.proposedOrganization && (
-        <Button size="sm" onClick={onAttach}>
+        <Button size="sm" className="h-11 sm:h-8" onClick={onAttach}>
           <Link2 aria-hidden /> {t('toAttach.attach')}
         </Button>
       )}
