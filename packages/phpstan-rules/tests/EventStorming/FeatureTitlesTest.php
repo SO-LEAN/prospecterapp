@@ -14,7 +14,7 @@ final class FeatureTitlesTest extends TestCase
     public function testEachUseCaseTaggedOnAFeatureTakesItsTitle(): void
     {
         self::assertSame(
-            ['OpenBooking' => 'Activer et couper ma prise de rendez-vous', 'CloseBooking' => 'Activer et couper ma prise de rendez-vous'],
+            ['OpenBooking' => 'Activer et couper ma prise de rendez-vous', 'CloseBooking' => 'Activer et couper ma prise de rendez-vous', 'AddItem' => 'Ajouter un article au panier', 'Till/Pay' => 'Régler ses achats'],
             new FeatureTitles(self::FEATURES)->byUseCase(),
         );
     }
