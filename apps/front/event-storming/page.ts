@@ -223,7 +223,7 @@ function chromeOf(wall: Wall, data: WallData): string {
 <aside id="legend" class="card" aria-label="How to read the wall">
 <h2 data-tip="Time runs left to right. Post-its that touch are one step: who asks, the command, what it changes, what happened. Marker arrows are reactions. Kraft paper is another context's wall.">How to read the wall <button class="btn icon" id="legendFold" aria-label="Fold the legend" data-tip="Fold (L)">${ICONS.fold}</button></h2>
 <div class="grammar" id="kinds">${LEGEND.map((kind) => `<button class="chip" aria-pressed="true" data-kind="${kind}" data-tip="Show or hide the ${KIND_NAMES[kind].toLowerCase()}s"><span class="dot" style="--c:var(--${kind})"></span>${KIND_NAMES[kind]}</button>`).join('')}</div>
-<div class="grammar legend-more"><span class="grammar" id="who">${data.actors.map((index) => whoOf(data, index)).join('')}</span>
+<div class="grammar legend-more"><span class="grammar" id="who">${data.actors.map((index) => whoOf(data, index)).join('')}</span>${extensionOf(data)}
 <span class="row"><svg width="44" height="10"><path d="M2 5h34M31 1l6 4-6 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>always<svg class="sometimes" width="44" height="10"><path d="M2 5h34" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="2 7"/><path d="M31 1l6 4-6 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>only sometimes</span></div>
 </aside>
 <aside id="dock" class="card" aria-label="Map and zoom">
@@ -253,6 +253,13 @@ ${textOf(wall, data)}
 </table>
 </section>
 <div id="tip" role="tooltip"></div>`
+}
+
+/** The member's AI stands on the wall as a badge, not as a post-it: the legend says it extends the grammar. */
+function extensionOf(data: WallData): string {
+  const badge = data.notes.find((note) => note.badge)
+  if (badge === undefined) return ''
+  return `<span class="row extension">${escaped(badge.label)}: a badge on each use case it calls, an extension of Brandolini's grammar</span>`
 }
 
 function whoOf(data: WallData, index: number): string {
