@@ -10,7 +10,7 @@ packages/core/   prospecter/core library (Composer)
 packages/phpstan-rules/ PHPStan rules shared by the three PHP codebases (autoload-dev of each, ADR 0044), and the event storming's generator (EventStorming/, its tests and fixtures in tests/EventStorming/, docs/architecture/event-storming.md)
 apps/*/infra/    each app's Terraform on AWS (docs/architecture/infra.md, ADR 0059)
 make/            the fragments the Makefiles include (ADR 0080)
-.githooks/       the pre-commit hook (gitleaks, ADR 0059), installed by make hooks
+.githooks/       the Git hooks, installed by make hooks: pre-commit (gitleaks, ADR 0059), commit-msg (the subject's rule)
 docker/  docker-compose.yml  Makefile  docs/
 ```
 
@@ -19,6 +19,7 @@ Whatever a project does is a recipe in its Makefile. Whatever several projects s
 | Script | Run by | Why not a recipe |
 |---|---|---|
 | `.githooks/pre-commit` | git, before each commit | git runs a file from `core.hooksPath` |
+| `.githooks/commit-msg` | git, on each commit's message | git runs a file from `core.hooksPath` |
 | `docker/lambda/bootstrap` | the local functions, when they start (ADR 0055) | a function's runtime runs a file |
 | `docker/lambda/deploy.sh` | the `lambda-deploy` image (`make deploy`) | an image's entrypoint |
 | `docker/nginx/05-generate-certificate.sh` | the nginx image, when it starts | an image's entrypoint |

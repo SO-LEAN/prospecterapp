@@ -9,7 +9,7 @@ GITLEAKS = docker run --rm -u $(UID):$(GID) -e GIT_INDEX_FILE -v $(CURDIR):$(CUR
 	-w $(CURDIR) ghcr.io/gitleaks/gitleaks:v8.30.1
 INFRA_APPS = api storage front
 
-.PHONY: install hooks build vendor db aws ca front-install check-secrets check-infra check-contract check-event-storming check-core check-api check-storage check-front check-e2e check-e2e-locked check-e2e-run e2e-locked front-lint front-tested-build changed-checks infra-target infra-init infra-plan infra-apply infra-lint changed-apps package-api package-storage package-front release-front console start deploy stop down images-prune agents-slice logs ps google-down google-up ci test test-api test-storage test-front e2e test-core mutation mutation-api lint adr-references adr-index adr-index-check fix front-build api-doc contract event-storming commands profiler-clear exec-api exec-front secrets secrets-branch
+.PHONY: install hooks build vendor db aws ca front-install check-secrets check-infra check-contract check-event-storming check-core check-api check-storage check-front check-e2e check-e2e-locked check-e2e-run e2e-locked front-lint front-tested-build changed-checks infra-target infra-init infra-plan infra-apply infra-lint changed-apps package-api package-storage package-front release-front console start deploy stop down images-prune agents-slice logs ps google-down google-up ci test test-api test-storage test-front e2e test-core mutation mutation-api lint adr-references adr-index adr-index-check fix front-build api-doc contract event-storming commands profiler-clear exec-api exec-front secrets secrets-branch commit-subjects
 
 ##@ Setup
 install: hooks build vendor db front-install ## Build the images, install the dependencies, create the tables, the bucket and the user pool, install the Git hooks
@@ -29,7 +29,7 @@ db: ## Recreate in MiniStack the tables and the user pool of the API and the buc
 front-install: ## Install the pnpm dependencies of the front
 	@$(MAKE) -C apps/front install
 
-hooks: ## Install the Git hooks of the repository: gitleaks before each commit
+hooks: ## Install the Git hooks of the repository: gitleaks before each commit, the rule of its subject on its message
 	@git config core.hooksPath .githooks
 
 ##@ Stack
@@ -129,7 +129,7 @@ ci: ## Run the checks of the integration the changes since BASE (origin/dev) nee
 	@$(if $(filter e2e,$(CHECKS)),echo "These changes need the journeys too: make check-e2e in a worktree once the development is done")
 
 # make -j runs together the prerequisites of each check, and the targets each runs in its project
-check-secrets: secrets-branch adr-references adr-index-check ## Check the commits of the branch for secrets, the references to the records, their index
+check-secrets: secrets-branch commit-subjects adr-references adr-index-check ## Check the commits of the branch for secrets and their subjects, the references to the records, their index
 check-infra: infra-lint ## Check the Terraform of the apps
 check-contract: contract ## Check the OpenAPI contract and the front types against the code
 check-event-storming: event-storming ## Fail when a committed wall, its page or its SVGs differ from the code, naming the files to write again
@@ -377,3 +377,8 @@ secrets: ## Fail when the staged changes hold a secret or an identifier of the A
 # the whole history)
 secrets-branch: ## Fail when a commit of the branch since dev holds a secret or an identifier of the AWS installation
 	@$(GITLEAKS) git --log-opts="origin/dev..HEAD" --redact --no-banner --verbose .
+
+# what the commit-msg hook bypassed or never installed let through: the commits in neither dev nor main, so that a
+# release or a hotfix already on main is not judged again
+commit-subjects: ## Fail when a commit of the branch, in neither dev nor main, has no conventional type or a subject over 72 characters
+	@make/commit-subject.sh --commits HEAD --not origin/dev origin/main
