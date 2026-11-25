@@ -62,7 +62,7 @@ final class EventStormingFactsRuleTest extends RuleTestCase
     public function testAHandlerTellsWhatItHandlesAndDependsOn(): void
     {
         self::assertContains(
-            ['name' => self::ADD_ITEM.'Handler', 'interfaces' => [CommandHandler::class], 'parameters' => [[self::ADD_ITEM]], 'returns' => [], 'mayReturnNothing' => false, 'dependencies' => [Stock::class, Cart::class], 'roles' => [], 'routes' => [], 'optionalParameters' => [], 'outputPorts' => [], 'presents' => [], 'console' => false, 'changes' => ['__invoke']],
+            ['name' => self::ADD_ITEM.'Handler', 'interfaces' => [CommandHandler::class], 'parameters' => [[self::ADD_ITEM]], 'returns' => [], 'mayReturnNothing' => false, 'dependencies' => [Stock::class, Cart::class], 'roles' => [], 'routes' => [], 'optionalParameters' => [], 'outputPorts' => [], 'presents' => [], 'console' => false, 'changes' => []],
             $this->shopFacts()['classes'],
         );
     }
@@ -99,9 +99,9 @@ final class EventStormingFactsRuleTest extends RuleTestCase
         );
     }
 
-    public function testAClassTellsItsPublicMethodsThatReturnNothingWhichChangeIt(): void
+    public function testAClassTellsItsPublicMethodsThatReturnNothingAndWriteItsPropertiesThemselvesOrThroughItsOtherMethods(): void
     {
-        self::assertSame(['add', 'empty', 'close'], $this->classFactsOf(self::CART)['changes'] ?? null);
+        self::assertSame(['add', 'empty', 'close', 'reopen'], $this->classFactsOf(self::CART)['changes'] ?? null);
     }
 
     public function testAQueryHandlerTellsWhatItsOutputPortPresents(): void
