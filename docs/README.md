@@ -6,6 +6,7 @@ Read your subject's document before working on it. It states the rule in force, 
 
 | Subject | Document |
 |---|---|
+| Domain-Driven Design: the strategic and tactical patterns Prospecter keeps, where each one lives, what it leaves out, why the core is a package | [architecture/ddd.md](architecture/ddd.md) |
 | The core: the hexagon, use cases, CQRS, read models, rules, refusals, domain events, dependencies | [architecture/core.md](architecture/core.md) |
 | The bounded contexts, what each one publishes to the others, their anticorruption layers | [architecture/contexts.md](architecture/contexts.md) |
 | Messaging between the contexts, end to end: outbox, relay, bus, worker, failures, operations | [architecture/messaging.md](architecture/messaging.md) |

@@ -11,6 +11,8 @@ A monorepo for a prospecting application built with clean architecture:
 
 ## What is in force
 
+Prospecter follows Domain-Driven Design: read `docs/architecture/ddd.md` first, to read the code in its terms.
+
 Before working on a subject, read its document. Read the decision records (`docs/adr`, an immutable journal typed architecture or domain) only to learn why a rule exists, or before changing it. A decision gets a new record (`docs/adr/TEMPLATE.md`) and updates its subjects' documents in the same change (ADR 0090).
 
 @docs/README.md
