@@ -1,4 +1,5 @@
 # language: fr
+@SetDailyCap
 Fonctionnalité: Fixer un plafond d'envois par jour
   En tant que prospecteur
   Je veux fixer sur une campagne un plafond d'envois par jour, que l'IA qui la mène respecte et que je vois à l'écran

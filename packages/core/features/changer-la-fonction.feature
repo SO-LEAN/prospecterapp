@@ -1,4 +1,5 @@
 # language: fr
+@ChangeJobTitle
 Fonctionnalité: Changer la fonction d'une personne
   En tant que prospecteur
   Je veux tenir à jour ce que fait un contact dans son organisation

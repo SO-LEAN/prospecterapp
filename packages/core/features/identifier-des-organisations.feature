@@ -1,4 +1,5 @@
 # language: fr
+@IdentifyOrganizations
 Fonctionnalité: Identifier des organisations
   En tant que prospecteur, ou l'IA qui me sert
   Je veux savoir, pour chaque organisation telle que je la vois, si Prospecter la connaît déjà

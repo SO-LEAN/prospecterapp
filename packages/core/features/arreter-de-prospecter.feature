@@ -1,4 +1,5 @@
 # language: fr
+@StopProspecting @ForgetContactsLeftWithoutOrganization @StopKeepingExchanges @EraseExchangeLeftWithoutOrganization
 Fonctionnalité: Arrêter de prospecter une organisation
   En tant que prospecteur
   Je veux retirer une organisation de la base de prospection de mon compte

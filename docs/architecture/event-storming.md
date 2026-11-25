@@ -20,7 +20,7 @@ The code already follows the grammar of the event storming. Each post-it is read
 ### The words
 
 - Every post-it is in English, from its intention's name, in sentence case: `AddInactivePeriod` reads "Add inactive period". An acronym keeps its capitals. A policy drops its `Policy` or `Handler` suffix, and reads "whenever <the event it hears>" above its name. A read model is named after what its query presents, or after its query without `Consult`. An actor is named by the role it holds: Member, Member's AI, Anyone with the link.
-- The French title of a use case's feature stays apart, in the post-it's card, and the search reads it. A feature names the use cases it describes by its tags, above its title: `@OpenBooking @CloseBooking`. A use case no feature names keeps its English label alone. The generation prints each one, and each feature that names no use case: a warning, not a failure.
+- The French title of a use case's feature stays apart, in the post-it's card, and the search reads it. A feature names the use cases it describes by its tags, above its title: `@OpenBooking @CloseBooking`. When two contexts name a use case alike, the tag names its context too: `@PersonalData/DismissPossibleDuplicate`. A use case no feature names keeps its English label alone. The generation prints each one, and each feature that names no use case: a warning, not a failure.
 - A post-it has a short slug that a link to the wall names: `command:BookSlot`, `published:SlotBooked`, and its context first when it belongs to another one (`PersonalData/policy:IdentifyBookerPolicy`).
 
 ### What a view offers
@@ -81,4 +81,4 @@ The generator's PHPUnit tests sit beside its code, in `packages/phpstan-rules/te
 
 ## What is left to the full tool
 
-The model holds neither the narrative order of a lane's steps nor the refusals. Only Booking's features name their use cases by their tags: the other walls show their English labels alone, and the generation lists them.
+The model holds neither the narrative order of a lane's steps nor the refusals.

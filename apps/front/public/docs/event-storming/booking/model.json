@@ -506,7 +506,7 @@
             "slug": "readModel:ConsultAppointments",
             "type": "readModel",
             "label": "Appointments",
-            "feature": null,
+            "feature": "Le langage publié des contextes",
             "name": "ConsultAppointments",
             "class": "Prospecter\\Core\\Booking\\Contract\\Service\\ConsultAppointments\\ConsultAppointments",
             "context": "Booking",

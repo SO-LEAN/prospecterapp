@@ -1,4 +1,5 @@
 # language: fr
+@ProposeOrganizationToAttach
 Fonctionnalité: Proposer l'organisation où rattacher un contact
   En tant que prospecteur
   Je veux qu'on me propose l'organisation d'un contact à rattacher d'après le domaine de son e-mail

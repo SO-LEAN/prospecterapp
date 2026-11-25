@@ -1,4 +1,5 @@
 # language: fr
+@Reporting/RecordContactFacts @Reporting/RecordExchangeFacts @Reporting/RecordOrganizationFacts
 Fonctionnalité: Tenir les chiffres
   En tant que Reporting
   Je veux appliquer les faits que Prospecting et PersonalData publient, dans l'ordre où ils arrivent et autant de fois qu'ils arrivent

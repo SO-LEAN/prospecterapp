@@ -1,4 +1,5 @@
 # language: fr
+@ForgetFingerprintsOfForgottenContact
 Fonctionnalité: L'empreinte d'un échange
   En tant que prospecteur qui a branché une IA sur Prospecter
   Je veux qu'un e-mail ou un message déjà noté ne le soit pas une seconde fois, même supprimé

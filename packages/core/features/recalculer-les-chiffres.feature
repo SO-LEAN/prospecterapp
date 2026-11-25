@@ -1,4 +1,5 @@
 # language: fr
+@RebuildFigures
 Fonctionnalité: Recalculer les chiffres
   En tant que Prospecter
   Je veux recalculer les chiffres de chaque compte depuis l'état des autres contextes

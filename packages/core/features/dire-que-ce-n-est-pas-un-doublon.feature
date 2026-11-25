@@ -1,4 +1,5 @@
 # language: fr
+@Prospecting/DismissPossibleDuplicate @Prospecting/DismissSuspicionInReturn
 Fonctionnalité: Dire que ce n'est pas un doublon
   En tant que prospecteur
   Je veux lever le soupçon de doublon entre deux organisations, après vérification

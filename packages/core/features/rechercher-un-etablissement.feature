@@ -1,4 +1,5 @@
 # language: fr
+@SearchEstablishments
 Fonctionnalité: Rechercher l'établissement d'une organisation dans l'annuaire des entreprises
   En tant que prospecteur
   Je veux retrouver le SIRET d'une organisation sans le taper

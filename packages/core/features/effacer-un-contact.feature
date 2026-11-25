@@ -1,4 +1,5 @@
 # language: fr
+@ForgetContact @DetachForgottenContact
 Fonctionnalité: Effacer un contact
   En tant que prospecteur
   Je veux effacer la fiche d'une personne que mon compte ne prospecte plus

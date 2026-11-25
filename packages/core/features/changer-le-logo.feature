@@ -1,4 +1,5 @@
 # language: fr
+@ChangeLogo
 Fonctionnalité: Changer le logo d'une organisation
   En tant que prospecteur
   Je veux afficher le logo d'une organisation

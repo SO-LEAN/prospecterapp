@@ -1,4 +1,5 @@
 # language: fr
+@AttachToHolding @DetachFromHolding
 Fonctionnalité: Rattacher une organisation à sa holding
   En tant que prospecteur
   Je veux savoir à quel groupe appartient une organisation

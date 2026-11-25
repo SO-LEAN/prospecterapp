@@ -1,4 +1,5 @@
 # language: fr
+@ChangeContactDetails
 Fonctionnalité: Changer les coordonnées d'une organisation
   En tant que prospecteur
   Je veux tenir à jour l'e-mail, le téléphone et la langue d'une organisation

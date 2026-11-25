@@ -1,4 +1,5 @@
 # language: fr
+@ReviseToDo
 Fonctionnalité: Modifier une action à faire
   En tant que prospecteur
   Je veux changer le texte ou l'échéance d'une action à faire

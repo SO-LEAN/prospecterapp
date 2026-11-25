@@ -1,4 +1,5 @@
 # language: fr
+@RemoveAttachment @DiscardRemovedAttachment
 Fonctionnalité: Retirer une pièce jointe d'un échange
   En tant que prospecteur
   Je veux retirer un fichier joint par erreur à un échange

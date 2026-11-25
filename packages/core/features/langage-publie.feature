@@ -1,4 +1,10 @@
 # language: fr
+@ConsultMembers @ListAccounts @ConsultAppointments @NameCampaigns @WhichRecipientsArePending
+@WhichHaveAConnectedCalendar @ListContactFacts @NameContacts @PresentMembers @WhichAreContacts
+@WhichContactsHaveTheseEmails @WhichEmailsHaveTheseContacts @ConsultHeldExchanges @ConsultPlannedExchanges
+@ListExchangeFacts @ListOrganizationFacts @NameOrganizationsOfContacts @WhichAreProspected
+@WhichContactsHaveExchangesOfCampaign @WhichEmailsHaveTheseOrganizations @WhichOrganizationsHaveTheseEmails
+@WhichOrganizationsNameTheseContacts
 Fonctionnalité: Le langage publié des contextes
   En tant que contexte de Prospecter
   Je veux poser à un autre contexte les seules questions qu'il publie, sur plusieurs éléments à la fois

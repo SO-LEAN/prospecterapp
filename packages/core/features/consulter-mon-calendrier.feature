@@ -1,4 +1,5 @@
 # language: fr
+@ConsultCalendar
 Fonctionnalité: Consulter mon calendrier
   En tant que prospecteur
   Je veux voir mes échanges, passés et à venir, et mes actions à faire, période par période

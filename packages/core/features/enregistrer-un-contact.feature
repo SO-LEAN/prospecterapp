@@ -1,4 +1,5 @@
 # language: fr
+@CollectContact @AttachCollectedContact
 Fonctionnalité: Enregistrer un contact
   En tant que prospecteur
   Je veux enregistrer une personne que je prospecte, depuis l'organisation où elle travaille

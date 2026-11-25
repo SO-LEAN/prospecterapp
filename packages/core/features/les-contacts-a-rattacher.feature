@@ -1,4 +1,5 @@
 # language: fr
+@ConsultContactToAttach @PushBackErasureOfContactToAttach
 Fonctionnalité: Les contacts à rattacher
   En tant que prospecteur
   Je veux qu'une personne qui a pris rendez-vous avec moi existe sans organisation jusqu'à ce que je la rattache

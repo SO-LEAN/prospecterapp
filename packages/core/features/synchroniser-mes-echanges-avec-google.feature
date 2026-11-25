@@ -1,4 +1,5 @@
 # language: fr
+@ConsultExchangeSync @RetryPush @RetryFailedPushes @PushUpcomingExchanges
 Fonctionnalité: L'état de synchronisation de mes échanges planifiés
   En tant que prospecteur dont le compte Google est connecté
   Je veux savoir si chaque échange planifié est bien dans mon agenda Google, relancer une poussée en échec, et que ma connexion pousse mes échanges à venir

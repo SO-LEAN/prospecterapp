@@ -1,4 +1,5 @@
 # language: fr
+@StartProspecting
 Fonctionnalité: Commencer à prospecter une organisation
   En tant que prospecteur
   Je veux enregistrer une organisation que je commence à prospecter

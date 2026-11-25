@@ -1,4 +1,5 @@
 # language: fr
+@DownloadAttachment
 Fonctionnalité: Télécharger une pièce jointe d'un échange
   En tant que prospecteur
   Je veux télécharger un fichier joint à un échange

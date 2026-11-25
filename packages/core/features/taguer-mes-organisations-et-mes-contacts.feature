@@ -1,4 +1,6 @@
 # language: fr
+@PutTags @TakeOffTag @ConsultOrganizationTags @ConsultSuggestedTags @ForgetTagsOfForgottenContact
+@ForgetTagsOfUnprospectedOrganization
 Fonctionnalité: Taguer mes organisations et mes contacts
   En tant que prospecteur
   Je veux poser des tags sur mes organisations et sur mes contacts, prédéfinis ou les miens

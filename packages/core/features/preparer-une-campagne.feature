@@ -1,4 +1,5 @@
 # language: fr
+@PrepareCampaign @ReviseCampaign @RenderCampaignMessage @ConsultCampaign @ListCampaigns
 Fonctionnalité: Préparer une campagne
   En tant que prospecteur
   Je veux préparer une campagne : un canal, des tags pour cibler mes contacts et un message type

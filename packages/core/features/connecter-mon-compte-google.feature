@@ -1,4 +1,5 @@
 # language: fr
+@AskForAuthorization @Connect @CheckMyConnections @ConsultMyConnections @Disconnect
 Fonctionnalité: Connecter mon compte Google
   En tant que membre
   Je veux connecter mon compte Google à Prospecter, voir l'état de la connexion et la couper quand je veux

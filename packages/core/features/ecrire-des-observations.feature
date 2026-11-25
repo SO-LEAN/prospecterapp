@@ -1,4 +1,5 @@
 # language: fr
+@WriteObservations
 Fonctionnalité: Écrire des observations sur une organisation
   En tant que prospecteur
   Je veux noter ce que je sais d'une organisation

@@ -1,4 +1,5 @@
 # language: fr
+@NoteToDo @NoteOrganizationToDo @ConsultToDos @ConsultOrganizationToDos @ConsultMyToDos
 Fonctionnalité: Noter une action à faire
   En tant que prospecteur
   Je veux noter une action à faire pour un contact ou une organisation, avec une échéance

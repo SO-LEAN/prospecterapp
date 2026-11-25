@@ -1,4 +1,5 @@
 # language: fr
+@PersonalData/DismissPossibleDuplicate @PersonalData/DismissSuspicionInReturn
 Fonctionnalité: Dire qu'un contact n'est pas un doublon
   En tant que prospecteur
   Je veux lever le soupçon de doublon entre deux contacts, après vérification

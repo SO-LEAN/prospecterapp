@@ -1,4 +1,5 @@
 # language: fr
+@ChangeMyOrganizationLogo
 Fonctionnalité: Changer le logo de mon organisation
   En tant qu'utilisateur
   Je veux afficher le logo de mon organisation

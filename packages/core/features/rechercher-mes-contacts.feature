@@ -1,4 +1,5 @@
 # language: fr
+@SearchContacts
 Fonctionnalité: Rechercher mes contacts
   En tant que prospecteur
   Je veux retrouver les personnes que mon compte prospecte

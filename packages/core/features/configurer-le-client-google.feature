@@ -1,4 +1,6 @@
 # language: fr
+@ConfigureClient @RemoveClient @ConsultMyAccountClients @ConfigureMailboxNotifications @RemoveMailboxNotifications
+@ConsultMailboxPusher
 Fonctionnalité: Configurer le client Google de mon compte
   En tant qu'administrateur d'un compte
   Je veux configurer le client OAuth Google de mon compte, son id et son secret

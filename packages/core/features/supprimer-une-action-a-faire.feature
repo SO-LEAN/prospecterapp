@@ -1,4 +1,5 @@
 # language: fr
+@EraseToDo
 Fonctionnalité: Supprimer une action à faire
   En tant que prospecteur
   Je veux supprimer une action à faire notée par erreur, ou devenue sans objet

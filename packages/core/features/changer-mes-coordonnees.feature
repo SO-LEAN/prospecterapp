@@ -1,4 +1,5 @@
 # language: fr
+@ChangePersonContactDetails
 Fonctionnalité: Changer mes coordonnées
   En tant qu'utilisateur
   Je veux tenir à jour mon e-mail, mon téléphone, ma langue et mes liens

@@ -1,4 +1,5 @@
 # language: fr
+@ForgetRecipientOfForgottenContact
 Fonctionnalité: Une campagne garde ce que l'équipe a fait avec un contact effacé
   En tant que prospecteur
   Je veux qu'une campagne démarrée garde ce que l'équipe a fait avec chaque destinataire, même effacé ensuite

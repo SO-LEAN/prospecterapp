@@ -1,4 +1,5 @@
 # language: fr
+@CorrectExchange
 Fonctionnalité: Corriger un échange
   En tant que prospecteur
   Je veux corriger un échange mal saisi, ou rendre son texte conforme au RGPD

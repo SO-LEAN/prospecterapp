@@ -1,4 +1,5 @@
 # language: fr
+@RemoveContact
 Fonctionnalité: Retirer un contact d'une organisation
   En tant que prospecteur
   Je veux retirer une personne qui ne travaille plus dans une organisation

@@ -1,4 +1,5 @@
 # language: fr
+@CatchUpMailHistory @ConsultMailCatchUpIntents
 Fonctionnalité: Rattraper l'historique Gmail d'un contact ou d'une organisation
   En tant que prospecteur qui a activé l'import de ses e-mails Gmail
   Je veux rattraper, depuis la fiche d'un contact ou d'une organisation, les e-mails que nous avions déjà échangés

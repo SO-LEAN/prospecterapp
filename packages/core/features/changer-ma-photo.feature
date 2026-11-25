@@ -1,4 +1,5 @@
 # language: fr
+@ChangePersonPicture
 Fonctionnalité: Changer ma photo
   En tant qu'utilisateur
   Je veux une photo de profil

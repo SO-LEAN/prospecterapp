@@ -1,4 +1,5 @@
 # language: fr
+@KeepImportedAttachment
 Fonctionnalité: Les pièces jointes des e-mails importés
   En tant que prospecteur qui a activé l'import de ses e-mails Gmail
   Je veux retrouver jointes à l'échange importé les pièces jointes de l'e-mail

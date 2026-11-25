@@ -1,4 +1,5 @@
 # language: fr
+@NoteMailboxNotification @ReadMailboxHistory @ImportMail @NoteImportedEmail
 Fonctionnalité: Importer un e-mail reçu d'un contact ou d'une organisation connus
   En tant que prospecteur qui a activé l'import de ses e-mails Gmail
   Je veux qu'un e-mail reçu d'un contact, ou de l'adresse d'une organisation que je prospecte, soit noté tout seul

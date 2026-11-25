@@ -1,4 +1,5 @@
 # language: fr
+@CompleteOrganization @CompareWithOrganization
 Fonctionnalité: Compléter une organisation sans rien écraser
   En tant que prospecteur
   Je veux qu'une IA complète ce qui manque à une organisation que Prospecter connaît déjà

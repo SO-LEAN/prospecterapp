@@ -1,4 +1,5 @@
 # language: fr
+@AttachFile
 Fonctionnalité: Joindre des fichiers à un échange
   En tant que prospecteur
   Je veux joindre à un échange les fichiers que j'y ai reçus ou envoyés

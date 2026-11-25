@@ -1,4 +1,5 @@
 # language: fr
+@AddContact @AttachContactToAttach @KeepExchangesOfAttachedContact @KeepToDosOfAttachedContact
 Fonctionnalité: Rattacher un contact existant à une organisation
   En tant que prospecteur
   Je veux rattacher une personne que je prospecte déjà à une autre organisation où elle travaille

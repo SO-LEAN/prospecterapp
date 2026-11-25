@@ -1,4 +1,5 @@
 # language: fr
+@ConsultExchange
 Fonctionnalité: Consulter le détail d'un échange
   En tant que prospecteur
   Je veux voir tout un échange, qui l'a noté et qui l'a corrigé

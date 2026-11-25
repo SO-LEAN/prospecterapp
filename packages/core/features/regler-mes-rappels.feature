@@ -1,4 +1,5 @@
 # language: fr
+@ChangeMyReminders @ConsultMyReminders
 Fonctionnalité: Régler mes rappels
   En tant que membre
   Je veux choisir si et combien de minutes avant un échange planifié je suis prévenu

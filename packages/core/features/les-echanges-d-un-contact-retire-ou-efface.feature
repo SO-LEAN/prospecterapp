@@ -1,4 +1,5 @@
 # language: fr
+@KeepExchangesOfForgottenContact @ConsultExchangesToMakeConform
 Fonctionnalité: Les échanges d'un contact retiré ou effacé
   En tant que prospecteur
   Je veux garder les échanges d'une organisation quand un contact la quitte ou que sa fiche est effacée
