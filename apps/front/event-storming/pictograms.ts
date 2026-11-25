@@ -30,19 +30,25 @@ export function rowOf(note: Note): Row {
 }
 
 /**
- * A jump back stands from the post-it's left edge, the others from its right edge, as far as the post-it's width and
- * the jumps back leave room. Past that room, the last place holds a « +n » that lists the others.
+ * A jump back stands from the post-it's left edge, after the member's AI's badges, the others from its right edge, as
+ * far as the post-it's width and the jumps back leave room. Past that room, the last place holds a « +n » that lists
+ * the others.
  */
 export function pictogramsOf(note: Note): Pictograms {
   const row = rowOf(note)
+  const start = leftStartOf(note, row)
   const ranked = note.jumps.map((jump, index) => ({ jump, index }))
   const onItsSide = (side: Pictogram['side']): Pictogram[] =>
     ranked
       .filter(({ jump }) => jump.back === (side === 'left'))
-      .map((ranked, rank) => ({ ...ranked, side, offset: offsetOf(row, side, rank) }))
+      .map((ranked, rank) => ({
+        ...ranked,
+        side,
+        offset: side === 'left' ? start + rank * row.pitch.left : offsetOf(row, side, rank),
+      }))
   const left = onItsSide('left')
   const right = onItsSide('right')
-  const room = roomOnTheRight(note, row, left.length)
+  const room = roomOnTheRight(note, row, left)
   if (right.length <= room) return { shown: [...right, ...left], more: null }
   const kept = room - 1
   return {
@@ -55,15 +61,21 @@ function offsetOf(row: Row, side: Pictogram['side'], rank: number): number {
   return row.edge + rank * row.pitch[side]
 }
 
+/** The room left of a pictogram that stands after the member's AI's last badge. */
+const AFTER_THE_BADGES = 3
+
+function leftStartOf(note: Note, row: Row): number {
+  const badges = badgesEndOf(note)
+  return badges === Number.NEGATIVE_INFINITY ? row.edge : badges + AFTER_THE_BADGES
+}
+
 /**
  * How many pictograms stand from the right edge before they reach the left edge, the last jump back, or the member's AI's
  * last badge on the post-it's corner.
  */
-function roomOnTheRight(note: Note, row: Row, back: number): number {
-  const limit = Math.max(
-    back === 0 ? row.edge : offsetOf(row, 'left', back - 1) + row.size,
-    badgesEndOf(note),
-  )
+function roomOnTheRight(note: Note, row: Row, back: Pictogram[]): number {
+  const last = back.at(-1)
+  const limit = Math.max(last === undefined ? row.edge : last.offset + row.size, badgesEndOf(note))
   return Math.floor((note.w - row.edge - row.size - limit) / row.pitch.right) + 1
 }
 

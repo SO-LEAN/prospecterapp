@@ -65,6 +65,17 @@ describe('the pictograms of a post-it', () => {
     expect([pictograms.shown.length, pictograms.more?.offset]).toEqual([3, 66])
   })
 
+  it("stands the pictograms back after the member's AI's badge", () => {
+    const called = noteOf('command:AddInactivePeriod')
+    const pictograms = pictogramsOf({ ...called, jumps: [...jumps(2, true), ...jumps(1)] })
+
+    expect(pictograms.shown.map(({ index, side, offset }) => [index, side, offset])).toEqual([
+      [2, 'right', -9],
+      [0, 'left', 22],
+      [1, 'left', 48],
+    ])
+  })
+
   it('leaves the pictograms back their room on the left', () => {
     const pictograms = pictogramsOf({ ...sticky, jumps: [...jumps(2, true), ...jumps(6)] })
 
