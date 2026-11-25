@@ -5,13 +5,20 @@ import type { ToDo } from './queries'
 
 type Toggled = Pick<ToDo, 'id' | 'text' | 'doneAt' | '_links'>
 
+type Options<Item> = {
+  /** Called once the to-do is ticked off. */
+  onTickedOff?: (toDo: Item) => void
+  /** Its toast offers to take the tick back. */
+  undoable?: boolean
+}
+
 /**
  * A to-do's box, ticked off or unticked in one click when its links allow it. It shows the click at once. It keeps
  * showing it until the lists, read again, show the new state, or until a refusal brings back the former one.
  */
-export function useToggle<Item extends Toggled>(toDo: Item, onTickedOff?: (toDo: Item) => void) {
+export function useToggle<Item extends Toggled>(toDo: Item, { onTickedOff, undoable }: Options<Item> = {}) {
   const { t } = useTranslation()
-  const tickOff = useTickOffToDo()
+  const tickOff = useTickOffToDo({ undoable })
   const untick = useUntickToDo()
   const [clicked, setClicked] = useState<boolean | null>(null)
   const done = Boolean(toDo.doneAt)

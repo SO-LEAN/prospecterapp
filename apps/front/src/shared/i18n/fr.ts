@@ -931,6 +931,7 @@ export const fr = {
     untick: 'Décocher « {{text}} »',
     menu: 'Actions sur « {{text}} »',
     revise: 'Modifier l’action à faire',
+    tickedOff: 'Action faite',
     noteTheExchange: 'Noter l’échange ?',
     noteTheExchangeAction: 'Noter l’échange',
   },

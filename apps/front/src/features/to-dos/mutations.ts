@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { api } from '@/shared/api/client'
 import { queryKeys } from '@/shared/api/keys'
-import { toDoKeys } from './queries'
+import { type ToDo, toDoKeys } from './queries'
 
 /**
  * A to-do shows on its contact's card, on its organizations' cards, among my to-dos, in my calendar and in what I have
@@ -59,11 +59,37 @@ export function useReviseToDo({ fromAForm = true } = {}) {
   })
 }
 
-export function useTickOffToDo() {
+/** How long the toast of a to-do ticked off lets the member take the tick back. */
+const TICK_UNDO_DELAY_MS = 6000
+
+/** Says that the to-do is done. Its « Annuler » unticks it, while the to-do carries the link that does it. */
+function useTickedOffToast() {
+  const { t } = useTranslation()
+  const untick = useUntickToDo()
+
+  return (toDo: Pick<ToDo, 'id' | '_links'>) =>
+    toast(t('toDos.tickedOff'), {
+      duration: TICK_UNDO_DELAY_MS,
+      action: toDo._links.untick && {
+        label: t('common.undo'),
+        onClick: () => untick.mutate({ params: { path: { id: toDo.id } } }),
+      },
+    })
+}
+
+/**
+ * Ticks a to-do off. Where the tick takes the to-do away, it is `undoable`: its toast can take the tick back. The
+ * toast lives in the mutation's options, so it outlives the line that the lists, read again, take away.
+ */
+export function useTickOffToDo({ undoable = false } = {}) {
   const queryClient = useQueryClient()
+  const showTheToast = useTickedOffToast()
 
   return api.useMutation('post', '/api/to-dos/{id}/done', {
-    onSuccess: () => readTheListsAgain(queryClient),
+    onSuccess: async (toDo) => {
+      if (undoable) showTheToast(toDo)
+      await readTheListsAgain(queryClient)
+    },
   })
 }
 
