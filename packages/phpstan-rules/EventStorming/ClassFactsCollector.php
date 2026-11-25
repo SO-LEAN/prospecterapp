@@ -34,7 +34,7 @@ use PHPStan\Type\TypeCombinator;
 /**
  * Reads what the event storming needs of each class (ClassFacts).
  *
- * @implements Collector<InClassNode, array{name: string, interfaces: list<string>, parameters: list<list<string>>, returns: list<string>, mayReturnNothing: bool, dependencies: list<string>, roles: list<string>, routes: list<string>, optionalParameters: array<string, string>, outputPorts: list<string>, presents: list<string>, console: bool, changes: list<string>}>
+ * @implements Collector<InClassNode, array{name: string, interfaces: list<string>, parameters: list<list<string>>, returns: list<string>, mayReturnNothing: bool, dependencies: list<string>, roles: list<string>, routes: list<string>, optionalParameters: array<string, string>, offers: array<string, string>, holds: list<string>, outputPorts: list<string>, presents: list<string>, console: bool, changes: list<string>}>
  */
 final readonly class ClassFactsCollector implements Collector
 {
@@ -58,6 +58,8 @@ final readonly class ClassFactsCollector implements Collector
     private const string PROPERTY = 'Property';
 
     private const string DESCRIPTION = 'description';
+
+    private const string OFFERS = 'Offers';
 
     public function getNodeType(): string
     {
@@ -84,6 +86,8 @@ final readonly class ClassFactsCollector implements Collector
             'roles' => self::rolesRequiredBy($node->getOriginalNode()),
             'routes' => self::routesDeclaredBy($node->getOriginalNode()),
             'optionalParameters' => self::optionalParametersOf($node->getOriginalNode()),
+            'offers' => self::offersOf($node->getOriginalNode()),
+            'holds' => self::heldBy($class),
             'outputPorts' => $parameters[self::OUTPUT_PORT] ?? [],
             'presents' => null === $entry ? [] : self::presentedThrough($entry),
             'console' => [] !== self::attributesOf($node->getOriginalNode(), self::AS_COMMAND),
@@ -203,6 +207,36 @@ final readonly class ClassFactsCollector implements Collector
         return $optional;
     }
 
+    /**
+     * The route each parameter of a links resource's constructor declares it offers, by name (an Offers attribute).
+     *
+     * @return array<string, string>
+     */
+    private static function offersOf(ClassLike $class): array
+    {
+        $offers = [];
+        foreach ($class->getMethod(self::CONSTRUCTOR)->params ?? [] as $parameter) {
+            $route = self::textOf(self::attributeOf($parameter, self::OFFERS)?->args[0] ?? null);
+            if (null !== $route && $parameter->var instanceof Variable && \is_string($parameter->var->name)) {
+                $offers[$parameter->var->name] = $route;
+            }
+        }
+
+        return $offers;
+    }
+
+    private static function attributeOf(Param $parameter, string $shortName): ?Attribute
+    {
+        foreach ($parameter->attrGroups as $group) {
+            $attribute = array_find($group->attrs, static fn (Attribute $attribute): bool => $shortName === $attribute->name->getLast());
+            if (null !== $attribute) {
+                return $attribute;
+            }
+        }
+
+        return null;
+    }
+
     private static function descriptionOf(Param $parameter): string
     {
         foreach ($parameter->attrGroups as $group) {
@@ -251,6 +285,22 @@ final readonly class ClassFactsCollector implements Collector
     private static function parametersOf(ExtendedMethodReflection $method): array
     {
         return array_map(static fn (ExtendedParameterReflection $parameter): array => self::classesOf($parameter->getType()), $method->getVariants()[0]->getParameters());
+    }
+
+    /**
+     * The classes the types of a class's public properties name, those of their lists included: a resource holds the
+     * resources it nests.
+     *
+     * @return list<string>
+     */
+    private static function heldBy(ClassReflection $class): array
+    {
+        $held = [];
+        foreach ($class->getNativeReflection()->getProperties(\ReflectionProperty::IS_PUBLIC) as $property) {
+            $held = [...$held, ...$class->getNativeProperty($property->getName())->getReadableType()->getReferencedClasses()];
+        }
+
+        return array_values(array_unique($held));
     }
 
     /**
