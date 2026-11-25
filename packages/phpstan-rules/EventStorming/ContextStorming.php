@@ -90,7 +90,7 @@ final readonly class ContextStorming
                 continue;
             }
             $events = $this->reachedFrom($intention->class, $intention->method, $context, Layer::Domain);
-            if ([] === $events) {
+            if ([] === $events && !$this->changes($intention)) {
                 continue;
             }
             $aggregate = $this->stickyOf(StickyType::Aggregate, $intention->class, $context);
@@ -100,6 +100,15 @@ final readonly class ContextStorming
                 $this->stickTheEvent($board, $aggregate, $event, $context, $intention->method);
             }
         }
+    }
+
+    /**
+     * A method of an aggregate that returns nothing changes it, by command-query separation, whether it records an
+     * event or not.
+     */
+    private function changes(Reached $intention): bool
+    {
+        return \in_array($intention->method, $this->facts->find($intention->class)->changes ?? [], true);
     }
 
     /**
