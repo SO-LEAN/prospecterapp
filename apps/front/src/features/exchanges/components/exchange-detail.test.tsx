@@ -212,6 +212,21 @@ describe('ExchangeDetailSheet', () => {
     expect(screen.getByText(/^Planifié le 15 oct\. 2026, .* par Michel Maier$/)).toBeInTheDocument()
   })
 
+  it('says an exchange cancelled was planned, by whom, then cancelled, never that it was noted', async () => {
+    await renderTheDetail(anExchange({ status: 'cancelled', canceller: 'contact', channel: 'call' }))
+
+    expect(
+      screen.getByText(/^Planifié le 15 oct\. 2026, .* par Michel Maier, puis annulé$/),
+    ).toBeInTheDocument()
+    expect(screen.queryByText(/Noté le/)).not.toBeInTheDocument()
+  })
+
+  it('says who noted a missed exchange', async () => {
+    await renderTheDetail(anExchange({ status: 'missed', channel: 'call' }))
+
+    expect(screen.getByText(/^Noté le 15 oct\. 2026, .* par Michel Maier$/)).toBeInTheDocument()
+  })
+
   it('shows the link its calendar created once it comes, without reloading the page', async () => {
     const awaiting = anExchange({ status: 'planned', channel: 'videoCall', linkAwaited: true })
     const created = { ...awaiting, link: 'https://meet.google.com/kpq-wxyz-abc', linkAwaited: false }

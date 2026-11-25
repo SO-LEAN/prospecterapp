@@ -302,6 +302,14 @@ function Exchange({
   )
 }
 
+/** A member planned an exchange to come or cancelled, and noted one that took place or was missed. */
+const MEMBER_ORIGIN_BY_STATUS = {
+  planned: 'exchanges.detail.planned',
+  cancelled: 'exchanges.detail.plannedThenCancelled',
+  done: 'exchanges.detail.noted',
+  missed: 'exchanges.detail.noted',
+} as const satisfies Record<ExchangeDetail['status'], string>
+
 /**
  * Where the exchange came from: booked through the public link, imported from Gmail, or planned or logged by a member.
  */
@@ -309,10 +317,7 @@ function originOf(exchange: ExchangeDetail, t: TFunction): string {
   const moment = formatMoment(exchange.noted.at)
   if (exchange.bookedByLink) return t('exchanges.detail.booked', { moment })
   if (exchange.importedFrom === 'google') return t('exchanges.detail.importedFromGmail', { moment })
-  return t(exchange.status === 'planned' ? 'exchanges.detail.planned' : 'exchanges.detail.noted', {
-    moment,
-    author: memberName(exchange.noted.by),
-  })
+  return t(MEMBER_ORIGIN_BY_STATUS[exchange.status], { moment, author: memberName(exchange.noted.by) })
 }
 
 /**
