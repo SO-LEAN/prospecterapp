@@ -43,6 +43,7 @@ final readonly class Facts
                     self::texts($class['routes'] ?? null),
                     self::textsByName($class['optionalParameters'] ?? null),
                     self::texts($class['outputPorts'] ?? null),
+                    true === ($class['console'] ?? null),
                 ),
                 self::records($collected['classes'] ?? null),
             ),
