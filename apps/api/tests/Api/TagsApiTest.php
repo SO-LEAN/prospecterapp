@@ -52,6 +52,7 @@ class TagsApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(200);
         $this->assertSame(['#APPORTEUR', '#ESN'], array_column(self::recordsAt($tagged, 'tags'), 'name'));
         $this->assertSame(['href' => '/api/organizations/'.$organization.'/tags/ESN', 'method' => 'DELETE'], self::valueAt($tagged, 'tags', 1, '_links', 'takeOff'));
+        $this->assertSame(['href' => '/api/organizations/'.$organization.'/tags', 'method' => 'GET'], self::valueAt($tagged, '_links', 'self'));
         $this->assertSame(['href' => '/api/organizations/'.$organization.'/tags', 'method' => 'POST'], self::valueAt($tagged, '_links', 'tag'));
         $this->assertSame($tagged, $this->requestJson('GET', '/api/organizations/'.$organization.'/tags'));
 
@@ -70,6 +71,8 @@ class TagsApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(200);
         $this->assertSame(['#CLIENT'], array_column(self::recordsAt($tagged, 'tags'), 'name'));
         $this->assertSame(['href' => '/api/contacts/'.$ada.'/tags/CLIENT', 'method' => 'DELETE'], self::valueAt($tagged, 'tags', 0, '_links', 'takeOff'));
+        $this->assertSame(['href' => '/api/contacts/'.$ada.'/tags', 'method' => 'GET'], self::valueAt($tagged, '_links', 'self'));
+        $this->assertSame(['href' => '/api/contacts/'.$ada.'/tags', 'method' => 'POST'], self::valueAt($tagged, '_links', 'tag'));
         $this->assertSame($tagged, $this->requestJson('GET', '/api/contacts/'.$ada.'/tags'));
     }
 
