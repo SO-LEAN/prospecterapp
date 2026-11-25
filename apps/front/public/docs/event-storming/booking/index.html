@@ -521,6 +521,73 @@ svg.ink {
   height: 11px;
 }
 
+/* The « +n » in the last place: its hover or its focus lists the pictograms the post-it has no room for. */
+.more {
+  position: absolute;
+  top: -9px;
+  width: 23px;
+  height: 23px;
+  z-index: 4;
+}
+.port .more {
+  top: 11px;
+  width: 19px;
+  height: 19px;
+}
+.more > .jump {
+  top: 0;
+  left: 0;
+  font: 700 11px / 1 var(--ui);
+}
+.more-jumps {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px;
+  border: 1.5px solid var(--marker);
+  border-radius: 6px;
+  background: var(--paper);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.3);
+}
+.more:hover .more-jumps,
+.more:focus-within .more-jumps {
+  display: flex;
+}
+.more-jumps > * {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 6px;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: var(--marker);
+  font: 13px / 1.2 var(--ui);
+  text-align: left;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+}
+.more-jumps > *:hover,
+.more-jumps > *:focus-visible {
+  background: var(--marker);
+  color: var(--paper);
+  outline: none;
+}
+.more-jumps svg {
+  flex: none;
+  width: 13px;
+  height: 13px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 /* Following one story: the rest of the wall steps back. */
 #world.following .sticky:not(.lit),
 #world.following .strip:not(.lit) {
@@ -1777,7 +1844,8 @@ function braceOf(from        , ends          , spine        , over              
   stage.addEventListener('click', (event) => {
     if (moved) return
     const target = event.target           
-    const jump = target.closest             ('.jump')
+    if (target.closest('.jump.more') !== null) return
+    const jump = target.closest             ('[data-jump]')
     const index = nodeOf(target)
     if (jump !== null && index !== null)
       return follow(notes[index]?.jumps[Number(jump.dataset.jump)]?.to ?? null)

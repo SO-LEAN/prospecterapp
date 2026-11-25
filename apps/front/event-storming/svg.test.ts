@@ -1,8 +1,10 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { describe, expect, it } from 'vitest'
+import { gridOf } from './grid.ts'
 import type { Model } from './model.ts'
 import { svgsOf } from './svg.ts'
+import { wallOf } from './wall.ts'
 
 /** Booking's model, as the generator last read it from the code. Vitest runs in the front's folder. */
 const BOOKING = JSON.parse(readFileSync('public/docs/event-storming/booking/model.json', 'utf8')) as Model
@@ -31,6 +33,14 @@ describe('the SVGs of a wall', () => {
     )
 
     expect([labels.includes('Book slot'), labels.includes('Open booking')]).toEqual([true, false])
+  })
+
+  it("draws a lane's SVG as wide as its lane, not as the wall", () => {
+    const wall = wallOf(BOOKING)
+    const lane = wall.lanes.find((candidate) => candidate.name === 'PublicLink')
+    const width = lane === undefined ? undefined : gridOf(wall, 'roomy').lanes.get(lane)?.width
+
+    expect(parsed(svgs['public-link.svg']).documentElement.getAttribute('width')).toBe(String(width))
   })
 
   it('holds its handwriting, so that GitHub shows it as drawn', () => {

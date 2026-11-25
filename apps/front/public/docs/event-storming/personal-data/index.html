@@ -521,6 +521,73 @@ svg.ink {
   height: 11px;
 }
 
+/* The « +n » in the last place: its hover or its focus lists the pictograms the post-it has no room for. */
+.more {
+  position: absolute;
+  top: -9px;
+  width: 23px;
+  height: 23px;
+  z-index: 4;
+}
+.port .more {
+  top: 11px;
+  width: 19px;
+  height: 19px;
+}
+.more > .jump {
+  top: 0;
+  left: 0;
+  font: 700 11px / 1 var(--ui);
+}
+.more-jumps {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px;
+  border: 1.5px solid var(--marker);
+  border-radius: 6px;
+  background: var(--paper);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.3);
+}
+.more:hover .more-jumps,
+.more:focus-within .more-jumps {
+  display: flex;
+}
+.more-jumps > * {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 6px;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: var(--marker);
+  font: 13px / 1.2 var(--ui);
+  text-align: left;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+}
+.more-jumps > *:hover,
+.more-jumps > *:focus-visible {
+  background: var(--marker);
+  color: var(--paper);
+  outline: none;
+}
+.more-jumps svg {
+  flex: none;
+  width: 13px;
+  height: 13px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 /* Following one story: the rest of the wall steps back. */
 #world.following .sticky:not(.lit),
 #world.following .strip:not(.lit) {
@@ -1369,7 +1436,7 @@ kbd {
 <div class="sticky k-event" data-node="125" role="button" tabindex="-1" aria-label="Event: Contact collected. module Contact. after Publish contact collected. then Attach collected contact" style="left:1254px;top:478.7px;width:132px;height:132px;z-index:3;--r:-0.13deg"><div class="paper"><p class="t role-label font-hand center" style="left:33.5px;top:45px;width:66px;font-size:18.5px;line-height:1.08">Contact<br>collected</p><p class="t role-stamp font-ui center" style="left:69.8px;top:7px;width:58.2px;font-size:8px;line-height:1.3">PUBLISHED</p></div><a class="jump away" href="../prospecting/#at=policy%3AAttachCollectedContactPolicy" style="right:-9px" data-jump="0" data-tip="Heard by “Attach collected contact” · Prospecting" aria-label="Heard by “Attach collected contact” · Prospecting" tabindex="-1"><svg viewBox="0 0 24 24"><path d="M8 16L18 6M10 6h8v8"/></svg></a></div>
 <div class="sticky k-policy" data-node="126" role="button" tabindex="-1" aria-label="Policy: Attach collected contact. on Prospecting's wall. after Contact collected" style="left:1464px;top:480.5px;width:132px;height:132px;z-index:2;--r:-1.49deg"><div class="paper"><p class="t role-whenever font-hand center" style="left:24.5px;top:33.1px;width:84px;font-size:12.5px;line-height:1.05">whenever contact<br>collected</p><p class="t role-label font-hand center" style="left:14px;top:61.3px;width:105px;font-size:16.5px;line-height:1.08">Attach collected<br>contact</p><p class="t role-cap font-ui center" style="left:49.7px;top:118px;width:33.7px;font-size:9px;line-height:1">POLICY</p></div></div>
 <div class="sticky k-policy" data-node="127" role="button" tabindex="-1" aria-label="Policy: Publish contact forgotten. module Contact. after Contact forgotten. then Contact forgotten" style="left:1106px;top:1392.8px;width:132px;height:132px;z-index:3;--r:2.22deg"><div class="paper"><p class="t role-whenever font-hand center" style="left:24.5px;top:34.7px;width:84px;font-size:12.5px;line-height:1.05">whenever contact<br>forgotten</p><p class="t role-label font-hand center" style="left:21px;top:62.9px;width:91px;font-size:15px;line-height:1.08">Publish contact<br>forgotten</p><p class="t role-cap font-ui center" style="left:49.7px;top:118px;width:33.7px;font-size:9px;line-height:1">POLICY</p></div><button class="jump" style="left:-9px" data-jump="0" data-tip="Hears “Contact forgotten” · Contact" aria-label="Hears “Contact forgotten” · Contact" tabindex="-1"><svg viewBox="0 0 24 24"><path d="M19 12H6M11 6l-6 6 6 6"/></svg></button></div>
-<div class="sticky k-event" data-node="128" role="button" tabindex="-1" aria-label="Event: Contact forgotten. module Contact. after Publish contact forgotten. then Forget recipient of forgotten contact, Forget tags of forgotten contact, Unname forgotten contact, Detach forgotten contact, Erase to dos of forgotten contact, Forget fingerprints of forgotten contact, Keep exchanges of forgotten contact" style="left:1235px;top:1407.7px;width:132px;height:132px;z-index:3;--r:-0.30deg"><div class="paper"><p class="t role-label font-hand center" style="left:30.5px;top:45px;width:72px;font-size:18.5px;line-height:1.08">Contact<br>forgotten</p><p class="t role-stamp font-ui center" style="left:69.8px;top:7px;width:58.2px;font-size:8px;line-height:1.3">PUBLISHED</p></div><a class="jump away" href="../campaigns/#at=policy%3AForgetRecipientOfForgottenContactPolicy" style="right:-9px" data-jump="0" data-tip="Heard by “Forget recipient of forgotten contact” · Campaigns" aria-label="Heard by “Forget recipient of forgotten contact” · Campaigns" tabindex="-1"><svg viewBox="0 0 24 24"><path d="M8 16L18 6M10 6h8v8"/></svg></a><a class="jump away" href="../campaigns/#at=policy%3AForgetTagsOfForgottenContactPolicy" style="right:16px" data-jump="1" data-tip="Heard by “Forget tags of forgotten contact” · Campaigns" aria-label="Heard by “Forget tags of forgotten contact” · Campaigns" tabindex="-1"><svg viewBox="0 0 24 24"><path d="M8 16L18 6M10 6h8v8"/></svg></a><a class="jump away" href="../connectors/#at=policy%3AUnnameForgottenContactPolicy" style="right:41px" data-jump="2" data-tip="Heard by “Unname forgotten contact” · Connectors" aria-label="Heard by “Unname forgotten contact” · Connectors" tabindex="-1"><svg viewBox="0 0 24 24"><path d="M8 16L18 6M10 6h8v8"/></svg></a><a class="jump away" href="../prospecting/#at=policy%3ADetachForgottenContactPolicy" style="right:66px" data-jump="3" data-tip="Heard by “Detach forgotten contact” · Prospecting" aria-label="Heard by “Detach forgotten contact” · Prospecting" tabindex="-1"><svg viewBox="0 0 24 24"><path d="M8 16L18 6M10 6h8v8"/></svg></a><a class="jump away" href="../prospecting/#at=policy%3AEraseToDosOfForgottenContactPolicy" style="right:91px" data-jump="4" data-tip="Heard by “Erase to dos of forgotten contact” · Prospecting" aria-label="Heard by “Erase to dos of forgotten contact” · Prospecting" tabindex="-1"><svg viewBox="0 0 24 24"><path d="M8 16L18 6M10 6h8v8"/></svg></a><a class="jump away" href="../prospecting/#at=policy%3AForgetFingerprintsOfForgottenContactPolicy" style="right:116px" data-jump="5" data-tip="Heard by “Forget fingerprints of forgotten contact” · Prospecting" aria-label="Heard by “Forget fingerprints of forgotten contact” · Prospecting" tabindex="-1"><svg viewBox="0 0 24 24"><path d="M8 16L18 6M10 6h8v8"/></svg></a><a class="jump away" href="../prospecting/#at=policy%3AKeepExchangesOfForgottenContactPolicy" style="right:141px" data-jump="6" data-tip="Heard by “Keep exchanges of forgotten contact” · Prospecting" aria-label="Heard by “Keep exchanges of forgotten contact” · Prospecting" tabindex="-1"><svg viewBox="0 0 24 24"><path d="M8 16L18 6M10 6h8v8"/></svg></a></div>
+<div class="sticky k-event" data-node="128" role="button" tabindex="-1" aria-label="Event: Contact forgotten. module Contact. after Publish contact forgotten. then Forget recipient of forgotten contact, Forget tags of forgotten contact, Unname forgotten contact, Detach forgotten contact, Erase to dos of forgotten contact, Forget fingerprints of forgotten contact, Keep exchanges of forgotten contact" style="left:1235px;top:1407.7px;width:132px;height:132px;z-index:3;--r:-0.30deg"><div class="paper"><p class="t role-label font-hand center" style="left:30.5px;top:45px;width:72px;font-size:18.5px;line-height:1.08">Contact<br>forgotten</p><p class="t role-stamp font-ui center" style="left:69.8px;top:7px;width:58.2px;font-size:8px;line-height:1.3">PUBLISHED</p></div><a class="jump away" href="../campaigns/#at=policy%3AForgetRecipientOfForgottenContactPolicy" style="right:-9px" data-jump="0" data-tip="Heard by “Forget recipient of forgotten contact” · Campaigns" aria-label="Heard by “Forget recipient of forgotten contact” · Campaigns" tabindex="-1"><svg viewBox="0 0 24 24"><path d="M8 16L18 6M10 6h8v8"/></svg></a><a class="jump away" href="../campaigns/#at=policy%3AForgetTagsOfForgottenContactPolicy" style="right:16px" data-jump="1" data-tip="Heard by “Forget tags of forgotten contact” · Campaigns" aria-label="Heard by “Forget tags of forgotten contact” · Campaigns" tabindex="-1"><svg viewBox="0 0 24 24"><path d="M8 16L18 6M10 6h8v8"/></svg></a><a class="jump away" href="../connectors/#at=policy%3AUnnameForgottenContactPolicy" style="right:41px" data-jump="2" data-tip="Heard by “Unname forgotten contact” · Connectors" aria-label="Heard by “Unname forgotten contact” · Connectors" tabindex="-1"><svg viewBox="0 0 24 24"><path d="M8 16L18 6M10 6h8v8"/></svg></a><a class="jump away" href="../prospecting/#at=policy%3ADetachForgottenContactPolicy" style="right:66px" data-jump="3" data-tip="Heard by “Detach forgotten contact” · Prospecting" aria-label="Heard by “Detach forgotten contact” · Prospecting" tabindex="-1"><svg viewBox="0 0 24 24"><path d="M8 16L18 6M10 6h8v8"/></svg></a><a class="jump away" href="../prospecting/#at=policy%3AEraseToDosOfForgottenContactPolicy" style="right:91px" data-jump="4" data-tip="Heard by “Erase to dos of forgotten contact” · Prospecting" aria-label="Heard by “Erase to dos of forgotten contact” · Prospecting" tabindex="-1"><svg viewBox="0 0 24 24"><path d="M8 16L18 6M10 6h8v8"/></svg></a><span class="more" style="right:116px"><button class="jump more" aria-label="2 more: Heard by “Forget fingerprints of forgotten contact” · Prospecting, Heard by “Keep exchanges of forgotten contact” · Prospecting" tabindex="-1">+2</button><span class="more-jumps"><a class="away" href="../prospecting/#at=policy%3AForgetFingerprintsOfForgottenContactPolicy" data-jump="5" tabindex="-1"><svg viewBox="0 0 24 24"><path d="M8 16L18 6M10 6h8v8"/></svg><span>Heard by “Forget fingerprints of forgotten contact” · Prospecting</span></a><a class="away" href="../prospecting/#at=policy%3AKeepExchangesOfForgottenContactPolicy" data-jump="6" tabindex="-1"><svg viewBox="0 0 24 24"><path d="M8 16L18 6M10 6h8v8"/></svg><span>Heard by “Keep exchanges of forgotten contact” · Prospecting</span></a></span></span></div>
 <div class="sticky k-policy" data-node="129" role="button" tabindex="-1" aria-label="Policy: Forget recipient of forgotten contact. on Campaigns's wall. after Contact forgotten" style="left:1445px;top:1404.3px;width:132px;height:132px;z-index:2;--r:-2.28deg"><div class="paper"><p class="t role-whenever font-hand center" style="left:24.5px;top:34.7px;width:84px;font-size:12.5px;line-height:1.05">whenever contact<br>forgotten</p><p class="t role-label font-hand center" style="left:10.5px;top:62.9px;width:112px;font-size:15px;line-height:1.08">Forget recipient of<br>forgotten contact</p><p class="t role-cap font-ui center" style="left:49.7px;top:118px;width:33.7px;font-size:9px;line-height:1">POLICY</p></div></div>
 <div class="sticky k-policy" data-node="130" role="button" tabindex="-1" aria-label="Policy: Forget tags of forgotten contact. on Campaigns's wall. after Contact forgotten" style="left:1445px;top:1596px;width:132px;height:132px;z-index:2;--r:0.14deg"><div class="paper"><p class="t role-whenever font-hand center" style="left:24.5px;top:34.7px;width:84px;font-size:12.5px;line-height:1.05">whenever contact<br>forgotten</p><p class="t role-label font-hand center" style="left:13px;top:62.9px;width:107px;font-size:15px;line-height:1.08">Forget tags of<br>forgotten contact</p><p class="t role-cap font-ui center" style="left:49.7px;top:118px;width:33.7px;font-size:9px;line-height:1">POLICY</p></div></div>
 <div class="sticky k-policy" data-node="131" role="button" tabindex="-1" aria-label="Policy: Unname forgotten contact. on Connectors's wall. after Contact forgotten" style="left:1445px;top:1779.3px;width:132px;height:132px;z-index:2;--r:-2.17deg"><div class="paper"><p class="t role-whenever font-hand center" style="left:24.5px;top:33.1px;width:84px;font-size:12.5px;line-height:1.05">whenever contact<br>forgotten</p><p class="t role-label font-hand center" style="left:9px;top:61.3px;width:115px;font-size:16.5px;line-height:1.08">Unname<br>forgotten contact</p><p class="t role-cap font-ui center" style="left:49.7px;top:118px;width:33.7px;font-size:9px;line-height:1">POLICY</p></div></div>
@@ -1874,7 +1941,8 @@ function braceOf(from        , ends          , spine        , over              
   stage.addEventListener('click', (event) => {
     if (moved) return
     const target = event.target           
-    const jump = target.closest             ('.jump')
+    if (target.closest('.jump.more') !== null) return
+    const jump = target.closest             ('[data-jump]')
     const index = nodeOf(target)
     if (jump !== null && index !== null)
       return follow(notes[index]?.jumps[Number(jump.dataset.jump)]?.to ?? null)
