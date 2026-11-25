@@ -32,6 +32,30 @@ describe('the marker of the wall', () => {
     ])
   })
 
+  it('routes the arrow to a lower row down into the gap under its row, along it, then down its corridor', () => {
+    const arrow = arrowOf(
+      { x: 0, y: 0, w: 132, h: 132, seed: 'a' },
+      { x: 400, y: 500, w: 132, h: 132, seed: 'b' },
+      false,
+      { corridor: 360, drop: 150 },
+    )
+    const corners = [...arrow.curve.matchAll(/Q([\d.-]+),([\d.-]+)/g)].map(([, x, y]) => [
+      Number(x),
+      Number(y),
+    ])
+
+    expect([corners, arrow.curve.endsWith('L391,' + arrow.curve.split(',').at(-1)), arrow.maybe]).toEqual([
+      [
+        [150, expect.closeTo(66, -1)],
+        [150, 150],
+        [360, 150],
+        [360, expect.closeTo(566, -1)],
+      ],
+      true,
+      { x: (150 + 360) / 2, y: 144 },
+    ])
+  })
+
   it('writes maybe on the arrow of a reaction that happens only under a condition', () => {
     const arrow = arrowOf(
       { x: 0, y: 0, w: 132, h: 132, seed: 'a' },

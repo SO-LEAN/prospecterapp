@@ -53,12 +53,28 @@ export interface Arrow {
   maybe: Point | null
 }
 
-/** A reaction's marker arrow: from the right of a post-it to the left of the next, slightly bent. */
-export function arrowOf(from: Placed, to: Placed, certain: boolean): Arrow {
+/**
+ * The way of an arrow to a lower row: down from its start into the gap under its row (the drop, from the top of the
+ * post-it it starts from), along it, then down a corridor left of the post-it it ends at.
+ */
+export interface Route {
+  corridor: number
+  drop: number
+}
+
+/** How round the corners of a routed arrow are. */
+const CORNER = 12
+
+/**
+ * A reaction's marker arrow: from the right of a post-it to the left of the next, slightly bent, or along its route
+ * when it ends in a lower row.
+ */
+export function arrowOf(from: Placed, to: Placed, certain: boolean, route: Route | null = null): Arrow {
   const x1 = from.x + from.w + 3
   const y1 = Math.round((from.y + from.h / 2 + lean(`${from.seed}out`, 5)) * 10) / 10
   const x2 = to.x - 9
   const y2 = Math.round((to.y + to.h / 2 + lean(`${to.seed}in`, 5)) * 10) / 10
+  if (route !== null) return routedArrowOf({ x: x1, y: y1 }, { x: x2, y: y2 }, from, route, certain)
   const reach = Math.max(34, Math.min(180, Math.abs(x2 - x1) * 0.5))
   const bend = lean(from.seed + to.seed, 9)
   const c1 = { x: x1 + reach, y: y1 + bend }
@@ -70,6 +86,53 @@ export function arrowOf(from: Placed, to: Placed, certain: boolean): Arrow {
     curve: `M${x1},${y1} C${c1.x.toFixed(1)},${c1.y.toFixed(1)} ${c2.x.toFixed(1)},${c2.y.toFixed(1)} ${x2},${y2}`,
     head: `${barb(0.48)} ${barb(-0.48)}`,
     maybe: certain ? null : { x: (x1 + x2) / 2, y: (y1 + y2) / 2 - 9 },
+  }
+}
+
+/** Down from the start into the gap under its row, along it, down the corridor, then into the end, corners rounded. */
+function routedArrowOf(start: Point, end: Point, from: Placed, route: Route, certain: boolean): Arrow {
+  const drop = from.x + from.w + 18
+  const gap = Math.round((from.y + route.drop) * 10) / 10
+  const corridor = Math.max(route.corridor, drop)
+  const points = [
+    start,
+    { x: drop, y: start.y },
+    { x: drop, y: gap },
+    { x: corridor, y: gap },
+    { x: corridor, y: end.y },
+    end,
+  ]
+  let curve = `M${start.x},${start.y}`
+  for (let index = 1; index < points.length - 1; index++) {
+    const before = points[index - 1] ?? start
+    const corner = points[index] ?? start
+    const after = points[index + 1] ?? end
+    const room = Math.min(CORNER, distance(before, corner) / 2, distance(corner, after) / 2)
+    const into = towards(corner, before, room)
+    const out = towards(corner, after, room)
+    curve += ` L${into.x.toFixed(1)},${into.y.toFixed(1)} Q${corner.x.toFixed(1)},${corner.y.toFixed(1)} ${out.x.toFixed(1)},${out.y.toFixed(1)}`
+  }
+  curve += ` L${end.x},${end.y}`
+  const barb = (turn: number): string =>
+    `M${end.x},${end.y} L${(end.x - 13 * Math.cos(turn)).toFixed(1)},${(end.y - 13 * Math.sin(turn)).toFixed(1)}`
+  return {
+    curve,
+    head: `${barb(0.48)} ${barb(-0.48)}`,
+    maybe: certain ? null : { x: (drop + corridor) / 2, y: gap - 6 },
+  }
+}
+
+function distance(one: Point, other: Point): number {
+  return Math.hypot(other.x - one.x, other.y - one.y)
+}
+
+/** The point at this distance from a corner, towards another point. */
+function towards(corner: Point, other: Point, room: number): Point {
+  const length = distance(corner, other)
+  if (length === 0) return corner
+  return {
+    x: corner.x + ((other.x - corner.x) * room) / length,
+    y: corner.y + ((other.y - corner.y) * room) / length,
   }
 }
 
