@@ -501,8 +501,8 @@ class WallUnderConstruction {
   }
 
   /**
-   * The views a projection keeps up to date, against its right edge where an event would stand: it records no event,
-   * it keeps another context's facts that these views read.
+   * The views a projection keeps up to date, against its right edge where an event would stand. A projection records no
+   * event. It keeps another context's facts, which these views read.
    */
   private stickTheKeptViews(
     step: Step,

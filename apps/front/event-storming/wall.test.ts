@@ -142,6 +142,30 @@ describe('the wall of a context', () => {
     ]).toEqual(['My booking page', true, true, []])
   })
 
+  it('tucks what a projection asks under the views it keeps', () => {
+    const open = 'command:Prospecter\\Core\\Booking\\Application\\BookingPage\\OpenBooking\\OpenBooking'
+    const views = BOOKING.stickies.filter(
+      (sticky) => sticky.type === 'readModel' && sticky.context === 'Booking',
+    )
+    const projected = wallOf({
+      ...BOOKING,
+      links: [
+        ...BOOKING.links,
+        ...views.map((view) => ({ from: open, to: view.id, via: null, certain: true, when: null })),
+      ],
+    })
+    const command = projected.notes.find((note) => note.slug === 'command:OpenBooking')
+    const kept = command?.step.notes.filter((note) => note.kind === 'readModel') ?? []
+    const ports = command?.step.notes.filter((note) => note.port) ?? []
+    const keptBottom = Math.max(...kept.map((view) => view.y + view.h))
+
+    expect([kept.length > 1, ports.length > 0, ports.every((port) => port.y >= keptBottom)]).toEqual([
+      true,
+      true,
+      true,
+    ])
+  })
+
   it.each([
     ['operator', 'Platform operator'],
     ['schedule', 'Daily schedule'],
