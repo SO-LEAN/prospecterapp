@@ -50,7 +50,6 @@ export interface EdgeData {
 
 export interface BraceData {
   from: number
-  over: number | null
   lane: number
   spine: number
   ends: number[]
@@ -79,7 +78,7 @@ export interface LaneData {
   labels: FoldLabel[]
 }
 
-/** The room between the spines of the lines that leave one lane's actors and views. */
+/** The room between the spines of the lines that leave one lane's views. */
 const SPINE = { before: 50, shift: 11 }
 
 export function dataOf(wall: Wall, grids: Record<Density, Grid>): WallData {
@@ -119,7 +118,6 @@ export function dataOf(wall: Wall, grids: Record<Density, Grid>): WallData {
       })),
     braces: wall.brackets.map((bracket) => ({
       from: index(bracket.from),
-      over: bracket.side === 'over' && bracket.beside !== null ? index(bracket.beside) : null,
       lane: wall.lanes.indexOf(bracket.lane),
       spine: HEAD - SPINE.before - bracket.shift * SPINE.shift,
       ends: bracket.items.map((item) => index(item.to)),

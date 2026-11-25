@@ -65,8 +65,6 @@ export interface Edge {
 /** The marker line from an actor or a view that branches to the commands it leads to. */
 export interface Bracket {
   from: Note
-  side: 'right' | 'over'
-  beside: Note | null
   items: BracketItem[]
   lane: Lane
   shift: number
@@ -99,7 +97,7 @@ export interface Offer {
   when: string | null
 }
 
-export type StepKind = 'read' | 'command' | 'policy' | 'actor'
+export type StepKind = 'read' | 'command' | 'policy'
 
 /** A cluster of post-its that touch: who asks, what is asked, what it changes, what happened. */
 export interface Step {
@@ -113,26 +111,26 @@ export interface Step {
   waitsFor: string[]
   main: Note | null
   width: number
+  /** The actor post-its that send its use case, from top to bottom. */
   senders: Note[]
   offers: Offer[]
-  /** Room left before the step for its hotspot. */
-  shift: number
   gap: Note | null
-  headroom: number
 }
 
-export interface Group {
-  actor: Note
-  reads: Step[]
+/**
+ * The rows of a lane's actors: a view they read with the commands it offers, under it, or the commands no view of
+ * the lane offers.
+ */
+export interface Block {
+  view: Step | null
   commands: Step[]
-  solo: Step | null
 }
 
 export interface Lane {
   name: string
   label: string
   steps: Step[]
-  groups: Group[]
+  blocks: Block[]
 }
 
 export interface Wall {
@@ -185,9 +183,18 @@ export const BADGE = { left: -13, pitch: 26 } as const
 /** The ports under a use case: their left edge, their stagger every other one, the room above them. */
 const PORTS = { left: 6, stagger: 7, room: 4 } as const
 
-/** Where a lane's view stands, right of its actor, and where its commands stand, right of the view. */
+/**
+ * Where a lane's view stands, right of its actor, and where its commands stand, right of the view, the line of its
+ * offers and their actor.
+ */
 export const VIEW = SIZE.margin + SIZE.actor - 1
-export const HEAD = VIEW + SIZE.sticky + 86
+export const HEAD = VIEW + SIZE.sticky + 86 + SIZE.actor - 1
+
+/** The actor post-its left of a use case: the top of a lone one, and how far apart they stand when there are more. */
+const ACTORS = { alone: 30, pitch: SIZE.actor + 4 } as const
+
+/** The room between an "Offered where?" hotspot and the actor it stands before. */
+const GAP_ROOM = 10
 
 /** The actors that call a use case through a tool, without looking at a screen: a badge on each use case. */
 const TOOLS = new Set(['mcp'])
@@ -196,7 +203,8 @@ const TOOLS = new Set(['mcp'])
  * The actors that stand on the wall but look at no screen: the platform operator at the console, and the daily
  * schedule. No view has to offer what they send.
  */
-const SCREENLESS = new Set(['operator', 'schedule'])
+const SCREENLESS_ORDER = ['operator', 'schedule']
+const SCREENLESS = new Set(SCREENLESS_ORDER)
 
 /**
  * The lane of the use cases at the application's root, which belong to no module. A context without modules has
@@ -243,7 +251,7 @@ class WallUnderConstruction {
     }
     this.wireTheReactions()
     const lanes = this.lanes()
-    for (const lane of lanes) this.standTheActors(lane)
+    this.hangTheOffers(lanes)
     return {
       context: this.model.context,
       notes: this.notes,
@@ -280,9 +288,7 @@ class WallUnderConstruction {
       width: 0,
       senders: [],
       offers: [],
-      shift: 0,
       gap: null,
-      headroom: 0,
     }
     this.steps.push(step)
     return step
@@ -488,9 +494,16 @@ class WallUnderConstruction {
     const step = this.step('command', lane, triggers.length > 0 ? 2 : 1)
     const { senders, x: after } = this.sendersOf(step, triggers)
     const unsent = this.into(command.id, 'actor').length === 0 && this.into(command.id, 'policy').length === 0
-    const x = unsent ? after + SIZE.hotspot + CLUSTER.hotspot.x : after
+    const actors = this.actorsOf(command)
+    const gap = this.asksWhereItIsOffered(command, actors)
+    const x =
+      after +
+      (unsent ? SIZE.hotspot + CLUSTER.hotspot.x : 0) +
+      (gap === null ? 0 : SIZE.hotspot + GAP_ROOM) +
+      (actors.length > 0 ? SIZE.actor - 1 : 0)
     const node = this.put(step, command, 'command', { x, y: 0 }, { z: 3 })
     if (unsent) this.markNobodySends(step, node)
+    this.standTheActors(step, actors, node)
     for (const sender of senders) this.link(sender.node, node, sender.certain, true)
     this.badgesOf(step, command, node)
     this.portsOf(step, command, node)
@@ -502,6 +515,7 @@ class WallUnderConstruction {
       changed.rows + published.rows + kept.rows === 0
         ? this.markNoEventRecorded(step, node)
         : Math.max(x + SIZE.sticky, changed.right, published.right, kept.right)
+    if (gap !== null) this.openAGap(step, gap, node)
     return step
   }
 
@@ -683,19 +697,22 @@ class WallUnderConstruction {
   private readStep(readModel: Sticky, lane: string): Step {
     const asked = this.into(readModel.id, 'actor').length > 0
     const step = this.step('read', lane, asked ? 0 : 4)
-    const node = this.put(step, readModel, 'readModel', { x: 0, y: 0 }, { z: 3 })
+    const actors = this.actorsOf(readModel)
+    const x = actors.length > 0 ? SIZE.actor - 1 : 0
+    const node = this.put(step, readModel, 'readModel', { x, y: 0 }, { z: 3 })
+    this.standTheActors(step, actors, node)
     for (const reader of readModel.readBy)
       if (reader.context !== null) node.jumps.push(away(reader, 'Read by'))
     step.main = node
     this.badgesOf(step, readModel, node)
     this.portsOf(step, readModel, node)
-    step.width = SIZE.sticky
+    step.width = x + SIZE.sticky
     if (!asked && readModel.readBy.length === 0) {
       const hotspot = this.put(
         step,
         null,
         'hotspot',
-        { x: SIZE.sticky + CLUSTER.hotspot.x, y: CLUSTER.hotspot.y },
+        { x: x + SIZE.sticky + CLUSTER.hotspot.x, y: CLUSTER.hotspot.y },
         {
           label: 'Nobody calls this',
           z: 4,
@@ -765,167 +782,160 @@ class WallUnderConstruction {
       name,
       label: sentenceOf(name),
       steps: this.steps.filter((step) => step.lane === name),
-      groups: [],
+      blocks: this.blocksOf(this.steps.filter((step) => step.lane === name)),
     }))
   }
 
   /**
-   * A person looks at a read model, then decides: in a lane, each human actor stands once, left of what it reads
-   * there, and the commands that view offers hang from it. What no view of the actor offers hangs from the actor.
+   * The actors that send a use case or read it, but the member's AI, a badge: the people first, then the platform
+   * operator, then the daily schedule.
    */
-  private standTheActors(lane: Lane): void {
-    const taken = new Set<Step>()
-    let shift = 0
-    const humans = this.model.stickies.filter((sticky) => sticky.type === 'actor' && !TOOLS.has(sticky.name))
-    for (const actor of humans) {
-      const sent = lane.steps.filter(
-        (step) => step.waitsFor.length === 0 && this.humansOf(step).includes(actor),
-      )
-      if (sent.length === 0) continue
-      const mine = sent.filter((step) => !taken.has(step))
-      const views = sent.filter((step) => step.kind === 'read')
-      const sends = sent.filter((step) => step.kind !== 'read')
-      const reads = mine.filter((step) => step.kind === 'read')
-      const commands = mine.filter((step) => step.kind !== 'read')
-      for (const step of mine) taken.add(step)
-      const { node, solo } = this.standing(actor, lane, reads, commands)
-      for (const view of views) if (view.main !== null) this.link(node, view.main, true, false)
-      shift = this.hangTheOffers(lane, node, reads, sends, shift)
-      shift = this.hangTheRest(lane, node, views, reads, sends, commands, shift)
-      lane.groups.push({ actor: node, reads, commands, solo })
-    }
-  }
-
-  private humansOf(step: Step): Sticky[] {
-    const main = step.main?.sticky
-    if (main === undefined || main === null) return []
-    return this.into(main.id, 'actor')
+  private actorsOf(useCase: Sticky): Sticky[] {
+    const actors = this.into(useCase.id, 'actor')
       .map((asked) => this.sticky(asked.from))
       .filter((actor) => !TOOLS.has(actor.name))
+    const rank = (actor: Sticky): number => SCREENLESS_ORDER.indexOf(actor.name)
+    return actors.sort((one, other) => rank(one) - rank(other))
   }
 
-  private standing(
-    actor: Sticky,
-    lane: Lane,
-    reads: Step[],
-    commands: Step[],
-  ): { node: Note; solo: Step | null } {
-    const [view] = reads
-    if (view !== undefined) {
-      return { node: this.put(view, actor, 'actor', { x: -(SIZE.actor - 1), y: 30 }, { z: 4 }), solo: null }
-    }
-    const [command] = commands
-    if (command?.main) {
-      return {
-        node: this.put(
-          command,
-          actor,
-          'actor',
-          { x: command.main.x - (HEAD - SIZE.margin), y: 30 },
-          { z: 4 },
-        ),
-        solo: null,
-      }
-    }
-    const solo = this.step('actor', lane.name, 1)
-    lane.steps.push(solo)
-    solo.width = SIZE.actor
-    return { node: this.put(solo, actor, 'actor', { x: 0, y: 30 }, { z: 4 }), solo }
-  }
-
-  /** What a view the actor reads offers hangs from that view. */
-  private hangTheOffers(lane: Lane, actor: Note, reads: Step[], sends: Step[], shift: number): number {
-    for (const view of reads) {
-      const main = view.main
-      if (main?.sticky === null || main === null) continue
-      const offered = this.out(main.sticky.id, 'command')
-        .map((offer) => ({ offer, step: sends.find((step) => step.main?.sticky?.id === offer.to) }))
-        .filter(
-          (item): item is { offer: Link; step: Step } =>
-            item.step?.main !== undefined && item.step.main !== null,
-        )
-      if (offered.length === 0) continue
-      const items = offered.map(({ offer, step }) => {
-        const command = step.main as Note
-        this.link(main, command, offer.certain, false, offer.when)
-        step.offers.push({ view: main, via: offer.via, certain: offer.certain, when: offer.when })
-        step.senders.push(actor)
-        return {
-          to: command,
-          command,
-          certain: offer.certain,
-          tip: offer.certain ? null : `Offered only ${offer.when ?? 'in some states'}`,
-        }
-      })
-      this.brackets.push({ from: main, side: 'right', beside: null, items, lane, shift: shift++ })
-    }
-    return shift
-  }
-
-  /** What no view of the actor offers hangs from the actor itself. It is a gap only when the actor reads a view here. */
-  private hangTheRest(
-    lane: Lane,
-    actor: Note,
-    views: Step[],
-    reads: Step[],
-    sends: Step[],
-    commands: Step[],
-    shift: number,
-  ): number {
-    const offeredBy = (step: Step): boolean =>
-      views.some(
-        (view) =>
-          view.main?.sticky !== null &&
-          view.main?.sticky !== undefined &&
-          this.out(view.main.sticky.id, 'command').some((offer) => offer.to === step.main?.sticky?.id),
+  /** As in Brandolini's event storming, an actor's post-it stands against each use case it sends or reads. */
+  private standTheActors(step: Step, actors: Sticky[], node: Note): void {
+    actors.forEach((actor, index) => {
+      const asked = this.into(node.sticky?.id ?? '', 'actor').find((link) => link.from === actor.id)
+      const note = this.put(
+        step,
+        actor,
+        'actor',
+        { x: node.x - SIZE.actor + 1, y: actors.length === 1 ? ACTORS.alone : index * ACTORS.pitch },
+        { z: 4 },
       )
-    const direct = sends.filter((step) => !offeredBy(step))
-    for (const step of direct) {
-      const main = step.main as Note
-      this.link(actor, main, true, false)
-      step.senders.push(actor)
-      if (
-        views.length > 0 &&
-        step.gap === null &&
-        commands.includes(step) &&
-        !SCREENLESS.has(actor.sticky?.name ?? '')
-      )
-        this.openAGap(step, actor, views, main)
-    }
-    if (direct.length === 0) return shift
-    const [view] = reads
-    if (view !== undefined) view.headroom = 30
-    this.brackets.push({
-      from: actor,
-      side: view !== undefined ? 'over' : 'right',
-      beside: view?.main ?? null,
-      items: direct.map((step) => ({
-        to: step.gap ?? (step.main as Note),
-        command: step.main as Note,
-        certain: true,
-        tip: null,
-      })),
-      lane,
-      shift,
+      this.link(note, node, asked?.certain ?? true, false)
+      step.senders.push(note)
     })
-    return shift + 1
   }
 
-  private openAGap(step: Step, actor: Note, views: Step[], command: Note): void {
-    step.shift = SIZE.hotspot + 24
-    const viewed = views.map((view) => `“${view.main?.label ?? ''}”`).join(', ')
+  /**
+   * A command a person sends asks where it is offered when no view of the wall links to it, while that person reads
+   * views on this wall. The platform operator and the daily schedule look at no screen.
+   */
+  private asksWhereItIsOffered(command: Sticky, actors: Sticky[]): Sticky | null {
+    if (this.into(command.id, 'readModel').length > 0) return null
+    return (
+      actors.find(
+        (actor) =>
+          !SCREENLESS.has(actor.name) &&
+          this.out(actor.id, 'readModel').some((read) => this.sticky(read.to).context === this.model.context),
+      ) ?? null
+    )
+  }
+
+  private openAGap(step: Step, actor: Sticky, command: Note): void {
+    const [first] = step.senders
     step.gap = this.put(
       step,
       null,
       'hotspot',
-      { x: command.x - step.shift, y: 14 },
+      { x: (first?.x ?? command.x) - SIZE.hotspot - GAP_ROOM, y: 14 },
       {
         label: 'Offered where?',
         z: 4,
-        why: `${actor.label} reads ${viewed} in this module, and that resource carries no link to this command. The front must know its address by itself. Either a link is missing in the API, or the command is reached another way.`,
+        why: `${actor.label} reads views on this wall, and none carries a link to this command. The front must know its address by itself. Either a link is missing in the API, or the command is reached another way.`,
       },
     )
     this.link(command, step.gap, true, false)
+  }
+
+  /**
+   * What a view offers: a line from the view to the actor of each command it offers in its lane, or a pictogram on
+   * each side when the command stands in another lane.
+   */
+  private hangTheOffers(lanes: Lane[]): void {
+    const brackets = new Map<Note, Bracket>()
+    const shifts = new Map<Lane, number>()
+    for (const lane of lanes) {
+      for (const step of lane.steps.filter((candidate) => candidate.kind === 'command')) {
+        for (const offer of this.offersTo(step)) {
+          if (offer.view.step.lane !== lane.name) {
+            this.offerFromAfar(offer.view, offer.command)
+            continue
+          }
+          let bracket = brackets.get(offer.view)
+          if (bracket === undefined) {
+            const shift = shifts.get(lane) ?? 0
+            shifts.set(lane, shift + 1)
+            bracket = { from: offer.view, items: [], lane, shift }
+            brackets.set(offer.view, bracket)
+            this.brackets.push(bracket)
+          }
+          bracket.items.push({
+            to: step.senders[0] ?? offer.command,
+            command: offer.command,
+            certain: offer.certain,
+            tip: offer.certain ? null : `Offered only ${offer.when ?? 'in some states'}`,
+          })
+        }
+      }
+    }
+  }
+
+  /** The views of this wall that offer a command's step, each linked to it. */
+  private offersTo(step: Step): { view: Note; command: Note; certain: boolean; when: string | null }[] {
+    const command = step.main
+    if (command === null || command.sticky === null) return []
+    return this.into(command.sticky.id, 'readModel').flatMap((offer) => {
+      const view = this.firstOf.get(offer.from)
+      if (view === undefined || view.step.main !== view) return []
+      this.link(view, command, offer.certain, false, offer.when)
+      step.offers.push({ view, via: offer.via, certain: offer.certain, when: offer.when })
+      return [{ view, command, certain: offer.certain, when: offer.when }]
+    })
+  }
+
+  private offerFromAfar(view: Note, command: Note): void {
+    view.jumps.push({
+      to: command,
+      href: null,
+      back: false,
+      tip: `Offers “${command.label}” · ${sentenceOf(command.step.lane)}`,
+    })
+    command.jumps.push({
+      to: view,
+      href: null,
+      back: true,
+      tip: `Offered by “${view.label}” · ${sentenceOf(view.step.lane)}`,
+    })
+  }
+
+  /**
+   * A lane's actors read a view, then decide: each view block holds the commands it offers, after the last view of
+   * the lane that offers them, so that each line runs right or down. The commands no view of the lane offers follow,
+   * those of the people, then those of the platform operator and the daily schedule.
+   */
+  private blocksOf(steps: Step[]): Block[] {
+    const sent = (step: Step): boolean =>
+      step.waitsFor.length === 0 &&
+      step.main?.sticky !== null &&
+      step.main?.sticky !== undefined &&
+      step.senders.length > 0
+    const views = steps.filter((step) => step.kind === 'read' && sent(step))
+    const commands = steps.filter((step) => step.kind === 'command' && sent(step))
+    const offers = (view: Step, command: Step): boolean =>
+      this.into(command.main?.sticky?.id ?? '', 'readModel').some(
+        (offer) => offer.from === view.main?.sticky?.id,
+      )
+    const lastViewOf = (command: Step): Step | undefined => views.findLast((view) => offers(view, command))
+    const rest = commands.filter((command) => lastViewOf(command) === undefined)
+    const screenless = rest.filter((command) =>
+      command.senders.every((sender) => SCREENLESS.has(sender.sticky?.name ?? '')),
+    )
+    return [
+      ...views.map((view) => ({
+        view,
+        commands: commands.filter((command) => lastViewOf(command) === view),
+      })),
+      { view: null, commands: rest.filter((command) => !screenless.includes(command)) },
+      { view: null, commands: screenless },
+    ].filter((block) => block.view !== null || block.commands.length > 0)
   }
 }
 

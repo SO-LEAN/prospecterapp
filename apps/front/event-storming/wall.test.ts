@@ -103,15 +103,92 @@ describe('the wall of a context', () => {
     expect(noteOf('policy:ForgetAppointmentOfErasedExchangePolicy').whenever).toBe('Exchange facts changed')
   })
 
-  it('stands a human actor once in a lane, left of the view it reads', () => {
-    const members = wall.notes.filter((note) => note.slug === 'actor:ROLE_USER' && !note.badge)
-    const view = noteOf('readModel:ConsultMyBookingPage')
+  it('stands an actor post-it just left of each command it sends, one per command', () => {
+    const commands = wall.notes.filter((note) => note.kind === 'command' && !note.foreign)
+    const sent = commands.filter((command) =>
+      BOOKING.links.some(
+        (link) =>
+          link.to === command.sticky?.id && link.from.startsWith('actor:') && link.from !== 'actor:mcp',
+      ),
+    )
+
+    expect(
+      sent.filter((command) => actorsBefore(command).length === 0).map((command) => command.label),
+    ).toEqual([])
+    expect(actorsBefore(noteOf('command:OpenBooking')).map((actor) => actor.label)).toEqual(['Member'])
+  })
+
+  it('stands an actor post-it just left of each view it reads', () => {
+    expect(actorsBefore(noteOf('readModel:ConsultMyBookingPage')).map((actor) => actor.label)).toEqual([
+      'Member',
+    ])
+  })
+
+  it('stands no actor alone: each one stands before the command or the view it touches', () => {
+    const actors = wall.notes.filter((note) => note.kind === 'actor' && !note.badge)
+
+    expect(actors.filter((actor) => !actorsBefore(actor.step.main as Note).includes(actor))).toEqual([])
+  })
+
+  it('stacks the actors of a command one under the other: the people, the platform operator, the daily schedule', () => {
+    const connectors = wallOf(modelOf('connectors'))
+    const personalData = wallOf(modelOf('personal-data'))
+    const renew = connectors.notes.find(
+      (note) => note.slug === 'command:RenewMailWatch' && note.kind === 'command',
+    )
+    const rename = personalData.notes.find(
+      (note) => note.slug === 'command:RenamePerson' && note.kind === 'command',
+    )
 
     expect([
-      members.length,
-      members[0]?.step,
-      (members[0]?.x ?? 0) + (members[0]?.w ?? 0) <= view.x + 1,
-    ]).toEqual([1, view.step, true])
+      actorsBefore(renew).map((actor) => actor.label),
+      actorsBefore(rename).map((actor) => actor.label),
+    ]).toEqual([
+      ['Platform operator', 'Daily schedule'],
+      ['Prospector', 'Member'],
+    ])
+  })
+
+  it('stacks a person above the platform operator and the daily schedule, whatever the order of the model', () => {
+    const open = 'command:Prospecter\\Core\\Booking\\Application\\BookingPage\\OpenBooking\\OpenBooking'
+    const member = BOOKING.stickies.find(
+      (sticky) => sticky.id === 'actor:ROLE_USER',
+    ) as Model['stickies'][number]
+    const screenless = [
+      ['schedule', 'Daily schedule'],
+      ['operator', 'Platform operator'],
+    ].map(([name, label]) => ({
+      ...member,
+      id: `actor:${name}`,
+      slug: `actor:${name}`,
+      name: name ?? '',
+      label: label ?? '',
+    }))
+    const sentByThree = wallOf({
+      ...BOOKING,
+      stickies: [...screenless, ...BOOKING.stickies],
+      links: [
+        ...BOOKING.links,
+        ...screenless.map((actor) => ({ from: actor.id, to: open, via: null, certain: true, when: null })),
+      ],
+    })
+    const command = sentByThree.notes.find(
+      (note) => note.slug === 'command:OpenBooking' && note.kind === 'command',
+    )
+
+    expect(actorsBefore(command).map((actor) => actor.label)).toEqual([
+      'Member',
+      'Platform operator',
+      'Daily schedule',
+    ])
+  })
+
+  it('stands the platform operator before Erase campaign', () => {
+    const erase = wallOf(modelOf('campaigns')).notes.find(
+      (note) => note.slug === 'command:EraseCampaign' && note.kind === 'command',
+    )
+
+    expect(actorsBefore(erase).map((actor) => actor.label)).toEqual(['Platform operator'])
   })
 
   it('hangs from a view the commands its links offer, dashed when only in some states', () => {
@@ -123,6 +200,56 @@ describe('the wall of a context', () => {
       ['Change booking link', 'Offered only once the page has a link'],
       ['Close booking', 'Offered only while the page is open'],
       ['Open booking', 'Offered only while the page is closed'],
+    ])
+  })
+
+  it('ends each line of a view at the actor of the command it offers: view, actor, command', () => {
+    const offers = wall.brackets.find((bracket) => bracket.from === noteOf('readModel:ConsultMyBookingPage'))
+
+    expect(
+      offers?.items
+        .filter((item) => item.to !== actorsBefore(item.command)[0])
+        .map((item) => item.command.label),
+    ).toEqual([])
+  })
+
+  it('offers a command of another lane by a pictogram on each side', () => {
+    const campaigns = wallOf(modelOf('campaigns'))
+    const add = campaigns.notes.find(
+      (note) => note.slug === 'command:AddRecipient' && note.kind === 'command',
+    )
+    const sheet = campaigns.notes.find(
+      (note) => note.slug === 'readModel:ConsultCampaign' && note.kind === 'readModel',
+    )
+
+    expect([
+      add?.jumps.filter((jump) => jump.to === sheet).map((jump) => [jump.tip, jump.back]),
+      sheet?.jumps.filter((jump) => jump.to === add).map((jump) => [jump.tip, jump.back]),
+      add?.step.offers.map((offer) => offer.view),
+      add?.step.gap,
+    ]).toEqual([
+      [['Offered by “Campaign sheet” · Campaign', true]],
+      [['Offers “Add recipient” · Recipient', false]],
+      [sheet],
+      null,
+    ])
+  })
+
+  it('asks where a command is offered when no view of the wall offers it, though its actor reads none in its lane', () => {
+    const campaigns = wallOf(modelOf('campaigns'))
+    const dismiss = campaigns.notes.find(
+      (note) => note.slug === 'command:DismissRecipient' && note.kind === 'command',
+    )
+    const [actor] = actorsBefore(dismiss)
+
+    expect([
+      dismiss?.step.gap?.label,
+      dismiss?.step.gap?.why,
+      (dismiss?.step.gap?.x ?? 0) + (dismiss?.step.gap?.w ?? 0) <= (actor?.x ?? 0),
+    ]).toEqual([
+      'Offered where?',
+      'Prospector reads views on this wall, and none carries a link to this command. The front must know its address by itself. Either a link is missing in the API, or the command is reached another way.',
+      true,
     ])
   })
 
@@ -436,6 +563,20 @@ describe('the wall of a context', () => {
     expect(identify.step.strips.find((strip) => strip.note === identify)?.context).toBe('Personal data')
   })
 })
+
+/** The actor post-its of a use case's step, against its left edge, from its top down. */
+function actorsBefore(useCase: Note | undefined): Note[] {
+  if (useCase === undefined) return []
+  return useCase.step.notes
+    .filter(
+      (note) =>
+        note.kind === 'actor' &&
+        !note.badge &&
+        Math.abs(note.x + note.w - useCase.x) <= 2 &&
+        note.y >= useCase.y - 2,
+    )
+    .sort((one, other) => one.y - other.y)
+}
 
 function overlaps(a: Note | undefined, b: Note | undefined): boolean {
   if (a === undefined || b === undefined) return false

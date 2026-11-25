@@ -265,9 +265,7 @@ function whoOf(data: WallData, index: number): string {
 /** The wall told in sentences, lane by lane: it reads without the script, and prints. */
 function textOf(wall: Wall, data: WallData): string {
   const lanes = wall.lanes.map((lane) => {
-    const sentences = lane.steps
-      .filter((step) => step.kind !== 'actor')
-      .map((step) => `<li>${sentenceAbout(wall, step)}</li>`)
+    const sentences = lane.steps.map((step) => `<li>${sentenceAbout(wall, step)}</li>`)
     return `<h3>${escaped(lane.label)}</h3><ol>${sentences.join('')}</ol>`
   })
   return `<section id="story" class="card" aria-label="The wall as text" hidden><h2>${escaped(data.label)}, told in sentences <button class="btn icon" data-close="story" aria-label="Close">${ICONS.close}</button></h2>${lanes.join('')}</section>`

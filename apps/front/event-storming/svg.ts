@@ -149,7 +149,6 @@ ${this.data.lanes.map((each, index) => (lane === null || lane === index ? this.t
           this.placed(brace.from),
           brace.ends.map((end) => this.placed(end)),
           brace.spine,
-          brace.over === null ? null : this.placed(brace.over),
         )
         const branches = drawn.branches.map((branch, index) => {
           const dashed = brace.certain[index] === false ? ' stroke-dasharray="4 9"' : ''

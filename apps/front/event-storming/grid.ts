@@ -118,10 +118,7 @@ class GridUnderConstruction {
   }
 
   private topOf(step: Step): number {
-    return (
-      Math.min(...step.notes.map((note) => this.shapeOf(note).y), ...step.strips.map((strip) => strip.y)) -
-      step.headroom
-    )
+    return Math.min(...step.notes.map((note) => this.shapeOf(note).y), ...step.strips.map((strip) => strip.y))
   }
 
   private bottomOf(step: Step): number {
@@ -189,33 +186,25 @@ class GridUnderConstruction {
     const waiting = lane.steps.filter((step) => this.makersOf(step).length > 0)
     const far = waiting.filter((step) => this.makersOf(step).every((maker) => maker.step.lane !== lane.name))
     const near = waiting.filter((step) => !far.includes(step))
-    const grouped = new Set(lane.groups.flatMap((group) => [...group.reads, ...group.commands]))
-    const free = lane.steps
-      .filter(
-        (step) =>
-          !waiting.includes(step) && !grouped.has(step) && !lane.groups.some((group) => group.solo === step),
-      )
-      .sort(this.byRule)
+    const blocked = new Set(lane.blocks.flatMap((block) => [block.view, ...block.commands]))
+    const free = lane.steps.filter((step) => !waiting.includes(step) && !blocked.has(step)).sort(this.byRule)
     for (const step of far) this.putAfterItsMakers(step, rows, 'far')
-    this.stackTheGroups(lane, rows)
+    this.stackTheBlocks(lane, rows)
     for (const step of free) this.putAfterItsMakers(step, rows, 'free')
     for (const step of near) this.putAfterItsMakers(step, rows, 'near')
     return rows
   }
 
-  private stackTheGroups(lane: Lane, rows: Row[]): void {
-    for (const group of lane.groups) {
-      const commands = [...group.commands].sort(this.byRule)
-      if (group.solo !== null) {
-        this.stepX.set(group.solo, SIZE.margin)
-        rows.push({ steps: [group.solo], right: SIZE.margin + group.solo.width, y: 0 })
-      }
-      for (let index = 0; index < Math.max(group.reads.length, commands.length); index++) {
-        const read = group.reads[index]
+  /** Each view in its column, its first command beside it, its other commands under it, in their column. */
+  private stackTheBlocks(lane: Lane, rows: Row[]): void {
+    for (const block of lane.blocks) {
+      const commands = [...block.commands].sort(this.byRule)
+      for (let index = 0; index < Math.max(1, commands.length); index++) {
+        const view = index === 0 ? block.view : null
         const command = commands[index]
-        if (read !== undefined) this.stepX.set(read, VIEW)
-        if (command !== undefined) this.stepX.set(command, HEAD + command.shift - (command.main?.x ?? 0))
-        const steps = [read, command].filter((step): step is Step => step !== undefined)
+        if (view !== null) this.stepX.set(view, VIEW - (view.main?.x ?? 0))
+        if (command !== undefined) this.stepX.set(command, HEAD - (command.main?.x ?? 0))
+        const steps = [view, command].filter((step): step is Step => step !== null && step !== undefined)
         rows.push({
           steps,
           right: Math.max(...steps.map((step) => (this.stepX.get(step) ?? 0) + step.width)),

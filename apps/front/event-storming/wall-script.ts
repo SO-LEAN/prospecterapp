@@ -116,12 +116,7 @@ export function runTheWall(data: WallData): void {
     })
     const braces = data.braces.map((brace, index) => {
       if (folded.has(brace.lane)) return ''
-      const drawn = braceOf(
-        placed(brace.from),
-        brace.ends.map(placed),
-        brace.spine,
-        brace.over === null ? null : placed(brace.over),
-      )
+      const drawn = braceOf(placed(brace.from), brace.ends.map(placed), brace.spine)
       const branches = drawn.branches.map((branch, at) => {
         const certain = brace.certain[at] ?? true
         const condition = brace.tips[at]

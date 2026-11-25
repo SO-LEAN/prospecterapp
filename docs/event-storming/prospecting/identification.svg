@@ -40,10 +40,21 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
 <g transform="translate(250 4146.1) rotate(-1.25 66 66)"><rect width="132" height="132" rx="1" fill="#a9e190" stroke="#000" stroke-opacity="0.12"/><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="18.5" fill="#1b2030" text-anchor="middle"><tspan x="66" y="59.8">Identify</tspan><tspan x="66" y="79.8">organizations</tspan></text></g>
 <g transform="translate(237 4128.4) rotate(3.67 16 16)"><circle cx="16" cy="16" r="16" fill="#ffe257" stroke="#1b2030" stroke-opacity="0.55" stroke-width="1.5"/><g transform="translate(5 5) scale(0.7333333333333333)" fill="none" stroke="#1b2030" stroke-width="1.9" stroke-linecap="round"><rect x="10" y="3" width="10" height="8" rx="2"/><path d="M15 3V.8M13 7h.1M17 7h.1M15 11v9M7 15h16M15 20l-6 8M15 20l6 8"/></g></g>
 <g transform="translate(256 4275.1) rotate(-1.41 80 23.5)"><rect width="160" height="47" rx="1" fill="#ffb5d0" stroke="#000" stroke-opacity="0.12"/><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="16" fill="#1b2030"><tspan x="10" y="25.8">Prospectors</tspan></text><text font-family='system-ui, sans-serif' font-size="9.5" fill="#5e6270"><tspan x="10" y="38.2">asks Accounts</tspan></text></g>
 <g transform="translate(319 3922.9) rotate(-1.11 66 66)"><rect width="132" height="132" rx="1" fill="#a9e190" stroke="#000" stroke-opacity="0.12"/><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="16.5" fill="#1b2030" text-anchor="middle"><tspan x="66" y="60.4">Recognize calling</tspan><tspan x="66" y="78.2">organization</tspan></text></g>
+<g transform="translate(250 3949) rotate(-0.20 35 35)"><rect width="70" height="70" rx="1" fill="#ffe257" stroke="#000" stroke-opacity="0.12"/><g transform="translate(20 5) scale(1)" fill="none" stroke="#1b2030" stroke-width="1.9" stroke-linecap="round"><circle cx="15" cy="6" r="4"/><path d="M15 10v10M7 14.5h16M15 20l-6 8M15 20l6 8"/></g><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="12.5" fill="#1b2030" text-anchor="middle"><tspan x="35" y="45">Prospector</tspan></text></g>
 <g transform="translate(306 3905) rotate(4.32 16 16)"><circle cx="16" cy="16" r="16" fill="#ffe257" stroke="#1b2030" stroke-opacity="0.55" stroke-width="1.5"/><g transform="translate(5 5) scale(0.7333333333333333)" fill="none" stroke="#1b2030" stroke-width="1.9" stroke-linecap="round"><rect x="10" y="3" width="10" height="8" rx="2"/><path d="M15 3V.8M13 7h.1M17 7h.1M15 11v9M7 15h16M15 20l-6 8M15 20l6 8"/></g></g>
 <g transform="translate(325 4051.9) rotate(-2.19 80 23.5)"><rect width="160" height="47" rx="1" fill="#ffb5d0" stroke="#000" stroke-opacity="0.12"/><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="16" fill="#1b2030"><tspan x="10" y="25.8">Prospectors</tspan></text><text font-family='system-ui, sans-serif' font-size="9.5" fill="#5e6270"><tspan x="10" y="38.2">asks Accounts</tspan></text></g>
 
@@ -410,7 +421,44 @@
 
 
 
-<g transform="translate(250 3949) rotate(-0.20 35 35)"><rect width="70" height="70" rx="1" fill="#ffe257" stroke="#000" stroke-opacity="0.12"/><g transform="translate(20 5) scale(1)" fill="none" stroke="#1b2030" stroke-width="1.9" stroke-linecap="round"><circle cx="15" cy="6" r="4"/><path d="M15 10v10M7 14.5h16M15 20l-6 8M15 20l6 8"/></g><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="12.5" fill="#1b2030" text-anchor="middle"><tspan x="35" y="45">Prospector</tspan></text></g>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
