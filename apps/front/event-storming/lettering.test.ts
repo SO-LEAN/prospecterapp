@@ -93,7 +93,7 @@ describe('the lettering of a post-it', () => {
 })
 
 /**
- * Each pictogram whose centre leaves its post-it, or that covers another pictogram of it, the « +n » included. A
+ * Each pictogram whose centre leaves its post-it, or that covers another of its post-it's pictograms, the « +n » included. A
  * pictogram of a post-it leans out of its corner, never further.
  */
 function pictogramsOffTheirPostIt(note: Note): string[] {
