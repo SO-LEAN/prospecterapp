@@ -145,11 +145,16 @@ function jumpsOf(note: Note): string {
 }
 
 function pictogramOf({ jump, index, side, offset }: Pictogram): string {
-  const away = jump.to === null
-  const icon = iconOf(jump)
   const attributes = `style="${side}:${offset}px" data-jump="${index}" data-tip="${escaped(jump.tip)}" aria-label="${escaped(jump.tip)}" tabindex="-1"`
-  if (jump.href !== null) return `<a class="jump away" href="${escaped(jump.href)}" ${attributes}>${icon}</a>`
-  return `<button class="jump${away ? ' away' : ''}" ${attributes}>${icon}</button>`
+  return jumpOf(jump, ['jump'], attributes, iconOf(jump))
+}
+
+/** A link to another wall, or a button to a post-it of this wall; both point away when they lead to no post-it. */
+function jumpOf(jump: Jump, classes: string[], attributes: string, content: string): string {
+  const away = jump.to === null ? ['away'] : []
+  const kept = `class="${[...classes, ...away].join(' ')}" ${attributes}`
+  if (jump.href !== null) return `<a href="${escaped(jump.href)}" ${kept}>${content}</a>`
+  return `<button ${kept}>${content}</button>`
 }
 
 function iconOf(jump: Jump): string {
@@ -160,12 +165,14 @@ function iconOf(jump: Jump): string {
 /** The « +n » in the last place, whose hover or focus lists the pictograms left out, each by what it leads to. */
 function moreOf(offset: number, hidden: Pictogram[]): string {
   const label = `${hidden.length} more: ${hidden.map(({ jump }) => jump.tip).join(', ')}`
-  const items = hidden.map(({ jump, index }) => {
-    const attributes = `data-jump="${index}" tabindex="-1"`
-    const content = `${iconOf(jump)}<span>${escaped(jump.tip)}</span>`
-    if (jump.href !== null) return `<a class="away" href="${escaped(jump.href)}" ${attributes}>${content}</a>`
-    return `<button${jump.to === null ? ' class="away"' : ''} ${attributes}>${content}</button>`
-  })
+  const items = hidden.map(({ jump, index }) =>
+    jumpOf(
+      jump,
+      [],
+      `data-jump="${index}" tabindex="-1"`,
+      `${iconOf(jump)}<span>${escaped(jump.tip)}</span>`,
+    ),
+  )
   return `<span class="more" style="right:${offset}px"><button class="jump more" aria-label="${escaped(label)}" tabindex="-1">+${hidden.length}</button><span class="more-jumps">${items.join('')}</span></span>`
 }
 
