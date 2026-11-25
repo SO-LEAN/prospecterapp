@@ -6,7 +6,6 @@ namespace Tests\PHPStan\EventStorming;
 
 use PHPStan\Analyser\Error;
 use PHPStan\Command\AnalysisResult;
-use PHPStan\Command\Output;
 use PHPUnit\Framework\TestCase;
 use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
 use Prospecter\PHPStan\EventStorming\EventStormingFactsRule;
@@ -21,19 +20,18 @@ final class EventStormingFormatterTest extends TestCase
 
     public function testAUseCaseNoFeatureNamesFailsTheGenerationThatNamesIt(): void
     {
-        $output = $this->createMock(Output::class);
-        $output->expects(self::never())->method('writeRaw');
-        $output->expects(self::once())->method('writeLineFormatted')->with(self::stringContains('Till: Refund'));
+        $output = new WrittenOutput();
+        $exit = self::formatter()->formatErrors(self::analysisOf(self::REFUND), $output);
 
-        self::assertSame(1, self::formatter()->formatErrors(self::analysisOf(self::REFUND), $output));
+        self::assertSame([1, '', ["No feature names these use cases:\nTill: Refund"]], [$exit, $output->raw, $output->lines]);
     }
 
     public function testAnAnalysisThatCouldNotReadTheCodeFailsTheGenerationThatSaysWhy(): void
     {
-        $output = $this->createMock(Output::class);
-        $output->expects(self::once())->method('writeLineFormatted')->with(self::stringContains('A file could not be parsed'));
+        $output = new WrittenOutput();
+        $exit = self::formatter()->formatErrors(self::analysisOf(self::REFUND, ['A file could not be parsed']), $output);
 
-        self::assertSame(1, self::formatter()->formatErrors(self::analysisOf(self::REFUND, ['A file could not be parsed']), $output));
+        self::assertSame([1, '', ["The code could not be read for the event storming:\nA file could not be parsed"]], [$exit, $output->raw, $output->lines]);
     }
 
     private static function formatter(): EventStormingFormatter
