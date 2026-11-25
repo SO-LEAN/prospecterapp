@@ -4,28 +4,19 @@ declare(strict_types=1);
 
 namespace App\Campaigning;
 
-use App\Campaigning\Resource\CampaignListLinksResource;
 use App\Campaigning\Resource\CampaignListResource;
 use App\Campaigning\Resource\CampaignResource;
+use App\Security\IntentLinks;
 use App\Shared\Links;
-use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\ConsultMembers;
-use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\ConsultMembersService;
-use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\KeptMembers;
-use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\MemberResponse;
 use Prospecter\Core\Campaigns\Application\Campaign\ConsultCampaign\ConsultCampaign;
-use Prospecter\Core\Campaigns\Application\Campaign\ConsultCampaign\KeptCampaign;
-use Prospecter\Core\Campaigns\Application\Campaign\ListCampaigns\KeptCampaigns;
 use Prospecter\Core\Campaigns\Application\Campaign\ListCampaigns\ListCampaigns;
-use Prospecter\Core\Campaigns\Application\CampaignSheet;
-use Prospecter\Core\PersonalData\Application\Person\ConsultPersons\ConsultPersons;
-use Prospecter\Core\PersonalData\Application\Person\ConsultPersons\KeptPersons;
-use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Symfony\Component\Clock\ClockInterface;
 
 /**
  * Composes the team's campaigns from three contexts, in one batch each. Campaigns keeps the campaigns and counts their
- * targets. Accounts gives each author's person, and PersonalData names them.
+ * targets. Accounts gives each author's person, and PersonalData names them (`CampaignAuthors`). The presenters build
+ * the resources (ADR 0085).
  */
 final readonly class CampaignReader
 {
@@ -34,10 +25,9 @@ final readonly class CampaignReader
     public function __construct(
         private QueryHandler $consultCampaign,
         private QueryHandler $listCampaigns,
-        private ConsultMembersService $consultMembersService,
-        private QueryHandler $consultPersons,
-        private CampaignResourceFactory $campaignResourceFactory,
+        private CampaignAuthors $campaignAuthors,
         private Links $links,
+        private IntentLinks $intentLinks,
         private ClockInterface $clock,
     ) {
     }
@@ -47,38 +37,22 @@ final readonly class CampaignReader
      */
     public function read(string $reader, string $id, ?string $timeZone = null): CampaignResource
     {
-        $kept = new KeptCampaign();
-        $this->consultCampaign->__invoke(new ConsultCampaign(memberId: $reader, campaignId: $id, timeZone: $timeZone ?? self::NO_CLOCK, at: $this->clock->now()), $kept);
-        $campaign = $kept->campaign ?? throw new \LogicException('The campaign was not presented');
+        $presenter = $this->campaignPresenterFor($reader);
+        $this->consultCampaign->__invoke(new ConsultCampaign(memberId: $reader, campaignId: $id, timeZone: $timeZone ?? self::NO_CLOCK, at: $this->clock->now()), $presenter);
 
-        return $this->campaignResourceFactory->of($campaign, $kept->targeted, $this->authorsOf($reader, [$campaign])[$campaign->authorId] ?? null, $kept->processedToday);
+        return $presenter->resource;
     }
 
     public function list(string $reader): CampaignListResource
     {
-        $kept = new KeptCampaigns();
-        $this->listCampaigns->__invoke(new ListCampaigns($reader), $kept);
-        $authors = $this->authorsOf($reader, $kept->campaigns);
+        $presenter = new CampaignListPresenter($this->links, $this->campaignAuthors, $this->campaignPresenterFor($reader), $reader);
+        $this->listCampaigns->__invoke(new ListCampaigns($reader), $presenter);
 
-        return new CampaignListResource(
-            array_map(fn (CampaignSheet $campaign): CampaignResource => $this->campaignResourceFactory->of($campaign, $kept->targeted[$campaign->id] ?? 0, $authors[$campaign->authorId] ?? null), $kept->campaigns),
-            new CampaignListLinksResource($this->links->to('api_campaigns_list'), $this->links->to('api_campaigns_prepare')),
-        );
+        return $presenter->resource;
     }
 
-    /**
-     * @param list<CampaignSheet> $campaigns
-     *
-     * @return array<string, PersonCard> each author's person that PersonalData reads, by member id
-     */
-    private function authorsOf(string $reader, array $campaigns): array
+    private function campaignPresenterFor(string $reader): CampaignPresenter
     {
-        $members = new KeptMembers();
-        ($this->consultMembersService)(new ConsultMembers(array_values(array_unique(array_map(static fn (CampaignSheet $campaign): string => $campaign->authorId, $campaigns)))), $members);
-        $personOfMember = array_map(static fn (MemberResponse $member): string => $member->personId, $members->members);
-        $persons = new KeptPersons();
-        $this->consultPersons->__invoke(new ConsultPersons($reader, array_values($personOfMember)), $persons);
-
-        return array_filter(array_map(static fn (string $personId): ?PersonCard => $persons->persons[$personId] ?? null, $personOfMember));
+        return new CampaignPresenter($this->links, $this->intentLinks, $this->campaignAuthors, $reader);
     }
 }
