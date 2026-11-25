@@ -50,7 +50,7 @@ function Calendar() {
       onShow={(shownView, shownDay) => navigate({ search: { view: shownView, date: dayOf(shownDay) } })}
       contactSummary={(contactId) => <ContactSummary contactId={contactId} />}
       interlocutorSearch={(onChoose) => <InterlocutorSearch onChoose={onChoose} />}
-      toDoBox={(toDo) => <ToDoBox toDo={toDo} />}
+      toDoBox={(toDo) => <ToDoBox toDo={toDo} undoable />}
       reviseToDo={(id, body) => revise.mutate({ params: { path: { id } }, body })}
     />
   )

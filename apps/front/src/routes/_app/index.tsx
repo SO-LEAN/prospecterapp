@@ -74,7 +74,7 @@ function Dashboard() {
         <ExchangesToProcessCard
           contactSummary={(contactId) => <ContactSummary contactId={contactId} />}
           toDoLine={(toDo, now, onTickedOff) => (
-            <ToDoLine toDo={toDo} now={now} withTheirContact onTickedOff={onTickedOff} />
+            <ToDoLine toDo={toDo} now={now} withTheirContact onTickedOff={onTickedOff} undoable postponable />
           )}
           contactsToAttach={(contacts) => <ContactsToAttachSection contacts={contacts} />}
         />
