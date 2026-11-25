@@ -659,6 +659,14 @@ svg.ink {
   padding: 0 2px;
   white-space: nowrap;
 }
+a.crumb {
+  text-decoration: none;
+}
+a.crumb:hover,
+a.crumb:focus-visible {
+  color: var(--chrome-ink);
+  text-decoration: underline;
+}
 .btn {
   display: inline-flex;
   align-items: center;

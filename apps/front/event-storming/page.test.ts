@@ -19,6 +19,16 @@ describe('the page of a wall', () => {
     ])
   })
 
+  it('leads back to the overview from the root of its breadcrumb', () => {
+    const root = document.querySelector('#bar .crumb')
+
+    expect([root?.tagName, root?.getAttribute('href'), root?.textContent]).toEqual([
+      'A',
+      '../',
+      'Event storming',
+    ])
+  })
+
   it('draws each post-it square on its paper, leaning', () => {
     const sticky = stickyOf('Book slot')
 
