@@ -378,7 +378,7 @@ secrets: ## Fail when the staged changes hold a secret or an identifier of the A
 secrets-branch: ## Fail when a commit of the branch since dev holds a secret or an identifier of the AWS installation
 	@$(GITLEAKS) git --log-opts="origin/dev..HEAD" --redact --no-banner --verbose .
 
-# what the commit-msg hook bypassed or never installed let through: the commits in neither dev nor main, so that a
-# release or a hotfix already on main is not judged again
+# The CI catches the commits pushed without the commit-msg hook. It checks only the commits in neither dev nor main,
+# so a release or a hotfix already on main is not checked again.
 commit-subjects: ## Fail when a commit of the branch, in neither dev nor main, has no conventional type or a subject over 72 characters
 	@make/commit-subject.sh --commits HEAD --not origin/dev origin/main

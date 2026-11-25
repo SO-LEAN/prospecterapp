@@ -14,10 +14,10 @@ to_squash() {
 	esac
 }
 
-# the subjects git writes itself: a merge, a revert, a commit to squash
+# the subjects git writes itself: a merge, a revert, the revert of a revert, a commit to squash
 written_by_git() {
 	case $1 in
-	"Merge "* | "Revert \""*) return 0 ;;
+	"Merge "* | "Revert \""* | "Reapply \""*) return 0 ;;
 	*) to_squash "$1" ;;
 	esac
 }
@@ -58,8 +58,11 @@ subject_of_message() {
 	grep -v '^#' "$1" | grep -m 1 -v '^[[:space:]]*$'
 }
 
+# an empty message is git's to refuse
 check_message() {
-	check_subject "$(subject_of_message "$1")" "Commit refused: " && return 0
+	subject=$(subject_of_message "$1")
+	[ -n "$subject" ] || return 0
+	check_subject "$subject" "Commit refused: " && return 0
 	echo "Your message is kept in $1."
 	return 1
 }
