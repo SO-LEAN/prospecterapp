@@ -25,12 +25,29 @@ use Prospecter\Core\Booking\Domain\Model\BookingPage;
 use Prospecter\Core\Booking\Domain\Port\ConnectedCalendars;
 use Prospecter\Core\Booking\Domain\Port\HostAgendas;
 use Prospecter\Core\Booking\Domain\Service\BusyPeriods;
+use Prospecter\Core\Campaigns\Application\Campaign\ConsultCampaign\ConsultCampaign;
+use Prospecter\Core\Campaigns\Application\Campaign\ConsultCampaign\ConsultCampaignHandler;
+use Prospecter\Core\Campaigns\Application\Tagging\ConsultContactTags\ConsultContactTags;
+use Prospecter\Core\Campaigns\Application\Tagging\ConsultContactTags\ConsultContactTagsHandler;
+use Prospecter\Core\Campaigns\Application\Tagging\FactRecorder as CampaignsFactRecorder;
+use Prospecter\Core\Campaigns\Application\Tagging\ForgetTagsOfForgottenContact\ForgetTagsOfForgottenContact;
+use Prospecter\Core\Campaigns\Application\Tagging\ForgetTagsOfForgottenContact\ForgetTagsOfForgottenContactHandler;
+use Prospecter\Core\Campaigns\Application\Tagging\RecordContactFacts\RecordContactFacts;
+use Prospecter\Core\Campaigns\Application\Tagging\RecordContactFacts\RecordContactFactsHandler;
+use Prospecter\Core\Campaigns\Domain\Repository\FactRepository as CampaignsFactRepository;
+use Prospecter\Core\Campaigns\Domain\Repository\TaggingRepository;
 use Prospecter\Core\Connectors\Application\Connection\WhichHaveAConnectedCalendar\WhichHaveAConnectedCalendarHandler;
 use Prospecter\Core\Connectors\Contract\Service\WhichHaveAConnectedCalendar\WhichHaveAConnectedCalendar;
 use Prospecter\Core\Connectors\Contract\Service\WhichHaveAConnectedCalendar\WhichHaveAConnectedCalendarService;
 use Prospecter\Core\PersonalData\Application\Policy\IdentifyBookerPolicy;
 use Prospecter\Core\Prospecting\Contract\Event\ExchangeFactsChanged;
 use Prospecter\Core\Prospecting\Domain\Port\BookedAppointments;
+use Prospecter\Core\Reporting\Application\ConsultFigures\ConsultFigures;
+use Prospecter\Core\Reporting\Application\ConsultFigures\ConsultFiguresHandler;
+use Prospecter\Core\Reporting\Application\FactRecorder as ReportingFactRecorder;
+use Prospecter\Core\Reporting\Application\RecordExchangeFacts\RecordExchangeFacts;
+use Prospecter\Core\Reporting\Application\RecordExchangeFacts\RecordExchangeFactsHandler;
+use Prospecter\Core\Reporting\Domain\Repository\FactRepository as ReportingFactRepository;
 use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Handler\Policy;
@@ -57,6 +74,12 @@ final class ContextStormingTest extends TestCase
     private const string MY_BOOKING_PAGE_READER = 'App\Booking\MyBookingPageReader';
 
     private const string OPEN_BOOKING_TOOL = 'App\Booking\Mcp\OpenBookingTool';
+
+    private const string OPEN_BOOKING_COMMAND = 'App\Booking\Command\OpenBookingCommand';
+
+    private const string BOOKINGS_OPENER = 'App\Booking\BookingsOpener';
+
+    private const string SCHEDULED_TASK = 'App\Shared\ScheduledTask';
 
     private const string IDENTIFY_BOOKER = IdentifyBookerPolicy::class;
 
@@ -417,6 +440,99 @@ final class ContextStormingTest extends TestCase
         );
     }
 
+    public function testACommandOfTheConsoleIsThePlatformOperator(): void
+    {
+        $model = self::modelOf(new Facts([
+            self::handlerOf(self::OPEN_BOOKING),
+            new ClassFacts(self::OPEN_BOOKING_COMMAND, console: true),
+        ], [new Call(self::OPEN_BOOKING_COMMAND, '__invoke', self::OPEN_BOOKING, Call::CREATION)]));
+
+        self::assertSame(
+            [
+                ['id' => 'actor:operator', 'slug' => 'actor:operator', 'type' => 'actor', 'label' => 'Platform operator', 'feature' => null, 'name' => 'operator', 'class' => null, 'context' => 'Booking', 'module' => null, 'detail' => null, 'answeredBy' => [], 'answers' => [], 'readBy' => []],
+                ['from' => 'actor:operator', 'to' => 'command:'.self::OPEN_BOOKING, 'via' => null, 'certain' => true, 'when' => null],
+            ],
+            [self::stickyOf($model, 'actor:operator'), self::linksOf($model)[0] ?? null],
+        );
+    }
+
+    public function testATaskOfTheDailyScheduleIsTheDailyScheduleAndTheConsoleThatRunsItThePlatformOperator(): void
+    {
+        $model = self::modelOf(new Facts([
+            self::handlerOf(self::OPEN_BOOKING),
+            new ClassFacts(self::BOOKINGS_OPENER, interfaces: [self::SCHEDULED_TASK]),
+            new ClassFacts(self::OPEN_BOOKING_COMMAND, console: true),
+        ], [
+            new Call(self::BOOKINGS_OPENER, 'open', self::OPEN_BOOKING, Call::CREATION),
+            new Call(self::OPEN_BOOKING_COMMAND, '__invoke', self::BOOKINGS_OPENER, 'open'),
+        ]));
+
+        self::assertSame(
+            [
+                'Daily schedule',
+                ['from' => 'actor:operator', 'to' => 'command:'.self::OPEN_BOOKING, 'via' => null, 'certain' => true, 'when' => null],
+                ['from' => 'actor:schedule', 'to' => 'command:'.self::OPEN_BOOKING, 'via' => null, 'certain' => true, 'when' => null],
+            ],
+            [self::stickyOf($model, 'actor:schedule')['label'] ?? null, ...self::linksOf($model)],
+        );
+    }
+
+    public function testAnEntranceSendsTheCommandANamedConstructorOfTheCommandCreates(): void
+    {
+        $model = self::modelOf(new Facts([
+            self::handlerOf(self::OPEN_BOOKING),
+            new ClassFacts(self::OPEN_BOOKING_CONTROLLER, roles: ['ROLE_USER']),
+        ], [
+            new Call(self::OPEN_BOOKING_CONTROLLER, '__invoke', self::OPEN_BOOKING, 'forTheHost'),
+            new Call(self::OPEN_BOOKING, 'forTheHost', self::OPEN_BOOKING, Call::CREATION),
+        ]));
+
+        self::assertSame([['from' => 'actor:ROLE_USER', 'to' => 'command:'.self::OPEN_BOOKING, 'via' => null, 'certain' => true, 'when' => null]], self::linksOf($model));
+    }
+
+    public function testAProjectionLeadsToTheViewItKeeps(): void
+    {
+        $model = self::modelOf(new Facts([
+            new ClassFacts(RecordExchangeFactsHandler::class, interfaces: [self::COMMAND_HANDLER], parameters: [[RecordExchangeFacts::class]]),
+            new ClassFacts(ConsultFiguresHandler::class, interfaces: [self::QUERY_HANDLER], parameters: [[ConsultFigures::class]]),
+        ], [
+            new Call(RecordExchangeFactsHandler::class, '__invoke', ReportingFactRecorder::class, 'record'),
+            new Call(ReportingFactRecorder::class, 'record', ReportingFactRepository::class, 'record'),
+        ]), context: 'Reporting');
+
+        self::assertSame([['from' => 'command:'.RecordExchangeFacts::class, 'to' => 'readModel:'.ConsultFigures::class, 'via' => null, 'certain' => true, 'when' => null]], self::linksOf($model));
+    }
+
+    public function testACommandThatKeepsNoFactsLeadsToNoView(): void
+    {
+        $model = self::modelOf(new Facts([
+            new ClassFacts(ForgetTagsOfForgottenContactHandler::class, interfaces: [self::COMMAND_HANDLER], parameters: [[ForgetTagsOfForgottenContact::class]]),
+            new ClassFacts(ConsultContactTagsHandler::class, interfaces: [self::QUERY_HANDLER], parameters: [[ConsultContactTags::class]]),
+        ], [
+            new Call(ForgetTagsOfForgottenContactHandler::class, '__invoke', TaggingRepository::class, 'forget'),
+            new Call(ForgetTagsOfForgottenContactHandler::class, '__invoke', ForgetTagsOfForgottenContactHandler::class, '__invoke'),
+            new Call(ForgetTagsOfForgottenContactHandler::class, '__invoke', ReportingFactRecorder::class, 'record'),
+            new Call(ReportingFactRecorder::class, 'record', ReportingFactRepository::class, 'record'),
+        ]), context: 'Campaigns');
+
+        self::assertSame([], self::linksOf($model));
+    }
+
+    public function testAProjectionLeadsToNoViewOfAnotherModule(): void
+    {
+        $model = self::modelOf(new Facts([
+            new ClassFacts(RecordContactFactsHandler::class, interfaces: [self::COMMAND_HANDLER], parameters: [[RecordContactFacts::class]]),
+            new ClassFacts(ConsultContactTagsHandler::class, interfaces: [self::QUERY_HANDLER], parameters: [[ConsultContactTags::class]]),
+            new ClassFacts(ConsultCampaignHandler::class, interfaces: [self::QUERY_HANDLER], parameters: [[ConsultCampaign::class]]),
+        ], [
+            new Call(RecordContactFactsHandler::class, '__invoke', CampaignsFactRecorder::class, 'record'),
+            new Call(CampaignsFactRecorder::class, 'record', CampaignsFactRecorder::class, 'keep'),
+            new Call(CampaignsFactRecorder::class, 'keep', CampaignsFactRepository::class, 'record'),
+        ]), context: 'Campaigns');
+
+        self::assertSame([['from' => 'command:'.RecordContactFacts::class, 'to' => 'readModel:'.ConsultContactTags::class, 'via' => null, 'certain' => true, 'when' => null]], self::linksOf($model));
+    }
+
     public function testAViewOffersTheCommandsItsPresenterLinksTo(): void
     {
         $model = self::modelOf(self::myBookingPageOffering(['setWindows' => self::SET_WINDOWS_ROUTE]));
@@ -541,9 +657,9 @@ final class ContextStormingTest extends TestCase
      * @param array<string, string>               $titles
      * @param array<string, array<string, mixed>> $subscriptions
      */
-    private static function modelOf(Facts $facts, array $titles = [], array $subscriptions = []): Model
+    private static function modelOf(Facts $facts, array $titles = [], array $subscriptions = [], string $context = 'Booking'): Model
     {
-        return new ContextStorming($facts, $titles, $subscriptions)->model('Booking');
+        return new ContextStorming($facts, $titles, $subscriptions)->model($context);
     }
 
     /**

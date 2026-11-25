@@ -30,6 +30,13 @@ final readonly class ContextStorming
 
     private const string AI = 'mcp';
 
+    private const string OPERATOR = 'operator';
+
+    private const string SCHEDULE = 'schedule';
+
+    /** The short name of the delivery's interface of a daily task: the generator names no class of the delivery. */
+    private const string SCHEDULED_TASK = 'ScheduledTask';
+
     private const string SOURCE = 'prospecter.';
 
     private const string PUBLISHED = 'Published to the other contexts';
@@ -56,6 +63,7 @@ final readonly class ContextStorming
         $this->stickTheReactions($board, $context);
         $this->stickTheSubscribers($board, $context);
         $this->stickTheReadModels($board, $context);
+        $this->stickTheProjections($board, $context);
         $this->stickTheActors($board, $context);
         $this->stickTheOffers($board, $context);
 
@@ -290,6 +298,44 @@ final readonly class ContextStorming
     }
 
     /**
+     * A projection records no event: its command keeps the facts of another context, which the views of its module
+     * read. It leads to each of them.
+     */
+    private function stickTheProjections(Board $board, string $context): void
+    {
+        foreach ($this->handlersOf($context, self::COMMAND_HANDLER) as $handler) {
+            foreach ($this->keepsFacts($handler->name, self::ENTRY, $context) ? $handler->firstParameter() : [] as $command) {
+                foreach (self::viewsOfTheModuleOf($board, $command) as $view) {
+                    $board->link(new Link(StickyType::Command->value.':'.$command, $view->id));
+                }
+            }
+        }
+    }
+
+    /**
+     * Whether a method reaches, through the classes of the context, the repository of the facts it keeps.
+     *
+     * @param array<string, true> $visited
+     */
+    private function keepsFacts(string $class, string $method, string $context, array $visited = []): bool
+    {
+        $visited[$class.'::'.$method] = true;
+
+        return array_any($this->facts->callsFrom($class, $method), fn (Call $call): bool => new ClassName($call->target)->isAFactRepository()
+            || (new ClassName($call->target)->isOf($context) && !isset($visited[$call->target.'::'.$call->targetMethod]) && $this->keepsFacts($call->target, $call->targetMethod, $context, $visited)));
+    }
+
+    /**
+     * @return list<Sticky>
+     */
+    private static function viewsOfTheModuleOf(Board $board, string $command): array
+    {
+        $module = new ClassName($command)->module();
+
+        return array_values(array_filter($board->stickiesOf(StickyType::ReadModel), static fn (Sticky $view): bool => $module === $view->module));
+    }
+
+    /**
      * What takes the published services a query handler implements: the port of each adapter, on the wall of its
      * context, or the class itself when it implements no port.
      *
@@ -316,7 +362,8 @@ final readonly class ContextStorming
 
     /**
      * An actor sends a use case through an entrance of the delivery: the role a controller requires, anyone when it
-     * requires none, and the member's AI through a tool of the MCP server.
+     * requires none, the member's AI through a tool of the MCP server, the platform operator through a command of the
+     * console, and the daily schedule through a daily task.
      */
     private function stickTheActors(Board $board, string $context): void
     {
@@ -393,11 +440,24 @@ final readonly class ContextStorming
     }
 
     /**
+     * The daily schedule runs a task that the console may run too.
+     *
      * @return list<string>
      */
     private static function actorsEntering(ClassFacts $entrance): array
     {
+        $scheduled = array_any($entrance->interfaces, static fn (string $interface): bool => self::SCHEDULED_TASK === new ClassName($interface)->short());
+
+        return [...($scheduled ? [self::SCHEDULE] : []), ...self::actorsAsking($entrance)];
+    }
+
+    /**
+     * @return list<string>
+     */
+    private static function actorsAsking(ClassFacts $entrance): array
+    {
         return match (true) {
+            $entrance->console => [self::OPERATOR],
             str_contains($entrance->name, self::CONTROLLERS) => [] === $entrance->roles ? [self::ANYONE] : $entrance->roles,
             str_contains($entrance->name, self::TOOLS) => [self::AI],
             default => [],
@@ -406,7 +466,7 @@ final readonly class ContextStorming
 
     /**
      * Follows the calls of an entrance through the classes of the delivery up to the use cases on the board it
-     * creates.
+     * creates. A named constructor of a use case's message creates it in its own class.
      *
      * @param list<Call>          $calls
      * @param array<string, true> $visited
@@ -418,18 +478,24 @@ final readonly class ContextStorming
         $sent = [];
         foreach ($calls as $call) {
             $target = $call->target.'::'.$call->targetMethod;
+            $useCases = self::useCasesNamed($board, $call->target);
             if ($call->isCreation()) {
-                $sent = [...$sent, ...array_values(array_filter(
-                    [StickyType::Command->value.':'.$call->target, StickyType::ReadModel->value.':'.$call->target],
-                    $board->has(...),
-                ))];
-            } elseif (null === new ClassName($call->target)->context() && !isset($visited[$target])) {
+                $sent = [...$sent, ...$useCases];
+            } elseif ((null === new ClassName($call->target)->context() || [] !== $useCases) && !isset($visited[$target])) {
                 $visited[$target] = true;
                 $sent = [...$sent, ...$this->useCasesSentBy($board, $this->facts->callsFrom($call->target, $call->targetMethod), $visited)];
             }
         }
 
         return $sent;
+    }
+
+    /**
+     * @return list<string> the ids of the use cases on the board whose message is this class
+     */
+    private static function useCasesNamed(Board $board, string $class): array
+    {
+        return array_values(array_filter([StickyType::Command->value.':'.$class, StickyType::ReadModel->value.':'.$class], $board->has(...)));
     }
 
     /**

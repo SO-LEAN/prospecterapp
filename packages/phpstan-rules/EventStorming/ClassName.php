@@ -13,6 +13,8 @@ final readonly class ClassName
 
     private const string APPLICATION = 'Application';
 
+    private const string FACT_REPOSITORY = 'FactRepository';
+
     public function __construct(public string $value)
     {
     }
@@ -47,6 +49,14 @@ final readonly class ClassName
     public function isAPort(): bool
     {
         return ['Domain', 'Port'] === \array_slice($this->segmentsInTheCore(), 1, 2);
+    }
+
+    /**
+     * The facts another context publishes, which a projection keeps (ADR 0103, 0141).
+     */
+    public function isAFactRepository(): bool
+    {
+        return ['Domain', 'Repository', self::FACT_REPOSITORY] === \array_slice($this->segmentsInTheCore(), 1, 3);
     }
 
     public function isAPublishedEvent(): bool
