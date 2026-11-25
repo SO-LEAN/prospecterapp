@@ -14,8 +14,9 @@ test: ## Run the tests of the front (Vitest); FILTER= a test file by its path or
 # components of shadcn, whose class names no test reads
 MUTATED_CODE = 'src/*.ts' 'src/*.tsx' ':!*.test.ts' ':!*.test.tsx' ':!*.d.ts' ':!src/test/*' ':!src/app/routeTree.gen.ts' ':!src/shared/ui/*'
 # the event storming's generator, mutated apart, its tests in a Stryker of their own (stryker.event-storming.json): they
-# never share a VM worker with the SPA's (ADR 0210)
-MUTATED_GENERATOR = 'event-storming/*.ts' ':!*.test.ts'
+# never share a VM worker with the SPA's (ADR 0210). It leaves out generate.ts, which only reads and writes the files
+# that check-event-storming checks (docs/architecture/tests.md)
+MUTATED_GENERATOR = 'event-storming/*.ts' ':!*.test.ts' ':!event-storming/generate.ts'
 # Stryker reads no git diff: the hunks of the added lines become its ranges, <file>:<first>-<last>, comma separated
 ADDED_LINE_RANGES = $(call ADDED_LINES,$(1)) | awk '/^\+\+\+ b\// { file = substr($$0, 7) } \
 	/^@@/ { split(substr($$3, 2), new, ","); count = new[2] == "" ? 1 : new[2]; \
