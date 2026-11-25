@@ -49,11 +49,26 @@ export function useResolvedTheme(): 'light' | 'dark' {
   return theme === 'system' ? (systemIsDark ? 'dark' : 'light') : theme
 }
 
-/** Keeps the `dark` class on <html> in sync with the preference. index.html sets the initial value. */
+/** The browser's bar color in each theme, the page's background. index.html holds the same values. */
+const BROWSER_BAR = { light: '#f8fafc', dark: '#0f1117' } as const
+
+function setMetaContent(name: string, content: string) {
+  const meta = document.head.querySelector<HTMLMetaElement>(`meta[name="${name}"]`)
+  if (meta !== null) {
+    meta.content = content
+  }
+}
+
+/**
+ * Keeps the `dark` class on <html>, the native controls (`color-scheme`) and the browser's bar (`theme-color`) in sync
+ * with the app's theme, not the system's. index.html sets the initial values.
+ */
 export function useThemeClass() {
   const resolved = useResolvedTheme()
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', resolved === 'dark')
+    setMetaContent('color-scheme', resolved)
+    setMetaContent('theme-color', BROWSER_BAR[resolved])
   }, [resolved])
 }
