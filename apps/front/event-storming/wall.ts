@@ -555,7 +555,12 @@ class WallUnderConstruction {
       )
       this.link(node, aggregate, change.certain, false)
       right = Math.max(right, aggregate.x + SIZE.sticky)
-      for (const recorded of this.out(change.to, 'event').filter((link) => link.via === change.via)) {
+      const records = this.out(change.to, 'event').filter((link) => link.via === change.via)
+      if (records.length === 0) {
+        right = Math.max(right, this.markAChangeWithoutEvent(step, node, aggregate, rows))
+        rows++
+      }
+      for (const recorded of records) {
         const event = this.put(
           step,
           this.sticky(recorded.to),
@@ -593,6 +598,23 @@ class WallUnderConstruction {
       rows++
     }
     return { rows, right }
+  }
+
+  /** An aggregate changed without an event gets a hotspot where its event would stand. Returns its right edge. */
+  private markAChangeWithoutEvent(step: Step, node: Note, aggregate: Note, row: number): number {
+    const hotspot = this.put(
+      step,
+      null,
+      'hotspot',
+      { x: node.x + CLUSTER.recorded.x, y: CLUSTER.hotspot.y + row * CLUSTER.event.pitch },
+      {
+        label: 'No event recorded',
+        z: 4,
+        why: `This command changes “${aggregate.label}” through ${aggregate.via}(), and that change records no event: nothing on the wall says what happened. Either an event is missing, or the generator cannot see it.`,
+      },
+    )
+    this.link(aggregate, hotspot, true, false)
+    return hotspot.x + SIZE.hotspot
   }
 
   /** A command that records no event gets a hotspot after it. Returns the step's right edge. */
