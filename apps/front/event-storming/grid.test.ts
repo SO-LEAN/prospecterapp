@@ -36,6 +36,15 @@ describe('the grid of a wall', () => {
     expect(publish.x).toBeGreaterThan((booked === undefined ? 0 : (grid.places.get(booked)?.x ?? 0)) + 132)
   })
 
+  it('gives a lane the width of its rightmost post-it and the margin of the wall', () => {
+    const lane = wall.lanes.find((candidate) => candidate.name === 'PublicLink')
+    const rights = wall.notes
+      .filter((note) => note.step.lane === 'PublicLink')
+      .map((note) => (grid.places.get(note)?.x ?? 0) + note.w)
+
+    expect(lane === undefined ? undefined : grid.lanes.get(lane)?.width).toBe(Math.max(...rights) + 150)
+  })
+
   it("orders an actor's commands by aggregate, then by name", () => {
     const commands = wall.lanes[0]?.groups[0]?.commands ?? []
     const byHeight = [...commands].sort(
