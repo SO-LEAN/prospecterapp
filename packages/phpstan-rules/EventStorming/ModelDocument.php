@@ -6,7 +6,8 @@ namespace Prospecter\PHPStan\EventStorming;
 
 /**
  * The JSON document of every context's model, written from the facts the analysis read in the whole code. An analysis
- * that read no facts, or could not read the code, gives no document.
+ * that read no facts, or could not read the code, gives no document. Neither does a use case no feature names: its
+ * post-it would have no French title.
  */
 final readonly class ModelDocument
 {
@@ -21,6 +22,7 @@ final readonly class ModelDocument
      * @param list<string>      $failures what kept the analysis from reading the code
      *
      * @throws UnreadableCode
+     * @throws UntitledUseCases
      */
     public function of(?array $facts, array $failures): string
     {
@@ -31,18 +33,21 @@ final readonly class ModelDocument
         $features = new FeatureTitles($this->features);
         $storming = new ContextStorming($facts, $features->byUseCase(), $this->readSubscriptions());
         $models = array_map($storming->model(...), $facts->contexts());
-        $warnings = [...array_merge(...array_map(self::untitledIn(...), $models)), ...array_map(self::untagged(...), $features->untagged())];
+        $untitled = array_merge(...array_map(self::untitledIn(...), $models));
+        if ([] !== $untitled) {
+            throw UntitledUseCases::named($untitled);
+        }
 
-        return json_encode(['models' => $models, 'warnings' => $warnings], self::JSON)."\n";
+        return json_encode(['models' => $models, 'warnings' => array_map(self::untagged(...), $features->untagged())], self::JSON)."\n";
     }
 
     /**
-     * @return list<string> a warning for each use case of a model that no feature names: its post-it has no French title
+     * @return list<string> each use case of a model that no feature names, after its context
      */
     private static function untitledIn(Model $model): array
     {
         return array_values(array_map(
-            static fn (Sticky $useCase): string => \sprintf('%s: no feature names the use case %s', $model->context, $useCase->name),
+            static fn (Sticky $useCase): string => \sprintf('%s: %s', $model->context, $useCase->name),
             array_filter($model->stickies, static fn (Sticky $sticky): bool => $sticky->isAUseCase() && null === $sticky->feature),
         ));
     }

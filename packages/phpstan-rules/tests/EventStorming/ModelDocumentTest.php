@@ -9,6 +9,7 @@ use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
 use Prospecter\Core\Shop\Application\Cart\AddItem\AddItem;
 use Prospecter\PHPStan\EventStorming\ModelDocument;
 use Prospecter\PHPStan\EventStorming\UnreadableCode;
+use Prospecter\PHPStan\EventStorming\UntitledUseCases;
 
 final class ModelDocumentTest extends TestCase
 {
@@ -18,6 +19,8 @@ final class ModelDocumentTest extends TestCase
 
     private const string PAY = 'Prospecter\Core\Till\Application\Pay\Pay';
 
+    private const string REFUND = 'Prospecter\Core\Till\Application\Refund\Refund';
+
     public function testTheDocumentHoldsTheModelOfEachContextOfTheFacts(): void
     {
         $document = (array) json_decode(self::document()->of(self::facts(), []), true, flags: \JSON_THROW_ON_ERROR);
@@ -25,9 +28,11 @@ final class ModelDocumentTest extends TestCase
         self::assertSame([['Shop', 'command:'.self::ADD_ITEM], ['Till', 'command:'.self::PAY]], self::contextsAndFirstStickiesOf($document));
     }
 
-    public function testTheDocumentWarnsOfEachUseCaseNoFeatureNames(): void
+    public function testAUseCaseNoFeatureNamesGivesNoDocumentAndIsNamed(): void
     {
-        self::assertContains('Till: no feature names the use case Pay', self::warnings());
+        $this->expectExceptionObject(UntitledUseCases::named(['Till: Refund']));
+
+        self::document()->of(self::facts(self::REFUND), []);
     }
 
     public function testTheDocumentWarnsOfEachFeatureThatNamesNoUseCase(): void
@@ -67,9 +72,9 @@ final class ModelDocumentTest extends TestCase
     /**
      * @return array<string, mixed>
      */
-    private static function facts(): array
+    private static function facts(string ...$untitled): array
     {
-        return ['classes' => [self::handlerOf(self::PAY), self::handlerOf(self::ADD_ITEM)], 'calls' => []];
+        return ['classes' => array_map(self::handlerOf(...), [self::PAY, self::ADD_ITEM, ...$untitled]), 'calls' => []];
     }
 
     /**
