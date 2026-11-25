@@ -55,8 +55,9 @@ jobs:
     steps:
       - uses: actions/checkout@v7.0.1
         with:
-          # make secrets-branch scans the commits since dev, make commit-subjects those in neither dev nor main
-          fetch-depth: ${{ matrix.check == 'secrets' && 0 || 1 }}
+          # make secrets-branch scans the commits since dev, make commit-subjects those in neither dev nor main. The
+          # number 0 is falsy in an expression: the depths are strings
+          fetch-depth: ${{ matrix.check == 'secrets' && '0' || '1' }}
 
       - name: Cache the Composer dependencies
         if: env.PHP == 'true'
