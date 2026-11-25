@@ -4,8 +4,9 @@ import { type Letters, lettersOf } from './lettering.ts'
 import { arrowOf, braceOf, hashOf, lean, wobbly } from './marker.ts'
 import type { Model } from './model.ts'
 import { dataOf, type WallData } from './page-data.ts'
+import { type Pictogram, pictogramsOf } from './pictograms.ts'
 import { KIND_NAMES, sentenceAbout } from './story.ts'
-import { type Kind, type Note, sentenceOf, type Wall, wallOf } from './wall.ts'
+import { type Jump, type Kind, type Note, sentenceOf, type Wall, wallOf } from './wall.ts'
 import { runTheWall } from './wall-script.ts'
 
 /** What the page holds rather than loads: its style sheet and its handwriting, a woff2 file in base 64. */
@@ -139,19 +140,33 @@ function tipOf(note: Note): string | null {
 }
 
 function jumpsOf(note: Note): string {
-  return note.jumps
-    .map((jump, index) => {
-      const away = jump.to === null
-      const side = jump.back
-        ? `left:${-9 + index * 26}px`
-        : `right:${note.port ? 4 + index * 21 : -9 + index * 25}px`
-      const icon = away ? ICONS.away : jump.back ? ICONS.back : ICONS.on
-      const attributes = `style="${side}" data-jump="${index}" data-tip="${escaped(jump.tip)}" aria-label="${escaped(jump.tip)}" tabindex="-1"`
-      if (jump.href !== null)
-        return `<a class="jump away" href="${escaped(jump.href)}" ${attributes}>${icon}</a>`
-      return `<button class="jump${away ? ' away' : ''}" ${attributes}>${icon}</button>`
-    })
-    .join('')
+  const { shown, more } = pictogramsOf(note)
+  return [...shown.map(pictogramOf), ...(more === null ? [] : [moreOf(more.offset, more.hidden)])].join('')
+}
+
+function pictogramOf({ jump, index, side, offset }: Pictogram): string {
+  const away = jump.to === null
+  const icon = iconOf(jump)
+  const attributes = `style="${side}:${offset}px" data-jump="${index}" data-tip="${escaped(jump.tip)}" aria-label="${escaped(jump.tip)}" tabindex="-1"`
+  if (jump.href !== null) return `<a class="jump away" href="${escaped(jump.href)}" ${attributes}>${icon}</a>`
+  return `<button class="jump${away ? ' away' : ''}" ${attributes}>${icon}</button>`
+}
+
+function iconOf(jump: Jump): string {
+  if (jump.to === null) return ICONS.away
+  return jump.back ? ICONS.back : ICONS.on
+}
+
+/** The « +n » in the last place, whose hover or focus lists the pictograms left out, each by what it leads to. */
+function moreOf(offset: number, hidden: Pictogram[]): string {
+  const label = `${hidden.length} more: ${hidden.map(({ jump }) => jump.tip).join(', ')}`
+  const items = hidden.map(({ jump, index }) => {
+    const attributes = `data-jump="${index}" tabindex="-1"`
+    const content = `${iconOf(jump)}<span>${escaped(jump.tip)}</span>`
+    if (jump.href !== null) return `<a class="away" href="${escaped(jump.href)}" ${attributes}>${content}</a>`
+    return `<button${jump.to === null ? ' class="away"' : ''} ${attributes}>${content}</button>`
+  })
+  return `<span class="more" style="right:${offset}px"><button class="jump more" aria-label="${escaped(label)}" tabindex="-1">+${hidden.length}</button><span class="more-jumps">${items.join('')}</span></span>`
 }
 
 /** A post-it's accessible name: what it is, where it stands, what comes before and after it. */

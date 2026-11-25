@@ -64,6 +64,23 @@ describe('the page of a wall', () => {
     expect(unanswered.querySelector('button.jump.away')?.getAttribute('aria-label')).toMatch(/^Answered by /)
   })
 
+  it('lists in a « +n » the pictograms a post-it has no room for, each leading to its wall', () => {
+    const accounts = JSON.parse(
+      readFileSync('public/docs/event-storming/accounts/model.json', 'utf8'),
+    ) as Model
+    const members = [
+      ...new DOMParser().parseFromString(pageOf(accounts, ASSETS), 'text/html').querySelectorAll('.sticky'),
+    ].find((sticky) => sticky.querySelector('.jump.more') !== null)
+
+    expect([
+      members?.querySelector('.role-label')?.textContent,
+      members?.querySelector('.jump.more')?.textContent,
+      [...(members?.querySelectorAll('.more-jumps a.away') ?? [])].map((link) =>
+        link.getAttribute('href')?.startsWith('../'),
+      ),
+    ]).toEqual(['Members', '+2', [true, true]])
+  })
+
   it('tells the wall as text without its script', () => {
     expect(document.querySelector('#story')?.textContent).toContain('Anyone with the link asks to Book slot')
   })
