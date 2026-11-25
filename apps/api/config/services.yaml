@@ -413,6 +413,10 @@ services:
 
 when@test:
     services:
+        # each link a resource carries leads to the route its property declares it offers (docs/architecture/api.md, "Links")
+        Tests\App\Base\OffersMatchTheirLinks:
+            arguments: ['@router']
+            tags: [{ name: serializer.normalizer, priority: 1000 }]
         # no network in tests: the services outside the API answer by this double (config/packages/framework.yaml)
         Tests\App\Double\OutsideServices:
             arguments: ['%env(APP_GEOCODER_URL)%', '%env(APP_DIRECTORY_URL)%', '@Tests\App\Double\GoogleDouble', '@Tests\App\Double\ClientsOfTheAIs', '@Tests\App\Double\TheWeb']
