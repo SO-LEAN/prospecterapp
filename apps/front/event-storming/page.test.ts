@@ -19,6 +19,23 @@ describe('the page of a wall', () => {
     ])
   })
 
+  it("names in the legend the member's AI's badge an extension of Brandolini's grammar", () => {
+    expect(document.querySelector('#legend .extension')?.textContent).toBe(
+      "Member's AI: a badge on each use case it calls, an extension of Brandolini's grammar",
+    )
+  })
+
+  it("says nothing of the member's AI on a wall it calls nothing of", () => {
+    const withoutTheAi = pageOf(
+      { ...BOOKING, links: BOOKING.links.filter((link) => link.from !== 'actor:mcp') },
+      ASSETS,
+    )
+
+    expect(
+      new DOMParser().parseFromString(withoutTheAi, 'text/html').querySelector('#legend .extension'),
+    ).toBeNull()
+  })
+
   it('leads back to the overview from the root of its breadcrumb', () => {
     const root = document.querySelector('#bar .crumb')
 
