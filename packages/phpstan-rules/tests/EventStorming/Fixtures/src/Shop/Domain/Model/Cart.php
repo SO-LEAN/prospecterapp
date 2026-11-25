@@ -32,4 +32,14 @@ final class Cart
         }
         $this->events[] = new CartClosed();
     }
+
+    public function count(): int
+    {
+        return \count($this->events);
+    }
+
+    private function forget(): void
+    {
+        $this->events = [];
+    }
 }

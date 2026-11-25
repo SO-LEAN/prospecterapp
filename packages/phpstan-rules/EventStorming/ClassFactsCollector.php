@@ -24,7 +24,7 @@ use PHPStan\Type\TypeCombinator;
 /**
  * Reads what the event storming needs of each class (ClassFacts).
  *
- * @implements Collector<InClassNode, array{name: string, interfaces: list<string>, parameters: list<list<string>>, returns: list<string>, mayReturnNothing: bool, dependencies: list<string>, roles: list<string>, routes: list<string>, optionalParameters: array<string, string>, outputPorts: list<string>, presents: list<string>, console: bool}>
+ * @implements Collector<InClassNode, array{name: string, interfaces: list<string>, parameters: list<list<string>>, returns: list<string>, mayReturnNothing: bool, dependencies: list<string>, roles: list<string>, routes: list<string>, optionalParameters: array<string, string>, outputPorts: list<string>, presents: list<string>, console: bool, changes: list<string>}>
  */
 final readonly class ClassFactsCollector implements Collector
 {
@@ -77,7 +77,24 @@ final readonly class ClassFactsCollector implements Collector
             'outputPorts' => $parameters[self::OUTPUT_PORT] ?? [],
             'presents' => null === $entry ? [] : self::presentedThrough($entry),
             'console' => [] !== self::attributesOf($node->getOriginalNode(), self::AS_COMMAND),
+            'changes' => self::changesOf($class),
         ];
+    }
+
+    /**
+     * The public methods that return nothing, its own and those it inherits or takes from a trait: by command-query
+     * separation, each one changes the object.
+     *
+     * @return list<string>
+     */
+    private static function changesOf(ClassReflection $class): array
+    {
+        $changes = array_filter(
+            $class->getNativeReflection()->getMethods(\ReflectionMethod::IS_PUBLIC),
+            static fn (\ReflectionMethod $method): bool => !$method->isConstructor() && $class->getNativeMethod($method->getName())->getVariants()[0]->getReturnType()->isVoid()->yes(),
+        );
+
+        return array_values(array_map(static fn (\ReflectionMethod $method): string => $method->getName(), $changes));
     }
 
     /**
