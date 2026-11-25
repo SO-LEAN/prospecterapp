@@ -7,6 +7,7 @@ namespace Tests\PHPStan\EventStorming;
 use App\Shop\CartResourcePresenter;
 use App\Shop\Command\AddABookCommand;
 use App\Shop\Controller\AddItemController;
+use App\Shop\Resource\CartLineResource;
 use App\Shop\Resource\CartLinksResource;
 use App\Shop\Resource\CartResource;
 use PhpParser\Node;
@@ -62,7 +63,7 @@ final class EventStormingFactsRuleTest extends RuleTestCase
     public function testAHandlerTellsWhatItHandlesAndDependsOn(): void
     {
         self::assertContains(
-            ['name' => self::ADD_ITEM.'Handler', 'interfaces' => [CommandHandler::class], 'parameters' => [[self::ADD_ITEM]], 'returns' => [], 'mayReturnNothing' => false, 'dependencies' => [Stock::class, Cart::class], 'roles' => [], 'routes' => [], 'optionalParameters' => [], 'outputPorts' => [], 'presents' => [], 'console' => false, 'changes' => []],
+            ['name' => self::ADD_ITEM.'Handler', 'interfaces' => [CommandHandler::class], 'parameters' => [[self::ADD_ITEM]], 'returns' => [], 'mayReturnNothing' => false, 'dependencies' => [Stock::class, Cart::class], 'roles' => [], 'routes' => [], 'optionalParameters' => [], 'offers' => [], 'holds' => [], 'outputPorts' => [], 'presents' => [], 'console' => false, 'changes' => []],
             $this->shopFacts()['classes'],
         );
     }
@@ -117,6 +118,16 @@ final class EventStormingFactsRuleTest extends RuleTestCase
     public function testAClassTellsTheDescriptionOfEachParameterItMayGoWithout(): void
     {
         self::assertSame(['checkOut' => 'Check the cart out. Offered only while it holds an item', 'share' => ''], $this->classFactsOf(CartLinksResource::class)['optionalParameters'] ?? null);
+    }
+
+    public function testALinksResourceTellsTheRouteEachOfItsParametersOffers(): void
+    {
+        self::assertSame(['addItem' => 'api_cart_add_item', 'checkOut' => 'api_cart_check_out'], $this->classFactsOf(CartLinksResource::class)['offers'] ?? null);
+    }
+
+    public function testAClassHoldsTheClassesItsPublicPropertiesAndTheirListsAreOf(): void
+    {
+        self::assertSame([CartLinksResource::class, CartLineResource::class], $this->classFactsOf(CartResource::class)['holds'] ?? null);
     }
 
     public function testAnObjectIsCreatedWithTheTextsWrittenInEachOfItsArguments(): void
