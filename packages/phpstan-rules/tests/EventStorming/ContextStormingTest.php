@@ -52,7 +52,6 @@ use Prospecter\Core\SharedKernel\Application\Handler\CommandHandler;
 use Prospecter\Core\SharedKernel\Application\Handler\EventHandler;
 use Prospecter\Core\SharedKernel\Application\Handler\Policy;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
-use Prospecter\PHPStan\EventStorming\Argument;
 use Prospecter\PHPStan\EventStorming\Call;
 use Prospecter\PHPStan\EventStorming\ClassFacts;
 use Prospecter\PHPStan\EventStorming\ContextStorming;
@@ -140,6 +139,10 @@ final class ContextStormingTest extends TestCase
     private const string MY_BOOKING_PAGE_PRESENTER = 'App\Booking\BookingPageResourcePresenter';
 
     private const string MY_BOOKING_PAGE_LINKS = 'App\Booking\Resource\BookingPageLinksResource';
+
+    private const string MY_BOOKING_PAGE_RESOURCE = 'App\Booking\Resource\BookingPageResource';
+
+    private const string INACTIVE_PERIOD_RESOURCE = 'App\Booking\Resource\InactivePeriodResource';
 
     private const string SET_WINDOWS_CONTROLLER = 'App\Booking\Controller\SetWeeklyWindowsController';
 
@@ -604,11 +607,39 @@ final class ContextStormingTest extends TestCase
         );
     }
 
-    public function testATextThatNamesNoRouteOffersNothing(): void
+    public function testADeclarationThatNamesNoRouteOffersNothing(): void
     {
-        $model = self::modelOf(self::myBookingPageOffering(['setWindows' => 'a week']));
+        $model = self::modelOf(self::myBookingPageOffering(['setWindows' => 'api_nowhere']));
 
-        self::assertSame([], array_values(array_filter(self::linksOf($model), static fn (array $link): bool => str_starts_with($link['from'], 'readModel:'))));
+        self::assertSame([], self::offersOf($model));
+    }
+
+    public function testAViewOffersWhatTheLinksResourcesNestedInItsResourceDeclare(): void
+    {
+        $model = self::modelOf(self::myBookingPageOffering(['open' => self::OPEN_ROUTE], holds: [
+            self::MY_BOOKING_PAGE_PRESENTER => [self::MY_BOOKING_PAGE_RESOURCE],
+            self::MY_BOOKING_PAGE_RESOURCE => [self::INACTIVE_PERIOD_RESOURCE],
+            self::INACTIVE_PERIOD_RESOURCE => [self::MY_BOOKING_PAGE_LINKS],
+        ]));
+
+        self::assertSame([['from' => 'readModel:'.self::CONSULT_MY_BOOKING_PAGE, 'to' => 'command:'.self::OPEN_BOOKING, 'via' => 'open', 'certain' => true, 'when' => null]], self::offersOf($model));
+    }
+
+    public function testAViewOffersNothingALinksResourceItsPresenterDoesNotHoldDeclares(): void
+    {
+        $model = self::modelOf(self::myBookingPageOffering(['open' => self::OPEN_ROUTE], holds: [self::MY_BOOKING_PAGE_PRESENTER => [self::MY_BOOKING_PAGE_RESOURCE]]));
+
+        self::assertSame([], self::offersOf($model));
+    }
+
+    public function testAResourceHoldingItselfOffersItsLinksOnce(): void
+    {
+        $model = self::modelOf(self::myBookingPageOffering(['open' => self::OPEN_ROUTE], holds: [
+            self::MY_BOOKING_PAGE_PRESENTER => [self::MY_BOOKING_PAGE_RESOURCE],
+            self::MY_BOOKING_PAGE_RESOURCE => [self::MY_BOOKING_PAGE_RESOURCE, self::MY_BOOKING_PAGE_LINKS],
+        ]));
+
+        self::assertSame([['from' => 'readModel:'.self::CONSULT_MY_BOOKING_PAGE, 'to' => 'command:'.self::OPEN_BOOKING, 'via' => 'open', 'certain' => true, 'when' => null]], self::offersOf($model));
     }
 
     public function testTheOtherContextsReactToAPublishedEventByTheirSubscriptions(): void
@@ -663,27 +694,29 @@ final class ContextStormingTest extends TestCase
     }
 
     /**
-     * The member's booking page, its presenter offering a link on each parameter of its links resource to a route,
-     * and the controller of each route sending its command.
+     * The member's booking page, its presenter holding its resource, which holds its links resource, each parameter
+     * of which declares the route it offers, and the controller of each route sending its command.
      *
-     * @param array<string, string> $routes   the route of each link, by the links resource's parameter
-     * @param array<string, string> $optional the description of each link the resource may go without
+     * @param array<string, string>       $routes   the route each link offers, by the links resource's parameter
+     * @param array<string, string>       $optional the description of each link the resource may go without
+     * @param array<string, list<string>> $holds    what the presenter, the resources and the links resources hold
      */
-    private static function myBookingPageOffering(array $routes, array $optional = []): Facts
+    private static function myBookingPageOffering(array $routes, array $optional = [], array $holds = [self::MY_BOOKING_PAGE_PRESENTER => [self::MY_BOOKING_PAGE_RESOURCE], self::MY_BOOKING_PAGE_RESOURCE => [self::MY_BOOKING_PAGE_LINKS]]): Facts
     {
         $controllers = [self::SET_WINDOWS_ROUTE => [self::SET_WINDOWS_CONTROLLER, self::SET_WEEKLY_WINDOWS], self::OPEN_ROUTE => [self::OPEN_BOOKING_CONTROLLER, self::OPEN_BOOKING]];
         $classes = [
             new ClassFacts(self::CONSULT_MY_BOOKING_PAGE.'Handler', interfaces: [self::QUERY_HANDLER], parameters: [[self::CONSULT_MY_BOOKING_PAGE], [self::MY_BOOKING_PAGE_OUTPUT]], outputPorts: [self::MY_BOOKING_PAGE_OUTPUT]),
-            new ClassFacts(self::MY_BOOKING_PAGE_PRESENTER, interfaces: [self::MY_BOOKING_PAGE_OUTPUT]),
-            new ClassFacts(self::MY_BOOKING_PAGE_LINKS, optionalParameters: $optional),
+            new ClassFacts(self::MY_BOOKING_PAGE_PRESENTER, interfaces: [self::MY_BOOKING_PAGE_OUTPUT], holds: $holds[self::MY_BOOKING_PAGE_PRESENTER] ?? []),
+            new ClassFacts(self::MY_BOOKING_PAGE_RESOURCE, holds: $holds[self::MY_BOOKING_PAGE_RESOURCE] ?? []),
+            new ClassFacts(self::INACTIVE_PERIOD_RESOURCE, holds: $holds[self::INACTIVE_PERIOD_RESOURCE] ?? []),
+            new ClassFacts(self::MY_BOOKING_PAGE_LINKS, optionalParameters: $optional, offers: $routes),
             self::handlerOf(self::SET_WEEKLY_WINDOWS),
             self::handlerOf(self::OPEN_BOOKING),
             ...array_map(static fn (string $route, array $controller): ClassFacts => new ClassFacts($controller[0], roles: ['ROLE_USER'], routes: [$route]), array_keys($controllers), $controllers),
         ];
         $calls = array_map(static fn (array $controller): Call => new Call($controller[0], '__invoke', $controller[1], Call::CREATION), array_values($controllers));
-        $arguments = array_map(static fn (string $parameter, string $route): Argument => new Argument(self::MY_BOOKING_PAGE_PRESENTER, self::MY_BOOKING_PAGE_LINKS, $parameter, [$route]), array_keys($routes), $routes);
 
-        return new Facts($classes, $calls, $arguments);
+        return new Facts($classes, $calls);
     }
 
     /**
@@ -719,5 +752,13 @@ final class ContextStormingTest extends TestCase
     private static function linksOf(Model $model): array
     {
         return array_map(static fn (Link $link): array => $link->jsonSerialize(), $model->links);
+    }
+
+    /**
+     * @return list<array{from: string, to: string, via: string|null, certain: bool, when: string|null}> the links from a view
+     */
+    private static function offersOf(Model $model): array
+    {
+        return array_values(array_filter(self::linksOf($model), static fn (array $link): bool => str_starts_with($link['from'], 'readModel:')));
     }
 }
