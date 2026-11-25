@@ -1,4 +1,5 @@
 # language: fr
+@ReviseLegalIdentity
 Fonctionnalité: Réviser l'identité légale d'une organisation
   En tant que prospecteur
   Je veux corriger la raison sociale, la forme juridique et le type d'une organisation

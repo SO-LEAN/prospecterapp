@@ -1,4 +1,5 @@
 # language: fr
+@CorrectExchangeText
 Fonctionnalité: Corriger le texte d'un échange
   En tant que prospecteur, même sans le droit aux données personnelles
   Je veux retoucher le texte d'un échange

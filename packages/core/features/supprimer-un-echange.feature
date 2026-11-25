@@ -1,4 +1,5 @@
 # language: fr
+@EraseExchange @DiscardAttachmentsOfErasedExchange
 Fonctionnalité: Supprimer un échange
   En tant que prospecteur
   Je veux supprimer un échange noté par erreur

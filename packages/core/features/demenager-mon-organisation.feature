@@ -1,4 +1,5 @@
 # language: fr
+@RelocateMyOrganization
 Fonctionnalité: Déménager mon organisation
   En tant qu'utilisateur
   Je veux tenir à jour l'adresse de mon organisation

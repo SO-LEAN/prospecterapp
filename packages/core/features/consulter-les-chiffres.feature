@@ -1,4 +1,5 @@
 # language: fr
+@ConsultFigures
 Fonctionnalité: Consulter les chiffres
   En tant que membre d'un compte
   Je veux connaître les chiffres de mon compte

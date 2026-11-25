@@ -1,4 +1,5 @@
 # language: fr
+@MarkExchangeDone @MarkExchangeMissed @MoveExchange @CancelExchange
 Fonctionnalité: Traiter un échange planifié
   En tant que prospecteur
   Je veux marquer un échange planifié fait ou manqué, l'annuler ou le déplacer

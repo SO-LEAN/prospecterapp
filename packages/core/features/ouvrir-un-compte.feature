@@ -1,4 +1,5 @@
 # language: fr
+@OpenAccount @RegisterTheFounder @CollectTheFounderProfile
 Fonctionnalité: Ouvrir un compte
   En tant qu'organisation qui découvre Prospecter
   Je veux ouvrir mon compte, dont je suis le fondateur

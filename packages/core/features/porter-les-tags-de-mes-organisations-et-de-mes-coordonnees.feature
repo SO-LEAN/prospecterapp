@@ -1,4 +1,5 @@
 # language: fr
+@ConsultContactTags @RebuildTags @Campaigns/RecordContactFacts
 Fonctionnalité: Un contact porte les tags de ses organisations et ceux de ses coordonnées
   En tant que prospecteur
   Je veux qu'un contact porte les tags de ses organisations, et #EMAIL, #PHONE, #SMS, #LINKEDIN tout seuls

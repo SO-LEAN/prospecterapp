@@ -1,4 +1,5 @@
 # language: fr
+@KeepCreatedVideoCallLink
 Fonctionnalité: Créer un lien Meet pour mes visios
   En tant que prospecteur dont le compte Google est connecté
   Je veux que Prospecter crée un lien Google Meet pour la visio que je planifie sans lien

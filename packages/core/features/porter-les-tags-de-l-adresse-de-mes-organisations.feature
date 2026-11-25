@@ -1,4 +1,5 @@
 # language: fr
+@Campaigns/RecordOrganizationFacts @LocateAgain
 Fonctionnalité: Les tags géographiques
   En tant que prospecteur
   Je veux que mes organisations et leurs contacts portent tout seuls la grande ville des alentours, le département et la région de leur adresse

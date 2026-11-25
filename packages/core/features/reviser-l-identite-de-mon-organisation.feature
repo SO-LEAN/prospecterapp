@@ -1,4 +1,5 @@
 # language: fr
+@ReviseMyOrganizationIdentity
 Fonctionnalité: Réviser l'identité de mon organisation
   En tant qu'utilisateur
   Je veux corriger la raison sociale et la forme juridique de mon organisation

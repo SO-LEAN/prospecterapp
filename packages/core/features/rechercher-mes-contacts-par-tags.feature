@@ -1,4 +1,5 @@
 # language: fr
+@SearchContactsByTags
 Fonctionnalité: Rechercher mes contacts par tags
   En tant que prospecteur
   Je veux retrouver les contacts qui portent tous les tags que je choisis

@@ -1,4 +1,5 @@
 # language: fr
+@NextRecipient @SendingNoted
 Fonctionnalité: Mener une campagne avec une IA
   En tant que prospecteur
   Je veux qu'une IA mène une campagne démarrée : elle prend chaque destinataire à traiter, lui envoie elle-même le message, puis note l'échange envoyé

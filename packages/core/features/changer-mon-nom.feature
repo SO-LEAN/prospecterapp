@@ -1,4 +1,5 @@
 # language: fr
+@RenamePerson
 Fonctionnalité: Changer mon nom
   En tant qu'utilisateur
   Je veux corriger mon prénom et mon nom

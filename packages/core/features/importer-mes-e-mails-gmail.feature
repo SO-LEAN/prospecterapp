@@ -1,4 +1,5 @@
 # language: fr
+@AskToImportMail @StopMailImport @RenewMailWatch
 Fonctionnalité: Activer l'import de mes e-mails Gmail
   En tant que membre connecté à Google
   Je veux activer ou couper l'import de mes e-mails Gmail, sans toucher à mon agenda, et voir s'il fonctionne

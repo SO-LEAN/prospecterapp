@@ -1,4 +1,5 @@
 # language: fr
+@Relocate
 Fonctionnalité: Déménager une organisation
   En tant que prospecteur
   Je veux tenir à jour l'adresse d'une organisation

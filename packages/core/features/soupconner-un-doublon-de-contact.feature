@@ -1,4 +1,5 @@
 # language: fr
+@PersonalData/SuspectDuplicateInReturn @PersonalData/LiftSuspicionInReturn
 Fonctionnalité: Soupçonner un doublon de contact
   En tant que prospecteur
   Je veux qu'un contact qui ressemble à un autre de la même organisation soit signalé comme doublon possible, sans être refusé

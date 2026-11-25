@@ -1,4 +1,5 @@
 # language: fr
+@TickOffToDo @UntickToDo @ConsultToDo
 Fonctionnalité: Cocher une action à faire
   En tant que prospecteur
   Je veux cocher une action à faire une fois faite, ou la décocher

@@ -1,4 +1,5 @@
 # language: fr
+@ReopenRecipientOfErasedExchange
 Fonctionnalité: Le lien entre une campagne et ses échanges
   En tant que prospecteur
   Je veux aller d'un destinataire à l'échange noté pour lui, et d'un échange à la campagne dont il vient

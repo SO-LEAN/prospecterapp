@@ -1,4 +1,5 @@
 # language: fr
+@StopKeepingToDos @EraseToDoLeftWithoutOrganization @EraseToDosOfForgottenContact
 Fonctionnalité: Les actions à faire d'une organisation qu'on ne prospecte plus, ou d'un contact effacé
   En tant que prospecteur
   Je veux que les actions à faire partent avec l'organisation ou le contact qu'elles concernent

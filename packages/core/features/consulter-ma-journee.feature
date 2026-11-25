@@ -1,4 +1,5 @@
 # language: fr
+@ConsultMyDay
 Fonctionnalité: Consulter ma journée
   En tant que prospecteur
   Je veux voir sur le tableau de bord mes échanges planifiés du jour et les prochains à venir

@@ -1,4 +1,5 @@
 # language: fr
+@PushExchange @UnnameForgottenContact
 Fonctionnalité: Pousser mes échanges planifiés dans Google Agenda
   En tant que prospecteur dont le compte Google est connecté
   Je veux que chaque échange planifié soit poussé dans mon agenda Google, et que chaque changement fait dans Prospecter y soit reporté

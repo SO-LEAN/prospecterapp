@@ -1,4 +1,5 @@
 # language: fr
+@ConsultMyAccount
 Fonctionnalité: Consulter mon compte
   En tant qu'utilisateur
   Je veux voir mon profil et celui de mon organisation

@@ -1,4 +1,5 @@
 # language: fr
+@Prospecting/SuspectDuplicateInReturn @Prospecting/LiftSuspicionInReturn
 Fonctionnalité: Soupçonner un doublon d'organisation
   En tant que prospecteur
   Je veux qu'une organisation qui ressemble à une autre soit signalée comme doublon possible, sans être refusée

@@ -1,4 +1,5 @@
 # language: fr
+@EraseContactLeftUnattached @ForgetContactLeftUnattached @EraseExchangesOfContactLeftUnattached
 Fonctionnalité: Effacer les contacts jamais rattachés
   En tant que prospecteur
   Je veux qu'un contact à rattacher que personne ne rattache soit effacé 30 jours après son dernier rendez-vous

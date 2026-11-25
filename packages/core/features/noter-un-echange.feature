@@ -1,4 +1,5 @@
 # language: fr
+@NoteExchange @NoteOrganizationExchange @ConsultTimeline @ConsultTimelineIntents
 Fonctionnalité: Noter un échange avec un contact
   En tant que prospecteur
   Je veux noter chaque appel, SMS, e-mail, message LinkedIn ou Malt, ou rendez-vous avec un contact

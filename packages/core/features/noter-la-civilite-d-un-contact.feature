@@ -1,4 +1,5 @@
 # language: fr
+@ChangeCivility
 Fonctionnalité: Noter la civilité d'un contact
   En tant que prospecteur
   Je veux noter si je m'adresse à Madame ou à Monsieur

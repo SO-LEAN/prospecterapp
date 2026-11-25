@@ -1,4 +1,5 @@
 # language: fr
+@FreezeCampaign @AddRecipient @AddRecipientsByTags @RemoveRecipient
 Fonctionnalité: Figer les destinataires d'une campagne
   En tant que prospecteur
   Je veux figer la liste des destinataires quand la recherche d'une campagne me convient

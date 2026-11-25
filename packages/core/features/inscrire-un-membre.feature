@@ -1,4 +1,5 @@
 # language: fr
+@RegisterAMember @CollectTheMemberProfile
 Fonctionnalité: Inscrire un membre
   En tant qu'administrateur d'un compte
   Je veux inscrire un collègue à mon compte, avec son propre profil, qu'il complète lui-même, et seulement les rôles dont il a besoin

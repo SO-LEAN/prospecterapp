@@ -1,4 +1,5 @@
 # language: fr
+@NoteCampaignExchange @ProcessRecipientOfCampaignExchange @DismissRecipient
 Fonctionnalité: Mener une campagne
   En tant que prospecteur
   Je veux passer d'un destinataire au suivant, en notant l'échange que j'ai eu avec chacun ou en l'écartant

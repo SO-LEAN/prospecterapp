@@ -1,4 +1,5 @@
 # language: fr
+@ConsultWhatIsToProcess
 Fonctionnalité: Consulter ce que j'ai à traiter
   En tant que prospecteur
   Je veux voir les échanges planifiés dont l'heure est passée et que je n'ai marqués ni faits, ni manqués, ni annulés,

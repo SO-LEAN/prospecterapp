@@ -1,4 +1,6 @@
 # language: fr
+@PlanExchange @PlanOrganizationExchange @ConsultOverlappingExchanges @ProposeMeetingPlace @ConsultUpcomingExchanges
+@ConsultOrganizationUpcomingExchanges
 Fonctionnalité: Planifier un échange
   En tant que prospecteur
   Je veux planifier un appel, un rendez-vous ou une visio avec un contact, ou avec l'organisation elle-même

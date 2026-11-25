@@ -1,4 +1,5 @@
 # language: fr
+@CompleteContact @CompareWithContact
 Fonctionnalité: Compléter un contact sans rien écraser
   En tant que prospecteur avec le droit de gérer les données personnelles
   Je veux qu'une IA complète ce qui manque à un contact que Prospecter connaît déjà

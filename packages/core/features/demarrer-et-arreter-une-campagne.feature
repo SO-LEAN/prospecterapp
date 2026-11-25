@@ -1,4 +1,5 @@
 # language: fr
+@StartCampaign @StopCampaign @DiscardCampaign @EraseCampaign
 Fonctionnalité: Démarrer et arrêter une campagne
   En tant que prospecteur
   Je veux démarrer une campagne une fois sa liste bien définie, puis l'arrêter sans la supprimer

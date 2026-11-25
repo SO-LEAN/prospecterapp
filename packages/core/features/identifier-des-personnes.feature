@@ -1,4 +1,5 @@
 # language: fr
+@IdentifyPersons
 Fonctionnalité: Identifier des personnes
   En tant que prospecteur, ou l'IA qui me sert
   Je veux savoir, pour chaque personne telle que je la vois, si elle est déjà un de mes contacts

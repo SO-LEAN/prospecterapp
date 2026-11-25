@@ -1,4 +1,5 @@
 # language: fr
+@ConsultPerson @ConsultPersons
 Fonctionnalité: Consulter les données personnelles d'une personne
   En tant que membre d'un compte
   Je veux voir les personnes de mon compte

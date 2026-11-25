@@ -1,4 +1,5 @@
 # language: fr
+@SearchProspectedOrganizations
 Fonctionnalité: Rechercher parmi mes organisations
   En tant que prospecteur
   Je veux parcourir et rechercher les organisations que je prospecte

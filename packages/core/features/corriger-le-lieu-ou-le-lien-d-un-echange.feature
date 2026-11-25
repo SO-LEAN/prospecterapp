@@ -1,4 +1,5 @@
 # language: fr
+@CorrectExchangeVenue
 Fonctionnalité: Corriger le lieu d'un rendez-vous ou le lien d'une visio
   En tant que prospecteur
   Je veux ajouter ou corriger le lieu d'un rendez-vous ou le lien d'une visio après l'avoir planifié

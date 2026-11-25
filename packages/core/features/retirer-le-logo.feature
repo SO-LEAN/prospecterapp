@@ -1,4 +1,5 @@
 # language: fr
+@RemoveLogo @DiscardRemovedLogo
 Fonctionnalité: Retirer le logo d'une organisation
   En tant que prospecteur
   Je veux retirer un logo qui n'est plus le bon

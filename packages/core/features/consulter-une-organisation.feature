@@ -1,4 +1,5 @@
 # language: fr
+@ConsultOrganization
 Fonctionnalité: Consulter une organisation
   En tant que prospecteur
   Je veux consulter la fiche d'une organisation

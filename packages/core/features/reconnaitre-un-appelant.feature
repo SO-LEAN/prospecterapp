@@ -1,4 +1,5 @@
 # language: fr
+@RecognizeCallingContact @RecognizeCallingOrganization
 Fonctionnalité: Reconnaître un appelant
   En tant que prospecteur
   Je veux savoir qui m'appelle parmi les organisations que je prospecte et mes contacts

@@ -1,4 +1,5 @@
 # language: fr
+@ConsultOrganizationTimeline
 Fonctionnalité: La timeline d'une organisation
   En tant que prospecteur
   Je veux voir dans une seule timeline les échanges avec une organisation et avec chacun de ses contacts
