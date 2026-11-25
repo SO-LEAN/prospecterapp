@@ -410,8 +410,6 @@
 
 
 
-
-
 <g transform="translate(250 2009.3) rotate(2.28 66 66)"><rect width="132" height="132" rx="1" fill="#ffa348" stroke="#000" stroke-opacity="0.12"/><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="18.5" fill="#1b2030" text-anchor="middle"><tspan x="66" y="69.8">Exchange event</tspan></text></g>
 <g transform="translate(448 2010.6) rotate(0.90 66 66)"><rect width="132" height="132" rx="1" fill="#cfb3f3" stroke="#000" stroke-opacity="0.12"/><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="12.5" fill="#5e6270" text-anchor="middle"><tspan x="66" y="43.1">whenever exchange</tspan><tspan x="66" y="56.2">event</tspan></text><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="16.5" fill="#1b2030" text-anchor="middle"><tspan x="66" y="74.5">Publish exchange</tspan><tspan x="66" y="92.3">facts</tspan></text><text font-family='system-ui, sans-serif' font-size="9" fill="#5e6270" text-anchor="middle"><tspan x="66" y="125.2">POLICY</tspan></text></g>
 <g transform="translate(577 2017.7) rotate(-0.48 66 66)"><rect width="132" height="132" rx="1" fill="#ffa348" stroke="#000" stroke-opacity="0.12"/><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="18.5" fill="#1b2030" text-anchor="middle"><tspan x="66" y="59.8">Exchange facts</tspan><tspan x="66" y="79.8">changed</tspan></text><rect x="69.8" y="7" width="57.2" height="14.4" rx="3" fill="none" stroke="#9c1f1f" stroke-width="1.5"/><text font-family='system-ui, sans-serif' font-size="8" font-weight="700" fill="#9c1f1f" text-anchor="middle"><tspan x="98.4" y="15.4">PUBLISHED</tspan></text></g>
@@ -426,6 +424,9 @@
 <g transform="translate(787 2980.6) rotate(-0.29 66 66)"><rect width="132" height="132" rx="1" fill="#cfb3f3" stroke="#000" stroke-opacity="0.12"/><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="12.5" fill="#5e6270" text-anchor="middle"><tspan x="66" y="36.6">whenever organization</tspan><tspan x="66" y="49.7">facts changed</tspan></text><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="15" fill="#1b2030" text-anchor="middle"><tspan x="66" y="66.8">Forget tags of</tspan><tspan x="66" y="83">unprospected</tspan><tspan x="66" y="99.2">organization</tspan></text><text font-family='system-ui, sans-serif' font-size="9" fill="#5e6270" text-anchor="middle"><tspan x="66" y="125.2">POLICY</tspan></text></g>
 <g transform="translate(787 3167.4) rotate(0.33 66 66)"><rect width="132" height="132" rx="1" fill="#cfb3f3" stroke="#000" stroke-opacity="0.12"/><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="12.5" fill="#5e6270" text-anchor="middle"><tspan x="66" y="50.9">whenever organization</tspan><tspan x="66" y="64">facts changed</tspan></text><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="18.5" fill="#1b2030" text-anchor="middle"><tspan x="66" y="83.9">Record facts</tspan></text><text font-family='system-ui, sans-serif' font-size="9" fill="#5e6270" text-anchor="middle"><tspan x="66" y="125.2">POLICY</tspan></text></g>
 <g transform="translate(787 3355.5) rotate(0.46 66 66)"><rect width="132" height="132" rx="1" fill="#cfb3f3" stroke="#000" stroke-opacity="0.12"/><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="12.5" fill="#5e6270" text-anchor="middle"><tspan x="66" y="50.9">whenever organization</tspan><tspan x="66" y="64">facts changed</tspan></text><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="18.5" fill="#1b2030" text-anchor="middle"><tspan x="66" y="83.9">Record facts</tspan></text><text font-family='system-ui, sans-serif' font-size="9" fill="#5e6270" text-anchor="middle"><tspan x="66" y="125.2">POLICY</tspan></text></g>
+
+
+
 
 
 

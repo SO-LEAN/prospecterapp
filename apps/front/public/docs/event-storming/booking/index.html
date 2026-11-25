@@ -675,6 +675,14 @@ svg.ink {
   padding: 0 2px;
   white-space: nowrap;
 }
+a.crumb {
+  text-decoration: none;
+}
+a.crumb:hover,
+a.crumb:focus-visible {
+  color: var(--chrome-ink);
+  text-decoration: underline;
+}
 .btn {
   display: inline-flex;
   align-items: center;
@@ -1378,7 +1386,7 @@ kbd {
 </div>
 <header id="bar" class="card" role="toolbar" aria-label="Wall navigation">
 <button class="btn icon" id="back" data-tip="Back to where you were" aria-label="Back" disabled><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
-<span class="crumb wide">Event storming</span><span class="crumb wide">›</span><strong class="crumb">Booking</strong><span class="crumb">›</span>
+<a class="crumb wide" href="../" data-tip="Every context, and what goes from one to another">Event storming</a><span class="crumb wide">›</span><strong class="crumb">Booking</strong><span class="crumb">›</span>
 <div class="seg" id="lanes" role="group" aria-label="Modules"><button aria-pressed="true" data-lane="">Whole wall</button><button aria-pressed="false" data-lane="0">Booking page</button><button aria-pressed="false" data-lane="1">Public link</button><button aria-pressed="false" data-lane="2">Appointment</button></div>
 <span class="grow"></span>
 <div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><input id="q" type="search" placeholder="Find a post-it…" aria-label="Find a post-it" autocomplete="off" spellcheck="false"><kbd>/</kbd><div id="results" class="card" role="listbox"></div></div>

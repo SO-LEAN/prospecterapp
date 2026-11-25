@@ -44,6 +44,36 @@
             "readBy": []
         },
         {
+            "id": "actor:operator",
+            "slug": "actor:operator",
+            "type": "actor",
+            "label": "Platform operator",
+            "feature": null,
+            "name": "operator",
+            "class": null,
+            "context": "Prospecting",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
+            "id": "actor:schedule",
+            "slug": "actor:schedule",
+            "type": "actor",
+            "label": "Daily schedule",
+            "feature": null,
+            "name": "schedule",
+            "class": null,
+            "context": "Prospecting",
+            "module": null,
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
             "id": "aggregate:Prospecter\\Core\\Prospecting\\Domain\\Model\\ContactToAttach",
             "slug": "aggregate:ContactToAttach",
             "type": "aggregate",
@@ -4101,6 +4131,27 @@
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultToDos\\ConsultToDos",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:operator",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Contact\\EraseContactLeftUnattached\\EraseContactLeftUnattached",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:operator",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\LocateAgain\\LocateAgain",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:schedule",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Contact\\EraseContactLeftUnattached\\EraseContactLeftUnattached",
             "via": null,
             "certain": true,
             "when": null
