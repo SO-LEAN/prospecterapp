@@ -185,13 +185,24 @@ final class ContextStormingTest extends TestCase
         ], self::linksOf($model));
     }
 
-    public function testAMethodOfAnAggregateThatRecordsNoEventIsNoIntention(): void
+    public function testAMethodOfAnAggregateThatReturnsSomethingAndRecordsNoEventIsNoIntention(): void
     {
-        $model = self::modelOf(new Facts([self::handlerOf(self::OPEN_BOOKING)], [
+        $model = self::modelOf(new Facts([self::handlerOf(self::OPEN_BOOKING), new ClassFacts(self::BOOKING_PAGE, changes: ['open'])], [
             new Call(self::OPEN_BOOKING.'Handler', '__invoke', self::BOOKING_PAGE, 'host'),
         ]));
 
         self::assertSame([], self::linksOf($model));
+    }
+
+    public function testACommandChangesTheAggregateWhoseMethodReturningNothingItCallsEvenWhenItRecordsNoEvent(): void
+    {
+        $model = self::modelOf(new Facts([self::handlerOf(self::OPEN_BOOKING), new ClassFacts(self::BOOKING_PAGE, changes: ['open'])], [
+            new Call(self::OPEN_BOOKING.'Handler', '__invoke', self::BOOKING_PAGE, 'open', conditional: true),
+        ]));
+
+        self::assertSame([
+            ['from' => 'command:'.self::OPEN_BOOKING, 'to' => 'aggregate:'.self::BOOKING_PAGE, 'via' => 'open', 'certain' => false, 'when' => null],
+        ], self::linksOf($model));
     }
 
     public function testAnEventRecordedUnderAConditionIsAnUncertainLink(): void
