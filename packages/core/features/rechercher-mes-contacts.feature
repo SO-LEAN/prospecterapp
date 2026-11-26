@@ -24,7 +24,8 @@ Fonctionnalité: Rechercher mes contacts
       | Grace  | Hopper   | non     |
       | Ada    | Lovelace | non     |
     Et je peux sur mes contacts :
-      | chercher par texte |
+      | chercher par texte     |
+      | enregistrer un contact |
 
   Scénario: Je cherche par le début du nom
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT"

@@ -23,13 +23,14 @@ final readonly class Reader
     }
 
     /**
-     * Every member searches the contacts, at least by their name (ADR 0129).
+     * Every member searches the contacts, at least by their name (ADR 0129). Only a manager of personal data collects
+     * a contact.
      *
      * @return list<ContactsIntent>
      */
     public function contactsIntents(): array
     {
-        return ContactsIntent::cases();
+        return $this->readsPersonalData ? ContactsIntent::cases() : [ContactsIntent::SearchByText];
     }
 
     /**
