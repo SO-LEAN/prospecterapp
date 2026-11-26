@@ -4,7 +4,8 @@
 # together too (make -j), their output not synchronised, so that the progress of the tests shows while they run (make
 # keeps the output of a command until it ends with any --output-sync, ADR 0180); the job ci sums them up, the check
 # the rulesets require. The journeys are no check of the CI: the agent runs them in its worktree, make ci running them
-# there (ADR 0118).
+# there (ADR 0118). A pull request also mutates the lines it adds, in a job per part of the code it touches, beside the
+# checks; their reports go in artifacts for the definition of done, which judges the threshold (ADR 0219).
 name: CI
 
 on:
@@ -26,6 +27,7 @@ jobs:
     timeout-minutes: 5
     outputs:
       checks: ${{ steps.checks.outputs.checks }}
+      mutations: ${{ steps.checks.outputs.mutations }}
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -36,9 +38,12 @@ jobs:
         env:
           BASE_REF: ${{ github.base_ref }}
         run: |
-          if [ -n "$BASE_REF" ]; then checks=$(make changed-checks RANGE="origin/$BASE_REF...HEAD" | jq -c 'map(select(. != "e2e"))'); else checks='["secrets","infra","core","api","storage","front","contract","event-storming"]'; fi
+          if [ -n "$BASE_REF" ]; then changed=$(make changed-checks RANGE="origin/$BASE_REF...HEAD"); else changed='["secrets","infra","core","api","storage","front","contract","event-storming"]'; fi
+          checks=$(echo "$changed" | jq -c 'map(select(. != "e2e" and (startswith("mutation-") | not)))')
+          mutations=$(echo "$changed" | jq -c 'map(select(startswith("mutation-")) | ltrimstr("mutation-"))')
           echo "checks=$checks" >> "$GITHUB_OUTPUT"
-          echo "$checks"
+          echo "mutations=$mutations" >> "$GITHUB_OUTPUT"
+          echo "checks: $checks, mutations: $mutations"
 
   check:
     needs: changes
@@ -91,6 +96,72 @@ jobs:
           ALL: ${{ github.event_name == 'push' && '1' || '' }}
           # tflint downloads its AWS ruleset from GitHub, beyond the anonymous rate limit of the shared runners
           GITHUB_TOKEN: ${{ matrix.check == 'infra' && github.token || '' }}
+
+  # the parts whose code a pull request adds lines to, mutated from its base (the merge-base of dev and its merge
+  # commit), as make mutation BASE= does. A skipped mutant of the core fails the job, as it fails make mutation; a
+  # score under the threshold does not. The job is no part of the check ci: the definition of done reads its artifact
+  mutation:
+    needs: changes
+    if: needs.changes.outputs.mutations != '[]'
+    name: mutation ${{ matrix.part }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        part: ${{ fromJSON(needs.changes.outputs.mutations) }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          # the merge-base with dev, from which the added lines are read
+          fetch-depth: 0
+
+      - name: Cache the Composer dependencies
+        if: matrix.part == 'core'
+        uses: actions/cache@v6.1.0
+        with:
+          path: |
+            apps/api/vendor
+            apps/storage/vendor
+            packages/core/vendor
+          key: composer-${{ hashFiles('apps/api/composer.lock', 'apps/storage/composer.lock', 'packages/core/composer.lock') }}
+
+      - name: Cache the pnpm dependencies
+        if: matrix.part != 'core'
+        uses: actions/cache@v6.1.0
+        with:
+          path: apps/front/node_modules
+          key: pnpm-${{ hashFiles('apps/front/pnpm-lock.yaml') }}
+
+      - name: Install the Composer dependencies
+        if: matrix.part == 'core'
+        run: make vendor
+
+      - name: Install the pnpm dependencies
+        if: matrix.part != 'core'
+        run: make front-install
+
+      - name: Mutate the lines the pull request adds
+        env:
+          PART: ${{ matrix.part }}
+          BASE_REF: ${{ github.base_ref }}
+        run: make "mutation-$PART" BASE="origin/$BASE_REF"
+
+      - name: Sum up the mutation
+        if: always()
+        env:
+          PART: ${{ matrix.part }}
+        run: |
+          make mutation-artifact PART="$PART" DIR=mutation
+          cat mutation/summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Publish the report
+        if: always()
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: mutation-${{ matrix.part }}
+          path: mutation/
+          if-no-files-found: error
 
   ci:
     if: always()

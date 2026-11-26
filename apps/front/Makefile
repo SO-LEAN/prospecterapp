@@ -1,6 +1,6 @@
 include ../../make/common.mk ../../make/aws.mk ../../make/mutation.mk
 
-.PHONY: install test mutation lint fix build api-types event-storming-page e2e shell package release
+.PHONY: install test mutation mutation-spa mutation-event-storming lint fix build api-types event-storming-page e2e shell package release
 
 ##@ Front
 install: ## Install the pnpm dependencies of the front
@@ -28,8 +28,18 @@ ADDED_LINE_RANGES = $(call ADDED_LINES,$(1)) | awk '/^\+\+\+ b\// { file = subst
 STRYKER = $(if $(MUTATION_WORKERS),NODE_CPUS=$(MUTATION_WORKERS) NODE_MEMORY=$$(($(MUTATION_WORKERS) + 1))g) $(NODE) pnpm exec stryker run $(if $(MUTATION_WORKERS),--concurrency $(MUTATION_WORKERS))
 
 mutation: ## Mutate the lines the branch adds in src and in the event storming's generator since BASE (origin/dev), killed by the tests of Vitest; list the survivors; MUTATION_WORKERS= the test runners (one per processor of the container by default)
+	@$(MAKE) mutation-spa
+	@$(MAKE) mutation-event-storming
+
+# each report Stryker writes (stryker.config.json, stryker.event-storming.json), removed before its run: a run mutating
+# nothing reads no former one
+mutation-spa: ## Mutate the lines the branch adds in src since BASE (origin/dev), killed by the tests of Vitest; list the survivors
+	@rm -f reports/mutation.json
 	@ranges=$$($(call ADDED_LINE_RANGES,$(MUTATED_CODE))); \
 	if [ -n "$$ranges" ]; then $(STRYKER) --mutate "$$ranges"; else $(call NO_ADDED_LINE,src); fi
+
+mutation-event-storming: ## Mutate the lines the branch adds in the event storming's generator since BASE (origin/dev), killed by its tests; list the survivors
+	@rm -f reports/mutation-event-storming.json
 	@ranges=$$($(call ADDED_LINE_RANGES,$(MUTATED_GENERATOR))); \
 	if [ -n "$$ranges" ]; then $(STRYKER) stryker.event-storming.json --mutate "$$ranges"; else $(call NO_ADDED_LINE,event-storming); fi
 
