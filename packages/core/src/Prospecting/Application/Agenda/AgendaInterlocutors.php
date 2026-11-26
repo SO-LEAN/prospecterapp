@@ -81,7 +81,7 @@ final readonly class AgendaInterlocutors
     private function organizationsMetAlone(array $exchanges): array
     {
         $alone = array_filter($exchanges, static fn (ExchangeInTimeline $exchange): bool => null === $exchange->personId);
-        $ids = array_map(static fn (ExchangeInTimeline $exchange): string => $exchange->organizationIds[0], $alone);
+        $ids = array_unique(array_map(static fn (ExchangeInTimeline $exchange): string => $exchange->organizationIds[0], $alone));
 
         return array_filter(array_combine($ids, array_map($this->organization(...), $ids)));
     }
