@@ -2354,6 +2354,13 @@
         },
         {
             "from": "readModel:Prospecter\\Core\\Connectors\\Application\\MailImport\\ConsultMailCatchUpIntents\\ConsultMailCatchUpIntents",
+            "to": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\CatchUpMailHistory\\CatchUpMailHistory",
+            "via": "reimportGmail",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Connectors\\Application\\MailImport\\ConsultMailCatchUpIntents\\ConsultMailCatchUpIntents",
             "to": "externalSystem:Prospecter\\Core\\Connectors\\Domain\\Port\\CorrespondentAddresses",
             "via": null,
             "certain": true,
