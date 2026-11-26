@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Contacts\Controller;
 
-use App\Contacts\ContactReader;
+use App\Contacts\ContactComposition;
 use App\Contacts\Resource\ContactResource;
 use App\Security\User;
 use App\Shared\CommandBus;
@@ -27,7 +27,7 @@ final readonly class DismissPossibleDuplicateOfContactController
     public function __construct(
         private CommandBus $commandBus,
         private ClockInterface $clock,
-        private ContactReader $contactReader,
+        private ContactComposition $contactComposition,
         private JsonResponses $jsonResponses,
     ) {
     }
@@ -43,6 +43,6 @@ final readonly class DismissPossibleDuplicateOfContactController
     {
         $this->commandBus->dispatch(new DismissPossibleDuplicate(readerId: $user->memberId(), id: $id, duplicateId: $duplicateId, executedAt: $this->clock->now()));
 
-        return $this->jsonResponses->of($this->contactReader->read($user->memberId(), $id));
+        return $this->jsonResponses->of($this->contactComposition->read($user->memberId(), $id));
     }
 }

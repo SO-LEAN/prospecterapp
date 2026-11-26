@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Contacts\Mcp;
 
-use App\Contacts\ContactReader;
+use App\Contacts\ContactComposition;
 use App\PersonalData\Input\CollectContactInput;
 use App\PersonalData\Input\PersonContactDetailsInput;
 use App\PersonalData\Input\PersonNameInput;
@@ -30,7 +30,7 @@ final readonly class CollectContactTool
         private Identities $identities,
         private CommandBus $commandBus,
         private ClockInterface $clock,
-        private ContactReader $contactReader,
+        private ContactComposition $contactComposition,
         private ToolResults $results,
     ) {
     }
@@ -66,6 +66,6 @@ final readonly class CollectContactTool
         $id = $this->identities->next();
         $this->commandBus->dispatch($input->commandOfAnAI($memberId, $id, $this->clock->now()));
 
-        return $this->results->of($this->contactReader->read($memberId, $id));
+        return $this->results->of($this->contactComposition->read($memberId, $id));
     }
 }
