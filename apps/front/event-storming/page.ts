@@ -1,7 +1,7 @@
 import { type Grid, gridOf } from './grid.ts'
 import { escaped } from './html.ts'
 import { type Letters, lettersOf } from './lettering.ts'
-import { arrowOf, braceOf, hashOf, lean, wobbly } from './marker.ts'
+import { arrowOf, braceOf, distance, hashOf, lean, routedArrowOf, towards, wobbly } from './marker.ts'
 import type { Model } from './model.ts'
 import { dataOf, type WallData } from './page-data.ts'
 import { type Pictogram, pictogramsOf } from './pictograms.ts'
@@ -81,7 +81,7 @@ ${tapesOf(data)}
 </div>
 ${chromeOf(wall, data)}
 <script>
-${[hashOf, lean, wobbly, arrowOf, braceOf].map(String).join('\n')}
+${[hashOf, lean, wobbly, arrowOf, routedArrowOf, distance, towards, braceOf].map(String).join('\n')}
 (${String(runTheWall)})(${JSON.stringify(data).replaceAll('</', '<\\/')})
 </script>
 </body>

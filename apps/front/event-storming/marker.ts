@@ -54,16 +54,14 @@ export interface Arrow {
 }
 
 /**
- * The way of an arrow to a lower row: down from its start into the gap under its row (the drop, from the top of the
- * post-it it starts from), along it, then down a corridor left of the post-it it ends at.
+ * The way of an arrow to a lower row: down from its start at `out` into the gap under its row (the drop, from the top
+ * of the post-it it starts from), along it, then down a corridor left of the post-it it ends at.
  */
 export interface Route {
+  out: number
   corridor: number
   drop: number
 }
-
-/** How round the corners of a routed arrow are. */
-const CORNER = 12
 
 /**
  * A reaction's marker arrow: from the right of a post-it to the left of the next, slightly bent, or along its route
@@ -90,10 +88,11 @@ export function arrowOf(from: Placed, to: Placed, certain: boolean, route: Route
 }
 
 /** Down from the start into the gap under its row, along it, down the corridor, then into the end, corners rounded. */
-function routedArrowOf(start: Point, end: Point, from: Placed, route: Route, certain: boolean): Arrow {
-  const drop = from.x + from.w + 18
+export function routedArrowOf(start: Point, end: Point, from: Placed, route: Route, certain: boolean): Arrow {
+  const corner = 12
+  const drop = route.out
   const gap = Math.round((from.y + route.drop) * 10) / 10
-  const corridor = Math.max(route.corridor, drop)
+  const corridor = route.corridor
   const points = [
     start,
     { x: drop, y: start.y },
@@ -105,12 +104,12 @@ function routedArrowOf(start: Point, end: Point, from: Placed, route: Route, cer
   let curve = `M${start.x},${start.y}`
   for (let index = 1; index < points.length - 1; index++) {
     const before = points[index - 1] ?? start
-    const corner = points[index] ?? start
+    const at = points[index] ?? start
     const after = points[index + 1] ?? end
-    const room = Math.min(CORNER, distance(before, corner) / 2, distance(corner, after) / 2)
-    const into = towards(corner, before, room)
-    const out = towards(corner, after, room)
-    curve += ` L${into.x.toFixed(1)},${into.y.toFixed(1)} Q${corner.x.toFixed(1)},${corner.y.toFixed(1)} ${out.x.toFixed(1)},${out.y.toFixed(1)}`
+    const room = Math.min(corner, distance(before, at) / 2, distance(at, after) / 2)
+    const into = towards(at, before, room)
+    const out = towards(at, after, room)
+    curve += ` L${into.x.toFixed(1)},${into.y.toFixed(1)} Q${at.x.toFixed(1)},${at.y.toFixed(1)} ${out.x.toFixed(1)},${out.y.toFixed(1)}`
   }
   curve += ` L${end.x},${end.y}`
   const barb = (turn: number): string =>
@@ -122,12 +121,12 @@ function routedArrowOf(start: Point, end: Point, from: Placed, route: Route, cer
   }
 }
 
-function distance(one: Point, other: Point): number {
+export function distance(one: Point, other: Point): number {
   return Math.hypot(other.x - one.x, other.y - one.y)
 }
 
 /** The point at this distance from a corner, towards another point. */
-function towards(corner: Point, other: Point, room: number): Point {
+export function towards(corner: Point, other: Point, room: number): Point {
   const length = distance(corner, other)
   if (length === 0) return corner
   return {
