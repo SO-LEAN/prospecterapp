@@ -48,14 +48,14 @@ class BoundedContextsTest extends TestCase
         'Dashboard' => 'composes Prospecting and Reporting',
         'Demo' => 'writes the demonstration data of every context',
         'Doc' => 'serves the API\'s documentation',
-        'Exchanges' => 'shows Prospecting\'s exchanges, and names the member who erased one from Accounts and PersonalData',
+        'Exchanges' => 'shows Prospecting\'s exchanges. Accounts and PersonalData name the member who erased one',
         'Identification' => 'composes Prospecting and PersonalData',
         'Keys' => 'rebuilds the keys of every context\'s tables',
         'Me' => 'composes the member\'s Accounts and PersonalData',
         'Security' => 'authenticates the member and checks the access to the resources',
         'SignIn' => 'signs the members and the AIs in on Cognito',
         'Tags' => 'composes Campaigns\' tags with Prospecting',
-        'ToDos' => 'shows Prospecting\'s to-dos with the names of PersonalData\'s resources',
+        'ToDos' => 'shows Prospecting\'s to-dos with PersonalData\'s name resources',
     ];
 
     /**
