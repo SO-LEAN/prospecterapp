@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Campaigning\Controller;
 
-use App\Campaigning\CampaignReader;
+use App\Campaigning\CampaignComposition;
 use App\Campaigning\CampaignVoter;
 use App\Campaigning\Resource\CampaignResource;
 use App\Security\User;
@@ -26,7 +26,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_PROSPECTOR')]
 final readonly class ShowCampaignController
 {
-    public function __construct(private CampaignReader $campaignReader, private JsonResponses $jsonResponses)
+    public function __construct(private CampaignComposition $campaigns, private JsonResponses $jsonResponses)
     {
     }
 
@@ -41,6 +41,6 @@ final readonly class ShowCampaignController
     #[OA\Response(response: 422, description: 'An unknown time zone', content: new Model(type: ProblemResource::class))]
     public function __invoke(CampaignSheet $campaign, #[CurrentUser] User $user, #[MapQueryString(validationFailedStatusCode: Response::HTTP_UNPROCESSABLE_ENTITY, mapWhenEmpty: true)] MyClockQuery $clock): JsonResponse
     {
-        return $this->jsonResponses->of($this->campaignReader->read($user->memberId(), $campaign->id, $clock->timeZone));
+        return $this->jsonResponses->of($this->campaigns->read($user->memberId(), $campaign->id, $clock->timeZone));
     }
 }

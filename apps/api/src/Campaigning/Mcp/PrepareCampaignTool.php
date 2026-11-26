@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Campaigning\Mcp;
 
-use App\Campaigning\CampaignReader;
+use App\Campaigning\CampaignComposition;
 use App\Campaigning\Input\CampaignInput;
 use App\Security\ToolAccess;
 use App\Security\User;
@@ -29,7 +29,7 @@ final readonly class PrepareCampaignTool
         private Identities $identities,
         private CommandBus $commandBus,
         private ClockInterface $clock,
-        private CampaignReader $campaignReader,
+        private CampaignComposition $campaigns,
         private ToolResults $results,
     ) {
     }
@@ -54,6 +54,6 @@ final readonly class PrepareCampaignTool
         $id = $this->identities->next();
         $this->commandBus->dispatch($input->preparationOf($memberId, $id, $this->clock->now()));
 
-        return $this->results->of($this->campaignReader->read($memberId, $id));
+        return $this->results->of($this->campaigns->read($memberId, $id));
     }
 }

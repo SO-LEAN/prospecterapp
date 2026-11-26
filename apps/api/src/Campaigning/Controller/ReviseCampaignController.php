@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Campaigning\Controller;
 
-use App\Campaigning\CampaignReader;
+use App\Campaigning\CampaignComposition;
 use App\Campaigning\CampaignVoter;
 use App\Campaigning\Input\CampaignInput;
 use App\Campaigning\Resource\CampaignResource;
@@ -30,7 +30,7 @@ final readonly class ReviseCampaignController
     public function __construct(
         private CommandBus $commandBus,
         private ClockInterface $clock,
-        private CampaignReader $campaignReader,
+        private CampaignComposition $campaigns,
         private JsonResponses $jsonResponses,
     ) {
     }
@@ -49,6 +49,6 @@ final readonly class ReviseCampaignController
     {
         $this->commandBus->dispatch($input->revisionOf($user->memberId(), $campaign->id, $this->clock->now()));
 
-        return $this->jsonResponses->of($this->campaignReader->read($user->memberId(), $campaign->id));
+        return $this->jsonResponses->of($this->campaigns->read($user->memberId(), $campaign->id));
     }
 }

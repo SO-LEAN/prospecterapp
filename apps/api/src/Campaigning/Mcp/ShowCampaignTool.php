@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Campaigning\Mcp;
 
-use App\Campaigning\CampaignReader;
+use App\Campaigning\CampaignComposition;
 use App\Campaigning\CampaignResolver;
 use App\Campaigning\CampaignVoter;
 use App\Security\ToolAccess;
@@ -25,7 +25,7 @@ final readonly class ShowCampaignTool
     public function __construct(
         private ToolAccess $access,
         private CampaignResolver $campaigns,
-        private CampaignReader $campaignReader,
+        private CampaignComposition $campaignComposition,
         private ToolInputs $inputs,
         private ToolResults $results,
     ) {
@@ -48,6 +48,6 @@ final readonly class ShowCampaignTool
 
         $clock = $this->inputs->valid(new MyClockQuery($timeZone));
 
-        return $this->results->of($this->campaignReader->read($member->memberId(), $campaign->id, $clock->timeZone));
+        return $this->results->of($this->campaignComposition->read($member->memberId(), $campaign->id, $clock->timeZone));
     }
 }
