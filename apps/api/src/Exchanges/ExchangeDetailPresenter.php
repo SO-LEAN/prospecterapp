@@ -104,17 +104,16 @@ final class ExchangeDetailPresenter implements ConsultExchangeOutput
     }
 
     /**
-     * The organization itself when the exchange has no contact, its contact otherwise.
+     * The organization itself when the exchange has no contact, unnamed once it is no longer known. Its contact
+     * otherwise.
      */
     private static function interlocutorOf(ExchangeDetail $exchange, Participants $participants): InterlocutorResource
     {
-        if (null !== $participants->organization) {
-            return InterlocutorResource::ofTheOrganization($participants->organization);
+        if (null === $exchange->personId) {
+            return null === $participants->organization ? InterlocutorResource::ofAnOrganizationNoLongerKnown($exchange->organizationIds[0]) : InterlocutorResource::ofTheOrganization($participants->organization);
         }
 
-        $personId = (string) $exchange->personId;
-
-        return InterlocutorResource::ofPerson($personId, $participants->persons->contacts[$personId] ?? null, $exchange->contactPresence);
+        return InterlocutorResource::ofPerson($exchange->personId, $participants->persons->contacts[$exchange->personId] ?? null, $exchange->contactPresence);
     }
 
     /**

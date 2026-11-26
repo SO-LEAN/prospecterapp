@@ -47,6 +47,11 @@ final readonly class InterlocutorResource
         return new self(self::ORGANIZATION, $organization->id, $organization->fullName);
     }
 
+    public static function ofAnOrganizationNoLongerKnown(string $organizationId): self
+    {
+        return new self(self::ORGANIZATION, $organizationId, null);
+    }
+
     /**
      * @param ?PersonDescription $person   none for a person who is no longer known
      * @param ?string            $presence by the values of `ContactPresence`

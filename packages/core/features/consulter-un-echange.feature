@@ -63,6 +63,14 @@ Fonctionnalité: Consulter le détail d'un échange
     Alors il nomme :
       | interlocuteur | ACME |
 
+  Scénario: Un échange avec une organisation que je ne prospecte plus se lit encore, sans la nommer, tant qu'il n'est pas effacé
+    Soit "Michel" a noté le 16/10/2026 à 09h05 un appel reçu de "ACME" elle-même à 09h00 : "Le standard rappellera"
+    Et je suis connecté en tant que "Michel"
+    Et les réactions aux gestes n'ont pas encore suivi
+    Quand j'arrête de prospecter "ACME"
+    Alors il nomme :
+      | interlocuteur |  |
+
   Scénario: Un échange avec l'organisation elle-même a l'organisation pour interlocuteur
     Soit "Michel" a noté le 16/10/2026 à 09h05 un appel reçu de "ACME" elle-même à 09h00 : "Le standard rappellera"
     Et je suis connecté en tant que "Michel"
