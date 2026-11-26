@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace App\Contacts\Controller;
 
-use App\Contacts\OrganizationsOfContacts;
+use App\Contacts\OrganizationsOfContactPresenter;
 use App\Contacts\Resource\OrganizationsOfContactResource;
 use App\Security\User;
 use App\Shared\JsonResponses;
+use App\Shared\Links;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
+use Prospecter\Core\Prospecting\Application\Contact\ConsultOrganizationsOfContacts\ConsultOrganizationsOfContacts;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
@@ -21,7 +24,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_PROSPECTOR')]
 final readonly class ShowOrganizationsOfContactController
 {
-    public function __construct(private OrganizationsOfContacts $organizationsOfContacts, private JsonResponses $jsonResponses)
+    public function __construct(private QueryHandler $consultOrganizationsOfContacts, private Links $links, private JsonResponses $jsonResponses)
     {
     }
 
@@ -32,6 +35,9 @@ final readonly class ShowOrganizationsOfContactController
     #[OA\Response(response: 403, description: 'The signed-in user is not a prospector', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $id, #[CurrentUser] User $user): JsonResponse
     {
-        return $this->jsonResponses->of($this->organizationsOfContacts->ofOne($user->memberId(), $id));
+        $presenter = new OrganizationsOfContactPresenter($id, $this->links);
+        $this->consultOrganizationsOfContacts->__invoke(new ConsultOrganizationsOfContacts($user->memberId(), [$id]), $presenter);
+
+        return $this->jsonResponses->of($presenter->resource);
     }
 }
