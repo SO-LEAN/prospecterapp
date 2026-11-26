@@ -120,6 +120,16 @@ class ContactsToAttachApiTest extends ApiTestCase
         $this->assertSame([], $this->requestJson('GET', self::TO_PROCESS)['contactsToAttach']);
     }
 
+    public function testAnUnknownContactGetsNoProposalButIsNotFound(): void
+    {
+        $this->login();
+
+        $problem = $this->requestJson('GET', '/api/contacts/'.self::newIdentity().'/proposed-organization');
+
+        $this->assertResponseStatusCodeSame(404);
+        $this->assertSame('unknownContact', $problem['reason']);
+    }
+
     public function testTheOrganizationOfTheDomainOfTheirEmailIsProposed(): void
     {
         $this->login();
