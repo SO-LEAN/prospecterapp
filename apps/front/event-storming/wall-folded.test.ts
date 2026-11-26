@@ -1,18 +1,8 @@
-import { readFileSync } from 'node:fs'
-import { beforeAll, describe, expect, it, vi } from 'vitest'
-import { gridOf } from './grid.ts'
-import type { Model } from './model.ts'
-import { pageOf } from './page.ts'
-import { dataOf } from './page-data.ts'
-import { wallOf } from './wall.ts'
+import { beforeAll, describe, expect, inject, it, vi } from 'vitest'
 import { runTheWall } from './wall-script.ts'
 
-/** Prospecting's model, the largest wall, as the generator last read it from the code. */
-const PROSPECTING = JSON.parse(
-  readFileSync('public/docs/event-storming/prospecting/model.json', 'utf8'),
-) as Model
-const wall = wallOf(PROSPECTING)
-const data = dataOf(wall, { roomy: gridOf(wall, 'roomy'), compact: gridOf(wall, 'compact') })
+/** Prospecting's wall, the largest, and its data, built before the tests (test/scripted-walls.ts). */
+const { page: html, data } = inject('prospecting')
 
 function isFolded(lane: string): boolean {
   const index = data.lanes.findIndex((candidate) => candidate.name === lane)
@@ -21,7 +11,7 @@ function isFolded(lane: string): boolean {
 
 /** The wall opened on a post-it of its Agenda lane, from a link of another wall. */
 beforeAll(() => {
-  const page = new DOMParser().parseFromString(pageOf(PROSPECTING, { style: '', font: '' }), 'text/html')
+  const page = new DOMParser().parseFromString(html, 'text/html')
   for (const script of page.body.querySelectorAll('script')) script.remove()
   document.body.innerHTML = page.body.innerHTML
   vi.stubGlobal('matchMedia', () => ({ matches: true }))

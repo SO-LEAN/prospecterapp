@@ -42,6 +42,9 @@ const MEMORY_A_WORKER_HOLDS_BEFORE_ITS_RESTART = '50%'
 const TOOLS_TESTED_APART = ['event-storming/**/*.test.ts', 'infra/**/*.test.ts']
 const A_PROCESS_PER_FILE = 'forks'
 
+/** The walls the tests of the event storming's page script open, built before those tests (docs/architecture/tests.md). */
+const WALLS_THE_SCRIPT_OPENS = './event-storming/test/scripted-walls.ts'
+
 /** The chunk of the map, MapLibre itself, loaded with the map only (`geo-map.tsx`): beyond it, a chunk is warned. */
 const SIZE_OF_THE_MAP_LOADED_ON_DEMAND_KB = 1_200
 
@@ -105,7 +108,12 @@ export default defineConfig({
       },
       {
         extends: true,
-        test: { name: 'tools', include: TOOLS_TESTED_APART, pool: A_PROCESS_PER_FILE },
+        test: {
+          name: 'tools',
+          include: TOOLS_TESTED_APART,
+          pool: A_PROCESS_PER_FILE,
+          globalSetup: [WALLS_THE_SCRIPT_OPENS],
+        },
       },
     ],
   },
