@@ -65,8 +65,8 @@ images-prune: ## Remove the images of the stack no checkout of the repository ex
 	docker image ls $(foreach image,$(STACK_IMAGES),--filter reference=prospecter-$(call image-name,$(image))) --format '{{.Repository}}:{{.Tag}}' \
 		| grep -v ':local$$' | grep -vxF "$$expected" | xargs -r -n1 sh -c 'docker image rm "$$0" || echo "Kept $$0: a container uses it"'
 
-# what the CI builds the images of the command line from its cache with, the tags make expects of them and the user
-# they are built for, one variable per line (.github/workflows/ci.yml)
+# Prints the tags make expects of the command-line images and the user they are built for, one variable per line. The
+# CI builds these images from its cache under these tags (.github/workflows/ci.yml)
 images-env: ## Print the tags of the PHP and Node images and the user they are built for, one variable per line
 	@printf '%s\n' PHP_IMAGE=$(PHP_IMAGE) NODE_IMAGE=$(NODE_IMAGE) IMAGE_UID=$(UID) IMAGE_GID=$(GID)
 
@@ -201,8 +201,8 @@ check-core: ## Lint and test the core
 check-api: ## Lint and test the API, but the tests re-testing a core rule (ALL=1 runs them)
 	@$(MAKE) -C apps/api lint test
 
-# the CI splits the API's check into jobs: its lint in one, its tests in n others, check-api-tests-<i>-of-<n> running
-# the i-th share of the test files
+# The CI splits the API's check into jobs. check-api-lint runs its lint. check-api-tests-<i>-of-<n> runs the i-th of n
+# shares of its test files
 check-api-lint:
 	@$(MAKE) -C apps/api lint
 check-api-tests-%:
