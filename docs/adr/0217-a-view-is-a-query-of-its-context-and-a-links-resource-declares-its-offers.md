@@ -33,7 +33,7 @@ The maintainer took these decisions on the ticket:
 
 - A wrong or missing declaration fails an API test that serializes the link. A link that no API test serializes is not checked.
 - A nested resource or a list must be typed for the analysis to reach its links. The OpenAPI contract already needs these types.
-- A links resource shared by several views offers its commands on each of them, even when one view never fills a link.
+- A links resource shared by several views offers its commands on each of them, even when one view never fills a link. A piece of a composition that keeps a links resource of its own offers only what it links.
 - Until a reader becomes a query of its context, or the pieces of a composition, the view it serves offers nothing on the wall. Its commands keep their "Offered where?".
 - The enrichment that Prospecting's queries received through `PersonDescriptionRetriever` before the 26/11 decision moves to compositions in a later change of the same ticket.
 - A view that leaves out what another context no longer knows decides it in its query: the tag search and a campaign's recipients leave out the contacts PersonalData no longer knows, through `TaggableContacts`.
