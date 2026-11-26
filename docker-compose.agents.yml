@@ -14,13 +14,13 @@ services:
     <<: *agents
     # more for a mutation in more threads (INFECTION_THREADS, make/mutation.mk)
     cpus: ${PHP_CPUS:-2}
-    mem_limit: 2g
+    mem_limit: ${PHP_MEMORY:-2g}
   # the dev server of Vite, and the command line: Vitest, TypeScript, the build
   node:
     <<: *agents
     # more for a mutation in more test runners (MUTATION_WORKERS, apps/front/Makefile)
     cpus: ${NODE_CPUS:-2}
-    mem_limit: 2g
+    mem_limit: ${NODE_MEMORY:-2g}
     environment:
       VITE_API_URL: https://api.prospecter.localhost:${PUBLIC_PORT}
   nginx:
