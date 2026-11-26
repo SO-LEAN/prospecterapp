@@ -2172,14 +2172,7 @@
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Recipient\\NextRecipient\\NextRecipient",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\DismissRecipient\\DismissRecipient",
             "via": "dismiss",
-            "certain": false,
-            "when": null
-        },
-        {
-            "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Recipient\\NextRecipient\\NextRecipient",
-            "to": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\RemoveRecipient\\RemoveRecipient",
-            "via": "remove",
-            "certain": false,
+            "certain": true,
             "when": null
         },
         {

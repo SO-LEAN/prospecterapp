@@ -939,7 +939,8 @@ class WallUnderConstruction {
 
   /**
    * A lane's actors read a view, then decide: each view block holds the commands it offers, after the last view of
-   * the lane that offers them, so that each line runs right or down. The commands no view of the lane offers follow,
+   * the lane that offers them, so that each line runs right or down. A view that offers a command heads its block
+   * even when no actor of the wall reads it. The commands no view of the lane offers follow,
    * those of the people, then those of the platform operator and the daily schedule.
    */
   private blocksOf(steps: Step[]): Block[] {
@@ -948,12 +949,14 @@ class WallUnderConstruction {
       step.main?.sticky !== null &&
       step.main?.sticky !== undefined &&
       step.senders.length > 0
-    const views = steps.filter((step) => step.kind === 'read' && sent(step))
     const commands = steps.filter((step) => step.kind === 'command' && sent(step))
     const offers = (view: Step, command: Step): boolean =>
       this.into(command.main?.sticky?.id ?? '', 'readModel').some(
         (offer) => offer.from === view.main?.sticky?.id,
       )
+    const views = steps.filter(
+      (step) => step.kind === 'read' && (sent(step) || commands.some((command) => offers(step, command))),
+    )
     const lastViewOf = (command: Step): Step | undefined => views.findLast((view) => offers(view, command))
     const rest = commands.filter((command) => lastViewOf(command) === undefined)
     const screenless = rest.filter((command) =>

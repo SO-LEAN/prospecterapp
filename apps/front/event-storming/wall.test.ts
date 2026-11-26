@@ -273,19 +273,19 @@ describe('the wall of a context', () => {
   })
 
   it('asks where a command is offered when no view of the wall offers it, though its actor reads none in its lane', () => {
-    const campaigns = wallOf(modelOf('campaigns'))
-    const dismiss = campaigns.notes.find(
-      (note) => note.slug === 'command:DismissRecipient' && note.kind === 'command',
+    const connectors = wallOf(modelOf('connectors'))
+    const notification = connectors.notes.find(
+      (note) => note.slug === 'command:NoteMailboxNotification' && note.kind === 'command',
     )
-    const [actor] = actorsBefore(dismiss)
+    const [actor] = actorsBefore(notification)
 
     expect([
-      dismiss?.step.gap?.label,
-      dismiss?.step.gap?.why,
-      (dismiss?.step.gap?.x ?? 0) + (dismiss?.step.gap?.w ?? 0) <= (actor?.x ?? 0),
+      notification?.step.gap?.label,
+      notification?.step.gap?.why,
+      (notification?.step.gap?.x ?? 0) + (notification?.step.gap?.w ?? 0) <= (actor?.x ?? 0),
     ]).toEqual([
       'Offered where?',
-      'Prospector reads views on this wall, and none carries a link to this command. The front must know its address by itself. Either a link is missing in the API, or the command is reached another way.',
+      'Anyone with the link reads views on this wall, and none carries a link to this command. The front must know its address by itself. Either a link is missing in the API, or the command is reached another way.',
       true,
     ])
   })

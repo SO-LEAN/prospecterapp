@@ -3120,7 +3120,7 @@
             "slug": "readModel:IdentifyOrganizations",
             "type": "readModel",
             "label": "Identify organizations",
-            "feature": "Identifier des organisations",
+            "feature": "Le langage publié des contextes",
             "name": "IdentifyOrganizations",
             "class": "Prospecter\\Core\\Prospecting\\Contract\\Service\\IdentifyOrganizations\\IdentifyOrganizations",
             "context": "Prospecting",
