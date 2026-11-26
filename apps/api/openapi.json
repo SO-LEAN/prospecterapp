@@ -10782,6 +10782,9 @@
                     "search": {
                         "$ref": "#/components/schemas/LinkResource"
                     },
+                    "collect": {
+                        "$ref": "#/components/schemas/LinkResource"
+                    },
                     "next": {
                         "$ref": "#/components/schemas/LinkResource"
                     },

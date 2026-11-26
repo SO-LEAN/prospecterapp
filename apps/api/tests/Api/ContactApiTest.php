@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Api;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use Prospecter\Core\Accounts\Domain\Model\Role;
 use Tests\App\Base\ApiTestCase;
@@ -155,7 +156,27 @@ class ContactApiTest extends ApiTestCase
         $this->assertCount(1, self::recordsAt($page, 'items'));
         $this->assertSame('Grace', self::valueAt($page, 'items', 0, 'name', 'firstName'));
         $this->assertSame([['id' => $organization, 'name' => 'Navy', 'organization' => ['href' => '/api/organizations/'.$organization, 'method' => 'GET']]], self::valueAt($page, 'items', 0, 'organizations'));
-        $this->assertSame(['self', 'search', 'searchByTags'], array_keys(self::recordAt($page, '_links')));
+        $this->assertSame(['self', 'search', 'collect', 'searchByTags'], array_keys(self::recordAt($page, '_links')));
+    }
+
+    #[DataProvider('collectors')]
+    public function testTheListOffersToCollectAContactToAMemberWithTheRight(string $reference, Role ...$roles): void
+    {
+        $this->login($this->aMemberOfTheFixtures($reference, ...$roles));
+
+        $links = self::recordAt($this->requestJson('GET', '/api/contacts'), '_links');
+
+        $this->assertSame(['self', 'search', 'collect', 'searchByTags'], array_keys($links));
+        $this->assertSame(['href' => '/api/contacts', 'method' => 'POST'], $links['collect']);
+    }
+
+    /**
+     * @return iterable<string, list<mixed>>
+     */
+    public static function collectors(): iterable
+    {
+        yield 'a prospector with the right to manage personal data' => ['prospector-with-the-right', Role::User, Role::Prospector, Role::PersonalData];
+        yield 'an administrator' => ['administrator', Role::Prospector, Role::Admin];
     }
 
     public function testWithoutTheRightContactsAreNamedTheirDetailsMaskedAndOfferOnlyTheirTimeline(): void

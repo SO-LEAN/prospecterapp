@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Contacts\Resource;
 
 use App\Shared\Resource\LinkResource;
+use App\Shared\Resource\Offers;
 use OpenApi\Attributes as OA;
 
 final readonly class ContactListLinksResource
@@ -13,6 +14,9 @@ final readonly class ContactListLinksResource
         public LinkResource $self,
         #[OA\Property(nullable: false, description: 'Search by text, with the query parameter q')]
         public ?LinkResource $search = null,
+        #[OA\Property(nullable: false, description: 'Collect a contact for the organizations the body names, with the right to manage personal data')]
+        #[Offers('api_contacts_collect')]
+        public ?LinkResource $collect = null,
         #[OA\Property(nullable: false, description: 'The next slice, absent when this one is the last')]
         public ?LinkResource $next = null,
         #[OA\Property(nullable: false, description: 'Search the contacts that carry every chosen tag, with the query parameter tags')]

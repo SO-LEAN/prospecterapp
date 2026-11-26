@@ -2850,6 +2850,7 @@ export interface components {
         ContactListLinksResource: {
             self: components["schemas"]["LinkResource"];
             search?: components["schemas"]["LinkResource"];
+            collect?: components["schemas"]["LinkResource"];
             next?: components["schemas"]["LinkResource"];
             searchByTags?: components["schemas"]["LinkResource"];
         };
