@@ -499,7 +499,9 @@ final class PublishedLanguageContext implements Context
             'civilité' => $person->title,
             'fonction' => (string) $person->jobTitle,
             'e-mail' => (string) $person->email,
-            'liens' => implode(', ', array_map(static fn (LinkResponse $link): string => $link->address, $person->links)),
+            'téléphone' => (string) $person->phoneNumber,
+            'langue' => (string) $person->language,
+            'liens' => implode(', ', array_map(static fn (LinkResponse $link): string => sprintf('%s %s %s', $link->source, $link->identifier, $link->address), $person->links)),
         ], $this->described));
     }
 
