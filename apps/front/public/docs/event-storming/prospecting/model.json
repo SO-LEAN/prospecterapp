@@ -5614,9 +5614,93 @@
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultCalendar\\ConsultCalendar",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CancelExchange\\CancelExchange",
+            "via": "cancel",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultCalendar\\ConsultCalendar",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeDone\\MarkExchangeDone",
+            "via": "markDone",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultCalendar\\ConsultCalendar",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeMissed\\MarkExchangeMissed",
+            "via": "markMissed",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultCalendar\\ConsultCalendar",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MoveExchange\\MoveExchange",
+            "via": "move",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultCalendar\\ConsultCalendar",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\EraseToDo\\EraseToDo",
+            "via": "erase",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultCalendar\\ConsultCalendar",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ReviseToDo\\ReviseToDo",
+            "via": "revise",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultCalendar\\ConsultCalendar",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\TickOffToDo\\TickOffToDo",
+            "via": "tickOff",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultCalendar\\ConsultCalendar",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\UntickToDo\\UntickToDo",
+            "via": "untick",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultCalendar\\ConsultCalendar",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\Prospectors",
             "via": null,
             "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultMyDay\\ConsultMyDay",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CancelExchange\\CancelExchange",
+            "via": "cancel",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultMyDay\\ConsultMyDay",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeDone\\MarkExchangeDone",
+            "via": "markDone",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultMyDay\\ConsultMyDay",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeMissed\\MarkExchangeMissed",
+            "via": "markMissed",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultMyDay\\ConsultMyDay",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MoveExchange\\MoveExchange",
+            "via": "move",
+            "certain": false,
             "when": null
         },
         {
@@ -5628,9 +5712,93 @@
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultOverlappingExchanges\\ConsultOverlappingExchanges",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CancelExchange\\CancelExchange",
+            "via": "cancel",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultOverlappingExchanges\\ConsultOverlappingExchanges",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeDone\\MarkExchangeDone",
+            "via": "markDone",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultOverlappingExchanges\\ConsultOverlappingExchanges",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeMissed\\MarkExchangeMissed",
+            "via": "markMissed",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultOverlappingExchanges\\ConsultOverlappingExchanges",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MoveExchange\\MoveExchange",
+            "via": "move",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultOverlappingExchanges\\ConsultOverlappingExchanges",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\Prospectors",
             "via": null,
             "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultWhatIsToProcess\\ConsultWhatIsToProcess",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CancelExchange\\CancelExchange",
+            "via": "cancel",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultWhatIsToProcess\\ConsultWhatIsToProcess",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeDone\\MarkExchangeDone",
+            "via": "markDone",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultWhatIsToProcess\\ConsultWhatIsToProcess",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeMissed\\MarkExchangeMissed",
+            "via": "markMissed",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultWhatIsToProcess\\ConsultWhatIsToProcess",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MoveExchange\\MoveExchange",
+            "via": "move",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultWhatIsToProcess\\ConsultWhatIsToProcess",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\EraseToDo\\EraseToDo",
+            "via": "erase",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultWhatIsToProcess\\ConsultWhatIsToProcess",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ReviseToDo\\ReviseToDo",
+            "via": "revise",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultWhatIsToProcess\\ConsultWhatIsToProcess",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\TickOffToDo\\TickOffToDo",
+            "via": "tickOff",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Agenda\\ConsultWhatIsToProcess\\ConsultWhatIsToProcess",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\ToDo\\UntickToDo\\UntickToDo",
+            "via": "untick",
+            "certain": false,
             "when": null
         },
         {
@@ -5663,8 +5831,85 @@
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Exchange\\ConsultExchange\\ConsultExchange",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Attachment\\AttachFile\\AttachFile",
+            "via": "attachFile",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Exchange\\ConsultExchange\\ConsultExchange",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Attachment\\RemoveAttachment\\RemoveAttachment",
             "via": "removeAttachment",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Exchange\\ConsultExchange\\ConsultExchange",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CancelExchange\\CancelExchange",
+            "via": "cancel",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Exchange\\ConsultExchange\\ConsultExchange",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CorrectExchangeText\\CorrectExchangeText",
+            "via": "correctText",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Exchange\\ConsultExchange\\ConsultExchange",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CorrectExchangeText\\CorrectExchangeText",
+            "via": "redact",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Exchange\\ConsultExchange\\ConsultExchange",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CorrectExchangeVenue\\CorrectExchangeVenue",
+            "via": "correctVenue",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Exchange\\ConsultExchange\\ConsultExchange",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CorrectExchange\\CorrectExchange",
+            "via": "correctExchange",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Exchange\\ConsultExchange\\ConsultExchange",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\EraseExchange\\EraseExchange",
+            "via": "eraseExchange",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Exchange\\ConsultExchange\\ConsultExchange",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeDone\\MarkExchangeDone",
+            "via": "markDone",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Exchange\\ConsultExchange\\ConsultExchange",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeMissed\\MarkExchangeMissed",
+            "via": "markMissed",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Exchange\\ConsultExchange\\ConsultExchange",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MoveExchange\\MoveExchange",
+            "via": "move",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Exchange\\ConsultExchange\\ConsultExchange",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MoveExchange\\MoveExchange",
+            "via": "moveBack",
             "certain": false,
             "when": null
         },
@@ -5719,8 +5964,85 @@
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Organization\\ConsultOrganization\\ConsultOrganization",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Contact\\AddContact\\AddContact",
+            "via": "addContact",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Organization\\ConsultOrganization\\ConsultOrganization",
             "to": "command:Prospecter\\Core\\Prospecting\\Application\\Duplicate\\DismissPossibleDuplicate\\DismissPossibleDuplicate",
             "via": "dismiss",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Organization\\ConsultOrganization\\ConsultOrganization",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteOrganizationExchange\\NoteOrganizationExchange",
+            "via": "noteExchange",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Organization\\ConsultOrganization\\ConsultOrganization",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\AttachToHolding\\AttachToHolding",
+            "via": "attachToHolding",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Organization\\ConsultOrganization\\ConsultOrganization",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\ChangeContactDetails\\ChangeContactDetails",
+            "via": "changeContactDetails",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Organization\\ConsultOrganization\\ConsultOrganization",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\ChangeLogo\\ChangeLogo",
+            "via": "changeLogo",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Organization\\ConsultOrganization\\ConsultOrganization",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\DetachFromHolding\\DetachFromHolding",
+            "via": "detachFromHolding",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Organization\\ConsultOrganization\\ConsultOrganization",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\Relocate\\Relocate",
+            "via": "relocate",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Organization\\ConsultOrganization\\ConsultOrganization",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\RemoveLogo\\RemoveLogo",
+            "via": "removeLogo",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Organization\\ConsultOrganization\\ConsultOrganization",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\ReviseLegalIdentity\\ReviseLegalIdentity",
+            "via": "reviseLegalIdentity",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Organization\\ConsultOrganization\\ConsultOrganization",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\StopProspecting\\StopProspecting",
+            "via": "stopProspecting",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Organization\\ConsultOrganization\\ConsultOrganization",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Organization\\WriteObservations\\WriteObservations",
+            "via": "writeObservations",
             "certain": false,
             "when": null
         },
@@ -5733,6 +6055,13 @@
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Organization\\SearchProspectedOrganizations\\SearchProspectedOrganizations",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Duplicate\\DismissPossibleDuplicate\\DismissPossibleDuplicate",
+            "via": "dismiss",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Organization\\SearchProspectedOrganizations\\SearchProspectedOrganizations",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\Prospectors",
             "via": null,
             "certain": true,
@@ -5740,9 +6069,121 @@
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultExchangesToMakeConform\\ConsultExchangesToMakeConform",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CancelExchange\\CancelExchange",
+            "via": "cancel",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultExchangesToMakeConform\\ConsultExchangesToMakeConform",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeDone\\MarkExchangeDone",
+            "via": "markDone",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultExchangesToMakeConform\\ConsultExchangesToMakeConform",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeMissed\\MarkExchangeMissed",
+            "via": "markMissed",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultExchangesToMakeConform\\ConsultExchangesToMakeConform",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MoveExchange\\MoveExchange",
+            "via": "move",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultExchangesToMakeConform\\ConsultExchangesToMakeConform",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteExchange\\NoteExchange",
+            "via": "noteExchange",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultExchangesToMakeConform\\ConsultExchangesToMakeConform",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteOrganizationExchange\\NoteOrganizationExchange",
+            "via": "noteExchange",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultExchangesToMakeConform\\ConsultExchangesToMakeConform",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\PlanExchange\\PlanExchange",
+            "via": "planExchange",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultExchangesToMakeConform\\ConsultExchangesToMakeConform",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\PlanOrganizationExchange\\PlanOrganizationExchange",
+            "via": "planExchange",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultExchangesToMakeConform\\ConsultExchangesToMakeConform",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\Prospectors",
             "via": null,
             "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultOrganizationTimeline\\ConsultOrganizationTimeline",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CancelExchange\\CancelExchange",
+            "via": "cancel",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultOrganizationTimeline\\ConsultOrganizationTimeline",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeDone\\MarkExchangeDone",
+            "via": "markDone",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultOrganizationTimeline\\ConsultOrganizationTimeline",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeMissed\\MarkExchangeMissed",
+            "via": "markMissed",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultOrganizationTimeline\\ConsultOrganizationTimeline",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MoveExchange\\MoveExchange",
+            "via": "move",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultOrganizationTimeline\\ConsultOrganizationTimeline",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteExchange\\NoteExchange",
+            "via": "noteExchange",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultOrganizationTimeline\\ConsultOrganizationTimeline",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteOrganizationExchange\\NoteOrganizationExchange",
+            "via": "noteExchange",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultOrganizationTimeline\\ConsultOrganizationTimeline",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\PlanExchange\\PlanExchange",
+            "via": "planExchange",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultOrganizationTimeline\\ConsultOrganizationTimeline",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\PlanOrganizationExchange\\PlanOrganizationExchange",
+            "via": "planExchange",
+            "certain": false,
             "when": null
         },
         {
@@ -5761,6 +6202,62 @@
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultOrganizationUpcomingExchanges\\ConsultOrganizationUpcomingExchanges",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CancelExchange\\CancelExchange",
+            "via": "cancel",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultOrganizationUpcomingExchanges\\ConsultOrganizationUpcomingExchanges",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeDone\\MarkExchangeDone",
+            "via": "markDone",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultOrganizationUpcomingExchanges\\ConsultOrganizationUpcomingExchanges",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeMissed\\MarkExchangeMissed",
+            "via": "markMissed",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultOrganizationUpcomingExchanges\\ConsultOrganizationUpcomingExchanges",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MoveExchange\\MoveExchange",
+            "via": "move",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultOrganizationUpcomingExchanges\\ConsultOrganizationUpcomingExchanges",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteExchange\\NoteExchange",
+            "via": "noteExchange",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultOrganizationUpcomingExchanges\\ConsultOrganizationUpcomingExchanges",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteOrganizationExchange\\NoteOrganizationExchange",
+            "via": "noteExchange",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultOrganizationUpcomingExchanges\\ConsultOrganizationUpcomingExchanges",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\PlanExchange\\PlanExchange",
+            "via": "planExchange",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultOrganizationUpcomingExchanges\\ConsultOrganizationUpcomingExchanges",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\PlanOrganizationExchange\\PlanOrganizationExchange",
+            "via": "planExchange",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultOrganizationUpcomingExchanges\\ConsultOrganizationUpcomingExchanges",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\Prospectors",
             "via": null,
             "certain": true,
@@ -5775,6 +6272,62 @@
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultTimeline\\ConsultTimeline",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CancelExchange\\CancelExchange",
+            "via": "cancel",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultTimeline\\ConsultTimeline",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeDone\\MarkExchangeDone",
+            "via": "markDone",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultTimeline\\ConsultTimeline",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeMissed\\MarkExchangeMissed",
+            "via": "markMissed",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultTimeline\\ConsultTimeline",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MoveExchange\\MoveExchange",
+            "via": "move",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultTimeline\\ConsultTimeline",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteExchange\\NoteExchange",
+            "via": "noteExchange",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultTimeline\\ConsultTimeline",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteOrganizationExchange\\NoteOrganizationExchange",
+            "via": "noteExchange",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultTimeline\\ConsultTimeline",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\PlanExchange\\PlanExchange",
+            "via": "planExchange",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultTimeline\\ConsultTimeline",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\PlanOrganizationExchange\\PlanOrganizationExchange",
+            "via": "planExchange",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultTimeline\\ConsultTimeline",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\CampaignNames",
             "via": null,
             "certain": true,
@@ -5785,6 +6338,62 @@
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\Prospectors",
             "via": null,
             "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultUpcomingExchanges\\ConsultUpcomingExchanges",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\CancelExchange\\CancelExchange",
+            "via": "cancel",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultUpcomingExchanges\\ConsultUpcomingExchanges",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeDone\\MarkExchangeDone",
+            "via": "markDone",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultUpcomingExchanges\\ConsultUpcomingExchanges",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MarkExchangeMissed\\MarkExchangeMissed",
+            "via": "markMissed",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultUpcomingExchanges\\ConsultUpcomingExchanges",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\MoveExchange\\MoveExchange",
+            "via": "move",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultUpcomingExchanges\\ConsultUpcomingExchanges",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteExchange\\NoteExchange",
+            "via": "noteExchange",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultUpcomingExchanges\\ConsultUpcomingExchanges",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\NoteOrganizationExchange\\NoteOrganizationExchange",
+            "via": "noteExchange",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultUpcomingExchanges\\ConsultUpcomingExchanges",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\PlanExchange\\PlanExchange",
+            "via": "planExchange",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Timeline\\ConsultUpcomingExchanges\\ConsultUpcomingExchanges",
+            "to": "command:Prospecter\\Core\\Prospecting\\Application\\Exchange\\PlanOrganizationExchange\\PlanOrganizationExchange",
+            "via": "planExchange",
+            "certain": false,
             "when": null
         },
         {

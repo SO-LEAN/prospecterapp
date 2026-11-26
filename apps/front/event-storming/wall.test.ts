@@ -255,6 +255,9 @@ describe('the wall of a context', () => {
     const sheet = campaigns.notes.find(
       (note) => note.slug === 'readModel:ConsultCampaign' && note.kind === 'readModel',
     )
+    const list = campaigns.notes.find(
+      (note) => note.slug === 'readModel:ListCampaigns' && note.kind === 'readModel',
+    )
 
     expect([
       add?.jumps.filter((jump) => jump.to === sheet).map((jump) => [jump.tip, jump.back]),
@@ -264,7 +267,7 @@ describe('the wall of a context', () => {
     ]).toEqual([
       [['Offered by “Campaign sheet” · Campaign', true]],
       [['Offers “Add recipient” · Recipient', false]],
-      [sheet],
+      [sheet, list],
       null,
     ])
   })

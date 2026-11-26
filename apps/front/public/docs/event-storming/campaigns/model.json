@@ -2029,9 +2029,65 @@
         },
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ListCampaigns\\ListCampaigns",
+            "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\DiscardCampaign\\DiscardCampaign",
+            "via": "discard",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ListCampaigns\\ListCampaigns",
+            "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\FreezeCampaign\\FreezeCampaign",
+            "via": "freeze",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ListCampaigns\\ListCampaigns",
             "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\PrepareCampaign\\PrepareCampaign",
             "via": "prepare",
             "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ListCampaigns\\ListCampaigns",
+            "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ReviseCampaign\\ReviseCampaign",
+            "via": "revise",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ListCampaigns\\ListCampaigns",
+            "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\SetDailyCap\\SetDailyCap",
+            "via": "setDailyCap",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ListCampaigns\\ListCampaigns",
+            "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\StartCampaign\\StartCampaign",
+            "via": "start",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ListCampaigns\\ListCampaigns",
+            "to": "command:Prospecter\\Core\\Campaigns\\Application\\Campaign\\StopCampaign\\StopCampaign",
+            "via": "stop",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ListCampaigns\\ListCampaigns",
+            "to": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\AddRecipient\\AddRecipient",
+            "via": "addRecipient",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\ListCampaigns\\ListCampaigns",
+            "to": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\AddRecipientsByTags\\AddRecipientsByTags",
+            "via": "addRecipientsByTags",
+            "certain": false,
             "when": null
         },
         {
