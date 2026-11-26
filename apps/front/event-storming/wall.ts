@@ -770,9 +770,9 @@ class WallUnderConstruction {
 
   /**
    * The lanes follow the reactions between them, so that their arrows point down: a lane that no lane left hears
-   * comes first, the modules' order for ties. When lanes hear each other, the one that starts more reactions of the
-   * others comes first. A reaction whose event stands in a lower lane then moves into the event's lane, with its whole
-   * step, and so on until no reaction points to a lane above.
+   * comes first, the modules' order for ties. When lanes hear each other, the lane whose reactions to the lanes left
+   * most outnumber those it hears from them comes first. A reaction whose event stands in a lower lane then moves into
+   * the event's lane, with its whole step, and so on until no reaction points to a lane above.
    */
   private lanes(): Lane[] {
     const names = [...new Set([...this.model.modules, ...this.steps.map((step) => step.lane)])].filter(
@@ -818,8 +818,8 @@ class WallUnderConstruction {
   }
 
   /**
-   * The actors that send a use case or read it, but the member's AI, a badge: the people first, then the platform
-   * operator, then the daily schedule.
+   * The actors that send or read a use case, except the member's AI, which is a badge: the people first, then the
+   * platform operator, then the daily schedule.
    */
   private actorsOf(useCase: Sticky): Sticky[] {
     const actors = this.into(useCase.id, 'actor')
