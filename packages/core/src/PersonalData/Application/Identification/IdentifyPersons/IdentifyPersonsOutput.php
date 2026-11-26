@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\PersonalData\Application\Identification\IdentifyPersons;
 
+use Prospecter\Core\PersonalData\Application\Identification\Identification;
 use Prospecter\Core\SharedKernel\Application\Handler\OutputPort;
 
 interface IdentifyPersonsOutput extends OutputPort

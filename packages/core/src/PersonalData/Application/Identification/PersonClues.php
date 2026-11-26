@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Prospecter\Core\PersonalData\Application\Identification\IdentifyPersons;
+namespace Prospecter\Core\PersonalData\Application\Identification;
 
 /**
  * A person as the client sees them: what the client knows about them. Each clue is optional.
