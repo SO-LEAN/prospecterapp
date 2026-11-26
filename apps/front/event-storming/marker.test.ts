@@ -37,7 +37,7 @@ describe('the marker of the wall', () => {
       { x: 0, y: 0, w: 132, h: 132, seed: 'a' },
       { x: 400, y: 500, w: 132, h: 132, seed: 'b' },
       false,
-      { corridor: 360, drop: 150 },
+      { out: 150, corridor: 360, drop: 150 },
     )
     const corners = [...arrow.curve.matchAll(/Q([\d.-]+),([\d.-]+)/g)].map(([, x, y]) => [
       Number(x),

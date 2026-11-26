@@ -62,7 +62,7 @@ const ROW_GAP: Record<Density, number> = { roomy: 34, compact: 20 }
 const LANE_LEAST_HEIGHT = 126
 /** What a reaction needs between the post-it it hears and its own: the arrow and the room of its head. */
 const AFTER_ITS_CAUSE = SIZE.arrow + 30
-/** An arrow to a lower row runs down a corridor this far left of the post-it it ends at, after it leaves its start down this far right of it. */
+/** How far left of its end a routed arrow runs down its corridor (`before`), and how far right of its start it drops (`drop`). */
 const CORRIDOR = { before: 40, drop: 18 } as const
 const WALL_LEAST_WIDTH = 1500
 const WALL_RIGHT_MARGIN = 150
@@ -138,8 +138,10 @@ class GridUnderConstruction {
       const row = this.rows[from]
       if (start === undefined || row === undefined) continue
       const corridor = this.corridorOf.get(edge) ?? (this.places.get(edge.to)?.x ?? 0) - CORRIDOR.before
+      const out = start.x + start.w + CORRIDOR.drop
       routes.set(edge, {
-        corridor: Math.max(corridor, start.x + start.w + CORRIDOR.drop),
+        out,
+        corridor: Math.max(corridor, out),
         drop: row.bottom + ROW_GAP[this.density] / 2 - start.y,
       })
     }

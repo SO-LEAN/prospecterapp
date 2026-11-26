@@ -36,6 +36,16 @@ describe('the page of a wall', () => {
     ).toBeNull()
   })
 
+  it('holds in its script every function of the marker that draws a routed arrow', () => {
+    const script = [...document.querySelectorAll('script')].at(-1)?.textContent ?? ''
+    const functions = script.slice(0, script.lastIndexOf('\n('))
+    const routed = new Function(
+      `${functions}\nreturn arrowOf({ x: 0, y: 0, w: 132, h: 132, seed: 'a' }, { x: 400, y: 500, w: 132, h: 132, seed: 'b' }, true, { out: 150, corridor: 360, drop: 150 }).curve`,
+    )
+
+    expect(routed()).toMatch(/^M135,.* L391,[\d.]+$/)
+  })
+
   it('leads back to the overview from the root of its breadcrumb', () => {
     const root = document.querySelector('#bar .crumb')
 
