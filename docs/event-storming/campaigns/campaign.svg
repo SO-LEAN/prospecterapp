@@ -45,6 +45,12 @@
 
 
 
+
+
+
+
+
+
 <g transform="translate(250 2416.4) rotate(2.00 66 66)"><rect width="132" height="132" rx="1" fill="#a9e190" stroke="#000" stroke-opacity="0.12"/><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="18.5" fill="#1b2030" text-anchor="middle"><tspan x="66" y="59.8">Name</tspan><tspan x="66" y="79.8">campaigns</tspan></text></g>
 
 <g transform="translate(606 376.5) rotate(0.52 66 66)"><rect width="132" height="132" rx="1" fill="#7cc4f8" stroke="#000" stroke-opacity="0.12"/><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="18.5" fill="#1b2030" text-anchor="middle"><tspan x="66" y="59.8">Discard</tspan><tspan x="66" y="79.8">campaign</tspan></text></g>
@@ -93,8 +99,6 @@
 <g transform="translate(612 1848.2) rotate(-1.21 80 23.5)"><rect width="160" height="47" rx="1" fill="#ffb5d0" stroke="#000" stroke-opacity="0.12"/><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="16" fill="#1b2030"><tspan x="10" y="25.8">Campaigners</tspan></text><text font-family='system-ui, sans-serif' font-size="9.5" fill="#5e6270"><tspan x="10" y="38.2">asks Accounts</tspan></text></g>
 <g transform="translate(723 1709) rotate(-1.47 66 66)"><rect width="132" height="132" rx="1" fill="#fff4ad" stroke="#000" stroke-opacity="0.12"/><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="18" fill="#1b2030" text-anchor="middle"><tspan x="66" y="40.4">Campaign</tspan></text><text font-family='ui-monospace, monospace' font-size="10.5" fill="#5e6270" text-anchor="middle"><tspan x="66" y="56.8">stop()</tspan></text></g>
 <g transform="translate(838 1729.7) rotate(-0.02 66 66)"><rect width="132" height="132" rx="1" fill="#ffa348" stroke="#000" stroke-opacity="0.12"/><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="18.5" fill="#1b2030" text-anchor="middle"><tspan x="66" y="59.8">Campaign</tspan><tspan x="66" y="79.8">stopped</tspan></text></g>
-
-
 
 
 

@@ -528,6 +528,13 @@
             "when": null
         },
         {
+            "from": "actor:ROLE_PROSPECTOR",
+            "to": "readModel:Prospecter\\Core\\Accounts\\Contract\\Service\\ConsultMembers\\ConsultMembers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
             "from": "actor:ROLE_USER",
             "to": "command:Prospecter\\Core\\Accounts\\Application\\Account\\ChangeMyOrganizationLogo\\ChangeMyOrganizationLogo",
             "via": null,
@@ -756,6 +763,27 @@
             "to": "command:Prospecter\\Core\\Accounts\\Application\\Member\\RegisterTheFounder\\RegisterTheFounder",
             "via": null,
             "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Accounts\\Application\\Account\\ConsultMyAccount\\ConsultMyAccount",
+            "to": "command:Prospecter\\Core\\Accounts\\Application\\Account\\ChangeMyOrganizationLogo\\ChangeMyOrganizationLogo",
+            "via": "changeMyOrganizationLogo",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Accounts\\Application\\Account\\ConsultMyAccount\\ConsultMyAccount",
+            "to": "command:Prospecter\\Core\\Accounts\\Application\\Account\\RelocateMyOrganization\\RelocateMyOrganization",
+            "via": "relocateMyOrganization",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Accounts\\Application\\Account\\ConsultMyAccount\\ConsultMyAccount",
+            "to": "command:Prospecter\\Core\\Accounts\\Application\\Account\\ReviseMyOrganizationIdentity\\ReviseMyOrganizationIdentity",
+            "via": "reviseMyOrganizationIdentity",
+            "certain": false,
             "when": null
         },
         {

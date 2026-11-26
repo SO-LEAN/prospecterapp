@@ -170,6 +170,7 @@ Each lane alone: [Agenda](../event-storming/prospecting/agenda.svg), [Attachment
 ## What it publishes
 
 - The service `WhichAreProspectedService` says which organizations an account prospects. PersonalData asks it when a contact is collected (ADR 0089).
+- The service `IdentifyOrganizationsService` says which of an account's organizations some clues designate, as `IdentifyOrganizations` does: its handler answers both. PersonalData asks it to identify persons among the organizations they work for (ADR 0173, 0217).
 - The service `WhichOrganizationsHaveTheseEmailsService` says which of an account's organizations have given addresses, whatever their case, by their email reservation. Connectors asks it to recognize whom an e-mail was exchanged with (ADR 0154).
 - The service `WhichEmailsHaveTheseOrganizationsService` gives the address of each organization an account prospects. An organization without an address has none. An organization the account does not prospect is absent. Connectors asks it to reimport the e-mails a mailbox exchanged with an organization itself.
 - The service `WhichContactsHaveExchangesOfCampaignService` says which of given contacts have an exchange of a campaign that the account keeps. Campaigns asks it for its pending recipients. So the next recipient does not wait for the reaction that processes them (ADR 0195).
