@@ -720,6 +720,8 @@ final class Application
     private readonly PersonalDataTaggableContacts $taggableContacts;
 
     private readonly PersonIdentifier $personIdentifier;
+
+    private readonly IdentifyOrganizationsHandler $identifyOrganizationsService;
     public readonly InMemoryCampaignsFactRepository $campaignsFacts;
     private readonly CampaignsFactRecorder $campaignsFactRecorder;
     private readonly InMemoryContactTagsRetriever $contactTagsRetriever;
@@ -851,6 +853,7 @@ final class Application
         $this->tagsRetriever = new InMemoryTagsRetriever($database);
         $this->taggers = new AccountsTaggers($this->consultMembersService);
         $this->taggableContacts = new PersonalDataTaggableContacts($this->whichAreContactsService);
+        $this->identifyOrganizationsService = new IdentifyOrganizationsHandler($this->designatedOrganizationRetriever, $this->foundOrganizationRetriever, $this->prospectors);
         $this->personIdentifier = new PersonIdentifier($this->designatedContactRetriever, $this->personCardRetriever, new ProspectingOrganizationsOfContacts($this->whichOrganizationsNameTheseContactsService));
         $this->taggableHolders = new TaggableHolders(new ProspectingTaggableOrganizations($this->whichAreProspectedService), $this->taggableContacts);
         $this->campaignsFacts = new InMemoryCampaignsFactRepository($database);
@@ -1255,7 +1258,7 @@ final class Application
     {
         $kept = new KeptPersonsAndOrganizations();
 
-        return $this->ask(new IdentifyPersonsAndOrganizationsHandler(new ProspectingOrganizationIdentifications(new IdentifyOrganizationsHandler($this->designatedOrganizationRetriever, $this->foundOrganizationRetriever, $this->prospectors)), $this->personIdentifier, $this->readers), $query, $kept) ? $kept : null;
+        return $this->ask(new IdentifyPersonsAndOrganizationsHandler(new ProspectingOrganizationIdentifications($this->identifyOrganizationsService), $this->personIdentifier, $this->readers), $query, $kept) ? $kept : null;
     }
 
     /**
@@ -1735,6 +1738,17 @@ final class Application
     /**
      * @return list<string>
      */
+    /**
+     * @return list<IdentificationResponse>
+     */
+    public function identifyOrganizationsForAnotherContext(IdentifyOrganizations $query): array
+    {
+        $kept = new KeptOrganizationIdentifications();
+        ($this->identifyOrganizationsService)($query, $kept);
+
+        return $kept->identifications;
+    }
+
     /**
      * @return list<OrganizationsOfContactResponse>
      */

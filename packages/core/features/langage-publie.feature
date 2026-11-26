@@ -4,7 +4,7 @@
 @WhichContactsHaveTheseEmails @WhichEmailsHaveTheseContacts @ConsultHeldExchanges @ConsultPlannedExchanges
 @ListExchangeFacts @ListOrganizationFacts @NameOrganizationsOfContacts @WhichAreProspected
 @WhichContactsHaveExchangesOfCampaign @WhichEmailsHaveTheseOrganizations @WhichOrganizationsHaveTheseEmails
-@WhichOrganizationsNameTheseContacts
+@WhichOrganizationsNameTheseContacts @IdentifyOrganizations
 Fonctionnalité: Le langage publié des contextes
   En tant que contexte de Prospecter
   Je veux poser à un autre contexte les seules questions qu'il publie, sur plusieurs éléments à la fois
@@ -228,6 +228,16 @@ Fonctionnalité: Le langage publié des contextes
     Quand un autre contexte demande à Prospecting les organisations, pour "Concurrent", de :
       | Ada Lovelace |
     Alors Prospecting ne répond aucune organisation
+
+  Scénario: Prospecting dit quelles organisations d'un compte des indices désignent, dans l'ordre demandé
+    Soit "Grace Hopper" est membre de "SOLEAN IT" avec le droit aux données personnelles
+    Quand un autre contexte demande à Prospecting, pour "Grace Hopper", quelles organisations désignent les noms :
+      | Initech |
+      | ACME    |
+    Alors Prospecting répond les identifications :
+      | statut      | candidates |
+      | nouvelle    |            |
+      | à confirmer | ACME       |
 
   Scénario: Prospecting dit quelles organisations nomment des contacts d'un compte
     Soit l'organisation "Globex" appartient à "SOLEAN IT"

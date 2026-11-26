@@ -33,6 +33,10 @@ use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultHeldExchanges;
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultPlannedExchanges;
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\HeldExchangeResponse;
+use Prospecter\Core\Prospecting\Contract\Service\IdentifyOrganizations\CandidateResponse;
+use Prospecter\Core\Prospecting\Contract\Service\IdentifyOrganizations\IdentificationResponse;
+use Prospecter\Core\Prospecting\Contract\Service\IdentifyOrganizations\IdentifyOrganizations;
+use Prospecter\Core\Prospecting\Contract\Service\IdentifyOrganizations\OrganizationClues;
 use Prospecter\Core\Prospecting\Contract\Service\ListExchangeFacts\ExchangeFactsResponse;
 use Prospecter\Core\Prospecting\Contract\Service\ListExchangeFacts\KeptExchangeFacts;
 use Prospecter\Core\Prospecting\Contract\Service\ListExchangeFacts\ListExchangeFacts;
@@ -60,10 +64,15 @@ final class PublishedLanguageContext implements Context
 {
     use SharesTheScenario;
 
+    private const array IDENTIFICATION_STATUSES = [IdentificationResponse::KNOWN => 'connue', IdentificationResponse::NEW => 'nouvelle', IdentificationResponse::TO_CONFIRM => 'à confirmer'];
+
     /**
      * @var array<string, MemberId>
      */
     private array $members = [];
+
+    /** @var list<IdentificationResponse> */
+    private array $identifications = [];
     /**
      * @var array<string, MemberResponse>
      */
@@ -563,6 +572,22 @@ final class PublishedLanguageContext implements Context
         $person = $this->scenario->personIdOf($name);
         $answered = array_find($this->names, static fn (ContactNameResponse $named): bool => $named->personId === $person);
         Expect::same($civility, $answered?->civility);
+    }
+
+    #[When('un autre contexte demande à Prospecting, pour :member, quelles organisations désignent les noms :')]
+    public function anotherContextAsksWhichOrganizationsTheNamesDesignate(string $member, TableNode $names): void
+    {
+        $clues = array_map(static fn (string $name): OrganizationClues => new OrganizationClues(name: $name), $names->getColumn(0));
+        $this->identifications = $this->application->identifyOrganizationsForAnotherContext(new IdentifyOrganizations($this->memberIdOf($member), $clues));
+    }
+
+    #[Then('Prospecting répond les identifications :')]
+    public function prospectingAnswersTheIdentifications(TableNode $table): void
+    {
+        Expect::same($table->getColumnsHash(), array_map(static fn (IdentificationResponse $identification): array => [
+            'statut' => self::IDENTIFICATION_STATUSES[$identification->status],
+            'candidates' => implode(', ', array_map(static fn (CandidateResponse $candidate): string => $candidate->name, $identification->candidates)),
+        ], $this->identifications));
     }
 
     #[When('un autre contexte demande à Prospecting les organisations, pour :account, de :')]
