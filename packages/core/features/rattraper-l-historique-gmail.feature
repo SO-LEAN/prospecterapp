@@ -156,6 +156,13 @@ Fonctionnalité: Rattraper l'historique Gmail d'un contact ou d'une organisation
       | Ada Lovelace |
     Alors Connectors ne répond aucun rattrapage
 
+  Scénario: La timeline d'une organisation propose de rattraper ses e-mails
+    Alors la timeline de "Globex" me propose le rattrapage Gmail
+
+  Scénario: Sans import activé, la timeline d'une organisation ne propose pas de rattraper ses e-mails
+    Soit je coupe l'import de mes e-mails Gmail
+    Alors la timeline de "Globex" ne me propose pas le rattrapage Gmail
+
   Plan du scénario: Connectors ne propose aucun rattrapage à un autre contexte quand son membre ne le peut pas
     Soit <empêchement>
     Quand un autre contexte demande à Connectors ce que je peux rattraper avec :

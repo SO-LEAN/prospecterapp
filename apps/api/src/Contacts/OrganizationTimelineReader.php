@@ -8,26 +8,18 @@ use App\Contacts\Resource\OrganizationTimelineResource;
 use App\Prospecting\TimelineResourceFactory;
 use App\Security\IntentLinks;
 use App\Shared\Links;
-use Prospecter\Core\Connectors\Application\MailImport\ConsultMailCatchUpIntents\ConsultMailCatchUpIntents;
-use Prospecter\Core\Connectors\Application\MailImport\ConsultMailCatchUpIntents\KeptMailCatchUpIntents;
-use Prospecter\Core\PersonalData\Application\Person\ConsultPersons\ConsultPersons;
-use Prospecter\Core\PersonalData\Application\Person\ConsultPersons\KeptPersons;
-use Prospecter\Core\PersonalData\Application\PersonCard;
-use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\Timeline\ConsultExchangesToMakeConform\ConsultExchangesToMakeConform;
 use Prospecter\Core\Prospecting\Application\Timeline\ConsultOrganizationTimeline\ConsultOrganizationTimeline;
 use Prospecter\Core\Prospecting\Application\Timeline\ConsultOrganizationUpcomingExchanges\ConsultOrganizationUpcomingExchanges;
-use Prospecter\Core\Prospecting\Application\Timeline\KeptTimeline;
-use Prospecter\Core\Prospecting\Application\Timeline\Timeline;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Symfony\Component\Clock\ClockInterface;
 
 /**
- * Reads an organization's timeline from the contexts (ADR 0076). Prospecting knows its exchanges and each exchange's
- * person. PersonalData names the slice's persons in one batch. Connectors says whether the e-mails exchanged with the
- * organization itself may be caught up. The reader keeps the slice, then presents it with them (ADR 0085). A command
- * returns nothing, so a controller calls this reader after it to answer with the fresh resource.
+ * Reads an organization's timeline (ADR 0076). Each read is one query of Prospecting, which names the slice's persons
+ * and says whether the e-mails exchanged with the organization itself may be caught up, and a presenter built for the
+ * call (ADR 0085, 0217). A command returns nothing, so a controller calls this reader after it to answer with the
+ * fresh resource.
  */
 final readonly class OrganizationTimelineReader
 {
@@ -35,8 +27,6 @@ final readonly class OrganizationTimelineReader
         private QueryHandler $consultOrganizationTimeline,
         private QueryHandler $consultExchangesToMakeConform,
         private QueryHandler $consultOrganizationUpcomingExchanges,
-        private QueryHandler $consultPersons,
-        private QueryHandler $consultMailCatchUpIntents,
         private TimelineResourceFactory $timelines,
         private Links $links,
         private IntentLinks $intentLinks,
@@ -46,12 +36,8 @@ final readonly class OrganizationTimelineReader
 
     public function read(string $reader, OrganizationSheet $organization, ?string $after = null): OrganizationTimelineResource
     {
-        $timeline = new KeptTimeline();
-        $this->consultOrganizationTimeline->__invoke(new ConsultOrganizationTimeline(prospectorId: $reader, organizationId: $organization->id, asOf: $this->clock->now(), after: $after), $timeline);
-        $catchUp = new KeptMailCatchUpIntents();
-        $this->consultMailCatchUpIntents->__invoke(ConsultMailCatchUpIntents::ofOrganization($reader, $organization->id), $catchUp);
-        $presenter = OrganizationTimelinePresenter::ofTheTimeline($organization, $this->personsOf($reader, $timeline->timeline), $catchUp->possibleIntents, $this->timelines, $this->links, $this->intentLinks);
-        $presenter->present($timeline->timeline);
+        $presenter = OrganizationTimelinePresenter::ofTheTimeline($this->timelines, $this->links, $this->intentLinks);
+        $this->consultOrganizationTimeline->__invoke(new ConsultOrganizationTimeline(prospectorId: $reader, organizationId: $organization->id, asOf: $this->clock->now(), after: $after), $presenter);
 
         return $presenter->resource;
     }
@@ -61,10 +47,8 @@ final readonly class OrganizationTimelineReader
      */
     public function readUpcoming(string $reader, OrganizationSheet $organization, ?string $after = null): OrganizationTimelineResource
     {
-        $timeline = new KeptTimeline();
-        $this->consultOrganizationUpcomingExchanges->__invoke(new ConsultOrganizationUpcomingExchanges(prospectorId: $reader, organizationId: $organization->id, asOf: $this->clock->now(), after: $after), $timeline);
-        $presenter = OrganizationTimelinePresenter::ofWhatIsToCome($organization, $this->personsOf($reader, $timeline->timeline), $this->timelines, $this->links);
-        $presenter->present($timeline->timeline);
+        $presenter = OrganizationTimelinePresenter::ofWhatIsToCome($this->timelines, $this->links);
+        $this->consultOrganizationUpcomingExchanges->__invoke(new ConsultOrganizationUpcomingExchanges(prospectorId: $reader, organizationId: $organization->id, asOf: $this->clock->now(), after: $after), $presenter);
 
         return $presenter->resource;
     }
@@ -74,30 +58,9 @@ final readonly class OrganizationTimelineReader
      */
     public function readToMakeConform(string $reader, OrganizationSheet $organization, ?string $after = null): OrganizationTimelineResource
     {
-        $timeline = new KeptTimeline();
-        $this->consultExchangesToMakeConform->__invoke(new ConsultExchangesToMakeConform($reader, $organization->id, $after), $timeline);
-        $presenter = OrganizationTimelinePresenter::ofTheExchangesToMakeConform($organization, $this->personsOf($reader, $timeline->timeline), $this->timelines, $this->links);
-        $presenter->present($timeline->timeline);
+        $presenter = OrganizationTimelinePresenter::ofTheExchangesToMakeConform($this->timelines, $this->links);
+        $this->consultExchangesToMakeConform->__invoke(new ConsultExchangesToMakeConform($reader, $organization->id, $after), $presenter);
 
         return $presenter->resource;
-    }
-
-    /**
-     * @return array<string, PersonCard> the persons the slice's exchanges were with, by id
-     */
-    private function personsOf(string $reader, Timeline $timeline): array
-    {
-        $persons = new KeptPersons();
-        $this->consultPersons->__invoke(new ConsultPersons($reader, self::personIdsOf($timeline)), $persons);
-
-        return $persons->persons;
-    }
-
-    /**
-     * @return list<string> the persons the slice's exchanges were with, each once
-     */
-    private static function personIdsOf(Timeline $timeline): array
-    {
-        return array_values(array_unique(array_filter(array_map(static fn (ExchangeInTimeline $exchange): ?string => $exchange->personId, $timeline->exchanges))));
     }
 }

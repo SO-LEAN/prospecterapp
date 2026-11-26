@@ -167,6 +167,7 @@ services:
     Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultPlannedExchangesService: '@Prospecter\Core\Prospecting\Application\Agenda\ConsultPlannedExchanges\ConsultPlannedExchangesHandler'
     Prospecter\Core\PersonalData\Contract\Service\NameContacts\NameContactsService: '@Prospecter\Core\PersonalData\Application\Contact\NameContacts\NameContactsHandler'
     Prospecter\Core\PersonalData\Contract\Service\DescribePersons\DescribePersonsService: '@Prospecter\Core\PersonalData\Application\Person\DescribePersons\DescribePersonsHandler'
+    Prospecter\Core\Connectors\Contract\Service\WhichMailCatchUpIntents\WhichMailCatchUpIntentsService: '@Prospecter\Core\Connectors\Application\MailImport\WhichMailCatchUpIntents\WhichMailCatchUpIntentsHandler'
     Prospecter\Core\PersonalData\Contract\Service\PresentMembers\PresentMembersService: '@Prospecter\Core\PersonalData\Application\Profile\PresentMembers\PresentMembersHandler'
     Prospecter\Core\Prospecting\Contract\Service\NameOrganizationsOfContacts\NameOrganizationsOfContactsService: '@Prospecter\Core\Prospecting\Application\Contact\NameOrganizationsOfContacts\NameOrganizationsOfContactsHandler'
     Prospecter\Core\Prospecting\Contract\Service\WhichOrganizationsNameTheseContacts\WhichOrganizationsNameTheseContactsService: '@Prospecter\Core\Prospecting\Application\Contact\WhichOrganizationsNameTheseContacts\WhichOrganizationsNameTheseContactsHandler'
@@ -260,6 +261,7 @@ services:
         arguments: { $clock: '@app.commit_clock' }
     Prospecter\Core\Prospecting\Domain\Port\Prospectors: '@App\Prospecting\AntiCorruption\AccountsProspectors'
     Prospecter\Core\Prospecting\Application\Port\PersonDescriptionRetriever: '@App\Prospecting\AntiCorruption\AccountsAndPersonalDataPersonDescriptions'
+    Prospecter\Core\Prospecting\Application\Port\MailCatchUpRetriever: '@App\Prospecting\AntiCorruption\ConnectorsMailCatchUps'
     Prospecter\Core\Prospecting\Domain\Port\KnownContacts: '@App\Prospecting\AntiCorruption\PersonalDataKnownContacts'
     Prospecter\Core\Prospecting\Domain\Port\CampaignRecipients: '@App\Prospecting\AntiCorruption\CampaignsCampaignRecipients'
     Prospecter\Core\Prospecting\Domain\Port\CampaignNames: '@App\Prospecting\AntiCorruption\CampaignsCampaignNames'

@@ -428,7 +428,9 @@ use Prospecter\Core\Prospecting\Application\Timeline\ConsultTimelineIntents\Kept
 use Prospecter\Core\Prospecting\Application\Timeline\ConsultTimelineIntents\TimelineIntentsResponse;
 use Prospecter\Core\Prospecting\Application\Timeline\ConsultUpcomingExchanges\ConsultUpcomingExchanges;
 use Prospecter\Core\Prospecting\Application\Timeline\ConsultUpcomingExchanges\ConsultUpcomingExchangesHandler;
+use Prospecter\Core\Prospecting\Application\Timeline\KeptOrganizationTimeline;
 use Prospecter\Core\Prospecting\Application\Timeline\KeptTimeline;
+use Prospecter\Core\Prospecting\Application\Timeline\OrganizationTimeline;
 use Prospecter\Core\Prospecting\Application\Timeline\Timeline;
 use Prospecter\Core\Prospecting\Application\ToDo\ConsultMyToDos\ConsultMyToDos;
 use Prospecter\Core\Prospecting\Application\ToDo\ConsultMyToDos\ConsultMyToDosHandler;
@@ -519,6 +521,7 @@ use Tests\Core\Double\BookingBookers;
 use Tests\Core\Double\CampaignsCampaignNames;
 use Tests\Core\Double\CampaignsCampaignRecipients;
 use Tests\Core\Double\ConnectorsConnectedCalendars;
+use Tests\Core\Double\ConnectorsMailCatchUps;
 use Tests\Core\Double\InMemoryAccountClientsRetriever;
 use Tests\Core\Double\InMemoryAccountListRetriever;
 use Tests\Core\Double\InMemoryAccountRepository;
@@ -1276,18 +1279,18 @@ final class Application
         return $this->ask(new ConsultTimelineHandler($this->timelineRetriever, $this->prospectors, $this->campaignsOfTimeline, $this->contactOrganizations), $query, $kept) ? $kept->timeline : null;
     }
 
-    public function consultOrganizationTimeline(ConsultOrganizationTimeline $query): ?Timeline
+    public function consultOrganizationTimeline(ConsultOrganizationTimeline $query): ?OrganizationTimeline
     {
-        $kept = new KeptTimeline();
+        $kept = new KeptOrganizationTimeline();
 
-        return $this->ask(new ConsultOrganizationTimelineHandler($this->timelineRetriever, $this->organizationSheetRetriever, $this->prospectors, $this->campaignsOfTimeline), $query, $kept) ? $kept->timeline : null;
+        return $this->ask(new ConsultOrganizationTimelineHandler($this->timelineRetriever, $this->organizationSheetRetriever, $this->prospectors, $this->campaignsOfTimeline, $this->personDescriptions, new ConnectorsMailCatchUps(new WhichMailCatchUpIntentsHandler($this->connections, $this->connectingMembers, $this->correspondentAddresses))), $query, $kept) ? $kept->timeline : null;
     }
 
-    public function consultExchangesToMakeConform(ConsultExchangesToMakeConform $query): ?Timeline
+    public function consultExchangesToMakeConform(ConsultExchangesToMakeConform $query): ?OrganizationTimeline
     {
-        $kept = new KeptTimeline();
+        $kept = new KeptOrganizationTimeline();
 
-        return $this->ask(new ConsultExchangesToMakeConformHandler($this->timelineRetriever, $this->organizationSheetRetriever, $this->prospectors), $query, $kept) ? $kept->timeline : null;
+        return $this->ask(new ConsultExchangesToMakeConformHandler($this->timelineRetriever, $this->organizationSheetRetriever, $this->prospectors, $this->personDescriptions), $query, $kept) ? $kept->timeline : null;
     }
 
     public function consultUpcomingExchanges(ConsultUpcomingExchanges $query): ?Timeline
@@ -1297,11 +1300,11 @@ final class Application
         return $this->ask(new ConsultUpcomingExchangesHandler($this->timelineRetriever, $this->prospectors, $this->contactOrganizations), $query, $kept) ? $kept->timeline : null;
     }
 
-    public function consultOrganizationUpcomingExchanges(ConsultOrganizationUpcomingExchanges $query): ?Timeline
+    public function consultOrganizationUpcomingExchanges(ConsultOrganizationUpcomingExchanges $query): ?OrganizationTimeline
     {
-        $kept = new KeptTimeline();
+        $kept = new KeptOrganizationTimeline();
 
-        return $this->ask(new ConsultOrganizationUpcomingExchangesHandler($this->timelineRetriever, $this->organizationSheetRetriever, $this->prospectors), $query, $kept) ? $kept->timeline : null;
+        return $this->ask(new ConsultOrganizationUpcomingExchangesHandler($this->timelineRetriever, $this->organizationSheetRetriever, $this->prospectors, $this->personDescriptions), $query, $kept) ? $kept->timeline : null;
     }
 
     /**
