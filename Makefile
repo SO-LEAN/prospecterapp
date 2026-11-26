@@ -151,16 +151,16 @@ E2E_LOCK = $(GIT_COMMON_DIR)/prospecter-e2e.lock
 WITH_E2E_LOCK = { flock -n $(E2E_LOCK) true || echo "The journeys of another checkout run: waiting for them..."; } && flock $(E2E_LOCK)
 
 # In a worktree or on a merge queue runner, never on the main checkout's data (ADR 0121, 0205, 0220). On the running
-# stack, a branch's journeys still start from the demonstration. The check deploys the API's and the storage's
-# functions again, recycles the relay and the worker, empties the failure queues, and gives the tables and the user pool
-# the demonstration back (make -C apps/api restore). It keeps the containers, the images, the relay's mappings, the bus rules and the buckets.
-# It starts from nothing with FRESH=1, when no stack runs, or when what defines the stack changed since it was made
-# (STACK_DEFINITION). It then starts the stack again (MiniStack without the memory a former run left it), deploys it and
-# recreates its data. Either way the command loading the demonstration counts its figures, alone, in a few seconds,
-# before any console gesture and any journey (ADR 0209). The journeys running alone run once the others are done
-# (ADR 0117), the main journey then the dashboard, one after the other (ADR 0136), and not when one before failed: the
-# first failure stops them (FAIL_FAST). It warms the relay and the worker, makes the console's gestures and doubles the
-# geocoder once for both projects. Each step prints how long it took, and so does the whole run
+# stack, a branch's journeys still start from the demonstration. The check deploys the API's and the storage's functions
+# again, recycles the relay and the worker, empties the failure queues, and gives the tables and the user pool the
+# demonstration back (make -C apps/api restore). It keeps the containers, the images, the relay's mappings, the bus
+# rules and the buckets. It starts from nothing with FRESH=1, when no stack runs, or when what defines the stack changed
+# since it was made (STACK_DEFINITION). It then starts the stack again (MiniStack without the memory a former run left
+# it), deploys it and recreates its data. Either way the command loading the demonstration counts its figures, alone, in
+# a few seconds, before any console gesture and any journey (ADR 0209). The journeys running alone run once the others
+# are done (ADR 0117), the main journey then the dashboard, one after the other (ADR 0136), and not when one before
+# failed: the first failure stops them (FAIL_FAST). It warms the relay and the worker, makes the console's gestures and
+# doubles the geocoder once for both projects. Each step prints how long it took, and so does the whole run
 STACK_RUNNING = $(shell $(DC) ps -q --status running nginx 2>/dev/null)
 # what a running stack's restore does not make again: the containers and their images, the tables, the user pool, the
 # buckets, the relay and the subscriptions' rules. The stack keeps the digest of the definition it was made from
