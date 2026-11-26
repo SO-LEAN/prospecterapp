@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\Timeline\ConsultExchangesToMakeConform;
 
 use Prospecter\Core\Prospecting\Application\Port\OrganizationSheetRetriever;
+use Prospecter\Core\Prospecting\Application\Port\PersonDescriptionRetriever;
 use Prospecter\Core\Prospecting\Application\Port\TimelineRetriever;
-use Prospecter\Core\Prospecting\Application\Timeline\TimelineOutput;
+use Prospecter\Core\Prospecting\Application\Timeline\OrganizationTimeline;
+use Prospecter\Core\Prospecting\Application\Timeline\OrganizationTimelineOutput;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\Port\Prospectors;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
@@ -18,14 +20,17 @@ final readonly class ConsultExchangesToMakeConformHandler implements QueryHandle
         private TimelineRetriever $timelineRetriever,
         private OrganizationSheetRetriever $organizationSheetRetriever,
         private Prospectors $prospectors,
+        private PersonDescriptionRetriever $personDescriptionRetriever,
     ) {
     }
 
-    public function __invoke(ConsultExchangesToMakeConform $query, TimelineOutput $output): void
+    public function __invoke(ConsultExchangesToMakeConform $query, OrganizationTimelineOutput $output): void
     {
         $prospector = $this->prospectors->prospectorFrom(new MemberId($query->prospectorId));
         $organization = $this->organizationSheetRetriever->get(new OrganizationId($query->organizationId));
 
-        $output->present($this->timelineRetriever->toMakeConformIn($organization, $prospector, $query->after, $query->max));
+        $timeline = $this->timelineRetriever->toMakeConformIn($organization, $prospector, $query->after, $query->max);
+
+        $output->present(new OrganizationTimeline($timeline, $organization, $this->personDescriptionRetriever->shownTo($prospector->id, $timeline->contacts(), [])));
     }
 }

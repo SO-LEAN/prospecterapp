@@ -11,18 +11,16 @@ use App\Prospecting\TimelineResourceFactory;
 use App\Security\IntentLinks;
 use App\Security\User;
 use App\Shared\Links;
-use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
-use Prospecter\Core\Prospecting\Application\OrganizationSheet;
-use Prospecter\Core\Prospecting\Application\Timeline\Timeline;
-use Prospecter\Core\Prospecting\Application\Timeline\TimelineOutput;
+use Prospecter\Core\Prospecting\Application\Timeline\OrganizationTimeline;
+use Prospecter\Core\Prospecting\Application\Timeline\OrganizationTimelineOutput;
 
 /**
  * Presents a slice of an organization's timeline, or of its exchanges to redact. Each exchange names who took part:
  * the person, or the organization itself. The person may still be its contact, or may be removed or forgotten. One
  * presenter serves one call. It gets the slice's persons and keeps the resource (ADR 0085).
  */
-final class OrganizationTimelinePresenter implements TimelineOutput
+final class OrganizationTimelinePresenter implements OrganizationTimelineOutput
 {
     private const array ROUTES = ['api_organizations_timeline', 'api_organizations_note_exchange', 'api_organizations_plan_exchange'];
     private const array UPCOMING_ROUTES = ['api_organizations_upcoming_exchanges', 'api_organizations_note_exchange', 'api_organizations_plan_exchange'];
@@ -34,56 +32,42 @@ final class OrganizationTimelinePresenter implements TimelineOutput
     public private(set) OrganizationTimelineResource $resource;
 
     /**
-     * @param array{string, string, string} $routes         the list's route, the route that logs an exchange and the route that plans one
-     * @param array<string, PersonCard>     $persons        the slice's persons, by id
-     * @param list<string>                  $catchUpIntents what Connectors offers to do with the e-mails exchanged with the organization itself, on its timeline only
+     * @param array{string, string, string} $routes the list's route, the route that logs an exchange and the route that plans one
      */
     private function __construct(
         private readonly array $routes,
-        private readonly OrganizationSheet $organization,
-        private readonly array $persons,
         private readonly TimelineResourceFactory $timelineResourceFactory,
         private readonly Links $links,
-        private readonly array $catchUpIntents = [],
         private readonly ?IntentLinks $intentLinks = null,
     ) {
     }
 
-    /**
-     * @param array<string, PersonCard> $persons        the slice's persons, by id
-     * @param list<string>              $catchUpIntents what Connectors offers to do with the e-mails exchanged with the organization itself
-     */
-    public static function ofTheTimeline(OrganizationSheet $organization, array $persons, array $catchUpIntents, TimelineResourceFactory $timelines, Links $links, IntentLinks $intentLinks): self
+    public static function ofTheTimeline(TimelineResourceFactory $timelines, Links $links, IntentLinks $intentLinks): self
     {
-        return new self(self::ROUTES, $organization, $persons, $timelines, $links, $catchUpIntents, $intentLinks);
+        return new self(self::ROUTES, $timelines, $links, $intentLinks);
     }
 
-    /**
-     * @param array<string, PersonCard> $persons the persons of the slice, by id
-     */
-    public static function ofWhatIsToCome(OrganizationSheet $organization, array $persons, TimelineResourceFactory $timelines, Links $links): self
+    public static function ofWhatIsToCome(TimelineResourceFactory $timelines, Links $links): self
     {
-        return new self(self::UPCOMING_ROUTES, $organization, $persons, $timelines, $links);
+        return new self(self::UPCOMING_ROUTES, $timelines, $links);
     }
 
-    /**
-     * @param array<string, PersonCard> $persons the persons of the slice, by id
-     */
-    public static function ofTheExchangesToMakeConform(OrganizationSheet $organization, array $persons, TimelineResourceFactory $timelines, Links $links): self
+    public static function ofTheExchangesToMakeConform(TimelineResourceFactory $timelines, Links $links): self
     {
-        return new self(self::TO_REDACT_ROUTES, $organization, $persons, $timelines, $links);
+        return new self(self::TO_REDACT_ROUTES, $timelines, $links);
     }
 
-    public function present(Timeline $timeline): void
+    public function present(OrganizationTimeline $organizationTimeline): void
     {
-        $subject = ['id' => $this->organization->id];
+        $timeline = $organizationTimeline->timeline;
+        $subject = ['id' => $organizationTimeline->organization->id];
 
         $this->resource = new OrganizationTimelineResource(
-            items: array_map(fn (ExchangeInTimeline $exchange): OrganizationExchangeResource => new OrganizationExchangeResource($this->timelineResourceFactory->createExchange($exchange), $this->interlocutorOf($exchange)), $timeline->exchanges),
+            items: array_map(fn (ExchangeInTimeline $exchange): OrganizationExchangeResource => new OrganizationExchangeResource($this->timelineResourceFactory->createExchange($exchange), self::interlocutorOf($exchange, $organizationTimeline)), $timeline->exchanges),
             toRedact: $timeline->toMakeConform,
             links: $this->timelineResourceFactory->createLinks($this->routes, $subject, $timeline)
                 ->withToRedact(0 === $timeline->toMakeConform ? null : $this->links->to(self::TO_REDACT_ROUTES[0], $subject))
-                ->withReimportGmail($this->offersTheCatchUp() ? $this->links->to(self::CATCH_UP_ROUTE, $subject) : null),
+                ->withReimportGmail($this->offersTheCatchUp($organizationTimeline) ? $this->links->to(self::CATCH_UP_ROUTE, $subject) : null),
         );
     }
 
@@ -91,15 +75,15 @@ final class OrganizationTimelinePresenter implements TimelineOutput
      * Catching up the e-mails exchanged with the organization itself takes the right to manage personal data, because
      * it imports them (ADR 0081, 0176).
      */
-    private function offersTheCatchUp(): bool
+    private function offersTheCatchUp(OrganizationTimeline $timeline): bool
     {
-        return null !== $this->intentLinks && $this->intentLinks->shows(self::CATCH_UP, $this->catchUpIntents, User::PERSONAL_DATA);
+        return null !== $this->intentLinks && $this->intentLinks->shows(self::CATCH_UP, $timeline->mailCatchUpIntents, User::PERSONAL_DATA);
     }
 
-    private function interlocutorOf(ExchangeInTimeline $exchange): InterlocutorResource
+    private static function interlocutorOf(ExchangeInTimeline $exchange, OrganizationTimeline $timeline): InterlocutorResource
     {
         return null === $exchange->personId
-            ? InterlocutorResource::ofTheOrganization($this->organization)
-            : InterlocutorResource::ofPerson($exchange->personId, $this->persons[$exchange->personId] ?? null, $exchange->contactPresence);
+            ? InterlocutorResource::ofTheOrganization($timeline->organization)
+            : InterlocutorResource::ofPerson($exchange->personId, $timeline->persons->contacts[$exchange->personId] ?? null, $exchange->contactPresence);
     }
 }

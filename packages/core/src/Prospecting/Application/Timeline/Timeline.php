@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\Timeline;
 
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 
 /**
  * A slice of the exchanges with a contact or with an organization. The past ones come most recent first, and those to
@@ -24,6 +25,17 @@ final readonly class Timeline
         public array $possibleIntents,
         public int $toMakeConform,
     ) {
+    }
+
+    /**
+     * @return list<ContactId> the contacts its exchanges were with, each once
+     */
+    #[\NoDiscard]
+    public function contacts(): array
+    {
+        $personIds = array_values(array_unique(array_filter(array_map(static fn (ExchangeInTimeline $exchange): ?string => $exchange->personId, $this->exchanges))));
+
+        return array_map(static fn (string $personId): ContactId => new ContactId($personId), $personIds);
     }
 
     /**
