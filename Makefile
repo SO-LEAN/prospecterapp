@@ -9,7 +9,7 @@ GITLEAKS = docker run --rm -u $(UID):$(GID) -e GIT_INDEX_FILE -v $(CURDIR):$(CUR
 	-w $(CURDIR) ghcr.io/gitleaks/gitleaks:v8.30.1
 INFRA_APPS = api storage front
 
-.PHONY: install hooks build vendor db aws ca front-install check-secrets check-infra check-contract check-event-storming check-core check-api check-api-lint check-storage check-front check-e2e check-e2e-locked check-e2e-run e2e-locked front-lint front-tested-build changed-checks infra-target infra-init infra-plan infra-apply infra-lint changed-apps package-api package-storage package-front release-front console start deploy stop down images-prune images-env agents-slice logs logs-save ps google-down google-up ci test test-api test-storage test-front e2e test-core mutation mutation-core mutation-front mutation-event-storming mutation-summary mutation-artifact mutation-api lint adr-references adr-index adr-index-check fix front-build api-doc contract event-storming commands profiler-clear exec-api exec-front secrets secrets-branch commit-subjects
+.PHONY: install hooks build vendor db aws ca front-install check-secrets check-infra check-contract check-event-storming check-core check-api check-api-lint check-storage check-front check-e2e check-e2e-locked check-e2e-run e2e-locked front-lint front-tested-build changed-checks infra-target infra-init infra-plan infra-apply infra-lint changed-apps package-api package-storage package-front release-front console start deploy stop down images-prune images-env image-load agents-slice logs logs-save ps google-down google-up ci test test-api test-storage test-front e2e test-core mutation mutation-core mutation-front mutation-event-storming mutation-summary mutation-artifact mutation-api lint adr-references adr-index adr-index-check fix front-build api-doc contract event-storming commands profiler-clear exec-api exec-front secrets secrets-branch commit-subjects
 
 ##@ Setup
 install: hooks build vendor db front-install ## Build the images, install the dependencies, create the tables, the bucket and the user pool, install the Git hooks
@@ -65,10 +65,16 @@ images-prune: ## Remove the images of the stack no checkout of the repository ex
 	docker image ls $(foreach image,$(STACK_IMAGES),--filter reference=prospecter-$(call image-name,$(image))) --format '{{.Repository}}:{{.Tag}}' \
 		| grep -v ':local$$' | grep -vxF "$$expected" | xargs -r -n1 sh -c 'docker image rm "$$0" || echo "Kept $$0: a container uses it"'
 
-# Prints the tags make expects of the command-line images and the user they are built for, one variable per line. The
-# CI builds these images from its cache under these tags (.github/workflows/ci.yml)
-images-env: ## Print the tags of the PHP and Node images and the user they are built for, one variable per line
-	@printf '%s\n' PHP_IMAGE=$(PHP_IMAGE) NODE_IMAGE=$(NODE_IMAGE) IMAGE_UID=$(UID) IMAGE_GID=$(GID)
+# The CI keeps each command-line image in an archive of its cache, keyed by the image's tag (.github/workflows/ci.yml).
+# A tag names the image's docker/ directory and its user: a new tag builds the image and writes its archive again
+images-env: ## Print the tags make expects of the PHP and Node images, one variable per line
+	@printf '%s\n' PHP_IMAGE=$(PHP_IMAGE) NODE_IMAGE=$(NODE_IMAGE)
+
+IMAGE_TAG = $($(shell echo $(IMAGE) | tr a-z A-Z)_IMAGE)
+image-load: ## Load the image IMAGE (php or node) from the archive ARCHIVE, or build it and write that archive
+	@test -n "$(IMAGE)" -a -n "$(ARCHIVE)" || { echo "Usage: make image-load IMAGE=<php|node> ARCHIVE=<file>"; exit 1; }
+	@if [ -f "$(ARCHIVE)" ]; then docker load -q -i "$(ARCHIVE)"; \
+	else $(DC) --profile cli --progress quiet build $(IMAGE) && mkdir -p "$(dir $(ARCHIVE))" && docker save -o "$(ARCHIVE)" $(IMAGE_TAG); fi
 
 # the budget of the stacks of the worktrees together (ADR 0116), out of reach of the agents: a slice of systemd, written
 # once with sudo, which the containers of the worktrees join; without it, only the bounds of each stack apply

@@ -77,9 +77,6 @@ jobs:
     env:
       PHP: ${{ contains(fromJSON('["core","storage","contract","event-storming"]'), matrix.check) || startsWith(matrix.check, 'api-') }}
       NODE: ${{ contains(fromJSON('["front","contract","event-storming"]'), matrix.check) }}
-      # Buildx writes neither a summary nor a record of each build: the run keeps only the artifacts it publishes
-      DOCKER_BUILD_SUMMARY: false
-      DOCKER_BUILD_RECORD_UPLOAD: false
       # The project whose PHP lint the check runs: PHPStan, Rector and php-cs-fixer keep their caches in its var/cache
       LINTED: ${{ fromJSON('{"core":"packages/core","api-lint":"apps/api","storage":"apps/storage"}')[matrix.check] }}
     steps:
@@ -89,38 +86,33 @@ jobs:
           # number 0 is falsy in an expression: the depths are strings
           fetch-depth: ${{ matrix.check == 'secrets' && '0' || '1' }}
 
-      # Buildx builds the command-line images from its cache, under the tags make expects. It rebuilds an image only when
-      # its docker/ directory changes. Otherwise the log shows every layer CACHED
+      # Each command-line image is an archive in the cache, keyed by the tag make expects of it. A job loads the archive.
+      # A tag new to the cache, after a change of its docker/ directory, builds the image and saves its archive
       - name: Name the images
         if: env.PHP == 'true' || env.NODE == 'true'
         run: make images-env >> "$GITHUB_ENV"
 
-      - name: Set up Buildx
-        if: env.PHP == 'true' || env.NODE == 'true'
-        uses: docker/setup-buildx-action@v4.4.1
-
-      - name: Build the PHP image from the cache
+      - name: Cache the PHP image
         if: env.PHP == 'true'
-        uses: docker/build-push-action@v7.4.0
+        uses: actions/cache@v6.1.0
         with:
-          context: docker/php
-          build-args: |
-            UID=${{ env.IMAGE_UID }}
-            GID=${{ env.IMAGE_GID }}
-          tags: ${{ env.PHP_IMAGE }}
-          load: true
-          cache-from: type=gha,scope=php
-          cache-to: type=gha,scope=php,mode=max
+          path: ${{ runner.temp }}/images/php.tar
+          key: image-${{ env.PHP_IMAGE }}
 
-      - name: Build the Node image from the cache
+      - name: Load the PHP image
+        if: env.PHP == 'true'
+        run: make image-load IMAGE=php ARCHIVE="$RUNNER_TEMP/images/php.tar"
+
+      - name: Cache the Node image
         if: env.NODE == 'true'
-        uses: docker/build-push-action@v7.4.0
+        uses: actions/cache@v6.1.0
         with:
-          context: docker/node
-          tags: ${{ env.NODE_IMAGE }}
-          load: true
-          cache-from: type=gha,scope=node
-          cache-to: type=gha,scope=node,mode=max
+          path: ${{ runner.temp }}/images/node.tar
+          key: image-${{ env.NODE_IMAGE }}
+
+      - name: Load the Node image
+        if: env.NODE == 'true'
+        run: make image-load IMAGE=node ARCHIVE="$RUNNER_TEMP/images/node.tar"
 
       - name: Cache the Composer dependencies
         if: env.PHP == 'true'
