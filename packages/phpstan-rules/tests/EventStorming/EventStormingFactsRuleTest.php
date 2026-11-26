@@ -6,9 +6,11 @@ namespace Tests\PHPStan\EventStorming;
 
 use App\Shop\Command\AddABookCommand;
 use App\Shop\Controller\AddItemController;
+use App\Shop\Resource\CartLineLinksResource;
 use App\Shop\Resource\CartLineResource;
 use App\Shop\Resource\CartLinksResource;
 use App\Shop\Resource\CartResource;
+use App\Shop\Resource\CartSecretResource;
 use PhpParser\Node;
 use PHPStan\Analyser\Error;
 use PHPStan\Collectors\Collector;
@@ -126,6 +128,11 @@ final class EventStormingFactsRuleTest extends RuleTestCase
     public function testAClassHoldsTheClassesItsPublicPropertiesAndTheirListsAreOf(): void
     {
         self::assertSame([CartLinksResource::class, CartLineResource::class], $this->classFactsOf(CartResource::class)['holds'] ?? null);
+    }
+
+    public function testAPropertyWhoseTypeNamesSeveralClassesHoldsEachOfThem(): void
+    {
+        self::assertEqualsCanonicalizing([CartLineLinksResource::class, CartSecretResource::class], $this->classFactsOf(CartLineResource::class)['holds'] ?? null);
     }
 
     public function testAClassTellsTheRolesItsAttributesRequire(): void

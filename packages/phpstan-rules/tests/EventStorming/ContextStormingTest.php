@@ -642,6 +642,13 @@ final class ContextStormingTest extends TestCase
         self::assertSame([], self::offersOf($model));
     }
 
+    public function testAViewOffersNothingThatAClassPresentingNoneOfItsAnswersHolds(): void
+    {
+        $model = self::modelOf(self::myBookingPageOffering(['open' => [self::OPEN_ROUTE]], holds: [self::INACTIVE_PERIOD_RESOURCE => [self::MY_BOOKING_PAGE_LINKS]]));
+
+        self::assertSame([], self::offersOf($model));
+    }
+
     public function testAResourceHoldingItselfOffersItsLinksOnce(): void
     {
         $model = self::modelOf(self::myBookingPageOffering(['open' => [self::OPEN_ROUTE]], holds: [
