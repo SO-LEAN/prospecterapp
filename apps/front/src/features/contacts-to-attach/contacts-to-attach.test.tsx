@@ -131,6 +131,14 @@ describe('the contacts to attach to process', () => {
     expect(tile?.querySelector('svg')).toHaveClass('lucide-user-round')
   })
 
+  it('shows the days left in a neutral chip until the last week', async () => {
+    await show(<ContactsToAttachSection contacts={[ada(new Date(2026, 11, 20))]} />)
+
+    const days = screen.getByTitle('Effacé dans 32 jours')
+    expect(days).toHaveAttribute('data-urgency', 'later')
+    expect(days).toHaveClass('border', 'bg-muted', 'text-muted-foreground')
+  })
+
   it('says the day before in red', async () => {
     await show(<ContactsToAttachSection contacts={[ada(new Date(2026, 10, 19))]} />)
 
