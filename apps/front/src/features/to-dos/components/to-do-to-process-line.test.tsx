@@ -89,6 +89,12 @@ describe('a to-do in « À traiter »', () => {
     expect(theLine()).not.toHaveAttribute('data-late')
   })
 
+  it('names no one for a to-do for the organization itself', async () => {
+    await showTheLine(aToDo({ contact: null }))
+
+    expect(theLine()).toHaveTextContent(/^Envoyer le CV à Nicolas Bonnet18 nov\. 2026, 11h00Pour aujourd’hui/)
+  })
+
   it('says since when it is late, set apart by a stripe', async () => {
     await showTheLine(aToDo({ dueOn: '2026-11-09', dueAt: null }), 4)
 
