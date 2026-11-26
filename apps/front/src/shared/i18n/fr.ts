@@ -157,6 +157,8 @@ export const fr = {
     badge: 'À rattacher',
     erasedIn_one: 'Effacé dans {{count}} jour',
     erasedIn_other: 'Effacé dans {{count}} jours',
+    daysLeft_one: '{{count}} jour',
+    daysLeft_other: '{{count}} jours',
     erasedOn: 'Contact à rattacher, effacé le {{date}}',
     attach: 'Rattacher',
     attachTo: 'Rattacher à {{name}}',
