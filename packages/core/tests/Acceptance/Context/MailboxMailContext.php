@@ -31,6 +31,8 @@ use Prospecter\Core\PersonalData\Domain\Model\PersonId;
 use Prospecter\Core\PersonalData\Domain\Model\PersonName;
 use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\ConsultExchange;
 use Prospecter\Core\Prospecting\Application\Exchange\EraseExchange\EraseExchange;
+use Prospecter\Core\Prospecting\Application\Timeline\ConsultOrganizationTimeline\ConsultOrganizationTimeline;
+use Prospecter\Core\Prospecting\Application\Timeline\OrganizationTimeline;
 use Prospecter\Core\Prospecting\Domain\Event\AttachmentImported;
 use Prospecter\Core\Prospecting\Domain\Model\Attachment;
 use Prospecter\Core\Prospecting\Domain\Model\ContactId;
@@ -305,6 +307,25 @@ final class MailboxMailContext implements Context
         return $this->application->consultMailCatchUpIntents($this->scenario->isAnOrganization($name)
             ? ConsultMailCatchUpIntents::ofOrganization($this->application->signedIn(), $this->scenario->idOf($name))
             : ConsultMailCatchUpIntents::ofContact($this->application->signedIn(), $this->scenario->personIdOf($name)));
+    }
+
+    #[Then('la timeline de :name me propose le rattrapage Gmail')]
+    public function theTimelineOffersTheCatchUp(string $name): void
+    {
+        Expect::same(['CatchUpGmail'], $this->timelineOf($name)->mailCatchUpIntents);
+    }
+
+    #[Then('la timeline de :name ne me propose pas le rattrapage Gmail')]
+    public function theTimelineDoesNotOfferTheCatchUp(string $name): void
+    {
+        Expect::same([], $this->timelineOf($name)->mailCatchUpIntents);
+    }
+
+    private function timelineOf(string $name): OrganizationTimeline
+    {
+        $timeline = $this->application->consultOrganizationTimeline(new ConsultOrganizationTimeline($this->application->signedIn(), $this->scenario->idOf($name), $this->application->now()));
+
+        return Expect::present($timeline, sprintf('The timeline was expected, got: %s', $this->application->refusal()?->getMessage()));
     }
 
     #[When('un autre contexte demande à Connectors ce que je peux rattraper avec :')]
