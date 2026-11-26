@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange;
 
+use Prospecter\Core\Prospecting\Application\OrganizationSheet;
 use Prospecter\Core\Prospecting\Application\Port\ExchangeDetailRetriever;
 use Prospecter\Core\Prospecting\Application\Port\OrganizationSheetRetriever;
 use Prospecter\Core\Prospecting\Application\Port\PersonDescriptionRetriever;
+use Prospecter\Core\Prospecting\Domain\Exception\UnknownOrganization;
 use Prospecter\Core\Prospecting\Domain\Model\CampaignId;
 use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
@@ -41,7 +43,8 @@ final readonly class ConsultExchangeHandler implements QueryHandler
 
     /**
      * The exchange's contact and authors are read in one call. An exchange with no contact is kept for the organization
-     * itself only.
+     * itself only. Stopping prospecting erases the organization at once and its exchanges later: until then, the
+     * exchange is read without it.
      */
     private function participantsOf(ExchangeDetail $exchange, Prospector $reader): Participants
     {
@@ -49,7 +52,16 @@ final readonly class ConsultExchangeHandler implements QueryHandler
         $authors = array_values(array_filter([$exchange->createdBy, $exchange->correctedBy, $exchange->madeConformBy]));
         $persons = $this->personDescriptionRetriever->shownTo($reader->id, $contacts, array_map(static fn (string $author): MemberId => new MemberId($author), $authors));
 
-        return new Participants($persons, null === $exchange->personId ? $this->organizationSheetRetriever->get(new OrganizationId($exchange->organizationIds[0])) : null);
+        return new Participants($persons, null === $exchange->personId ? $this->organizationStillKnown($exchange->organizationIds[0]) : null);
+    }
+
+    private function organizationStillKnown(string $id): ?OrganizationSheet
+    {
+        try {
+            return $this->organizationSheetRetriever->get(new OrganizationId($id));
+        } catch (UnknownOrganization) {
+            return null;
+        }
     }
 
     private function withItsCampaignNamed(ExchangeDetail $exchange, Prospector $reader): ExchangeDetail
