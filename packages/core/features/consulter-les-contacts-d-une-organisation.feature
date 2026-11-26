@@ -42,3 +42,4 @@ Fonctionnalité: Consulter les contacts d'une organisation
     Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
     Quand je consulte les contacts d'une organisation inconnue
     Alors c'est introuvable, pour la raison "unknownOrganization"
+    Et le refus nomme l'organisation demandée

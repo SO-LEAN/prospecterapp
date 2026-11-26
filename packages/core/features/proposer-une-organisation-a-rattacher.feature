@@ -44,7 +44,9 @@ Fonctionnalité: Proposer l'organisation où rattacher un contact
     Et je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
     Quand je regarde à quelle organisation rattacher "Ada Lovelace"
     Alors c'est introuvable, pour la raison "unknownContact"
+    Et le refus nomme le contact regardé
 
   Scénario: Un contact inconnu est introuvable
     Quand je regarde à quelle organisation rattacher "Personne"
     Alors c'est introuvable, pour la raison "unknownContact"
+    Et le refus nomme le contact regardé
