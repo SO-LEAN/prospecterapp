@@ -6,8 +6,10 @@ namespace App\Contacts\Resource;
 
 use OpenApi\Attributes as OA;
 use Prospecter\Core\PersonalData\Application\PersonCard;
+use Prospecter\Core\Prospecting\Application\Agenda\Interlocutors;
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
+use Prospecter\Core\Prospecting\Application\PersonDescription;
 
 /**
  * Who took part in an exchange on an organization's timeline: the organization itself, or one of its contacts. The
@@ -32,30 +34,13 @@ final readonly class InterlocutorResource
     }
 
     /**
-     * Gives who an exchange is with: the person, or the organization itself.
-     *
-     * @param array<string, PersonCard>        $persons       the exchanges' persons, by id
-     * @param array<string, OrganizationSheet> $organizations the organizations that exchanges are held with directly, with no contact, by id
+     * Gives who an agenda's exchange is with: the person, or the organization itself.
      */
-    public static function of(ExchangeInTimeline $exchange, array $persons, array $organizations): self
+    public static function of(ExchangeInTimeline $exchange, Interlocutors $interlocutors): self
     {
         return null === $exchange->personId
-            ? self::ofTheOrganization($organizations[$exchange->organizationIds[0]])
-            : self::ofPerson($exchange->personId, $persons[$exchange->personId] ?? null, $exchange->contactPresence);
-    }
-
-    /**
-     * Keeps the exchanges whose interlocutor is still known. A person always is, by their id. An organization erased
-     * before its exchanges is not.
-     *
-     * @param list<ExchangeInTimeline>         $exchanges
-     * @param array<string, OrganizationSheet> $organizations the organizations that exchanges are held with directly, with no contact, by id
-     *
-     * @return list<ExchangeInTimeline>
-     */
-    public static function known(array $exchanges, array $organizations): array
-    {
-        return array_values(array_filter($exchanges, static fn (ExchangeInTimeline $exchange): bool => null !== $exchange->personId || isset($organizations[$exchange->organizationIds[0]])));
+            ? self::ofTheOrganization($interlocutors->organizationsMetAlone[$exchange->organizationIds[0]])
+            : self::ofPerson($exchange->personId, $interlocutors->persons->contacts[$exchange->personId] ?? null, $exchange->contactPresence);
     }
 
     public static function ofTheOrganization(OrganizationSheet $organization): self
@@ -64,15 +49,15 @@ final readonly class InterlocutorResource
     }
 
     /**
-     * @param ?PersonCard $person   none for a person who is no longer known
-     * @param ?string     $presence by the values of `ContactPresence`
+     * @param PersonCard|PersonDescription|null $person   none for a person who is no longer known
+     * @param ?string                           $presence by the values of `ContactPresence`
      */
-    public static function ofPerson(string $personId, ?PersonCard $person, ?string $presence): self
+    public static function ofPerson(string $personId, PersonCard|PersonDescription|null $person, ?string $presence): self
     {
         return new self(self::PERSON, $personId, null === $person ? null : self::fullNameOf($person), $presence);
     }
 
-    private static function fullNameOf(PersonCard $person): ?string
+    private static function fullNameOf(PersonCard|PersonDescription $person): ?string
     {
         $name = trim(sprintf('%s %s', $person->firstName, $person->lastName));
 
