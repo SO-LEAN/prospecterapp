@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Contacts\Mcp;
 
-use App\Contacts\CallerReader;
+use App\Contacts\CallerComposition;
 use App\Security\ToolAccess;
 use App\Shared\Mcp\Adapts;
 use App\Shared\Mcp\ToolResults;
@@ -17,7 +17,7 @@ use Mcp\Server\Capability\Attribute\McpTool;
 #[Adapts('api_phone_numbers_recognize')]
 final readonly class RecognizeCallerTool
 {
-    public function __construct(private ToolAccess $access, private CallerReader $callers, private ToolResults $results)
+    public function __construct(private ToolAccess $access, private CallerComposition $callers, private ToolResults $results)
     {
     }
 

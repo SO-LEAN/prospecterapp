@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Contacts\Controller;
 
-use App\Contacts\CallerReader;
+use App\Contacts\CallerComposition;
 use App\Contacts\Resource\CallerResource;
 use App\Security\User;
 use App\Shared\JsonResponses;
@@ -17,13 +17,13 @@ use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
- * Recognizes who calls (ADR 0072). `CallerReader` reads the answer.
+ * Recognizes who calls (ADR 0072). `CallerComposition` reads the answer.
  */
 #[OA\Tag('Contacts')]
 #[IsGranted('ROLE_PROSPECTOR')]
 final readonly class RecognizeCallerController
 {
-    public function __construct(private CallerReader $callers, private JsonResponses $jsonResponses)
+    public function __construct(private CallerComposition $callers, private JsonResponses $jsonResponses)
     {
     }
 
