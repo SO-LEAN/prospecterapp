@@ -163,6 +163,7 @@ use Prospecter\Core\Connectors\Application\MailImport\ReadMailboxHistory\ReadMai
 use Prospecter\Core\Connectors\Application\MailImport\RenewMailWatch\RenewMailWatch;
 use Prospecter\Core\Connectors\Application\MailImport\RenewMailWatch\RenewMailWatchHandler;
 use Prospecter\Core\Connectors\Application\MailImport\StopMailImport\StopMailImportHandler;
+use Prospecter\Core\Connectors\Application\MailImport\WhichMailCatchUpIntents\WhichMailCatchUpIntentsHandler;
 use Prospecter\Core\Connectors\Application\Policy\ImportMailPolicy;
 use Prospecter\Core\Connectors\Application\Policy\PushExchangePolicy;
 use Prospecter\Core\Connectors\Application\Policy\PushUpcomingExchangesPolicy;
@@ -170,6 +171,8 @@ use Prospecter\Core\Connectors\Application\Policy\ReadMailboxHistoryPolicy;
 use Prospecter\Core\Connectors\Application\Policy\UnnameForgottenContactPolicy;
 use Prospecter\Core\Connectors\Contract\Service\WhichHaveAConnectedCalendar\KeptConnectedCalendars;
 use Prospecter\Core\Connectors\Contract\Service\WhichHaveAConnectedCalendar\WhichHaveAConnectedCalendar;
+use Prospecter\Core\Connectors\Contract\Service\WhichMailCatchUpIntents\KeptMailCatchUpIntentsOfMany;
+use Prospecter\Core\Connectors\Contract\Service\WhichMailCatchUpIntents\WhichMailCatchUpIntents;
 use Prospecter\Core\Connectors\Domain\Model\Provider;
 use Prospecter\Core\PersonalData\Application\Contact\CollectContact\CollectContactHandler;
 use Prospecter\Core\PersonalData\Application\Contact\CompareWithContact\CompareWithContact;
@@ -1015,6 +1018,14 @@ final class Application
         $handler = new ConsultMyConnectionsHandler($this->myConnectionsRetriever, $this->accountClientsRetriever, $this->connectingMembers);
 
         return $this->ask($handler, new ConsultMyConnections($member ?? $this->signedIn(), $this->now), $kept) ? $kept : null;
+    }
+
+    public function whichMailCatchUpIntents(WhichMailCatchUpIntents $query): KeptMailCatchUpIntentsOfMany
+    {
+        $kept = new KeptMailCatchUpIntentsOfMany();
+        (new WhichMailCatchUpIntentsHandler($this->connections, $this->connectingMembers, $this->correspondentAddresses))($query, $kept);
+
+        return $kept;
     }
 
     /**
