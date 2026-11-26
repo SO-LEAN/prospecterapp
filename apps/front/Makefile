@@ -23,8 +23,8 @@ ADDED_LINE_RANGES = $(call ADDED_LINES,$(1)) | awk '/^\+\+\+ b\// { file = subst
 	if (count > 0) { printf "%s%s:%d-%d", separator, file, new[1], new[1] + count - 1; separator = "," } }'
 
 # Stryker runs one test runner per processor of the container, one fewer beyond four: 2 in a worktree, whose node
-# container has 2 processors and 2 GB (docker-compose.agents.yml). MUTATION_WORKERS= a number of runners gives the
-# container as many processors, and a GB per runner and one more: 4 runners within 2 GB were killed in their first run
+# container has 2 processors and 2 GB (docker-compose.agents.yml). MUTATION_WORKERS=<n> runs n runners, and gives the
+# container n processors and n + 1 GB: 4 runners within 2 GB were killed in their first run
 STRYKER = $(if $(MUTATION_WORKERS),NODE_CPUS=$(MUTATION_WORKERS) NODE_MEMORY=$$(($(MUTATION_WORKERS) + 1))g) $(NODE) pnpm exec stryker run $(if $(MUTATION_WORKERS),--concurrency $(MUTATION_WORKERS))
 
 mutation: ## Mutate the lines the branch adds in src and in the event storming's generator since BASE (origin/dev), killed by the tests of Vitest; list the survivors; MUTATION_WORKERS= the test runners (one per processor of the container by default)
