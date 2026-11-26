@@ -236,6 +236,19 @@ class ContactApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(409);
     }
 
+    public function testAnOrganizationsContactsAreMaskedForAMemberWithoutTheRightToManagePersonalData(): void
+    {
+        $organization = $this->anOrganization('ACME');
+        $contact = $this->collectedId(self::ADA, $organization);
+
+        $read = self::recordsAt($this->requestJson('GET', '/api/organizations/'.$organization.'/contacts'), 'items');
+        $this->login('assistant-user');
+        $masked = self::recordsAt($this->requestJson('GET', '/api/organizations/'.$organization.'/contacts'), 'items');
+
+        $this->assertSame([$contact, false, 'Directrice commerciale', 'ada@analytical-engine.test'], [self::valueAt($read, 0, 'id'), self::valueAt($read, 0, 'masked'), self::valueAt($read, 0, 'jobTitle'), self::valueAt($read, 0, 'contactDetails', 'email')]);
+        $this->assertSame([$contact, true, 'D***e', 'a***@***', ['contact']], [self::valueAt($masked, 0, 'id'), self::valueAt($masked, 0, 'masked'), self::valueAt($masked, 0, 'jobTitle'), self::valueAt($masked, 0, 'contactDetails', 'email'), array_keys(self::recordAt($masked[0], '_links'))]);
+    }
+
     public function testRemovedFromAnotherOrganizationTheContactStays(): void
     {
         $organization = $this->anOrganization('ACME');
