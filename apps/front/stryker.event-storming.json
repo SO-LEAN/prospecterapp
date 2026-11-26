@@ -9,6 +9,7 @@
   "clearTextReporter": { "allowColor": false, "logTests": false },
   "jsonReporter": { "fileName": "reports/mutation-event-storming.json" },
   "tempDirName": ".stryker-tmp",
+  "disableTypeChecks": "event-storming/**/*.ts",
   "tsconfigFile": "no-tsconfig-for-stryker.json",
   "timeoutMS": 30000,
   "dryRunTimeoutMinutes": 15
