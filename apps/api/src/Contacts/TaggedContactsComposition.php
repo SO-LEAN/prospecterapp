@@ -13,7 +13,7 @@ use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 /**
  * Composes the contacts that carry every chosen tag (ADR 0217). Campaigns finds them, counts them and links the page.
  * PersonalData, Prospecting and Campaigns then give each contact in a list, joined by their id, in the order Campaigns
- * found them. A contact forgotten between the two reads of the request has no card, so no line.
+ * found them. A contact forgotten between the request's two reads has no card, and the list leaves them out.
  */
 final readonly class TaggedContactsComposition
 {

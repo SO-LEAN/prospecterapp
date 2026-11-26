@@ -14,8 +14,8 @@ use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
- * Prospecting identifies the organizations first (ADR 0173). Each person is then searched among the contacts of the
- * organizations that the one they name was identified as. A position outside the call's organizations names none.
+ * Prospecting identifies the organizations first (ADR 0173). Each person is then searched first among the contacts of
+ * the candidates found for the organization they name. A position outside the call's organizations names none.
  */
 final readonly class IdentifyPersonsAndOrganizationsHandler implements QueryHandler
 {
