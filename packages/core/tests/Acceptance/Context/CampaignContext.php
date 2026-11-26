@@ -27,6 +27,8 @@ use Prospecter\Core\Campaigns\Application\CampaignSheet;
 use Prospecter\Core\Campaigns\Application\Recipient\AddRecipient\AddRecipient;
 use Prospecter\Core\Campaigns\Application\Recipient\AddRecipientsByTags\AddRecipientsByTags;
 use Prospecter\Core\Campaigns\Application\Recipient\DismissRecipient\DismissRecipient;
+use Prospecter\Core\Campaigns\Application\Recipient\ListCampaignRecipients\CampaignRecipients;
+use Prospecter\Core\Campaigns\Application\Recipient\ListCampaignRecipients\ListCampaignRecipients;
 use Prospecter\Core\Campaigns\Application\Recipient\NextRecipient\NextRecipient;
 use Prospecter\Core\Campaigns\Application\Recipient\NextRecipient\RecipientToHandle;
 use Prospecter\Core\Campaigns\Application\Recipient\RemoveRecipient\RemoveRecipient;
@@ -41,6 +43,7 @@ use Prospecter\Core\Campaigns\Domain\Model\CampaignBrief;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignId;
 use Prospecter\Core\Campaigns\Domain\Model\CampaignName;
 use Prospecter\Core\Campaigns\Domain\Model\Channel;
+use Prospecter\Core\Campaigns\Domain\Model\ContactId;
 use Prospecter\Core\Campaigns\Domain\Model\MessageMode;
 use Prospecter\Core\Campaigns\Domain\Model\MessageTemplate;
 use Prospecter\Core\Campaigns\Domain\Model\Targeting;
@@ -72,11 +75,15 @@ final class CampaignContext implements Context
     private const array CHANNELS = ['E-mail' => 'email', 'Appel' => 'call', 'SMS' => 'sms', 'LinkedIn' => 'linkedIn'];
     private const array STATUSES = ['draft' => 'brouillon', 'frozen' => 'figée', 'started' => 'démarrée', 'stopped' => 'arrêtée', 'ended' => 'terminée'];
     private const array RECIPIENT_STATUSES = ['pending' => 'à traiter', 'erased' => 'plus à traiter', 'processed' => 'traité', 'dismissed' => 'écarté'];
+    /** What a campaign's state allows on its recipients, as the list of its recipients offers it. */
+    private const array RECIPIENT_INTENTS = ['RemoveRecipient' => 'retirer un destinataire', 'RunCampaign' => 'traiter ou écarter un destinataire'];
     private const array MESSAGE_MODES = ['asIs' => 'tel quel', 'adapted' => 'adapté'];
     private const string NOBODY_CARRIES = '#PERSONNE';
     private const string A_MESSAGE = 'Bonjour {firstName}';
     private const string REVISED_MESSAGE = 'Bonjour {firstName}, je reviens vers vous';
     private const string SOME_TAGS = '#ESN';
+
+    private ?CampaignRecipients $listedRecipients = null;
 
     /** @var array<string, string> the campaigns' ids, by name */
     private array $campaignIds = [];
@@ -812,6 +819,50 @@ final class CampaignContext implements Context
 
         Expect::same(['plus à traiter'], array_values(array_map(static fn (RecipientInSheet $recipient): string => self::RECIPIENT_STATUSES[$recipient->status], $recipients)));
         Expect::same([], $read);
+    }
+
+    #[When('je consulte les destinataires de la campagne :name')]
+    public function iConsultTheRecipientsOf(string $name): void
+    {
+        $this->current = $name;
+        $this->listedRecipients = $this->application->listCampaignRecipients(new ListCampaignRecipients($this->application->signedIn(), $this->currentId()));
+    }
+
+    #[When('je consulte les destinataires d\'une campagne inconnue')]
+    public function iConsultTheRecipientsOfAnUnknownCampaign(): void
+    {
+        $this->listedRecipients = $this->application->listCampaignRecipients(new ListCampaignRecipients($this->application->signedIn(), $this->application->newIdentity()));
+    }
+
+    #[Then('les destinataires listés sont :')]
+    public function theListedRecipientsAre(TableNode $table): void
+    {
+        $recipients = $this->recipientsListed()->recipients;
+
+        Expect::same($table->getColumnsHash(), array_map(fn (string $contactId, RecipientInSheet $recipient): array => [
+            'destinataire' => $recipient->erased ? 'Contact effacé' : $this->scenario->nameOfPerson(new ContactId($contactId)),
+            'statut' => self::RECIPIENT_STATUSES[$recipient->status],
+            'échange' => null === $recipient->exchangeId ? '' : ($recipient->exchangeId === $this->noted ? 'noté' : $recipient->exchangeId),
+        ], array_map(strval(...), array_keys($recipients)), $recipients));
+    }
+
+    #[Then('aucun destinataire n\'est listé')]
+    public function noRecipientIsListed(): void
+    {
+        Expect::same([], $this->recipientsListed()->recipients);
+    }
+
+    #[Then('sur ses destinataires, je peux :')]
+    public function onItsRecipientsICan(TableNode $table): void
+    {
+        $offered = array_values(array_intersect_key(self::RECIPIENT_INTENTS, array_flip($this->recipientsListed()->possibleIntents)));
+
+        Expect::same($table->getColumn(0), $offered);
+    }
+
+    private function recipientsListed(): CampaignRecipients
+    {
+        return $this->listedRecipients ?? throw new \LogicException(sprintf('The recipients were refused: %s', $this->application->refusal()?->getMessage()));
     }
 
     #[When('je fige la campagne :name')]

@@ -86,6 +86,10 @@ use Prospecter\Core\Campaigns\Application\Recipient\AddRecipient\AddRecipientHan
 use Prospecter\Core\Campaigns\Application\Recipient\AddRecipientsByTags\AddRecipientsByTagsHandler;
 use Prospecter\Core\Campaigns\Application\Recipient\DismissRecipient\DismissRecipientHandler;
 use Prospecter\Core\Campaigns\Application\Recipient\ForgetRecipientOfForgottenContact\ForgetRecipientOfForgottenContactHandler;
+use Prospecter\Core\Campaigns\Application\Recipient\ListCampaignRecipients\CampaignRecipients;
+use Prospecter\Core\Campaigns\Application\Recipient\ListCampaignRecipients\KeptCampaignRecipients;
+use Prospecter\Core\Campaigns\Application\Recipient\ListCampaignRecipients\ListCampaignRecipients;
+use Prospecter\Core\Campaigns\Application\Recipient\ListCampaignRecipients\ListCampaignRecipientsHandler;
 use Prospecter\Core\Campaigns\Application\Recipient\NextRecipient\KeptRecipientToHandle;
 use Prospecter\Core\Campaigns\Application\Recipient\NextRecipient\NextRecipient;
 use Prospecter\Core\Campaigns\Application\Recipient\NextRecipient\NextRecipientHandler;
@@ -1127,6 +1131,13 @@ final class Application
         $kept = new KeptCampaign();
 
         return $this->ask(new ConsultCampaignHandler($this->campaignSheetRetriever, $this->campaigners, $this->campaignTargets), $query, $kept) ? $kept : null;
+    }
+
+    public function listCampaignRecipients(ListCampaignRecipients $query): ?CampaignRecipients
+    {
+        $kept = new KeptCampaignRecipients();
+
+        return $this->ask(new ListCampaignRecipientsHandler($this->campaignSheetRetriever, $this->campaigners, $this->taggableContacts), $query, $kept) ? $kept->recipients : null;
     }
 
     public function renderCampaignMessage(RenderCampaignMessage $query): ?CampaignMessage
