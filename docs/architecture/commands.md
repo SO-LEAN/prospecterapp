@@ -15,7 +15,7 @@ Run these from the repository root. `make` alone lists the commands. A new targe
   - `make down` removes a worktree's stack once you are done with the worktree, keeping the caches the checkouts share (ADR 0116).
   - `make logs-save`: writes the logs of the stack in `e2e-logs/` (`E2E_LOGS=` another folder), one file per service and per container of a function its MiniStack runs. The merge queue keeps them after journeys that failed (ADR 0220).
   - `make images-prune` removes the images no checkout expects any more.
-  - `make images-env` prints the tags make expects of the PHP and Node images and the user they are built for. The CI builds them from its cache under these tags (ADR 0221).
+  - `make images-env` prints the tags make expects of the PHP and Node images. `make image-load IMAGE=<php|node> ARCHIVE=<file>` loads an image from its archive, or builds it and writes the archive. The CI keeps these archives in its cache, keyed by the tags (ADR 0221).
   - https://prospecter.localhost serves the SPA. Sign in as:
     - `prospector@solean-it.io` / `password`;
     - `assistant@solean-it.io` / `password`, a prospector without the right to manage personal data;
