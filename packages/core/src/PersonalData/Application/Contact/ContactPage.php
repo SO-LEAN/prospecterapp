@@ -14,7 +14,7 @@ final readonly class ContactPage
     /**
      * @param list<PersonCard> $contacts
      * @param string|null      $next            the next slice's cursor, null when this slice is the last
-     * @param list<string>     $possibleIntents the names of what the reader may do with the contacts: SearchByText
+     * @param list<string>     $possibleIntents the names of what the reader may do with the contacts: SearchByText, Collect
      */
     public function __construct(
         public array $contacts,

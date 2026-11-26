@@ -53,6 +53,7 @@ final class Vocabulary
         'RemoveContact' => 'retirer un contact',
         'StopProspecting' => 'arrêter de prospecter',
         'SearchByText' => 'chercher par texte',
+        'Collect' => 'enregistrer un contact',
         'ConsultTimeline' => 'consulter la timeline',
         'NoteExchange' => 'noter un échange',
         'PlanExchange' => 'planifier un échange',
