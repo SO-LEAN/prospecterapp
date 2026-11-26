@@ -7,6 +7,9 @@ namespace Tests\App\Architecture;
 use App\Contacts\Resource\ContactLinksResource;
 use App\Contacts\Resource\ContactMailLinksResource;
 use App\Contacts\Resource\ContactProfileLinksResource;
+use App\Me\Resource\AccountLinksResource;
+use App\Me\Resource\MyOrganizationLinksResource;
+use App\Me\Resource\MyProfileLinksResource;
 use App\Shared\Resource\Offers;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
@@ -26,6 +29,8 @@ final class PiecesOffersMatchTheirContractsTest extends TestCase
     private const array PIECES = [
         ContactProfileLinksResource::class => ContactLinksResource::class,
         ContactMailLinksResource::class => ContactLinksResource::class,
+        MyProfileLinksResource::class => AccountLinksResource::class,
+        MyOrganizationLinksResource::class => AccountLinksResource::class,
     ];
 
     /**

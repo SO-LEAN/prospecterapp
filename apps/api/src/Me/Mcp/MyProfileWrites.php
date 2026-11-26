@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Me\Mcp;
 
-use App\Me\MyAccountReader;
+use App\Me\MyAccountComposition;
 use App\Security\ToolAccess;
 use App\Security\User;
 use App\Shared\CommandBus;
@@ -24,7 +24,7 @@ final readonly class MyProfileWrites
         private ToolInputs $inputs,
         private CommandBus $commandBus,
         private ClockInterface $clock,
-        private MyAccountReader $myAccountReader,
+        private MyAccountComposition $myAccountComposition,
         private ToolResults $results,
     ) {
     }
@@ -76,6 +76,6 @@ final readonly class MyProfileWrites
     {
         $this->commandBus->dispatch($command);
 
-        return $this->results->of($this->myAccountReader->read($member->memberId()));
+        return $this->results->of($this->myAccountComposition->read($member->memberId()));
     }
 }
