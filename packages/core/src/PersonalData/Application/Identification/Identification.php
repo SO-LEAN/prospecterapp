@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Prospecter\Core\PersonalData\Application\Identification\IdentifyPersons;
+namespace Prospecter\Core\PersonalData\Application\Identification;
 
 /**
  * What a person's clues designate. They designate one of the account's contacts (known), or none (new). They may

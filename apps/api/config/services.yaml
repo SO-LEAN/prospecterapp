@@ -108,6 +108,7 @@ services:
     Prospecter\Core\Prospecting\Application\Timeline\CampaignsOfTimeline: ~
     Prospecter\Core\Prospecting\Application\ToDo\PersonsOfToDos: ~
     Prospecter\Core\Prospecting\Application\Agenda\AgendaInterlocutors: ~
+    Prospecter\Core\PersonalData\Application\Identification\PersonIdentifier: ~
     Prospecter\Core\Booking\Application\BookingPage\BookingPages: ~
     Prospecter\Core\Booking\Domain\Service\BusyPeriods: ~
     Prospecter\Core\Booking\Domain\Service\LinkAvailability: ~

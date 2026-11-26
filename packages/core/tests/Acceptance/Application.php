@@ -202,11 +202,12 @@ use Prospecter\Core\PersonalData\Application\Duplicate\LiftSuspicionInReturn\Lif
 use Prospecter\Core\PersonalData\Application\Duplicate\SuspectDuplicateInReturn\SuspectDuplicateInReturnHandler as SuspectContactDuplicateInReturnHandler;
 use Prospecter\Core\PersonalData\Application\Facts\ListContactFacts\ListContactFactsHandler;
 use Prospecter\Core\PersonalData\Application\Facts\PublishContactFacts\PublishContactFactsHandler;
+use Prospecter\Core\PersonalData\Application\Identification\Identification as PersonIdentification;
 use Prospecter\Core\PersonalData\Application\Identification\IdentifyBooker\IdentifyBookerHandler;
-use Prospecter\Core\PersonalData\Application\Identification\IdentifyPersons\Identification as PersonIdentification;
 use Prospecter\Core\PersonalData\Application\Identification\IdentifyPersons\IdentifyPersons;
 use Prospecter\Core\PersonalData\Application\Identification\IdentifyPersons\IdentifyPersonsHandler;
 use Prospecter\Core\PersonalData\Application\Identification\IdentifyPersons\KeptIdentifications as KeptPersonIdentifications;
+use Prospecter\Core\PersonalData\Application\Identification\PersonIdentifier;
 use Prospecter\Core\PersonalData\Application\Identification\PublishBookerIdentified\PublishBookerIdentifiedHandler;
 use Prospecter\Core\PersonalData\Application\Identification\RecognizeCallingContact\KeptCallingContacts;
 use Prospecter\Core\PersonalData\Application\Identification\RecognizeCallingContact\RecognizeCallingContact;
@@ -713,6 +714,8 @@ final class Application
     private readonly TaggableHolders $taggableHolders;
 
     private readonly PersonalDataTaggableContacts $taggableContacts;
+
+    private readonly PersonIdentifier $personIdentifier;
     public readonly InMemoryCampaignsFactRepository $campaignsFacts;
     private readonly CampaignsFactRecorder $campaignsFactRecorder;
     private readonly InMemoryContactTagsRetriever $contactTagsRetriever;
@@ -844,6 +847,7 @@ final class Application
         $this->tagsRetriever = new InMemoryTagsRetriever($database);
         $this->taggers = new AccountsTaggers($this->consultMembersService);
         $this->taggableContacts = new PersonalDataTaggableContacts($this->whichAreContactsService);
+        $this->personIdentifier = new PersonIdentifier($this->designatedContactRetriever, $this->personCardRetriever, new ProspectingOrganizationsOfContacts($this->whichOrganizationsNameTheseContactsService));
         $this->taggableHolders = new TaggableHolders(new ProspectingTaggableOrganizations($this->whichAreProspectedService), $this->taggableContacts);
         $this->campaignsFacts = new InMemoryCampaignsFactRepository($database);
         $this->campaignsFactRecorder = new CampaignsFactRecorder($this->campaignsFacts);
@@ -1240,7 +1244,7 @@ final class Application
     {
         $kept = new KeptPersonIdentifications();
 
-        return $this->ask(new IdentifyPersonsHandler($this->designatedContactRetriever, $this->personCardRetriever, new ProspectingOrganizationsOfContacts($this->whichOrganizationsNameTheseContactsService), $this->readers), $query, $kept) ? $kept->identifications : null;
+        return $this->ask(new IdentifyPersonsHandler($this->personIdentifier, $this->readers), $query, $kept) ? $kept->identifications : null;
     }
 
     /**
