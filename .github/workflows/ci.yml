@@ -7,9 +7,9 @@
 # the checks; their reports go in artifacts for the definition of done, which judges the threshold (ADR 0219). dev's
 # merge queue runs the checks once more, on the pull request rebased onto dev and onto those queued before it, and the
 # journeys there only, in the job e2e, when the changes need them (ADR 0220): a push to a pull request, to dev or to
-# main runs none. The merge queue mutates nothing. The API's check runs in several jobs, its lint in one and a share of
-# its tests in each of the others; the jobs take the images, the dependencies and the tools' results from the cache of
-# GitHub Actions (ADR 0221).
+# main runs none. The merge queue mutates nothing. The API's check runs in several jobs. One runs its lint, and each of
+# the others runs a share of its tests. The jobs take the images, the dependencies and the tools' results from GitHub
+# Actions' cache (ADR 0221).
 name: CI
 
 on:
@@ -28,7 +28,7 @@ permissions:
   contents: read
 
 env:
-  # the jobs the API's tests are shared among, beside the one of its lint: three runners of four processors each
+  # How many jobs share the API's tests, besides its lint job: three runners of four processors each
   API_TEST_JOBS: 3
 
 jobs:
@@ -77,8 +77,11 @@ jobs:
     env:
       PHP: ${{ contains(fromJSON('["core","storage","contract","event-storming"]'), matrix.check) || startsWith(matrix.check, 'api-') }}
       NODE: ${{ contains(fromJSON('["front","contract","event-storming"]'), matrix.check) }}
-      # the result cache of the PHPStan a check runs, where its configuration puts it
-      PHPSTAN_CACHE: ${{ fromJSON('{"core":"packages/core/var/cache/phpstan","api-lint":"apps/api/var/cache/phpstan","storage":"apps/storage/var/cache/phpstan","event-storming":"apps/api/var/cache/phpstan-event-storming"}')[matrix.check] }}
+      # Buildx writes neither a summary nor a record of each build: the run keeps only the artifacts it publishes
+      DOCKER_BUILD_SUMMARY: false
+      DOCKER_BUILD_RECORD_UPLOAD: false
+      # The project whose PHP lint the check runs: PHPStan, Rector and php-cs-fixer keep their caches in its var/cache
+      LINTED: ${{ fromJSON('{"core":"packages/core","api-lint":"apps/api","storage":"apps/storage"}')[matrix.check] }}
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -86,8 +89,8 @@ jobs:
           # number 0 is falsy in an expression: the depths are strings
           fetch-depth: ${{ matrix.check == 'secrets' && '0' || '1' }}
 
-      # the images of the command line, under the tags make expects, from the cache of Buildx: rebuilt only when their
-      # docker/ directory changes, every layer otherwise CACHED in the log
+      # Buildx builds the command-line images from its cache, under the tags make expects. It rebuilds an image only when
+      # its docker/ directory changes. Otherwise the log shows every layer CACHED
       - name: Name the images
         if: env.PHP == 'true' || env.NODE == 'true'
         run: make images-env >> "$GITHUB_ENV"
@@ -136,17 +139,30 @@ jobs:
           path: apps/front/node_modules
           key: pnpm-${{ hashFiles('apps/front/pnpm-lock.yaml') }}
 
-      # the caches the tools keep from one run to the next, a run saving its own: each key starts with what changes
-      # when the tool's configuration changes, and a run takes the latest cache of that configuration
-      - name: Cache the result of PHPStan
-        if: env.PHPSTAN_CACHE != ''
+      # The tools keep their caches from one run to the next. Each run saves its own cache. Each key starts with a digest
+      # of the tool's configuration, and a run restores the latest cache of the same configuration
+      - name: Cache the results of the PHP lint
+        if: env.LINTED != ''
         uses: actions/cache@v6.1.0
         env:
-          CONFIGURATION: ${{ hashFiles('packages/core/phpstan.dist.neon', 'apps/api/phpstan.dist.neon', 'apps/storage/phpstan.dist.neon', 'packages/phpstan-rules/**/*.neon', 'apps/api/composer.lock', 'apps/storage/composer.lock', 'packages/core/composer.lock') }}
+          CONFIGURATION: ${{ hashFiles('*/*/phpstan.dist.neon', '*/*/rector.php', '*/*/.php-cs-fixer.dist.php', 'packages/phpstan-rules/**/*.neon', '*/*/composer.lock') }}
         with:
-          path: ${{ env.PHPSTAN_CACHE }}
-          key: phpstan-${{ matrix.check }}-${{ env.CONFIGURATION }}-${{ github.run_id }}
-          restore-keys: phpstan-${{ matrix.check }}-${{ env.CONFIGURATION }}-
+          path: |
+            ${{ env.LINTED }}/var/cache/phpstan
+            ${{ env.LINTED }}/var/cache/rector
+            ${{ env.LINTED }}/var/cache/php-cs-fixer.cache
+          key: lint-${{ matrix.check }}-${{ env.CONFIGURATION }}-${{ github.run_id }}
+          restore-keys: lint-${{ matrix.check }}-${{ env.CONFIGURATION }}-
+
+      - name: Cache the result of the event storming's analysis
+        if: matrix.check == 'event-storming'
+        uses: actions/cache@v6.1.0
+        env:
+          CONFIGURATION: ${{ hashFiles('packages/phpstan-rules/**/*.neon', '*/*/composer.lock') }}
+        with:
+          path: apps/api/var/cache/phpstan-event-storming
+          key: event-storming-${{ env.CONFIGURATION }}-${{ github.run_id }}
+          restore-keys: event-storming-${{ env.CONFIGURATION }}-
 
       - name: Cache the results of Vitest
         if: matrix.check == 'front'
