@@ -449,7 +449,7 @@ final class PersonalDataContext implements Context
         Expect::that(!array_any($found->contacts, static fn (PersonCard $contact): bool => $contact->id === $absent), sprintf('%s is in the list', $name));
     }
 
-    #[Then(':count contacts sont trouvés')]
+    #[Then(':count contact(s) est/sont trouvé(s)')]
     public function contactsAreFound(int $count): void
     {
         Expect::same($count, $this->foundInAll);
