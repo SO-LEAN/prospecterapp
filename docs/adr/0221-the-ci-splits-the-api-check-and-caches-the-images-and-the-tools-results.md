@@ -4,36 +4,38 @@
 - Type: architecture
 - Status: Accepted
 - Supersedes: for "the lint and the tests of a project together" in the CI's job of the API, [0110](0110-the-integration-runs-the-checks-the-changes-need.md)
-- Implemented by: `.github/workflows/ci.yml` (the `changes` and `check` jobs), `Makefile` (`check-api-lint`, `check-api-tests-<i>-of-<n>`, `images-env`), `apps/api/Makefile` (`SHARD`), `docs/architecture/workflow.md`, `docs/architecture/commands.md`
+- Implemented by: `.github/workflows/ci.yml` (the `changes` and `check` jobs), `Makefile` (`check-api-lint`, `check-api-tests-<i>-of-<n>`, `images-env`, `image-load`), `apps/api/Makefile` (`SHARD`), `docs/architecture/workflow.md`, `docs/architecture/commands.md`
 
 ## Context
 
-A pull request's CI took some 3 min 40 s when it ran every check, and 5 min 30 s on a push to `dev`, which runs the API tests that re-test a core rule too. The checks run in parallel jobs (ADR 0110), so the slowest job sets the CI's length: `check api`, 3 min 20 s on a pull request. Its tests already run in four processes, as many as a standard runner has processors. Its lint ran beside them, on the same processors.
+A pull request's CI took some 3 min 40 s when it ran every check, and 5 min 30 s on a push to `dev`, which also runs the API tests that re-test a core rule. The checks run in parallel jobs (ADR 0110), so the slowest job sets the CI's length. That job was `check api`, 3 min 20 s on a pull request. Its tests already run in four processes, as many as a standard runner has processors. Its lint ran beside them, on the same processors.
 
-Every job that needed the PHP or the Node image built it again, some 30 s for the PHP image. The Composer and pnpm dependencies were already cached. The caches of PHPStan, Rector, php-cs-fixer and Vitest started empty in each job.
+Every job that needed the PHP or the Node image built it again, some 30 s for the PHP image. The Composer and pnpm dependencies were already cached. The caches of PHPStan, Rector, php-cs-fixer and Vitest started empty in each job: the API's lint took about a minute.
 
 The repository is public: the standard runners and the cache of GitHub Actions (10 GB) cost nothing. Bigger runners would.
 
 ## Decision
 
-- **The API's check runs in four jobs of the CI**: `api-lint` (PHPStan, php-cs-fixer, Rector) and `api-tests-<i>-of-3`, each the i-th share of the test files (`paratest --shard`, the files dealt in turn), in four processes. The `changes` job expands the check `api` that `make changed-checks` names into these jobs, the number of shares set once in the workflow (`API_TEST_JOBS`). The `ci` job passes only when all of them pass.
+- **The API's check runs in four jobs of the CI**: `api-lint` (PHPStan, php-cs-fixer, Rector) and `api-tests-<i>-of-3`. Each of the three runs one share of the test files (`paratest --shard`, the files dealt in turn), in four processes. The `changes` job expands the check `api` that `make changed-checks` names into these jobs. The workflow sets the number of shares once (`API_TEST_JOBS`). The `ci` job passes only when all of them pass.
 - `make check-api` and `make ci` still run the API's lint and tests together on the machine.
-- **The images of the command line come from the cache of Buildx** for GitHub Actions (`type=gha`), one scope per image, under the tags make expects (`make images-env`). An image is rebuilt only when its `docker/` directory changes.
+- **Each command-line image is an archive in the cache of GitHub Actions**, keyed by the tag make expects of it (`make images-env`). That tag names the image's `docker/` directory and its user. A job loads the archive (`make image-load`, `docker load`). A tag the cache does not hold yet builds the image and saves its archive.
 - **The tools' caches are kept from one run to the next**: the caches of the PHP lint (PHPStan, Rector, php-cs-fixer) of the core, the API and the storage, PHPStan's result cache of the event storming's analysis, and Vitest's results. Each key starts with a digest of the tool's configuration and the lock files. Each run saves its own cache and restores the latest one of the same configuration.
 
 ## Consequences
 
+- With warm caches, a PHP job gets its image in 6 to 13 s instead of some 30 s, and the API's lint takes 3 s instead of a minute.
+- The front's check now sets the CI's length, some 2 minutes: Vitest alone takes about 80 s, and over 130 s on some runners. Splitting it is the next lever.
 - An API change costs three more jobs per run. The runners are free, and the jobs run in parallel.
-- Each run saves a few caches of the tools. GitHub evicts the caches least used once the repository's 10 GB are reached: the dependencies' caches, read by every run, stay.
-- The shares are files dealt in turn, not timed: a share holding the slowest files ends last. More shares than three would add jobs whose setup outweighs what they save.
-- The mutation jobs and the journeys still build their images; the same cache can serve them.
+- Each run saves a few caches of the tools. A change of a `docker/` directory saves a new image archive of some 500 MB. GitHub evicts the caches least used once the repository's 10 GB are reached. The dependencies' caches and the current archives are read by every run, so they stay.
+- The shares are files dealt in turn, not timed: a share holding the slowest files ends last.
+- The mutation jobs and the journeys still build their images. The same archives can serve them.
 
 ## Alternatives considered
 
-- An image published on GitHub's registry, named by the ticket beside the cache of Buildx: it needs a token that writes packages and a publishing step, for a gain the cache gives already.
-- Two shares instead of three, left to the measure by the ticket: with two, a share's tests take more than a minute longer than the other jobs.
+- The cache of Buildx for GitHub Actions (`type=gha`), which the ticket named first, was tried on this branch. Every layer came from the cache, but Buildx then sent the image to Docker as a tarball, and Docker imported it: 25 to 35 s per job, as long as building the image.
+- An image published on GitHub's registry, which the ticket named too, was not tried: it needs a token that writes packages and a publishing step, and pulling it unpacks as many layers as loading the archive.
 
 ## Revisit when
 
-- Another job than the API's tests sets the CI's length by more than a few seconds.
-- The cache of GitHub Actions evicts the dependencies' caches.
+- The front's check, or another job than the API's tests, sets the CI's length by more than a few seconds.
+- The cache of GitHub Actions evicts the dependencies' caches or the image archives.
