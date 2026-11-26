@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs'
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import type { Model } from './model.ts'
 import { pageOf } from './page.ts'
 
@@ -7,8 +7,14 @@ import { pageOf } from './page.ts'
 const BOOKING = JSON.parse(readFileSync('public/docs/event-storming/booking/model.json', 'utf8')) as Model
 const ASSETS = { style: '.sticky { position: absolute; }', font: 'AAAA' }
 
-const page = pageOf(BOOKING, ASSETS)
-const document = new DOMParser().parseFromString(page, 'text/html')
+/** Built again in each test, so that the mutation knows which tests run each line of the generator. */
+let page: string
+let document: Document
+
+beforeEach(() => {
+  page = pageOf(BOOKING, ASSETS)
+  document = new DOMParser().parseFromString(page, 'text/html')
+})
 
 describe('the page of a wall', () => {
   it('writes one wall for the context, each module a lane named on a tape', () => {

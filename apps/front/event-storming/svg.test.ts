@@ -1,6 +1,6 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { gridOf } from './grid.ts'
 import type { Model } from './model.ts'
 import { svgsOf } from './svg.ts'
@@ -9,7 +9,12 @@ import { wallOf } from './wall.ts'
 /** Booking's model, as the generator last read it from the code. Vitest runs in the front's folder. */
 const BOOKING = JSON.parse(readFileSync('public/docs/event-storming/booking/model.json', 'utf8')) as Model
 
-const svgs = svgsOf(BOOKING, 'AAAA')
+/** Built again in each test, so that the mutation knows which tests run each line of the generator. */
+let svgs: Record<string, string>
+
+beforeEach(() => {
+  svgs = svgsOf(BOOKING, 'AAAA')
+})
 
 /**
  * The repository's folder of the walls' SVGs, found up from where the tests run: the front's folder, or a copy of it
