@@ -6,7 +6,7 @@ namespace App\Campaigning\Mcp;
 
 use App\Campaigning\CampaignResolver;
 use App\Campaigning\CampaignVoter;
-use App\Campaigning\NextRecipientReader;
+use App\Campaigning\NextRecipientComposition;
 use App\Security\ToolAccess;
 use App\Security\User;
 use App\Shared\Input\MyClockQuery;
@@ -24,7 +24,7 @@ final readonly class NextRecipientTool
     public function __construct(
         private ToolAccess $access,
         private CampaignResolver $campaigns,
-        private NextRecipientReader $nextRecipients,
+        private NextRecipientComposition $nextRecipients,
         private ToolInputs $inputs,
         private ToolResults $results,
     ) {
