@@ -1182,6 +1182,27 @@
             "readBy": []
         },
         {
+            "id": "readModel:Prospecter\\Core\\PersonalData\\Contract\\Service\\DescribePersons\\DescribePersons",
+            "slug": "readModel:DescribePersons",
+            "type": "readModel",
+            "label": "Describe persons",
+            "feature": "Le langage publié des contextes",
+            "name": "DescribePersons",
+            "class": "Prospecter\\Core\\PersonalData\\Contract\\Service\\DescribePersons\\DescribePersons",
+            "context": "PersonalData",
+            "module": "Person",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": [
+                {
+                    "context": null,
+                    "slug": null,
+                    "label": "AccountsAndPersonalDataPersonDescriptions"
+                }
+            ]
+        },
+        {
             "id": "readModel:Prospecter\\Core\\PersonalData\\Contract\\Service\\ListContactFacts\\ListContactFacts",
             "slug": "readModel:ListContactFacts",
             "type": "readModel",
@@ -1320,6 +1341,11 @@
             "answeredBy": [],
             "answers": [],
             "readBy": [
+                {
+                    "context": null,
+                    "slug": null,
+                    "label": "PersonalDataContactEmails"
+                },
                 {
                     "context": "Connectors",
                     "slug": "externalSystem:CorrespondentAddresses",
@@ -2241,6 +2267,13 @@
         },
         {
             "from": "readModel:Prospecter\\Core\\PersonalData\\Application\\Person\\ConsultPersons\\ConsultPersons",
+            "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\PersonalData\\Contract\\Service\\DescribePersons\\DescribePersons",
             "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
             "via": null,
             "certain": true,

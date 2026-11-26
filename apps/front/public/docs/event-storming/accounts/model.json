@@ -443,17 +443,17 @@
                 {
                     "context": null,
                     "slug": null,
+                    "label": "AccountsAndPersonalDataPersonDescriptions"
+                },
+                {
+                    "context": null,
+                    "slug": null,
                     "label": "CampaignAuthors"
                 },
                 {
                     "context": null,
                     "slug": null,
                     "label": "ExchangeReader"
-                },
-                {
-                    "context": null,
-                    "slug": null,
-                    "label": "ToDoReader"
                 },
                 {
                     "context": "Booking",
@@ -523,13 +523,6 @@
         {
             "from": "actor:ROLE_PROSPECTOR",
             "to": "readModel:Prospecter\\Core\\Accounts\\Application\\Account\\ConsultMyAccount\\ConsultMyAccount",
-            "via": null,
-            "certain": true,
-            "when": null
-        },
-        {
-            "from": "actor:ROLE_PROSPECTOR",
-            "to": "readModel:Prospecter\\Core\\Accounts\\Contract\\Service\\ConsultMembers\\ConsultMembers",
             "via": null,
             "certain": true,
             "when": null
