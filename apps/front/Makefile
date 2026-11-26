@@ -15,18 +15,22 @@ test: ## Run the tests of the front (Vitest); FILTER= a test file by its path or
 MUTATED_CODE = 'src/*.ts' 'src/*.tsx' ':!*.test.ts' ':!*.test.tsx' ':!*.d.ts' ':!src/test/*' ':!src/app/routeTree.gen.ts' ':!src/shared/ui/*'
 # the event storming's generator, mutated apart, its tests in a Stryker of their own (stryker.event-storming.json): they
 # never share a VM worker with the SPA's (ADR 0210). It leaves out generate.ts, which only reads and writes the files
-# that check-event-storming checks (docs/architecture/tests.md)
-MUTATED_GENERATOR = 'event-storming/*.ts' ':!*.test.ts' ':!event-storming/generate.ts'
+# that check-event-storming checks, and the walls built before the tests of the page's script (docs/architecture/tests.md)
+MUTATED_GENERATOR = 'event-storming/*.ts' ':!*.test.ts' ':!event-storming/generate.ts' ':!event-storming/test/*'
 # Stryker reads no git diff: the hunks of the added lines become its ranges, <file>:<first>-<last>, comma separated
 ADDED_LINE_RANGES = $(call ADDED_LINES,$(1)) | awk '/^\+\+\+ b\// { file = substr($$0, 7) } \
 	/^@@/ { split(substr($$3, 2), new, ","); count = new[2] == "" ? 1 : new[2]; \
 	if (count > 0) { printf "%s%s:%d-%d", separator, file, new[1], new[1] + count - 1; separator = "," } }'
 
-mutation: ## Mutate the lines the branch adds in src and in the event storming's generator since BASE (origin/dev), killed by the tests of Vitest; list the survivors
+# Stryker runs one test runner per processor of the container, one fewer beyond four: 2 in a worktree, whose node
+# container has 2 (docker-compose.agents.yml). MUTATION_WORKERS= a number of runners gives the container as many
+STRYKER = $(if $(MUTATION_WORKERS),NODE_CPUS=$(MUTATION_WORKERS)) $(NODE) pnpm exec stryker run $(if $(MUTATION_WORKERS),--concurrency $(MUTATION_WORKERS))
+
+mutation: ## Mutate the lines the branch adds in src and in the event storming's generator since BASE (origin/dev), killed by the tests of Vitest; list the survivors; MUTATION_WORKERS= the test runners (one per processor of the container by default)
 	@ranges=$$($(call ADDED_LINE_RANGES,$(MUTATED_CODE))); \
-	if [ -n "$$ranges" ]; then $(NODE) pnpm exec stryker run --mutate "$$ranges"; else $(call NO_ADDED_LINE,src); fi
+	if [ -n "$$ranges" ]; then $(STRYKER) --mutate "$$ranges"; else $(call NO_ADDED_LINE,src); fi
 	@ranges=$$($(call ADDED_LINE_RANGES,$(MUTATED_GENERATOR))); \
-	if [ -n "$$ranges" ]; then $(NODE) pnpm exec stryker run stryker.event-storming.json --mutate "$$ranges"; else $(call NO_ADDED_LINE,event-storming); fi
+	if [ -n "$$ranges" ]; then $(STRYKER) stryker.event-storming.json --mutate "$$ranges"; else $(call NO_ADDED_LINE,event-storming); fi
 
 # TypeScript checks the whole project: the types of a file depend on the others
 lint: ## Check the code of the front: Biome, TypeScript; FILTER= paths of the project, for Biome

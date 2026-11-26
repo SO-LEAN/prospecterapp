@@ -12,8 +12,11 @@ NO_ADDED_LINE = echo "No line added in $(1) since $(BASE): no mutant to test"
 
 # Infection reads the diff with git in the php container, the coverage measured by Xdebug: in a worktree, .git only
 # points to the common git directory, out of the checkout, mounted at its own path
+# INFECTION_THREADS= a number of threads, given on the command line, gives a worktree's php container as many
+# processors (2 otherwise, docker-compose.agents.yml); max, the default, takes as many threads as the host has
 INFECTION_THREADS ?= max
-INFECTION = $(DC) --progress quiet run --rm --no-deps -e XDEBUG_MODE=coverage -v $(GIT_COMMON_DIR):$(GIT_COMMON_DIR):ro -w $(WORKDIR) php \
+THREADS_ASKED = $(and $(filter command line environment,$(origin INFECTION_THREADS)),$(filter-out max,$(INFECTION_THREADS)))
+INFECTION = $(if $(THREADS_ASKED),PHP_CPUS=$(THREADS_ASKED)) $(DC) --progress quiet run --rm --no-deps -e XDEBUG_MODE=coverage -v $(GIT_COMMON_DIR):$(GIT_COMMON_DIR):ro -w $(WORKDIR) php \
 	vendor/bin/infection --threads=$(INFECTION_THREADS) --git-diff-lines --git-diff-base=$(SINCE) --show-mutations=max --no-progress
 
 # the mutants of the PHP lines a branch adds in the code a project mutates, its survivors printed with their diff: src,
