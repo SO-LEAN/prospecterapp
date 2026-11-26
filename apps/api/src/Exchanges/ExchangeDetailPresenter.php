@@ -21,6 +21,7 @@ use App\Shared\Resource\LinkResource;
 use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\AttachmentDetail;
 use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\ConsultExchangeOutput;
 use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\ExchangeDetail;
+use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\Participants;
 
 /**
  * Presents an exchange's detail. It gives one link for each intent that the exchange's state offers and that the
@@ -34,7 +35,8 @@ use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\ExchangeDet
  * Each link names its intent, its route, and the role its controller requires beyond reaching the exchange. Those who
  * read the campaigns get a link to the campaign the exchange was logged in, while the campaign exists (ADR 0152).
  * Those who manage personal data get a link that opens an imported exchange's message in Gmail (ADR 0174). The
- * presenter is built for one call with its participants, and keeps the resource (ADR 0085).
+ * presenter is built for one call. It names the participants as the query read them, and keeps the resource (ADR
+ * 0085, 0217).
  */
 final class ExchangeDetailPresenter implements ConsultExchangeOutput
 {
@@ -59,20 +61,19 @@ final class ExchangeDetailPresenter implements ConsultExchangeOutput
 
     public private(set) ExchangeDetailResource $resource;
 
-    public function __construct(private readonly ExchangeParticipants $participants, private readonly Links $links, private readonly IntentLinks $intentLinks, private readonly ExchangeRevisions $revisions)
+    public function __construct(private readonly Links $links, private readonly IntentLinks $intentLinks, private readonly ExchangeRevisions $revisions)
     {
     }
 
-    public function present(ExchangeDetail $exchange): void
+    public function present(ExchangeDetail $exchange, Participants $participants): void
     {
-        $persons = $this->participants->persons;
-        $personOfMember = $this->participants->personOfMember;
-        $nameOf = static fn (string $person): PersonNameResource => new PersonNameResource($persons[$person]->firstName ?? null, $persons[$person]->lastName ?? null);
-        $authorOf = static fn (string $member): AuthorResource => new AuthorResource($nameOf($personOfMember[$member]), $persons[$personOfMember[$member]]->email ?? null);
+        $members = $participants->persons->members;
+        $authorOf = static fn (string $member): AuthorResource => new AuthorResource(new PersonNameResource($members[$member]->firstName ?? null, $members[$member]->lastName ?? null), $members[$member]->email ?? null);
+        $interlocutor = self::interlocutorOf($exchange, $participants);
 
         $this->resource = new ExchangeDetailResource(
             id: $exchange->id,
-            interlocutor: $this->participants->interlocutor,
+            interlocutor: $interlocutor,
             channel: $exchange->channel,
             direction: $exchange->direction,
             occurredAt: $exchange->occurredAt->format(\DateTimeInterface::ATOM),
@@ -83,7 +84,7 @@ final class ExchangeDetailPresenter implements ConsultExchangeOutput
             place: $exchange->place,
             link: $exchange->link,
             linkAwaited: $exchange->linkAwaited,
-            phoneNumber: $this->participants->interlocutorPhoneNumber,
+            phoneNumber: self::numberToCall($exchange, $participants),
             textFlagged: $exchange->textFlagged,
             textToRedact: $exchange->textToMakeConform,
             toRedact: $exchange->toMakeConform,
@@ -98,8 +99,36 @@ final class ExchangeDetailPresenter implements ConsultExchangeOutput
             importedFrom: $exchange->importedFrom,
             createdByAnAI: $exchange->createdByAnAI,
             revision: $this->revisions->lastRead($exchange->id),
-            links: $this->linksOf($exchange),
+            links: $this->linksOf($exchange, $interlocutor),
         );
+    }
+
+    /**
+     * The organization itself when the exchange has no contact, its contact otherwise.
+     */
+    private static function interlocutorOf(ExchangeDetail $exchange, Participants $participants): InterlocutorResource
+    {
+        if (null !== $participants->organization) {
+            return InterlocutorResource::ofTheOrganization($participants->organization);
+        }
+
+        $personId = (string) $exchange->personId;
+
+        return InterlocutorResource::ofPerson($personId, $participants->persons->contacts[$personId] ?? null, $exchange->contactPresence);
+    }
+
+    /**
+     * The organization's own number, or the contact's number read in clear. A masked number calls nobody.
+     */
+    private static function numberToCall(ExchangeDetail $exchange, Participants $participants): ?string
+    {
+        if (null !== $participants->organization) {
+            return $participants->organization->phoneNumber;
+        }
+
+        $contact = $participants->persons->contacts[$exchange->personId ?? ''] ?? null;
+
+        return null === $contact || $contact->masked ? null : $contact->phoneNumber;
     }
 
     /**
@@ -115,14 +144,14 @@ final class ExchangeDetailPresenter implements ConsultExchangeOutput
         ));
     }
 
-    private function linksOf(ExchangeDetail $exchange): ExchangeDetailLinksResource
+    private function linksOf(ExchangeDetail $exchange, InterlocutorResource $interlocutor): ExchangeDetailLinksResource
     {
         $id = ['id' => $exchange->id];
         $granted = array_filter(self::ROUTES, fn (array $link): bool => $this->intentLinks->shows($link['intent'], $exchange->possibleIntents, $link['role']));
 
         return new ExchangeDetailLinksResource(
             $this->links->to('api_exchanges_show', $id),
-            $this->cardOf($this->participants->interlocutor),
+            $this->cardOf($interlocutor),
             ...array_map(fn (array $link): LinkResource => $this->links->to($link['route'], $id), $granted),
             campaign: $this->campaignOf($exchange),
             openInMailbox: $this->openInMailboxOf($exchange),

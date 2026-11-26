@@ -5,8 +5,12 @@ declare(strict_types=1);
 namespace Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange;
 
 use Prospecter\Core\Prospecting\Application\Port\ExchangeDetailRetriever;
+use Prospecter\Core\Prospecting\Application\Port\OrganizationSheetRetriever;
+use Prospecter\Core\Prospecting\Application\Port\PersonDescriptionRetriever;
 use Prospecter\Core\Prospecting\Domain\Model\CampaignId;
+use Prospecter\Core\Prospecting\Domain\Model\ContactId;
 use Prospecter\Core\Prospecting\Domain\Model\ExchangeId;
+use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\Prospecting\Domain\Model\Prospector;
 use Prospecter\Core\Prospecting\Domain\Port\CampaignNames;
 use Prospecter\Core\Prospecting\Domain\Port\Prospectors;
@@ -22,6 +26,8 @@ final readonly class ConsultExchangeHandler implements QueryHandler
         private ExchangeDetailRetriever $exchangeDetailRetriever,
         private Prospectors $prospectors,
         private CampaignNames $campaignNames,
+        private PersonDescriptionRetriever $personDescriptionRetriever,
+        private OrganizationSheetRetriever $organizationSheetRetriever,
     ) {
     }
 
@@ -30,7 +36,20 @@ final readonly class ConsultExchangeHandler implements QueryHandler
         $prospector = $this->prospectors->prospectorFrom(new MemberId($query->prospectorId));
         $exchange = $this->exchangeDetailRetriever->get(new ExchangeId($query->id), $prospector, $query->asOf, $query->movedFrom);
 
-        $output->present($this->withItsCampaignNamed($exchange, $prospector));
+        $output->present($this->withItsCampaignNamed($exchange, $prospector), $this->participantsOf($exchange, $prospector));
+    }
+
+    /**
+     * The exchange's contact and authors are read in one call. An exchange with no contact is kept for the organization
+     * itself only.
+     */
+    private function participantsOf(ExchangeDetail $exchange, Prospector $reader): Participants
+    {
+        $contacts = null === $exchange->personId ? [] : [new ContactId($exchange->personId)];
+        $authors = array_values(array_unique(array_filter([$exchange->createdBy, $exchange->correctedBy, $exchange->madeConformBy])));
+        $persons = $this->personDescriptionRetriever->shownTo($reader->id, $contacts, array_map(static fn (string $author): MemberId => new MemberId($author), $authors));
+
+        return new Participants($persons, null === $exchange->personId ? $this->organizationSheetRetriever->get(new OrganizationId($exchange->organizationIds[0])) : null);
     }
 
     private function withItsCampaignNamed(ExchangeDetail $exchange, Prospector $reader): ExchangeDetail

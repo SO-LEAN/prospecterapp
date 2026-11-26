@@ -31,6 +31,24 @@ Fonctionnalité: Consulter le détail d'un échange
       | joindre un fichier       |
       | retirer une pièce jointe |
 
+  Scénario: Le détail nomme son contact et les membres qui l'ont noté et corrigé, comme PersonalData me les lit
+    Soit je suis connecté en tant que prospecteur de "SOLEAN IT"
+    Et mon profil est :
+      | prénom | Grace                |
+      | nom    | Hopper               |
+      | e-mail | grace@solean-it.test |
+    Quand je corrige le texte de cet échange en "Intéressée par une mission en avril"
+    Alors il nomme :
+      | interlocuteur | Ada Lovelace                        |
+      | noté par      |                                     |
+      | modifié par   | Grace Hopper <grace@solean-it.test> |
+
+  Scénario: Le détail d'un échange avec l'organisation elle-même nomme l'organisation
+    Soit "Michel" a noté le 16/10/2026 à 09h05 un appel reçu de "ACME" elle-même à 09h00 : "Le standard rappellera"
+    Et je suis connecté en tant que "Michel"
+    Alors il nomme :
+      | interlocuteur | ACME |
+
   Scénario: Un échange avec l'organisation elle-même a l'organisation pour interlocuteur
     Soit "Michel" a noté le 16/10/2026 à 09h05 un appel reçu de "ACME" elle-même à 09h00 : "Le standard rappellera"
     Et je suis connecté en tant que "Michel"

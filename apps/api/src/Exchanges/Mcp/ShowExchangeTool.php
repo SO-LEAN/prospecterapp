@@ -40,6 +40,6 @@ final readonly class ShowExchangeTool
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');
         $this->access->denyUnlessGranted(ExchangeVoter::ACCESS, $exchange);
 
-        return $this->results->of($this->exchangeReader->resourceOf($member->memberId(), $exchange));
+        return $this->results->of($this->exchangeReader->read($member->memberId(), $exchange->id));
     }
 }
