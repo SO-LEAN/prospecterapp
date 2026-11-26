@@ -28,6 +28,7 @@ Fonctionnalité: Consulter mon calendrier
     Et "Ada Lovelace" est un contact de "Globex"
     Et j'ai planifié une visio avec "Ada Lovelace" le 17/11/2026 à 14h00
     Et j'ai planifié un rendez-vous avec "ACME" le 18/11/2026 à 9h00
+    Et j'ai noté à faire pour "ACME" "Préparer la proposition" pour le 19/11/2026
     Quand je consulte mon calendrier du 26/10/2026 au 06/12/2026
     Alors il montre, dans l'ordre :
       | moment           | montré avec  | ses organisations |
@@ -36,14 +37,14 @@ Fonctionnalité: Consulter mon calendrier
 
   Scénario: Le calendrier nomme seulement les organisations que je prospecte encore, sans leurs échanges effacés plus tard
     Soit l'organisation "Globex" appartient à "SOLEAN IT"
-    Et j'ai planifié un rendez-vous avec "ACME" le 17/11/2026 à 9h00
-    Et j'ai planifié un rendez-vous avec "Globex" le 18/11/2026 à 9h00
+    Et j'ai planifié un rendez-vous avec "Globex" le 17/11/2026 à 9h00
+    Et j'ai planifié un rendez-vous avec "ACME" le 18/11/2026 à 9h00
     Et les réactions aux gestes n'ont pas encore suivi
     Quand j'arrête de prospecter "Globex"
     Et je consulte mon calendrier du 26/10/2026 au 06/12/2026
     Alors il montre, dans l'ordre :
       | moment           | montré avec |
-      | 17/11/2026 09:00 | ACME        |
+      | 18/11/2026 09:00 | ACME        |
 
   Scénario: Seuls mes échanges planifiés se déplacent depuis mon calendrier
     Soit j'ai noté un appel avec "Ada Lovelace" le 03/11/2026 à 9h00
