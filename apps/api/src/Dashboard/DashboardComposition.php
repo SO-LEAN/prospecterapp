@@ -7,26 +7,28 @@ namespace App\Dashboard;
 use App\Dashboard\Presenter\FiguresPresenter;
 use App\Dashboard\Resource\DashboardResource;
 use App\Dashboard\Resource\DashboardStatsResource;
-use App\Me\MyAccountReader;
 use App\Prospecting\Presenter\OrganizationPagePresenter;
 use App\Prospecting\Resource\OrganizationSummaryResource;
 use App\Shared\ImageResourceFactory;
 use App\Shared\Links;
+use Prospecter\Core\Accounts\Application\Account\ConsultMyAccount\ConsultMyAccount;
+use Prospecter\Core\Accounts\Application\Account\ConsultMyAccount\KeptAccount;
 use Prospecter\Core\Prospecting\Application\Organization\SearchProspectedOrganizations\SearchProspectedOrganizations;
 use Prospecter\Core\Reporting\Application\ConsultFigures\ConsultFigures;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Symfony\Component\Clock\ClockInterface;
 
 /**
- * Reads a member's dashboard: their organization's name, the figures that Reporting keeps at the time of the read,
- * and the organizations located on the map. A Prospecting search finds these organizations, 1,000 at most.
+ * Composes a member's dashboard, a screen of three views (ADR 0217): their organization's name, which Accounts keeps,
+ * the figures that Reporting keeps at the time of the read, and the organizations located on the map. A Prospecting
+ * search finds these organizations, 1,000 at most. Each context answers its own query, side by side.
  */
-final readonly class DashboardReader
+final readonly class DashboardComposition
 {
     private const int MAX_MARKERS = 1000;
 
     public function __construct(
-        private MyAccountReader $myAccountReader,
+        private QueryHandler $consultMyAccount,
         private QueryHandler $consultFigures,
         private QueryHandler $searchProspectedOrganizations,
         private ImageResourceFactory $imageResourceFactory,
@@ -37,10 +39,11 @@ final readonly class DashboardReader
 
     public function read(string $memberId): DashboardResource
     {
-        $myAccount = $this->myAccountReader->read($memberId);
+        $myAccount = new KeptAccount();
+        $this->consultMyAccount->__invoke(new ConsultMyAccount($memberId), $myAccount);
 
         return new DashboardResource(
-            organizationName: (string) $myAccount->organization->legalIdentity->corporateName,
+            organizationName: (string) $myAccount->account->organizationCorporateName,
             stats: $this->figuresOf($memberId),
             markers: $this->markersOf($memberId),
         );

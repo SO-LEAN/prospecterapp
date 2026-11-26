@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Dashboard\Controller;
 
-use App\Dashboard\DashboardReader;
+use App\Dashboard\DashboardComposition;
 use App\Dashboard\Resource\DashboardResource;
 use App\Security\User;
 use App\Shared\JsonResponses;
@@ -20,7 +20,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_PROSPECTOR')]
 final readonly class ShowDashboardController
 {
-    public function __construct(private DashboardReader $dashboardReader, private JsonResponses $jsonResponses)
+    public function __construct(private DashboardComposition $dashboard, private JsonResponses $jsonResponses)
     {
     }
 
@@ -31,6 +31,6 @@ final readonly class ShowDashboardController
     #[OA\Response(response: 403, description: 'The signed-in user is not a prospector', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[CurrentUser] User $user): JsonResponse
     {
-        return $this->jsonResponses->of($this->dashboardReader->read($user->memberId()));
+        return $this->jsonResponses->of($this->dashboard->read($user->memberId()));
     }
 }
