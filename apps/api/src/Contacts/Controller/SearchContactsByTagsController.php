@@ -6,7 +6,7 @@ namespace App\Contacts\Controller;
 
 use App\Contacts\Input\TaggedContactsQuery;
 use App\Contacts\Resource\TaggedContactListResource;
-use App\Contacts\TaggedContactsReader;
+use App\Contacts\TaggedContactsComposition;
 use App\Security\User;
 use App\Shared\JsonResponses;
 use App\Shared\Resource\ProblemResource;
@@ -19,14 +19,14 @@ use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
- * Searches the contacts that carry every chosen tag. `TaggedContactsReader` reads the answer. Every prospector may
+ * Searches the contacts that carry every chosen tag. `TaggedContactsComposition` composes the answer. Every prospector may
  * search by tags, because tags are not personal data.
  */
 #[OA\Tag('Contacts')]
 #[IsGranted('ROLE_PROSPECTOR')]
 final readonly class SearchContactsByTagsController
 {
-    public function __construct(private TaggedContactsReader $contacts, private JsonResponses $jsonResponses)
+    public function __construct(private TaggedContactsComposition $contacts, private JsonResponses $jsonResponses)
     {
     }
 

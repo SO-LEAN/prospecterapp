@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Contacts\Mcp;
 
 use App\Contacts\Input\TaggedContactsQuery;
-use App\Contacts\TaggedContactsReader;
+use App\Contacts\TaggedContactsComposition;
 use App\Security\ToolAccess;
 use App\Shared\Mcp\Adapts;
 use App\Shared\Mcp\ToolInputs;
@@ -22,7 +22,7 @@ final readonly class SearchContactsByTagsTool
     public function __construct(
         private ToolAccess $access,
         private ToolInputs $inputs,
-        private TaggedContactsReader $contacts,
+        private TaggedContactsComposition $contacts,
         private ToolResults $results,
     ) {
     }
