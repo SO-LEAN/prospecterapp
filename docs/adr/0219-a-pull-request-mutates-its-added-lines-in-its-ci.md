@@ -18,7 +18,7 @@ The mutation needs no stack: PHP or Node and the code. The CI of a pull request 
 - Each job runs `make mutation-<part> BASE=origin/<base>`: it mutates the lines added since the merge-base of the pull request's merge commit and its base, as `make mutation` does on the machine.
 - **Each job publishes the artifact `mutation-<part>`**: the tool's JSON report and `summary.md`, which the job's summary on GitHub shows too. The summary gives the score, the killed, surviving, not covered, timed out and skipped mutants, and each survivor and each mutant no test covers, by its file, its line and its mutator. One summary reads both tools' reports (`apps/front/mutation/summary.ts`).
 - **The job fails as `make mutation` does**: when the tool cannot run, or when the core skips a mutant (ADR 0196). A score under the threshold does not fail it: the definition of done keeps judging the threshold of 80 % per project (ADR 0202).
-- **The mutation jobs are no part of the `ci` check** that the rulesets require, and `make ci` runs no mutation.
+- **The mutation jobs are not part of the `ci` check** that the rulesets require, and `make ci` runs no mutation.
 - `make mutation` keeps working on the machine, for a developer who wants to run it.
 
 ## Consequences
