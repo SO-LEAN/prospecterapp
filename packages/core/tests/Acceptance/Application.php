@@ -293,6 +293,10 @@ use Prospecter\Core\Prospecting\Application\Contact\ConsultOrganizationsOfContac
 use Prospecter\Core\Prospecting\Application\Contact\DetachForgottenContact\DetachForgottenContactHandler;
 use Prospecter\Core\Prospecting\Application\Contact\EraseContactLeftUnattached\EraseContactLeftUnattached;
 use Prospecter\Core\Prospecting\Application\Contact\EraseContactLeftUnattached\EraseContactLeftUnattachedHandler;
+use Prospecter\Core\Prospecting\Application\Contact\ListOrganizationContacts\KeptOrganizationContacts;
+use Prospecter\Core\Prospecting\Application\Contact\ListOrganizationContacts\ListOrganizationContacts;
+use Prospecter\Core\Prospecting\Application\Contact\ListOrganizationContacts\ListOrganizationContactsHandler;
+use Prospecter\Core\Prospecting\Application\Contact\ListOrganizationContacts\OrganizationContacts;
 use Prospecter\Core\Prospecting\Application\Contact\NameOrganizationsOfContacts\NameOrganizationsOfContactsHandler;
 use Prospecter\Core\Prospecting\Application\Contact\ProposeOrganizationToAttach\KeptProposedOrganization;
 use Prospecter\Core\Prospecting\Application\Contact\ProposeOrganizationToAttach\ProposedOrganization;
@@ -1249,6 +1253,13 @@ final class Application
         $kept = new KeptToDoList();
 
         return $this->ask(new ConsultOrganizationToDosHandler($this->toDoListRetriever, $this->organizationSheetRetriever, $this->personsOfToDos), $query, $kept) ? $kept : null;
+    }
+
+    public function listOrganizationContacts(ListOrganizationContacts $query): ?OrganizationContacts
+    {
+        $kept = new KeptOrganizationContacts();
+
+        return $this->ask(new ListOrganizationContactsHandler($this->organizationSheetRetriever, $this->personDescriptions), $query, $kept) ? $kept->contacts : null;
     }
 
     public function consultMyToDos(ConsultMyToDos $query): ?KeptToDoList
