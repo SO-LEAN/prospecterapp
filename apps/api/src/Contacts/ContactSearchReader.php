@@ -50,6 +50,7 @@ final readonly class ContactSearchReader
         return new ContactListLinksResource(
             $this->links->to('api_contacts_search', array_filter(['q' => $query])),
             in_array('SearchByText', $page->possibleIntents, true) ? $this->links->to('api_contacts_search') : null,
+            in_array('Collect', $page->possibleIntents, true) ? $this->links->to('api_contacts_collect') : null,
             null === $page->next ? null : $this->links->to('api_contacts_search', array_filter(['q' => $query, 'after' => $page->next])),
             $this->links->to('api_contacts_search_by_tags'),
         );
