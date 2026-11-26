@@ -15,6 +15,7 @@ Run these from the repository root. `make` alone lists the commands. A new targe
   - `make down` removes a worktree's stack once you are done with the worktree, keeping the caches the checkouts share (ADR 0116).
   - `make logs-save`: writes the logs of the stack in `e2e-logs/` (`E2E_LOGS=` another folder), one file per service and per container of a function its MiniStack runs. The merge queue keeps them after journeys that failed (ADR 0220).
   - `make images-prune` removes the images no checkout expects any more.
+  - `make images-env` prints the tags make expects of the PHP and Node images and the user they are built for. The CI builds them from its cache under these tags (ADR 0221).
   - https://prospecter.localhost serves the SPA. Sign in as:
     - `prospector@solean-it.io` / `password`;
     - `assistant@solean-it.io` / `password`, a prospector without the right to manage personal data;
@@ -37,6 +38,7 @@ Run these from the repository root. `make` alone lists the commands. A new targe
 - `make test-core`: runs the business rules only.
 - `make test-<core|api|storage|front> FILTER=<name>`: runs only the matching scenarios and tests, or the front's matching test files.
   - `make test`, `make test-api` and `make check-api` leave out the API tests that re-test a core rule (the `core-rule` group, ADR 0204). `ALL=1` runs them too, and so does `make ci ALL=1`. A test named by `FILTER` runs whatever its group.
+  - `SHARD=<i>/<n>` makes `make test-api` run the i-th of n shares of the test files, dealt in turn. The CI runs each share in a job of its own (`make check-api-tests-<i>-of-<n>`, its lint in `make check-api-lint`, ADR 0221).
   - `FAILED=1` reruns what failed last. `FAIL_FAST=1` stops at the first failure. Both also work with `make e2e`.
   - `CLOCK_SHIFT=+365d` runs the core, the storage and the front on a clock one year ahead. The API stays on the real clock (ADR 0150).
   - `TEST_WORKERS=<n or n%>` sets how many Vitest workers `make test-front` runs. By default, Vitest runs one worker fewer than the container has processors (`docs/architecture/tests.md`, "Front tests").
