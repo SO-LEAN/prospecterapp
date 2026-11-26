@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { applyViolations } from '@/shared/api/problem'
 import { CivilityField } from '@/shared/forms/civility'
@@ -19,27 +19,28 @@ import {
   toCollectContactInput,
 } from '../contact-schema'
 import type { CollectContactInput } from '../queries'
+import { OrganizationChoice } from './organization-choice'
 
 type Props = {
-  organizationId: string
+  organizationId?: string
   onSubmit: (input: CollectContactInput) => Promise<unknown>
   onCancel: () => void
 }
 
-/** Collects a new contact for this organization. */
+/** Collects a new contact for this organization. Without one, the form chooses it first. */
 export function CollectContactForm({ organizationId, onSubmit, onCancel }: Props) {
   const { t } = useTranslation()
   const [globalErrors, setGlobalErrors] = useState<string[]>([])
   const form = useForm<CollectContactValues>({
     resolver: zodResolver(collectContactSchema),
-    defaultValues: emptyCollectContact(),
+    defaultValues: emptyCollectContact(organizationId),
   })
   const { isSubmitting, isDirty } = form.formState
 
   const submit = form.handleSubmit(async (values) => {
     setGlobalErrors([])
     try {
-      await onSubmit(toCollectContactInput(values, organizationId))
+      await onSubmit(toCollectContactInput(values))
     } catch (error) {
       setGlobalErrors(applyViolations(error, form.setError, collectContactFields))
     }
@@ -53,6 +54,17 @@ export function CollectContactForm({ organizationId, onSubmit, onCancel }: Props
         </Alert>
       )}
 
+      {organizationId === undefined && (
+        <Controller
+          control={form.control}
+          name="organizationId"
+          render={({ field: { onChange } }) => (
+            <FormField form={form} name="organizationId" label={t('organizations.contacts.organization')}>
+              <OrganizationChoice onChoose={onChange} />
+            </FormField>
+          )}
+        />
+      )}
       <fieldset className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <legend className="mb-2 font-medium text-sm">{t('organizations.contacts.identity')}</legend>
         <PersonNameFields form={form} path={under<CollectContactValues>('name')} />

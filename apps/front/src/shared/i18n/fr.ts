@@ -243,6 +243,7 @@ export const fr = {
       addNew: 'Nouveau contact',
       addExisting: 'Contact existant',
       identity: 'Identité',
+      organization: 'Organisation',
       collectSubmit: 'Enregistrer le contact',
       removeTitle: 'Retirer {{name}} de cette organisation ?',
       removeDescription:
@@ -1086,6 +1087,7 @@ export const fr = {
     phoneNumber: 'Numéro de téléphone invalide.',
     max: '{{max}} caractères maximum.',
     min: '{{min}} caractères minimum.',
+    organization: 'Choisissez une organisation.',
   },
 } as const
 
