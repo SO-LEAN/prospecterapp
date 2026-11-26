@@ -178,6 +178,8 @@
 
 
 
+
+
 <g transform="translate(606 9332.5) rotate(2.15 66 66)"><rect width="132" height="132" rx="1" fill="#7cc4f8" stroke="#000" stroke-opacity="0.12"/><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="16.5" fill="#1b2030" text-anchor="middle"><tspan x="66" y="60.4">Dismiss possible</tspan><tspan x="66" y="78.2">duplicate</tspan></text></g>
 <g transform="translate(537 9368.1) rotate(2.98 35 35)"><rect width="70" height="70" rx="1" fill="#ffe257" stroke="#000" stroke-opacity="0.12"/><g transform="translate(20 5) scale(1)" fill="none" stroke="#1b2030" stroke-width="1.9" stroke-linecap="round"><circle cx="15" cy="6" r="4"/><path d="M15 10v10M7 14.5h16M15 20l-6 8M15 20l6 8"/></g><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="12.5" fill="#1b2030" text-anchor="middle"><tspan x="35" y="45">Prospector</tspan></text></g>
 <g transform="translate(593 9319) rotate(4.80 16 16)"><circle cx="16" cy="16" r="16" fill="#ffe257" stroke="#1b2030" stroke-opacity="0.55" stroke-width="1.5"/><g transform="translate(5 5) scale(0.7333333333333333)" fill="none" stroke="#1b2030" stroke-width="1.9" stroke-linecap="round"><rect x="10" y="3" width="10" height="8" rx="2"/><path d="M15 3V.8M13 7h.1M17 7h.1M15 11v9M7 15h16M15 20l-6 8M15 20l6 8"/></g></g>
@@ -195,8 +197,6 @@
 <g transform="translate(1264 9150.8) rotate(2.03 66 66)"><rect width="132" height="132" rx="1" fill="#7cc4f8" stroke="#000" stroke-opacity="0.12"/><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="16.5" fill="#1b2030" text-anchor="middle"><tspan x="66" y="60.4">Suspect duplicate</tspan><tspan x="66" y="78.2">in return</tspan></text></g>
 <g transform="translate(1381 9134.1) rotate(1.81 66 66)"><rect width="132" height="132" rx="1" fill="#fff4ad" stroke="#000" stroke-opacity="0.12"/><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="18" fill="#1b2030" text-anchor="middle"><tspan x="66" y="40.4">Organizati</tspan><tspan x="66" y="59.8">on</tspan></text><text font-family='ui-monospace, monospace' font-size="10.5" fill="#5e6270" text-anchor="middle"><tspan x="66" y="76.3">suspect</tspan><tspan x="66" y="88.4">Duplicate</tspan><tspan x="66" y="100.4">Of()</tspan></text></g>
 <g transform="translate(1496 9156.1) rotate(2.11 66 66)"><rect width="132" height="132" rx="1" fill="#ffa348" stroke="#000" stroke-opacity="0.12"/><text font-family='"Wall Hand", "Patrick Hand", cursive' font-size="18.5" fill="#1b2030" text-anchor="middle"><tspan x="66" y="59.8">Duplicate</tspan><tspan x="66" y="79.8">suspected</tspan></text></g>
-
-
 
 
 
