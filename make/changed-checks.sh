@@ -2,9 +2,9 @@
 # The checks of the integration that the changed files on the standard input need (ADR 0110), one per line. A
 # project's files need its own check. The core needs the API's and the contract's checks, and the API and the front
 # need the contract's. The core, the API, the event storming's generator and its walls need the walls' check. What the
-# stack runs needs the journeys (ADR 0116): make ci runs them in a worktree, never the CI (ADR 0118). A file every
-# check depends on (the Makefiles, the images, the workflow) needs them all, and so does a file of no known project.
-# The secrets of the branch and the references to the records are always checked. The parts of the code a pull
+# stack runs needs the journeys (ADR 0116): the merge queue runs them, never a pull request nor make ci (ADR 0220). A
+# file every check depends on (the Makefiles, the images, the workflow) needs them all, and so does a file of no known
+# project. The secrets of the branch and the references to the records are always checked. The parts of the code a pull
 # request's CI mutates follow, named mutation-<part>.
 ALL="secrets infra core api storage front contract event-storming e2e"
 

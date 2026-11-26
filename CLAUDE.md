@@ -47,7 +47,7 @@ Before declaring work done, `make ci` must pass (lint, tests, contract, front bu
 
 ## Git
 
-- A `feature/<name>`, `fix/<name>` or `refactor/<name>` branch starts from `dev` and comes back to `dev` through a pull request. The pull request is merged by rebase once the CI passes. `main` receives `dev` through a merge commit. `main` and `dev` are protected: never push to them (ADR 0057, 0058). `docs/architecture/workflow.md` describes the whole workflow, its CI and its Terraform.
+- A `feature/<name>`, `fix/<name>` or `refactor/<name>` branch starts from `dev` and comes back to `dev` through a pull request. Once its CI passes, the pull request goes through `dev`'s merge queue, which runs the journeys when its changes need them, then merges it by rebase. `main` receives `dev` through a merge commit. `main` and `dev` are protected: never push to them (ADR 0057, 0058, 0220). `docs/architecture/workflow.md` describes the whole workflow, its CI and its Terraform.
 - Write conventional commits (`feat:`, `fix:`, `refactor:`, `chore:`, `docs:`, and `test:` for a red test committed alone before the code that makes it pass). The subject is imperative (`add`, `fix`, `remove`) and 72 characters at most. The body gives the why.
 - Commit or push only when asked.
 

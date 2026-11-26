@@ -3,9 +3,11 @@
 # checks its changes need, a push every one; each check runs in a job of its own, together, its lint and its tests
 # together too (make -j), their output not synchronised, so that the progress of the tests shows while they run (make
 # keeps the output of a command until it ends with any --output-sync, ADR 0180); the job ci sums them up, the check
-# the rulesets require. The journeys are no check of the CI: the agent runs them in its worktree, make ci running them
-# there (ADR 0118). A pull request also mutates the lines it adds, in a job per part of the code it touches, beside the
-# checks; their reports go in artifacts for the definition of done, which judges the threshold (ADR 0219).
+# the rulesets require. A pull request also mutates the lines it adds, in a job per part of the code it touches, beside
+# the checks; their reports go in artifacts for the definition of done, which judges the threshold (ADR 0219). dev's
+# merge queue runs the checks once more, on the pull request rebased onto dev and onto those queued before it, and the
+# journeys there only, in the job e2e, when the changes need them (ADR 0220): a push to a pull request, to dev or to
+# main runs none. The merge queue mutates nothing.
 name: CI
 
 on:
@@ -13,6 +15,8 @@ on:
     branches: [main, dev]
   pull_request:
     branches: [dev, main]
+  merge_group:
+    types: [checks_requested]
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -28,22 +32,31 @@ jobs:
     outputs:
       checks: ${{ steps.checks.outputs.checks }}
       mutations: ${{ steps.checks.outputs.mutations }}
+      e2e: ${{ steps.checks.outputs.e2e }}
     steps:
       - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
 
+      # A pull request runs the checks for its changes since its base, and mutates the lines it adds. The merge queue
+      # runs the checks for its group's changes since the dev it starts from, the journeys among them. A push runs every
+      # check. Only the merge queue runs the journeys, and only a pull request mutates
       - name: List the checks the changes need
         id: checks
         env:
           BASE_REF: ${{ github.base_ref }}
+          QUEUE_BASE: ${{ github.event.merge_group.base_sha }}
         run: |
-          if [ -n "$BASE_REF" ]; then changed=$(make changed-checks RANGE="origin/$BASE_REF...HEAD"); else changed='["secrets","infra","core","api","storage","front","contract","event-storming"]'; fi
+          if [ -n "$BASE_REF" ]; then changed=$(make changed-checks RANGE="origin/$BASE_REF...HEAD")
+          elif [ -n "$QUEUE_BASE" ]; then changed=$(make changed-checks RANGE="$QUEUE_BASE...HEAD" | jq -c 'map(select(startswith("mutation-") | not))')
+          else changed='["secrets","infra","core","api","storage","front","contract","event-storming"]'; fi
           checks=$(echo "$changed" | jq -c 'map(select(. != "e2e" and (startswith("mutation-") | not)))')
           mutations=$(echo "$changed" | jq -c 'map(select(startswith("mutation-")) | ltrimstr("mutation-"))')
+          e2e=$(echo "$changed" | jq 'index("e2e") != null')
           echo "checks=$checks" >> "$GITHUB_OUTPUT"
           echo "mutations=$mutations" >> "$GITHUB_OUTPUT"
-          echo "checks: $checks, mutations: $mutations"
+          echo "e2e=$e2e" >> "$GITHUB_OUTPUT"
+          echo "checks: $checks, mutations: $mutations, journeys: $e2e"
 
   check:
     needs: changes
@@ -162,6 +175,71 @@ jobs:
           name: mutation-${{ matrix.part }}
           path: mutation/
           if-no-files-found: error
+
+  # Only the merge queue runs the journeys, on the code that reaches dev (ADR 0220). make check-e2e starts the stack on
+  # the runner, deploys it and gives it the demonstration. A group whose changes need none passes at once, so that the
+  # check the queue requires does not hold it. A failure keeps Playwright's report and the stack's logs
+  e2e:
+    if: github.event_name == 'merge_group'
+    needs: changes
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      NEEDED: ${{ needs.changes.outputs.e2e }}
+    steps:
+      - name: No journey needed
+        if: env.NEEDED != 'true'
+        run: echo "No change of this group is one the journeys cover (make changed-checks)"
+
+      - uses: actions/checkout@v7.0.1
+        if: env.NEEDED == 'true'
+
+      - name: Cache the Composer dependencies
+        if: env.NEEDED == 'true'
+        uses: actions/cache@v6.1.0
+        with:
+          path: |
+            apps/api/vendor
+            apps/storage/vendor
+            packages/core/vendor
+          key: composer-${{ hashFiles('apps/api/composer.lock', 'apps/storage/composer.lock', 'packages/core/composer.lock') }}
+
+      - name: Cache the pnpm dependencies
+        if: env.NEEDED == 'true'
+        uses: actions/cache@v6.1.0
+        with:
+          path: apps/front/node_modules
+          key: pnpm-${{ hashFiles('apps/front/pnpm-lock.yaml') }}
+
+      - name: Install the dependencies
+        if: env.NEEDED == 'true'
+        run: make vendor front-install
+
+      - name: Run the journeys
+        if: env.NEEDED == 'true'
+        run: make check-e2e
+
+      - name: Keep the logs of the stack
+        if: failure() && env.NEEDED == 'true'
+        run: make logs-save E2E_LOGS=e2e-logs
+
+      - name: Keep the report of the journeys
+        if: failure() && env.NEEDED == 'true'
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: e2e-report
+          path: |
+            apps/front/playwright-report
+            apps/front/test-results
+          retention-days: 7
+
+      - name: Keep the logs
+        if: failure() && env.NEEDED == 'true'
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: e2e-logs
+          path: e2e-logs
+          retention-days: 7
 
   ci:
     if: always()

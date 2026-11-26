@@ -9,7 +9,7 @@ GITLEAKS = docker run --rm -u $(UID):$(GID) -e GIT_INDEX_FILE -v $(CURDIR):$(CUR
 	-w $(CURDIR) ghcr.io/gitleaks/gitleaks:v8.30.1
 INFRA_APPS = api storage front
 
-.PHONY: install hooks build vendor db aws ca front-install check-secrets check-infra check-contract check-event-storming check-core check-api check-storage check-front check-e2e check-e2e-locked check-e2e-run e2e-locked front-lint front-tested-build changed-checks infra-target infra-init infra-plan infra-apply infra-lint changed-apps package-api package-storage package-front release-front console start deploy stop down images-prune agents-slice logs ps google-down google-up ci test test-api test-storage test-front e2e test-core mutation mutation-core mutation-front mutation-event-storming mutation-summary mutation-artifact mutation-api lint adr-references adr-index adr-index-check fix front-build api-doc contract event-storming commands profiler-clear exec-api exec-front secrets secrets-branch commit-subjects
+.PHONY: install hooks build vendor db aws ca front-install check-secrets check-infra check-contract check-event-storming check-core check-api check-storage check-front check-e2e check-e2e-locked check-e2e-run e2e-locked front-lint front-tested-build changed-checks infra-target infra-init infra-plan infra-apply infra-lint changed-apps package-api package-storage package-front release-front console start deploy stop down images-prune agents-slice logs logs-save ps google-down google-up ci test test-api test-storage test-front e2e test-core mutation mutation-core mutation-front mutation-event-storming mutation-summary mutation-artifact mutation-api lint adr-references adr-index adr-index-check fix front-build api-doc contract event-storming commands profiler-clear exec-api exec-front secrets secrets-branch commit-subjects
 
 ##@ Setup
 install: hooks build vendor db front-install ## Build the images, install the dependencies, create the tables, the bucket and the user pool, install the Git hooks
@@ -93,6 +93,14 @@ ca: ## Create once the local authority of the machine and the certificate of pro
 logs: ## Follow the logs of the stack
 	@$(DC) logs -f
 
+# The merge queue keeps these logs after failed journeys (ADR 0220). The API and the storage run in MiniStack's
+# functions, a container each, named after the function and the container: a function may run in several
+E2E_LOGS ?= e2e-logs
+FUNCTION_NAME = docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' $$function | sed -n 's/^AWS_LAMBDA_FUNCTION_NAME=//p'
+logs-save: ## Write the logs of the stack in E2E_LOGS (e2e-logs), one file per service and per container of a function its MiniStack runs
+	@mkdir -p $(E2E_LOGS) && for service in $$($(DC) ps -a --services); do $(DC) logs --no-color --timestamps $$service >$(E2E_LOGS)/$$service.log 2>&1; done; \
+	for function in $$($(STACK_FUNCTIONS)); do docker logs --timestamps $$function >$(E2E_LOGS)/$$($(FUNCTION_NAME))-$$function.log 2>&1; done
+
 ps: ## List the containers of the stack
 	@$(DC) ps
 
@@ -110,8 +118,8 @@ google-up: ## Make the double of Google of the running stack answer again
 # dev and main. Independent of one another once the images and the dependencies are there and the contract checked (it
 # writes the types the front reads), they run together, and so do the lint and the tests of a project, each printing
 # its output once it ends, the first failing stopping the others (FAIL_FAST); the CI runs them in jobs of their own
-# (.github/workflows/ci.yml). The journeys are neither a check of the CI nor of make ci (ADR 0118, 0121): make check-e2e
-# runs them, in a worktree, once its development is done
+# (.github/workflows/ci.yml). Neither make ci nor a pull request's CI runs the journeys. The merge queue runs them with
+# make check-e2e, and a worktree can too (ADR 0220)
 BASE ?= origin/dev
 ALL_CHECKS = secrets infra core api storage front contract event-storming e2e
 CHANGED_FILES = { git diff --name-only $$(git merge-base $(BASE) HEAD); git ls-files --others --exclude-standard; }
@@ -142,10 +150,10 @@ check-event-storming: event-storming ## Fail when a committed wall, its page or 
 E2E_LOCK = $(GIT_COMMON_DIR)/prospecter-e2e.lock
 WITH_E2E_LOCK = { flock -n $(E2E_LOCK) true || echo "The journeys of another checkout run: waiting for them..."; } && flock $(E2E_LOCK)
 
-# In a worktree, never on the data of the main checkout (ADR 0118, 0121, 0205). On the running stack, a branch's journeys
-# still start from the demonstration. The check deploys the API's and the storage's functions again, recycles the relay
-# and the worker, empties the failure queues, and gives the tables and the user pool the demonstration back
-# (make -C apps/api restore). It keeps the containers, the images, the relay's mappings, the bus rules and the buckets.
+# In a worktree or on a merge queue runner, never on the main checkout's data (ADR 0121, 0205, 0220). On the running
+# stack, a branch's journeys still start from the demonstration. The check deploys the API's and the storage's
+# functions again, recycles the relay and the worker, empties the failure queues, and gives the tables and the user pool
+# the demonstration back (make -C apps/api restore). It keeps the containers, the images, the relay's mappings, the bus rules and the buckets.
 # It starts from nothing with FRESH=1, when no stack runs, or when what defines the stack changed since it was made
 # (STACK_DEFINITION). It then starts the stack again (MiniStack without the memory a former run left it), deploys it and
 # recreates its data. Either way the command loading the demonstration counts its figures, alone, in a few seconds,
@@ -167,8 +175,8 @@ MAKE_THE_STACK = $(MAKE) stop && $(MAKE) deploy && $(MAKE) db && mkdir -p $(dir 
 RESTORE_THE_STACK = echo "Giving the running stack its demonstration back (FRESH=1 starts from nothing)" \
 	&& $(call timed,Stack/API and storage deployed and reactions recycled,$(DC) --progress quiet run --rm --build lambda-deploy apps) \
 	&& $(MAKE) -C apps/api restore
-check-e2e: ## Run the journeys on this worktree's stack after giving it the demonstration back, stopping at the first failure. FRESH=1, no running stack or a change of what defines it starts the stack again, deploys it and recreates its data first (ADR 0117, 0121, 0205)
-	@test -n "$(IN_WORKTREE)" || { echo "check-e2e recreates the data of the stack: in a worktree only; make e2e on the running stack"; exit 1; }
+check-e2e: ## Run the journeys on this worktree's stack or a CI runner's stack after giving it the demonstration back, stopping at the first failure. FRESH=1, no running stack or a change of what defines it starts the stack again, deploys it and recreates its data first (ADR 0117, 0121, 0205, 0220)
+	@test -n "$(CI)$(IN_WORKTREE)" || { echo "check-e2e recreates the data of the stack: in a worktree or the CI only; make e2e on the running stack"; exit 1; }
 	@$(WITH_E2E_LOCK) $(MAKE) check-e2e-locked FROM_NOTHING=$(FROM_NOTHING)
 
 check-e2e-locked:

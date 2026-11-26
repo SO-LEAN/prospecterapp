@@ -23,3 +23,5 @@ BOOTSTRAP.md
 /.cache/
 # the port of the host the stack of a worktree is published on (make/stack-port.sh, ADR 0116)
 /.stack-port
+# the logs of the stack, as the merge queue keeps them after journeys that failed (make logs-save)
+/e2e-logs/
