@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Campaigning\Controller;
 
 use App\Campaigning\CampaignVoter;
-use App\Campaigning\RecipientsReader;
+use App\Campaigning\RecipientsComposition;
 use App\Campaigning\Resource\RecipientListResource;
 use App\Security\User;
 use App\Shared\JsonResponses;
@@ -23,7 +23,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_PROSPECTOR')]
 final readonly class ShowCampaignRecipientsController
 {
-    public function __construct(private RecipientsReader $recipientsReader, private JsonResponses $jsonResponses)
+    public function __construct(private RecipientsComposition $recipients, private JsonResponses $jsonResponses)
     {
     }
 
@@ -37,6 +37,6 @@ final readonly class ShowCampaignRecipientsController
     #[OA\Response(response: 404, description: 'Unknown campaign, or a campaign of another account', content: new Model(type: ProblemResource::class))]
     public function __invoke(CampaignSheet $campaign, #[CurrentUser] User $user): JsonResponse
     {
-        return $this->jsonResponses->of($this->recipientsReader->read($user->memberId(), $campaign));
+        return $this->jsonResponses->of($this->recipients->read($user->memberId(), $campaign->id));
     }
 }
