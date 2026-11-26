@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Contacts\Resource;
 
 use OpenApi\Attributes as OA;
-use Prospecter\Core\PersonalData\Application\PersonCard;
 use Prospecter\Core\Prospecting\Application\Agenda\Interlocutors;
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
@@ -49,15 +48,15 @@ final readonly class InterlocutorResource
     }
 
     /**
-     * @param PersonCard|PersonDescription|null $person   none for a person who is no longer known
-     * @param ?string                           $presence by the values of `ContactPresence`
+     * @param ?PersonDescription $person   none for a person who is no longer known
+     * @param ?string            $presence by the values of `ContactPresence`
      */
-    public static function ofPerson(string $personId, PersonCard|PersonDescription|null $person, ?string $presence): self
+    public static function ofPerson(string $personId, ?PersonDescription $person, ?string $presence): self
     {
         return new self(self::PERSON, $personId, null === $person ? null : self::fullNameOf($person), $presence);
     }
 
-    private static function fullNameOf(PersonCard|PersonDescription $person): ?string
+    private static function fullNameOf(PersonDescription $person): ?string
     {
         $name = trim(sprintf('%s %s', $person->firstName, $person->lastName));
 
