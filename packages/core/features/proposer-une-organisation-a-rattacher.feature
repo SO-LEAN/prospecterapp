@@ -33,3 +33,18 @@ Fonctionnalité: Proposer l'organisation où rattacher un contact
     Et "Peter Gibbons" (peter@initech.test) a pris une visio avec moi le 20/11/2026 à 14h00
     Quand je regarde à quelle organisation le rattacher
     Alors aucune organisation n'est proposée
+
+  Scénario: Un contact sans e-mail ne propose rien
+    Soit le contact "Alan Turing" de "ACME"
+    Quand je regarde à quelle organisation rattacher "Alan Turing"
+    Alors aucune organisation n'est proposée
+
+  Scénario: Sans le droit aux données personnelles, je ne lis pas l'e-mail d'un contact pour lui proposer une organisation
+    Soit "Ada Lovelace" (ada@acme.fr) a pris une visio avec moi le 20/11/2026 à 14h00
+    Et je suis connecté en tant que prospecteur de "SOLEAN IT" sans le droit aux données personnelles
+    Quand je regarde à quelle organisation rattacher "Ada Lovelace"
+    Alors c'est introuvable, pour la raison "unknownContact"
+
+  Scénario: Un contact inconnu est introuvable
+    Quand je regarde à quelle organisation rattacher "Personne"
+    Alors c'est introuvable, pour la raison "unknownContact"
