@@ -19,6 +19,9 @@ class TaggedContactsApiTest extends ApiTestCase
 {
     use ReadsResources;
 
+    /** The most contacts a slice of the search holds. */
+    private const int PAGE = 20;
+
     private string $organization;
     private string $ada;
     private string $grace;
@@ -59,6 +62,20 @@ class TaggedContactsApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(200);
         $this->assertSame([$this->ada], array_column(self::recordsAt($after, 'items'), 'id'));
         $this->assertSame(2, $after['found']);
+    }
+
+    public function testMoreContactsThanAPageLinkTheNextSliceAfterTheLastOne(): void
+    {
+        foreach (range(1, self::PAGE - 1) as $rank) {
+            $this->aContact('Contact', 'N'.$rank, []);
+        }
+
+        $first = $this->requestJson('GET', '/api/tagged-contacts?tags=CAMPAIGN_149');
+        $last = self::stringAt($first, 'items', self::PAGE - 1, 'id');
+
+        $this->assertCount(self::PAGE, self::recordsAt($first, 'items'));
+        $this->assertSame(['href' => '/api/tagged-contacts?tags=CAMPAIGN_149&after='.$last, 'method' => 'GET'], self::valueAt($first, '_links', 'next'));
+        $this->assertSame([$this->ada], array_column(self::recordsAt($this->requestJson('GET', self::stringAt($first, '_links', 'next', 'href')), 'items'), 'id'));
     }
 
     public function testAContactForgottenIsNoLongerFound(): void
