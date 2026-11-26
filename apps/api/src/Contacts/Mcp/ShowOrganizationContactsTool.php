@@ -4,14 +4,18 @@ declare(strict_types=1);
 
 namespace App\Contacts\Mcp;
 
-use App\Contacts\OrganizationContactsReader;
+use App\Contacts\OrganizationContactsPresenter;
 use App\Prospecting\OrganizationResolver;
 use App\Prospecting\OrganizationVoter;
+use App\Security\IntentLinks;
 use App\Security\ToolAccess;
+use App\Shared\Links;
 use App\Shared\Mcp\Adapts;
 use App\Shared\Mcp\ToolResults;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server\Capability\Attribute\McpTool;
+use Prospecter\Core\Prospecting\Application\Contact\ListOrganizationContacts\ListOrganizationContacts;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 
 /**
  * `GET /api/organizations/{id}/contacts`, for an AI (ADR 0163).
@@ -22,7 +26,9 @@ final readonly class ShowOrganizationContactsTool
     public function __construct(
         private ToolAccess $access,
         private OrganizationResolver $organizations,
-        private OrganizationContactsReader $contacts,
+        private QueryHandler $listOrganizationContacts,
+        private Links $links,
+        private IntentLinks $intentLinks,
         private ToolResults $results,
     ) {
     }
@@ -39,6 +45,9 @@ final readonly class ShowOrganizationContactsTool
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');
         $this->access->denyUnlessGranted(OrganizationVoter::ACCESS, $organization);
 
-        return $this->results->of($this->contacts->read($this->access->member()->memberId(), $organization));
+        $presenter = new OrganizationContactsPresenter($this->links, $this->intentLinks);
+        $this->listOrganizationContacts->__invoke(new ListOrganizationContacts($this->access->member()->memberId(), $organization->id), $presenter);
+
+        return $this->results->of($presenter->resource);
     }
 }

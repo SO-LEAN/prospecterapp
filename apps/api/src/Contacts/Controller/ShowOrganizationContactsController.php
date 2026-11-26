@@ -4,15 +4,19 @@ declare(strict_types=1);
 
 namespace App\Contacts\Controller;
 
-use App\Contacts\OrganizationContactsReader;
+use App\Contacts\OrganizationContactsPresenter;
 use App\Contacts\Resource\OrganizationContactsResource;
 use App\Prospecting\OrganizationVoter;
+use App\Security\IntentLinks;
 use App\Security\User;
 use App\Shared\JsonResponses;
+use App\Shared\Links;
 use App\Shared\Resource\ProblemResource;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
+use Prospecter\Core\Prospecting\Application\Contact\ListOrganizationContacts\ListOrganizationContacts;
 use Prospecter\Core\Prospecting\Application\OrganizationSheet;
+use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
@@ -20,14 +24,19 @@ use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
- * Shows an organization's contacts. `OrganizationContactsReader` reads them (ADR 0041).
+ * Shows an organization's contacts. Prospecting's query reads them, and PersonalData decides how the member reads them
+ * (ADR 0041, 0217).
  */
 #[OA\Tag('Organizations')]
 #[IsGranted('ROLE_PROSPECTOR')]
 final readonly class ShowOrganizationContactsController
 {
-    public function __construct(private OrganizationContactsReader $contacts, private JsonResponses $jsonResponses)
-    {
+    public function __construct(
+        private QueryHandler $listOrganizationContacts,
+        private Links $links,
+        private IntentLinks $intentLinks,
+        private JsonResponses $jsonResponses,
+    ) {
     }
 
     #[Route('/api/organizations/{id}/contacts', name: 'api_organizations_contacts', requirements: ['id' => Requirement::UUID], methods: ['GET'])]
@@ -39,6 +48,9 @@ final readonly class ShowOrganizationContactsController
     #[OA\Response(response: 404, description: 'The organization is unknown or belongs to another account', content: new Model(type: ProblemResource::class))]
     public function __invoke(OrganizationSheet $organization, #[CurrentUser] User $user): JsonResponse
     {
-        return $this->jsonResponses->of($this->contacts->read($user->memberId(), $organization));
+        $presenter = new OrganizationContactsPresenter($this->links, $this->intentLinks);
+        $this->listOrganizationContacts->__invoke(new ListOrganizationContacts($user->memberId(), $organization->id), $presenter);
+
+        return $this->jsonResponses->of($presenter->resource);
     }
 }
