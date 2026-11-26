@@ -25,7 +25,7 @@ export function widthOf(text: string, size: number, font: Font): number {
  * method's name does, then where the line ends.
  */
 export function linesOf(text: string, size: number, font: Font, width: number): string[] {
-  const fits = (line: string): boolean => widthOf(line, size, font) <= width
+  const fits = (line: string): boolean => width >= widthOf(line, size, font)
   const lines: string[] = []
   for (const { piece, glued } of text.split(/\s+/).flatMap((word) => piecesOf(word, fits))) {
     const last = lines.at(-1)

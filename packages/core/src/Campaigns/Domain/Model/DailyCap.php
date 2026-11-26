@@ -27,7 +27,7 @@ final readonly class DailyCap
     #[\NoDiscard]
     public function isReachedBy(int $processed): bool
     {
-        return $processed >= $this->sends;
+        return $this->sends <= $processed;
     }
 
     /**

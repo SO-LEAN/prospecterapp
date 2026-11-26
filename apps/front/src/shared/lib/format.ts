@@ -1,5 +1,5 @@
 const TAG = /\[[^\]]*\]/g
-const LETTER = /\p{L}/u
+const LETTER = /\p{Letter}/u
 
 /** "Ada Lovelace" -> "AL", "[TEST] Paul Martin" -> "PM", "3M France" -> "MF" */
 export function initials(name: string): string {
