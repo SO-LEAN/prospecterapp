@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { CalendarClock, EllipsisVertical, Pencil, Plus, Trash2 } from 'lucide-react'
+import { EllipsisVertical, Pencil, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { memberName } from '@/shared/lib/member-name'
@@ -14,7 +14,7 @@ import {
   DropdownMenuTrigger,
 } from '@/shared/ui/dropdown-menu'
 import { formatDue, isOverdue, split } from '../due'
-import { useEraseToDo, useNoteOrganizationToDo, useNoteToDo, useReviseToDo } from '../mutations'
+import { useEraseToDo, useNoteOrganizationToDo, useNoteToDo } from '../mutations'
 import {
   contactToDosQuery,
   organizationToDosQuery,
@@ -22,8 +22,8 @@ import {
   type ToDoInput,
   type ToDoList,
 } from '../queries'
-import { revisionOf } from '../schema'
 import { useToggle } from '../use-toggle'
+import { ReviseToDoDialog } from './revise-to-do-dialog'
 import { ToDoForm } from './to-do-form'
 
 /** Called once a to-do is ticked off. The page may then propose to log the exchange it led to. */
@@ -193,23 +193,13 @@ function ToDoLines({ label, toDos, ...props }: LinesProps) {
   )
 }
 
-type LineProps = Omit<LinesProps, 'label' | 'toDos'> & {
-  toDo: ToDo
-  /** Offers « Reporter », which revises its due day. */
-  postponable?: boolean
-  /** Its toast offers to take the tick back. */
-  undoable?: boolean
-}
+type LineProps = Omit<LinesProps, 'label' | 'toDos'> & { toDo: ToDo }
 
-/**
- * One click ticks it off or unticks it. Its menu revises or erases it. « Reporter », where it is offered, opens the same
- * revision. Its links decide which gestures it allows.
- */
-export function ToDoLine({ toDo, now, withTheirContact, onTickedOff, postponable, undoable }: LineProps) {
+/** One click ticks it off or unticks it. Its menu revises or erases it. Its links decide which gestures it allows. */
+function ToDoLine({ toDo, now, withTheirContact, onTickedOff }: LineProps) {
   const { t } = useTranslation()
-  const toggle = useToggle(toDo, { onTickedOff, undoable })
+  const toggle = useToggle(toDo, { onTickedOff })
   const erase = useEraseToDo()
-  const revise = useReviseToDo()
   const [revising, setRevising] = useState(false)
   const done = Boolean(toDo.doneAt)
   const overdue = isOverdue(toDo, now)
@@ -230,11 +220,6 @@ export function ToDoLine({ toDo, now, withTheirContact, onTickedOff, postponable
           <span>{t('toDos.heldBy', { name: memberName(toDo.heldBy) })}</span>
         </p>
       </div>
-      {postponable && toDo._links.revise && (
-        <Button variant="outline" size="sm" onClick={() => setRevising(true)}>
-          <CalendarClock aria-hidden /> {t('toDos.postpone')}
-        </Button>
-      )}
       {(toDo._links.revise || toDo._links.erase) && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -256,23 +241,7 @@ export function ToDoLine({ toDo, now, withTheirContact, onTickedOff, postponable
           </DropdownMenuContent>
         </DropdownMenu>
       )}
-      <Dialog open={revising} onOpenChange={setRevising}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t('toDos.revise')}</DialogTitle>
-            <DialogDescription>{toDo.text}</DialogDescription>
-          </DialogHeader>
-          <ToDoForm
-            defaultValues={revisionOf(toDo)}
-            submitLabel={t('common.save')}
-            onCancel={() => setRevising(false)}
-            onSubmit={async (body) => {
-              await revise.mutateAsync({ ...params, body })
-              setRevising(false)
-            }}
-          />
-        </DialogContent>
-      </Dialog>
+      {toDo._links.revise && <ReviseToDoDialog toDo={toDo} open={revising} onOpenChange={setRevising} />}
     </div>
   )
 }

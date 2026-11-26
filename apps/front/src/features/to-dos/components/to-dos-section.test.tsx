@@ -6,7 +6,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { renderInARouter } from '@/test/render-in-a-router'
 import { THE_MOMENT_OF_THE_TESTS } from '@/test/the-moment-of-the-tests'
 import type { ToDo, ToDoInput, ToDoList } from '../queries'
-import { ToDoLine, ToDosCard } from './to-dos-section'
+import { ToDosCard } from './to-dos-section'
 
 const theApi = vi.hoisted(() => {
   const fetch = vi.fn<typeof globalThis.fetch>()
@@ -291,53 +291,5 @@ describe('ToDosCard', () => {
 
     const request = theApi.mock.calls[0]?.[0] as Request
     expect([request.method, new URL(request.url).pathname]).toEqual(['DELETE', `/api/to-dos/${ID}`])
-  })
-})
-
-describe('ToDoLine in what I have to process', () => {
-  async function renderTheLine(toDo: ToDo) {
-    await renderInARouter(
-      <QueryClientProvider client={new QueryClient()}>
-        <ToDoLine toDo={toDo} now={inDays(0)} withTheirContact postponable undoable />
-        <Toaster />
-      </QueryClientProvider>,
-    )
-  }
-
-  it('postpones the to-do to tomorrow, by its revision alone', async () => {
-    theApi.mockResolvedValue(Response.json(aToDo({ dueOn: dayOf(inDays(1)) })))
-    await renderTheLine(aToDo({ dueOn: dayOf(inDays(0)), dueAt: '08:30' }))
-
-    await userEvent.click(screen.getByRole('button', { name: 'Reporter' }))
-    const revision = await screen.findByRole('dialog')
-    await userEvent.click(within(revision).getByRole('button', { name: 'Demain' }))
-    await userEvent.click(within(revision).getByRole('button', { name: 'Enregistrer' }))
-
-    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
-    expect(theApi).toHaveBeenCalledTimes(1)
-    const request = theApi.mock.calls[0]?.[0] as Request
-    expect([request.method, new URL(request.url).pathname]).toEqual(['PATCH', `/api/to-dos/${ID}`])
-    expect(await request.json()).toEqual({ text: 'Envoyer mon CV', dueOn: dayOf(inDays(1)), dueAt: '08:30' })
-  })
-
-  it('offers no Reporter when the to-do does not carry the link that revises it', async () => {
-    const { revise: _, ...links } = aToDo({})._links
-    await renderTheLine(aToDo({ _links: links }))
-
-    expect(screen.getByRole('checkbox', { name: /^Cocher/ })).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Reporter' })).not.toBeInTheDocument()
-  })
-
-  it('offers to take its tick back from the toast that says it is done', async () => {
-    const toDo = aToDo({})
-    theApi.mockResolvedValue(
-      Response.json({ ...toDo, doneAt: '2026-11-13T10:00:00+00:00', _links: { untick: link('', 'DELETE') } }),
-    )
-    await renderTheLine(toDo)
-
-    await userEvent.click(screen.getByRole('checkbox', { name: /^Cocher/ }))
-
-    const told = (await screen.findByText('Action faite')).closest('[data-sonner-toast]') as HTMLElement
-    expect(within(told).getByRole('button', { name: 'Annuler' })).toBeInTheDocument()
   })
 })
