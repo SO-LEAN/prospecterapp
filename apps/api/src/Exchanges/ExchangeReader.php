@@ -17,6 +17,7 @@ use Prospecter\Core\Accounts\Contract\Service\ConsultMembers\MemberResponse;
 use Prospecter\Core\PersonalData\Application\Person\ConsultPersons\ConsultPersons;
 use Prospecter\Core\PersonalData\Application\Person\ConsultPersons\KeptPersons;
 use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\ConsultExchange;
+use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\KeptExchange;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 use Symfony\Component\Clock\ClockInterface;
 
@@ -46,6 +47,17 @@ final readonly class ExchangeReader
         $presenter = new ExchangeDetailPresenter($this->links, $this->intents, $this->revisions);
         $this->revisions->watch($id);
         $this->consultExchange->__invoke(new ConsultExchange(prospectorId: $prospector, id: $id, asOf: $this->clock->now(), movedFrom: $movedFrom), $presenter);
+
+        return $presenter->resource;
+    }
+
+    /**
+     * Presents an exchange already read with its participants.
+     */
+    public function resourceOf(KeptExchange $exchange): ExchangeDetailResource
+    {
+        $presenter = new ExchangeDetailPresenter($this->links, $this->intents, $this->revisions);
+        $presenter->present($exchange->exchange, $exchange->participants);
 
         return $presenter->resource;
     }
