@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Contacts\Controller;
 
-use App\Contacts\ContactReader;
+use App\Contacts\ContactComposition;
 use App\Contacts\Resource\ContactResource;
 use App\Security\User;
 use App\Shared\JsonResponses;
@@ -21,7 +21,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_PROSPECTOR')]
 final readonly class ShowContactController
 {
-    public function __construct(private ContactReader $contactReader, private JsonResponses $jsonResponses)
+    public function __construct(private ContactComposition $contactComposition, private JsonResponses $jsonResponses)
     {
     }
 
@@ -33,6 +33,6 @@ final readonly class ShowContactController
     #[OA\Response(response: 404, description: 'The contact is unknown or belongs to another account', content: new Model(type: ProblemResource::class))]
     public function __invoke(string $id, #[CurrentUser] User $user): JsonResponse
     {
-        return $this->jsonResponses->of($this->contactReader->read($user->memberId(), $id));
+        return $this->jsonResponses->of($this->contactComposition->read($user->memberId(), $id));
     }
 }

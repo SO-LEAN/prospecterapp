@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Contacts\Mcp;
 
-use App\Contacts\ContactReader;
+use App\Contacts\ContactComposition;
 use App\Security\ToolAccess;
 use App\Shared\Mcp\Adapts;
 use App\Shared\Mcp\ToolResults;
@@ -17,7 +17,7 @@ use Mcp\Server\Capability\Attribute\McpTool;
 #[Adapts('api_contacts_show')]
 final readonly class ShowContactTool
 {
-    public function __construct(private ToolAccess $access, private ContactReader $contactReader, private ToolResults $results)
+    public function __construct(private ToolAccess $access, private ContactComposition $contactComposition, private ToolResults $results)
     {
     }
 
@@ -31,6 +31,6 @@ final readonly class ShowContactTool
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');
 
-        return $this->results->of($this->contactReader->read($this->access->member()->memberId(), $id));
+        return $this->results->of($this->contactComposition->read($this->access->member()->memberId(), $id));
     }
 }
