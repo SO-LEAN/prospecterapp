@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { StartProspectingForm } from './start-prospecting-form'
@@ -20,7 +20,32 @@ const GROUPE_ACME = '0190a1c0-0000-7000-8000-00000000a000'
 function theSearchFindsGroupeAcme() {
   theApi.mockImplementation(async () =>
     Response.json({
-      items: [{ id: GROUPE_ACME, name: 'Groupe ACME' }],
+      items: [
+        {
+          id: GROUPE_ACME,
+          name: 'Groupe ACME',
+          postalCode: '67210',
+          city: 'Obernai',
+          possibleDuplicates: [],
+        },
+      ],
+      _links: { self: { href: '/api/organizations', method: 'GET' } },
+    }),
+  )
+}
+
+/** Searching the organizations finds the holding "Groupe ACME", with its logo. */
+function theSearchFindsGroupeAcmeWithItsLogo() {
+  theApi.mockImplementation(async () =>
+    Response.json({
+      items: [
+        {
+          id: GROUPE_ACME,
+          name: 'Groupe ACME',
+          logo: { url: '/acme.png', smallUrl: '/acme-96.png', mediumUrl: '/acme-256.png' },
+          possibleDuplicates: [],
+        },
+      ],
       _links: { self: { href: '/api/organizations', method: 'GET' } },
     }),
   )
@@ -40,7 +65,7 @@ function renderForm(onSubmit = vi.fn().mockResolvedValue(undefined)) {
 async function chooseTheHoldingGroupeAcme(user: ReturnType<typeof userEvent.setup>) {
   theSearchFindsGroupeAcme()
   await user.type(screen.getByLabelText(/^Holding/), 'Groupe')
-  await user.click(await screen.findByRole('button', { name: 'Groupe ACME' }))
+  await user.click(await screen.findByRole('button', { name: /^Groupe ACME/ }))
 }
 
 afterEach(() => {
@@ -83,6 +108,44 @@ describe('StartProspectingForm', () => {
     )
   })
 
+  it('invites to search the holding among my organizations', () => {
+    renderForm()
+
+    expect(screen.getByLabelText(/^Holding/)).toHaveAttribute(
+      'placeholder',
+      'Rechercher parmi mes organisations',
+    )
+  })
+
+  it('shows each holding found with its place, to tell homonyms apart', async () => {
+    const { user } = renderForm()
+    theSearchFindsGroupeAcme()
+
+    await user.type(screen.getByLabelText(/^Holding/), 'Groupe')
+
+    expect(await screen.findByRole('button', { name: /^Groupe ACME/ })).toHaveTextContent('67210 Obernai')
+  })
+
+  it('shows each holding found with its logo', async () => {
+    const { user } = renderForm()
+    theSearchFindsGroupeAcmeWithItsLogo()
+
+    await user.type(screen.getByLabelText(/^Holding/), 'Groupe')
+    const found = await screen.findByRole('button', { name: /^Groupe ACME/ })
+
+    expect(within(found).getByRole('presentation', { hidden: true })).toHaveAttribute('src', '/acme-96.png')
+  })
+
+  it('shows the holding chosen with its logo', async () => {
+    const { user } = renderForm()
+    theSearchFindsGroupeAcmeWithItsLogo()
+
+    await user.type(screen.getByLabelText(/^Holding/), 'Groupe')
+    await user.click(await screen.findByRole('button', { name: /^Groupe ACME/ }))
+
+    expect(screen.getByRole('presentation')).toHaveAttribute('src', '/acme-96.png')
+  })
+
   it('searches no holding before a text is typed', async () => {
     renderForm()
 
@@ -98,7 +161,7 @@ describe('StartProspectingForm', () => {
     await user.type(screen.getByLabelText('Raison sociale'), 'ACME Est')
     await chooseTheHoldingGroupeAcme(user)
     expect(screen.getByText('Groupe ACME')).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Groupe ACME' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /^Groupe ACME/ })).not.toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Retirer la holding' }))
     await user.click(screen.getByRole('button', { name: 'Commencer à prospecter' }))
 
