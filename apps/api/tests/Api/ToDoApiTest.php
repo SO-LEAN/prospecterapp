@@ -33,8 +33,7 @@ class ToDoApiTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(201);
         $this->assertResponseHeaderSame('Location', '/api/to-dos/'.self::stringAt($toDo, 'id'));
         $this->assertSame(['Envoyer mon CV', '2026-10-16', '08:30', null, ['firstName' => 'Ada', 'lastName' => 'Lovelace']], [$toDo['text'], $toDo['dueOn'], $toDo['dueAt'], $toDo['doneAt'], self::valueAt($toDo, 'contact', 'name')]);
-        $heldBy = self::recordAt($toDo, 'heldBy');
-        $this->assertNotNull($heldBy['email'] ?? self::valueAt($heldBy, 'name', 'firstName'));
+        $this->assertSame(['name' => ['firstName' => 'Camille', 'lastName' => 'Martin'], 'email' => 'prospector@solean-it.io'], self::recordAt($toDo, 'heldBy'));
         $this->assertSame(['self', 'revise', 'tickOff', 'erase'], array_keys(self::arrayAt($toDo, '_links')));
         $ofTheContact = $this->requestJson('GET', '/api/contacts/'.$ada.'/to-dos');
         $this->assertSame([$toDo], $ofTheContact['toDos']);
