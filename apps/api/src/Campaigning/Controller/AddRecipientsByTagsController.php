@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Campaigning\Controller;
 
-use App\Campaigning\CampaignReader;
+use App\Campaigning\CampaignComposition;
 use App\Campaigning\CampaignVoter;
 use App\Campaigning\Input\RecipientSearchInput;
 use App\Campaigning\Resource\CampaignResource;
@@ -31,7 +31,7 @@ final readonly class AddRecipientsByTagsController
     public function __construct(
         private CommandBus $commandBus,
         private ClockInterface $clock,
-        private CampaignReader $campaignReader,
+        private CampaignComposition $campaigns,
         private JsonResponses $jsonResponses,
     ) {
     }
@@ -50,6 +50,6 @@ final readonly class AddRecipientsByTagsController
     {
         $this->commandBus->dispatch(new AddRecipientsByTags(memberId: $user->memberId(), campaignId: $campaign->id, tags: $input->tags ?? [], executedAt: $this->clock->now()));
 
-        return $this->jsonResponses->of($this->campaignReader->read($user->memberId(), $campaign->id));
+        return $this->jsonResponses->of($this->campaigns->read($user->memberId(), $campaign->id));
     }
 }

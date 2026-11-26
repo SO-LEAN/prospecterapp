@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Campaigning\Mcp;
 
-use App\Campaigning\CampaignReader;
+use App\Campaigning\CampaignComposition;
 use App\Campaigning\CampaignResolver;
 use App\Campaigning\CampaignVoter;
 use App\Security\ToolAccess;
@@ -28,7 +28,7 @@ final readonly class CampaignWrites
         private ToolInputs $inputs,
         private CommandBus $commandBus,
         private ClockInterface $clock,
-        private CampaignReader $campaignReader,
+        private CampaignComposition $campaignComposition,
         private ToolResults $results,
     ) {
     }
@@ -106,6 +106,6 @@ final readonly class CampaignWrites
      */
     private function answered(CampaignSheet $campaign): array
     {
-        return $this->results->of($this->campaignReader->read($this->access->member()->memberId(), $campaign->id));
+        return $this->results->of($this->campaignComposition->read($this->access->member()->memberId(), $campaign->id));
     }
 }

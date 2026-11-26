@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Campaigning\Mcp;
 
-use App\Campaigning\CampaignReader;
+use App\Campaigning\CampaignComposition;
 use App\Security\ToolAccess;
 use App\Security\User;
 use App\Shared\Mcp\Adapts;
@@ -18,7 +18,7 @@ use Mcp\Server\Capability\Attribute\McpTool;
 #[Adapts('api_campaigns_list')]
 final readonly class ListCampaignsTool
 {
-    public function __construct(private ToolAccess $access, private CampaignReader $campaignReader, private ToolResults $results)
+    public function __construct(private ToolAccess $access, private CampaignComposition $campaigns, private ToolResults $results)
     {
     }
 
@@ -31,6 +31,6 @@ final readonly class ListCampaignsTool
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');
         $this->access->denyUnlessGranted(User::PERSONAL_DATA);
 
-        return $this->results->of($this->campaignReader->list($this->access->member()->memberId()));
+        return $this->results->of($this->campaigns->list($this->access->member()->memberId()));
     }
 }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Campaigning\Controller;
 
-use App\Campaigning\CampaignReader;
+use App\Campaigning\CampaignComposition;
 use App\Campaigning\Resource\CampaignListResource;
 use App\Security\User;
 use App\Shared\JsonResponses;
@@ -20,7 +20,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_PROSPECTOR')]
 final readonly class ListCampaignsController
 {
-    public function __construct(private CampaignReader $campaignReader, private JsonResponses $jsonResponses)
+    public function __construct(private CampaignComposition $campaigns, private JsonResponses $jsonResponses)
     {
     }
 
@@ -32,6 +32,6 @@ final readonly class ListCampaignsController
     #[OA\Response(response: 403, description: 'Not a prospector, or no right to manage personal data', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[CurrentUser] User $user): JsonResponse
     {
-        return $this->jsonResponses->of($this->campaignReader->list($user->memberId()));
+        return $this->jsonResponses->of($this->campaigns->list($user->memberId()));
     }
 }
