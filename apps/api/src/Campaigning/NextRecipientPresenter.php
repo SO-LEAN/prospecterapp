@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Campaigning;
 
-use App\Campaigning\Resource\RecipientLinksResource;
+use App\Campaigning\Resource\NextRecipientLinksResource;
 use App\Shared\Links;
 use Prospecter\Core\Campaigns\Application\Recipient\NextRecipient\NextRecipientOutput;
 use Prospecter\Core\Campaigns\Application\Recipient\NextRecipient\RecipientToHandle;
@@ -25,7 +25,7 @@ final class NextRecipientPresenter implements NextRecipientOutput
 
     public private(set) RecipientToHandle $recipient;
 
-    public private(set) RecipientLinksResource $links;
+    public private(set) NextRecipientLinksResource $links;
 
     public private(set) string $instruction;
 
@@ -39,7 +39,7 @@ final class NextRecipientPresenter implements NextRecipientOutput
     {
         $ids = ['id' => $recipient->campaignId, 'contactId' => $recipient->contactId];
         $this->recipient = $recipient;
-        $this->links = new RecipientLinksResource(
+        $this->links = new NextRecipientLinksResource(
             noteExchange: $this->routes->to('api_campaigns_note_exchange', $ids),
             dismiss: $this->routes->to('api_campaigns_dismiss_recipient', $ids),
         );

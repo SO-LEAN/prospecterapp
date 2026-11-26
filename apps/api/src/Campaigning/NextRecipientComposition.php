@@ -7,6 +7,7 @@ namespace App\Campaigning;
 use App\Campaigning\Resource\CampaignMessageResource;
 use App\Campaigning\Resource\DailyCapResource;
 use App\Campaigning\Resource\NextRecipientResource;
+use App\Campaigning\Resource\RecipientLinksResource;
 use App\Contacts\ContactsInList;
 use App\Shared\Links;
 use Prospecter\Core\Campaigns\Application\Recipient\NextRecipient\NextRecipient;
@@ -49,7 +50,7 @@ final readonly class NextRecipientComposition
             pending: $next->pending,
             dailyCap: null === $next->dailyCap ? null : new DailyCapResource($next->dailyCap, $next->processedToday, $next->dailyCapReached),
             warning: $presenter->warning,
-            links: $presenter->links,
+            links: new RecipientLinksResource(noteExchange: $presenter->links->noteExchange, dismiss: $presenter->links->dismiss),
         );
     }
 }

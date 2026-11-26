@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\App\Architecture;
 
+use App\Campaigning\Resource\NextRecipientLinksResource;
+use App\Campaigning\Resource\RecipientLinksResource;
 use App\Contacts\Resource\ContactLinksResource;
 use App\Contacts\Resource\ContactMailLinksResource;
 use App\Contacts\Resource\ContactProfileLinksResource;
@@ -27,6 +29,7 @@ final class PiecesOffersMatchTheirContractsTest extends TestCase
      * Each piece's links resource, with the contract's links resource the composition copies it into.
      */
     private const array PIECES = [
+        NextRecipientLinksResource::class => RecipientLinksResource::class,
         ContactProfileLinksResource::class => ContactLinksResource::class,
         ContactMailLinksResource::class => ContactLinksResource::class,
         MyProfileLinksResource::class => AccountLinksResource::class,
