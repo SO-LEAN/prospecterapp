@@ -101,7 +101,7 @@ final readonly class ToDoWrites
      */
     private function writable(string $id): ToDoInList
     {
-        $toDo = $this->toDos->read($id);
+        $toDo = $this->toDos->read($this->access->member()->memberId(), $id);
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');
         $this->access->denyUnlessGranted(ToDoVoter::ACCESS, $toDo);
         $this->access->denyUnlessGranted(User::PERSONAL_DATA);
