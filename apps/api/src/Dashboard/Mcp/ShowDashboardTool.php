@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Dashboard\Mcp;
 
-use App\Dashboard\DashboardReader;
+use App\Dashboard\DashboardComposition;
 use App\Security\ToolAccess;
 use App\Shared\Mcp\Adapts;
 use App\Shared\Mcp\ToolResults;
@@ -17,7 +17,7 @@ use Mcp\Server\Capability\Attribute\McpTool;
 #[Adapts('api_dashboard')]
 final readonly class ShowDashboardTool
 {
-    public function __construct(private ToolAccess $access, private DashboardReader $dashboardReader, private ToolResults $results)
+    public function __construct(private ToolAccess $access, private DashboardComposition $dashboard, private ToolResults $results)
     {
     }
 
@@ -29,6 +29,6 @@ final readonly class ShowDashboardTool
     {
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');
 
-        return $this->results->of($this->dashboardReader->read($this->access->member()->memberId()));
+        return $this->results->of($this->dashboard->read($this->access->member()->memberId()));
     }
 }
