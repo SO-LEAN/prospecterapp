@@ -40,6 +40,9 @@ final class ContactToAttachContext implements Context
 {
     use SharesTheScenario;
 
+    /** The identity of the contact last looked at to attach. */
+    private string $asked = '';
+
     private string $lastMet = '';
     private ?ProposedOrganization $proposed = null;
 
@@ -95,7 +98,14 @@ final class ContactToAttachContext implements Context
     #[When('je regarde à quelle organisation rattacher :contact')]
     public function iLookWhereToAttachTheContact(string $contact): void
     {
-        $this->proposed = $this->application->proposeOrganizationToAttach(new ProposeOrganizationToAttach($this->application->signedIn(), $this->scenario->personIdOf($contact)));
+        $this->asked = $this->scenario->personIdOf($contact);
+        $this->proposed = $this->application->proposeOrganizationToAttach(new ProposeOrganizationToAttach($this->application->signedIn(), $this->asked));
+    }
+
+    #[Then('le refus nomme le contact regardé')]
+    public function theRefusalNamesTheContactLookedAt(): void
+    {
+        Expect::same(sprintf('Contact %s not found', $this->asked), $this->application->refusal()?->getMessage());
     }
 
     #[Then(':organization est proposée')]

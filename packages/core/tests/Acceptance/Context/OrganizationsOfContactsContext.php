@@ -30,6 +30,7 @@ final class OrganizationsOfContactsContext implements Context
     private array $organizations = [];
 
     private ?OrganizationContacts $contactsOfTheOrganization = null;
+    private string $askedOrganization = '';
 
     #[When('je consulte les contacts de :name')]
     public function iConsultTheContactsOf(string $name): void
@@ -40,7 +41,14 @@ final class OrganizationsOfContactsContext implements Context
     #[When('je consulte les contacts d\'une organisation inconnue')]
     public function iConsultTheContactsOfAnUnknownOrganization(): void
     {
-        $this->contactsOfTheOrganization = $this->application->listOrganizationContacts(new ListOrganizationContacts($this->application->signedIn(), $this->application->newIdentity()));
+        $this->askedOrganization = $this->application->newIdentity();
+        $this->contactsOfTheOrganization = $this->application->listOrganizationContacts(new ListOrganizationContacts($this->application->signedIn(), $this->askedOrganization));
+    }
+
+    #[Then('le refus nomme l\'organisation demandée')]
+    public function theRefusalNamesTheOrganizationAsked(): void
+    {
+        Expect::same(sprintf('Organization %s not found', $this->askedOrganization), $this->application->refusal()?->getMessage());
     }
 
     #[Then('ses contacts sont :')]

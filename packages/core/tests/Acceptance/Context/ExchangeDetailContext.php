@@ -159,6 +159,7 @@ final class ExchangeDetailContext implements Context
             'interlocuteur' => null === $exchange->personId ? (string) $participants->organization?->fullName : self::named($participants->persons->contacts[$exchange->personId] ?? null),
             'noté par' => self::named($participants->persons->members[$exchange->createdBy] ?? null),
             'modifié par' => null === $exchange->correctedBy ? '' : self::named($participants->persons->members[$exchange->correctedBy] ?? null),
+            'rendu conforme par' => null === $exchange->madeConformBy ? '' : self::named($participants->persons->members[$exchange->madeConformBy] ?? null),
         ];
         $expected = Vocabulary::rows($table);
 
