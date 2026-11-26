@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Contacts;
 
 use App\Contacts\Resource\OrganizationOfContactResource;
-use App\Contacts\Resource\OrganizationsOfContactResource;
 use App\Shared\Links;
 use Prospecter\Core\Prospecting\Application\Contact\ConsultOrganizationsOfContacts\ConsultOrganizationsOfContacts;
 use Prospecter\Core\Prospecting\Application\Contact\ConsultOrganizationsOfContacts\KeptOrganizationsOfContacts;
@@ -34,14 +33,6 @@ final readonly class OrganizationsOfContacts
         $this->consultOrganizationsOfContacts->__invoke(new ConsultOrganizationsOfContacts($reader, $contactIds), $kept);
 
         return array_map(fn (array $organizations): array => array_map($this->resourceOf(...), $organizations), $kept->organizations);
-    }
-
-    /**
-     * Gives one contact's organizations. A contact the reader does not reach has none.
-     */
-    public function ofOne(string $reader, string $contactId): OrganizationsOfContactResource
-    {
-        return new OrganizationsOfContactResource($this->read($reader, [$contactId])[$contactId] ?? []);
     }
 
     private function resourceOf(OrganizationOfContact $organization): OrganizationOfContactResource
