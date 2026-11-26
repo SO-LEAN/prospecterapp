@@ -207,6 +207,9 @@ use Prospecter\Core\PersonalData\Application\Identification\IdentifyBooker\Ident
 use Prospecter\Core\PersonalData\Application\Identification\IdentifyPersons\IdentifyPersons;
 use Prospecter\Core\PersonalData\Application\Identification\IdentifyPersons\IdentifyPersonsHandler;
 use Prospecter\Core\PersonalData\Application\Identification\IdentifyPersons\KeptIdentifications as KeptPersonIdentifications;
+use Prospecter\Core\PersonalData\Application\Identification\IdentifyPersonsAndOrganizations\IdentifyPersonsAndOrganizations;
+use Prospecter\Core\PersonalData\Application\Identification\IdentifyPersonsAndOrganizations\IdentifyPersonsAndOrganizationsHandler;
+use Prospecter\Core\PersonalData\Application\Identification\IdentifyPersonsAndOrganizations\KeptPersonsAndOrganizations;
 use Prospecter\Core\PersonalData\Application\Identification\PersonIdentifier;
 use Prospecter\Core\PersonalData\Application\Identification\PublishBookerIdentified\PublishBookerIdentifiedHandler;
 use Prospecter\Core\PersonalData\Application\Identification\RecognizeCallingContact\KeptCallingContacts;
@@ -605,6 +608,7 @@ use Tests\Core\Double\ProspectingCampaignExchanges;
 use Tests\Core\Double\ProspectingFactsFromProspecting;
 use Tests\Core\Double\ProspectingHeldExchanges;
 use Tests\Core\Double\ProspectingHostAgendas;
+use Tests\Core\Double\ProspectingOrganizationIdentifications;
 use Tests\Core\Double\ProspectingOrganizations;
 use Tests\Core\Double\ProspectingOrganizationsAndTheirContacts;
 use Tests\Core\Double\ProspectingOrganizationsOfContacts;
@@ -1245,6 +1249,13 @@ final class Application
         $kept = new KeptPersonIdentifications();
 
         return $this->ask(new IdentifyPersonsHandler($this->personIdentifier, $this->readers), $query, $kept) ? $kept->identifications : null;
+    }
+
+    public function identifyPersonsAndOrganizations(IdentifyPersonsAndOrganizations $query): ?KeptPersonsAndOrganizations
+    {
+        $kept = new KeptPersonsAndOrganizations();
+
+        return $this->ask(new IdentifyPersonsAndOrganizationsHandler(new ProspectingOrganizationIdentifications(new IdentifyOrganizationsHandler($this->designatedOrganizationRetriever, $this->foundOrganizationRetriever, $this->prospectors)), $this->personIdentifier, $this->readers), $query, $kept) ? $kept : null;
     }
 
     /**
