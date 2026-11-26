@@ -107,6 +107,7 @@ services:
     Prospecter\Core\Campaigns\Application\Campaign\CampaignTargets: ~
     Prospecter\Core\Prospecting\Application\Timeline\CampaignsOfTimeline: ~
     Prospecter\Core\Prospecting\Application\ToDo\PersonsOfToDos: ~
+    Prospecter\Core\Prospecting\Application\Agenda\AgendaInterlocutors: ~
     Prospecter\Core\Booking\Application\BookingPage\BookingPages: ~
     Prospecter\Core\Booking\Domain\Service\BusyPeriods: ~
     Prospecter\Core\Booking\Domain\Service\LinkAvailability: ~

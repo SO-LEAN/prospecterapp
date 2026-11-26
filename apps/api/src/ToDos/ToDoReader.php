@@ -14,8 +14,6 @@ use Prospecter\Core\Prospecting\Application\ToDo\ConsultMyToDos\ConsultMyToDos;
 use Prospecter\Core\Prospecting\Application\ToDo\ConsultOrganizationToDos\ConsultOrganizationToDos;
 use Prospecter\Core\Prospecting\Application\ToDo\ConsultToDo\ConsultToDo;
 use Prospecter\Core\Prospecting\Application\ToDo\ConsultToDos\ConsultToDos;
-use Prospecter\Core\Prospecting\Application\ToDo\PersonsOfToDos;
-use Prospecter\Core\Prospecting\Application\ToDoInList;
 use Prospecter\Core\SharedKernel\Application\Handler\QueryHandler;
 
 /**
@@ -30,7 +28,6 @@ final readonly class ToDoReader
         private QueryHandler $consultToDos,
         private QueryHandler $consultOrganizationToDos,
         private QueryHandler $consultMyToDos,
-        private PersonsOfToDos $personsOfToDos,
         private ToDoResourceFactory $factory,
         private Links $links,
         private IntentLinks $intentLinks,
@@ -78,19 +75,5 @@ final readonly class ToDoReader
             $this->links->to($route, $id),
             $this->intentLinks->holds(User::PERSONAL_DATA) ? $this->links->to($noteRoute, $id) : null,
         );
-    }
-
-    /**
-     * The to-dos an agenda shows, until the agenda's queries name them themselves.
-     *
-     * @param list<ToDoInList> $toDos
-     *
-     * @return list<ToDoResource>
-     */
-    public function resourcesOf(string $reader, array $toDos): array
-    {
-        $persons = $this->personsOfToDos->shownTo($reader, $toDos);
-
-        return array_map(fn (ToDoInList $toDo): ToDoResource => $this->factory->of($toDo, $persons), $toDos);
     }
 }

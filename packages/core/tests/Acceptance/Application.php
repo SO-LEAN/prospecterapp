@@ -251,6 +251,7 @@ use Prospecter\Core\PersonalData\Contract\Service\WhichEmailsHaveTheseContacts\W
 use Prospecter\Core\PersonalData\Domain\Service\DuplicateSuspicion as ContactDuplicateSuspicion;
 use Prospecter\Core\PersonalData\Domain\Service\EmailUniqueness as PersonalDataEmailUniqueness;
 use Prospecter\Core\PersonalData\Domain\Service\ReferenceUniqueness as PersonReferenceUniqueness;
+use Prospecter\Core\Prospecting\Application\Agenda\AgendaInterlocutors;
 use Prospecter\Core\Prospecting\Application\Agenda\ConsultCalendar\Calendar;
 use Prospecter\Core\Prospecting\Application\Agenda\ConsultCalendar\ConsultCalendar;
 use Prospecter\Core\Prospecting\Application\Agenda\ConsultCalendar\ConsultCalendarHandler;
@@ -688,6 +689,7 @@ final class Application
     private readonly DescribePersonsHandler $describePersonsService;
     private readonly AccountsAndPersonalDataPersonDescriptions $personDescriptions;
     private readonly PersonsOfToDos $personsOfToDos;
+    private readonly AgendaInterlocutors $agendaInterlocutors;
     private readonly PresentMembersHandler $presentMembersService;
     private readonly ProspectingHeldExchanges $heldExchanges;
     private readonly InMemoryCalendarEntryRepository $calendarEntries;
@@ -816,6 +818,7 @@ final class Application
         $this->describePersonsService = new DescribePersonsHandler($this->personCardRetriever, $this->readers);
         $this->personDescriptions = new AccountsAndPersonalDataPersonDescriptions($this->consultMembersService, $this->describePersonsService);
         $this->personsOfToDos = new PersonsOfToDos($this->personDescriptions);
+        $this->agendaInterlocutors = new AgendaInterlocutors($this->personDescriptions, $this->organizationSheetRetriever, new InMemoryOrganizationOfContactRetriever($database));
         $this->presentMembersService = new PresentMembersHandler(new InMemoryMemberPresentationRetriever($database));
         $this->connectingMembers = new AccountsAndPersonalDataMembers($this->consultMembersService, $this->presentMembersService);
         $this->heldExchanges = new ProspectingHeldExchanges($this->consultHeldExchangesService, $this->consultPlannedExchangesService);
@@ -1316,28 +1319,28 @@ final class Application
     {
         $kept = new KeptOverlappingExchanges();
 
-        return $this->ask(new ConsultOverlappingExchangesHandler($this->agendaRetriever, $this->prospectors), $query, $kept) ? $kept->overlapping : null;
+        return $this->ask(new ConsultOverlappingExchangesHandler($this->agendaRetriever, $this->prospectors, $this->agendaInterlocutors), $query, $kept) ? $kept->overlapping : null;
     }
 
     public function consultCalendar(ConsultCalendar $query): ?Calendar
     {
         $kept = new KeptCalendar();
 
-        return $this->ask(new ConsultCalendarHandler($this->calendarRetriever, $this->toDoListRetriever, $this->prospectors), $query, $kept) ? $kept->calendar : null;
+        return $this->ask(new ConsultCalendarHandler($this->calendarRetriever, $this->toDoListRetriever, $this->prospectors, $this->agendaInterlocutors), $query, $kept) ? $kept->calendar : null;
     }
 
     public function consultMyDay(ConsultMyDay $query): ?MyDay
     {
         $kept = new KeptMyDay();
 
-        return $this->ask(new ConsultMyDayHandler($this->agendaRetriever, $this->prospectors), $query, $kept) ? $kept->myDay : null;
+        return $this->ask(new ConsultMyDayHandler($this->agendaRetriever, $this->prospectors, $this->agendaInterlocutors), $query, $kept) ? $kept->myDay : null;
     }
 
     public function consultWhatIsToProcess(ConsultWhatIsToProcess $query): ?WhatIsToProcess
     {
         $kept = new KeptWhatIsToProcess();
 
-        return $this->ask(new ConsultWhatIsToProcessHandler($this->agendaRetriever, $this->toDoListRetriever, $this->prospectors, $this->contactsToAttachRetriever), $query, $kept) ? $kept->toProcess : null;
+        return $this->ask(new ConsultWhatIsToProcessHandler($this->agendaRetriever, $this->toDoListRetriever, $this->prospectors, $this->contactsToAttachRetriever, $this->agendaInterlocutors), $query, $kept) ? $kept->toProcess : null;
     }
 
     /**
