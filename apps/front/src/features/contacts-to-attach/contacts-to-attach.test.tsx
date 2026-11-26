@@ -111,13 +111,30 @@ describe('the contacts to attach to process', () => {
       `/contacts/${ADA}`,
     )
     expect(within(line).getByText('ada@acme.fr')).toBeInTheDocument()
-    expect(within(line).getByText('Effacé dans 7 jours')).toHaveAttribute('data-urgency', 'soon')
+    expect(within(line).getByTitle('Effacé dans 7 jours')).toHaveAttribute('data-urgency', 'soon')
+  })
+
+  it('shows the days left in short, and says them in full to a screen reader', async () => {
+    await show(<ContactsToAttachSection contacts={[ada(new Date(2026, 10, 25))]} />)
+
+    const days = screen.getByTitle('Effacé dans 7 jours')
+    expect(within(days).getByText('7 jours')).toHaveAttribute('aria-hidden', 'true')
+    expect(within(days).getByText('Effacé dans 7 jours')).toHaveClass('sr-only')
+  })
+
+  it('opens each line on the figure of a person, in a round tile', async () => {
+    await show(<ContactsToAttachSection contacts={[ada(new Date(2026, 10, 25))]} />)
+
+    const tile = screen.getByRole('listitem').firstElementChild
+    expect(tile).toHaveClass('rounded-full', 'shrink-0')
+    expect(tile).toHaveAttribute('aria-hidden', 'true')
+    expect(tile?.querySelector('svg')).toHaveClass('lucide-user-round')
   })
 
   it('says the day before in red', async () => {
     await show(<ContactsToAttachSection contacts={[ada(new Date(2026, 10, 19))]} />)
 
-    expect(screen.getByText('Effacé dans 1 jour')).toHaveAttribute('data-urgency', 'imminent')
+    expect(screen.getByTitle('Effacé dans 1 jour')).toHaveAttribute('data-urgency', 'imminent')
   })
 
   describe('on a phone, its layout set by its classes that jsdom does not compute', () => {
@@ -127,10 +144,27 @@ describe('the contacts to attach to process', () => {
       expect(screen.getByText('20 nov. 2026, 14:00')).toHaveClass('whitespace-nowrap')
     })
 
-    it('gives the name and the date the whole width, the days and the attachment wrapping below them', async () => {
+    it('keeps the name and the date beside the attachment, in the room the line leaves them', async () => {
       await show(<ContactsToAttachSection contacts={[ada(new Date(2026, 11, 20))]} />)
 
-      expect(screen.getByText('20 nov. 2026, 14:00').parentElement).toHaveClass('basis-full', 'sm:basis-0')
+      expect(screen.getByRole('listitem')).not.toHaveClass('flex-wrap')
+      expect(screen.getByText('20 nov. 2026, 14:00').parentElement).toHaveClass('min-w-0', 'flex-1')
+    })
+
+    it('stacks the days left above the attachment, side by side on a wider screen', async () => {
+      await show(<ContactsToAttachSection contacts={[ada(new Date(2026, 11, 20))]} />)
+
+      const days = screen.getByTitle('Effacé dans 32 jours')
+      expect(days.parentElement).toHaveClass('flex-col', 'items-end', 'sm:flex-row', 'sm:items-center')
+      expect(days.parentElement).toContainElement(screen.getByRole('button', { name: 'Rattacher' }))
+    })
+
+    it('leaves the icon of the attachment out, to keep room for the date', async () => {
+      await show(<ContactsToAttachSection contacts={[ada(new Date(2026, 11, 20))]} />)
+
+      expect(screen.getByRole('button', { name: 'Rattacher' }).querySelector('svg')).toHaveClass(
+        'max-sm:hidden',
+      )
     })
 
     it('offers to attach on a target of 44 pixels', async () => {
@@ -138,6 +172,12 @@ describe('the contacts to attach to process', () => {
 
       expect(screen.getByRole('button', { name: 'Rattacher' })).toHaveClass('h-11', 'sm:h-8')
     })
+  })
+
+  it('offers to attach as a secondary action', async () => {
+    await show(<ContactsToAttachSection contacts={[ada(new Date(2026, 11, 20))]} />)
+
+    expect(screen.getByRole('button', { name: 'Rattacher' })).toHaveAttribute('data-variant', 'outline')
   })
 
   it('attaches the contact to the organization proposed by the domain of their email', async () => {

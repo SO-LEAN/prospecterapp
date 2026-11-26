@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { Link2 } from 'lucide-react'
+import { Link2, UserRound } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { formatMoment } from '@/shared/lib/format'
@@ -19,6 +19,7 @@ const URGENCY_LOOKS: Record<Urgency, string> = {
  * The contacts who wait for me to attach them, among what I have to process. The first to be erased comes first.
  * Each shows its name, its email, its last meeting and the days left before its erasure. The days turn orange a
  * week before and red the day before. With the right to manage personal data, I attach them from here (ADR 0146).
+ * On a phone, the days sit above the attachment, so that the name and the date keep a line each.
  */
 export function ContactsToAttachSection({ contacts }: { contacts: ContactToAttach[] }) {
   const { t } = useTranslation()
@@ -50,8 +51,14 @@ function ContactToAttachLine({ contact, onAttach }: { contact: ContactToAttach; 
   const urgency = urgencyOf(days)
 
   return (
-    <li className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border p-3">
-      <div className="min-w-0 grow basis-full sm:basis-0">
+    <li className="flex items-center gap-3 rounded-lg border p-3">
+      <span
+        aria-hidden
+        className="flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground"
+      >
+        <UserRound className="size-4" />
+      </span>
+      <div className="min-w-0 flex-1">
         <Link
           to="/contacts/$contactId"
           params={{ contactId: contact.id }}
@@ -64,17 +71,21 @@ function ContactToAttachLine({ contact, onAttach }: { contact: ContactToAttach; 
           {formatMoment(contact.lastMeetingAt)}
         </p>
       </div>
-      <span
-        data-urgency={urgency}
-        className={cn('rounded-md px-1.5 py-0.5 font-medium text-xs', URGENCY_LOOKS[urgency])}
-      >
-        {t('toAttach.erasedIn', { count: days })}
-      </span>
-      {contact._links.proposedOrganization && (
-        <Button size="sm" className="h-11 sm:h-8" onClick={onAttach}>
-          <Link2 aria-hidden /> {t('toAttach.attach')}
-        </Button>
-      )}
+      <div className="flex shrink-0 flex-col items-end gap-1 sm:flex-row sm:items-center sm:gap-3">
+        <span
+          data-urgency={urgency}
+          title={t('toAttach.erasedIn', { count: days })}
+          className={cn('rounded-md px-1.5 py-0.5 font-medium text-xs', URGENCY_LOOKS[urgency])}
+        >
+          <span aria-hidden>{t('toAttach.daysLeft', { count: days })}</span>
+          <span className="sr-only">{t('toAttach.erasedIn', { count: days })}</span>
+        </span>
+        {contact._links.proposedOrganization && (
+          <Button variant="outline" size="sm" className="h-11 sm:h-8" onClick={onAttach}>
+            <Link2 aria-hidden className="max-sm:hidden" /> {t('toAttach.attach')}
+          </Button>
+        )}
+      </div>
     </li>
   )
 }
