@@ -10,7 +10,8 @@ use Prospecter\Core\SharedKernel\Domain\Identity\MemberId;
 
 /**
  * Reads the persons a view shows, as PersonalData lets the reader read them (ADR 0217). Accounts tells each member's
- * person. PersonalData describes them all in one call, and decides what the reader reads in clear.
+ * person. PersonalData describes them all in one call, and decides what the reader reads in clear. A person or a member
+ * may be asked about more than once.
  */
 interface PersonDescriptionRetriever
 {

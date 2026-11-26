@@ -39,12 +39,12 @@ final readonly class AgendaInterlocutors
     public function of(Prospector $reader, array $exchanges, array $toDos = [], array $contactsToAttach = []): Interlocutors
     {
         $contactsOfExchanges = self::contactsOf($exchanges);
-        $persons = array_values(array_unique([
+        $persons = [
             ...$contactsOfExchanges,
             ...array_filter(array_map(static fn (ToDoInList $toDo): ?string => $toDo->personId, $toDos)),
             ...array_map(static fn (ContactToAttachInList $contact): string => $contact->personId, $contactsToAttach),
-        ]));
-        $holders = array_values(array_unique(array_map(static fn (ToDoInList $toDo): string => $toDo->heldBy, $toDos)));
+        ];
+        $holders = array_map(static fn (ToDoInList $toDo): string => $toDo->heldBy, $toDos);
 
         return new Interlocutors(
             $this->personDescriptionRetriever->shownTo($reader->id, self::contactIds($persons), array_map(static fn (string $holder): MemberId => new MemberId($holder), $holders)),
@@ -56,11 +56,11 @@ final readonly class AgendaInterlocutors
     /**
      * @param list<ExchangeInTimeline> $exchanges
      *
-     * @return list<string> the persons the exchanges are with, once each
+     * @return list<string> the persons the exchanges are with
      */
     private static function contactsOf(array $exchanges): array
     {
-        return array_values(array_unique(array_filter(array_map(static fn (ExchangeInTimeline $exchange): ?string => $exchange->personId, $exchanges))));
+        return array_values(array_filter(array_map(static fn (ExchangeInTimeline $exchange): ?string => $exchange->personId, $exchanges)));
     }
 
     /**
@@ -81,7 +81,7 @@ final readonly class AgendaInterlocutors
     private function organizationsMetAlone(array $exchanges): array
     {
         $alone = array_filter($exchanges, static fn (ExchangeInTimeline $exchange): bool => null === $exchange->personId);
-        $ids = array_values(array_unique(array_map(static fn (ExchangeInTimeline $exchange): string => $exchange->organizationIds[0], $alone)));
+        $ids = array_map(static fn (ExchangeInTimeline $exchange): string => $exchange->organizationIds[0], $alone);
 
         return array_filter(array_combine($ids, array_map($this->organization(...), $ids)));
     }
