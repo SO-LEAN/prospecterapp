@@ -6,7 +6,7 @@ namespace App\Campaigning\Mcp;
 
 use App\Campaigning\CampaignResolver;
 use App\Campaigning\CampaignVoter;
-use App\Campaigning\RecipientsReader;
+use App\Campaigning\RecipientsComposition;
 use App\Security\ToolAccess;
 use App\Security\User;
 use App\Shared\Mcp\Adapts;
@@ -23,7 +23,7 @@ final readonly class ShowCampaignRecipientsTool
     public function __construct(
         private ToolAccess $access,
         private CampaignResolver $campaigns,
-        private RecipientsReader $recipientsReader,
+        private RecipientsComposition $recipients,
         private ToolResults $results,
     ) {
     }
@@ -42,6 +42,6 @@ final readonly class ShowCampaignRecipientsTool
         $this->access->denyUnlessGranted(CampaignVoter::ACCESS, $campaign);
         $this->access->denyUnlessGranted(User::PERSONAL_DATA);
 
-        return $this->results->of($this->recipientsReader->read($member->memberId(), $campaign));
+        return $this->results->of($this->recipients->read($member->memberId(), $campaign->id));
     }
 }
