@@ -2844,21 +2844,6 @@
             "readBy": []
         },
         {
-            "id": "readModel:Prospecter\\Core\\Prospecting\\Application\\Identification\\IdentifyOrganizations\\IdentifyOrganizations",
-            "slug": "readModel:IdentifyOrganizations",
-            "type": "readModel",
-            "label": "Identify organizations",
-            "feature": "Identifier des organisations",
-            "name": "IdentifyOrganizations",
-            "class": "Prospecter\\Core\\Prospecting\\Application\\Identification\\IdentifyOrganizations\\IdentifyOrganizations",
-            "context": "Prospecting",
-            "module": "Identification",
-            "detail": null,
-            "answeredBy": [],
-            "answers": [],
-            "readBy": []
-        },
-        {
             "id": "readModel:Prospecter\\Core\\Prospecting\\Application\\Identification\\RecognizeCallingOrganization\\RecognizeCallingOrganization",
             "slug": "readModel:RecognizeCallingOrganization",
             "type": "readModel",
@@ -3127,6 +3112,27 @@
                     "context": "Connectors",
                     "slug": "externalSystem:HeldExchanges",
                     "label": "Held exchanges"
+                }
+            ]
+        },
+        {
+            "id": "readModel:Prospecter\\Core\\Prospecting\\Contract\\Service\\IdentifyOrganizations\\IdentifyOrganizations",
+            "slug": "readModel:IdentifyOrganizations",
+            "type": "readModel",
+            "label": "Identify organizations",
+            "feature": "Identifier des organisations",
+            "name": "IdentifyOrganizations",
+            "class": "Prospecter\\Core\\Prospecting\\Contract\\Service\\IdentifyOrganizations\\IdentifyOrganizations",
+            "context": "Prospecting",
+            "module": "Identification",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": [
+                {
+                    "context": null,
+                    "slug": null,
+                    "label": "ProspectingOrganizationIdentifications"
                 }
             ]
         },
@@ -4054,13 +4060,6 @@
         },
         {
             "from": "actor:mcp",
-            "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Identification\\IdentifyOrganizations\\IdentifyOrganizations",
-            "via": null,
-            "certain": true,
-            "when": null
-        },
-        {
-            "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\Identification\\RecognizeCallingOrganization\\RecognizeCallingOrganization",
             "via": null,
             "certain": true,
@@ -4160,6 +4159,13 @@
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultToDos\\ConsultToDos",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:mcp",
+            "to": "readModel:Prospecter\\Core\\Prospecting\\Contract\\Service\\IdentifyOrganizations\\IdentifyOrganizations",
             "via": null,
             "certain": true,
             "when": null
@@ -5985,13 +5991,6 @@
             "when": null
         },
         {
-            "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Identification\\IdentifyOrganizations\\IdentifyOrganizations",
-            "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\Prospectors",
-            "via": null,
-            "certain": true,
-            "when": null
-        },
-        {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\Identification\\RecognizeCallingOrganization\\RecognizeCallingOrganization",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\Prospectors",
             "via": null,
@@ -6595,6 +6594,13 @@
         },
         {
             "from": "readModel:Prospecter\\Core\\Prospecting\\Application\\ToDo\\ConsultToDos\\ConsultToDos",
+            "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\Prospectors",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Prospecting\\Contract\\Service\\IdentifyOrganizations\\IdentifyOrganizations",
             "to": "externalSystem:Prospecter\\Core\\Prospecting\\Domain\\Port\\Prospectors",
             "via": null,
             "certain": true,

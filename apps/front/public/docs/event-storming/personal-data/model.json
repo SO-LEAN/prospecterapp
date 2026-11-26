@@ -1122,6 +1122,21 @@
             "readBy": []
         },
         {
+            "id": "readModel:Prospecter\\Core\\PersonalData\\Application\\Identification\\IdentifyPersonsAndOrganizations\\IdentifyPersonsAndOrganizations",
+            "slug": "readModel:IdentifyPersonsAndOrganizations",
+            "type": "readModel",
+            "label": "Identify persons and organizations",
+            "feature": "Identifier ensemble des personnes et les organisations où elles travaillent",
+            "name": "IdentifyPersonsAndOrganizations",
+            "class": "Prospecter\\Core\\PersonalData\\Application\\Identification\\IdentifyPersonsAndOrganizations\\IdentifyPersonsAndOrganizations",
+            "context": "PersonalData",
+            "module": "Identification",
+            "detail": null,
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
             "id": "readModel:Prospecter\\Core\\PersonalData\\Application\\Identification\\IdentifyPersons\\IdentifyPersons",
             "slug": "readModel:IdentifyPersons",
             "type": "readModel",
@@ -1526,6 +1541,13 @@
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\PersonalData\\Application\\Contact\\SearchContacts\\SearchContacts",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:mcp",
+            "to": "readModel:Prospecter\\Core\\PersonalData\\Application\\Identification\\IdentifyPersonsAndOrganizations\\IdentifyPersonsAndOrganizations",
             "via": null,
             "certain": true,
             "when": null
@@ -2169,6 +2191,27 @@
         },
         {
             "from": "readModel:Prospecter\\Core\\PersonalData\\Application\\Contact\\SearchContacts\\SearchContacts",
+            "to": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\CollectContact\\CollectContact",
+            "via": "collect",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\PersonalData\\Application\\Contact\\SearchContacts\\SearchContacts",
+            "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\PersonalData\\Application\\Identification\\IdentifyPersonsAndOrganizations\\IdentifyPersonsAndOrganizations",
+            "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\OrganizationsOfContacts",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\PersonalData\\Application\\Identification\\IdentifyPersonsAndOrganizations\\IdentifyPersonsAndOrganizations",
             "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
             "via": null,
             "certain": true,

@@ -42,10 +42,10 @@ class BoundedContextsTest extends TestCase
      * The folders of the API that are not a context, with their reason.
      */
     private const array NOT_A_CONTEXT = [
-        'Campaigning' => 'composes Campaigns with Accounts and PersonalData, which name the campaigns\' authors',
+        'Campaigning' => 'composes Campaigns with Accounts and PersonalData, which name the campaigns\' authors, and with the contexts that show their recipients',
         'Consistency' => 'checks the tables of every context against each other',
         'Contacts' => 'composes PersonalData\'s contacts with Prospecting, Campaigns and Connectors',
-        'Dashboard' => 'composes Prospecting and Reporting',
+        'Dashboard' => 'composes Accounts, Prospecting and Reporting',
         'Demo' => 'writes the demonstration data of every context',
         'Doc' => 'serves the API\'s documentation',
         'Exchanges' => 'shows Prospecting\'s exchanges. Accounts and PersonalData name the member who erased one',

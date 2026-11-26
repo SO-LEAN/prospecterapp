@@ -985,6 +985,21 @@
             "readBy": []
         },
         {
+            "id": "readModel:Prospecter\\Core\\Campaigns\\Application\\Recipient\\ListCampaignRecipients\\ListCampaignRecipients",
+            "slug": "readModel:ListCampaignRecipients",
+            "type": "readModel",
+            "label": "Campaign recipients",
+            "feature": "Consulter les destinataires d'une campagne",
+            "name": "ListCampaignRecipients",
+            "class": "Prospecter\\Core\\Campaigns\\Application\\Recipient\\ListCampaignRecipients\\ListCampaignRecipients",
+            "context": "Campaigns",
+            "module": "Recipient",
+            "detail": "CampaignRecipients",
+            "answeredBy": [],
+            "answers": [],
+            "readBy": []
+        },
+        {
             "id": "readModel:Prospecter\\Core\\Campaigns\\Application\\Recipient\\NextRecipient\\NextRecipient",
             "slug": "readModel:NextRecipient",
             "type": "readModel",
@@ -1217,6 +1232,13 @@
         },
         {
             "from": "actor:ROLE_PROSPECTOR",
+            "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Recipient\\ListCampaignRecipients\\ListCampaignRecipients",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:ROLE_PROSPECTOR",
             "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultContactTags\\ConsultContactTags",
             "via": null,
             "certain": true,
@@ -1351,6 +1373,13 @@
         {
             "from": "actor:mcp",
             "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Campaign\\RenderCampaignMessage\\RenderCampaignMessage",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "actor:mcp",
+            "to": "readModel:Prospecter\\Core\\Campaigns\\Application\\Recipient\\ListCampaignRecipients\\ListCampaignRecipients",
             "via": null,
             "certain": true,
             "when": null
@@ -2112,6 +2141,48 @@
             "when": null
         },
         {
+            "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Recipient\\ListCampaignRecipients\\ListCampaignRecipients",
+            "to": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\DismissRecipient\\DismissRecipient",
+            "via": "dismiss",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Recipient\\ListCampaignRecipients\\ListCampaignRecipients",
+            "to": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\RemoveRecipient\\RemoveRecipient",
+            "via": "remove",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Recipient\\ListCampaignRecipients\\ListCampaignRecipients",
+            "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\Campaigners",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Recipient\\ListCampaignRecipients\\ListCampaignRecipients",
+            "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\TaggableContacts",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Recipient\\NextRecipient\\NextRecipient",
+            "to": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\DismissRecipient\\DismissRecipient",
+            "via": "dismiss",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Recipient\\NextRecipient\\NextRecipient",
+            "to": "command:Prospecter\\Core\\Campaigns\\Application\\Recipient\\RemoveRecipient\\RemoveRecipient",
+            "via": "remove",
+            "certain": false,
+            "when": null
+        },
+        {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Recipient\\NextRecipient\\NextRecipient",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\Addressees",
             "via": null,
@@ -2205,6 +2276,13 @@
         {
             "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\ConsultSuggestedTags\\ConsultSuggestedTags",
             "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\Taggers",
+            "via": null,
+            "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Campaigns\\Application\\Tagging\\SearchContactsByTags\\SearchContactsByTags",
+            "to": "externalSystem:Prospecter\\Core\\Campaigns\\Domain\\Port\\TaggableContacts",
             "via": null,
             "certain": true,
             "when": null
