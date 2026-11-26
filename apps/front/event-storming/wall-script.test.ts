@@ -1,20 +1,13 @@
-import { readFileSync } from 'node:fs'
-import { beforeAll, describe, expect, it, vi } from 'vitest'
-import { gridOf } from './grid.ts'
-import type { Model } from './model.ts'
-import { pageOf } from './page.ts'
-import { dataOf, type WallData } from './page-data.ts'
-import { wallOf } from './wall.ts'
+import { beforeAll, describe, expect, inject, it, vi } from 'vitest'
+import type { WallData } from './page-data.ts'
 import { runTheWall } from './wall-script.ts'
 
-/** Booking's model, as the generator last read it from the code. Vitest runs in the front's folder. */
-const BOOKING = JSON.parse(readFileSync('public/docs/event-storming/booking/model.json', 'utf8')) as Model
-const wall = wallOf(BOOKING)
-const data = dataOf(wall, { roomy: gridOf(wall, 'roomy'), compact: gridOf(wall, 'compact') })
+/** Booking's wall and its data, built before the tests (test/scripted-walls.ts). */
+const { page: html, data } = inject('booking')
 
 /** The page's body without its script, which the test runs itself on its data. */
 beforeAll(() => {
-  const page = new DOMParser().parseFromString(pageOf(BOOKING, { style: '', font: '' }), 'text/html')
+  const page = new DOMParser().parseFromString(html, 'text/html')
   for (const script of page.body.querySelectorAll('script')) script.remove()
   document.body.innerHTML = page.body.innerHTML
   vi.stubGlobal('matchMedia', () => ({ matches: true }))
