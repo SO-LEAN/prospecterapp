@@ -1,4 +1,4 @@
-# Continuous integration (ADR 0057, 0109, 0110): what make ci runs locally, in Docker as locally, on the pull requests
+# Continuous integration (ADR 0057, 0109, 0110, 0221): what make ci runs locally, in Docker as locally, on the pull requests
 # to dev and main, which cannot be merged while it fails, and on the pushes of dev and main. A pull request runs the
 # checks its changes need, a push every one; each check runs in a job of its own, together, its lint and its tests
 # together too (make -j), their output not synchronised, so that the progress of the tests shows while they run (make
@@ -7,7 +7,9 @@
 # the checks; their reports go in artifacts for the definition of done, which judges the threshold (ADR 0219). dev's
 # merge queue runs the checks once more, on the pull request rebased onto dev and onto those queued before it, and the
 # journeys there only, in the job e2e, when the changes need them (ADR 0220): a push to a pull request, to dev or to
-# main runs none. The merge queue mutates nothing.
+# main runs none. The merge queue mutates nothing. The API's check runs in several jobs, its lint in one and a share of
+# its tests in each of the others; the jobs take the images, the dependencies and the tools' results from the cache of
+# GitHub Actions (ADR 0221).
 name: CI
 
 on:
