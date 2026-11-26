@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\Agenda\ConsultCalendar;
 
+use Prospecter\Core\Prospecting\Application\Agenda\AgendaInterlocutors;
 use Prospecter\Core\Prospecting\Application\Agenda\HolderIntents;
 use Prospecter\Core\Prospecting\Application\Agenda\Overdue;
 use Prospecter\Core\Prospecting\Application\Port\CalendarRetriever;
@@ -20,6 +21,7 @@ final readonly class ConsultCalendarHandler implements QueryHandler
         private CalendarRetriever $calendarRetriever,
         private ToDoListRetriever $toDoListRetriever,
         private Prospectors $prospectors,
+        private AgendaInterlocutors $agendaInterlocutors,
     ) {
     }
 
@@ -32,14 +34,17 @@ final readonly class ConsultCalendarHandler implements QueryHandler
         $holder = $this->prospectors->prospectorFrom(new MemberId($query->prospectorId));
         $period = new CalendarPeriod($query->from, $query->until);
 
-        $exchanges = $this->calendarRetriever->heldBy($holder, $period);
+        $held = $this->calendarRetriever->heldBy($holder, $period);
         $toDos = $this->toDoListRetriever->dueIn($holder->id, $period);
+        $interlocutors = $this->agendaInterlocutors->of($holder, $held, $toDos);
+        $exchanges = $interlocutors->known($held);
 
         $output->present(new Calendar(
             $exchanges,
             HolderIntents::offering(ExchangeIntent::MoveExchange, $exchanges, $query->at),
             $toDos,
             Overdue::among($exchanges, $toDos, $query->at),
+            $interlocutors,
         ));
     }
 }

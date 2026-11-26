@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\Agenda\ConsultOverlappingExchanges;
 
+use Prospecter\Core\Prospecting\Application\Agenda\AgendaInterlocutors;
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
 use Prospecter\Core\Prospecting\Application\Port\AgendaRetriever;
 use Prospecter\Core\Prospecting\Domain\Model\Duration;
@@ -17,6 +18,7 @@ final readonly class ConsultOverlappingExchangesHandler implements QueryHandler
     public function __construct(
         private AgendaRetriever $agendaRetriever,
         private Prospectors $prospectors,
+        private AgendaInterlocutors $agendaInterlocutors,
     ) {
     }
 
@@ -26,7 +28,10 @@ final readonly class ConsultOverlappingExchangesHandler implements QueryHandler
         $slot = new Slot($query->startsAt, Duration::inMinutes($query->durationInMinutes));
         $planned = $this->agendaRetriever->plannedBy($holder, $slot->earliestStartOfAnOverlap(), $slot->end());
 
-        $output->present(new OverlappingExchanges(array_values(array_filter($planned, static fn (ExchangeInTimeline $exchange): bool => $slot->overlaps(self::slotOf($exchange))))));
+        $overlapping = array_values(array_filter($planned, static fn (ExchangeInTimeline $exchange): bool => $slot->overlaps(self::slotOf($exchange))));
+        $interlocutors = $this->agendaInterlocutors->of($holder, $overlapping);
+
+        $output->present(new OverlappingExchanges($interlocutors->known($overlapping), $interlocutors));
     }
 
     private static function slotOf(ExchangeInTimeline $exchange): Slot

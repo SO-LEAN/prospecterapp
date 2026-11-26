@@ -46,6 +46,6 @@ final readonly class OrganizationsOfContacts
 
     private function resourceOf(OrganizationOfContact $organization): OrganizationOfContactResource
     {
-        return new OrganizationOfContactResource($organization->id, $organization->fullName, $this->links->to('api_organizations_show', ['id' => $organization->id]));
+        return OrganizationOfContactResource::of($organization, $this->links);
     }
 }

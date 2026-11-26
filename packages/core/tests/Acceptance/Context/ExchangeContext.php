@@ -10,6 +10,7 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 use Prospecter\Core\Prospecting\Application\Agenda\ConsultOverlappingExchanges\ConsultOverlappingExchanges;
+use Prospecter\Core\Prospecting\Application\Agenda\ConsultOverlappingExchanges\OverlappingExchanges;
 use Prospecter\Core\Prospecting\Application\Exchange\NoteExchange\NoteExchange;
 use Prospecter\Core\Prospecting\Application\Exchange\NoteOrganizationExchange\NoteOrganizationExchange;
 use Prospecter\Core\Prospecting\Application\Exchange\PlanExchange\PlanExchange;
@@ -52,6 +53,7 @@ use Tests\Core\Double\StateOf;
 final class ExchangeContext implements Context
 {
     use SharesTheScenario;
+    use DescribesInterlocutors;
 
     public const string ANY_EXCHANGE = 'un appel|un SMS|un e-mail|un message LinkedIn|un message Malt|un rendez-vous';
     private const string ANY_PLANNED = self::ANY_EXCHANGE.'|une visio';
@@ -65,8 +67,7 @@ final class ExchangeContext implements Context
     private ?InMemoryDatabase $databaseBeforeDeliveredAgain = null;
     private ?InMemoryPrivateStorage $privateStorageBeforeDeliveredAgain = null;
     private string $timelineOf = '';
-    /** @var list<ExchangeInTimeline>|null */
-    private ?array $overlapping = null;
+    private ?OverlappingExchanges $overlapping = null;
 
     /**
      * @var list<string>|null
@@ -247,7 +248,7 @@ final class ExchangeContext implements Context
     public function iLookAtWhatOverlaps(string $day, string $time, string $duration): void
     {
         $startsAt = Vocabulary::frenchMoment(sprintf('%s à %s', $day, $time));
-        $this->overlapping = $this->application->consultOverlappingExchanges(new ConsultOverlappingExchanges($this->application->signedIn(), $startsAt, Vocabulary::minutes($duration)))?->exchanges;
+        $this->overlapping = $this->application->consultOverlappingExchanges(new ConsultOverlappingExchanges($this->application->signedIn(), $startsAt, Vocabulary::minutes($duration)));
     }
 
     #[Then('je vois ces échanges qui le chevauchent :')]
@@ -256,13 +257,13 @@ final class ExchangeContext implements Context
         $overlapping = Expect::present($this->overlapping, sprintf('The overlapping exchanges were expected, got: %s', $this->application->refusal()?->getMessage()));
         $columns = array_flip($table->getRow(0));
 
-        Expect::same($table->getColumnsHash(), array_map(fn (ExchangeInTimeline $exchange): array => array_replace($columns, array_intersect_key($this->describe($exchange, ''), $columns)), $overlapping));
+        Expect::same($table->getColumnsHash(), array_map(fn (ExchangeInTimeline $exchange): array => array_replace($columns, array_intersect_key([...$this->describe($exchange, ''), ...self::shownInterlocutorOf($exchange, $overlapping->interlocutors)], $columns)), $overlapping->exchanges));
     }
 
     #[Then('rien ne le chevauche')]
     public function nothingOverlapsIt(): void
     {
-        Expect::same([], $this->overlapping);
+        Expect::same([], $this->overlapping?->exchanges);
     }
 
     #[Then('/^je vois ces échanges qui chevauchent le (?<day>\S+) à (?<time>\S+) pour (?<duration>.+) :$/')]

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Prospecter\Core\Prospecting\Application\Agenda\ConsultWhatIsToProcess;
 
+use Prospecter\Core\Prospecting\Application\Agenda\AgendaInterlocutors;
 use Prospecter\Core\Prospecting\Application\Agenda\HolderIntents;
 use Prospecter\Core\Prospecting\Application\Agenda\Overdue;
 use Prospecter\Core\Prospecting\Application\ExchangeInTimeline;
@@ -24,6 +25,7 @@ final readonly class ConsultWhatIsToProcessHandler implements QueryHandler
         private ToDoListRetriever $toDoListRetriever,
         private Prospectors $prospectors,
         private ContactsToAttachRetriever $contactsToAttachRetriever,
+        private AgendaInterlocutors $agendaInterlocutors,
     ) {
     }
 
@@ -31,15 +33,19 @@ final readonly class ConsultWhatIsToProcessHandler implements QueryHandler
     {
         $holder = $this->prospectors->prospectorFrom(new MemberId($query->prospectorId));
 
-        $exchanges = $this->lateExchanges($holder, $query->at);
+        $late = $this->lateExchanges($holder, $query->at);
         $toDos = $this->toDosDueBy($holder, $query->at);
+        $contactsToAttach = $this->contactsToAttachRetriever->heldBy($holder->id);
+        $interlocutors = $this->agendaInterlocutors->of($holder, $late, $toDos, $contactsToAttach);
+        $exchanges = $interlocutors->known($late);
 
         $output->present(new WhatIsToProcess(
             $exchanges,
             HolderIntents::offeredBy($exchanges, $query->at),
             $toDos,
             self::daysOverdue($toDos, $query->at),
-            $this->contactsToAttachRetriever->heldBy($holder->id),
+            $contactsToAttach,
+            $interlocutors,
         ));
     }
 
