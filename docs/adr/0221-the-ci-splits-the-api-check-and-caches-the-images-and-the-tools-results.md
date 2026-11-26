@@ -26,13 +26,14 @@ The repository is public: the standard runners and the cache of GitHub Actions (
 - With warm caches, a PHP job gets its image in 6 to 13 s instead of some 30 s, and the API's lint takes 3 s instead of a minute.
 - The front's check now sets the CI's length, some 2 minutes: Vitest alone takes about 80 s, and over 130 s on some runners. Splitting it is the next lever.
 - An API change costs three more jobs per run. The runners are free, and the jobs run in parallel.
-- Each run saves a few caches of the tools. A change of a `docker/` directory saves a new image archive of some 500 MB. GitHub evicts the caches least used once the repository's 10 GB are reached. The dependencies' caches and the current archives are read by every run, so they stay.
+- Each run saves a few caches of the tools. A change of a `docker/` directory saves a new image archive, some 310 MB for PHP and 100 MB for Node. GitHub evicts the caches least used once the repository's 10 GB are reached. The dependencies' caches and the current archives are read by every run, so they stay.
 - The shares are files dealt in turn, not timed: a share holding the slowest files ends last.
 - The mutation jobs and the journeys still build their images. The same archives can serve them.
 
 ## Alternatives considered
 
 - The cache of Buildx for GitHub Actions (`type=gha`), which the ticket named first, was tried on this branch. Every layer came from the cache, but Buildx then sent the image to Docker as a tarball, and Docker imported it: 25 to 35 s per job, as long as building the image.
+- Two shares instead of three, left to the measure by the ticket, were tried on this branch: their jobs took 101 and 117 s, against 88 to 96 s with three. Two shares would end about when the front's check does. Three keep a margin for a push to `dev`, which runs more API tests, and for the day the front's check gets faster.
 - An image published on GitHub's registry, which the ticket named too, was not tried: it needs a token that writes packages and a publishing step, and pulling it unpacks as many layers as loading the archive.
 
 ## Revisit when
