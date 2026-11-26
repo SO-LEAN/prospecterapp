@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Me\Mcp;
 
-use App\Me\MyAccountReader;
+use App\Me\MyAccountComposition;
 use App\Security\ToolAccess;
 use App\Shared\Mcp\Adapts;
 use App\Shared\Mcp\ToolResults;
@@ -17,7 +17,7 @@ use Mcp\Server\Capability\Attribute\McpTool;
 #[Adapts('api_me_show')]
 final readonly class ShowAccountTool
 {
-    public function __construct(private ToolAccess $access, private MyAccountReader $myAccount, private ToolResults $results)
+    public function __construct(private ToolAccess $access, private MyAccountComposition $myAccount, private ToolResults $results)
     {
     }
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Me\Controller;
 
-use App\Me\MyAccountReader;
+use App\Me\MyAccountComposition;
 use App\Me\Resource\AccountResource;
 use App\PersonalData\Input\PersonContactDetailsInput;
 use App\Security\User;
@@ -28,7 +28,7 @@ final readonly class ChangeMyContactDetailsController
     public function __construct(
         private CommandBus $commandBus,
         private ClockInterface $clock,
-        private MyAccountReader $myAccountReader,
+        private MyAccountComposition $myAccountComposition,
         private JsonResponses $jsonResponses,
     ) {
     }
@@ -43,6 +43,6 @@ final readonly class ChangeMyContactDetailsController
     {
         $this->commandBus->dispatch(new ChangePersonContactDetails(readerId: $user->memberId(), id: $user->personId(), email: $input->email, phoneNumber: $input->phoneNumber, language: $input->language, links: $input->links, executedAt: $this->clock->now()));
 
-        return $this->jsonResponses->of($this->myAccountReader->read($user->memberId()));
+        return $this->jsonResponses->of($this->myAccountComposition->read($user->memberId()));
     }
 }

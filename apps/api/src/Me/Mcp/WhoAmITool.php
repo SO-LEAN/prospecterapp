@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Me\Mcp;
 
-use App\Me\MyAccountReader;
+use App\Me\MyAccountComposition;
 use App\Me\Resource\AccountResource;
 use App\Security\ToolAccess;
 use App\Security\User;
@@ -18,7 +18,7 @@ use Symfony\Bundle\SecurityBundle\Security;
  */
 final readonly class WhoAmITool
 {
-    public function __construct(private ToolAccess $access, private Security $security, private MyAccountReader $myAccount)
+    public function __construct(private ToolAccess $access, private Security $security, private MyAccountComposition $myAccount)
     {
     }
 
