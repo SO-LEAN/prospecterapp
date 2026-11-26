@@ -9,7 +9,7 @@ GITLEAKS = docker run --rm -u $(UID):$(GID) -e GIT_INDEX_FILE -v $(CURDIR):$(CUR
 	-w $(CURDIR) ghcr.io/gitleaks/gitleaks:v8.30.1
 INFRA_APPS = api storage front
 
-.PHONY: install hooks build vendor db aws ca front-install check-secrets check-infra check-contract check-event-storming check-core check-api check-storage check-front check-e2e check-e2e-locked check-e2e-run e2e-locked front-lint front-tested-build changed-checks infra-target infra-init infra-plan infra-apply infra-lint changed-apps package-api package-storage package-front release-front console start deploy stop down images-prune agents-slice logs logs-save ps google-down google-up ci test test-api test-storage test-front e2e test-core mutation mutation-core mutation-front mutation-event-storming mutation-summary mutation-artifact mutation-api lint adr-references adr-index adr-index-check fix front-build api-doc contract event-storming commands profiler-clear exec-api exec-front secrets secrets-branch commit-subjects
+.PHONY: install hooks build vendor db aws ca front-install check-secrets check-infra check-contract check-event-storming check-core check-api check-api-lint check-storage check-front check-e2e check-e2e-locked check-e2e-run e2e-locked front-lint front-tested-build changed-checks infra-target infra-init infra-plan infra-apply infra-lint changed-apps package-api package-storage package-front release-front console start deploy stop down images-prune images-env agents-slice logs logs-save ps google-down google-up ci test test-api test-storage test-front e2e test-core mutation mutation-core mutation-front mutation-event-storming mutation-summary mutation-artifact mutation-api lint adr-references adr-index adr-index-check fix front-build api-doc contract event-storming commands profiler-clear exec-api exec-front secrets secrets-branch commit-subjects
 
 ##@ Setup
 install: hooks build vendor db front-install ## Build the images, install the dependencies, create the tables, the bucket and the user pool, install the Git hooks
@@ -64,6 +64,11 @@ images-prune: ## Remove the images of the stack no checkout of the repository ex
 	@expected=$$($(EXPECTED_IMAGES)); \
 	docker image ls $(foreach image,$(STACK_IMAGES),--filter reference=prospecter-$(call image-name,$(image))) --format '{{.Repository}}:{{.Tag}}' \
 		| grep -v ':local$$' | grep -vxF "$$expected" | xargs -r -n1 sh -c 'docker image rm "$$0" || echo "Kept $$0: a container uses it"'
+
+# what the CI builds the images of the command line from its cache with, the tags make expects of them and the user
+# they are built for, one variable per line (.github/workflows/ci.yml)
+images-env: ## Print the tags of the PHP and Node images and the user they are built for, one variable per line
+	@printf '%s\n' PHP_IMAGE=$(PHP_IMAGE) NODE_IMAGE=$(NODE_IMAGE) IMAGE_UID=$(UID) IMAGE_GID=$(GID)
 
 # the budget of the stacks of the worktrees together (ADR 0116), out of reach of the agents: a slice of systemd, written
 # once with sudo, which the containers of the worktrees join; without it, only the bounds of each stack apply
@@ -195,6 +200,13 @@ check-core: ## Lint and test the core
 
 check-api: ## Lint and test the API, but the tests re-testing a core rule (ALL=1 runs them)
 	@$(MAKE) -C apps/api lint test
+
+# the CI splits the API's check into jobs: its lint in one, its tests in n others, check-api-tests-<i>-of-<n> running
+# the i-th share of the test files
+check-api-lint:
+	@$(MAKE) -C apps/api lint
+check-api-tests-%:
+	@$(MAKE) -C apps/api test SHARD=$(subst -of-,/,$*)
 
 check-storage: ## Lint and test the storage
 	@$(MAKE) -C apps/storage lint test

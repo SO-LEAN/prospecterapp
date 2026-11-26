@@ -25,6 +25,10 @@ concurrency:
 permissions:
   contents: read
 
+env:
+  # the jobs the API's tests are shared among, beside the one of its lint: three runners of four processors each
+  API_TEST_JOBS: 3
+
 jobs:
   changes:
     runs-on: ubuntu-24.04
@@ -50,7 +54,8 @@ jobs:
           if [ -n "$BASE_REF" ]; then changed=$(make changed-checks RANGE="origin/$BASE_REF...HEAD")
           elif [ -n "$QUEUE_BASE" ]; then changed=$(make changed-checks RANGE="$QUEUE_BASE...HEAD" | jq -c 'map(select(startswith("mutation-") | not))')
           else changed='["secrets","infra","core","api","storage","front","contract","event-storming"]'; fi
-          checks=$(echo "$changed" | jq -c 'map(select(. != "e2e" and (startswith("mutation-") | not)))')
+          checks=$(echo "$changed" | jq -c --argjson shares "$API_TEST_JOBS" 'map(select(. != "e2e" and (startswith("mutation-") | not))
+            | if . == "api" then "api-lint", (range(1; $shares + 1) | "api-tests-\(.)-of-\($shares)") else . end)')
           mutations=$(echo "$changed" | jq -c 'map(select(startswith("mutation-")) | ltrimstr("mutation-"))')
           e2e=$(echo "$changed" | jq 'index("e2e") != null')
           echo "checks=$checks" >> "$GITHUB_OUTPUT"
@@ -68,14 +73,49 @@ jobs:
       matrix:
         check: ${{ fromJSON(needs.changes.outputs.checks) }}
     env:
-      PHP: ${{ contains(fromJSON('["core","api","storage","contract","event-storming"]'), matrix.check) }}
+      PHP: ${{ contains(fromJSON('["core","storage","contract","event-storming"]'), matrix.check) || startsWith(matrix.check, 'api-') }}
       NODE: ${{ contains(fromJSON('["front","contract","event-storming"]'), matrix.check) }}
+      # the result cache of the PHPStan a check runs, where its configuration puts it
+      PHPSTAN_CACHE: ${{ fromJSON('{"core":"packages/core/var/cache/phpstan","api-lint":"apps/api/var/cache/phpstan","storage":"apps/storage/var/cache/phpstan","event-storming":"apps/api/var/cache/phpstan-event-storming"}')[matrix.check] }}
     steps:
       - uses: actions/checkout@v7.0.1
         with:
           # make secrets-branch scans the commits since dev, make commit-subjects those in neither dev nor main. The
           # number 0 is falsy in an expression: the depths are strings
           fetch-depth: ${{ matrix.check == 'secrets' && '0' || '1' }}
+
+      # the images of the command line, under the tags make expects, from the cache of Buildx: rebuilt only when their
+      # docker/ directory changes, every layer otherwise CACHED in the log
+      - name: Name the images
+        if: env.PHP == 'true' || env.NODE == 'true'
+        run: make images-env >> "$GITHUB_ENV"
+
+      - name: Set up Buildx
+        if: env.PHP == 'true' || env.NODE == 'true'
+        uses: docker/setup-buildx-action@v4.4.1
+
+      - name: Build the PHP image from the cache
+        if: env.PHP == 'true'
+        uses: docker/build-push-action@v7.4.0
+        with:
+          context: docker/php
+          build-args: |
+            UID=${{ env.IMAGE_UID }}
+            GID=${{ env.IMAGE_GID }}
+          tags: ${{ env.PHP_IMAGE }}
+          load: true
+          cache-from: type=gha,scope=php
+          cache-to: type=gha,scope=php,mode=max
+
+      - name: Build the Node image from the cache
+        if: env.NODE == 'true'
+        uses: docker/build-push-action@v7.4.0
+        with:
+          context: docker/node
+          tags: ${{ env.NODE_IMAGE }}
+          load: true
+          cache-from: type=gha,scope=node
+          cache-to: type=gha,scope=node,mode=max
 
       - name: Cache the Composer dependencies
         if: env.PHP == 'true'
@@ -93,6 +133,28 @@ jobs:
         with:
           path: apps/front/node_modules
           key: pnpm-${{ hashFiles('apps/front/pnpm-lock.yaml') }}
+
+      # the caches the tools keep from one run to the next, a run saving its own: each key starts with what changes
+      # when the tool's configuration changes, and a run takes the latest cache of that configuration
+      - name: Cache the result of PHPStan
+        if: env.PHPSTAN_CACHE != ''
+        uses: actions/cache@v6.1.0
+        env:
+          CONFIGURATION: ${{ hashFiles('packages/core/phpstan.dist.neon', 'apps/api/phpstan.dist.neon', 'apps/storage/phpstan.dist.neon', 'packages/phpstan-rules/**/*.neon', 'apps/api/composer.lock', 'apps/storage/composer.lock', 'packages/core/composer.lock') }}
+        with:
+          path: ${{ env.PHPSTAN_CACHE }}
+          key: phpstan-${{ matrix.check }}-${{ env.CONFIGURATION }}-${{ github.run_id }}
+          restore-keys: phpstan-${{ matrix.check }}-${{ env.CONFIGURATION }}-
+
+      - name: Cache the results of Vitest
+        if: matrix.check == 'front'
+        uses: actions/cache@v6.1.0
+        env:
+          CONFIGURATION: ${{ hashFiles('apps/front/vite.config.ts', 'apps/front/pnpm-lock.yaml') }}
+        with:
+          path: apps/front/node_modules/.vite/vitest
+          key: vitest-${{ env.CONFIGURATION }}-${{ github.run_id }}
+          restore-keys: vitest-${{ env.CONFIGURATION }}-
 
       - name: Install the Composer dependencies
         if: env.PHP == 'true'
