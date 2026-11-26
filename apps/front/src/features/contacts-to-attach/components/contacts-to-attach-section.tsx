@@ -10,7 +10,7 @@ import { type ContactToAttach, nameOf } from '../queries'
 import { AttachDialog } from './attach-dialog'
 
 const URGENCY_LOOKS: Record<Urgency, string> = {
-  later: 'text-muted-foreground',
+  later: 'border bg-muted text-muted-foreground',
   soon: 'text-warning-foreground bg-warning/20',
   imminent: 'text-destructive bg-destructive/10',
 }
