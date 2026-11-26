@@ -9,7 +9,7 @@ GITLEAKS = docker run --rm -u $(UID):$(GID) -e GIT_INDEX_FILE -v $(CURDIR):$(CUR
 	-w $(CURDIR) ghcr.io/gitleaks/gitleaks:v8.30.1
 INFRA_APPS = api storage front
 
-.PHONY: install hooks build vendor db aws ca front-install check-secrets check-infra check-contract check-event-storming check-core check-api check-storage check-front check-e2e check-e2e-locked check-e2e-run e2e-locked front-lint front-tested-build changed-checks infra-target infra-init infra-plan infra-apply infra-lint changed-apps package-api package-storage package-front release-front console start deploy stop down images-prune agents-slice logs ps google-down google-up ci test test-api test-storage test-front e2e test-core mutation mutation-api lint adr-references adr-index adr-index-check fix front-build api-doc contract event-storming commands profiler-clear exec-api exec-front secrets secrets-branch commit-subjects
+.PHONY: install hooks build vendor db aws ca front-install check-secrets check-infra check-contract check-event-storming check-core check-api check-storage check-front check-e2e check-e2e-locked check-e2e-run e2e-locked front-lint front-tested-build changed-checks infra-target infra-init infra-plan infra-apply infra-lint changed-apps package-api package-storage package-front release-front console start deploy stop down images-prune agents-slice logs ps google-down google-up ci test test-api test-storage test-front e2e test-core mutation mutation-core mutation-front mutation-event-storming mutation-summary mutation-artifact mutation-api lint adr-references adr-index adr-index-check fix front-build api-doc contract event-storming commands profiler-clear exec-api exec-front secrets secrets-branch commit-subjects
 
 ##@ Setup
 install: hooks build vendor db front-install ## Build the images, install the dependencies, create the tables, the bucket and the user pool, install the Git hooks
@@ -115,7 +115,8 @@ google-up: ## Make the double of Google of the running stack answer again
 BASE ?= origin/dev
 ALL_CHECKS = secrets infra core api storage front contract event-storming e2e
 CHANGED_FILES = { git diff --name-only $$(git merge-base $(BASE) HEAD); git ls-files --others --exclude-standard; }
-CHECKS = $(if $(ALL),$(ALL_CHECKS),$(shell $(CHANGED_FILES) | make/changed-checks.sh))
+# the mutations the changes need are no check of make ci: the CI of a pull request runs them (ADR 0219)
+CHECKS = $(if $(ALL),$(ALL_CHECKS),$(filter-out mutation-%,$(shell $(CHANGED_FILES) | make/changed-checks.sh)))
 ci: export FAIL_FAST = 1
 ci: ## Run the checks of the integration the changes since BASE (origin/dev) need, ALL=1 every one: secrets of the branch, Terraform, lint and tests of each project, build of the front, contract; the journeys apart (check-e2e)
 	@echo "Checks: $(CHECKS)$(if $(ALL),, (those of the changes since $(BASE); ALL=1 for every one))"
@@ -199,7 +200,7 @@ front-tested-build:
 	@$(MAKE) -C apps/front build
 
 CHANGED_RANGE_FILES = git diff --name-only '$(RANGE)'
-changed-checks: ## Print as JSON the checks of the integration a git range needs: make changed-checks RANGE=origin/dev...HEAD
+changed-checks: ## Print as JSON the checks of the integration a git range needs, and the parts its pull request mutates (mutation-<part>): make changed-checks RANGE=origin/dev...HEAD
 	@test -n "$(RANGE)" || { echo "Usage: make changed-checks RANGE=<git range>, such as origin/dev...HEAD"; exit 1; }
 	@$(CHANGED_RANGE_FILES) >/dev/null
 	@echo '$(call json-strings,$(shell $(CHANGED_RANGE_FILES) | make/changed-checks.sh))'
@@ -245,8 +246,41 @@ e2e-locked:
 	@$(E2E_SETUP) && $(FRONT_E2E)
 
 mutation: ## Mutate the lines the branch adds since BASE (origin/dev) in the core, the front and the event storming's generator, list the mutants their tests let survive; fail when the core skips one (ADR 0091, 0196); MUTATION_WORKERS= the front's test runners, INFECTION_THREADS= the core's threads
+	@$(MAKE) mutation-core
+	@$(MAKE) mutation-front
+	@$(MAKE) mutation-event-storming
+
+# the parts the CI of a pull request mutates, each in a job of its own (ADR 0219): make changed-checks names them
+mutation-core: ## Mutate the lines the branch adds since BASE (origin/dev) in the core and its event storming's analysis; fail when it skips a mutant
 	@$(MAKE) -C packages/core mutation
-	@$(MAKE) -C apps/front mutation
+
+mutation-front: ## Mutate the lines the branch adds since BASE (origin/dev) in the SPA
+	@$(MAKE) -C apps/front mutation-spa
+
+mutation-event-storming: ## Mutate the lines the branch adds since BASE (origin/dev) in the event storming's generator
+	@$(MAKE) -C apps/front mutation-event-storming
+
+# each part's tool, its JSON report and its title in the summary
+MUTATION_TOOL_core = infection
+MUTATION_REPORT_core = packages/core/var/mutation.json
+MUTATION_TITLE_core = the core
+MUTATION_TOOL_front = stryker
+MUTATION_REPORT_front = apps/front/reports/mutation.json
+MUTATION_TITLE_front = the front
+MUTATION_TOOL_event-storming = stryker
+MUTATION_REPORT_event-storming = apps/front/reports/mutation-event-storming.json
+MUTATION_TITLE_event-storming = the event storming's generator
+MUTATION_PARTS = core front event-storming
+
+mutation-summary: ## Print in Markdown the summary of a part's last mutation, PART=core|front|event-storming: its score, its counts, each survivor and each mutant no test covers
+	@test -n "$(filter $(MUTATION_PARTS),$(PART))" || { echo "Usage: make mutation-summary PART=<$(subst $(space),|,$(MUTATION_PARTS))>"; exit 1; }
+	@$(NODE) node apps/front/mutation/summarise.ts $(MUTATION_TOOL_$(PART)) $(MUTATION_REPORT_$(PART)) "$(MUTATION_TITLE_$(PART))"
+
+mutation-artifact: ## Write in DIR (a folder from the root) a part's last mutation, PART=core|front|event-storming: its summary (summary.md) and its tool's JSON report, when it wrote one
+	@test -n "$(DIR)" -a -n "$(filter $(MUTATION_PARTS),$(PART))" || { echo "Usage: make mutation-artifact PART=<$(subst $(space),|,$(MUTATION_PARTS))> DIR=<folder>"; exit 1; }
+	@mkdir -p $(DIR)
+	@$(MAKE) -s mutation-summary PART=$(PART) > $(DIR)/summary.md
+	@if [ -f $(MUTATION_REPORT_$(PART)) ]; then cp $(MUTATION_REPORT_$(PART)) $(DIR)/; fi
 
 mutation-api: ## Mutate the lines the branch adds in the API since BASE (origin/dev), on MiniStack: minutes per mutant, on demand
 	@$(MAKE) -C apps/api mutation

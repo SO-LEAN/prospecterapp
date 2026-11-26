@@ -10,6 +10,7 @@
     // whole run, none is skipped, and a mutant's own run, without Xdebug, stops at its first failing test
     "timeout": 600,
     "tmpDir": "var/infection",
-    // the summary counts the skipped mutants, and make mutation fails when there is one
-    "logs": {"text": "var/mutation.log", "summaryJson": "var/mutation-summary.json"}
+    // the summary counts the skipped mutants, and make mutation fails when there is one; the JSON report lists every
+    // mutant, which make mutation-summary sums up
+    "logs": {"text": "var/mutation.log", "summaryJson": "var/mutation-summary.json", "json": "var/mutation.json"}
 }
