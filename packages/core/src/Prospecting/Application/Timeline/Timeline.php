@@ -28,12 +28,12 @@ final readonly class Timeline
     }
 
     /**
-     * @return list<ContactId> the contacts its exchanges were with, each once
+     * @return list<ContactId> the contacts its exchanges were with
      */
     #[\NoDiscard]
     public function contacts(): array
     {
-        $personIds = array_values(array_unique(array_filter(array_map(static fn (ExchangeInTimeline $exchange): ?string => $exchange->personId, $this->exchanges))));
+        $personIds = array_values(array_filter(array_map(static fn (ExchangeInTimeline $exchange): ?string => $exchange->personId, $this->exchanges)));
 
         return array_map(static fn (string $personId): ContactId => new ContactId($personId), $personIds);
     }

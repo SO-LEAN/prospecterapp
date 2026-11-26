@@ -24,8 +24,8 @@ final readonly class PersonsOfToDos
      */
     public function shownTo(string $readerId, array $toDos): PersonsShown
     {
-        $contacts = array_values(array_unique(array_filter(array_map(static fn (ToDoInList $toDo): ?string => $toDo->personId, $toDos))));
-        $holders = array_values(array_unique(array_map(static fn (ToDoInList $toDo): string => $toDo->heldBy, $toDos)));
+        $contacts = array_values(array_filter(array_map(static fn (ToDoInList $toDo): ?string => $toDo->personId, $toDos)));
+        $holders = array_map(static fn (ToDoInList $toDo): string => $toDo->heldBy, $toDos);
 
         return $this->personDescriptionRetriever->shownTo(
             new MemberId($readerId),

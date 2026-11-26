@@ -46,7 +46,7 @@ final readonly class ConsultExchangeHandler implements QueryHandler
     private function participantsOf(ExchangeDetail $exchange, Prospector $reader): Participants
     {
         $contacts = null === $exchange->personId ? [] : [new ContactId($exchange->personId)];
-        $authors = array_values(array_unique(array_filter([$exchange->createdBy, $exchange->correctedBy, $exchange->madeConformBy])));
+        $authors = array_values(array_filter([$exchange->createdBy, $exchange->correctedBy, $exchange->madeConformBy]));
         $persons = $this->personDescriptionRetriever->shownTo($reader->id, $contacts, array_map(static fn (string $author): MemberId => new MemberId($author), $authors));
 
         return new Participants($persons, null === $exchange->personId ? $this->organizationSheetRetriever->get(new OrganizationId($exchange->organizationIds[0])) : null);
