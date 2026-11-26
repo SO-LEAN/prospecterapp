@@ -35,7 +35,7 @@ checks_of() {
 mutations_of() {
 	case $1 in
 	packages/core/src/*.php | packages/phpstan-rules/EventStorming/*.php) echo mutation-core ;;
-	apps/front/event-storming/*.test.ts | apps/front/event-storming/generate.ts) ;;
+	apps/front/event-storming/*.test.ts | apps/front/event-storming/test/* | apps/front/event-storming/generate.ts) ;;
 	apps/front/event-storming/*.ts) echo mutation-event-storming ;;
 	apps/front/src/*.test.ts | apps/front/src/*.test.tsx | apps/front/src/*.d.ts | apps/front/src/test/* | apps/front/src/app/routeTree.gen.ts | apps/front/src/shared/ui/*) ;;
 	apps/front/src/*.ts | apps/front/src/*.tsx) echo mutation-front ;;
