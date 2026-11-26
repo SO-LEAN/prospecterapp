@@ -44,7 +44,7 @@ describe('the marker of the wall', () => {
       Number(y),
     ])
 
-    expect([corners, arrow.curve.endsWith('L391,' + arrow.curve.split(',').at(-1)), arrow.maybe]).toEqual([
+    expect([corners, arrow.curve.endsWith(`L391,${arrow.curve.split(',').at(-1)}`), arrow.maybe]).toEqual([
       [
         [150, expect.closeTo(66, -1)],
         [150, 150],
