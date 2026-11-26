@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Me\Controller;
 
-use App\Me\MyAccountReader;
+use App\Me\MyAccountComposition;
 use App\Me\Resource\AccountResource;
 use App\Security\User;
 use App\Shared\CommandBus;
@@ -31,7 +31,7 @@ final readonly class ChangeMyOrganizationLogoController
     public function __construct(
         private CommandBus $commandBus,
         private ClockInterface $clock,
-        private MyAccountReader $myAccountReader,
+        private MyAccountComposition $myAccountComposition,
         private JsonResponses $jsonResponses,
     ) {
     }
@@ -46,6 +46,6 @@ final readonly class ChangeMyOrganizationLogoController
     {
         $this->commandBus->dispatch(new ChangeMyOrganizationLogo($user->memberId(), new UploadedFileInfo($file), $this->clock->now()));
 
-        return $this->jsonResponses->of($this->myAccountReader->read($user->memberId()));
+        return $this->jsonResponses->of($this->myAccountComposition->read($user->memberId()));
     }
 }

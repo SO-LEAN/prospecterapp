@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Me\Controller;
 
-use App\Me\MyAccountReader;
+use App\Me\MyAccountComposition;
 use App\Me\Resource\AccountResource;
 use App\Security\User;
 use App\Shared\JsonResponses;
@@ -21,7 +21,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final readonly class ShowAccountController
 {
     public function __construct(
-        private MyAccountReader $myAccountReader,
+        private MyAccountComposition $myAccountComposition,
         private JsonResponses $jsonResponses,
     ) {
     }
@@ -33,6 +33,6 @@ final readonly class ShowAccountController
     #[OA\Response(response: 403, description: 'The signed-in user is not a user', content: new Model(type: ProblemResource::class))]
     public function __invoke(#[CurrentUser] User $user): JsonResponse
     {
-        return $this->jsonResponses->of($this->myAccountReader->read($user->memberId()));
+        return $this->jsonResponses->of($this->myAccountComposition->read($user->memberId()));
     }
 }
