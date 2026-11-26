@@ -26,19 +26,21 @@ describe('the wall of a context', () => {
     expect(wall.lanes.map((lane) => lane.label)).toEqual(['Booking page', 'Public link', 'Appointment'])
   })
 
-  it('moves a reaction into the lane of the event it hears when that lane stands lower, the lane that starts more first', () => {
-    const prospecting = wallOf(modelOf('prospecting'))
-    const lanes = prospecting.lanes.map((lane) => lane.name)
-    const pushBack = prospecting.notes.find(
-      (note) => note.kind === 'policy' && note.label === 'Push back erasure of contact to attach',
-    )
+  it('puts first, of lanes that hear each other, the one whose reactions to the others most outnumber those it hears', () => {
+    const lanes = wallOf(modelOf('prospecting')).lanes.map((lane) => lane.name)
 
     expect([
       lanes.indexOf('Contact') < lanes.indexOf('Exchange'),
       lanes.indexOf('Exchange') < lanes.indexOf('Attachment'),
-      pushBack?.step.lane,
-      pushBack?.step.module,
-    ]).toEqual([true, true, 'Exchange', 'Contact'])
+    ]).toEqual([true, true])
+  })
+
+  it('moves a reaction into the lane of the event it hears when that lane stands lower, naming its own module', () => {
+    const pushBack = wallOf(modelOf('prospecting')).notes.find(
+      (note) => note.kind === 'policy' && note.label === 'Push back erasure of contact to attach',
+    )
+
+    expect([pushBack?.step.lane, pushBack?.step.module]).toEqual(['Exchange', 'Contact'])
   })
 
   it('leads a policy from the event it hears in another step, even when its own command records that event', () => {
@@ -160,23 +162,20 @@ describe('the wall of a context', () => {
     expect(actors.filter((actor) => !actorsBefore(actor.step.main as Note).includes(actor))).toEqual([])
   })
 
-  it('stacks the actors of a command one under the other: the people, the platform operator, the daily schedule', () => {
-    const connectors = wallOf(modelOf('connectors'))
-    const personalData = wallOf(modelOf('personal-data'))
-    const renew = connectors.notes.find(
+  it('stacks the platform operator above the daily schedule before Renew mail watch', () => {
+    const renew = wallOf(modelOf('connectors')).notes.find(
       (note) => note.slug === 'command:RenewMailWatch' && note.kind === 'command',
     )
-    const rename = personalData.notes.find(
+
+    expect(actorsBefore(renew).map((actor) => actor.label)).toEqual(['Platform operator', 'Daily schedule'])
+  })
+
+  it('stacks two people before a command they both send, in the order of the model', () => {
+    const rename = wallOf(modelOf('personal-data')).notes.find(
       (note) => note.slug === 'command:RenamePerson' && note.kind === 'command',
     )
 
-    expect([
-      actorsBefore(renew).map((actor) => actor.label),
-      actorsBefore(rename).map((actor) => actor.label),
-    ]).toEqual([
-      ['Platform operator', 'Daily schedule'],
-      ['Prospector', 'Member'],
-    ])
+    expect(actorsBefore(rename).map((actor) => actor.label)).toEqual(['Prospector', 'Member'])
   })
 
   it('stacks a person above the platform operator and the daily schedule, whatever the order of the model', () => {
