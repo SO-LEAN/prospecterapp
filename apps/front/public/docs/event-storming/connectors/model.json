@@ -2284,6 +2284,20 @@
         },
         {
             "from": "readModel:Prospecter\\Core\\Connectors\\Application\\Connection\\ConsultMyConnections\\ConsultMyConnections",
+            "to": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\AskForAuthorization\\AskForAuthorization",
+            "via": "connectGoogle",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Connectors\\Application\\Connection\\ConsultMyConnections\\ConsultMyConnections",
+            "to": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\AskForAuthorization\\AskForAuthorization",
+            "via": "reconnect",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Connectors\\Application\\Connection\\ConsultMyConnections\\ConsultMyConnections",
             "to": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\CheckMyConnections\\CheckMyConnections",
             "via": "check",
             "certain": true,
@@ -2294,6 +2308,13 @@
             "to": "command:Prospecter\\Core\\Connectors\\Application\\Connection\\Disconnect\\Disconnect",
             "via": "disconnect",
             "certain": true,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\Connectors\\Application\\Connection\\ConsultMyConnections\\ConsultMyConnections",
+            "to": "command:Prospecter\\Core\\Connectors\\Application\\MailImport\\AskToImportMail\\AskToImportMail",
+            "via": "importGmail",
+            "certain": false,
             "when": null
         },
         {

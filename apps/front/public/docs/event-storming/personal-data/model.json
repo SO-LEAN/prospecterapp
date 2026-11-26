@@ -2171,6 +2171,69 @@
         },
         {
             "from": "readModel:Prospecter\\Core\\PersonalData\\Application\\Person\\ConsultPerson\\ConsultPerson",
+            "to": "command:Prospecter\\Core\\PersonalData\\Application\\Contact\\ForgetContact\\ForgetContact",
+            "via": "forget",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\PersonalData\\Application\\Person\\ConsultPerson\\ConsultPerson",
+            "to": "command:Prospecter\\Core\\PersonalData\\Application\\Duplicate\\DismissPossibleDuplicate\\DismissPossibleDuplicate",
+            "via": "dismiss",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\PersonalData\\Application\\Person\\ConsultPerson\\ConsultPerson",
+            "to": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangeCivility\\ChangeCivility",
+            "via": "changeTitle",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\PersonalData\\Application\\Person\\ConsultPerson\\ConsultPerson",
+            "to": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangeJobTitle\\ChangeJobTitle",
+            "via": "changeJobTitle",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\PersonalData\\Application\\Person\\ConsultPerson\\ConsultPerson",
+            "to": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangePersonContactDetails\\ChangePersonContactDetails",
+            "via": "changeContactDetails",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\PersonalData\\Application\\Person\\ConsultPerson\\ConsultPerson",
+            "to": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangePersonContactDetails\\ChangePersonContactDetails",
+            "via": "changeMyContactDetails",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\PersonalData\\Application\\Person\\ConsultPerson\\ConsultPerson",
+            "to": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\ChangePersonPicture\\ChangePersonPicture",
+            "via": "changeMyPicture",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\PersonalData\\Application\\Person\\ConsultPerson\\ConsultPerson",
+            "to": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\RenamePerson\\RenamePerson",
+            "via": "changeMyName",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\PersonalData\\Application\\Person\\ConsultPerson\\ConsultPerson",
+            "to": "command:Prospecter\\Core\\PersonalData\\Application\\Person\\RenamePerson\\RenamePerson",
+            "via": "rename",
+            "certain": false,
+            "when": null
+        },
+        {
+            "from": "readModel:Prospecter\\Core\\PersonalData\\Application\\Person\\ConsultPerson\\ConsultPerson",
             "to": "externalSystem:Prospecter\\Core\\PersonalData\\Domain\\Port\\Readers",
             "via": null,
             "certain": true,
