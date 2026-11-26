@@ -36,6 +36,6 @@ final readonly class ShowExchangeController
     #[OA\Response(response: 404, description: 'Unknown exchange, or one of another account', content: new Model(type: ProblemResource::class))]
     public function __invoke(ExchangeDetail $exchange, #[CurrentUser] User $user): JsonResponse
     {
-        return $this->jsonResponses->of($this->exchangeReader->resourceOf($user->memberId(), $exchange));
+        return $this->jsonResponses->of($this->exchangeReader->read($user->memberId(), $exchange->id));
     }
 }

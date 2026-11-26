@@ -317,6 +317,7 @@ use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\ConsultExch
 use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\ConsultExchangeHandler;
 use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\ExchangeDetail;
 use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\KeptExchange;
+use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\Participants;
 use Prospecter\Core\Prospecting\Application\Exchange\CorrectExchange\CorrectExchangeHandler;
 use Prospecter\Core\Prospecting\Application\Exchange\CorrectExchangeText\CorrectExchangeTextHandler;
 use Prospecter\Core\Prospecting\Application\Exchange\CorrectExchangeVenue\CorrectExchangeVenueHandler;
@@ -1412,7 +1413,14 @@ final class Application
     {
         $kept = new KeptExchange();
 
-        return $this->ask(new ConsultExchangeHandler($this->exchangeDetailRetriever, $this->prospectors, $this->campaignNames), $query, $kept) ? $kept->exchange : null;
+        return $this->ask(new ConsultExchangeHandler($this->exchangeDetailRetriever, $this->prospectors, $this->campaignNames, $this->personDescriptions, $this->organizationSheetRetriever), $query, $kept) ? $kept->exchange : null;
+    }
+
+    public function consultExchangeParticipants(ConsultExchange $query): ?Participants
+    {
+        $kept = new KeptExchange();
+
+        return $this->ask(new ConsultExchangeHandler($this->exchangeDetailRetriever, $this->prospectors, $this->campaignNames, $this->personDescriptions, $this->organizationSheetRetriever), $query, $kept) ? $kept->participants : null;
     }
 
     public function downloadAttachment(DownloadAttachment $query): ?AttachmentDownloadResponse
