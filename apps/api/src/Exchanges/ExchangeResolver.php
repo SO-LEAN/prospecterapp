@@ -27,17 +27,21 @@ final readonly class ExchangeResolver implements ValueResolverInterface
     }
 
     /**
-     * @return list<ExchangeDetail>
+     * @return list<ExchangeDetail|KeptExchange>
      */
     public function resolve(Request $request, ArgumentMetadata $argument): iterable
     {
         $reader = $this->security->getUser();
 
-        if (ExchangeDetail::class !== $argument->getType() || !$reader instanceof User) {
+        if (!$reader instanceof User) {
             return [];
         }
 
-        return [$this->read($reader, $request->attributes->getString('id'))];
+        return match ($argument->getType()) {
+            ExchangeDetail::class => [$this->read($reader, $request->attributes->getString('id'))],
+            KeptExchange::class => [$this->kept($reader, $request->attributes->getString('id'))],
+            default => [],
+        };
     }
 
     /**
@@ -45,10 +49,18 @@ final readonly class ExchangeResolver implements ValueResolverInterface
      */
     public function read(User $reader, string $id): ExchangeDetail
     {
+        return $this->kept($reader, $id)->exchange;
+    }
+
+    /**
+     * The same, with the participants that its detail names, so that the detail is presented without a second read.
+     */
+    public function kept(User $reader, string $id): KeptExchange
+    {
         $kept = new KeptExchange();
         $this->revisions->watch($id);
         $this->consultExchange->__invoke(new ConsultExchange($reader->memberId(), $id, $this->clock->now()), $kept);
 
-        return $kept->exchange;
+        return $kept;
     }
 }

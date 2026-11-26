@@ -36,10 +36,10 @@ final readonly class ShowExchangeTool
     public function __invoke(string $id): array
     {
         $member = $this->access->member();
-        $exchange = $this->exchanges->read($member, $id);
+        $exchange = $this->exchanges->kept($member, $id);
         $this->access->denyUnlessGranted('ROLE_PROSPECTOR');
         $this->access->denyUnlessGranted(ExchangeVoter::ACCESS, $exchange);
 
-        return $this->results->of($this->exchangeReader->read($member->memberId(), $exchange->id));
+        return $this->results->of($this->exchangeReader->resourceOf($exchange));
     }
 }

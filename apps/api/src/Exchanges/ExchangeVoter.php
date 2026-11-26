@@ -6,11 +6,12 @@ namespace App\Exchanges;
 
 use App\Security\AccountResourceVoter;
 use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\ExchangeDetail;
+use Prospecter\Core\Prospecting\Application\Exchange\ConsultExchange\KeptExchange;
 
 /**
  * Decides whether the signed-in member can reach an exchange. They reach their own account's exchanges (ADR 0081).
  *
- * @extends AccountResourceVoter<ExchangeDetail>
+ * @extends AccountResourceVoter<ExchangeDetail|KeptExchange>
  */
 final class ExchangeVoter extends AccountResourceVoter
 {
@@ -18,12 +19,12 @@ final class ExchangeVoter extends AccountResourceVoter
 
     protected function supports(string $attribute, mixed $subject): bool
     {
-        return self::ACCESS === $attribute && $subject instanceof ExchangeDetail;
+        return self::ACCESS === $attribute && ($subject instanceof ExchangeDetail || $subject instanceof KeptExchange);
     }
 
     protected function accountOf(object $subject): string
     {
-        return $subject->accountId;
+        return $subject instanceof KeptExchange ? $subject->exchange->accountId : $subject->accountId;
     }
 
     protected function unknownReason(): string
