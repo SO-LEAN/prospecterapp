@@ -124,6 +124,15 @@ describe('a to-do in « À traiter »', () => {
     expect(theFold()).toHaveClass('grid-rows-[0fr]')
   })
 
+  it('only fades out once ticked, when the system asks for reduced motion', async () => {
+    theApi.mockReturnValue(new Promise(() => {}))
+    await showTheLine(aToDo())
+
+    await userEvent.click(screen.getByRole('checkbox', { name: /^Cocher/ }))
+
+    expect(theFold()).toHaveClass('opacity-0', 'motion-reduce:grid-rows-[1fr]')
+  })
+
   it('is unticked by « Annuler » in its toast, by that request alone', async () => {
     theApi
       .mockResolvedValueOnce(Response.json(done(aToDo())))
