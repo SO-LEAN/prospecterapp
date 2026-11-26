@@ -1,7 +1,7 @@
 import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query'
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { zodValidator } from '@tanstack/zod-adapter'
-import { Search, SearchX, UsersRound } from 'lucide-react'
+import { Plus, Search, SearchX, UsersRound } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { ContactCard } from '@/features/contacts/components/contact-card'
@@ -24,9 +24,10 @@ const searchSchema = z.object({
 
 /**
  * The persons my organization prospects, with their organizations, one slice after another. The URL holds the search.
- * The search is by text or by tags, never both at once. The page's links offer the text search only with the right
- * to manage personal data. The tag search finds the contacts that carry all the tags, and counts them. A contact is
- * collected from an organization, never here.
+ * The search is by text or by tags, never both at once. The text search finds emails only with the right to manage
+ * personal data (ADR 0129). The tag search finds the contacts that carry all the tags, and counts them. « Nouveau
+ * contact » opens a form that chooses the contact's organization. The page shows it when its links offer to collect
+ * a contact.
  */
 export const Route = createFileRoute('/_app/contacts/')({
   validateSearch: zodValidator(searchSchema),
@@ -50,7 +51,19 @@ function Contacts() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title={t('contacts.title')} description={t('contacts.subtitle')} />
+      <PageHeader
+        title={t('contacts.title')}
+        description={t('contacts.subtitle')}
+        actions={
+          list.collects && (
+            <Button asChild>
+              <Link to="/contacts/new">
+                <Plus /> {t('contacts.new')}
+              </Link>
+            </Button>
+          )
+        }
+      />
 
       <div className="space-y-3">
         {list.searchesByText && (
@@ -137,6 +150,7 @@ function useContactList(q: string, tags: string) {
     found: tags ? byTags.data?.pages[0]?.found : undefined,
     searchesByText: !tags && links?.search !== undefined,
     searchesByTags: links?.searchByTags !== undefined,
+    collects: links?.collect !== undefined,
     isPlaceholderData: shown.isPlaceholderData,
     hasNextPage: shown.hasNextPage,
     fetchNextPage: shown.fetchNextPage,
