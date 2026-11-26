@@ -57,6 +57,18 @@ class OrganizationExchangeApiTest extends ApiTestCase
         $this->assertSame([], $this->requestJson('GET', '/api/contacts/'.$contact.'/exchanges')['items']);
     }
 
+    public function testAnExchangeWithAnOrganizationNoLongerKnownIsReadWithoutNamingItNorLinkingIt(): void
+    {
+        $organization = $this->anOrganization('ACME');
+        $exchange = self::stringAt($this->note($organization, ['exchange' => ['channel' => 'call', 'direction' => 'inbound']]), 'items', 0, 'exchange', 'id');
+        self::tableOf('prospecting')->batch([], [['ORGANIZATION#'.$organization, 'ORGANIZATION']]);
+
+        $detail = $this->requestJson('GET', '/api/exchanges/'.$exchange);
+
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSame([['kind' => 'organization', 'id' => $organization, 'name' => null, 'presence' => null], false], [$detail['interlocutor'], array_key_exists('interlocutor', self::recordAt($detail, '_links'))]);
+    }
+
     public function testOnlyALinkedInMessageIsNotedWithItsConversation(): void
     {
         $problem = $this->note($this->anOrganization('ACME'), ['exchange' => ['channel' => 'email', 'direction' => 'inbound', 'linkedInConversation' => '2-abc']]);

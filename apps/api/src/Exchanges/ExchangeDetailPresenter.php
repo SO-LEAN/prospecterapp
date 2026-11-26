@@ -180,11 +180,12 @@ final class ExchangeDetailPresenter implements ConsultExchangeOutput
     }
 
     /**
-     * The card of the contact, or of the organization itself. A forgotten contact no longer has one.
+     * The card of the contact, or of the organization itself. A forgotten contact no longer has one, and neither has an
+     * organization no longer known, which goes unnamed.
      */
     private function cardOf(InterlocutorResource $interlocutor): ?LinkResource
     {
-        if (InterlocutorResource::FORGOTTEN === $interlocutor->presence) {
+        if (InterlocutorResource::FORGOTTEN === $interlocutor->presence || (InterlocutorResource::ORGANIZATION === $interlocutor->kind && null === $interlocutor->name)) {
             return null;
         }
 
