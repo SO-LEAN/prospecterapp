@@ -35,11 +35,11 @@ const ONE_DOM_PER_WORKER = 'vmThreads'
 const MEMORY_A_WORKER_HOLDS_BEFORE_ITS_RESTART = '50%'
 
 /**
- * The code beside the SPA: the event storming's generator and the CloudFront function. Its tests once held hundreds of
- * megabytes, which a VM worker beside the SPA's tests kept until it outgrew the container. So each of their files
- * runs in a process of its own, which gives its memory back when it ends (ADR 0210).
+ * The code beside the SPA: the event storming's generator, the CloudFront function and the mutation summary. Their
+ * tests once held hundreds of megabytes, which a VM worker beside the SPA's tests kept until it outgrew the container.
+ * So each of their files runs in a process of its own, which gives its memory back when it ends (ADR 0210).
  */
-const TOOLS_TESTED_APART = ['event-storming/**/*.test.ts', 'infra/**/*.test.ts']
+const TOOLS_TESTED_APART = ['event-storming/**/*.test.ts', 'infra/**/*.test.ts', 'mutation/**/*.test.ts']
 const A_PROCESS_PER_FILE = 'forks'
 
 /** The walls the tests of the event storming's page script open, built before those tests (docs/architecture/tests.md). */

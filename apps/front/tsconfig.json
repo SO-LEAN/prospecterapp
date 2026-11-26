@@ -19,5 +19,14 @@
     "allowImportingTsExtensions": true,
     "paths": { "@/*": ["./src/*"] }
   },
-  "include": ["src", "e2e", "lint", "event-storming", "infra", "vite.config.ts", "playwright.config.ts"]
+  "include": [
+    "src",
+    "e2e",
+    "lint",
+    "event-storming",
+    "infra",
+    "mutation",
+    "vite.config.ts",
+    "playwright.config.ts"
+  ]
 }
