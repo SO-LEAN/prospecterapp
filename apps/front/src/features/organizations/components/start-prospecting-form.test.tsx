@@ -123,7 +123,9 @@ describe('StartProspectingForm', () => {
 
     await user.type(screen.getByLabelText(/^Holding/), 'Groupe')
 
-    expect(await screen.findByRole('button', { name: /^Groupe ACME/ })).toHaveTextContent('67210 Obernai')
+    const found = await screen.findByRole('button', { name: /^Groupe ACME/ })
+
+    expect(within(found).getByText('67210 Obernai')).toBeInTheDocument()
   })
 
   it('shows each holding found with its logo', async () => {
@@ -134,6 +136,16 @@ describe('StartProspectingForm', () => {
     const found = await screen.findByRole('button', { name: /^Groupe ACME/ })
 
     expect(within(found).getByRole('presentation', { hidden: true })).toHaveAttribute('src', '/acme-96.png')
+  })
+
+  it('shows a holding found without a place by its name alone', async () => {
+    const { user } = renderForm()
+    theSearchFindsGroupeAcmeWithItsLogo()
+
+    await user.type(screen.getByLabelText(/^Holding/), 'Groupe')
+    const found = await screen.findByRole('button', { name: /^Groupe ACME/ })
+
+    expect(found.textContent).toBe('Groupe ACME')
   })
 
   it('shows the holding chosen with its logo', async () => {
