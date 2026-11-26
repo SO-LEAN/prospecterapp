@@ -219,3 +219,4 @@ Why the project is shaped the way it is: one record per decision, in the order t
 | [0214](0214-every-context-has-its-wall-generated-from-the-whole-code-and-checked-in-the-ci.md) | Every context has its wall, generated from the whole code and checked in the CI | architecture | Accepted | 2026-11-24 |
 | [0215](0215-the-event-storming-reads-the-console-the-daily-schedule-and-projections.md) | The event storming reads the console, the daily schedule and projections | architecture | Accepted | 2026-11-25 |
 | [0216](0216-the-event-storming-wall-reads-row-by-row-left-to-right.md) | The event storming wall reads row by row, left to right | architecture | Accepted | 2026-11-26 |
+| [0218](0218-the-generators-tests-build-no-fixture-while-loading-and-the-mutation-keeps-its-static-mutants.md) | The generator's tests build no fixture while loading, and the mutation keeps its static mutants | architecture | Accepted | 2026-11-26 |
