@@ -99,7 +99,7 @@ jobs:
 
   # the parts whose code a pull request adds lines to, mutated from its base (the merge-base of dev and its merge
   # commit), as make mutation BASE= does. A skipped mutant of the core fails the job, as it fails make mutation; a
-  # score under the threshold does not. The job is no part of the check ci: the definition of done reads its artifact
+  # score under the threshold does not. The job is not part of the check ci: the definition of done reads its artifact
   mutation:
     needs: changes
     if: needs.changes.outputs.mutations != '[]'

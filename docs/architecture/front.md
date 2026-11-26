@@ -50,6 +50,7 @@ lint/                   translated-texts.grit: the Biome plugin that refuses a t
 event-storming/         the generator of every context's event storming page and of their overview, plain TypeScript that Node runs without a build, apart from the SPA, and its Vitest tests (docs/architecture/event-storming.md); erasable syntax only (no parameter property, no enum)
 public/docs/            the documents generated from the code, served under /docs/ (event-storming/, the overview, and event-storming/<context>/). Biome leaves them as they are written
 infra/                  the front's Terraform; functions/release.js.tftpl, the CloudFront function choosing the release, and its Vitest test
+mutation/               the summary of a mutation run, from Infection's or Stryker's JSON report (summary.ts, and summarise.ts, which make mutation-summary runs), plain TypeScript that Node runs without a build, and its Vitest test (ADR 0219)
 e2e/                    Playwright journeys, only for what no other test covers (ADR 0122), run together except those that must run after them, the main journey and the dashboard (docs/architecture/tests.md); fixtures.ts, their test: maps on a double, no host outside the stack; wait-for-the-stack.ts, their global setup, waits for the SPA, the api and the storage, with their functions warm; sign-in.ts signs the demonstration member in, or signs in once for all journeys of a file; colors.ts reads the painted colors and their WCAG contrast; unique.ts names what a journey creates after the moment it runs
 ```
 
