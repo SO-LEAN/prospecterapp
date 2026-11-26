@@ -6,11 +6,15 @@ namespace Tests\Core\Acceptance\Context;
 
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\TableNode;
+use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 use Prospecter\Core\PersonalData\Application\Identification\Candidate as PersonCandidate;
 use Prospecter\Core\PersonalData\Application\Identification\Identification as PersonIdentification;
 use Prospecter\Core\PersonalData\Application\Identification\IdentifyPersons\IdentifyPersons;
+use Prospecter\Core\PersonalData\Application\Identification\IdentifyPersonsAndOrganizations\IdentifyPersonsAndOrganizations;
+use Prospecter\Core\PersonalData\Application\Identification\IdentifyPersonsAndOrganizations\PersonAtOrganization;
+use Prospecter\Core\PersonalData\Application\Identification\OrganizationClues as PersonalDataOrganizationClues;
 use Prospecter\Core\PersonalData\Application\Identification\PersonClues;
 use Prospecter\Core\Prospecting\Contract\Service\IdentifyOrganizations\CandidateResponse;
 use Prospecter\Core\Prospecting\Contract\Service\IdentifyOrganizations\IdentificationResponse;
@@ -31,12 +35,18 @@ final class IdentificationContext implements Context
     /** @var list<array{statut: string, candidates: string}>|null */
     private ?array $identified = null;
 
+    /** @var list<array{statut: string, candidates: string}>|null */
+    private ?array $identifiedOrganizations = null;
+
+    /** @var list<array<string, string>> the organizations to identify with the persons, as the table gives them */
+    private array $toIdentify = [];
+
     #[When('j\'identifie les organisations :')]
     public function iIdentifyOrganizations(TableNode $table): void
     {
         $clues = array_map(self::organizationClues(...), $table->getColumnsHash());
         $identifications = $this->application->identifyOrganizations(new IdentifyOrganizations($this->application->signedIn(), $clues));
-        $this->identified = null === $identifications ? null : array_map(self::described(...), $identifications);
+        $this->identifiedOrganizations = null === $identifications ? null : array_map(self::described(...), $identifications);
     }
 
     #[When('j\'identifie les personnes :')]
@@ -47,11 +57,35 @@ final class IdentificationContext implements Context
         $this->identified = null === $identifications ? null : array_map(self::described(...), $identifications);
     }
 
-    #[Then('les organisations sont identifiées :')]
+    #[Given('les organisations à identifier :')]
+    public function theOrganizationsToIdentify(TableNode $table): void
+    {
+        $this->toIdentify = $table->getColumnsHash();
+    }
+
+    /**
+     * Each person names the organization they work for by its rank in the table, from 1.
+     */
+    #[When('j\'identifie avec elles les personnes :')]
+    public function iIdentifyThePersonsWithThem(TableNode $table): void
+    {
+        $persons = array_map(fn (array $row): PersonAtOrganization => new PersonAtOrganization($this->personClues($row), '' === $row['organisation'] ? null : (int) $row['organisation'] - 1), $table->getColumnsHash());
+        $organizations = array_map(static fn (array $row): PersonalDataOrganizationClues => new PersonalDataOrganizationClues(name: self::orNone($row['nom'] ?? '')), $this->toIdentify);
+        $identified = $this->application->identifyPersonsAndOrganizations(new IdentifyPersonsAndOrganizations($this->application->signedIn(), $persons, $organizations));
+        $this->identified = null === $identified ? null : array_map(self::described(...), $identified->persons);
+        $this->identifiedOrganizations = null === $identified ? null : array_map(self::described(...), $identified->organizations);
+    }
+
     #[Then('les personnes sont identifiées :')]
-    public function theyAreIdentified(TableNode $table): void
+    public function thePersonsAreIdentified(TableNode $table): void
     {
         Expect::same($table->getColumnsHash(), $this->identified);
+    }
+
+    #[Then('les organisations sont identifiées :')]
+    public function theOrganizationsAreIdentified(TableNode $table): void
+    {
+        Expect::same($table->getColumnsHash(), $this->identifiedOrganizations);
     }
 
     /**
