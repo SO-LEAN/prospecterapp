@@ -43,8 +43,10 @@ TEST_PROCESSES ?= 4
 # the tests re-testing a rule the core proves (the core-rule group) run after each push to dev and main, where the CI
 # gives ALL=1, and not in a branch's check; a test named by FILTER runs whatever its group
 EXCLUDED_GROUPS = $(if $(or $(ALL),$(FILTER)),,--exclude-group=core-rule)
-test: ministack-test ## Run the tests of the API (on MiniStack: tables, user pool), in TEST_PROCESSES processes, but those re-testing a core rule (ALL=1 runs them); FILTER= a test by name; FAILED=1, FAIL_FAST=1
-	@$(PHP) sh -c 'bin/console cache:warmup --env=test >/dev/null && vendor/bin/paratest --processes=$(TEST_PROCESSES) $(if $(FILTER),--filter="$(FILTER)") $(EXCLUDED_GROUPS) $(PHPUNIT_FAILED_FAST)'
+# SHARD=<i>/<n> runs the i-th of n shares of the test files, dealt in turn, so that the CI runs the tests in n jobs
+TEST_SHARD = $(if $(SHARD),--shard=$(SHARD) --shard-test-distribution=round-robin)
+test: ministack-test ## Run the tests of the API (on MiniStack: tables, user pool), in TEST_PROCESSES processes, but those re-testing a core rule (ALL=1 runs them); FILTER= a test by name; SHARD=<i>/<n> the i-th of n shares of the test files; FAILED=1, FAIL_FAST=1
+	@$(PHP) sh -c 'bin/console cache:warmup --env=test >/dev/null && vendor/bin/paratest --processes=$(TEST_PROCESSES) $(if $(FILTER),--filter="$(FILTER)") $(EXCLUDED_GROUPS) $(TEST_SHARD) $(PHPUNIT_FAILED_FAST)'
 
 # a few processes only, each with its own tables and user pool on MiniStack (TEST_TOKEN, .env.test)
 mutation: INFECTION_THREADS = 4
