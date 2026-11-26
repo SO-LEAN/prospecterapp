@@ -221,6 +221,13 @@ export const fr = {
       contacts: 'Contacts',
       tags: 'Tags',
     },
+    choice: {
+      search: 'Chercher une organisation prospectée',
+      found: 'Organisations prospectées trouvées',
+      none: 'Aucune organisation prospectée ne commence par « {{q}} ».',
+      start: 'Commencer à prospecter',
+      change: 'Changer d’organisation',
+    },
     interlocutorSearch: {
       label: 'Chercher un contact ou une organisation',
       found: 'Contacts et organisations trouvés',
