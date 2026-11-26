@@ -11,7 +11,7 @@ import { ReviseToDoDialog } from './revise-to-do-dialog'
 
 type Props = {
   toDo: ToDo
-  /** How many days ago it was due. None for a to-do due today. */
+  /** How many days ago it was due. Zero for a to-do due today. */
   daysOverdue: number
   /** Called once the to-do is ticked off. */
   onTickedOff?: () => void
@@ -22,9 +22,9 @@ const nameOf = ({ name }: NonNullable<ToDo['contact']>) =>
 
 /**
  * One line of « À traiter »: its box, the to-do's tile, its text, when it is due and for whom, then since when it waits.
- * Ticked off, its text is struck through and the line folds away. The tick leaves « À traiter », so its toast offers to
- * take the tick back. « Reporter » opens its revision, where a shortcut sets its new day. Its links decide which
- * gestures it offers.
+ * Once the to-do is ticked off, its text is struck through and the line folds away. Under reduced motion, the line
+ * only fades out. The tick leaves « À traiter », so its toast offers to take the tick back. « Reporter » opens its
+ * revision, where a shortcut sets its new day. Its links decide which gestures it offers.
  */
 export function ToDoToProcessLine({ toDo, daysOverdue, onTickedOff }: Props) {
   const { t } = useTranslation()
@@ -39,7 +39,7 @@ export function ToDoToProcessLine({ toDo, daysOverdue, onTickedOff }: Props) {
       data-fold
       className={cn(
         'grid grid-rows-[1fr] transition-[grid-template-rows,opacity] duration-[260ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] motion-reduce:transition-opacity',
-        ticked && 'grid-rows-[0fr] opacity-0',
+        ticked && 'grid-rows-[0fr] opacity-0 motion-reduce:grid-rows-[1fr]',
       )}
     >
       <div className="min-h-0 overflow-hidden">
