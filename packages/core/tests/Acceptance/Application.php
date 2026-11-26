@@ -355,10 +355,7 @@ use Prospecter\Core\Prospecting\Application\Facts\ListExchangeFacts\ListExchange
 use Prospecter\Core\Prospecting\Application\Facts\ListOrganizationFacts\ListOrganizationFactsHandler;
 use Prospecter\Core\Prospecting\Application\Facts\PublishExchangeFacts\PublishExchangeFactsHandler;
 use Prospecter\Core\Prospecting\Application\Facts\PublishOrganizationFacts\PublishOrganizationFactsHandler;
-use Prospecter\Core\Prospecting\Application\Identification\IdentifyOrganizations\Identification;
-use Prospecter\Core\Prospecting\Application\Identification\IdentifyOrganizations\IdentifyOrganizations;
 use Prospecter\Core\Prospecting\Application\Identification\IdentifyOrganizations\IdentifyOrganizationsHandler;
-use Prospecter\Core\Prospecting\Application\Identification\IdentifyOrganizations\KeptIdentifications;
 use Prospecter\Core\Prospecting\Application\Identification\RecognizeCallingOrganization\KeptCallingOrganizations;
 use Prospecter\Core\Prospecting\Application\Identification\RecognizeCallingOrganization\RecognizeCallingOrganization;
 use Prospecter\Core\Prospecting\Application\Identification\RecognizeCallingOrganization\RecognizeCallingOrganizationHandler;
@@ -462,6 +459,9 @@ use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultHel
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\ConsultPlannedExchanges;
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\HeldExchangeResponse;
 use Prospecter\Core\Prospecting\Contract\Service\ConsultHeldExchanges\KeptHeldExchanges;
+use Prospecter\Core\Prospecting\Contract\Service\IdentifyOrganizations\IdentificationResponse;
+use Prospecter\Core\Prospecting\Contract\Service\IdentifyOrganizations\IdentifyOrganizations;
+use Prospecter\Core\Prospecting\Contract\Service\IdentifyOrganizations\KeptOrganizationIdentifications;
 use Prospecter\Core\Prospecting\Contract\Service\ListExchangeFacts\KeptExchangeFacts;
 use Prospecter\Core\Prospecting\Contract\Service\ListExchangeFacts\ListExchangeFacts;
 use Prospecter\Core\Prospecting\Contract\Service\ListOrganizationFacts\KeptOrganizationFacts;
@@ -1244,11 +1244,11 @@ final class Application
     }
 
     /**
-     * @return list<Identification>|null
+     * @return list<IdentificationResponse>|null
      */
     public function identifyOrganizations(IdentifyOrganizations $query): ?array
     {
-        $kept = new KeptIdentifications();
+        $kept = new KeptOrganizationIdentifications();
 
         return $this->ask(new IdentifyOrganizationsHandler($this->designatedOrganizationRetriever, $this->foundOrganizationRetriever, $this->prospectors), $query, $kept) ? $kept->identifications : null;
     }

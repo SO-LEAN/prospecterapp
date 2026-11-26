@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Core\Double;
 
-use Prospecter\Core\Prospecting\Application\Identification\IdentifyOrganizations\Candidate;
 use Prospecter\Core\Prospecting\Application\Port\DesignatedOrganizationRetriever;
+use Prospecter\Core\Prospecting\Contract\Service\IdentifyOrganizations\CandidateResponse;
 use Prospecter\Core\Prospecting\Domain\Model\Organization;
 use Prospecter\Core\Prospecting\Domain\Model\OrganizationId;
 use Prospecter\Core\SharedKernel\Domain\Company\LegalIdentity;
@@ -62,10 +62,10 @@ final readonly class InMemoryDesignatedOrganizationRetriever implements Designat
         return array_find($this->database->organizations(), static fn (Organization $organization): bool => $organization->isProspectedBy($accountId) && $designated($organization))?->id();
     }
 
-    private static function candidate(Organization $organization): Candidate
+    private static function candidate(Organization $organization): CandidateResponse
     {
         $name = StateOf::the($organization)->object('legalIdentity', LegalIdentity::class)->fullName();
 
-        return new Candidate($organization->id()->value, '' === $name ? (string) $organization->contactDetails()->email : $name);
+        return new CandidateResponse($organization->id()->value, '' === $name ? (string) $organization->contactDetails()->email : $name);
     }
 }
