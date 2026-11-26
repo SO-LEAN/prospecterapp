@@ -37,7 +37,8 @@ Fonctionnalité: Proposer l'organisation où rattacher un contact
   Scénario: Un contact sans e-mail ne propose rien
     Soit le contact "Alan Turing" de "ACME"
     Quand je regarde à quelle organisation rattacher "Alan Turing"
-    Alors aucune organisation n'est proposée
+    Alors ce n'est pas refusé
+    Et aucune organisation n'est proposée
 
   Scénario: Sans le droit aux données personnelles, je ne lis pas l'e-mail d'un contact pour lui proposer une organisation
     Soit "Ada Lovelace" (ada@acme.fr) a pris une visio avec moi le 20/11/2026 à 14h00
