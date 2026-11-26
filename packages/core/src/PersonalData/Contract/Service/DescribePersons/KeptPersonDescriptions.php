@@ -12,7 +12,7 @@ final class KeptPersonDescriptions implements DescribePersonsOutput
     /**
      * @var list<PersonDescriptionResponse>
      */
-    public private(set) array $persons = [];
+    public private(set) array $persons;
 
     public function present(array $persons): void
     {

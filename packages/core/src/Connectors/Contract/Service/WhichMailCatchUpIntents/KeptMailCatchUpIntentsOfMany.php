@@ -12,11 +12,11 @@ final class KeptMailCatchUpIntentsOfMany implements WhichMailCatchUpIntentsOutpu
     /**
      * @var list<MailCatchUpIntentsResponse>
      */
-    public private(set) array $contacts = [];
+    public private(set) array $contacts;
     /**
      * @var list<MailCatchUpIntentsResponse>
      */
-    public private(set) array $organizations = [];
+    public private(set) array $organizations;
 
     public function present(array $contacts, array $organizations): void
     {
