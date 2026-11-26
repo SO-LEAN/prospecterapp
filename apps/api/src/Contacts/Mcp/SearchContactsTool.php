@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Contacts\Mcp;
 
-use App\Contacts\ContactSearchReader;
+use App\Contacts\ContactSearchComposition;
 use App\PersonalData\Input\ContactListQuery;
 use App\Security\ToolAccess;
 use App\Shared\Mcp\Adapts;
@@ -22,7 +22,7 @@ final readonly class SearchContactsTool
     public function __construct(
         private ToolAccess $access,
         private ToolInputs $inputs,
-        private ContactSearchReader $contacts,
+        private ContactSearchComposition $contacts,
         private ToolResults $results,
     ) {
     }
