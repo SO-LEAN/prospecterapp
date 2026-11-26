@@ -244,7 +244,7 @@ e2e: ## Run the Playwright journeys against the running stack, the API on the do
 e2e-locked:
 	@$(E2E_SETUP) && $(FRONT_E2E)
 
-mutation: ## Mutate the lines the branch adds since BASE (origin/dev) in the core, the front and the event storming's generator, list the mutants their tests let survive; fail when the core skips one (ADR 0091, 0196)
+mutation: ## Mutate the lines the branch adds since BASE (origin/dev) in the core, the front and the event storming's generator, list the mutants their tests let survive; fail when the core skips one (ADR 0091, 0196); MUTATION_WORKERS= the front's test runners, INFECTION_THREADS= the core's threads
 	@$(MAKE) -C packages/core mutation
 	@$(MAKE) -C apps/front mutation
 
