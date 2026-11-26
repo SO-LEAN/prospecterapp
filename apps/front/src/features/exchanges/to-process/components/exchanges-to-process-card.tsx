@@ -12,7 +12,6 @@ import type { StartWith } from '../../components/exchange-detail'
 import { CHANNEL_ICONS } from '../../components/exchange-line'
 import { ToAttachBadge } from '../../components/to-attach-badge'
 import { useCancelExchange, useMarkExchangeMissed, useUndoable } from '../../mutations'
-import { useNow } from '../../use-now'
 import {
   type ContactsToAttach,
   countOf,
@@ -23,8 +22,11 @@ import {
 
 type Opened = { item: ExchangeToProcess; startWith?: StartWith }
 
-/** A to-do's line, ticked off in place. The page that composes the to-dos gives it, because a feature never imports another. */
-export type ToDoLineOf = (toDo: ToDoToProcess['toDo'], now: Date, onTickedOff: () => void) => ReactNode
+/**
+ * A to-do's line, ticked off in place, which says since when it waits. The page that composes the to-dos gives it,
+ * because a feature never imports another.
+ */
+export type ToDoLineOf = (toDo: ToDoToProcess, onTickedOff: () => void) => ReactNode
 
 type Props = {
   /** Who a contact is, a short version of their card, in the opened exchange. The page that composes the contacts gives it. */
@@ -90,32 +92,19 @@ export function ExchangesToProcessCard({ contactSummary, toDoLine, contactsToAtt
   )
 }
 
-/** My to-dos due today and the late ones, the most overdue first. Each one says since when. */
+/** My to-dos due today and the late ones, the most overdue first. */
 type ToDosProps = { toDos: ToDoToProcess[]; toDoLine: ToDoLineOf; onTickedOff: () => void }
 
 function ToDosToProcess({ toDos, toDoLine, onTickedOff }: ToDosProps) {
   const { t } = useTranslation()
-  const now = useNow()
 
   if (toDos.length === 0) return null
   return (
     <section aria-label={t('toProcess.toDos')} className="mt-3 space-y-2">
       <h3 className="font-medium text-muted-foreground text-sm">{t('toProcess.toDos')}</h3>
       <ul className="space-y-2">
-        {toDos.map(({ toDo, daysOverdue }) => (
-          <li
-            key={toDo.id}
-            data-late={daysOverdue > 0 ? '' : undefined}
-            className={cn(
-              'space-y-1 rounded-lg border p-3',
-              daysOverdue > 0 && 'border-l-4 border-l-warning',
-            )}
-          >
-            <p className="font-medium text-xs">
-              {daysOverdue > 0 ? t('toProcess.overdue', { count: daysOverdue }) : t('toProcess.forToday')}
-            </p>
-            {toDoLine(toDo, now, onTickedOff)}
-          </li>
+        {toDos.map((toDo) => (
+          <li key={toDo.toDo.id}>{toDoLine(toDo, onTickedOff)}</li>
         ))}
       </ul>
     </section>

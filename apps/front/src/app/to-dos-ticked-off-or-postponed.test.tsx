@@ -145,6 +145,14 @@ afterEach(async () => {
 })
 
 describe('a to-do in « À traiter »', () => {
+  it('shows on one row, which says it is for today', async () => {
+    theApiKeeps(theToDo())
+    await renderTheSpaAt('/')
+
+    const row = (await screen.findByText('Envoyer le CV à Nicolas Bonnet')).closest('[data-to-do]')
+    expect(row).toHaveTextContent(/Pour aujourd’huiReporter$/)
+  })
+
   it('leaves once ticked off, and comes back when its toast takes the tick back', async () => {
     theApiKeeps(theToDo())
     await renderTheSpaAt('/')
