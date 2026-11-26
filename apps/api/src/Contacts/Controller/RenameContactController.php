@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Contacts\Controller;
 
-use App\Contacts\ContactReader;
+use App\Contacts\ContactComposition;
 use App\Contacts\Resource\ContactResource;
 use App\PersonalData\Input\PersonNameInput;
 use App\PersonalData\Persistence\PersonRevisions;
@@ -32,7 +32,7 @@ final readonly class RenameContactController
     public function __construct(
         private CommandBus $commandBus,
         private ClockInterface $clock,
-        private ContactReader $contactReader,
+        private ContactComposition $contactComposition,
         private PersonRevisions $revisions,
         private JsonResponses $jsonResponses,
     ) {
@@ -51,6 +51,6 @@ final readonly class RenameContactController
     {
         $this->commandBus->dispatch(new RenamePerson(readerId: $user->memberId(), id: $id, firstName: $input->firstName, lastName: $input->lastName, executedAt: $this->clock->now()), $this->revisions->readAt($id, $revision));
 
-        return $this->jsonResponses->of($this->contactReader->read($user->memberId(), $id));
+        return $this->jsonResponses->of($this->contactComposition->read($user->memberId(), $id));
     }
 }

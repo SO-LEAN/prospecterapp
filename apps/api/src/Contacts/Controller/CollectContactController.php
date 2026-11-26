@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Contacts\Controller;
 
-use App\Contacts\ContactReader;
+use App\Contacts\ContactComposition;
 use App\Contacts\Resource\ContactResource;
 use App\PersonalData\Input\CollectContactInput;
 use App\Security\User;
@@ -31,7 +31,7 @@ final readonly class CollectContactController
         private CommandBus $commandBus,
         private ClockInterface $clock,
         private Identities $identities,
-        private ContactReader $contactReader,
+        private ContactComposition $contactComposition,
         private JsonResponses $jsonResponses,
         private UrlGeneratorInterface $urlGenerator,
     ) {
@@ -49,6 +49,6 @@ final readonly class CollectContactController
         $id = $this->identities->next();
         $this->commandBus->dispatch($input->commandOf($user->memberId(), $id, $this->clock->now()));
 
-        return $this->jsonResponses->of($this->contactReader->read($user->memberId(), $id), Response::HTTP_CREATED, ['Location' => $this->urlGenerator->generate('api_contacts_show', ['id' => $id])]);
+        return $this->jsonResponses->of($this->contactComposition->read($user->memberId(), $id), Response::HTTP_CREATED, ['Location' => $this->urlGenerator->generate('api_contacts_show', ['id' => $id])]);
     }
 }

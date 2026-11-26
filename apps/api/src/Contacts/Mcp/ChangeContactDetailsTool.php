@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Contacts\Mcp;
 
-use App\Contacts\ContactReader;
+use App\Contacts\ContactComposition;
 use App\PersonalData\Input\PersonContactDetailsInput;
 use App\PersonalData\Persistence\PersonRevisions;
 use App\Security\ToolAccess;
@@ -28,7 +28,7 @@ final readonly class ChangeContactDetailsTool
         private ToolInputs $inputs,
         private CommandBus $commandBus,
         private ClockInterface $clock,
-        private ContactReader $contactReader,
+        private ContactComposition $contactComposition,
         private ToolResults $results,
         private PersonRevisions $revisions,
     ) {
@@ -52,6 +52,6 @@ final readonly class ChangeContactDetailsTool
         $memberId = $this->access->member()->memberId();
         $this->commandBus->dispatch(new ChangePersonContactDetails(readerId: $memberId, id: $id, email: $input->email, phoneNumber: $input->phoneNumber, language: $input->language, links: $input->links, executedAt: $this->clock->now()), $this->revisions->readAt($id, $revision));
 
-        return $this->results->of($this->contactReader->read($memberId, $id));
+        return $this->results->of($this->contactComposition->read($memberId, $id));
     }
 }

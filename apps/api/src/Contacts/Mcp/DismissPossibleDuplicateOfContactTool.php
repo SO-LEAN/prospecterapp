@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Contacts\Mcp;
 
-use App\Contacts\ContactReader;
+use App\Contacts\ContactComposition;
 use App\Security\ToolAccess;
 use App\Shared\CommandBus;
 use App\Shared\Mcp\Adapts;
@@ -25,7 +25,7 @@ final readonly class DismissPossibleDuplicateOfContactTool
         private ToolAccess $access,
         private CommandBus $commandBus,
         private ClockInterface $clock,
-        private ContactReader $contactReader,
+        private ContactComposition $contactComposition,
         private ToolResults $results,
     ) {
     }
@@ -43,6 +43,6 @@ final readonly class DismissPossibleDuplicateOfContactTool
         $memberId = $this->access->member()->memberId();
         $this->commandBus->dispatch(new DismissPossibleDuplicate(readerId: $memberId, id: $id, duplicateId: $duplicateId, executedAt: $this->clock->now()));
 
-        return $this->results->of($this->contactReader->read($memberId, $id));
+        return $this->results->of($this->contactComposition->read($memberId, $id));
     }
 }
