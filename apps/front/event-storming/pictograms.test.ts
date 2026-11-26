@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs'
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import type { Model } from './model.ts'
 import { pictogramsOf } from './pictograms.ts'
 import { type Jump, type Note, wallOf } from './wall.ts'
@@ -7,8 +7,15 @@ import { type Jump, type Note, wallOf } from './wall.ts'
 /** Booking's model, as the generator last read it from the code. Vitest runs in the front's folder. */
 const BOOKING = JSON.parse(readFileSync('public/docs/event-storming/booking/model.json', 'utf8')) as Model
 
-/** A post-it without the member's AI's badge on its corner. */
-const sticky = noteOf('published:SlotBooked')
+/**
+ * A post-it without the member's AI's badge on its corner, built again in each test, so that the mutation knows which
+ * tests run each line of the generator.
+ */
+let sticky: Note
+
+beforeEach(() => {
+  sticky = noteOf('published:SlotBooked')
+})
 
 function noteOf(slug: string): Note {
   const note = wallOf(BOOKING).notes.find((candidate) => candidate.slug === slug)

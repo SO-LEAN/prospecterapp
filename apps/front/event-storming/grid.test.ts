@@ -1,14 +1,20 @@
 import { readdirSync, readFileSync } from 'node:fs'
-import { describe, expect, it } from 'vitest'
-import { gridOf } from './grid.ts'
+import { beforeEach, describe, expect, it } from 'vitest'
+import { type Grid, gridOf } from './grid.ts'
 import type { Model } from './model.ts'
-import { type Note, type Step, wallOf } from './wall.ts'
+import { type Note, type Step, type Wall, wallOf } from './wall.ts'
 
 /** Booking's model, as the generator last read it from the code. Vitest runs in the front's folder. */
 const BOOKING = JSON.parse(readFileSync('public/docs/event-storming/booking/model.json', 'utf8')) as Model
 
-const wall = wallOf(BOOKING)
-const grid = gridOf(wall, 'roomy')
+/** Built again in each test, so that the mutation knows which tests run each line of the generator. */
+let wall: Wall
+let grid: Grid
+
+beforeEach(() => {
+  wall = wallOf(BOOKING)
+  grid = gridOf(wall, 'roomy')
+})
 
 function noteOf(slug: string): Note {
   const note = wall.notes.find((candidate) => candidate.slug === slug && !candidate.badge)

@@ -1,5 +1,5 @@
 import { readdirSync, readFileSync } from 'node:fs'
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import type { Link, Model, Sticky } from './model.ts'
 import { overviewOf } from './overview.ts'
 
@@ -10,8 +10,14 @@ const MODELS = readdirSync(WALLS, { withFileTypes: true })
   .map((entry) => JSON.parse(readFileSync(`${WALLS}/${entry.name}/model.json`, 'utf8')) as Model)
 const ASSETS = { style: '', font: 'AAAA' }
 
-const page = overviewOf(MODELS, ASSETS)
-const document = new DOMParser().parseFromString(page, 'text/html')
+/** Built again in each test, so that the mutation knows which tests run each line of the generator. */
+let page: string
+let document: Document
+
+beforeEach(() => {
+  page = overviewOf(MODELS, ASSETS)
+  document = new DOMParser().parseFromString(page, 'text/html')
+})
 
 function rowsOf(table: string): string[] {
   return [...document.querySelectorAll(`#${table} tbody tr`)].map((row) =>
